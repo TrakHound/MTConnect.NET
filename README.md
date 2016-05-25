@@ -3,7 +3,7 @@
 This .NET library contains tools for retrieving and processing data using the MTConnect® communication protocol for CNC and PLC industrial equipment.
 
 ## Nuget
-**PM> Install-Package TH_MTConnect**
+**PM> Install-Package MTConnect.NET**
 <br>
 http://www.nuget.org/packages/MTConnect.NET/
 
