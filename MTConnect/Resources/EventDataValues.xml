@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<EventValues>
+
+  <ACTUATOR_STATE>
+    <ACTIVE/>
+    <INACTIVE/>
+  </ACTUATOR_STATE>
+  
+  <AVAILABILITY>
+    <AVAILABLE/>
+    <UNAVAILABLE/>
+  </AVAILABILITY>
+
+  <AXIS_COUPLING>
+    <TANDEM/>
+    <SYNCHRONOUS/>
+    <MASTER/>
+    <SLAVE/>
+  </AXIS_COUPLING>
+
+  <AXIS_INTERLOCK>
+    <ACTIVE/>
+    <INACTIVE/>
+  </AXIS_INTERLOCK>
+
+  <AXIS_STATE>
+    <HOME/>
+    <TRAVEL/>
+    <PARKED/>
+    <STOPPED/>
+  </AXIS_STATE>
+
+  <CHUCK_INTERLOCK>
+    <ACTIVE/>
+    <INACTIVE/>
+  </CHUCK_INTERLOCK>
+
+  <CHUCK_STATE>
+    <OPEN/>
+    <CLOSED/>
+    <UNLATCHED/>
+  </CHUCK_STATE>
+
+  <CONTROLLER_MODE>
+    <AUTOMATIC/>
+    <MANUAL/>
+    <MANUAL_DATA_INPUT/>
+    <SEMI_AUTOMATIC/>
+    <EDIT/>
+  </CONTROLLER_MODE>
+
+  <DOOR_STATE>
+    <OPEN/>
+    <UNLATCHED/>
+    <CLOSED/>
+  </DOOR_STATE>
+
+  <END_OF_BAR>
+    <YES/>
+    <NO/>
+  </END_OF_BAR>
+
+  <EMERGENCY_STOP>
+    <ARMED/>
+    <TRIGGERED/>
+  </EMERGENCY_STOP>
+
+  <EXECUTION>
+    <READY/>
+    <ACTIVE/>
+    <INTERRUPTED/>
+    <FEED_HOLD/>
+    <STOPPED/>
+    <OPTIONAL_STOP/>
+    <PROGRAM_STOPPED/>
+    <PROGRAM_COMPLETED/>
+  </EXECUTION>
+
+  <FUNCTIONAL_MODE>
+    <PRODUCTION/>
+    <SETUP/>
+    <TEARDOWN/>
+    <MAINTENANCE/>
+    <PROCESS_DEVELOPMENT/>
+  </FUNCTIONAL_MODE>
+
+  <INTERFACE_STATE>
+    <ENABLED/>
+    <DISABLED/>
+  </INTERFACE_STATE>
+
+  <PATH_MODE>
+    <INDEPENDENT/>
+    <MASTER/>
+    <SYNCHRONOUS/>
+    <MIRROR/>
+  </PATH_MODE>
+
+  <POWER_STATE>
+    <ON/>
+    <OFF/>
+  </POWER_STATE>
+
+  <PROGRAM_EDIT>
+    <ACTIVE/>
+    <READY/>
+    <NOT_READY/>
+  </PROGRAM_EDIT>
+
+  <ROTARY_MODE>
+    <SPINDLE/>
+    <INDEX/>
+    <CONTOUR/>
+  </ROTARY_MODE>
+
+  <SPINDLE_INTERLOCK>
+    <ACTIVE/>
+    <INACTIVE/>
+  </SPINDLE_INTERLOCK>
+
+</EventValues>
