@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Xml;
 
-namespace MTConnect.Streams
+namespace MTConnect.Application.Streams
 {
     /// <summary>
     /// An XML container element provided in each MTConnectStreams XML document provided by a MTConnect Agent in response to a Sample or Current request.

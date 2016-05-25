@@ -5,7 +5,7 @@
 
 using System.Xml;
 
-namespace MTConnect.Streams
+namespace MTConnect.Application.Streams
 {
     /// <summary>
     /// An abstract XML Element. Replaced in the XML document by type(s) of Condition type Data Elements representing CONDITION category data items defined for a Device in the Device Information Model.

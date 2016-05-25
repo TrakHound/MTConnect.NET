@@ -5,7 +5,7 @@
 
 using System.Xml;
 
-namespace MTConnect.Components
+namespace MTConnect.Application.Components
 {
     /// <summary>
     /// Constraints provide a way to define the allowable value(s) or the upper and lower limits for the range of values that can be reported for the data by an MTConnect Agent in response to a Current or Sample request.

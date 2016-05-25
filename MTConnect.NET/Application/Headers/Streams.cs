@@ -6,28 +6,31 @@
 using System;
 using System.Xml;
 
-namespace MTConnect.Headers
+namespace MTConnect.Application.Headers
 {
     /// <summary>
-    /// Contains the Header information in an MTConnect Assets XML document
+    /// Contains the Header information in an MTConnect Streams XML document
     /// </summary>
-    public class Assets
+    public class Streams
     {
-        public Assets() { }
+        public Streams() { }
 
-        public Assets(XmlNode HeaderNode)
+        public Streams(XmlNode node)
         {
-            Tools.XML.AssignProperties(this, HeaderNode);
+            Tools.XML.AssignProperties(this, node);
             CreationTime = Tools.UTC.FromDateTime(CreationTime);
         }
 
         // Required
-        public long AssetBufferSize { get; set; }
-        public long AssetCount { get; set; }
+        public long BufferSize { get; set; }
         public DateTime CreationTime { get; set; }
         public long InstanceId { get; set; }
         public string Sender { get; set; }
         public string Version { get; set; }
+
+        public long FirstSequence { get; set; }
+        public long LastSequence { get; set; }
+        public long NextSequence { get; set; }
 
         // Optional
         public string TestIndicator { get; set; }

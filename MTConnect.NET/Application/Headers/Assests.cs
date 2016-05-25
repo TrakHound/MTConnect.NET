@@ -6,25 +6,24 @@
 using System;
 using System.Xml;
 
-namespace MTConnect.Headers
+namespace MTConnect.Application.Headers
 {
     /// <summary>
-    /// Contains the Header information in an MTConnect Devices XML document
+    /// Contains the Header information in an MTConnect Assets XML document
     /// </summary>
-    public class Devices
+    public class Assets
     {
-        public Devices() { }
+        public Assets() { }
 
-        public Devices(XmlNode node)
+        public Assets(XmlNode HeaderNode)
         {
-            Tools.XML.AssignProperties(this, node);
+            Tools.XML.AssignProperties(this, HeaderNode);
             CreationTime = Tools.UTC.FromDateTime(CreationTime);
         }
 
         // Required
         public long AssetBufferSize { get; set; }
         public long AssetCount { get; set; }
-        public long BufferSize { get; set; }
         public DateTime CreationTime { get; set; }
         public long InstanceId { get; set; }
         public string Sender { get; set; }

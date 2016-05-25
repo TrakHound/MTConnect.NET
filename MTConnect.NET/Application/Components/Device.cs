@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Xml;
 
 
-namespace MTConnect.Components
+namespace MTConnect.Application.Components
 {
     /// <summary>
     /// The primary container element of each device. 

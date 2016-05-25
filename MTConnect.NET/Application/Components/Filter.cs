@@ -5,7 +5,7 @@
 
 using System.Xml;
 
-namespace MTConnect.Components
+namespace MTConnect.Application.Components
 {
     public class Filter
     {

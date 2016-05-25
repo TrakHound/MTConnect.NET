@@ -6,7 +6,7 @@
 using System;
 using System.Xml;
 
-namespace MTConnect.Headers
+namespace MTConnect.Application.Headers
 {
     /// <summary>
     /// Contains the Header information in an MTConnect Error XML document

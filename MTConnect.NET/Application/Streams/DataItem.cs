@@ -5,7 +5,7 @@
 
 using System;
 
-namespace MTConnect.Streams
+namespace MTConnect.Application.Streams
 {
     public class DataItem
     {

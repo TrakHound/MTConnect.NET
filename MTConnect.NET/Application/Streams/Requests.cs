@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Xml;
 
-namespace MTConnect.Streams
+namespace MTConnect.Application.Streams
 {
     public static class Requests
     {

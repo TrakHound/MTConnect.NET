@@ -5,7 +5,7 @@
 
 using System.Xml;
 
-namespace MTConnect.Components
+namespace MTConnect.Application.Components
 {
     /// <summary>
     /// An abstract XML Element. Replaced in the XML document by Elements representing various types of DataItem XML Elements.

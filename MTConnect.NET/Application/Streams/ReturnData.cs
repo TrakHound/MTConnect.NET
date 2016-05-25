@@ -6,7 +6,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace MTConnect.Streams
+namespace MTConnect.Application.Streams
 {
     /// <summary>
     /// Object class to return all data associated with Current command results

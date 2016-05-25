@@ -5,7 +5,7 @@
 
 using System.Xml;
 
-namespace MTConnect.Components
+namespace MTConnect.Application.Components
 {
     /// <summary>
     /// Source identifies the physical part of a device where teh data represented by the DataItem is originally measured.

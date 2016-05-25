@@ -8,7 +8,7 @@ using System.Data;
 using System.Xml;
 using System.Collections.Generic;
 
-namespace MTConnect.Components
+namespace MTConnect.Application.Components
 {
     // <summary>
     // Object class to return all data associated with Probe command results
