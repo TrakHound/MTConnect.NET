@@ -50,9 +50,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MTConnect\MTConnect.csproj">
+    <ProjectReference Include="..\MTConnect.NET\MTConnect.NET.csproj">
       <Project>{d7ece6e3-647d-4f74-b63e-c509153eb4b7}</Project>
-      <Name>MTConnect</Name>
+      <Name>MTConnect.NET</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

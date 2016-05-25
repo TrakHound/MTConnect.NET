@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("MTConnect")]
+[assembly: AssemblyTitle("MTConnect.NET")]
 [assembly: AssemblyDescription("Library for .NET Applications using the MTConnect® Communications Protocol to retrieve data from Industrial Machinery")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Feenux LLC")]
-[assembly: AssemblyProduct("MTConnect")]
-[assembly: AssemblyCopyright("Copyright ©  2016")]
+[assembly: AssemblyProduct("MTConnect.NET")]
+[assembly: AssemblyCopyright("©  2016 Feenux LLC, All Rights Reserved")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
