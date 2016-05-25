@@ -43,15 +43,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Components\Component.cs" />
-    <Compile Include="Components\Constraints.cs" />
-    <Compile Include="Components\DataItem.cs" />
-    <Compile Include="Components\Description.cs" />
-    <Compile Include="Components\Device.cs" />
-    <Compile Include="Components\Filter.cs" />
-    <Compile Include="Components\Requests.cs" />
-    <Compile Include="Components\ReturnData.cs" />
-    <Compile Include="Components\Source.cs" />
+    <Compile Include="Application\Components\Component.cs" />
+    <Compile Include="Application\Components\Constraints.cs" />
+    <Compile Include="Application\Components\DataItem.cs" />
+    <Compile Include="Application\Components\Description.cs" />
+    <Compile Include="Application\Components\Device.cs" />
+    <Compile Include="Application\Components\Filter.cs" />
+    <Compile Include="Application\Components\Requests.cs" />
+    <Compile Include="Application\Components\ReturnData.cs" />
+    <Compile Include="Application\Components\Source.cs" />
     <Compile Include="Error.cs" />
     <Compile Include="Headers\Assests.cs" />
     <Compile Include="Headers\Devices.cs" />
@@ -63,14 +63,14 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="Streams\ComponentStream.cs" />
-    <Compile Include="Streams\Condition.cs" />
-    <Compile Include="Streams\DataItem.cs" />
-    <Compile Include="Streams\DeviceStream.cs" />
-    <Compile Include="Streams\Event.cs" />
-    <Compile Include="Streams\Requests.cs" />
-    <Compile Include="Streams\ReturnData.cs" />
-    <Compile Include="Streams\Sample.cs" />
+    <Compile Include="Application\Streams\ComponentStream.cs" />
+    <Compile Include="Application\Streams\Condition.cs" />
+    <Compile Include="Application\Streams\DataItem.cs" />
+    <Compile Include="Application\Streams\DeviceStream.cs" />
+    <Compile Include="Application\Streams\Event.cs" />
+    <Compile Include="Application\Streams\Requests.cs" />
+    <Compile Include="Application\Streams\ReturnData.cs" />
+    <Compile Include="Application\Streams\Sample.cs" />
     <Compile Include="Tools.cs" />
     <Compile Include="Tools\Address.cs" />
     <Compile Include="Log.cs" />
