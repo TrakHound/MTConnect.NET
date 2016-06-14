@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<EventValues>
+<EventTypes>
 
   <ACTUATOR_STATE>
     <ACTIVE/>
     <INACTIVE/>
   </ACTUATOR_STATE>
-  
+
+  <ACTIVE_AXES/>
+
   <AVAILABILITY>
     <AVAILABLE/>
     <UNAVAILABLE/>
@@ -18,6 +20,8 @@
     <SLAVE/>
   </AXIS_COUPLING>
 
+  <AXIS_FEEDRATE_OVERRIDE/>
+
   <AXIS_INTERLOCK>
     <ACTIVE/>
     <INACTIVE/>
@@ -29,6 +33,8 @@
     <PARKED/>
     <STOPPED/>
   </AXIS_STATE>
+
+  <BLOCK/>
 
   <CHUCK_INTERLOCK>
     <ACTIVE/>
@@ -48,6 +54,10 @@
     <SEMI_AUTOMATIC/>
     <EDIT/>
   </CONTROLLER_MODE>
+
+  <COUPLED_AXES/>
+
+  <DIRECTION/>
 
   <DOOR_STATE>
     <OPEN/>
@@ -89,6 +99,20 @@
     <DISABLED/>
   </INTERFACE_STATE>
 
+  <LINE/>
+
+  <MESSAGE/>
+
+  <OPERATOR_ID/>
+
+  <PALLET_ID/>
+
+  <PART_COUNT/>
+
+  <PART_ID/>
+
+  <PART_FEEDRATE_OVERRIDE/>
+
   <PATH_MODE>
     <INDEPENDENT/>
     <MASTER/>
@@ -101,11 +125,19 @@
     <OFF/>
   </POWER_STATE>
 
+  <PROGRAM/>
+
   <PROGRAM_EDIT>
     <ACTIVE/>
     <READY/>
     <NOT_READY/>
   </PROGRAM_EDIT>
+
+  <PROGRAM_EDIT_NAME/>
+
+  <PROGRAM_COMMENT/>
+
+  <PROGRAM_HEADER/>
 
   <ROTARY_MODE>
     <SPINDLE/>
@@ -113,9 +145,17 @@
     <CONTOUR/>
   </ROTARY_MODE>
 
+  <ROTARY_VELOCITY_OVERRIDE/>
+
   <SPINDLE_INTERLOCK>
     <ACTIVE/>
     <INACTIVE/>
   </SPINDLE_INTERLOCK>
 
-</EventValues>
+  <TOOL_ASSET_ID/>
+
+  <TOOL_NUMBER/>
+
+  <WORKHOLDING_ID/>
+
+</EventTypes>

@@ -3,8 +3,10 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
+using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Xml;
 
 namespace MTConnect
@@ -13,30 +15,41 @@ namespace MTConnect
     {
         public static class Tables
         {
-            public static void CreateColumns(object obj, DataTable table, string prefix)
-            {
-                System.Reflection.PropertyInfo[] info = obj.GetType().GetProperties();
-                string[] ColumnNames = new string[info.Length];
-                for (int x = 0; x <= info.Length - 1; x++)
-                {
-                    ColumnNames[x] = prefix + info[x].Name;
-                }
-                for (int x = 0; x <= ColumnNames.Length - 1; x++)
-                {
-                    var col = new DataColumn();
-                    col.ColumnName = ColumnNames[x];
-                    if (!table.Columns.Contains(col.ColumnName)) table.Columns.Add(col);
-                }
-            }
+            //public static void CreateColumns(object obj, DataTable table, string prefix)
+            //{
+            //    System.Reflection.PropertyInfo[] info = obj.GetType().GetProperties();
+            //    string[] ColumnNames = new string[info.Length];
+            //    for (int x = 0; x <= info.Length - 1; x++)
+            //    {
+            //        ColumnNames[x] = prefix + info[x].Name;
+            //    }
+            //    for (int x = 0; x <= ColumnNames.Length - 1; x++)
+            //    {
+            //        var col = new DataColumn();
+            //        col.ColumnName = ColumnNames[x];
+            //        if (!table.Columns.Contains(col.ColumnName)) table.Columns.Add(col);
+            //    }
+            //}
 
             public static DataTable GetEventTypes()
             {
-                XmlDocument xml = new XmlDocument();
-                xml.LoadXml(Properties.Resources.EventDataValues);
+                string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "EventTypes.xml");
 
-                List<TableInfo> infos = GetData(xml);
+                if (File.Exists(path))
+                {
+                    try
+                    {
+                        var xml = new XmlDocument();
+                        xml.LoadXml(path);
 
-                return CreateTable(infos);
+                        List<TableInfo> infos = GetData(xml);
+
+                        return CreateTable(infos);
+                    }
+                    catch (Exception ex) { Console.WriteLine(ex.Message); }
+                }
+
+                return null;
             }
 
             public class TableInfo
