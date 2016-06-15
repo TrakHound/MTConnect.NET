@@ -1,8 +1,12 @@
-﻿using System;
+﻿// Copyright (c) 2016 Feenux LLC, All Rights Reserved.
+
+// This file is subject to the terms and conditions defined in
+// file 'LICENSE.txt', which is part of this source code package.
+
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
+using System.Reflection;
 using System.Xml;
 
 namespace MTConnect.Types
@@ -39,34 +43,38 @@ namespace MTConnect.Types
 
     public static class Events
     {
-        private static string DEFINITION_FILE_PATH = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "EventTypes.xml");
-
         public static EventType[] Get()
         {
-            if (File.Exists(DEFINITION_FILE_PATH))
+            try
             {
-                try
+                var assembly = Assembly.GetExecutingAssembly();
+
+                var stream = assembly.GetManifestResourceStream("MTConnect.Types.EventTypes.xml");
+                if (stream != null)
                 {
-                    var xml = new XmlDocument();
-                    xml.LoadXml(DEFINITION_FILE_PATH);
-
-                    if (xml.DocumentElement != null)
+                    using (var reader = new StreamReader(stream))
                     {
-                        var result = new List<EventType>();
+                        var xml = new XmlDocument();
+                        xml.Load(reader);
 
-                        XmlNode root = xml.DocumentElement;
-
-                        foreach (XmlNode node in root.ChildNodes)
+                        if (xml.DocumentElement != null)
                         {
-                            var eventType = EventType.Get(node);
-                            if (eventType != null) result.Add(eventType);
-                        }
+                            var result = new List<EventType>();
 
-                        return result.ToArray();
+                            XmlNode root = xml.DocumentElement;
+
+                            foreach (XmlNode node in root.ChildNodes)
+                            {
+                                var type = EventType.Get(node);
+                                if (type != null) result.Add(type);
+                            }
+
+                            return result.ToArray();
+                        }
                     }
                 }
-                catch (Exception ex) { Console.WriteLine(ex.Message); }
             }
+            catch (Exception ex) { Console.WriteLine(ex.Message); }
 
             return null;
         }

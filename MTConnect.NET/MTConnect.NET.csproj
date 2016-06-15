@@ -79,22 +79,11 @@
     <Compile Include="Types\Samples.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Types\EventTypes.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
+    <EmbeddedResource Include="Types\EventTypes.xml" />
   </ItemGroup>
   <ItemGroup>
-<<<<<<< HEAD
-    <Resource Include="Resources\EventTypes.xml">
-=======
-    <Resource Include="Types\ConditionTypes.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Types\SampleTypes.xml">
->>>>>>> 846a0dad7ebe5ba24feb3ecd434bfe189a96f6a3
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <SubType>Designer</SubType>
-    </Resource>
+    <EmbeddedResource Include="Types\ConditionTypes.xml" />
+    <EmbeddedResource Include="Types\SampleTypes.xml" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
