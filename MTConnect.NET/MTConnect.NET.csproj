@@ -23,7 +23,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
+    <DebugType>none</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
@@ -53,6 +53,8 @@
     <Compile Include="Application\Components\ReturnData.cs" />
     <Compile Include="Application\Components\Source.cs" />
     <Compile Include="Application\EventTypes.cs" />
+    <Compile Include="ConditionValue.cs" />
+    <Compile Include="DataItemCategory.cs" />
     <Compile Include="Error.cs" />
     <Compile Include="Application\Headers\Assests.cs" />
     <Compile Include="Application\Headers\Devices.cs" />

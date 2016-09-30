@@ -32,9 +32,6 @@ namespace MTConnect.Application.Streams
         /// </summary>
         public string SubType { get; set; }
 
-        public string Value { get; set; }
-
-
         #region "Required"
 
         /// <summary>
@@ -64,12 +61,5 @@ namespace MTConnect.Application.Streams
         
         #endregion
 
-    }
-
-    public enum DataItemCategory
-    {
-        CONDITION,
-        EVENT,
-        SAMPLE
     }
 }

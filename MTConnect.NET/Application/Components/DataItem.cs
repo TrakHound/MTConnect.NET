@@ -160,11 +160,4 @@ namespace MTConnect.Application.Components
 
     }
 
-
-    public enum DataItemCategory
-    {
-        CONDITION,
-        EVENT,
-        SAMPLE
-    }
 }
