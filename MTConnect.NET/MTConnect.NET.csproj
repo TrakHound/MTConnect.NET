@@ -31,6 +31,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="RestSharp, Version=105.2.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\RestSharp.105.2.3\lib\net4-client\RestSharp.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -53,8 +57,14 @@
     <Compile Include="Application\Components\ReturnData.cs" />
     <Compile Include="Application\Components\Source.cs" />
     <Compile Include="Application\EventTypes.cs" />
-    <Compile Include="ConditionValue.cs" />
-    <Compile Include="DataItemCategory.cs" />
+    <Compile Include="v2\DocumentType.cs" />
+    <Compile Include="v2\Headers\MTConnectAssestsHeader.cs" />
+    <Compile Include="v2\Headers\MTConnectDevicesHeader.cs" />
+    <Compile Include="v2\Headers\MTConnectErrorHeader.cs" />
+    <Compile Include="v2\Headers\MTConnectStreamsHeader.cs" />
+    <Compile Include="v2\Client\Stream.cs" />
+    <Compile Include="v2\ConditionValue.cs" />
+    <Compile Include="v2\DataItemCategory.cs" />
     <Compile Include="Error.cs" />
     <Compile Include="Application\Headers\Assests.cs" />
     <Compile Include="Application\Headers\Devices.cs" />
@@ -67,7 +77,7 @@
     <Compile Include="Application\Streams\DeviceStream.cs" />
     <Compile Include="Application\Streams\Event.cs" />
     <Compile Include="Application\Streams\Requests.cs" />
-    <Compile Include="Application\Streams\ReturnData.cs" />
+    <Compile Include="Application\Streams\Response.cs" />
     <Compile Include="Application\Streams\Sample.cs" />
     <Compile Include="Tools.cs" />
     <Compile Include="Tools\Address.cs" />
@@ -79,6 +89,19 @@
     <Compile Include="Types\Conditions.cs" />
     <Compile Include="Types\Events.cs" />
     <Compile Include="Types\Samples.cs" />
+    <Compile Include="v2\MTConnectDevices\Component.cs" />
+    <Compile Include="v2\MTConnectDevices\Constraints.cs" />
+    <Compile Include="v2\MTConnectDevices\DataItem.cs" />
+    <Compile Include="v2\MTConnectDevices\Description.cs" />
+    <Compile Include="v2\MTConnectDevices\Device.cs" />
+    <Compile Include="v2\MTConnectDevices\Filter.cs" />
+    <Compile Include="v2\MTConnectDevices\Source.cs" />
+    <Compile Include="v2\MTConnectStreams\ComponentStream.cs" />
+    <Compile Include="v2\MTConnectStreams\Condition.cs" />
+    <Compile Include="v2\MTConnectStreams\DataItem.cs" />
+    <Compile Include="v2\MTConnectStreams\DeviceStream.cs" />
+    <Compile Include="v2\MTConnectStreams\Event.cs" />
+    <Compile Include="v2\MTConnectStreams\Sample.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Types\EventTypes.xml" />
@@ -87,7 +110,13 @@
     <EmbeddedResource Include="Types\ConditionTypes.xml" />
     <EmbeddedResource Include="Types\SampleTypes.xml" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="v2\MTConnectAssets\" />
+    <Folder Include="v2\MTConnectError\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
