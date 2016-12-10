@@ -3,7 +3,7 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
-using System.Xml;
+using System.Xml.Serialization;
 
 namespace MTConnect.MTConnectDevices
 {
@@ -14,32 +14,16 @@ namespace MTConnect.MTConnectDevices
     /// </summary>
     public class Constraints
     {
-        public Constraints() { }
-
-        public Constraints(XmlNode node)
-        {
-            Tools.XML.AssignProperties(this, node);
-
-            foreach (XmlNode child in node.ChildNodes)
-            {
-                if (child.NodeType == XmlNodeType.Element)
-                {
-                    if (child.Name.ToLower() == "filter")
-                    {
-                        Filter = new Filter(child);
-                    }
-                }
-            }
-        }
-
         /// <summary>
         /// If data reported for a DataItem is a range of numeric values, then the value reported MAY be bounded with an upper limit defined by this constraint.
         /// </summary>
+        [XmlElement("Maximum")]
         public string Maximum { get; set; }
 
         /// <summary>
         /// If the data reported for a DataItem is a rnage of numeric values, the value reported MAY be bounded with a lower limit defined by this constraint.
         /// </summary>
+        [XmlElement("Minimum")]
         public string Minimum { get; set; }
 
         /// <summary>
@@ -49,6 +33,7 @@ namespace MTConnect.MTConnectDevices
         /// If there is only one Value Data Element defined for a DataItem, the value will be constant and cannot change. 
         /// In the case of a constant value, the value is not required to be supplied in the XML document provided by an MTConnect Agent in response to a Current or Sample request.
         /// </summary>
+        [XmlElement("Value")]
         public string Value { get; set; }
 
         /// <summary>
@@ -58,6 +43,7 @@ namespace MTConnect.MTConnectDevices
         /// The CDATA MUST be an absolute value using the same Units as the reported data.
         /// Additional filter type MAY be supported in the future.
         /// </summary>
+        [XmlElement("Filter")]
         public Filter Filter;
     }
 }

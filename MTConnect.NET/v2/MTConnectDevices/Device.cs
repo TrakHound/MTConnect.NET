@@ -4,7 +4,6 @@
 // file 'LICENSE.txt', which is part of this source code package.
 
 using System.Collections.Generic;
-using System.Xml;
 using System.Xml.Serialization;
 
 namespace MTConnect.MTConnectDevices

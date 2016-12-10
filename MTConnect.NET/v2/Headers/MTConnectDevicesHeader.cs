@@ -4,7 +4,6 @@
 // file 'LICENSE.txt', which is part of this source code package.
 
 using System;
-using System.Xml;
 using System.Xml.Serialization;
 
 namespace MTConnect.Headers
@@ -14,13 +13,6 @@ namespace MTConnect.Headers
     /// </summary>
     public class MTConnectDevicesHeader
     {
-        public MTConnectDevicesHeader() { }
-
-        public MTConnectDevicesHeader(XmlNode node)
-        {
-            Tools.XML.AssignProperties(this, node);
-            CreationTime = Tools.UTC.FromDateTime(CreationTime);
-        }
 
         #region "Required"
 
