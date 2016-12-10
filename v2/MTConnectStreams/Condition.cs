@@ -13,30 +13,30 @@ namespace MTConnect.MTConnectStreams
     /// </summary>
     public class Condition : DataItem
     {
-        public Condition() { }
+        //public Condition() { }
 
-        public Condition(XmlNode node)
-        {
-            Tools.XML.AssignProperties(this, node);
-            FullAddress = Tools.Address.GetStreams(node);
-            Category = DataItemCategory.CONDITION;
+        //public Condition(XmlNode node)
+        //{
+        //    Tools.XML.AssignProperties(this, node);
+        //    FullAddress = Tools.Address.GetStreams(node);
+        //    Category = DataItemCategory.CONDITION;
 
-            if (!string.IsNullOrEmpty(node.Name))
-            {
-                switch (node.Name.ToLower())
-                {
-                    case "normal": ConditionValue = ConditionValue.NORMAL; break;
-                    case "warning": ConditionValue = ConditionValue.WARNING; break;
-                    case "fault": ConditionValue = ConditionValue.FAULT; break;
+        //    if (!string.IsNullOrEmpty(node.Name))
+        //    {
+        //        switch (node.Name.ToLower())
+        //        {
+        //            case "normal": ConditionValue = ConditionValue.NORMAL; break;
+        //            case "warning": ConditionValue = ConditionValue.WARNING; break;
+        //            case "fault": ConditionValue = ConditionValue.FAULT; break;
 
-                    default: ConditionValue = ConditionValue.UNAVAILABLE; break;
-                }
+        //            default: ConditionValue = ConditionValue.UNAVAILABLE; break;
+        //        }
 
-            }
-            else ConditionValue = ConditionValue.UNAVAILABLE;
+        //    }
+        //    else ConditionValue = ConditionValue.UNAVAILABLE;
 
-            CDATA = node.InnerText;
-        }
+        //    CDATA = node.InnerText;
+        //}
 
         /// <summary>
         /// Value of the Condition (Normal, Warning, or Fault)

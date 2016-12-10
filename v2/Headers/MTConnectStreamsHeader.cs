@@ -4,7 +4,7 @@
 // file 'LICENSE.txt', which is part of this source code package.
 
 using System;
-using System.Xml;
+using System.Xml.Serialization;
 
 namespace MTConnect.Headers
 {
@@ -13,26 +13,40 @@ namespace MTConnect.Headers
     /// </summary>
     public class MTConnectStreamsHeader
     {
-        public MTConnectStreamsHeader() { }
 
-        public MTConnectStreamsHeader(XmlNode node)
-        {
-            Tools.XML.AssignProperties(this, node);
-            CreationTime = Tools.UTC.FromDateTime(CreationTime);
-        }
+        #region "Required"
 
-        // Required
+        [XmlAttribute("bufferSize")]
         public long BufferSize { get; set; }
+
+        [XmlAttribute("creationTime")]
         public DateTime CreationTime { get; set; }
+
+        [XmlAttribute("instanceId")]
         public long InstanceId { get; set; }
+
+        [XmlAttribute("sender")]
         public string Sender { get; set; }
+
+        [XmlAttribute("version")]
         public string Version { get; set; }
 
+        [XmlAttribute("firstSequence")]
         public long FirstSequence { get; set; }
+
+        [XmlAttribute("lastSequence")]
         public long LastSequence { get; set; }
+
+        [XmlAttribute("nextSequence")]
         public long NextSequence { get; set; }
 
-        // Optional
+        #endregion
+
+        #region "Optional"
+
+        [XmlAttribute("testIndicator")]
         public string TestIndicator { get; set; }
+
+        #endregion
     }
 }
