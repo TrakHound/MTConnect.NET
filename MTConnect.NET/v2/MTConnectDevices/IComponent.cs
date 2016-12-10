@@ -3,10 +3,8 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
-using System;
 using System.Collections.Generic;
-using System.Xml;
-
+using System.Xml.Serialization;
 
 namespace MTConnect.MTConnectDevices
 {
@@ -15,24 +13,8 @@ namespace MTConnect.MTConnectDevices
     /// Replaced in the XML document by types of Component elements representing physical and logical parts of the Device.
     /// There can be multiple types of Component XML Elements in the document.
     /// </summary>
-    public class Component : IDisposable
+    public class IComponent
     {
-        public Component()
-        {
-            Init();
-        }
-
-        public Component(XmlNode node)
-        {
-            Init();
-            Process(node);
-        }
-
-        private void Init()
-        {
-            Components = new List<Component>();
-            DataItems = new List<DataItem>();
-        }
 
         #region "Required"
 
@@ -41,6 +23,7 @@ namespace MTConnect.MTConnectDevices
         /// An id MUST be unique across all the id attributes in the document.
         /// An XML ID-type.
         /// </summary>
+        [XmlAttribute("id")]
         public string Id { get; set; }
 
         #endregion
@@ -54,12 +37,14 @@ namespace MTConnect.MTConnectDevices
         /// It is recommended that duplicate names SHOULD NOT occur within a Device.
         /// An NMTOKEN XML type.
         /// </summary>
+        [XmlAttribute("name")]
         public string Name { get; set; }
 
         /// <summary>
         /// The name the device manufacturer assigned to the Component.
         /// If the native name is not provided it MUST be the Name.
         /// </summary>
+        [XmlAttribute("nativeName")]
         public string NativeName { get; set; }
 
         /// <summary>
@@ -68,11 +53,13 @@ namespace MTConnect.MTConnectDevices
         /// If the sample interval is smaller than one millisecond, the number can be represented as a floating point number.
         /// For example, an interval of 100 microseconds would be 0.1.
         /// </summary>
+        [XmlAttribute("sampleInterval")]
         public string SampleInterval { get; set; }
 
         /// <summary>
         /// DEPRECATED IN REL. 1.2 (REPLACED BY sampleInterval)
         /// </summary>
+        [XmlAttribute("sampleRate")]
         public string SampleRate { get; set; }
 
         /// <summary>
@@ -81,6 +68,7 @@ namespace MTConnect.MTConnectDevices
         /// The uuid should be alphanumeric and not exceeding 255 characters.
         /// An NMTOKEN XML type.
         /// </summary>
+        [XmlAttribute("uuid")]
         public string Uuid { get; set; }
 
         #endregion
@@ -91,118 +79,23 @@ namespace MTConnect.MTConnectDevices
         /// An element that can contain any descriptive content. 
         /// This can contain information about the Component and manufacturer specific details.
         /// </summary>
+        [XmlElement("Description")]
         public Description Description { get; set; }
 
         /// <summary>
         /// An element that can contain descriptive content defining the configuration information for a Component.
         /// </summary>
+        [XmlElement("Configuration")]
         public string Configuration { get; set; }
-
-        /// <summary>
-        /// A container for lower level Component XML Elements associated with this parent Component.
-        /// These lower level elements in this container are defined as Subcomponent elements.
-        /// </summary>
-        public List<Component> Components;
 
         /// <summary>
         /// A container for the Data XML Elements provided that are directly related to this Compoenent.
         /// The data items define the measured values to be reported that are related to this Component.
         /// </summary>
+        [XmlArray("DataItems")]
         public List<DataItem> DataItems { get; set; }
 
         #endregion
-
-        /// <summary>
-        /// Full XML XPath address of the Component.
-        /// (Added for TrakHound)
-        /// </summary>
-        public string FullAddress { get; set; }
-
         
-        public List<DataItem> GetAllDataItems()
-        {
-            var result = new List<DataItem>();
-
-            // Add DataItems in root
-            result.AddRange(DataItems);
-
-            // Loop through each Subcomponent and Add DataItems
-            foreach (var component in Components) result.AddRange(component.GetAllDataItems());
-
-            return result;
-        }
-
-
-        private void Process(XmlNode node)
-        {
-            Tools.XML.AssignProperties(this, node);
-            FullAddress = Tools.Address.GetComponents(node);
-
-            foreach (XmlNode child in node.ChildNodes)
-            {
-                if (child.NodeType == XmlNodeType.Element)
-                {
-                    switch (child.Name.ToLower())
-                    {
-                        case "components":
-
-                            Components.AddRange(ProcessComponents(child));
-
-                            break;
-
-                        case "dataitems":
-
-                            DataItems = ProcessDataItems(child);
-
-                            break;
-
-                        case "description":
-
-                            Description = new Description(child);
-
-                            break;
-                    }
-                }
-            }
-        }
-
-        private List<Component> ProcessComponents(XmlNode node)
-        {
-            var result = new List<Component>();
-
-            foreach (XmlNode child in node.ChildNodes)
-            {
-                if (child.NodeType == XmlNodeType.Element)
-                {
-                    result.Add(new Component(child));
-                }
-            }
-
-            return result;
-        }
-
-        private List<DataItem> ProcessDataItems(XmlNode node)
-        {
-            var result = new List<DataItem>();
-
-            foreach (XmlNode child in node.ChildNodes)
-            {
-                if (child.NodeType == XmlNodeType.Element)
-                {
-                    result.Add(new DataItem(child));
-                }
-            }
-
-            return result;
-        }
-
-        public void Dispose()
-        {
-            Components.Clear();
-            Components = null;
-
-            DataItems.Clear();
-            DataItems = null;
-        }
     }
 }
