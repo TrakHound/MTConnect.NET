@@ -11,15 +11,18 @@ using System.Xml.Serialization;
 
 namespace MTConnect.MTConnectStreams
 {
-    [XmlRoot("MTConnectStreams", Namespace= "urn:mtconnect.org:MTConnectStreams:1.3")]
+    [XmlRoot("MTConnectStreams", Namespace = NAMESPACE)]
     public class Document
     {
+        [XmlIgnore]
+        public const string NAMESPACE = "urn:mtconnect.org:MTConnectStreams:1.3";
+
         public Document() { }
 
         public Document(string xml)
         {
-            //try
-            //{
+            try
+            {
                 var serializer = new XmlSerializer(typeof(Document));
                 using (var textReader = new StringReader(xml))
                 using (var xmlReader = XmlReader.Create(textReader))
@@ -31,13 +34,12 @@ namespace MTConnect.MTConnectStreams
                         DeviceStreams = document.DeviceStreams;
                     }
                 }
-            //}
-            //catch (Exception ex)
-            //{
-            //    Console.WriteLine(ex.Message);
-            //}      
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
         }
-
 
         [XmlElement("Header")]
         public Headers.MTConnectStreamsHeader Header { get; set; }

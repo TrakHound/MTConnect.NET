@@ -40,120 +40,26 @@ namespace MTConnect.MTConnectStreams
         [XmlElement("ComponentStream")]
         public List<ComponentStream> ComponentStreams { get; set; }
 
-        //[XmlArray("Samples")]
-        //[XmlArray("Events")]
-        //[XmlElement("Events")]
-        //[XmlElement("Conditions")]
-        //public List<DataItem> DataItems { get; set; }
+        [XmlIgnore]
+        public List<DataItem> DataItems
+        {
+            get
+            {
+                var l = new List<DataItem>();
+
+                if (ComponentStreams != null)
+                {
+                    foreach (var componentStream in ComponentStreams)
+                    {
+                        l.AddRange(componentStream.DataItems);
+                    }
+                }
+
+                return l;
+            }
+        }
 
         #endregion
-
-
-        //public List<DataItem> GetAllDataItems()
-        //{
-        //    var result = new List<DataItem>();
-
-        //    // Add DataItems in DeviceStream root
-        //    result.AddRange(DataItems);
-
-        //    // Loop through each Component and Add DataItems
-        //    foreach (var componentStream in ComponentStreams) result.AddRange(componentStream.DataItems);
-
-        //    return result;
-        //}
-
-
-        //private void Process(XmlNode node)
-        //{
-        //    Tools.XML.AssignProperties(this, node);
-
-        //    foreach (XmlNode child in node.ChildNodes)
-        //    {
-        //        if (child.NodeType == XmlNodeType.Element)
-        //        {
-        //            switch (child.Name.ToLower())
-        //            {
-        //                case "componentstream":
-
-        //                    ComponentStreams.Add(new ComponentStream(child));
-
-        //                    break;
-
-        //                case "condition":
-
-        //                    DataItems.AddRange(ProcessConditions(child));
-
-        //                    break;
-
-        //                case "events":
-
-        //                    DataItems.AddRange(ProcessEvents(child));
-
-        //                    break;
-
-        //                case "samples":
-
-        //                    DataItems.AddRange(ProcessSamples(child));
-
-        //                    break;
-        //            }
-        //        }
-        //    }
-        //}
-
-        //private List<Condition> ProcessConditions(XmlNode node)
-        //{
-        //    var result = new List<Condition>();
-
-        //    foreach (XmlNode child in node.ChildNodes)
-        //    {
-        //        if (child.NodeType == XmlNodeType.Element)
-        //        {
-        //            result.Add(new Condition(child));
-        //        }
-        //    }
-
-        //    return result;
-        //}
-
-        //private List<Event> ProcessEvents(XmlNode node)
-        //{
-        //    var result = new List<Event>();
-
-        //    foreach (XmlNode child in node.ChildNodes)
-        //    {
-        //        if (child.NodeType == XmlNodeType.Element)
-        //        {
-        //            result.Add(new Event(child));
-        //        }
-        //    }
-
-        //    return result;
-        //}
-
-        //private List<Sample> ProcessSamples(XmlNode node)
-        //{
-        //    var result = new List<Sample>();
-
-        //    foreach (XmlNode child in node.ChildNodes)
-        //    {
-        //        if (child.NodeType == XmlNodeType.Element)
-        //        {
-        //            result.Add(new Sample(child));
-        //        }
-        //    }
-
-        //    return result;
-        //}
-
-
-        //public void Dispose()
-        //{
-        //    ComponentStreams.Clear();
-        //    ComponentStreams = null;
-
-        //    DataItems.Clear();
-        //    DataItems = null;
-        //}
+        
     }
 }

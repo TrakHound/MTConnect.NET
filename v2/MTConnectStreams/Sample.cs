@@ -13,13 +13,10 @@ namespace MTConnect.MTConnectStreams
     /// </summary>
     public class Sample : DataItem
     {
-
-        /// <summary>
-        /// The time elapsed since the statistic calculation was last reset.
-        /// The duration attribute MUST be provided when the value of the data returned for the data item is a statistic.
-        /// </summary>
-        //[XmlAttribute("duration")]
-        //public string Duration { get; set; }
+        public Sample()
+        {
+            Category = DataItemCategory.SAMPLE;
+        }
 
         /// <summary>
         /// The number of readings of the value of a data item provided in the data returned when the representation attribute for teh data item is TIME_SERIES.

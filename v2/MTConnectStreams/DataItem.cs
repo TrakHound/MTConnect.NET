@@ -4,6 +4,7 @@
 // file 'LICENSE.txt', which is part of this source code package.
 
 using System;
+using System.Xml;
 using System.Xml.Serialization;
 
 namespace MTConnect.MTConnectStreams
@@ -22,7 +23,7 @@ namespace MTConnect.MTConnectStreams
         /// <summary>
         /// Type associated with the DataItem
         /// </summary>
-        [XmlAttribute("duration")]
+        [XmlIgnore]
         public string Type { get; set; }
 
         /// <summary>
@@ -61,7 +62,7 @@ namespace MTConnect.MTConnectStreams
         /// </summary>
         [XmlAttribute("timestamp")]
         public DateTime Timestamp { get; set; }
-        
+
         #endregion
 
     }

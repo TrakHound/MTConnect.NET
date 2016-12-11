@@ -3,8 +3,8 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
-using System;
 using System.Collections.Generic;
+using System.Xml;
 using System.Xml.Serialization;
 
 namespace MTConnect.MTConnectStreams
@@ -53,19 +53,29 @@ namespace MTConnect.MTConnectStreams
 
         #endregion
 
-        //[XmlArray("Samples")]
-        //[XmlElement("Events")]
-        //[XmlElement("Conditions")]
-        //public List<DataItem> DataItems { get; set; }
+        public List<DataItem> DataItems
+        {
+            get
+            {
+                var l = new List<DataItem>();
 
-        [XmlArray("Conditions")]
-        public List<object> Conditions { get; set; }
+                if (Conditions != null) l.AddRange(Conditions.DataItems);
+                if (Events != null) l.AddRange(Events.DataItems);
+                if (Samples != null) l.AddRange(Samples.DataItems);
 
-        [XmlArray("Events")]
-        public List<object> Events { get; set; }
+                return l;
+            }
+        }
 
-        [XmlArray("Samples")]
-        public List<object> Samples { get; set; }
+        [XmlElement("Condition")]
+        public DataItemCollection<Condition> Conditions { get; set; }
+
+        [XmlElement("Events")]
+        public DataItemCollection<Event> Events { get; set; }
+
+        [XmlElement("Samples")]
+        public DataItemCollection<Sample> Samples { get; set; }
 
     }
+    
 }

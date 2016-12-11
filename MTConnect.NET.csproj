@@ -57,6 +57,11 @@
     <Compile Include="Application\Components\ReturnData.cs" />
     <Compile Include="Application\Components\Source.cs" />
     <Compile Include="Application\EventTypes.cs" />
+    <Compile Include="Serialization\SerializeExtraTypeAttribute.cs" />
+    <Compile Include="Serialization\SerializeExtraTypes.cs" />
+    <Compile Include="Serialization\Streams\DataItemAttribute.cs" />
+    <Compile Include="Serialization\Streams\DataItemSerializer.cs" />
+    <Compile Include="Serialization\Streams\Serializer.cs" />
     <Compile Include="v2\Client\Current.cs" />
     <Compile Include="v2\Client\Probe.cs" />
     <Compile Include="v2\DocumentType.cs" />
@@ -110,10 +115,10 @@
     <Compile Include="v2\MTConnectStreams\ComponentStream.cs" />
     <Compile Include="v2\MTConnectStreams\Condition.cs" />
     <Compile Include="v2\MTConnectStreams\DataItem.cs" />
+    <Compile Include="v2\MTConnectStreams\DataItemCollection.cs" />
     <Compile Include="v2\MTConnectStreams\DeviceStream.cs" />
     <Compile Include="v2\MTConnectStreams\Document.cs" />
     <Compile Include="v2\MTConnectStreams\Event.cs" />
-    <Compile Include="v2\MTConnectStreams\Item.cs" />
     <Compile Include="v2\MTConnectStreams\Sample.cs" />
   </ItemGroup>
   <ItemGroup>

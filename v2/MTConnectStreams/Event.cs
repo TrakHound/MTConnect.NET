@@ -13,15 +13,9 @@ namespace MTConnect.MTConnectStreams
     /// </summary>
     public class Event : DataItem
     {
-        //public Event() { }
-
-        //public Event(XmlNode node)
-        //{
-        //    Tools.XML.AssignProperties(this, node);
-        //    FullAddress = Tools.Address.GetStreams(node);
-        //    Category = DataItemCategory.EVENT;
-        //    Type = node.Name;
-        //    CDATA = node.InnerText;
-        //}
+        public Event()
+        {
+            Category = DataItemCategory.EVENT;
+        }
     }
 }
