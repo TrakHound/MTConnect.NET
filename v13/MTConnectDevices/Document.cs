@@ -11,12 +11,15 @@ using System.Xml.Serialization;
 
 namespace MTConnect.v13.MTConnectDevices
 {
-    [XmlRoot("MTConnectDevices", Namespace= "urn:mtconnect.org:MTConnectDevices:1.3")]
+    [XmlRoot("MTConnectDevices", Namespace= NAMESPACE)]
     public class Document
     {
+        [XmlIgnore]
+        public const string NAMESPACE = "urn:mtconnect.org:MTConnectDevices:1.3";
+
         public Document() { }
 
-        public Document(string xml)
+        public static Document Create(string xml)
         {
             try
             {
@@ -24,20 +27,16 @@ namespace MTConnect.v13.MTConnectDevices
                 using (var textReader = new StringReader(xml))
                 using (var xmlReader = XmlReader.Create(textReader))
                 {
-                    var document = (Document)serializer.Deserialize(xmlReader);
-                    if (document != null)
-                    {
-                        Header = document.Header;
-                        Devices = document.Devices;
-                    }
+                    return (Document)serializer.Deserialize(xmlReader);
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-            }      
-        }
+            }
 
+            return null;
+        }
 
         [XmlElement("Header")]
         public Headers.MTConnectDevicesHeader Header { get; set; }

@@ -107,5 +107,17 @@ namespace MTConnect.v13.MTConnectDevices
 
         #endregion
 
+        private static List<DataItem> GetDataItems(IComponent component)
+        {
+            var l = new List<DataItem>();
+
+            // Add Root DataItems
+            if (component.DataItems != null) l.AddRange(component.DataItems);
+            
+            
+
+            return l;
+        }
+
     }
 }

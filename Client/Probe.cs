@@ -16,14 +16,23 @@ namespace MTConnect.Client
 
         public string BaseUrl { get; set; }
 
-        public MTConnect.v13.MTConnectDevices.Document Execute()
+        public delegate void ErrorHandler(v13.MTConnectError.Document errorDocument);
+        public event ErrorHandler MTConnectError;
+
+        public v13.MTConnectDevices.Document Execute()
         {
             var client = new RestClient(BaseUrl);
             var request = new RestRequest("probe", Method.GET);
             IRestResponse response = client.Execute(request);
             if (response != null && !string.IsNullOrEmpty(response.Content))
             {
-                return new MTConnect.v13.MTConnectDevices.Document(response.Content);
+                string xml = response.Content;
+
+                var doc = v13.MTConnectDevices.Document.Create(xml);
+                if (doc != null) return doc;
+
+                var errorDoc = v13.MTConnectError.Document.Create(xml);
+                if (errorDoc != null) MTConnectError?.Invoke(errorDoc);
             }
 
             return null;

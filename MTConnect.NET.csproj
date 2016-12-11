@@ -51,8 +51,9 @@
     <Compile Include="Client\Probe.cs" />
     <Compile Include="DocumentType.cs" />
     <None Include="v13\Headers\MTConnectAssestsHeader.cs" />
+    <Compile Include="v13\ErrorCode.cs" />
     <Compile Include="v13\Headers\MTConnectDevicesHeader.cs" />
-    <None Include="v13\Headers\MTConnectErrorHeader.cs" />
+    <Compile Include="v13\Headers\MTConnectErrorHeader.cs" />
     <Compile Include="v13\Headers\MTConnectStreamsHeader.cs" />
     <None Include="Client\Stream.cs" />
     <Compile Include="v13\ConditionValue.cs" />
@@ -81,6 +82,8 @@
     <Compile Include="v13\MTConnectDevices\Document.cs" />
     <Compile Include="v13\MTConnectDevices\Filter.cs" />
     <Compile Include="v13\MTConnectDevices\Source.cs" />
+    <Compile Include="v13\MTConnectError\Document.cs" />
+    <Compile Include="v13\MTConnectError\Error.cs" />
     <Compile Include="v13\MTConnectStreams\ComponentStream.cs" />
     <Compile Include="v13\MTConnectStreams\Condition.cs" />
     <Compile Include="v13\MTConnectStreams\DataItem.cs" />
@@ -102,7 +105,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="v13\MTConnectAssets\" />
-    <Folder Include="v13\MTConnectError\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

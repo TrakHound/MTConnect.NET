@@ -9,13 +9,13 @@ using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
 
-namespace MTConnect.v13.MTConnectStreams
+namespace MTConnect.v13.MTConnectError
 {
-    [XmlRoot("MTConnectStreams", Namespace = NAMESPACE)]
+    [XmlRoot("MTConnectError", Namespace = NAMESPACE)]
     public class Document
     {
         [XmlIgnore]
-        public const string NAMESPACE = "urn:mtconnect.org:MTConnectStreams:1.3";
+        public const string NAMESPACE = "urn:mtconnect.org:MTConnectError:1.3";
 
         public Document() { }
 
@@ -39,10 +39,9 @@ namespace MTConnect.v13.MTConnectStreams
         }
 
         [XmlElement("Header")]
-        public Headers.MTConnectStreamsHeader Header { get; set; }
+        public Headers.MTConnectErrorHeader Header { get; set; }
 
-        [XmlArray("Streams")]
-        [XmlArrayItem("DeviceStream")]
-        public List<DeviceStream> DeviceStreams { get; set; }
+        [XmlArray("Errors")]
+        public List<Error> Errors { get; set; }
     }
 }

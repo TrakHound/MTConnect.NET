@@ -5,6 +5,7 @@
 
 using System;
 using System.Xml;
+using System.Xml.Serialization;
 
 namespace MTConnect.v13.Headers
 {
@@ -13,27 +14,46 @@ namespace MTConnect.v13.Headers
     /// </summary>
     public class MTConnectErrorHeader
     {
-        public MTConnectErrorHeader() { }
 
-        public MTConnectErrorHeader(XmlNode node)
-        {
-            Tools.XML.AssignProperties(this, node);
-            CreationTime = Tools.UTC.FromDateTime(CreationTime);
-        }
+        #region "Required"
 
-        // Required
+        [XmlAttribute("assetBufferSize")]
         public long AssetBufferSize { get; set; }
+
+        [XmlAttribute("assetCount")]
         public long AssetCount { get; set; }
+
+        [XmlAttribute("bufferSize")]
         public long BufferSize { get; set; }
+
+        [XmlAttribute("creationTime")]
         public DateTime CreationTime { get; set; }
+
+        [XmlAttribute("instanceId")]
         public long InstanceId { get; set; }
+
+        [XmlAttribute("sender")]
         public string Sender { get; set; }
+
+        [XmlAttribute("version")]
         public string Version { get; set; }
 
-        // Optional
-        public string TestIndicator { get; set; }
-        public long NextSequence { get; set; }
+        #endregion
+
+        #region "Optional"
+
+        [XmlAttribute("lastSequence")]
         public long LastSequence { get; set; }
+
+        [XmlAttribute("firstSequence")]
         public long FirstSequence { get; set; }
+
+        [XmlAttribute("nextSequence")]
+        public long NextSequence { get; set; }
+
+        [XmlAttribute("testIndicator")]
+        public string TestIndicator { get; set; }
+
+        #endregion
     }
 }

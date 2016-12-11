@@ -56,7 +56,6 @@ namespace MTConnect.v13.MTConnectStreams
                     default: serializer = new XmlSerializer(typeof(Sample)); break;
                 }
 
-                //var serializer = new XmlSerializer(typeof(DataItem));
                 while (inner.Read())
                 {
                     if (inner.NodeType == XmlNodeType.Element)
