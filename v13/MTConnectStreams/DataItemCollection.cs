@@ -25,13 +25,6 @@ namespace MTConnect.v13.MTConnectStreams
             else type = DataItemType.Sample;
         }
 
-        #region "Xml Serialization"
-
-        public void WriteXml(XmlWriter writer)
-        {
-            writer.WriteString("");
-        }
-
         private enum DataItemType
         {
             Condition,
@@ -41,6 +34,13 @@ namespace MTConnect.v13.MTConnectStreams
 
         private DataItemType type;
 
+
+        #region "Xml Serialization"
+
+        public void WriteXml(XmlWriter writer)
+        {
+            writer.WriteString("");
+        }
 
         public void ReadXml(XmlReader reader)
         {

@@ -47,14 +47,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Client\Assets.cs" />
     <Compile Include="Client\Current.cs" />
     <Compile Include="Client\Probe.cs" />
     <Compile Include="DocumentType.cs" />
-    <None Include="v13\Headers\MTConnectAssestsHeader.cs" />
+    <Compile Include="v13\Headers\MTConnectAssestsHeader.cs" />
     <Compile Include="v13\ErrorCode.cs" />
     <Compile Include="v13\Headers\MTConnectDevicesHeader.cs" />
     <Compile Include="v13\Headers\MTConnectErrorHeader.cs" />
     <Compile Include="v13\Headers\MTConnectStreamsHeader.cs" />
+    <None Include="ClassDiagram1.cd" />
     <None Include="Client\Stream.cs" />
     <Compile Include="v13\ConditionValue.cs" />
     <Compile Include="DataItemCategory.cs" />
@@ -66,6 +68,23 @@
     <Compile Include="Types\Conditions.cs" />
     <Compile Include="Types\Events.cs" />
     <Compile Include="Types\Samples.cs" />
+    <Compile Include="v13\MTConnectAssets\Asset.cs" />
+    <Compile Include="v13\MTConnectAssets\CuttingTools\CuttingItem.cs" />
+    <Compile Include="v13\MTConnectAssets\CuttingTools\CuttingToolLifeCycle.cs" />
+    <Compile Include="v13\MTConnectAssets\CuttingTools\CuttingTool.cs" />
+    <Compile Include="v13\MTConnectAssets\CuttingTools\CutterStatus.cs" />
+    <Compile Include="v13\MTConnectAssets\CuttingTools\Description.cs" />
+    <Compile Include="v13\MTConnectAssets\CuttingTools\ItemLife.cs" />
+    <Compile Include="v13\MTConnectAssets\CuttingTools\Location.cs" />
+    <Compile Include="v13\MTConnectAssets\CuttingTools\LocationType.cs" />
+    <Compile Include="v13\MTConnectAssets\CuttingTools\Measurement.cs" />
+    <Compile Include="v13\MTConnectAssets\CuttingTools\ProcessFeedrate.cs" />
+    <Compile Include="v13\MTConnectAssets\CuttingTools\ProcessSpindleSpeed.cs" />
+    <Compile Include="v13\MTConnectAssets\CuttingTools\ReconditionCount.cs" />
+    <Compile Include="v13\MTConnectAssets\CuttingTools\ToolLifeCountDirection.cs" />
+    <Compile Include="v13\MTConnectAssets\CuttingTools\ToolLifeType.cs" />
+    <Compile Include="v13\MTConnectAssets\Document.cs" />
+    <Compile Include="v13\MTConnectAssets\CuttingTools\ToolLife.cs" />
     <Compile Include="v13\MTConnectDevices\Components\Axes\AxesComponent.cs" />
     <Compile Include="v13\MTConnectDevices\Components\Axes\SubComponents\LinearComponent.cs" />
     <Compile Include="v13\MTConnectDevices\Components\Axes\SubComponents\RotaryComponent.cs" />
@@ -103,9 +122,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="v13\MTConnectAssets\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
