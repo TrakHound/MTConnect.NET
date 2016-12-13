@@ -3,7 +3,7 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
-namespace MTConnect.v13
+namespace MTConnect.v13.MTConnectError
 {
     public enum ErrorCode
     {
