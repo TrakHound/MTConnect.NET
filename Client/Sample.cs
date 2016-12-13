@@ -115,9 +115,9 @@ namespace MTConnect.Client
 
         private void Init()
         {
-            From = -1;
-            To = -1;
-            Count = -1;
+            From = 0;
+            To = 0;
+            Count = 0;
         }
 
         /// <summary>
@@ -153,7 +153,7 @@ namespace MTConnect.Client
         /// <summary>
         /// Raised when an MTConnectError Document is received
         /// </summary>
-        public event MTConnectErrorHandler MTConnectError;
+        public event MTConnectErrorHandler Error;
 
         /// <summary>
         /// Raised when an MTConnectStreams Document is received successfully
@@ -163,7 +163,7 @@ namespace MTConnect.Client
         /// <summary>
         /// Execute the Sample Request Synchronously
         /// </summary>
-        public v13.MTConnectStreams.Document Execute()
+        public MTConnectStreams.Document Execute()
         {
             // Create HTTP Client and Request Data
             var client = new RestClient(CreateUri());
@@ -195,13 +195,13 @@ namespace MTConnect.Client
             var request = new RestRequest(Method.GET);
 
             // Add 'From' parameter
-            if (From > -1) request.AddQueryParameter("from", From.ToString());
+            if (From > 0) request.AddQueryParameter("from", From.ToString());
 
             // Add 'To' parameter
-            if (To > -1) request.AddQueryParameter("to", To.ToString());
+            if (To > 0) request.AddQueryParameter("to", To.ToString());
 
             // Add 'Count' parameter
-            if (Count > -1) request.AddQueryParameter("count", Count.ToString());
+            if (Count > 0) request.AddQueryParameter("count", Count.ToString());
 
             // Add 'Path' parameter
             if (!string.IsNullOrEmpty(Path)) request.AddQueryParameter("path", Path);
@@ -209,14 +209,14 @@ namespace MTConnect.Client
             return request;
         }
 
-        private v13.MTConnectStreams.Document ProcessResponse(IRestResponse response)
+        private MTConnectStreams.Document ProcessResponse(IRestResponse response)
         {
             if (response != null && !string.IsNullOrEmpty(response.Content))
             {
                 string xml = response.Content;
 
                 // Process MTConnectStreams Document
-                var doc = v13.MTConnectStreams.Document.Create(xml);
+                var doc = MTConnectStreams.Document.Create(xml);
                 if (doc != null)
                 {
                     return doc;
@@ -224,8 +224,8 @@ namespace MTConnect.Client
                 else
                 {
                     // Process MTConnectError Document (if MTConnectDevices fails)
-                    var errorDoc = v13.MTConnectError.Document.Create(xml);
-                    if (errorDoc != null) MTConnectError?.Invoke(errorDoc);
+                    var errorDoc = MTConnectError.Document.Create(xml);
+                    if (errorDoc != null) Error?.Invoke(errorDoc);
                 }
             }
 

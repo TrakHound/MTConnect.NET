@@ -3,6 +3,7 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
+using System;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -19,7 +20,8 @@ namespace MTConnect.Client
 
         public string Url { get; set; }
 
-        public event DocumentHandler DocumentRecieved;
+        public event ConnectionErrorHandler ConnectionError;
+        public event XmlHandler XmlReceived;
         public event StreamStatusHandler Started;
         public event StreamStatusHandler Stopped;
 
@@ -34,44 +36,50 @@ namespace MTConnect.Client
                 // Raise Started Event
                 Started?.Invoke();
 
-                var request = (HttpWebRequest)WebRequest.Create(Url);
-                using (var response = (HttpWebResponse)request.GetResponse())
-                using (var stream = response.GetResponseStream())
-                using (var reader = new StreamReader(stream, Encoding.GetEncoding("utf-8")))
+                try
                 {
-                    // Set Read Buffer
-                    int bufferSize = 1048576;
-                    var buffer = new char[bufferSize];
-                    int i = reader.Read(buffer, 0, bufferSize);
-
-                    string xml = "";
-                    //long lastSequence = current.Header.LastSequence;
-
-                    while (i > 0 && !stop.WaitOne(0, true))
+                    var request = (HttpWebRequest)WebRequest.Create(Url);
+                    using (var response = (HttpWebResponse)request.GetResponse())
+                    using (var stream = response.GetResponseStream())
+                    using (var reader = new StreamReader(stream, Encoding.GetEncoding("utf-8")))
                     {
-                        // Get string from buffer
-                        var s = new string(buffer, 0, i);
+                        // Set Read Buffer
+                        int bufferSize = 1048576;
+                        var buffer = new char[bufferSize];
+                        int i = reader.Read(buffer, 0, bufferSize);
 
-                        // Find Beginning of XML
-                        int b = s.IndexOf("<?xml");
-                        if (b >= 0) s = s.Substring(b);
+                        string xml = "";
 
-                        // Add buffer to XML
-                        xml += s;
-
-                        // Test if End of XML
-                        if (HasClosingTag(xml))
+                        while (i > 0 && !stop.WaitOne(0, true))
                         {
-                            // Raise Document Recieved Event and pass XML
-                            DocumentRecieved?.Invoke(xml);
+                            // Get string from buffer
+                            var s = new string(buffer, 0, i);
 
-                            // Reset XML
-                            xml = "";
+                            // Find Beginning of XML
+                            int b = s.IndexOf("<?xml");
+                            if (b >= 0) s = s.Substring(b);
+
+                            // Add buffer to XML
+                            xml += s;
+
+                            // Test if End of XML
+                            if (HasClosingTag(xml))
+                            {
+                                // Raise XML Received Event and pass XML
+                                XmlReceived?.Invoke(xml);
+
+                                // Reset XML
+                                xml = "";
+                            }
+
+                            // Read Next Chunk
+                            i = reader.Read(buffer, 0, bufferSize);
                         }
-
-                        // Read Next Chunk
-                        i = reader.Read(buffer, 0, bufferSize);
                     }
+                }
+                catch (Exception ex)
+                {
+                    ConnectionError?.Invoke(ex);
                 }
 
                 Stopped?.Invoke();

@@ -7,17 +7,17 @@ using System;
 
 namespace MTConnect.Client
 {
-    public delegate void MTConnectDevicesHandler(v13.MTConnectDevices.Document document);
+    public delegate void MTConnectDevicesHandler(MTConnectDevices.Document document);
 
-    public delegate void MTConnectStreamsHandler(v13.MTConnectStreams.Document document);
+    public delegate void MTConnectStreamsHandler(MTConnectStreams.Document document);
 
-    public delegate void MTConnectAssetsHandler(v13.MTConnectAssets.Document document);
+    public delegate void MTConnectAssetsHandler(MTConnectAssets.Document document);
 
-    public delegate void MTConnectErrorHandler(v13.MTConnectError.Document errorDocument);
+    public delegate void MTConnectErrorHandler(MTConnectError.Document errorDocument);
 
-    public delegate void StreamStatusHandler();
-
-    public delegate void DocumentHandler(string xml);
+    public delegate void XmlHandler(string xml);
 
     public delegate void ConnectionErrorHandler(Exception ex);
+
+    public delegate void StreamStatusHandler();
 }

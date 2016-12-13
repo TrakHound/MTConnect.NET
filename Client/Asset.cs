@@ -4,39 +4,166 @@
 // file 'LICENSE.txt', which is part of this source code package.
 
 using RestSharp;
+using System;
 
 namespace MTConnect.Client
 {
     public class Asset
     {
+        /// <summary>
+        /// Create a new Asset Request Client
+        /// </summary>
+        public Asset()
+        {
+            Init();
+        }
+
+        /// <summary>
+        /// Create a new Asset Request Client
+        /// </summary>
+        /// <param name="baseUrl">The base URL for the Asset Request</param>
         public Asset(string baseUrl)
         {
+            Init();
             BaseUrl = baseUrl;
         }
 
+        /// <summary>
+        /// Create a new Asset Request Client
+        /// </summary>
+        /// <param name="baseUrl">The base URL for the Asset Request</param>
+        /// <param name="assetId">The Id of the requested Asset</param>
+        public Asset(string baseUrl, string assetId)
+        {
+            Init();
+            BaseUrl = baseUrl;
+            AssetId = assetId;
+        }
+
+        /// <summary>
+        /// Create a new Asset Request Client
+        /// </summary>
+        /// <param name="baseUrl">The base URL for the Asset Request</param>
+        /// <param name="type">The Type of Assets to retrieve</param>
+        /// <param name="count">The maximum Count of Assets to retrieve</param>
+        public Asset(string baseUrl, string type, long count)
+        {
+            Init();
+            BaseUrl = baseUrl;
+            Type = type;
+            Count = count;
+        }
+
+        private void Init()
+        {
+            Count = 0;
+        }
+
+        /// <summary>
+        /// The base URL for the Asset Request
+        /// </summary>
         public string BaseUrl { get; set; }
 
-        public delegate void ErrorHandler(v13.MTConnectError.Document errorDocument);
-        public event ErrorHandler MTConnectError;
+        /// <summary>
+        /// (Optional) The Id of the requested Asset
+        /// </summary>
+        public string AssetId { get; set; }
 
-        public v13.MTConnectAssets.Document Execute()
+        /// <summary>
+        /// (Optional) The Type of Assets to retrieve
+        /// </summary>
+        public string Type { get; set; }
+
+        /// <summary>
+        /// (Optional) The maximum Count of Assets to retrieve
+        /// </summary>
+        public long Count { get; set; }
+
+        /// <summary>
+        /// Raised when an MTConnectError Document is received
+        /// </summary>
+        public event MTConnectErrorHandler Error;
+
+        /// <summary>
+        /// Raised when an MTConnectAssets Document is received successfully
+        /// </summary>
+        public event MTConnectAssetsHandler Successful;
+
+        /// <summary>
+        /// Execute the Asset Request Synchronously
+        /// </summary>
+        public MTConnectAssets.Document Execute()
         {
-            var client = new RestClient(BaseUrl);
-            var request = new RestRequest("assets", Method.GET);
+            // Create HTTP Client and Request Data
+            var client = new RestClient(CreateUri());
+            var request = new RestRequest(Method.GET);
             IRestResponse response = client.Execute(request);
+            return ProcessResponse(response);
+        }
+
+        /// <summary>
+        /// Execute the Asset Request Asynchronously
+        /// </summary>
+        public void ExecuteAsync()
+        {
+            // Create HTTP Client and Request Data
+            var client = new RestClient(CreateUri());
+            var request = new RestRequest(Method.GET);
+            client.ExecuteAsync(request, AsyncCallback);
+        }
+
+        private Uri CreateUri()
+        {
+            var uri = new Uri(BaseUrl);
+            if (!string.IsNullOrEmpty(AssetId))
+            {
+                uri = new Uri(uri, "asset");
+                uri = new Uri(uri, AssetId);
+            }
+            else uri = new Uri(uri, "assets");
+            return uri;
+        }
+
+        private RestRequest CreateRequest()
+        {
+            var request = new RestRequest(Method.GET);
+
+            // Add 'Type' parameter
+            if (!string.IsNullOrEmpty(Type)) request.AddQueryParameter("type", Type);
+
+            // Add 'Count' parameter
+            if (Count > 0) request.AddQueryParameter("count", Count.ToString());
+
+            return request;
+        }
+
+        private MTConnectAssets.Document ProcessResponse(IRestResponse response)
+        {
             if (response != null && !string.IsNullOrEmpty(response.Content))
             {
                 string xml = response.Content;
 
-                var doc = v13.MTConnectAssets.Document.Create(xml);
-                if (doc != null) return doc;
-
-                var errorDoc = v13.MTConnectError.Document.Create(xml);
-                if (errorDoc != null) MTConnectError?.Invoke(errorDoc);
+                // Process MTConnectStreams Document
+                var doc = MTConnectAssets.Document.Create(xml);
+                if (doc != null)
+                {
+                    return doc;
+                }
+                else
+                {
+                    // Process MTConnectError Document (if MTConnectDevices fails)
+                    var errorDoc = MTConnectError.Document.Create(xml);
+                    if (errorDoc != null) Error?.Invoke(errorDoc);
+                }
             }
 
             return null;
         }
 
+        private void AsyncCallback(IRestResponse response)
+        {
+            var doc = ProcessResponse(response);
+            if (doc != null) Successful?.Invoke(doc);
+        }
     }
 }

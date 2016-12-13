@@ -116,7 +116,12 @@ namespace MTConnect.Client
         /// <summary>
         /// Raised when an MTConnectError Document is received
         /// </summary>
-        public event MTConnectErrorHandler MTConnectError;
+        public event MTConnectErrorHandler Error;
+
+        /// <summary>
+        /// Raised when an Connection Error occurs
+        /// </summary>
+        public event ConnectionErrorHandler ConnectionError;
 
         /// <summary>
         /// Raised when an MTConnectStreams Document is received successfully
@@ -126,7 +131,7 @@ namespace MTConnect.Client
         /// <summary>
         /// Execute the Current Request Synchronously
         /// </summary>
-        public v13.MTConnectStreams.Document Execute()
+        public MTConnectStreams.Document Execute()
         {
             // Create HTTP Client and Request Data
             var client = new RestClient(CreateUri());
@@ -166,14 +171,18 @@ namespace MTConnect.Client
             return request;
         }
 
-        private v13.MTConnectStreams.Document ProcessResponse(IRestResponse response)
+        private MTConnectStreams.Document ProcessResponse(IRestResponse response)
         {
-            if (response != null && !string.IsNullOrEmpty(response.Content))
+            if (response.ResponseStatus != ResponseStatus.Completed)
+            {
+                if (response.ErrorException != null) ConnectionError?.Invoke(response.ErrorException);
+            }
+            else if (!string.IsNullOrEmpty(response.Content))
             {
                 string xml = response.Content;
 
                 // Process MTConnectStreams Document
-                var doc = v13.MTConnectStreams.Document.Create(xml);
+                var doc = MTConnectStreams.Document.Create(xml);
                 if (doc != null)
                 {
                     return doc;
@@ -181,8 +190,8 @@ namespace MTConnect.Client
                 else
                 {
                     // Process MTConnectError Document (if MTConnectDevices fails)
-                    var errorDoc = v13.MTConnectError.Document.Create(xml);
-                    if (errorDoc != null) MTConnectError?.Invoke(errorDoc);
+                    var errorDoc = MTConnectError.Document.Create(xml);
+                    if (errorDoc != null) Error?.Invoke(errorDoc);
                 }
             }
 
@@ -194,6 +203,5 @@ namespace MTConnect.Client
             var doc = ProcessResponse(response);
             if (doc != null) Successful?.Invoke(doc);
         }
-
     }
 }

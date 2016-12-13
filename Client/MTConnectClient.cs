@@ -38,12 +38,15 @@ namespace MTConnect.Client
         public event MTConnectDevicesHandler ProbeReceived;
         public event MTConnectStreamsHandler CurrentReceived;
         public event MTConnectStreamsHandler SampleReceived;
-        public event MTConnectErrorHandler MTConnectError;
+        public event MTConnectErrorHandler Error;
+        public event ConnectionErrorHandler ConnectionError;
 
         public event StreamStatusHandler Started;
         public event StreamStatusHandler Stopped;
 
         private ManualResetEvent stop;
+
+        private Stream sampleStream;
 
         public void Start()
         {
@@ -57,6 +60,8 @@ namespace MTConnect.Client
 
         public void Stop()
         {
+            if (sampleStream != null) sampleStream.Stop();
+
             if (stop != null) stop.Set();
         }
 
@@ -68,7 +73,8 @@ namespace MTConnect.Client
             do
             {
                 var probe = new Probe(BaseUrl, DeviceName);
-                probe.MTConnectError += MTConnectErrorRecieved;
+                probe.Error += MTConnectErrorRecieved;
+                probe.ConnectionError += ProcessConnectionError;
                 var probeDoc = probe.Execute();
                 if (probeDoc != null)
                 {
@@ -78,7 +84,8 @@ namespace MTConnect.Client
                     do
                     {
                         var current = new Current(BaseUrl, DeviceName);
-                        current.MTConnectError += MTConnectErrorRecieved;
+                        current.Error += MTConnectErrorRecieved;
+                        current.ConnectionError += ProcessConnectionError;
                         var currentDoc = current.Execute();
                         if (currentDoc != null)
                         {
@@ -90,19 +97,22 @@ namespace MTConnect.Client
                             {
                                 instanceId = currentDoc.Header.InstanceId;
                                 break;
-                            }                         
-                            first = false;
+                            }
 
                             // Get the Start Sequence
                             long from = currentDoc.Header.NextSequence;
+                            if (!first) from = currentDoc.Header.FirstSequence;
+
+                            first = false;
 
                             // Create the Url to use for the Sample Stream
                             string url = CreateSampleUrl(BaseUrl, DeviceName, Interval, from, MaximumSampleCount);
 
                             // Create and Start the Sample Stream
-                            var stream = new Stream(url);
-                            stream.DocumentRecieved += ProcessSampleResponse;
-                            stream.Start();
+                            sampleStream = new Stream(url);
+                            sampleStream.XmlReceived += ProcessSampleResponse;
+                            sampleStream.ConnectionError += ProcessConnectionError;
+                            sampleStream.Start();
                         }
                     } while (!stop.WaitOne(5000, true));
                 }
@@ -116,7 +126,7 @@ namespace MTConnect.Client
             if (!string.IsNullOrEmpty(xml))
             {
                 // Process MTConnectStreams Document
-                var doc = v13.MTConnectStreams.Document.Create(xml);
+                var doc = MTConnectStreams.Document.Create(xml);
                 if (doc != null)
                 {
                     SampleReceived?.Invoke(doc);
@@ -124,15 +134,20 @@ namespace MTConnect.Client
                 else
                 {
                     // Process MTConnectError Document (if MTConnectDevices fails)
-                    var errorDoc = v13.MTConnectError.Document.Create(xml);
-                    if (errorDoc != null) MTConnectError?.Invoke(errorDoc);
+                    var errorDoc = MTConnectError.Document.Create(xml);
+                    if (errorDoc != null) Error?.Invoke(errorDoc);
                 }
             }
         }
 
-        private void MTConnectErrorRecieved(v13.MTConnectError.Document errorDocument)
+        private void MTConnectErrorRecieved(MTConnectError.Document errorDocument)
         {
-            MTConnectError?.Invoke(errorDocument);
+            Error?.Invoke(errorDocument);
+        }
+
+        private void ProcessConnectionError(Exception ex)
+        {
+            ConnectionError?.Invoke(ex);
         }
 
         private static string CreateSampleUrl(string baseUrl, string deviceName, int interval, long from , long count)
