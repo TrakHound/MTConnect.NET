@@ -3,8 +3,6 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
-using MTConnect.Application.Streams;
-using System;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -12,39 +10,31 @@ using System.Threading;
 
 namespace MTConnect.Client
 {
-    public class xStream
+    public class Stream
     {
-        public delegate void StreamHandler();
-        public delegate void DocumentHandler(string xml);
-        public delegate void ConnectionErrorHandler(Exception ex);
-        //public delegate void MTConnectErrorHandler(MTConnect.v13.Error error);
+        public Stream(string url)
+        {
+            Url = url;
+        }
+
+        public string Url { get; set; }
 
         public event DocumentHandler DocumentRecieved;
-        public event StreamHandler Started;
-        public event StreamHandler Stopped;
-
+        public event StreamStatusHandler Started;
+        public event StreamStatusHandler Stopped;
 
         private ManualResetEvent stop;
 
-        public void Start(string baseUrl)
+        public void Start()
         {
-            Start(baseUrl, 1000);
-        }
-
-        public void Start(string baseUrl, int interval)
-        {
-            stop = new ManualResetEvent(false);
-
-            // Raise Started Event
-            Started?.Invoke();
-
-            // Get MTConnect Current to find first available sequence
-            var current = Requests.GetCurrent(baseUrl);
-            if (current != null)
+            if (!string.IsNullOrEmpty(Url))
             {
-                string url = CreateSampleUrl(baseUrl, interval, current);
+                stop = new ManualResetEvent(false);
 
-                var request = (HttpWebRequest)WebRequest.Create(url);
+                // Raise Started Event
+                Started?.Invoke();
+
+                var request = (HttpWebRequest)WebRequest.Create(Url);
                 using (var response = (HttpWebResponse)request.GetResponse())
                 using (var stream = response.GetResponseStream())
                 using (var reader = new StreamReader(stream, Encoding.GetEncoding("utf-8")))
@@ -55,7 +45,7 @@ namespace MTConnect.Client
                     int i = reader.Read(buffer, 0, bufferSize);
 
                     string xml = "";
-                    long lastSequence = current.Header.LastSequence;
+                    //long lastSequence = current.Header.LastSequence;
 
                     while (i > 0 && !stop.WaitOne(0, true))
                     {
@@ -72,8 +62,8 @@ namespace MTConnect.Client
                         // Test if End of XML
                         if (HasClosingTag(xml))
                         {
-                            // Process the XML Document
-                            ProcessDocument(xml);
+                            // Raise Document Recieved Event and pass XML
+                            DocumentRecieved?.Invoke(xml);
 
                             // Reset XML
                             xml = "";
@@ -83,45 +73,23 @@ namespace MTConnect.Client
                         i = reader.Read(buffer, 0, bufferSize);
                     }
                 }
-            }
 
-            Stop();
+                Stopped?.Invoke();
+            }
         }
 
         public void Stop()
         {
             if (stop != null) stop.Set();
-
-            Stopped?.Invoke();
-        }
-
-        private static string CreateSampleUrl(string baseUrl, int interval, Response current)
-        {
-            var uri = new Uri(baseUrl);
-            uri = new Uri(uri, "sample");
-            var from = current.Header.LastSequence - 200;
-            var to = current.Header.LastSequence;
-            var format = "{0}?from={1}&to={2}&interval={3}";
-
-            return string.Format(format, uri, from, to, interval);
         }
 
         private static bool HasClosingTag(string xml)
         {
-            int e = xml.IndexOf("</MTConnectStreams>");
+            int e = xml.IndexOf("</MTConnectDevices>");
+            if (e < 0) e = xml.IndexOf("</MTConnectStreams>");
             if (e < 0) e = xml.IndexOf("</MTConnectAssets>");
             if (e < 0) e = xml.IndexOf("</MTConnectError>");
             return e >= 0;
-        }
-
-        private void ProcessDocument(string xml)
-        {
-
-
-
-            // Raise Document Recieved Event and pass XML
-            DocumentRecieved?.Invoke(xml);
-        }
-        
+        }        
     }
 }

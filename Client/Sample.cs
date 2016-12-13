@@ -8,93 +8,120 @@ using System;
 
 namespace MTConnect.Client
 {
-    public class Current
+    public class Sample
     {
         /// <summary>
-        /// Create a new Current Request Client
+        /// Create a new Sample Request Client
         /// </summary>
-        public Current()
+        public Sample()
         {
-            At = -1;
+            Init();
         }
 
         /// <summary>
-        /// Create a new Current Request Client
+        /// Create a new Sample Request Client
         /// </summary>
-        /// <param name="baseUrl">The base URL for the Current Request</param>
-        public Current(string baseUrl)
+        /// <param name="baseUrl">The base URL for the Sample Request</param>
+        public Sample(string baseUrl)
         {
+            Init();
             BaseUrl = baseUrl;
-            At = -1;
         }
 
         /// <summary>
-        /// Create a new Current Request Client
+        /// Create a new Sample Request Client
         /// </summary>
-        /// <param name="baseUrl">The base URL for the Current Request</param>
+        /// <param name="baseUrl">The base URL for the Sample Request</param>
         /// <param name="deviceName">The name of the requested device</param>
-        public Current(string baseUrl, string deviceName)
+        public Sample(string baseUrl, string deviceName)
         {
+            Init();
             BaseUrl = baseUrl;
             DeviceName = deviceName;
-            At = -1;
         }
 
         /// <summary>
-        /// Create a new Current Request Client
+        /// Create a new Sample Request Client
         /// </summary>
-        /// <param name="baseUrl">The base URL for the Current Request</param>
-        /// <param name="atSequence">The sequence number to retrieve the current data for</param>
-        public Current(string baseUrl, long atSequence)
+        /// <param name="baseUrl">The base URL for the Sample Request</param>
+        /// <param name="from">The sequence to retrieve the sample data from</param>
+        public Sample(string baseUrl, long from)
         {
+            Init();
             BaseUrl = baseUrl;
-            At = atSequence;
+            From = from;
         }
 
         /// <summary>
-        /// Create a new Current Request Client
+        /// Create a new Sample Request Client
         /// </summary>
-        /// <param name="baseUrl">The base URL for the Current Request</param>
+        /// <param name="baseUrl">The base URL for the Sample Request</param>
         /// <param name="deviceName">The name of the requested device</param>
-        /// <param name="atSequence">The sequence number to retrieve the current data for</param>
-        public Current(string baseUrl, string deviceName, long atSequence)
+        /// <param name="from">The sequence to retrieve the sample data from</param>
+        public Sample(string baseUrl, string deviceName, long from)
         {
+            Init();
             BaseUrl = baseUrl;
             DeviceName = deviceName;
-            At = atSequence;
+            From = from;
         }
 
         /// <summary>
-        /// Create a new Current Request Client
+        /// Create a new Sample Request Client
         /// </summary>
-        /// <param name="baseUrl">The base URL for the Current Request</param>
+        /// <param name="baseUrl">The base URL for the Sample Request</param>
         /// <param name="deviceName">The name of the requested device</param>
         /// <param name="path">The XPath expression specifying the components and/or data items to include</param>
-        public Current(string baseUrl, string deviceName, string path)
+        public Sample(string baseUrl, string deviceName, string path)
         {
+            Init();
             BaseUrl = baseUrl;
             DeviceName = deviceName;
-            At = -1;
             Path = path;
         }
 
         /// <summary>
-        /// Create a new Current Request Client
+        /// Create a new Sample Request Client
         /// </summary>
-        /// <param name="baseUrl">The base URL for the Current Request</param>
+        /// <param name="baseUrl">The base URL for the Sample Request</param>
         /// <param name="deviceName">The name of the requested device</param>
-        /// <param name="atSequence">The sequence number to retrieve the current data for</param>
-        /// <param name="path">The XPath expression specifying the components and/or data items to include</param>
-        public Current(string baseUrl, string deviceName, string path, long atSequence)
+        /// <param name="from">The sequence to retrieve the sample data from</param>
+        /// <param name="to">The sequence to retrieve the sample data to</param>
+        public Sample(string baseUrl, string deviceName, long from, long to)
         {
+            Init();
             BaseUrl = baseUrl;
             DeviceName = deviceName;
-            At = atSequence;
-            Path = path;
+            From = from;
         }
 
         /// <summary>
-        /// The base URL for the Current Request
+        /// Create a new Sample Request Client
+        /// </summary>
+        /// <param name="baseUrl">The base URL for the Sample Request</param>
+        /// <param name="deviceName">The name of the requested device</param>
+        /// <param name="path">The XPath expression specifying the components and/or data items to include</param>
+        /// <param name="from">The sequence to retrieve the sample data from</param>
+        /// <param name="to">The sequence to retrieve the sample data to</param>
+        public Sample(string baseUrl, string deviceName, string path, long from, long to)
+        {
+            Init();
+            BaseUrl = baseUrl;
+            DeviceName = deviceName;
+            Path = path;
+            From = from;
+            To = to;
+        }
+
+        private void Init()
+        {
+            From = -1;
+            To = -1;
+            Count = -1;
+        }
+
+        /// <summary>
+        /// The base URL for the Sample Request
         /// </summary>
         public string BaseUrl { get; set; }
 
@@ -104,9 +131,19 @@ namespace MTConnect.Client
         public string DeviceName { get; set; }
 
         /// <summary> 
-        /// (Optional) The sequence number to retrieve the current data for
+        /// (Optional) The sequence to retrieve the sample data from
         /// </summary>
-        public long At { get; set; }
+        public long From { get; set; }
+
+        /// <summary> 
+        /// (Optional) The sequence to retrieve the sample data to
+        /// </summary>
+        public long To { get; set; }
+
+        /// <summary> 
+        /// (Optional) The number of sequences to include in the sample data
+        /// </summary>
+        public long Count { get; set; }
 
         /// <summary>
         /// (Optional) The XPath expression specifying the components and/or data items to include
@@ -124,7 +161,7 @@ namespace MTConnect.Client
         public event MTConnectStreamsHandler Successful;
 
         /// <summary>
-        /// Execute the Current Request Synchronously
+        /// Execute the Sample Request Synchronously
         /// </summary>
         public v13.MTConnectStreams.Document Execute()
         {
@@ -135,7 +172,7 @@ namespace MTConnect.Client
         }
 
         /// <summary>
-        /// Execute the Current Request Asynchronously
+        /// Execute the Sample Request Asynchronously
         /// </summary>
         public void ExecuteAsync()
         {
@@ -148,7 +185,7 @@ namespace MTConnect.Client
         {
             // Create Uri
             var uri = new Uri(BaseUrl);
-            uri = new Uri(uri, "current");
+            uri = new Uri(uri, "sample");
             if (DeviceName != null) uri = new Uri(uri, DeviceName);
             return uri;
         }
@@ -157,8 +194,14 @@ namespace MTConnect.Client
         {
             var request = new RestRequest(Method.GET);
 
-            // Add 'At' parameter
-            if (At > -1) request.AddQueryParameter("at", At.ToString());
+            // Add 'From' parameter
+            if (From > -1) request.AddQueryParameter("from", From.ToString());
+
+            // Add 'To' parameter
+            if (To > -1) request.AddQueryParameter("to", To.ToString());
+
+            // Add 'Count' parameter
+            if (Count > -1) request.AddQueryParameter("count", Count.ToString());
 
             // Add 'Path' parameter
             if (!string.IsNullOrEmpty(Path)) request.AddQueryParameter("path", Path);
@@ -194,6 +237,5 @@ namespace MTConnect.Client
             var doc = ProcessResponse(response);
             if (doc != null) Successful?.Invoke(doc);
         }
-
     }
 }

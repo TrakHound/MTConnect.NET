@@ -7,9 +7,9 @@ using RestSharp;
 
 namespace MTConnect.Client
 {
-    public class Assets
+    public class Asset
     {
-        public Assets(string baseUrl)
+        public Asset(string baseUrl)
         {
             BaseUrl = baseUrl;
         }

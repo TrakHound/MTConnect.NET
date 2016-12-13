@@ -47,17 +47,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Client\Assets.cs" />
+    <Compile Include="Client\Asset.cs" />
     <Compile Include="Client\Current.cs" />
+    <Compile Include="Client\Delegates.cs" />
+    <Compile Include="Client\MTConnectClient.cs" />
     <Compile Include="Client\Probe.cs" />
+    <Compile Include="Client\Sample.cs" />
     <Compile Include="DocumentType.cs" />
     <Compile Include="v13\Headers\MTConnectAssestsHeader.cs" />
-    <Compile Include="v13\ErrorCode.cs" />
+    <Compile Include="v13\MTConnectError\ErrorCode.cs" />
     <Compile Include="v13\Headers\MTConnectDevicesHeader.cs" />
     <Compile Include="v13\Headers\MTConnectErrorHeader.cs" />
     <Compile Include="v13\Headers\MTConnectStreamsHeader.cs" />
-    <None Include="ClassDiagram1.cd" />
-    <None Include="Client\Stream.cs" />
+    <Compile Include="Client\Stream.cs" />
     <Compile Include="v13\ConditionValue.cs" />
     <Compile Include="DataItemCategory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
