@@ -44,75 +44,82 @@ namespace MTConnect.v13.MTConnectStreams
 
         public void ReadXml(XmlReader reader)
         {
-            // Read Child Elements
-            using (var inner = reader.ReadSubtree())
+            try
             {
-
-                XmlSerializer serializer;
-                switch (type)
+                // Read Child Elements
+                using (var inner = reader.ReadSubtree())
                 {
-                    case DataItemType.Condition: serializer = new XmlSerializer(typeof(Condition)); break;
-                    case DataItemType.Event: serializer = new XmlSerializer(typeof(Event)); break;
-                    default: serializer = new XmlSerializer(typeof(Sample)); break;
-                }
 
-                while (inner.Read())
-                {
-                    if (inner.NodeType == XmlNodeType.Element)
+                    XmlSerializer serializer;
+                    switch (type)
                     {
-                        // Create a copy of each Child Node so we can change the name to "DataItem" and deserialize it
-                        // (Seems like a dirty way to do this but until an XmlAttribute can be found to ignore the Node's name/type
-                        // and to always deserialize as a DataItem)
-                        var doc = new XmlDocument();
-                        var node = doc.ReadNode(inner);
-                        foreach (XmlNode child in node.ChildNodes)
+                        case DataItemType.Condition: serializer = new XmlSerializer(typeof(Condition)); break;
+                        case DataItemType.Event: serializer = new XmlSerializer(typeof(Event)); break;
+                        default: serializer = new XmlSerializer(typeof(Sample)); break;
+                    }
+
+                    while (inner.Read())
+                    {
+                        if (inner.NodeType == XmlNodeType.Element)
                         {
-                            if (child.NodeType == XmlNodeType.Element)
+                            // Create a copy of each Child Node so we can change the name to "DataItem" and deserialize it
+                            // (Seems like a dirty way to do this but until an XmlAttribute can be found to ignore the Node's name/type
+                            // and to always deserialize as a DataItem)
+                            var doc = new XmlDocument();
+                            var node = doc.ReadNode(inner);
+                            foreach (XmlNode child in node.ChildNodes)
                             {
-                                // Create a new Node with the name of "DataItem"
-                                var copy = doc.CreateNode(XmlNodeType.Element, type.ToString(), null);
-
-                                // Copy Attributes
-                                foreach (XmlAttribute attribute in child.Attributes)
+                                if (child.NodeType == XmlNodeType.Element)
                                 {
-                                    var attr = doc.CreateAttribute(attribute.Name);
-                                    attr.Value = attribute.Value;
-                                    copy.Attributes.Append(attr);
+                                    // Create a new Node with the name of "DataItem"
+                                    var copy = doc.CreateNode(XmlNodeType.Element, type.ToString(), null);
+
+                                    // Copy Attributes
+                                    foreach (XmlAttribute attribute in child.Attributes)
+                                    {
+                                        var attr = doc.CreateAttribute(attribute.Name);
+                                        attr.Value = attribute.Value;
+                                        copy.Attributes.Append(attr);
+                                    }
+
+                                    // Copy Text
+                                    copy.InnerText = child.InnerText;
+
+                                    // Deserialize as DataItem
+                                    switch (type)
+                                    {
+                                        case DataItemType.Condition:
+
+                                            var _condition = (Condition)serializer.Deserialize(new XmlNodeReader(copy));
+                                            ConditionValue value;
+                                            Enum.TryParse(child.Name.ToUpper(), out value);
+                                            _condition.ConditionValue = value;
+                                            DataItems.Add(_condition);
+                                            break;
+
+                                        case DataItemType.Event:
+
+                                            var _event = (Event)serializer.Deserialize(new XmlNodeReader(copy));
+                                            _event.Type = child.Name;
+                                            DataItems.Add(_event);
+                                            break;
+
+                                        default:
+
+                                            var _sample = (Sample)serializer.Deserialize(new XmlNodeReader(copy));
+                                            _sample.Type = child.Name;
+                                            DataItems.Add(_sample);
+                                            break;
+                                    }
                                 }
-
-                                // Copy Text
-                                copy.InnerText = child.InnerText;
-
-                                // Deserialize as DataItem
-                                switch (type)
-                                {
-                                    case DataItemType.Condition:
-
-                                        var _condition = (Condition)serializer.Deserialize(new XmlNodeReader(copy));
-                                        ConditionValue value;
-                                        Enum.TryParse(child.Name.ToUpper(), out value);
-                                        _condition.ConditionValue = value;
-                                        DataItems.Add(_condition);
-                                        break;
-
-                                    case DataItemType.Event:
-
-                                        var _event = (Event)serializer.Deserialize(new XmlNodeReader(copy));
-                                        _event.Type = child.Name;
-                                        DataItems.Add(_event);
-                                        break;
-
-                                    default:
-
-                                        var _sample = (Sample)serializer.Deserialize(new XmlNodeReader(copy));
-                                        _sample.Type = child.Name;
-                                        DataItems.Add(_sample);
-                                        break;
-                                }                                
                             }
                         }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
             }
 
             // Advance Reader
