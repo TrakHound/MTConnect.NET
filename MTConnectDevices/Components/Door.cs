@@ -5,10 +5,8 @@
 
 using System.Xml.Serialization;
 
-namespace MTConnect.MTConnectDevices.Components.Axes.SubComponents
+namespace MTConnect.MTConnectDevices.Components
 {
-    [XmlRoot("Rotary")]
-    public class RotaryComponent : IComponent
-    {
-    }
+    [XmlRoot("Door")]
+    public class Door : IComponent { }
 }

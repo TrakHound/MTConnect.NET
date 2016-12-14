@@ -5,8 +5,8 @@
 
 using System.Xml.Serialization;
 
-namespace MTConnect.MTConnectDevices.Components.Systems
+namespace MTConnect.MTConnectDevices.Components
 {
     [XmlRoot("Systems")]
-    public class SystemsComponent : IComponent { }
+    public class Systems : IComponent { }
 }

@@ -53,7 +53,7 @@
   <ItemGroup>
     <Compile Include="Client\Asset.cs" />
     <Compile Include="Client\Current.cs" />
-    <Compile Include="Client\Delegates.cs" />
+    <Compile Include="Delegates.cs" />
     <Compile Include="Client\MTConnectClient.cs" />
     <Compile Include="Client\Probe.cs" />
     <Compile Include="Client\Sample.cs" />
@@ -88,14 +88,14 @@
     <Compile Include="MTConnectAssets\CuttingTools\ToolLifeType.cs" />
     <Compile Include="MTConnectAssets\Document.cs" />
     <Compile Include="MTConnectAssets\CuttingTools\ToolLife.cs" />
-    <Compile Include="MTConnectDevices\Components\Axes\AxesComponent.cs" />
-    <Compile Include="MTConnectDevices\Components\Axes\SubComponents\LinearComponent.cs" />
-    <Compile Include="MTConnectDevices\Components\Axes\SubComponents\RotaryComponent.cs" />
-    <Compile Include="MTConnectDevices\Components\Controller\ControllerComponent.cs" />
-    <Compile Include="MTConnectDevices\Components\Controller\SubComponents\PathComponent.cs" />
-    <Compile Include="MTConnectDevices\Components\Door\DoorComponent.cs" />
-    <Compile Include="MTConnectDevices\Components\Interfaces\InterfacesComponent.cs" />
-    <Compile Include="MTConnectDevices\Components\Systems\SystemsComponent.cs" />
+    <Compile Include="MTConnectDevices\Components\Axes.cs" />
+    <Compile Include="MTConnectDevices\Components\Linear.cs" />
+    <Compile Include="MTConnectDevices\Components\Rotary.cs" />
+    <Compile Include="MTConnectDevices\Components\Controller.cs" />
+    <Compile Include="MTConnectDevices\Components\Path.cs" />
+    <Compile Include="MTConnectDevices\Components\Door.cs" />
+    <Compile Include="MTConnectDevices\Components\Interfaces.cs" />
+    <Compile Include="MTConnectDevices\Components\Systems.cs" />
     <Compile Include="MTConnectDevices\IComponent.cs" />
     <Compile Include="MTConnectDevices\Constraints.cs" />
     <Compile Include="MTConnectDevices\DataItem.cs" />
@@ -125,9 +125,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Nuget\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

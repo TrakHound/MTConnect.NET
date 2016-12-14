@@ -56,6 +56,20 @@ namespace MTConnect.Client
         /// Create a new Sample Request Client
         /// </summary>
         /// <param name="baseUrl">The base URL for the Sample Request</param>
+        /// <param name="from">The sequence to retrieve the sample data from</param>
+        /// <param name="to">The sequence to retrieve the sample data to</param>
+        public Sample(string baseUrl, long from, long to)
+        {
+            Init();
+            BaseUrl = baseUrl;
+            From = from;
+            To = to;
+        }
+
+        /// <summary>
+        /// Create a new Sample Request Client
+        /// </summary>
+        /// <param name="baseUrl">The base URL for the Sample Request</param>
         /// <param name="deviceName">The name of the requested device</param>
         /// <param name="from">The sequence to retrieve the sample data from</param>
         public Sample(string baseUrl, string deviceName, long from)

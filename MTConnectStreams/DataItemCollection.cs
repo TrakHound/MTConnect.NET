@@ -16,6 +16,7 @@ namespace MTConnect.MTConnectStreams
         [XmlIgnore]
         public List<DataItem> DataItems { get; set; }
 
+
         public DataItemCollection()
         {
             DataItems = new List<DataItem>();

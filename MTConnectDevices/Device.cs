@@ -91,11 +91,11 @@ namespace MTConnect.MTConnectDevices
         /// A container for Component XML Elements associated with this Device.
         /// </summary>
         [XmlArray("Components")]
-        [XmlArrayItem("Axes", typeof(Components.Axes.AxesComponent))]
-        [XmlArrayItem("Controller", typeof(Components.Controller.ControllerComponent))]
-        [XmlArrayItem("Door", typeof(Components.Door.DoorComponent))]
-        [XmlArrayItem("Interfaces", typeof(Components.Interfaces.InterfacesComponent))]
-        [XmlArrayItem("Systems", typeof(Components.Systems.SystemsComponent))]
+        [XmlArrayItem("Axes", typeof(Components.Axes))]
+        [XmlArrayItem("Controller", typeof(Components.Controller))]
+        [XmlArrayItem("Door", typeof(Components.Door))]
+        [XmlArrayItem("Interfaces", typeof(Components.Interfaces))]
+        [XmlArrayItem("Systems", typeof(Components.Systems))]
         public List<IComponent> Components { get; set; }
 
         /// <summary>
@@ -129,13 +129,46 @@ namespace MTConnect.MTConnectDevices
             // Add Root DataItems
             if (component.DataItems != null) l.AddRange(component.DataItems);
 
-            if (component.GetType() == typeof(Components.Axes.AxesComponent))
+            if (component.GetType() == typeof(Components.Axes))
             {
-                foreach (var child in ((Components.Axes.AxesComponent)component).Components) l.AddRange(GetDataItems(child));
+                foreach (var child in ((Components.Axes)component).Components) l.AddRange(GetDataItems(child));
             }
-            else if (component.GetType() == typeof(Components.Controller.ControllerComponent))
+            else if (component.GetType() == typeof(Components.Controller))
             {
-                foreach (var child in ((Components.Controller.ControllerComponent)component).Components) l.AddRange(GetDataItems(child));
+                foreach (var child in ((Components.Controller)component).Components) l.AddRange(GetDataItems(child));
+            }
+
+            return l;
+        }
+
+        /// <summary>
+        /// Return a list of All Components
+        /// </summary>
+        public List<IComponent> GetComponents()
+        {
+            var l = new List<IComponent>();
+
+            foreach (var component in Components)
+            {
+                l.AddRange(GetComponents(component));
+            }
+
+            return l;
+        }
+
+        private List<IComponent> GetComponents(IComponent component)
+        {
+            var l = new List<IComponent>();
+
+            l.Add(component);
+
+            if (component.GetType() == typeof(Components.Axes))
+            {
+                foreach (var child in ((Components.Axes)component).Components) l.AddRange(GetComponents(child));
+            }
+            else if (component.GetType() == typeof(Components.Controller))
+            {
+                foreach (var child in ((Components.Controller)component).Components) l.AddRange(GetComponents(child));
             }
 
             return l;

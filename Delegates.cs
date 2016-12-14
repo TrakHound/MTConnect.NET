@@ -5,7 +5,7 @@
 
 using System;
 
-namespace MTConnect.Client
+namespace MTConnect
 {
     public delegate void MTConnectDevicesHandler(MTConnectDevices.Document document);
 

@@ -6,17 +6,17 @@
 using System.Collections.Generic;
 using System.Xml.Serialization;
 
-namespace MTConnect.MTConnectDevices.Components.Controller
+namespace MTConnect.MTConnectDevices.Components
 {
     [XmlRoot("Controller")]
-    public class ControllerComponent : IComponent
+    public class Controller : IComponent
     {
         /// <summary>
         /// A container for lower level Component XML Elements associated with this parent Component.
         /// These lower level elements in this container are defined as Subcomponent elements.
         /// </summary>
         [XmlArray("Components")]
-        [XmlArrayItem("Path", typeof(SubComponents.PathComponent))]
+        [XmlArrayItem("Path", typeof(Path))]
         public List<IComponent> Components;
     }
 }

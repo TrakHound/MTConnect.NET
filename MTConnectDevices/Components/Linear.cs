@@ -5,8 +5,10 @@
 
 using System.Xml.Serialization;
 
-namespace MTConnect.MTConnectDevices.Components.Interfaces
+namespace MTConnect.MTConnectDevices.Components
 {
-    [XmlRoot("Interfaces")]
-    public class InterfacesComponent : IComponent { }
+    [XmlRoot("Linear")]
+    public class Linear : IComponent
+    {
+    }
 }

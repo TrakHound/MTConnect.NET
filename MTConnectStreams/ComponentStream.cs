@@ -14,6 +14,12 @@ namespace MTConnect.MTConnectStreams
     /// </summary>
     public class ComponentStream
     {
+        public ComponentStream()
+        {
+            Conditions = new DataItemCollection<Condition>();
+            Events = new DataItemCollection<Event>();
+            Samples = new DataItemCollection<Sample>();
+        }
 
         #region "Required"
 

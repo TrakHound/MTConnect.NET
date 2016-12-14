@@ -5,10 +5,10 @@
 
 using System.Xml.Serialization;
 
-namespace MTConnect.MTConnectDevices.Components.Controller.SubComponents
+namespace MTConnect.MTConnectDevices.Components
 {
     [XmlRoot("Path")]
-    public class PathComponent : IComponent
+    public class Path : IComponent
     {
     }
 }

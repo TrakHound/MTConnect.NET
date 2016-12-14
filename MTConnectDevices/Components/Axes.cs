@@ -6,18 +6,18 @@
 using System.Collections.Generic;
 using System.Xml.Serialization;
 
-namespace MTConnect.MTConnectDevices.Components.Axes
+namespace MTConnect.MTConnectDevices.Components
 {
     [XmlRoot("Axes")]
-    public class AxesComponent : IComponent
+    public class Axes : IComponent
     {
         /// <summary>
         /// A container for lower level Component XML Elements associated with this parent Component.
         /// These lower level elements in this container are defined as Subcomponent elements.
         /// </summary>
         [XmlArray("Components")]
-        [XmlArrayItem("Linear", typeof(SubComponents.LinearComponent))]
-        [XmlArrayItem("Rotary", typeof(SubComponents.RotaryComponent))]
+        [XmlArrayItem("Linear", typeof(Linear))]
+        [XmlArrayItem("Rotary", typeof(Rotary))]
         public List<IComponent> Components;
     }
 }

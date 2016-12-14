@@ -5,8 +5,8 @@
 
 using System.Xml.Serialization;
 
-namespace MTConnect.MTConnectDevices.Components.Door
+namespace MTConnect.MTConnectDevices.Components
 {
-    [XmlRoot("Door")]
-    public class DoorComponent : IComponent { }
+    [XmlRoot("Interfaces")]
+    public class Interfaces : IComponent { }
 }
