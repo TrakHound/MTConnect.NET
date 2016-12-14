@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("MTConnect.NET")]
-[assembly: AssemblyDescription("Library for .NET Applications using the MTConnect® Communications Protocol to retrieve data from Industrial Machinery")]
+[assembly: AssemblyDescription(".NET library for MTConnect® protocol for machine tool data collection. Uses XML serializer and easy to use functions for requesting data from MTConnect Agents. Supports up to MTConnect v1.3.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Feenux LLC")]
+[assembly: AssemblyCompany("TrakHound Inc.")]
 [assembly: AssemblyProduct("MTConnect.NET")]
-[assembly: AssemblyCopyright("©  2016 Feenux LLC, All Rights Reserved")]
+[assembly: AssemblyCopyright("©  2017 TrakHound Inc., All Rights Reserved")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -32,5 +32,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.1.0.*")]
-[assembly: AssemblyFileVersion("1.1.0.*")]
+[assembly: AssemblyVersion("2.0.0.*")]
+[assembly: AssemblyFileVersion("2.0.0.*")]
