@@ -8,12 +8,12 @@ MTConnect.NET is a .NET library for the [MTConnect®](http://www.mtconnect.org) 
 - Intellisense using text directly from the MTConnect Standard
 - Simple parsing using built in XmlSerializer
 
+# Installation
+
 ## Nuget
 **PM> Install-Package MTConnect.NET**
-<br>
-http://www.nuget.org/packages/MTConnect.NET/
 
-<br>
+http://www.nuget.org/packages/MTConnect.NET/
 
 # Examples
 
