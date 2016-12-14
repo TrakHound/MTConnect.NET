@@ -3,6 +3,7 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
+using System.Collections.Generic;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -18,7 +19,7 @@ namespace MTConnect.MTConnectAssets.CuttingTools
         /// </summary>
         [XmlArray("CutterStatus")]
         [XmlArrayItem("Status", typeof(CutterStatus))]
-        public CutterStatus[] CutterStatus { get; set; }
+        public List<CutterStatus> CutterStatus { get; set; }
 
         #endregion
 
@@ -77,14 +78,14 @@ namespace MTConnect.MTConnectAssets.CuttingTools
         /// </summary>
         [XmlArray("Measurements")]
         [XmlArrayItem("Measurement", typeof(Measurement))]
-        public Measurement[] Measurements { get; set; }
+        public List<Measurement> Measurements { get; set; }
 
         /// <summary>
         /// An optional set of individual cutting items.
         /// </summary>
         [XmlArray("CuttingItems")]
         [XmlArrayItem("CuttingItem", typeof(CuttingItem))]
-        public CuttingItem[] CuttingItems { get; set; }
+        public List<CuttingItem> CuttingItems { get; set; }
 
         #endregion
     }
