@@ -2,6 +2,12 @@
 
 MTConnect.NET is a .NET library for MTConnect® protocol for machine tool data collection. Uses XML serializer and easy to use functions for requesting data from MTConnect Agents. Supports up to MTConnect v1.3.
 
+# Features
+- Easy to use client classes
+- Full MTConnect document responses as class objects
+- Intellisense using text directly from the MTConnect Standard
+- Simple parsing using built in XML Serializer
+
 ## Nuget
 **PM> Install-Package MTConnect.NET**
 <br>
