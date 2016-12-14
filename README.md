@@ -146,7 +146,7 @@ if (avail != null) Console.WriteLine(avail.CDATA);
 // Find DataItem by Type
 var estop = document.DeviceStreams[0].DataItems.Find(o => o.Type == "EMERGENCY_STOP");
 
-// Find the a component by the ComponentId
+// Find the a ComponentStream by the ComponentId
 var cn1 = document.DeviceStreams[0].ComponentStreams.Find(o => o.ComponentId == "cn1");
 
 // Find a Condition by Id and write both the Condition and CDATA to console
