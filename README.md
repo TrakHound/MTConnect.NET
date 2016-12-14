@@ -1,6 +1,6 @@
-# MTConnect.NET
+![MTConnect.NET Logo] (http://trakhound.com/images/mtconnect-net-logo.png)
 
-This .NET library contains tools for retrieving and processing data using the MTConnect® communication protocol for CNC and PLC industrial equipment.
+MTConnect.NET is a .NET library for MTConnect® protocol for machine tool data collection. Uses XML serializer and easy to use functions for requesting data from MTConnect Agents. Supports up to MTConnect v1.3.
 
 ## Nuget
 **PM> Install-Package MTConnect.NET**
@@ -8,6 +8,60 @@ This .NET library contains tools for retrieving and processing data using the MT
 http://www.nuget.org/packages/MTConnect.NET/
 
 <br>
+
+# Examples
+
+## MTConnectClient
+The MTConnectClient class handles the entire request structure for a typical data collection application using MTConnect. First a Probe request is made, then a Current request, then a stream is opened for any new Sample data. The class will continue to run until the Stop() method is called and will handle errors internally.
+
+```c#
+using MTConnect;
+using MTConnect.Client;
+
+MTConnectClient client;
+
+void Start()
+{
+  // The base address for the MTConnect Agent
+  string baseUrl = "http://agent.mtconnect.org";
+
+  // Create a new MTConnectClient using the baseUrl
+  client = new MTConnectClient(baseUrl);
+
+  // Subscribe to the Event handlers to receive the MTConnect documents
+  client.ProbeReceived += Probe_Successful;
+  client.CurrentReceived += Current_Successful;
+  client.SampleReceived += Current_Successful;
+
+  // Start the MTConnectClient
+  client.Start();
+}
+
+void Stop()
+{
+  client.Stop();
+}
+
+// --- Event Handlers ---
+
+void DevicesSuccessful(MTConnectDevices.Document document)
+{
+  foreach (var device in document.Devices)
+  {
+     var dataItems = device.GetDataItems();
+     foreach (var dataItem in dataItems) Console.WriteLine(dataItem.Id + " : " + dataItem.Name);
+  }
+}
+
+void StreamsSuccessful(MTConnectStreams.Document document)
+{
+  foreach (var deviceStream in document.DeviceStreams)
+  {
+     foreach (var dataItem in deviceStream.DataItems) Console.WriteLine(dataItem.DataItemId + " = " + dataItem.CDATA);
+  }
+}
+
+```
 
 ### Components.Requests Example
 
