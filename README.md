@@ -25,7 +25,7 @@ The MTConnectClient class handles the entire request structure for a typical dat
 ```c#
 using MTConnectDevices = MTConnect.MTConnectDevices;
 using MTConnectStreams = MTConnect.MTConnectStreams;
-using MTConnect.Client;
+using MTConnect.Clients;
 
 MTConnectClient client;
 
