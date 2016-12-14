@@ -112,11 +112,41 @@ var sample = new Sample(baseUrl, 200, 500).Execute();
 
 ## Documents
 
-### MTConnectDevices
-The MTConnectDevices.Document class uses the same structure as laid out in the raw MTConnect XML file and allows you to easily list or search the DataItems by Component or DataItem ID.
+### MTConnectDevices.Document
+The MTConnectDevices.Document class uses the same structure as laid out in the raw MTConnect XML file and allows you to easily list or search the DataItems by Component or DataItem ID using Linq.
 
 ```c#
+// Find DataItem by ID
+var avail = document.Devices[0].GetDataItems().Find(o => o.Id == "avail");
 
+// Find DataItem by Type
+var estop = document.Devices[0].GetDataItems().Find(o => o.Type == "EMERGENCY_STOP");
+
+// Find the first Controller component
+var controller = document.Devices[0].GetComponents().Find(o => o.GetType() == typeof(MTConnectDevices.Components.Controller));
+
+// Find DataItem by Type in the first Controller/Path component
+var program = document.Devices[0].GetComponents().Find(o => o.GetType() == typeof(MTConnectDevices.Components.Path)).DataItems.Find(o => o.Type == "PROGRAM");
+
+// Find all of the Line Types in each Controller/Path component
+foreach (var path in document.Devices[0].GetComponents().FindAll(o => o.GetType() == typeof(MTConnectDevices.Components.Path)))
+{
+  var line = path.DataItems.Find(o => o.Type == "LINE");
+}
+```
+
+### MTConnectStreams.Document
+The MTConnectStreams.Document class uses the same structure as laid out in the raw MTConnect XML file and allows you to easily list or search the DataItems by Component or DataItem ID using Linq.
+
+```c#
+// Find DataItem by ID
+var avail = document.Devices[0].GetDataItems().Find(o => o.Id == "avail");
+
+// Find DataItem by Type
+var estop = document.Devices[0].GetDataItems().Find(o => o.Type == "EMERGENCY_STOP");
+
+// Find the first Controller component
+var controller = document.Devices[0].GetComponents().Find(o => o.GetType() == typeof(MTConnectDevices.Components.Controller.ControllerComponent));
 ```
 
 ## License
