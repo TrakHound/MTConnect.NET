@@ -111,9 +111,9 @@ var sample = new Sample(baseUrl, 200, 500).Execute();
 ```
 
 ## Documents
+The Document classes use the same structure as laid out in the raw MTConnect XML file and allow you to easily list or search the DataItems by Component or DataItem ID using Linq.
 
 ### MTConnectDevices.Document
-The MTConnectDevices.Document class uses the same structure as laid out in the raw MTConnect XML file and allows you to easily list or search the DataItems by Component or DataItem ID using Linq.
 
 ```c#
 // Find DataItem by ID
@@ -136,7 +136,6 @@ foreach (var path in document.Devices[0].GetComponents().FindAll(o => o.GetType(
 ```
 
 ### MTConnectStreams.Document
-The MTConnectStreams.Document class uses the same structure as laid out in the raw MTConnect XML file and allows you to easily list or search the DataItems by Component or DataItem ID using Linq.
 
 ```c#
 // Find DataItem by ID and write value to console
