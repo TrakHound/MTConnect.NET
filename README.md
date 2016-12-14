@@ -23,7 +23,8 @@ http://www.nuget.org/packages/MTConnect.NET/
 The MTConnectClient class handles the entire request structure for a typical data collection application using MTConnect. First a Probe request is made, then a Current request, then a stream is opened for any new Sample data. The class will continue to run until the Stop() method is called and will handle errors internally.
 
 ```c#
-using MTConnect;
+using MTConnectDevices = MTConnect.MTConnectDevices;
+using MTConnectStreams = MTConnect.MTConnectStreams;
 using MTConnect.Client;
 
 MTConnectClient client;
@@ -107,6 +108,15 @@ string baseUrl = "http://agent.mtconnect.org";
 
 // Execute the Sample request from sequence 200 to 500 and get an MTConnectStreams.Document object back
 var sample = new Sample(baseUrl, 200, 500).Execute();
+```
+
+## Documents
+
+### MTConnectDevices
+The MTConnectDevices.Document class uses the same structure as laid out in the raw MTConnect XML file and allows you to easily list or search the DataItems by Component or DataItem ID.
+
+```c#
+
 ```
 
 ## License
