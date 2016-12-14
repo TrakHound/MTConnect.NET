@@ -71,24 +71,42 @@ void StreamsSuccessful(MTConnectStreams.Document document)
 
 ```
 
-### Components.Requests Example
+## MTConnect Requests
+The Probe, Current, and Sample requests return the appropriate MTConnect document object. Requests can be sent either synchronously or asynchronously and errors are returned as an MTConnectError document. Request constructors have multiple overloads to make configuration easier and to keep your code clean.
+
+### Probe
 
 ```c#
-// Create Request URL for Probe Request
-string url = MTConnect.HTTP.GetUrl("127.0.0.1", 5000, "VMC-3Axis") + "probe";
+// The base address for the MTConnect Agent
+string baseUrl = "http://agent.mtconnect.org";
 
-// Get ReturnData object back that contains a hierarchical object with the retrieved Current data 
-var returnData = MTConnect.Components.Requests.Get(url, 2000, 1);
+// Execute the Probe request and get an MTConnectDevices.Document object back
+var probe = new Probe(baseUrl).Execute();
+
+// Execute the Probe request asynchronously and return the MTConnectDevices.Document using the event handler
+var probe = new Probe(baseUrl);
+probe.Successful += ProbeSuccess;
+probe.ExecuteAsync();
 ```
 
-### Streams.Requests Example
+### Current
 
 ```c#
-// Create Request URL for Current Request
-string url = MTConnect.HTTP.GetUrl("127.0.0.1", 5000, "VMC-3Axis") + "current";
+// The base address for the MTConnect Agent
+string baseUrl = "http://74.203.109.245:5001";
 
-// Get ReturnData object back that contains a hierarchical object with the retrieved Probe data 
-var returnData = MTConnect.Streams.Requests.Get(url, 2000, 1);
+// Execute the Current request and get an MTConnectStreams.Document object back
+var current = new Current(baseUrl).Execute();
+```
+
+### Sample
+
+```c#
+// The base address for the MTConnect Agent
+string baseUrl = "http://agent.mtconnect.org";
+
+// Execute the Sample request from sequence 200 to 500 and get an MTConnectStreams.Document object back
+var sample = new Sample(baseUrl, 200, 500).Execute();
 ```
 
 ## License
