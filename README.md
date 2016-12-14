@@ -38,9 +38,9 @@ void Start()
   client = new MTConnectClient(baseUrl);
 
   // Subscribe to the Event handlers to receive the MTConnect documents
-  client.ProbeReceived += Probe_Successful;
-  client.CurrentReceived += Current_Successful;
-  client.SampleReceived += Current_Successful;
+  agentClient.ProbeReceived += DevicesSuccessful;
+  agentClient.CurrentReceived += StreamsSuccessful;
+  agentClient.SampleReceived += StreamsSuccessful;
 
   // Start the MTConnectClient
   client.Start();
