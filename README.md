@@ -1,5 +1,7 @@
 ![MTConnect.NET Logo] (http://trakhound.com/images/mtconnect-net-logo.png)
 
+[![GitHub release](https://img.shields.io/github/release/qubyte/rubidium.svg)](https://github.com/TrakHound/MTConnect.NET/releases) [![NuGet](https://img.shields.io/nuget/v/Nuget.Core.svg)](https://www.nuget.org/packages/MTConnect.NET/)
+
 MTConnect.NET is a .NET library for the [MTConnect®](http://www.mtconnect.org) protocol for machine tool data collection. Uses the .NET XmlSerializer to parse and easy to use functions for requesting data from MTConnect Agents. Supports up to MTConnect v1.3.
 
 # Features
