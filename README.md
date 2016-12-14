@@ -140,11 +140,11 @@ The MTConnectStreams.Document class uses the same structure as laid out in the r
 
 ```c#
 // Find DataItem by ID and write value to console
-var avail = document.Devices[0].DataItems().Find(o => o.DataItemId == "avail");
+var avail = document.DeviceStreams[0].DataItems.Find(o => o.DataItemId == "avail");
 if (avail != null) Console.WriteLine(avail.CDATA);
 
 // Find DataItem by Type
-var estop = document.Devices[0].DataItems().Find(o => o.Type == "EMERGENCY_STOP");
+var estop = document.DeviceStreams[0].DataItems.Find(o => o.Type == "EMERGENCY_STOP");
 
 // Find the a component by the ComponentId
 var cn1 = document.DeviceStreams[0].ComponentStreams.Find(o => o.ComponentId == "cn1");
