@@ -8,9 +8,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("MTConnect.NET")]
 [assembly: AssemblyDescription(".NET library for MTConnect® protocol for machine tool data collection. Uses XML serializer and easy to use functions for requesting data from MTConnect Agents. Supports up to MTConnect v1.3.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("TrakHound Inc.")]
+[assembly: AssemblyCompany("Feenux LLC")]
 [assembly: AssemblyProduct("MTConnect.NET")]
-[assembly: AssemblyCopyright("©  2017 TrakHound Inc., All Rights Reserved")]
+[assembly: AssemblyCopyright("©  2016 Feenux LLC, All Rights Reserved")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
