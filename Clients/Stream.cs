@@ -9,7 +9,7 @@ using System.Net;
 using System.Text;
 using System.Threading;
 
-namespace MTConnect.Client
+namespace MTConnect.Clients
 {
     public class Stream
     {
@@ -38,6 +38,9 @@ namespace MTConnect.Client
 
                 try
                 {
+                    //int charSize = ASCIIEncoding.UTF8.GetByteCount("a");
+                    //int bufferSize = 1000000;
+
                     var request = (HttpWebRequest)WebRequest.Create(Url);
                     using (var response = (HttpWebResponse)request.GetResponse())
                     using (var stream = response.GetResponseStream())
@@ -59,6 +62,11 @@ namespace MTConnect.Client
                             int b = s.IndexOf("<?xml");
                             if (b >= 0) s = s.Substring(b);
 
+                            if (b >= 0 && s.IndexOf("<?xml", b) >= 0)
+                            {
+                                Console.WriteLine("Two open tags");
+                            }
+
                             // Add buffer to XML
                             xml += s;
 
@@ -71,6 +79,17 @@ namespace MTConnect.Client
                                 // Reset XML
                                 xml = "";
                             }
+
+                            int bytes = Encoding.UTF8.GetByteCount(xml);
+                            if (bytes >= bufferSize)
+                            {
+                                Console.WriteLine("Xml bigger than BufferSize");
+                            }
+
+                            
+
+                            // Clear Buffer
+                            buffer = new char[bufferSize];
 
                             // Read Next Chunk
                             i = reader.Read(buffer, 0, bufferSize);

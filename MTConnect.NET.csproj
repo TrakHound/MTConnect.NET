@@ -54,12 +54,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Client\Asset.cs" />
-    <Compile Include="Client\Current.cs" />
+    <Compile Include="Clients\Asset.cs" />
+    <Compile Include="Clients\Current.cs" />
+    <Compile Include="Clients\SampleRange.cs" />
     <Compile Include="Delegates.cs" />
-    <Compile Include="Client\MTConnectClient.cs" />
-    <Compile Include="Client\Probe.cs" />
-    <Compile Include="Client\Sample.cs" />
+    <Compile Include="Clients\MTConnectClient.cs" />
+    <Compile Include="Clients\Probe.cs" />
+    <Compile Include="Clients\Sample.cs" />
     <Compile Include="Namespaces.cs" />
     <Compile Include="Version.cs" />
     <Compile Include="Headers\MTConnectAssestsHeader.cs" />
@@ -67,7 +68,7 @@
     <Compile Include="Headers\MTConnectDevicesHeader.cs" />
     <Compile Include="Headers\MTConnectErrorHeader.cs" />
     <Compile Include="Headers\MTConnectStreamsHeader.cs" />
-    <Compile Include="Client\Stream.cs" />
+    <Compile Include="Clients\Stream.cs" />
     <Compile Include="ConditionValue.cs" />
     <Compile Include="DataItemCategory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

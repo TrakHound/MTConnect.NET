@@ -6,7 +6,7 @@
 using RestSharp;
 using System;
 
-namespace MTConnect.Client
+namespace MTConnect.Clients
 {
     public class Probe
     {
@@ -84,8 +84,8 @@ namespace MTConnect.Client
         {
             // Create Uri
             var uri = new Uri(BaseUrl);
-            uri = new Uri(uri, "probe");
             if (DeviceName != null) uri = new Uri(uri, DeviceName);
+            uri = new Uri(uri, "probe");
 
             // Create HTTP Client and Request Data
             var client = new RestClient(uri);

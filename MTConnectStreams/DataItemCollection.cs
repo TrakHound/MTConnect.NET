@@ -95,6 +95,7 @@ namespace MTConnect.MTConnectStreams
                                             ConditionValue value;
                                             Enum.TryParse(child.Name.ToUpper(), out value);
                                             _condition.ConditionValue = value;
+                                            _condition.Type = child.Name;
                                             DataItems.Add(_condition);
                                             break;
 

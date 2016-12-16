@@ -6,7 +6,7 @@
 using RestSharp;
 using System;
 
-namespace MTConnect.Client
+namespace MTConnect.Clients
 {
     public class Asset
     {

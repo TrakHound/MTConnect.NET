@@ -6,7 +6,7 @@
 using RestSharp;
 using System;
 
-namespace MTConnect.Client
+namespace MTConnect.Clients
 {
     public class Current
     {
@@ -153,8 +153,8 @@ namespace MTConnect.Client
         {
             // Create Uri
             var uri = new Uri(BaseUrl);
-            uri = new Uri(uri, "current");
             if (DeviceName != null) uri = new Uri(uri, DeviceName);
+            uri = new Uri(uri, "current");        
             return uri;
         }
 

@@ -6,7 +6,7 @@
 using System;
 using System.Threading;
 
-namespace MTConnect.Client
+namespace MTConnect.Clients
 {
     public class MTConnectClient
     {
@@ -19,6 +19,13 @@ namespace MTConnect.Client
         {
             Init();
             BaseUrl = baseUrl;
+        }
+
+        public MTConnectClient(string baseUrl, string deviceName)
+        {
+            Init();
+            BaseUrl = baseUrl;
+            DeviceName = deviceName;
         }
 
         private void Init()
@@ -48,6 +55,16 @@ namespace MTConnect.Client
 
         private Stream sampleStream;
 
+        private SequenceRange _sampleRange;
+        public  SequenceRange SampleRange
+        {
+            get
+            {
+                if (_sampleRange == null) _sampleRange = new SequenceRange(0, 0);
+                return _sampleRange;
+            }
+        }
+
         public void Start()
         {
             Started?.Invoke();
@@ -68,7 +85,7 @@ namespace MTConnect.Client
         private void Worker()
         {
             long instanceId = -1;
-            bool first = true;
+            bool initialize = true;
 
             do
             {
@@ -89,21 +106,47 @@ namespace MTConnect.Client
                         var currentDoc = current.Execute();
                         if (currentDoc != null)
                         {
+                            // Check if FirstSequence is larger than previously Sampled
+                            if (!initialize) initialize = SampleRange.From > 0 && currentDoc.Header.FirstSequence > SampleRange.From;
+
                             // Raise CurrentReceived Event
-                            CurrentReceived?.Invoke(currentDoc);
+                            if (initialize) CurrentReceived?.Invoke(currentDoc);
 
                             // Check if Agent InstanceID has changed (Agent has been reset)
-                            if (!first && instanceId != currentDoc.Header.InstanceId)
+                            if (initialize || instanceId != currentDoc.Header.InstanceId)
                             {
+                                SampleRange.Reset();
                                 instanceId = currentDoc.Header.InstanceId;
-                                break;
+
+                                // Restart entire request sequence if new Agent Instance Id is read (probe could have changed)
+                                if (!initialize) break;
                             }
 
-                            // Get the Start Sequence
-                            long from = currentDoc.Header.NextSequence;
-                            if (!first) from = currentDoc.Header.FirstSequence;
+                            long from;
+                            if (initialize) from = currentDoc.Header.NextSequence;
+                            else
+                            {
+                                // If recovering from Error then use last Sample Range that was sampled successfully
+                                // Try to get Buffer minus 100 (to account for time between current and sample requests)
+                                from = currentDoc.Header.LastSequence - (currentDoc.Header.BufferSize - 100);
+                                from = Math.Max(from, currentDoc.Header.FirstSequence);
+                                from = Math.Max(SampleRange.From, from);
+                            }
 
-                            first = false;
+                            long to;
+                            if (initialize) to = from;
+                            else
+                            {
+                                // Get up to the MaximumSampleCount
+                                to = currentDoc.Header.NextSequence;
+                                to = Math.Min(to, from + MaximumSampleCount);
+                            }
+
+                            // Set the SampleRange for subsequent samples
+                            SampleRange.From = from;
+                            SampleRange.To = to;
+
+                            initialize = false;
 
                             // Create the Url to use for the Sample Stream
                             string url = CreateSampleUrl(BaseUrl, DeviceName, Interval, from, MaximumSampleCount);
@@ -129,7 +172,23 @@ namespace MTConnect.Client
                 var doc = MTConnectStreams.Document.Create(xml);
                 if (doc != null)
                 {
-                    SampleReceived?.Invoke(doc);
+                    int itemCount = -1;
+                    if (doc.DeviceStreams.Count > 0)
+                    {
+                        var deviceStream = doc.DeviceStreams.Find(o => o.Name == DeviceName);
+                        if (deviceStream != null)
+                        {
+                            // Get number of DataItems returned by Sample
+                            itemCount = deviceStream.DataItems.Count;
+
+                            var debugRange = new SequenceRange(SampleRange.From, itemCount + SampleRange.From);
+
+                            SampleRange.From += itemCount;
+                            SampleRange.To = doc.Header.NextSequence;
+
+                            SampleReceived?.Invoke(doc);
+                        }                       
+                    } 
                 }
                 else
                 {
@@ -153,8 +212,8 @@ namespace MTConnect.Client
         private static string CreateSampleUrl(string baseUrl, string deviceName, int interval, long from , long count)
         {
             var uri = new Uri(baseUrl);
-            uri = new Uri(uri, "sample");
             if (!string.IsNullOrEmpty(deviceName)) uri = new Uri(uri, deviceName);
+            uri = new Uri(uri, "sample");
             var format = "{0}?from={1}&count={2}&interval={3}";
 
             return string.Format(format, uri, from, count, interval);
