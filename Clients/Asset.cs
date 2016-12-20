@@ -80,6 +80,11 @@ namespace MTConnect.Clients
         public long Count { get; set; }
 
         /// <summary>
+        /// User settable object sent with request and returned in Document on response
+        /// </summary>
+        public object UserObject { get; set; }
+
+        /// <summary>
         /// Raised when an MTConnectError Document is received
         /// </summary>
         public event MTConnectErrorHandler Error;
@@ -88,6 +93,7 @@ namespace MTConnect.Clients
         /// Raised when an MTConnectAssets Document is received successfully
         /// </summary>
         public event MTConnectAssetsHandler Successful;
+
 
         /// <summary>
         /// Execute the Asset Request Synchronously

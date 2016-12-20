@@ -46,6 +46,11 @@ namespace MTConnect.Clients
         public string DeviceName { get; set; }
 
         /// <summary>
+        /// User settable object sent with request and returned in Document on response
+        /// </summary>
+        public object UserObject { get; set; }
+
+        /// <summary>
         /// Raised when an MTConnectError Document is received
         /// </summary>
         public event MTConnectErrorHandler Error;
@@ -59,6 +64,7 @@ namespace MTConnect.Clients
         /// Raised when an MTConnectDevices Document is received successfully
         /// </summary>
         public event MTConnectDevicesHandler Successful;
+
 
         /// <summary>
         /// Execute the Probe Request Synchronously
@@ -107,13 +113,19 @@ namespace MTConnect.Clients
                 var doc = MTConnectDevices.Document.Create(xml);
                 if (doc != null)
                 {
+                    doc.UserObject = UserObject;
                     return doc;
                 }
                 else
                 {
                     // Process MTConnectError Document (if MTConnectDevices fails)
                     var errorDoc = MTConnectError.Document.Create(xml);
-                    if (errorDoc != null) Error?.Invoke(errorDoc);
+                    if (errorDoc != null)
+                    {
+                        errorDoc.UserObject = UserObject;
+                        Error?.Invoke(errorDoc);
+                    }
+
                 }
             }
 

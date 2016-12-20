@@ -50,5 +50,8 @@ namespace MTConnect.MTConnectDevices
 
         protected double _version;
         public double Version { get { return _version; } }
+
+        [XmlIgnore]
+        public object UserObject { get; set; }
     }
 }
