@@ -1,2 +1,2 @@
 language: csharp
-solution: MTConnect.NET.sln
+solution: src/MTConnect.NET.sln
