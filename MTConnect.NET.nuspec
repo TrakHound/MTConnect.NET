@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>MTConnect.NET</id>
+    <version>$version$</version>
+    <title>MTConnect.NET</title>
+    <authors>TrakHound</authors>
+    <owners>TrakHound</owners>
+    <iconUrl>http://trakhound.com/images/mtconnect-net-logo.png</iconUrl>
+    <licenseUrl>https://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
+    <projectUrl>http://github.com/TrakHound/MTConnect.NET</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>.NET library for MTConnect® protocol for machine tool data collection. Uses XML serializer and easy to use functions for requesting data from MTConnect Agents. Supports up to MTConnect v1.3.</description>
+    <releaseNotes>A generic UserObject can now be passed in each Document class. The variable is defined in each Client class and the corresponding Documents that are returned will pass this same variable. Good for passing the IP address of the client, etc.</releaseNotes>
+    <copyright>©  2016 Feenux LLC, All Rights Reserved</copyright>
+    <tags>mtconnect trakhound cnc iiot</tags>
+  </metadata>
+</package>
