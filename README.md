@@ -1,6 +1,6 @@
 ![MTConnect.NET Logo] (http://trakhound.com/images/mtconnect-net-logo.png)
 
-[![Travis branch](https://img.shields.io/travis/TrakHound/MTConnect.NET.svg?style=flat-square)](https://travis-ci.org/TrakHound/MTConnect.NET) [![NuGet](https://img.shields.io/nuget/v/MTConnect.Net.svg?style=flat-square)](https://www.nuget.org/packages/MTConnect.NET/) [![Hex.pm](https://img.shields.io/hexpm/l/plug.svg?style=flat-square)](https://www.apache.org/licenses/LICENSE-2.0)
+[![Travis branch](https://img.shields.io/travis/TrakHound/MTConnect.NET.svg?style=flat-square)](https://travis-ci.org/TrakHound/MTConnect.NET) [![NuGet](https://img.shields.io/nuget/v/MTConnect.Net.svg?style=flat-square)](https://www.nuget.org/packages/MTConnect.NET/)
 
 MTConnect.NET is a .NET library for the [MTConnect®](http://www.mtconnect.org) protocol for machine tool data collection. Uses the .NET XmlSerializer to parse and easy to use functions for requesting data from MTConnect Agents. Supports up to MTConnect v1.3.
 
