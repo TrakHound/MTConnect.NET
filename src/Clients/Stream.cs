@@ -21,6 +21,7 @@ namespace MTConnect.Clients
         public string Url { get; set; }
 
         public event ConnectionErrorHandler ConnectionError;
+        public event XmlHandler XmlError;
         public event XmlHandler XmlReceived;
         public event StreamStatusHandler Started;
         public event StreamStatusHandler Stopped;
@@ -38,61 +39,61 @@ namespace MTConnect.Clients
 
                 try
                 {
-                    //int charSize = ASCIIEncoding.UTF8.GetByteCount("a");
-                    //int bufferSize = 1000000;
-
                     var request = (HttpWebRequest)WebRequest.Create(Url);
                     using (var response = (HttpWebResponse)request.GetResponse())
                     using (var stream = response.GetResponseStream())
                     using (var reader = new StreamReader(stream, Encoding.GetEncoding("utf-8")))
                     {
                         // Set Read Buffer
-                        int bufferSize = 1048576;
-                        var buffer = new char[bufferSize];
-                        int i = reader.Read(buffer, 0, bufferSize);
+                        var buffer = new char[1048576]; // 1 MB
+                        int i = reader.Read(buffer, 0, buffer.Length);
 
                         string xml = "";
 
-                        while (i > 0 && !stop.WaitOne(0, true))
+                        while (i > 0 && !stop.WaitOne(10, true))
                         {
                             // Get string from buffer
                             var s = new string(buffer, 0, i);
 
-                            // Find Beginning of XML
-                            int b = s.IndexOf("<?xml");
+                            // Find Beginning of XML (exclude HTTP header)
+                            int b = s.IndexOf("<?xml ");
                             if (b >= 0) s = s.Substring(b);
-
-                            if (b >= 0 && s.IndexOf("<?xml", b) >= 0)
-                            {
-                                Console.WriteLine("Two open tags");
-                            }
 
                             // Add buffer to XML
                             xml += s;
 
+                            // Find Closing Tag
+                            int c = FindClosingTag(xml);
+
                             // Test if End of XML
-                            if (HasClosingTag(xml))
+                            if (c >= 0) 
                             {
-                                // Raise XML Received Event and pass XML
-                                XmlReceived?.Invoke(xml);
+                                b = xml.LastIndexOf("<?xml ");
+                                if (c > b)
+                                {
+                                    // Raise XML Received Event and pass XML
+                                    XmlReceived?.Invoke(xml.Substring(b, c - b));
+
+                                    // Remove MTConnect document from xml
+                                    xml = xml.Remove(b, c - b).Trim();
+                                }
+
+                                if (!string.IsNullOrEmpty(xml))
+                                {
+                                    // Raise XML Error and break from while
+                                    XmlError?.Invoke(xml);
+                                    break;
+                                }
 
                                 // Reset XML
                                 xml = "";
                             }
 
-                            int bytes = Encoding.UTF8.GetByteCount(xml);
-                            if (bytes >= bufferSize)
-                            {
-                                Console.WriteLine("Xml bigger than BufferSize");
-                            }
-
-                            
-
                             // Clear Buffer
-                            buffer = new char[bufferSize];
+                            Array.Clear(buffer, 0, buffer.Length);
 
                             // Read Next Chunk
-                            i = reader.Read(buffer, 0, bufferSize);
+                            i = reader.Read(buffer, 0, buffer.Length);
                         }
                     }
                 }
@@ -110,13 +111,28 @@ namespace MTConnect.Clients
             if (stop != null) stop.Set();
         }
 
-        private static bool HasClosingTag(string xml)
+        private static int FindClosingTag(string xml)
         {
-            int e = xml.IndexOf("</MTConnectDevices>");
-            if (e < 0) e = xml.IndexOf("</MTConnectStreams>");
-            if (e < 0) e = xml.IndexOf("</MTConnectAssets>");
-            if (e < 0) e = xml.IndexOf("</MTConnectError>");
-            return e >= 0;
-        }        
+            if (!string.IsNullOrEmpty(xml))
+            {
+                string tag = "</MTConnectDevices>";
+                int i = xml.IndexOf(tag);
+                if (i >= 0) return i + tag.Length;
+
+                tag = "</MTConnectStreams>";
+                i = xml.IndexOf(tag);
+                if (i >= 0) return i + tag.Length;
+
+                tag = "</MTConnectAssets>";
+                i = xml.IndexOf(tag);
+                if (i >= 0) return i + tag.Length;
+
+                tag = "</MTConnectError>";
+                i = xml.IndexOf(tag);
+                if (i >= 0) return i + tag.Length;
+            }
+
+            return -1;
+        }       
     }
 }

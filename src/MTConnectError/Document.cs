@@ -20,6 +20,8 @@ namespace MTConnect.MTConnectError
         {
             try
             {
+                xml = xml.Trim();
+
                 var version = MTConnect.Version.Get(xml);
 
                 var serializer = new XmlSerializer(typeof(Document));

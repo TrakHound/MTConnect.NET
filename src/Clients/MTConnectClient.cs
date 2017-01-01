@@ -30,8 +30,8 @@ namespace MTConnect.Clients
 
         private void Init()
         {
-            Interval = 1000;
-            MaximumSampleCount = 2000;
+            Interval = 500;
+            MaximumSampleCount = 200;
         }
 
         public string BaseUrl { get; set; }
@@ -47,6 +47,7 @@ namespace MTConnect.Clients
         public event MTConnectStreamsHandler SampleReceived;
         public event MTConnectErrorHandler Error;
         public event ConnectionErrorHandler ConnectionError;
+        public event XmlHandler XmlError;
 
         public event StreamStatusHandler Started;
         public event StreamStatusHandler Stopped;
@@ -154,6 +155,7 @@ namespace MTConnect.Clients
                             // Create and Start the Sample Stream
                             sampleStream = new Stream(url);
                             sampleStream.XmlReceived += ProcessSampleResponse;
+                            sampleStream.XmlError += SampleStream_XmlError;
                             sampleStream.ConnectionError += ProcessConnectionError;
                             sampleStream.Start();
                         }
@@ -162,6 +164,11 @@ namespace MTConnect.Clients
             } while (!stop.WaitOne(5000, true));
 
             Stopped?.Invoke();
+        }
+
+        private void SampleStream_XmlError(string xml)
+        {
+            XmlError?.Invoke(xml);
         }
 
         private void ProcessSampleResponse(string xml)
