@@ -7,9 +7,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("MTConnect.NET")]
 [assembly: AssemblyDescription(".NET library for MTConnect® protocol for machine tool data collection. Uses XML serializer and easy to use functions for requesting data from MTConnect Agents. Supports up to MTConnect v1.3.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Feenux LLC")]
+[assembly: AssemblyCompany("TrakHound Inc.")]
 [assembly: AssemblyProduct("MTConnect.NET")]
-[assembly: AssemblyCopyright("©  2016 Feenux LLC, All Rights Reserved")]
+[assembly: AssemblyCopyright("©  2017 TrakHound Inc., All Rights Reserved")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -31,5 +31,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("2.0.2.*")]
-[assembly: AssemblyFileVersion("2.0.2.*")]
+[assembly: AssemblyVersion("2.1.0.*")]
+[assembly: AssemblyFileVersion("2.1.0.*")]

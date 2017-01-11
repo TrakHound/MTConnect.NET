@@ -1,7 +1,7 @@
-﻿// Copyright (c) 2016 Feenux LLC, All Rights Reserved.
+﻿// Copyright (c) 2017 TrakHound Inc., All Rights Reserved.
 
 // This file is subject to the terms and conditions defined in
-// file 'LICENSE.txt', which is part of this source code package.
+// file 'LICENSE', which is part of this source code package.
 
 using System.Collections.Generic;
 using System.Xml.Serialization;
@@ -88,15 +88,10 @@ namespace MTConnect.MTConnectDevices
         public Description Description { get; set; }
 
         /// <summary>
-        /// A container for Component XML Elements associated with this Device.
+        /// A container for SubComponent XML Elements.
         /// </summary>
-        [XmlArray("Components")]
-        [XmlArrayItem("Axes", typeof(Components.Axes))]
-        [XmlArrayItem("Controller", typeof(Components.Controller))]
-        [XmlArrayItem("Door", typeof(Components.Door))]
-        [XmlArrayItem("Interfaces", typeof(Components.Interfaces))]
-        [XmlArrayItem("Systems", typeof(Components.Systems))]
-        public List<IComponent> Components { get; set; }
+        [XmlElement("Components")]
+        public ComponentCollection Components { get; set; }
 
         /// <summary>
         /// A container for the Data XML Elements provided by this Device.
@@ -117,26 +112,20 @@ namespace MTConnect.MTConnectDevices
             // Add Root DataItems
             if (DataItems != null) l.AddRange(DataItems);
 
-            foreach (var component in Components) l.AddRange(GetDataItems(component));
+            foreach (var component in Components.Components) l.AddRange(GetDataItems(component));
 
             return l;
         }
 
-        private List<DataItem> GetDataItems(IComponent component)
+        private List<DataItem> GetDataItems(Component component)
         {
             var l = new List<DataItem>();
 
             // Add Root DataItems
             if (component.DataItems != null) l.AddRange(component.DataItems);
 
-            if (component.GetType() == typeof(Components.Axes))
-            {
-                foreach (var child in ((Components.Axes)component).Components) l.AddRange(GetDataItems(child));
-            }
-            else if (component.GetType() == typeof(Components.Controller))
-            {
-                foreach (var child in ((Components.Controller)component).Components) l.AddRange(GetDataItems(child));
-            }
+            // Get SubComponent DataItems
+            foreach (var subComponent in component.SubComponents.Components) l.AddRange(GetDataItems(subComponent));
 
             return l;
         }
@@ -144,32 +133,25 @@ namespace MTConnect.MTConnectDevices
         /// <summary>
         /// Return a list of All Components
         /// </summary>
-        public List<IComponent> GetComponents()
+        public List<Component> GetComponents()
         {
-            var l = new List<IComponent>();
+            var l = new List<Component>();
 
-            foreach (var component in Components)
+            foreach (var subComponent in Components.Components)
             {
-                l.AddRange(GetComponents(component));
+                l.AddRange(GetComponents(subComponent));
             }
 
             return l;
         }
 
-        private List<IComponent> GetComponents(IComponent component)
+        private List<Component> GetComponents(Component component)
         {
-            var l = new List<IComponent>();
+            var l = new List<Component>();
 
             l.Add(component);
 
-            if (component.GetType() == typeof(Components.Axes))
-            {
-                foreach (var child in ((Components.Axes)component).Components) l.AddRange(GetComponents(child));
-            }
-            else if (component.GetType() == typeof(Components.Controller))
-            {
-                foreach (var child in ((Components.Controller)component).Components) l.AddRange(GetComponents(child));
-            }
+            foreach (var subComponent in component.SubComponents.Components) l.AddRange(GetComponents(subComponent));
 
             return l;
         }

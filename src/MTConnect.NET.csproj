@@ -61,6 +61,8 @@
     <Compile Include="Clients\MTConnectClient.cs" />
     <Compile Include="Clients\Probe.cs" />
     <Compile Include="Clients\Sample.cs" />
+    <Compile Include="MTConnectDevices\ComponentCollection.cs" />
+    <Compile Include="MTConnectDevices\Component.cs" />
     <Compile Include="Namespaces.cs" />
     <Compile Include="Version.cs" />
     <Compile Include="Headers\MTConnectAssestsHeader.cs" />
@@ -92,15 +94,6 @@
     <Compile Include="MTConnectAssets\CuttingTools\ToolLifeType.cs" />
     <Compile Include="MTConnectAssets\Document.cs" />
     <Compile Include="MTConnectAssets\CuttingTools\ToolLife.cs" />
-    <Compile Include="MTConnectDevices\Components\Axes.cs" />
-    <Compile Include="MTConnectDevices\Components\Linear.cs" />
-    <Compile Include="MTConnectDevices\Components\Rotary.cs" />
-    <Compile Include="MTConnectDevices\Components\Controller.cs" />
-    <Compile Include="MTConnectDevices\Components\Path.cs" />
-    <Compile Include="MTConnectDevices\Components\Door.cs" />
-    <Compile Include="MTConnectDevices\Components\Interfaces.cs" />
-    <Compile Include="MTConnectDevices\Components\Systems.cs" />
-    <Compile Include="MTConnectDevices\IComponent.cs" />
     <Compile Include="MTConnectDevices\Constraints.cs" />
     <Compile Include="MTConnectDevices\DataItem.cs" />
     <Compile Include="MTConnectDevices\Description.cs" />

@@ -1,7 +1,7 @@
-﻿// Copyright (c) 2016 Feenux LLC, All Rights Reserved.
+﻿// Copyright (c) 2017 TrakHound Inc., All Rights Reserved.
 
 // This file is subject to the terms and conditions defined in
-// file 'LICENSE.txt', which is part of this source code package.
+// file 'LICENSE', which is part of this source code package.
 
 using System.Collections.Generic;
 using System.Xml.Serialization;
@@ -13,8 +13,13 @@ namespace MTConnect.MTConnectDevices
     /// Replaced in the XML document by types of Component elements representing physical and logical parts of the Device.
     /// There can be multiple types of Component XML Elements in the document.
     /// </summary>
-    public class IComponent
+    public class Component
     {
+        /// <summary>
+        /// The type of component
+        /// </summary>
+        [XmlIgnore]
+        public string Type { get; set; }
 
         #region "Required"
 
@@ -89,13 +94,24 @@ namespace MTConnect.MTConnectDevices
         public string Configuration { get; set; }
 
         /// <summary>
-        /// A container for the Data XML Elements provided that are directly related to this Compoenent.
+        /// A container for the Data XML Elements provided that are directly related to this Component.
         /// The data items define the measured values to be reported that are related to this Component.
         /// </summary>
         [XmlArray("DataItems")]
         public List<DataItem> DataItems { get; set; }
 
+        /// <summary>
+        /// A container for SubComponent XML Elements.
+        /// </summary>
+        [XmlElement("Components")]
+        public ComponentCollection SubComponents { get; set; }
+
         #endregion
-        
+
+
+        public Component()
+        {
+            SubComponents = new ComponentCollection();
+        }
     }
 }
