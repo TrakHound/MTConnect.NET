@@ -52,6 +52,7 @@ namespace MTConnect.Clients
         public event StreamStatusHandler Started;
         public event StreamStatusHandler Stopped;
 
+        private Thread thread;
         private ManualResetEvent stop;
 
         private Stream sampleStream;
@@ -72,15 +73,21 @@ namespace MTConnect.Clients
 
             stop = new ManualResetEvent(false);
 
-            var thread = new Thread(new ThreadStart(Worker));
+            thread = new Thread(new ThreadStart(Worker));
             thread.Start();
         }
 
         public void Stop()
         {
+            if (stop != null) stop.Set();
+
             if (sampleStream != null) sampleStream.Stop();
 
-            if (stop != null) stop.Set();
+            try
+            {
+                thread.Abort();
+            }
+            catch { }
         }
 
         private void Worker()
