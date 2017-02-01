@@ -187,6 +187,8 @@ namespace MTConnect.Clients
         {
             // Create HTTP Client and Request Data
             var client = new RestClient(CreateUri());
+            client.Timeout = 2000;
+            client.ReadWriteTimeout = 2000;
             IRestResponse response = client.Execute(CreateRequest());
             return ProcessResponse(response);
         }
