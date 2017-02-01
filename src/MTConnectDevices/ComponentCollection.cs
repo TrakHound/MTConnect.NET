@@ -33,7 +33,6 @@ namespace MTConnect.MTConnectDevices
                 // Read Child Elements
                 using (var inner = reader.ReadSubtree())
                 {
-
                     var serializer = new XmlSerializer(typeof(Component));
 
                     while (inner.Read())
