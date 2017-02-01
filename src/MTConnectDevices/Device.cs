@@ -156,5 +156,75 @@ namespace MTConnect.MTConnectDevices
             return l;
         }
 
+        private const string XPATH_DATAITEM = "DataItem[@id=\"{0}\"]";
+        private const string XPATH_COMPONENT = "{0}[@id=\"{1}\"]";
+
+        public void AssignXPaths()
+        {
+            // Set Root DataItems
+            foreach (var dataItem in DataItems)
+            {
+                dataItem.XPath = "//" + string.Format(XPATH_DATAITEM, dataItem.Id);
+            }
+
+            // Set Root Components
+            foreach (var component in Components.Components)
+            {
+                var xpath = string.Format(XPATH_COMPONENT, component.Type, component.Id);
+                AssignXPaths("//" + xpath, component);
+            }
+        }
+
+        private static void AssignXPaths(string parentPath, Component component)
+        {
+            // Set Component XPath
+            component.XPath = parentPath;
+
+            // Set Root DataItems
+            foreach (var dataItem in component.DataItems)
+            {
+                dataItem.XPath = parentPath + "/DataItems/" + string.Format(XPATH_DATAITEM, dataItem.Id);
+            }
+
+            // Set Root Components
+            foreach (var subcomponent in component.SubComponents.Components)
+            {
+                var xpath = string.Format(XPATH_COMPONENT, subcomponent.Type, subcomponent.Id);
+                AssignXPaths(parentPath + "/Components/" + xpath, subcomponent);
+            }
+        }
+
+
+        public void AssignTypePaths()
+        {
+            // Set Root DataItems
+            foreach (var dataItem in DataItems)
+            {
+                dataItem.TypePath = dataItem.Type;
+            }
+
+            // Set Root Components
+            foreach (var component in Components.Components)
+            {
+                AssignTypePaths(component.Type, component);
+            }
+        }
+
+        private static void AssignTypePaths(string parentPath, Component component)
+        {
+            component.TypePath = parentPath;
+
+            // Set Root DataItems
+            foreach (var dataItem in component.DataItems)
+            {
+                dataItem.TypePath = parentPath + "/" + dataItem.Type;
+            }
+
+            // Set Root Components
+            foreach (var subcomponent in component.SubComponents.Components)
+            {
+                AssignTypePaths(parentPath + "/" + subcomponent.Type, subcomponent);
+            }
+        }
     }
 }

@@ -31,6 +31,15 @@ namespace MTConnect.MTConnectDevices
                     var doc = (Document)serializer.Deserialize(xmlReader);
                     if (doc != null)
                     {
+                        if (doc.Devices != null && doc.Devices.Count > 0)
+                        {
+                            // Assign XPaths for each Device
+                            foreach (var device in doc.Devices) device.AssignXPaths();
+
+                            // Assign TypePaths for each Device
+                            foreach (var device in doc.Devices) device.AssignTypePaths();
+                        }
+
                         doc._version = version;
                         return doc;
                     }

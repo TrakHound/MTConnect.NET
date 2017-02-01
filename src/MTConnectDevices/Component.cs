@@ -21,6 +21,18 @@ namespace MTConnect.MTConnectDevices
         [XmlIgnore]
         public string Type { get; set; }
 
+        /// <summary>
+        /// The XPath address of the Component
+        /// </summary>
+        [XmlIgnore]
+        public string XPath { get; set; }
+
+        /// <summary>
+        /// The path of the Component by Type
+        /// </summary>
+        [XmlIgnore]
+        public string TypePath { get; set; }
+
         #region "Required"
 
         /// <summary>

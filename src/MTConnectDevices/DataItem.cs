@@ -13,6 +13,18 @@ namespace MTConnect.MTConnectDevices
     /// </summary>
     public class DataItem
     {
+        /// <summary>
+        /// The XPath address of the DataItem
+        /// </summary>
+        [XmlIgnore]
+        public string XPath { get; set; }
+
+        /// <summary>
+        /// The path of the DataItem by Type
+        /// </summary>
+        [XmlIgnore]
+        public string TypePath { get; set; }
+
 
         #region "Required"
 
