@@ -207,8 +207,8 @@ namespace MTConnect.Clients
         {
             // Create Uri
             var uri = new Uri(BaseUrl);
-            if (DeviceName != null) uri = new Uri(uri, DeviceName);
-            uri = new Uri(uri, "sample");
+            if (DeviceName != null) uri = new Uri(uri, DeviceName + "/sample");
+            else uri = new Uri(uri, "sample");
             return uri;
         }
 
@@ -241,13 +241,20 @@ namespace MTConnect.Clients
                 var doc = MTConnectStreams.Document.Create(xml);
                 if (doc != null)
                 {
+                    doc.UserObject = UserObject;
+                    doc.Url = response.ResponseUri.ToString();
                     return doc;
                 }
                 else
                 {
                     // Process MTConnectError Document (if MTConnectDevices fails)
                     var errorDoc = MTConnectError.Document.Create(xml);
-                    if (errorDoc != null) Error?.Invoke(errorDoc);
+                    if (errorDoc != null)
+                    {
+                        errorDoc.UserObject = UserObject;
+                        errorDoc.Url = response.ResponseUri.ToString();
+                        Error?.Invoke(errorDoc);
+                    }
                 }
             }
 

@@ -64,5 +64,8 @@ namespace MTConnect.MTConnectDevices
 
         [XmlIgnore]
         public object UserObject { get; set; }
+
+        [XmlIgnore]
+        public string Url { get; set; }
     }
 }
