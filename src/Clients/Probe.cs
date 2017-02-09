@@ -71,13 +71,8 @@ namespace MTConnect.Clients
         /// </summary>
         public MTConnectDevices.Document Execute()
         {
-            // Create Uri
-            var uri = new Uri(BaseUrl);
-            uri = new Uri(uri, "probe");
-            if (DeviceName != null) uri = new Uri(uri, DeviceName);
-
             // Create HTTP Client and Request Data
-            var client = new RestClient(uri);
+            var client = new RestClient(CreateUri());
             client.Timeout = 2000;
             client.ReadWriteTimeout = 2000;
             var request = new RestRequest(Method.GET);
@@ -90,15 +85,19 @@ namespace MTConnect.Clients
         /// </summary>
         public void ExecuteAsync()
         {
+            // Create HTTP Client and Request Data
+            var client = new RestClient(CreateUri());
+            var request = new RestRequest(Method.GET);
+            client.ExecuteAsync(request, AsyncCallback);
+        }
+
+        private Uri CreateUri()
+        {
             // Create Uri
             var uri = new Uri(BaseUrl);
             if (DeviceName != null) uri = new Uri(uri, DeviceName);
             uri = new Uri(uri, "probe");
-
-            // Create HTTP Client and Request Data
-            var client = new RestClient(uri);
-            var request = new RestRequest(Method.GET);
-            client.ExecuteAsync(request, AsyncCallback);
+            return uri;
         }
 
         private MTConnectDevices.Document ProcessResponse(IRestResponse response)
