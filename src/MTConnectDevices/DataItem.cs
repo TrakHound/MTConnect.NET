@@ -113,7 +113,7 @@ namespace MTConnect.MTConnectDevices
         /// For example, a rate 1 per 10 seconds would be 0.1.
         /// </summary>
         [XmlAttribute("sampleRate")]
-        public string SampleRate { get; set; }
+        public double SampleRate { get; set; }
 
         /// <summary>
         /// Data consisting of multiple data points or samples or a file presented as a single DataItem.
@@ -131,7 +131,7 @@ namespace MTConnect.MTConnectDevices
         /// This SHOULD be specified for all numeric values.
         /// </summary>
         [XmlAttribute("significantDigits")]
-        public string SignificantDigits { get; set; }
+        public int SignificantDigits { get; set; }
 
         #endregion
 

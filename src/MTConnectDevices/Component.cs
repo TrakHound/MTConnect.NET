@@ -71,13 +71,13 @@ namespace MTConnect.MTConnectDevices
         /// For example, an interval of 100 microseconds would be 0.1.
         /// </summary>
         [XmlAttribute("sampleInterval")]
-        public string SampleInterval { get; set; }
+        public double SampleInterval { get; set; }
 
         /// <summary>
         /// DEPRECATED IN REL. 1.2 (REPLACED BY sampleInterval)
         /// </summary>
         [XmlAttribute("sampleRate")]
-        public string SampleRate { get; set; }
+        public double SampleRate { get; set; }
 
         /// <summary>
         /// A unique identifier that will only refer to this Component.
