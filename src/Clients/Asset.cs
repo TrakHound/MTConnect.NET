@@ -123,8 +123,8 @@ namespace MTConnect.Clients
             var uri = new Uri(BaseUrl);
             if (!string.IsNullOrEmpty(AssetId))
             {
-                uri = new Uri(uri, "asset");
-                uri = new Uri(uri, AssetId);
+                uri = new Uri(uri, "assets/" + AssetId);
+                //uri = new Uri(uri, AssetId);
             }
             else uri = new Uri(uri, "assets");
             return uri;
@@ -153,13 +153,20 @@ namespace MTConnect.Clients
                 var doc = MTConnectAssets.Document.Create(xml);
                 if (doc != null)
                 {
+                    doc.UserObject = UserObject;
+                    doc.Url = response.ResponseUri.ToString();
                     return doc;
                 }
                 else
                 {
                     // Process MTConnectError Document (if MTConnectDevices fails)
                     var errorDoc = MTConnectError.Document.Create(xml);
-                    if (errorDoc != null) Error?.Invoke(errorDoc);
+                    if (errorDoc != null)
+                    {
+                        errorDoc.UserObject = UserObject;
+                        errorDoc.Url = response.ResponseUri.ToString();
+                        Error?.Invoke(errorDoc);
+                    }
                 }
             }
 
