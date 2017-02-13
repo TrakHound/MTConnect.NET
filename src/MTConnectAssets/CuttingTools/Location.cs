@@ -10,6 +10,9 @@ namespace MTConnect.MTConnectAssets.CuttingTools
 {
     public class Location
     {
+        [XmlText]
+        public int CDATA { get; set; }
+
         /// <summary>
         /// The type of location being identified. Current MUST be one of POT, STATION, or CRIB.
         /// </summary>
