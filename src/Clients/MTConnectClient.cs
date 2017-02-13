@@ -4,6 +4,7 @@
 // file 'LICENSE', which is part of this source code package.
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 
 namespace MTConnect.Clients
@@ -42,9 +43,12 @@ namespace MTConnect.Clients
 
         public long MaximumSampleCount { get; set; }
 
+        public string LastChangedAssetId { get; set; }
+
         public event MTConnectDevicesHandler ProbeReceived;
         public event MTConnectStreamsHandler CurrentReceived;
         public event MTConnectStreamsHandler SampleReceived;
+        public event MTConnectAssetsHandler AssetsReceived;
         public event MTConnectErrorHandler Error;
         public event ConnectionErrorHandler ConnectionError;
         public event XmlHandler XmlError;
@@ -116,9 +120,19 @@ namespace MTConnect.Clients
                         {
                             // Check if FirstSequence is larger than previously Sampled
                             if (!initialize) initialize = SampleRange.From > 0 && currentDoc.Header.FirstSequence > SampleRange.From;
+     
+                            if (initialize)
+                            {
+                                // Raise CurrentReceived Event
+                                CurrentReceived?.Invoke(currentDoc);
 
-                            // Raise CurrentReceived Event
-                            if (initialize) CurrentReceived?.Invoke(currentDoc);
+                                // Check Assets
+                                if (currentDoc.DeviceStreams.Count > 0)
+                                {
+                                    var deviceStream = currentDoc.DeviceStreams.Find(o => o.Name == DeviceName);
+                                    if (deviceStream != null && deviceStream.DataItems != null) CheckAssetChanged(deviceStream.DataItems);
+                                }
+                            }
 
                             // Check if Agent InstanceID has changed (Agent has been reset)
                             if (initialize || instanceId != currentDoc.Header.InstanceId)
@@ -190,12 +204,12 @@ namespace MTConnect.Clients
                     if (doc.DeviceStreams.Count > 0)
                     {
                         var deviceStream = doc.DeviceStreams.Find(o => o.Name == DeviceName);
-                        if (deviceStream != null)
+                        if (deviceStream != null && deviceStream.DataItems != null)
                         {
+                            CheckAssetChanged(deviceStream.DataItems);
+
                             // Get number of DataItems returned by Sample
                             itemCount = deviceStream.DataItems.Count;
-
-                            var debugRange = new SequenceRange(SampleRange.From, itemCount + SampleRange.From);
 
                             SampleRange.From += itemCount;
                             SampleRange.To = doc.Header.NextSequence;
@@ -211,6 +225,30 @@ namespace MTConnect.Clients
                     if (errorDoc != null) Error?.Invoke(errorDoc);
                 }
             }
+        }
+
+        private void CheckAssetChanged(List<MTConnectStreams.DataItem> dataItems)
+        {
+            if (dataItems != null && dataItems.Count > 0)
+            {
+                var assetChanged = dataItems.Find(o => o.Type == "AssetChanged");
+                if (assetChanged != null)
+                {
+                    string assetId = assetChanged.CDATA;
+                    if (assetId != "UNAVAILABLE" && assetId != LastChangedAssetId)
+                    {
+                        var asset = new Asset(BaseUrl, assetId);
+                        asset.Successful += ProcessAssetResponse;
+                        asset.Error += MTConnectErrorRecieved;
+                        asset.ExecuteAsync();
+                    }
+                }
+            }
+        }
+
+        private void ProcessAssetResponse(MTConnectAssets.Document document)
+        {
+            AssetsReceived?.Invoke(document);
         }
 
         private void MTConnectErrorRecieved(MTConnectError.Document errorDocument)
