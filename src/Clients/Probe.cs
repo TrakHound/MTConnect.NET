@@ -95,7 +95,7 @@ namespace MTConnect.Clients
         {
             // Create Uri
             var uri = new Uri(BaseUrl);
-            if (DeviceName != null) uri = new Uri(uri, DeviceName + "/probe");
+            if (!string.IsNullOrEmpty(DeviceName)) uri = new Uri(uri, DeviceName + "/probe");
             else uri = new Uri(uri, "probe");
             return uri;
         }
