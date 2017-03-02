@@ -203,8 +203,13 @@ namespace MTConnect.Clients
                     int itemCount = -1;
                     if (doc.DeviceStreams.Count > 0)
                     {
-                        var deviceStream = doc.DeviceStreams.Find(o => o.Name == DeviceName);
-                        if (deviceStream != null && deviceStream.DataItems != null)
+                        MTConnectStreams.DeviceStream deviceStream = null;
+
+                        // Get the DeviceStream for the DeviceName or default to the first
+                        if (!string.IsNullOrEmpty(DeviceName)) deviceStream = doc.DeviceStreams.Find(o => o.Name == DeviceName);
+                        else deviceStream = doc.DeviceStreams[0];
+
+                        if (deviceStream != null & deviceStream.DataItems != null)
                         {
                             CheckAssetChanged(deviceStream.DataItems);
 
@@ -264,8 +269,8 @@ namespace MTConnect.Clients
         private static string CreateSampleUrl(string baseUrl, string deviceName, int interval, long from , long count)
         {
             var uri = new Uri(baseUrl);
-            if (!string.IsNullOrEmpty(deviceName)) uri = new Uri(uri, deviceName);
-            uri = new Uri(uri, "sample");
+            if (!string.IsNullOrEmpty(deviceName)) uri = new Uri(uri, deviceName + "/sample");
+            else uri = new Uri(uri, "sample");
             var format = "{0}?from={1}&count={2}&interval={3}";
 
             return string.Format(format, uri, from, count, interval);
