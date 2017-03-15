@@ -83,15 +83,21 @@ namespace MTConnect.Clients
 
         public void Stop()
         {
-            if (stop != null) stop.Set();
-
             if (sampleStream != null) sampleStream.Stop();
 
-            try
+            if (stop != null) stop.Set();
+        }
+
+        public void Abort()
+        {
+            if (thread != null)
             {
-                thread.Abort();
+                try
+                {
+                    thread.Abort();
+                }
+                catch { }
             }
-            catch { }
         }
 
         private void Worker()
@@ -174,6 +180,7 @@ namespace MTConnect.Clients
                             string url = CreateSampleUrl(BaseUrl, DeviceName, Interval, from, MaximumSampleCount);
 
                             // Create and Start the Sample Stream
+                            if (sampleStream != null) sampleStream.Stop();
                             sampleStream = new Stream(url);
                             sampleStream.XmlReceived += ProcessSampleResponse;
                             sampleStream.XmlError += SampleStream_XmlError;
@@ -194,7 +201,7 @@ namespace MTConnect.Clients
 
         private void ProcessSampleResponse(string xml)
         {
-            if (!string.IsNullOrEmpty(xml))
+            if (!string.IsNullOrEmpty(xml) && !stop.WaitOne(0, true))
             {
                 // Process MTConnectStreams Document
                 var doc = MTConnectStreams.Document.Create(xml);

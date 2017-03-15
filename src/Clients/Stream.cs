@@ -53,61 +53,64 @@ namespace MTConnect.Clients
         {
             try
             {
-                var request = (HttpWebRequest)WebRequest.Create(Url);
-                using (var response = (HttpWebResponse)request.GetResponse())
-                using (var stream = response.GetResponseStream())
-                using (var reader = new StreamReader(stream, Encoding.GetEncoding("utf-8")))
+                if (!stop.WaitOne(0, true))
                 {
-                    // Set Read Buffer
-                    var buffer = new char[1048576]; // 1 MB
-                    int i = reader.Read(buffer, 0, buffer.Length);
-
-                    string xml = "";
-
-                    while (i > 0 && !stop.WaitOne(0, true))
+                    var request = (HttpWebRequest)WebRequest.Create(Url);
+                    using (var response = (HttpWebResponse)request.GetResponse())
+                    using (var stream = response.GetResponseStream())
+                    using (var reader = new StreamReader(stream, Encoding.GetEncoding("utf-8")))
                     {
-                        // Get string from buffer
-                        var s = new string(buffer, 0, i);
+                        // Set Read Buffer
+                        var buffer = new char[1048576]; // 1 MB
+                        int i = reader.Read(buffer, 0, buffer.Length);
 
-                        // Find Beginning of XML (exclude HTTP header)
-                        int b = s.IndexOf("<?xml ");
-                        if (b >= 0) s = s.Substring(b);
+                        string xml = "";
 
-                        // Add buffer to XML
-                        xml += s;
-
-                        // Find Closing Tag
-                        int c = FindClosingTag(xml);
-
-                        // Test if End of XML
-                        if (c >= 0)
+                        while (i > 0 && !stop.WaitOne(0, true))
                         {
-                            b = xml.LastIndexOf("<?xml ");
-                            if (c > b)
-                            {
-                                // Raise XML Received Event and pass XML
-                                XmlReceived?.Invoke(xml.Substring(b, c - b));
+                            // Get string from buffer
+                            var s = new string(buffer, 0, i);
 
-                                // Remove MTConnect document from xml
-                                xml = xml.Remove(b, c - b).Trim();
+                            // Find Beginning of XML (exclude HTTP header)
+                            int b = s.IndexOf("<?xml ");
+                            if (b >= 0) s = s.Substring(b);
+
+                            // Add buffer to XML
+                            xml += s;
+
+                            // Find Closing Tag
+                            int c = FindClosingTag(xml);
+
+                            // Test if End of XML
+                            if (c >= 0)
+                            {
+                                b = xml.LastIndexOf("<?xml ");
+                                if (c > b)
+                                {
+                                    // Raise XML Received Event and pass XML
+                                    XmlReceived?.Invoke(xml.Substring(b, c - b));
+
+                                    // Remove MTConnect document from xml
+                                    xml = xml.Remove(b, c - b).Trim();
+                                }
+
+                                if (!string.IsNullOrEmpty(xml))
+                                {
+                                    // Raise XML Error and break from while
+                                    XmlError?.Invoke(xml);
+                                    break;
+                                }
+
+                                // Reset XML
+                                xml = "";
                             }
 
-                            if (!string.IsNullOrEmpty(xml))
-                            {
-                                // Raise XML Error and break from while
-                                XmlError?.Invoke(xml);
-                                break;
-                            }
+                            // Clear Buffer
+                            Array.Clear(buffer, 0, buffer.Length);
 
-                            // Reset XML
-                            xml = "";
+                            // Read Next Chunk
+                            i = reader.Read(buffer, 0, buffer.Length);
                         }
-
-                        // Clear Buffer
-                        Array.Clear(buffer, 0, buffer.Length);
-
-                        // Read Next Chunk
-                        i = reader.Read(buffer, 0, buffer.Length);
                     }
                 }
             }
