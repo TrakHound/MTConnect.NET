@@ -16,6 +16,7 @@ namespace MTConnect.Clients
         public Current()
         {
             At = -1;
+            Timeout = 2000;
         }
 
         /// <summary>
@@ -26,6 +27,7 @@ namespace MTConnect.Clients
         {
             BaseUrl = baseUrl;
             At = -1;
+            Timeout = 2000;
         }
 
         /// <summary>
@@ -38,6 +40,7 @@ namespace MTConnect.Clients
             BaseUrl = baseUrl;
             DeviceName = deviceName;
             At = -1;
+            Timeout = 2000;
         }
 
         /// <summary>
@@ -49,6 +52,7 @@ namespace MTConnect.Clients
         {
             BaseUrl = baseUrl;
             At = atSequence;
+            Timeout = 2000;
         }
 
         /// <summary>
@@ -62,6 +66,7 @@ namespace MTConnect.Clients
             BaseUrl = baseUrl;
             DeviceName = deviceName;
             At = atSequence;
+            Timeout = 2000;
         }
 
         /// <summary>
@@ -76,6 +81,7 @@ namespace MTConnect.Clients
             DeviceName = deviceName;
             At = -1;
             Path = path;
+            Timeout = 2000;
         }
 
         /// <summary>
@@ -91,6 +97,7 @@ namespace MTConnect.Clients
             DeviceName = deviceName;
             At = atSequence;
             Path = path;
+            Timeout = 2000;
         }
 
         /// <summary>
@@ -119,6 +126,11 @@ namespace MTConnect.Clients
         public object UserObject { get; set; }
 
         /// <summary>
+        /// Gets of Sets the connection timeout for the request
+        /// </summary>
+        public int Timeout { get; set; }
+
+        /// <summary>
         /// Raised when an MTConnectError Document is received
         /// </summary>
         public event MTConnectErrorHandler Error;
@@ -141,8 +153,8 @@ namespace MTConnect.Clients
         {
             // Create HTTP Client and Request Data
             var client = new RestClient(CreateUri());
-            client.Timeout = 2000;
-            client.ReadWriteTimeout = 2000;
+            client.Timeout = Timeout;
+            client.ReadWriteTimeout = Timeout;
             IRestResponse response = client.Execute(CreateRequest());
             return ProcessResponse(response);
         }

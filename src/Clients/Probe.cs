@@ -22,6 +22,7 @@ namespace MTConnect.Clients
         public Probe(string baseUrl)
         {
             BaseUrl = baseUrl;
+            Timeout = 2000;
         }
 
         /// <summary>
@@ -33,6 +34,7 @@ namespace MTConnect.Clients
         {
             BaseUrl = baseUrl;
             DeviceName = deviceName;
+            Timeout = 2000;
         }
 
         /// <summary>
@@ -49,6 +51,11 @@ namespace MTConnect.Clients
         /// User settable object sent with request and returned in Document on response
         /// </summary>
         public object UserObject { get; set; }
+
+        /// <summary>
+        /// Gets of Sets the connection timeout for the request
+        /// </summary>
+        public int Timeout { get; set; }
 
         /// <summary>
         /// Raised when an MTConnectError Document is received
@@ -73,8 +80,8 @@ namespace MTConnect.Clients
         {
             // Create HTTP Client and Request Data
             var client = new RestClient(CreateUri());
-            client.Timeout = 2000;
-            client.ReadWriteTimeout = 2000;
+            client.Timeout = Timeout;
+            client.ReadWriteTimeout = Timeout;
             var request = new RestRequest(Method.GET);
             IRestResponse response = client.Execute(request);
             return ProcessResponse(response);
