@@ -3,9 +3,9 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE', which is part of this source code package.
 
-using System;
 using System.Xml;
 using System.Xml.Serialization;
+
 
 namespace MTConnect.MTConnectAssets.CuttingTools
 {
@@ -19,15 +19,6 @@ namespace MTConnect.MTConnectAssets.CuttingTools
         /// </summary>
         [XmlAttribute("serialNumber")]
         public string SerialNumber { get; set; }
-
-        /// <summary>
-        /// The time this asset was last modified. 
-        /// Always given in UTC. 
-        /// The timestamp MUST be provided in UTC (Universal Time Coordinate, also known as GMT). 
-        /// This is the time the asset data was last modified.
-        /// </summary>
-        [XmlAttribute("timestamp")]
-        public DateTime Timestamp { get; set; }
 
         /// <summary>
         /// The identifier for a class of cutting tools. 

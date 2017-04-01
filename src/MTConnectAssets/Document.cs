@@ -4,11 +4,10 @@
 // file 'LICENSE', which is part of this source code package.
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
-using MTConnect.MTConnectAssets.CuttingTools;
+
 
 namespace MTConnect.MTConnectAssets
 {
@@ -33,6 +32,7 @@ namespace MTConnect.MTConnectAssets
                     if (doc != null)
                     {
                         doc._version = version;
+                        doc.Xml = xml;
                         return doc;
                     }
                 }
@@ -48,11 +48,11 @@ namespace MTConnect.MTConnectAssets
         [XmlElement("Header")]
         public Headers.MTConnectAssetsHeader Header { get; set; }
 
-        [XmlArray("Assets")]
-        [XmlArrayItem("CuttingTool", typeof(CuttingTool))]
-        public List<Asset> Assets { get; set; }
+        [XmlElement("Assets")]
+        public AssetCollection Assets { get; set; }
 
         protected double _version;
+        [XmlIgnore]
         public double Version { get { return _version; } }
 
         [XmlIgnore]
@@ -60,5 +60,8 @@ namespace MTConnect.MTConnectAssets
 
         [XmlIgnore]
         public string Url { get; set; }
+
+        [XmlIgnore]
+        public string Xml { get; set; }
     }
 }

@@ -61,6 +61,7 @@
     <Compile Include="Clients\MTConnectClient.cs" />
     <Compile Include="Clients\Probe.cs" />
     <Compile Include="Clients\Sample.cs" />
+    <Compile Include="MTConnectAssets\AssetCollection.cs" />
     <Compile Include="MTConnectDevices\ComponentCollection.cs" />
     <Compile Include="MTConnectDevices\Component.cs" />
     <Compile Include="Namespaces.cs" />
