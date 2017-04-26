@@ -203,19 +203,34 @@ namespace MTConnect.Clients
                     int itemCount = -1;
                     if (doc.DeviceStreams.Count > 0)
                     {
-                        var deviceStream = doc.DeviceStreams.Find(o => o.Name == DeviceName);
-                        if (deviceStream != null && deviceStream.DataItems != null)
+                        List<MTConnectStreams.DeviceStream> deviceStreams = null;
+                        if (!string.IsNullOrEmpty(DeviceName))
                         {
-                            CheckAssetChanged(deviceStream.DataItems);
+                            var deviceStream = doc.DeviceStreams.Find(o => o.Name == DeviceName);
+                            if (deviceStream != null)
+                            {
+                                deviceStreams = new List<MTConnectStreams.DeviceStream>();
+                                deviceStreams.Add(deviceStream);
+                            }
+                        }
+                        else {
+                            deviceStreams = doc.DeviceStreams;
+                        }
+                        //var deviceStream = doc.DeviceStreams.Find(o => o.Name == DeviceName);
+                        if(deviceStreams != null && deviceStreams.Count > 0)
+                            foreach (var deviceStream in doc.DeviceStreams)
+                                if (deviceStream != null && deviceStream.DataItems != null)
+                                {
+                                    CheckAssetChanged(deviceStream.DataItems);
 
-                            // Get number of DataItems returned by Sample
-                            itemCount = deviceStream.DataItems.Count;
+                                    // Get number of DataItems returned by Sample
+                                    itemCount = deviceStream.DataItems.Count;
 
-                            SampleRange.From += itemCount;
-                            SampleRange.To = doc.Header.NextSequence;
+                                    SampleRange.From += itemCount;
+                                    SampleRange.To = doc.Header.NextSequence;
 
-                            SampleReceived?.Invoke(doc);
-                        }                       
+                                    SampleReceived?.Invoke(doc);
+                                }
                     } 
                 }
                 else
@@ -264,8 +279,10 @@ namespace MTConnect.Clients
         private static string CreateSampleUrl(string baseUrl, string deviceName, int interval, long from , long count)
         {
             var uri = new Uri(baseUrl);
-            if (!string.IsNullOrEmpty(deviceName)) uri = new Uri(uri, deviceName);
-            uri = new Uri(uri, "sample");
+            if (!string.IsNullOrEmpty(deviceName))
+                uri = new Uri(uri, deviceName + "/sample");
+            else
+                uri = new Uri(uri, "sample");
             var format = "{0}?from={1}&count={2}&interval={3}";
 
             return string.Format(format, uri, from, count, interval);
