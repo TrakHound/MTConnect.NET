@@ -39,7 +39,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="RestSharp, Version=105.2.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\RestSharp.105.2.3\lib\net4\RestSharp.dll</HintPath>
+      <HintPath>..\..\TrakHound-Community\src\packages\RestSharp.105.2.3\lib\net4\RestSharp.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -123,7 +123,6 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
     <PostBuildEvent>if exist $(ProjectDir)nuget.exe $(ProjectDir)nuget pack $(ProjectPath) -properties Configuration=Release</PostBuildEvent>

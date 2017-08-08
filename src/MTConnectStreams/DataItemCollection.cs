@@ -13,6 +13,11 @@ namespace MTConnect.MTConnectStreams
 {
     public class DataItemCollection<T> : IXmlSerializable
     {
+        private static XmlSerializer conditionSerializer = new XmlSerializer(typeof(Condition));
+        private static XmlSerializer eventSerializer = new XmlSerializer(typeof(Event));
+        private static XmlSerializer sampleSerializer = new XmlSerializer(typeof(Condition));
+
+
         [XmlIgnore]
         public List<DataItem> DataItems { get; set; }
 
@@ -24,6 +29,12 @@ namespace MTConnect.MTConnectStreams
             if (typeof(T) == typeof(Condition)) type = DataItemType.Condition;
             else if (typeof(T) == typeof(Event)) type = DataItemType.Event;
             else type = DataItemType.Sample;
+
+            // Create a dummy XmlDocument to use create dummy nodes
+            doc = new XmlDocument();
+
+            // Create a new Node with the name of "DataItem"
+            copy = doc.CreateNode(XmlNodeType.Element, type.ToString(), null);
         }
 
         private enum DataItemType
@@ -34,6 +45,8 @@ namespace MTConnect.MTConnectStreams
         }
 
         private DataItemType type;
+        private XmlDocument doc;
+        private XmlNode copy;
 
 
         #region "Xml Serialization"
@@ -66,15 +79,12 @@ namespace MTConnect.MTConnectStreams
                             // Create a copy of each Child Node so we can change the name to "DataItem" and deserialize it
                             // (Seems like a dirty way to do this but until an XmlAttribute can be found to ignore the Node's name/type
                             // and to always deserialize as a DataItem)
-                            var doc = new XmlDocument();
+                            // Condition uses the node name as the condition value
                             var node = doc.ReadNode(inner);
                             foreach (XmlNode child in node.ChildNodes)
                             {
                                 if (child.NodeType == XmlNodeType.Element)
                                 {
-                                    // Create a new Node with the name of "DataItem"
-                                    var copy = doc.CreateNode(XmlNodeType.Element, type.ToString(), null);
-
                                     // Copy Attributes
                                     foreach (XmlAttribute attribute in child.Attributes)
                                     {

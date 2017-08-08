@@ -17,6 +17,8 @@ namespace MTConnect.Clients
 
         public string Url { get; set; }
 
+        public string BodyNode { get; set; }
+
         public event ConnectionErrorHandler ConnectionError;
         public event XmlHandler XmlError;
         public event XmlHandler XmlReceived;
@@ -24,9 +26,10 @@ namespace MTConnect.Clients
         public event StreamStatusHandler Stopped;
 
 
-        public Stream(string url)
+        public Stream(string url, string bodyNode)
         {
             Url = url;
+            BodyNode = bodyNode;
         }
 
         public void Start()
@@ -120,28 +123,26 @@ namespace MTConnect.Clients
             }
         }
 
-        private static int FindClosingTag(string xml)
+        private int FindClosingTag(string xml)
         {
-            if (!string.IsNullOrEmpty(xml))
+            if (!string.IsNullOrEmpty(xml) && !string.IsNullOrEmpty(BodyNode))
             {
-                string tag = "</MTConnectDevices>";
-                int i = xml.IndexOf(tag);
-                if (i >= 0) return i + tag.Length;
+                string closingTag = "</" + BodyNode + ">";
+                if (xml.Contains(closingTag))
+                {
+                    int i = xml.IndexOf(closingTag);
+                    if (i >= 0) return i + closingTag.Length;
+                }
 
-                tag = "</MTConnectStreams>";
-                i = xml.IndexOf(tag);
-                if (i >= 0) return i + tag.Length;
-
-                tag = "</MTConnectAssets>";
-                i = xml.IndexOf(tag);
-                if (i >= 0) return i + tag.Length;
-
-                tag = "</MTConnectError>";
-                i = xml.IndexOf(tag);
-                if (i >= 0) return i + tag.Length;
+                closingTag = "</MTConnectError>";
+                if (xml.Contains(closingTag))
+                {
+                    int i = xml.IndexOf(closingTag);
+                    if (i >= 0) return i + closingTag.Length;
+                }
             }
 
             return -1;
-        }       
+        }    
     }
 }

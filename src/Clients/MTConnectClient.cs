@@ -181,7 +181,7 @@ namespace MTConnect.Clients
 
                             // Create and Start the Sample Stream
                             if (sampleStream != null) sampleStream.Stop();
-                            sampleStream = new Stream(url);
+                            sampleStream = new Stream(url, "MTConnectStreams");
                             sampleStream.XmlReceived += ProcessSampleResponse;
                             sampleStream.XmlError += SampleStream_XmlError;
                             sampleStream.ConnectionError += ProcessConnectionError;
