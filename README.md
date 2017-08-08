@@ -1,4 +1,4 @@
-![MTConnect.NET Logo] (https://public.trakhound.com/mtconnect-net-logo.png)
+![MTConnect.NET Logo](mtconnect-net-logo.png)
 
 [![Travis branch](https://img.shields.io/travis/TrakHound/MTConnect.NET.svg?style=flat-square)](https://travis-ci.org/TrakHound/MTConnect.NET) [![NuGet](https://img.shields.io/nuget/v/MTConnect.Net.svg?style=flat-square)](https://www.nuget.org/packages/MTConnect.NET/)
 
