@@ -14,6 +14,8 @@ namespace MTConnect.MTConnectError
     [XmlRoot("MTConnectError")]
     public class Document
     {
+        private static XmlSerializer serializer = new XmlSerializer(typeof(Document));
+
         public Document() { }
 
         public static Document Create(string xml)
@@ -24,7 +26,6 @@ namespace MTConnect.MTConnectError
 
                 var version = MTConnect.Version.Get(xml);
 
-                var serializer = new XmlSerializer(typeof(Document));
                 using (var textReader = new StringReader(Namespaces.Clear(xml)))
                 using (var xmlReader = XmlReader.Create(textReader))
                 {
