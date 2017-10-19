@@ -32,7 +32,9 @@ namespace MTConnect.Clients
         private void Init()
         {
             Interval = 500;
+            Timeout = 5000;
             MaximumSampleCount = 200;
+            RetryInterval = 10000;
         }
 
         public string BaseUrl { get; set; }
@@ -40,6 +42,10 @@ namespace MTConnect.Clients
         public string DeviceName { get; set; }
 
         public int Interval { get; set; }
+
+        public int Timeout { get; set; }
+
+        public int RetryInterval { get; set; }
 
         public long MaximumSampleCount { get; set; }
 
@@ -56,9 +62,7 @@ namespace MTConnect.Clients
         public event StreamStatusHandler Started;
         public event StreamStatusHandler Stopped;
 
-        private Thread thread;
         private ManualResetEvent stop;
-
         private Stream sampleStream;
 
         private SequenceRange _sampleRange;
@@ -77,8 +81,7 @@ namespace MTConnect.Clients
 
             stop = new ManualResetEvent(false);
 
-            thread = new Thread(new ThreadStart(Worker));
-            thread.Start();
+            ThreadPool.QueueUserWorkItem(new WaitCallback(Worker));
         }
 
         public void Stop()
@@ -88,19 +91,7 @@ namespace MTConnect.Clients
             if (stop != null) stop.Set();
         }
 
-        public void Abort()
-        {
-            if (thread != null)
-            {
-                try
-                {
-                    thread.Abort();
-                }
-                catch { }
-            }
-        }
-
-        private void Worker()
+        private void Worker(object obj)
         {
             long instanceId = -1;
             bool initialize = true;
@@ -108,6 +99,7 @@ namespace MTConnect.Clients
             do
             {
                 var probe = new Probe(BaseUrl, DeviceName);
+                probe.Timeout = Timeout;
                 probe.Error += MTConnectErrorRecieved;
                 probe.ConnectionError += ProcessConnectionError;
                 var probeDoc = probe.Execute();
@@ -119,6 +111,7 @@ namespace MTConnect.Clients
                     do
                     {
                         var current = new Current(BaseUrl, DeviceName);
+                        current.Timeout = Timeout;
                         current.Error += MTConnectErrorRecieved;
                         current.ConnectionError += ProcessConnectionError;
                         var currentDoc = current.Execute();
@@ -182,14 +175,15 @@ namespace MTConnect.Clients
                             // Create and Start the Sample Stream
                             if (sampleStream != null) sampleStream.Stop();
                             sampleStream = new Stream(url, "MTConnectStreams");
+                            sampleStream.ConnectionTimeout = Timeout;
                             sampleStream.XmlReceived += ProcessSampleResponse;
                             sampleStream.XmlError += SampleStream_XmlError;
                             sampleStream.ConnectionError += ProcessConnectionError;
-                            sampleStream.Start();
+                            sampleStream.Run();
                         }
-                    } while (!stop.WaitOne(5000, true));
+                    } while (!stop.WaitOne(RetryInterval, true));
                 }
-            } while (!stop.WaitOne(5000, true));
+            } while (!stop.WaitOne(RetryInterval, true));
 
             Stopped?.Invoke();
         }
@@ -227,8 +221,8 @@ namespace MTConnect.Clients
                             SampleRange.To = doc.Header.NextSequence;
 
                             SampleReceived?.Invoke(doc);
-                        }                       
-                    } 
+                        }
+                    }
                 }
                 else
                 {
@@ -243,17 +237,20 @@ namespace MTConnect.Clients
         {
             if (dataItems != null && dataItems.Count > 0)
             {
-                var assetChanged = dataItems.Find(o => o.Type == "AssetChanged");
-                if (assetChanged != null)
+                var assetsChanged = dataItems.FindAll(o => o.Type == "AssetChanged");
+                if (assetsChanged != null)
                 {
-                    string assetId = assetChanged.CDATA;
-                    if (assetId != "UNAVAILABLE" && assetId != LastChangedAssetId)
+                    foreach (var assetChanged in assetsChanged)
                     {
-                        var asset = new Asset(BaseUrl, assetId);
-                        asset.Successful += ProcessAssetResponse;
-                        asset.Error += MTConnectErrorRecieved;
-                        asset.ExecuteAsync();
-                    }
+                        string assetId = assetChanged.CDATA;
+                        if (assetId != "UNAVAILABLE" && assetId != LastChangedAssetId)
+                        {
+                            var asset = new Asset(BaseUrl, assetId);
+                            asset.Successful += ProcessAssetResponse;
+                            asset.Error += MTConnectErrorRecieved;
+                            asset.ExecuteAsync();
+                        }
+                    }                  
                 }
             }
         }
