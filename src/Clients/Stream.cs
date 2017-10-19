@@ -14,10 +14,15 @@ namespace MTConnect.Clients
     public class Stream
     {
         private ManualResetEvent stop;
+        private HttpWebResponse response;
 
         public string Url { get; set; }
 
         public string BodyNode { get; set; }
+
+        public int ConnectionTimeout { get; set; }
+
+        public int IOTimeout { get; set; }
 
         public event ConnectionErrorHandler ConnectionError;
         public event XmlHandler XmlError;
@@ -30,6 +35,17 @@ namespace MTConnect.Clients
         {
             Url = url;
             BodyNode = bodyNode;
+            ConnectionTimeout = 5000;
+            IOTimeout = Convert.ToInt32(TimeSpan.FromMinutes(1).TotalMilliseconds);
+        }
+
+        public void Run()
+        {
+            Start();
+
+            stop.WaitOne();
+
+            Stopped?.Invoke();
         }
 
         public void Start()
@@ -41,25 +57,26 @@ namespace MTConnect.Clients
                 // Raise Started Event
                 Started?.Invoke();
 
-                Worker(); // Blocking Call
-
-                Stopped?.Invoke();
+                ThreadPool.QueueUserWorkItem(new WaitCallback(Worker));
             }
         }
 
         public void Stop()
         {
             if (stop != null) stop.Set();
+            if (response != null) response.Close();
         }
 
-        private void Worker()
+        private void Worker(object obj)
         {
             try
             {
                 if (!stop.WaitOne(0, true))
                 {
                     var request = (HttpWebRequest)WebRequest.Create(Url);
-                    using (var response = (HttpWebResponse)request.GetResponse())
+                    request.Timeout = ConnectionTimeout;
+                    request.ReadWriteTimeout = IOTimeout;
+                    using (response = (HttpWebResponse)request.GetResponse())
                     using (var stream = response.GetResponseStream())
                     using (var reader = new StreamReader(stream, Encoding.GetEncoding("utf-8")))
                     {
@@ -121,6 +138,8 @@ namespace MTConnect.Clients
             {
                 ConnectionError?.Invoke(ex);
             }
+
+            Stop();
         }
 
         private int FindClosingTag(string xml)
