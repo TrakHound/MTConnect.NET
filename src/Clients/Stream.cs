@@ -15,6 +15,7 @@ namespace MTConnect.Clients
     {
         private ManualResetEvent stop;
         private HttpWebResponse response;
+        private StreamReader reader;
 
         public string Url { get; set; }
 
@@ -64,6 +65,7 @@ namespace MTConnect.Clients
         public void Stop()
         {
             if (stop != null) stop.Set();
+            if (reader != null) reader.Close();
             if (response != null) response.Close();
         }
 
@@ -78,7 +80,7 @@ namespace MTConnect.Clients
                     request.ReadWriteTimeout = IOTimeout;
                     using (response = (HttpWebResponse)request.GetResponse())
                     using (var stream = response.GetResponseStream())
-                    using (var reader = new StreamReader(stream, Encoding.GetEncoding("utf-8")))
+                    using (reader = new StreamReader(stream, Encoding.GetEncoding("utf-8")))
                     {
                         // Set Read Buffer
                         var buffer = new char[1048576]; // 1 MB
