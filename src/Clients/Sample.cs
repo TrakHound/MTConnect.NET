@@ -211,8 +211,12 @@ namespace MTConnect.Clients
 
         private Uri CreateUri()
         {
+            // Check for Trailing Forward Slash
+            var baseUrl = BaseUrl;
+            if (!baseUrl.EndsWith("/")) baseUrl += "/";
+
             // Create Uri
-            var uri = new Uri(BaseUrl);
+            var uri = new Uri(baseUrl);
             if (!string.IsNullOrEmpty(DeviceName)) uri = new Uri(uri, DeviceName + "/sample");
             else uri = new Uri(uri, "sample");
             return uri;

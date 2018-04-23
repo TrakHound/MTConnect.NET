@@ -120,12 +120,12 @@ namespace MTConnect.Clients
 
         private Uri CreateUri()
         {
-            var uri = new Uri(BaseUrl);
-            if (!string.IsNullOrEmpty(AssetId))
-            {
-                uri = new Uri(uri, "assets/" + AssetId);
-                //uri = new Uri(uri, AssetId);
-            }
+            // Check for Trailing Forward Slash
+            var baseUrl = BaseUrl;
+            if (!baseUrl.EndsWith("/")) baseUrl += "/";
+
+            var uri = new Uri(baseUrl);
+            if (!string.IsNullOrEmpty(AssetId)) uri = new Uri(uri, "assets/" + AssetId);
             else uri = new Uri(uri, "assets");
             return uri;
         }
