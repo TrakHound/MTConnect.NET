@@ -226,6 +226,9 @@ namespace MTConnect.Clients
         {
             var request = new RestRequest(Method.GET);
 
+            //add header to accept xml response (v1.5 beta agent will return json if not specified)
+            request.AddHeader("Accept", "application/xml");
+
             // Add 'From' parameter
             if (From > 0) request.AddQueryParameter("from", From.ToString());
 

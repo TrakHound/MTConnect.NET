@@ -83,6 +83,9 @@ namespace MTConnect.Clients
             client.Timeout = Timeout;
             client.ReadWriteTimeout = Timeout;
             var request = new RestRequest(Method.GET);
+            //add header to accept xml response (v1.5 beta agent will return json if not specified)
+            request.AddHeader("Accept", "application/xml");
+
             IRestResponse response = client.Execute(request);
             return ProcessResponse(response);
         }
@@ -95,6 +98,10 @@ namespace MTConnect.Clients
             // Create HTTP Client and Request Data
             var client = new RestClient(CreateUri());
             var request = new RestRequest(Method.GET);
+
+            //add header to accept xml response (v1.5 beta agent will return json if not specified)
+            request.AddHeader("Accept", "application/xml");
+
             client.ExecuteAsync(request, AsyncCallback);
         }
 

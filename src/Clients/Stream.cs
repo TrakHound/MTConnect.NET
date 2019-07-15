@@ -76,6 +76,7 @@ namespace MTConnect.Clients
                 if (!stop.WaitOne(0, true))
                 {
                     var request = (HttpWebRequest)WebRequest.Create(Url);
+                    request.Headers.Add(HttpRequestHeader.Accept, "application/xml");
                     request.Timeout = ConnectionTimeout;
                     request.ReadWriteTimeout = IOTimeout;
                     using (response = (HttpWebResponse)request.GetResponse())
