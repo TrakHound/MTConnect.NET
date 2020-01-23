@@ -85,6 +85,9 @@ namespace MTConnect.MTConnectStreams
                             {
                                 if (child.NodeType == XmlNodeType.Element)
                                 {
+                                    // Clear any previous Attributes
+                                    copy.Attributes.RemoveAll();
+
                                     // Copy Attributes
                                     foreach (XmlAttribute attribute in child.Attributes)
                                     {
