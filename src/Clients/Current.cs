@@ -185,6 +185,7 @@ namespace MTConnect.Clients
         private RestRequest CreateRequest()
         {
             var request = new RestRequest(Method.GET);
+            request.AddHeader("Accept", "application/xml");
 
             // Add 'At' parameter
             if (At > -1) request.AddQueryParameter("at", At.ToString());

@@ -225,6 +225,7 @@ namespace MTConnect.Clients
         private RestRequest CreateRequest()
         {
             var request = new RestRequest(Method.GET);
+            request.AddHeader("Accept", "application/xml");
 
             // Add 'From' parameter
             if (From > 0) request.AddQueryParameter("from", From.ToString());
