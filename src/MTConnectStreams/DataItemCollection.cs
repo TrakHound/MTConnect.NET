@@ -37,13 +37,6 @@ namespace MTConnect.MTConnectStreams
             copy = doc.CreateNode(XmlNodeType.Element, type.ToString(), null);
         }
 
-        private enum DataItemType
-        {
-            Condition,
-            Event,
-            Sample
-        }
-
         private DataItemType type;
         private XmlDocument doc;
         private XmlNode copy;
@@ -98,6 +91,7 @@ namespace MTConnect.MTConnectStreams
 
                                     // Copy Text
                                     copy.InnerText = child.InnerText;
+                                    copy.InnerXml = child.InnerXml;
 
                                     // Deserialize as DataItem
                                     switch (type)

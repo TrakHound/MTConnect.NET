@@ -4,6 +4,7 @@
 // file 'LICENSE', which is part of this source code package.
 
 using System;
+using System.Collections.Generic;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -15,7 +16,7 @@ namespace MTConnect.MTConnectStreams
         public string CDATA { get; set; }
 
         /// <summary>
-        /// Type of DataItem (Condition, Event, or Sample)
+        /// Category of DataItem (Condition, Event, or Sample)
         /// </summary>
         [XmlAttribute("category")]
         public DataItemCategory Category { get; set; }
@@ -65,5 +66,11 @@ namespace MTConnect.MTConnectStreams
 
         #endregion
 
+        #region "Sub-Elements"
+
+        [XmlElement("Entry")]
+        public List<Entry> DataSet { get; set; }
+
+        #endregion
     }
 }
