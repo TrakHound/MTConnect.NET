@@ -64,6 +64,8 @@
     <Compile Include="MTConnectAssets\AssetCollection.cs" />
     <Compile Include="MTConnectDevices\ComponentCollection.cs" />
     <Compile Include="MTConnectDevices\Component.cs" />
+    <Compile Include="MTConnectStreams\DataItemType.cs" />
+    <Compile Include="MTConnectStreams\Entry.cs" />
     <Compile Include="Namespaces.cs" />
     <Compile Include="Version.cs" />
     <Compile Include="Headers\MTConnectAssestsHeader.cs" />
