@@ -1,4 +1,9 @@
-﻿using System.Reflection;
+﻿// Copyright (c) 2020 TrakHound Inc., All Rights Reserved.
+
+// This file is subject to the terms and conditions defined in
+// file 'LICENSE', which is part of this source code package.
+
+using System.Reflection;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following 
@@ -9,7 +14,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("TrakHound Inc.")]
 [assembly: AssemblyProduct("MTConnect.NET")]
-[assembly: AssemblyCopyright("©  2017 TrakHound Inc., All Rights Reserved")]
+[assembly: AssemblyCopyright("©  2020 TrakHound Inc., All Rights Reserved")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -31,5 +36,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("2.8.1.*")]
-[assembly: AssemblyFileVersion("2.8.1.*")]
+[assembly: AssemblyVersion("2.9.1.*")]
+[assembly: AssemblyFileVersion("2.9.1.*")]

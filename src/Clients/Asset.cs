@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2017 TrakHound Inc., All Rights Reserved.
+﻿// Copyright (c) 2020 TrakHound Inc., All Rights Reserved.
 
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE', which is part of this source code package.
@@ -102,7 +102,7 @@ namespace MTConnect.Clients
         {
             // Create HTTP Client and Request Data
             var client = new RestClient(CreateUri());
-            var request = CreateRequest(); //new RestRequest(Method.GET);
+            var request = CreateRequest(); 
             IRestResponse response = client.Execute(request);
             return ProcessResponse(response);
         }
@@ -114,7 +114,7 @@ namespace MTConnect.Clients
         {
             // Create HTTP Client and Request Data
             var client = new RestClient(CreateUri());
-            var request = CreateRequest(); //new RestRequest(Method.GET);
+            var request = CreateRequest(); 
             client.ExecuteAsync(request, AsyncCallback);
         }
 

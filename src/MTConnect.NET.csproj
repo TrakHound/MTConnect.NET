@@ -64,6 +64,8 @@
     <Compile Include="MTConnectAssets\AssetCollection.cs" />
     <Compile Include="MTConnectDevices\ComponentCollection.cs" />
     <Compile Include="MTConnectDevices\Component.cs" />
+    <Compile Include="MTConnectStreams\DataItemType.cs" />
+    <Compile Include="MTConnectStreams\Entry.cs" />
     <Compile Include="Namespaces.cs" />
     <Compile Include="Version.cs" />
     <Compile Include="Headers\MTConnectAssestsHeader.cs" />
@@ -126,6 +128,9 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
     <PostBuildEvent>if exist $(ProjectDir)nuget.exe $(ProjectDir)nuget pack $(ProjectPath) -properties Configuration=Release</PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent />
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

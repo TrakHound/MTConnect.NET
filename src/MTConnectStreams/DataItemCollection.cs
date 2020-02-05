@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2017 TrakHound Inc., All Rights Reserved.
+﻿// Copyright (c) 2020 TrakHound Inc., All Rights Reserved.
 
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE', which is part of this source code package.
@@ -35,13 +35,6 @@ namespace MTConnect.MTConnectStreams
 
             // Create a new Node with the name of "DataItem"
             copy = doc.CreateNode(XmlNodeType.Element, type.ToString(), null);
-        }
-
-        private enum DataItemType
-        {
-            Condition,
-            Event,
-            Sample
         }
 
         private DataItemType type;
@@ -85,6 +78,9 @@ namespace MTConnect.MTConnectStreams
                             {
                                 if (child.NodeType == XmlNodeType.Element)
                                 {
+                                    // Clear any previous Attributes
+                                    copy.Attributes.RemoveAll();
+
                                     // Copy Attributes
                                     foreach (XmlAttribute attribute in child.Attributes)
                                     {
@@ -95,6 +91,7 @@ namespace MTConnect.MTConnectStreams
 
                                     // Copy Text
                                     copy.InnerText = child.InnerText;
+                                    copy.InnerXml = child.InnerXml;
 
                                     // Deserialize as DataItem
                                     switch (type)

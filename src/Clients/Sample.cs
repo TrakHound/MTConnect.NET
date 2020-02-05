@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2017 TrakHound Inc., All Rights Reserved.
+﻿// Copyright (c) 2020 TrakHound Inc., All Rights Reserved.
 
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE', which is part of this source code package.
@@ -225,6 +225,7 @@ namespace MTConnect.Clients
         private RestRequest CreateRequest()
         {
             var request = new RestRequest(Method.GET);
+            request.AddHeader("Accept", "application/xml");
 
             //add header to accept xml response (v1.5 beta agent will return json if not specified)
             request.AddHeader("Accept", "application/xml");
