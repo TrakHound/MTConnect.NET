@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <RootNamespace>MTConnect</RootNamespace>
+    <Authors>TrakHound Inc.</Authors>
+    <Company>TrakHound Inc.TrakHound Inc.</Company>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Types\ConditionTypes.xml" />
+    <None Remove="Types\EventTypes.xml" />
+    <None Remove="Types\SampleTypes.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Types\ConditionTypes.xml" />
+    <EmbeddedResource Include="Types\EventTypes.xml" />
+    <EmbeddedResource Include="Types\SampleTypes.xml" />
+  </ItemGroup>
+
+</Project>

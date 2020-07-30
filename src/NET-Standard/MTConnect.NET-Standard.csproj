@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>MTConnect.NET_Standard</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Types\ConditionTypes.xml" />
+    <None Remove="Types\EventTypes.xml" />
+    <None Remove="Types\SampleTypes.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Types\ConditionTypes.xml" />
+    <EmbeddedResource Include="Types\EventTypes.xml" />
+    <EmbeddedResource Include="Types\SampleTypes.xml" />
+  </ItemGroup>
+
+</Project>
