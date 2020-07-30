@@ -3,6 +3,8 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>MTConnect.NET_Standard</RootNamespace>
+    <AssemblyVersion>2.10.0.0</AssemblyVersion>
+    <FileVersion>1.10.0.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
