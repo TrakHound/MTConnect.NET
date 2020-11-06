@@ -12,7 +12,6 @@ namespace MTConnect.Clients
 {
     public class MTConnectClient
     {
-        //private ManualResetEvent stop;
         private CancellationTokenSource stop;
         private Stream sampleStream;
 
@@ -117,7 +116,6 @@ namespace MTConnect.Clients
         {
             Started?.Invoke();
 
-            //stop = new ManualResetEvent(false);
             stop = new CancellationTokenSource();
 
             Task.Run(Run, stop.Token);
@@ -127,7 +125,6 @@ namespace MTConnect.Clients
         {
             if (sampleStream != null) sampleStream.Stop();
 
-            //if (stop != null) stop.Set();
             if (stop != null) stop.Cancel();
         }
 
@@ -254,115 +251,6 @@ namespace MTConnect.Clients
             Stopped?.Invoke();
         }
 
-
-        //private async Task Run()
-        //{
-        //    long instanceId = -1;
-        //    bool initialize = true;
-
-        //    do
-        //    {
-        //        var probe = new Probe(BaseUrl, DeviceName);
-        //        probe.Timeout = Timeout;
-        //        probe.Error += MTConnectErrorRecieved;
-        //        probe.ConnectionError += ProcessConnectionError;
-        //        var probeDoc = await probe.Execute();
-        //        if (probeDoc != null)
-        //        {
-        //            // Raise ProbeReceived Event
-        //            ProbeReceived?.Invoke(probeDoc);
-
-        //            do
-        //            {
-        //                // Get All Assets
-        //                var assets = new Asset(BaseUrl);
-        //                assets.Error += MTConnectErrorRecieved;
-        //                var assetsDoc = await assets.Execute();
-        //                if (assetsDoc != null)
-        //                {
-        //                    AssetsReceived?.Invoke(assetsDoc);
-        //                }
-
-        //                var current = new Current(BaseUrl, DeviceName);
-        //                current.Timeout = Timeout;
-        //                current.Error += MTConnectErrorRecieved;
-        //                current.ConnectionError += ProcessConnectionError;
-        //                var currentDoc = await current.Execute();
-        //                if (currentDoc != null)
-        //                {
-        //                    // Check if FirstSequence is larger than previously Sampled
-        //                    if (!initialize) initialize = SampleRange.From > 0 && currentDoc.Header.FirstSequence > SampleRange.From;
-
-        //                    if (initialize)
-        //                    {
-        //                        // Raise CurrentReceived Event
-        //                        CurrentReceived?.Invoke(currentDoc);
-
-        //                        // Check Assets
-        //                        if (currentDoc.DeviceStreams.Count > 0)
-        //                        {
-        //                            var deviceStream = currentDoc.DeviceStreams.Find(o => o.Name == DeviceName);
-        //                            if (deviceStream != null && deviceStream.DataItems != null) CheckAssetChanged(deviceStream.DataItems);
-        //                        }
-        //                    }
-
-        //                    // Check if Agent InstanceID has changed (Agent has been reset)
-        //                    if (initialize || instanceId != currentDoc.Header.InstanceId)
-        //                    {
-        //                        SampleRange.Reset();
-        //                        instanceId = currentDoc.Header.InstanceId;
-
-        //                        // Restart entire request sequence if new Agent Instance Id is read (probe could have changed)
-        //                        if (!initialize) break;
-        //                    }
-
-        //                    long from;
-        //                    if (initialize) from = currentDoc.Header.NextSequence;
-        //                    else
-        //                    {
-        //                        // If recovering from Error then use last Sample Range that was sampled successfully
-        //                        // Try to get Buffer minus 100 (to account for time between current and sample requests)
-        //                        from = currentDoc.Header.LastSequence - (currentDoc.Header.BufferSize - 100);
-        //                        from = Math.Max(from, currentDoc.Header.FirstSequence);
-        //                        from = Math.Max(SampleRange.From, from);
-        //                    }
-
-        //                    long to;
-        //                    if (initialize) to = from;
-        //                    else
-        //                    {
-        //                        // Get up to the MaximumSampleCount
-        //                        to = currentDoc.Header.NextSequence;
-        //                        to = Math.Min(to, from + MaximumSampleCount);
-        //                    }
-
-        //                    // Set the SampleRange for subsequent samples
-        //                    SampleRange.From = from;
-        //                    SampleRange.To = to;
-
-        //                    initialize = false;
-
-        //                    // Create the Url to use for the Sample Stream
-        //                    string url = CreateSampleUrl(BaseUrl, DeviceName, Interval, from, MaximumSampleCount);
-
-        //                    // Create and Start the Sample Stream
-        //                    if (sampleStream != null) sampleStream.Stop();
-        //                    sampleStream = new Stream(url, "MTConnectStreams");
-        //                    sampleStream.Timeout = Timeout;
-        //                    sampleStream.XmlReceived += ProcessSampleResponse;
-        //                    sampleStream.ConnectionError += ProcessConnectionError;
-        //                    await sampleStream.Run();
-        //                }
-        //            } while (!stop.IsCancellationRequested);
-        //            //} while (!stop.WaitOne(RetryInterval, true));
-        //        }
-        //    } while (!stop.IsCancellationRequested);
-        //    //} while (!stop.WaitOne(RetryInterval, true));
-
-        //    Stopped?.Invoke();
-        //}
-
-
         private void ProcessSampleResponse(string xml)
         {
             if (!string.IsNullOrEmpty(xml))
@@ -416,11 +304,6 @@ namespace MTConnect.Clients
                         if (assetId != "UNAVAILABLE" && assetId != LastChangedAssetId)
                         {
                             await RunAssets();
-
-                            //var asset = new Asset(BaseUrl, assetId);
-                            //asset.Successful += ProcessAssetResponse;
-                            //asset.Error += MTConnectErrorRecieved;
-                            //asset.Execute(stop.Token);
                         }
                     }                  
                 }

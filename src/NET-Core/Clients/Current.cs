@@ -154,6 +154,14 @@ namespace MTConnect.Clients
         /// <summary>
         /// Execute the Current Request
         /// </summary>
+        public async Task<MTConnectStreams.Document> Execute()
+        {
+            return await Execute(new CancellationToken());
+        }
+
+        /// <summary>
+        /// Execute the Current Request
+        /// </summary>
         public async Task<MTConnectStreams.Document> Execute(CancellationToken cancellationToken)
         {
             // Create HTTP Client and Request Data
@@ -211,7 +219,6 @@ namespace MTConnect.Clients
                 }
                 else if (response.Content != null)
                 {
-                    //string xml = await response.Content.ReadAsStringAsync();
                     var xml = await Task.Run(response.Content.ReadAsStringAsync, cancellationToken);
                     if (!string.IsNullOrEmpty(xml))
                     {

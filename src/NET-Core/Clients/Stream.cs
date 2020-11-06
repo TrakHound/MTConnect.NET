@@ -4,7 +4,6 @@
 // file 'LICENSE', which is part of this source code package.
 
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
 using System.Threading;
@@ -14,7 +13,6 @@ namespace MTConnect.Clients
 {
     class Stream
     {
-        //private ManualResetEvent stop;
         private CancellationTokenSource stop;
 
         public string Url { get; set; }
@@ -39,7 +37,6 @@ namespace MTConnect.Clients
 
         public async Task Run()
         {
-            //stop = new ManualResetEvent(false);
             stop = new CancellationTokenSource();
 
             if (!string.IsNullOrEmpty(Url))
@@ -60,7 +57,6 @@ namespace MTConnect.Clients
                         string doc = null;
                         var xmlFound = false;
 
-                        //while (!stop.WaitOne(0, true) && !reader.EndOfStream)
                         while (!stop.IsCancellationRequested && !reader.EndOfStream)
                         {
                             var line = reader.ReadLine();
@@ -102,8 +98,6 @@ namespace MTConnect.Clients
 
         public void Stop()
         {
-            //if (stop != null) stop.Set();
-
             if (stop != null) stop.Cancel();
         }
 

@@ -114,6 +114,14 @@ namespace MTConnect.Clients
         /// <summary>
         /// Execute the Asset Request
         /// </summary>
+        public async Task<MTConnectAssets.Document> Execute()
+        {
+            return await Execute(new CancellationToken());
+        }
+
+        /// <summary>
+        /// Execute the Asset Request
+        /// </summary>
         public async Task<MTConnectAssets.Document> Execute(CancellationToken cancellationToken)
         {
             // Create HTTP Client and Request Data
@@ -170,7 +178,6 @@ namespace MTConnect.Clients
                 }
                 else if (response.Content != null)
                 {
-                    //string xml = await response.Content.ReadAsStringAsync();
                     var xml = await Task.Run(response.Content.ReadAsStringAsync, cancellationToken);
                     if (!string.IsNullOrEmpty(xml))
                     {

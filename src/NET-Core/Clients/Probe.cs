@@ -5,7 +5,6 @@
 
 using System;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -81,6 +80,14 @@ namespace MTConnect.Clients
         /// <summary>
         /// Execute the Probe Request
         /// </summary>
+        public async Task<MTConnectDevices.Document> Execute()
+        {
+            return await Execute(new CancellationToken());
+        }
+
+        /// <summary>
+        /// Execute the Probe Request
+        /// </summary>
         public async Task<MTConnectDevices.Document> Execute(CancellationToken cancellationToken)
         {
             // Create HTTP Client and Request Data
@@ -128,7 +135,6 @@ namespace MTConnect.Clients
                 }
                 else if (response.Content != null)
                 {
-                    //string xml = await response.Content.ReadAsStringAsync();
                     var xml = await Task.Run(response.Content.ReadAsStringAsync, cancellationToken);
                     if (!string.IsNullOrEmpty(xml))
                     {
