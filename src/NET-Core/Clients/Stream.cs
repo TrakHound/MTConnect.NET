@@ -4,6 +4,7 @@
 // file 'LICENSE', which is part of this source code package.
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
 using System.Threading;
@@ -13,7 +14,8 @@ namespace MTConnect.Clients
 {
     class Stream
     {
-        private ManualResetEvent stop;
+        //private ManualResetEvent stop;
+        private CancellationTokenSource stop;
 
         public string Url { get; set; }
 
@@ -37,7 +39,8 @@ namespace MTConnect.Clients
 
         public async Task Run()
         {
-            stop = new ManualResetEvent(false);
+            //stop = new ManualResetEvent(false);
+            stop = new CancellationTokenSource();
 
             if (!string.IsNullOrEmpty(Url))
             {
@@ -54,16 +57,33 @@ namespace MTConnect.Clients
                     using (var reader = new StreamReader(stream))
                     {
                         string prevLine = null;
+                        string doc = null;
+                        var xmlFound = false;
 
-                        while (!stop.WaitOne(0, true) && !reader.EndOfStream)
+                        //while (!stop.WaitOne(0, true) && !reader.EndOfStream)
+                        while (!stop.IsCancellationRequested && !reader.EndOfStream)
                         {
                             var line = reader.ReadLine();
                             if (!string.IsNullOrEmpty(line))
                             {
-                                if (IsXml(line) && IsXml(prevLine))
+                                // Test if Previous Line was beginning of XML Document
+                                if (IsXml(prevLine))
                                 {
-                                    var xml = $"{prevLine}{line}";
-                                    XmlReceived?.Invoke(xml);
+                                    xmlFound = true;
+                                    doc = prevLine;
+                                }
+
+                                // Test if Current Line is a HTML Header
+                                if (IsHeader(line)) xmlFound = false;
+
+                                // Build XML Document
+                                if (xmlFound) doc += line;
+
+                                // Test if End of XML Document
+                                if (IsEnd(line) && !string.IsNullOrEmpty(doc))
+                                {
+                                    XmlReceived?.Invoke(doc);
+                                    doc = null;
                                 }
 
                                 prevLine = line;
@@ -82,7 +102,9 @@ namespace MTConnect.Clients
 
         public void Stop()
         {
-            if (stop != null) stop.Set();
+            //if (stop != null) stop.Set();
+
+            if (stop != null) stop.Cancel();
         }
 
         private bool IsXml(string s)
@@ -90,6 +112,28 @@ namespace MTConnect.Clients
             if (!string.IsNullOrEmpty(s))
             {
                 string tag = "<?xml";
+                return s.StartsWith(tag);
+            }
+
+            return false;
+        }
+
+        private bool IsEnd(string s)
+        {
+            if (!string.IsNullOrEmpty(s))
+            {
+                string tag = "</" + BodyNode + ">";
+                return s.EndsWith(tag);
+            }
+
+            return false;
+        }
+
+        private bool IsHeader(string s)
+        {
+            if (!string.IsNullOrEmpty(s))
+            {
+                string tag = "--";
                 return s.StartsWith(tag);
             }
 

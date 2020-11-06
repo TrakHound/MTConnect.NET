@@ -28,6 +28,32 @@ namespace MTConnect
             return Regex.Replace(xml, regex, "");
         }
 
+        public static class v17
+        {
+            public const string Assets = "urn:mtconnect.org:MTConnectAssets:1.7";
+            public const string Devices = "urn:mtconnect.org:MTConnectDevices:1.7";
+            public const string Error = "urn:mtconnect.org:MTConnectError:1.7";
+            public const string Streams = "urn:mtconnect.org:MTConnectStreams:1.7";
+
+            public static bool Match(string ns)
+            {
+                return ns == Assets || ns == Devices || ns == Error || ns == Streams;
+            }
+        }
+
+        public static class v16
+        {
+            public const string Assets = "urn:mtconnect.org:MTConnectAssets:1.6";
+            public const string Devices = "urn:mtconnect.org:MTConnectDevices:1.6";
+            public const string Error = "urn:mtconnect.org:MTConnectError:1.6";
+            public const string Streams = "urn:mtconnect.org:MTConnectStreams:1.6";
+
+            public static bool Match(string ns)
+            {
+                return ns == Assets || ns == Devices || ns == Error || ns == Streams;
+            }
+        }
+
         public static class v15
         {
             public const string Assets = "urn:mtconnect.org:MTConnectAssets:1.5";

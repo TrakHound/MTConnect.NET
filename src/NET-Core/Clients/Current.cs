@@ -5,6 +5,7 @@
 
 using System;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 
@@ -153,7 +154,7 @@ namespace MTConnect.Clients
         /// <summary>
         /// Execute the Current Request
         /// </summary>
-        public async Task<MTConnectStreams.Document> Execute()
+        public async Task<MTConnectStreams.Document> Execute(CancellationToken cancellationToken)
         {
             // Create HTTP Client and Request Data
             var client = new HttpClient();
@@ -162,9 +163,9 @@ namespace MTConnect.Clients
 
             try
             {
-                var response = await client.GetAsync(CreateUri());
+                var response = await client.GetAsync(CreateUri(), cancellationToken);
                 response.EnsureSuccessStatusCode();
-                return await ProcessResponse(response);
+                return await ProcessResponse(response, cancellationToken);
             }
             catch (HttpRequestException e)
             {
@@ -200,7 +201,7 @@ namespace MTConnect.Clients
             return builder.Uri;
         }
 
-        private async Task<MTConnectStreams.Document> ProcessResponse(HttpResponseMessage response)
+        private async Task<MTConnectStreams.Document> ProcessResponse(HttpResponseMessage response, CancellationToken cancellationToken)
         {
             if (response != null)
             {
@@ -210,7 +211,8 @@ namespace MTConnect.Clients
                 }
                 else if (response.Content != null)
                 {
-                    string xml = await response.Content.ReadAsStringAsync();
+                    //string xml = await response.Content.ReadAsStringAsync();
+                    var xml = await Task.Run(response.Content.ReadAsStringAsync, cancellationToken);
                     if (!string.IsNullOrEmpty(xml))
                     {
                         // Process MTConnectStreams Document

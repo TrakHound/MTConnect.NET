@@ -5,6 +5,8 @@
 
 using System;
 using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MTConnect.Clients
@@ -79,7 +81,7 @@ namespace MTConnect.Clients
         /// <summary>
         /// Execute the Probe Request
         /// </summary>
-        public async Task<MTConnectDevices.Document> Execute()
+        public async Task<MTConnectDevices.Document> Execute(CancellationToken cancellationToken)
         {
             // Create HTTP Client and Request Data
             var client = new HttpClient();
@@ -88,9 +90,9 @@ namespace MTConnect.Clients
 
             try
             {
-                var response = await client.GetAsync(CreateUri());
+                var response = await client.GetAsync(CreateUri(), cancellationToken);
                 response.EnsureSuccessStatusCode();
-                return await ProcessResponse(response);
+                return await ProcessResponse(response, cancellationToken);
             }
             catch (HttpRequestException e)
             {
@@ -106,6 +108,9 @@ namespace MTConnect.Clients
             var baseUrl = BaseUrl;
             if (!baseUrl.EndsWith("/")) baseUrl += "/";
 
+            // Check for http
+            if (!baseUrl.StartsWith("http://") && !baseUrl.StartsWith("https://")) baseUrl = "http://" + baseUrl;
+
             // Create Uri
             var uri = new Uri(baseUrl);
             if (!string.IsNullOrEmpty(DeviceName)) uri = new Uri(uri, DeviceName + "/probe");
@@ -113,7 +118,7 @@ namespace MTConnect.Clients
             return uri;
         }
 
-        private async Task<MTConnectDevices.Document> ProcessResponse(HttpResponseMessage response)
+        private async Task<MTConnectDevices.Document> ProcessResponse(HttpResponseMessage response, CancellationToken cancellationToken)
         {
             if (response != null)
             {
@@ -123,7 +128,8 @@ namespace MTConnect.Clients
                 }
                 else if (response.Content != null)
                 {
-                    string xml = await response.Content.ReadAsStringAsync();
+                    //string xml = await response.Content.ReadAsStringAsync();
+                    var xml = await Task.Run(response.Content.ReadAsStringAsync, cancellationToken);
                     if (!string.IsNullOrEmpty(xml))
                     {
                         // Process MTConnectDevices Document
