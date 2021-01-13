@@ -139,6 +139,10 @@ namespace MTConnect.Clients
             {
                 ConnectionError?.Invoke(e);
             }
+            catch (TaskCanceledException ex)
+            {
+                ConnectionError?.Invoke(ex);
+            }
 
             return null;
         }
