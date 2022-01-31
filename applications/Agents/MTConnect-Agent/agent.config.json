@@ -1,0 +1,28 @@
+﻿{
+	"devices": "devices.xml",
+	"port": 5000,
+
+	"adapters": [
+		{
+			"device": "OKUMA.Lathe",
+			"host": "localhost",
+			"port": 7878
+		}
+	],
+
+	"devicesNamespaces": [
+		{
+			"alias": "e",
+			"location": "urn:okuma.com:OkumaDevices:1.3",
+			"path": "/schemas/OkumaDevices_1.3.xsd"
+		}
+	],
+
+	"streamsNamespaces": [
+		{
+			"alias": "e",
+			"location": "urn:okuma.com:OkumaStreams:1.3",
+			"path": "/schemas/OkumaStreams_1.3.xsd"
+		}
+	]
+}

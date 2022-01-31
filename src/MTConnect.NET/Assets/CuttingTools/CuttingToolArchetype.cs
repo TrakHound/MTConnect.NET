@@ -1,0 +1,23 @@
+// Copyright (c) 2022 TrakHound Inc., All Rights Reserved.
+
+// This file is subject to the terms and conditions defined in
+// file 'LICENSE', which is part of this source code package.
+
+using System.Xml;
+using System.Xml.Serialization;
+
+namespace MTConnect.Assets.CuttingTools
+{
+    public class CuttingToolArchetype : CuttingToolAsset
+    {
+        [XmlElement("CuttingToolDefinition")]
+        public CuttingToolDefinition CuttingToolDefinition { get; set; }
+
+
+        public CuttingToolArchetype()
+        {
+            Type = "CuttingToolArchetype";
+            CuttingToolLifeCycle = new CuttingToolLifeCycle();
+        }
+    }
+}

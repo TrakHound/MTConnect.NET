@@ -1,0 +1,54 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFrameworks>net6.0</TargetFrameworks>
+    <RootNamespace>MTConnect.Applications</RootNamespace>
+  </PropertyGroup>
+
+  <PropertyGroup>
+   <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+   <AssemblyVersion>0.1.0</AssemblyVersion>
+   <Authors>TrakHound Inc.</Authors>
+   <Company>TrakHound Inc.</Company>
+   <Copyright>Copyright (c) 2022 TrakHound Inc., All Rights Reserved.</Copyright>
+   <PackageProjectUrl>https://www.TrakHound.com</PackageProjectUrl>
+   <RepositoryUrl>https://github.com/TrakHound/MTConnect.NET</RepositoryUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Remove="agent.config.json" />
+    <Content Remove="NLog.config" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="agent.config.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="NLog.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="6.0.0" />
+    <PackageReference Include="NLog.Web.AspNetCore" Version="4.14.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\MTConnect.NET-AspNetCore\MTConnect.NET-AspNetCore.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="devices-mazak.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="devices-okuma.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

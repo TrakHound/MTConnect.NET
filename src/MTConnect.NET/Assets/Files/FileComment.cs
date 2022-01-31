@@ -1,0 +1,26 @@
+// Copyright (c) 2022 TrakHound Inc., All Rights Reserved.
+
+// This file is subject to the terms and conditions defined in
+// file 'LICENSE', which is part of this source code package.
+
+using System;
+using System.Xml;
+using System.Xml.Serialization;
+
+namespace MTConnect.Assets.Files
+{
+    /// <summary>
+    /// A remark or interpretation for human interpretation associated with a File or FileArchetype.
+    /// </summary>
+    public class FileComment
+    {
+        /// <summary>
+        /// The time the comment was made.
+        /// </summary>
+        [XmlAttribute("timestamp")]
+        public DateTime Timestamp { get; set; }
+
+        [XmlText]
+        public string Value { get; set; }
+    }
+}

@@ -1,0 +1,32 @@
+// Copyright (c) 2022 TrakHound Inc., All Rights Reserved.
+
+// This file is subject to the terms and conditions defined in
+// file 'LICENSE.txt', which is part of this source code package.
+
+namespace MTConnect.Devices.Events
+{
+    /// <summary>
+    /// The identifier for a pallet.
+    /// </summary>
+    public class PalletIdDataItem : DataItem
+    {
+        public const DataItemCategory CategoryId = DataItemCategory.EVENT;
+        public const string TypeId = "PALLET_ID";
+        public const string NameId = "palletId";
+
+
+        public PalletIdDataItem()
+        {
+            DataItemCategory = CategoryId;
+            Type = TypeId;
+        }
+
+        public PalletIdDataItem(string parentId)
+        {
+            Id = CreateId(parentId, NameId);
+            DataItemCategory = CategoryId;
+            Type = TypeId;
+            Name = NameId;
+        }
+    }
+}

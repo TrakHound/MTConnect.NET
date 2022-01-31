@@ -1,0 +1,32 @@
+// Copyright (c) 2022 TrakHound Inc., All Rights Reserved.
+
+// This file is subject to the terms and conditions defined in
+// file 'LICENSE', which is part of this source code package.
+
+namespace MTConnect.Assets.CuttingTools.Measurements.CuttingItem
+{
+    /// <summary>
+    /// The theoretical length of the cutting edge of a Cutting Item over sharp corners.
+    /// </summary>
+    public class CuttingEdgeLengthMeasurement : CuttingItemMeasurement
+    {
+        public const string TypeId = "CuttingEdgeLength";
+        public const string CodeId = "L";
+
+
+        public CuttingEdgeLengthMeasurement()
+        {
+            Type = TypeId;
+            Code = CodeId;
+            Units = Devices.Units.MILLIMETER;
+        }
+
+        public CuttingEdgeLengthMeasurement(double value)
+        {
+            Type = TypeId;
+            Code = CodeId;
+            Units = Devices.Units.MILLIMETER;
+            CDATA = value;
+        }
+    }
+}
