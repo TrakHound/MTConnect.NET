@@ -9,6 +9,8 @@ The [ShdrAdapter](ShdrAdapter.cs) class handles the TCP connection to the Agent.
 - [ShdrDataSet](ShdrDataSet.cs) : Handles converting Events and/or Samples with a Representation of DATA_SET to the appropriate SHDR format
 - [ShdrTable](ShdrTable.cs) : Handles converting Events and/or Samples with a Representation of TABLE to the appropriate SHDR format
 
+The [ShdrAdapterClient](ShdrAdapterClient.cs) class handles the TCP connection to read from the Adapter and add data to an IMTConnectAgent class.
+
 ## Usage
 There are several different ways to setup and add data to the ShdrAdapter
 
