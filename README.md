@@ -27,9 +27,11 @@ Other features of MTConnect.NET :
 
 - [MTConnect Agent - AspNetCore](applications/Agents/MTConnect-Agent-AspNetCore) : Similar to the MTConenct Agent application but uses either the built-in Kestrel server or can be setup through IIS (Internet Information Services). This allows the agent to be used with all of the features available through ASP.NET and IIS such as security, permissions, monitoring, etc.
 
-- [MTConnect MQTT Agent](applications/Agents/MTConnect-Agent-MQTT) : An MTConnect Agent with an MQTT broker built-in.
+- [MTConnect MQTT Agent](applications/Agents/MTConnect-Agent-MQTT) : (In-Progress) An MTConnect Agent with an MQTT broker built-in.
 
-- [MTConnect SHDR Adapter](applications/Adapters/MTConnect-Adapter-SHDR) : 
+## Nuget Packages
+The Nuget packages for the libraries in this repo are listed below:
+- [MTConnect.NET](https://www.nuget.org/packages/MTConnect.NET/)
 
 ## Supported Frameworks
 - .NET 6.0
