@@ -13,7 +13,7 @@ This application is currently in the Beta stage. Please feel free to use and deb
 
 ## Releases
 Releases for this application are located under the Releases tab. The current release is listed below:
-- [MTConnect Agent Current Release](http://release)
+- [MTConnect Agent Current Release](https://github.com/TrakHound/MTConnect.NET/releases/tag/v3.0.0)
 
 ## Configuration
 The configuration is designed to mimic that of the c++ MTConnect Agent so that migration to this agent is made easier. The main difference is that instead of using the Boost C++ file format, this configuration file uses JSON. The default configuration file is shown below:
