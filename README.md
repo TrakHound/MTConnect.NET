@@ -72,7 +72,7 @@ Agents are implemented using the MTConnectAgent class and IMTConnectAgent interf
 
 ## Adapters
 ### SHDR Adapter
-The only adapter currently available is one using the SHDR protocol. More information can be found at [Adapters](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET/Adapters/SHDR).
+The only adapter currently available is one using the SHDR protocol. More information can be found at [Adapters](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET/Adapters/Shdr).
 
 ## Developer Notes
 This repo along with the libraries and applications are free to use and hopefully will help those that are looking at either getting started using MTConnect or those that are looking to use MTConnect for more advanced use cases. The [Models](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET/Models) framework will hopefully make using MTConnect much easier and straight forward and promote better usage of the standard's lesser used features.
