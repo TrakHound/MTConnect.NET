@@ -21,6 +21,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <_WebToolingArtifacts Remove="Properties\PublishProfiles\NET-6-win-x64.pubxml" />
+    <_WebToolingArtifacts Remove="Properties\PublishProfiles\NET-6-win-x86.pubxml" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="wwwroot\" />
   </ItemGroup>
 
@@ -43,7 +48,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="devices-mazak.xml">
+    <None Update="devices.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="devices-okuma.xml">

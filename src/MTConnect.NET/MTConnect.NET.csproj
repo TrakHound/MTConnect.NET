@@ -5,7 +5,7 @@
     <RootNamespace>MTConnect</RootNamespace>
     <Authors>TrakHound</Authors>
     <Company>TrakHound Inc.</Company>
-    <AssemblyVersion>3.0.0</AssemblyVersion>
+    <AssemblyVersion>0.1.0</AssemblyVersion>
     <FileVersion></FileVersion>
     <Configurations>Debug;Release;Package</Configurations>
     <Copyright>Copyright (c) 2022 TrakHound Inc., All Rights Reserved.</Copyright>
@@ -16,7 +16,7 @@
     <Description>MTConnect.NET is a fully featured .NET library for MTConnect® Agents, Adapters, and Clients. Supports MTConnect Versions up to 1.8. Supports .NET Framework 4.6.1 up to .NET 6</Description>
     <Version>3.0.0</Version>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <PackageIcon>mtconnect-net.png</PackageIcon>
+	<PackageIcon>mtconnect-net.png</PackageIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -27,6 +27,7 @@
   <ItemGroup>
     <None Include="Clients\Rest\MTConnectSampleJsonStream.cs" />
     <None Include="Models\Components\SpindleAxisModel.cs" />
+	<None Include="mtconnect-net.png" Pack="true" PackagePath="\"/>
   </ItemGroup>
 
   <!--Conditionally obtain references for the .NET Framework 4.6.1 target-->
@@ -81,12 +82,6 @@
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
   	<Reference Include="System.Text.Json" />
 	<PackageReference Include="System.Text.Json" Version="6.0.1" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Update="mtconnect-net.png">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
   </ItemGroup>
 	
 </Project>
