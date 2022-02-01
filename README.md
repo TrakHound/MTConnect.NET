@@ -32,6 +32,9 @@ Other features of MTConnect.NET :
 ## Nuget Packages
 The Nuget packages for the libraries in this repo are listed below:
 - [MTConnect.NET](https://www.nuget.org/packages/MTConnect.NET/)
+- [MTConnect.NET-AspNetCore](https://www.nuget.org/packages/MTConnect.NET-AspNetCore/)
+- [MTConnect.NET-MQTT](https://www.nuget.org/packages/MTConnect.NET-MQTT/)
+- [MTConnect.NET-Pallets](https://www.nuget.org/packages/MTConnect.NET-Pallets/)
 
 ## Supported Frameworks
 - .NET 6.0
