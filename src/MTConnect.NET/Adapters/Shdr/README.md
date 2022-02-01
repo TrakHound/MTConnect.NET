@@ -3,7 +3,7 @@ Adapter classes to handle the SHDR Agent Adapter Protocol associated with the MT
 
 ## Overview
 The [ShdrAdapter](ShdrAdapter.cs) class handles the TCP connection to the Agent. SHDR conversion is handled in each individual class:
-- [ShdrDataItem](ShdrDataItem.cs) : Handles converting Events and/or Samples with a Representation of VALUE to the appropriate SHDR format. Handles multiline SHDR messages.
+- [ShdrDataItem](ShdrDataItem.cs) : Handles converting Events and/or Samples with a Representation of VALUE to the appropriate SHDR format.
 - [ShdrCondition](ShdrCondition.cs) : Handles converting Conditions to the appropriate SHDR format 
 - [ShdrTimeSeries](ShdrTimeSeries.cs) : Handles converting Samples with a Representation of TIME_SERIES to the appropriate SHDR format
 - [ShdrDataSet](ShdrDataSet.cs) : Handles converting Events and/or Samples with a Representation of DATA_SET to the appropriate SHDR format
