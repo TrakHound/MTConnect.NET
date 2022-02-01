@@ -147,8 +147,6 @@ namespace MTConnect.Clients.Rest
                                     // Get string from buffer
                                     string s = new string(memory, 0, i);
 
-                                    Console.WriteLine(s);
-
                                     // Add buffer to XML
                                     xml += s;
 
@@ -157,7 +155,6 @@ namespace MTConnect.Clients.Rest
                                     while (xmlString != null)
                                     {
                                         // Return the XML document (if found)
-                                        //XmlReceived?.Invoke(this, xmlString.Value);
                                         ProcessDocument(xmlString.Value);
 
                                         // Remove the read XML document from the string and reprocess to look for more
@@ -172,8 +169,6 @@ namespace MTConnect.Clients.Rest
 #else
                                 i = await reader.ReadAsync(memory, 0, memory.Length);
 #endif
-
-                                //i = await reader.ReadAsync(memory, stop.Token);
 
                                 responseTimer.Stop();
                                 responseTimer.Start();
