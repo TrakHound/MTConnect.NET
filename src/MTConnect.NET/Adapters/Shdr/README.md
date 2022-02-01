@@ -189,7 +189,7 @@ Console.WriteLine(dataSet);
 ```
 > 2022-02-01T13:58:31.8150000Z|L2p1Variables|V1=5 V2=205
 
-### ShdrTable.ToSTring()
+### ShdrTable.ToString()
 ```c#
 List<TableEntry> tableEntries = new List<TableEntry>();
 
