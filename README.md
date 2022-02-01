@@ -1,4 +1,4 @@
-![MTConnect.NET Logo](img/mtconnect-net-02-md.png) 
+![MTConnect.NET Logo](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/mtconnect-net-02-md.png) 
 
 # MTConnect.NET
 
@@ -62,10 +62,10 @@ Releases are available under the Releases tab
 Agents are implemented using the MTConnectAgent class and IMTConnectAgent interface. The MTConnectAgent class implements the MTConnect® standard and is inteded to be full implemenation. More information about agents can be found at [Agents](src/MTConnect.NET/Agents) and Agent Applications can be found at [Agent Applications](applications/Agents).
 
 ### Traditional Implementation
-![Traditional Agent Architecture](img/Traditional-Architecture-Diagram.png) 
+![Traditional Agent Architecture](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/Traditional-Architecture-Diagram.png) 
 
 ### Embedded Implementation
-![Embedded Agent Architecture](img/Embedded-Architecture-Diagram.png) 
+![Embedded Agent Architecture](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/Embedded-Architecture-Diagram.png) 
 
 ## Adapters
 ### SHDR Adapter
