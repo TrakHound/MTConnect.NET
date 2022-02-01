@@ -1,5 +1,5 @@
 # Agents
-The MTConnectAgent class implements the MTConnect® Standard for processing and accessing data.
+The MTConnectAgent class implements the MTConnect® Standard for processing MTConnect Response Documents.
 
 ### Example (Initialization)
 ```c#
