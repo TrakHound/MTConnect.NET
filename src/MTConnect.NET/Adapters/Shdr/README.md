@@ -62,3 +62,15 @@ adapter.AddDataItem(feedrateOverrideDataItem);
 adapter.AddDataItem(partCountDataItem);
 adapter.AddDataItem(feedrateActualDataItem);
 ```
+
+### Use Models
+The DeviceModel class can be used to add data to an ShdrAdapter by setting the properties of the DeviceModel and adding those Observations to the Adapter as shown below:
+```c#
+using MTConnect.Models;
+using MTConnect.Streams.Events;
+
+DeviceModel deviceModel = new DeviceModel("OKUMA.Lathe");
+deviceModel.Controller.EmergencyStop = EmergencyStop.ARMED;
+
+adapter.AddDataItems(deviceModel.GetObservations());
+```
