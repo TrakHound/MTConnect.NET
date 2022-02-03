@@ -30,13 +30,10 @@ namespace MTConnect.Agents
     {
         private readonly MTConnectAgentConfiguration _configuration;
         private readonly IMTConnectDeviceBuffer _deviceBuffer;
-        private readonly IMTConnectStreamingBuffer _streamingBuffer;
+        private readonly IMTConnectObservationBuffer _observationBuffer;
         private readonly IMTConnectAssetBuffer _assetBuffer;
         private readonly ConcurrentDictionary<string, IObservation> _currentObservations = new ConcurrentDictionary<string, IObservation>();
-        //private readonly ConcurrentDictionary<string, IEnumerable<StoredObservation>> _currentObservations = new ConcurrentDictionary<string, IEnumerable<StoredObservation>>();
         private readonly MTConnectAgentMetrics _metrics = new MTConnectAgentMetrics(TimeSpan.FromSeconds(10), TimeSpan.FromMinutes(1));
-
-        private Agent _agentComponent;
 
 
         /// <summary>
@@ -60,9 +57,9 @@ namespace MTConnect.Agents
         public Version Version { get; set; }
 
         /// <summary>
-        /// Get the configured size of the Buffer in the number of maximum number of DataItems the buffer can hold at one time.
+        /// Get the configured size of the Buffer in the number of maximum number of Observations the buffer can hold at one time.
         /// </summary>
-        public long BufferSize => _streamingBuffer != null ? _streamingBuffer.BufferSize : 0;
+        public long BufferSize => _observationBuffer != null ? _observationBuffer.BufferSize : 0;
 
         /// <summary>
         /// Get the configured size of the Asset Buffer in the number of maximum number of Assets the buffer can hold at one time.
@@ -70,19 +67,19 @@ namespace MTConnect.Agents
         public long AssetBufferSize => _assetBuffer != null ? _assetBuffer.BufferSize : 0;
 
         /// <summary>
-        /// A number representing the sequence number assigned to the oldest piece of Streaming Data stored in the buffer
+        /// A number representing the sequence number assigned to the oldest Observation stored in the buffer
         /// </summary>
-        public long FirstSequence => _streamingBuffer != null ? _streamingBuffer.FirstSequence : 0;
+        public long FirstSequence => _observationBuffer != null ? _observationBuffer.FirstSequence : 0;
 
         /// <summary>
-        /// A number representing the sequence number assigned to the last piece of Streaming Data that was added to the buffer
+        /// A number representing the sequence number assigned to the last Observation that was added to the buffer
         /// </summary>
-        public long LastSequence => _streamingBuffer != null ? _streamingBuffer.LastSequence : 0;
+        public long LastSequence => _observationBuffer != null ? _observationBuffer.LastSequence : 0;
 
         /// <summary>
-        /// A number representing the sequence number of the piece of Streaming Data that is the next piece of data to be retrieved from the buffer
+        /// A number representing the sequence number of the next Observation that will be added to the buffer
         /// </summary>
-        public long NextSequence => _streamingBuffer != null ? _streamingBuffer.NextSequence : 0;
+        public long NextSequence => _observationBuffer != null ? _observationBuffer.NextSequence : 0;
 
         /// <summary>
         /// Raised when a new Device is added to the Agent
@@ -93,26 +90,6 @@ namespace MTConnect.Agents
         /// Raised when a new Observation is added to the Agent
         /// </summary>
         public EventHandler<IObservation> ObservationAdded { get; set; }
-
-        ///// <summary>
-        ///// Raised when a new Observation for a DataItem of category CONDITION is added to the Agent
-        ///// </summary>
-        //public EventHandler<IConditionObservation> ConditionObservationAdded { get; set; }
-
-        ///// <summary>
-        ///// Raised when a new Observation for a DataItem with representation of TIME_SERIES is added to the Agent
-        ///// </summary>
-        //public EventHandler<ITimeSeriesObservation> TimeSeriesObservationAdded { get; set; }
-
-        ///// <summary>
-        ///// Raised when a new Observation for a DataItem with representation of DATA_SET is added to the Agent
-        ///// </summary>
-        //public EventHandler<IDataSetObservation> DataSetObservationAdded { get; set; }
-
-        ///// <summary>
-        ///// Raised when a new Observation for a DataItem with representation of TABLE is added to the Agent
-        ///// </summary>
-        //public EventHandler<ITableObservation> TableObservationAdded { get; set; }
 
         /// <summary>
         /// Raised when a new Asset is added to the Agent
@@ -154,15 +131,22 @@ namespace MTConnect.Agents
         /// </summary>
         public MTConnectErrorHandler ErrorResponseSent { get; set; }
 
-
+        /// <summary>
+        /// Raised when an Invalid DataItem Observation is Added
+        /// </summary>
         public MTConnectDataItemValidationHandler InvalidDataItemAdded { get; set; }
+
+        /// <summary>
+        /// Raised when an Invalid Asset is Added
+        /// </summary>
+        public MTConnectAssetValidationHandler InvalidAssetAdded { get; set; }
 
 
         public MTConnectAgent()
         {
             InstanceId = CreateInstanceId();
             _deviceBuffer = new MTConnectDeviceBuffer();
-            _streamingBuffer = new MTConnectStreamingBuffer();
+            _observationBuffer = new MTConnectObservationBuffer();
             _assetBuffer = new MTConnectAssetBuffer();
             _metrics.DeviceMetricsUpdated += DeviceMetricsUpdated;
         }
@@ -172,33 +156,33 @@ namespace MTConnect.Agents
             InstanceId = CreateInstanceId();
             _configuration = configuration;
             _deviceBuffer = new MTConnectDeviceBuffer();
-            _streamingBuffer = new MTConnectStreamingBuffer(configuration);
+            _observationBuffer = new MTConnectObservationBuffer(configuration);
             _assetBuffer = new MTConnectAssetBuffer(configuration);
         }
 
         public MTConnectAgent(
             IMTConnectDeviceBuffer deviceBuffer,
-            IMTConnectStreamingBuffer streamingBuffer,
+            IMTConnectObservationBuffer streamingBuffer,
             IMTConnectAssetBuffer assetBuffer
             )
         {
             InstanceId = CreateInstanceId();
             _deviceBuffer = deviceBuffer;
-            _streamingBuffer = streamingBuffer;
+            _observationBuffer = streamingBuffer;
             _assetBuffer = assetBuffer;
         }
 
         public MTConnectAgent(
             MTConnectAgentConfiguration configuration,
             IMTConnectDeviceBuffer deviceBuffer,
-            IMTConnectStreamingBuffer streamingBuffer,
+            IMTConnectObservationBuffer streamingBuffer,
             IMTConnectAssetBuffer assetBuffer
             )
         {
             InstanceId = CreateInstanceId();
             _configuration = configuration;
             _deviceBuffer = deviceBuffer;
-            _streamingBuffer = streamingBuffer;
+            _observationBuffer = streamingBuffer;
             _assetBuffer = assetBuffer;
         }
 
@@ -228,7 +212,7 @@ namespace MTConnect.Agents
 
             var header = new Headers.MTConnectDevicesHeader
             {
-                BufferSize = _streamingBuffer.BufferSize,
+                BufferSize = _observationBuffer.BufferSize,
                 AssetBufferSize = _assetBuffer.BufferSize,
                 AssetCount = _assetBuffer.AssetCount,
                 CreationTime = DateTime.UtcNow,
@@ -248,7 +232,7 @@ namespace MTConnect.Agents
         {
             return new Headers.MTConnectStreamsHeader
             {
-                BufferSize = _streamingBuffer.BufferSize,
+                BufferSize = _observationBuffer.BufferSize,
                 CreationTime = DateTime.UtcNow,
                 InstanceId = InstanceId,
                 Sender = System.Net.Dns.GetHostName(),
@@ -447,7 +431,7 @@ namespace MTConnect.Agents
         {
             StreamsRequestReceived?.Invoke(null);
 
-            if (_deviceBuffer != null && _streamingBuffer != null)
+            if (_deviceBuffer != null && _observationBuffer != null)
             {
                 // Get list of Devices from the MTConnectDeviceBuffer
                 var devices = _deviceBuffer.GetDevices();
@@ -463,8 +447,8 @@ namespace MTConnect.Agents
                         if (!dataItems.IsNullOrEmpty()) dataItemIds.AddRange(dataItems.Select(o => o.Id));
                     }
 
-                    // Query the Device Buffer 
-                    var results = _streamingBuffer.GetObservations(deviceNames, dataItemIds, count: count);
+                    // Query the Observation Buffer 
+                    var results = _observationBuffer.GetObservations(deviceNames, dataItemIds, count: count);
                     var document = CreateDeviceStreamsDocument(devices, results);
                     if (document != null)
                     {
@@ -486,7 +470,7 @@ namespace MTConnect.Agents
         {
             StreamsRequestReceived?.Invoke(null);
 
-            if (_deviceBuffer != null && _streamingBuffer != null)
+            if (_deviceBuffer != null && _observationBuffer != null)
             {
                 // Get list of Devices from the MTConnectDeviceBuffer
                 var devices = await _deviceBuffer.GetDevicesAsync();
@@ -502,8 +486,8 @@ namespace MTConnect.Agents
                         if (!dataItems.IsNullOrEmpty()) dataItemIds.AddRange(dataItems.Select(o => o.Id));
                     }
 
-                    // Query the Device Buffer 
-                    var results = await _streamingBuffer.GetObservationsAsync(deviceNames, dataItemIds, count: count);
+                    // Query the Observation Buffer 
+                    var results = await _observationBuffer.GetObservationsAsync(deviceNames, dataItemIds, count: count);
                     var document = CreateDeviceStreamsDocument(devices, results);
                     if (document != null)
                     {
@@ -526,7 +510,7 @@ namespace MTConnect.Agents
         {
             StreamsRequestReceived?.Invoke(null);
 
-            if (_deviceBuffer != null && _streamingBuffer != null)
+            if (_deviceBuffer != null && _observationBuffer != null)
             {
                 // Get list of Devices from the MTConnectDeviceBuffer
                 var devices = _deviceBuffer.GetDevices();
@@ -542,8 +526,8 @@ namespace MTConnect.Agents
                         if (!dataItems.IsNullOrEmpty()) dataItemIds.AddRange(dataItems.Select(o => o.Id));
                     }
 
-                    // Query the Device Buffer 
-                    var results = _streamingBuffer.GetObservations(deviceNames, dataItemIds, at: at, count: count);
+                    // Query the Observation Buffer 
+                    var results = _observationBuffer.GetObservations(deviceNames, dataItemIds, at: at, count: count);
                     var document = CreateDeviceStreamsDocument(devices, results);
                     if (document != null)
                     {
@@ -566,7 +550,7 @@ namespace MTConnect.Agents
         {
             StreamsRequestReceived?.Invoke(null);
 
-            if (_deviceBuffer != null && _streamingBuffer != null)
+            if (_deviceBuffer != null && _observationBuffer != null)
             {
                 // Get list of Devices from the MTConnectDeviceBuffer
                 var devices = await _deviceBuffer.GetDevicesAsync();
@@ -582,8 +566,8 @@ namespace MTConnect.Agents
                         if (!dataItems.IsNullOrEmpty()) dataItemIds.AddRange(dataItems.Select(o => o.Id));
                     }
 
-                    // Query the Device Buffer 
-                    var results = await _streamingBuffer.GetObservationsAsync(deviceNames, dataItemIds, at: at, count: count);
+                    // Query the Observation Buffer 
+                    var results = await _observationBuffer.GetObservationsAsync(deviceNames, dataItemIds, at: at, count: count);
                     var document = CreateDeviceStreamsDocument(devices, results);
                     if (document != null)
                     {
@@ -607,7 +591,7 @@ namespace MTConnect.Agents
         {
             StreamsRequestReceived?.Invoke(null);
 
-            if (_deviceBuffer != null && _streamingBuffer != null)
+            if (_deviceBuffer != null && _observationBuffer != null)
             {
                 // Get list of Devices from the MTConnectDeviceBuffer
                 var devices = _deviceBuffer.GetDevices();
@@ -615,8 +599,8 @@ namespace MTConnect.Agents
                 {
                     var deviceNames = devices.Select(x => x.Name);
 
-                    // Query the Device Buffer 
-                    var results = _streamingBuffer.GetObservations(deviceNames, dataItemIds, at: at, count: count);
+                    // Query the Observation Buffer 
+                    var results = _observationBuffer.GetObservations(deviceNames, dataItemIds, at: at, count: count);
                     var document = CreateDeviceStreamsDocument(devices, results);
                     if (document != null)
                     {
@@ -640,7 +624,7 @@ namespace MTConnect.Agents
         {
             StreamsRequestReceived?.Invoke(null);
 
-            if (_deviceBuffer != null && _streamingBuffer != null)
+            if (_deviceBuffer != null && _observationBuffer != null)
             {
                 // Get list of Devices from the MTConnectDeviceBuffer
                 var devices = await _deviceBuffer.GetDevicesAsync();
@@ -648,8 +632,8 @@ namespace MTConnect.Agents
                 {
                     var deviceNames = devices.Select(x => x.Name);
 
-                    // Query the Device Buffer 
-                    var results = await _streamingBuffer.GetObservationsAsync(deviceNames, dataItemIds, at: at, count: count);
+                    // Query the Observation Buffer 
+                    var results = await _observationBuffer.GetObservationsAsync(deviceNames, dataItemIds, at: at, count: count);
                     var document = CreateDeviceStreamsDocument(devices, results);
                     if (document != null)
                     {
@@ -673,7 +657,7 @@ namespace MTConnect.Agents
         {
             StreamsRequestReceived?.Invoke(null);
 
-            if (_deviceBuffer != null && _streamingBuffer != null)
+            if (_deviceBuffer != null && _observationBuffer != null)
             {
                 // Get list of Devices from the MTConnectDeviceBuffer
                 var devices = _deviceBuffer.GetDevices();
@@ -689,8 +673,8 @@ namespace MTConnect.Agents
                         if (!dataItems.IsNullOrEmpty()) dataItemIds.AddRange(dataItems.Select(o => o.Id));
                     }
 
-                    // Query the Device Buffer 
-                    var results = _streamingBuffer.GetObservations(deviceNames, dataItemIds, from: from, to: to, count: count);
+                    // Query the Observation Buffer 
+                    var results = _observationBuffer.GetObservations(deviceNames, dataItemIds, from: from, to: to, count: count);
                     var document = CreateDeviceStreamsDocument(devices, results);
                     if (document != null)
                     {
@@ -714,7 +698,7 @@ namespace MTConnect.Agents
         {
             StreamsRequestReceived?.Invoke(null);
 
-            if (_deviceBuffer != null && _streamingBuffer != null)
+            if (_deviceBuffer != null && _observationBuffer != null)
             {
                 // Get list of Devices from the MTConnectDeviceBuffer
                 var devices = await _deviceBuffer.GetDevicesAsync();
@@ -730,8 +714,8 @@ namespace MTConnect.Agents
                         if (!dataItems.IsNullOrEmpty()) dataItemIds.AddRange(dataItems.Select(o => o.Id));
                     }
 
-                    // Query the Device Buffer 
-                    var results = await _streamingBuffer.GetObservationsAsync(deviceNames, dataItemIds, from: from, to: to, count: count);
+                    // Query the Observation Buffer 
+                    var results = await _observationBuffer.GetObservationsAsync(deviceNames, dataItemIds, from: from, to: to, count: count);
                     var document = CreateDeviceStreamsDocument(devices, results);
                     if (document != null)
                     {
@@ -756,7 +740,7 @@ namespace MTConnect.Agents
         {
             StreamsRequestReceived?.Invoke(null);
 
-            if (_deviceBuffer != null && _streamingBuffer != null)
+            if (_deviceBuffer != null && _observationBuffer != null)
             {
                 // Get list of Devices from the MTConnectDeviceBuffer
                 var devices = _deviceBuffer.GetDevices();
@@ -764,8 +748,8 @@ namespace MTConnect.Agents
                 {
                     var deviceNames = devices.Select(x => x.Name);
 
-                    // Query the Device Buffer 
-                    var results = _streamingBuffer.GetObservations(deviceNames, dataItemIds, from, to, count: count);
+                    // Query the Observation Buffer 
+                    var results = _observationBuffer.GetObservations(deviceNames, dataItemIds, from, to, count: count);
                     var document = CreateDeviceStreamsDocument(devices, results);
                     if (document != null)
                     {
@@ -790,7 +774,7 @@ namespace MTConnect.Agents
         {
             StreamsRequestReceived?.Invoke(null);
 
-            if (_deviceBuffer != null && _streamingBuffer != null)
+            if (_deviceBuffer != null && _observationBuffer != null)
             {
                 // Get list of Devices from the MTConnectDeviceBuffer
                 var devices = await _deviceBuffer.GetDevicesAsync();
@@ -798,8 +782,8 @@ namespace MTConnect.Agents
                 {
                     var deviceNames = devices.Select(x => x.Name);
 
-                    // Query the Device Buffer 
-                    var results = await _streamingBuffer.GetObservationsAsync(deviceNames, dataItemIds, from, to, count: count);
+                    // Query the Observation Buffer 
+                    var results = await _observationBuffer.GetObservationsAsync(deviceNames, dataItemIds, from, to, count: count);
                     var document = CreateDeviceStreamsDocument(devices, results);
                     if (document != null)
                     {
@@ -823,7 +807,7 @@ namespace MTConnect.Agents
         {
             StreamsRequestReceived?.Invoke(deviceName);
 
-            if (_deviceBuffer != null && _streamingBuffer != null)
+            if (_deviceBuffer != null && _observationBuffer != null)
             {
                 // Get Device from the MTConnectDeviceBuffer
                 var device = _deviceBuffer.GetDevice(deviceName);
@@ -834,8 +818,8 @@ namespace MTConnect.Agents
                     var dataItemIds = new List<string>();
                     if (!dataItems.IsNullOrEmpty()) dataItemIds.AddRange(dataItems.Select(o => o.Id));
 
-                    // Query the Device Buffer 
-                    var results = _streamingBuffer.GetObservations(device.Name, dataItemIds, count: count);
+                    // Query the Observation Buffer 
+                    var results = _observationBuffer.GetObservations(device.Name, dataItemIds, count: count);
                     var document = CreateDeviceStreamsDocument(device, results);
                     if (document != null)
                     {
@@ -858,7 +842,7 @@ namespace MTConnect.Agents
         {
             StreamsRequestReceived?.Invoke(deviceName);
 
-            if (_deviceBuffer != null && _streamingBuffer != null)
+            if (_deviceBuffer != null && _observationBuffer != null)
             {
                 // Get Device from the MTConnectDeviceBuffer
                 var device = await _deviceBuffer.GetDeviceAsync(deviceName);
@@ -869,8 +853,8 @@ namespace MTConnect.Agents
                     var dataItemIds = new List<string>();
                     if (!dataItems.IsNullOrEmpty()) dataItemIds.AddRange(dataItems.Select(o => o.Id));
 
-                    // Query the Device Buffer 
-                    var results = await _streamingBuffer.GetObservationsAsync(device.Name, dataItemIds, count: count);
+                    // Query the Observation Buffer 
+                    var results = await _observationBuffer.GetObservationsAsync(device.Name, dataItemIds, count: count);
                     var document = CreateDeviceStreamsDocument(device, results);
                     if (document != null)
                     {
@@ -894,7 +878,7 @@ namespace MTConnect.Agents
         {
             StreamsRequestReceived?.Invoke(deviceName);
 
-            if (_deviceBuffer != null && _streamingBuffer != null)
+            if (_deviceBuffer != null && _observationBuffer != null)
             {
                 // Get Device from the MTConnectDeviceBuffer
                 var device = _deviceBuffer.GetDevice(deviceName);
@@ -905,8 +889,8 @@ namespace MTConnect.Agents
                     var dataItemIds = new List<string>();
                     if (!dataItems.IsNullOrEmpty()) dataItemIds.AddRange(dataItems.Select(o => o.Id));
 
-                    // Query the Device Buffer 
-                    var results = _streamingBuffer.GetObservations(device.Name, dataItemIds, at: at, count: count);
+                    // Query the Observation Buffer 
+                    var results = _observationBuffer.GetObservations(device.Name, dataItemIds, at: at, count: count);
                     var document = CreateDeviceStreamsDocument(device, results);
                     if (document != null)
                     {
@@ -930,7 +914,7 @@ namespace MTConnect.Agents
         {
             StreamsRequestReceived?.Invoke(deviceName);
 
-            if (_deviceBuffer != null && _streamingBuffer != null)
+            if (_deviceBuffer != null && _observationBuffer != null)
             {
                 // Get Device from the MTConnectDeviceBuffer
                 var device = await _deviceBuffer.GetDeviceAsync(deviceName);
@@ -941,8 +925,8 @@ namespace MTConnect.Agents
                     var dataItemIds = new List<string>();
                     if (!dataItems.IsNullOrEmpty()) dataItemIds.AddRange(dataItems.Select(o => o.Id));
 
-                    // Query the Device Buffer 
-                    var results = await _streamingBuffer.GetObservationsAsync(device.Name, dataItemIds, at: at, count: count);
+                    // Query the Observation Buffer 
+                    var results = await _observationBuffer.GetObservationsAsync(device.Name, dataItemIds, at: at, count: count);
                     var document = CreateDeviceStreamsDocument(device, results);
                     if (document != null)
                     {
@@ -966,14 +950,14 @@ namespace MTConnect.Agents
         {
             StreamsRequestReceived?.Invoke(deviceName);
 
-            if (_deviceBuffer != null && _streamingBuffer != null)
+            if (_deviceBuffer != null && _observationBuffer != null)
             {
                 // Get Device from the MTConnectDeviceBuffer
                 var device = _deviceBuffer.GetDevice(deviceName);
                 if (device != null)
                 {
-                    // Query the Device Buffer 
-                    var results = _streamingBuffer.GetObservations(device.Name, dataItemIds, count: count);
+                    // Query the Observation Buffer 
+                    var results = _observationBuffer.GetObservations(device.Name, dataItemIds, count: count);
                     var document = CreateDeviceStreamsDocument(device, results);
                     if (document != null)
                     {
@@ -997,14 +981,14 @@ namespace MTConnect.Agents
         {
             StreamsRequestReceived?.Invoke(deviceName);
 
-            if (_deviceBuffer != null && _streamingBuffer != null)
+            if (_deviceBuffer != null && _observationBuffer != null)
             {
                 // Get Device from the MTConnectDeviceBuffer
                 var device = await _deviceBuffer.GetDeviceAsync(deviceName);
                 if (device != null)
                 {
-                    // Query the Device Buffer 
-                    var results = await _streamingBuffer.GetObservationsAsync(device.Name, dataItemIds, count: count);
+                    // Query the Observation Buffer 
+                    var results = await _observationBuffer.GetObservationsAsync(device.Name, dataItemIds, count: count);
                     var document = CreateDeviceStreamsDocument(device, results);
                     if (document != null)
                     {
@@ -1029,14 +1013,14 @@ namespace MTConnect.Agents
         {
             StreamsRequestReceived?.Invoke(deviceName);
 
-            if (_deviceBuffer != null && _streamingBuffer != null)
+            if (_deviceBuffer != null && _observationBuffer != null)
             {
                 // Get Device from the MTConnectDeviceBuffer
                 var device = _deviceBuffer.GetDevice(deviceName);
                 if (device != null)
                 {
-                    // Query the Device Buffer 
-                    var results = _streamingBuffer.GetObservations(device.Name, dataItemIds, at: at, count: count);
+                    // Query the Observation Buffer 
+                    var results = _observationBuffer.GetObservations(device.Name, dataItemIds, at: at, count: count);
                     var document = CreateDeviceStreamsDocument(device, results);
                     if (document != null)
                     {
@@ -1061,14 +1045,14 @@ namespace MTConnect.Agents
         {
             StreamsRequestReceived?.Invoke(deviceName);
 
-            if (_deviceBuffer != null && _streamingBuffer != null)
+            if (_deviceBuffer != null && _observationBuffer != null)
             {
                 // Get Device from the MTConnectDeviceBuffer
                 var device = await _deviceBuffer.GetDeviceAsync(deviceName);
                 if (device != null)
                 {
-                    // Query the Device Buffer 
-                    var results = await _streamingBuffer.GetObservationsAsync(device.Name, dataItemIds, at: at, count: count);
+                    // Query the Observation Buffer 
+                    var results = await _observationBuffer.GetObservationsAsync(device.Name, dataItemIds, at: at, count: count);
                     var document = CreateDeviceStreamsDocument(device, results);
                     if (document != null)
                     {
@@ -1093,7 +1077,7 @@ namespace MTConnect.Agents
         {
             StreamsRequestReceived?.Invoke(deviceName);
 
-            if (_deviceBuffer != null && _streamingBuffer != null)
+            if (_deviceBuffer != null && _observationBuffer != null)
             {
                 // Get Device from the MTConnectDeviceBuffer
                 var device = _deviceBuffer.GetDevice(deviceName);
@@ -1104,8 +1088,8 @@ namespace MTConnect.Agents
                     var dataItemIds = new List<string>();
                     if (!dataItems.IsNullOrEmpty()) dataItemIds.AddRange(dataItems.Select(o => o.Id));
 
-                    // Query the Device Buffer 
-                    var results = _streamingBuffer.GetObservations(device.Name, dataItemIds, from, to: to, count: count);
+                    // Query the Observation Buffer 
+                    var results = _observationBuffer.GetObservations(device.Name, dataItemIds, from, to: to, count: count);
                     var document = CreateDeviceStreamsDocument(device, results);
                     if (document != null)
                     {
@@ -1130,7 +1114,7 @@ namespace MTConnect.Agents
         {
             StreamsRequestReceived?.Invoke(deviceName);
 
-            if (_deviceBuffer != null && _streamingBuffer != null)
+            if (_deviceBuffer != null && _observationBuffer != null)
             {
                 // Get Device from the MTConnectDeviceBuffer
                 var device = await _deviceBuffer.GetDeviceAsync(deviceName);
@@ -1141,8 +1125,8 @@ namespace MTConnect.Agents
                     var dataItemIds = new List<string>();
                     if (!dataItems.IsNullOrEmpty()) dataItemIds.AddRange(dataItems.Select(o => o.Id));
 
-                    // Query the Device Buffer 
-                    var results = await _streamingBuffer.GetObservationsAsync(device.Name, dataItemIds, from, to: to, count: count);
+                    // Query the Observation Buffer 
+                    var results = await _observationBuffer.GetObservationsAsync(device.Name, dataItemIds, from, to: to, count: count);
                     var document = CreateDeviceStreamsDocument(device, results);
                     if (document != null)
                     {
@@ -1168,14 +1152,14 @@ namespace MTConnect.Agents
         {
             StreamsRequestReceived?.Invoke(deviceName);
 
-            if (_deviceBuffer != null && _streamingBuffer != null)
+            if (_deviceBuffer != null && _observationBuffer != null)
             {
                 // Get Device from the MTConnectDeviceBuffer
                 var device = _deviceBuffer.GetDevice(deviceName);
                 if (device != null)
                 {
-                    // Query the Device Buffer 
-                    var results = _streamingBuffer.GetObservations(device.Name, dataItemIds, from, to: to, count: count);
+                    // Query the Observation Buffer 
+                    var results = _observationBuffer.GetObservations(device.Name, dataItemIds, from, to: to, count: count);
                     var document = CreateDeviceStreamsDocument(device, results);
                     if (document != null)
                     {
@@ -1201,14 +1185,14 @@ namespace MTConnect.Agents
         {
             StreamsRequestReceived?.Invoke(deviceName);
 
-            if (_deviceBuffer != null && _streamingBuffer != null)
+            if (_deviceBuffer != null && _observationBuffer != null)
             {
                 // Get Device from the MTConnectDeviceBuffer
                 var device = await _deviceBuffer.GetDeviceAsync(deviceName);
                 if (device != null)
                 {
-                    // Query the Device Buffer 
-                    var results = await _streamingBuffer.GetObservationsAsync(device.Name, dataItemIds, from, to: to, count: count);
+                    // Query the Observation Buffer 
+                    var results = await _observationBuffer.GetObservationsAsync(device.Name, dataItemIds, from, to: to, count: count);
                     var document = CreateDeviceStreamsDocument(device, results);
                     if (document != null)
                     {
@@ -1424,109 +1408,6 @@ namespace MTConnect.Agents
             return objs;
         }
 
-        //private IEnumerable<Streams.Sample> GetSamples(string deviceName, IStreamingResults dataItemResults, IEnumerable<DataItem> dataItems, Version mtconnectVersion = null)
-        //{
-        //    var objs = new List<Streams.Sample>();
-
-        //    if (dataItemResults != null && !dataItemResults.Observations.IsNullOrEmpty() && !dataItems.IsNullOrEmpty())
-        //    {
-        //        var filteredDataItems = dataItems.Where(o => o.DataItemCategory == DataItemCategory.SAMPLE).ToList();
-        //        if (!filteredDataItems.IsNullOrEmpty())
-        //        {
-        //            foreach (var dataItem in filteredDataItems)
-        //            {
-        //                var di = DataItem.Create(dataItem.Type);
-        //                if (di == null) di = dataItem;
-
-        //                if (mtconnectVersion >= di.MinimumVersion && mtconnectVersion <= di.MaximumVersion)
-        //                {
-        //                    // Get list of StoredObservations for the DataItem
-        //                    var observations = dataItemResults.Observations.Where(o => o.DeviceName == deviceName && o.DataItemId == dataItem.Id);
-        //                    if (!observations.IsNullOrEmpty())
-        //                    {
-        //                        foreach (var observation in observations)
-        //                        {
-        //                            objs.Add(CreateSample(dataItem, observation));
-        //                        }
-
-
-        //                        //var sequences = observations.Select(o => o.Sequence).Distinct();
-        //                        //foreach (var sequence in sequences)
-        //                        //{
-        //                        //    var dataItemsAtSequence = dDataItems.Where(o => o.Sequence == sequence);
-        //                        //    if (!dataItemsAtSequence.IsNullOrEmpty())
-        //                        //    {
-        //                        //        var timestamp = dataItemsAtSequence.FirstOrDefault().Timestamp;
-
-        //                        //        objs.Add(CreateSample(dataItem, sequence, timestamp, dataItemsAtSequence));
-
-        //                        //        //switch (dataItem.Representation)
-        //                        //        //{
-        //                        //        //    case DataItemRepresentation.TIME_SERIES:
-
-        //                        //        //        objs.Add(CreateTimeSeriesSample(dataItem, sequence, timestamp, dataItemsAtSequence));
-        //                        //        //        break;
-
-        //                        //        //    case DataItemRepresentation.DATA_SET:
-
-        //                        //        //        objs.Add(CreateDataSetSample(dataItem, sequence, timestamp, dataItemsAtSequence));
-        //                        //        //        break;
-
-        //                        //        //    case DataItemRepresentation.TABLE:
-
-        //                        //        //        objs.Add(CreateTableSample(dataItem, sequence, timestamp, dataItemsAtSequence));
-        //                        //        //        break;
-
-        //                        //        //    case DataItemRepresentation.VALUE:
-
-        //                        //        //        objs.Add(CreateSample(dataItem, sequence, timestamp, dataItemsAtSequence));
-        //                        //        //        break;
-        //                        //        //}
-        //                        //    }
-        //                        //}
-        //                    }
-        //                }
-        //            }
-        //        }
-        //    }
-
-        //    return objs;
-        //}
-
-        //public static Dictionary<long, List<StoredObservation>> ToSequenceReferenceList(IEnumerable<StoredObservation> objs)
-        //{
-        //    var rObjs = new Dictionary<long, List<StoredObservation>>();
-
-        //    if (!objs.IsNullOrEmpty())
-        //    {
-        //        foreach (var obj in objs)
-        //        {
-        //            rObjs.TryGetValue(obj.Sequence, out var dObj);
-        //            //var dObj = rObjs.GetValueOrDefault(obj.Sequence);
-        //            //var dObj = rObjs.GetValueOrDefault(obj.Sequence);
-        //            if (dObj != null)
-        //            {
-        //                // Remove from Dictionary
-        //                rObjs.Remove(obj.Sequence);
-
-        //                // Add to existing list of Ids
-        //                var nObjs = dObj;
-        //                nObjs.Add(obj);
-
-        //                // Add back to Dictionary
-        //                rObjs.Add(obj.Sequence, nObjs);
-        //            }
-        //            else
-        //            {
-        //                // Initial add to Dictionary
-        //                rObjs.Add(obj.Sequence, new List<StoredObservation> { obj });
-        //            }
-        //        }
-        //    }
-
-        //    return rObjs;
-        //}
-
         private static Streams.Sample CreateSample(DataItem dataItemDefinition, StoredObservation observation)
         {
             var sample = new Streams.Sample();
@@ -1588,7 +1469,15 @@ namespace MTConnect.Agents
                             foreach (var observationValue in observationValues)
                             {
                                 var key = ValueTypes.GetDataSetKey(observationValue.ValueType);
-                                dataSetEntries.Add(new Streams.Entry(key, observationValue.Value));
+                                var removed = observationValue.Value == DataSetObservation.EntryRemovedValue;
+                                if (removed)
+                                {
+                                    dataSetEntries.Add(new Streams.Entry(key, null, true));
+                                }
+                                else
+                                {
+                                    dataSetEntries.Add(new Streams.Entry(key, observationValue.Value));
+                                }
                             }
 
                             sample.Entries = dataSetEntries;
@@ -1636,137 +1525,9 @@ namespace MTConnect.Agents
                         break;
                 }
             }
-            else
-            {
-                if (sample != null)
-                {
-                    
-                }
-            }
 
             return sample;
         }
-
-        //private static Streams.Sample CreateSample(DataItem dataItemDefinition, long sequence, long timestamp, IEnumerable<StoredObservation> dataItems)
-        //{
-        //    var sample = new Streams.Sample();
-        //    sample.DataItemId = dataItemDefinition.Id;
-        //    sample.Type = dataItemDefinition.Type;
-        //    sample.SubType = dataItemDefinition.SubType;
-        //    sample.Name = dataItemDefinition.Name;
-        //    sample.Sequence = sequence;
-        //    sample.Timestamp = timestamp.ToDateTime();
-        //    sample.CDATA = dataItems.FirstOrDefault(o => o.ValueType == ValueTypes.CDATA).Value?.ToString();
-
-        //    return sample;
-        //}
-
-        //private static Streams.Sample CreateTimeSeriesSample(DataItem dataItemDefinition, long sequence, long timestamp, IEnumerable<StoredObservation> dataItems)
-        //{
-        //    var sample = new Streams.Sample();
-        //    sample.DataItemId = dataItemDefinition.Id;
-        //    sample.Type = dataItemDefinition.Type;
-        //    sample.SubType = dataItemDefinition.SubType;
-        //    sample.Name = dataItemDefinition.Name;
-        //    sample.Sequence = sequence;
-        //    sample.Timestamp = timestamp.ToDateTime();
-        //    sample.IsTimeSeries = true;
-
-        //    // Get SampleRate at Sequence
-        //    sample.SampleRate = dataItems.FirstOrDefault(o => o.ValueType == ValueTypes.SampleRate).Value.ToDouble();
-
-        //    // Get All TimeSeries Values at Sequence
-        //    var items = dataItems.Where(o => o.ValueType.StartsWith(ValueTypes.TimeSeriesPrefix));
-        //    if (!items.IsNullOrEmpty())
-        //    {
-        //        var values = new List<string>();
-        //        foreach (var item in items.OrderBy(o => ValueTypes.GetTimeSeriesIndex(o.ValueType)))
-        //        {
-        //            if (item.Value != null)
-        //            {
-        //                values.Add(item.Value.ToString());
-        //            }
-        //        }
-        //        sample.CDATA = string.Join(" ", values);
-        //    }
-
-        //    return sample;
-        //}
-
-        //private static Streams.Sample CreateDataSetSample(DataItem dataItemDefinition, long sequence, long timestamp, IEnumerable<StoredObservation> dataItems)
-        //{
-        //    var sample = new Streams.Sample();
-        //    sample.DataItemId = dataItemDefinition.Id;
-        //    sample.Type = dataItemDefinition.Type;
-        //    sample.SubType = dataItemDefinition.SubType;
-        //    sample.Name = dataItemDefinition.Name;
-        //    sample.Sequence = sequence;
-        //    sample.Timestamp = timestamp.ToDateTime();
-        //    sample.IsDataSet = true;
-
-        //    // Get All Entry Values at Sequence
-        //    var items = dataItems.Where(o => o.ValueType.StartsWith(ValueTypes.TimeSeriesPrefix));
-        //    if (!items.IsNullOrEmpty())
-        //    {
-        //        var entries = new List<Streams.Entry>();
-        //        foreach (var item in items)
-        //        {
-        //            var key = ValueTypes.GetDataSetKey(item.ValueType);
-        //            entries.Add(new Streams.Entry(key, item.Value));
-        //        }
-
-        //        sample.Entries = entries;
-        //    }
-
-        //    return sample;
-        //}
-
-        //private static Streams.Sample CreateTableSample(DataItem dataItemDefinition, long sequence, long timestamp, IEnumerable<StoredObservation> dataItems)
-        //{
-        //    var sample = new Streams.Sample();
-        //    sample.DataItemId = dataItemDefinition.Id;
-        //    sample.Type = dataItemDefinition.Type;
-        //    sample.SubType = dataItemDefinition.SubType;
-        //    sample.Name = dataItemDefinition.Name;
-        //    sample.Sequence = sequence;
-        //    sample.Timestamp = timestamp.ToDateTime();
-        //    sample.IsTable = true;
-
-        //    // Get All Entry Values at Sequence
-        //    var items = dataItems.Where(o => o.ValueType.StartsWith(ValueTypes.TablePrefix));
-        //    if (!items.IsNullOrEmpty())
-        //    {
-        //        var entries = new List<Streams.Entry>();
-
-        //        // Get distinct list of Keys
-        //        var keys = items.Select(o => ValueTypes.GetTableKey(o.ValueType)).Distinct();
-        //        foreach (var key in keys.OrderBy(o => o))
-        //        {
-        //            var entry = new Streams.Entry();
-        //            entry.Key = key;
-
-        //            // Get list of Items with this Key
-        //            var keyItems = items.Where(o => ValueTypes.GetTableKey(o.ValueType) == key);
-        //            if (!keyItems.IsNullOrEmpty())
-        //            {
-        //                var cells = new List<Streams.Cell>();
-
-        //                foreach (var item in keyItems)
-        //                {
-        //                    cells.Add(new Streams.Cell(ValueTypes.GetTableValue(item.ValueType, key), item.Value));
-        //                }
-
-        //                entry.Cells = cells;
-        //            }
-
-        //            entries.Add(entry);
-        //        }
-
-        //        sample.Entries = entries;
-        //    }
-
-        //    return sample;
-        //}
 
         #endregion
 
@@ -1805,61 +1566,6 @@ namespace MTConnect.Agents
             return objs;
         }
 
-        //private IEnumerable<Streams.Event> GetEvents(string deviceName, IStreamingResults dataItemResults, IEnumerable<DataItem> dataItems, Version mtconnectVersion = null)
-        //{
-        //    var objs = new List<Streams.Event>();
-
-        //    if (dataItemResults != null && !dataItemResults.Observations.IsNullOrEmpty() && !dataItems.IsNullOrEmpty())
-        //    {
-        //        var filteredDataItems = dataItems.Where(o => o.DataItemCategory == DataItemCategory.EVENT);
-        //        if (!filteredDataItems.IsNullOrEmpty())
-        //        {
-        //            foreach (var dataItem in filteredDataItems)
-        //            {
-        //                var di = DataItem.Create(dataItem.Type);
-        //                if (di == null) di = dataItem;
-
-        //                if (mtconnectVersion >= di.MinimumVersion && mtconnectVersion <= di.MaximumVersion)
-        //                {
-        //                    var dDataItems = dataItemResults.Observations.Where(o => o.DeviceName == deviceName && o.DataItemId == dataItem.Id);
-        //                    if (!dDataItems.IsNullOrEmpty())
-        //                    {
-        //                        var sequences = dDataItems.Select(o => o.Sequence).Distinct();
-        //                        foreach (var sequence in sequences)
-        //                        {
-        //                            var dataItemsAtSequence = dDataItems.Where(o => o.Sequence == sequence);
-        //                            if (!dataItemsAtSequence.IsNullOrEmpty())
-        //                            {
-        //                                var timestamp = dataItemsAtSequence.FirstOrDefault().Timestamp;
-
-        //                                switch (dataItem.Representation)
-        //                                {
-        //                                    case DataItemRepresentation.DATA_SET:
-
-        //                                        objs.Add(CreateDataSetEvent(dataItem, sequence, timestamp, dataItemsAtSequence));
-        //                                        break;
-
-        //                                    case DataItemRepresentation.TABLE:
-
-        //                                        objs.Add(CreateTableEvent(dataItem, sequence, timestamp, dataItemsAtSequence));
-        //                                        break;
-
-        //                                    case DataItemRepresentation.VALUE:
-
-        //                                        objs.Add(CreateEvent(dataItem, sequence, timestamp, dataItemsAtSequence));
-        //                                        break;
-        //                                }
-        //                            }
-        //                        }
-        //                    }
-        //                }
-        //            }
-        //        }
-        //    }
-
-        //    return objs;
-        //}
-
         private static Streams.Event CreateEvent(DataItem dataItemDefinition, StoredObservation observation)
         {
             var e = new Streams.Event();
@@ -1896,7 +1602,15 @@ namespace MTConnect.Agents
                             foreach (var observationValue in observationValues)
                             {
                                 var key = ValueTypes.GetDataSetKey(observationValue.ValueType);
-                                dataSetEntries.Add(new Streams.Entry(key, observationValue.Value));
+                                var removed = observationValue.Value == DataSetObservation.EntryRemovedValue;
+                                if (removed)
+                                {
+                                    dataSetEntries.Add(new Streams.Entry(key, null, true));
+                                }
+                                else
+                                {
+                                    dataSetEntries.Add(new Streams.Entry(key, observationValue.Value));
+                                }
                             }
 
                             e.Entries = dataSetEntries;
@@ -1947,95 +1661,6 @@ namespace MTConnect.Agents
 
             return e;
         }
-
-        //private static Streams.Event CreateEvent(DataItem dataItemDefinition, long sequence, long timestamp, IEnumerable<StoredObservation> dataItems)
-        //{
-        //    var e = new Streams.Event();
-        //    e.DataItemId = dataItemDefinition.Id;
-        //    e.Type = dataItemDefinition.Type;
-        //    e.SubType = dataItemDefinition.SubType;
-        //    e.Name = dataItemDefinition.Name;
-        //    e.Sequence = sequence;
-        //    e.Timestamp = timestamp.ToDateTime();
-        //    e.CDATA = dataItems.FirstOrDefault(o => o.ValueType == ValueTypes.CDATA).Value?.ToString();
-
-        //    return e;
-        //}
-
-        //private static Streams.Event CreateDataSetEvent(DataItem dataItemDefinition, long sequence, long timestamp, IEnumerable<StoredObservation> dataItems)
-        //{
-        //    var e = new Streams.Event();
-        //    e.DataItemId = dataItemDefinition.Id;
-        //    e.Type = dataItemDefinition.Type;
-        //    e.SubType = dataItemDefinition.SubType;
-        //    e.Name = dataItemDefinition.Name;
-        //    e.Sequence = sequence;
-        //    e.Timestamp = timestamp.ToDateTime();
-        //    e.IsDataSet = true;
-
-        //    // Get All Entry Values at Sequence
-        //    var items = dataItems.Where(o => o.ValueType.StartsWith(ValueTypes.DataSetPrefix));
-        //    if (!items.IsNullOrEmpty())
-        //    {
-        //        var entries = new List<Streams.Entry>();
-        //        foreach (var item in items)
-        //        {
-        //            var key = ValueTypes.GetDataSetKey(item.ValueType);
-        //            entries.Add(new Streams.Entry(key, item.Value));
-        //        }
-
-        //        e.Entries = entries;
-        //    }
-
-        //    return e;
-        //}
-
-        //private static Streams.Event CreateTableEvent(DataItem dataItemDefinition, long sequence, long timestamp, IEnumerable<StoredObservation> dataItems)
-        //{
-        //    var e = new Streams.Event();
-        //    e.DataItemId = dataItemDefinition.Id;
-        //    e.Type = dataItemDefinition.Type;
-        //    e.SubType = dataItemDefinition.SubType;
-        //    e.Name = dataItemDefinition.Name;
-        //    e.Sequence = sequence;
-        //    e.Timestamp = timestamp.ToDateTime();
-        //    e.IsTable = true;
-
-        //    // Get All Entry Values at Sequence
-        //    var items = dataItems.Where(o => o.ValueType.StartsWith(ValueTypes.TablePrefix));
-        //    if (!items.IsNullOrEmpty())
-        //    {
-        //        var entries = new List<Streams.Entry>();
-
-        //        // Get distinct list of Keys
-        //        var keys = items.Select(o => ValueTypes.GetTableKey(o.ValueType)).Distinct();
-        //        foreach (var key in keys.OrderBy(o => o))
-        //        {
-        //            var entry = new Streams.Entry();
-        //            entry.Key = key;
-
-        //            // Get list of Items with this Key
-        //            var keyItems = items.Where(o => ValueTypes.GetTableKey(o.ValueType) == key);
-        //            if (!keyItems.IsNullOrEmpty())
-        //            {
-        //                var cells = new List<Streams.Cell>();
-
-        //                foreach (var item in keyItems)
-        //                {
-        //                    cells.Add(new Streams.Cell(ValueTypes.GetTableValue(item.ValueType, key), item.Value));
-        //                }
-
-        //                entry.Cells = cells;
-        //            }
-
-        //            entries.Add(entry);
-        //        }
-
-        //        e.Entries = entries;
-        //    }
-
-        //    return e;
-        //}
 
         #endregion
 
@@ -2112,83 +1737,6 @@ namespace MTConnect.Agents
 
             return objs;
         }
-
-        //private IEnumerable<Streams.Condition> GetConditions(string deviceName, IStreamingResults dataItemResults, IEnumerable<DataItem> dataItems, Version mtconnectVersion = null)
-        //{
-        //    var objs = new List<Streams.Condition>();
-
-        //    if (dataItemResults != null && !dataItemResults.Observations.IsNullOrEmpty() && !dataItems.IsNullOrEmpty())
-        //    {
-        //        var filteredDataItems = dataItems.Where(o => o.DataItemCategory == DataItemCategory.CONDITION);
-        //        if (!filteredDataItems.IsNullOrEmpty())
-        //        {
-        //            foreach (var dataItem in filteredDataItems)
-        //            {
-        //                var di = DataItem.Create(dataItem.Type);
-        //                if (di == null) di = dataItem;
-
-        //                if (mtconnectVersion >= di.MinimumVersion && mtconnectVersion <= di.MaximumVersion)
-        //                {
-        //                    var observations = dataItemResults.Observations.Where(o => o.DeviceName == deviceName && o.DataItemId == dataItem.Id);
-        //                    if (!observations.IsNullOrEmpty())
-        //                    {
-        //                        var sequences = observations.Select(o => o.Sequence).Distinct();
-        //                        foreach (var sequence in sequences)
-        //                        {
-        //                            var observationsAtSequence = observations.Where(o => o.Sequence == sequence);
-        //                            if (!observationsAtSequence.IsNullOrEmpty())
-        //                            {
-        //                                var timestamp = observationsAtSequence.FirstOrDefault().Timestamp;
-
-        //                                var levelValue = observationsAtSequence.FirstOrDefault(o => o.ValueType == "Level").Value?.ToString();
-        //                                if (!string.IsNullOrEmpty(levelValue))
-        //                                {
-        //                                    if (Enum.TryParse<Streams.ConditionLevel>(levelValue, true, out var level))
-        //                                    {
-        //                                        var obj = new Streams.Condition();
-        //                                        obj.DataItemId = dataItem.Id;
-        //                                        obj.Type = dataItem.Type;
-        //                                        obj.SubType = dataItem.SubType;
-        //                                        obj.Name = dataItem.Name;
-        //                                        obj.Sequence = sequence;
-        //                                        obj.Timestamp = timestamp.ToDateTime();
-
-        //                                        obj.Level = (Streams.ConditionLevel)level;
-        //                                        obj.NativeCode = observationsAtSequence.FirstOrDefault(o => o.ValueType == ValueTypes.NativeCode).Value?.ToString();
-        //                                        obj.NativeSeverity = observationsAtSequence.FirstOrDefault(o => o.ValueType == ValueTypes.NativeSeverity).Value?.ToString();
-        //                                        obj.Qualifier = observationsAtSequence.FirstOrDefault(o => o.ValueType == ValueTypes.Qualifier).Value?.ToString();
-        //                                        obj.CDATA = observationsAtSequence.FirstOrDefault(o => o.ValueType == ValueTypes.CDATA).Value?.ToString();
-        //                                        objs.Add(obj);
-        //                                    }
-        //                                }
-        //                                else
-        //                                {
-        //                                    // Check if CDATA is only observation set Unavailable
-        //                                    var cdata = observationsAtSequence.FirstOrDefault(o => o.ValueType == ValueTypes.CDATA).Value?.ToString();
-        //                                    if (cdata == Streams.DataItem.Unavailable)
-        //                                    {
-        //                                        var obj = new Streams.Condition();
-        //                                        obj.DataItemId = dataItem.Id;
-        //                                        obj.Type = dataItem.Type;
-        //                                        obj.SubType = dataItem.SubType;
-        //                                        obj.Name = dataItem.Name;
-        //                                        obj.Sequence = sequence;
-        //                                        obj.Timestamp = timestamp.ToDateTime();
-
-        //                                        obj.Level = Streams.ConditionLevel.UNAVAILABLE;
-        //                                        objs.Add(obj);
-        //                                    }
-        //                                }
-        //                            }
-        //                        }
-        //                    }
-        //                }
-        //            }
-        //        }
-        //    }
-
-        //    return objs;
-        //}
 
         #endregion
 
@@ -2476,14 +2024,14 @@ namespace MTConnect.Agents
 
         private void InitializeDataItems(Device device, long timestamp = 0)
         {
-            if (device != null && _streamingBuffer != null)
+            if (device != null && _observationBuffer != null)
             {
                 // Get All DataItems for the Device
                 var dataItems = device.GetDataItems();
                 if (!dataItems.IsNullOrEmpty())
                 {
                     // Get all Current Observations for the Device
-                    var results = _streamingBuffer.GetObservations(device.Name);
+                    var results = _observationBuffer.GetObservations(device.Name);
 
                     var ts = timestamp > 0 ? timestamp : UnixDateTime.Now;
 
@@ -2503,7 +2051,7 @@ namespace MTConnect.Agents
                             var valueType = dataItem.DataItemCategory == DataItemCategory.CONDITION ? ValueTypes.Level : ValueTypes.CDATA;
                             var value = !string.IsNullOrEmpty(dataItem.InitialValue) ? dataItem.InitialValue : Streams.DataItem.Unavailable;
 
-                            // Add Unavailable Observation to Streaming Buffer
+                            // Add Unavailable Observation to ObservationBuffer
                             var observation = new Observation();
                             observation.Timestamp = ts;
                             observation.Values = new List<ObservationValue>
@@ -2511,10 +2059,7 @@ namespace MTConnect.Agents
                                 new ObservationValue(valueType, value)
                             };
 
-                            _streamingBuffer.AddObservation(device.Name, dataItem.Id, observation);
-
-                            // Add Unavailable Observation to Streaming Buffer
-                            //_streamingBuffer.AddObservation(device.Name, dataItem.Id, valueType, value, ts);
+                            _observationBuffer.AddObservation(device.Name, dataItem.Id, observation);
                         }
                     }
                 }
@@ -2523,14 +2068,14 @@ namespace MTConnect.Agents
 
         private async Task InitializeDataItemsAsync(Device device, long timestamp = 0)
         {
-            if (device != null && _streamingBuffer != null)
+            if (device != null && _observationBuffer != null)
             {
                 // Get All DataItems for the Device
                 var dataItems = device.GetDataItems();
                 if (!dataItems.IsNullOrEmpty())
                 {
                     // Get all Current Observations for the Device
-                    var results = await _streamingBuffer.GetObservationsAsync(device.Name);
+                    var results = await _observationBuffer.GetObservationsAsync(device.Name);
 
                     var ts = timestamp > 0 ? timestamp : UnixDateTime.Now;
 
@@ -2550,7 +2095,7 @@ namespace MTConnect.Agents
                             var valueType = dataItem.DataItemCategory == DataItemCategory.CONDITION ? ValueTypes.Level : ValueTypes.CDATA;
                             var value = !string.IsNullOrEmpty(dataItem.InitialValue) ? dataItem.InitialValue : Streams.DataItem.Unavailable;
 
-                            // Add Unavailable Observation to Streaming Buffer
+                            // Add Unavailable Observation to ObservationBuffer
                             var observation = new Observation();
                             observation.Timestamp = ts;
                             observation.Values = new List<ObservationValue>
@@ -2558,39 +2103,12 @@ namespace MTConnect.Agents
                                 new ObservationValue(valueType, value)
                             };
 
-                            await _streamingBuffer.AddObservationAsync(device.Name, dataItem.Id, observation);
+                            await _observationBuffer.AddObservationAsync(device.Name, dataItem.Id, observation);
                         }
                     }
                 }
             }
         }
-
-
-        //private bool UpdateCurrentObservation(string deviceName, DataItem dataItem, IObservation observation)
-        //{
-        //    if (!string.IsNullOrEmpty(deviceName) && dataItem != null && observation != null)
-        //    {
-        //        //return UpdateCurrentObservations(deviceName, dataItem, new List<StoredObservation>
-        //        //{
-        //        //    new StoredObservation(deviceName, dataItem.Id, valueType, value, timestamp)
-        //        //});
-        //    }
-
-        //    return false;
-        //}
-
-        //private bool UpdateCurrentObservation(string deviceName, DataItem dataItem, string valueType, object value, long timestamp)
-        //{
-        //    if (!string.IsNullOrEmpty(deviceName) && dataItem != null && !string.IsNullOrEmpty(valueType))
-        //    {
-        //        //return UpdateCurrentObservations(deviceName, dataItem, new List<StoredObservation>
-        //        //{
-        //        //    new StoredObservation(deviceName, dataItem.Id, valueType, value, timestamp)
-        //        //});
-        //    }
-
-        //    return false;
-        //}
 
         private bool UpdateCurrentObservation(string deviceName, DataItem dataItem, IObservation observation)
         {
@@ -2601,18 +2119,15 @@ namespace MTConnect.Agents
                 _currentObservations.TryGetValue(hash, out var existingObservation);
                 if (observation != null && existingObservation != null)
                 {
-                    _currentObservations.TryRemove(hash, out var _);
-                    return _currentObservations.TryAdd(hash, observation);
+                    // Check Filters
+                    var update = FilterPeriod(dataItem, observation.Timestamp, existingObservation.Timestamp);
+                    if (update) update = FilterDelta(dataItem, observation, existingObservation);
 
-                    //// Check Filters
-                    //var update = FilterPeriod(dataItem, observation.Timestamp, existingObservation.Timestamp);
-                    //if (update) update = FilterDelta(dataItem, observation, existingObservation);
-
-                    //if (update)
-                    //{
-                    //    _currentObservations.TryRemove(hash, out var _);
-                    //    return _currentObservations.TryAdd(hash, observation);
-                    //}
+                    if (update)
+                    {
+                        _currentObservations.TryRemove(hash, out var _);
+                        return _currentObservations.TryAdd(hash, observation);
+                    }
                 }
                 else
                 {
@@ -2623,39 +2138,6 @@ namespace MTConnect.Agents
 
             return false;
         }
-
-        //private bool UpdateCurrentObservations(string deviceName, DataItem dataItem, IEnumerable<StoredObservation> observations)
-        //{
-        //    if (_currentObservations != null && !string.IsNullOrEmpty(deviceName) && dataItem != null)
-        //    {
-        //        var hash = StoredObservation.CreateHash(deviceName, dataItem.Id);
-
-        //        _currentObservations.TryGetValue(hash, out var existingObservations);
-        //        if (!observations.IsNullOrEmpty() && !existingObservations.IsNullOrEmpty())
-        //        {
-        //            var newObservation = observations.FirstOrDefault();
-        //            var existingObservation = existingObservations.FirstOrDefault();
-
-        //            // Check Filters
-        //            var update = FilterPeriod(dataItem, newObservation.Timestamp, existingObservation.Timestamp);
-        //            if (update) update = FilterDelta(dataItem, newObservation.Value, existingObservation.Value);
-
-        //            if (update)
-        //            {
-        //                _currentObservations.TryRemove(hash, out var _);
-        //                return _currentObservations.TryAdd(hash, observations);
-        //            }
-        //        }
-        //        else
-        //        {
-        //            _currentObservations.TryRemove(hash, out var _);
-        //            return _currentObservations.TryAdd(hash, observations);
-        //        }
-        //    }
-
-        //    return false;
-        //}
-
 
         private static object ConvertValue(DataItem dataItem, object value)
         {
@@ -2735,37 +2217,6 @@ namespace MTConnect.Agents
 
             return false;
         }
-
-        //private static bool FilterDelta(DataItem dataItem, object newValue, object existingValue)
-        //{
-        //    if (dataItem != null)
-        //    {
-        //        if (newValue != existingValue)
-        //        {
-        //            if (!dataItem.Filters.IsNullOrEmpty())
-        //            {
-        //                foreach (var filter in dataItem.Filters)
-        //                {
-        //                    if (filter.Type == DataItemFilterType.MINIMUM_DELTA)
-        //                    {
-        //                        if (filter.Value > 0)
-        //                        {
-        //                            var x = newValue.ToDouble();
-        //                            var y = existingValue.ToDouble();
-
-        //                            // If difference between New and Existing exceeds Filter Minimum Delta Value
-        //                            return Math.Abs(x - y) > filter.Value;
-        //                        }
-        //                    }
-        //                }
-        //            }
-
-        //            return true;
-        //        }
-        //    }
-
-        //    return false;
-        //}
 
 
         private DataItem GetDataItemFromKey(string deviceName, string key)
@@ -3010,7 +2461,7 @@ namespace MTConnect.Agents
 
         private bool AddDeviceAddedObservation(Device device, long timestamp = 0)
         {
-            if (device != null && _streamingBuffer != null)
+            if (device != null && _observationBuffer != null)
             {
                 var dataItems = device.GetDataItems();
                 if (!dataItems.IsNullOrEmpty())
@@ -3026,9 +2477,7 @@ namespace MTConnect.Agents
                         };
 
                         // Add to Streaming Buffer
-                        return _streamingBuffer.AddObservation(device.Name, dataItem.Id, observation);
-
-                        //return _streamingBuffer.AddObservation(device.Name, dataItem.Id, ValueTypes.CDATA, device.Uuid, timestamp);
+                        return _observationBuffer.AddObservation(device.Name, dataItem.Id, observation);
                     }
                 }
             }
@@ -3038,7 +2487,7 @@ namespace MTConnect.Agents
 
         private async Task<bool> AddDeviceAddedObservationAsync(Device device, long timestamp = 0)
         {
-            if (device != null && _streamingBuffer != null)
+            if (device != null && _observationBuffer != null)
             {
                 var dataItems = device.GetDataItems();
                 if (!dataItems.IsNullOrEmpty())
@@ -3054,9 +2503,7 @@ namespace MTConnect.Agents
                         };
 
                         // Add to Streaming Buffer
-                        return await _streamingBuffer.AddObservationAsync(device.Name, dataItem.Id, observation);
-
-                        //return await _streamingBuffer.AddObservationAsync(device.Name, dataItem.Id, ValueTypes.CDATA, device.Uuid, timestamp);
+                        return await _observationBuffer.AddObservationAsync(device.Name, dataItem.Id, observation);
                     }
                 }
             }
@@ -3067,7 +2514,7 @@ namespace MTConnect.Agents
 
         private bool AddDeviceChangedObservation(Device device, long timestamp = 0)
         {
-            if (device != null && _streamingBuffer != null)
+            if (device != null && _observationBuffer != null)
             {
                 var dataItems = device.GetDataItems();
                 if (!dataItems.IsNullOrEmpty())
@@ -3083,9 +2530,7 @@ namespace MTConnect.Agents
                         };
 
                         // Add to Streaming Buffer
-                        return _streamingBuffer.AddObservation(device.Name, dataItem.Id, observation);
-
-                        //return _streamingBuffer.AddObservation(device.Name, dataItem.Id, ValueTypes.CDATA, device.Uuid, timestamp);
+                        return _observationBuffer.AddObservation(device.Name, dataItem.Id, observation);
                     }
                 }
             }
@@ -3095,7 +2540,7 @@ namespace MTConnect.Agents
 
         private async Task<bool> AddDeviceChangedObservationAsync(Device device, long timestamp = 0)
         {
-            if (device != null && _streamingBuffer != null)
+            if (device != null && _observationBuffer != null)
             {
                 var dataItems = device.GetDataItems();
                 if (!dataItems.IsNullOrEmpty())
@@ -3111,9 +2556,7 @@ namespace MTConnect.Agents
                         };
 
                         // Add to Streaming Buffer
-                        return await _streamingBuffer.AddObservationAsync(device.Name, dataItem.Id, observation);
-
-                        //return await _streamingBuffer.AddObservationAsync(device.Name, dataItem.Id, ValueTypes.CDATA, device.Uuid, timestamp);
+                        return await _observationBuffer.AddObservationAsync(device.Name, dataItem.Id, observation);
                     }
                 }
             }
@@ -3124,7 +2567,7 @@ namespace MTConnect.Agents
 
         private bool AddDeviceRemovedObservation(Device device, long timestamp = 0)
         {
-            if (device != null && _streamingBuffer != null)
+            if (device != null && _observationBuffer != null)
             {
                 var dataItems = device.GetDataItems();
                 if (!dataItems.IsNullOrEmpty())
@@ -3140,9 +2583,7 @@ namespace MTConnect.Agents
                         };
 
                         // Add to Streaming Buffer
-                        return _streamingBuffer.AddObservation(device.Name, dataItem.Id, observation);
-
-                        //return _streamingBuffer.AddObservation(device.Name, dataItem.Id, ValueTypes.CDATA, device.Uuid, timestamp);
+                        return _observationBuffer.AddObservation(device.Name, dataItem.Id, observation);
                     }
                 }
             }
@@ -3152,7 +2593,7 @@ namespace MTConnect.Agents
 
         private async Task<bool> AddDeviceRemovedObservationAsync(Device device, long timestamp = 0)
         {
-            if (device != null && _streamingBuffer != null)
+            if (device != null && _observationBuffer != null)
             {
                 var dataItems = device.GetDataItems();
                 if (!dataItems.IsNullOrEmpty())
@@ -3168,8 +2609,7 @@ namespace MTConnect.Agents
                         };
 
                         // Add to Streaming Buffer
-                        return await _streamingBuffer.AddObservationAsync(device.Name, dataItem.Id, observation);
-                        //return await _streamingBuffer.AddObservationAsync(device.Name, dataItem.Id, ValueTypes.CDATA, device.Uuid, timestamp);
+                        return await _observationBuffer.AddObservationAsync(device.Name, dataItem.Id, observation);
                     }
                 }
             }
@@ -3399,7 +2839,7 @@ namespace MTConnect.Agents
         }
 
         /// <summary>
-        /// Add a new Observation for a DataItem of category EVENT or SAMPLE to the Agent
+        /// Add a new Observation for a DataItem to the Agent
         /// </summary>
         public bool AddObservation(string deviceName, string dataItemId, string valueType, object value)
         {
@@ -3413,7 +2853,7 @@ namespace MTConnect.Agents
         }
 
         /// <summary>
-        /// Add a new Observation for a DataItem of category EVENT or SAMPLE to the Agent
+        /// Add a new Observation for a DataItem to the Agent
         /// </summary>
         public async Task<bool> AddObservationAsync(string deviceName, string dataItemId, string valueType, object value)
         {
@@ -3427,7 +2867,7 @@ namespace MTConnect.Agents
         }
 
         /// <summary>
-        /// Add a new Observation for a DataItem of category EVENT or SAMPLE to the Agent
+        /// Add a new Observation for a DataItem to the Agent
         /// </summary>
         public bool AddObservation(string deviceName, string dataItemId, string valueType, object value, long timestamp)
         {
@@ -3441,7 +2881,7 @@ namespace MTConnect.Agents
         }
 
         /// <summary>
-        /// Add a new Observation for a DataItem of category EVENT or SAMPLE to the Agent
+        /// Add a new Observation for a DataItem to the Agent
         /// </summary>
         public async Task<bool> AddObservationAsync(string deviceName, string dataItemId, string valueType, object value, long timestamp)
         {
@@ -3455,7 +2895,7 @@ namespace MTConnect.Agents
         }
 
         /// <summary>
-        /// Add a new Observation for a DataItem of category EVENT or SAMPLE to the Agent
+        /// Add a new Observation for a DataItem to the Agent
         /// </summary>
         public bool AddObservation(string deviceName, string dataItemId, string valueType, object value, DateTime timestamp)
         {
@@ -3469,7 +2909,7 @@ namespace MTConnect.Agents
         }
 
         /// <summary>
-        /// Add a new Observation for a DataItem of category EVENT or SAMPLE to the Agent
+        /// Add a new Observation for a DataItem of to the Agent
         /// </summary>
         public async Task<bool> AddObservationAsync(string deviceName, string dataItemId, string valueType, object value, DateTime timestamp)
         {
@@ -3483,7 +2923,7 @@ namespace MTConnect.Agents
         }
 
         /// <summary>
-        /// Add a new Observation for a DataItem of category EVENT or SAMPLE to the Agent
+        /// Add a new Observation for a DataItem to the Agent
         /// </summary>
         public bool AddObservation(string deviceName, IObservation observation)
         {
@@ -3533,7 +2973,7 @@ namespace MTConnect.Agents
                         if (UpdateCurrentObservation(deviceName, dataItem, observation))
                         {
                             // Add Observation to Streaming Buffer
-                            if (_streamingBuffer.AddObservation(deviceName, dataItem.Id, observation))
+                            if (_observationBuffer.AddObservation(deviceName, dataItem.Id, observation))
                             {
                                 if (dataItem.Type != Devices.Samples.ObservationUpdateRateDataItem.TypeId &&
                                     dataItem.Type != Devices.Samples.AssetUpdateRateDataItem.TypeId)
@@ -3559,7 +2999,7 @@ namespace MTConnect.Agents
         }
 
         /// <summary>
-        /// Add a new Observation for a DataItem of category EVENT or SAMPLE to the Agent
+        /// Add a new Observation for a DataItem to the Agent
         /// </summary>
         public async Task<bool> AddObservationAsync(string deviceName, IObservation observation)
         {
@@ -3609,7 +3049,7 @@ namespace MTConnect.Agents
                         if (UpdateCurrentObservation(deviceName, dataItem, observation))
                         {
                             // Add Observation to Streaming Buffer
-                            if (_streamingBuffer.AddObservation(deviceName, dataItem.Id, observation))
+                            if (_observationBuffer.AddObservation(deviceName, dataItem.Id, observation))
                             {
                                 if (dataItem.Type != Devices.Samples.ObservationUpdateRateDataItem.TypeId &&
                                     dataItem.Type != Devices.Samples.AssetUpdateRateDataItem.TypeId)
@@ -3635,7 +3075,7 @@ namespace MTConnect.Agents
         }
 
         /// <summary>
-        /// Add new Observations for DataItems of category EVENT or SAMPLE to the Agent
+        /// Add new Observations for DataItems to the Agent
         /// </summary>
         public bool AddObservations(string deviceName, IEnumerable<IObservation> observations)
         {
@@ -3656,7 +3096,7 @@ namespace MTConnect.Agents
         }
 
         /// <summary>
-        /// Add new Observations for DataItems of category EVENT or SAMPLE to the Agent
+        /// Add new Observations for DataItems to the Agent
         /// </summary>
         public async Task<bool> AddObservationsAsync(string deviceName, IEnumerable<IObservation> observations)
         {
@@ -3678,478 +3118,6 @@ namespace MTConnect.Agents
 
         #endregion
 
-        //#region "Conditions"
-
-        ///// <summary>
-        ///// Add a new Observation for a DataItem of category CONDITION to the Agent
-        ///// </summary>
-        //public bool AddConditionObservation(string deviceName, ConditionObservation condition)
-        //{
-        //    if (condition != null)
-        //    {
-        //        var timestamp = condition.Timestamp > 0 ? condition.Timestamp : UnixDateTime.Now;
-        //        var sequence = _streamingBuffer.NextSequence;
-        //        bool success;
-
-        //        // Add Level
-        //        success = _streamingBuffer.AddObservation(deviceName, condition.Key, ValueTypes.Level, condition.Level.ToString(), timestamp, sequence);
-
-        //        // Native Code
-        //        if (success && !string.IsNullOrEmpty(condition.NativeCode))
-        //        {
-        //            success = _streamingBuffer.AddObservation(deviceName, condition.Key, ValueTypes.NativeCode, condition.NativeCode, timestamp, sequence);
-        //        }
-
-        //        // Native Severity
-        //        if (success && !string.IsNullOrEmpty(condition.NativeSeverity))
-        //        {
-        //            success = _streamingBuffer.AddObservation(deviceName, condition.Key, ValueTypes.NativeSeverity, condition.NativeSeverity, timestamp, sequence);
-        //        }
-
-        //        // Qualifier
-        //        if (success && !string.IsNullOrEmpty(condition.Qualifier))
-        //        {
-        //            success = _streamingBuffer.AddObservation(deviceName, condition.Key, ValueTypes.Qualifier, condition.Qualifier, timestamp, sequence);
-        //        }
-
-        //        // Message / CDATA
-        //        if (success && !string.IsNullOrEmpty(condition.Message))
-        //        {
-        //            success = _streamingBuffer.AddObservation(deviceName, condition.Key, ValueTypes.CDATA, condition.Message, timestamp, sequence);
-        //        }
-
-        //        _streamingBuffer.IncrementSequence();
-
-        //        return success;
-        //    }
-
-        //    return false;
-        //}
-
-        ///// <summary>
-        ///// Add a new Observation for a DataItem of category CONDITION to the Agent
-        ///// </summary>
-        //public async Task<bool> AddConditionObservationAsync(string deviceName, ConditionObservation condition)
-        //{
-        //    if (condition != null)
-        //    {
-        //        var timestamp = condition.Timestamp > 0 ? condition.Timestamp : UnixDateTime.Now;
-        //        var sequence = _streamingBuffer.NextSequence;
-        //        bool success;
-
-        //        // Add Level
-        //        success = await _streamingBuffer.AddObservationAsync(deviceName, condition.Key, ValueTypes.Level, condition.Level.ToString(), timestamp, sequence);
-
-        //        // Native Code
-        //        if (success && !string.IsNullOrEmpty(condition.NativeCode))
-        //        {
-        //            success = await _streamingBuffer.AddObservationAsync(deviceName, condition.Key, ValueTypes.NativeCode, condition.NativeCode, timestamp, sequence);
-        //        }
-
-        //        // Native Severity
-        //        if (success && !string.IsNullOrEmpty(condition.NativeSeverity))
-        //        {
-        //            success = await _streamingBuffer.AddObservationAsync(deviceName, condition.Key, ValueTypes.NativeSeverity, condition.NativeSeverity, timestamp, sequence);
-        //        }
-
-        //        // Qualifier
-        //        if (success && !string.IsNullOrEmpty(condition.Qualifier))
-        //        {
-        //            success = await _streamingBuffer.AddObservationAsync(deviceName, condition.Key, ValueTypes.Qualifier, condition.Qualifier, timestamp, sequence);
-        //        }
-
-        //        // Message / CDATA
-        //        if (success && !string.IsNullOrEmpty(condition.Message))
-        //        {
-        //            success = await _streamingBuffer.AddObservationAsync(deviceName, condition.Key, ValueTypes.CDATA, condition.Message, timestamp, sequence);
-        //        }
-
-        //        _streamingBuffer.IncrementSequence();
-
-        //        return success;
-        //    }
-
-        //    return false;
-        //}
-
-        ///// <summary>
-        ///// Add new Observations for DataItems of category CONDITION to the Agent
-        ///// </summary>
-        //public bool AddConditionObservations(string deviceName, IEnumerable<ConditionObservation> conditions)
-        //{
-        //    if (!conditions.IsNullOrEmpty())
-        //    {
-        //        bool success = false;
-
-        //        foreach (var obj in conditions)
-        //        {
-        //            success = AddConditionObservation(deviceName, obj);
-        //            if (!success) break;
-        //        }
-
-        //        return success;
-        //    }
-
-        //    return false;
-        //}
-
-        ///// <summary>
-        ///// Add new Observations for DataItems of category CONDITION to the Agent
-        ///// </summary>
-        //public async Task<bool> AddConditionObservationsAsync(string deviceName, IEnumerable<ConditionObservation> conditions)
-        //{
-        //    if (!conditions.IsNullOrEmpty())
-        //    {
-        //        bool success = false;
-
-        //        foreach (var obj in conditions)
-        //        {
-        //            success = await AddConditionObservationAsync(deviceName, obj);
-        //            if (!success) break;
-        //        }
-
-        //        return success;
-        //    }
-
-        //    return false;
-        //}
-
-        //#endregion
-
-        //#region "TimeSeries"
-
-        ///// <summary>
-        ///// Add a new Observation for a DataItem with representation of TIME_SERIES to the Agent
-        ///// </summary>
-        //public bool AddTimeSeriesObservation(string deviceName, TimeSeriesObservation timeSeries)
-        //{
-        //    if (timeSeries != null && !timeSeries.Samples.IsNullOrEmpty())
-        //    {
-        //        var timestamp = timeSeries.Timestamp > 0 ? timeSeries.Timestamp : UnixDateTime.Now;
-        //        var sequence = _streamingBuffer.NextSequence;
-        //        bool success;
-
-        //        // Add SampleRate
-        //        success = _streamingBuffer.AddObservation(deviceName, timeSeries.Key, ValueTypes.SampleRate, timeSeries.SampleRate, timestamp, sequence);
-
-        //        // Add each TimeSeries Sample
-        //        var samples = timeSeries.Samples.ToList();
-        //        for (var i = 0; i < samples.Count; i++)
-        //        {
-        //            success = _streamingBuffer.AddObservation(deviceName, timeSeries.Key, ValueTypes.CreateTimeSeriesValueType(i), samples[i], timestamp, sequence);
-        //            if (!success) break;
-        //        }
-
-        //        _streamingBuffer.IncrementSequence();
-
-        //        return success;
-        //    }
-
-        //    return false;
-        //}
-
-        ///// <summary>
-        ///// Add a new Observation for a DataItem with representation of TIME_SERIES to the Agent
-        ///// </summary>
-        //public async Task<bool> AddTimeSeriesObservationAsync(string deviceName, TimeSeriesObservation timeSeries)
-        //{
-        //    if (timeSeries != null && !timeSeries.Samples.IsNullOrEmpty())
-        //    {
-        //        var timestamp = timeSeries.Timestamp > 0 ? timeSeries.Timestamp : UnixDateTime.Now;
-        //        var sequence = _streamingBuffer.NextSequence;
-        //        bool success;
-
-        //        // Add SampleRate
-        //        success = await _streamingBuffer.AddObservationAsync(deviceName, timeSeries.Key, ValueTypes.SampleRate, timeSeries.SampleRate, timestamp, sequence);
-
-        //        // Add each TimeSeries Sample
-        //        var samples = timeSeries.Samples.ToList();
-        //        for (var i = 0; i < samples.Count; i++)
-        //        {
-        //            success = await _streamingBuffer.AddObservationAsync(deviceName, timeSeries.Key, ValueTypes.CreateTimeSeriesValueType(i), samples[i], timestamp, sequence);
-        //            if (!success) break;
-        //        }
-
-        //        _streamingBuffer.IncrementSequence();
-
-        //        return success;
-        //    }
-
-        //    return false;
-        //}
-
-        ///// <summary>
-        ///// Add new Observations for DataItems with representation of TIME_SERIES to the Agent
-        ///// </summary>
-        //public bool AddTimeSeriesObservations(string deviceName, IEnumerable<TimeSeriesObservation> timeSeries)
-        //{
-        //    if (!timeSeries.IsNullOrEmpty())
-        //    {
-        //        bool success = false;
-
-        //        foreach (var obj in timeSeries)
-        //        {
-        //            success = AddTimeSeriesObservation(deviceName, obj);
-        //            if (!success) break;
-        //        }
-
-        //        return success;
-        //    }
-
-        //    return false;
-        //}
-
-        ///// <summary>
-        ///// Add new Observations for DataItems with representation of TIME_SERIES to the Agent
-        ///// </summary>
-        //public async Task<bool> AddTimeSeriesObservationsAsync(string deviceName, IEnumerable<TimeSeriesObservation> timeSeries)
-        //{
-        //    if (!timeSeries.IsNullOrEmpty())
-        //    {
-        //        bool success = false;
-
-        //        foreach (var obj in timeSeries)
-        //        {
-        //            success = await AddTimeSeriesObservationAsync(deviceName, obj);
-        //            if (!success) break;
-        //        }
-
-        //        return success;
-        //    }
-
-        //    return false;
-        //}
-
-        //#endregion
-
-        //#region "DataSets"
-
-        ///// <summary>
-        ///// Add a new Observation for a DataItem with representation of DATA_SET to the Agent
-        ///// </summary>
-        //public bool AddDataSetObservation(string deviceName, DataSetObservation dataSet)
-        //{
-        //    if (dataSet != null && !dataSet.Entries.IsNullOrEmpty())
-        //    {
-        //        var timestamp = dataSet.Timestamp > 0 ? dataSet.Timestamp : UnixDateTime.Now;
-        //        var sequence = _streamingBuffer.NextSequence;
-        //        bool success;
-
-        //        // Add Count
-        //        success = _streamingBuffer.AddObservation(deviceName, dataSet.Key, ValueTypes.Count, dataSet.Entries.Count(), timestamp, sequence);
-
-        //        // Add each DataSet Entry
-        //        var entries = dataSet.Entries.ToList();
-        //        for (var i = 0; i < entries.Count; i++)
-        //        {
-        //            success = _streamingBuffer.AddObservation(deviceName, dataSet.Key, ValueTypes.CreateDataSetValueType(entries[i].Key), entries[i].Value, timestamp, sequence);
-        //            if (!success) break;
-        //        }
-
-        //        _streamingBuffer.IncrementSequence();
-
-        //        return success;
-        //    }
-
-        //    return false;
-        //}
-
-        ///// <summary>
-        ///// Add a new Observation for a DataItem with representation of DATA_SET to the Agent
-        ///// </summary>
-        //public async Task<bool> AddDataSetObservationAsync(string deviceName, DataSetObservation dataSet)
-        //{
-        //    if (dataSet != null && !dataSet.Entries.IsNullOrEmpty())
-        //    {
-        //        var timestamp = dataSet.Timestamp > 0 ? dataSet.Timestamp : UnixDateTime.Now;
-        //        var sequence = _streamingBuffer.NextSequence;
-        //        bool success;
-
-        //        // Add Count
-        //        success = await _streamingBuffer.AddObservationAsync(deviceName, dataSet.Key, ValueTypes.Count, dataSet.Entries.Count(), timestamp, sequence);
-
-        //        // Add each DataSet Entry
-        //        var entries = dataSet.Entries.ToList();
-        //        for (var i = 0; i < entries.Count; i++)
-        //        {
-        //            success = await _streamingBuffer.AddObservationAsync(deviceName, dataSet.Key, ValueTypes.CreateDataSetValueType(entries[i].Key), entries[i].Value, timestamp, sequence);
-        //            if (!success) break;
-        //        }
-
-        //        _streamingBuffer.IncrementSequence();
-
-        //        return success;
-        //    }
-
-        //    return false;
-        //}
-
-        ///// <summary>
-        ///// Add new Observations for DataItems with representation of DATA_SET to the Agent
-        ///// </summary>
-        //public bool AddDataSetObservations(string deviceName, IEnumerable<DataSetObservation> dataSets)
-        //{
-        //    if (!dataSets.IsNullOrEmpty())
-        //    {
-        //        bool success = false;
-
-        //        foreach (var obj in dataSets)
-        //        {
-        //            success = AddDataSetObservation(deviceName, obj);
-        //            if (!success) break;
-        //        }
-
-        //        return success;
-        //    }
-
-        //    return false;
-        //}
-
-        ///// <summary>
-        ///// Add new Observations for DataItems with representation of DATA_SET to the Agent
-        ///// </summary>
-        //public async Task<bool> AddDataSetObservationsAsync(string deviceName, IEnumerable<DataSetObservation> dataSets)
-        //{
-        //    if (!dataSets.IsNullOrEmpty())
-        //    {
-        //        bool success = false;
-
-        //        foreach (var obj in dataSets)
-        //        {
-        //            success = await AddDataSetObservationAsync(deviceName, obj);
-        //            if (!success) break;
-        //        }
-
-        //        return success;
-        //    }
-
-        //    return false;
-        //}
-
-        //#endregion
-
-        //#region "Tables"
-
-        ///// <summary>
-        ///// Add a new Observation for a DataItem with representation of TABLE to the Agent
-        ///// </summary>
-        //public bool AddTableObservation(string deviceName, TableObservation table)
-        //{
-        //    if (table != null && !table.Entries.IsNullOrEmpty())
-        //    {
-        //        var timestamp = table.Timestamp > 0 ? table.Timestamp : UnixDateTime.Now;
-        //        var sequence = _streamingBuffer.NextSequence;
-        //        bool success;
-
-        //        // Add Count
-        //        success = _streamingBuffer.AddObservation(deviceName, table.Key, ValueTypes.Count, table.Entries.Count(), table.Timestamp, sequence);
-
-        //        // Add each Table Entry
-        //        var entries = table.Entries.ToList();
-        //        for (var i = 0; i < entries.Count; i++)
-        //        {
-        //            var entry = entries[i];
-        //            if (!entry.Cells.IsNullOrEmpty())
-        //            {
-        //                var cells = entry.Cells.ToList();
-        //                for (var j = 0; j < cells.Count; j++)
-        //                {
-        //                    success = _streamingBuffer.AddObservation(deviceName, table.Key, ValueTypes.CreateTableValueType(entry.Key, cells[j].Key), cells[j].Value, timestamp, sequence);
-        //                    if (!success) break;
-        //                }
-        //            }
-        //        }
-
-        //        _streamingBuffer.IncrementSequence();
-
-        //        return success;
-        //    }
-
-        //    return false;
-        //}
-
-        ///// <summary>
-        ///// Add a new Observation for a DataItem with representation of TABLE to the Agent
-        ///// </summary>
-        //public async Task<bool> AddTableObservationAsync(string deviceName, TableObservation table)
-        //{
-        //    if (table != null && !table.Entries.IsNullOrEmpty())
-        //    {
-        //        var timestamp = table.Timestamp > 0 ? table.Timestamp : UnixDateTime.Now;
-        //        var sequence = _streamingBuffer.NextSequence;
-        //        bool success;
-
-        //        // Add Count
-        //        success = await _streamingBuffer.AddObservationAsync(deviceName, table.Key, ValueTypes.Count, table.Entries.Count(), table.Timestamp, sequence);
-
-        //        // Add each Table Entry
-        //        var entries = table.Entries.ToList();
-        //        for (var i = 0; i < entries.Count; i++)
-        //        {
-        //            var entry = entries[i];
-        //            if (!entry.Cells.IsNullOrEmpty())
-        //            {
-        //                var cells = entry.Cells.ToList();
-        //                for (var j = 0; j < cells.Count; j++)
-        //                {
-        //                    success = await _streamingBuffer.AddObservationAsync(deviceName, table.Key, ValueTypes.CreateTableValueType(entry.Key, cells[j].Key), cells[j].Value, timestamp, sequence);
-        //                    if (!success) break;
-        //                }
-        //            }
-        //        }
-
-        //        _streamingBuffer.IncrementSequence();
-
-        //        return success;
-        //    }
-
-        //    return false;
-        //}
-
-        ///// <summary>
-        ///// Add new Observations for DataItems with representation of TABLE to the Agent
-        ///// </summary>
-        //public bool AddTableObservations(string deviceName, IEnumerable<TableObservation> tables)
-        //{
-        //    if (!tables.IsNullOrEmpty())
-        //    {
-        //        bool success = false;
-
-        //        foreach (var obj in tables)
-        //        {
-        //            success = AddTableObservation(deviceName, obj);
-        //            if (!success) break;
-        //        }
-
-        //        return success;
-        //    }
-
-        //    return false;
-        //}
-
-        ///// <summary>
-        ///// Add new Observations for DataItems with representation of TABLE to the Agent
-        ///// </summary>
-        //public async Task<bool> AddTableObservationsAsync(string deviceName, IEnumerable<TableObservation> tables)
-        //{
-        //    if (!tables.IsNullOrEmpty())
-        //    {
-        //        bool success = false;
-
-        //        foreach (var obj in tables)
-        //        {
-        //            success = await AddTableObservationAsync(deviceName, obj);
-        //            if (!success) break;
-        //        }
-
-        //        return success;
-        //    }
-
-        //    return false;
-        //}
-
-        //#endregion
-
         #region "Assets"
 
         /// <summary>
@@ -4167,7 +3135,8 @@ namespace MTConnect.Agents
                     asset.DeviceUuid = device.Uuid;
 
                     // Validate Asset based on Device's MTConnectVersion
-                    if (asset.IsValid(device.MTConnectVersion))
+                    var validationResults = asset.IsValid(device.MTConnectVersion);
+                    if (validationResults.IsValid)
                     {
                         // Update ASSET_CHANGED for device
                         var assetChangedId = DataItem.CreateId(device.Id, Devices.Events.AssetChangedDataItem.NameId);
@@ -4178,7 +3147,7 @@ namespace MTConnect.Agents
                     }
                     else
                     {
-                        Console.WriteLine("Asset Invalid");
+                        if (InvalidAssetAdded != null) InvalidAssetAdded.Invoke(asset, validationResults);
                     }
                 }
             }
@@ -4201,7 +3170,8 @@ namespace MTConnect.Agents
                     asset.DeviceUuid = device.Uuid;
 
                     // Validate Asset based on Device's MTConnectVersion
-                    if (asset.IsValid(device.MTConnectVersion))
+                    var validationResults = asset.IsValid(device.MTConnectVersion);
+                    if (validationResults.IsValid)
                     {
                         // Update ASSET_CHANGED for device
                         var assetChangedId = DataItem.CreateId(device.Id, Devices.Events.AssetChangedDataItem.NameId);
@@ -4212,7 +3182,7 @@ namespace MTConnect.Agents
                     }
                     else
                     {
-                        Console.WriteLine("Asset Invalid");
+                        if (InvalidAssetAdded != null) InvalidAssetAdded.Invoke(asset, validationResults);
                     }
                 }
             }
@@ -4223,7 +3193,7 @@ namespace MTConnect.Agents
         /// <summary>
         /// Add new Assets to the Agent
         /// </summary>
-        public bool AddAssets(string deviceName, IEnumerable<Assets.IAsset> assets)
+        public bool AddAssets(string deviceName, IEnumerable<IAsset> assets)
         {
             if (_assetBuffer != null && !assets.IsNullOrEmpty())
             {
@@ -4244,7 +3214,7 @@ namespace MTConnect.Agents
         /// <summary>
         /// Add new Assets to the Agent
         /// </summary>
-        public async Task<bool> AddAssetsAsync(string deviceName, IEnumerable<Assets.IAsset> assets)
+        public async Task<bool> AddAssetsAsync(string deviceName, IEnumerable<IAsset> assets)
         {
             if (_assetBuffer != null && !assets.IsNullOrEmpty())
             {
@@ -4277,10 +3247,6 @@ namespace MTConnect.Agents
 
                 success = AddDevice(deviceModel);
                 if (success) success = AddObservations(deviceModel.Name, deviceModel.GetObservations());
-                //if (success) success = AddConditionObservations(deviceModel.Name, deviceModel.GetConditionObservations());
-                //AddTimeSeriesObservations(deviceModel.Name, deviceModel.GetTimeSeriesObservations());
-                //AddDataSetObservations(deviceModel.Name, deviceModel.GetDataSetObservations());
-                //AddTableObservations(deviceModel.Name, deviceModel.GetTableObservations());
 
                 return success;
             }
@@ -4299,10 +3265,6 @@ namespace MTConnect.Agents
 
                 success = await AddDeviceAsync(deviceModel);
                 if (success) success = await AddObservationsAsync(deviceModel.Name, deviceModel.GetObservations());
-                //if (success) success = await AddConditionObservationsAsync(deviceModel.Name, deviceModel.GetConditionObservations());
-                //AddTimeSeriesObservations(deviceModel.Name, deviceModel.GetTimeSeriesObservations());
-                //AddDataSetObservations(deviceModel.Name, deviceModel.GetDataSetObservations());
-                //AddTableObservations(deviceModel.Name, deviceModel.GetTableObservations());
 
                 return success;
             }

@@ -54,6 +54,6 @@ namespace MTConnect.Assets
 
         IAsset Process(Version mtconnectVersion);
 
-        bool IsValid(Version mtconnectVersion);
+        AssetValidationResult IsValid(Version mtconnectVersion);
     }
 }

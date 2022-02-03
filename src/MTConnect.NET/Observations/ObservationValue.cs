@@ -26,5 +26,11 @@ namespace MTConnect.Observations
             Value = value != null ? value.ToString() : string.Empty;
             ValueType = valueType;
         }
+
+
+        public bool HasValue()
+        {
+            return !string.IsNullOrEmpty(ValueType) && Value != null;
+        }
     }
 }

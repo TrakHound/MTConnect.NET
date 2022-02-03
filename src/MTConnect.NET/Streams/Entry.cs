@@ -40,10 +40,12 @@ namespace MTConnect.Streams
 
         public Entry() { }
 
-        public Entry(string key, object value)
+        public Entry(string key, object value, bool removed = false)
         {
             Key = key;
-            CDATA = value != null ? value.ToString() : string.Empty;
+            if (value != null) CDATA = value.ToString();
+            //CDATA = value != null ? value.ToString() : string.Empty;
+            Removed = removed;
         }
     }
 }

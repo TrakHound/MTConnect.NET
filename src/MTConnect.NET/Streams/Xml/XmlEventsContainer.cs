@@ -219,11 +219,11 @@ namespace MTConnect.Streams.Xml
                                 if (entry.Removed)
                                 {
                                     attribute = _document.CreateAttribute("removed");
-                                    attribute.Value = entry.Removed.ToString();
+                                    attribute.Value = entry.Removed.ToString().ToLower();
                                     entryNode.Attributes.Append(attribute);
                                 }
 
-                                entryNode.InnerText = entry.CDATA;
+                                if (entry.CDATA != null) entryNode.InnerText = entry.CDATA;
 
                                 node.AppendChild(entryNode);
                             }

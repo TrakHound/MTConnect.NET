@@ -17,13 +17,16 @@ namespace MTConnect.Observations
 
         public string Value { get; set; }
 
+        public bool Removed { get; set; }
+
 
         public DataSetEntry() { }
 
-        public DataSetEntry(string key, object value)
+        public DataSetEntry(string key, object value, bool removed = false)
         {
             Key = key;
             Value = value?.ToString();
+            Removed = removed;
         }
     }
 }

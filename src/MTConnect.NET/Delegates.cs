@@ -23,6 +23,7 @@ namespace MTConnect
     public delegate void MTConnectErrorHandler(ErrorDocument errorDocument);
 
     public delegate void MTConnectDataItemValidationHandler(Devices.DataItem dataItem, DataItemValidationResult validationResults);
+    public delegate void MTConnectAssetValidationHandler(IAsset asset, AssetValidationResult validationResults);
 
     public delegate void XmlHandler(string xml);
 

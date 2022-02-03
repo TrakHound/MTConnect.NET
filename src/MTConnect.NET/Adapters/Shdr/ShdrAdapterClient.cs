@@ -341,32 +341,6 @@ namespace MTConnect.Adapters.Shdr
                             var dataItems = ShdrDataItem.FromString(line);
                             if (!dataItems.IsNullOrEmpty()) await _agent.AddObservationsAsync(_device.Name, dataItems);
                         }
-
-                        //if (dataItem.DataItemCategory == Devices.DataItemCategory.CONDITION)
-                        //{
-                        //    var condition = ShdrCondition.FromString(line);
-                        //    if (condition != null) await _agent.AddConditionObservationAsync(_device.Name, condition);
-                        //}
-                        //else if (dataItem.Representation == Devices.DataItemRepresentation.TABLE)
-                        //{
-                        //    var table = ShdrTable.FromString(line);
-                        //    if (table != null) await _agent.AddTableObservationAsync(_device.Name, table);
-                        //}
-                        //else if (dataItem.Representation == Devices.DataItemRepresentation.DATA_SET)
-                        //{
-                        //    var dataSet = ShdrDataSet.FromString(line);
-                        //    if (dataSet != null) await _agent.AddDataSetObservationAsync(_device.Name, dataSet);
-                        //}
-                        //else if (dataItem.Representation == Devices.DataItemRepresentation.TIME_SERIES)
-                        //{
-                        //    var timeSeries = ShdrTimeSeries.FromString(line);
-                        //    if (timeSeries != null) await _agent.AddTimeSeriesObservationAsync(_device.Name, timeSeries);
-                        //}
-                        //else
-                        //{
-                        //    var dataItems = ShdrDataItem.FromString(line);
-                        //    if (!dataItems.IsNullOrEmpty()) await _agent.AddObservationsAsync(_device.Name, dataItems);
-                        //}
                     }
                 }
             }
@@ -445,7 +419,6 @@ namespace MTConnect.Adapters.Shdr
                         {
                             var condition = new Observations.ConditionObservation(dataItem.Id, Streams.ConditionLevel.UNAVAILABLE, timestamp);
                             await _agent.AddObservationAsync(_device.Name, condition);
-                            //await _agent.AddConditionObservationAsync(_device.Name, condition);
                         }
                     }
                 }

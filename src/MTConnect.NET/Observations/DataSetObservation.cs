@@ -14,6 +14,9 @@ namespace MTConnect.Observations
     /// </summary>
     public class DataSetObservation : Observation
     {
+        public const string EntryRemovedValue = "[!ENTRY_REMOVED!]";
+
+
         /// <summary>
         /// Key-value pairs published as part of a Data Set observation
         /// </summary>
@@ -32,7 +35,8 @@ namespace MTConnect.Observations
                         foreach (var value in oValues)
                         {
                             var key = ValueTypes.GetDataSetKey(value.ValueType);
-                            entries.Add(new DataSetEntry(key, value.Value));
+                            bool removed = value.Value == EntryRemovedValue;
+                            entries.Add(new DataSetEntry(key, value.Value, removed));
                         }
                     }
                 }
@@ -45,7 +49,14 @@ namespace MTConnect.Observations
                 {
                     foreach (var entry in value)
                     {
-                        AddValue(new ObservationValue(ValueTypes.CreateDataSetValueType(entry.Key), entry.Value));
+                        if (entry.Removed)
+                        {
+                            AddValue(new ObservationValue(ValueTypes.CreateDataSetValueType(entry.Key), EntryRemovedValue));
+                        }
+                        else
+                        {
+                            AddValue(new ObservationValue(ValueTypes.CreateDataSetValueType(entry.Key), entry.Value));
+                        }
                     }
                 }
             }

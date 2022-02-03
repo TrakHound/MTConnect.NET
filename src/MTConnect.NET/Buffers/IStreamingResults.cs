@@ -9,7 +9,7 @@ using MTConnect.Agents;
 namespace MTConnect.Buffers
 {
     /// <summary>
-    /// Result set used to retrieve Streaming Data from an IMTConnectStreamingBuffer
+    /// Result set used to retrieve Streaming Data from an IMTConnectObservationBuffer
     /// </summary>
     public interface IStreamingResults
     {

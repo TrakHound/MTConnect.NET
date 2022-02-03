@@ -149,38 +149,85 @@ namespace MTConnect.Adapters.Shdr
                         {
                             var entries = new List<DataSetEntry>();
 
-                            // Regular Expression that matches groups like x=y and takes into account the ' and " characters
-                            var regex = new Regex(@"\s*([^\=\s]+)\=([^\s\'\""]+)|\s*([^\=\s]+)\='(.*)'|\s*([^\=\s]+)\=""(.*)""");
+                            // Regular Expression that matches groups like x=y and takes into account the ', ", and {} characters
+                            // ([^=\s]+)\s+|([^=\s]+)\={1}\s+|([^=\s]+)\={1}([^\s\'\"\{\}]+)|([^=\s]+)\={1}('[^'\\]*(?:\\.[^'\\]*)*')|([^=\s]+)\={1}(\"[^'\\]*(?:\\.[^'\\]*)*\")|([^=\s]+)\={1}(\{[^'\\]*(?:\\.[^'\\]*)*\})
+                            // ([^=\s]+)\s+|([^=\s]+)\={1}\s+|([^=\s]+)\={1}([^\s\'\"\{\}]+)|([^=\s]+)\={1}('[^'\\]*(?:\\.[^'\\]*)*')|([^=\s]+)\={1}(\{[^'\\]*(?:\\.[^'\\]*)*\})
+                            // ([^=\s]+)\={1}([^\s\'\"\{\}]+)|([^=\s]+)\={1}('[^'\\]*(?:\\.[^'\\]*)*')|([^=\s]+)\={1}(\{[^'\\]*(?:\\.[^'\\]*)*\})
+                            // \s*([^\=\s]+)\=?\s+|\s*([^\=\s]+)\={1}([^\s\'\"\{\}])|\s*([^\=\s]+)\={1}'(.*)'|\s*([^\=\s]+)\={1}"(.*)"|\s*([^\=\s]+)\={1}\{(.*)\}
+                            //var regex = new Regex(@"\s*([^\=\s]+)\=([^\s\'\""]+)|\s*([^\=\s]+)\='(.*)'|\s*([^\=\s]+)\=""(.*)""");
+                            //var regex = new Regex(@"([^=\s]+)\s+|([^=\s]+)\={1}\s+|([^=\s]+)\={1}([^\s\'\""\{\}]+)|([^=\s]+)\={ 1}('[^'\\]*(?:\\.[^'\\]*)*')|([^=\s]+)\={1}(\""[^'\\]*(?:\\.[^'\\]*)*\"")|([^=\s]+)\={1}(\{[^'\\]*(?:\\.[^'\\]*)*\})");
+                            var regex = new Regex(@"^([^=\s]+)\={0,1}$|([^=\s]+)\s+|([^=\s]+)\={1}\s+|([^=\s]+)\={1}([^\s\'\""\{\}]+)|([^=\s]+)\={ 1}('[^'\\]*(?:\\.[^'\\]*)*')|([^=\s]+)\={1}(\""[^'\\]*(?:\\.[^'\\]*)*\"")|([^=\s]+)\={1}(\{[^'\\]*(?:\\.[^'\\]*)*\})");
 
                             var matches = regex.Matches(x);
                             if (matches != null && matches.Count > 0)
                             {
                                 foreach (Match match in matches)
                                 {
-                                    if (match.Success && match.Groups != null && match.Groups.Count > 1)
+                                    if (match.Success && match.Groups != null && match.Groups.Count > 4)
                                     {
                                         var success = false;
                                         string key = null;
                                         string value = null;
+                                        bool removed = false;
 
-                                        // Matches have 6 Groups plus the 0 Group (holding entire Match)
-                                        // - Odd Indexes are the Keys
-                                        // - Event Indexes are the Values
+                                        // Matches have 11 Groups plus the 0 Group (holding entire Match)
+                                        // Group 1 = v : v2 : Key - Only entry listed
+                                        // Group 2 = v : v2 : Key - One of Multiple entries
+                                        // Group 3 = v2= : v2 : Key
+                                        // Group 4 = v2=53 : v2 : Key
+                                        // Group 5 = v2=53 : 53 : Value
+                                        // Group 6 = v2='53' : v2 : Key
+                                        // Group 7 = v2='53' : 53 : Value
+                                        // Group 8 = v2="53" : v2 : Key
+                                        // Group 9 = v2="53" : 53 : Value
+                                        // Group 10 = v2={53} : v2 : Key
+                                        // Group 11 = v2={53} : 53 : Value
 
-                                        for (var i = 1; i < match.Groups.Count; i++)
+                                        if (match.Groups[1].Success)
                                         {
-                                            var group = match.Groups[i];
-                                            if (group.Success)
-                                            {
-                                                success = true;
+                                            success = true;
+                                            removed = true;
+                                            key = match.Groups[1].Value;
+                                        }
 
-                                                if (i.IsOdd()) key = group.Value;
-                                                else value = group.Value;
+                                        if (!success & match.Groups[2].Success)
+                                        {
+                                            success = true;
+                                            removed = true;
+                                            key = match.Groups[2].Value;
+                                        }
+
+                                        if (!success & match.Groups[3].Success)
+                                        {
+                                            success = true;
+                                            removed = true;
+                                            key = match.Groups[3].Value;
+                                        }
+
+                                        // Above Group 3 :
+                                        // - Even Indexes are the Keys
+                                        // - Odd Indexes are the Values
+
+                                        if (!success)
+                                        {
+                                            for (var i = 4; i < match.Groups.Count; i++)
+                                            {
+                                                var group = match.Groups[i];
+                                                if (group.Success)
+                                                {
+                                                    success = true;
+
+                                                    if (i.IsOdd()) value = group.Value;
+                                                    else key = group.Value;
+
+                                                    //if (i.IsOdd()) key = group.Value;
+                                                    //else value = group.Value;
+                                                }
                                             }
                                         }
 
                                         // Add new DataSet to Entries
-                                        if (success) entries.Add(new DataSetEntry(key, value));
+                                        if (success) entries.Add(new DataSetEntry(key, value, removed));
                                     }
                                 }
                             }
@@ -199,48 +246,5 @@ namespace MTConnect.Adapters.Shdr
 
             return null;
         }
-
-        //private static ShdrDataSet FromLine(string input, long timestamp = 0)
-        //{
-        //    if (!string.IsNullOrEmpty(input))
-        //    {
-        //        try
-        //        {
-        //            var dataSet = new ShdrDataSet();
-        //            dataSet.Timestamp = timestamp;
-
-        //            // Set DataItemId
-        //            var x = ShdrLine.GetNextValue(input);
-        //            var y = ShdrLine.GetNextSegment(input);
-        //            dataSet.Key = x;
-
-        //            if (y != null)
-        //            {
-        //                x = ShdrLine.GetNextValue(y);
-        //                if (!string.IsNullOrEmpty(x))
-        //                {
-        //                    var entries = new List<DataSetEntry>();
-        //                    var entrySegments = x.Split(' ');
-
-        //                    foreach (var entrySegment in entrySegments)
-        //                    {
-        //                        var entry = ShdrDataSetEntry.FromString(entrySegment);
-        //                        if (entry != null)
-        //                        {
-        //                            entries.Add(entry);
-        //                        }                         
-        //                    }
-
-        //                    dataSet.Entries = entries;
-
-        //                    return dataSet;
-        //                }
-        //            }
-        //        }
-        //        catch { }
-        //    }
-
-        //    return null;
-        //}
     }
 }

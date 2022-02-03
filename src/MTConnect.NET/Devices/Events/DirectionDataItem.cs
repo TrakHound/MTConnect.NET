@@ -56,10 +56,8 @@ namespace MTConnect.Devices.Events
         /// <param name="mtconnectVersion">The Version of the MTConnect Standard</param>
         /// <param name="observation">The Observation to validate</param>
         /// <returns>A DataItemValidationResult indicating if Validation was successful and a Message</returns>
-        public override DataItemValidationResult IsValid(Version mtconnectVersion, IObservation observation)
+        protected override DataItemValidationResult OnValidation(Version mtconnectVersion, IObservation observation)
         {
-            var messageSuffix = "DataItem(" + Id + ") of '" + Type + "' and Representation of '" + Representation.ToString() + "' and a SubType of '" + SubType + "'";
-
             if (observation != null && !observation.Values.IsNullOrEmpty())
             {
                 // Get the CDATA Value for the Observation
@@ -81,7 +79,7 @@ namespace MTConnect.Devices.Events
                             }
                         }
 
-                        return new DataItemValidationResult(false, "'" + cdata + "' is not a valid value for " + messageSuffix);
+                        return new DataItemValidationResult(false, "'" + cdata + "' is not a valid value");
                     }
                     else if (SubType == SubTypes.ROTARY.ToString())
                     {
@@ -95,16 +93,16 @@ namespace MTConnect.Devices.Events
                             }
                         }
 
-                        return new DataItemValidationResult(false, "'" + cdata + "' is not a valid value for " + messageSuffix);
+                        return new DataItemValidationResult(false, "'" + cdata + "' is not a valid value");
                     }
                 }
                 else
                 {
-                    return new DataItemValidationResult(false, "No CDATA is specified for the Observation for " + messageSuffix);
+                    return new DataItemValidationResult(false, "No CDATA is specified for the Observation");
                 }
             }
 
-            return new DataItemValidationResult(false, "No Observation is Specified for " + messageSuffix);
+            return new DataItemValidationResult(false, "No Observation is Specified");
         }
 
 

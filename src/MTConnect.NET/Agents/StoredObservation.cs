@@ -16,10 +16,6 @@ namespace MTConnect.Agents
 
         public IEnumerable<ObservationValue> Values { get; set; }
 
-        //public string ValueType { get; set; }
-
-        //public object Value { get; set; }
-
         public long Sequence { get; set; }
 
         public long Timestamp { get; set; }
@@ -68,37 +64,6 @@ namespace MTConnect.Agents
             }
             Values = values;
         }
-
-        //public StoredObservation(
-        //    string deviceName,
-        //    string dataItemId,
-        //    string valueType,
-        //    object value,
-        //    long timestamp)
-        //{
-        //    DeviceName = deviceName;
-        //    DataItemId = dataItemId;
-        //    ValueType = valueType;
-        //    Value = value;
-        //    Sequence = 0;
-        //    Timestamp = timestamp;
-        //}
-
-        //public StoredObservation(
-        //    string deviceName,
-        //    string dataItemId, 
-        //    string valueType,
-        //    object value,
-        //    long sequence,
-        //    long timestamp)
-        //{
-        //    DeviceName = deviceName;
-        //    DataItemId = dataItemId;
-        //    ValueType = valueType;
-        //    Value = value;
-        //    Sequence = sequence;
-        //    Timestamp = timestamp;
-        //}
 
         public string CreateHash()
         {

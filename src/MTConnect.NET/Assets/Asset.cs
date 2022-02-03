@@ -221,9 +221,9 @@ namespace MTConnect.Assets
             return this;
         }
 
-        public virtual bool IsValid(Version mtconnectVersion)
+        public virtual AssetValidationResult IsValid(Version mtconnectVersion)
         {
-            return true;
+            return new AssetValidationResult(true);
         }
     }
 
@@ -363,9 +363,9 @@ namespace MTConnect.Assets
             return this;
         }
 
-        public virtual bool IsValid(Version mtconnectVersion)
+        public virtual AssetValidationResult IsValid(Version mtconnectVersion)
         {
-            return true;
+            return new AssetValidationResult(true);
         }
     }
 }

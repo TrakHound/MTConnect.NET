@@ -91,11 +91,9 @@ namespace MTConnect.Adapters.Shdr
         /// <returns>SHDR string</returns>
         public override string ToString()
         {
-            //if (!string.IsNullOrEmpty(Key) && Value != null)
             if (!string.IsNullOrEmpty(Key))
             {
                 var valueString = GetValue(ValueTypes.CDATA);
-                //if (!string.IsNullOrEmpty(valueString))
                 if (valueString != null)
                 {
                     var value = valueString.Replace("|", @"\|");
@@ -119,7 +117,6 @@ namespace MTConnect.Adapters.Shdr
             if (dataItem != null && !string.IsNullOrEmpty(dataItem.Key))
             {
                 var valueString = dataItem.GetValue(ValueTypes.CDATA);
-                //if (!string.IsNullOrEmpty(valueString))
                 if (valueString != null)
                 {
                     var value = valueString.Replace("|", @"\|");
@@ -285,8 +282,6 @@ namespace MTConnect.Adapters.Shdr
                             {
                                 new ObservationValue(ValueTypes.CDATA, x != null ? x.ToString() : string.Empty)
                             };
-
-                            //dataItem.Value = !string.IsNullOrEmpty(x) ? x.ToUpper() : "";
 
                             dataItems.Add(dataItem);
                         }

@@ -12,7 +12,7 @@ namespace MTConnect.Buffers
     /// <summary>
     /// Buffer interface used to store Streaming Data
     /// </summary>
-    public interface IMTConnectStreamingBuffer
+    public interface IMTConnectObservationBuffer
     {
         /// <summary>
         /// Get a unique identifier for the Buffer

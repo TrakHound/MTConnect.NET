@@ -5,7 +5,7 @@
     <RootNamespace>MTConnect</RootNamespace>
     <Authors>TrakHound</Authors>
     <Company>TrakHound Inc.</Company>
-    <AssemblyVersion>0.1.1</AssemblyVersion>
+    <AssemblyVersion>0.2.1</AssemblyVersion>
     <FileVersion></FileVersion>
     <Configurations>Debug;Release;Package</Configurations>
     <Copyright>Copyright (c) 2022 TrakHound Inc., All Rights Reserved.</Copyright>
@@ -14,46 +14,20 @@
     <RepositoryType>git</RepositoryType>
     <PackageTags>mtconnect;iiot;</PackageTags>
     <Description>MTConnect.NET is a fully featured .NET library for MTConnect® Agents, Adapters, and Clients. Supports MTConnect Versions up to 1.8. Supports .NET Framework 4.6.1 up to .NET 6</Description>
-    <Version>3.0.1</Version>
+    <Version>3.1.0</Version>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
 	<PackageIcon>mtconnect-net.png</PackageIcon>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Adapters\Shdr\ShdrDataItem - Copy.cs" />
-    <Compile Remove="Agents\MTConnectAgent - Copy.cs" />
-    <Compile Remove="Agents\StoredObservation - Copy.cs" />
-    <Compile Remove="Buffers\MTConnectStreamingBuffer - Copy.cs" />
     <Compile Remove="Clients\Rest\MTConnectSampleJsonStream.cs" />
     <Compile Remove="Models\Components\SpindleAxisModel.cs" />
-    <Compile Remove="Observations\ConditionObservation - Copy.cs" />
-    <Compile Remove="Observations\DataSetObservation - Copy.cs" />
-    <Compile Remove="Observations\IConditionObservation.cs" />
-    <Compile Remove="Observations\IDataSetObservation.cs" />
-    <Compile Remove="Observations\ITableObservation.cs" />
-    <Compile Remove="Observations\ITimeSeriesObservation.cs" />
-    <Compile Remove="Observations\Observation - Copy.cs" />
-    <Compile Remove="Observations\TableObservation - Copy.cs" />
-    <Compile Remove="Observations\TimeSeriesObservation - Copy.cs" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="Adapters\Shdr\ShdrDataItem - Copy.cs" />
-    <None Include="Agents\MTConnectAgent - Copy.cs" />
-    <None Include="Agents\StoredObservation - Copy.cs" />
-    <None Include="Buffers\MTConnectStreamingBuffer - Copy.cs" />
     <None Include="Clients\Rest\MTConnectSampleJsonStream.cs" />
     <None Include="Models\Components\SpindleAxisModel.cs" />
 	<None Include="mtconnect-net.png" Pack="true" PackagePath="\" />
-	<None Include="Observations\ConditionObservation - Copy.cs" />
-	<None Include="Observations\DataSetObservation - Copy.cs" />
-	<None Include="Observations\IConditionObservation.cs" />
-	<None Include="Observations\IDataSetObservation.cs" />
-	<None Include="Observations\ITableObservation.cs" />
-	<None Include="Observations\ITimeSeriesObservation.cs" />
-	<None Include="Observations\Observation - Copy.cs" />
-	<None Include="Observations\TableObservation - Copy.cs" />
-	<None Include="Observations\TimeSeriesObservation - Copy.cs" />
   </ItemGroup>
 
   <!--Conditionally obtain references for the .NET Framework 4.6.1 target-->

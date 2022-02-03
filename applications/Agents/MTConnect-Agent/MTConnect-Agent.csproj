@@ -13,7 +13,7 @@
     <RepositoryUrl>https://github.com/TrakHound/MTConnect.NET</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>mtconnect;iiot;</PackageTags>
-    <AssemblyVersion>0.1.0</AssemblyVersion>
+    <AssemblyVersion>0.2.1</AssemblyVersion>
     <Authors>TrakHound Inc.</Authors>
   </PropertyGroup>
 

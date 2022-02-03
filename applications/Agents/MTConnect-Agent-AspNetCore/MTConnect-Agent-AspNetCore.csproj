@@ -7,7 +7,7 @@
 
   <PropertyGroup>
    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
-   <AssemblyVersion>0.1.0</AssemblyVersion>
+   <AssemblyVersion>0.2.1</AssemblyVersion>
    <Authors>TrakHound Inc.</Authors>
    <Company>TrakHound Inc.</Company>
    <Copyright>Copyright (c) 2022 TrakHound Inc., All Rights Reserved.</Copyright>

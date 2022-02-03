@@ -4,6 +4,7 @@
 // file 'LICENSE.txt', which is part of this source code package.
 
 using Microsoft.Extensions.Logging;
+using MTConnect.Devices;
 
 namespace MTConnect.Applications.Loggers
 {
@@ -18,9 +19,9 @@ namespace MTConnect.Applications.Loggers
         }
 
 
-        public void InvalidDataItemAdded(Devices.DataItem dataItem, Observations.Observation observation)
+        public void InvalidDataItemAdded(Devices.DataItem dataItem, DataItemValidationResult result)
         {
-            _logger.LogWarning($"[Agent-Validation] : Validation Failed for {dataItem.Id} : \'{observation.Value}\' is Invalid for DataItem of Type \'{dataItem.Type}\'");
+            _logger.LogWarning($"[Agent-Validation] : Validation Failed :  {result.Message}");
         }
     }
 }
