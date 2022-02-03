@@ -5,49 +5,49 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MTConnect.Observations
 {
     /// <summary>
     /// An Information Model that describes Streaming Data reported by a piece of equipment where the reported value(s) are represented as a set of key-value pairs.
     /// </summary>
-    public class DataSetObservation : IDataSetObservation
+    public class DataSetObservation : Observation
     {
-        /// <summary>
-        /// The name of the Device that the Observation is associated with
-        /// </summary>
-        public string DeviceName { get; set; }
-
-        /// <summary>
-        /// The (ID, Name, or Source) of the DataItem that the Observation is associated with
-        /// </summary>
-        public string Key { get; set; }
-
         /// <summary>
         /// Key-value pairs published as part of a Data Set observation
         /// </summary>
-        public IEnumerable<DataSetEntry> Entries { get; set; }
-
-        /// <summary>
-        /// The timestamp (UnixTime in Milliseconds) that the observation was recorded at
-        /// </summary>
-        public long Timestamp { get; set; }
-
-        /// <summary>
-        /// A MD5 Hash of the Observation that can be used for comparison
-        /// </summary>
-        public string ChangeId
+        public IEnumerable<DataSetEntry> Entries
         {
             get
             {
-                if (!Entries.IsNullOrEmpty())
+                var entries = new List<DataSetEntry>();
+
+                if (!Values.IsNullOrEmpty())
                 {
-                    var x = "";
-                    foreach (var entry in Entries) x += $"{entry.Key}={entry.Value}|";
-                    return x;
+                    var entryValues = Values.Where(o => o.ValueType != null && o.ValueType.StartsWith(ValueTypes.DataSetPrefix));
+                    if (!entryValues.IsNullOrEmpty())
+                    {
+                        var oValues = entryValues.OrderBy(o => ValueTypes.GetDataSetKey(o.ValueType));
+                        foreach (var value in oValues)
+                        {
+                            var key = ValueTypes.GetDataSetKey(value.ValueType);
+                            entries.Add(new DataSetEntry(key, value.Value));
+                        }
+                    }
                 }
 
-                return null;
+                return entries;
+            }
+            set
+            {
+                if (!value.IsNullOrEmpty())
+                {
+                    foreach (var entry in value)
+                    {
+                        AddValue(new ObservationValue(ValueTypes.CreateDataSetValueType(entry.Key), entry.Value));
+                    }
+                }
             }
         }
 

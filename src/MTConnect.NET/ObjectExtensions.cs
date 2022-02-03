@@ -15,6 +15,11 @@ namespace MTConnect
             return false;
         }
 
+        public static bool IsOdd(this int value)
+        {
+            return value % 2 != 0;
+        }
+
         public static int ToInt(this object o)
         {
             var s = o?.ToString();

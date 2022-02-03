@@ -3,9 +3,10 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
+using MTConnect.Observations;
 using System;
 using System.Collections.Generic;
-using MTConnect.Observations;
+using System.Text.RegularExpressions;
 
 namespace MTConnect.Adapters.Shdr
 {
@@ -147,20 +148,49 @@ namespace MTConnect.Adapters.Shdr
                         if (!string.IsNullOrEmpty(x))
                         {
                             var entries = new List<DataSetEntry>();
-                            var entrySegments = x.Split(' ');
 
-                            foreach (var entrySegment in entrySegments)
+                            // Regular Expression that matches groups like x=y and takes into account the ' and " characters
+                            var regex = new Regex(@"\s*([^\=\s]+)\=([^\s\'\""]+)|\s*([^\=\s]+)\='(.*)'|\s*([^\=\s]+)\=""(.*)""");
+
+                            var matches = regex.Matches(x);
+                            if (matches != null && matches.Count > 0)
                             {
-                                var entry = ShdrDataSetEntry.FromString(entrySegment);
-                                if (entry != null)
+                                foreach (Match match in matches)
                                 {
-                                    entries.Add(entry);
-                                }                         
+                                    if (match.Success && match.Groups != null && match.Groups.Count > 1)
+                                    {
+                                        var success = false;
+                                        string key = null;
+                                        string value = null;
+
+                                        // Matches have 6 Groups plus the 0 Group (holding entire Match)
+                                        // - Odd Indexes are the Keys
+                                        // - Event Indexes are the Values
+
+                                        for (var i = 1; i < match.Groups.Count; i++)
+                                        {
+                                            var group = match.Groups[i];
+                                            if (group.Success)
+                                            {
+                                                success = true;
+
+                                                if (i.IsOdd()) key = group.Value;
+                                                else value = group.Value;
+                                            }
+                                        }
+
+                                        // Add new DataSet to Entries
+                                        if (success) entries.Add(new DataSetEntry(key, value));
+                                    }
+                                }
                             }
 
-                            dataSet.Entries = entries;
+                            if (dataSet.Entries.IsNullOrEmpty())
+                            {
+                                dataSet.Entries = entries;
 
-                            return dataSet;
+                                return dataSet;
+                            }
                         }
                     }
                 }
@@ -169,5 +199,48 @@ namespace MTConnect.Adapters.Shdr
 
             return null;
         }
+
+        //private static ShdrDataSet FromLine(string input, long timestamp = 0)
+        //{
+        //    if (!string.IsNullOrEmpty(input))
+        //    {
+        //        try
+        //        {
+        //            var dataSet = new ShdrDataSet();
+        //            dataSet.Timestamp = timestamp;
+
+        //            // Set DataItemId
+        //            var x = ShdrLine.GetNextValue(input);
+        //            var y = ShdrLine.GetNextSegment(input);
+        //            dataSet.Key = x;
+
+        //            if (y != null)
+        //            {
+        //                x = ShdrLine.GetNextValue(y);
+        //                if (!string.IsNullOrEmpty(x))
+        //                {
+        //                    var entries = new List<DataSetEntry>();
+        //                    var entrySegments = x.Split(' ');
+
+        //                    foreach (var entrySegment in entrySegments)
+        //                    {
+        //                        var entry = ShdrDataSetEntry.FromString(entrySegment);
+        //                        if (entry != null)
+        //                        {
+        //                            entries.Add(entry);
+        //                        }                         
+        //                    }
+
+        //                    dataSet.Entries = entries;
+
+        //                    return dataSet;
+        //                }
+        //            }
+        //        }
+        //        catch { }
+        //    }
+
+        //    return null;
+        //}
     }
 }

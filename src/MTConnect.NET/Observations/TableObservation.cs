@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MTConnect.Observations
 {
@@ -12,53 +13,60 @@ namespace MTConnect.Observations
     /// An Information Model that describes Streaming Data reported by a piece of equipment
     /// where the reported value(s) are represented as rows containing sets of key-value pairs given by Cell elements.
     /// </summary>
-    public class TableObservation : ITableObservation
+    public class TableObservation : Observation
     {
         /// <summary>
-        /// The name of the Device that the Observation is associated with
+        /// Key-value pairs published as part of a Data Set observation
         /// </summary>
-        public string DeviceName { get; set; }
-
-        /// <summary>
-        /// The (ID, Name, or Source) of the DataItem that the Observation is associated with
-        /// </summary>
-        public string Key { get; set; }
-
-        /// <summary>
-        /// Key-value pairs published as part of a Table observation
-        /// </summary>
-        public IEnumerable<TableEntry> Entries { get; set; }
-
-        /// <summary>
-        /// The timestamp (UnixTime in Milliseconds) that the observation was recorded at
-        /// </summary>
-        public long Timestamp { get; set; }
-
-        /// <summary>
-        /// A MD5 Hash of the Observation that can be used for comparison
-        /// </summary>
-        public string ChangeId
+        public IEnumerable<TableEntry> Entries
         {
             get
             {
-                if (!Entries.IsNullOrEmpty())
+                var entries = new List<TableEntry>();
+
+                if (!Values.IsNullOrEmpty())
                 {
-                    var x = "";
-                    foreach (var entry in Entries)
+                    var entryValues = Values.Where(o => o.ValueType != null && o.ValueType.StartsWith(ValueTypes.TablePrefix));
+                    if (!entryValues.IsNullOrEmpty())
                     {
-                        x += $"{entry.Key}|";
+                        var keys = entryValues.Select(o => ValueTypes.GetTableKey(o.ValueType)).Distinct();
+                        if (!keys.IsNullOrEmpty())
+                        {
+                            foreach (var key in keys)
+                            {
+                                var keyValues = entryValues.Where(o => ValueTypes.GetTableKey(o.ValueType) == key);
+                                if (!keyValues.IsNullOrEmpty())
+                                {
+                                    var cells = new List<TableCell>();
+                                    foreach (var keyValue in keyValues)
+                                    {
+                                        cells.Add(new TableCell(ValueTypes.GetTableValue(keyValue.ValueType, key), keyValue.Value));
+                                    }
+
+                                    entries.Add(new TableEntry(key, cells));
+                                }
+                            }
+                        }
+                    }
+                }
+
+                return entries;
+            }
+            set
+            {
+                if (!value.IsNullOrEmpty())
+                {
+                    foreach (var entry in value)
+                    {
                         if (!entry.Cells.IsNullOrEmpty())
                         {
                             foreach (var cell in entry.Cells)
                             {
-                                x += $"{cell.Key}={cell.Value}|";
+                                AddValue(new ObservationValue(ValueTypes.CreateTableValueType(entry.Key, cell.Key), cell.Value));
                             }
                         }
                     }
-                    return x;
                 }
-
-                return null;
             }
         }
 

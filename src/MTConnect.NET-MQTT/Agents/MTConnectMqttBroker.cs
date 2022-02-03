@@ -227,14 +227,25 @@ namespace MTConnect.Agents
 
         private MqttApplicationMessage CreateMessage(IObservation dataItem)
         {
-            if (dataItem != null)
+            if (dataItem != null && !dataItem.Values.IsNullOrEmpty())
             {
-                var topic = $"Streams/{dataItem.DeviceName}/{dataItem.Key}/{dataItem.ValueType}";
+                var topic = $"Streams/{dataItem.DeviceName}/{dataItem.Key}";
                 return CreateMessage(topic, dataItem);
             }
 
             return null;
         }
+
+        //private MqttApplicationMessage CreateMessage(IObservation dataItem)
+        //{
+        //    if (dataItem != null)
+        //    {
+        //        var topic = $"Streams/{dataItem.DeviceName}/{dataItem.Key}/{dataItem.ValueType}";
+        //        return CreateMessage(topic, dataItem);
+        //    }
+
+        //    return null;
+        //}
 
         #endregion
     }

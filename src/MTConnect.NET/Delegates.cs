@@ -6,7 +6,6 @@
 using MTConnect.Assets;
 using MTConnect.Devices;
 using MTConnect.Errors;
-using MTConnect.Observations;
 using MTConnect.Streams;
 using System;
 
@@ -23,7 +22,7 @@ namespace MTConnect
 
     public delegate void MTConnectErrorHandler(ErrorDocument errorDocument);
 
-    public delegate void MTConnectDataItemValidationHandler(Devices.DataItem dataItem, Observation observation);
+    public delegate void MTConnectDataItemValidationHandler(Devices.DataItem dataItem, DataItemValidationResult validationResults);
 
     public delegate void XmlHandler(string xml);
 

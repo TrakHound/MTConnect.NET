@@ -3,6 +3,7 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
+using MTConnect.Observations;
 using System;
 
 namespace MTConnect.Devices.Events
@@ -50,39 +51,60 @@ namespace MTConnect.Devices.Events
 
 
         /// <summary>
-        /// Determine if the DataItem with the specified Value is valid in the specified MTConnectVersion
+        /// Determine if the DataItem with the specified Observation is valid in the specified MTConnectVersion
         /// </summary>
         /// <param name="mtconnectVersion">The Version of the MTConnect Standard</param>
-        /// <param name="value">The value of the DataItem</param>
-        /// <returns>(true) if the value is valid. (false) if the value is invalid.</returns>
-        public override bool IsValid(Version mtconnectVersion, object value)
+        /// <param name="observation">The Observation to validate</param>
+        /// <returns>A DataItemValidationResult indicating if Validation was successful and a Message</returns>
+        public override DataItemValidationResult IsValid(Version mtconnectVersion, IObservation observation)
         {
-            if (value != null)
-            {
-                // Check if Unavailable
-                if (value.ToString() == Streams.DataItem.Unavailable) return true;
+            var messageSuffix = "DataItem(" + Id + ") of '" + Type + "' and Representation of '" + Representation.ToString() + "' and a SubType of '" + SubType + "'";
 
-                if (SubType == SubTypes.LINEAR.ToString())
+            if (observation != null && !observation.Values.IsNullOrEmpty())
+            {
+                // Get the CDATA Value for the Observation
+                var cdata = observation.GetValue(ValueTypes.CDATA);
+                if (cdata != null)
                 {
-                    // Check Valid values in Enum
-                    var validValues = Enum.GetValues(typeof(Streams.Events.LinearDirection));
-                    foreach (var validValue in validValues)
+                    // Check if Unavailable
+                    if (cdata == Streams.DataItem.Unavailable) return new DataItemValidationResult(true);
+
+                    if (SubType == SubTypes.LINEAR.ToString())
                     {
-                        if (value.ToString() == validValue.ToString()) return true;
+                        // Check Valid values in Enum
+                        var validValues = Enum.GetValues(typeof(Streams.Events.LinearDirection));
+                        foreach (var validValue in validValues)
+                        {
+                            if (cdata == validValue.ToString())
+                            {
+                                return new DataItemValidationResult(true);
+                            }
+                        }
+
+                        return new DataItemValidationResult(false, "'" + cdata + "' is not a valid value for " + messageSuffix);
+                    }
+                    else if (SubType == SubTypes.ROTARY.ToString())
+                    {
+                        // Check Valid values in Enum
+                        var validValues = Enum.GetValues(typeof(Streams.Events.RotaryDirection));
+                        foreach (var validValue in validValues)
+                        {
+                            if (cdata == validValue.ToString())
+                            {
+                                return new DataItemValidationResult(true);
+                            }
+                        }
+
+                        return new DataItemValidationResult(false, "'" + cdata + "' is not a valid value for " + messageSuffix);
                     }
                 }
-                else if (SubType == SubTypes.ROTARY.ToString())
+                else
                 {
-                    // Check Valid values in Enum
-                    var validValues = Enum.GetValues(typeof(Streams.Events.RotaryDirection));
-                    foreach (var validValue in validValues)
-                    {
-                        if (value.ToString() == validValue.ToString()) return true;
-                    }
+                    return new DataItemValidationResult(false, "No CDATA is specified for the Observation for " + messageSuffix);
                 }
             }
 
-            return false;
+            return new DataItemValidationResult(false, "No Observation is Specified for " + messageSuffix);
         }
 
 

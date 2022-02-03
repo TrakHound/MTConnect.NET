@@ -79,29 +79,29 @@ namespace MTConnect.Agents
         EventHandler<Device> DeviceAdded { get; set; }
 
         /// <summary>
-        /// Raised when a new Observation for a DataItem of category EVENT or SAMPLE is added to the Agent
+        /// Raised when a new Observation is added to the Agent
         /// </summary>
         EventHandler<IObservation> ObservationAdded { get; set; }
 
-        /// <summary>
-        /// Raised when a new Observation for a DataItem of category CONDITION is added to the Agent
-        /// </summary>
-        EventHandler<IConditionObservation> ConditionObservationAdded { get; set; }
+        ///// <summary>
+        ///// Raised when a new Observation for a DataItem of category CONDITION is added to the Agent
+        ///// </summary>
+        //EventHandler<IConditionObservation> ConditionObservationAdded { get; set; }
 
-        /// <summary>
-        /// Raised when a new Observation for a DataItem with representation of TIME_SERIES is added to the Agent
-        /// </summary>
-        EventHandler<ITimeSeriesObservation> TimeSeriesObservationAdded { get; set; }
+        ///// <summary>
+        ///// Raised when a new Observation for a DataItem with representation of TIME_SERIES is added to the Agent
+        ///// </summary>
+        //EventHandler<ITimeSeriesObservation> TimeSeriesObservationAdded { get; set; }
 
-        /// <summary>
-        /// Raised when a new Observation for a DataItem with representation of DATA_SET is added to the Agent
-        /// </summary>
-        EventHandler<IDataSetObservation> DataSetObservationAdded { get; set; }
+        ///// <summary>
+        ///// Raised when a new Observation for a DataItem with representation of DATA_SET is added to the Agent
+        ///// </summary>
+        //EventHandler<IDataSetObservation> DataSetObservationAdded { get; set; }
 
-        /// <summary>
-        /// Raised when a new Observation for a DataItem with representation of TABLE is added to the Agent
-        /// </summary>
-        EventHandler<ITableObservation> TableObservationAdded { get; set; }
+        ///// <summary>
+        ///// Raised when a new Observation for a DataItem with representation of TABLE is added to the Agent
+        ///// </summary>
+        //EventHandler<ITableObservation> TableObservationAdded { get; set; }
 
         /// <summary>
         /// Raised when a new Asset is added to the Agent
@@ -510,106 +510,106 @@ namespace MTConnect.Agents
         /// <summary>
         /// Add a new Observation for a DataItem of category EVENT or SAMPLE to the Agent
         /// </summary>
-        bool AddObservation(string deviceName, Observation observation);
+        bool AddObservation(string deviceName, IObservation observation);
 
         /// <summary>
         /// Add a new Observation for a DataItem of category EVENT or SAMPLE to the Agent
         /// </summary>
-        Task<bool> AddObservationAsync(string deviceName, Observation observation);
+        Task<bool> AddObservationAsync(string deviceName, IObservation observation);
 
         /// <summary>
         /// Add new Observations for DataItems of category EVENT or SAMPLE to the Agent
         /// </summary>
-        bool AddObservations(string deviceName, IEnumerable<Observation> observations);
+        bool AddObservations(string deviceName, IEnumerable<IObservation> observations);
 
         /// <summary>
         /// Add new Observations for DataItems of category EVENT or SAMPLE to the Agent
         /// </summary>
-        Task<bool> AddObservationsAsync(string deviceName, IEnumerable<Observation> observations);
+        Task<bool> AddObservationsAsync(string deviceName, IEnumerable<IObservation> observations);
 
 
-        /// <summary>
-        /// Add a new Observation for a DataItem of category CONDITION to the Agent
-        /// </summary>
-        bool AddConditionObservation(string deviceName, ConditionObservation condition);
+        ///// <summary>
+        ///// Add a new Observation for a DataItem of category CONDITION to the Agent
+        ///// </summary>
+        //bool AddConditionObservation(string deviceName, ConditionObservation condition);
 
-        /// <summary>
-        /// Add a new Observation for a DataItem of category CONDITION to the Agent
-        /// </summary>
-        Task<bool> AddConditionObservationAsync(string deviceName, ConditionObservation condition);
+        ///// <summary>
+        ///// Add a new Observation for a DataItem of category CONDITION to the Agent
+        ///// </summary>
+        //Task<bool> AddConditionObservationAsync(string deviceName, ConditionObservation condition);
 
-        /// <summary>
-        /// Add new Observations for DataItems of category CONDITION to the Agent
-        /// </summary>
-        bool AddConditionObservations(string deviceName, IEnumerable<ConditionObservation> conditions);
+        ///// <summary>
+        ///// Add new Observations for DataItems of category CONDITION to the Agent
+        ///// </summary>
+        //bool AddConditionObservations(string deviceName, IEnumerable<ConditionObservation> conditions);
 
-        /// <summary>
-        /// Add new Observations for DataItems of category CONDITION to the Agent
-        /// </summary>
-        Task<bool> AddConditionObservationsAsync(string deviceName, IEnumerable<ConditionObservation> conditions);
-
-
-        /// <summary>
-        /// Add a new Observation for a DataItem with representation of TIME_SERIES to the Agent
-        /// </summary>
-        bool AddTimeSeriesObservation(string deviceName, TimeSeriesObservation timeSeries);
-
-        /// <summary>
-        /// Add a new Observation for a DataItem with representation of TIME_SERIES to the Agent
-        /// </summary>
-        Task<bool> AddTimeSeriesObservationAsync(string deviceName, TimeSeriesObservation timeSeries);
-
-        /// <summary>
-        /// Add new Observations for DataItems with representation of TIME_SERIES to the Agent
-        /// </summary>
-        bool AddTimeSeriesObservations(string deviceName, IEnumerable<TimeSeriesObservation> timeSeries);
-
-        /// <summary>
-        /// Add new Observations for DataItems with representation of TIME_SERIES to the Agent
-        /// </summary>
-        Task<bool> AddTimeSeriesObservationsAsync(string deviceName, IEnumerable<TimeSeriesObservation> timeSeries);
+        ///// <summary>
+        ///// Add new Observations for DataItems of category CONDITION to the Agent
+        ///// </summary>
+        //Task<bool> AddConditionObservationsAsync(string deviceName, IEnumerable<ConditionObservation> conditions);
 
 
-        /// <summary>
-        /// Add a new Observation for a DataItem with representation of DATA_SET to the Agent
-        /// </summary>
-        bool AddDataSetObservation(string deviceName, DataSetObservation dataSet);
+        ///// <summary>
+        ///// Add a new Observation for a DataItem with representation of TIME_SERIES to the Agent
+        ///// </summary>
+        //bool AddTimeSeriesObservation(string deviceName, TimeSeriesObservation timeSeries);
 
-        /// <summary>
-        /// Add a new Observation for a DataItem with representation of DATA_SET to the Agent
-        /// </summary>
-        Task<bool> AddDataSetObservationAsync(string deviceName, DataSetObservation dataSet);
+        ///// <summary>
+        ///// Add a new Observation for a DataItem with representation of TIME_SERIES to the Agent
+        ///// </summary>
+        //Task<bool> AddTimeSeriesObservationAsync(string deviceName, TimeSeriesObservation timeSeries);
 
-        /// <summary>
-        /// Add new Observations for DataItems with representation of DATA_SET to the Agent
-        /// </summary>
-        bool AddDataSetObservations(string deviceName, IEnumerable<DataSetObservation> dataSets);
+        ///// <summary>
+        ///// Add new Observations for DataItems with representation of TIME_SERIES to the Agent
+        ///// </summary>
+        //bool AddTimeSeriesObservations(string deviceName, IEnumerable<TimeSeriesObservation> timeSeries);
 
-        /// <summary>
-        /// Add new Observations for DataItems with representation of DATA_SET to the Agent
-        /// </summary>
-        Task<bool> AddDataSetObservationsAsync(string deviceName, IEnumerable<DataSetObservation> dataSets);
+        ///// <summary>
+        ///// Add new Observations for DataItems with representation of TIME_SERIES to the Agent
+        ///// </summary>
+        //Task<bool> AddTimeSeriesObservationsAsync(string deviceName, IEnumerable<TimeSeriesObservation> timeSeries);
 
 
-        /// <summary>
-        /// Add a new Observation for a DataItem with representation of TABLE to the Agent
-        /// </summary>
-        bool AddTableObservation(string deviceName, TableObservation table);
+        ///// <summary>
+        ///// Add a new Observation for a DataItem with representation of DATA_SET to the Agent
+        ///// </summary>
+        //bool AddDataSetObservation(string deviceName, DataSetObservation dataSet);
 
-        /// <summary>
-        /// Add a new Observation for a DataItem with representation of TABLE to the Agent
-        /// </summary>
-        Task<bool> AddTableObservationAsync(string deviceName, TableObservation table);
+        ///// <summary>
+        ///// Add a new Observation for a DataItem with representation of DATA_SET to the Agent
+        ///// </summary>
+        //Task<bool> AddDataSetObservationAsync(string deviceName, DataSetObservation dataSet);
 
-        /// <summary>
-        /// Add new Observations for DataItems with representation of TABLE to the Agent
-        /// </summary>
-        bool AddTableObservations(string deviceName, IEnumerable<TableObservation> tables);
+        ///// <summary>
+        ///// Add new Observations for DataItems with representation of DATA_SET to the Agent
+        ///// </summary>
+        //bool AddDataSetObservations(string deviceName, IEnumerable<DataSetObservation> dataSets);
 
-        /// <summary>
-        /// Add new Observations for DataItems with representation of TABLE to the Agent
-        /// </summary>
-        Task<bool> AddTableObservationsAsync(string deviceName, IEnumerable<TableObservation> tables);
+        ///// <summary>
+        ///// Add new Observations for DataItems with representation of DATA_SET to the Agent
+        ///// </summary>
+        //Task<bool> AddDataSetObservationsAsync(string deviceName, IEnumerable<DataSetObservation> dataSets);
+
+
+        ///// <summary>
+        ///// Add a new Observation for a DataItem with representation of TABLE to the Agent
+        ///// </summary>
+        //bool AddTableObservation(string deviceName, TableObservation table);
+
+        ///// <summary>
+        ///// Add a new Observation for a DataItem with representation of TABLE to the Agent
+        ///// </summary>
+        //Task<bool> AddTableObservationAsync(string deviceName, TableObservation table);
+
+        ///// <summary>
+        ///// Add new Observations for DataItems with representation of TABLE to the Agent
+        ///// </summary>
+        //bool AddTableObservations(string deviceName, IEnumerable<TableObservation> tables);
+
+        ///// <summary>
+        ///// Add new Observations for DataItems with representation of TABLE to the Agent
+        ///// </summary>
+        //Task<bool> AddTableObservationsAsync(string deviceName, IEnumerable<TableObservation> tables);
 
 
         /// <summary>

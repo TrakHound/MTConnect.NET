@@ -3,7 +3,10 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
+using MTConnect.Devices;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MTConnect.Observations
 {
@@ -23,19 +26,20 @@ namespace MTConnect.Observations
         public string Key { get; set; }
 
         /// <summary>
-        /// The recorded value of the Observation
+        /// The Values recorded during the Observation
         /// </summary>
-        public object Value { get; set; }
-
-        /// <summary>
-        /// The ValueType of the recorded value of the Observation
-        /// </summary>
-        public string ValueType { get; set; }
+        public IEnumerable<ObservationValue> Values { get; set; }
 
         /// <summary>
         /// The timestamp (UnixTime in Milliseconds) that the observation was recorded at
         /// </summary>
         public long Timestamp { get; set; }
+
+        /// <summary>
+        /// For those DataItem elements that report data that may be periodically reset to an initial value, 
+        /// resetTriggered identifies when a reported value has been reset and what has caused that reset to occur.
+        /// </summary>
+        public DataItemResetTrigger ResetTrigger { get; set; }
 
         /// <summary>
         /// A MD5 Hash of the Observation that can be used for comparison
@@ -44,7 +48,14 @@ namespace MTConnect.Observations
         {
             get
             {
-                return Value.ToString();
+                if (!Values.IsNullOrEmpty())
+                {
+                    var valueString = "";
+                    foreach (var value in Values) valueString += value.Value;
+                    return valueString.ToMD5Hash();
+                }
+                
+                return null;
             }
         }
 
@@ -54,119 +65,83 @@ namespace MTConnect.Observations
         public Observation(string key)
         {
             Key = key;
-            ValueType = ValueTypes.CDATA;
             Timestamp = 0;
         }
 
         public Observation(string key, object value)
         {
             Key = key;
-            ValueType = ValueTypes.CDATA;
-            Value = value?.ToString();
+            Values = new List<ObservationValue> 
+            { 
+                new ObservationValue(ValueTypes.CDATA, value != null ? value.ToString() : string.Empty)
+            };
             Timestamp = 0;
         }
 
         public Observation(string key, object value, long timestamp)
         {
             Key = key;
-            ValueType = ValueTypes.CDATA;
-            Value = value?.ToString();
+            Values = new List<ObservationValue>
+            {
+                new ObservationValue(ValueTypes.CDATA, value != null ? value.ToString() : string.Empty)
+            };
             Timestamp = timestamp;
         }
 
         public Observation(string key, object value, DateTime timestamp)
         {
             Key = key;
-            ValueType = ValueTypes.CDATA;
-            Value = value?.ToString();
+            Values = new List<ObservationValue>
+            {
+                new ObservationValue(ValueTypes.CDATA, value != null ? value.ToString() : string.Empty)
+            };
             Timestamp = timestamp.ToUnixTime();
         }
 
         public Observation(string key, string valueType, object value, long timestamp)
         {
             Key = key;
-            ValueType = valueType;
-            Value = value?.ToString();
+            Values = new List<ObservationValue>
+            {
+                new ObservationValue(valueType, value != null ? value.ToString() : string.Empty)
+            };
             Timestamp = timestamp;
         }
 
         public Observation(string key, string valueType, object value, DateTime timestamp)
         {
             Key = key;
-            ValueType = valueType;
-            Value = value?.ToString();
+            Values = new List<ObservationValue>
+            {
+                new ObservationValue(valueType, value != null ? value.ToString() : string.Empty)
+            };
             Timestamp = timestamp.ToUnixTime();
         }
 
-        //public Observation(string deviceName, string key)
-        //{
-        //    Key = key;
-        //    ValueType = ValueTypes.CDATA;
-        //    Timestamp = 0;
-        //}
 
-        //public Observation(string deviceName, string key, object value)
-        //{
-        //    Key = key;
-        //    ValueType = ValueTypes.CDATA;
-        //    Value = value?.ToString();
-        //    Timestamp = 0;
-        //}
-
-        //public Observation(string deviceName, string key, object value, long timestamp)
-        //{
-        //    Key = key;
-        //    ValueType = ValueTypes.CDATA;
-        //    Value = value?.ToString();
-        //    Timestamp = timestamp;
-        //}
-
-        //public Observation(string deviceName, string key, object value, DateTime timestamp)
-        //{
-        //    Key = key;
-        //    ValueType = ValueTypes.CDATA;
-        //    Value = value?.ToString();
-        //    Timestamp = timestamp.ToUnixTime();
-        //}
-
-        //public Observation(string deviceName, string key, string valueType, object value, long timestamp)
-        //{
-        //    Key = key;
-        //    ValueType = valueType;
-        //    Value = value?.ToString();
-        //    Timestamp = timestamp;
-        //}
-
-        //public Observation(string deviceName, string key, string valueType, object value, DateTime timestamp)
-        //{
-        //    Key = key;
-        //    ValueType = valueType;
-        //    Value = value?.ToString();
-        //    Timestamp = timestamp.ToUnixTime();
-        //}
-
-
-        public void Update(object value)
+        protected void AddValue(string valueType, object value)
         {
-            Value = value?.ToString();
+            AddValue(new ObservationValue(valueType, value));
         }
 
-        public void Update(string valueType, object value)
+        protected void AddValue(ObservationValue observationValue)
         {
-            ValueType = valueType;
-            Value = value?.ToString();
+            List<ObservationValue> x = null;
+            if (!Values.IsNullOrEmpty()) x = Values.ToList();
+            if (x == null) x = new List<ObservationValue>();
+            x.Add(observationValue);
+            Values = x;
         }
 
-        public void Update(object value, DateTime timestamp)
+        public string GetValue(string valueType)
         {
-            Value = value?.ToString();
-            Timestamp = timestamp.ToUnixTime();
-        }
+            if (!string.IsNullOrEmpty(valueType) && !Values.IsNullOrEmpty())
+            {
+                var x = Values.FirstOrDefault(o => o.ValueType == valueType);
+                return x.Value;
+            }
 
-        public void Update(object value, long timestamp)
-        {
-            Value = value?.ToString();
-            Timestamp = timestamp;
+            return null;
         }
     }
 }

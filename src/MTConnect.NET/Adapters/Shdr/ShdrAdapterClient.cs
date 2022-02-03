@@ -94,7 +94,8 @@ namespace MTConnect.Adapters.Shdr
         public ShdrAdapterClient(
             AdapterConfiguration configuration,
             IMTConnectAgent agent,
-            Devices.Device device)
+            Devices.Device device
+            )
         {
             Id = StringFunctions.RandomString(10);
             _configuration = configuration;
@@ -201,7 +202,7 @@ namespace MTConnect.Adapters.Shdr
                                                         {
                                                             await ProcessCommand(line);
 
-                                                            // Raise LineReceived Event passing the Line that was read as a parameter
+                                                            // Raise CommandReceived Event passing the Line that was read as a parameter
                                                             CommandReceived?.Invoke(this, line);
                                                         }
                                                     }
@@ -251,6 +252,9 @@ namespace MTConnect.Adapters.Shdr
                         {
                             _client.Close();
                             AdapterDisconnected?.Invoke(this, $"Disconnected from {Server} on Port {Port}");
+
+                            // Set DataItems to Unavailable if disconnected from Adapter
+                            await SetDeviceUnavailable(UnixDateTime.Now);
                         }
                     }
 
@@ -304,20 +308,6 @@ namespace MTConnect.Adapters.Shdr
                                 await _agent.AddAssetAsync(_device.Name, asset);
                             }
                         }
-
-                        //switch (asset.Type)
-                        //    {
-                        //        case Assets.CuttingTools.CuttingToolAsset.TypeId:
-                        //            await _agent.AddAssetAsync(_device.Name, Assets.CuttingTools.CuttingToolAsset.FromXml(asset.Xml));
-                        //            break;
-                        //        case Assets.Files.FileAsset.TypeId:
-                        //            await _agent.AddAssetAsync(_device.Name, Assets.Files.FileAsset.FromXml(asset.Xml));
-                        //            break;
-                        //        case Assets.RawMaterials.RawMaterialAsset.TypeId:
-                        //            await _agent.AddAssetAsync(_device.Name, Assets.RawMaterials.RawMaterialAsset.FromXml(asset.Xml));
-                        //            break;
-                        //    }
-                        //}
                     }
                 }
                 else
@@ -329,28 +319,54 @@ namespace MTConnect.Adapters.Shdr
                         if (dataItem.DataItemCategory == Devices.DataItemCategory.CONDITION)
                         {
                             var condition = ShdrCondition.FromString(line);
-                            if (condition != null) await _agent.AddConditionObservationAsync(_device.Name, condition);
+                            if (condition != null) await _agent.AddObservationAsync(_device.Name, condition);
                         }
                         else if (dataItem.Representation == Devices.DataItemRepresentation.TABLE)
                         {
                             var table = ShdrTable.FromString(line);
-                            if (table != null) await _agent.AddTableObservationAsync(_device.Name, table);
+                            if (table != null) await _agent.AddObservationAsync(_device.Name, table);
                         }
                         else if (dataItem.Representation == Devices.DataItemRepresentation.DATA_SET)
                         {
                             var dataSet = ShdrDataSet.FromString(line);
-                            if (dataSet != null) await _agent.AddDataSetObservationAsync(_device.Name, dataSet);
+                            if (dataSet != null) await _agent.AddObservationAsync(_device.Name, dataSet);
                         }
                         else if (dataItem.Representation == Devices.DataItemRepresentation.TIME_SERIES)
                         {
                             var timeSeries = ShdrTimeSeries.FromString(line);
-                            if (timeSeries != null) await _agent.AddTimeSeriesObservationAsync(_device.Name, timeSeries);
+                            if (timeSeries != null) await _agent.AddObservationAsync(_device.Name, timeSeries);
                         }
                         else
                         {
                             var dataItems = ShdrDataItem.FromString(line);
                             if (!dataItems.IsNullOrEmpty()) await _agent.AddObservationsAsync(_device.Name, dataItems);
                         }
+
+                        //if (dataItem.DataItemCategory == Devices.DataItemCategory.CONDITION)
+                        //{
+                        //    var condition = ShdrCondition.FromString(line);
+                        //    if (condition != null) await _agent.AddConditionObservationAsync(_device.Name, condition);
+                        //}
+                        //else if (dataItem.Representation == Devices.DataItemRepresentation.TABLE)
+                        //{
+                        //    var table = ShdrTable.FromString(line);
+                        //    if (table != null) await _agent.AddTableObservationAsync(_device.Name, table);
+                        //}
+                        //else if (dataItem.Representation == Devices.DataItemRepresentation.DATA_SET)
+                        //{
+                        //    var dataSet = ShdrDataSet.FromString(line);
+                        //    if (dataSet != null) await _agent.AddDataSetObservationAsync(_device.Name, dataSet);
+                        //}
+                        //else if (dataItem.Representation == Devices.DataItemRepresentation.TIME_SERIES)
+                        //{
+                        //    var timeSeries = ShdrTimeSeries.FromString(line);
+                        //    if (timeSeries != null) await _agent.AddTimeSeriesObservationAsync(_device.Name, timeSeries);
+                        //}
+                        //else
+                        //{
+                        //    var dataItems = ShdrDataItem.FromString(line);
+                        //    if (!dataItems.IsNullOrEmpty()) await _agent.AddObservationsAsync(_device.Name, dataItems);
+                        //}
                     }
                 }
             }
@@ -387,6 +403,55 @@ namespace MTConnect.Adapters.Shdr
 
             return null;
         }
+
+
+        private async Task SetDeviceUnavailable(long timestamp = 0)
+        {
+            await SetDataItemsUnavailable(timestamp);
+            await SetConditionsUnavailable(timestamp);
+        }
+
+        private async Task SetDataItemsUnavailable(long timestamp = 0)
+        {
+            if (_agent != null && _device != null)
+            {
+                var dataItems = _device.GetDataItems();
+                if (!dataItems.IsNullOrEmpty())
+                {
+                    dataItems = dataItems.Where(o => o.DataItemCategory != Devices.DataItemCategory.CONDITION);
+                    if (!dataItems.IsNullOrEmpty())
+                    {
+                        foreach (var dataItem in dataItems)
+                        {
+                            var observation = new Observations.Observation(dataItem.Id, Streams.DataItem.Unavailable, timestamp);
+                            await _agent.AddObservationAsync(_device.Name, observation);
+                        }
+                    }
+                }
+            }
+        }
+
+        private async Task SetConditionsUnavailable(long timestamp = 0)
+        {
+            if (_agent != null && _device != null)
+            {
+                var dataItems = _device.GetDataItems();
+                if (!dataItems.IsNullOrEmpty())
+                {
+                    dataItems = dataItems.Where(o => o.DataItemCategory == Devices.DataItemCategory.CONDITION);
+                    if (!dataItems.IsNullOrEmpty())
+                    {
+                        foreach (var dataItem in dataItems)
+                        {
+                            var condition = new Observations.ConditionObservation(dataItem.Id, Streams.ConditionLevel.UNAVAILABLE, timestamp);
+                            await _agent.AddObservationAsync(_device.Name, condition);
+                            //await _agent.AddConditionObservationAsync(_device.Name, condition);
+                        }
+                    }
+                }
+            }
+        }
+
 
         private string GetKey(string line)
         {

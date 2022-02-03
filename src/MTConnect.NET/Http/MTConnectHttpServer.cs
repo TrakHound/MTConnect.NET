@@ -494,16 +494,8 @@ namespace MTConnect.Http
                         {
                             // Create Sample Stream
                             var sampleStream = new MTConnectHttpStream(_mtconnectAgent, deviceName, path, from, count, interval, heartbeat, documentFormat, indentOutput);
-                            sampleStream.HeartbeatReceived += async (s, args) =>
-                            {
-                                var bytes = Encoding.ASCII.GetBytes(args.Message);
-                                await responseStream.WriteAsync(bytes, 0, bytes.Length);
-                            };
-                            sampleStream.DocumentReceived += async (s, args) =>
-                            {
-                                var bytes = Encoding.ASCII.GetBytes(args.Message);
-                                await responseStream.WriteAsync(bytes, 0, bytes.Length);
-                            };
+                            sampleStream.HeartbeatReceived += async (s, args) => await WriteToResponseStream(responseStream, args);
+                            sampleStream.DocumentReceived += async (s, args) => await WriteToResponseStream(responseStream, args);
 
                             // Set HTTP Response Headers
                             httpResponse.Headers.Add("Server", "MTConnectAgent");
@@ -537,6 +529,20 @@ namespace MTConnect.Http
                 }
             }
         }
+
+        private static async Task WriteToResponseStream(System.IO.Stream responseStream, MTConnectHttpStreamArgs args)
+        {
+            try
+            {
+                if (responseStream != null)
+                {
+                    var bytes = Encoding.ASCII.GetBytes(args.Message);
+                    await responseStream.WriteAsync(bytes, 0, bytes.Length);
+                }
+            }
+            catch { }
+        }
+
 
 
         /// <summary>

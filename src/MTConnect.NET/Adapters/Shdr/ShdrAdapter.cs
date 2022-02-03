@@ -603,7 +603,13 @@ namespace MTConnect.Adapters.Shdr
             if (!dataItems.IsNullOrEmpty())
             {
                 // Set each DataItem to Unavailable
-                foreach (var dataItem in dataItems) dataItem.Value = Streams.DataItem.Unavailable;
+                foreach (var dataItem in dataItems)
+                {
+                    dataItem.Values = new List<ObservationValue>
+                    {
+                        new ObservationValue(ValueTypes.CDATA, Streams.DataItem.Unavailable)
+                    };
+                }
 
                 // Add DataItems (only will add those that are changed)
                 AddDataItems(dataItems);

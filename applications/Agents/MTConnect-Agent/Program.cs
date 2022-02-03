@@ -9,6 +9,7 @@ using MTConnect.Agents.Configuration;
 using MTConnect.Assets;
 using MTConnect.Devices;
 using MTConnect.Http;
+using MTConnect.Observations;
 using MTConnect.Streams;
 using NLog;
 using System;
@@ -77,6 +78,7 @@ namespace MTConnect.Applications
                     _agent.StreamsResponseSent += StreamsSent;
                     _agent.AssetsRequestReceived += AssetsRequested;
                     _agent.AssetsResponseSent += AssetsSent;
+                    _agent.ObservationAdded += ObservationAdded;
 
                     _agent.InvalidDataItemAdded += InvalidDataItem;
                 }
@@ -220,10 +222,31 @@ namespace MTConnect.Applications
         }
 
 
-        private static void InvalidDataItem(Devices.DataItem dataItem, Observations.Observation observation)
-        {
-            _agentValidationLogger.Warn($"[Agent-Validation] : Validation Failed for {dataItem.Id} : \'{observation.Value}\' is Invalid for DataItem of Type \'{dataItem.Type}\'");
+        private static void ObservationAdded(object sender, IObservation observation)
+        {         
+            if (!observation.Values.IsNullOrEmpty())
+            {
+                foreach (var value in observation.Values)
+                {
+                    _agentLogger.Debug($"[Agent] : Observation Added Successfully : {observation.Key} : {value.ValueType} = {value.Value}");
+                }
+            }
         }
+
+        private static void InvalidDataItem(Devices.DataItem dataItem, DataItemValidationResult result)
+        {
+            _agentValidationLogger.Warn($"[Agent-Validation] : {result.Message}");
+        }
+
+        //private static void InvalidDataItem(Devices.DataItem dataItem, string valueType, string value)
+        //{
+        //    _agentValidationLogger.Warn($"[Agent-Validation] : Validation Failed for {dataItem.Id} : {valueType} = \'{value}\' is Invalid for DataItem of Type \'{dataItem.Type}\'");
+        //}
+
+        //private static void InvalidDataItem(Devices.DataItem dataItem, Observations.IObservation observation)
+        //{
+        //    _agentValidationLogger.Warn($"[Agent-Validation] : Validation Failed for {dataItem.Id} : \'{observation.Value}\' is Invalid for DataItem of Type \'{dataItem.Type}\'");
+        //}
 
 
         private static void AdapterConnected(object sender, string message)

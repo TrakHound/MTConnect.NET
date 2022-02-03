@@ -21,47 +21,56 @@ namespace MTConnect.Adapters.Shdr
         public ShdrDataItem(string key)
         {
             Key = key;
-            ValueType = ValueTypes.CDATA;
             Timestamp = 0;
         }
 
         public ShdrDataItem(string key, object value)
         {
             Key = key;
-            ValueType = ValueTypes.CDATA;
-            Value = value?.ToString();
+            Values = new List<ObservationValue>
+            {
+                new ObservationValue(ValueTypes.CDATA, value != null ? value.ToString() : string.Empty)
+            };
             Timestamp = 0;
         }
 
         public ShdrDataItem(string key, object value, long timestamp)
         {
             Key = key;
-            ValueType = ValueTypes.CDATA;
-            Value = value?.ToString();
+            Values = new List<ObservationValue>
+            {
+                new ObservationValue(ValueTypes.CDATA, value != null ? value.ToString() : string.Empty)
+            };
             Timestamp = timestamp;
         }
 
         public ShdrDataItem(string key, object value, DateTime timestamp)
         {
             Key = key;
-            ValueType = ValueTypes.CDATA;
-            Value = value?.ToString();
+            Values = new List<ObservationValue>
+            {
+                new ObservationValue(ValueTypes.CDATA, value != null ? value.ToString() : string.Empty)
+            };
             Timestamp = timestamp.ToUnixTime();
         }
 
         public ShdrDataItem(string key, string valueType, object value, long timestamp)
         {
             Key = key;
-            ValueType = valueType;
-            Value = value?.ToString();
+            Values = new List<ObservationValue>
+            {
+                new ObservationValue(ValueTypes.CDATA, value != null ? value.ToString() : string.Empty)
+            };
             Timestamp = timestamp;
         }
 
         public ShdrDataItem(string key, string valueType, object value, DateTime timestamp)
         {
             Key = key;
-            ValueType = valueType;
-            Value = value?.ToString();
+            Values = new List<ObservationValue>
+            {
+                new ObservationValue(ValueTypes.CDATA, value != null ? value.ToString() : string.Empty)
+            };
             Timestamp = timestamp.ToUnixTime();
         }
 
@@ -71,7 +80,7 @@ namespace MTConnect.Adapters.Shdr
             {
                 DeviceName = observation.DeviceName;
                 Key = observation.Key;
-                Value = observation.Value;
+                Values = observation.Values;
                 Timestamp = observation.Timestamp;
             }
         }
@@ -82,10 +91,12 @@ namespace MTConnect.Adapters.Shdr
         /// <returns>SHDR string</returns>
         public override string ToString()
         {
-            if (!string.IsNullOrEmpty(Key) && Value != null)
+            //if (!string.IsNullOrEmpty(Key) && Value != null)
+            if (!string.IsNullOrEmpty(Key))
             {
-                var valueString = Value.ToString();
-                if (!string.IsNullOrEmpty(valueString))
+                var valueString = GetValue(ValueTypes.CDATA);
+                //if (!string.IsNullOrEmpty(valueString))
+                if (valueString != null)
                 {
                     var value = valueString.Replace("|", @"\|");
 
@@ -105,10 +116,11 @@ namespace MTConnect.Adapters.Shdr
 
         private static string ToString(ShdrDataItem dataItem, bool ignoreTimestamp = false)
         {
-            if (dataItem != null && !string.IsNullOrEmpty(dataItem.Key) && dataItem.Value != null)
+            if (dataItem != null && !string.IsNullOrEmpty(dataItem.Key))
             {
-                var valueString = dataItem.Value.ToString();
-                if (!string.IsNullOrEmpty(valueString))
+                var valueString = dataItem.GetValue(ValueTypes.CDATA);
+                //if (!string.IsNullOrEmpty(valueString))
+                if (valueString != null)
                 {
                     var value = valueString.Replace("|", @"\|");
 
@@ -268,7 +280,13 @@ namespace MTConnect.Adapters.Shdr
                             // Set Value
                             x = ShdrLine.GetNextValue(y);
                             y = ShdrLine.GetNextSegment(y);
-                            dataItem.Value = !string.IsNullOrEmpty(x) ? x.ToUpper() : "";
+
+                            dataItem.Values = new List<ObservationValue>
+                            {
+                                new ObservationValue(ValueTypes.CDATA, x != null ? x.ToString() : string.Empty)
+                            };
+
+                            //dataItem.Value = !string.IsNullOrEmpty(x) ? x.ToUpper() : "";
 
                             dataItems.Add(dataItem);
                         }

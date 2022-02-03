@@ -3,6 +3,7 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
+using MTConnect.Observations;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -104,23 +105,55 @@ namespace MTConnect.Buffers
         /// </summary>
         /// <param name="deviceName">The name of the Device the data is associated with</param>
         /// <param name="dataItemId">The ID of the Observation</param>
-        /// <param name="valueType">The ValueType that the Observation represents</param>
-        /// <param name="value">The Value of the Observation</param>
-        /// <param name="timestamp">The timestamp (in UnixTime milliseconds) that represents when the Observation was recorded</param>
+        /// <param name="observation">The Observation to Add</param>
         /// <param name="sequence">The sequence number to add the Observation at</param>
         /// <returns>A boolean value indicating whether the Observation was added to the Buffer successfully (true) or not (false)</returns>
-        bool AddObservation(string deviceName, string dataItemId, string valueType, object value, long timestamp, long sequence = 0);
+        bool AddObservation(string deviceName, string dataItemId, IObservation observation, long sequence = 0);
 
         /// <summary>
         /// Add a new Observation to the Buffer
         /// </summary>
         /// <param name="deviceName">The name of the Device the data is associated with</param>
         /// <param name="dataItemId">The ID of the Observation</param>
-        /// <param name="valueType">The ValueType that the Observation represents</param>
-        /// <param name="value">The Value of the Observation</param>
-        /// <param name="timestamp">The timestamp (in UnixTime milliseconds) that represents when the Observation was recorded</param>
+        /// <param name="observation">The Observation to Add</param>
         /// <param name="sequence">The sequence number to add the Observation at</param>
         /// <returns>A boolean value indicating whether the Observation was added to the Buffer successfully (true) or not (false)</returns>
-        Task<bool> AddObservationAsync(string deviceName, string dataItemId, string valueType, object value, long timestamp, long sequence = 0);
+        Task<bool> AddObservationAsync(string deviceName, string dataItemId, IObservation observation, long sequence = 0);
+
+        ///// <summary>
+        ///// Add a new Observation to the Buffer
+        ///// </summary>
+        ///// <param name="deviceName">The name of the Device the data is associated with</param>
+        ///// <param name="dataItemId">The ID of the Observation</param>
+        ///// <param name="valueType">The ValueType that the Observation represents</param>
+        ///// <param name="value">The Value of the Observation</param>
+        ///// <param name="timestamp">The timestamp (in UnixTime milliseconds) that represents when the Observation was recorded</param>
+        ///// <param name="sequence">The sequence number to add the Observation at</param>
+        ///// <returns>A boolean value indicating whether the Observation was added to the Buffer successfully (true) or not (false)</returns>
+        //Task<bool> AddObservationAsync(string deviceName, string dataItemId, string valueType, object value, long timestamp, long sequence = 0);
+
+        ///// <summary>
+        ///// Add a new Observation to the Buffer
+        ///// </summary>
+        ///// <param name="deviceName">The name of the Device the data is associated with</param>
+        ///// <param name="dataItemId">The ID of the Observation</param>
+        ///// <param name="valueType">The ValueType that the Observation represents</param>
+        ///// <param name="value">The Value of the Observation</param>
+        ///// <param name="timestamp">The timestamp (in UnixTime milliseconds) that represents when the Observation was recorded</param>
+        ///// <param name="sequence">The sequence number to add the Observation at</param>
+        ///// <returns>A boolean value indicating whether the Observation was added to the Buffer successfully (true) or not (false)</returns>
+        //bool AddObservation(string deviceName, string dataItemId, string valueType, object value, long timestamp, long sequence = 0);
+
+        ///// <summary>
+        ///// Add a new Observation to the Buffer
+        ///// </summary>
+        ///// <param name="deviceName">The name of the Device the data is associated with</param>
+        ///// <param name="dataItemId">The ID of the Observation</param>
+        ///// <param name="valueType">The ValueType that the Observation represents</param>
+        ///// <param name="value">The Value of the Observation</param>
+        ///// <param name="timestamp">The timestamp (in UnixTime milliseconds) that represents when the Observation was recorded</param>
+        ///// <param name="sequence">The sequence number to add the Observation at</param>
+        ///// <returns>A boolean value indicating whether the Observation was added to the Buffer successfully (true) or not (false)</returns>
+        //Task<bool> AddObservationAsync(string deviceName, string dataItemId, string valueType, object value, long timestamp, long sequence = 0);
     }
 }

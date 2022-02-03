@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MTConnect.Observations
 {
@@ -12,47 +13,51 @@ namespace MTConnect.Observations
     /// An Information Model that describes Streaming Data reported by a piece of equipment
     /// where multiple values are reported at fixed intervals in a single observation
     /// </summary>
-    public class TimeSeriesObservation : ITimeSeriesObservation
+    public class TimeSeriesObservation : Observation
     {
-        /// <summary>
-        /// The name of the Device that the Observation is associated with
-        /// </summary>
-        public string DeviceName { get; set; }
-
-        /// <summary>
-        /// The (ID, Name, or Source) of the DataItem that the Observation is associated with
-        /// </summary>
-        public string Key { get; set; }
-
         /// <summary>
         /// The frequency at which the values were observed at
         /// </summary>
-        public double SampleRate { get; set; }
+        public double SampleRate
+        {
+            get => GetValue(ValueTypes.SampleRate).ToDouble();
+            set => AddValue(new ObservationValue(ValueTypes.SampleRate, value));
+        }
 
         /// <summary>
         /// The values that were reported during the Observation
         /// </summary>
-        public IEnumerable<double> Samples { get; set; }
-        /// <summary>
-        /// The timestamp (UnixTime in Milliseconds) that the observation was recorded at
-        /// </summary>
-        public long Timestamp { get; set; }
-
-        /// <summary>
-        /// A MD5 Hash of the Observation that can be used for comparison
-        /// </summary>
-        public string ChangeId
+        public IEnumerable<double> Samples
         {
             get
             {
-                if (!Samples.IsNullOrEmpty())
+                var values = new List<double>();
+
+                if (!Values.IsNullOrEmpty())
                 {
-                    var x = "";
-                    foreach (var sample in Samples) x += $"{sample}|";
-                    return x;
+                    var sampleValues = Values.Where(o => o.ValueType != null && o.ValueType.StartsWith(ValueTypes.TimeSeriesPrefix));
+                    if (!sampleValues.IsNullOrEmpty())
+                    {
+                        var oValues = sampleValues.OrderBy(o => ValueTypes.GetTimeSeriesIndex(o.ValueType));
+                        foreach (var value in oValues)
+                        {
+                            values.Add(value.Value.ToDouble());
+                        }
+                    }
                 }
 
-                return null;
+                return values;
+            }
+            set
+            {
+                if (!value.IsNullOrEmpty())
+                {
+                    var x = value.ToList();
+                    for (var i = 0; i < x.Count(); i++)
+                    {
+                        AddValue(new ObservationValue(ValueTypes.CreateTimeSeriesValueType(i), x[i]));
+                    }
+                }
             }
         }
 

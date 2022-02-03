@@ -3,6 +3,7 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE', which is part of this source code package.
 
+using MTConnect.Observations;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -250,9 +251,15 @@ namespace MTConnect.Devices
             return Process(this, mtconnectVersion);
         }
 
-        public virtual bool IsValid(Version mtconnectVersion, object value)
+        /// <summary>
+        /// Determine if the DataItem with the specified Observation is valid in the specified MTConnectVersion
+        /// </summary>
+        /// <param name="mtconnectVersion">The Version of the MTConnect Standard</param>
+        /// <param name="observation">The Observation to validate</param>
+        /// <returns>A DataItemValidationResult indicating if Validation was successful and a Message</returns>
+        public virtual DataItemValidationResult IsValid(Version mtconnectVersion, IObservation observation)
         {
-            return true;
+            return new DataItemValidationResult(true);
         }
 
 
