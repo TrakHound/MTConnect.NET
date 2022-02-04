@@ -3,6 +3,7 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
+using MTConnect.Devices;
 using System.Collections.Generic;
 
 namespace MTConnect.Observations
@@ -27,20 +28,21 @@ namespace MTConnect.Observations
         /// </summary>
         IEnumerable<ObservationValue> Values { get; set; }
 
-        ///// <summary>
-        ///// The recorded value of the Observation
-        ///// </summary>
-        //object Value { get; set; }
-
-        ///// <summary>
-        ///// The ValueType of the recorded value of the Observation
-        ///// </summary>
-        //string ValueType { get; set; }
-
         /// <summary>
         /// The timestamp (UnixTime in Milliseconds) that the observation was recorded at
         /// </summary>
         long Timestamp { get; set; }
+
+        /// <summary>
+        /// The time-period over which the data was collected.
+        /// </summary>
+        double Duration { get; set; }
+
+        /// <summary>
+        /// For those DataItem elements that report data that may be periodically reset to an initial value, 
+        /// resetTriggered identifies when a reported value has been reset and what has caused that reset to occur.
+        /// </summary>
+        DataItemResetTrigger ResetTrigger { get; set; }
 
 
         string GetValue(string valueType);

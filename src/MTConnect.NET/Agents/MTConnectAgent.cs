@@ -1429,6 +1429,10 @@ namespace MTConnect.Agents
 
                         // Get CDATA
                         sample.CDATA = observation.Values.FirstOrDefault(o => o.ValueType == ValueTypes.CDATA).Value?.ToString();
+
+                        // Get Duration
+                        sample.Duration = observation.Values.FirstOrDefault(o => o.ValueType == ValueTypes.Duration).Value.ToDouble();
+
                         break;
 
                     // Representation of TIME_SERIES
@@ -1438,6 +1442,9 @@ namespace MTConnect.Agents
 
                         // Get SampleRate
                         sample.SampleRate = observation.Values.FirstOrDefault(o => o.ValueType == ValueTypes.SampleRate).Value.ToDouble();
+
+                        // Get Duration
+                        sample.Duration = observation.Values.FirstOrDefault(o => o.ValueType == ValueTypes.Duration).Value.ToDouble();
 
                         // Get All TimeSeries Values
                         observationValues = observation.Values.Where(o => o.ValueType.StartsWith(ValueTypes.TimeSeriesPrefix));

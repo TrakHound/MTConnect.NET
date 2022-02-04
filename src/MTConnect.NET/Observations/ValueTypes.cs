@@ -16,6 +16,8 @@ namespace MTConnect.Observations
         public const string Qualifier = "Qualifier";
         public const string SampleRate = "SampleRate";
         public const string Count = "Count";
+        public const string Duration = "Duration";
+        public const string ResetTrigger = "ResetTrigger";
         public const string TimeSeriesPrefix = "TimeSeries";
         public const string DataSetPrefix = "DataSet";
         public const string TablePrefix = "Table";

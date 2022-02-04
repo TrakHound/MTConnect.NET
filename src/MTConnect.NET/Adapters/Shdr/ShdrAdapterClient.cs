@@ -425,50 +425,21 @@ namespace MTConnect.Adapters.Shdr
             }
         }
 
-
         private string GetKey(string line)
         {
             if (!string.IsNullOrEmpty(line))
             {
-                var x = GetNextValue(line);
-                var y = GetNextSegment(line);
+                var x = ShdrLine.GetNextValue(line);
+                var y = ShdrLine.GetNextSegment(line);
 
-                if (DateTime.TryParse(x, out _))
+                var timestamp = ShdrLine.GetTimestamp(x);
+                if (timestamp.HasValue)
                 {
-                    return GetNextValue(y);
+                    return ShdrLine.GetNextValue(y);
                 }
                 else
                 {
                     return x;
-                }
-            }
-
-            return null;
-        }
-
-        private static string GetNextValue(string s)
-        {
-            if (!string.IsNullOrEmpty(s))
-            {
-                var i = s.IndexOf('|');
-                if (i >= 0)
-                {
-                    return s.Substring(0, i);
-                }
-                else return s;
-            }
-
-            return null;
-        }
-
-        private static string GetNextSegment(string s)
-        {
-            if (!string.IsNullOrEmpty(s))
-            {
-                var i = s.IndexOf('|');
-                if (i >= 0 && i < s.Length - 1)
-                {
-                    return s.Substring(i + 1);
                 }
             }
 

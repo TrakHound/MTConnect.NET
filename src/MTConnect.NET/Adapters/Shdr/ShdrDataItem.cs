@@ -98,7 +98,11 @@ namespace MTConnect.Adapters.Shdr
                 {
                     var value = valueString.Replace("|", @"\|");
 
-                    if (Timestamp > 0)
+                    if (Timestamp > 0 && Duration > 0)
+                    {
+                        return $"{Timestamp.ToDateTime().ToString("o")}@{Duration}|{Key}|{value}";
+                    }
+                    else if (Timestamp > 0)
                     {
                         return $"{Timestamp.ToDateTime().ToString("o")}|{Key}|{value}";
                     }
@@ -123,7 +127,7 @@ namespace MTConnect.Adapters.Shdr
 
                     if (dataItem.Timestamp > 0 && !ignoreTimestamp)
                     {
-                        return $"{GetTimestampString(dataItem.Timestamp)}|{dataItem.Key}|{value}";
+                        return $"{GetTimestampString(dataItem.Timestamp, dataItem.Duration)}|{dataItem.Key}|{value}";
                     }
                     else
                     {
@@ -135,14 +139,28 @@ namespace MTConnect.Adapters.Shdr
             return "";
         }
 
-        private static string GetTimestampString(long timestamp)
+        private static string GetTimestampString(long timestamp, double duration = 0)
         {
-            return timestamp.ToDateTime().ToString("o");
+            if (duration > 0)
+            {
+                return $"{timestamp.ToDateTime().ToString("o")}@{duration}";
+            }
+            else
+            {
+                return timestamp.ToDateTime().ToString("o");
+            }
         }
 
-        private static string GetTimestampString(DateTime timestamp)
+        private static string GetTimestampString(DateTime timestamp, double duration = 0)
         {
-            return timestamp.ToString("o");
+            if (duration > 0)
+            {
+                return $"{timestamp.ToString("o")}@{duration}";
+            }
+            else
+            {
+                return timestamp.ToString("o");
+            }
         }
 
 
@@ -177,12 +195,14 @@ namespace MTConnect.Adapters.Shdr
                     {
                         foreach (var timestamp in timestamps)
                         {
-                            // Get list of ShdrDataItems at this Timestamp
-                            var timestampDataItems = dataItems.Where(o => o.Timestamp == timestamp)?.ToList();
+                            string line = null;
+
+                            // Get list of ShdrDataItems at this Timestamp (No Duration)
+                            var timestampDataItems = dataItems.Where(o => o.Timestamp == timestamp && o.Duration <= 0)?.ToList();
                             if (!timestampDataItems.IsNullOrEmpty())
                             {
                                 // Add Timestamp to beginning of line
-                                var line = GetTimestampString(timestamp) + "|";
+                                line = GetTimestampString(timestamp) + "|";
 
                                 // Add each DataItem to line
                                 for (var i = 0; i < timestampDataItems.Count; i++)
@@ -194,6 +214,21 @@ namespace MTConnect.Adapters.Shdr
 
                                 // Add line to list of lines
                                 lines.Add(line);
+                            }
+
+                            // Get list of ShdrDataItems at this Timestamp (With Duration)
+                            timestampDataItems = dataItems.Where(o => o.Timestamp == timestamp && o.Duration >= 0)?.ToList();
+                            if (!timestampDataItems.IsNullOrEmpty())
+                            {
+                                foreach (var dataItem in timestampDataItems)
+                                {
+                                    line = dataItem.ToString();
+                                    if (!string.IsNullOrEmpty(line))
+                                    {
+                                        // Add line to list of lines
+                                        lines.Add(line);
+                                    }
+                                }
                             }
                         }
                     }
@@ -225,22 +260,24 @@ namespace MTConnect.Adapters.Shdr
 
                 // Start reading input and read Timestamp first (if specified)
                 var x = ShdrLine.GetNextValue(input);
+                var timestamp = ShdrLine.GetTimestamp(x);
+                var duration = ShdrLine.GetDuration(x);
 
-                if (DateTime.TryParse(x, null, System.Globalization.DateTimeStyles.AdjustToUniversal, out var timestamp))
+                if (timestamp.HasValue)
                 {
                     var y = ShdrLine.GetNextSegment(input);
-                    return FromKeyValuePairs(y, timestamp.ToUnixTime(), uppercaseValue);
+                    return FromKeyValuePairs(y, timestamp.Value.ToUnixTime(), duration.HasValue ? duration.Value : 0, uppercaseValue);
                 }
                 else
                 {
-                    return FromKeyValuePairs(input, 0, uppercaseValue);
+                    return FromKeyValuePairs(input, 0, duration.HasValue ? duration.Value : 0, uppercaseValue);
                 }
             }
 
             return dataItems;
         }
 
-        private static IEnumerable<ShdrDataItem> FromKeyValuePairs(string input, long timestamp = 0, bool uppercaseValue = true)
+        private static IEnumerable<ShdrDataItem> FromKeyValuePairs(string input, long timestamp = 0, double duration = 0, bool uppercaseValue = true)
         {
             var dataItems = new List<ShdrDataItem>();
 
@@ -255,6 +292,7 @@ namespace MTConnect.Adapters.Shdr
                         // Create new ShdrDataItem
                         var dataItem = new ShdrDataItem();
                         dataItem.Timestamp = timestamp;
+                        dataItem.Duration = duration;
 
                         // Set DataItemId
                         var x = ShdrLine.GetNextValue(y);
@@ -278,10 +316,7 @@ namespace MTConnect.Adapters.Shdr
                             x = ShdrLine.GetNextValue(y);
                             y = ShdrLine.GetNextSegment(y);
 
-                            dataItem.Values = new List<ObservationValue>
-                            {
-                                new ObservationValue(ValueTypes.CDATA, x != null ? x.ToString() : string.Empty)
-                            };
+                            dataItem.AddValue(new ObservationValue(ValueTypes.CDATA, x != null ? x.ToString() : string.Empty));
 
                             dataItems.Add(dataItem);
                         }

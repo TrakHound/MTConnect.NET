@@ -3,6 +3,7 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE', which is part of this source code package.
 
+using MTConnect.Devices;
 using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
@@ -57,7 +58,7 @@ namespace MTConnect.Streams
         /// </summary>
         [XmlAttribute("category")]
         [JsonPropertyName("category")]
-        public Devices.DataItemCategory Category { get; set; }
+        public DataItemCategory Category { get; set; }
 
         /// <summary>
         /// Type associated with the DataItem
@@ -86,7 +87,7 @@ namespace MTConnect.Streams
         /// </summary>
         [XmlAttribute("resetTriggered")]
         [JsonPropertyName("resetTriggered")]
-        public Devices.DataItemResetTrigger ResetTriggered { get; set; }
+        public DataItemResetTrigger ResetTriggered { get; set; }
 
 
         [XmlText]

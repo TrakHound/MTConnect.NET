@@ -36,10 +36,23 @@ namespace MTConnect.Observations
         public long Timestamp { get; set; }
 
         /// <summary>
+        /// The frequency at which the values were observed at
+        /// </summary>
+        public double Duration
+        {
+            get => GetValue(ValueTypes.Duration).ToDouble();
+            set => AddValue(new ObservationValue(ValueTypes.Duration, value));
+        }
+
+        /// <summary>
         /// For those DataItem elements that report data that may be periodically reset to an initial value, 
         /// resetTriggered identifies when a reported value has been reset and what has caused that reset to occur.
         /// </summary>
-        public DataItemResetTrigger ResetTrigger { get; set; }
+        public DataItemResetTrigger ResetTrigger
+        {
+            get => GetValue(ValueTypes.ResetTrigger).ConvertEnum<DataItemResetTrigger>();
+            set => AddValue(new ObservationValue(ValueTypes.ResetTrigger, value));
+        }
 
         /// <summary>
         /// A MD5 Hash of the Observation that can be used for comparison

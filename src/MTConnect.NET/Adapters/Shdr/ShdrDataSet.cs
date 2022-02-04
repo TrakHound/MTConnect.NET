@@ -113,11 +113,13 @@ namespace MTConnect.Adapters.Shdr
             {
                 // Start reading input and read Timestamp first (if specified)
                 var x = ShdrLine.GetNextValue(input);
+                var timestamp = ShdrLine.GetTimestamp(x);
+                var duration = ShdrLine.GetDuration(x);
 
-                if (DateTime.TryParse(x, null, System.Globalization.DateTimeStyles.AdjustToUniversal, out var timestamp))
+                if (timestamp.HasValue)
                 {
                     var y = ShdrLine.GetNextSegment(input);
-                    return FromLine(y, timestamp.ToUnixTime());
+                    return FromLine(y, timestamp.Value.ToUnixTime(), duration.HasValue ? duration.Value : 0);
                 }
                 else
                 {
@@ -128,7 +130,44 @@ namespace MTConnect.Adapters.Shdr
             return null;
         }
 
-        private static ShdrDataSet FromLine(string input, long timestamp = 0)
+        ///// <summary>
+        ///// Read a ShdrDataSet object from an SHDR line
+        ///// </summary>
+        ///// <param name="input">SHDR Input String</param>
+        //public static ShdrDataSet FromString(string input)
+        //{
+        //    if (!string.IsNullOrEmpty(input))
+        //    {
+        //        // Start reading input and read Timestamp first (if specified)
+        //        var x = ShdrLine.GetNextValue(input);
+
+        //        string timestampString = x;
+        //        string durationString = null;
+
+        //        var regex = new Regex(@"(.*)\@([0-9\.]+)");
+        //        var match = regex.Match(x);
+        //        if (match.Success && match.Groups != null && match.Groups.Count > 2)
+        //        {
+        //            timestampString = match.Groups[1].Value;
+        //            durationString = match.Groups[2].Value;
+        //        }
+
+
+        //        if (DateTime.TryParse(x, null, System.Globalization.DateTimeStyles.AdjustToUniversal, out var timestamp))
+        //        {
+        //            var y = ShdrLine.GetNextSegment(input);
+        //            return FromLine(y, timestamp.ToUnixTime());
+        //        }
+        //        else
+        //        {
+        //            return FromLine(input);
+        //        }
+        //    }
+
+        //    return null;
+        //}
+
+        private static ShdrDataSet FromLine(string input, long timestamp = 0, double duration = 0)
         {
             if (!string.IsNullOrEmpty(input))
             {
@@ -219,9 +258,6 @@ namespace MTConnect.Adapters.Shdr
 
                                                     if (i.IsOdd()) value = group.Value;
                                                     else key = group.Value;
-
-                                                    //if (i.IsOdd()) key = group.Value;
-                                                    //else value = group.Value;
                                                 }
                                             }
                                         }

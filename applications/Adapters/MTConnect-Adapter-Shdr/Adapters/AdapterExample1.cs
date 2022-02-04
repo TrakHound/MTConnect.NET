@@ -46,12 +46,14 @@ namespace MTConnect.Applications.Adapters.Shdr.Adapters
             _updateTimer.Interval = 100;
             _updateTimer.Elapsed += (s, e) =>
             {
-                UpdateController();
-                UpdatePath();
+                UpdateTest();
 
-                UpdateXAxis();
-                UpdateYAxis();
-                UpdateZAxis();
+                //UpdateController();
+                //UpdatePath();
+
+                //UpdateXAxis();
+                //UpdateYAxis();
+                //UpdateZAxis();
             };
             _updateTimer.Start();
         }
@@ -61,6 +63,16 @@ namespace MTConnect.Applications.Adapters.Shdr.Adapters
             if (_updateTimer != null) _updateTimer.Stop();
             if (_adapter != null) _adapter.Stop();
             if (_simulator != null) _simulator.Disconnect();
+        }
+
+
+
+        void UpdateTest()
+        {
+            // Feedrate
+            var feedrate = new ShdrDataItem("Fact", _simulator.Path.Feedrate);
+            feedrate.Duration = 3600;
+            _adapter.AddDataItem(feedrate);
         }
 
 
@@ -110,17 +122,6 @@ namespace MTConnect.Applications.Adapters.Shdr.Adapters
             // Pallet ID
             _adapter.AddDataItem(new ShdrDataItem("pallet_num", _simulator.Controller.PalletId));
         }
-
-        //void UpdatePath()
-        //{
-        //    // Variables
-        //    var variables = new List<DataSetEntry>();
-        //    foreach (var variable in _simulator.Path.Variables)
-        //    {
-        //        variables.Add(new DataSetEntry(variable.Key.ToString(), variable.Value));
-        //    }
-        //    _adapter.AddDataSet(new ShdrDataSet("cvars", variables));
-        //}
 
         void UpdatePath()
         {
@@ -188,7 +189,9 @@ namespace MTConnect.Applications.Adapters.Shdr.Adapters
             }
 
             // Feedrate
-            _adapter.AddDataItem(new ShdrDataItem("Fact", _simulator.Path.Feedrate));
+            var feedrate = new ShdrDataItem("Fact", _simulator.Path.Feedrate);
+            feedrate.Duration = 3600;
+            _adapter.AddDataItem(feedrate);
 
             // Cutting Speed
             _adapter.AddDataItem(new ShdrDataItem("cspeed", _simulator.Path.CuttingSpeed));
