@@ -29,6 +29,9 @@ Other features of MTConnect.NET :
 
 - [MTConnect MQTT Agent](https://github.com/TrakHound/MTConnect.NET/tree/master/applications/Agents/MTConnect-Agent-MQTT) : (In-Progress) An MTConnect Agent with an MQTT broker built-in.
 
+## Beta
+A [Discussion](https://github.com/TrakHound/MTConnect.NET/discussions/16) has been created to log the progress of the Beta. Feel free to use this discussion to request features or ask questions.
+
 ## Nuget Packages
 The Nuget packages for the libraries in this repo are listed below:
 - [MTConnect.NET](https://www.nuget.org/packages/MTConnect.NET/)
