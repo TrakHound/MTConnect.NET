@@ -33,6 +33,7 @@ namespace MTConnect.Agents
         private readonly IMTConnectObservationBuffer _observationBuffer;
         private readonly IMTConnectAssetBuffer _assetBuffer;
         private readonly ConcurrentDictionary<string, IObservation> _currentObservations = new ConcurrentDictionary<string, IObservation>();
+        private readonly ConcurrentDictionary<string, IEnumerable<IObservation>> _currentConditions = new ConcurrentDictionary<string, IEnumerable<IObservation>>();
         private readonly MTConnectAgentMetrics _metrics = new MTConnectAgentMetrics(TimeSpan.FromSeconds(10), TimeSpan.FromMinutes(1));
 
 
@@ -1711,7 +1712,13 @@ namespace MTConnect.Agents
                                                 obj.Level = level;
                                                 obj.NativeCode = observation.Values.FirstOrDefault(o => o.ValueType == ValueTypes.NativeCode).Value?.ToString();
                                                 obj.NativeSeverity = observation.Values.FirstOrDefault(o => o.ValueType == ValueTypes.NativeSeverity).Value?.ToString();
-                                                obj.Qualifier = observation.Values.FirstOrDefault(o => o.ValueType == ValueTypes.Qualifier).Value?.ToString();
+
+                                                var qualiferValue = observation.Values.FirstOrDefault(o => o.ValueType == ValueTypes.Qualifier).Value?.ToString();
+                                                if (Enum.TryParse<Streams.ConditionQualifier>(qualiferValue, true, out var qualifier))
+                                                {
+                                                    obj.Qualifier = qualifier;
+                                                }
+
                                                 obj.CDATA = observation.Values.FirstOrDefault(o => o.ValueType == ValueTypes.CDATA).Value?.ToString();
                                                 objs.Add(obj);
                                             }
@@ -2066,7 +2073,7 @@ namespace MTConnect.Agents
                                 new ObservationValue(valueType, value)
                             };
 
-                            _observationBuffer.AddObservation(device.Name, dataItem.Id, observation);
+                            _observationBuffer.AddObservation(device.Name, dataItem, observation);
                         }
                     }
                 }
@@ -2110,7 +2117,7 @@ namespace MTConnect.Agents
                                 new ObservationValue(valueType, value)
                             };
 
-                            await _observationBuffer.AddObservationAsync(device.Name, dataItem.Id, observation);
+                            await _observationBuffer.AddObservationAsync(device.Name, dataItem, observation);
                         }
                     }
                 }
@@ -2141,6 +2148,32 @@ namespace MTConnect.Agents
                     _currentObservations.TryRemove(hash, out var _);
                     return _currentObservations.TryAdd(hash, observation);
                 }
+            }
+
+            return false;
+        }
+
+        private bool UpdateCurrentCondition(string deviceName, DataItem dataItem, IObservation observation)
+        {
+            if (_currentConditions != null && observation != null && !string.IsNullOrEmpty(deviceName) && dataItem != null)
+            {
+                var hash = StoredObservation.CreateHash(deviceName, dataItem.Id);
+                var observations = new List<IObservation>();
+                observations.Add(observation);
+
+                _currentConditions.TryGetValue(hash, out var existingObservations);
+                if (observation != null && !existingObservations.IsNullOrEmpty())
+                {
+                    var conditionLevel = observation.GetValue(ValueTypes.Level);
+                    if (conditionLevel != Streams.ConditionLevel.NORMAL.ToString() && 
+                        conditionLevel != Streams.ConditionLevel.UNAVAILABLE.ToString())
+                    {
+                        observations.InsertRange(0, existingObservations);
+                    }
+                }
+
+                _currentConditions.TryRemove(hash, out var _);
+                return _currentConditions.TryAdd(hash, observations);
             }
 
             return false;
@@ -2484,7 +2517,7 @@ namespace MTConnect.Agents
                         };
 
                         // Add to Streaming Buffer
-                        return _observationBuffer.AddObservation(device.Name, dataItem.Id, observation);
+                        return _observationBuffer.AddObservation(device.Name, dataItem, observation);
                     }
                 }
             }
@@ -2510,7 +2543,7 @@ namespace MTConnect.Agents
                         };
 
                         // Add to Streaming Buffer
-                        return await _observationBuffer.AddObservationAsync(device.Name, dataItem.Id, observation);
+                        return await _observationBuffer.AddObservationAsync(device.Name, dataItem, observation);
                     }
                 }
             }
@@ -2537,7 +2570,7 @@ namespace MTConnect.Agents
                         };
 
                         // Add to Streaming Buffer
-                        return _observationBuffer.AddObservation(device.Name, dataItem.Id, observation);
+                        return _observationBuffer.AddObservation(device.Name, dataItem, observation);
                     }
                 }
             }
@@ -2563,7 +2596,7 @@ namespace MTConnect.Agents
                         };
 
                         // Add to Streaming Buffer
-                        return await _observationBuffer.AddObservationAsync(device.Name, dataItem.Id, observation);
+                        return await _observationBuffer.AddObservationAsync(device.Name, dataItem, observation);
                     }
                 }
             }
@@ -2590,7 +2623,7 @@ namespace MTConnect.Agents
                         };
 
                         // Add to Streaming Buffer
-                        return _observationBuffer.AddObservation(device.Name, dataItem.Id, observation);
+                        return _observationBuffer.AddObservation(device.Name, dataItem, observation);
                     }
                 }
             }
@@ -2616,7 +2649,7 @@ namespace MTConnect.Agents
                         };
 
                         // Add to Streaming Buffer
-                        return await _observationBuffer.AddObservationAsync(device.Name, dataItem.Id, observation);
+                        return await _observationBuffer.AddObservationAsync(device.Name, dataItem, observation);
                     }
                 }
             }
@@ -2976,11 +3009,23 @@ namespace MTConnect.Agents
                     {
                         // Unit Conversion - Here
 
+                        bool update;
+
                         // Check if Observation Needs to be Updated
-                        if (UpdateCurrentObservation(deviceName, dataItem, observation))
+                        if (dataItem.DataItemCategory == DataItemCategory.CONDITION)
+                        {
+                            update = UpdateCurrentCondition(deviceName, dataItem, observation);
+                        }
+                        else
+                        {
+                            update = UpdateCurrentObservation(deviceName, dataItem, observation);
+                        }
+
+                        // Check if Observation Needs to be Updated
+                        if (update)
                         {
                             // Add Observation to Streaming Buffer
-                            if (_observationBuffer.AddObservation(deviceName, dataItem.Id, observation))
+                            if (_observationBuffer.AddObservation(deviceName, dataItem, observation))
                             {
                                 if (dataItem.Type != Devices.Samples.ObservationUpdateRateDataItem.TypeId &&
                                     dataItem.Type != Devices.Samples.AssetUpdateRateDataItem.TypeId)
@@ -3052,11 +3097,23 @@ namespace MTConnect.Agents
                     {
                         // Unit Conversion - Here
 
+                        bool update;
+
                         // Check if Observation Needs to be Updated
-                        if (UpdateCurrentObservation(deviceName, dataItem, observation))
+                        if (dataItem.DataItemCategory == DataItemCategory.CONDITION)
+                        {
+                            update = UpdateCurrentCondition(deviceName, dataItem, observation);
+                        }
+                        else
+                        {
+                            update = UpdateCurrentObservation(deviceName, dataItem, observation);
+                        }
+
+                        // Check if Observation Needs to be Updated
+                        if (update)
                         {
                             // Add Observation to Streaming Buffer
-                            if (_observationBuffer.AddObservation(deviceName, dataItem.Id, observation))
+                            if (_observationBuffer.AddObservation(deviceName, dataItem, observation))
                             {
                                 if (dataItem.Type != Devices.Samples.ObservationUpdateRateDataItem.TypeId &&
                                     dataItem.Type != Devices.Samples.AssetUpdateRateDataItem.TypeId)

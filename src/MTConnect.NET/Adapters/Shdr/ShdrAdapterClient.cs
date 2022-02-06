@@ -318,7 +318,7 @@ namespace MTConnect.Adapters.Shdr
                     {
                         if (dataItem.DataItemCategory == Devices.DataItemCategory.CONDITION)
                         {
-                            var condition = ShdrCondition.FromString(line);
+                            var condition = ShdrFaultState.FromString(line);
                             if (condition != null) await _agent.AddObservationAsync(_device.Name, condition);
                         }
                         else if (dataItem.Representation == Devices.DataItemRepresentation.TABLE)

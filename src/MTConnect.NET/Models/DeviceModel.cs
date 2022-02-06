@@ -1060,9 +1060,28 @@ namespace MTConnect.Models
                     obj.NativeCode = condition.Value.NativeCode;
                     obj.NativeSeverity = condition.Value.NativeSeverity;
                     obj.Qualifier = condition.Value.Qualifier;
-                    obj.Message = condition.Value.CDATA;
+                    obj.Text = condition.Value.CDATA;
                     obj.Timestamp = timestamp;
                     objs.Add(obj);
+
+                    //var obj = new ConditionObservation(condition.Key);
+                    //obj.AddFaultState(new ConditionFaultState(
+                    //    condition.Value.Level,
+                    //    condition.Value.CDATA,
+                    //    condition.Value.NativeCode,
+                    //    condition.Value.NativeSeverity,
+                    //    condition.Value.Qualifier
+                    //    ));
+                    //obj.Timestamp = timestamp;
+                    //objs.Add(obj);
+
+                    //var obj = new ConditionObservation(condition.Key, condition.Value.Level);
+                    //obj.NativeCode = condition.Value.NativeCode;
+                    //obj.NativeSeverity = condition.Value.NativeSeverity;
+                    //obj.Qualifier = condition.Value.Qualifier;
+                    ////obj.Message = condition.Value.CDATA;
+                    //obj.Timestamp = timestamp;
+                    //objs.Add(obj);
                 }
             }
 

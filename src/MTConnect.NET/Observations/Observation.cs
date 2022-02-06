@@ -156,5 +156,10 @@ namespace MTConnect.Observations
 
             return null;
         }
+
+        public void ClearValues()
+        {
+            Values = null;
+        }
     }
 }

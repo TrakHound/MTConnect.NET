@@ -45,16 +45,16 @@ namespace MTConnect.Observations
         /// Qualifies the Condition and adds context or additional clarification.
         /// This optional attribute can be used to convey information such as HIGH or LOW type Warning and Fault condition to indicate differing types of condition states
         /// </summary>
-        public string Qualifier
+        public ConditionQualifier Qualifier
         {
-            get => GetValue(ValueTypes.Qualifier);
+            get => GetValue(ValueTypes.Qualifier).ConvertEnum<ConditionQualifier>();
             set => AddValue(new ObservationValue(ValueTypes.Qualifier, value));
         }
 
         /// <summary>
         /// The CDATA of the Condition Observation
         /// </summary>
-        public string Message
+        public string Text
         {
             get => GetValue(ValueTypes.CDATA);
             set => AddValue(new ObservationValue(ValueTypes.CDATA, value));

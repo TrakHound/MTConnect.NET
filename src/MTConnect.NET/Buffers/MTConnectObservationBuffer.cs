@@ -25,6 +25,7 @@ namespace MTConnect.Buffers
         private long _bufferIndex = 0;
 
         private readonly ConcurrentDictionary<string, StoredObservation> _currentObservations = new ConcurrentDictionary<string, StoredObservation>();
+        private readonly ConcurrentDictionary<string, IEnumerable<StoredObservation>> _currentConditions = new ConcurrentDictionary<string, IEnumerable<StoredObservation>>();
         private readonly StoredObservation[] _archiveObservations;
 
         /// <summary>
@@ -157,25 +158,6 @@ namespace MTConnect.Buffers
                 objs);
         }
 
-
-        //private string GetCurrentValue(string deviceName, string dataItemId, string valueType = ValueTypes.CDATA)
-        //{
-        //    if (!string.IsNullOrEmpty(deviceName) && !string.IsNullOrEmpty(dataItemId) && !string.IsNullOrEmpty(valueType))
-        //    {
-        //        var hash = StoredObservation.CreateHash(deviceName, dataItemId);
-        //        _currentObservations.TryGetValue(hash, out var observations);
-
-        //        if (!observations.IsNullOrEmpty())
-        //        {
-        //            var observation = observations.FirstOrDefault(o => o.ValueType == valueType);
-
-        //            return observation.Value != null ? observation.Value.ToString() : null;
-        //        }
-        //    }
-
-        //    return null;
-        //}
-
         private StreamingResults GetCurrentObservations(IEnumerable<StreamingQuery> queries)
         {
             var observations = new List<StoredObservation>();
@@ -198,9 +180,16 @@ namespace MTConnect.Buffers
                             // Create a Hash using DeviceName and DataItemId
                             var hash = StoredObservation.CreateHash(query.DeviceName, dataItemId);
 
+                            // Get From Current Observations
                             if (_currentObservations.TryGetValue(hash, out var observation))
                             {
                                 observations.Add(observation);
+                            }
+
+                            // Get From Current Observations
+                            if (_currentConditions.TryGetValue(hash, out var conditions))
+                            {
+                                observations.AddRange(conditions);
                             }
                         }
                     }
@@ -213,21 +202,6 @@ namespace MTConnect.Buffers
                 nextSequence,
                 observations);
         }
-
-        //private IEnumerable<StoredObservation> GetCurrentObservations(string deviceName, string dataItemId)
-        //{
-        //    if (!string.IsNullOrEmpty(dataItemId))
-        //    {
-        //        var objs = new List<StoredObservation>();
-
-        //        var hash = StoredObservation.CreateHash(deviceName, dataItemId);
-        //        if (_currentObservations.TryGetValue(hash, out var x)) objs.AddRange(x);
-
-        //        return objs;
-        //    }
-
-        //    return Enumerable.Empty<StoredObservation>();
-        //}
 
         private static IEnumerable<StoredObservation> GetStoredObservations(
             StoredObservation[] observations,
@@ -414,16 +388,63 @@ namespace MTConnect.Buffers
                 if (!observation.Values.IsNullOrEmpty())
                 {
                     if (_currentObservations.TryRemove(hash, out var existingObservation))
-                    {              
-                        // Update DataSet Values
-                        var existingDataSetValues = GetDataSetValues(existingObservation);
-                        if (!existingDataSetValues.IsNullOrEmpty())
+                    {
+                        // Update Observations based on Representation
+                        switch (observation.DataItemRepresentation)
                         {
-                            observation.Values = CombineDataSetValues(observation.Values, existingDataSetValues);
+                            case Devices.DataItemRepresentation.DATA_SET:
+
+                                // Update DataSet Values
+                                var existingDataSetValues = GetDataSetValues(existingObservation);
+                                if (!existingDataSetValues.IsNullOrEmpty())
+                                {
+                                    observation.Values = CombineDataSetValues(observation.Values, existingDataSetValues);
+                                }
+                                break;
                         }
                     }
 
                     _currentObservations.TryAdd(hash, observation);
+                }
+            }
+        }
+
+        private void AddCurrentCondition(StoredObservation observation)
+        {
+            if (_currentConditions != null && !string.IsNullOrEmpty(observation.DeviceName) && !string.IsNullOrEmpty(observation.DataItemId))
+            {
+                // Create a Hash using the DeviceName and the DataItemId
+                var hash = StoredObservation.CreateHash(observation.DeviceName, observation.DataItemId);
+
+                if (!observation.Values.IsNullOrEmpty())
+                {
+                    var observations = new List<StoredObservation>();
+
+                    if (_currentConditions.TryRemove(hash, out var existingObservations))
+                    {
+                        // Only Add Existing Condition Observations if Not NORMAL or UNAVAILABLE
+                        var conditionLevel = observation.Values.FirstOrDefault(o => o.ValueType == ValueTypes.Level).Value;
+                        if (conditionLevel != Streams.ConditionLevel.NORMAL.ToString() &&
+                            conditionLevel != Streams.ConditionLevel.UNAVAILABLE.ToString())
+                        {
+                            foreach (var existingObservation in existingObservations)
+                            {
+                                // Don't include existing NORMAL or UNAVAILABLE
+                                conditionLevel = existingObservation.Values.FirstOrDefault(o => o.ValueType == ValueTypes.Level).Value;
+                                if (conditionLevel != Streams.ConditionLevel.NORMAL.ToString() &&
+                                    conditionLevel != Streams.ConditionLevel.UNAVAILABLE.ToString())
+                                {
+                                    observations.Add(existingObservation);
+                                }
+                            }
+                        }
+                    }
+
+                    // Add the new Observation
+                    observations.Add(observation);
+
+                    // Add to stored List
+                    _currentConditions.TryAdd(hash, observations);
                 }
             }
         }
@@ -447,7 +468,6 @@ namespace MTConnect.Buffers
             return values;
         }
 
-
         private static IEnumerable<ObservationValue> GetDataSetValues(StoredObservation observation)
         {
             if (!observation.Values.IsNullOrEmpty())
@@ -468,44 +488,6 @@ namespace MTConnect.Buffers
             return Enumerable.Empty<ObservationValue>();
         }
 
-        //private void AddCurrentObservation(StoredObservation observation)
-        //{
-        //    if (_currentObservations != null && !string.IsNullOrEmpty(observation.DeviceName) && !string.IsNullOrEmpty(observation.DataItemId))
-        //    {
-        //        // Create a Hash using the DeviceName and the DataItemId
-        //        var hash = StoredObservation.CreateHash(observation.DeviceName, observation.DataItemId);
-
-        //        _currentObservations.TryRemove(hash, out var _);
-        //        _currentObservations.TryAdd(hash, observation);
-        //    }
-        //}
-
-        //private void AddCurrentObservations(string deviceName, string dataItemId, IEnumerable<StoredObservation> observations)
-        //{
-        //    if (_currentObservations != null && !string.IsNullOrEmpty(deviceName) && !string.IsNullOrEmpty(dataItemId))
-        //    {
-        //        var hash = StoredObservation.CreateHash(deviceName, dataItemId);
-
-        //        _currentObservations.TryGetValue(hash, out var existingObservations);
-        //        if (!observations.IsNullOrEmpty() && !existingObservations.IsNullOrEmpty())
-        //        {
-        //            var existingTimestamp = existingObservations.FirstOrDefault().Timestamp;
-        //            var timestamp = observations.FirstOrDefault().Timestamp;
-
-        //            // If new observations are newer than existing then add to buffer
-        //            if (timestamp > existingTimestamp)
-        //            {
-        //                _currentObservations.TryRemove(hash, out var _);
-        //                _currentObservations.TryAdd(hash, observations);
-        //            }
-        //        }
-        //        else
-        //        {
-        //            _currentObservations.TryRemove(hash, out var _);
-        //            _currentObservations.TryAdd(hash, observations);
-        //        }
-        //    }          
-        //}
 
         private void AddBufferObservation(StoredObservation observation)
         {
@@ -539,6 +521,7 @@ namespace MTConnect.Buffers
 
         #endregion
 
+
         /// <summary>
         /// Add a new Observation to the Buffer
         /// </summary>
@@ -547,21 +530,31 @@ namespace MTConnect.Buffers
         /// <param name="observation">The Observation to Add</param>
         /// <param name="sequence">The sequence number to add the DataItem at</param>
         /// <returns>A boolean value indicating whether the Observation was added to the Buffer successfully (true) or not (false)</returns>
-        public bool AddObservation(string deviceName, string dataItemId, IObservation observation, long sequence = 0)
+        public bool AddObservation(string deviceName, Devices.DataItem dataItem, IObservation observation)
         {
-            if (!string.IsNullOrEmpty(deviceName) && !string.IsNullOrEmpty(dataItemId) && observation != null)
+            if (!string.IsNullOrEmpty(deviceName) && dataItem != null && observation != null)
             {
                 var storedObservation = new StoredObservation
                 {
                     DeviceName = deviceName,
-                    DataItemId = dataItemId,
+                    DataItemId = dataItem.Id,
+                    DataItemCategory = dataItem.DataItemCategory,
+                    DataItemRepresentation = dataItem.Representation,
                     Values = observation.Values,
-                    Sequence = sequence > 0 ? sequence : _sequence++,
+                    Sequence = _sequence++,
                     Timestamp = observation.Timestamp
                 };
 
-                // Add to Current Observation
-                AddCurrentObservation(storedObservation);
+                if (dataItem.DataItemCategory == Devices.DataItemCategory.CONDITION)
+                {
+                    // Add to Current Conditions
+                    AddCurrentCondition(storedObservation);
+                }
+                else
+                {
+                    // Add to Current Observations
+                    AddCurrentObservation(storedObservation);
+                }
 
                 // Add to Buffer                   
                 AddBufferObservation(storedObservation);
@@ -572,68 +565,6 @@ namespace MTConnect.Buffers
             return false;
         }
 
-        ///// <summary>
-        ///// Add a new Observation to the Buffer
-        ///// </summary>
-        ///// <param name="deviceName">The name of the Device the data is associated with</param>
-        ///// <param name="dataItemId">The ID of the DataItem</param>
-        ///// <param name="valueType">The ValueType that the Data represents</param>
-        ///// <param name="value">The Value of the Data</param>
-        ///// <param name="timestamp">The timestamp (in UnixTime milliseconds) that represents when the data was recorded</param>
-        ///// <param name="sequence">The sequence number to add the DataItem at</param>
-        ///// <returns>A boolean value indicating whether the Observation was added to the Buffer successfully (true) or not (false)</returns>
-        //public bool AddObservation(string deviceName, string dataItemId, string valueType, object value, long timestamp, long sequence = 0)
-        //{
-        //    if (!string.IsNullOrEmpty(deviceName) && !string.IsNullOrEmpty(dataItemId) && !string.IsNullOrEmpty(valueType))
-        //    {
-        //        var currentValue = GetCurrentValue(deviceName, dataItemId, valueType);
-        //        var newValue = value != null ? value.ToString() : null;
-
-        //        if (currentValue != newValue)
-        //        {
-        //            var seq = sequence > 0 ? sequence : _sequence++;
-
-        //            var objs = new List<StoredObservation>
-        //                {
-        //                    new StoredObservation
-        //                    {
-        //                        DeviceName = deviceName,
-        //                        DataItemId = dataItemId,
-        //                        ValueType = valueType,
-        //                        Value = newValue,
-        //                        Timestamp = timestamp,
-        //                        Sequence = seq
-        //                    }
-        //                };
-
-        //            var currentObservationsToAdd = new List<StoredObservation>();
-        //            currentObservationsToAdd.AddRange(objs);
-
-        //            // Add Existing Observations to current if sequence the same (needed for TIME_SERIES, DATA_SET, and TABLE)
-        //            var currentObservations = GetCurrentObservations(deviceName, dataItemId);
-        //            if (!currentObservations.IsNullOrEmpty())
-        //            {
-        //                foreach (var observation in currentObservations)
-        //                {
-        //                    currentObservationsToAdd.Add(observation);
-        //                    //if (observation.Sequence == seq) currentObservationsToAdd.Add(observation);
-        //                }
-        //            }
-
-        //            // Add to Current Observations
-        //            AddCurrentObservations(deviceName, dataItemId, currentObservationsToAdd);
-
-        //            // Add to Buffer                   
-        //            AddBufferObservations(currentObservationsToAdd);
-        //            //AddBufferObservations(objs);
-
-        //            return true;
-        //        }
-        //    }
-
-        //    return false;
-        //}
-
         /// <summary>
         /// Add a new Observation to the Buffer
         /// </summary>
@@ -642,9 +573,9 @@ namespace MTConnect.Buffers
         /// <param name="observation">The Observation to Add</param>
         /// <param name="sequence">The sequence number to add the Observation at</param>
         /// <returns>A boolean value indicating whether the Observation was added to the Buffer successfully (true) or not (false)</returns>
-        public async Task<bool> AddObservationAsync(string deviceName, string dataItemId, IObservation observation, long sequence = 0)
+        public async Task<bool> AddObservationAsync(string deviceName, Devices.DataItem dataItem, IObservation observation)
         {
-            return AddObservation(deviceName, dataItemId, observation, sequence);
+            return AddObservation(deviceName, dataItem, observation);
         }
 
         #endregion

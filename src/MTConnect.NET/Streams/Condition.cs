@@ -49,7 +49,7 @@ namespace MTConnect.Streams
         /// </summary>
         [XmlAttribute("qualifier")]
         [JsonPropertyName("qualifier")]
-        public string Qualifier { get; set; }
+        public ConditionQualifier Qualifier { get; set; }
 
         /// <summary>
         /// The type of statistical calculation specified for the DataItem defined in the Device Information Model that this Condition element represents.
@@ -71,7 +71,7 @@ namespace MTConnect.Streams
         public static Condition Warning(
             string nativeCode = null,
             string nativeSeverity = null,
-            string qualifier = null,
+            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED,
             string message = null
             )
         {
@@ -89,7 +89,7 @@ namespace MTConnect.Streams
         public static Condition Fault(
             string nativeCode = null,
             string nativeSeverity = null,
-            string qualifier = null,
+            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED,
             string message = null
             )
         {

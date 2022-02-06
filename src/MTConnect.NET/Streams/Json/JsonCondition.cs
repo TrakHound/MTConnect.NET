@@ -67,7 +67,7 @@ namespace MTConnect.Streams.Json
                 Level = condition.Level.ToString();
                 NativeCode = condition.NativeCode;
                 NativeSeverity = condition.NativeSeverity;
-                Qualifier = condition.Qualifier;
+                if (condition.Qualifier != ConditionQualifier.NOT_SPECIFIED) Qualifier = condition.Qualifier.ToString();
                 Statistic = condition.Statistic;
             }
         }
@@ -91,7 +91,7 @@ namespace MTConnect.Streams.Json
             condition.Level = Level.ConvertEnum<ConditionLevel>();
             condition.NativeCode = NativeCode;
             condition.NativeSeverity = NativeSeverity;
-            condition.Qualifier = Qualifier;
+            condition.Qualifier = Qualifier.ConvertEnum<ConditionQualifier>();
 
             return condition;
         }

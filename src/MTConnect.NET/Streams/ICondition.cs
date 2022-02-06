@@ -31,7 +31,7 @@ namespace MTConnect.Streams
         /// Qualifies the Condition and adds context or additional clarification.
         /// This optional attribute can be used to convey information such as HIGH or LOW type Warning and Fault condition to indicate differing types of condition states
         /// </summary>
-        string Qualifier { get; set; }
+        ConditionQualifier Qualifier { get; set; }
 
         /// <summary>
         /// The type of statistical calculation specified for the DataItem defined in the Device Information Model that this Condition element represents.

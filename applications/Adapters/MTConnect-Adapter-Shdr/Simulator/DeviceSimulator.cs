@@ -64,7 +64,7 @@ namespace MTConnect.Applications.Adapters.Shdr.Simulator
                 Controller.EmergencyStop = false;
                 Controller.CommunicationsAlarm = null;
                 Controller.LogicAlarm = null;
-                Controller.SystemAlarm = null;
+                Controller.SystemAlarm = "Testing a new Alarm";
                 Controller.PalletId = "15";
 
                 Path.Execution = 1;

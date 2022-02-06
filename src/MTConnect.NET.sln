@@ -27,7 +27,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect-Agent", "..\appli
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect-Adapter-SHDR", "..\applications\Adapters\MTConnect-Adapter-Shdr\MTConnect-Adapter-SHDR.csproj", "{6D304AF3-083C-4E7F-B694-C95F8A0EA344}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MTConnect-Adapter-SHDR-Models", "..\applications\Adapters\MTConnect-Adapter-SHDR-Models\MTConnect-Adapter-SHDR-Models.csproj", "{CBAABED8-252E-471A-A914-3998EFB2C320}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect-Adapter-SHDR-Models", "..\applications\Adapters\MTConnect-Adapter-SHDR-Models\MTConnect-Adapter-SHDR-Models.csproj", "{CBAABED8-252E-471A-A914-3998EFB2C320}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MTConnect-Adapter-SDK", "..\..\MTConnect-Adapter-SDK\MTConnect-Adapter-SDK\MTConnect-Adapter-SDK.csproj", "{89739BA5-FF30-4104-8039-5830CE2125E1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNetAdapterSDK", "..\..\MTConnect-Adapter-SDK\dot_net_sdk-master\DotNetAdapterSDK.csproj", "{D8D08DBE-B511-4DE0-B5A9-563EBFC60C4F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -90,6 +94,18 @@ Global
 		{CBAABED8-252E-471A-A914-3998EFB2C320}.Package|Any CPU.Build.0 = Debug|Any CPU
 		{CBAABED8-252E-471A-A914-3998EFB2C320}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CBAABED8-252E-471A-A914-3998EFB2C320}.Release|Any CPU.Build.0 = Release|Any CPU
+		{89739BA5-FF30-4104-8039-5830CE2125E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{89739BA5-FF30-4104-8039-5830CE2125E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{89739BA5-FF30-4104-8039-5830CE2125E1}.Package|Any CPU.ActiveCfg = Debug|Any CPU
+		{89739BA5-FF30-4104-8039-5830CE2125E1}.Package|Any CPU.Build.0 = Debug|Any CPU
+		{89739BA5-FF30-4104-8039-5830CE2125E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{89739BA5-FF30-4104-8039-5830CE2125E1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D8D08DBE-B511-4DE0-B5A9-563EBFC60C4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D8D08DBE-B511-4DE0-B5A9-563EBFC60C4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D8D08DBE-B511-4DE0-B5A9-563EBFC60C4F}.Package|Any CPU.ActiveCfg = Debug|Any CPU
+		{D8D08DBE-B511-4DE0-B5A9-563EBFC60C4F}.Package|Any CPU.Build.0 = Debug|Any CPU
+		{D8D08DBE-B511-4DE0-B5A9-563EBFC60C4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D8D08DBE-B511-4DE0-B5A9-563EBFC60C4F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -103,6 +119,8 @@ Global
 		{06C5A9A9-7705-477D-9FD5-90175ACDC215} = {6C3F47E0-BC95-48CB-93A4-C34A0D5CA43B}
 		{6D304AF3-083C-4E7F-B694-C95F8A0EA344} = {21FC4AC7-9DE9-40DD-9984-5C7B914394A3}
 		{CBAABED8-252E-471A-A914-3998EFB2C320} = {21FC4AC7-9DE9-40DD-9984-5C7B914394A3}
+		{89739BA5-FF30-4104-8039-5830CE2125E1} = {21FC4AC7-9DE9-40DD-9984-5C7B914394A3}
+		{D8D08DBE-B511-4DE0-B5A9-563EBFC60C4F} = {21FC4AC7-9DE9-40DD-9984-5C7B914394A3}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CC13D3AD-18BF-4695-AB2A-087EF0885B20}

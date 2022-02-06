@@ -136,12 +136,18 @@ namespace MTConnect.Streams.Xml
                                 }
 
                                 // Qualifier
-                                if (!string.IsNullOrEmpty(dataItem.Qualifier))
+                                if (dataItem.Qualifier != ConditionQualifier.NOT_SPECIFIED)
                                 {
                                     var aQualifier = _document.CreateAttribute("qualifier");
-                                    aQualifier.Value = dataItem.Qualifier;
+                                    aQualifier.Value = dataItem.Qualifier.ToString();
                                     node.Attributes.Append(aQualifier);
                                 }
+                                //if (!string.IsNullOrEmpty(dataItem.Qualifier))
+                                //{
+                                //    var aQualifier = _document.CreateAttribute("qualifier");
+                                //    aQualifier.Value = dataItem.Qualifier;
+                                //    node.Attributes.Append(aQualifier);
+                                //}
 
                                 // Statistic
                                 if (!string.IsNullOrEmpty(dataItem.Statistic))

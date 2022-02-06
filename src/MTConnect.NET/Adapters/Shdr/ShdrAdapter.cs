@@ -644,7 +644,6 @@ namespace MTConnect.Adapters.Shdr
             }
         }
 
-
         private bool UpdateCondition(ShdrCondition condition)
         {
             if (condition != null)
@@ -719,32 +718,24 @@ namespace MTConnect.Adapters.Shdr
 
         public void AddCondition(ConditionObservation condition)
         {
-            AddCondition(new ShdrCondition(condition));
+            AddCondition(new ShdrFaultState(condition));
         }
 
         public void AddCondition(ShdrCondition condition)
         {
             if (condition != null)
             {
-                // Set Timestamp (if not already set)
-                if (condition.Timestamp <= 0) condition.Timestamp = UnixDateTime.Now;
+                if (!condition.FaultStates.IsNullOrEmpty())
+                {
+                    foreach (var faultState in condition.FaultStates)
+                    {
+                        // Set Timestamp (if not already set)
+                        if (faultState.Timestamp <= 0) faultState.Timestamp = UnixDateTime.Now;
+                    }
+                }
 
                 // Update Condition
                 UpdateCondition(condition);
-            }
-        }
-
-        public void AddConditions(IEnumerable<ConditionObservation> conditions)
-        {
-            if (!conditions.IsNullOrEmpty())
-            {
-                var items = new List<ShdrCondition>();
-                foreach (var item in conditions)
-                {
-                    items.Add(new ShdrCondition(item));
-                }
-
-                AddConditions(items);
             }
         }
 
@@ -755,11 +746,7 @@ namespace MTConnect.Adapters.Shdr
                 // Get List of Conditions that need to be Updated
                 foreach (var condition in conditions)
                 {
-                    // Set Timestamp (if not already set)
-                    if (condition.Timestamp <= 0) condition.Timestamp = UnixDateTime.Now;
-
-                    // Update Condition
-                    UpdateCondition(condition);
+                    AddCondition(condition);
                 }
             }
         }
@@ -772,11 +759,17 @@ namespace MTConnect.Adapters.Shdr
             {
                 foreach (var item in conditions)
                 {
-                    if (timestamp > 0) item.Timestamp = timestamp;
+                    if (!item.FaultStates.IsNullOrEmpty())
+                    {
+                        foreach (var faultState in item.FaultStates)
+                        {
+                            if (timestamp > 0) faultState.Timestamp = timestamp;
 
-                    // Create SHDR string to send
-                    var shdrLine = item.ToString();
-                    WriteLine(clientId, shdrLine);
+                            // Create SHDR string to send
+                            var shdrLine = faultState.ToString();
+                            WriteLine(clientId, shdrLine);
+                        }
+                    }
                 }
             }
         }
@@ -788,11 +781,17 @@ namespace MTConnect.Adapters.Shdr
             {
                 foreach (var item in conditions)
                 {
-                    if (timestamp > 0) item.Timestamp = timestamp;
+                    if (!item.FaultStates.IsNullOrEmpty())
+                    {
+                        foreach (var faultState in item.FaultStates)
+                        {
+                            if (timestamp > 0) faultState.Timestamp = timestamp;
 
-                    // Create SHDR string to send
-                    var shdrLine = item.ToString();
-                    await WriteLineAsync(clientId, shdrLine);
+                            // Create SHDR string to send
+                            var shdrLine = faultState.ToString();
+                            WriteLine(clientId, shdrLine);
+                        }
+                    }
                 }
             }
         }
@@ -804,7 +803,7 @@ namespace MTConnect.Adapters.Shdr
             if (!conditions.IsNullOrEmpty())
             {
                 // Set each Condition to Unavailable
-                foreach (var condition in conditions) condition.Level = Streams.ConditionLevel.UNAVAILABLE;
+                foreach (var condition in conditions) condition.Unavailable();
 
                 // Add Conditions (only will add those that are changed)
                 AddConditions(conditions);

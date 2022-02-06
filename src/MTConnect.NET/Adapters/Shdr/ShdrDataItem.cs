@@ -235,7 +235,7 @@ namespace MTConnect.Adapters.Shdr
                 }
 
                 // Convert list of lines to single string with new line terminator
-                return string.Join("\r\n", lines);
+                return string.Join(ShdrLine.LineTerminator, lines);
             }
             catch { }
 

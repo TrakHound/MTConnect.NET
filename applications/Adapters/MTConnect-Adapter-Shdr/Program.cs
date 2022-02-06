@@ -14,16 +14,30 @@ namespace MTConnect.Applications.Adapters.Shdr
         static async Task Main(string[] args)
         {
             _adapterExample1 = new Adapters.AdapterExample1("M12346");
+            _adapterExample1.Start();
+            Console.ReadLine();
 
             while (true)
             {
-                _adapterExample1.Start();
-
+                _adapterExample1.UpdateTest1();
                 Console.ReadLine();
-                _adapterExample1.Stop();
 
+                _adapterExample1.UpdateTest2();
+                Console.ReadLine();
+
+                _adapterExample1.UpdateTest3();
                 Console.ReadLine();
             }
+
+            //while (true)
+            //{
+            //    _adapterExample1.Start();
+
+            //    Console.ReadLine();
+            //    _adapterExample1.Stop();
+
+            //    Console.ReadLine();
+            //}
 
             Console.ReadLine();
         }

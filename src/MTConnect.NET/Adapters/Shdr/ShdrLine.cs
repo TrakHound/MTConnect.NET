@@ -11,8 +11,11 @@ namespace MTConnect.Adapters.Shdr
     /// <summary>
     /// Tools for analyzing and extracting data from an SHDR text line
     /// </summary>
-    internal static class ShdrLine
+    public static class ShdrLine
     {
+        public const char PipeDelimiter = '|';
+        public const string LineTerminator = "\r\n";
+
         private static Regex _timestampRegex = new Regex(@"(.*)\@([0-9\.]+)");
 
 
@@ -73,7 +76,7 @@ namespace MTConnect.Adapters.Shdr
         {
             if (!string.IsNullOrEmpty(s))
             {
-                var i = s.IndexOf('|');
+                var i = s.IndexOf(PipeDelimiter);
                 if (i >= 0)
                 {
                     return s.Substring(0, i);
@@ -88,7 +91,7 @@ namespace MTConnect.Adapters.Shdr
         {
             if (!string.IsNullOrEmpty(s))
             {
-                var i = s.IndexOf('|');
+                var i = s.IndexOf(PipeDelimiter);
                 if (i >= 0 && i < s.Length - 1)
                 {
                     return s.Substring(i + 1);
