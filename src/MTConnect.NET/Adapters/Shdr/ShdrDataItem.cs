@@ -13,6 +13,9 @@ namespace MTConnect.Adapters.Shdr
 {
     public class ShdrDataItem : Observation
     {
+        private static readonly Regex _deviceNameRegex = new Regex("(.*):(.*)");
+        private static readonly Regex _resetTriggeredRegex = new Regex(@":([A-Z_]+)\s+(.*)");
+
         public bool IsSent { get; set; }
 
 
@@ -97,18 +100,19 @@ namespace MTConnect.Adapters.Shdr
                 if (valueString != null)
                 {
                     var value = valueString.Replace("|", @"\|");
+                    var resetTriggered = ResetTriggered != Streams.ResetTriggered.NOT_SPECIFIED ? $":{ResetTriggered} " : "";
 
                     if (Timestamp > 0 && Duration > 0)
                     {
-                        return $"{Timestamp.ToDateTime().ToString("o")}@{Duration}|{Key}|{value}";
+                        return $"{Timestamp.ToDateTime().ToString("o")}@{Duration}|{Key}|{resetTriggered}{value}";
                     }
                     else if (Timestamp > 0)
                     {
-                        return $"{Timestamp.ToDateTime().ToString("o")}|{Key}|{value}";
+                        return $"{Timestamp.ToDateTime().ToString("o")}|{Key}|{resetTriggered}{value}";
                     }
                     else
                     {
-                        return $"{Key}|{value}";
+                        return $"{Key}|{resetTriggered}{value}";
                     }
                 }     
             }
@@ -124,14 +128,19 @@ namespace MTConnect.Adapters.Shdr
                 if (valueString != null)
                 {
                     var value = valueString.Replace("|", @"\|");
+                    var resetTriggered = dataItem.ResetTriggered != Streams.ResetTriggered.NOT_SPECIFIED ? $":{dataItem.ResetTriggered} " : "";
 
-                    if (dataItem.Timestamp > 0 && !ignoreTimestamp)
+                    if (dataItem.Timestamp > 0 && dataItem.Duration > 0)
                     {
-                        return $"{GetTimestampString(dataItem.Timestamp, dataItem.Duration)}|{dataItem.Key}|{value}";
+                        return $"{dataItem.Timestamp.ToDateTime().ToString("o")}@{dataItem.Duration}|{dataItem.Key}|{resetTriggered}{value}";
+                    }
+                    else if (dataItem.Timestamp > 0 && !ignoreTimestamp)
+                    {
+                        return $"{GetTimestampString(dataItem.Timestamp, dataItem.Duration)}|{dataItem.Key}|{resetTriggered}{value}";
                     }
                     else
                     {
-                        return $"{dataItem.Key}|{value}";
+                        return $"{dataItem.Key}|{resetTriggered}{value}";
                     }
                 }
             }
@@ -299,7 +308,7 @@ namespace MTConnect.Adapters.Shdr
                         y = ShdrLine.GetNextSegment(y);
 
                         // Get Device Name (if specified). Example : Device01:avail
-                        var match = new Regex("(.*):(.*)").Match(x);
+                        var match = _deviceNameRegex.Match(x);
                         if (match.Success && match.Groups.Count > 2)
                         {
                             dataItem.DeviceName = match.Groups[1].Value;
@@ -314,9 +323,23 @@ namespace MTConnect.Adapters.Shdr
                         {
                             // Set Value
                             x = ShdrLine.GetNextValue(y);
-                            y = ShdrLine.GetNextSegment(y);
 
-                            dataItem.AddValue(new ObservationValue(ValueTypes.CDATA, x != null ? x.ToString() : string.Empty));
+                            dataItem.ResetTriggered = Streams.ResetTriggered.NOT_SPECIFIED;
+                            var valueString = x;
+
+                            if (x != null)
+                            {
+                                // Parse the ResetTriggered (if exists)
+                                var resetMatch = _resetTriggeredRegex.Match(x);
+                                if (resetMatch.Success && resetMatch.Groups.Count > 2)
+                                {
+                                    dataItem.ResetTriggered = resetMatch.Groups[1].Value.ConvertEnum<Streams.ResetTriggered>();
+                                    valueString = resetMatch.Groups[2].Value;
+                                }
+                            }
+
+
+                            dataItem.AddValue(new ObservationValue(ValueTypes.CDATA, valueString != null ? valueString.ToString() : string.Empty));
 
                             dataItems.Add(dataItem);
                         }

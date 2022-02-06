@@ -387,20 +387,26 @@ namespace MTConnect.Buffers
 
                 if (!observation.Values.IsNullOrEmpty())
                 {
+                    // Get Reset Triggered Value from Observation
+                    var resetTriggered = observation.GetValue(ValueTypes.ResetTriggered).ConvertEnum<Streams.ResetTriggered>();
+
                     if (_currentObservations.TryRemove(hash, out var existingObservation))
                     {
-                        // Update Observations based on Representation
-                        switch (observation.DataItemRepresentation)
+                        if (resetTriggered == Streams.ResetTriggered.NOT_SPECIFIED)
                         {
-                            case Devices.DataItemRepresentation.DATA_SET:
+                            // Update Observations based on Representation
+                            switch (observation.DataItemRepresentation)
+                            {
+                                case Devices.DataItemRepresentation.DATA_SET:
 
-                                // Update DataSet Values
-                                var existingDataSetValues = GetDataSetValues(existingObservation);
-                                if (!existingDataSetValues.IsNullOrEmpty())
-                                {
-                                    observation.Values = CombineDataSetValues(observation.Values, existingDataSetValues);
-                                }
-                                break;
+                                    // Update DataSet Values
+                                    var existingDataSetValues = GetDataSetValues(existingObservation);
+                                    if (!existingDataSetValues.IsNullOrEmpty())
+                                    {
+                                        observation.Values = CombineDataSetValues(observation.Values, existingDataSetValues);
+                                    }
+                                    break;
+                            }
                         }
                     }
 
@@ -542,7 +548,7 @@ namespace MTConnect.Buffers
                     DataItemRepresentation = dataItem.Representation,
                     Values = observation.Values,
                     Sequence = _sequence++,
-                    Timestamp = observation.Timestamp
+                    Timestamp = observation.Timestamp                 
                 };
 
                 if (dataItem.DataItemCategory == Devices.DataItemCategory.CONDITION)

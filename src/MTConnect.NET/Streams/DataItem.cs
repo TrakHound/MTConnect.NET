@@ -87,7 +87,7 @@ namespace MTConnect.Streams
         /// </summary>
         [XmlAttribute("resetTriggered")]
         [JsonPropertyName("resetTriggered")]
-        public DataItemResetTrigger ResetTriggered { get; set; }
+        public ResetTriggered ResetTriggered { get; set; }
 
 
         [XmlText]

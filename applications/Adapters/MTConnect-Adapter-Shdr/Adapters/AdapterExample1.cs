@@ -114,29 +114,89 @@ namespace MTConnect.Applications.Adapters.Shdr.Adapters
         //    _adapter.AddCondition(condition);
         //}
 
-
-        public void UpdateTest1()
+        public void UpdateDataSet1()
         {
-            var condition = new ShdrCondition("system_cond");
-            condition.AddWarning("Bad Request", "400");
-            condition.AddFault("Not Found", "404");
-            condition.AddFault("Method Not Found", "405");
-            _adapter.AddCondition(condition);
+            var dataSet = new ShdrDataSet("testDataSet");
+            dataSet.Entries = new List<DataSetEntry>
+            {
+                new DataSetEntry("T1", 12.3456),
+                new DataSetEntry("T2", 23.4567),
+                new DataSetEntry("T3", 34.5678),
+                new DataSetEntry("T4", 45.6789)
+            };
+
+            _adapter.AddDataSet(dataSet);
         }
 
-        public void UpdateTest2()
+        public void UpdateDataSet2()
         {
-            var condition = new ShdrCondition("system_cond");
-            condition.AddWarning("Access Denied", "401");
-            _adapter.AddCondition(condition);
+            var dataSet = new ShdrDataSet("testDataSet");
+            dataSet.Entries = new List<DataSetEntry>
+            {
+                new DataSetEntry("T5", 12.3456),
+                new DataSetEntry("T6", 23.4567)
+            };
+
+            _adapter.AddDataSet(dataSet);
         }
 
-        public void UpdateTest3()
+        public void UpdateDataSet3()
         {
-            var condition = new ShdrCondition("system_cond");
-            condition.Normal();
-            _adapter.AddCondition(condition);
+            var dataSet = new ShdrDataSet("testDataSet");
+            dataSet.Entries = new List<DataSetEntry>
+            {
+                new DataSetEntry("T3", null, true),
+                new DataSetEntry("T5", "TESTING")
+            };
+
+            _adapter.AddDataSet(dataSet);
         }
+
+        public void UpdateDataSet4()
+        {
+            var dataSet = new ShdrDataSet("testDataSet");
+            dataSet.ResetTriggered = ResetTriggered.MANUAL;
+            dataSet.Entries = new List<DataSetEntry>
+            {
+                new DataSetEntry("T1", 9.1234),
+                new DataSetEntry("T2", 7.0000)
+            };
+
+            _adapter.AddDataSet(dataSet);
+        }
+
+
+        public void UpdateTestTable()
+        {
+            var table = new ShdrTable("testTable");
+
+
+            _adapter.AddTable(table);
+        }
+
+
+        //public void UpdateTest1()
+        //{
+        //    var condition = new ShdrCondition("system_cond");
+        //    condition.AddWarning("Bad Request", "400");
+        //    condition.AddFault("Not Found", "404");
+        //    condition.AddFault("Method Not Found", "405");
+        //    _adapter.AddCondition(condition);
+        //}
+
+        //public void UpdateTest2()
+        //{
+        //    var condition = new ShdrCondition("system_cond");
+        //    condition.AddWarning("Access Denied", "401");
+        //    _adapter.AddCondition(condition);
+        //}
+
+        //public void UpdateTest3()
+        //{
+        //    var condition = new ShdrCondition("system_cond");
+        //    condition.Normal();
+        //    _adapter.AddCondition(condition);
+        //}
 
 
 

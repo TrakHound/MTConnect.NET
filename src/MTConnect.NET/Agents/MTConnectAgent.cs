@@ -1419,6 +1419,20 @@ namespace MTConnect.Agents
             sample.Sequence = observation.Sequence;
             sample.Timestamp = observation.Timestamp.ToDateTime();
 
+            // Set Representation Flags
+            switch (dataItemDefinition.Representation)
+            {
+                case DataItemRepresentation.TIME_SERIES: sample.IsTimeSeries = true; break;
+                case DataItemRepresentation.DATA_SET: sample.IsDataSet = true; break;
+                case DataItemRepresentation.TABLE: sample.IsTable = true; break;
+            }
+
+            // Get ResetTriggered
+            sample.ResetTriggered = observation.GetValue(ValueTypes.ResetTriggered).ConvertEnum<Streams.ResetTriggered>();
+
+            // Get Duration
+            sample.Duration = observation.GetValue(ValueTypes.Duration).ToDouble();
+
             if (!observation.Values.IsNullOrEmpty())
             {
                 IEnumerable<ObservationValue> observationValues = null;
@@ -1429,26 +1443,17 @@ namespace MTConnect.Agents
                     case DataItemRepresentation.VALUE:
 
                         // Get CDATA
-                        sample.CDATA = observation.Values.FirstOrDefault(o => o.ValueType == ValueTypes.CDATA).Value?.ToString();
-
-                        // Get Duration
-                        sample.Duration = observation.Values.FirstOrDefault(o => o.ValueType == ValueTypes.Duration).Value.ToDouble();
-
+                        sample.CDATA = observation.GetValue(ValueTypes.CDATA);
                         break;
 
                     // Representation of TIME_SERIES
                     case DataItemRepresentation.TIME_SERIES:
 
-                        sample.IsTimeSeries = true;
-
                         // Get SampleRate
-                        sample.SampleRate = observation.Values.FirstOrDefault(o => o.ValueType == ValueTypes.SampleRate).Value.ToDouble();
-
-                        // Get Duration
-                        sample.Duration = observation.Values.FirstOrDefault(o => o.ValueType == ValueTypes.Duration).Value.ToDouble();
+                        sample.SampleRate = observation.GetValue(ValueTypes.SampleRate).ToDouble();
 
                         // Get All TimeSeries Values
-                        observationValues = observation.Values.Where(o => o.ValueType.StartsWith(ValueTypes.TimeSeriesPrefix));
+                        observationValues = observation.GetValues(ValueTypes.TimeSeriesPrefix);
                         if (!observationValues.IsNullOrEmpty())
                         {
                             var timeSeriesSamples = new List<string>();
@@ -1467,10 +1472,8 @@ namespace MTConnect.Agents
                     // Representation of DATA_SET
                     case DataItemRepresentation.DATA_SET:
 
-                        sample.IsDataSet = true;
-
                         // Get All Entry Values
-                        observationValues = observation.Values.Where(o => o.ValueType.StartsWith(ValueTypes.DataSetPrefix));
+                        observationValues = observation.GetValues(ValueTypes.DataSetPrefix);
                         if (!observationValues.IsNullOrEmpty())
                         {
                             var dataSetEntries = new List<Streams.Entry>();
@@ -1495,10 +1498,8 @@ namespace MTConnect.Agents
 
                     case DataItemRepresentation.TABLE:
 
-                        sample.IsTable = true;
-
                         // Get All Entry Values
-                        observationValues = observation.Values.Where(o => o.ValueType.StartsWith(ValueTypes.TablePrefix));
+                        observationValues = observation.GetValues(ValueTypes.TablePrefix);
                         if (!observationValues.IsNullOrEmpty())
                         {
                             var entries = new List<Streams.Entry>();
@@ -1584,6 +1585,16 @@ namespace MTConnect.Agents
             e.Sequence = observation.Sequence;
             e.Timestamp = observation.Timestamp.ToDateTime();
 
+            // Set Representation Flags
+            switch (dataItemDefinition.Representation)
+            {
+                case DataItemRepresentation.DATA_SET: e.IsDataSet = true; break;
+                case DataItemRepresentation.TABLE: e.IsTable = true; break;
+            }
+
+            // Get ResetTriggered
+            e.ResetTriggered = observation.GetValue(ValueTypes.ResetTriggered).ConvertEnum<Streams.ResetTriggered>();
+
             if (!observation.Values.IsNullOrEmpty())
             {
                 IEnumerable<ObservationValue> observationValues = null;
@@ -1594,16 +1605,14 @@ namespace MTConnect.Agents
                     case DataItemRepresentation.VALUE:
 
                         // Get CDATA
-                        e.CDATA = observation.Values.FirstOrDefault(o => o.ValueType == ValueTypes.CDATA).Value?.ToString();
+                        e.CDATA = observation.GetValue(ValueTypes.CDATA);
                         break;
 
                     // Representation of DATA_SET
                     case DataItemRepresentation.DATA_SET:
 
-                        e.IsDataSet = true;
-
                         // Get All Entry Values
-                        observationValues = observation.Values.Where(o => o.ValueType.StartsWith(ValueTypes.DataSetPrefix));
+                        observationValues = observation.GetValues(ValueTypes.DataSetPrefix);
                         if (!observationValues.IsNullOrEmpty())
                         {
                             var dataSetEntries = new List<Streams.Entry>();
@@ -1628,10 +1637,8 @@ namespace MTConnect.Agents
 
                     case DataItemRepresentation.TABLE:
 
-                        e.IsTable = true;
-
                         // Get All Entry Values
-                        observationValues = observation.Values.Where(o => o.ValueType.StartsWith(ValueTypes.TablePrefix));
+                        observationValues = observation.GetValues(ValueTypes.TablePrefix);
                         if (!observationValues.IsNullOrEmpty())
                         {
                             var entries = new List<Streams.Entry>();
@@ -3112,6 +3119,14 @@ namespace MTConnect.Agents
                         // Check if Observation Needs to be Updated
                         if (update)
                         {
+                            if (observation.GetValue(ValueTypes.ResetTriggered) != null)
+                            {
+                                if (update)
+                                {
+
+                                }
+                            }
+
                             // Add Observation to Streaming Buffer
                             if (_observationBuffer.AddObservation(deviceName, dataItem, observation))
                             {

@@ -12,10 +12,11 @@ namespace MTConnect.Adapters
     {
         public ShdrDataSetEntry() { }
 
-        public ShdrDataSetEntry(string key, object value)
+        public ShdrDataSetEntry(string key, object value, bool removed = false)
         {
             Key = key;
             Value = value?.ToString();
+            Removed = removed;
         }
 
         public ShdrDataSetEntry(DataSetEntry entry)
@@ -24,6 +25,7 @@ namespace MTConnect.Adapters
             {
                 Key = entry.Key;
                 Value = entry.Value;
+                Removed = entry.Removed;
             }
         }
 
@@ -31,7 +33,14 @@ namespace MTConnect.Adapters
         {
             if (!string.IsNullOrEmpty(Key))
             {
-                return $"{Key}={Value}";
+                if (Removed)
+                {
+                    return $"{Key}=";
+                }
+                else
+                {
+                    return $"{Key}={Value}";
+                }
             }
 
             return "";

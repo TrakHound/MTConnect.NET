@@ -59,7 +59,7 @@ namespace MTConnect.Streams.Json
                 Type = condition.Type;
                 SubType = condition.SubType;
                 CompositionId = condition.CompositionId;
-                if (condition.ResetTriggered != Devices.DataItemResetTrigger.NONE) ResetTriggered = condition.ResetTriggered.ToString();
+                if (condition.ResetTriggered != Streams.ResetTriggered.NOT_SPECIFIED) ResetTriggered = condition.ResetTriggered.ToString();
                 CDATA = condition.CDATA;
                 Entries = condition.Entries;
                 if (condition.Count > 0) Count = condition.Count;
@@ -83,7 +83,7 @@ namespace MTConnect.Streams.Json
             condition.Type = Type;
             condition.SubType = SubType;
             condition.CompositionId = CompositionId;
-            condition.ResetTriggered = ResetTriggered.ConvertEnum<Devices.DataItemResetTrigger>();
+            condition.ResetTriggered = ResetTriggered.ConvertEnum<ResetTriggered>();
             condition.CDATA = CDATA;
             condition.Entries = Entries;
             condition.Count = Count.HasValue ? Count.Value : 0; ;

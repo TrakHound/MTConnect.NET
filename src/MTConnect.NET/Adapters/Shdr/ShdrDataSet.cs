@@ -12,12 +12,29 @@ namespace MTConnect.Adapters.Shdr
 {
     public class ShdrDataSet : DataSetObservation
     {
+        private const string _emptySingleEntryPattern = @"^([^=\s]+)\={0,1}$";
+        private const string _emptyEntryPattern = @"([^=\s]+)\s+";
+        private const string _emptyEntryWithEqualsPattern = @"([^=\s]+)\={1}\s+";
+        private const string _entryPattern = @"([^=\s]+)\={1}([^\s\'\""\{\}]+)";
+        private const string _entrySingleQuotesPattern = @"([^=\s]+)\={ 1}('[^'\\]*(?:\\.[^'\\]*)*')";
+        private const string _entryDoubleQuotesPattern = @"([^=\s]+)\={1}(\""[^'\\]*(?:\\.[^'\\]*)*\"")";
+        private const string _entryCurlyBracesPattern = @"([^=\s]+)\={1}(\{[^'\\]*(?:\\.[^'\\]*)*\})";
+
+        private static readonly Regex _entriesRegex = new Regex($"{_emptySingleEntryPattern}|{_emptyEntryPattern}|{_emptyEntryWithEqualsPattern}|{_entryPattern}|{_entrySingleQuotesPattern}|{_entryDoubleQuotesPattern}|{_entryCurlyBracesPattern}");
+        private static readonly Regex _resetTriggeredRegex = new Regex(@":([A-Z_]+)\s+(.*)");
+
+
         public bool IsUnavailable { get; set; }
 
         public bool IsSent { get; set; }
 
 
         public ShdrDataSet() { }
+
+        public ShdrDataSet(string key)
+        {
+            Key = key;
+        }
 
         public ShdrDataSet(string key, IEnumerable<DataSetEntry> entries)
         {
@@ -57,13 +74,15 @@ namespace MTConnect.Adapters.Shdr
         /// <returns>SHDR string</returns>
         public override string ToString()
         {
-            if (!string.IsNullOrEmpty(Key) && !Entries.IsNullOrEmpty())
+            if (!string.IsNullOrEmpty(Key))
             {
+                var resetTriggered = ResetTriggered != Streams.ResetTriggered.NOT_SPECIFIED ? $":{ResetTriggered} " : "";
+
                 if (Timestamp > 0)
                 {
                     if (!IsUnavailable)
                     {
-                        return $"{Timestamp.ToDateTime().ToString("o")}|{Key}|{PrintEntries(Entries)}";
+                        return $"{Timestamp.ToDateTime().ToString("o")}|{Key}|{resetTriggered}{PrintEntries(Entries)}";
                     }
                     else
                     {
@@ -74,7 +93,7 @@ namespace MTConnect.Adapters.Shdr
                 {
                     if (!IsUnavailable)
                     {
-                        return $"{Key}|{PrintEntries(Entries)}";
+                        return $"{Key}|{resetTriggered}{PrintEntries(Entries)}";
                     }
                     else
                     {
@@ -130,43 +149,6 @@ namespace MTConnect.Adapters.Shdr
             return null;
         }
 
-        ///// <summary>
-        ///// Read a ShdrDataSet object from an SHDR line
-        ///// </summary>
-        ///// <param name="input">SHDR Input String</param>
-        //public static ShdrDataSet FromString(string input)
-        //{
-        //    if (!string.IsNullOrEmpty(input))
-        //    {
-        //        // Start reading input and read Timestamp first (if specified)
-        //        var x = ShdrLine.GetNextValue(input);
-
-        //        string timestampString = x;
-        //        string durationString = null;
-
-        //        var regex = new Regex(@"(.*)\@([0-9\.]+)");
-        //        var match = regex.Match(x);
-        //        if (match.Success && match.Groups != null && match.Groups.Count > 2)
-        //        {
-        //            timestampString = match.Groups[1].Value;
-        //            durationString = match.Groups[2].Value;
-        //        }
-
-
-        //        if (DateTime.TryParse(x, null, System.Globalization.DateTimeStyles.AdjustToUniversal, out var timestamp))
-        //        {
-        //            var y = ShdrLine.GetNextSegment(input);
-        //            return FromLine(y, timestamp.ToUnixTime());
-        //        }
-        //        else
-        //        {
-        //            return FromLine(input);
-        //        }
-        //    }
-
-        //    return null;
-        //}
-
         private static ShdrDataSet FromLine(string input, long timestamp = 0, double duration = 0)
         {
             if (!string.IsNullOrEmpty(input))
@@ -186,6 +168,20 @@ namespace MTConnect.Adapters.Shdr
                         x = ShdrLine.GetNextValue(y);
                         if (!string.IsNullOrEmpty(x))
                         {
+                            dataSet.ResetTriggered = Streams.ResetTriggered.NOT_SPECIFIED;
+                            var entriesString = x;
+
+                            // Parse the ResetTriggered (if exists)
+                            //var resetRegex = new Regex(@":([A-Z_]+)\s+(.*)");
+                            //var resetMatch = resetRegex.Match(x);
+                            var resetMatch = _resetTriggeredRegex.Match(x);
+                            if (resetMatch.Success && resetMatch.Groups.Count > 2)
+                            {
+                                dataSet.ResetTriggered = resetMatch.Groups[1].Value.ConvertEnum<Streams.ResetTriggered>();
+                                entriesString = resetMatch.Groups[2].Value;
+                            }
+
+
                             var entries = new List<DataSetEntry>();
 
                             // Regular Expression that matches groups like x=y and takes into account the ', ", and {} characters
@@ -195,9 +191,9 @@ namespace MTConnect.Adapters.Shdr
                             // \s*([^\=\s]+)\=?\s+|\s*([^\=\s]+)\={1}([^\s\'\"\{\}])|\s*([^\=\s]+)\={1}'(.*)'|\s*([^\=\s]+)\={1}"(.*)"|\s*([^\=\s]+)\={1}\{(.*)\}
                             //var regex = new Regex(@"\s*([^\=\s]+)\=([^\s\'\""]+)|\s*([^\=\s]+)\='(.*)'|\s*([^\=\s]+)\=""(.*)""");
                             //var regex = new Regex(@"([^=\s]+)\s+|([^=\s]+)\={1}\s+|([^=\s]+)\={1}([^\s\'\""\{\}]+)|([^=\s]+)\={ 1}('[^'\\]*(?:\\.[^'\\]*)*')|([^=\s]+)\={1}(\""[^'\\]*(?:\\.[^'\\]*)*\"")|([^=\s]+)\={1}(\{[^'\\]*(?:\\.[^'\\]*)*\})");
-                            var regex = new Regex(@"^([^=\s]+)\={0,1}$|([^=\s]+)\s+|([^=\s]+)\={1}\s+|([^=\s]+)\={1}([^\s\'\""\{\}]+)|([^=\s]+)\={ 1}('[^'\\]*(?:\\.[^'\\]*)*')|([^=\s]+)\={1}(\""[^'\\]*(?:\\.[^'\\]*)*\"")|([^=\s]+)\={1}(\{[^'\\]*(?:\\.[^'\\]*)*\})");
+                            //var regex = new Regex(@"^([^=\s]+)\={0,1}$|([^=\s]+)\s+|([^=\s]+)\={1}\s+|([^=\s]+)\={1}([^\s\'\""\{\}]+)|([^=\s]+)\={ 1}('[^'\\]*(?:\\.[^'\\]*)*')|([^=\s]+)\={1}(\""[^'\\]*(?:\\.[^'\\]*)*\"")|([^=\s]+)\={1}(\{[^'\\]*(?:\\.[^'\\]*)*\})");
 
-                            var matches = regex.Matches(x);
+                            var matches = _entriesRegex.Matches(entriesString);
                             if (matches != null && matches.Count > 0)
                             {
                                 foreach (Match match in matches)
@@ -268,7 +264,7 @@ namespace MTConnect.Adapters.Shdr
                                 }
                             }
 
-                            if (dataSet.Entries.IsNullOrEmpty())
+                            if (dataSet.ResetTriggered != Streams.ResetTriggered.NOT_SPECIFIED || dataSet.Entries.IsNullOrEmpty())
                             {
                                 dataSet.Entries = entries;
 

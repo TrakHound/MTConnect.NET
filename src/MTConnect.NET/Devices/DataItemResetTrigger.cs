@@ -5,6 +5,11 @@
 
 namespace MTConnect.Devices
 {
+    /// <summary>
+    /// ResetTrigger is an XML element that describes the reset action that causes a reset to occur.
+    /// It is additional information regarding the meaning of the data that establishes an understanding of the
+    /// time frame that the data represents so that the data may be correctly understood by a client software application.
+    /// </summary>
     public enum DataItemResetTrigger
     {
         /// <summary>

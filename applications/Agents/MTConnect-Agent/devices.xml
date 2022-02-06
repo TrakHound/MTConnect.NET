@@ -254,6 +254,8 @@
 								<DataItem category="SAMPLE" id="orientation" nativeUnits="DEGREE_3D" type="ORIENTATION" units="DEGREE_3D"/>
 								<DataItem category="EVENT" id="partnumber" subType="PART_NUMBER" type="PART_UNIQUE_ID"/>
 								<DataItem category="EVENT" id="partserialnumber" subType="SERIAL_NUMBER" type="PART_UNIQUE_ID"/>
+								<DataItem category="EVENT" id="testDataSet" type="TOOL_OFFSET" representation="DATA_SET"/>
+								<DataItem category="EVENT" id="testTable" type="WORK_OFFSET" representation="TABLE"/>
 							</DataItems>
 						</Path>
 					</Components>

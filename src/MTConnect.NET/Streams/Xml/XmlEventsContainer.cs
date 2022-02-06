@@ -146,7 +146,7 @@ namespace MTConnect.Streams.Xml
                 }
 
                 // ResetTriggered
-                if (dataItem.ResetTriggered != Devices.DataItemResetTrigger.NONE)
+                if (dataItem.ResetTriggered != ResetTriggered.NOT_SPECIFIED)
                 {
                     attribute = _document.CreateAttribute("resetTriggered");
                     attribute.Value = dataItem.ResetTriggered.ToString();

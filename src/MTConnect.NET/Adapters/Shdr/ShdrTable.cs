@@ -19,6 +19,11 @@ namespace MTConnect.Adapters.Shdr
 
         public ShdrTable() { }
 
+        public ShdrTable(string key)
+        {
+            Key = key;
+        }
+
         public ShdrTable(string key, IEnumerable<TableEntry> entries)
         {
             Key = key;

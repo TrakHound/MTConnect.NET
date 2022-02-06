@@ -6,6 +6,7 @@
 using MTConnect.Devices;
 using MTConnect.Observations;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MTConnect.Agents
 {
@@ -26,79 +27,6 @@ namespace MTConnect.Agents
         public long Timestamp { get; set; }
 
 
-        //public StoredObservation(string deviceName, DataItem dataItem, IObservation observation)
-        //{
-        //    DeviceName = deviceName;
-        //    DataItemId = null;
-        //    DataItemCategory = DataItemCategory.SAMPLE;
-        //    DataItemRepresentation = DataItemRepresentation.VALUE;
-        //    Sequence = 0;
-        //    Timestamp = 0;
-
-        //    if (dataItem != null)
-        //    {
-        //        DataItemId = dataItem.Id;
-        //        DataItemCategory = dataItem.DataItemCategory;
-        //        DataItemRepresentation = dataItem.Representation;
-        //    }
-
-        //    var values = new List<ObservationValue>();
-        //    if (observation != null)
-        //    {
-        //        Timestamp = observation.Timestamp;
-
-        //        if (!observation.Values.IsNullOrEmpty())
-        //        {
-        //            values.AddRange(observation.Values);
-        //        }
-        //    }
-        //    Values = values;
-        //}
-
-        //public StoredObservation(string deviceName, string dataItemId, IObservation observation)
-        //{
-        //    DeviceName = deviceName;
-        //    DataItemId = dataItemId;
-        //    Sequence = 0;
-        //    Timestamp = 0;
-
-        //    var values = new List<ObservationValue>();
-        //    if (observation != null)
-        //    {
-        //        Timestamp = observation.Timestamp;
-
-        //        if (!observation.Values.IsNullOrEmpty())
-        //        {
-        //            values.AddRange(observation.Values);
-        //        }
-        //    }
-        //    Values = values;
-        //}
-
-        //public StoredObservation(
-        //    string deviceName,
-        //    string dataItemId,
-        //    IObservation observation,
-        //    long sequence)
-        //{
-        //    DeviceName = deviceName;
-        //    DataItemId = dataItemId;
-        //    Sequence = sequence;
-        //    Timestamp = 0;
-
-        //    var values = new List<ObservationValue>();
-        //    if (observation != null)
-        //    {
-        //        Timestamp = observation.Timestamp;
-
-        //        if (!observation.Values.IsNullOrEmpty())
-        //        {
-        //            values.AddRange(observation.Values);
-        //        }
-        //    }
-        //    Values = values;
-        //}
-
         public string CreateHash()
         {
             var s = $"{DeviceName}|{DataItemId}";
@@ -109,6 +37,38 @@ namespace MTConnect.Agents
         {
             var s = $"{deviceName}|{dataItemId}";
             return s.ToMD5Hash();
+        }
+
+
+        public void AddValue(ObservationValue observationValue)
+        {
+            List<ObservationValue> x = null;
+            if (!Values.IsNullOrEmpty()) x = Values.ToList();
+            if (x == null) x = new List<ObservationValue>();
+            x.RemoveAll(o => o.ValueType == observationValue.ValueType);
+            x.Add(observationValue);
+            Values = x;
+        }
+
+        public string GetValue(string valueType)
+        {
+            if (!string.IsNullOrEmpty(valueType) && !Values.IsNullOrEmpty())
+            {
+                var x = Values.FirstOrDefault(o => o.ValueType == valueType);
+                return x.Value;
+            }
+
+            return null;
+        }
+
+        public IEnumerable<ObservationValue> GetValues(string valueTypePrefix)
+        {
+            if (!string.IsNullOrEmpty(valueTypePrefix) && !Values.IsNullOrEmpty())
+            {
+                return Values.Where(o => o.ValueType != null && o.ValueType.StartsWith(valueTypePrefix));
+            }
+
+            return null;
         }
     }
 }

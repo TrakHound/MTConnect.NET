@@ -4,6 +4,7 @@
 // file 'LICENSE.txt', which is part of this source code package.
 
 using MTConnect.Devices;
+using MTConnect.Streams;
 using System.Collections.Generic;
 
 namespace MTConnect.Observations
@@ -42,7 +43,7 @@ namespace MTConnect.Observations
         /// For those DataItem elements that report data that may be periodically reset to an initial value, 
         /// resetTriggered identifies when a reported value has been reset and what has caused that reset to occur.
         /// </summary>
-        DataItemResetTrigger ResetTrigger { get; set; }
+        ResetTriggered ResetTriggered { get; set; }
 
 
         string GetValue(string valueType);

@@ -4,6 +4,7 @@
 // file 'LICENSE.txt', which is part of this source code package.
 
 using MTConnect.Devices;
+using MTConnect.Streams;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -48,10 +49,10 @@ namespace MTConnect.Observations
         /// For those DataItem elements that report data that may be periodically reset to an initial value, 
         /// resetTriggered identifies when a reported value has been reset and what has caused that reset to occur.
         /// </summary>
-        public DataItemResetTrigger ResetTrigger
+        public ResetTriggered ResetTriggered
         {
-            get => GetValue(ValueTypes.ResetTrigger).ConvertEnum<DataItemResetTrigger>();
-            set => AddValue(new ObservationValue(ValueTypes.ResetTrigger, value));
+            get => GetValue(ValueTypes.ResetTriggered).ConvertEnum<ResetTriggered>();
+            set => AddValue(new ObservationValue(ValueTypes.ResetTriggered, value));
         }
 
         /// <summary>
@@ -142,6 +143,7 @@ namespace MTConnect.Observations
             List<ObservationValue> x = null;
             if (!Values.IsNullOrEmpty()) x = Values.ToList();
             if (x == null) x = new List<ObservationValue>();
+            x.RemoveAll(o => o.ValueType == observationValue.ValueType);
             x.Add(observationValue);
             Values = x;
         }
