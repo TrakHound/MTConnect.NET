@@ -10,16 +10,11 @@ namespace MTConnect.Streams.Samples
     /// </summary>
     public class AxisFeedrateValue : SampleValue
     {
-        protected override double MetricConversion => 25.4;
-        protected override double InchConversion => 0.03937008;
-        protected override string MetricUnits => "MILLIMETER/SECOND";
-        protected override string InchUnits => "INCH/SECOND";
-
-
-        public AxisFeedrateValue(double feedrate, UnitSystem unitSystem = UnitSystem.METRIC)
+        public AxisFeedrateValue(double nativeValue, string nativeUnits = Devices.Samples.AxisFeedrateDataItem.DefaultUnits)
         {
-            Value = feedrate;
-            UnitSystem = unitSystem;
+            Value = nativeValue;
+            _units = Devices.Samples.AxisFeedrateDataItem.DefaultUnits;
+            _nativeUnits = nativeUnits;
         }
     }
 }

@@ -13,6 +13,7 @@ namespace MTConnect.Devices.Samples
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "PATH_FEEDRATE";
         public const string NameId = "feed";
+        public const string DefaultUnits = Devices.Units.MILLIMETER_PER_SECOND;
 
         public enum SubTypes
         {
@@ -45,9 +46,9 @@ namespace MTConnect.Devices.Samples
 
         public PathFeedrateDataItem()
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
-            Units = Devices.Units.MILLIMETER_PER_SECOND;
+            Units = DefaultUnits;
         }
 
         public PathFeedrateDataItem(
@@ -55,11 +56,11 @@ namespace MTConnect.Devices.Samples
             SubTypes subType)
         {
             Id = CreateId(parentId, NameId, GetSubTypeId(subType));
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             SubType = subType.ToString();
             Name = NameId;
-            Units = Devices.Units.MILLIMETER_PER_SECOND;
+            Units = DefaultUnits;
         }
 
         public static string GetSubTypeId(SubTypes subType)

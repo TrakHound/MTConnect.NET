@@ -17,14 +17,14 @@ namespace MTConnect.Devices.Conditions
 
         public ActuatorCondition()
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
         }
 
         public ActuatorCondition(string parentId)
         {
             Id = CreateId(parentId, NameId);
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             Name = NameId;
         }

@@ -10,13 +10,11 @@ namespace MTConnect.Streams.Samples
     /// </summary>
     public class PowerFactorValue : SampleValue
     {
-        protected override string MetricUnits => "PERCENT";
-        protected override string InchUnits => "PERCENT";
-
-
-        public PowerFactorValue(double percent)
+        public PowerFactorValue(double nativeValue, string nativeUnits = Devices.Samples.PowerFactorDataItem.DefaultUnits)
         {
-            Value = percent;
+            Value = nativeValue;
+            _units = Devices.Samples.PowerFactorDataItem.DefaultUnits;
+            _nativeUnits = nativeUnits;
         }
     }
 }

@@ -20,14 +20,14 @@ namespace MTConnect.Devices.Events
 
         public InterfaceStateDataItem()
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
         }
 
         public InterfaceStateDataItem(string parentId)
         {
             Id = CreateId(parentId, NameId);
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             Name = NameId;
         }

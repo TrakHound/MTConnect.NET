@@ -18,14 +18,14 @@ namespace MTConnect.Devices.Events
 
         public VariableDataItem()
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
         }
 
         public VariableDataItem(string parentId)
         {
             Id = CreateId(parentId, NameId);
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             Name = NameId;
         }

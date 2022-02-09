@@ -17,14 +17,14 @@ namespace MTConnect.Devices.Events
 
         public SpecificationLimitDataItem()
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
         }
 
         public SpecificationLimitDataItem(string parentId)
         {
             Id = CreateId(parentId, NameId);
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             Name = NameId;
             Representation = DataItemRepresentation.DATA_SET;

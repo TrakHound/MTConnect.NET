@@ -10,16 +10,11 @@ namespace MTConnect.Streams.Samples
     /// </summary>
     public class TensionValue : SampleValue
     {
-        protected override double MetricConversion => 4.448221615254;
-        protected override double InchConversion => 0.2248089431;
-        protected override string MetricUnits => "NEWTON";
-        protected override string InchUnits => "POUND";
-
-
-        public TensionValue(double force, UnitSystem unitSystem = UnitSystem.METRIC)
+        public TensionValue(double nativeValue, string nativeUnits = Devices.Samples.TensionDataItem.DefaultUnits)
         {
-            Value = force;
-            UnitSystem = unitSystem;
+            Value = nativeValue;
+            _units = Devices.Samples.TensionDataItem.DefaultUnits;
+            _nativeUnits = nativeUnits;
         }
     }
 }

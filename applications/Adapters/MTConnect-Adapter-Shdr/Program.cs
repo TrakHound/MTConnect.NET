@@ -19,17 +19,23 @@ namespace MTConnect.Applications.Adapters.Shdr
 
             while (true)
             {
-                _adapterExample1.UpdateDataSet1();
+                _adapterExample1.UpdateTemperature1();
                 Console.ReadLine();
 
-                _adapterExample1.UpdateDataSet2();
+                _adapterExample1.UpdateTemperature2();
                 Console.ReadLine();
 
-                _adapterExample1.UpdateDataSet3();
-                Console.ReadLine();
+                //_adapterExample1.UpdateDataSet1();
+                //Console.ReadLine();
 
-                _adapterExample1.UpdateDataSet4();
-                Console.ReadLine();
+                //_adapterExample1.UpdateDataSet2();
+                //Console.ReadLine();
+
+                //_adapterExample1.UpdateDataSet3();
+                //Console.ReadLine();
+
+                //_adapterExample1.UpdateDataSet4();
+                //Console.ReadLine();
 
                 //_adapterExample1.UpdateTest1();
                 //Console.ReadLine();

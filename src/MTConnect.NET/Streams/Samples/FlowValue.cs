@@ -10,18 +10,11 @@ namespace MTConnect.Streams.Samples
     /// </summary>
     public class FlowValue : SampleValue
     {
-        protected override double MetricConversion => 3.785411789132;
-        protected override double InchConversion => 0.2641720524;
-        protected override string MetricUnits => "LITER/SECOND";
-        protected override string InchUnits => "GALLON/SECOND";
-
-
-        public FlowValue() { }
-
-        public FlowValue(double flow, UnitSystem unitSystem = UnitSystem.METRIC)
+        public FlowValue(double nativeValue, string nativeUnits = Devices.Samples.FlowDataItem.DefaultUnits)
         {
-            Value = flow;
-            UnitSystem = unitSystem;
+            Value = nativeValue;
+            _units = Devices.Samples.FlowDataItem.DefaultUnits;
+            _nativeUnits = nativeUnits;
         }
     }
 }

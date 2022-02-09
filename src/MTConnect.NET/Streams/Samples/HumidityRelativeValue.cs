@@ -10,13 +10,11 @@ namespace MTConnect.Streams.Samples
     /// </summary>
     public class HumidityRelativeValue : SampleValue
     {
-        protected override string MetricUnits => "PERCENT";
-        protected override string InchUnits => "PERCENT";
-
-
-        public HumidityRelativeValue(double percent)
+        public HumidityRelativeValue(double nativeValue, string nativeUnits = Devices.Samples.HumidityRelativeDataItem.DefaultUnits)
         {
-            Value = percent;
+            Value = nativeValue;
+            _units = Devices.Samples.HumidityRelativeDataItem.DefaultUnits;
+            _nativeUnits = nativeUnits;
         }
     }
 }

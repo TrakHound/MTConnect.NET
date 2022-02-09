@@ -10,16 +10,11 @@ namespace MTConnect.Streams.Samples
     /// </summary>
     public class YDimensionValue : SampleValue
     {
-        protected override double MetricConversion => 25.4;
-        protected override double InchConversion => 0.03937008;
-        protected override string MetricUnits => "MILLIMETER";
-        protected override string InchUnits => "INCH";
-
-
-        public YDimensionValue(double dimension, UnitSystem unitSystem = UnitSystem.METRIC)
+        public YDimensionValue(double nativeValue, string nativeUnits = Devices.Samples.YDimensionDataItem.DefaultUnits)
         {
-            Value = dimension;
-            UnitSystem = unitSystem;
+            Value = nativeValue;
+            _units = Devices.Samples.YDimensionDataItem.DefaultUnits;
+            _nativeUnits = nativeUnits;
         }
     }
 }

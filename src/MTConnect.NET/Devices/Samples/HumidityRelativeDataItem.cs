@@ -13,6 +13,7 @@ namespace MTConnect.Devices.Samples
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "HUMIDITY_RELATIVE";
         public const string NameId = "humidityRel";
+        public const string DefaultUnits = Devices.Units.PERCENT;
 
         public enum SubTypes
         {
@@ -30,9 +31,9 @@ namespace MTConnect.Devices.Samples
 
         public HumidityRelativeDataItem()
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
-            Units = Devices.Units.PERCENT;
+            Units = DefaultUnits;
         }
 
         public HumidityRelativeDataItem(
@@ -41,11 +42,11 @@ namespace MTConnect.Devices.Samples
             )
         {
             Id = CreateId(parentId, NameId, GetSubTypeId(subType));
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             SubType = subType.ToString();
             Name = NameId;
-            Units = Devices.Units.PERCENT;
+            Units = DefaultUnits;
         }
 
 

@@ -10,16 +10,11 @@ namespace MTConnect.Streams.Samples
     /// </summary>
     public class DepositionMassValue : SampleValue
     {
-        protected override double MetricConversion => 1;
-        protected override double InchConversion => 1;
-        protected override string MetricUnits => "MILLIGRAM";
-        protected override string InchUnits => "MILLIGRAM";
-
-
-        public DepositionMassValue(double mass, UnitSystem unitSystem = UnitSystem.METRIC)
+        public DepositionMassValue(double nativeValue, string nativeUnits = Devices.Samples.DepositionMassDataItem.DefaultUnits)
         {
-            Value = mass;
-            UnitSystem = unitSystem;
+            Value = nativeValue;
+            _units = Devices.Samples.DepositionMassDataItem.DefaultUnits;
+            _nativeUnits = nativeUnits;
         }
     }
 }

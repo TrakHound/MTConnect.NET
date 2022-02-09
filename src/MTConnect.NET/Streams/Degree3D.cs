@@ -13,6 +13,9 @@ namespace MTConnect.Streams
     /// </summary>
     public class Degree3D
     {
+        private static readonly Regex _regex = new Regex(@"([0-9\.]*) ([0-9\.]*) ([0-9\.]*)");
+
+
         public double A { get; set; }
 
         public double B { get; set; }
@@ -32,12 +35,11 @@ namespace MTConnect.Streams
             return $"{A} {B} {C}";
         }
 
-        public Degree3D FromString(string input)
+        public static Degree3D FromString(string input)
         {
             if (!string.IsNullOrEmpty(input))
             {
-                var regex = new Regex(@"([0-9\.]*) ([0-9\.]*) ([0-9\.]*)");
-                var match = regex.Match(input);
+                var match = _regex.Match(input);
                 if (match.Success)
                 {
                     double a = 0;

@@ -10,13 +10,11 @@ namespace MTConnect.Streams.Samples
     /// </summary>
     public class WattageValue : SampleValue
     {
-        protected override string MetricUnits => "WATT";
-        protected override string InchUnits => "WATT";
-
-
-        public WattageValue(double wattage)
+        public WattageValue(double nativeValue, string nativeUnits = Devices.Samples.WattageDataItem.DefaultUnits)
         {
-            Value = wattage;
+            Value = nativeValue;
+            _units = Devices.Samples.WattageDataItem.DefaultUnits;
+            _nativeUnits = nativeUnits;
         }
     }
 }

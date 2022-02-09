@@ -13,22 +13,23 @@ namespace MTConnect.Devices.Samples
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "TILT";
         public const string NameId = "tilt";
+        public const string DefaultUnits = Devices.Units.MICRO_RADIAN;
 
 
         public TiltDataItem()
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
-            Units = Devices.Units.MICRO_RADIAN;
+            Units = DefaultUnits;
         }
 
         public TiltDataItem(string parentId)
         {
             Id = CreateId(parentId, NameId);
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             Name = NameId;
-            Units = Devices.Units.MICRO_RADIAN;
+            Units = DefaultUnits;
         }
     }
 }

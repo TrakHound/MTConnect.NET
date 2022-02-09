@@ -17,14 +17,14 @@ namespace MTConnect.Devices.Events
 
         public DeviceAddedDataItem()
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
         }
 
         public DeviceAddedDataItem(string parentId)
         {
             Id = CreateId(parentId, NameId);
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             Name = NameId;
         }

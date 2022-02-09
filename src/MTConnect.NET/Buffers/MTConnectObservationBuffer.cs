@@ -544,14 +544,14 @@ namespace MTConnect.Buffers
                 {
                     DeviceName = deviceName,
                     DataItemId = dataItem.Id,
-                    DataItemCategory = dataItem.DataItemCategory,
+                    DataItemCategory = dataItem.Category,
                     DataItemRepresentation = dataItem.Representation,
                     Values = observation.Values,
                     Sequence = _sequence++,
                     Timestamp = observation.Timestamp                 
                 };
 
-                if (dataItem.DataItemCategory == Devices.DataItemCategory.CONDITION)
+                if (dataItem.Category == Devices.DataItemCategory.CONDITION)
                 {
                     // Add to Current Conditions
                     AddCurrentCondition(storedObservation);

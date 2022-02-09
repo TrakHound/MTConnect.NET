@@ -14,22 +14,25 @@ namespace MTConnect.Devices.Samples
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "OBSERVATION_UPDATE_RATE";
         public const string NameId = "obsvrUpdateRate";
+        public const string DefaultUnits = Devices.Units.COUNT_PER_SECOND;
 
 
         public ObservationUpdateRateDataItem()
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
-            Units = Devices.Units.COUNT_PER_SECOND;
+            Units = DefaultUnits;
+            SignificantDigits = 1;
         }
 
         public ObservationUpdateRateDataItem(string parentId)
         {
             Id = CreateId(parentId, NameId);
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             Name = NameId;
-            Units = Devices.Units.COUNT_PER_SECOND;
+            Units = DefaultUnits;
+            SignificantDigits = 1;
         }
     }
 }

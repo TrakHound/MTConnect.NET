@@ -10,16 +10,11 @@ namespace MTConnect.Streams.Samples
     /// </summary>
     public class HumidityAbsoluteValue : SampleValue
     {
-        protected override double MetricConversion => 27679904.7102672;
-        protected override double InchConversion => 0.000000036127292;
-        protected override string MetricUnits => "GRAM/CUBIC_METER";
-        protected override string InchUnits => "POUND/CUBIC_INCH";
-
-
-        public HumidityAbsoluteValue(double humidity, UnitSystem unitSystem = UnitSystem.METRIC)
+        public HumidityAbsoluteValue(double nativeValue, string nativeUnits = Devices.Samples.HumidityAbsoluteDataItem.DefaultUnits)
         {
-            Value = humidity;
-            UnitSystem = unitSystem;
+            Value = nativeValue;
+            _units = Devices.Samples.HumidityAbsoluteDataItem.DefaultUnits;
+            _nativeUnits = nativeUnits;
         }
     }
 }

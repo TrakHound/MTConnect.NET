@@ -10,13 +10,11 @@ namespace MTConnect.Streams.Samples
     /// </summary>
     public class PHValue : SampleValue
     {
-        protected override string MetricUnits => "PH";
-        protected override string InchUnits => "PH";
-
-
-        public PHValue(double ph)
+        public PHValue(double nativeValue, string nativeUnits = Devices.Samples.PHDataItem.DefaultUnits)
         {
-            Value = ph;
+            Value = nativeValue;
+            _units = Devices.Samples.PHDataItem.DefaultUnits;
+            _nativeUnits = nativeUnits;
         }
     }
 }

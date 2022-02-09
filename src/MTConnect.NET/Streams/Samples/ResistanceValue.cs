@@ -10,13 +10,11 @@ namespace MTConnect.Streams.Samples
     /// </summary>
     public class ResistanceValue : SampleValue
     {
-        protected override string MetricUnits => "OHM";
-        protected override string InchUnits => "OHM";
-
-
-        public ResistanceValue(double resistance)
+        public ResistanceValue(double nativeValue, string nativeUnits = Devices.Samples.ResistanceDataItem.DefaultUnits)
         {
-            Value = resistance;
+            Value = nativeValue;
+            _units = Devices.Samples.ResistanceDataItem.DefaultUnits;
+            _nativeUnits = nativeUnits;
         }
     }
 }

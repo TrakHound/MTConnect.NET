@@ -45,14 +45,14 @@ namespace MTConnect.Devices.Events
 
         public OperatingSystemDataItem()
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
         }
 
         public OperatingSystemDataItem(string parentId)
         {
             Id = CreateId(parentId, NameId);
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             Name = NameId;
         }
@@ -63,7 +63,7 @@ namespace MTConnect.Devices.Events
             )
         {
             Id = CreateId(parentId, NameId, GetSubTypeId(subType));
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             SubType = subType.ToString();
             Name = NameId;

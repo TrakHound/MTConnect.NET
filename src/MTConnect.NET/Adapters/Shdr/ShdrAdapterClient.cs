@@ -316,7 +316,7 @@ namespace MTConnect.Adapters.Shdr
                     var dataItem = GetDataItem(line);
                     if (dataItem != null)
                     {
-                        if (dataItem.DataItemCategory == Devices.DataItemCategory.CONDITION)
+                        if (dataItem.Category == Devices.DataItemCategory.CONDITION)
                         {
                             var condition = ShdrFaultState.FromString(line);
                             if (condition != null) await _agent.AddObservationAsync(_device.Name, condition);
@@ -392,7 +392,7 @@ namespace MTConnect.Adapters.Shdr
                 var dataItems = _device.GetDataItems();
                 if (!dataItems.IsNullOrEmpty())
                 {
-                    dataItems = dataItems.Where(o => o.DataItemCategory != Devices.DataItemCategory.CONDITION);
+                    dataItems = dataItems.Where(o => o.Category != Devices.DataItemCategory.CONDITION);
                     if (!dataItems.IsNullOrEmpty())
                     {
                         foreach (var dataItem in dataItems)
@@ -412,7 +412,7 @@ namespace MTConnect.Adapters.Shdr
                 var dataItems = _device.GetDataItems();
                 if (!dataItems.IsNullOrEmpty())
                 {
-                    dataItems = dataItems.Where(o => o.DataItemCategory == Devices.DataItemCategory.CONDITION);
+                    dataItems = dataItems.Where(o => o.Category == Devices.DataItemCategory.CONDITION);
                     if (!dataItems.IsNullOrEmpty())
                     {
                         foreach (var dataItem in dataItems)

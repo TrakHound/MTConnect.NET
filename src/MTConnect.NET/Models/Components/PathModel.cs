@@ -327,20 +327,20 @@ namespace MTConnect.Models.Components
         {
             var x = new PathPositionModel();
 
-            x.Actual = (PathPositionValue)GetSampleValue(PathPositionDataItem.NameId, PathPositionDataItem.GetSubTypeId(PathPositionDataItem.SubTypes.ACTUAL, coordinateSystem));
-            x.ActualDataItem = GetDataItem(PathPositionDataItem.NameId, PathPositionDataItem.GetSubTypeId(PathPositionDataItem.SubTypes.ACTUAL, coordinateSystem));
+            //x.Actual = GetSampleValue<PathPositionValue>(PathPositionDataItem.NameId, PathPositionDataItem.GetSubTypeId(PathPositionDataItem.SubTypes.ACTUAL, coordinateSystem));
+            //x.ActualDataItem = GetDataItem(PathPositionDataItem.NameId, PathPositionDataItem.GetSubTypeId(PathPositionDataItem.SubTypes.ACTUAL, coordinateSystem));
 
-            x.Commanded = (PathPositionValue)GetSampleValue(PathPositionDataItem.NameId, PathPositionDataItem.GetSubTypeId(PathPositionDataItem.SubTypes.COMMANDED, coordinateSystem));
-            x.CommandedDataItem = GetDataItem(PathPositionDataItem.NameId, PathPositionDataItem.GetSubTypeId(PathPositionDataItem.SubTypes.COMMANDED, coordinateSystem));
+            //x.Commanded = (PathPositionValue)GetSampleValue(PathPositionDataItem.NameId, PathPositionDataItem.GetSubTypeId(PathPositionDataItem.SubTypes.COMMANDED, coordinateSystem));
+            //x.CommandedDataItem = GetDataItem(PathPositionDataItem.NameId, PathPositionDataItem.GetSubTypeId(PathPositionDataItem.SubTypes.COMMANDED, coordinateSystem));
 
-            x.Programmed = (PathPositionValue)GetSampleValue(PathPositionDataItem.NameId, PathPositionDataItem.GetSubTypeId(PathPositionDataItem.SubTypes.PROGRAMMED, coordinateSystem));
-            x.ProgrammedDataItem = GetDataItem(PathPositionDataItem.NameId, PathPositionDataItem.GetSubTypeId(PathPositionDataItem.SubTypes.PROGRAMMED, coordinateSystem));
+            //x.Programmed = (PathPositionValue)GetSampleValue(PathPositionDataItem.NameId, PathPositionDataItem.GetSubTypeId(PathPositionDataItem.SubTypes.PROGRAMMED, coordinateSystem));
+            //x.ProgrammedDataItem = GetDataItem(PathPositionDataItem.NameId, PathPositionDataItem.GetSubTypeId(PathPositionDataItem.SubTypes.PROGRAMMED, coordinateSystem));
 
-            x.Probe = (PathPositionValue)GetSampleValue(PathPositionDataItem.NameId, PathPositionDataItem.GetSubTypeId(PathPositionDataItem.SubTypes.PROBE, coordinateSystem));
-            x.ProbeDataItem = GetDataItem(PathPositionDataItem.NameId, PathPositionDataItem.GetSubTypeId(PathPositionDataItem.SubTypes.PROBE, coordinateSystem));
+            //x.Probe = (PathPositionValue)GetSampleValue(PathPositionDataItem.NameId, PathPositionDataItem.GetSubTypeId(PathPositionDataItem.SubTypes.PROBE, coordinateSystem));
+            //x.ProbeDataItem = GetDataItem(PathPositionDataItem.NameId, PathPositionDataItem.GetSubTypeId(PathPositionDataItem.SubTypes.PROBE, coordinateSystem));
 
-            x.Target = (PathPositionValue)GetSampleValue(PathPositionDataItem.NameId, PathPositionDataItem.GetSubTypeId(PathPositionDataItem.SubTypes.TARGET, coordinateSystem));
-            x.TargetDataItem = GetDataItem(PathPositionDataItem.NameId, PathPositionDataItem.GetSubTypeId(PathPositionDataItem.SubTypes.TARGET, coordinateSystem));
+            //x.Target = (PathPositionValue)GetSampleValue(PathPositionDataItem.NameId, PathPositionDataItem.GetSubTypeId(PathPositionDataItem.SubTypes.TARGET, coordinateSystem));
+            //x.TargetDataItem = GetDataItem(PathPositionDataItem.NameId, PathPositionDataItem.GetSubTypeId(PathPositionDataItem.SubTypes.TARGET, coordinateSystem));
 
             return x;
         }

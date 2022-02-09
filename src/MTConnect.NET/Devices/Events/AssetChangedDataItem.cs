@@ -18,7 +18,7 @@ namespace MTConnect.Devices.Events
 
         public AssetChangedDataItem()
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             MinimumVersion = MTConnectVersions.Version14;
         }
@@ -26,7 +26,7 @@ namespace MTConnect.Devices.Events
         public AssetChangedDataItem(string parentId)
         {
             Id = CreateId(parentId, NameId);
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             Name = NameId;
             MinimumVersion = MTConnectVersions.Version14;

@@ -13,22 +13,23 @@ namespace MTConnect.Devices.Samples
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "DENSITY";
         public const string NameId = "density";
+        public const string DefaultUnits = Devices.Units.MILLIGRAM_PER_CUBIC_MILLIMETER;
 
 
         public DensityDataItem()
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
-            Units = Devices.Units.MILLIGRAM_PER_CUBIC_MILLIMETER;
+            Units = DefaultUnits;
         }
 
         public DensityDataItem(string parentId)
         {
             Id = CreateId(parentId, NameId);
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             Name = NameId;
-            Units = Devices.Units.MILLIGRAM_PER_CUBIC_MILLIMETER;
+            Units = DefaultUnits;
         }
     }
 }

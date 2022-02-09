@@ -306,7 +306,7 @@ namespace MTConnect.Models
                 {
                     foreach (var dataItem in DataItemModels)
                     {
-                        if (dataItem.DataItemCategory == DataItemCategory.CONDITION)
+                        if (dataItem.Category == DataItemCategory.CONDITION)
                         {
                             var obj = stream.Conditions.FirstOrDefault(o => o.DataItemId == dataItem.Id);
                             if (obj != null) AddCondition(dataItem, obj);
@@ -347,7 +347,7 @@ namespace MTConnect.Models
                 {
                     foreach (var dataItem in component.DataItemModels)
                     {
-                        if (dataItem.DataItemCategory == DataItemCategory.CONDITION)
+                        if (dataItem.Category == DataItemCategory.CONDITION)
                         {
                             var obj = stream.Conditions.FirstOrDefault(o => o.DataItemId == dataItem.Id);
                             if (obj != null) component.AddCondition(dataItem, obj);
@@ -386,7 +386,7 @@ namespace MTConnect.Models
             {
                 foreach (var dataItem in composition.DataItemModels)
                 {
-                    if (dataItem.DataItemCategory == DataItemCategory.CONDITION)
+                    if (dataItem.Category == DataItemCategory.CONDITION)
                     {
                         var obj = stream.Conditions.FirstOrDefault(o => o.DataItemId == dataItem.Id);
                         if (obj != null) composition.AddCondition(dataItem, obj);
@@ -674,7 +674,7 @@ namespace MTConnect.Models
                     try
                     {
                         var obj = (T)Activator.CreateInstance(typeof(T));
-                        obj.DataItemCategory = dataItem.DataItemCategory;
+                        obj.Category = dataItem.Category;
                         obj.Id = dataItem.Id;
                         obj.Name = dataItem.Name;
                         obj.Type = dataItem.Type;

@@ -13,22 +13,23 @@ namespace MTConnect.Devices.Samples
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "VELOCITY";
         public const string NameId = "vel";
+        public const string DefaultUnits = Devices.Units.MILLIMETER_PER_SECOND;
 
 
         public VelocityDataItem()
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
-            Units = Devices.Units.MILLIMETER_PER_SECOND;
+            Units = DefaultUnits;
         }
 
         public VelocityDataItem(string parentId)
         {
             Id = CreateId(parentId, NameId);
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             Name = NameId;
-            Units = Devices.Units.MILLIMETER_PER_SECOND;
+            Units = DefaultUnits;
         }
     }
 }

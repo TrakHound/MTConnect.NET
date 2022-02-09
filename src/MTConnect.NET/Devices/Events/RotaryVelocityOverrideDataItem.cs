@@ -17,14 +17,14 @@ namespace MTConnect.Devices.Events
 
         public RotaryVelocityOverrideDataItem()
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
         }
 
         public RotaryVelocityOverrideDataItem(string parentId)
         {
             Id = CreateId(parentId, NameId);
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             Name = NameId;
             Units = Devices.Units.PERCENT;

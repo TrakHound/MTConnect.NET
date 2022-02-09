@@ -57,7 +57,7 @@ namespace MTConnect.Devices.Json
         /// If provided, the value MUST be numeric.
         /// </summary>
         [JsonPropertyName("nativeScale")]
-        public string NativeScale { get; set; }
+        public double? NativeScale { get; set; }
 
         /// <summary>
         /// The native units used by the Component.
@@ -171,13 +171,13 @@ namespace MTConnect.Devices.Json
         {
             if (dataItem != null)
             {
-                DataItemCategory = dataItem.DataItemCategory.ToString();
+                DataItemCategory = dataItem.Category.ToString();
                 Id = dataItem.Id;
                 Name = dataItem.Name;
                 Type = dataItem.Type;
                 SubType = dataItem.SubType;
                 NativeUnits = dataItem.NativeUnits;
-                NativeScale = dataItem.NativeScale;
+                if (dataItem.NativeScale > 0) NativeScale = dataItem.NativeScale;
                 if (dataItem.SampleRate > 0) SampleRate = dataItem.SampleRate;
                 Source = dataItem.Source;
                 if (!dataItem.Filters.IsNullOrEmpty()) Relationships = dataItem.Relationships;
@@ -200,13 +200,13 @@ namespace MTConnect.Devices.Json
             var dataItem = DataItem.Create(Type);
             if (dataItem == null) dataItem = new DataItem();
 
-            dataItem.DataItemCategory = DataItemCategory.ConvertEnum<DataItemCategory>();
+            dataItem.Category = DataItemCategory.ConvertEnum<DataItemCategory>();
             dataItem.Id = Id;
             dataItem.Name = Name;
             dataItem.Type = Type;
             dataItem.SubType = SubType;
             dataItem.NativeUnits = NativeUnits;
-            dataItem.NativeScale = NativeScale;
+            dataItem.NativeScale = NativeScale.HasValue ? NativeScale.Value : 0;
             dataItem.SampleRate = SampleRate.HasValue ? SampleRate.Value : 0;
             dataItem.Source = Source;
             dataItem.Relationships = Relationships;

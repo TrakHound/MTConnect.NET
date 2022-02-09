@@ -13,22 +13,23 @@ namespace MTConnect.Devices.Samples
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "FLOW";
         public const string NameId = "flow";
+        public const string DefaultUnits = Devices.Units.LITER_PER_SECOND;
 
 
         public FlowDataItem()
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
-            Units = Devices.Units.LITER_PER_SECOND;
+            Units = DefaultUnits;
         }
 
         public FlowDataItem(string parentId)
         {
             Id = CreateId(parentId, NameId);
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             Name = NameId;
-            Units = Devices.Units.LITER_PER_SECOND;
+            Units = DefaultUnits;
             SignificantDigits = 1;
         }
     }

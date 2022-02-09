@@ -10,16 +10,11 @@ namespace MTConnect.Streams.Samples
     /// </summary>
     public class CapacitySpatialValue : SampleValue
     {
-        protected override double MetricConversion => 16387.064;
-        protected override double InchConversion => 0.0000610237;
-        protected override string MetricUnits => "CUBIC_MILLIMETER";
-        protected override string InchUnits => "CUBIC_INCH";
-
-
-        public CapacitySpatialValue(double capacity, UnitSystem unitSystem = UnitSystem.METRIC)
+        public CapacitySpatialValue(double nativeValue, string nativeUnits = Devices.Samples.CapacitySpatialDataItem.DefaultUnits)
         {
-            Value = capacity;
-            UnitSystem = unitSystem;
+            Value = nativeValue;
+            _units = Devices.Samples.CapacitySpatialDataItem.DefaultUnits;
+            _nativeUnits = nativeUnits;
         }
     }
 }

@@ -8,15 +8,46 @@ namespace MTConnect.Streams.Samples
     /// <summary>
     /// A measured or calculated position of a control point reported by a piece of equipment expressed in WORK coordinates.
     /// </summary>
-    public class PathPositionValue : SampleValue
+    public class PathPositionValue : SampleValue<Position3D>
     {
-        protected override string MetricUnits => "MILLIMETER_3D";
-        protected override string InchUnits => "MILLIMETER_3D";
-
-
-        public PathPositionValue(double x, double y, double z)
+        public override Position3D Value
         {
-            Value = new Position3D(x, y, z).ToString();
+            get
+            {
+                var position = Position3D.FromString(CDATA);
+                if (position != null)
+                {
+                    position.X = ConvertUnits(position.X, Units, NativeUnits);
+                    position.Y = ConvertUnits(position.Y, Units, NativeUnits);
+                    position.Z = ConvertUnits(position.Z, Units, NativeUnits);
+
+                    return position;
+                }
+
+                return null;
+            }
+            set => CDATA = value.ToString();
+        }
+
+        public override Position3D NativeValue
+        {
+            get => Position3D.FromString(CDATA);
+            set => CDATA = value.ToString();
+        }
+
+
+        public PathPositionValue(double nativeX, double nativeY, double nativeZ, string nativeUnits = Devices.Samples.PathPositionDataItem.DefaultUnits)
+        {
+            Value = new Position3D(nativeX, nativeY, nativeZ);
+            _units = Devices.Samples.PathPositionDataItem.DefaultUnits;
+            _nativeUnits = nativeUnits;
+        }
+
+
+        public override string ToString()
+        {
+            if (Value != null) return Value.ToString();
+            return null;
         }
     }
 }

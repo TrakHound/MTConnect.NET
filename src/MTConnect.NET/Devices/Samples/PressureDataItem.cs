@@ -13,22 +13,23 @@ namespace MTConnect.Devices.Samples
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "PRESSURE";
         public const string NameId = "pres";
+        public const string DefaultUnits = Devices.Units.PASCAL;
 
 
         public PressureDataItem()
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
-            Units = Devices.Units.PASCAL;
+            Units = DefaultUnits;
         }
 
         public PressureDataItem(string parentId)
         {
             Id = CreateId(parentId, NameId);
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             Name = NameId;
-            Units = Devices.Units.PASCAL;
+            Units = DefaultUnits;
             SignificantDigits = 1;
         }
     }

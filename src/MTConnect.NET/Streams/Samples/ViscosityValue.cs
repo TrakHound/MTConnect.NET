@@ -10,16 +10,11 @@ namespace MTConnect.Streams.Samples
     /// </summary>
     public class ViscosityValue : SampleValue
     {
-        protected override double MetricConversion => 1;
-        protected override double InchConversion => 1;
-        protected override string MetricUnits => "PASCAL_SECOND";
-        protected override string InchUnits => "PASCAL_SECOND";
-
-
-        public ViscosityValue(double viscosity, UnitSystem unitSystem = UnitSystem.METRIC)
+        public ViscosityValue(double nativeValue, string nativeUnits = Devices.Samples.ViscosityDataItem.DefaultUnits)
         {
-            Value = viscosity;
-            UnitSystem = unitSystem;
+            Value = nativeValue;
+            _units = Devices.Samples.ViscosityDataItem.DefaultUnits;
+            _nativeUnits = nativeUnits;
         }
     }
 }

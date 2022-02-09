@@ -13,22 +13,23 @@ namespace MTConnect.Devices.Samples
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "ELECTRICAL_ENERGY";
         public const string NameId = "elecEnergy";
+        public const string DefaultUnits = Devices.Units.WATT_SECOND;
 
 
         public ElectricalEnergyDataItem()
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
-            Units = Devices.Units.WATT_SECOND;
+            Units = DefaultUnits;
         }
 
         public ElectricalEnergyDataItem(string parentId)
         {
             Id = CreateId(parentId, NameId);
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             Name = NameId;
-            Units = Devices.Units.WATT_SECOND;
+            Units = DefaultUnits;
         }
     }
 }

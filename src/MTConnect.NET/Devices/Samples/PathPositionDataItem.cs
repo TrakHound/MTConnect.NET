@@ -14,6 +14,7 @@ namespace MTConnect.Devices.Samples
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "PATH_POSITION";
         public const string NameId = "pathPos";
+        public const string DefaultUnits = Devices.Units.MILLIMETER;
 
         public enum SubTypes
         {
@@ -46,9 +47,9 @@ namespace MTConnect.Devices.Samples
 
         public PathPositionDataItem()
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
-            Units = Devices.Units.MILLIMETER;
+            Units = DefaultUnits;
         }
 
         public PathPositionDataItem(
@@ -58,12 +59,12 @@ namespace MTConnect.Devices.Samples
             )
         {
             Id = CreateId(parentId, NameId, GetSubTypeId(subType, coordinateSystem));
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             SubType = subType.ToString();
             Name = NameId;
             CoordinateSystem = coordinateSystem;
-            Units = Devices.Units.MILLIMETER;
+            Units = DefaultUnits;
         }
 
 

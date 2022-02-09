@@ -10,13 +10,11 @@ namespace MTConnect.Streams.Samples
     /// </summary>
     public class FrequencyValue : SampleValue
     {
-        protected override string MetricUnits => "HERTZ";
-        protected override string InchUnits => "HERTZ";
-
-
-        public FrequencyValue(double hertz)
+        public FrequencyValue(double nativeValue, string nativeUnits = Devices.Samples.FrequencyDataItem.DefaultUnits)
         {
-            Value = hertz;
+            Value = nativeValue;
+            _units = Devices.Samples.FrequencyDataItem.DefaultUnits;
+            _nativeUnits = nativeUnits;
         }
     }
 }

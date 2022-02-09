@@ -13,21 +13,22 @@ namespace MTConnect.Devices.Samples
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "ANGULAR_VELOCITY";
         public const string NameId = "speed";
+        public const string DefaultUnits = Devices.Units.DEGREE_PER_SECOND;
 
         public AngularVelocityDataItem()
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
-            Units = Devices.Units.DEGREE_PER_SECOND;
+            Units = DefaultUnits;
         }
 
         public AngularVelocityDataItem(string parentId)
         {
             Id = CreateId(parentId, NameId);
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             Name = NameId;
-            Units = Devices.Units.DEGREE_PER_SECOND;
+            Units = DefaultUnits;
         }
     }
 }

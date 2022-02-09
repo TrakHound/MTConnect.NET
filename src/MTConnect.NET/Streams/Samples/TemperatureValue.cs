@@ -10,40 +10,11 @@ namespace MTConnect.Streams.Samples
     /// </summary>
     public class TemperatureValue : SampleValue
     {
-        protected override string MetricUnits => "CELSIUS";
-        protected override string InchUnits => "FARENHEIT";
-
-
-        public TemperatureValue() { }
-
-        public TemperatureValue(double temperature, UnitSystem unitSystem = UnitSystem.METRIC)
+        public TemperatureValue(double nativeValue, string nativeUnits = Devices.Samples.TemperatureDataItem.DefaultUnits)
         {
-            Value = temperature;
-            UnitSystem = unitSystem;
-        }
-
-        public override double ToMetric()
-        {
-            if (UnitSystem == UnitSystem.INCH)
-            {
-                double x = Value.ToDouble() - 32;
-                double y = (double)5 / (double)9; 
-                double z = x * y;
-                return z;
-                //return (Value.ToDouble() - 32) * (5/9);
-            }
-
-            return Value.ToDouble();
-        }
-
-        public override double ToInch()
-        {
-            if (UnitSystem == UnitSystem.METRIC)
-            {
-                return (Value.ToDouble() * (9/5)) + 32;
-            }
-
-            return Value.ToDouble();
+            Value = nativeValue;
+            _units = Devices.Samples.TemperatureDataItem.DefaultUnits;
+            _nativeUnits = nativeUnits;
         }
     }
 }

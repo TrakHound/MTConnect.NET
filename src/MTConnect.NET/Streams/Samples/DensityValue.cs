@@ -10,16 +10,11 @@ namespace MTConnect.Streams.Samples
     /// </summary>
     public class DensityValue : SampleValue
     {
-        protected override double MetricConversion => 1;
-        protected override double InchConversion => 1;
-        protected override string MetricUnits => "MILLIGRAM/CUBIC_MILLIMETER";
-        protected override string InchUnits => "MILLIGRAM/CUBIC_MILLIMETER";
-
-
-        public DensityValue(double density, UnitSystem unitSystem = UnitSystem.METRIC)
+        public DensityValue(double nativeValue, string nativeUnits = Devices.Samples.DensityDataItem.DefaultUnits)
         {
-            Value = density;
-            UnitSystem = unitSystem;
+            Value = nativeValue;
+            _units = Devices.Samples.DensityDataItem.DefaultUnits;
+            _nativeUnits = nativeUnits;
         }
     }
 }

@@ -17,7 +17,7 @@ namespace MTConnect.Devices.Events
 
         public ControlLimitDataItem()
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             Representation = DataItemRepresentation.DATA_SET;
         }
@@ -25,7 +25,7 @@ namespace MTConnect.Devices.Events
         public ControlLimitDataItem(string parentId)
         {
             Id = CreateId(parentId, NameId);
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             Name = NameId;
             Representation = DataItemRepresentation.DATA_SET;

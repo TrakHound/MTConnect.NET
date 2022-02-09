@@ -13,6 +13,7 @@ namespace MTConnect.Devices.Samples
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "HUMIDITY_ABSOLUTE";
         public const string NameId = "humidityAbs";
+        public const string DefaultUnits = Devices.Units.GRAM_PER_CUBIC_METER;
 
         public enum SubTypes
         {
@@ -30,9 +31,9 @@ namespace MTConnect.Devices.Samples
 
         public HumidityAbsoluteDataItem()
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
-            Units = Devices.Units.GRAM_PER_CUBIC_METER;
+            Units = DefaultUnits;
         }
 
         public HumidityAbsoluteDataItem(
@@ -41,11 +42,11 @@ namespace MTConnect.Devices.Samples
             )
         {
             Id = CreateId(parentId, NameId, GetSubTypeId(subType));
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             SubType = subType.ToString();
             Name = NameId;
-            Units = Devices.Units.GRAM_PER_CUBIC_METER;
+            Units = DefaultUnits;
         }
 
 

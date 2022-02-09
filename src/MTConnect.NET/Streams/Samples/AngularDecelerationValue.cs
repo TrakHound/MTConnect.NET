@@ -10,13 +10,11 @@ namespace MTConnect.Streams.Samples
     /// </summary>
     public class AngularDecelerationValue : SampleValue
     {
-        protected override string MetricUnits => "DEGREE/SECOND^2";
-        protected override string InchUnits => "DEGREE/SECOND^2";
-
-
-        public AngularDecelerationValue(double deceleration)
+        public AngularDecelerationValue(double nativeValue, string nativeUnits = Devices.Samples.AngularDecelerationDataItem.DefaultUnits)
         {
-            Value = deceleration;
+            Value = nativeValue;
+            _units = Devices.Samples.AngularDecelerationDataItem.DefaultUnits;
+            _nativeUnits = nativeUnits;
         }
     }
 }

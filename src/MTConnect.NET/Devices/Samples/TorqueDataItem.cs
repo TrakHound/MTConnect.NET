@@ -13,22 +13,23 @@ namespace MTConnect.Devices.Samples
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "TORQUE";
         public const string NameId = "torque";
+        public const string DefaultUnits = Devices.Units.NEWTON_METER;
 
 
         public TorqueDataItem()
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
-            Units = Devices.Units.NEWTON_METER;
+            Units = DefaultUnits;
         }
 
         public TorqueDataItem(string parentId)
         {
             Id = CreateId(parentId, NameId);
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             Name = NameId;
-            Units = Devices.Units.NEWTON_METER;
+            Units = DefaultUnits;
         }
     }
 }

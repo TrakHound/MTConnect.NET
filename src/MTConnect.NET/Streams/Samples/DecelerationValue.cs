@@ -10,16 +10,11 @@ namespace MTConnect.Streams.Samples
     /// </summary>
     public class DecelerationValue : SampleValue
     {
-        protected override double MetricConversion => 25.4;
-        protected override double InchConversion => 0.03937008;
-        protected override string MetricUnits => "MILLIMETER/SECOND^2";
-        protected override string InchUnits => "INCH/SECOND^2";
-
-
-        public DecelerationValue(double acceleration, UnitSystem unitSystem = UnitSystem.METRIC)
+        public DecelerationValue(double nativeValue, string nativeUnits = Devices.Samples.DecelerationDataItem.DefaultUnits)
         {
-            Value = acceleration;
-            UnitSystem = unitSystem;
+            Value = nativeValue;
+            _units = Devices.Samples.DecelerationDataItem.DefaultUnits;
+            _nativeUnits = nativeUnits;
         }
     }
 }

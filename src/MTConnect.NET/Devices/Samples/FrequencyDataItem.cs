@@ -13,22 +13,23 @@ namespace MTConnect.Devices.Samples
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "FREQUENCY";
         public const string NameId = "frequency";
+        public const string DefaultUnits = Devices.Units.HERTZ;
 
 
         public FrequencyDataItem()
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
-            Units = Devices.Units.HERTZ;
+            Units = DefaultUnits;
         }
 
         public FrequencyDataItem(string parentId)
         {
             Id = CreateId(parentId, NameId);
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             Name = NameId;
-            Units = Devices.Units.HERTZ;
+            Units = DefaultUnits;
         }
     }
 }

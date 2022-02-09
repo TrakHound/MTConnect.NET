@@ -17,14 +17,14 @@ namespace MTConnect.Devices.Events
 
         public AdapterSoftwareVersionDataItem()
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
         }
 
         public AdapterSoftwareVersionDataItem(string parentId)
         {
             Id = CreateId(parentId, NameId);
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             Name = NameId;
         }

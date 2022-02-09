@@ -10,16 +10,11 @@ namespace MTConnect.Streams.Samples
     /// </summary>
     public class TorqueValue : SampleValue
     {
-        protected override double MetricConversion => 0.1129846742;
-        protected override double InchConversion => 8.850757916;
-        protected override string MetricUnits => "NEWTON_METER";
-        protected override string InchUnits => "INCH_POUND";
-
-
-        public TorqueValue(double torque, UnitSystem unitSystem = UnitSystem.METRIC)
+        public TorqueValue(double nativeValue, string nativeUnits = Devices.Samples.TorqueDataItem.DefaultUnits)
         {
-            Value = torque;
-            UnitSystem = unitSystem;
+            Value = nativeValue;
+            _units = Devices.Samples.TorqueDataItem.DefaultUnits;
+            _nativeUnits = nativeUnits;
         }
     }
 }

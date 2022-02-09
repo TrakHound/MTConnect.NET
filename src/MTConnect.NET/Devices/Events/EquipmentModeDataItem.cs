@@ -49,7 +49,7 @@ namespace MTConnect.Devices.Events
 
         public EquipmentModeDataItem()
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
         }
 
@@ -59,7 +59,7 @@ namespace MTConnect.Devices.Events
             )
         {
             Id = CreateId(parentId, NameId, GetSubTypeId(subType));
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             SubType = subType.ToString();
             Name = NameId;

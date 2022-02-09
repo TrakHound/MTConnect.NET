@@ -77,8 +77,8 @@
 					<Components>
 						<Linear id="x" name="X">
 							<DataItems>
-								<DataItem category="SAMPLE" id="Xabs" nativeUnits="MILLIMETER" subType="ACTUAL" type="POSITION" units="MILLIMETER"/>
-								<DataItem category="SAMPLE" id="Xpos" nativeUnits="MILLIMETER" subType="ACTUAL" type="POSITION" units="MILLIMETER"/>
+								<DataItem category="SAMPLE" id="Xabs" nativeScale="100" nativeUnits="MILLIMETER" subType="ACTUAL" type="POSITION" units="MILLIMETER"/>
+								<DataItem category="SAMPLE" id="Xpos" nativeUnits="INCH" subType="ACTUAL" type="POSITION" units="MILLIMETER"/>
 								<DataItem category="CONDITION" id="Xtravel" type="POSITION"/>
 								<DataItem category="SAMPLE" id="Xload" nativeUnits="PERCENT" type="LOAD" units="PERCENT">
 									<Filters>
@@ -86,7 +86,7 @@
 									</Filters>
 								</DataItem>
 								<DataItem category="SAMPLE" id="Xfrt" nativeUnits="MILLIMETER/SECOND" type="AXIS_FEEDRATE" units="MILLIMETER/SECOND"/>
-								<DataItem category="SAMPLE" compositionId="Xmotor" id="servotemp1" nativeUnits="CELSIUS" type="TEMPERATURE" units="CELSIUS">
+								<DataItem category="SAMPLE" compositionId="Xmotor" id="servotemp1" nativeUnits="FAHRENHEIT" type="TEMPERATURE" units="CELSIUS">
 									<Filters>
 										<Filter type="MINIMUM_DELTA">0.5</Filter>
 									</Filters>
@@ -250,7 +250,7 @@
 								<DataItem category="EVENT" id="workoffsetrot" nativeUnits="DEGREE_3D" type="ROTATION" units="DEGREE_3D"/>
 								<DataItem category="EVENT" id="woffset" type="WORK_OFFSET"/>
 								<DataItem category="EVENT" id="activeaxes" type="ACTIVE_AXES"/>
-								<DataItem category="SAMPLE" id="pathpos" nativeUnits="MILLIMETER_3D" type="PATH_POSITION" units="MILLIMETER_3D"/>
+								<DataItem category="SAMPLE" id="pathpos" nativeUnits="INCH_3D" type="PATH_POSITION" units="MILLIMETER_3D"/>
 								<DataItem category="SAMPLE" id="orientation" nativeUnits="DEGREE_3D" type="ORIENTATION" units="DEGREE_3D"/>
 								<DataItem category="EVENT" id="partnumber" subType="PART_NUMBER" type="PART_UNIQUE_ID"/>
 								<DataItem category="EVENT" id="partserialnumber" subType="SERIAL_NUMBER" type="PART_UNIQUE_ID"/>

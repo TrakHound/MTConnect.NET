@@ -133,12 +133,12 @@ namespace MTConnect.Observations
         }
 
 
-        protected void AddValue(string valueType, object value)
+        public void AddValue(string valueType, object value)
         {
             AddValue(new ObservationValue(valueType, value));
         }
 
-        protected void AddValue(ObservationValue observationValue)
+        public void AddValue(ObservationValue observationValue)
         {
             List<ObservationValue> x = null;
             if (!Values.IsNullOrEmpty()) x = Values.ToList();

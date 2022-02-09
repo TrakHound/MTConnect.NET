@@ -35,7 +35,7 @@ namespace MTConnect.Devices.Events
 
         public AxisFeedrateOverrideDataItem()
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             Units = Devices.Units.PERCENT;
         }
@@ -46,7 +46,7 @@ namespace MTConnect.Devices.Events
             )
         {
             Id = CreateId(parentId, NameId, GetSubTypeId(subType));
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             SubType = subType.ToString();
             Name = NameId;

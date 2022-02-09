@@ -10,16 +10,11 @@ namespace MTConnect.Streams.Samples
     /// </summary>
     public class ConductivityValue : SampleValue
     {
-        protected override double MetricConversion => 1;
-        protected override double InchConversion => 1;
-        protected override string MetricUnits => "SIEMENS/METER";
-        protected override string InchUnits => "SIEMENS/METER";
-
-
-        public ConductivityValue(double conductivity, UnitSystem unitSystem = UnitSystem.METRIC)
+        public ConductivityValue(double nativeValue, string nativeUnits = Devices.Samples.ConductivityDataItem.DefaultUnits)
         {
-            Value = conductivity;
-            UnitSystem = unitSystem;
+            Value = nativeValue;
+            _units = Devices.Samples.ConductivityDataItem.DefaultUnits;
+            _nativeUnits = nativeUnits;
         }
     }
 }

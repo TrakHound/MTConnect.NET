@@ -10,16 +10,11 @@ namespace MTConnect.Streams.Samples
     /// </summary>
     public class DepositionAccelerationVolumetricValue : SampleValue
     {
-        protected override double MetricConversion => 1;
-        protected override double InchConversion => 1;
-        protected override string MetricUnits => "CUBIC_MILLIMETER/SECOND^2";
-        protected override string InchUnits => "CUBIC_MILLIMETER/SECOND^2";
-
-
-        public DepositionAccelerationVolumetricValue(double acceleration, UnitSystem unitSystem = UnitSystem.METRIC)
+        public DepositionAccelerationVolumetricValue(double nativeValue, string nativeUnits = Devices.Samples.DepositionAccelerationVolumetricDataItem.DefaultUnits)
         {
-            Value = acceleration;
-            UnitSystem = unitSystem;
+            Value = nativeValue;
+            _units = Devices.Samples.DepositionAccelerationVolumetricDataItem.DefaultUnits;
+            _nativeUnits = nativeUnits;
         }
     }
 }

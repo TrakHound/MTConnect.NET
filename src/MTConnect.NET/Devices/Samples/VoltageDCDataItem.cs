@@ -13,6 +13,7 @@ namespace MTConnect.Devices.Samples
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "VOLTAGE_DC";
         public const string NameId = "voltDC";
+        public const string DefaultUnits = Devices.Units.VOLT;
 
         public enum SubTypes
         {
@@ -35,9 +36,9 @@ namespace MTConnect.Devices.Samples
 
         public VoltageDCDataItem()
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
-            Units = Devices.Units.VOLT;
+            Units = DefaultUnits;
         }
 
         public VoltageDCDataItem(
@@ -46,11 +47,11 @@ namespace MTConnect.Devices.Samples
             )
         {
             Id = CreateId(parentId, NameId, GetSubTypeId(subType));
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             SubType = subType.ToString();
             Name = NameId;
-            Units = Devices.Units.VOLT;
+            Units = DefaultUnits;
         }
 
 

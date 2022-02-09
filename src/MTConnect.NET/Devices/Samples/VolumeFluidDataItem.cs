@@ -13,6 +13,7 @@ namespace MTConnect.Devices.Samples
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "VOLUME_FLUID";
         public const string NameId = "volFluid";
+        public const string DefaultUnits = Devices.Units.MILLILITER;
 
         public enum SubTypes
         {
@@ -50,9 +51,9 @@ namespace MTConnect.Devices.Samples
 
         public VolumeFluidDataItem()
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
-            Units = Devices.Units.MILLILITER;
+            Units = DefaultUnits;
         }
 
         public VolumeFluidDataItem(
@@ -61,11 +62,11 @@ namespace MTConnect.Devices.Samples
             )
         {
             Id = CreateId(parentId, NameId, GetSubTypeId(subType));
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             SubType = subType.ToString();
             Name = NameId;
-            Units = Devices.Units.MILLILITER;
+            Units = DefaultUnits;
         }
 
 

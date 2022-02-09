@@ -13,6 +13,7 @@ namespace MTConnect.Devices.Samples
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "AMPERAGE_AC";
         public const string NameId = "amps";
+        public const string DefaultUnits = Devices.Units.AMPERE;
 
         public enum SubTypes
         {
@@ -35,9 +36,9 @@ namespace MTConnect.Devices.Samples
 
         public AmperageACDataItem()
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
-            Units = Devices.Units.AMPERE;
+            Units = DefaultUnits;
         }
 
         public AmperageACDataItem(
@@ -46,11 +47,11 @@ namespace MTConnect.Devices.Samples
             )
         {
             Id = CreateId(parentId, NameId, GetSubTypeId(subType));
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             SubType = subType.ToString();
             Name = NameId;
-            Units = Devices.Units.AMPERE;
+            Units = DefaultUnits;
             SignificantDigits = 1;
         }
 

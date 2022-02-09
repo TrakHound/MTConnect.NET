@@ -10,16 +10,11 @@ namespace MTConnect.Streams.Samples
     /// </summary>
     public class PathFeedratePerRevolutionValue : SampleValue
     {
-        protected override double MetricConversion => 25.4;
-        protected override double InchConversion => 0.03937008;
-        protected override string MetricUnits => "MILLIMETER/REVOLUTION";
-        protected override string InchUnits => "INCH/REVOLUTION";
-
-
-        public PathFeedratePerRevolutionValue(double feedrate, UnitSystem unitSystem = UnitSystem.METRIC)
+        public PathFeedratePerRevolutionValue(double nativeValue, string nativeUnits = Devices.Samples.PathFeedratePerRevolutionDataItem.DefaultUnits)
         {
-            Value = feedrate;
-            UnitSystem = unitSystem;
+            Value = nativeValue;
+            _units = Devices.Samples.PathFeedratePerRevolutionDataItem.DefaultUnits;
+            _nativeUnits = nativeUnits;
         }
     }
 }

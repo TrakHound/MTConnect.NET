@@ -10,6 +10,9 @@ namespace MTConnect.Streams
 
     public class Position3D
     {
+        private static readonly Regex _regex = new Regex(@"([0-9\.]*) ([0-9\.]*) ([0-9\.]*)");
+
+
         public double X { get; set; }
 
         public double Y { get; set; }
@@ -29,12 +32,11 @@ namespace MTConnect.Streams
             return $"{X} {Y} {Z}";
         }
 
-        public Position3D FromString(string input)
+        public static Position3D FromString(string input)
         {
             if (!string.IsNullOrEmpty(input))
             {
-                var regex = new Regex(@"([0-9\.]*) ([0-9\.]*) ([0-9\.]*)");
-                var match = regex.Match(input);
+                var match = _regex.Match(input);
                 if (match.Success)
                 {
                     double x = 0;

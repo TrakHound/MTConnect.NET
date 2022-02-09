@@ -10,16 +10,11 @@ namespace MTConnect.Streams.Samples
     /// </summary>
     public class VolumeFluidValue : SampleValue
     {
-        protected override double MetricConversion => 1;
-        protected override double InchConversion => 1;
-        protected override string MetricUnits => "MILLILITER";
-        protected override string InchUnits => "MILLILITER";
-
-
-        public VolumeFluidValue(double volume, UnitSystem unitSystem = UnitSystem.METRIC)
+        public VolumeFluidValue(double nativeValue, string nativeUnits = Devices.Samples.VolumeFluidDataItem.DefaultUnits)
         {
-            Value = volume;
-            UnitSystem = unitSystem;
+            Value = nativeValue;
+            _units = Devices.Samples.VolumeFluidDataItem.DefaultUnits;
+            _nativeUnits = nativeUnits;
         }
     }
 }

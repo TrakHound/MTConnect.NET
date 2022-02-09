@@ -10,16 +10,11 @@ namespace MTConnect.Streams.Samples
     /// </summary>
     public class ElectricalEnergyValue : SampleValue
     {
-        protected override double MetricConversion => 1;
-        protected override double InchConversion => 1;
-        protected override string MetricUnits => "WATT_SECOND";
-        protected override string InchUnits => "WATT_SECOND";
-
-
-        public ElectricalEnergyValue(double energy, UnitSystem unitSystem = UnitSystem.METRIC)
+        public ElectricalEnergyValue(double nativeValue, string nativeUnits = Devices.Samples.ElectricalEnergyDataItem.DefaultUnits)
         {
-            Value = energy;
-            UnitSystem = unitSystem;
+            Value = nativeValue;
+            _units = Devices.Samples.ElectricalEnergyDataItem.DefaultUnits;
+            _nativeUnits = nativeUnits;
         }
     }
 }

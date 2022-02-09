@@ -10,13 +10,11 @@ namespace MTConnect.Streams.Samples
     /// </summary>
     public class SoundLevelValue : SampleValue
     {
-        protected override string MetricUnits => "DECIBEL";
-        protected override string InchUnits => "DECIBEL";
-
-
-        public SoundLevelValue(double degrees)
+        public SoundLevelValue(double nativeValue, string nativeUnits = Devices.Samples.SoundLevelDataItem.DefaultUnits)
         {
-            Value = degrees;
+            Value = nativeValue;
+            _units = Devices.Samples.SoundLevelDataItem.DefaultUnits;
+            _nativeUnits = nativeUnits;
         }
     }
 }

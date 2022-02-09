@@ -15,7 +15,7 @@ namespace MTConnect.Models
         {
             if (dataItem != null)
             {
-                DataItemCategory = dataItem.DataItemCategory;
+                Category = dataItem.Category;
                 Id = dataItem.Id;
                 Name = dataItem.Name;
                 Type = dataItem.Type;

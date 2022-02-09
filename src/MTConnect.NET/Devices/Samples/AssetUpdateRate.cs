@@ -14,22 +14,23 @@ namespace MTConnect.Devices.Samples
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "ASSET_UPDATE_RATE";
         public const string NameId = "assetUpdateRate";
+        public const string DefaultUnits = Devices.Units.COUNT_PER_SECOND;
 
 
         public AssetUpdateRateDataItem()
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
-            Units = Devices.Units.COUNT_PER_SECOND;
+            Units = DefaultUnits;
         }
 
         public AssetUpdateRateDataItem(string parentId)
         {
             Id = CreateId(parentId, NameId);
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             Name = NameId;
-            Units = Devices.Units.COUNT_PER_SECOND;
+            Units = DefaultUnits;
         }
     }
 }

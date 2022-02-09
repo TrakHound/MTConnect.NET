@@ -17,14 +17,14 @@ namespace MTConnect.Devices.Conditions
 
         public InterfaceStateCondition()
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
         }
 
         public InterfaceStateCondition(string parentId)
         {
             Id = CreateId(parentId, NameId);
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             Name = NameId;
         }

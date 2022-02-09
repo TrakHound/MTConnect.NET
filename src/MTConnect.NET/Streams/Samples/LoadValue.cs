@@ -10,15 +10,11 @@ namespace MTConnect.Streams.Samples
     /// </summary>
     public class LoadValue : SampleValue
     {
-        protected override string MetricUnits => "PERCENT";
-        protected override string InchUnits => "PERCENT";
-
-
-        public LoadValue() { }
-
-        public LoadValue(double percent)
+        public LoadValue(double nativeValue, string nativeUnits = Devices.Samples.LoadDataItem.DefaultUnits)
         {
-            Value = percent;
+            Value = nativeValue;
+            _units = Devices.Samples.LoadDataItem.DefaultUnits;
+            _nativeUnits = nativeUnits;
         }
     }
 }

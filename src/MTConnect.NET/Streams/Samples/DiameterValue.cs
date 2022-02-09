@@ -10,15 +10,11 @@ namespace MTConnect.Streams.Samples
     /// </summary>
     public class DiameterValue : SampleValue
     {
-        protected override double MetricConversion => 25.4;
-        protected override double InchConversion => 0.03937008;
-        protected override string MetricUnits => "MILLIMETER";
-        protected override string InchUnits => "INCH";
-
-
-        public DiameterValue(double diameter)
+        public DiameterValue(double nativeValue, string nativeUnits = Devices.Samples.DiameterDataItem.DefaultUnits)
         {
-            Value = diameter;
+            Value = nativeValue;
+            _units = Devices.Samples.DiameterDataItem.DefaultUnits;
+            _nativeUnits = nativeUnits;
         }
     }
 }

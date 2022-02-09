@@ -13,6 +13,7 @@ namespace MTConnect.Devices.Samples
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "PRESSURIZATION_RATE";
         public const string NameId = "pressRate";
+        public const string DefaultUnits = Devices.Units.PASCAL_PER_SECOND;
 
         public enum SubTypes
         {
@@ -35,9 +36,9 @@ namespace MTConnect.Devices.Samples
 
         public PressurizationRateDataItem()
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
-            Units = Devices.Units.PASCAL_PER_SECOND;
+            Units = DefaultUnits;
         }
 
         public PressurizationRateDataItem(
@@ -46,11 +47,11 @@ namespace MTConnect.Devices.Samples
             )
         {
             Id = CreateId(parentId, NameId, GetSubTypeId(subType));
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             SubType = subType.ToString();
             Name = NameId;
-            Units = Devices.Units.PASCAL_PER_SECOND;
+            Units = DefaultUnits;
         }
 
 

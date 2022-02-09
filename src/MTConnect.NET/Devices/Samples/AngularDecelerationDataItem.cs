@@ -13,6 +13,7 @@ namespace MTConnect.Devices.Samples
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "ANGULAR_DECELERATION";
         public const string NameId = "angularDecel";
+        public const string DefaultUnits = Devices.Units.DEGREE_PER_SECOND_SQUARED;
 
         public enum SubTypes
         {
@@ -35,9 +36,9 @@ namespace MTConnect.Devices.Samples
 
         public AngularDecelerationDataItem()
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
-            Units = Devices.Units.DEGREE_PER_SECOND_SQUARED;
+            Units = DefaultUnits;
         }
 
         public AngularDecelerationDataItem(
@@ -46,11 +47,11 @@ namespace MTConnect.Devices.Samples
             )
         {
             Id = CreateId(parentId, NameId, GetSubTypeId(subType));
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             SubType = subType.ToString();
             Name = NameId;
-            Units = Devices.Units.DEGREE_PER_SECOND_SQUARED;
+            Units = DefaultUnits;
         }
 
 

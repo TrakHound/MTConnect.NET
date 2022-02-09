@@ -12,13 +12,22 @@ namespace MTConnect.Streams.Samples
     /// </summary>
     public class ProcessTimerValue : SampleValue
     {
-        protected override string MetricUnits => "SECOND";
-        protected override string InchUnits => "SECOND";
+        public TimeSpan TimeSpan => TimeSpan.FromSeconds(Value.ToDouble());
 
 
         public ProcessTimerValue(TimeSpan accumulatedTime)
         {
             Value = accumulatedTime.TotalSeconds;
+            _units = Devices.Samples.ProcessTimerDataItem.DefaultUnits;
+            _nativeUnits = Devices.Samples.ProcessTimerDataItem.DefaultUnits;
+        }
+
+
+        public ProcessTimerValue AddMilliseconds(double milliseconds)
+        {
+            Value = Value + (milliseconds / 1000);
+
+            return this;
         }
     }
 }

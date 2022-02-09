@@ -13,22 +13,23 @@ namespace MTConnect.Devices.Samples
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "PH";
         public const string NameId = "ph";
+        public const string DefaultUnits = Devices.Units.PH;
 
 
         public PHDataItem()
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
-            Units = Devices.Units.PH;
+            Units = DefaultUnits;
         }
 
         public PHDataItem(string parentId)
         {
             Id = CreateId(parentId, NameId);
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             Name = NameId;
-            Units = Devices.Units.PH;
+            Units = DefaultUnits;
         }
     }
 }

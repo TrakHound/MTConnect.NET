@@ -9,16 +9,12 @@ namespace MTConnect.Streams.Samples
     /// The measurement of angular position.
     /// </summary>
     public class AngleValue : SampleValue
-    {
-        protected override string MetricUnits => "DEGREE";
-        protected override string InchUnits => "DEGREE";
-
-
-        public AngleValue() { }
-
-        public AngleValue(double degrees)
+    { 
+        public AngleValue(double nativeValue, string nativeUnits = Devices.Samples.AngleDataItem.DefaultUnits)
         {
-            Value = degrees;
+            Value = nativeValue;
+            _units = Devices.Samples.AngleDataItem.DefaultUnits;
+            _nativeUnits = nativeUnits;
         }
     }
 }

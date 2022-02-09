@@ -13,22 +13,23 @@ namespace MTConnect.Devices.Samples
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "VISCOSITY";
         public const string NameId = "vis";
+        public const string DefaultUnits = Devices.Units.PASCAL_SECOND;
 
 
         public ViscosityDataItem()
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
-            Units = Devices.Units.PASCAL_SECOND;
+            Units = DefaultUnits;
         }
 
         public ViscosityDataItem(string parentId)
         {
             Id = CreateId(parentId, NameId);
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             Name = NameId;
-            Units = Devices.Units.PASCAL_SECOND;
+            Units = DefaultUnits;
         }
     }
 }

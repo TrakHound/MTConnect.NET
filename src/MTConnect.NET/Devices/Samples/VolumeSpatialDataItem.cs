@@ -13,6 +13,7 @@ namespace MTConnect.Devices.Samples
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "VOLUME_SPATIAL";
         public const string NameId = "volSpatial";
+        public const string DefaultUnits = Devices.Units.CUBIC_MILLIMETER;
 
         public enum SubTypes
         {
@@ -50,9 +51,9 @@ namespace MTConnect.Devices.Samples
 
         public VolumeSpatialDataItem()
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
-            Units = Devices.Units.CUBIC_MILLIMETER;
+            Units = DefaultUnits;
         }
 
         public VolumeSpatialDataItem(
@@ -61,11 +62,11 @@ namespace MTConnect.Devices.Samples
             )
         {
             Id = CreateId(parentId, NameId, GetSubTypeId(subType));
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             SubType = subType.ToString();
             Name = NameId;
-            Units = Devices.Units.CUBIC_MILLIMETER;
+            Units = DefaultUnits;
         }
 
 

@@ -39,6 +39,19 @@ namespace MTConnect.Applications.Adapters.Shdr.Adapters
             _adapter.LineSent += (sender, args) => Console.WriteLine($"Agent Connection (ID = {args.ClientId}) : Line Sent : {args.Message}");
         }
 
+        //private void Demo()
+        //{
+        //    var adapter = new ShdrAdapter("device1");
+        //    adapter.Start();
+
+        //    var temp = new ShdrDataItem("servotemp1", 120.5);
+        //    _adapter.AddDataItem(temp);
+
+
+
+
+        //}
+
         public void Start()
         {
             _stop = new CancellationTokenSource();
@@ -81,6 +94,36 @@ namespace MTConnect.Applications.Adapters.Shdr.Adapters
             if (_simulator != null) _simulator.Disconnect();
         }
 
+        public void UpdateTemperature1()
+        {
+            var temp = new ShdrDataItem("servotemp1", new TemperatureValue(120.5));
+            _adapter.AddDataItem(temp);
+
+            var abs = new ShdrDataItem("Xabs", new PositionValue(325.7894));
+            _adapter.AddDataItem(abs);
+
+            var pos = new ShdrDataItem("Xpos", new PositionValue(325.7894));
+            _adapter.AddDataItem(pos);
+
+            var pathPos = new ShdrDataItem("pathpos", new PathPositionValue(0, 0, 0));
+            _adapter.AddDataItem(pathPos);
+        }
+
+        public void UpdateTemperature2()
+        {
+            var temp = new ShdrDataItem("servotemp1", 78.456);
+            _adapter.AddDataItem(temp);
+
+            var abs = new ShdrDataItem("Xabs", 45.987);
+            _adapter.AddDataItem(abs);
+
+            var pos = new ShdrDataItem("Xpos", 45.987);
+            _adapter.AddDataItem(pos);
+
+            var pathPos = new ShdrDataItem("pathpos", new PathPositionValue(12.123, 45.456, 7.894));
+            _adapter.AddDataItem(pathPos);
+        }
+
 
         //public void UpdateTest1()
         //{
@@ -114,65 +157,64 @@ namespace MTConnect.Applications.Adapters.Shdr.Adapters
         //    _adapter.AddCondition(condition);
         //}
 
-        public void UpdateDataSet1()
-        {
-            var dataSet = new ShdrDataSet("testDataSet");
-            dataSet.Entries = new List<DataSetEntry>
-            {
-                new DataSetEntry("T1", 12.3456),
-                new DataSetEntry("T2", 23.4567),
-                new DataSetEntry("T3", 34.5678),
-                new DataSetEntry("T4", 45.6789)
-            };
+        //public void UpdateDataSet1()
+        //{
+        //    var dataSet = new ShdrDataSet("testDataSet");
+        //    dataSet.Entries = new List<DataSetEntry>
+        //    {
+        //        new DataSetEntry("T1", 12.3456),
+        //        new DataSetEntry("T2", 23.4567),
+        //        new DataSetEntry("T3", 34.5678),
+        //        new DataSetEntry("T4", 45.6789)
+        //    };
 
-            _adapter.AddDataSet(dataSet);
-        }
+        //    _adapter.AddDataSet(dataSet);
+        //}
 
-        public void UpdateDataSet2()
-        {
-            var dataSet = new ShdrDataSet("testDataSet");
-            dataSet.Entries = new List<DataSetEntry>
-            {
-                new DataSetEntry("T5", 12.3456),
-                new DataSetEntry("T6", 23.4567)
-            };
+        //public void UpdateDataSet2()
+        //{
+        //    var dataSet = new ShdrDataSet("testDataSet");
+        //    dataSet.Entries = new List<DataSetEntry>
+        //    {
+        //        new DataSetEntry("T5", 12.3456),
+        //        new DataSetEntry("T6", 23.4567)
+        //    };
 
-            _adapter.AddDataSet(dataSet);
-        }
+        //    _adapter.AddDataSet(dataSet);
+        //}
 
-        public void UpdateDataSet3()
-        {
-            var dataSet = new ShdrDataSet("testDataSet");
-            dataSet.Entries = new List<DataSetEntry>
-            {
-                new DataSetEntry("T3", null, true),
-                new DataSetEntry("T5", "TESTING")
-            };
+        //public void UpdateDataSet3()
+        //{
+        //    var dataSet = new ShdrDataSet("testDataSet");
+        //    dataSet.Entries = new List<DataSetEntry>
+        //    {
+        //        new DataSetEntry("T3", null, true),
+        //        new DataSetEntry("T5", "TESTING")
+        //    };
 
-            _adapter.AddDataSet(dataSet);
-        }
+        //    _adapter.AddDataSet(dataSet);
+        //}
 
-        public void UpdateDataSet4()
-        {
-            var dataSet = new ShdrDataSet("testDataSet");
-            dataSet.ResetTriggered = ResetTriggered.MANUAL;
-            dataSet.Entries = new List<DataSetEntry>
-            {
-                new DataSetEntry("T1", 9.1234),
-                new DataSetEntry("T2", 7.0000)
-            };
-
-            _adapter.AddDataSet(dataSet);
-        }
-
-
-        public void UpdateTestTable()
-        {
-            var table = new ShdrTable("testTable");
+        //public void UpdateDataSet4()
+        //{
+        //    var dataSet = new ShdrDataSet("testDataSet");
+        //    dataSet.ResetTriggered = ResetTriggered.MANUAL;
+        //    dataSet.Entries = new List<DataSetEntry>
+        //    {
+        //        new DataSetEntry("T1", 9.1234),
+        //        new DataSetEntry("T2", 7.0000)
+        //    };
+        //    _adapter.AddDataSet(dataSet);
+        //}
 
 
-            _adapter.AddTable(table);
-        }
+        //public void UpdateTestTable()
+        //{
+        //    var table = new ShdrTable("testTable");
+
+
+        //    _adapter.AddTable(table);
+        //}
 
 
         //public void UpdateTest1()

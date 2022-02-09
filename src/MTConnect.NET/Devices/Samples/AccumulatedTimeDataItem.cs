@@ -13,22 +13,23 @@ namespace MTConnect.Devices.Samples
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "ACCUMULATED_TIME";
         public const string NameId = "time";
+        public const string DefaultUnits = Devices.Units.SECOND;
 
 
         public AccumulatedTimeDataItem()
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
-            Units = Devices.Units.SECOND;
+            Units = DefaultUnits;
         }
 
         public AccumulatedTimeDataItem(string parentId)
         {
             Id = CreateId(parentId, NameId);
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             Name = NameId;
-            Units = Devices.Units.SECOND;
+            Units = DefaultUnits;
         }
     }
 }

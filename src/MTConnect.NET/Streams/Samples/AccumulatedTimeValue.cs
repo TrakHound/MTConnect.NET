@@ -12,27 +12,19 @@ namespace MTConnect.Streams.Samples
     /// </summary>
     public class AccumulatedTimeValue : SampleValue
     {
-        protected override string MetricUnits => "SECOND";
-        protected override string InchUnits => "SECOND";
-
-
         public TimeSpan TimeSpan => TimeSpan.FromSeconds(Value.ToDouble());
-
-
-        public AccumulatedTimeValue() { }
 
         public AccumulatedTimeValue(TimeSpan accumulatedTime)
         {
             Value = accumulatedTime.TotalSeconds;
+            _units = Devices.Samples.AccumulatedTimeDataItem.DefaultUnits;
+            _nativeUnits = Devices.Samples.AccumulatedTimeDataItem.DefaultUnits;
         }
 
 
         public AccumulatedTimeValue AddMilliseconds(double milliseconds)
         {
-            if (Value != null)
-            {
-                Value = Value.ToDouble() + (milliseconds / 1000);
-            }
+            Value = Value + (milliseconds / 1000);
 
             return this;
         }

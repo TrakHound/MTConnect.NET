@@ -10,16 +10,11 @@ namespace MTConnect.Streams.Samples
     /// </summary>
     public class PressurizationRateValue : SampleValue
     {
-        protected override double MetricConversion => 1;
-        protected override double InchConversion => 1;
-        protected override string MetricUnits => "PASCAL/SECOND";
-        protected override string InchUnits => "PASCAL/SECOND";
-
-
-        public PressurizationRateValue(double rate, UnitSystem unitSystem = UnitSystem.METRIC)
+        public PressurizationRateValue(double nativeValue, string nativeUnits = Devices.Samples.PressurizationRateDataItem.DefaultUnits)
         {
-            Value = rate;
-            UnitSystem = unitSystem;
+            Value = nativeValue;
+            _units = Devices.Samples.PressurizationRateDataItem.DefaultUnits;
+            _nativeUnits = nativeUnits;
         }
     }
 }

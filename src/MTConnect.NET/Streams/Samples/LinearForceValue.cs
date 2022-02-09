@@ -10,16 +10,11 @@ namespace MTConnect.Streams.Samples
     /// </summary>
     public class LinearForceValue : SampleValue
     {
-        protected override double MetricConversion => 4.448221615254;
-        protected override double InchConversion => 0.2248089431;
-        protected override string MetricUnits => "NEWTON";
-        protected override string InchUnits => "POUND";
-
-
-        public LinearForceValue(double force, UnitSystem unitSystem = UnitSystem.METRIC)
+        public LinearForceValue(double nativeValue, string nativeUnits = Devices.Samples.LinearForceDataItem.DefaultUnits)
         {
-            Value = force;
-            UnitSystem = unitSystem;
+            Value = nativeValue;
+            _units = Devices.Samples.LinearForceDataItem.DefaultUnits;
+            _nativeUnits = nativeUnits;
         }
     }
 }

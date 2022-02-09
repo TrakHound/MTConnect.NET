@@ -13,21 +13,22 @@ namespace MTConnect.Devices.Samples
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "CAPACITY_FLUID";
         public const string NameId = "capFluid";
+        public const string DefaultUnits = Devices.Units.MILLILITER;
 
         public CapacityFluidDataItem()
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
-            Units = Devices.Units.MILLILITER;
+            Units = DefaultUnits;
         }
 
         public CapacityFluidDataItem(string parentId)
         {
             Id = CreateId(parentId, NameId);
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             Name = NameId;
-            Units = Devices.Units.MILLILITER;
+            Units = DefaultUnits;
         }
     }
 }

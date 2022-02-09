@@ -10,13 +10,11 @@ namespace MTConnect.Streams.Samples
     /// </summary>
     public class ConcentrationValue : SampleValue
     {
-        protected override string MetricUnits => "PERCENT";
-        protected override string InchUnits => "PERCENT";
-
-
-        public ConcentrationValue(double percent)
+        public ConcentrationValue(double nativeValue, string nativeUnits = Devices.Samples.ConcentrationDataItem.DefaultUnits)
         {
-            Value = percent;
+            Value = nativeValue;
+            _units = Devices.Samples.ConcentrationDataItem.DefaultUnits;
+            _nativeUnits = nativeUnits;
         }
     }
 }

@@ -1382,7 +1382,7 @@ namespace MTConnect.Agents
 
             if (dataItemResults != null && !dataItemResults.Observations.IsNullOrEmpty() && !dataItems.IsNullOrEmpty())
             {
-                var filteredDataItems = dataItems.Where(o => o.DataItemCategory == DataItemCategory.SAMPLE).ToList();
+                var filteredDataItems = dataItems.Where(o => o.Category == DataItemCategory.SAMPLE).ToList();
                 if (!filteredDataItems.IsNullOrEmpty())
                 {
                     foreach (var dataItem in filteredDataItems)
@@ -1548,7 +1548,7 @@ namespace MTConnect.Agents
 
             if (dataItemResults != null && !dataItemResults.Observations.IsNullOrEmpty() && !dataItems.IsNullOrEmpty())
             {
-                var filteredDataItems = dataItems.Where(o => o.DataItemCategory == DataItemCategory.EVENT).ToList();
+                var filteredDataItems = dataItems.Where(o => o.Category == DataItemCategory.EVENT).ToList();
                 if (!filteredDataItems.IsNullOrEmpty())
                 {
                     foreach (var dataItem in filteredDataItems)
@@ -1685,7 +1685,7 @@ namespace MTConnect.Agents
 
             if (dataItemResults != null && !dataItemResults.Observations.IsNullOrEmpty() && !dataItems.IsNullOrEmpty())
             {
-                var filteredDataItems = dataItems.Where(o => o.DataItemCategory == DataItemCategory.CONDITION);
+                var filteredDataItems = dataItems.Where(o => o.Category == DataItemCategory.CONDITION);
                 if (!filteredDataItems.IsNullOrEmpty())
                 {
                     foreach (var dataItem in filteredDataItems)
@@ -2069,7 +2069,7 @@ namespace MTConnect.Agents
                         // If no observation exists, then add an Unavailable observation
                         if (!exists)
                         {
-                            var valueType = dataItem.DataItemCategory == DataItemCategory.CONDITION ? ValueTypes.Level : ValueTypes.CDATA;
+                            var valueType = dataItem.Category == DataItemCategory.CONDITION ? ValueTypes.Level : ValueTypes.CDATA;
                             var value = !string.IsNullOrEmpty(dataItem.InitialValue) ? dataItem.InitialValue : Streams.DataItem.Unavailable;
 
                             // Add Unavailable Observation to ObservationBuffer
@@ -2113,7 +2113,7 @@ namespace MTConnect.Agents
                         // If no observation exists, then add an Unavailable observation
                         if (!exists)
                         {
-                            var valueType = dataItem.DataItemCategory == DataItemCategory.CONDITION ? ValueTypes.Level : ValueTypes.CDATA;
+                            var valueType = dataItem.Category == DataItemCategory.CONDITION ? ValueTypes.Level : ValueTypes.CDATA;
                             var value = !string.IsNullOrEmpty(dataItem.InitialValue) ? dataItem.InitialValue : Streams.DataItem.Unavailable;
 
                             // Add Unavailable Observation to ObservationBuffer
@@ -2184,21 +2184,6 @@ namespace MTConnect.Agents
             }
 
             return false;
-        }
-
-        private static object ConvertValue(DataItem dataItem, object value)
-        {
-            if (dataItem.DataItemCategory == DataItemCategory.SAMPLE && !string.IsNullOrEmpty(dataItem.NativeUnits))
-            {
-                var sampleValue = Streams.Samples.SampleValue.Create(dataItem.Type);
-                if (sampleValue != null)
-                {
-                    sampleValue.Value = value;
-                    return sampleValue.ToMetric();
-                }
-            }
-
-            return value;
         }
 
         private static bool FilterPeriod(DataItem dataItem, long newTimestamp, long existingTimestamp)
@@ -2457,7 +2442,7 @@ namespace MTConnect.Agents
                 foreach (var dataItem in dataItems)
                 {
                     var obj = new DataItem();
-                    obj.DataItemCategory = dataItem.DataItemCategory;
+                    obj.Category = dataItem.Category;
                     obj.Id = dataItem.Id;
                     obj.Name = dataItem.Name;
                     obj.Type = dataItem.Type;
@@ -2801,6 +2786,103 @@ namespace MTConnect.Agents
 
         #region "Observations"
 
+        #region "Internal"
+
+        private IObservation ConvertObservationValue(DataItem dataItem, IObservation observation)
+        {
+            if (dataItem != null && observation != null)
+            {
+                if (dataItem.Category == DataItemCategory.SAMPLE)
+                {
+                    // Get the CDATA Value
+                    var cdata = observation.GetValue(ValueTypes.CDATA);
+                    if (!string.IsNullOrEmpty(cdata))
+                    {
+                        var units = dataItem.Units;
+                        var nativeUnits = dataItem.NativeUnits;
+                        var value = cdata.ToDouble();
+
+                        // Get the SampleValue for the DataItem Type
+                        if (dataItem.Units == Units.DEGREE_3D)
+                        {
+                            // Remove the "_3D" suffix from the Units and NativeUnits
+                            units = Remove3dSuffix(units);
+                            nativeUnits = Remove3dSuffix(nativeUnits);
+
+                            // Create a new Degree3D object to parse the CDATA
+                            var degree3d = Streams.Degree3D.FromString(cdata);
+                            degree3d.A = Streams.DataItem.ConvertUnits(degree3d.A, units, nativeUnits);
+                            degree3d.B = Streams.DataItem.ConvertUnits(degree3d.B, units, nativeUnits);
+                            degree3d.C = Streams.DataItem.ConvertUnits(degree3d.C, units, nativeUnits);
+
+                            // Apply the NativeScale
+                            if (dataItem.NativeScale > 0)
+                            {
+                                degree3d.A = degree3d.A / dataItem.NativeScale;
+                                degree3d.B = degree3d.B / dataItem.NativeScale;
+                                degree3d.C = degree3d.C / dataItem.NativeScale;
+                            }
+
+                            // Convert _3D back to string using the appropriate format and set to CDATA
+                            cdata = degree3d.ToString();
+                        }
+                        else if (dataItem.Units == Units.MILLIMETER_3D || dataItem.Units == Units.UNIT_VECTOR_3D)
+                        {
+                            // Remove the "_3D" suffix from the Units and NativeUnits
+                            units = Remove3dSuffix(units);
+                            nativeUnits = Remove3dSuffix(nativeUnits);
+
+                            // Create a new Position3D object to parse the CDATA
+                            var position3d = Streams.Position3D.FromString(cdata);
+                            position3d.X = Streams.DataItem.ConvertUnits(position3d.X, units, nativeUnits);
+                            position3d.Y = Streams.DataItem.ConvertUnits(position3d.Y, units, nativeUnits);
+                            position3d.Z = Streams.DataItem.ConvertUnits(position3d.Z, units, nativeUnits);
+
+                            // Apply the NativeScale
+                            if (dataItem.NativeScale > 0)
+                            {
+                                position3d.X = position3d.X / dataItem.NativeScale;
+                                position3d.Y = position3d.Y / dataItem.NativeScale;
+                                position3d.Z = position3d.Z / dataItem.NativeScale;
+                            }
+
+                            // Convert _3D back to string using the appropriate format and set CDATA
+                            cdata = position3d.ToString();
+                        }
+                        else
+                        {
+                            // Directly convert the Units if no SampleValue class is found
+                            value = Streams.DataItem.ConvertUnits(cdata.ToDouble(), units, nativeUnits);
+
+                            // Apply the NativeScale
+                            if (dataItem.NativeScale > 0) value = value / dataItem.NativeScale;
+
+                            // Set CDATA to value
+                            cdata = value.ToString();
+                        }
+
+                        // Replace the CDATA value in the Observation
+                        observation.AddValue(ValueTypes.CDATA, cdata);
+                    }
+                }
+            }
+
+            return observation;
+        }
+
+        private string Remove3dSuffix(string s)
+        {
+            var i = s.IndexOf("_3D");
+            if (i >= 0)
+            {
+                s = s.Substring(0, i);
+            }
+            return s;
+        }
+
+        #endregion
+
+
         /// <summary>
         /// Add a new Observation for a DataItem of category EVENT or SAMPLE to the Agent
         /// </summary>
@@ -2987,7 +3069,7 @@ namespace MTConnect.Agents
                     var di = DataItem.Create(dataItem.Type);
                     if (di != null)
                     {
-                        di.DataItemCategory = dataItem.DataItemCategory;
+                        di.Category = dataItem.Category;
                         di.Id = dataItem.Id;
                         di.Name = dataItem.Name;
                         di.Type = dataItem.Type;
@@ -3014,12 +3096,13 @@ namespace MTConnect.Agents
                     var validationResults = dataItem.IsValid(Version, observation);
                     if (validationResults.IsValid)
                     {
-                        // Unit Conversion - Here
+                        // Convert Units (if needed)
+                        observation = ConvertObservationValue(dataItem, observation);
 
                         bool update;
 
                         // Check if Observation Needs to be Updated
-                        if (dataItem.DataItemCategory == DataItemCategory.CONDITION)
+                        if (dataItem.Category == DataItemCategory.CONDITION)
                         {
                             update = UpdateCurrentCondition(deviceName, dataItem, observation);
                         }
@@ -3075,7 +3158,7 @@ namespace MTConnect.Agents
                     var di = DataItem.Create(dataItem.Type);
                     if (di != null)
                     {
-                        di.DataItemCategory = dataItem.DataItemCategory;
+                        di.Category = dataItem.Category;
                         di.Id = dataItem.Id;
                         di.Name = dataItem.Name;
                         di.Type = dataItem.Type;
@@ -3102,12 +3185,13 @@ namespace MTConnect.Agents
                     var validationResults = dataItem.IsValid(Version, observation);
                     if (validationResults.IsValid)
                     {
-                        // Unit Conversion - Here
+                        // Convert Units (if needed)
+                        observation = ConvertObservationValue(dataItem, observation);
 
                         bool update;
 
                         // Check if Observation Needs to be Updated
-                        if (dataItem.DataItemCategory == DataItemCategory.CONDITION)
+                        if (dataItem.Category == DataItemCategory.CONDITION)
                         {
                             update = UpdateCurrentCondition(deviceName, dataItem, observation);
                         }
@@ -3394,11 +3478,6 @@ namespace MTConnect.Agents
         }
 
         #endregion
-
-        #endregion
-
-        #region "Interfaces"
-
 
         #endregion
 

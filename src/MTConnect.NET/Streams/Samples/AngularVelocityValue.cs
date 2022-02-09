@@ -10,13 +10,11 @@ namespace MTConnect.Streams.Samples
     /// </summary>
     public class AngularVelocityValue : SampleValue
     {
-        protected override string MetricUnits => "DEGREE/SECOND";
-        protected override string InchUnits => "DEGREE/SECOND";
-
-
-        public AngularVelocityValue(double velocity)
+        public AngularVelocityValue(double nativeValue, string nativeUnits = Devices.Samples.AngularVelocityDataItem.DefaultUnits)
         {
-            Value = velocity;
+            Value = nativeValue;
+            _units = Devices.Samples.AngularVelocityDataItem.DefaultUnits;
+            _nativeUnits = nativeUnits;
         }
     }
 }

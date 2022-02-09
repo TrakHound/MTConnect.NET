@@ -13,21 +13,22 @@ namespace MTConnect.Devices.Samples
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "CAPACITY_SPATIAL";
         public const string NameId = "capSpatial";
+        public const string DefaultUnits = Devices.Units.CUBIC_MILLIMETER;
 
         public CapacitySpatialDataItem()
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
-            Units = Devices.Units.CUBIC_MILLIMETER;
+            Units = DefaultUnits;
         }
 
         public CapacitySpatialDataItem(string parentId)
         {
             Id = CreateId(parentId, NameId);
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             Name = NameId;
-            Units = Devices.Units.CUBIC_MILLIMETER;
+            Units = DefaultUnits;
         }
     }
 }

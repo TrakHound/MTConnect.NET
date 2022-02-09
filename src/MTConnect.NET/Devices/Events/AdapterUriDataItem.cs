@@ -17,7 +17,7 @@ namespace MTConnect.Devices.Events
 
         public AdapterUriDataItem()
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             Name = NameId;
         }
@@ -25,7 +25,7 @@ namespace MTConnect.Devices.Events
         public AdapterUriDataItem(string parentId)
         {
             Id = CreateId(parentId, NameId);
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             Name = NameId;
         }

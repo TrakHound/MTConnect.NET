@@ -13,6 +13,7 @@ namespace MTConnect.Devices.Samples
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "PATH_FEEDRATE_PER_REVOLUTION";
         public const string NameId = "pathFeedPerRev";
+        public const string DefaultUnits = Devices.Units.MILLIMETER_PER_REVOLUTION;
 
         public enum SubTypes
         {
@@ -35,9 +36,9 @@ namespace MTConnect.Devices.Samples
 
         public PathFeedratePerRevolutionDataItem()
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
-            Units = Devices.Units.MILLIMETER_PER_REVOLUTION;
+            Units = DefaultUnits;
         }
 
         public PathFeedratePerRevolutionDataItem(
@@ -45,11 +46,11 @@ namespace MTConnect.Devices.Samples
             SubTypes subType)
         {
             Id = CreateId(parentId, NameId, GetSubTypeId(subType));
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             SubType = subType.ToString();
             Name = NameId;
-            Units = Devices.Units.MILLIMETER_PER_REVOLUTION;
+            Units = DefaultUnits;
         }
 
         public static string GetSubTypeId(SubTypes subType)

@@ -10,18 +10,11 @@ namespace MTConnect.Streams.Samples
     /// </summary>
     public class PressureValue : SampleValue
     {
-        protected override double MetricConversion => 6894.759086775;
-        protected override double InchConversion => 0.0001450377;
-        protected override string MetricUnits => "PASCAL";
-        protected override string InchUnits => "POUND/INCH^2";
-
-
-        public PressureValue() { }
-
-        public PressureValue(double pressure, UnitSystem unitSystem = UnitSystem.METRIC)
+        public PressureValue(double nativeValue, string nativeUnits = Devices.Samples.PressureDataItem.DefaultUnits)
         {
-            Value = pressure;
-            UnitSystem = unitSystem;
+            Value = nativeValue;
+            _units = Devices.Samples.PressureDataItem.DefaultUnits;
+            _nativeUnits = nativeUnits;
         }
     }
 }

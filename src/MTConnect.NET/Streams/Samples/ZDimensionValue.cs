@@ -10,16 +10,11 @@ namespace MTConnect.Streams.Samples
     /// </summary>
     public class ZDimensionValue : SampleValue
     {
-        protected override double MetricConversion => 25.4;
-        protected override double InchConversion => 0.03937008;
-        protected override string MetricUnits => "MILLIMETER";
-        protected override string InchUnits => "INCH";
-
-
-        public ZDimensionValue(double dimension, UnitSystem unitSystem = UnitSystem.METRIC)
+        public ZDimensionValue(double nativeValue, string nativeUnits = Devices.Samples.ZDimensionDataItem.DefaultUnits)
         {
-            Value = dimension;
-            UnitSystem = unitSystem;
+            Value = nativeValue;
+            _units = Devices.Samples.ZDimensionDataItem.DefaultUnits;
+            _nativeUnits = nativeUnits;
         }
     }
 }

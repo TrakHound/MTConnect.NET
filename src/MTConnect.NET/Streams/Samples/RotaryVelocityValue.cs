@@ -10,15 +10,11 @@ namespace MTConnect.Streams.Samples
     /// </summary>
     public class RotaryVelocityValue : SampleValue
     {
-        protected override string MetricUnits => "REVOLUTION/MINUTE";
-        protected override string InchUnits => "REVOLUTION/MINUTE";
-
-
-        public RotaryVelocityValue() { }
-
-        public RotaryVelocityValue(double velocity)
+        public RotaryVelocityValue(double nativeValue, string nativeUnits = Devices.Samples.RotaryVelocityDataItem.DefaultUnits)
         {
-            Value = velocity;
+            Value = nativeValue;
+            _units = Devices.Samples.RotaryVelocityDataItem.DefaultUnits;
+            _nativeUnits = nativeUnits;
         }
     }
 }

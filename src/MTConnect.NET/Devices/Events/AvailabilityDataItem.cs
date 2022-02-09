@@ -20,14 +20,14 @@ namespace MTConnect.Devices.Events
 
         public AvailabilityDataItem() 
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
         }
 
         public AvailabilityDataItem(string deviceId)
         {
             Id = CreateId(deviceId, NameId);
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             Name = NameId;
         }

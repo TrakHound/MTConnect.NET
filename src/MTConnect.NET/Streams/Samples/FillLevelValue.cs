@@ -10,15 +10,11 @@ namespace MTConnect.Streams.Samples
     /// </summary>
     public class FillLevelValue : SampleValue
     {
-        protected override string MetricUnits => "PERCENT";
-        protected override string InchUnits => "PERCENT";
-
-
-        public FillLevelValue() { }
-
-        public FillLevelValue(double percent)
+        public FillLevelValue(double nativeValue, string nativeUnits = Devices.Samples.FillLevelDataItem.DefaultUnits)
         {
-            Value = percent;
+            Value = nativeValue;
+            _units = Devices.Samples.FillLevelDataItem.DefaultUnits;
+            _nativeUnits = nativeUnits;
         }
     }
 }

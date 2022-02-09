@@ -13,22 +13,23 @@ namespace MTConnect.Devices.Samples
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "ORIENTATION";
         public const string NameId = "orientation";
+        public const string DefaultUnits = Devices.Units.DEGREE_3D;
 
 
         public OrientationDataItem()
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
-            Units = Devices.Units.DEGREE_3D;
+            Units = DefaultUnits;
         }
 
         public OrientationDataItem(string parentId)
         {
             Id = CreateId(parentId, NameId);
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             Name = NameId;
-            Units = Devices.Units.DEGREE_3D;
+            Units = DefaultUnits;
         }
     }
 }

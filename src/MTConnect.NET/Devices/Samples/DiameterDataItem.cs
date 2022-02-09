@@ -13,22 +13,23 @@ namespace MTConnect.Devices.Samples
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "DIAMETER";
         public const string NameId = "dia";
+        public const string DefaultUnits = Devices.Units.MILLIMETER;
 
 
         public DiameterDataItem()
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
-            Units = Devices.Units.MILLIMETER;
+            Units = DefaultUnits;
         }
 
         public DiameterDataItem(string parentId)
         {
             Id = CreateId(parentId, NameId);
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             Name = NameId;
-            Units = Devices.Units.MILLIMETER;
+            Units = DefaultUnits;
         }
     }
 }

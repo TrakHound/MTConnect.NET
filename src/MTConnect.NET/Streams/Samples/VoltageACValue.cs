@@ -10,13 +10,11 @@ namespace MTConnect.Streams.Samples
     /// </summary>
     public class VoltageACValue : SampleValue
     {
-        protected override string MetricUnits => "VOLT";
-        protected override string InchUnits => "VOLT";
-
-
-        public VoltageACValue(double voltage)
+        public VoltageACValue(double nativeValue, string nativeUnits = Devices.Samples.VoltageACDataItem.DefaultUnits)
         {
-            Value = voltage;
+            Value = nativeValue;
+            _units = Devices.Samples.VoltageACDataItem.DefaultUnits;
+            _nativeUnits = nativeUnits;
         }
     }
 }

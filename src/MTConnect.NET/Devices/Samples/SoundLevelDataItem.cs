@@ -13,6 +13,7 @@ namespace MTConnect.Devices.Samples
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "SOUND_LEVEL";
         public const string NameId = "soundlvl";
+        public const string DefaultUnits = Devices.Units.DECIBEL;
 
         public enum SubTypes
         {
@@ -45,9 +46,9 @@ namespace MTConnect.Devices.Samples
 
         public SoundLevelDataItem()
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
-            Units = Devices.Units.DECIBEL;
+            Units = DefaultUnits;
         }
 
         public SoundLevelDataItem(
@@ -56,11 +57,11 @@ namespace MTConnect.Devices.Samples
             )
         {
             Id = CreateId(parentId, NameId, GetSubTypeId(subType));
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             SubType = subType.ToString();
             Name = NameId;
-            Units = Devices.Units.DECIBEL;
+            Units = DefaultUnits;
         }
 
 

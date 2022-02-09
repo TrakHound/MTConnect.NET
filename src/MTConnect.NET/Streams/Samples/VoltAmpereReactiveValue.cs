@@ -10,13 +10,11 @@ namespace MTConnect.Streams.Samples
     /// </summary>
     public class VoltAmpereReactiveValue : SampleValue
     {
-        protected override string MetricUnits => "VOLT_AMPERE_REACTIVE";
-        protected override string InchUnits => "VOLT_AMPERE_REACTIVE";
-
-
-        public VoltAmpereReactiveValue(double voltAmpereReactive)
+        public VoltAmpereReactiveValue(double nativeValue, string nativeUnits = Devices.Samples.VoltAmpereReactiveDataItem.DefaultUnits)
         {
-            Value = voltAmpereReactive;
+            Value = nativeValue;
+            _units = Devices.Samples.VoltAmpereReactiveDataItem.DefaultUnits;
+            _nativeUnits = nativeUnits;
         }
     }
 }

@@ -10,74 +10,63 @@ using System.Text.RegularExpressions;
 
 namespace MTConnect.Streams.Samples
 {
-    public class SampleValue : Sample
+    public class SampleValue<T> : Sample
+    {
+        internal string _units;
+        internal string _nativeUnits;
+
+
+        /// <summary>
+        /// Gets or Sets the Units for the DataItem
+        /// </summary>
+        public string Units => _units;
+
+        /// <summary>
+        /// Get or Sets the Native Units for the DataItem
+        /// </summary>
+        public string NativeUnits => _nativeUnits;
+
+        /// <summary>
+        /// Gets or Sets the Value of the Sample in the Units that are specified for the DataItem
+        /// </summary>
+        public virtual T Value { get; set; }
+
+        /// <summary>
+        /// Get or Sets the Value of the Sample in the Native Units that are specified for the DataItem
+        /// </summary>
+        public virtual T NativeValue { get; set; }
+    }
+
+
+    public class SampleValue : SampleValue<double>
     {
         private static Dictionary<string, Type> _types;
 
 
-        protected virtual double MetricConversion => 1;
-        protected virtual double InchConversion => 1;
-        protected virtual string MetricUnits { get; }
-        protected virtual string InchUnits { get; }
-        protected virtual string MetricUnitAbbreviation { get; }
-        protected virtual string InchUnitAbbreviation { get; }
-
-        public object Value { get; set; }
-
-        public string Units
-        {
-            get
-            {
-                if (UnitSystem == UnitSystem.METRIC) return MetricUnits;
-                else return InchUnits;
-            }
+        public override double Value 
+        { 
+            get => ConvertUnits(CDATA.ToDouble(), Units, NativeUnits); 
+            set => CDATA = value.ToString();
         }
 
-        public string UnitAbbreviation
+        public override double NativeValue
         {
-            get
-            {
-                if (UnitSystem == UnitSystem.METRIC) return MetricUnitAbbreviation;
-                else return InchUnitAbbreviation;
-            }
+            get => ConvertUnits(CDATA.ToDouble(), NativeUnits, Units);
+            set => CDATA = value.ToString();
         }
-
-        public UnitSystem UnitSystem { get; set; }
 
 
         protected SampleValue() { }
 
-        public SampleValue(double value, UnitSystem unitSystem = UnitSystem.METRIC)
+        public SampleValue(double value)
         {
             Value = value;
-            UnitSystem = unitSystem;
         }
 
-
+ 
         public override string ToString()
         {
-            return ToMetric().ToString();
-        }
-
-
-        public virtual double ToMetric()
-        {
-            if (UnitSystem == UnitSystem.INCH)
-            {
-                return Value.ToDouble() * MetricConversion;
-            }
-
-            return Value.ToDouble();
-        }
-
-        public virtual double ToInch()
-        {
-            if (UnitSystem == UnitSystem.METRIC)
-            {
-                return Value.ToDouble() * InchConversion;
-            }
-
-            return Value.ToDouble();
+            return Value.ToString();
         }
 
 

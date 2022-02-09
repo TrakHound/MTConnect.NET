@@ -13,6 +13,7 @@ namespace MTConnect.Devices.Samples
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "POSITION";
         public const string NameId = "pos";
+        public const string DefaultUnits = Devices.Units.MILLIMETER;
 
         public enum SubTypes
         {
@@ -40,9 +41,9 @@ namespace MTConnect.Devices.Samples
 
         public PositionDataItem()
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
-            Units = Devices.Units.MILLIMETER;
+            Units = DefaultUnits;
         }
 
         public PositionDataItem(
@@ -52,12 +53,12 @@ namespace MTConnect.Devices.Samples
             )
         {
             Id = CreateId(parentId, NameId, GetSubTypeId(subType, coordinateSystem));
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             SubType = subType.ToString();
             Name = NameId;
             CoordinateSystem = coordinateSystem;
-            Units = Devices.Units.MILLIMETER;
+            Units = DefaultUnits;
             SignificantDigits = 4;
         }
 

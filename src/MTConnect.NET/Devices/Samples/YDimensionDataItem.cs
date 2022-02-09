@@ -13,22 +13,23 @@ namespace MTConnect.Devices.Samples
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "Y_DIMENSION";
         public const string NameId = "yDim";
+        public const string DefaultUnits = Devices.Units.MILLIMETER;
 
 
         public YDimensionDataItem()
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
-            Units = Devices.Units.MILLIMETER;
+            Units = DefaultUnits;
         }
 
         public YDimensionDataItem(string parentId)
         {
             Id = CreateId(parentId, NameId);
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             Name = NameId;
-            Units = Devices.Units.MILLIMETER;
+            Units = DefaultUnits;
         }
     }
 }

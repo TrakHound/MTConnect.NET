@@ -13,22 +13,23 @@ namespace MTConnect.Devices.Samples
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "MASS";
         public const string NameId = "mass";
+        public const string DefaultUnits = Devices.Units.KILOGRAM;
 
 
         public MassDataItem()
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
-            Units = Devices.Units.KILOGRAM;
+            Units = DefaultUnits;
         }
 
         public MassDataItem(string parentId)
         {
             Id = CreateId(parentId, NameId);
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             Name = NameId;
-            Units = Devices.Units.KILOGRAM;
+            Units = DefaultUnits;
         }
     }
 }

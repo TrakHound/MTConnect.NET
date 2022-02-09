@@ -13,6 +13,7 @@ namespace MTConnect.Devices.Samples
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "DEPOSITION_DENSITY";
         public const string NameId = "depDensity";
+        public const string DefaultUnits = Devices.Units.MILLIGRAM_PER_CUBIC_MILLIMETER;
 
         public enum SubTypes
         {
@@ -30,9 +31,9 @@ namespace MTConnect.Devices.Samples
 
         public DepositionDensityDataItem()
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
-            Units = Devices.Units.MILLIGRAM_PER_CUBIC_MILLIMETER;
+            Units = DefaultUnits;
         }
 
         public DepositionDensityDataItem(
@@ -41,11 +42,11 @@ namespace MTConnect.Devices.Samples
             )
         {
             Id = CreateId(parentId, NameId, GetSubTypeId(subType));
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             SubType = subType.ToString();
             Name = NameId;
-            Units = Devices.Units.MILLIGRAM_PER_CUBIC_MILLIMETER;
+            Units = DefaultUnits;
         }
 
 

@@ -10,13 +10,11 @@ namespace MTConnect.Streams.Samples
     /// </summary>
     public class AmperageDCValue : SampleValue
     {
-        protected override string MetricUnits => "AMPERE";
-        protected override string InchUnits => "AMPERE";
-
-
-        public AmperageDCValue(double amperage)
+        public AmperageDCValue(double nativeValue, string nativeUnits = Devices.Samples.AmperageDCDataItem.DefaultUnits)
         {
-            Value = amperage;
+            Value = nativeValue;
+            _units = Devices.Samples.AmperageDCDataItem.DefaultUnits;
+            _nativeUnits = nativeUnits;
         }
     }
 }

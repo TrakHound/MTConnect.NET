@@ -10,16 +10,11 @@ namespace MTConnect.Streams.Samples
     /// </summary>
     public class MassValue : SampleValue
     {
-        protected override double MetricConversion => 0.45359237;
-        protected override double InchConversion => 2.20462262;
-        protected override string MetricUnits => "KILOGRAM";
-        protected override string InchUnits => "POUND";
-
-
-        public MassValue(double mass, UnitSystem unitSystem = UnitSystem.METRIC)
+        public MassValue(double nativeValue, string nativeUnits = Devices.Samples.MassDataItem.DefaultUnits)
         {
-            Value = mass;
-            UnitSystem = unitSystem;
+            Value = nativeValue;
+            _units = Devices.Samples.MassDataItem.DefaultUnits;
+            _nativeUnits = nativeUnits;
         }
     }
 }

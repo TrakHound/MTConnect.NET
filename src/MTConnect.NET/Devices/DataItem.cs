@@ -34,11 +34,7 @@ namespace MTConnect.Devices
         /// </summary>
         [XmlAttribute("category")]
         [JsonIgnore]
-        public DataItemCategory DataItemCategory { get; set; }
-
-        [XmlIgnore]
-        [JsonPropertyName("category")]
-        public string DataItemCategoryValue => DataItemCategory.ToString();
+        public DataItemCategory Category { get; set; }
 
         /// <summary>
         /// The unique identifier for this DataItem.
@@ -65,9 +61,12 @@ namespace MTConnect.Devices
         [JsonIgnore]
         public DataItemCoordinateSystem CoordinateSystem { get; set; }
 
-        [XmlIgnore]
-        [JsonPropertyName("coordinateSystem")]
-        public string CoordinateSystemValue => CoordinateSystem != DataItemCoordinateSystem.MACHINE ? CoordinateSystem.ToString() : null;
+        /// <summary>
+        /// The associated CoordinateSystem context for the DataItem.
+        /// </summary>
+        [XmlAttribute("coordinateSystemIdRef")]
+        [JsonPropertyName("coordinateSystemIdRef")]
+        public string CoordinateSystemIdRef { get; set; }
 
         /// <summary>
         /// The name of the DataItem. A name is provided as an additional human readable identifier for this DataItem in addtion to the id.
@@ -84,7 +83,7 @@ namespace MTConnect.Devices
         /// </summary>
         [XmlAttribute("nativeScale")]
         [JsonPropertyName("nativeScale")]
-        public string NativeScale { get; set; }
+        public double NativeScale { get; set; }
 
         /// <summary>
         /// The native units used by the Component.
@@ -110,10 +109,6 @@ namespace MTConnect.Devices
         [XmlAttribute("statistic")]
         [JsonIgnore]
         public virtual DataItemStatistic Statistic { get; set; }
-
-        [XmlIgnore]
-        [JsonPropertyName("statistic")]
-        public string StatisticValue => Statistic != DataItemStatistic.NONE ? Statistic.ToString() : null;
 
         /// <summary>
         /// Units MUST be present for all DataItem elements in the SAMPLE category.
@@ -153,10 +148,6 @@ namespace MTConnect.Devices
         [JsonIgnore]
         public DataItemRepresentation Representation { get; set; }
 
-        [XmlIgnore]
-        [JsonPropertyName("representation")]
-        public string RepresentationValue => Representation != DataItemRepresentation.VALUE ? Representation.ToString() : null;
-
         /// <summary>
         /// The number of significant digits in the reported value.
         /// This is used by applications to dtermine accuracy of values.
@@ -166,6 +157,13 @@ namespace MTConnect.Devices
         [DefaultValue(0)]
         [JsonPropertyName("significantDigits")]
         public int SignificantDigits { get; set; }
+
+        /// <summary>
+        /// The identifier attribute of the Composition element that the reported data is most closely associated.
+        /// </summary>
+        [XmlAttribute("compositionId")]
+        [JsonPropertyName("compositionId")]
+        public string CompositionId { get; set; }
 
         /// <summary>
         /// Source is an XML element that indentifies the Component, Subcomponent, or DataItem representing the part of the device from which a measured value originates.
@@ -259,7 +257,7 @@ namespace MTConnect.Devices
         /// <returns>A DataItemValidationResult indicating if Validation was successful and a Message</returns>
         public DataItemValidationResult IsValid(Version mtconnectVersion, IObservation observation)
         {
-            switch (DataItemCategory)
+            switch (Category)
             {
                 // Validate Sample
                 case DataItemCategory.SAMPLE:
@@ -417,7 +415,7 @@ namespace MTConnect.Devices
                 var obj = Create(dataItem.Type);
                 if (obj != null)
                 {
-                    obj.DataItemCategory = dataItem.DataItemCategory;
+                    obj.Category = dataItem.Category;
                     obj.Id = dataItem.Id;
                     obj.Name = dataItem.Name;
                     obj.Type = dataItem.Type;
@@ -430,6 +428,8 @@ namespace MTConnect.Devices
                     obj.Representation = dataItem.Representation;
                     obj.ResetTrigger = dataItem.ResetTrigger;
                     obj.CoordinateSystem = dataItem.CoordinateSystem;
+                    obj.CoordinateSystemIdRef = dataItem.CoordinateSystemIdRef;
+                    obj.CompositionId = dataItem.CompositionId;
                     obj.Constraints = dataItem.Constraints;
                     obj.Definition = dataItem.Definition;
                     obj.Units = dataItem.Units;

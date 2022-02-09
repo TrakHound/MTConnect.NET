@@ -17,14 +17,14 @@ namespace MTConnect.Devices.Conditions
 
         public LogicProgramCondition()
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
         }
 
         public LogicProgramCondition(string parentId)
         {
             Id = CreateId(parentId, NameId);
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             Name = NameId;
         }

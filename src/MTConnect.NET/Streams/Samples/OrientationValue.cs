@@ -8,15 +8,26 @@ namespace MTConnect.Streams.Samples
     /// <summary>
     /// A measured or calculated orientation of a plane or vector relative to a cartesian coordinate system
     /// </summary>
-    public class OrientationValue : SampleValue
+    public class OrientationValue : SampleValue<Degree3D>
     {
-        protected override string MetricUnits => "DEGREE_3D";
-        protected override string InchUnits => "DEGREE_3D";
-
-
-        public OrientationValue(double degreesA, double degreesB, double degreesC)
+        public override Degree3D Value
         {
-            Value = new Degree3D(degreesA, degreesB, degreesC).ToString();
+            get => Degree3D.FromString(CDATA);
+            set => CDATA = value.ToString();
+        }
+
+        public override Degree3D NativeValue
+        {
+            get => Degree3D.FromString(CDATA);
+            set => CDATA = value.ToString();
+        }
+
+
+        public OrientationValue(double nativeA, double nativeB, double nativeC, string nativeUnits = Devices.Samples.OrientationDataItem.DefaultUnits)
+        {
+            Value = new Degree3D(nativeA, nativeB, nativeC);
+            _units = Devices.Samples.OrientationDataItem.DefaultUnits;
+            _nativeUnits = nativeUnits;
         }
     }
 }

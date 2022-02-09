@@ -9,7 +9,7 @@ namespace MTConnect.Models
 {
     public interface IDataItemModel
     {
-        DataItemCategory DataItemCategory { get; set; }
+        DataItemCategory Category { get; set; }
 
         string Id { get; set; }
 
@@ -21,7 +21,7 @@ namespace MTConnect.Models
 
         DataItemCoordinateSystem CoordinateSystem { get; set; }
 
-        string NativeScale { get; set; }
+        double NativeScale { get; set; }
 
         string Units { get; set; }
         //Units Units { get; set; }

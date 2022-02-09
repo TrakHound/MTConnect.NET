@@ -13,22 +13,23 @@ namespace MTConnect.Devices.Samples
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "TENSION";
         public const string NameId = "tension";
+        public const string DefaultUnits = Devices.Units.NEWTON;
 
 
         public TensionDataItem()
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
-            Units = Devices.Units.NEWTON;
+            Units = DefaultUnits;
         }
 
         public TensionDataItem(string parentId)
         {
             Id = CreateId(parentId, NameId);
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             Name = NameId;
-            Units = Devices.Units.NEWTON;
+            Units = DefaultUnits;
         }
     }
 }

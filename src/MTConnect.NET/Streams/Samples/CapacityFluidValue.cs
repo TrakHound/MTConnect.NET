@@ -10,15 +10,11 @@ namespace MTConnect.Streams.Samples
     /// </summary>
     public class CapacityFluidValue : SampleValue
     {
-        protected override string MetricUnits => "MILLILITER";
-        protected override string InchUnits => "MILLILITER";
-
-
-        public CapacityFluidValue() { }
-
-        public CapacityFluidValue(double capacity)
+        public CapacityFluidValue(double nativeValue, string nativeUnits = Devices.Samples.CapacityFluidDataItem.DefaultUnits)
         {
-            Value = capacity;
+            Value = nativeValue;
+            _units = Devices.Samples.CapacityFluidDataItem.DefaultUnits;
+            _nativeUnits = nativeUnits;
         }
     }
 }

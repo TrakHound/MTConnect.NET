@@ -49,7 +49,7 @@ namespace MTConnect.Devices.Xml
                         // Create a new base class DataItem to prevent the Type being required to be specified
                         // at compile time. This makes it possible to write custom Types
                         var obj = new XmlDataItem();
-                        obj.DataItemCategory = dataItem.DataItemCategory;
+                        obj.DataItemCategory = dataItem.Category;
                         obj.Id = dataItem.Id;
                         obj.Name = dataItem.Name;
                         obj.Type = dataItem.Type;
@@ -129,7 +129,7 @@ namespace MTConnect.Devices.Xml
                                     var obj = DataItem.Create(dataItem.Type);
                                     if (obj != null)
                                     {
-                                        obj.DataItemCategory = dataItem.DataItemCategory;
+                                        obj.Category = dataItem.DataItemCategory;
                                         obj.Id = dataItem.Id;
                                         obj.Name = dataItem.Name;
                                         obj.Type = dataItem.Type;

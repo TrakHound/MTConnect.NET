@@ -13,22 +13,23 @@ namespace MTConnect.Devices.Samples
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "CONDUCTIVITY";
         public const string NameId = "conductivity";
+        public const string DefaultUnits = Devices.Units.SIEMENS_PER_METER;
 
 
         public ConductivityDataItem()
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
-            Units = Devices.Units.SIEMENS_PER_METER;
+            Units = DefaultUnits;
         }
 
         public ConductivityDataItem(string parentId)
         {
             Id = CreateId(parentId, NameId);
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             Name = NameId;
-            Units = Devices.Units.SIEMENS_PER_METER;
+            Units = DefaultUnits;
         }
     }
 }

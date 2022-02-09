@@ -10,13 +10,11 @@ namespace MTConnect.Streams.Samples
     /// </summary>
     public class StrainValue : SampleValue
     {
-        protected override string MetricUnits => "PERCENT";
-        protected override string InchUnits => "PERCENT";
-
-
-        public StrainValue(double percent)
+        public StrainValue(double nativeValue, string nativeUnits = Devices.Samples.StrainDataItem.DefaultUnits)
         {
-            Value = percent;
+            Value = nativeValue;
+            _units = Devices.Samples.StrainDataItem.DefaultUnits;
+            _nativeUnits = nativeUnits;
         }
     }
 }

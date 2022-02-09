@@ -17,7 +17,7 @@ namespace MTConnect.Devices.Events
 
         public BlockCountDataItem()
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             Units = Devices.Units.COUNT;
         }
@@ -25,7 +25,7 @@ namespace MTConnect.Devices.Events
         public BlockCountDataItem(string parentId)
         {
             Id = CreateId(parentId, NameId);
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             Name = NameId;
             Units = Devices.Units.COUNT;

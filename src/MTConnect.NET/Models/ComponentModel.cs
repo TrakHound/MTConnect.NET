@@ -808,7 +808,7 @@ namespace MTConnect.Models
                     try
                     {
                         var obj = (T)Activator.CreateInstance(typeof(T));
-                        obj.DataItemCategory = dataItem.DataItemCategory;
+                        obj.Category = dataItem.Category;
                         obj.Id = dataItem.Id;
                         obj.Name = dataItem.Name;
                         obj.Type = dataItem.Type;

@@ -13,22 +13,23 @@ namespace MTConnect.Devices.Samples
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "STRAIN";
         public const string NameId = "strain";
+        public const string DefaultUnits = Devices.Units.PERCENT;
 
 
         public StrainDataItem()
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
-            Units = Devices.Units.PERCENT;
+            Units = DefaultUnits;
         }
 
         public StrainDataItem(string parentId)
         {
             Id = CreateId(parentId, NameId);
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             Name = NameId;
-            Units = Devices.Units.PERCENT;
+            Units = DefaultUnits;
         }
     }
 }

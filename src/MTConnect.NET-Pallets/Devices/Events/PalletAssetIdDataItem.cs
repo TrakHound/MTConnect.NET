@@ -15,7 +15,7 @@ namespace MTConnect.Devices.Events
         public PalletAssetIdDataItem(string deviceId)
         {
             Id = CreateId(deviceId, NameId);
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             Name = NameId;
         }

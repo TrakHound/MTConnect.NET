@@ -13,6 +13,7 @@ namespace MTConnect.Devices.Samples
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "DEPOSITION_ACCELERATION_VOLUMETRIC";
         public const string NameId = "depAccelVol";
+        public const string DefaultUnits = Devices.Units.CUBIC_MILLIMETER_PER_SECOND_SQUARED;
 
         public enum SubTypes
         {
@@ -30,9 +31,9 @@ namespace MTConnect.Devices.Samples
 
         public DepositionAccelerationVolumetricDataItem()
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
-            Units = Devices.Units.CUBIC_MILLIMETER_PER_SECOND_SQUARED;
+            Units = DefaultUnits;
         }
 
         public DepositionAccelerationVolumetricDataItem(
@@ -41,11 +42,11 @@ namespace MTConnect.Devices.Samples
             )
         {
             Id = CreateId(parentId, NameId, GetSubTypeId(subType));
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             SubType = subType.ToString();
             Name = NameId;
-            Units = Devices.Units.CUBIC_MILLIMETER_PER_SECOND_SQUARED;
+            Units = DefaultUnits;
         }
 
 

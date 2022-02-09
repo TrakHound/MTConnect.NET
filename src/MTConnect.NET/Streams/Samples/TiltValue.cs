@@ -10,16 +10,11 @@ namespace MTConnect.Streams.Samples
     /// </summary>
     public class TiltValue : SampleValue
     {
-        protected override double MetricConversion => 17452.0069808;
-        protected override double InchConversion => 0.0000573;
-        protected override string MetricUnits => "MICRO_RADIAN";
-        protected override string InchUnits => "DEGREE";
-
-
-        public TiltValue(double tilt, UnitSystem unitSystem = UnitSystem.METRIC)
+        public TiltValue(double nativeValue, string nativeUnits = Devices.Samples.TiltDataItem.DefaultUnits)
         {
-            Value = tilt;
-            UnitSystem = unitSystem;
+            Value = nativeValue;
+            _units = Devices.Samples.TiltDataItem.DefaultUnits;
+            _nativeUnits = nativeUnits;
         }
     }
 }

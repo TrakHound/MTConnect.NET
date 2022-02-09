@@ -75,7 +75,10 @@ namespace MTConnect.Devices.Xml
         /// If provided, the value MUST be numeric.
         /// </summary>
         [XmlAttribute("nativeScale")]
-        public string NativeScale { get; set; }
+        public double NativeScale { get; set; }
+
+        [XmlIgnore]
+        public bool NativeScaleSpecified => NativeScale > 0;
 
         /// <summary>
         /// The native units used by the Component.
@@ -213,7 +216,7 @@ namespace MTConnect.Devices.Xml
         {
             if (dataItem != null)
             {
-                DataItemCategory = dataItem.DataItemCategory;
+                DataItemCategory = dataItem.Category;
                 Id = dataItem.Id;
                 Name = dataItem.Name;
                 Type = dataItem.Type;
@@ -242,7 +245,7 @@ namespace MTConnect.Devices.Xml
             var dataItem = DataItem.Create(Type);
             if (dataItem == null) dataItem = new DataItem();
 
-            dataItem.DataItemCategory = DataItemCategory;
+            dataItem.Category = DataItemCategory;
             dataItem.Id = Id;
             dataItem.Name = Name;
             dataItem.Type = Type;

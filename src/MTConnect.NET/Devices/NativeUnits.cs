@@ -18,7 +18,7 @@ namespace MTConnect.Devices
         /// <summary>
         /// A measure of Viscosity
         /// </summary>
-        public const string CENTIPOSE = "CENTIPOSE";
+        public const string CENTIPOISE = "CENTIPOISE";
 
         /// <summary>
         /// Rotational velocity in degrees per minute

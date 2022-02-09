@@ -13,6 +13,7 @@ namespace MTConnect.Devices.Samples
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "TEMPERATURE";
         public const string NameId = "temp";
+        public const string DefaultUnits = Devices.Units.CELSIUS;
 
 
         public enum SubTypes
@@ -31,9 +32,9 @@ namespace MTConnect.Devices.Samples
 
         public TemperatureDataItem()
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
-            Units = Devices.Units.CELSIUS;
+            Units = DefaultUnits;
         }
 
         public TemperatureDataItem(
@@ -42,11 +43,11 @@ namespace MTConnect.Devices.Samples
             )
         {
             Id = CreateId(parentId, NameId, GetSubTypeId(subType));
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             SubType = subType.ToString();
             Name = NameId;
-            Units = Devices.Units.CELSIUS;
+            Units = DefaultUnits;
             SignificantDigits = 1;
         }
 

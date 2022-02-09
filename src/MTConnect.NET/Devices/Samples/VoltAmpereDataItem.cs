@@ -13,22 +13,23 @@ namespace MTConnect.Devices.Samples
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "VOLT_AMPERE";
         public const string NameId = "voltAmp";
+        public const string DefaultUnits = Devices.Units.VOLT_AMPERE;
 
 
         public VoltAmpereDataItem()
         {
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
-            Units = Devices.Units.VOLT_AMPERE;
+            Units = DefaultUnits;
         }
 
         public VoltAmpereDataItem(string parentId)
         {
             Id = CreateId(parentId, NameId);
-            DataItemCategory = CategoryId;
+            Category = CategoryId;
             Type = TypeId;
             Name = NameId;
-            Units = Devices.Units.VOLT_AMPERE;
+            Units = DefaultUnits;
         }
     }
 }

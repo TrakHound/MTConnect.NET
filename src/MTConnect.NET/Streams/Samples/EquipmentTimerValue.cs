@@ -12,13 +12,11 @@ namespace MTConnect.Streams.Samples
     /// </summary>
     public class EquipmentTimerValue : SampleValue
     {
-        protected override string MetricUnits => "SECOND";
-        protected override string InchUnits => "SECOND";
-
-
-        public EquipmentTimerValue(TimeSpan equipmentTimer)
+        public EquipmentTimerValue(double nativeValue, string nativeUnits = Devices.Samples.EquipmentTimerDataItem.DefaultUnits)
         {
-            Value = equipmentTimer.TotalSeconds;
+            Value = nativeValue;
+            _units = Devices.Samples.EquipmentTimerDataItem.DefaultUnits;
+            _nativeUnits = nativeUnits;
         }
     }
 }

@@ -10,16 +10,11 @@ namespace MTConnect.Streams.Samples
     /// </summary>
     public class DepositionRateVolumetricValue : SampleValue
     {
-        protected override double MetricConversion => 1;
-        protected override double InchConversion => 1;
-        protected override string MetricUnits => "CUBIC_MILLIMETER/SECOND";
-        protected override string InchUnits => "CUBIC_MILLIMETER/SECOND";
-
-
-        public DepositionRateVolumetricValue(double rate, UnitSystem unitSystem = UnitSystem.METRIC)
+        public DepositionRateVolumetricValue(double nativeValue, string nativeUnits = Devices.Samples.DepositionRateVolumetricDataItem.DefaultUnits)
         {
-            Value = rate;
-            UnitSystem = unitSystem;
+            Value = nativeValue;
+            _units = Devices.Samples.DepositionRateVolumetricDataItem.DefaultUnits;
+            _nativeUnits = nativeUnits;
         }
     }
 }
