@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Components
     {
         public const string TypeId = "Heating";
         public const string NameId = "heat";
+        public new const string DescriptionText = "Heating is a System used to deliver controlled amounts of heat to achieve a target temperature at a specified heating rate.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public HeatingComponent()  { Type = TypeId; }
     }

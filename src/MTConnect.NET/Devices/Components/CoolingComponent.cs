@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Components
     {
         public const string TypeId = "Cooling";
         public const string NameId = "cooling";
+        public new const string DescriptionText = "Cooling is a System used to to extract controlled amounts of heat to achieve a target temperature at a specified cooling rate.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public CoolingComponent()  { Type = TypeId; }
     }

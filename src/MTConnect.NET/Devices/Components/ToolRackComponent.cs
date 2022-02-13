@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Components
     {
         public const string TypeId = "ToolRack";
         public const string NameId = "toolrack";
+        public new const string DescriptionText = "ToolRack is a ToolingDelivery that represents a linear or matrixed tool storage mechanism that holds any number of tools. Tools are located in STATIONs.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public ToolRackComponent()  { Type = TypeId; }
     }

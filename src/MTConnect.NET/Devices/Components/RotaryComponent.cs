@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Components
     {
         public const string TypeId = "Rotary";
         public const string NameId = "rot";
+        public new const string DescriptionText = "A Rotary axis represents rotation about a fixed axis.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public RotaryComponent()  { Type = TypeId; }
     }

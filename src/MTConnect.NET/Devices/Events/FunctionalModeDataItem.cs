@@ -16,6 +16,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "FUNCTIONAL_MODE";
         public const string NameId = "funcMode";
+        public new const string DescriptionText = "The current intended production status of the device or component.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public FunctionalModeDataItem()

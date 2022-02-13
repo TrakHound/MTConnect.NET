@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Components
     {
         public const string TypeId = "Personnel";
         public const string NameId = "per";
+        public new const string DescriptionText = "Personnel is a Resource that provides information about an individual or individuals who either control, support, or otherwise interface with a piece of equipment.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public PersonnelComponent()  { Type = TypeId; }
     }

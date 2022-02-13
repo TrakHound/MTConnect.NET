@@ -12,8 +12,10 @@ namespace MTConnect.Devices
     /// </summary>
     public class Agent : Device 
     {
-        public const string TypeId = "Agent";
+        public new const string TypeId = "Agent";
+        public new const string DescriptionText = "Agent is a Device representing the MTConnect Agent and all its connected data sources.";
 
+        public override string TypeDescription => DescriptionText;
 
         public Agent()
         {

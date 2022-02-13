@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Compositions
     {
         public const string TypeId = "EXPIRED_POT";
         public const string NameId = "exppot";
+        public new const string DescriptionText = "A POT for a tool that is no longer useable for removal from a ToolMagazine or Turret.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public ExpiredPotComposition()  { Type = TypeId; }
     }

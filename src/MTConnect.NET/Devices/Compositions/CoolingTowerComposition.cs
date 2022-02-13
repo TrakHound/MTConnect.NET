@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Compositions
     {
         public const string TypeId = "COOLING_TOWER";
         public const string NameId = "cooltower";
+        public new const string DescriptionText = "A heat exchange system that uses a fluid to transfer heat to the atmosphere.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public CoolingTowerComposition()  { Type = TypeId; }
     }

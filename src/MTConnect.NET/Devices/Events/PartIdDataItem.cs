@@ -13,6 +13,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "PART_COUNT";
         public const string NameId = "partCount";
+        public new const string DescriptionText = "An identifier of a part in a manufacturing operation.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public PartIdDataItem()

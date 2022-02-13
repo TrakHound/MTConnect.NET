@@ -14,6 +14,9 @@ namespace MTConnect.Devices.Samples
         public const string TypeId = "VOLUME_FLUID";
         public const string NameId = "volFluid";
         public const string DefaultUnits = Devices.Units.MILLILITER;
+        public new const string DescriptionText = "The fluid volume of an object or container.";
+
+        public override string TypeDescription => DescriptionText;
 
         public enum SubTypes
         {
@@ -69,6 +72,23 @@ namespace MTConnect.Devices.Samples
             Units = DefaultUnits;
         }
 
+        public override string GetSubTypeDescription() => GetSubTypeDescription(SubType);
+
+        public static string GetSubTypeDescription(string subType)
+        {
+            var s = subType.ConvertEnum<SubTypes>();
+            switch (s)
+            {
+                case SubTypes.ACTUAL: return "The measured or reported value of an observation.";
+                case SubTypes.START: return "Boundary when an activity or an event commences.";
+                case SubTypes.ENDED: return "Boundary when an activity or an event terminates.";
+                case SubTypes.CONSUMED: return "Reported or measured value of the amount used in the manufacturing process.";
+                case SubTypes.WASTE: return "Reported or measured value of the amount discarded.";
+                case SubTypes.PART: return "Reported or measured value of amount included in the Part.";
+            }
+
+            return null;
+        }
 
         public static string GetSubTypeId(SubTypes subType)
         {

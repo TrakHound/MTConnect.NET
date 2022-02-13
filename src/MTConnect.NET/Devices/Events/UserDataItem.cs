@@ -13,6 +13,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "USER";
         public const string NameId = "user";
+        public new const string DescriptionText = "The identifier of the person currently responsible for operating the piece of equipment.";
+
+        public override string TypeDescription => DescriptionText;
 
         public enum SubTypes
         {
@@ -52,6 +55,20 @@ namespace MTConnect.Devices.Events
             Name = NameId;
         }
 
+        public override string GetSubTypeDescription() => GetSubTypeDescription(SubType);
+
+        public static string GetSubTypeDescription(string subType)
+        {
+            var s = subType.ConvertEnum<SubTypes>();
+            switch (s)
+            {
+                case SubTypes.MAINTENANCE: return "The identifier of the person currently responsible for performing maintenance on the piece of equipment.";
+                case SubTypes.OPERATOR: return "The identifier of the person currently responsible for operating the piece of equipment.";
+                case SubTypes.SET_UP: return "The identifier of the person currently responsible for preparing a piece of equipment for production or restoring the piece of equipment to a neutral state after production.";
+            }
+
+            return null;
+        }
 
         public static string GetSubTypeId(SubTypes subType)
         {

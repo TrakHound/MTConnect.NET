@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Compositions
     {
         public const string TypeId = "REEL";
         public const string NameId = "reel";
+        public new const string DescriptionText = "A rotary storage unit for material.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public ReelComposition()  { Type = TypeId; }
     }

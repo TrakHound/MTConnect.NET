@@ -14,6 +14,9 @@ namespace MTConnect.Devices.Samples
         public const string TypeId = "CUTTING_SPEED";
         public const string NameId = "cutSpeed";
         public const string DefaultUnits = Devices.Units.MILLIMETER_PER_SECOND;
+        public new const string DescriptionText = "The speed difference (relative velocity) between the cutting mechanism and the surface of the workpiece it is operating on.";
+
+        public override string TypeDescription => DescriptionText;
 
         public enum SubTypes
         {
@@ -54,6 +57,20 @@ namespace MTConnect.Devices.Samples
             Units = DefaultUnits;
         }
 
+        public override string GetSubTypeDescription() => GetSubTypeDescription(SubType);
+
+        public static string GetSubTypeDescription(string subType)
+        {
+            var s = subType.ConvertEnum<SubTypes>();
+            switch (s)
+            {
+                case SubTypes.ACTUAL: return "The measured or reported value of an observation.";
+                case SubTypes.COMMANDED: return "Directive value including adjustments such as an offset or overrides.";
+                case SubTypes.PROGRAMMED: return "Directive value without offsets and adjustments.";
+            }
+
+            return null;
+        }
 
         public static string GetSubTypeId(SubTypes subType)
         {

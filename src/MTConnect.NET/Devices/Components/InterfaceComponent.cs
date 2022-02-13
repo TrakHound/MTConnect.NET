@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Components
     {
         public const string TypeId = "Interface";
         public const string NameId = "int";
+        public new const string DescriptionText = "Interface is a Component that coordinates actions and activities between pieces of equipment.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public InterfaceComponent()  { Type = TypeId; }
     }

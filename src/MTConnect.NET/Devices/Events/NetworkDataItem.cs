@@ -13,6 +13,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "NETWORK";
         public const string NameId = "network";
+        public new const string DescriptionText = "Network details of a component.";
+
+        public override string TypeDescription => DescriptionText;
 
         public enum SubTypes
         {
@@ -71,6 +74,24 @@ namespace MTConnect.Devices.Events
             Name = NameId;
         }
 
+        public override string GetSubTypeDescription() => GetSubTypeDescription(SubType);
+
+        public static string GetSubTypeDescription(string subType)
+        {
+            var s = subType.ConvertEnum<SubTypes>();
+            switch (s)
+            {
+                case SubTypes.IPV4_ADDRESS: return "The IPV4 network address of the component.";
+                case SubTypes.IPV6_ADDRESS: return "The IPV6 network address of the component.";
+                case SubTypes.GATEWAY: return "The Gateway for the component network.";
+                case SubTypes.SUBNET_MASK: return "The SubNet mask for the component network.";
+                case SubTypes.VLAN_ID: return "The layer2 Virtual Local Network (VLAN) ID for the component network.";
+                case SubTypes.MAC_ADDRESS: return "Media Access Control Address. The unique physical address of the network hardware.";
+                case SubTypes.WIRELESS: return "Identifies whether the connection type is wireless.";
+            }
+
+            return null;
+        }
 
         public static string GetSubTypeId(SubTypes subType)
         {

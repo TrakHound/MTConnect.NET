@@ -14,6 +14,9 @@ namespace MTConnect.Devices.Samples
         public const string TypeId = "STRAIN";
         public const string NameId = "strain";
         public const string DefaultUnits = Devices.Units.PERCENT;
+        public new const string DescriptionText = "The measurement of the amount of deformation per unit length of an object when a load is applied.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public StrainDataItem()

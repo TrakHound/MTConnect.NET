@@ -14,6 +14,9 @@ namespace MTConnect.Devices.Samples
         public const string TypeId = "MASS";
         public const string NameId = "mass";
         public const string DefaultUnits = Devices.Units.KILOGRAM;
+        public new const string DescriptionText = "The measurement of the mass of an object (s) or an amount of material.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public MassDataItem()

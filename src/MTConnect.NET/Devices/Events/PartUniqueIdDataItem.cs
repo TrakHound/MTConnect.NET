@@ -13,6 +13,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "PART_UNIQUE_ID";
         public const string NameId = "partUniqueId";
+        public new const string DescriptionText = "Identifier given to a distinguishable, individual part.";
+
+        public override string TypeDescription => DescriptionText;
 
         public enum SubTypes
         {
@@ -51,6 +54,20 @@ namespace MTConnect.Devices.Events
             Name = NameId;
         }
 
+        public override string GetSubTypeDescription() => GetSubTypeDescription(SubType);
+
+        public static string GetSubTypeDescription(string subType)
+        {
+            var s = subType.ConvertEnum<SubTypes>();
+            switch (s)
+            {
+                case SubTypes.RAW_MATERIAL: return "Material that is used to produce parts.";
+                case SubTypes.SERIAL_NUMBER: return "A serial number that uniquely identifies a specific part.";
+                case SubTypes.UUID: return "The globally unique identifier as specified in ISO 11578 or RFC 4122.";
+            }
+
+            return null;
+        }
 
         public static string GetSubTypeId(SubTypes subType)
         {

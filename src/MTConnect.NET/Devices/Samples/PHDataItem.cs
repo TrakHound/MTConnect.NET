@@ -14,6 +14,9 @@ namespace MTConnect.Devices.Samples
         public const string TypeId = "PH";
         public const string NameId = "ph";
         public const string DefaultUnits = Devices.Units.PH;
+        public new const string DescriptionText = "A measure of the acidity or alkalinity of a solution";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public PHDataItem()

@@ -148,7 +148,8 @@ namespace MTConnect.Devices.Xml
 
         public Composition ToComposition()
         {
-            var composition = new Composition();
+            var composition = Composition.Create(Type);
+            if (composition == null) composition = new Composition();
 
             composition.Id = Id;
             composition.Uuid = Uuid;
@@ -169,5 +170,30 @@ namespace MTConnect.Devices.Xml
 
             return composition;
         }
+
+        //public Composition ToComposition()
+        //{
+        //    var composition = new Composition();
+
+
+        //    composition.Id = Id;
+        //    composition.Uuid = Uuid;
+        //    composition.Name = Name;
+        //    composition.NativeName = NativeName;
+        //    composition.Type = Type;
+        //    composition.Description = Description;
+        //    composition.SampleRate = SampleRate;
+        //    composition.SampleInterval = SampleInterval;
+        //    composition.References = References;
+        //    composition.Configuration = Configuration;
+
+        //    // DataItems
+        //    if (DataItemCollection != null && !DataItemCollection.DataItems.IsNullOrEmpty())
+        //    {
+        //        composition.DataItems = DataItemCollection.DataItems;
+        //    }
+
+        //    return composition;
+        //}
     }
 }

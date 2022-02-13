@@ -14,6 +14,9 @@ namespace MTConnect.Devices.Samples
         public const string TypeId = "VOLT_AMPERE";
         public const string NameId = "voltAmp";
         public const string DefaultUnits = Devices.Units.VOLT_AMPERE;
+        public new const string DescriptionText = "The measurement of the apparent power in an electrical circuit, equal to the product of root-mean-square (RMS) voltage and RMS current (commonly referred to as VA).";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public VoltAmpereDataItem()

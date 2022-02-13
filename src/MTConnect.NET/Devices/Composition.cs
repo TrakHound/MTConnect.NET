@@ -18,6 +18,9 @@ namespace MTConnect.Devices
     /// </summary>
     public class Composition
     {
+        public const string DescriptionText = "Composition XML elements are used to describe the lowest level physical building blocks of a piece of equipment contained within a Component.";
+
+
         private static readonly Version DefaultMaximumVersion = new Version(1, 8);
         private static readonly Version DefaultMinimumVersion = new Version(1, 4);
 
@@ -92,20 +95,12 @@ namespace MTConnect.Devices
         [JsonPropertyName("sampleInterval")]
         public double SampleInterval { get; set; }
 
-        //[XmlIgnore]
-        //[JsonIgnore]
-        //public bool SampleIntervalSpecified => SampleInterval > 0;
-
         /// <summary>
         /// DEPRECATED IN REL. 1.2 (REPLACED BY sampleInterval)
         /// </summary>
         [XmlAttribute("sampleRate")]
         [JsonPropertyName("sampleRate")]
         public double SampleRate { get; set; }
-
-        //[XmlIgnore]
-        //[JsonIgnore]
-        //public bool SampleRateSpecified => SampleRate > 0;
 
         /// <summary>
         /// A unique identifier that will only refer to this Component.
@@ -116,7 +111,6 @@ namespace MTConnect.Devices
         [XmlAttribute("uuid")]
         [JsonPropertyName("uuid")]
         public string Uuid { get; set; }
-
 
         /// <summary>
         /// An element that can contain any descriptive content. 
@@ -133,47 +127,9 @@ namespace MTConnect.Devices
         [JsonPropertyName("configuration")]
         public Configuration Configuration { get; set; }
 
-
         [XmlIgnore]
         [JsonPropertyName("dataItems")]
         public virtual List<DataItem> DataItems { get; set; }
-
-        //[XmlElement("DataItems")]
-        //[JsonIgnore]
-        //public XmlDataItemCollection DataItemCollection
-        //{
-        //    get
-        //    {
-        //        return new XmlDataItemCollection
-        //        {
-        //            DataItems = DataItems
-        //        };
-        //    }
-        //    set
-        //    {
-        //        if (value != null && !value.DataItems.IsNullOrEmpty())
-        //        {
-        //            DataItems = value.DataItems;
-        //        }
-        //    }
-        //}
-
-        //[XmlIgnore]
-        //[JsonIgnore]
-        //public bool DataItemCollectionSpecified => DataItemCollection != null && !DataItemCollection.DataItems.IsNullOrEmpty();
-
-        ///// <summary>
-        ///// A container for the Data XML Elements provided that are directly related to this Component.
-        ///// The data items define the measured values to be reported that are related to this Component.
-        ///// </summary>
-        //[XmlArray("DataItems")]
-        //[XmlArrayItem("DataItem")]
-        //[JsonPropertyName("dataItems")]
-        //public virtual List<DataItem> DataItems { get; set; }
-
-        //[XmlIgnore]
-        //[JsonIgnore]
-        //public bool DataItemsSpecified => !DataItems.IsNullOrEmpty();
 
         /// <summary>
         /// An XML container consisting of one or more types of Reference XML elements.
@@ -187,6 +143,10 @@ namespace MTConnect.Devices
         [XmlIgnore]
         [JsonIgnore]
         public bool ReferencesSpecified => !References.IsNullOrEmpty();
+
+        [XmlIgnore]
+        [JsonIgnore]
+        public virtual string TypeDescription => DescriptionText;
 
 
 

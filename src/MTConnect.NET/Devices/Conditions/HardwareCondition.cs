@@ -13,6 +13,9 @@ namespace MTConnect.Devices.Conditions
         public const DataItemCategory CategoryId = DataItemCategory.CONDITION;
         public const string TypeId = "HARDWARE";
         public const string NameId = "hardware";
+        public new const string DescriptionText = "An indication of a fault associated with the hardware subsystem of the Structural Element.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public HardwareCondition()

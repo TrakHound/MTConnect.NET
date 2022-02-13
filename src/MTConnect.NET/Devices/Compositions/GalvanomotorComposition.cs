@@ -13,6 +13,10 @@ namespace MTConnect.Devices.Compositions
     {
         public const string TypeId = "GALVANOMOTOR";
         public const string NameId = "gmotor";
+        public new const string DescriptionText = "An electromechanical actuator that produces deflection of a beam of light or energy in response to electric current through its coil in a magnetic field.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public GalvanomotorComposition()  { Type = TypeId; }
     }

@@ -14,6 +14,9 @@ namespace MTConnect.Devices.Samples
         public const string TypeId = "FILL_LEVEL";
         public const string NameId = "fillLevel";
         public const string DefaultUnits = Devices.Units.PERCENT;
+        public new const string DescriptionText = "The measurement of the amount of a substance remaining compared to the planned maximum amount of that substance.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public FillLevelDataItem()

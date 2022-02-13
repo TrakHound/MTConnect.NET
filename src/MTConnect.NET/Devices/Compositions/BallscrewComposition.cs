@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Compositions
     {
         public const string TypeId = "BALLSCREW";
         public const string NameId = "bscrew";
+        public new const string DescriptionText = "A mechanical structure for transforming rotary motion into linear motion.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public BallscrewComposition()  { Type = TypeId; }
     }

@@ -14,6 +14,9 @@ namespace MTConnect.Devices.Samples
         public const string TypeId = "DEPOSITION_DENSITY";
         public const string NameId = "depDensity";
         public const string DefaultUnits = Devices.Units.MILLIGRAM_PER_CUBIC_MILLIMETER;
+        public new const string DescriptionText = "The density of the material deposited in an additive manufacturing process per unit of volume.";
+
+        public override string TypeDescription => DescriptionText;
 
         public enum SubTypes
         {
@@ -49,6 +52,19 @@ namespace MTConnect.Devices.Samples
             Units = DefaultUnits;
         }
 
+        public override string GetSubTypeDescription() => GetSubTypeDescription(SubType);
+
+        public static string GetSubTypeDescription(string subType)
+        {
+            var s = subType.ConvertEnum<SubTypes>();
+            switch (s)
+            {
+                case SubTypes.ACTUAL: return "The measured or reported value of an observation.";
+                case SubTypes.COMMANDED: return "Directive value including adjustments such as an offset or overrides.";
+            }
+
+            return null;
+        }
 
         public static string GetSubTypeId(SubTypes subType)
         {

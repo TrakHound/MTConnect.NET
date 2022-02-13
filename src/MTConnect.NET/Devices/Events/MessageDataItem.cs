@@ -13,6 +13,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "MESSAGE";
         public const string NameId = "msg";
+        public new const string DescriptionText = "Any text string of information to be transferred from a piece of equipment to a client software application.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public MessageDataItem()

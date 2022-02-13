@@ -14,6 +14,9 @@ namespace MTConnect.Devices.Samples
         public const string TypeId = "FREQUENCY";
         public const string NameId = "frequency";
         public const string DefaultUnits = Devices.Units.HERTZ;
+        public new const string DescriptionText = "The measurement of the number of occurrences of a repeating event per unit time.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public FrequencyDataItem()

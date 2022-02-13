@@ -13,6 +13,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "ACTIVE_AXES";
         public const string NameId = "actAxes";
+        public new const string DescriptionText = "The set of axes currently associated with a Path or Controller Structural Element.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public ActiveAxesDataItem()

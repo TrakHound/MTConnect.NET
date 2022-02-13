@@ -14,6 +14,9 @@ namespace MTConnect.Devices.Samples
         public const string TypeId = "X_DIMENSION";
         public const string NameId = "xDim";
         public const string DefaultUnits = Devices.Units.MILLIMETER;
+        public new const string DescriptionText = "Measured dimension of an entity relative to the X direction of the referenced coordinate system.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public XDimensionDataItem()

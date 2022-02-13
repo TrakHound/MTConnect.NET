@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Compositions
     {
         public const string TypeId = "LINEAR_POSITION_FEEDBACK";
         public const string NameId = "linposfback";
+        public new const string DescriptionText = "A mechanism that measures linear motion or position.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public LinearPositionFeedbackComposition()  { Type = TypeId; }
     }

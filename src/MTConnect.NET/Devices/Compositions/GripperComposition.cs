@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Compositions
     {
         public const string TypeId = "GRIPPER";
         public const string NameId = "grip";
+        public new const string DescriptionText = "A mechanism that holds a part, stock material, or any other item in place.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public GripperComposition()  { Type = TypeId; }
     }

@@ -13,6 +13,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "PROCESS_OCCURRENCE_ID";
         public const string NameId = "processOccurrenceId";
+        public new const string DescriptionText = "An identifier of a process being executed by the device.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public ProcessOccurrenceIdDataItem()

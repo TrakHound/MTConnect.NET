@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Components
     {
         public const string TypeId = "Loader";
         public const string NameId = "load";
+        public new const string DescriptionText = "Loader is an Auxiliary comprised of all the parts involved in moving and distributing materials, parts, tooling, and other items to or from a piece of equipment.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public LoaderComponent()  { Type = TypeId; }
     }

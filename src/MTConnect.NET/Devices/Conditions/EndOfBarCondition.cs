@@ -13,6 +13,9 @@ namespace MTConnect.Devices.Conditions
         public const DataItemCategory CategoryId = DataItemCategory.CONDITION;
         public const string TypeId = "END_OF_BAR";
         public const string NameId = "eobCond";
+        public new const string DescriptionText = "An indication that the end of a piece of bar stock has been reached.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public EndOfBarCondition()

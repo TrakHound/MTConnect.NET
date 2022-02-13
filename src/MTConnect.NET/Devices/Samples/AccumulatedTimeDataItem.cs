@@ -14,6 +14,9 @@ namespace MTConnect.Devices.Samples
         public const string TypeId = "ACCUMULATED_TIME";
         public const string NameId = "time";
         public const string DefaultUnits = Devices.Units.SECOND;
+        public new const string DescriptionText = "The measurement of accumulated time for an activity or event.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public AccumulatedTimeDataItem()

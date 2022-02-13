@@ -14,6 +14,9 @@ namespace MTConnect.Devices.Samples
         public const string TypeId = "VISCOSITY";
         public const string NameId = "vis";
         public const string DefaultUnits = Devices.Units.PASCAL_SECOND;
+        public new const string DescriptionText = "The measurement of a fluids resistance to flow";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public ViscosityDataItem()

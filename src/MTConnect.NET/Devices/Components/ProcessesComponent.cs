@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Components
     {
         public const string TypeId = "Processes";
         public const string NameId = "proc";
+        public new const string DescriptionText = "Processes organizes information describing the manufacturing process being executed on a piece of equipment.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public ProcessesComponent()  { Type = TypeId; }
     }

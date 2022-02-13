@@ -16,6 +16,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "DOOR_STATE";
         public const string NameId = "state";
+        public new const string DescriptionText = "The operational state of a DOOR type component or composition element.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public DoorStateDataItem()

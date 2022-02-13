@@ -16,6 +16,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "SPINDLE_INTERLOCK";
         public const string NameId = "interlock";
+        public new const string DescriptionText = "An indication of the status of the spindle for a piece of equipment when power has been removed and it is free to rotate.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public SpindleInterlockDataItem()

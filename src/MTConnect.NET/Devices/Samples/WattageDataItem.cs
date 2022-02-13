@@ -14,6 +14,9 @@ namespace MTConnect.Devices.Samples
         public const string TypeId = "WATTAGE";
         public const string NameId = "watts";
         public const string DefaultUnits = Devices.Units.WATT;
+        public new const string DescriptionText = "The measurement of power flowing through or dissipated by an electrical circuit or piece of equipment.";
+
+        public override string TypeDescription => DescriptionText;
 
         public enum SubTypes
         {
@@ -49,6 +52,19 @@ namespace MTConnect.Devices.Samples
             Units = DefaultUnits;
         }
 
+        public override string GetSubTypeDescription() => GetSubTypeDescription(SubType);
+
+        public static string GetSubTypeDescription(string subType)
+        {
+            var s = subType.ConvertEnum<SubTypes>();
+            switch (s)
+            {
+                case SubTypes.ACTUAL: return "The measured or reported value of an observation.";
+                case SubTypes.TARGET: return "The goal of the operation or process.";
+            }
+
+            return null;
+        }
 
         public static string GetSubTypeId(SubTypes subType)
         {

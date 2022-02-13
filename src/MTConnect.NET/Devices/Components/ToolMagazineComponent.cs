@@ -13,6 +13,10 @@ namespace MTConnect.Devices.Components
     {
         public const string TypeId = "ToolMagazine";
         public const string NameId = "toolmag";
+        public new const string DescriptionText = "ToolMagazine is a ToolingDelivery that represents a tool storage mechanism that holds any number of tools.Tools are located in POTs. POTs are moved into position to transfer tools into or out of the ToolMagazine by an AutomaticToolChanger.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public ToolMagazineComponent()  { Type = TypeId; }
     }

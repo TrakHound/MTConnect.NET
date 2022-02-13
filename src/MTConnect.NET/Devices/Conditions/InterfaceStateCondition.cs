@@ -13,6 +13,9 @@ namespace MTConnect.Devices.Conditions
         public const DataItemCategory CategoryId = DataItemCategory.CONDITION;
         public const string TypeId = "INTERFACE_STATE";
         public const string NameId = "interfaceStateCond";
+        public new const string DescriptionText = "An indication of the operation condition of an Interface component.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public InterfaceStateCondition()

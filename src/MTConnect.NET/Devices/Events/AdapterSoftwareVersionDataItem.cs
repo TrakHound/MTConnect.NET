@@ -13,6 +13,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "ADAPTER_SOFTWARE_VERSION";
         public const string NameId = "adapterSoftwareVersion";
+        public new const string DescriptionText = "The originator’s software version of the Adapter.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public AdapterSoftwareVersionDataItem()

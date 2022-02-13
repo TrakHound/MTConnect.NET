@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Compositions
     {
         public const string TypeId = "STORAGE_BATTERY";
         public const string NameId = "stbatt";
+        public new const string DescriptionText = "A component consisting of one or more cells, in which chemical energy is converted into electricity and used as a source of power.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public StorageBatteryComposition()  { Type = TypeId; }
     }

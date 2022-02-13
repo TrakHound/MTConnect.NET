@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Compositions
     {
         public const string TypeId = "TENSIONER";
         public const string NameId = "ten";
+        public new const string DescriptionText = "A mechanism that provides or applies a stretch or strain to another mechanism.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public TensionerComposition()  { Type = TypeId; }
     }

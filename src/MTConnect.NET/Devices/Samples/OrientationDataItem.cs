@@ -14,6 +14,9 @@ namespace MTConnect.Devices.Samples
         public const string TypeId = "ORIENTATION";
         public const string NameId = "orientation";
         public const string DefaultUnits = Devices.Units.DEGREE_3D;
+        public new const string DescriptionText = "A measured or calculated orientation of a plane or vector relative to a cartesian coordinate system";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public OrientationDataItem()

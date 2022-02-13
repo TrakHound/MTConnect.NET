@@ -20,6 +20,8 @@ namespace MTConnect.Devices
     /// </summary>
     public class Component
     {
+        public const string DescriptionText = "An abstract XML Element. Replaced in the XML document by types of Component elements representing physical and logical parts of the Device. There can be multiple types of Component XML Elements in the document.";
+
         private static readonly Version DefaultMaximumVersion = new Version(1, 8);
         private static readonly Version DefaultMinimumVersion = new Version(1, 0);
 
@@ -150,6 +152,11 @@ namespace MTConnect.Devices
         [XmlArrayItem("DataItemReference", typeof(DataItemReference))]
         [JsonPropertyName("references")]
         public List<Reference> References { get; set; }
+
+        [XmlIgnore]
+        [JsonIgnore]
+        public virtual string TypeDescription => DescriptionText;
+
 
 
         public Component()

@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Compositions
     {
         public const string TypeId = "CIRCUIT_BREAKER";
         public const string NameId = "cbreaker";
+        public new const string DescriptionText = "A mechanism for interrupting an electric circuit.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public CircuitBreakerComposition()  { Type = TypeId; }
     }

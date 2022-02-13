@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Components
     {
         public const string TypeId = "Pneumatic";
         public const string NameId = "air";
+        public new const string DescriptionText = "Pneumatic is a System that uses compressed gasses to actuate components or do work within the piece of equipment.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public PneumaticComponent()  { Type = TypeId; }
     }

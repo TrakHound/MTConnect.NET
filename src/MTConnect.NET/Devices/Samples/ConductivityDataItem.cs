@@ -14,6 +14,9 @@ namespace MTConnect.Devices.Samples
         public const string TypeId = "CONDUCTIVITY";
         public const string NameId = "conductivity";
         public const string DefaultUnits = Devices.Units.SIEMENS_PER_METER;
+        public new const string DescriptionText = "The measurement of the ability of a material to conduct electricity.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public ConductivityDataItem()

@@ -16,6 +16,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "ROTARY_MODE";
         public const string NameId = "mode";
+        public new const string DescriptionText = "The current operating mode for a Rotary type axis.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public RotaryModeDataItem()

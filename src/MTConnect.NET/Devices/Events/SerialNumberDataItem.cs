@@ -13,6 +13,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "SERIAL_NUMBER";
         public const string NameId = "serialNumber";
+        public new const string DescriptionText = "The serial number associated with a Component, Asset, or Device.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public SerialNumberDataItem()

@@ -13,6 +13,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "OPERATOR_ID";
         public const string NameId = "operatorId";
+        public new const string DescriptionText = "The identifier of the person currently responsible for operating the piece of equipment.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public OperatorIdDataItem()

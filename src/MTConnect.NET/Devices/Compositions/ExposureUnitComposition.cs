@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Compositions
     {
         public const string TypeId = "EXPOSURE_UNIT";
         public const string NameId = "expunit";
+        public new const string DescriptionText = "A mechanism for emitting a type of radiation.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public ExposureUnitComposition()  { Type = TypeId; }
     }

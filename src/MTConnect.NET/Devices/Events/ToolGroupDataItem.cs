@@ -13,6 +13,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "TOOL_GROUP";
         public const string NameId = "toolGroup";
+        public new const string DescriptionText = "An identifier for the tool group associated with a specific tool. Commonly used to designate spare tools.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public ToolGroupDataItem()

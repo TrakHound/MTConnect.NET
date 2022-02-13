@@ -13,6 +13,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "BLOCK";
         public const string NameId = "block";
+        public new const string DescriptionText = "The line of code or command being executed by a Controller Structural Element.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public BlockDataItem()

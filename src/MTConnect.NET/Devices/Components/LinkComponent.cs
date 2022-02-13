@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Components
     {
         public const string TypeId = "Link";
         public const string NameId = "link";
+        public new const string DescriptionText = "Link is a Structure providing a connection between Components.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public LinkComponent()  { Type = TypeId; }
     }

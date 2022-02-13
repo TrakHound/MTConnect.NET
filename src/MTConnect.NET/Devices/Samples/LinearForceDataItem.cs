@@ -14,6 +14,9 @@ namespace MTConnect.Devices.Samples
         public const string TypeId = "LINEAR_FORCE";
         public const string NameId = "linForce";
         public const string DefaultUnits = Devices.Units.NEWTON;
+        public new const string DescriptionText = "A Force applied to a mass in one direction only";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public LinearForceDataItem()

@@ -14,6 +14,9 @@ namespace MTConnect.Devices.Samples
         public const string TypeId = "PATH_FEEDRATE";
         public const string NameId = "feed";
         public const string DefaultUnits = Devices.Units.MILLIMETER_PER_SECOND;
+        public new const string DescriptionText = "The measurement of the feedrate for the axes, or a single axis, associated with a Path component-a vector.";
+
+        public override string TypeDescription => DescriptionText;
 
         public enum SubTypes
         {
@@ -61,6 +64,23 @@ namespace MTConnect.Devices.Samples
             SubType = subType.ToString();
             Name = NameId;
             Units = DefaultUnits;
+        }
+
+        public override string GetSubTypeDescription() => GetSubTypeDescription(SubType);
+
+        public static string GetSubTypeDescription(string subType)
+        {
+            var s = subType.ConvertEnum<SubTypes>();
+            switch (s)
+            {
+                case SubTypes.ACTUAL: return "The measured or reported value of an observation.";
+                case SubTypes.COMMANDED: return "Directive value including adjustments such as an offset or overrides.";
+                case SubTypes.JOG: return "The feedrate specified by a logic or motion program, by a pre-set value, or set by a switch as the feedrate for a linear axis when operating in a manual state or method(jogging).";
+                case SubTypes.PROGRAMMED: return "Directive value without offsets and adjustments.";
+                case SubTypes.RAPID: return "Performing an operation faster or in less time than nominal rate.";
+            }
+
+            return null;
         }
 
         public static string GetSubTypeId(SubTypes subType)

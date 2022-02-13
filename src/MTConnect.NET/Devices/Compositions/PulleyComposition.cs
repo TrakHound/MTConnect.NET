@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Compositions
     {
         public const string TypeId = "PULLEY";
         public const string NameId = "pulley";
+        public new const string DescriptionText = "A mechanism or wheel that turns in a frame or block and serves to change the direction of or to transmit force.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public PulleyComposition()  { Type = TypeId; }
     }

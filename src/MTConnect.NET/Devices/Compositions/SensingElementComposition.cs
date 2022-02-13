@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Compositions
     {
         public const string TypeId = "SENSING_ELEMENT";
         public const string NameId = "senelement";
+        public new const string DescriptionText = "A mechanism that provides a signal or measured value.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public SensingElementComposition()  { Type = TypeId; }
     }

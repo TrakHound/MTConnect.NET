@@ -14,6 +14,9 @@ namespace MTConnect.Devices.Samples
         public const string TypeId = "VOLT_AMPERE_REACTIVE";
         public const string NameId = "voltAmpReact";
         public const string DefaultUnits = Devices.Units.VOLT_AMPERE_REACTIVE;
+        public new const string DescriptionText = "The measurement of reactive power in an AC electrical circuit(commonly referred to as VAR).";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public VoltAmpereReactiveDataItem()

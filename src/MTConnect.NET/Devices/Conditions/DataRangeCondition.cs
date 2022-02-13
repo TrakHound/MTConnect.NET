@@ -13,6 +13,9 @@ namespace MTConnect.Devices.Conditions
         public const DataItemCategory CategoryId = DataItemCategory.CONDITION;
         public const string TypeId = "DATA_RANGE";
         public const string NameId = "dataRange";
+        public new const string DescriptionText = "An indication that the value of the data associated with a measured value or a calculation is outside of an expected range.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public DataRangeCondition()

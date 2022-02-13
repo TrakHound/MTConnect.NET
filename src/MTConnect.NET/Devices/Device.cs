@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace MTConnect.Devices
@@ -20,6 +21,7 @@ namespace MTConnect.Devices
     public class Device
     {
         public const string TypeId = "Device";
+        public const string DescriptionText = "The primary container element of each device. Device is contained within the top level Devices container. There MAY be multiple Device elements in an XML document.";
 
 
         /// <summary>
@@ -119,7 +121,12 @@ namespace MTConnect.Devices
         /// <summary>
         /// A MD5 Hash of the Device that can be used to compare Device objects
         /// </summary>
-        public string ChangeId => CreateChangeId(); 
+        [JsonIgnore]
+        public string ChangeId => CreateChangeId();
+
+        [JsonIgnore]
+        public virtual string TypeDescription => DescriptionText;
+
 
 
         public Device()

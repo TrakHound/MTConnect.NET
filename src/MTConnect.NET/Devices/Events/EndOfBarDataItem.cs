@@ -16,6 +16,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "END_OF_BAR";
         public const string NameId = "eob";
+        public new const string DescriptionText = "An indication of whether the end of a piece of bar stock being feed by a bar feeder has been reached.";
+
+        public override string TypeDescription => DescriptionText;
 
         public enum SubTypes
         {
@@ -86,6 +89,19 @@ namespace MTConnect.Devices.Events
             return new DataItemValidationResult(false, "No Observation is Specified");
         }
 
+        public override string GetSubTypeDescription() => GetSubTypeDescription(SubType);
+
+        public static string GetSubTypeDescription(string subType)
+        {
+            var s = subType.ConvertEnum<SubTypes>();
+            switch (s)
+            {
+                case SubTypes.PRIMARY: return "Specific applications MAY reference one or more locations on a piece of bar stock as the indication for the END_OF_BAR. The main or most important location MUST be designated as the PRIMARY indication for the END_OF_BAR.";
+                case SubTypes.AUXILIARY: return "When multiple locations on a piece of bar stock are referenced as the indication for the END_OF_BAR, the additional location(s) MUST be designated as AUXILIARY indication(s) for the END_OF_BAR.";
+            }
+
+            return null;
+        }
 
         public static string GetSubTypeId(SubTypes subType)
         {

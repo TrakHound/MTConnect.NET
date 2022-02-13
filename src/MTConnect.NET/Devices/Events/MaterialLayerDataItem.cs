@@ -13,6 +13,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "MATERIAL_LAYER";
         public const string NameId = "materialLayer";
+        public new const string DescriptionText = "Designates the layers of material applied to a part or product as part of an additive manufacturing process.";
+
+        public override string TypeDescription => DescriptionText;
 
         public enum SubTypes
         {
@@ -46,6 +49,19 @@ namespace MTConnect.Devices.Events
             Name = NameId;
         }
 
+        public override string GetSubTypeDescription() => GetSubTypeDescription(SubType);
+
+        public static string GetSubTypeDescription(string subType)
+        {
+            var s = subType.ConvertEnum<SubTypes>();
+            switch (s)
+            {
+                case SubTypes.ACTUAL: return "The measured or reported value of an observation.";
+                case SubTypes.TARGET: return "The goal of the operation or process.";
+            }
+
+            return null;
+        }
 
         public static string GetSubTypeId(SubTypes subType)
         {

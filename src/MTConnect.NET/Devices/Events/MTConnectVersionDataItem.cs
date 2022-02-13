@@ -13,6 +13,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "MTCONNECT_VERSION";
         public const string NameId = "mtconnectVersion";
+        public new const string DescriptionText = "The reference version of the MTConnect Standard supported by the Adapter.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public MTConnectVersionDataItem()

@@ -16,6 +16,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "PART_PROCESSING_STATE";
         public const string NameId = "partProcessingState";
+        public new const string DescriptionText = "The particular condition of the part occurrence at a specific time.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public PartProcessingStateDataItem()

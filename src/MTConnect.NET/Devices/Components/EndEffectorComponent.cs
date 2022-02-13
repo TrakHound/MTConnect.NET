@@ -14,6 +14,8 @@ namespace MTConnect.Devices.Components
         public const string TypeId = "EndEffector";
         public const string NameId = "endeff";
 
+        public override string TypeDescription => "EndEffector is a System that represents the information for those functions that form the last link segment of a piece of equipment. It is the part of a piece of equipment that interacts with the manufacturing process.";
+
         public EndEffectorComponent()  { Type = TypeId; }
     }
 }

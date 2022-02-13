@@ -14,6 +14,9 @@ namespace MTConnect.Devices.Samples
         public const string TypeId = "DIAMETER";
         public const string NameId = "dia";
         public const string DefaultUnits = Devices.Units.MILLIMETER;
+        public new const string DescriptionText = "The measured dimension of a diameter.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public DiameterDataItem()

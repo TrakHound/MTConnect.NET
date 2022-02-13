@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Compositions
     {
         public const string TypeId = "TRANSFER_ARM";
         public const string NameId = "transarm";
+        public new const string DescriptionText = "A mechanism for physically moving a tool from one location to another.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public TransferArmComposition()  { Type = TypeId; }
     }

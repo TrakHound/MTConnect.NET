@@ -14,6 +14,9 @@ namespace MTConnect.Devices.Samples
         public const string TypeId = "SOUND_LEVEL";
         public const string NameId = "soundlvl";
         public const string DefaultUnits = Devices.Units.DECIBEL;
+        public new const string DescriptionText = "The measurement of a sound level or sound pressure level relative to atmospheric pressure.";
+
+        public override string TypeDescription => DescriptionText;
 
         public enum SubTypes
         {
@@ -64,6 +67,22 @@ namespace MTConnect.Devices.Samples
             Units = DefaultUnits;
         }
 
+        public override string GetSubTypeDescription() => GetSubTypeDescription(SubType);
+
+        public static string GetSubTypeDescription(string subType)
+        {
+            var s = subType.ConvertEnum<SubTypes>();
+            switch (s)
+            {
+                case SubTypes.NO_SCALE: return "No weighting factor on the frequency scale";
+                case SubTypes.A_SCALE: return "A Scale weighting factor. This is the default weighting factor if no factor is specified";
+                case SubTypes.B_SCALE: return "B Scale weighting factor";
+                case SubTypes.C_SCALE: return "C Scale weighting factor";
+                case SubTypes.D_SCALE: return "D Scale weighting factor";
+            }
+
+            return null;
+        }
 
         public static string GetSubTypeId(SubTypes subType)
         {

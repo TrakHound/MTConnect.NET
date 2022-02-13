@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Compositions
     {
         public const string TypeId = "WATER";
         public const string NameId = "water";
+        public new const string DescriptionText = "A fluid.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public WaterComposition()  { Type = TypeId; }
     }

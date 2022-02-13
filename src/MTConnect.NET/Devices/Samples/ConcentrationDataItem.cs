@@ -14,6 +14,9 @@ namespace MTConnect.Devices.Samples
         public const string TypeId = "CONCENTRATION";
         public const string NameId = "conc";
         public const string DefaultUnits = Devices.Units.PERCENT;
+        public new const string DescriptionText = "The measurement of the percentage of one component within a mixture of components";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public ConcentrationDataItem()

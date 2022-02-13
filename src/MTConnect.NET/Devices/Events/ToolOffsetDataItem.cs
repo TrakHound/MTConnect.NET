@@ -13,6 +13,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "TOOL_OFFSET";
         public const string NameId = "toolOffset";
+        public new const string DescriptionText = "A reference to the tool offset variables applied to the active cutting tool.";
+
+        public override string TypeDescription => DescriptionText;
 
         public enum SubTypes
         {
@@ -46,6 +49,19 @@ namespace MTConnect.Devices.Events
             Name = NameId;
         }
 
+        public override string GetSubTypeDescription() => GetSubTypeDescription(SubType);
+
+        public static string GetSubTypeDescription(string subType)
+        {
+            var s = subType.ConvertEnum<SubTypes>();
+            switch (s)
+            {
+                case SubTypes.LENGTH: return "A reference to a length type tool offset.";
+                case SubTypes.RADIAL: return "A reference to a radial type tool offset.";
+            }
+
+            return null;
+        }
 
         public static string GetSubTypeId(SubTypes subType)
         {

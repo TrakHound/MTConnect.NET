@@ -13,6 +13,8 @@ namespace MTConnect.Devices.Components
         public const string TypeId = "Environment";
         public const string NameId = "env";
 
+        public override string TypeDescription => "Environmental is an Auxiliary that represents the information for a unit or function involved in monitoring, managing, or conditioning the environment around or within a piece of equipment.";
+
         public EnvironmentalComponent()  { Type = TypeId; }
     }
 }

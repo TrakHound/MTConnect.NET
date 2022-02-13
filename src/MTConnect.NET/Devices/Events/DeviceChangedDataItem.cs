@@ -13,6 +13,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "DEVICE_CHANGED";
         public const string NameId = "deviceChanged";
+        public new const string DescriptionText = "DeviceChanged is an Event that provides the UUID of the device whose Metadata has changed.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public DeviceChangedDataItem()

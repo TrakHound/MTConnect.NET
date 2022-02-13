@@ -16,6 +16,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "VALVE_STATE";
         public const string NameId = "valveState";
+        public new const string DescriptionText = "The state of a valve that is one of open, closed, or transitioning between the states.";
+
+        public override string TypeDescription => DescriptionText;
 
         public enum SubTypes
         {
@@ -85,6 +88,19 @@ namespace MTConnect.Devices.Events
             return new DataItemValidationResult(false, "No Observation is Specified");
         }
 
+        public override string GetSubTypeDescription() => GetSubTypeDescription(SubType);
+
+        public static string GetSubTypeDescription(string subType)
+        {
+            var s = subType.ConvertEnum<SubTypes>();
+            switch (s)
+            {
+                case SubTypes.ACTUAL: return "The measured or reported value of an observation.";
+                case SubTypes.PROGRAMMED: return "An instructed target value without offsets and adjustments.";
+            }
+
+            return null;
+        }
 
         public static string GetSubTypeId(SubTypes subType)
         {

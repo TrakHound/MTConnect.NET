@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Compositions
     {
         public const string TypeId = "FAN";
         public const string NameId = "fan";
+        public new const string DescriptionText = "Any mechanism for producing a current of air.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public FanComposition()  { Type = TypeId; }
     }

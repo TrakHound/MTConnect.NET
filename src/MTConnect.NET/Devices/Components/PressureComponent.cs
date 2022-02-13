@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Components
     {
         public const string TypeId = "Pressure";
         public const string NameId = "press";
+        public new const string DescriptionText = "Pressure is a System that delivers compressed gas or fluid and controls the pressure and rate of pressure change to a desired target set-point.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public PressureComponent()  { Type = TypeId; }
     }

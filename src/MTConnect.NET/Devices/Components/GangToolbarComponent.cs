@@ -13,6 +13,10 @@ namespace MTConnect.Devices.Components
     {
         public const string TypeId = "GangToolbar";
         public const string NameId = "gtoolbar";
+        public new const string DescriptionText = "GangToolBar is a ToolingDelivery that represents a tool mounting mechanism that holds any number of tools. Tools are located in STATIONs. Tools are positioned for use in the manufacturing process by linearly positioning the GangToolBar.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public GangToolbarComponent()  { Type = TypeId; }
     }

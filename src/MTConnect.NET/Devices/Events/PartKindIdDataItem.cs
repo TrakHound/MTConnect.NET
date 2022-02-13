@@ -13,6 +13,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "PART_KIND_ID";
         public const string NameId = "partKindId";
+        public new const string DescriptionText = "Identifier given to link the individual occurrence to a class of parts, typically distinguished by a particular part design.";
+
+        public override string TypeDescription => DescriptionText;
 
         public enum SubTypes
         {
@@ -56,6 +59,21 @@ namespace MTConnect.Devices.Events
             Name = NameId;
         }
 
+        public override string GetSubTypeDescription() => GetSubTypeDescription(SubType);
+
+        public static string GetSubTypeDescription(string subType)
+        {
+            var s = subType.ConvertEnum<SubTypes>();
+            switch (s)
+            {
+                case SubTypes.PART_FAMILY: return "An identifier given to a group of parts having similarities in geometry, manufacturing process, and/or functions.";
+                case SubTypes.PART_NAME: return "A word or set of words by which a part is known, addressed, or referred to.";
+                case SubTypes.PART_NUMBER: return "Identifier of a particular part design or model.";
+                case SubTypes.UUID: return "The globally unique identifier as specified in ISO 11578 or RFC 4122.";
+            }
+
+            return null;
+        }
 
         public static string GetSubTypeId(SubTypes subType)
         {

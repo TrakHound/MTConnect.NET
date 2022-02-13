@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Components
     {
         public const string TypeId = "Coolant";
         public const string NameId = "coolant";
+        public new const string DescriptionText = "Coolant is a System that represents the information for a system comprised of all the parts involved in distribution and management of fluids that remove heat from a piece of equipment.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public CoolantComponent()  { Type = TypeId; }
     }

@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Compositions
     {
         public const string TypeId = "BELT";
         public const string NameId = "belt";
+        public new const string DescriptionText = "An endless flexible band used to transmit motion for a piece of equipment or to convey materials and objects.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public BeltComposition()  { Type = TypeId; }
     }

@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Compositions
     {
         public const string TypeId = "SPREADER";
         public const string NameId = "spread";
+        public new const string DescriptionText = "A mechanism for flattening or spreading materials.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public SpreaderComposition()  { Type = TypeId; }
     }

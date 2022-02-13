@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Components
     {
         public const string TypeId = "Structure";
         public const string NameId = "struct";
+        public new const string DescriptionText = "Structure is a Component that represents the part(s) comprising the rigid bodies of the piece of equipment.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public StructureComponent()  { Type = TypeId; }
     }

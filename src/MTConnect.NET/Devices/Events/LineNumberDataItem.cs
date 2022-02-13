@@ -13,6 +13,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "LINE_NUMBER";
         public const string NameId = "lineNumber";
+        public new const string DescriptionText = "A reference to the position of a block of program code within a control program.";
+
+        public override string TypeDescription => DescriptionText;
 
         public enum SubTypes
         {
@@ -46,6 +49,19 @@ namespace MTConnect.Devices.Events
             Name = NameId;
         }
 
+        public override string GetSubTypeDescription() => GetSubTypeDescription(SubType);
+
+        public static string GetSubTypeDescription(string subType)
+        {
+            var s = subType.ConvertEnum<SubTypes>();
+            switch (s)
+            {
+                case SubTypes.ABSOLUTE: return "The position of a block of program code relative to the beginning of the control program.";
+                case SubTypes.INCREMENTAL: return "The position of a block of program code relative to the occurrence of the last LINE_LABEL encountered in the control program.";
+            }
+
+            return null;
+        }
 
         public static string GetSubTypeId(SubTypes subType)
         {

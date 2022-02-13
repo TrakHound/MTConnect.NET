@@ -14,6 +14,9 @@ namespace MTConnect.Devices.Samples
         public const string TypeId = "CAPACITY_FLUID";
         public const string NameId = "capFluid";
         public const string DefaultUnits = Devices.Units.MILLILITER;
+        public new const string DescriptionText = "The fluid capacity of an object or container.";
+
+        public override string TypeDescription => DescriptionText;
 
         public CapacityFluidDataItem()
         {

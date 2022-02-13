@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Compositions
     {
         public const string TypeId = "FILTER";
         public const string NameId = "fltr";
+        public new const string DescriptionText = "Any substance or structure through which liquids or gases are passed to remove suspended impurities or to recover solids.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public FilterComposition()  { Type = TypeId; }
     }

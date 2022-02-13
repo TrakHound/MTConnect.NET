@@ -13,6 +13,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "PROCESS_TIME";
         public const string NameId = "processTime";
+        public new const string DescriptionText = "The time and date associated with an activity or event.";
+
+        public override string TypeDescription => DescriptionText;
 
         public enum SubTypes
         {
@@ -52,6 +55,20 @@ namespace MTConnect.Devices.Events
             Units = Devices.Units.COUNT;
         }
 
+        public override string GetSubTypeDescription() => GetSubTypeDescription(SubType);
+
+        public static string GetSubTypeDescription(string subType)
+        {
+            var s = subType.ConvertEnum<SubTypes>();
+            switch (s)
+            {
+                case SubTypes.COMPLETE: return "The time and date associated with the completion of an activity or event.";
+                case SubTypes.START: return "Boundary when an activity or an event commences.";
+                case SubTypes.TARGET_COMPLETION: return "The projected time and date associated with the end or completion of an activity or event.";
+            }
+
+            return null;
+        }
 
         public static string GetSubTypeId(SubTypes subType)
         {

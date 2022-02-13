@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Compositions
     {
         public const string TypeId = "STAGING_POT";
         public const string NameId = "stagpot";
+        public new const string DescriptionText = "A POT for a tool awaiting transfer to a ToolMagazine or Turret from outside of the piece of equipment.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public StagingPotComposition()  { Type = TypeId; }
     }

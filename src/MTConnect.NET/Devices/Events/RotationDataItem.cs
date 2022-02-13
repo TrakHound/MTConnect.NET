@@ -13,6 +13,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "ROTATION";
         public const string NameId = "rotation";
+        public new const string DescriptionText = "A three space angular rotation relative to a coordinate system.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public RotationDataItem()

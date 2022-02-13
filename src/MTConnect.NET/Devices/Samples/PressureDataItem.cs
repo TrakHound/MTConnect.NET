@@ -14,6 +14,9 @@ namespace MTConnect.Devices.Samples
         public const string TypeId = "PRESSURE";
         public const string NameId = "pres";
         public const string DefaultUnits = Devices.Units.PASCAL;
+        public new const string DescriptionText = "The force per unit area measured relative to atmospheric pressure.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public PressureDataItem()

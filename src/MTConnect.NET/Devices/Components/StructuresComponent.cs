@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Components
     {
         public const string TypeId = "Structures";
         public const string NameId = "structs";
+        public new const string DescriptionText = "Structures organizes Structure component types.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public StructuresComponent()  { Type = TypeId; }
     }

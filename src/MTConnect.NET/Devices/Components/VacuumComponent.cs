@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Components
     {
         public const string TypeId = "Vacuum";
         public const string NameId = "vac";
+        public new const string DescriptionText = "Vacuum is a System that evacuates gases and liquids from an enclosed and sealed space to a controlled negative pressure or a molecular density below the prevailing atmospheric level.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public VacuumComponent()  { Type = TypeId; }
     }

@@ -13,6 +13,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "DEVICE_REMOVED";
         public const string NameId = "deviceRemoved";
+        public new const string DescriptionText = "DeviceRemoved is an Event that provides the UUID of a device removed from an MTConnect Agent.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public DeviceRemovedDataItem()

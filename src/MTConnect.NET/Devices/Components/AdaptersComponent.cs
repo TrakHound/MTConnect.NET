@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Components
     {
         public const string TypeId = "Adapters";
         public const string NameId = "adapters";
+        public new const string DescriptionText = "Adapters organizes Adapter component types.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public AdaptersComponent()  { Type = TypeId; }
     }

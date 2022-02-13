@@ -13,6 +13,10 @@ namespace MTConnect.Devices.Compositions
     {
         public const string TypeId = "COMPRESSOR";
         public const string NameId = "comp";
+        public new const string DescriptionText = "A pump or other mechanism for reducing volume and increasing pressure of gases in order to condense the gases to drive pneumatically powered pieces of equipment.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public CompressorComposition()  { Type = TypeId; }
     }

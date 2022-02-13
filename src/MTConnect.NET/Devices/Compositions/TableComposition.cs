@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Compositions
     {
         public const string TypeId = "TABLE";
         public const string NameId = "tab";
+        public new const string DescriptionText = "A surface for holding an object or material";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public TableComposition()  { Type = TypeId; }
     }

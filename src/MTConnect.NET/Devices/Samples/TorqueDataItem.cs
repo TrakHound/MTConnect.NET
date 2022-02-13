@@ -14,6 +14,9 @@ namespace MTConnect.Devices.Samples
         public const string TypeId = "TORQUE";
         public const string NameId = "torque";
         public const string DefaultUnits = Devices.Units.NEWTON_METER;
+        public new const string DescriptionText = "The measurement of the turning force exerted on an object or by an object.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public TorqueDataItem()

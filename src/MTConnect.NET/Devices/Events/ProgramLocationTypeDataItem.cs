@@ -16,6 +16,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "PROGRAM_LOCATION_TYPE";
         public const string NameId = "pgmLocationType";
+        public new const string DescriptionText = "Defines whether the logic or motion program defined by PROGRAM is being executed from the local memory of the controller or from an outside source.";
+
+        public override string TypeDescription => DescriptionText;
 
         public enum SubTypes
         {
@@ -90,6 +93,20 @@ namespace MTConnect.Devices.Events
             return new DataItemValidationResult(false, "No Observation is Specified");
         }
 
+        public override string GetSubTypeDescription() => GetSubTypeDescription(SubType);
+
+        public static string GetSubTypeDescription(string subType)
+        {
+            var s = subType.ConvertEnum<SubTypes>();
+            switch (s)
+            {
+                case SubTypes.ACTIVE: return "The identity of the logic or motion program currently executing.";
+                case SubTypes.MAIN: return "The identity of the primary logic or motion program currently being executed.It is the starting nest level in a call structure and may contain calls to sub programs.";
+                case SubTypes.SCHEDULE: return "The identity of a control program that is used to specify the order of execution of other programs.";
+            }
+
+            return null;
+        }
 
         public static string GetSubTypeId(SubTypes subType)
         {

@@ -13,6 +13,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "TOOL_NUMBER";
         public const string NameId = "toolNumber";
+        public new const string DescriptionText = "The identifier assigned by the Controller component to a cutting tool when in use by a piece of equipment.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public ToolNumberDataItem()

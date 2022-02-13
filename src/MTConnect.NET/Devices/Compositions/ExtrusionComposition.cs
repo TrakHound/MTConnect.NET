@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Compositions
     {
         public const string TypeId = "EXTRUSION_UNIT";
         public const string NameId = "exunit";
+        public new const string DescriptionText = "A mechanism for dispensing liquid or powered materials.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public ExtrusionUnitComposition()  { Type = TypeId; }
     }

@@ -16,6 +16,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "INTERFACE_STATE";
         public const string NameId = "interfaceState";
+        public new const string DescriptionText = "The current functional or operational state of an Interface type element indicating whether the Interface is active or not currently functioning.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public InterfaceStateDataItem()

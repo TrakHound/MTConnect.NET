@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Compositions
     {
         public const string TypeId = "RETURN_POT";
         public const string NameId = "retpot";
+        public new const string DescriptionText = "A POT for a tool removed from Spindle or Turret and awaiting for return to a ToolMagazine.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public ReturnPotComposition()  { Type = TypeId; }
     }

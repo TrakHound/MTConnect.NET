@@ -16,6 +16,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "DIRECTION";
         public const string NameId = "direction";
+        public new const string DescriptionText = "The direction of motion.";
+
+        public override string TypeDescription => DescriptionText;
 
         public enum SubTypes
         {
@@ -105,6 +108,19 @@ namespace MTConnect.Devices.Events
             return new DataItemValidationResult(false, "No Observation is Specified");
         }
 
+        public override string GetSubTypeDescription() => GetSubTypeDescription(SubType);
+
+        public static string GetSubTypeDescription(string subType)
+        {
+            var s = subType.ConvertEnum<SubTypes>();
+            switch (s)
+            {
+                case SubTypes.ROTARY: return "The direction of rotary motion using the right-hand rule convention.";
+                case SubTypes.LINEAR: return "The direction of linear motion.";
+            }
+
+            return null;
+        }
 
         public static string GetSubTypeId(SubTypes subType)
         {

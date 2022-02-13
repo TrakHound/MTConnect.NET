@@ -13,6 +13,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "PALLET_ID";
         public const string NameId = "palletId";
+        public new const string DescriptionText = "The identifier for a pallet.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public PalletIdDataItem()

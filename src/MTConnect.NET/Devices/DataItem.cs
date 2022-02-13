@@ -21,6 +21,8 @@ namespace MTConnect.Devices
     /// </summary>
     public class DataItem
     {
+        public const string DescriptionText = "An abstract XML Element. Replaced in the XML document by Elements representing various types of DataItem XML Elements. There can be mulitple types of DataItem XML Elements in the document.";
+
         private static readonly Version DefaultMaximumVersion = new Version(1, 8);
         private static readonly Version DefaultMinimumVersion = new Version(1, 0);
 
@@ -218,6 +220,10 @@ namespace MTConnect.Devices
         [JsonPropertyName("relationships")]
         public List<Relationship> Relationships { get; set; }
 
+        [XmlIgnore]
+        [JsonIgnore]
+        public virtual string TypeDescription => DescriptionText;
+
         /// <summary>
         /// The path of the DataItem by Type
         /// </summary>
@@ -243,6 +249,8 @@ namespace MTConnect.Devices
             MinimumVersion = DefaultMinimumVersion;
         }
 
+
+        public virtual string GetSubTypeDescription() => null;
 
         public virtual DataItem Process(Version mtconnectVersion)
         {

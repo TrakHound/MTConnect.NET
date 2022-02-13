@@ -13,6 +13,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "WORK_OFFSET";
         public const string NameId = "workOffset";
+        public new const string DescriptionText = "A reference to the offset variables for a work piece or part associated with a Path in a Controller type component.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public WorkOffsetDataItem()

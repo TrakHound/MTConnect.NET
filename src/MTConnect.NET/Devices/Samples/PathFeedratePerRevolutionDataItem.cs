@@ -14,6 +14,9 @@ namespace MTConnect.Devices.Samples
         public const string TypeId = "PATH_FEEDRATE_PER_REVOLUTION";
         public const string NameId = "pathFeedPerRev";
         public const string DefaultUnits = Devices.Units.MILLIMETER_PER_REVOLUTION;
+        public new const string DescriptionText = "The measurement of the feedrate for the axes, or a single axis, associated with a Path component-a vector.";
+
+        public override string TypeDescription => DescriptionText;
 
         public enum SubTypes
         {
@@ -51,6 +54,21 @@ namespace MTConnect.Devices.Samples
             SubType = subType.ToString();
             Name = NameId;
             Units = DefaultUnits;
+        }
+
+        public override string GetSubTypeDescription() => GetSubTypeDescription(SubType);
+
+        public static string GetSubTypeDescription(string subType)
+        {
+            var s = subType.ConvertEnum<SubTypes>();
+            switch (s)
+            {
+                case SubTypes.ACTUAL: return "The measured or reported value of an observation.";
+                case SubTypes.COMMANDED: return "Directive value including adjustments such as an offset or overrides.";
+                case SubTypes.PROGRAMMED: return "Directive value without offsets and adjustments.";
+            }
+
+            return null;
         }
 
         public static string GetSubTypeId(SubTypes subType)

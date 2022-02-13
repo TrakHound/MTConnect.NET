@@ -14,6 +14,9 @@ namespace MTConnect.Devices.Samples
         public const string TypeId = "PROCESS_TIMER";
         public const string NameId = "procTimer";
         public const string DefaultUnits = Devices.Units.SECOND;
+        public new const string DescriptionText = "The measurement of the amount of time a piece of equipment has performed different types of activities associated with the process being performed at that piece of equipment.";
+
+        public override string TypeDescription => DescriptionText;
 
         public enum SubTypes
         {
@@ -50,6 +53,19 @@ namespace MTConnect.Devices.Samples
             Units = DefaultUnits;
         }
 
+        public override string GetSubTypeDescription() => GetSubTypeDescription(SubType);
+
+        public static string GetSubTypeDescription(string subType)
+        {
+            var s = subType.ConvertEnum<SubTypes>();
+            switch (s)
+            {
+                case SubTypes.PROCESS: return "The measurement of the time from the beginning of production of a part or product on a piece of equipment until the time that production is complete for that part or product on that piece of equipment. This includes the time that the piece of equipment is running, producing parts or products, or in the process of producing parts.";
+                case SubTypes.DELAY: return "The elapsed time of a temporary halt of action.";
+            }
+
+            return null;
+        }
 
         public static string GetSubTypeId(SubTypes subType)
         {

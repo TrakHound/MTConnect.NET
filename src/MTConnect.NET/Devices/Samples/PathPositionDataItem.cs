@@ -15,6 +15,9 @@ namespace MTConnect.Devices.Samples
         public const string TypeId = "PATH_POSITION";
         public const string NameId = "pathPos";
         public const string DefaultUnits = Devices.Units.MILLIMETER;
+        public new const string DescriptionText = "A measured or calculated position of a control point reported by a piece of equipment expressed in WORK coordinates. The coordinate system will revert to MACHINE coordinates if WORK coordinates are not available.";
+
+        public override string TypeDescription => DescriptionText;
 
         public enum SubTypes
         {
@@ -67,6 +70,22 @@ namespace MTConnect.Devices.Samples
             Units = DefaultUnits;
         }
 
+        public override string GetSubTypeDescription() => GetSubTypeDescription(SubType);
+
+        public static string GetSubTypeDescription(string subType)
+        {
+            var s = subType.ConvertEnum<SubTypes>();
+            switch (s)
+            {
+                case SubTypes.ACTUAL: return "The measured or reported value of an observation.";
+                case SubTypes.COMMANDED: return "Directive value including adjustments such as an offset or overrides.";
+                case SubTypes.PROGRAMMED: return "Directive value without offsets and adjustments.";
+                case SubTypes.TARGET: return "The goal of the operation or process.";
+                case SubTypes.PROBE: return "The position provided by a measurement probe.";
+            }
+
+            return null;
+        }
 
         public static string GetSubTypeId(SubTypes subType, DataItemCoordinateSystem coordinateSystem)
         {

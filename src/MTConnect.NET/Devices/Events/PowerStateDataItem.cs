@@ -17,6 +17,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "POWER_STATE";
         public const string NameId = "powerState";
+        public new const string DescriptionText = "The indication of the status of the source of energy for a Structural Element to allow it to perform its intended function or the state of an enabling signal providing permission for the Structural Element to perform its functions.";
+
+        public override string TypeDescription => DescriptionText;
 
         public enum SubTypes
         {
@@ -86,6 +89,19 @@ namespace MTConnect.Devices.Events
             return new DataItemValidationResult(false, "No Observation is Specified");
         }
 
+        public override string GetSubTypeDescription() => GetSubTypeDescription(SubType);
+
+        public static string GetSubTypeDescription(string subType)
+        {
+            var s = subType.ConvertEnum<SubTypes>();
+            switch (s)
+            {
+                case SubTypes.LINE: return "The state of the power source for the Structural Element.";
+                case SubTypes.CONTROL: return "The state of the enabling signal or control logic that enables or disables the function or operation of the Structural Element.";
+            }
+
+            return null;
+        }
 
         public static string GetSubTypeId(SubTypes subType)
         {

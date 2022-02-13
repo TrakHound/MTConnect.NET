@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Components
     {
         public const string TypeId = "Hydraulic";
         public const string NameId = "hyd";
+        public new const string DescriptionText = "Hydraulic is a System that represents the information for a system comprised of all the parts involved in moving and distributing pressurized liquid throughout the piece of equipment.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public HydraulicComponent()  { Type = TypeId; }
     }

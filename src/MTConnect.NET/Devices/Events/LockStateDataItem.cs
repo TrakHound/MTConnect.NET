@@ -16,6 +16,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "LOCK_STATE";
         public const string NameId = "lockState";
+        public new const string DescriptionText = "The state or operating mode of a Lock.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public LockStateDataItem()

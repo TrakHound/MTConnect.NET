@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Components
     {
         public const string TypeId = "Axes";
         public const string NameId = "axes";
+        public new const string DescriptionText = "Axes organizes Axis component types.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public AxesComponent()  { Type = TypeId; }
     }

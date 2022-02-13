@@ -14,6 +14,9 @@ namespace MTConnect.Devices.Samples
         public const string TypeId = "TILT";
         public const string NameId = "tilt";
         public const string DefaultUnits = Devices.Units.MICRO_RADIAN;
+        public new const string DescriptionText = "The measurement of angular displacement.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public TiltDataItem()

@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Compositions
     {
         public const string TypeId = "DRAIN";
         public const string NameId = "drain";
+        public new const string DescriptionText = "A mechanism that allows material to flow for the purpose of drainage from, for example, a vessel or tank.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public DrainComposition()  { Type = TypeId; }
     }

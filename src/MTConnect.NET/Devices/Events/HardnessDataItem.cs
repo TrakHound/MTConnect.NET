@@ -13,6 +13,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "HARDNESS";
         public const string NameId = "hardness";
+        public new const string DescriptionText = "The measurement of the hardness of a material.";
+
+        public override string TypeDescription => DescriptionText;
 
         public enum SubTypes
         {
@@ -66,6 +69,23 @@ namespace MTConnect.Devices.Events
             Name = NameId;
         }
 
+        public override string GetSubTypeDescription() => GetSubTypeDescription(SubType);
+
+        public static string GetSubTypeDescription(string subType)
+        {
+            var s = subType.ConvertEnum<SubTypes>();
+            switch (s)
+            {
+                case SubTypes.ROCKWELL: return "A scale to measure the resistance to deformation of a surface.";
+                case SubTypes.VICKERS: return "A scale to measure the resistance to deformation of a surface.";
+                case SubTypes.SHORE: return "A scale to measure the resistance to deformation of a surface.";
+                case SubTypes.BRINELL: return "A scale to measure the resistance to deformation of a surface.";
+                case SubTypes.LEEB: return "A scale to measure the elasticity of a surface.";
+                case SubTypes.MOHS: return "A scale to measure the resistance to scratching of a surface.";
+            }
+
+            return null;
+        }
 
         public static string GetSubTypeId(SubTypes subType)
         {

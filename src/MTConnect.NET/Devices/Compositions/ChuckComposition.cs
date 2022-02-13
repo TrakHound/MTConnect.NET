@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Compositions
     {
         public const string TypeId = "CHUCK";
         public const string NameId = "chuck";
+        public new const string DescriptionText = "A mechanism that holds a part, stock material, or any other item in place.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public ChuckComposition()  { Type = TypeId; }
     }

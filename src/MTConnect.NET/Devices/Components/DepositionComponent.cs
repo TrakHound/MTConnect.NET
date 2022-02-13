@@ -14,6 +14,10 @@ namespace MTConnect.Devices.Components
     {
         public const string TypeId = "Deposition";
         public const string NameId = "dep";
+        public new const string DescriptionText = "Deposition is an Auxiliary that represents the information for a system that manages the addition of material or state change of material being performed in an additive manufacturing process. For example, this could describe the portion of a piece of equipment that manages a material extrusion process or a vat polymerization process.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public DepositionComponent()  { Type = TypeId; }
     }

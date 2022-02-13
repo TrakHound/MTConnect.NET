@@ -16,6 +16,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "EXECUTION";
         public const string NameId = "execution";
+        public new const string DescriptionText = "The execution status of a component.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public ExecutionDataItem()

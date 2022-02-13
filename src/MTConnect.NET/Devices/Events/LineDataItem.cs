@@ -13,6 +13,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "LINE";
         public const string NameId = "line";
+        public new const string DescriptionText = "DEPRECATED in Version 1.4.0.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public LineDataItem()

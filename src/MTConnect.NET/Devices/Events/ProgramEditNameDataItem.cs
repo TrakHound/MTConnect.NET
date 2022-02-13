@@ -13,6 +13,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "PROGRAM_EDIT_NAME";
         public const string NameId = "programEditName";
+        public new const string DescriptionText = "The name of the program being edited.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public ProgramEditNameDataItem()

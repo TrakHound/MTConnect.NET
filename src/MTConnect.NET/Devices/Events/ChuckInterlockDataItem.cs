@@ -16,6 +16,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "CHUCK_INTERLOCK";
         public const string NameId = "chuckInterlock";
+        public new const string DescriptionText = "An indication of the state of an interlock function or control logic state intended to prevent the associated CHUCK component from being operated.";
+
+        public override string TypeDescription => DescriptionText;
 
         public enum SubTypes
         {
@@ -80,6 +83,18 @@ namespace MTConnect.Devices.Events
             return new DataItemValidationResult(false, "No Observation is Specified");
         }
 
+        public override string GetSubTypeDescription() => GetSubTypeDescription(SubType);
+
+        public static string GetSubTypeDescription(string subType)
+        {
+            var s = subType.ConvertEnum<SubTypes>();
+            switch (s)
+            {
+                case SubTypes.MANUAL_UNCLAMP: return "An indication of the state of an operator controlled interlock that can inhibit the ability to initiate an unclamp action of an electronically controlled chuck.";
+            }
+
+            return null;
+        }
 
         public static string GetSubTypeId(SubTypes subType)
         {

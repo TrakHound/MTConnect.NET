@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Compositions
     {
         public const string TypeId = "CHAIN";
         public const string NameId = "chain";
+        public new const string DescriptionText = "An interconnected series of objects that band together and are used to transmit motion for a piece of equipment or to convey materials and objects.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public ChainComposition()  { Type = TypeId; }
     }

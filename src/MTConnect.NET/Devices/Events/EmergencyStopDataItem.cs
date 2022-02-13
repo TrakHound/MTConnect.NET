@@ -16,6 +16,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "EMERGENCY_STOP";
         public const string NameId = "estop";
+        public new const string DescriptionText = "The current state of the emergency stop signal for a piece of equipment, controller path, or any other component or subsystem of a piece of equipment.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public EmergencyStopDataItem()

@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Components
     {
         public const string TypeId = "System";
         public const string NameId = "sys";
+        public new const string DescriptionText = "System is an abstract Component that represents part(s) of a piece of equipment that is permanently integrated into the piece of equipment.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public SystemComponent()  { Type = TypeId; }
     }

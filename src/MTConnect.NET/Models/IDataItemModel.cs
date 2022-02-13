@@ -9,11 +9,11 @@ namespace MTConnect.Models
 {
     public interface IDataItemModel
     {
-        DataItemCategory Category { get; set; }
+        DataItemCategory DataItemCategory { get; set; }
 
-        string Id { get; set; }
+        string DataItemId { get; set; }
 
-        string Name { get; set; }
+        string DataItemName { get; set; }
 
         string Type { get; set; }
 

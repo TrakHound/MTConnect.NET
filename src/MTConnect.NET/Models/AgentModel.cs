@@ -306,14 +306,14 @@ namespace MTConnect.Models
                 {
                     foreach (var dataItem in DataItemModels)
                     {
-                        if (dataItem.Category == DataItemCategory.CONDITION)
+                        if (dataItem.DataItemCategory == DataItemCategory.CONDITION)
                         {
-                            var obj = stream.Conditions.FirstOrDefault(o => o.DataItemId == dataItem.Id);
+                            var obj = stream.Conditions.FirstOrDefault(o => o.DataItemId == dataItem.DataItemId);
                             if (obj != null) AddCondition(dataItem, obj);
                         }
                         else
                         {
-                            var obj = stream.DataItems.FirstOrDefault(o => o.DataItemId == dataItem.Id);
+                            var obj = stream.DataItems.FirstOrDefault(o => o.DataItemId == dataItem.DataItemId);
                             if (obj != null) AddDataItem(dataItem, obj.CDATA);
                         }
                     }
@@ -347,14 +347,14 @@ namespace MTConnect.Models
                 {
                     foreach (var dataItem in component.DataItemModels)
                     {
-                        if (dataItem.Category == DataItemCategory.CONDITION)
+                        if (dataItem.DataItemCategory == DataItemCategory.CONDITION)
                         {
-                            var obj = stream.Conditions.FirstOrDefault(o => o.DataItemId == dataItem.Id);
+                            var obj = stream.Conditions.FirstOrDefault(o => o.DataItemId == dataItem.DataItemId);
                             if (obj != null) component.AddCondition(dataItem, obj);
                         }
                         else
                         {
-                            var obj = stream.DataItems.FirstOrDefault(o => o.DataItemId == dataItem.Id);
+                            var obj = stream.DataItems.FirstOrDefault(o => o.DataItemId == dataItem.DataItemId);
                             if (obj != null) component.AddDataItem(dataItem, obj.CDATA);
                         }
                     }
@@ -386,14 +386,14 @@ namespace MTConnect.Models
             {
                 foreach (var dataItem in composition.DataItemModels)
                 {
-                    if (dataItem.Category == DataItemCategory.CONDITION)
+                    if (dataItem.DataItemCategory == DataItemCategory.CONDITION)
                     {
-                        var obj = stream.Conditions.FirstOrDefault(o => o.DataItemId == dataItem.Id);
+                        var obj = stream.Conditions.FirstOrDefault(o => o.DataItemId == dataItem.DataItemId);
                         if (obj != null) composition.AddCondition(dataItem, obj);
                     }
                     else
                     {
-                        var obj = stream.DataItems.FirstOrDefault(o => o.DataItemId == dataItem.Id);
+                        var obj = stream.DataItems.FirstOrDefault(o => o.DataItemId == dataItem.DataItemId);
                         if (obj != null) composition.AddDataItem(dataItem, obj.CDATA);
                     }
                 }
@@ -608,14 +608,14 @@ namespace MTConnect.Models
 
         public void AddDataItem(IDataItemModel dataItem, object value)
         {
-            if (dataItem != null && !string.IsNullOrEmpty(dataItem.Id) && value != null)
+            if (dataItem != null && !string.IsNullOrEmpty(dataItem.DataItemId) && value != null)
             {
-                if (!DataItemModels.Any(o => o.Id == dataItem.Id))
+                if (!DataItemModels.Any(o => o.DataItemId == dataItem.DataItemId))
                 {
                     DataItemModels.Add(dataItem);
                 }
 
-                UpdateDataItem(dataItem.Id, value);
+                UpdateDataItem(dataItem.DataItemId, value);
             }
         }
 
@@ -623,7 +623,7 @@ namespace MTConnect.Models
         {
             if (dataItem != null && !string.IsNullOrEmpty(dataItem.Id) && value != null)
             {
-                if (!DataItemModels.Any(o => o.Id == dataItem.Id))
+                if (!DataItemModels.Any(o => o.DataItemId == dataItem.Id))
                 {
                     DataItemModels.Add(new DataItemModel(dataItem));
                 }
@@ -641,11 +641,11 @@ namespace MTConnect.Models
 
                 if (!string.IsNullOrEmpty(suffix))
                 {
-                    dataItem = DataItemModels.FirstOrDefault(o => o.Id == Devices.DataItem.CreateId(Id, name, suffix));
+                    dataItem = DataItemModels.FirstOrDefault(o => o.DataItemId == Devices.DataItem.CreateId(Id, name, suffix));
                 }
                 else
                 {
-                    dataItem = DataItemModels.FirstOrDefault(o => o.Id == Devices.DataItem.CreateId(Id, name));
+                    dataItem = DataItemModels.FirstOrDefault(o => o.DataItemId == Devices.DataItem.CreateId(Id, name));
                 }
 
                 return dataItem;
@@ -662,11 +662,11 @@ namespace MTConnect.Models
 
                 if (!string.IsNullOrEmpty(suffix))
                 {
-                    dataItem = DataItemModels.FirstOrDefault(o => o.Id == Devices.DataItem.CreateId(Id, name, suffix));
+                    dataItem = DataItemModels.FirstOrDefault(o => o.DataItemId == Devices.DataItem.CreateId(Id, name, suffix));
                 }
                 else
                 {
-                    dataItem = DataItemModels.FirstOrDefault(o => o.Id == Devices.DataItem.CreateId(Id, name));
+                    dataItem = DataItemModels.FirstOrDefault(o => o.DataItemId == Devices.DataItem.CreateId(Id, name));
                 }
 
                 if (dataItem != null)
@@ -674,9 +674,9 @@ namespace MTConnect.Models
                     try
                     {
                         var obj = (T)Activator.CreateInstance(typeof(T));
-                        obj.Category = dataItem.Category;
-                        obj.Id = dataItem.Id;
-                        obj.Name = dataItem.Name;
+                        obj.DataItemCategory = dataItem.DataItemCategory;
+                        obj.DataItemId = dataItem.DataItemId;
+                        obj.DataItemName = dataItem.DataItemName;
                         obj.Type = dataItem.Type;
                         obj.SubType = dataItem.SubType;
                         obj.NativeUnits = dataItem.NativeUnits;
@@ -757,7 +757,7 @@ namespace MTConnect.Models
         {
             if (dataItem != null && !string.IsNullOrEmpty(dataItem.Id) && condition != null)
             {
-                if (!DataItemModels.Any(o => o.Id == dataItem.Id))
+                if (!DataItemModels.Any(o => o.DataItemId == dataItem.Id))
                 {
                     DataItemModels.Add(new DataItemModel(dataItem));
                 }
@@ -768,14 +768,14 @@ namespace MTConnect.Models
 
         public void AddCondition(IDataItemModel dataItem, Condition condition)
         {
-            if (dataItem != null && !string.IsNullOrEmpty(dataItem.Id) && condition != null)
+            if (dataItem != null && !string.IsNullOrEmpty(dataItem.DataItemId) && condition != null)
             {
-                if (!DataItemModels.Any(o => o.Id == dataItem.Id))
+                if (!DataItemModels.Any(o => o.DataItemId == dataItem.DataItemId))
                 {
                     DataItemModels.Add(dataItem);
                 }
 
-                UpdateCondition(dataItem.Id, condition);
+                UpdateCondition(dataItem.DataItemId, condition);
             }
         }
 

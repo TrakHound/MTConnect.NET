@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Compositions
     {
         public const string TypeId = "REMOVAL_POT";
         public const string NameId = "rempot";
+        public new const string DescriptionText = "A POT for a tool to be removed from a ToolMagazine or Turret to a location outside of the piece of equipment.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public RemovalPotComposition()  { Type = TypeId; }
     }

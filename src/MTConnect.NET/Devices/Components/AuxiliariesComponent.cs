@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Components
     {
         public const string TypeId = "Auxiliaries";
         public const string NameId = "aux";
+        public new const string DescriptionText = "Auxiliaries organizes Auxiliary component types.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public AuxiliariesComponent()  { Type = TypeId; }
     }

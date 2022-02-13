@@ -16,6 +16,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "AVAILABILITY";
         public const string NameId = "avail";
+        public new const string DescriptionText = "Represents the Agent’s ability to communicate with the data source.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public AvailabilityDataItem() 

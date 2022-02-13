@@ -13,6 +13,10 @@ namespace MTConnect.Devices.Components
     {
         public const string TypeId = "Protective";
         public const string NameId = "protect";
+        public new const string DescriptionText = "Protective is a System that represents the information for those functions that detect or prevent harm or damage to equipment or personnel. Protective does not include the information relating to the Enclosure system.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public ProtectiveComponent()  { Type = TypeId; }
     }

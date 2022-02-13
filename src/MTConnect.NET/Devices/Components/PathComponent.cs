@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Components
     {
         public const string TypeId = "Path";
         public const string NameId = "path";
+        public new const string DescriptionText = "Path is a Component that represents the information for an independent operation or function within a Controller.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public PathComponent()  { Type = TypeId; }
     }

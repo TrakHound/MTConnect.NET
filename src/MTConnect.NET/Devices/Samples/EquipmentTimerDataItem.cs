@@ -14,6 +14,9 @@ namespace MTConnect.Devices.Samples
         public const string TypeId = "EQUIPMENT_TIMER";
         public const string NameId = "equipTimer";
         public const string DefaultUnits = Devices.Units.SECOND;
+        public new const string DescriptionText = "The measurement of the amount of time a piece of equipment or a sub-part of a piece of equipment has performed specific activities.";
+
+        public override string TypeDescription => DescriptionText;
 
         public enum SubTypes
         {
@@ -65,6 +68,22 @@ namespace MTConnect.Devices.Samples
             Units = DefaultUnits;
         }
 
+        public override string GetSubTypeDescription() => GetSubTypeDescription(SubType);
+
+        public static string GetSubTypeDescription(string subType)
+        {
+            var s = subType.ConvertEnum<SubTypes>();
+            switch (s)
+            {
+                case SubTypes.LOADED: return "Measurement of the time that the sub-parts of a piece of equipment are under load.";
+                case SubTypes.WORKING: return "Measurement of the time that a piece of equipment is performing any activity the equipment is active and performing a function under load or not.";
+                case SubTypes.OPERATING: return "Measurement of the time that the major sub-parts of a piece of equipment are powered or performing any activity whether producing a part or product or not.";
+                case SubTypes.POWERED: return "The measurement of time that primary power is applied to the piece of equipment and, as a minimum, the controller or logic portion of the piece of equipment is powered and functioning or components that are required to remain on are powered.";
+                case SubTypes.DELAY: return "The elapsed time of a temporary halt of action.";
+            }
+
+            return null;
+        }
 
         public static string GetSubTypeId(SubTypes subType)
         {

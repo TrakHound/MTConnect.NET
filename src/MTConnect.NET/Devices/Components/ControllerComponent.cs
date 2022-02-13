@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Components
     {
         public const string TypeId = "Controller";
         public const string NameId = "cont";
+        public new const string DescriptionText = "Controller represents the computational regulation and management function of a piece of equipment.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public ControllerComponent()  { Type = TypeId; }
     }

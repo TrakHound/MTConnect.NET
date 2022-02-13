@@ -14,6 +14,9 @@ namespace MTConnect.Devices.Samples
         public const string TypeId = "RESISTANCE";
         public const string NameId = "resistance";
         public const string DefaultUnits = Devices.Units.OHM;
+        public new const string DescriptionText = "The measurement of the degree to which a substance opposes the passage of an electric current.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public ResistanceDataItem()

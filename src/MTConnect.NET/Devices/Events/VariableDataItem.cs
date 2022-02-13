@@ -14,6 +14,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "VARIABLE";
         public const string NameId = "var";
+        public new const string DescriptionText = "A data value whose meaning may change over time due to changes in the operation of a piece of equipment or the process being executed on that piece of equipment.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public VariableDataItem()

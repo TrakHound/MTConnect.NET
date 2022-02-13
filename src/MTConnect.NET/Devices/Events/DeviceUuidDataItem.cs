@@ -13,6 +13,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "DEVICE_UUI";
         public const string NameId = "deviceUui";
+        public new const string DescriptionText = "The identifier of another piece of equipment that is temporarily associated with a component of this piece of equipment to perform a particular function.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public DeviceUuidDataItem()

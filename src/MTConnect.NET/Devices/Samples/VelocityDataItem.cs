@@ -14,6 +14,9 @@ namespace MTConnect.Devices.Samples
         public const string TypeId = "VELOCITY";
         public const string NameId = "vel";
         public const string DefaultUnits = Devices.Units.MILLIMETER_PER_SECOND;
+        public new const string DescriptionText = "The measurement of the rate of change of position of a Component";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public VelocityDataItem()

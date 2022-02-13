@@ -14,6 +14,9 @@ namespace MTConnect.Devices.Samples
         public const string TypeId = "AMPERAGE_AC";
         public const string NameId = "amps";
         public const string DefaultUnits = Devices.Units.AMPERE;
+        public new const string DescriptionText = "The measurement of an electrical current that reverses direction at regular short intervals.";
+
+        public override string TypeDescription => DescriptionText;
 
         public enum SubTypes
         {
@@ -55,6 +58,20 @@ namespace MTConnect.Devices.Samples
             SignificantDigits = 1;
         }
 
+        public override string GetSubTypeDescription() => GetSubTypeDescription(SubType);
+
+        public static string GetSubTypeDescription(string subType)
+        {
+            var s = subType.ConvertEnum<SubTypes>();
+            switch (s)
+            {
+                case SubTypes.ACTUAL: return "The measured or reported value of an observation.";
+                case SubTypes.COMMANDED: return "Directive value including adjustments such as an offset or overrides.";
+                case SubTypes.PROGRAMMED: return "Directive value without offsets and adjustments.";
+            }
+
+            return null;
+        }
 
         public static string GetSubTypeId(SubTypes subType)
         {

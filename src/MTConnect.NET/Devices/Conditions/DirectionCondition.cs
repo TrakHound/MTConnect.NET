@@ -13,6 +13,9 @@ namespace MTConnect.Devices.Conditions
         public const DataItemCategory CategoryId = DataItemCategory.CONDITION;
         public const string TypeId = "DIRECTION";
         public const string NameId = "dirCond";
+        public new const string DescriptionText = "An indication of a fault associated with the direction of motion of a Structural Element";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public DirectionCondition()

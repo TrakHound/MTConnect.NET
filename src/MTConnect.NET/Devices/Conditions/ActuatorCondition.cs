@@ -13,6 +13,9 @@ namespace MTConnect.Devices.Conditions
         public const DataItemCategory CategoryId = DataItemCategory.CONDITION;
         public const string TypeId = "ACTUATOR";
         public const string NameId = "actuator";
+        public new const string DescriptionText = "An indication of a fault associated with an actuator.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public ActuatorCondition()

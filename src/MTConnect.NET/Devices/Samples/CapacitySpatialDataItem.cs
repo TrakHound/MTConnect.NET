@@ -14,6 +14,9 @@ namespace MTConnect.Devices.Samples
         public const string TypeId = "CAPACITY_SPATIAL";
         public const string NameId = "capSpatial";
         public const string DefaultUnits = Devices.Units.CUBIC_MILLIMETER;
+        public new const string DescriptionText = "The geometric capacity of an object or container.";
+
+        public override string TypeDescription => DescriptionText;
 
         public CapacitySpatialDataItem()
         {

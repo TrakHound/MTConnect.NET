@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Compositions
     {
         public const string TypeId = "ACTUATOR";
         public const string NameId = "act";
+        public new const string DescriptionText = "A mechanism for moving or controlling a mechanical part of a piece of equipment.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public ActuatorComposition()  { Type = TypeId; }
     }

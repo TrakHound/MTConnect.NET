@@ -14,6 +14,9 @@ namespace MTConnect.Devices.Samples
         public const string TypeId = "POSITION";
         public const string NameId = "pos";
         public const string DefaultUnits = Devices.Units.MILLIMETER;
+        public new const string DescriptionText = "A measured or calculated position of a Component element as reported by a piece of equipment.";
+
+        public override string TypeDescription => DescriptionText;
 
         public enum SubTypes
         {
@@ -62,6 +65,21 @@ namespace MTConnect.Devices.Samples
             SignificantDigits = 4;
         }
 
+        public override string GetSubTypeDescription() => GetSubTypeDescription(SubType);
+
+        public static string GetSubTypeDescription(string subType)
+        {
+            var s = subType.ConvertEnum<SubTypes>();
+            switch (s)
+            {
+                case SubTypes.ACTUAL: return "The measured or reported value of an observation.";
+                case SubTypes.COMMANDED: return "Directive value including adjustments such as an offset or overrides.";
+                case SubTypes.PROGRAMMED: return "Directive value without offsets and adjustments.";
+                case SubTypes.TARGET: return "The goal of the operation or process.";
+            }
+
+            return null;
+        }
 
         public static string GetSubTypeId(SubTypes subType, DataItemCoordinateSystem coordinateSystem)
         {

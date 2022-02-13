@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Compositions
     {
         public const string TypeId = "TRANSFORMER";
         public const string NameId = "tran";
+        public new const string DescriptionText = "A mechanism that transforms electric energy from a source to a secondary circuit.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public TransformerComposition()  { Type = TypeId; }
     }

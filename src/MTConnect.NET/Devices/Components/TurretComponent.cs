@@ -13,6 +13,10 @@ namespace MTConnect.Devices.Components
     {
         public const string TypeId = "Turret";
         public const string NameId = "turret";
+        public new const string DescriptionText = "Turret is a ToolingDelivery that represents a tool mounting mechanism that holds any number of tools. Tools are located in STATIONs. Tools are positioned for use in the manufacturing process by rotating the Turret.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public TurretComponent()  { Type = TypeId; }
     }

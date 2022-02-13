@@ -13,6 +13,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "PART_GROUP_ID";
         public const string NameId = "partGroupId";
+        public new const string DescriptionText = "Identifier given to a collection of individual parts.If no subType is specified, UUID is default.";
+
+        public override string TypeDescription => DescriptionText;
 
         public enum SubTypes
         {
@@ -61,6 +64,22 @@ namespace MTConnect.Devices.Events
             Name = NameId;
         }
 
+        public override string GetSubTypeDescription() => GetSubTypeDescription(SubType);
+
+        public static string GetSubTypeDescription(string subType)
+        {
+            var s = subType.ConvertEnum<SubTypes>();
+            switch (s)
+            {
+                case SubTypes.BATCH: return "An identifier that references a group of parts produced in a batch.";
+                case SubTypes.HEAT_TREAT: return "An identifier used to reference a material heat number.";
+                case SubTypes.LOT: return "An identifier that references a group of parts tracked as a lot.";
+                case SubTypes.RAW_MATERIAL: return "Material that is used to produce parts.";
+                case SubTypes.UUID: return "The globally unique identifier as specified in ISO 11578 or RFC 4122.";
+            }
+
+            return null;
+        }
 
         public static string GetSubTypeId(SubTypes subType)
         {

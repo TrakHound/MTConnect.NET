@@ -14,6 +14,9 @@ namespace MTConnect.Devices.Samples
         public const string TypeId = "ANGULAR_VELOCITY";
         public const string NameId = "speed";
         public const string DefaultUnits = Devices.Units.DEGREE_PER_SECOND;
+        public new const string DescriptionText = "The measurement of the rate of change of angular position.";
+
+        public override string TypeDescription => DescriptionText;
 
         public AngularVelocityDataItem()
         {

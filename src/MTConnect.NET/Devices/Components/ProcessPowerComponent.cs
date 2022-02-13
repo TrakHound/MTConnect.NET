@@ -13,6 +13,10 @@ namespace MTConnect.Devices.Components
     {
         public const string TypeId = "ProcessPower";
         public const string NameId = "procpower";
+        public new const string DescriptionText = "ProcessPower is a System that represents the information for a power source associated with a piece of equipment that supplies energy to the manufacturing process separate from the Electric system.For example, this could be the power source for an EDM machining process, an electroplating line, or a welding system.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public ProcessPowerComponent()  { Type = TypeId; }
     }

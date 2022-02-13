@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Compositions
     {
         public const string TypeId = "WORKPIECE";
         public const string NameId = "wrkpiece";
+        public new const string DescriptionText = "An object or material on which a form of work is performed.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public WorkpieceComposition()  { Type = TypeId; }
     }

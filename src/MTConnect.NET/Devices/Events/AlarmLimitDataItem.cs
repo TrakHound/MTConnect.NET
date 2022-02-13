@@ -13,6 +13,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "ALARM_LIMIT";
         public const string NameId = "alarmLimit";
+        public new const string DescriptionText = "A set of limits used to trigger warning or alarm indicators.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public AlarmLimitDataItem()

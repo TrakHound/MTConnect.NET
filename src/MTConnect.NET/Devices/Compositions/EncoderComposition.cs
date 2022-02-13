@@ -13,6 +13,7 @@ namespace MTConnect.Devices.Compositions
         public const string TypeId = "ENCODER";
         public const string NameId = "enc";
 
+ 
         public EncoderComposition()  { Type = TypeId; }
     }
 }

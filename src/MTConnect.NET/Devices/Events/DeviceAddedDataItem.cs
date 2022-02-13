@@ -13,6 +13,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "DEVICE_ADDED";
         public const string NameId = "deviceAdded";
+        public new const string DescriptionText = "DeviceAdded is an Event that provides the UUID of a new device added to an MTConnect Agent.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public DeviceAddedDataItem()

@@ -15,6 +15,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "COMPOSITION_STATE";
         public const string NameId = "compState";
+        public new const string DescriptionText = "An indication of the operating condition of a mechanism represented by a Composition type element.";
+
+        public override string TypeDescription => DescriptionText;
 
         public enum SubTypes
         {
@@ -63,6 +66,22 @@ namespace MTConnect.Devices.Events
             Name = NameId;
         }
 
+        public override string GetSubTypeDescription() => GetSubTypeDescription(SubType);
+
+        public static string GetSubTypeDescription(string subType)
+        {
+            var s = subType.ConvertEnum<SubTypes>();
+            switch (s)
+            {
+                case SubTypes.ACTION: return "An indication of the operating state of a mechanism represented by a Composition type component.";
+                case SubTypes.LATERAL: return "An indication of the position of a mechanism that may move in a lateral direction. The mechanism is represented by a Composition type component.";
+                case SubTypes.MOTION: return "An indication of the open or closed state of a mechanism. The mechanism is represented by a Composition type component.";
+                case SubTypes.SWITCHED: return "An indication of the activation state of a mechanism represented by a Composition type component.";
+                case SubTypes.VERTICAL: return "An indication of the position of a mechanism that may move in a vertical direction. The mechanism is represented by a Composition type component.";
+            }
+
+            return null;
+        }
 
         public static string GetSubTypeId(SubTypes subType)
         {

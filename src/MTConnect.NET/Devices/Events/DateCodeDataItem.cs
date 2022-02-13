@@ -13,6 +13,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "DATE_CODE";
         public const string NameId = "dateCode";
+        public new const string DescriptionText = "The time and date code associated with a material or other physical item.";
+
+        public override string TypeDescription => DescriptionText;
 
         public enum SubTypes
         {

@@ -17,6 +17,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "CHUCK_STATE";
         public const string NameId = "chuckState";
+        public new const string DescriptionText = "An indication of the operating state of a mechanism that holds a part or stock material during a manufacturing process. It may also represent a mechanism that holds any other mechanism in place within a piece of equipment.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public ChuckStateDataItem()

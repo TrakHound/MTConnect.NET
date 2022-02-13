@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Compositions
     {
         public const string TypeId = "VAT";
         public const string NameId = "vat";
+        public new const string DescriptionText = "A container for liquid or powdered materials.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public VatComposition()  { Type = TypeId; }
     }

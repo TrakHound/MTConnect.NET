@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Compositions
     {
         public const string TypeId = "SWITCH";
         public const string NameId = "sw";
+        public new const string DescriptionText = "A mechanism for turning on or off an electric current or for making or breaking a circuit.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public SwitchComposition()  { Type = TypeId; }
     }

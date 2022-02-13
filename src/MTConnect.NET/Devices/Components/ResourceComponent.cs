@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Components
     {
         public const string TypeId = "Resource";
         public const string NameId = "resource";
+        public new const string DescriptionText = "Resource is an abstract Component that represents materials or personnel involved in a manufacturing process.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public ResourceComponent()  { Type = TypeId; }
     }

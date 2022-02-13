@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Compositions
     {
         public const string TypeId = "CHUTE";
         public const string NameId = "chute";
+        public new const string DescriptionText = "An inclined channel for conveying material.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public ChuteComposition()  { Type = TypeId; }
     }

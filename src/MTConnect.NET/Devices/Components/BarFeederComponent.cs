@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Components
     {
         public const string TypeId = "BarFeeder";
         public const string NameId = "bfeeder";
+        public new const string DescriptionText = "BarFeeder is a Loader involved in delivering bar stock to a piece of equipment.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public BarFeederComponent()  { Type = TypeId; }
     }

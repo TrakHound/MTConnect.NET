@@ -13,6 +13,9 @@ namespace MTConnect.Devices.Conditions
         public const DataItemCategory CategoryId = DataItemCategory.CONDITION;
         public const string TypeId = "COMMUNICATIONS";
         public const string NameId = "comms";
+        public new const string DescriptionText = "An indication that the piece of equipment has experienced a communications failure.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public CommunicationsCondition()

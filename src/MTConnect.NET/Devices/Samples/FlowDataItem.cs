@@ -14,6 +14,9 @@ namespace MTConnect.Devices.Samples
         public const string TypeId = "FLOW";
         public const string NameId = "flow";
         public const string DefaultUnits = Devices.Units.LITER_PER_SECOND;
+        public new const string DescriptionText = "The positive rate of change of velocity.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public FlowDataItem()

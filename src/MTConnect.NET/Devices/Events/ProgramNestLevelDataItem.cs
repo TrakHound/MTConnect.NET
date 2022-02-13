@@ -13,6 +13,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "PROGRAM_NEST_LEVEL";
         public const string NameId = "programNestLevel";
+        public new const string DescriptionText = "An indication of the nesting level within a control program that is associated with the code or instructions that is currently being executed.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public ProgramNestLevelDataItem()

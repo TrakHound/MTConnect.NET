@@ -16,6 +16,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "PART_DETECT";
         public const string NameId = "partDetect";
+        public new const string DescriptionText = "An indication designating whether a part or work piece has been detected or is present.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public PartDetectDataItem()

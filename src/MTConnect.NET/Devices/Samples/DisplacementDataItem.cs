@@ -14,6 +14,9 @@ namespace MTConnect.Devices.Samples
         public const string TypeId = "DISPLACEMENT";
         public const string NameId = "displacement";
         public const string DefaultUnits = Devices.Units.MILLIMETER;
+        public new const string DescriptionText = "The measurement of the change in position of an object.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public DisplacementDataItem()

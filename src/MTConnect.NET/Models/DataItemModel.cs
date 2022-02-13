@@ -4,14 +4,34 @@
 // file 'LICENSE.txt', which is part of this source code package.
 
 using System;
+using MTConnect.Devices;
 
 namespace MTConnect.Models
 {
-    public class DataItemModel : Devices.DataItem, IDataItemModel
+    public class DataItemModel : DataItem, IDataItemModel
     {
+        public DataItemCategory DataItemCategory
+        {
+            get => Category;
+            set => Category = value;
+        }
+
+        public string DataItemId
+        {
+            get => Id;
+            set => Id = value;
+        }
+
+        public string DataItemName
+        {
+            get => Name;
+            set => Name = value;
+        }
+
+
         public DataItemModel() { }
 
-        public DataItemModel(Devices.DataItem dataItem)
+        public DataItemModel(DataItem dataItem)
         {
             if (dataItem != null)
             {

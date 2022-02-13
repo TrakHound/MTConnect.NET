@@ -13,6 +13,9 @@ namespace MTConnect.Devices.Conditions
         public const DataItemCategory CategoryId = DataItemCategory.CONDITION;
         public const string TypeId = "MOTION_PROGRAM";
         public const string NameId = "motionProgram";
+        public new const string DescriptionText = "An indication that an error occurred in the motion program associated with a piece of equipment.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public MotionProgramCondition()

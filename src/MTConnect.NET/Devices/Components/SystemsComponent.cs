@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Components
     {
         public const string TypeId = "Systems";
         public const string NameId = "sys";
+        public new const string DescriptionText = "Systems organizes System component types";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public SystemsComponent()  { Type = TypeId; }
     }

@@ -13,6 +13,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "LINE_LABEL";
         public const string NameId = "lineLabel";
+        public new const string DescriptionText = "An optional identifier for a BLOCK of code in a PROGRAM.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public LineLabelDataItem()

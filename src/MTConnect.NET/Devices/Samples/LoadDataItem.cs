@@ -14,6 +14,9 @@ namespace MTConnect.Devices.Samples
         public const string TypeId = "LOAD";
         public const string NameId = "load";
         public const string DefaultUnits = Devices.Units.PERCENT;
+        public new const string DescriptionText = "The measurement of the actual versus the standard rating of a piece of equipment.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public LoadDataItem()

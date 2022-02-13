@@ -13,6 +13,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "PROGRAM";
         public const string NameId = "pgm";
+        public new const string DescriptionText = "The identity of the logic or motion program being executed.";
+
+        public override string TypeDescription => DescriptionText;
 
         public enum SubTypes
         {
@@ -51,6 +54,20 @@ namespace MTConnect.Devices.Events
             Name = NameId;
         }
 
+        public override string GetSubTypeDescription() => GetSubTypeDescription(SubType);
+
+        public static string GetSubTypeDescription(string subType)
+        {
+            var s = subType.ConvertEnum<SubTypes>();
+            switch (s)
+            {
+                case SubTypes.ACTIVE: return "The identity of the logic or motion program currently executing.";
+                case SubTypes.MAIN: return "The identity of the primary logic or motion program currently being executed.It is the starting nest level in a call structure and may contain calls to sub programs.";
+                case SubTypes.SCHEDULE: return "The identity of a control program that is used to specify the order of execution of other programs.";
+            }
+
+            return null;
+        }
 
         public static string GetSubTypeId(SubTypes subType)
         {

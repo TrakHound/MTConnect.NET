@@ -16,6 +16,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "WAIT_STATE";
         public const string NameId = "wait";
+        public new const string DescriptionText = "An indication of the reason that EXECUTION is reporting a value of WAIT.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public WaitStateDataItem()

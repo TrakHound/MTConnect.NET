@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Compositions
     {
         public const string TypeId = "POT";
         public const string NameId = "pot";
+        public new const string DescriptionText = "A tool storage location associated with a ToolMagazine or AutomaticToolChanger.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public PotComposition()  { Type = TypeId; }
     }

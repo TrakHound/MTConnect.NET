@@ -13,6 +13,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "SPECIFICATION_LIMIT";
         public const string NameId = "specificationLimit";
+        public new const string DescriptionText = "A set of limits defining a range of values designating acceptable performance for a variable.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public SpecificationLimitDataItem()

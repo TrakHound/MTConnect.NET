@@ -13,6 +13,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "ROTARY_VELOCITY_OVERRIDE";
         public const string NameId = "ovr";
+        public new const string DescriptionText = "The value of a command issued to adjust the programmed velocity for a Rotary type axis.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public RotaryVelocityOverrideDataItem()

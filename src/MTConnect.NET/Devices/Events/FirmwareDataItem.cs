@@ -13,6 +13,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "FIRMWARE";
         public const string NameId = "firmware";
+        public new const string DescriptionText = "The embedded software of a component.";
+
+        public override string TypeDescription => DescriptionText;
 
         public enum SubTypes
         {
@@ -61,6 +64,22 @@ namespace MTConnect.Devices.Events
             Name = NameId;
         }
 
+        public override string GetSubTypeDescription() => GetSubTypeDescription(SubType);
+
+        public static string GetSubTypeDescription(string subType)
+        {
+            var s = subType.ConvertEnum<SubTypes>();
+            switch (s)
+            {
+                case SubTypes.INSTALL_DATE: return "The date the hardware or software was installed.";
+                case SubTypes.LICENSE: return "The license code to validate or activate the hardware or software.";
+                case SubTypes.MANUFACTURER: return "The corporate identity for the maker of the hardware or software.";
+                case SubTypes.RELEASE_DATE: return "The date the hardware or software was released for general use.";
+                case SubTypes.VERSION: return "The version of the hardware or software.";
+            }
+
+            return null;
+        }
 
         public static string GetSubTypeId(SubTypes subType)
         {

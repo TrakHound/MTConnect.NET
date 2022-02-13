@@ -13,6 +13,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "COUPLED_AXES";
         public const string NameId = "coupledAxes";
+        public new const string DescriptionText = "Refers to the set of associated axes.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public CoupledAxesDataItem()

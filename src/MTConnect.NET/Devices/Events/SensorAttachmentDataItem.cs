@@ -13,6 +13,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "SENSOR_ATTACHMENT";
         public const string NameId = "sensorAttachment";
+        public new const string DescriptionText = "A SensorAttachment is an Event defining an Attachment between a sensor and an entity.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public SensorAttachmentDataItem()

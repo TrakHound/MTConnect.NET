@@ -13,6 +13,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "MATERIAL";
         public const string NameId = "material";
+        public new const string DescriptionText = "The identifier of a material used or consumed in the manufacturing process.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public MaterialDataItem()

@@ -16,31 +16,34 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "CONTROLLER_MODE_OVERRIDE";
         public const string NameId = "contModeOvr";
+        public new const string DescriptionText = "A setting or operator selection that changes the behavior of a piece of equipment.";
+
+        public override string TypeDescription => DescriptionText;
 
         public enum SubTypes
         {
             /// <summary>
-            /// A setting or operator selection used to execute a test mode to confirm the execution of machine functions.
+            /// When DRY_RUN is ON, the equipment performs all of its normal functions, except no part or product is produced. If the equipment has a spindle, spindle operation is suspended.
             /// </summary>
             DRY_RUN,
 
             /// <summary>
-            /// A setting or operator selection that changes the behavior of the controller on a piece of equipment.
+            /// Program execution is paused after each BLOCK of code is executed when SINGLE_BLOCK is ON
             /// </summary>
             SINGLE_BLOCK,
 
             /// <summary>
-            /// A setting or operator selection that changes the behavior of the controller on a piece of equipment.
+            /// When MACHINE_AXIS_LOCK is ON, program execution continues normally, but no equipment motion occurs
             /// </summary>
             MACHINE_AXIS_LOCK,
 
             /// <summary>
-            /// A setting or operator selection that changes the behavior of the controller on a piece of equipment.
+            /// The program execution is stopped after a specific program block is executed when OPTIONAL_STOP is ON.
             /// </summary>
             OPTIONAL_STOP,
 
             /// <summary>
-            /// A setting or operator selection that changes the behavior of the controller on a piece of equipment.
+            /// Program execution is paused when a command is executed requesting a cutting tool to be changed.
             /// </summary>
             TOOL_CHANGE_STOP
         }
@@ -100,6 +103,22 @@ namespace MTConnect.Devices.Events
             return new DataItemValidationResult(false, "No Observation is Specified");
         }
 
+        public override string GetSubTypeDescription() => GetSubTypeDescription(SubType);
+
+        public static string GetSubTypeDescription(string subType)
+        {
+            var s = subType.ConvertEnum<SubTypes>();
+            switch (s)
+            {
+                case SubTypes.DRY_RUN: return "When DRY_RUN is ON, the equipment performs all of its normal functions, except no part or product is produced.If the equipment has a spindle, spindle operation is suspended.";
+                case SubTypes.SINGLE_BLOCK: return "Program execution is paused after each BLOCK of code is executed when SINGLE_BLOCK is ON";
+                case SubTypes.MACHINE_AXIS_LOCK: return "When MACHINE_AXIS_LOCK is ON, program execution continues normally, but no equipment motion occurs";
+                case SubTypes.OPTIONAL_STOP: return "The program execution is stopped after a specific program block is executed when OPTIONAL_STOP is ON.";
+                case SubTypes.TOOL_CHANGE_STOP: return "Program execution is paused when a command is executed requesting a cutting tool to be changed.";
+            }
+
+            return null;
+        }
 
         public static string GetSubTypeId(SubTypes subType)
         {

@@ -13,6 +13,10 @@ namespace MTConnect.Devices.Components
     {
         public const string TypeId = "Enclosure";
         public const string NameId = "encl";
+        public new const string DescriptionText = "Enclosure is a System that represents the information for a structure used to contain or isolate a piece of equipment or area. The Enclosure system may provide information regarding access to the internal components of a piece of equipment or the conditions within the enclosure.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public EnclosureComponent()  { Type = TypeId; }
     }

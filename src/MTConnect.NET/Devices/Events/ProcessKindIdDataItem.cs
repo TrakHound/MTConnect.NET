@@ -13,6 +13,9 @@ namespace MTConnect.Devices.Events
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "PROCESS_KIND_ID";
         public const string NameId = "processKindId";
+        public new const string DescriptionText = "Identifier given to link the individual occurrence to a class of processes or process definition.";
+
+        public override string TypeDescription => DescriptionText;
 
         public enum SubTypes
         {
@@ -51,6 +54,20 @@ namespace MTConnect.Devices.Events
             Name = NameId;
         }
 
+        public override string GetSubTypeDescription() => GetSubTypeDescription(SubType);
+
+        public static string GetSubTypeDescription(string subType)
+        {
+            var s = subType.ConvertEnum<SubTypes>();
+            switch (s)
+            {
+                case SubTypes.ISO_STEP_EXECUTABLE: return "A reference to a ISO 10303 Executable.";
+                case SubTypes.PROCESS_NAME: return "A word or set of words by which a process being executed (process occurrence) by the device is known, addressed, or referred to.";
+                case SubTypes.UUID: return "The globally unique identifier as specified in ISO 11578 or RFC 4122.";
+            }
+
+            return null;
+        }
 
         public static string GetSubTypeId(SubTypes subType)
         {

@@ -14,6 +14,9 @@ namespace MTConnect.Devices.Samples
         public const string TypeId = "LENGTH";
         public const string NameId = "length";
         public const string DefaultUnits = Devices.Units.MILLIMETER;
+        public new const string DescriptionText = "The measurement of the length of an object.";
+
+        public override string TypeDescription => DescriptionText;
 
         public enum SubTypes
         {
@@ -54,6 +57,20 @@ namespace MTConnect.Devices.Samples
             Units = DefaultUnits;
         }
 
+        public override string GetSubTypeDescription() => GetSubTypeDescription(SubType);
+
+        public static string GetSubTypeDescription(string subType)
+        {
+            var s = subType.ConvertEnum<SubTypes>();
+            switch (s)
+            {
+                case SubTypes.STANDARD: return "The standard or original length of an object.";
+                case SubTypes.REMAINING: return "The remaining total length of an object.";
+                case SubTypes.USEABLE: return "The remaining useable length of an object.";
+            }
+
+            return null;
+        }
 
         public static string GetSubTypeId(SubTypes subType)
         {

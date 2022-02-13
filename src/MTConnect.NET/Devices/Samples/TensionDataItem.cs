@@ -14,6 +14,9 @@ namespace MTConnect.Devices.Samples
         public const string TypeId = "TENSION";
         public const string NameId = "tension";
         public const string DefaultUnits = Devices.Units.NEWTON;
+        public new const string DescriptionText = "The measurement of a force that stretches or elongates an object";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public TensionDataItem()

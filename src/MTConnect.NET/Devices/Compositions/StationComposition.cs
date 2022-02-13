@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Compositions
     {
         public const string TypeId = "STATION";
         public const string NameId = "station";
+        public new const string DescriptionText = "A storage or mounting location for a tool associated with a Turret, GangToolBar, or ToolRack.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public StationComposition()  { Type = TypeId; }
     }

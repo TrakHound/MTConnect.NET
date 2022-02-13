@@ -14,6 +14,9 @@ namespace MTConnect.Devices.Samples
         public const string TypeId = "ROTARY_VELOCITY";
         public const string NameId = "speed";
         public const string DefaultUnits = Devices.Units.REVOLUTION_PER_MINUTE;
+        public new const string DescriptionText = "The measurement of the rotational speed of a rotary axis.";
+
+        public override string TypeDescription => DescriptionText;
 
         public enum SubTypes
         {
@@ -52,6 +55,21 @@ namespace MTConnect.Devices.Samples
             Units = DefaultUnits;
             SignificantDigits = 1;
             MinimumVersion = MTConnectVersions.Version14;
+        }
+
+        public override string GetSubTypeDescription() => GetSubTypeDescription(SubType);
+
+        public static string GetSubTypeDescription(string subType)
+        {
+            var s = subType.ConvertEnum<SubTypes>();
+            switch (s)
+            {
+                case SubTypes.ACTUAL: return "The measured or reported value of an observation.";
+                case SubTypes.COMMANDED: return "Directive value including adjustments such as an offset or overrides.";
+                case SubTypes.PROGRAMMED: return "Directive value without offsets and adjustments.";
+            }
+
+            return null;
         }
 
         public static string GetSubTypeId(SubTypes subType)

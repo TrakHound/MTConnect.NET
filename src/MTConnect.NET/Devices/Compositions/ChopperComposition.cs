@@ -12,6 +12,10 @@ namespace MTConnect.Devices.Compositions
     {
         public const string TypeId = "CHOPPER";
         public const string NameId = "chop";
+        public new const string DescriptionText = "A mechanism used to break material into smaller pieces.";
+
+        public override string TypeDescription => DescriptionText;
+
 
         public ChopperComposition()  { Type = TypeId; }
     }

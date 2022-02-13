@@ -13,6 +13,9 @@ namespace MTConnect.Devices.Conditions
         public const DataItemCategory CategoryId = DataItemCategory.CONDITION;
         public const string TypeId = "SYSTEM";
         public const string NameId = "system";
+        public new const string DescriptionText = "An indication of a fault associated with a piece of equipment or component that cannot be classified as a specific type.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public SystemCondition()

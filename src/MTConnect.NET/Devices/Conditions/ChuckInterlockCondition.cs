@@ -13,6 +13,9 @@ namespace MTConnect.Devices.Conditions
         public const DataItemCategory CategoryId = DataItemCategory.CONDITION;
         public const string TypeId = "CHUCK_INTERLOCK";
         public const string NameId = "chuckInterlockCond";
+        public new const string DescriptionText = "An indication of the operational condition of the interlock function for an electronically controller chuck.";
+
+        public override string TypeDescription => DescriptionText;
 
 
         public ChuckInterlockCondition()
