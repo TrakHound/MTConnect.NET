@@ -4,23 +4,23 @@
 // file 'LICENSE', which is part of this source code package.
 
 using System.Text.Json.Serialization;
-using System.Xml.Serialization;
 
 namespace MTConnect.Devices
 {
+    /// <summary>
+    /// The process of transforming to the origin position of the coordinate system from a parent coordinate system using Translation and Rotation.
+    /// </summary>
     public class Transformation
     {
         /// <summary>
         /// Translations along X, Y, and Z axes are expressed as x,y, and z respectively within a 3-dimensional vector.      
         /// </summary>
-        [XmlElement("Translation")]
         [JsonPropertyName("translation")]
         public string Translation { get; set; }
 
         /// <summary>
         /// Rotations about X, Y, and Z axes are expressed in A, B, and C respectively within a 3-dimensional vector.
         /// </summary>
-        [XmlElement("Rotation")]
         [JsonPropertyName("rotation")]
         public string Rotation { get; set; }
     }

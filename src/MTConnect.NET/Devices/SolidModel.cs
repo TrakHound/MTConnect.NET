@@ -69,6 +69,6 @@ namespace MTConnect.Devices
         /// </summary>
         [XmlAttribute("Scale")]
         [JsonPropertyName("scale")]
-        public double Scale { get; set; }
+        public string Scale { get; set; }
     }
 }

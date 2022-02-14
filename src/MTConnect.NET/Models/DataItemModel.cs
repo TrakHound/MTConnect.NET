@@ -28,6 +28,45 @@ namespace MTConnect.Models
             set => Name = value;
         }
 
+        public new double? NativeScale
+        {
+            get 
+            {
+                if (base.NativeScale > 0) return base.NativeScale;
+                return null;
+            }
+            set
+            {
+                if (value.HasValue) base.NativeScale = value.Value;
+            }
+        }
+
+        public new int? SignificantDigits
+        {
+            get
+            {
+                if (base.SignificantDigits > 0) return base.SignificantDigits;
+                return null;
+            }
+            set
+            {
+                if (value.HasValue) base.SignificantDigits = value.Value;
+            }
+        }
+
+        public new double? SampleRate
+        {
+            get
+            {
+                if (base.SampleRate > 0) return base.SampleRate;
+                return null;
+            }
+            set
+            {
+                if (value.HasValue) base.SampleRate = value.Value;
+            }
+        }
+
 
         public DataItemModel() { }
 

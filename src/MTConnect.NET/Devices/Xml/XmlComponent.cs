@@ -108,7 +108,7 @@ namespace MTConnect.Devices.Xml
         /// An XML element that contains technical information about a piece of equipment describing its physical layout or functional characteristics.
         /// </summary>
         [XmlElement("Configuration")]
-        public Configuration Configuration { get; set; }
+        public XmlConfiguration Configuration { get; set; }
 
         /// <summary>
         /// A container for the Data Entities associated with this Component element.
@@ -119,15 +119,6 @@ namespace MTConnect.Devices.Xml
 
         [XmlIgnore]
         public bool DataItemsSpecified => !DataItems.IsNullOrEmpty();
-
-        ///// <summary>
-        ///// A container for the Data Entities associated with this Component element.
-        ///// </summary>
-        //[XmlElement("DataItems")]
-        //public XmlDataItemCollection DataItemCollection { get; set; }
-
-        //[XmlIgnore]
-        //public bool DataItemCollectionSpecified => DataItemCollection != null && !DataItemCollection.DataItems.IsNullOrEmpty();
 
         /// <summary>
         /// A container for Lower Level Component XML elements associated with this parent Component.
@@ -148,22 +139,13 @@ namespace MTConnect.Devices.Xml
         [XmlIgnore]
         public bool CompositionsSpecified => !Compositions.IsNullOrEmpty();
 
-        ///// <summary>
-        ///// A container for the Composition elements associated with this Component element.
-        ///// </summary>
-        //[XmlElement("Compositions")]
-        //public XmlCompositionCollection CompositionCollection { get; set; }
-
-        //[XmlIgnore]
-        //public bool CompositionCollectionSpecified => CompositionCollection != null && !CompositionCollection.Compositions.IsNullOrEmpty();
-
         /// <summary>
         /// An XML container consisting of one or more types of Reference XML elements.
         /// </summary>
         [XmlArray("References")]
-        [XmlArrayItem("ComponentReference", typeof(ComponentReference))]
-        [XmlArrayItem("DataItemReference", typeof(DataItemReference))]
-        public List<Reference> References { get; set; }
+        [XmlArrayItem("ComponentRef", typeof(XmlComponentReference))]
+        [XmlArrayItem("DataItemRef", typeof(XmlDataItemReference))]
+        public List<XmlReference> References { get; set; }
 
         [XmlIgnore]
         public bool ReferencesSpecified => !References.IsNullOrEmpty();
@@ -190,8 +172,26 @@ namespace MTConnect.Devices.Xml
                 Description = component.Description;
                 SampleRate = component.SampleRate;
                 SampleInterval = component.SampleInterval;
-                References = component.References;
-                Configuration = component.Configuration;
+                if (component.Configuration != null) Configuration = new XmlConfiguration(component.Configuration);
+
+                // References
+                if (!component.References.IsNullOrEmpty())
+                {
+                    var references = new List<XmlReference>();
+                    foreach (var reference in component.References)
+                    {
+                        if (reference.GetType() == typeof(ComponentReference))
+                        {
+                            references.Add(new XmlComponentReference((ComponentReference)reference));
+                        }
+
+                        if (reference.GetType() == typeof(DataItemReference))
+                        {
+                            references.Add(new XmlDataItemReference((DataItemReference)reference));
+                        }
+                    }
+                    References = references;
+                }
 
                 // DataItems
                 if (!component.DataItems.IsNullOrEmpty())
@@ -211,29 +211,23 @@ namespace MTConnect.Devices.Xml
                     }
                 }
 
-                //// DataItems
-                //if (!component.DataItems.IsNullOrEmpty())
-                //{
-                //    DataItemCollection = new XmlDataItemCollection { DataItems = component.DataItems };
-                //}
-
-                //// Compositions
-                //if (!component.Compositions.IsNullOrEmpty())
-                //{
-                //    CompositionCollection = new XmlCompositionCollection { Compositions = component.Compositions };
-                //}
-
                 // Components
                 if (!component.Components.IsNullOrEmpty())
                 {
-                    ComponentCollection = new XmlComponentCollection { Components = component.Components };
+                    var componentCollection = new XmlComponentCollection();
+                    foreach (var subcomponent in component.Components)
+                    {
+                        componentCollection.Components.Add(new XmlComponent(subcomponent));
+                    }
+                    ComponentCollection = componentCollection;
                 }
             }
         }
 
         public Component ToComponent()
         {
-            var component = new Component();
+            var component = Component.Create(Type);
+            if (component == null) component = new Component();
 
             component.Id = Id;
             component.Uuid = Uuid;
@@ -243,8 +237,18 @@ namespace MTConnect.Devices.Xml
             component.Description = Description;
             component.SampleRate = SampleRate;
             component.SampleInterval = SampleInterval;
-            component.References = References;
-            component.Configuration = Configuration;
+            if (Configuration != null) component.Configuration = Configuration.ToConfiguration();
+
+            // References
+            if (!References.IsNullOrEmpty())
+            {
+                var references = new List<Reference>();
+                foreach (var reference in References)
+                {
+                    references.Add(reference.ToReference());
+                }
+                component.References = references;
+            }
 
             // DataItems
             if (!DataItems.IsNullOrEmpty())
@@ -266,22 +270,15 @@ namespace MTConnect.Devices.Xml
                 }
             }
 
-            //// DataItems
-            //if (DataItemCollection != null && !DataItemCollection.DataItems.IsNullOrEmpty())
-            //{
-            //    component.DataItems = DataItemCollection.DataItems;
-            //}
-
-            //// Compositions
-            //if (CompositionCollection != null && !CompositionCollection.Compositions.IsNullOrEmpty())
-            //{
-            //    component.Compositions = CompositionCollection.Compositions;
-            //}
-
             // Components
             if (ComponentCollection != null && !ComponentCollection.Components.IsNullOrEmpty())
             {
-                component.Components = ComponentCollection.Components;
+                var components = new List<Component>();
+                foreach (var subcomponent in ComponentCollection.Components)
+                {
+                    components.Add(subcomponent.ToComponent());
+                }
+                component.Components = components;
             }
 
             return component;

@@ -11,7 +11,7 @@ namespace MTConnect.Devices
     /// <summary>
     /// A CoordinateSystem is a reference system that associates a unique set of n parameters with each point in an n-dimensional space.
     /// </summary>
-    public class CoordinateSystem
+    public class CoordinateSystem : ICoordinateSystem
     {
         /// <summary>
         /// The unique identifier for this element.    
@@ -47,6 +47,13 @@ namespace MTConnect.Devices
         [XmlAttribute("type")]
         [JsonPropertyName("type")]
         public CoordinateSystemType Type { get; set; }
+
+        /// <summary>
+        /// The type of coordinate system.
+        /// </summary>
+        [XmlIgnore]
+        [JsonIgnore]
+        public string TypeDescription => CoordinateSystemTypeDescriptions.Get(Type);
 
         /// <summary>
         /// The coordinates of the origin position of a coordinate system.

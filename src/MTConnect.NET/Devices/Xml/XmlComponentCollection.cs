@@ -5,7 +5,6 @@
 
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
@@ -17,13 +16,13 @@ namespace MTConnect.Devices.Xml
         private static readonly XmlSerializer _serializer = new XmlSerializer(typeof(XmlComponent));
 
 
-        private List<Component> _components;
+        private List<XmlComponent> _components;
         [XmlIgnore]
-        public List<Component> Components
+        public List<XmlComponent> Components
         {
             get
             {
-                if (_components == null) _components = new List<Component>();
+                if (_components == null) _components = new List<XmlComponent>();
                 return _components;
             }
             set
@@ -46,98 +45,10 @@ namespace MTConnect.Devices.Xml
                 {
                     try
                     {
-                        // Create a new base class Component to prevent the Type being required to be specified
-                        // at compile time. This makes it possible to write custom Types
-                        var obj = new XmlComponent();
-                        obj.Id = component.Id;
-                        obj.Uuid = component.Uuid;
-                        obj.Name = component.Name;
-                        obj.NativeName = component.NativeName;
-                        obj.Type = component.Type;
-                        obj.Description = component.Description;
-                        obj.SampleRate = component.SampleRate;
-                        obj.SampleInterval = component.SampleInterval;
-                        obj.References = component.References;
-                        obj.Configuration = component.Configuration;
-
-                        // DataItems
-                        if (!component.DataItems.IsNullOrEmpty())
-                        {
-                            foreach (var dataItem in component.DataItems)
-                            {
-                                obj.DataItems.Add(new XmlDataItem(dataItem));
-                            }
-                        }
-
-                        // Compositions
-                        if (!component.Compositions.IsNullOrEmpty())
-                        {
-                            foreach (var composition in component.Compositions)
-                            {
-                                obj.Compositions.Add(new XmlComposition(composition));
-                            }
-                        }
-
-                        //// DataItems
-                        //if (!component.DataItems.IsNullOrEmpty())
-                        //{
-                        //    obj.DataItemCollection = new XmlDataItemCollection { DataItems = component.DataItems };
-                        //}
-
-                        //// Compositions
-                        //if (!component.Compositions.IsNullOrEmpty())
-                        //{
-                        //    obj.CompositionCollection = new XmlCompositionCollection { Compositions = component.Compositions };
-                        //}
-
-                        // Components
-                        if (!component.Components.IsNullOrEmpty())
-                        {
-                            obj.ComponentCollection = new XmlComponentCollection { Components = component.Components };
-                        }
-
-                        //using (var memoryStream = new MemoryStream())
-                        //{
-                        //    var writerSettings = new XmlWriterSettings
-                        //    {
-                        //        Encoding = Encoding.UTF8,
-                        //        Indent = true                            
-                        //    };
-
-                        //    using (var streamWriter = XmlWriter.Create(memoryStream, writerSettings))
-                        //    {
-                        //        // Serialize XML Document
-                        //        _serializer.Serialize(streamWriter, obj, ns);
-
-                        //        // Convert Byte Array to UTF8 string
-                        //        var xml = Encoding.UTF8.GetString(memoryStream.ToArray());
-
-                        //        // Remove <?xml line
-                        //        var startTag = "<Component";
-                        //        xml = xml.Substring(xml.IndexOf(startTag));
-
-                        //        // Replace the base class Component start tag name with the derived Component Type
-                        //        xml = xml.Substring(startTag.Length + 1);
-                        //        xml = $"<{component.Type} " + xml;
-
-                        //        // Replace the base class Component End tag with the derived Component Type
-                        //        var endTag = "</Component>";
-                        //        xml = xml.Substring(0, xml.Length - endTag.Length);
-                        //        xml = xml + $"</{component.Type}>";
-
-                        //        //xml = xml.Replace("<Component ", $"<{component.Type} ");
-
-                        //        writer.WriteWhitespace("\n");
-                        //        writer.WriteRaw(xml);
-                        //    }
-                        //}
-
-
-
                         // Serialize the base class to a string
                         using (var dummyWriter = new StringWriter())
                         {
-                            _serializer.Serialize(dummyWriter, obj, ns);
+                            _serializer.Serialize(dummyWriter, component, ns);
                             var xml = dummyWriter.ToString();
 
                             // Remove <?xml line
@@ -154,7 +65,7 @@ namespace MTConnect.Devices.Xml
                             xml = xml + $"</{component.Type}>";
 
                             writer.WriteRaw(xml);
-                        }                  
+                        }
                     }
                     catch { }
                 }
@@ -184,7 +95,7 @@ namespace MTConnect.Devices.Xml
         //                obj.SampleRate = component.SampleRate;
         //                obj.SampleInterval = component.SampleInterval;
         //                obj.References = component.References;
-        //                obj.Configuration = component.Configuration;
+        //                if (component.Configuration != null) obj.Configuration = new XmlConfiguration(component.Configuration);
 
         //                // DataItems
         //                if (!component.DataItems.IsNullOrEmpty())
@@ -195,16 +106,13 @@ namespace MTConnect.Devices.Xml
         //                    }
         //                }
 
-        //                //// DataItems
-        //                //if (!component.DataItems.IsNullOrEmpty())
-        //                //{
-        //                //    obj.DataItemCollection = new XmlDataItemCollection { DataItems = component.DataItems };
-        //                //}
-
         //                // Compositions
         //                if (!component.Compositions.IsNullOrEmpty())
         //                {
-        //                    obj.CompositionCollection = new XmlCompositionCollection { Compositions = component.Compositions };
+        //                    foreach (var composition in component.Compositions)
+        //                    {
+        //                        obj.Compositions.Add(new XmlComposition(composition));
+        //                    }
         //                }
 
         //                // Components
@@ -213,30 +121,27 @@ namespace MTConnect.Devices.Xml
         //                    obj.ComponentCollection = new XmlComponentCollection { Components = component.Components };
         //                }
 
-
-
         //                // Serialize the base class to a string
-        //                //using (var )
-        //                var w = new StringWriter();
-        //                _serializer.Serialize(w, obj, ns);
-        //                var xml = w.ToString();
+        //                using (var dummyWriter = new StringWriter())
+        //                {
+        //                    _serializer.Serialize(dummyWriter, obj, ns);
+        //                    var xml = dummyWriter.ToString();
 
-        //                // Remove <?xml line
-        //                var startTag = "<Component";
-        //                xml = xml.Substring(xml.IndexOf(startTag));
+        //                    // Remove <?xml line
+        //                    var startTag = "<Component";
+        //                    xml = xml.Substring(xml.IndexOf(startTag));
 
-        //                // Replace the base class Component start tag name with the derived Component Type
-        //                xml = xml.Substring(startTag.Length + 1);
-        //                xml = $"<{component.Type} " + xml;
+        //                    // Replace the base class Component start tag name with the derived Component Type
+        //                    xml = xml.Substring(startTag.Length + 1);
+        //                    xml = $"<{component.Type} " + xml;
 
-        //                // Replace the base class Component End tag with the derived Component Type
-        //                var endTag = "</Component>";
-        //                xml = xml.Substring(0, xml.Length - endTag.Length);
-        //                xml = xml + $"</{component.Type}>";
+        //                    // Replace the base class Component End tag with the derived Component Type
+        //                    var endTag = "</Component>";
+        //                    xml = xml.Substring(0, xml.Length - endTag.Length);
+        //                    xml = xml + $"</{component.Type}>";
 
-        //                //xml = xml.Replace("<Component ", $"<{component.Type} ");
-
-        //                writer.WriteRaw(xml);
+        //                    writer.WriteRaw(xml);
+        //                }                  
         //            }
         //            catch { }
         //        }
@@ -280,67 +185,8 @@ namespace MTConnect.Devices.Xml
 
                                     // Deserialize the copied Node to the Component base class
                                     var component = (XmlComponent)_serializer.Deserialize(new XmlNodeReader(copy));
-
-                                    // Create new Component based on Type (this gets this derived class instead of just the Component base class)
-                                    var obj = Component.Create(child.Name);
-                                    if (obj != null)
-                                    {
-                                        obj.Id = component.Id;
-                                        obj.Uuid = component.Uuid;
-                                        obj.Name = component.Name;
-                                        obj.NativeName = component.NativeName;
-                                        obj.Description = component.Description;
-                                        obj.SampleRate = component.SampleRate;
-                                        obj.SampleInterval = component.SampleInterval;
-                                        obj.References = component.References;
-                                        obj.Configuration = component.Configuration;
-
-                                        // DataItems
-                                        if (!component.DataItems.IsNullOrEmpty())
-                                        {
-                                            obj.DataItems = new List<DataItem>();
-                                            foreach (var dataItem in component.DataItems)
-                                            {
-                                                obj.DataItems.Add(dataItem.ToDataItem());
-                                            }
-                                        }
-
-                                        // Compositions
-                                        if (!component.Compositions.IsNullOrEmpty())
-                                        {
-                                            obj.Compositions = new List<Composition>();
-                                            foreach (var composition in component.Compositions)
-                                            {
-                                                obj.Compositions.Add(composition.ToComposition());
-                                            }
-                                        }
-
-                                        //// DataItems
-                                        //if (component.DataItemCollection != null && !component.DataItemCollection.DataItems.IsNullOrEmpty())
-                                        //{
-                                        //    obj.DataItems = component.DataItemCollection.DataItems;
-                                        //}
-
-                                        //// Compositions
-                                        //if (component.CompositionCollection != null && !component.CompositionCollection.Compositions.IsNullOrEmpty())
-                                        //{
-                                        //    obj.Compositions = component.CompositionCollection.Compositions;
-                                        //}
-
-                                        // Components
-                                        if (component.ComponentCollection != null && !component.ComponentCollection.Components.IsNullOrEmpty())
-                                        {
-                                            obj.Components = component.ComponentCollection.Components;
-                                        }
-
-                                        Components.Add(obj);
-                                    }
-                                    else
-                                    {
-                                        // If no derived class is found then just add as base Component
-                                        component.Type = child.Name;
-                                        Components.Add(component.ToComponent());
-                                    }
+                                    component.Type = child.Name;
+                                    Components.Add(component);
                                 }
                             }
                         }

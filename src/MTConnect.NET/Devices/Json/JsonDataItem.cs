@@ -182,7 +182,7 @@ namespace MTConnect.Devices.Json
                 Source = dataItem.Source;
                 if (!dataItem.Filters.IsNullOrEmpty()) Relationships = dataItem.Relationships;
                 if (dataItem.Representation != DataItemRepresentation.VALUE) Representation = dataItem.Representation.ToString();
-                ResetTrigger = dataItem.ResetTrigger;
+                if (dataItem.ResetTrigger != DataItemResetTrigger.NONE) ResetTrigger = dataItem.ResetTrigger.ToString();
                 if (dataItem.CoordinateSystem != DataItemCoordinateSystem.MACHINE) CoordinateSystem = dataItem.CoordinateSystem.ToString();
                 Constraints = dataItem.Constraints;
                 Definition = dataItem.Definition;
@@ -211,7 +211,7 @@ namespace MTConnect.Devices.Json
             dataItem.Source = Source;
             dataItem.Relationships = Relationships;
             dataItem.Representation = Representation.ConvertEnum<DataItemRepresentation>();
-            dataItem.ResetTrigger = ResetTrigger;
+            dataItem.ResetTrigger = ResetTrigger.ConvertEnum<DataItemResetTrigger>();
             dataItem.CoordinateSystem = CoordinateSystem.ConvertEnum<DataItemCoordinateSystem>();
             dataItem.Constraints = Constraints;
             dataItem.Definition = Definition;

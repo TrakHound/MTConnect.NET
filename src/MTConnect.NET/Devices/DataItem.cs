@@ -201,7 +201,7 @@ namespace MTConnect.Devices
         /// </summary>
         [XmlElement("ResetTrigger")]
         [JsonPropertyName("resetTrigger")]
-        public string ResetTrigger { get; set; }
+        public DataItemResetTrigger ResetTrigger { get; set; }
 
         /// <summary>
         /// The Definition provides additional descriptive information for any DataItem representations.

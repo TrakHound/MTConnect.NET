@@ -105,7 +105,7 @@ namespace MTConnect.Devices.Xml
         /// An XML element that contains technical information about a piece of equipment describing its physical layout or functional characteristics.
         /// </summary>
         [XmlElement("Configuration")]
-        public Configuration Configuration { get; set; }
+        public XmlConfiguration Configuration { get; set; }
 
         /// <summary>
         /// A container for the Data Entities associated with this Component element.
@@ -168,7 +168,7 @@ namespace MTConnect.Devices.Xml
                 Iso841Class = device.Iso841Class;
                 CoordinateSystemIdRef = device.CoordinateSystemIdRef;
                 if (device.MTConnectVersion != null) MTConnectVersion = device.MTConnectVersion.ToString();
-                Configuration = device.Configuration;
+                if (device.Configuration != null) Configuration = new XmlConfiguration(device.Configuration);
                 References = device.References;
                 Description = device.Description;
 
@@ -194,7 +194,14 @@ namespace MTConnect.Devices.Xml
                 // Components
                 if (!device.Components.IsNullOrEmpty())
                 {
-                    ComponentCollection = new XmlComponentCollection { Components = device.Components };
+                    var componentCollection = new XmlComponentCollection();
+                    foreach (var component in device.Components)
+                    {
+                        componentCollection.Components.Add(new XmlComponent(component));
+                    }
+                    ComponentCollection = componentCollection;
+
+                    //ComponentCollection = new XmlComponentCollection { Components = device.Components };
                 }
             }
         }
@@ -216,7 +223,7 @@ namespace MTConnect.Devices.Xml
             {
                 device.MTConnectVersion = mtconnectVersion;
             }
-            device.Configuration = Configuration;
+            if (Configuration != null) device.Configuration = Configuration.ToConfiguration();
             device.References = References;
             device.Description = Description;
 
@@ -243,7 +250,13 @@ namespace MTConnect.Devices.Xml
             // Components
             if (ComponentCollection != null && !ComponentCollection.Components.IsNullOrEmpty())
             {
-                device.Components = ComponentCollection.Components;
+                var components = new List<Component>();
+                foreach (var component in ComponentCollection.Components)
+                {
+                    components.Add(component.ToComponent());
+                }
+                device.Components = components;
+                //device.Components = ComponentCollection.Components;
             }
 
             return device;

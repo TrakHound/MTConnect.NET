@@ -56,8 +56,8 @@ namespace MTConnect.Devices.Xml
                         obj.Description = composition.Description;
                         obj.SampleRate = composition.SampleRate;
                         obj.SampleInterval = composition.SampleInterval;
-                        obj.References = composition.References;
-                        obj.Configuration = composition.Configuration;
+                        //obj.References = composition.References;
+                        if (composition.Configuration != null) obj.Configuration = new XmlConfiguration(composition.Configuration);
 
                         // DataItems
                         if (!composition.DataItems.IsNullOrEmpty())
@@ -77,16 +77,6 @@ namespace MTConnect.Devices.Xml
 
                             writer.WriteRaw(xml);
                         }
-
-                        //// Serialize the base class to a string
-                        //var w = new StringWriter();
-                        //_serializer.Serialize(w, obj, ns);
-                        //var xml = w.ToString();
-
-                        //// Remove <?xml line
-                        //xml = xml.Substring(xml.IndexOf("<Composition"));
-
-                        //writer.WriteRaw(xml);
                     }
                     catch { }
                 }
@@ -139,8 +129,8 @@ namespace MTConnect.Devices.Xml
                                         obj.Description = composition.Description;
                                         obj.SampleRate = composition.SampleRate;
                                         obj.SampleInterval = composition.SampleInterval;
-                                        obj.References = composition.References;
-                                        obj.Configuration = composition.Configuration;
+                                        //obj.References = composition.References;
+                                        if (composition.Configuration != null) obj.Configuration = composition.Configuration.ToConfiguration();
 
                                         // DataItems
                                         if (composition.DataItemCollection != null && !composition.DataItemCollection.DataItems.IsNullOrEmpty())

@@ -24,7 +24,7 @@ namespace MTConnect.Devices
         public string Maximum { get; set; }
 
         /// <summary>
-        /// If the data reported for a DataItem is a rnage of numeric values, the value reported MAY be bounded with a lower limit defined by this constraint.
+        /// If the data reported for a DataItem is a range of numeric values, the value reported MAY be bounded with a lower limit defined by this constraint.
         /// </summary>
         [XmlElement("Minimum")]
         [JsonPropertyName("minimum")]

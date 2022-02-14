@@ -37,7 +37,7 @@ namespace MTConnect.Devices.Xml
                 Iso841Class = device.Iso841Class;
                 CoordinateSystemIdRef = device.CoordinateSystemIdRef;
                 if (device.MTConnectVersion != null) MTConnectVersion = device.MTConnectVersion.ToString();
-                Configuration = device.Configuration;
+                if (device.Configuration != null) Configuration = new XmlConfiguration(device.Configuration);
                 References = device.References;
                 Description = device.Description;
 
@@ -63,8 +63,21 @@ namespace MTConnect.Devices.Xml
                 // Components
                 if (!device.Components.IsNullOrEmpty())
                 {
-                    ComponentCollection = new XmlComponentCollection { Components = device.Components };
+                    var componentCollection = new XmlComponentCollection();
+                    foreach (var component in device.Components)
+                    {
+                        componentCollection.Components.Add(new XmlComponent(component));
+                    }
+                    ComponentCollection = componentCollection;
+
+                    //ComponentCollection = new XmlComponentCollection { Components = device.Components };
                 }
+
+                //// Components
+                //if (!device.Components.IsNullOrEmpty())
+                //{
+                //    ComponentCollection = new XmlComponentCollection { Components = device.Components };
+                //}
             }
         }
 

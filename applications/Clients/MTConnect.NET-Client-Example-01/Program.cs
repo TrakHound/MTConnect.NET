@@ -1,7 +1,7 @@
 using MTConnect.Clients.Rest;
 
-var deviceName = "OKUMA.Lathe";
-var baseUrl = "localhost:5000";
+var deviceName = "M12346";
+var baseUrl = "localhost:5001";
 
 var client = new MTConnectClient(baseUrl, deviceName);
 client.Interval = 500;
@@ -9,23 +9,26 @@ client.OnProbeReceived += (sender, document) =>
 {
     Console.WriteLine("Probe Received");
 
-    //foreach (var device in document.Devices)
-    //{
-    //    // Device
-    //    Console.WriteLine(device.Id);
+    foreach (var device in document.Devices)
+    {
+        // Device
+        //Console.WriteLine(device.Id);
 
-    //    // DataItems
-    //    foreach (var dataItem in device.DataItems)
-    //    {
-    //        Console.WriteLine(dataItem.Id);
-    //    }
+        // DataItems
+        foreach (var dataItem in device.DataItems)
+        {
+            Console.WriteLine($"DataItemId = {dataItem.Id}");
+            Console.WriteLine($"Type = {dataItem.Type} : {dataItem.TypeDescription}");
+            Console.WriteLine($"SubType = {dataItem.SubType} : {dataItem.GetSubTypeDescription()}");
+            Console.WriteLine("----------------");
+        }
 
-    //    // Components
-    //    foreach (var component in device.Components)
-    //    {
-    //        Console.WriteLine(component.Id);
-    //    }
-    //}
+        //// Components
+        //foreach (var component in device.Components)
+        //{
+        //    Console.WriteLine(component.Id);
+        //}
+    }
 };
 client.OnSampleReceived += (sender, document) =>
 {

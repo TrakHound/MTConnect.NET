@@ -100,7 +100,7 @@ namespace MTConnect.Devices.Xml
         /// An element that can contain descriptive content defining the configuration information for a Component.
         /// </summary>
         [XmlElement("Configuration")]
-        public Configuration Configuration { get; set; }
+        public XmlConfiguration Configuration { get; set; }
 
 
         [XmlElement("DataItems")]
@@ -113,9 +113,9 @@ namespace MTConnect.Devices.Xml
         /// An XML container consisting of one or more types of Reference XML elements.
         /// </summary>
         [XmlArray("References")]
-        [XmlArrayItem("ComponentReference", typeof(ComponentReference))]
-        [XmlArrayItem("DataItemReference", typeof(DataItemReference))]
-        public List<Reference> References { get; set; }
+        [XmlArrayItem("ComponentRef", typeof(XmlComponentReference))]
+        [XmlArrayItem("DataItemRef", typeof(XmlDataItemReference))]
+        public List<XmlReference> References { get; set; }
 
         [XmlIgnore]
         public bool ReferencesSpecified => !References.IsNullOrEmpty();
@@ -135,8 +135,26 @@ namespace MTConnect.Devices.Xml
                 Description = composition.Description;
                 SampleRate = composition.SampleRate;
                 SampleInterval = composition.SampleInterval;
-                References = composition.References;
-                Configuration = composition.Configuration;
+                if (composition.Configuration != null) Configuration = new XmlConfiguration(composition.Configuration);
+
+                // References
+                if (!composition.References.IsNullOrEmpty())
+                {
+                    var references = new List<XmlReference>();
+                    foreach (var reference in composition.References)
+                    {
+                        if (reference.GetType() == typeof(ComponentReference))
+                        {
+                            references.Add(new XmlComponentReference((ComponentReference)reference));
+                        }
+
+                        if (reference.GetType() == typeof(DataItemReference))
+                        {
+                            references.Add(new XmlDataItemReference((DataItemReference)reference));
+                        }
+                    }
+                    References = references;
+                }
 
                 // DataItems
                 if (!composition.DataItems.IsNullOrEmpty())
@@ -159,8 +177,18 @@ namespace MTConnect.Devices.Xml
             composition.Description = Description;
             composition.SampleRate = SampleRate;
             composition.SampleInterval = SampleInterval;
-            composition.References = References;
-            composition.Configuration = Configuration;
+            if (Configuration != null) composition.Configuration = Configuration.ToConfiguration();
+
+            // References
+            if (!References.IsNullOrEmpty())
+            {
+                var references = new List<Reference>();
+                foreach (var reference in References)
+                {
+                    references.Add(reference.ToReference());
+                }
+                composition.References = references;
+            }
 
             // DataItems
             if (DataItemCollection != null && !DataItemCollection.DataItems.IsNullOrEmpty())
@@ -170,30 +198,5 @@ namespace MTConnect.Devices.Xml
 
             return composition;
         }
-
-        //public Composition ToComposition()
-        //{
-        //    var composition = new Composition();
-
-
-        //    composition.Id = Id;
-        //    composition.Uuid = Uuid;
-        //    composition.Name = Name;
-        //    composition.NativeName = NativeName;
-        //    composition.Type = Type;
-        //    composition.Description = Description;
-        //    composition.SampleRate = SampleRate;
-        //    composition.SampleInterval = SampleInterval;
-        //    composition.References = References;
-        //    composition.Configuration = Configuration;
-
-        //    // DataItems
-        //    if (DataItemCollection != null && !DataItemCollection.DataItems.IsNullOrEmpty())
-        //    {
-        //        composition.DataItems = DataItemCollection.DataItems;
-        //    }
-
-        //    return composition;
-        //}
     }
 }

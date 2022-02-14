@@ -6,31 +6,6 @@
 		</AssetCounts>
 	</Header>
 	<Devices>
-		<Agent id="agent_2cde48001122" mtconnectVersion="1.7" name="Agent" uuid="0b49a3a0-18ca-0139-8748-2cde48001122">
-			<DataItems>
-				<DataItem category="EVENT" id="agent_avail" type="AVAILABILITY"/>
-				<DataItem category="EVENT" id="device_added" type="DEVICE_ADDED"/>
-				<DataItem category="EVENT" id="device_removed" type="DEVICE_REMOVED"/>
-				<DataItem category="EVENT" id="device_changed" type="DEVICE_CHANGED"/>
-				<DataItem category="EVENT" discrete="true" id="agent_2cde48001122_asset_chg" type="ASSET_CHANGED"/>
-				<DataItem category="EVENT" id="agent_2cde48001122_asset_rem" type="ASSET_REMOVED"/>
-			</DataItems>
-			<Components>
-				<Adapters id="__adapters__">
-					<Components>
-						<Adapter id="_8bcc1fdc49" name="M12346">
-							<DataItems>
-								<DataItem category="EVENT" id="_8bcc1fdc49_connection_status" type="CONNECTION_STATUS"/>
-								<DataItem category="SAMPLE" id="_8bcc1fdc49_observation_update_rate" nativeUnits="COUNT/SECOND" statistic="AVERAGE" type="OBSERVATION_UPDATE_RATE" units="COUNT/SECOND"/>
-								<DataItem category="SAMPLE" id="_8bcc1fdc49_asset_update_rate" nativeUnits="COUNT/SECOND" statistic="AVERAGE" type="ASSET_UPDATE_RATE" units="COUNT/SECOND"/>
-								<DataItem category="EVENT" id="_8bcc1fdc49_adapter_software_version" type="ADAPTER_SOFTWARE_VERSION"/>
-								<DataItem category="EVENT" id="_8bcc1fdc49_mtconnect_version" type="MTCONNECT_VERSION"/>
-							</DataItems>
-						</Adapter>
-					</Components>
-				</Adapters>
-			</Components>
-		</Agent>
 		<Device id="d1" name="M12346" uuid="5fd88408-7811-3c6b-5400-11f4026b6890">
 			<Description manufacturer="Mazak_Corporation" serialNumber="304141">Mill w/SMooth-G</Description>
 			<Configuration>
@@ -50,6 +25,9 @@
 					<CoordinateSystem id="workcoord" parentIdRef="machcoord" type="TASK"/>
 					<CoordinateSystem id="localcoord" parentIdRef="workcoord" type="OBJECT"/>
 				</CoordinateSystems>
+				<SolidModel id="dm" mediaType="STL" href="/models/foo.stl" coordinateSystemIdRef="machine" dummy="junk">
+					<Scale>2.0 3.0 4.0</Scale>
+				</SolidModel>
 			</Configuration>
 			<DataItems>
 				<DataItem category="EVENT" id="avail" type="AVAILABILITY"/>
@@ -84,6 +62,10 @@
 									<Filters>
 										<Filter type="MINIMUM_DELTA">3</Filter>
 									</Filters>
+									<Relationships>
+										<DataItemRelationship name="archie" type="LIMIT" idRef="xlcpl"/>
+										<SpecificationRelationship type="LIMIT" idRef="spec1"/>
+									</Relationships>
 								</DataItem>
 								<DataItem category="SAMPLE" id="Xfrt" nativeUnits="MILLIMETER/SECOND" type="AXIS_FEEDRATE" units="MILLIMETER/SECOND"/>
 								<DataItem category="SAMPLE" compositionId="Xmotor" id="servotemp1" nativeUnits="FAHRENHEIT" type="TEMPERATURE" units="CELSIUS">
@@ -97,6 +79,14 @@
 								<Composition id="Xballscrew" type="BALLSCREW"/>
 								<Composition id="Xmotor" type="MOTOR"/>
 							</Compositions>
+							<Configuration>
+								<Specifications>
+									<Specification id="spec1" type="LOAD">
+										<UpperLimit>200.0</UpperLimit>
+										<LowerLimit>0.0</LowerLimit>
+									</Specification>
+								</Specifications>
+							</Configuration>
 						</Linear>
 						<Linear id="y" name="Y">
 							<DataItems>
@@ -143,6 +133,13 @@
 								<Composition id="Zballscrew" type="BALLSCREW"/>
 								<Composition id="Zmotor" type="MOTOR"/>
 							</Compositions>
+							<Configuration>
+								<Motion id="zax" coordinateSystemIdRef="machine" type="PRISMATIC" actuation="DIRECT">
+									<Description>The linears Z kinematics</Description>
+									<Origin>100.0 101.0 102.0</Origin>
+									<Axis>0.0 0.1 1.0</Axis>
+								</Motion>
+							</Configuration>
 						</Linear>
 						<Rotary id="ar" name="B">
 							<DataItems>
@@ -206,6 +203,56 @@
 							<Compositions>
 								<Composition id="Cmotor" type="MOTOR"/>
 							</Compositions>
+							<Configuration>
+								<Relationships>
+									<ComponentRelationship id="ref1" name="Power" type="PEER" criticality="CRITICAL" idRef="power"/>
+									<DeviceRelationship id="ref2" name="coffee" type="PARENT" criticality="NON_CRITICAL" role="AUXILIARY" href="http://127.0.0.1:2000/coffee" deviceUuidRef="bfccbfb0-5111-0138-6cd5-0c85909298d9"/>
+								</Relationships>
+								<Motion id="spin" parentIdRef="zax" coordinateSystemIdRef="machine" type="CONTINUOUS" actuation="DIRECT">
+									<Description>The spindle kinematics</Description>
+									<Transformation>
+										<Translation>10.0 20.0 30.0</Translation>
+										<Rotation>90.0 0.0 180</Rotation>
+									</Transformation>
+									<Axis>0.0 0.5 1.0</Axis>
+								</Motion>
+								<Specifications>
+									<Specification type="ROTARY_VELOCITY" subType="ACTUAL" dataItemIdRef="c1" units="REVOLUTION/MINUTE" compositionIdRef="cmotor" name="speed_limit" coordinateSystemIdRef="machine">
+										<Maximum>10000</Maximum>
+										<Minimum>100</Minimum>
+										<Nominal>1000</Nominal>
+									</Specification>
+									<Specification id="spec1" type="LOAD" units="PERCENT" name="loadspec" originator="MANUFACTURER">
+										<Maximum>1000</Maximum>
+										<Minimum>-1000</Minimum>
+										<Nominal>100</Nominal>
+										<UpperLimit>500</UpperLimit>
+										<LowerLimit>-500</LowerLimit>
+										<UpperWarning>200</UpperWarning>
+										<LowerWarning>-200</LowerWarning>
+									</Specification>
+									<ProcessSpecification id="pspec1" type="LOAD" units="PERCENT" name="procspec" originator="USER">
+										<SpecificationLimits>
+											<UpperLimit>500</UpperLimit>
+											<Nominal>50</Nominal>
+											<LowerLimit>-500</LowerLimit>
+										</SpecificationLimits>
+										<ControlLimits>
+											<UpperLimit>500</UpperLimit>
+											<LowerLimit>-500</LowerLimit>
+											<Nominal>10</Nominal>
+											<UpperWarning>200</UpperWarning>
+											<LowerWarning>-200</LowerWarning>
+										</ControlLimits>
+										<AlarmLimits>
+											<UpperLimit>500</UpperLimit>
+											<LowerLimit>-500</LowerLimit>
+											<UpperWarning>200</UpperWarning>
+											<LowerWarning>-200</LowerWarning>
+										</AlarmLimits>
+									</ProcessSpecification>
+								</Specifications>
+							</Configuration>
 						</Rotary>
 					</Components>
 				</Axes>
@@ -219,6 +266,19 @@
 					</DataItems>
 					<Components>
 						<Path id="path1" name="path">
+							<Configuration>
+								<CoordinateSystems>
+									<CoordinateSystem id="world" type="WORLD" name="worldy">
+										<Origin>101 102 103</Origin>
+									</CoordinateSystem>
+									<CoordinateSystem id="machine" type="MACHINE" name="machiney" nativeName="xxx" parentIdRef="world">
+										<Transformation>
+											<Translation>10 10 10</Translation>
+											<Rotation>90 0 90</Rotation>
+										</Transformation>
+									</CoordinateSystem>
+								</CoordinateSystems>
+							</Configuration>
 							<DataItems>
 								<DataItem category="EVENT" id="peditmode" type="PROGRAM_EDIT"/>
 								<DataItem category="EVENT" id="peditname" type="PROGRAM_EDIT_NAME"/>
@@ -281,6 +341,11 @@
 							<DataItems>
 								<DataItem category="CONDITION" id="hydra_cond" type="SYSTEM"/>
 							</DataItems>
+							<References>
+								<DataItemRef name="chuck" idRef="c4" />
+								<DataItemRef name="door" idRef="d2" />
+								<ComponentRef name="electric" idRef="ele" />
+							</References>
 						</Hydraulic>
 						<Coolant id="coolant" name="coolant">
 							<DataItems>
@@ -316,6 +381,25 @@
 								</DataItem>
 							</DataItems>
 						</Environmental>
+						<Sensor id="sensor" name="sensor">
+							<Configuration>
+								<SensorConfiguration>
+									<FirmwareVersion>2.02</FirmwareVersion>
+									<CalibrationDate>2010-05-16</CalibrationDate>
+									<NextCalibrationDate>2010-05-16</NextCalibrationDate>
+									<CalibrationInitials>WS</CalibrationInitials>
+									<Channels>
+										<Channel number="1" name="A/D:1">
+											<Description>A/D With Thermister</Description>
+										</Channel>
+									</Channels>
+								</SensorConfiguration>
+							</Configuration>
+							<DataItems>
+								<DataItem category="CONDITION" id="senvc" type="VOLTAGE" />
+								<DataItem category="SAMPLE" id="senv" type="VOLTAGE" units="VOLT" subType="DIRECT" />
+							</DataItems>
+						</Sensor>
 					</Components>
 				</Auxiliaries>
 				<Resources id="resources" name="resources">

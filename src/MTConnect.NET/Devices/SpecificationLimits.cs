@@ -4,7 +4,6 @@
 // file 'LICENSE', which is part of this source code package.
 
 using System.Text.Json.Serialization;
-using System.Xml.Serialization;
 
 namespace MTConnect.Devices
 {
@@ -13,25 +12,22 @@ namespace MTConnect.Devices
     /// </summary>
     public class SpecificationLimits
     {
-           /// <summary>
+        /// <summary>
         /// The upper conformance boundary for a variable.
         /// </summary>
-        [XmlElement("UpperLimit")]
         [JsonPropertyName("upperLimit")]
-        public double UpperLimit { get; set; }
+        public double? UpperLimit { get; set; }
 
         /// <summary>
         /// The ideal or desired value for a variable.
         /// </summary>
-        [XmlElement("Nominal")]
         [JsonPropertyName("nominal")]
-        public double Nominal { get; set; }
+        public double? Nominal { get; set; }
 
         /// <summary>
         /// The lower conformance boundary for a variable.
         /// </summary>
-        [XmlElement("LowerLimit")]
         [JsonPropertyName("lowerLimit")]
-        public double LowerLimit { get; set; }
+        public double? LowerLimit { get; set; }
     }
 }

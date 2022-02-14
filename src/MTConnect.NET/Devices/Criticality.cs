@@ -5,8 +5,13 @@
 
 namespace MTConnect.Devices
 {
-    public enum Critically
+    public enum Criticality
     {
+        /// <summary>
+        /// Not Specified
+        /// </summary>
+        NOT_SPECIFIED,
+
         /// <summary>
         /// The services or functions provided by the associated piece of equipment is required for the operation of this piece of equipment.
         /// </summary>
