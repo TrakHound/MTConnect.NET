@@ -12,7 +12,6 @@ namespace MTConnect.Devices.Xml
     /// Relationship is an XML element that describes the association between two pieces of equipment that function independently but together perform a manufacturing operation. 
     /// Relationship may also be used to define the association between two components within a piece of equipment.
     /// </summary>
-    [XmlRoot("Relationship")]
     public class XmlRelationship
     {
         /// <summary>

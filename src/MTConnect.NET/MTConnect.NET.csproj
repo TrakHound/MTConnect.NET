@@ -21,11 +21,13 @@
 
   <ItemGroup>
     <Compile Remove="Clients\Rest\MTConnectSampleJsonStream.cs" />
+    <Compile Remove="Devices\ConfigurationRelationship.cs" />
     <Compile Remove="Models\Components\SpindleAxisModel.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <None Include="Clients\Rest\MTConnectSampleJsonStream.cs" />
+    <None Include="Devices\ConfigurationRelationship.cs" />
     <None Include="Models\Components\SpindleAxisModel.cs" />
 	<None Include="mtconnect-net.png" Pack="true" PackagePath="\" />
   </ItemGroup>

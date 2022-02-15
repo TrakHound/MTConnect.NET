@@ -3,7 +3,6 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE', which is part of this source code package.
 
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
@@ -58,7 +57,6 @@ namespace MTConnect.Devices.Xml
                         obj.NativeScale = dataItem.NativeScale;
                         obj.SampleRate = dataItem.SampleRate;
                         obj.Source = dataItem.Source;
-                        obj.Relationships = dataItem.Relationships;
                         obj.Representation = dataItem.Representation;
                         obj.ResetTrigger = dataItem.ResetTrigger;
                         obj.CoordinateSystem = dataItem.CoordinateSystem;
@@ -70,15 +68,29 @@ namespace MTConnect.Devices.Xml
                         obj.Filters = dataItem.Filters;
                         obj.InitialValue = dataItem.InitialValue;
 
+                        if (!dataItem.Relationships.IsNullOrEmpty())
+                        {
+                            var relationships = new List<XmlRelationship>();
+                            foreach (var relationship in dataItem.Relationships)
+                            {
+                                if (relationship.GetType() == typeof(DataItemRelationship))
+                                {
+                                    relationships.Add(new XmlDataItemRelationship((DataItemRelationship)relationship));
+                                }
+
+                                if (relationship.GetType() == typeof(SpecificationRelationship))
+                                {
+                                    relationships.Add(new XmlSpecificationRelationship((SpecificationRelationship)relationship));
+                                }
+                            }
+                            obj.Relationships = relationships;
+                        }
+
+
                         // Serialize the base class to a string
                         var w = new StringWriter();
                         _serializer.Serialize(w, obj, ns);
                         var xml = w.ToString();
-
-                        //// Serialize the base class to a string
-                        //var w = new StringWriter();
-                        //_serializer.Serialize(w, obj, ns);
-                        //var xml = w.ToString();
 
                         // Remove <?xml line
                         xml = xml.Substring(xml.IndexOf("<DataItem"));
@@ -138,7 +150,6 @@ namespace MTConnect.Devices.Xml
                                         obj.NativeScale = dataItem.NativeScale;
                                         obj.SampleRate = dataItem.SampleRate;
                                         obj.Source = dataItem.Source;
-                                        obj.Relationships = dataItem.Relationships;
                                         obj.Representation = dataItem.Representation;
                                         obj.ResetTrigger = dataItem.ResetTrigger;
                                         obj.CoordinateSystem = dataItem.CoordinateSystem;
@@ -149,6 +160,16 @@ namespace MTConnect.Devices.Xml
                                         obj.SignificantDigits = dataItem.SignificantDigits;
                                         obj.Filters = dataItem.Filters;
                                         obj.InitialValue = dataItem.InitialValue;
+
+                                        if (!dataItem.Relationships.IsNullOrEmpty())
+                                        {
+                                            var relationships = new List<Relationship>();
+                                            foreach (var relationship in dataItem.Relationships)
+                                            {
+                                                relationships.Add(relationship.ToRelationship());
+                                            }
+                                            obj.Relationships = relationships;
+                                        }
 
                                         DataItems.Add(obj);
                                     }

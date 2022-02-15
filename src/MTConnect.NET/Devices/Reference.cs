@@ -13,6 +13,9 @@ namespace MTConnect.Devices
     /// </summary>
     public class Reference
     {
+        public const string DescriptionText = "Reference is a pointer to information that is associated with another Structural Element defined elsewhere in the XML document for a piece of equipment. That information may be data from the other element or the entire structure of that element.";
+
+
         /// <summary>
         /// A pointer to the id attribute of the element that contains the information to be associated with this XML element.    
         /// </summary>
@@ -24,5 +27,7 @@ namespace MTConnect.Devices
         /// </summary>
         [JsonPropertyName("name")]
         public string Name { get; set; }
+
+        public virtual string TypeDescription => DescriptionText;
     }
 }

@@ -55,8 +55,12 @@
 					<Components>
 						<Linear id="x" name="X">
 							<DataItems>
-								<DataItem category="SAMPLE" id="Xabs" nativeScale="100" nativeUnits="MILLIMETER" subType="ACTUAL" type="POSITION" units="MILLIMETER"/>
-								<DataItem category="SAMPLE" id="Xpos" nativeUnits="INCH" subType="ACTUAL" type="POSITION" units="MILLIMETER"/>
+								<DataItem category="SAMPLE" id="Xabs" nativeScale="100" nativeUnits="MILLIMETER" subType="ACTUAL" type="POSITION" units="MILLIMETER">
+									<Source>spindle_speed</Source>
+								</DataItem>
+								<DataItem category="SAMPLE" id="Xpos" nativeUnits="INCH" subType="ACTUAL" type="POSITION" units="MILLIMETER">
+									<Source dataItemId="Xabs"></Source>
+								</DataItem>
 								<DataItem category="CONDITION" id="Xtravel" type="POSITION"/>
 								<DataItem category="SAMPLE" id="Xload" nativeUnits="PERCENT" type="LOAD" units="PERCENT">
 									<Filters>

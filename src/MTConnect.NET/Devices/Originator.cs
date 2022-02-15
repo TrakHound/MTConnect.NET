@@ -8,7 +8,7 @@ namespace MTConnect.Devices
     public enum Originator
     {
         /// <summary>
-        /// : The manufacturer of a piece of equipment or Component.
+        /// The manufacturer of a piece of equipment or Component.
         /// </summary>
         MANUFACTURER,
 

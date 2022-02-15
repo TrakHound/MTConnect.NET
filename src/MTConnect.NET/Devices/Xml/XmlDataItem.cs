@@ -205,9 +205,9 @@ namespace MTConnect.Devices.Xml
         /// Relationships organizes DataItemRelationship and SpecificationRelationship.
         /// </summary>
         [XmlArray("Relationships")]
-        [XmlArrayItem("DataItemRelationship", typeof(DataItemRelationship))]
-        [XmlArrayItem("SpecificationRelationship", typeof(SpecificationRelationship))]
-        public List<Relationship> Relationships { get; set; }
+        [XmlArrayItem("DataItemRelationship", typeof(XmlDataItemRelationship))]
+        [XmlArrayItem("SpecificationRelationship", typeof(XmlSpecificationRelationship))]
+        public List<XmlRelationship> Relationships { get; set; }
 
         [XmlIgnore]
         public bool RelationshipsSpecified => !Relationships.IsNullOrEmpty();
@@ -228,7 +228,6 @@ namespace MTConnect.Devices.Xml
                 NativeScale = dataItem.NativeScale;
                 SampleRate = dataItem.SampleRate;
                 Source = dataItem.Source;
-                Relationships = dataItem.Relationships;
                 Representation = dataItem.Representation;
                 ResetTrigger = dataItem.ResetTrigger;
                 CoordinateSystem = dataItem.CoordinateSystem;
@@ -240,6 +239,24 @@ namespace MTConnect.Devices.Xml
                 Filters = dataItem.Filters;
                 InitialValue = dataItem.InitialValue;
                 Discrete = dataItem.Discrete;
+
+                if (!dataItem.Relationships.IsNullOrEmpty())
+                {
+                    var relationships = new List<XmlRelationship>();
+                    foreach (var relationship in dataItem.Relationships)
+                    {
+                        if (relationship.GetType() == typeof(DataItemRelationship))
+                        {
+                            relationships.Add(new XmlDataItemRelationship((DataItemRelationship)relationship));
+                        }
+
+                        if (relationship.GetType() == typeof(SpecificationRelationship))
+                        {
+                            relationships.Add(new XmlSpecificationRelationship((SpecificationRelationship)relationship));
+                        }
+                    }
+                    Relationships = relationships;
+                }
             }
         }
 
@@ -257,7 +274,6 @@ namespace MTConnect.Devices.Xml
             dataItem.NativeScale = NativeScale;
             dataItem.SampleRate = SampleRate;
             dataItem.Source = Source;
-            dataItem.Relationships = Relationships;
             dataItem.Representation = Representation;
             dataItem.ResetTrigger = ResetTrigger;
             dataItem.CoordinateSystem = CoordinateSystem;
@@ -269,6 +285,16 @@ namespace MTConnect.Devices.Xml
             dataItem.Filters = Filters;
             dataItem.InitialValue = InitialValue;
             dataItem.Discrete = Discrete;
+
+            if (!Relationships.IsNullOrEmpty())
+            {
+                var relationships = new List<Relationship>();
+                foreach (var relationship in Relationships)
+                {
+                    relationships.Add(relationship.ToRelationship());
+                }
+                dataItem.Relationships = relationships;
+            }
 
             return dataItem;
         }
