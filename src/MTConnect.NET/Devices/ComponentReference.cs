@@ -13,6 +13,7 @@ namespace MTConnect.Devices
     {
         public new const string DescriptionText = "ComponentRef XML element is a pointer to all of the information associated with another Structural Element defined elsewhere in the XML document for a piece of equipment. ComponentRef allows all of the information (Lower Level Components and all Data Entities) that is associated with the other Structural Element to be directly associated with this XML element.";
 
+
         public override string TypeDescription => DescriptionText;
     }
 }
