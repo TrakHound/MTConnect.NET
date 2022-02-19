@@ -16,7 +16,7 @@ namespace MTConnect.Streams.Events
         NONE,
 
         /// <summary>
-        /// Linear position is decreasing. NONE: No direction.
+        /// Linear position is decreasing.
         /// </summary>
         NEGATIVE,
 

@@ -105,6 +105,16 @@ namespace MTConnect.Streams
         public List<Entry> Entries { get; set; }
 
 
+        public static string GetDescriptionText(DataItemCategory category, string type, string subType, string value)
+        {
+            switch (category)
+            {
+                case DataItemCategory.EVENT: return Events.EventValue.GetDescriptionText(type, subType, value);
+            }
+
+            return null;
+        }
+
         /// <summary>
         /// Convert the specified value from NativeUnits specified to the Units specified
         /// </summary>

@@ -26,7 +26,7 @@ namespace MTConnect.Streams.Events
         POWERING_DOWN,
 
         /// <summary>
-        ///  An indication that the execution is waiting while one or more discrete workpieces are being loaded.
+        /// An indication that the execution is waiting while one or more discrete workpieces are being loaded.
         /// </summary>
         PART_LOAD,
 
@@ -41,7 +41,7 @@ namespace MTConnect.Streams.Events
         TOOL_LOAD,
 
         /// <summary>
-        /// An indication that the execution is waiting while a tool or tooling is being unloaded
+        /// An indication that the execution is waiting while a tool or tooling is being unloaded.
         /// </summary>
         TOOL_UNLOAD,
 

@@ -44,8 +44,8 @@ namespace MTConnect.Streams.Events
         STOPPED,
 
         /// <summary>
-        ///  A command from the program has intentionally interrupted execution.
-        ///  The component MAY have another state that indicates if the execution is interrupted or the execution ignores the interrupt instruction.
+        /// A command from the program has intentionally interrupted execution.
+        /// The component MAY have another state that indicates if the execution is interrupted or the execution ignores the interrupt instruction.
         /// </summary>
         OPTIONAL_STOP,
 

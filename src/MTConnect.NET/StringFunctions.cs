@@ -150,6 +150,38 @@ namespace MTConnect
             return null;
         }
 
+        public static string ToUnderscoreUpper(this string s, bool splitOnUppercase = true)
+        {
+            if (!string.IsNullOrEmpty(s))
+            {
+                if (s != s.ToUpper())
+                {
+                    string[] parts = null;
+
+                    if (s.Contains(' '))
+                    {
+                        parts = s.Split(' ');
+                    }
+                    else if (splitOnUppercase)
+                    {
+                        // Split string by Uppercase characters
+                        parts = Regex.Split(s, @"(?<!^)(?=[A-Z])");
+                    }
+
+                    var a = new List<string>();
+                    if (!parts.IsNullOrEmpty()) foreach (var part in parts) a.Add(part.Trim());
+                    if (!a.IsNullOrEmpty())
+                    {
+                        string x = string.Join("_", a);
+                        return x.ToUpper();
+                    }
+                }
+                else return s.ToUpper();
+            }
+
+            return null;
+        }
+
         public static string RandomString(int length)
         {
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";

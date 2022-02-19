@@ -12,6 +12,9 @@ namespace MTConnect.Devices
     /// </summary>
     public class AlarmLimits
     {
+        public const string DescriptionText = "A set of limits used to trigger warning or alarm indicators.";
+
+
         /// <summary>
         /// The upper conformance boundary for a variable.
         /// </summary>

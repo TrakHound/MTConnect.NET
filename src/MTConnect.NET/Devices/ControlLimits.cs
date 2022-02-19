@@ -12,6 +12,9 @@ namespace MTConnect.Devices
     /// </summary>
     public class ControlLimits
     {
+        public const string DescriptionText = "A set of limits used to indicate whether a process variable is stable and in control.";
+
+
         /// <summary>
         /// The upper conformance boundary for a variable.
         /// </summary>
