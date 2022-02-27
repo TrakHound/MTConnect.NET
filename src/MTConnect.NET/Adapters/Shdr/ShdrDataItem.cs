@@ -216,9 +216,13 @@ namespace MTConnect.Adapters.Shdr
                                 // Add each DataItem to line
                                 for (var i = 0; i < timestampDataItems.Count; i++)
                                 {
-                                    line += ToString(timestampDataItems[i], true);
+                                    var x = ToString(timestampDataItems[i], true);
+                                    if (!string.IsNullOrEmpty(x))
+                                    {
+                                        line += x;
 
-                                    if (i < timestampDataItems.Count - 1) line += "|";
+                                        if (i < timestampDataItems.Count - 1) line += "|";
+                                    }
                                 }
 
                                 // Add line to list of lines
@@ -226,7 +230,7 @@ namespace MTConnect.Adapters.Shdr
                             }
 
                             // Get list of ShdrDataItems at this Timestamp (With Duration)
-                            timestampDataItems = dataItems.Where(o => o.Timestamp == timestamp && o.Duration >= 0)?.ToList();
+                            timestampDataItems = dataItems.Where(o => o.Timestamp == timestamp && o.Duration > 0)?.ToList();
                             if (!timestampDataItems.IsNullOrEmpty())
                             {
                                 foreach (var dataItem in timestampDataItems)

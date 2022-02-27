@@ -419,8 +419,7 @@ namespace MTConnect.Adapters.Shdr
                 lock (_lock)
                 {
                     // Check to see if DataItem already exists in DataItem list
-                    var existing = _dataItems.FirstOrDefault(o => o.Key == dataItem.Key).Value;
-                    if (existing == null)
+                    if (!_dataItems.TryGetValue(dataItem.Key, out var existing))
                     {
                         _dataItems.Add(dataItem.Key, dataItem);
                         return true;
