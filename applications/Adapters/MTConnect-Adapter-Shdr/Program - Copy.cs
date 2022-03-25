@@ -1,6 +1,6 @@
-﻿using MTConnect.Streams;
-using MTConnect.Streams.Events;
-using MTConnect.Streams.Samples;
+﻿using MTConnect.Observations;
+using MTConnect.Observations.Events.Values;
+using MTConnect.Observations.Samples.Values;
 using MTConnect.Observations;
 using MTConnect.Adapters.Shdr;
 
@@ -21,7 +21,8 @@ namespace MTConnect.Applications.Adapters.Shdr
             var rnd = new Random();
             var i = 0;
 
-            var deviceName = "M12346";
+            var deviceName = "OKUMA-Lathe";
+            //var deviceName = "M12346";
 
             _simulator = new Simulator.DeviceSimulator(deviceName);
 
@@ -40,10 +41,13 @@ namespace MTConnect.Applications.Adapters.Shdr
             {
                 UpdateController();
                 UpdatePath();
+                AddDataSets();
+                AddTimeSeries();
+                AddTables();
 
-                UpdateXAxis();
-                UpdateYAxis();
-                UpdateZAxis();
+                //UpdateXAxis();
+                //UpdateYAxis();
+                //UpdateZAxis();
             };
             timer.Start();
 
@@ -109,8 +113,8 @@ namespace MTConnect.Applications.Adapters.Shdr
            
             if (axis.Overtravel)
             {
-                var condition = new ShdrCondition("Xtravel", ConditionLevel.FAULT);
-                condition.Message = "X Axis Overtravel Limit Reached";
+                var condition = new ShdrCondition("Xtravel");
+                condition.AddFault("X Axis Overtravel Limit Reached");
                 _adapter.AddCondition(condition);
             }
             else
@@ -138,8 +142,8 @@ namespace MTConnect.Applications.Adapters.Shdr
 
             if (axis.Overtravel)
             {
-                var condition = new ShdrCondition("Ytravel", ConditionLevel.FAULT);
-                condition.Message = "Y Axis Overtravel Limit Reached";
+                var condition = new ShdrCondition("Ytravel");
+                condition.AddFault("Y Axis Overtravel Limit Reached");
                 _adapter.AddCondition(condition);
             }
             else
@@ -167,8 +171,8 @@ namespace MTConnect.Applications.Adapters.Shdr
 
             if (axis.Overtravel)
             {
-                var condition = new ShdrCondition("Ztravel", ConditionLevel.FAULT);
-                condition.Message = "Z Axis Overtravel Limit Reached";
+                var condition = new ShdrCondition("Ztravel");
+                condition.AddFault("Z Axis Overtravel Limit Reached");
                 _adapter.AddCondition(condition);
             }
             else
@@ -198,19 +202,14 @@ namespace MTConnect.Applications.Adapters.Shdr
 
         static void AddConditions()
         {
-            var condition = new ShdrCondition("L2p1system", ConditionLevel.FAULT, DateTime.UtcNow);
-            condition.NativeCode = "404";
-            condition.NativeSeverity = "100";
-            condition.Qualifier = "LOW";
-            condition.Message = "Testing from new adapter";
+            var condition = new ShdrCondition("L2p1system");
+            condition.AddFault("Testing from new adapter", "404", "100", ConditionQualifier.LOW);
 
             _adapter.AddCondition(condition);
 
 
             var condition1 = new ShdrCondition("L2p2system", ConditionLevel.WARNING);
-            condition1.NativeCode = "113";
-            condition1.Qualifier = "LOW";
-            condition1.Message = "Coolant Low";
+            condition1.AddFault("Coolant Low", "113", null, ConditionQualifier.LOW);
 
             _adapter.AddCondition(condition1);
         }

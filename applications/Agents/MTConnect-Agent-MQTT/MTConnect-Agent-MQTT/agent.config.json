@@ -1,0 +1,12 @@
+﻿{
+	"devices": "devices.xml",
+	"port": 5000,
+
+	"adapters": [
+		{
+			"device": "M12346",
+			"host": "localhost",
+			"port": 7878
+		}
+	]
+}

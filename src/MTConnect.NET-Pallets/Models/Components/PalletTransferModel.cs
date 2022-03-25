@@ -17,7 +17,7 @@ namespace MTConnect.Models.Components
         /// </summary>
         public string PalletId
         {
-            get => GetStringValue(Devices.Events.PalletIdDataItem.NameId);
+            get => GetDataItemValue(Devices.Events.PalletIdDataItem.NameId);
             set => AddDataItem(new PalletIdDataItem(Id), value);
         }
         public IDataItemModel PalletIdDataItem => GetDataItem(Devices.Events.PalletIdDataItem.NameId);
@@ -28,7 +28,7 @@ namespace MTConnect.Models.Components
         /// </summary>
         public string PalletAssetId
         {
-            get => GetStringValue(Devices.Events.PalletAssetIdDataItem.NameId);
+            get => GetDataItemValue(Devices.Events.PalletAssetIdDataItem.NameId);
             set => AddDataItem(new PalletAssetIdDataItem(Id), value);
         }
         public IDataItemModel PalletAssetIdDataItem => GetDataItem(Devices.Events.PalletAssetIdDataItem.NameId);

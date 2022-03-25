@@ -10,16 +10,18 @@
 
   <ItemGroup>
     <Compile Remove="Adapters\AdapterExample2.cs" />
+    <Compile Remove="Program - Copy - Copy.cs" />
     <Compile Remove="Program - Copy.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <None Include="Adapters\AdapterExample2.cs" />
+    <None Include="Program - Copy - Copy.cs" />
     <None Include="Program - Copy.cs" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\MTConnect.NET\MTConnect.NET.csproj" />
+    <ProjectReference Include="..\..\..\src\MTConnect.NET-SHDR\MTConnect.NET-SHDR.csproj" />
   </ItemGroup>
 
 </Project>

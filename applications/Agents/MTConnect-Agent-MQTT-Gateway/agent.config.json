@@ -1,0 +1,39 @@
+﻿{
+	"port": 5000,
+
+	"clients": [
+		{
+			"address": "https://smstestbed.nist.gov/vds/",
+			"port": 443,
+			"deviceName": "GFAgie01",
+			"useSSL": true,
+			"heartbeat": 0
+		},
+		{
+			"address": "https://smstestbed.nist.gov/vds/",
+			"port": 443,
+			"deviceName": "Mazak01",
+			"useSSL": true,
+			"heartbeat": 0
+		},
+		{
+			"address": "https://smstestbed.nist.gov/vds/",
+			"port": 443,
+			"deviceName": "Mazak03",
+			"useSSL": true,
+			"heartbeat": 0
+		},
+		{
+			"address": "https://smstestbed.nist.gov/vds/",
+			"port": 443,
+			"deviceName": "Hurco01",
+			"useSSL": true,
+			"heartbeat": 0
+		},
+		{
+			"address": "localhost",
+			"port": 5006,
+			"deviceName": "OKUMA-Lathe"
+		}
+	]
+}

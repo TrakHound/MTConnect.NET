@@ -2,6 +2,7 @@
 
   <PropertyGroup>
 	<TargetFrameworks>net461;net462;net47;net471;net472;net48;netstandard2.0;netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
+	  <!--<TargetFrameworks>net6.0</TargetFrameworks>-->
     <RootNamespace>MTConnect</RootNamespace>
 	<Authors>TrakHound</Authors>
 	<Company>TrakHound Inc.</Company>
@@ -20,11 +21,26 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MTConnect.NET\MTConnect.NET.csproj" />
+    <Compile Remove="Models\Components\PalletLoaderModel.cs" />
+    <Compile Remove="Models\Components\PalletLoadStationModel.cs" />
+    <Compile Remove="Models\Components\PalletMachinePositionModel.cs" />
+    <Compile Remove="Models\Components\PalletMachineStationModel.cs" />
+    <Compile Remove="Models\Components\PalletStockStationModel.cs" />
+    <Compile Remove="Models\Components\PalletTransferModel.cs" />
   </ItemGroup>
 
   <ItemGroup>
+  	<None Include="Models\Components\PalletLoaderModel.cs" />
+  	<None Include="Models\Components\PalletLoadStationModel.cs" />
+  	<None Include="Models\Components\PalletMachinePositionModel.cs" />
+  	<None Include="Models\Components\PalletMachineStationModel.cs" />
+  	<None Include="Models\Components\PalletStockStationModel.cs" />
+  	<None Include="Models\Components\PalletTransferModel.cs" />
   	<None Include="mtconnect-net.png" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MTConnect.NET-Common\MTConnect.NET-Common.csproj" />
   </ItemGroup>
 	
 </Project>

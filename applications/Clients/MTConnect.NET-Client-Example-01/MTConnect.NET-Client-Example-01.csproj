@@ -17,11 +17,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\MTConnect.NET\MTConnect.NET.csproj" />
+    <Folder Include="Properties\" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Properties\" />
+    <ProjectReference Include="..\..\..\src\MTConnect.NET\MTConnect.NET.csproj" />
   </ItemGroup>
 
 </Project>

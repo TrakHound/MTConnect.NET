@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\MTConnect.NET\MTConnect.NET.csproj" />
+    <ProjectReference Include="..\..\..\src\MTConnect.NET\MTConnect.NET-Common.csproj" />
   </ItemGroup>
 
 </Project>

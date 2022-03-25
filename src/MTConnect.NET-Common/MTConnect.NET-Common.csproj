@@ -1,0 +1,642 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net461;net462;net47;net471;net472;net48;netstandard2.0;netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
+    <!--<TargetFrameworks>net6.0</TargetFrameworks>-->
+    <RootNamespace>MTConnect</RootNamespace>
+    <Authors>TrakHound</Authors>
+    <Company>TrakHound Inc.</Company>
+    <AssemblyVersion>0.3.1</AssemblyVersion>
+    <FileVersion></FileVersion>
+    <Configurations>Debug;Release;Package</Configurations>
+    <Copyright>Copyright (c) 2022 TrakHound Inc., All Rights Reserved.</Copyright>
+    <PackageProjectUrl>https://www.TrakHound.com</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/TrakHound/MTConnect.NET</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>mtconnect;iiot;</PackageTags>
+    <Description>MTConnect.NET is a fully featured .NET library for MTConnect® Agents, Adapters, and Clients. Supports MTConnect Versions up to 1.8. Supports .NET Framework 4.6.1 up to .NET 6</Description>
+    <Version>3.2.0</Version>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+	<PackageIcon>mtconnect-net.png</PackageIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Assets\Json\JsonAssetsDocument.cs" />
+    <Compile Remove="Assets\Xml\XmlAssetCollection.cs" />
+    <Compile Remove="Assets\Xml\XmlAssetsDocument.cs" />
+    <Compile Remove="Devices\Json\JsonComponent.cs" />
+    <Compile Remove="Devices\Json\JsonComposition.cs" />
+    <Compile Remove="Devices\Json\JsonDataItem.cs" />
+    <Compile Remove="Devices\Json\JsonDevice.cs" />
+    <Compile Remove="Devices\Json\JsonDevicesDocument.cs" />
+    <Compile Remove="Models\AbstractDeviceModel.cs" />
+    <Compile Remove="Models\AgentModel.cs" />
+    <Compile Remove="Models\Assets\CuttingToolModel.cs" />
+    <Compile Remove="Models\ComponentManager.cs" />
+    <Compile Remove="Models\ComponentModel.cs" />
+    <Compile Remove="Models\ComponentModelExtensions.cs" />
+    <Compile Remove="Models\Components\ActuatorModel.cs" />
+    <Compile Remove="Models\Components\AdapterModel.cs" />
+    <Compile Remove="Models\Components\AdaptersModel.cs" />
+    <Compile Remove="Models\Components\ArticulatedAxesModel.cs" />
+    <Compile Remove="Models\Components\AutomaticToolChangerModel.cs" />
+    <Compile Remove="Models\Components\AuxiliariesModel.cs" />
+    <Compile Remove="Models\Components\AuxiliaryModel.cs" />
+    <Compile Remove="Models\Components\AxesModel.cs" />
+    <Compile Remove="Models\Components\AxisModel.cs" />
+    <Compile Remove="Models\Components\BarFeederModel.cs" />
+    <Compile Remove="Models\Components\CartesianCoordinateAxesModel.cs" />
+    <Compile Remove="Models\Components\ControllerModel.cs" />
+    <Compile Remove="Models\Components\CoolantModel.cs" />
+    <Compile Remove="Models\Components\CoolingModel.cs" />
+    <Compile Remove="Models\Components\DepositionModel.cs" />
+    <Compile Remove="Models\Components\DielectricModel.cs" />
+    <Compile Remove="Models\Components\DoorModel.cs" />
+    <Compile Remove="Models\Components\ElectricModel.cs" />
+    <Compile Remove="Models\Components\EnclosureModel.cs" />
+    <Compile Remove="Models\Components\EndEffectorModel.cs" />
+    <Compile Remove="Models\Components\EnvironmentalModel.cs" />
+    <Compile Remove="Models\Components\FeederModel.cs" />
+    <Compile Remove="Models\Components\GangToolBarModel.cs" />
+    <Compile Remove="Models\Components\HeatingModel.cs" />
+    <Compile Remove="Models\Components\HydraulicModel.cs" />
+    <Compile Remove="Models\Components\InterfaceModel.cs" />
+    <Compile Remove="Models\Components\InterfacesModel.cs" />
+    <Compile Remove="Models\Components\Interfaces\IAdapterModel.cs" />
+    <Compile Remove="Models\Components\Interfaces\IAdaptersModel.cs" />
+    <Compile Remove="Models\Components\Interfaces\IAutomaticToolChangerModel.cs" />
+    <Compile Remove="Models\Components\Interfaces\IAuxiliariesModel.cs" />
+    <Compile Remove="Models\Components\Interfaces\IAuxiliaryModel.cs" />
+    <Compile Remove="Models\Components\Interfaces\IAxesModel.cs" />
+    <Compile Remove="Models\Components\Interfaces\IAxisModel.cs" />
+    <Compile Remove="Models\Components\Interfaces\IControllerModel.cs" />
+    <Compile Remove="Models\Components\Interfaces\ICoolantModel.cs" />
+    <Compile Remove="Models\Components\Interfaces\ICoolingModel.cs" />
+    <Compile Remove="Models\Components\Interfaces\IDielectricModel.cs" />
+    <Compile Remove="Models\Components\Interfaces\IDoorModel.cs" />
+    <Compile Remove="Models\Components\Interfaces\IElectricModel.cs" />
+    <Compile Remove="Models\Components\Interfaces\IEnclosureModel.cs" />
+    <Compile Remove="Models\Components\Interfaces\IEndEffectorModel.cs" />
+    <Compile Remove="Models\Components\Interfaces\IEnvironmentalModel.cs" />
+    <Compile Remove="Models\Components\Interfaces\IFeederModel.cs" />
+    <Compile Remove="Models\Components\Interfaces\IHeatingModel.cs" />
+    <Compile Remove="Models\Components\Interfaces\IHydraulicModel.cs" />
+    <Compile Remove="Models\Components\Interfaces\ILinearAxisModel.cs" />
+    <Compile Remove="Models\Components\Interfaces\ILubricationModel.cs" />
+    <Compile Remove="Models\Components\Interfaces\IPartOccurrenceModel.cs" />
+    <Compile Remove="Models\Components\Interfaces\IPathModel.cs" />
+    <Compile Remove="Models\Components\Interfaces\IPneumaticModel.cs" />
+    <Compile Remove="Models\Components\Interfaces\IPressureModel.cs" />
+    <Compile Remove="Models\Components\Interfaces\IProcessPowerModel.cs" />
+    <Compile Remove="Models\Components\Interfaces\IProtectiveModel.cs" />
+    <Compile Remove="Models\Components\Interfaces\IRotaryAxisModel.cs" />
+    <Compile Remove="Models\Components\Interfaces\ISpindleAxisModel.cs" />
+    <Compile Remove="Models\Components\Interfaces\ISystemModel.cs" />
+    <Compile Remove="Models\Components\Interfaces\ISystemsModel.cs" />
+    <Compile Remove="Models\Components\Interfaces\IToolingDeliveryModel.cs" />
+    <Compile Remove="Models\Components\Interfaces\IToolMagazineModel.cs" />
+    <Compile Remove="Models\Components\Interfaces\ITurretModel.cs" />
+    <Compile Remove="Models\Components\Interfaces\IVacuumModel.cs" />
+    <Compile Remove="Models\Components\Interfaces\IWorkEnvelopeModel.cs" />
+    <Compile Remove="Models\Components\LinearAxisModel.cs" />
+    <Compile Remove="Models\Components\LinkModel.cs" />
+    <Compile Remove="Models\Components\LoaderModel.cs" />
+    <Compile Remove="Models\Components\LockModel.cs" />
+    <Compile Remove="Models\Components\LubricationModel.cs" />
+    <Compile Remove="Models\Components\MaterialsModel.cs" />
+    <Compile Remove="Models\Components\PartOccurrenceModel.cs" />
+    <Compile Remove="Models\Components\PartsModel.cs" />
+    <Compile Remove="Models\Components\PathModel.cs" />
+    <Compile Remove="Models\Components\PersonnelModel.cs" />
+    <Compile Remove="Models\Components\PneumaticModel.cs" />
+    <Compile Remove="Models\Components\PressureModel.cs" />
+    <Compile Remove="Models\Components\ProcessesModel.cs" />
+    <Compile Remove="Models\Components\ProcessOccurrenceModel.cs" />
+    <Compile Remove="Models\Components\ProcessPowerModel.cs" />
+    <Compile Remove="Models\Components\ProtectiveModel.cs" />
+    <Compile Remove="Models\Components\ResourceModel.cs" />
+    <Compile Remove="Models\Components\ResourcesModel.cs" />
+    <Compile Remove="Models\Components\RotaryAxisModel.cs" />
+    <Compile Remove="Models\Components\SensorModel.cs" />
+    <Compile Remove="Models\Components\SpindleAxisModel.cs" />
+    <Compile Remove="Models\Components\StockModel.cs" />
+    <Compile Remove="Models\Components\StructureModel.cs" />
+    <Compile Remove="Models\Components\StructuresModel.cs" />
+    <Compile Remove="Models\Components\SystemModel.cs" />
+    <Compile Remove="Models\Components\SystemsModel.cs" />
+    <Compile Remove="Models\Components\ToolingDeliveryModel.cs" />
+    <Compile Remove="Models\Components\ToolMagazineModel.cs" />
+    <Compile Remove="Models\Components\ToolRackModel.cs" />
+    <Compile Remove="Models\Components\TurretModel.cs" />
+    <Compile Remove="Models\Components\VacuumModel.cs" />
+    <Compile Remove="Models\Components\WasteDisposalModel.cs" />
+    <Compile Remove="Models\Components\WorkEnvelopeModel.cs" />
+    <Compile Remove="Models\CompositionModel.cs" />
+    <Compile Remove="Models\CompositionModelExtensions.cs" />
+    <Compile Remove="Models\Compositions\ActuatorModel.cs" />
+    <Compile Remove="Models\Compositions\AmplifierModel.cs" />
+    <Compile Remove="Models\Compositions\BallscrewModel.cs" />
+    <Compile Remove="Models\Compositions\BeltModel.cs" />
+    <Compile Remove="Models\Compositions\BrakeModel.cs" />
+    <Compile Remove="Models\Compositions\ChainModel.cs" />
+    <Compile Remove="Models\Compositions\ChopperModel.cs" />
+    <Compile Remove="Models\Compositions\ChuckModel.cs" />
+    <Compile Remove="Models\Compositions\ChuteModel.cs" />
+    <Compile Remove="Models\Compositions\CircuitBreakerModel.cs" />
+    <Compile Remove="Models\Compositions\ClampModel.cs" />
+    <Compile Remove="Models\Compositions\CompressorModel.cs" />
+    <Compile Remove="Models\Compositions\CoolingTowerModel.cs" />
+    <Compile Remove="Models\Compositions\DoorModel.cs" />
+    <Compile Remove="Models\Compositions\DrainModel.cs" />
+    <Compile Remove="Models\Compositions\EncoderModel.cs" />
+    <Compile Remove="Models\Compositions\ExpiredPotModel.cs" />
+    <Compile Remove="Models\Compositions\ExposureUnitModel.cs" />
+    <Compile Remove="Models\Compositions\ExtrusionUnit.cs" />
+    <Compile Remove="Models\Compositions\FanModel.cs" />
+    <Compile Remove="Models\Compositions\FilterModel.cs" />
+    <Compile Remove="Models\Compositions\GalvanomotorModel.cs" />
+    <Compile Remove="Models\Compositions\GripperModel.cs" />
+    <Compile Remove="Models\Compositions\HopperModel.cs" />
+    <Compile Remove="Models\Compositions\Interfaces\IActuatorModel.cs" />
+    <Compile Remove="Models\Compositions\Interfaces\IAmplifierModel.cs" />
+    <Compile Remove="Models\Compositions\Interfaces\IBallscrewModel.cs" />
+    <Compile Remove="Models\Compositions\Interfaces\IBeltModel.cs" />
+    <Compile Remove="Models\Compositions\Interfaces\IBrakeModel.cs" />
+    <Compile Remove="Models\Compositions\Interfaces\IChainModel.cs" />
+    <Compile Remove="Models\Compositions\Interfaces\IChopperModel.cs" />
+    <Compile Remove="Models\Compositions\Interfaces\IChuckModel.cs" />
+    <Compile Remove="Models\Compositions\Interfaces\IChuteModel.cs" />
+    <Compile Remove="Models\Compositions\Interfaces\ICircuitBreakerModel.cs" />
+    <Compile Remove="Models\Compositions\Interfaces\IClampModel.cs" />
+    <Compile Remove="Models\Compositions\Interfaces\ICompressorModel.cs" />
+    <Compile Remove="Models\Compositions\Interfaces\ICoolingTowerModel.cs" />
+    <Compile Remove="Models\Compositions\Interfaces\IDoorModel.cs" />
+    <Compile Remove="Models\Compositions\Interfaces\IDrainModel.cs" />
+    <Compile Remove="Models\Compositions\Interfaces\IEncoderModel.cs" />
+    <Compile Remove="Models\Compositions\Interfaces\IExpiredPotModel.cs" />
+    <Compile Remove="Models\Compositions\Interfaces\IExposureUnitModel.cs" />
+    <Compile Remove="Models\Compositions\Interfaces\IExtrusionUnit.cs" />
+    <Compile Remove="Models\Compositions\Interfaces\IFanModel.cs" />
+    <Compile Remove="Models\Compositions\Interfaces\IFilterModel.cs" />
+    <Compile Remove="Models\Compositions\Interfaces\IGalvanomotorModel.cs" />
+    <Compile Remove="Models\Compositions\Interfaces\IGripperModel.cs" />
+    <Compile Remove="Models\Compositions\Interfaces\IHopperModel.cs" />
+    <Compile Remove="Models\Compositions\Interfaces\ILinearPositionFeedback.cs" />
+    <Compile Remove="Models\Compositions\Interfaces\IMotorModel.cs" />
+    <Compile Remove="Models\Compositions\Interfaces\IOilModel.cs" />
+    <Compile Remove="Models\Compositions\Interfaces\IPotModel.cs" />
+    <Compile Remove="Models\Compositions\Interfaces\IPowerSupplyModel.cs" />
+    <Compile Remove="Models\Compositions\Interfaces\IPulleyModel.cs" />
+    <Compile Remove="Models\Compositions\Interfaces\IPumpModel.cs" />
+    <Compile Remove="Models\Compositions\Interfaces\IReelModel.cs" />
+    <Compile Remove="Models\Compositions\Interfaces\IRemovalPot.cs" />
+    <Compile Remove="Models\Compositions\Interfaces\IReturnPot.cs" />
+    <Compile Remove="Models\Compositions\Interfaces\ISensingElementModel.cs" />
+    <Compile Remove="Models\Compositions\Interfaces\ISpreaderModel.cs" />
+    <Compile Remove="Models\Compositions\Interfaces\IStagingPotModel.cs" />
+    <Compile Remove="Models\Compositions\Interfaces\IStationModel.cs" />
+    <Compile Remove="Models\Compositions\Interfaces\IStorageBatteryModel.cs" />
+    <Compile Remove="Models\Compositions\Interfaces\ISwitchModel.cs" />
+    <Compile Remove="Models\Compositions\Interfaces\ITableModel.cs" />
+    <Compile Remove="Models\Compositions\Interfaces\ITankModel.cs" />
+    <Compile Remove="Models\Compositions\Interfaces\ITensionerModel.cs" />
+    <Compile Remove="Models\Compositions\Interfaces\ITransferArmModel.cs" />
+    <Compile Remove="Models\Compositions\Interfaces\ITransferPotModel.cs" />
+    <Compile Remove="Models\Compositions\Interfaces\ITransformerModel.cs" />
+    <Compile Remove="Models\Compositions\Interfaces\IValveModel.cs" />
+    <Compile Remove="Models\Compositions\Interfaces\IVatModel.cs" />
+    <Compile Remove="Models\Compositions\Interfaces\IWaterModel.cs" />
+    <Compile Remove="Models\Compositions\Interfaces\IWireModel.cs" />
+    <Compile Remove="Models\Compositions\Interfaces\IWorkpieceModel.cs" />
+    <Compile Remove="Models\Compositions\LinearPositionFeedback.cs" />
+    <Compile Remove="Models\Compositions\MotorModel.cs" />
+    <Compile Remove="Models\Compositions\OilModel.cs" />
+    <Compile Remove="Models\Compositions\PotModel.cs" />
+    <Compile Remove="Models\Compositions\PowerSupplyModel.cs" />
+    <Compile Remove="Models\Compositions\PulleyModel.cs" />
+    <Compile Remove="Models\Compositions\PumpModel.cs" />
+    <Compile Remove="Models\Compositions\ReelModel.cs" />
+    <Compile Remove="Models\Compositions\RemovalPot.cs" />
+    <Compile Remove="Models\Compositions\ReturnPot.cs" />
+    <Compile Remove="Models\Compositions\SensingElementModel.cs" />
+    <Compile Remove="Models\Compositions\SpreaderModel.cs" />
+    <Compile Remove="Models\Compositions\StagingPotModel.cs" />
+    <Compile Remove="Models\Compositions\StationModel.cs" />
+    <Compile Remove="Models\Compositions\StorageBatteryModel.cs" />
+    <Compile Remove="Models\Compositions\SwitchModel.cs" />
+    <Compile Remove="Models\Compositions\TableModel.cs" />
+    <Compile Remove="Models\Compositions\TankModel.cs" />
+    <Compile Remove="Models\Compositions\TensionerModel.cs" />
+    <Compile Remove="Models\Compositions\TransferArmModel.cs" />
+    <Compile Remove="Models\Compositions\TransferPotModel.cs" />
+    <Compile Remove="Models\Compositions\TransformerModel.cs" />
+    <Compile Remove="Models\Compositions\ValveModel.cs" />
+    <Compile Remove="Models\Compositions\VatModel.cs" />
+    <Compile Remove="Models\Compositions\WaterModel.cs" />
+    <Compile Remove="Models\Compositions\WireModel.cs" />
+    <Compile Remove="Models\Compositions\WorkpieceModel.cs" />
+    <Compile Remove="Models\DataItemManager.cs" />
+    <Compile Remove="Models\DataItemModel.cs" />
+    <Compile Remove="Models\DataItems\AccelerationModel.cs" />
+    <Compile Remove="Models\DataItems\ActivationCountModel.cs" />
+    <Compile Remove="Models\DataItems\AmperageACModel.cs" />
+    <Compile Remove="Models\DataItems\AmperageDCModel.cs" />
+    <Compile Remove="Models\DataItems\AngleModel.cs" />
+    <Compile Remove="Models\DataItems\AngularAccelerationModel.cs" />
+    <Compile Remove="Models\DataItems\AngularDecelerationModel.cs" />
+    <Compile Remove="Models\DataItems\ApplicationModel.cs" />
+    <Compile Remove="Models\DataItems\AxisFeedrateModel.cs" />
+    <Compile Remove="Models\DataItems\AxisFeedrateOverrideModel.cs" />
+    <Compile Remove="Models\DataItems\ControllerModeOverrideModel.cs" />
+    <Compile Remove="Models\DataItems\CuttingSpeedModel.cs" />
+    <Compile Remove="Models\DataItems\DateCodeModel.cs" />
+    <Compile Remove="Models\DataItems\DecelerationModel.cs" />
+    <Compile Remove="Models\DataItems\DepositionAccelerationVolumetricModel.cs" />
+    <Compile Remove="Models\DataItems\DepositionDensityModel.cs" />
+    <Compile Remove="Models\DataItems\DepositionMassModel.cs" />
+    <Compile Remove="Models\DataItems\DepositionRateVolumetricModel.cs" />
+    <Compile Remove="Models\DataItems\DepositionVolumeModel.cs" />
+    <Compile Remove="Models\DataItems\EquipmentTimerModel.cs" />
+    <Compile Remove="Models\DataItems\FirmwareModel.cs" />
+    <Compile Remove="Models\DataItems\HardwareModel.cs" />
+    <Compile Remove="Models\DataItems\HumidityAbsoluteModel.cs" />
+    <Compile Remove="Models\DataItems\HumidityRelativeModel.cs" />
+    <Compile Remove="Models\DataItems\HumiditySpecificModel.cs" />
+    <Compile Remove="Models\DataItems\LengthModel.cs" />
+    <Compile Remove="Models\DataItems\LibraryModel.cs" />
+    <Compile Remove="Models\DataItems\LineNumberModel.cs" />
+    <Compile Remove="Models\DataItems\LoadCountModel.cs" />
+    <Compile Remove="Models\DataItems\MaterialLayerModel.cs" />
+    <Compile Remove="Models\DataItems\NetworkModel.cs" />
+    <Compile Remove="Models\DataItems\OperatingSystemModel.cs" />
+    <Compile Remove="Models\DataItems\PartCountModel.cs" />
+    <Compile Remove="Models\DataItems\PartKindIdModel.cs" />
+    <Compile Remove="Models\DataItems\PartUniqueIdModel.cs" />
+    <Compile Remove="Models\DataItems\PathFeedrateModel.cs" />
+    <Compile Remove="Models\DataItems\PathFeedrateOverrideModel.cs" />
+    <Compile Remove="Models\DataItems\PathFeedratePerRevolutionModel.cs" />
+    <Compile Remove="Models\DataItems\PathPositionModel.cs" />
+    <Compile Remove="Models\DataItems\PositionModel.cs" />
+    <Compile Remove="Models\DataItems\PressurizationRateModel.cs" />
+    <Compile Remove="Models\DataItems\ProcessTimerModel.cs" />
+    <Compile Remove="Models\DataItems\ProgramModel.cs" />
+    <Compile Remove="Models\DataItems\RotaryVelocityModel.cs" />
+    <Compile Remove="Models\DataItems\SoundLevelModel.cs" />
+    <Compile Remove="Models\DataItems\TemperatureModel.cs" />
+    <Compile Remove="Models\DataItems\ToolOffsetModel.cs" />
+    <Compile Remove="Models\DataItems\TransferCountModel.cs" />
+    <Compile Remove="Models\DataItems\UnloadCountModel.cs" />
+    <Compile Remove="Models\DataItems\VoltageACModel.cs" />
+    <Compile Remove="Models\DataItems\VoltageDCModel.cs" />
+    <Compile Remove="Models\DataItems\VolumeFluidModel.cs" />
+    <Compile Remove="Models\DataItems\VolumeSpatialModel.cs" />
+    <Compile Remove="Models\DataItems\WattageModel.cs" />
+    <Compile Remove="Models\DeviceModel.cs" />
+    <Compile Remove="Models\IAgentModel.cs" />
+    <Compile Remove="Models\IComponentModel.cs" />
+    <Compile Remove="Models\ICompositionModel.cs" />
+    <Compile Remove="Models\IDataItemModel.cs" />
+    <Compile Remove="Models\IDeviceModel.cs" />
+    <Compile Remove="Observations\Events\AvailabilityObservation.cs" />
+    <Compile Remove="Observations\Events\EmergencyStopObservation.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Assets\Json\JsonAssetsDocument.cs" />
+    <None Include="Assets\Xml\XmlAssetCollection.cs" />
+    <None Include="Assets\Xml\XmlAssetsDocument.cs" />
+    <None Include="Devices\Json\JsonComponent.cs" />
+    <None Include="Devices\Json\JsonComposition.cs" />
+    <None Include="Devices\Json\JsonDataItem.cs" />
+    <None Include="Devices\Json\JsonDevice.cs" />
+    <None Include="Devices\Json\JsonDevicesDocument.cs" />
+    <None Include="Models\AbstractDeviceModel.cs" />
+    <None Include="Models\AgentModel.cs" />
+    <None Include="Models\Assets\CuttingToolModel.cs" />
+    <None Include="Models\ComponentManager.cs" />
+    <None Include="Models\ComponentModel.cs" />
+    <None Include="Models\ComponentModelExtensions.cs" />
+    <None Include="Models\Components\ActuatorModel.cs" />
+    <None Include="Models\Components\AdapterModel.cs" />
+    <None Include="Models\Components\AdaptersModel.cs" />
+    <None Include="Models\Components\ArticulatedAxesModel.cs" />
+    <None Include="Models\Components\AutomaticToolChangerModel.cs" />
+    <None Include="Models\Components\AuxiliariesModel.cs" />
+    <None Include="Models\Components\AuxiliaryModel.cs" />
+    <None Include="Models\Components\AxesModel.cs" />
+    <None Include="Models\Components\AxisModel.cs" />
+    <None Include="Models\Components\BarFeederModel.cs" />
+    <None Include="Models\Components\CartesianCoordinateAxesModel.cs" />
+    <None Include="Models\Components\ControllerModel.cs" />
+    <None Include="Models\Components\CoolantModel.cs" />
+    <None Include="Models\Components\CoolingModel.cs" />
+    <None Include="Models\Components\DepositionModel.cs" />
+    <None Include="Models\Components\DielectricModel.cs" />
+    <None Include="Models\Components\DoorModel.cs" />
+    <None Include="Models\Components\ElectricModel.cs" />
+    <None Include="Models\Components\EnclosureModel.cs" />
+    <None Include="Models\Components\EndEffectorModel.cs" />
+    <None Include="Models\Components\EnvironmentalModel.cs" />
+    <None Include="Models\Components\FeederModel.cs" />
+    <None Include="Models\Components\GangToolBarModel.cs" />
+    <None Include="Models\Components\HeatingModel.cs" />
+    <None Include="Models\Components\HydraulicModel.cs" />
+    <None Include="Models\Components\InterfaceModel.cs" />
+    <None Include="Models\Components\InterfacesModel.cs" />
+    <None Include="Models\Components\Interfaces\IAdapterModel.cs" />
+    <None Include="Models\Components\Interfaces\IAdaptersModel.cs" />
+    <None Include="Models\Components\Interfaces\IAutomaticToolChangerModel.cs" />
+    <None Include="Models\Components\Interfaces\IAuxiliariesModel.cs" />
+    <None Include="Models\Components\Interfaces\IAuxiliaryModel.cs" />
+    <None Include="Models\Components\Interfaces\IAxesModel.cs" />
+    <None Include="Models\Components\Interfaces\IAxisModel.cs" />
+    <None Include="Models\Components\Interfaces\IControllerModel.cs" />
+    <None Include="Models\Components\Interfaces\ICoolantModel.cs" />
+    <None Include="Models\Components\Interfaces\ICoolingModel.cs" />
+    <None Include="Models\Components\Interfaces\IDielectricModel.cs" />
+    <None Include="Models\Components\Interfaces\IDoorModel.cs" />
+    <None Include="Models\Components\Interfaces\IElectricModel.cs" />
+    <None Include="Models\Components\Interfaces\IEnclosureModel.cs" />
+    <None Include="Models\Components\Interfaces\IEndEffectorModel.cs" />
+    <None Include="Models\Components\Interfaces\IEnvironmentalModel.cs" />
+    <None Include="Models\Components\Interfaces\IFeederModel.cs" />
+    <None Include="Models\Components\Interfaces\IHeatingModel.cs" />
+    <None Include="Models\Components\Interfaces\IHydraulicModel.cs" />
+    <None Include="Models\Components\Interfaces\ILinearAxisModel.cs" />
+    <None Include="Models\Components\Interfaces\ILubricationModel.cs" />
+    <None Include="Models\Components\Interfaces\IPartOccurrenceModel.cs" />
+    <None Include="Models\Components\Interfaces\IPathModel.cs" />
+    <None Include="Models\Components\Interfaces\IPneumaticModel.cs" />
+    <None Include="Models\Components\Interfaces\IPressureModel.cs" />
+    <None Include="Models\Components\Interfaces\IProcessPowerModel.cs" />
+    <None Include="Models\Components\Interfaces\IProtectiveModel.cs" />
+    <None Include="Models\Components\Interfaces\IRotaryAxisModel.cs" />
+    <None Include="Models\Components\Interfaces\ISpindleAxisModel.cs" />
+    <None Include="Models\Components\Interfaces\ISystemModel.cs" />
+    <None Include="Models\Components\Interfaces\ISystemsModel.cs" />
+    <None Include="Models\Components\Interfaces\IToolingDeliveryModel.cs" />
+    <None Include="Models\Components\Interfaces\IToolMagazineModel.cs" />
+    <None Include="Models\Components\Interfaces\ITurretModel.cs" />
+    <None Include="Models\Components\Interfaces\IVacuumModel.cs" />
+    <None Include="Models\Components\Interfaces\IWorkEnvelopeModel.cs" />
+    <None Include="Models\Components\LinearAxisModel.cs" />
+    <None Include="Models\Components\LinkModel.cs" />
+    <None Include="Models\Components\LoaderModel.cs" />
+    <None Include="Models\Components\LockModel.cs" />
+    <None Include="Models\Components\LubricationModel.cs" />
+    <None Include="Models\Components\MaterialsModel.cs" />
+    <None Include="Models\Components\PartOccurrenceModel.cs" />
+    <None Include="Models\Components\PartsModel.cs" />
+    <None Include="Models\Components\PathModel.cs" />
+    <None Include="Models\Components\PersonnelModel.cs" />
+    <None Include="Models\Components\PneumaticModel.cs" />
+    <None Include="Models\Components\PressureModel.cs" />
+    <None Include="Models\Components\ProcessesModel.cs" />
+    <None Include="Models\Components\ProcessOccurrenceModel.cs" />
+    <None Include="Models\Components\ProcessPowerModel.cs" />
+    <None Include="Models\Components\ProtectiveModel.cs" />
+    <None Include="Models\Components\ResourceModel.cs" />
+    <None Include="Models\Components\ResourcesModel.cs" />
+    <None Include="Models\Components\RotaryAxisModel.cs" />
+    <None Include="Models\Components\SensorModel.cs" />
+    <None Include="Models\Components\SpindleAxisModel.cs" />
+    <None Include="Models\Components\StockModel.cs" />
+    <None Include="Models\Components\StructureModel.cs" />
+    <None Include="Models\Components\StructuresModel.cs" />
+    <None Include="Models\Components\SystemModel.cs" />
+    <None Include="Models\Components\SystemsModel.cs" />
+    <None Include="Models\Components\ToolingDeliveryModel.cs" />
+    <None Include="Models\Components\ToolMagazineModel.cs" />
+    <None Include="Models\Components\ToolRackModel.cs" />
+    <None Include="Models\Components\TurretModel.cs" />
+    <None Include="Models\Components\VacuumModel.cs" />
+    <None Include="Models\Components\WasteDisposalModel.cs" />
+    <None Include="Models\Components\WorkEnvelopeModel.cs" />
+    <None Include="Models\CompositionModel.cs" />
+    <None Include="Models\CompositionModelExtensions.cs" />
+    <None Include="Models\Compositions\ActuatorModel.cs" />
+    <None Include="Models\Compositions\AmplifierModel.cs" />
+    <None Include="Models\Compositions\BallscrewModel.cs" />
+    <None Include="Models\Compositions\BeltModel.cs" />
+    <None Include="Models\Compositions\BrakeModel.cs" />
+    <None Include="Models\Compositions\ChainModel.cs" />
+    <None Include="Models\Compositions\ChopperModel.cs" />
+    <None Include="Models\Compositions\ChuckModel.cs" />
+    <None Include="Models\Compositions\ChuteModel.cs" />
+    <None Include="Models\Compositions\CircuitBreakerModel.cs" />
+    <None Include="Models\Compositions\ClampModel.cs" />
+    <None Include="Models\Compositions\CompressorModel.cs" />
+    <None Include="Models\Compositions\CoolingTowerModel.cs" />
+    <None Include="Models\Compositions\DoorModel.cs" />
+    <None Include="Models\Compositions\DrainModel.cs" />
+    <None Include="Models\Compositions\EncoderModel.cs" />
+    <None Include="Models\Compositions\ExpiredPotModel.cs" />
+    <None Include="Models\Compositions\ExposureUnitModel.cs" />
+    <None Include="Models\Compositions\ExtrusionUnit.cs" />
+    <None Include="Models\Compositions\FanModel.cs" />
+    <None Include="Models\Compositions\FilterModel.cs" />
+    <None Include="Models\Compositions\GalvanomotorModel.cs" />
+    <None Include="Models\Compositions\GripperModel.cs" />
+    <None Include="Models\Compositions\HopperModel.cs" />
+    <None Include="Models\Compositions\Interfaces\IActuatorModel.cs" />
+    <None Include="Models\Compositions\Interfaces\IAmplifierModel.cs" />
+    <None Include="Models\Compositions\Interfaces\IBallscrewModel.cs" />
+    <None Include="Models\Compositions\Interfaces\IBeltModel.cs" />
+    <None Include="Models\Compositions\Interfaces\IBrakeModel.cs" />
+    <None Include="Models\Compositions\Interfaces\IChainModel.cs" />
+    <None Include="Models\Compositions\Interfaces\IChopperModel.cs" />
+    <None Include="Models\Compositions\Interfaces\IChuckModel.cs" />
+    <None Include="Models\Compositions\Interfaces\IChuteModel.cs" />
+    <None Include="Models\Compositions\Interfaces\ICircuitBreakerModel.cs" />
+    <None Include="Models\Compositions\Interfaces\IClampModel.cs" />
+    <None Include="Models\Compositions\Interfaces\ICompressorModel.cs" />
+    <None Include="Models\Compositions\Interfaces\ICoolingTowerModel.cs" />
+    <None Include="Models\Compositions\Interfaces\IDoorModel.cs" />
+    <None Include="Models\Compositions\Interfaces\IDrainModel.cs" />
+    <None Include="Models\Compositions\Interfaces\IEncoderModel.cs" />
+    <None Include="Models\Compositions\Interfaces\IExpiredPotModel.cs" />
+    <None Include="Models\Compositions\Interfaces\IExposureUnitModel.cs" />
+    <None Include="Models\Compositions\Interfaces\IExtrusionUnit.cs" />
+    <None Include="Models\Compositions\Interfaces\IFanModel.cs" />
+    <None Include="Models\Compositions\Interfaces\IFilterModel.cs" />
+    <None Include="Models\Compositions\Interfaces\IGalvanomotorModel.cs" />
+    <None Include="Models\Compositions\Interfaces\IGripperModel.cs" />
+    <None Include="Models\Compositions\Interfaces\IHopperModel.cs" />
+    <None Include="Models\Compositions\Interfaces\ILinearPositionFeedback.cs" />
+    <None Include="Models\Compositions\Interfaces\IMotorModel.cs" />
+    <None Include="Models\Compositions\Interfaces\IOilModel.cs" />
+    <None Include="Models\Compositions\Interfaces\IPotModel.cs" />
+    <None Include="Models\Compositions\Interfaces\IPowerSupplyModel.cs" />
+    <None Include="Models\Compositions\Interfaces\IPulleyModel.cs" />
+    <None Include="Models\Compositions\Interfaces\IPumpModel.cs" />
+    <None Include="Models\Compositions\Interfaces\IReelModel.cs" />
+    <None Include="Models\Compositions\Interfaces\IRemovalPot.cs" />
+    <None Include="Models\Compositions\Interfaces\IReturnPot.cs" />
+    <None Include="Models\Compositions\Interfaces\ISensingElementModel.cs" />
+    <None Include="Models\Compositions\Interfaces\ISpreaderModel.cs" />
+    <None Include="Models\Compositions\Interfaces\IStagingPotModel.cs" />
+    <None Include="Models\Compositions\Interfaces\IStationModel.cs" />
+    <None Include="Models\Compositions\Interfaces\IStorageBatteryModel.cs" />
+    <None Include="Models\Compositions\Interfaces\ISwitchModel.cs" />
+    <None Include="Models\Compositions\Interfaces\ITableModel.cs" />
+    <None Include="Models\Compositions\Interfaces\ITankModel.cs" />
+    <None Include="Models\Compositions\Interfaces\ITensionerModel.cs" />
+    <None Include="Models\Compositions\Interfaces\ITransferArmModel.cs" />
+    <None Include="Models\Compositions\Interfaces\ITransferPotModel.cs" />
+    <None Include="Models\Compositions\Interfaces\ITransformerModel.cs" />
+    <None Include="Models\Compositions\Interfaces\IValveModel.cs" />
+    <None Include="Models\Compositions\Interfaces\IVatModel.cs" />
+    <None Include="Models\Compositions\Interfaces\IWaterModel.cs" />
+    <None Include="Models\Compositions\Interfaces\IWireModel.cs" />
+    <None Include="Models\Compositions\Interfaces\IWorkpieceModel.cs" />
+    <None Include="Models\Compositions\LinearPositionFeedback.cs" />
+    <None Include="Models\Compositions\MotorModel.cs" />
+    <None Include="Models\Compositions\OilModel.cs" />
+    <None Include="Models\Compositions\PotModel.cs" />
+    <None Include="Models\Compositions\PowerSupplyModel.cs" />
+    <None Include="Models\Compositions\PulleyModel.cs" />
+    <None Include="Models\Compositions\PumpModel.cs" />
+    <None Include="Models\Compositions\ReelModel.cs" />
+    <None Include="Models\Compositions\RemovalPot.cs" />
+    <None Include="Models\Compositions\ReturnPot.cs" />
+    <None Include="Models\Compositions\SensingElementModel.cs" />
+    <None Include="Models\Compositions\SpreaderModel.cs" />
+    <None Include="Models\Compositions\StagingPotModel.cs" />
+    <None Include="Models\Compositions\StationModel.cs" />
+    <None Include="Models\Compositions\StorageBatteryModel.cs" />
+    <None Include="Models\Compositions\SwitchModel.cs" />
+    <None Include="Models\Compositions\TableModel.cs" />
+    <None Include="Models\Compositions\TankModel.cs" />
+    <None Include="Models\Compositions\TensionerModel.cs" />
+    <None Include="Models\Compositions\TransferArmModel.cs" />
+    <None Include="Models\Compositions\TransferPotModel.cs" />
+    <None Include="Models\Compositions\TransformerModel.cs" />
+    <None Include="Models\Compositions\ValveModel.cs" />
+    <None Include="Models\Compositions\VatModel.cs" />
+    <None Include="Models\Compositions\WaterModel.cs" />
+    <None Include="Models\Compositions\WireModel.cs" />
+    <None Include="Models\Compositions\WorkpieceModel.cs" />
+    <None Include="Models\DataItemManager.cs" />
+    <None Include="Models\DataItemModel.cs" />
+    <None Include="Models\DataItems\AccelerationModel.cs" />
+    <None Include="Models\DataItems\ActivationCountModel.cs" />
+    <None Include="Models\DataItems\AmperageACModel.cs" />
+    <None Include="Models\DataItems\AmperageDCModel.cs" />
+    <None Include="Models\DataItems\AngleModel.cs" />
+    <None Include="Models\DataItems\AngularAccelerationModel.cs" />
+    <None Include="Models\DataItems\AngularDecelerationModel.cs" />
+    <None Include="Models\DataItems\ApplicationModel.cs" />
+    <None Include="Models\DataItems\AxisFeedrateModel.cs" />
+    <None Include="Models\DataItems\AxisFeedrateOverrideModel.cs" />
+    <None Include="Models\DataItems\ControllerModeOverrideModel.cs" />
+    <None Include="Models\DataItems\CuttingSpeedModel.cs" />
+    <None Include="Models\DataItems\DateCodeModel.cs" />
+    <None Include="Models\DataItems\DecelerationModel.cs" />
+    <None Include="Models\DataItems\DepositionAccelerationVolumetricModel.cs" />
+    <None Include="Models\DataItems\DepositionDensityModel.cs" />
+    <None Include="Models\DataItems\DepositionMassModel.cs" />
+    <None Include="Models\DataItems\DepositionRateVolumetricModel.cs" />
+    <None Include="Models\DataItems\DepositionVolumeModel.cs" />
+    <None Include="Models\DataItems\EquipmentTimerModel.cs" />
+    <None Include="Models\DataItems\FirmwareModel.cs" />
+    <None Include="Models\DataItems\HardwareModel.cs" />
+    <None Include="Models\DataItems\HumidityAbsoluteModel.cs" />
+    <None Include="Models\DataItems\HumidityRelativeModel.cs" />
+    <None Include="Models\DataItems\HumiditySpecificModel.cs" />
+    <None Include="Models\DataItems\LengthModel.cs" />
+    <None Include="Models\DataItems\LibraryModel.cs" />
+    <None Include="Models\DataItems\LineNumberModel.cs" />
+    <None Include="Models\DataItems\LoadCountModel.cs" />
+    <None Include="Models\DataItems\MaterialLayerModel.cs" />
+    <None Include="Models\DataItems\NetworkModel.cs" />
+    <None Include="Models\DataItems\OperatingSystemModel.cs" />
+    <None Include="Models\DataItems\PartCountModel.cs" />
+    <None Include="Models\DataItems\PartKindIdModel.cs" />
+    <None Include="Models\DataItems\PartUniqueIdModel.cs" />
+    <None Include="Models\DataItems\PathFeedrateModel.cs" />
+    <None Include="Models\DataItems\PathFeedrateOverrideModel.cs" />
+    <None Include="Models\DataItems\PathFeedratePerRevolutionModel.cs" />
+    <None Include="Models\DataItems\PathPositionModel.cs" />
+    <None Include="Models\DataItems\PositionModel.cs" />
+    <None Include="Models\DataItems\PressurizationRateModel.cs" />
+    <None Include="Models\DataItems\ProcessTimerModel.cs" />
+    <None Include="Models\DataItems\ProgramModel.cs" />
+    <None Include="Models\DataItems\RotaryVelocityModel.cs" />
+    <None Include="Models\DataItems\SoundLevelModel.cs" />
+    <None Include="Models\DataItems\TemperatureModel.cs" />
+    <None Include="Models\DataItems\ToolOffsetModel.cs" />
+    <None Include="Models\DataItems\TransferCountModel.cs" />
+    <None Include="Models\DataItems\UnloadCountModel.cs" />
+    <None Include="Models\DataItems\VoltageACModel.cs" />
+    <None Include="Models\DataItems\VoltageDCModel.cs" />
+    <None Include="Models\DataItems\VolumeFluidModel.cs" />
+    <None Include="Models\DataItems\VolumeSpatialModel.cs" />
+    <None Include="Models\DataItems\WattageModel.cs" />
+    <None Include="Models\DeviceModel.cs" />
+    <None Include="Models\IAgentModel.cs" />
+    <None Include="Models\IComponentModel.cs" />
+    <None Include="Models\ICompositionModel.cs" />
+    <None Include="Models\IDataItemModel.cs" />
+    <None Include="Models\IDeviceModel.cs" />
+	<None Include="Observations\Events\AvailabilityObservation.cs" />
+	<None Include="Observations\Events\EmergencyStopObservation.cs" />
+  </ItemGroup>
+
+  <!--Conditionally obtain references for the .NET Framework 4.6.1 target-->
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
+   <Reference Include="System.Net.Http" />
+   <Reference Include="System.Web" />
+   <Reference Include="System.Text.Json" />
+   <PackageReference Include="System.Text.Json" Version="6.0.1" />
+  </ItemGroup>
+
+  <!--Conditionally obtain references for the .NET Framework 4.6.2 target-->
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net462' ">
+  	<Reference Include="System.Net.Http" />
+  	<Reference Include="System.Web" />
+  	<Reference Include="System.Text.Json" />
+  	<PackageReference Include="System.Text.Json" Version="6.0.1" />
+  </ItemGroup>
+
+	<!--Conditionally obtain references for the .NET Framework 4.7 target-->
+	<ItemGroup Condition=" '$(TargetFramework)' == 'net47' ">
+		<Reference Include="System.Net.Http" />
+		<Reference Include="System.Web" />
+		<Reference Include="System.Text.Json" />
+		<PackageReference Include="System.Text.Json" Version="6.0.1" />
+	</ItemGroup>
+
+	<!--Conditionally obtain references for the .NET Framework 4.7.1 target-->
+	<ItemGroup Condition=" '$(TargetFramework)' == 'net471' ">
+		<Reference Include="System.Net.Http" />
+		<Reference Include="System.Web" />
+		<Reference Include="System.Text.Json" />
+		<PackageReference Include="System.Text.Json" Version="6.0.1" />
+	</ItemGroup>
+
+	<!--Conditionally obtain references for the .NET Framework 4.7.2 target-->
+	<ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
+		<Reference Include="System.Net.Http" />
+		<Reference Include="System.Web" />
+		<Reference Include="System.Text.Json" />
+		<PackageReference Include="System.Text.Json" Version="6.0.1" />
+	</ItemGroup>
+
+	<!--Conditionally obtain references for the .NET Framework 4.8 target-->
+	<ItemGroup Condition=" '$(TargetFramework)' == 'net48' ">
+		<Reference Include="System.Net.Http" />
+		<Reference Include="System.Web" />
+		<Reference Include="System.Text.Json" />
+		<PackageReference Include="System.Text.Json" Version="6.0.1" />
+	</ItemGroup>
+
+	<!--Conditionally obtain references for the .NET Standard target-->
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+  	<Reference Include="System.Text.Json" />
+	<PackageReference Include="System.Text.Json" Version="6.0.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Observations\Conditions\" />
+  </ItemGroup>
+	
+</Project>

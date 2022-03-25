@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!--<TargetFrameworks>netcoreapp3.1;net5.0;net6.0</TargetFrameworks>-->
+    <TargetFrameworks>net6.0</TargetFrameworks>
+    <RootNamespace>MTConnect.Http.AspNetCore</RootNamespace>
+	<Authors>TrakHound</Authors>
+	<Company>TrakHound Inc.</Company>
+	<AssemblyVersion>0.1.0</AssemblyVersion>
+	<FileVersion></FileVersion>
+	<Configurations>Debug;Release;Package</Configurations>
+	<Copyright>Copyright (c) 2022 TrakHound Inc., All Rights Reserved.</Copyright>
+	<PackageProjectUrl>https://www.TrakHound.com</PackageProjectUrl>
+	<RepositoryUrl>https://github.com/TrakHound/MTConnect.NET</RepositoryUrl>
+	<RepositoryType>git</RepositoryType>
+	<PackageTags>mtconnect;iiot;</PackageTags>
+	<Description>MTConnect.NET-HTTP-AspNetCore is an extension library to MTConnect.NET that uses ApiControllers and the built-in features for Asp.NET Core</Description>
+	<Version>0.1.0</Version>
+	<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+	<PackageIcon>mtconnect-net.png</PackageIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="2.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MTConnect.NET-Common\MTConnect.NET-Common.csproj" />
+    <ProjectReference Include="..\MTConnect.NET-HTTP\MTConnect.NET-HTTP.csproj" />
+  </ItemGroup>
+
+</Project>

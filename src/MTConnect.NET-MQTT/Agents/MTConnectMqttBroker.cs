@@ -6,6 +6,7 @@
 using Microsoft.Extensions.Hosting;
 using MQTTnet;
 using MQTTnet.Server;
+using MTConnect.Devices;
 using MTConnect.Observations;
 using System;
 using System.Collections.Generic;
@@ -28,7 +29,7 @@ namespace MTConnect.Agents
         {
             _mtconnectAgent = mtconnectAgent;
             _mtconnectAgent.DeviceAdded += DeviceAdded;
-            _mtconnectAgent.ObservationAdded += DataItemAdded;
+            _mtconnectAgent.ObservationAdded += ObservationAdded;
             _mqttServer = mqttServer;
             _mqttServer.UseClientConnectedHandler((args) =>
             {
@@ -55,14 +56,28 @@ namespace MTConnect.Agents
 
 
 
-        private async void DeviceAdded(object sender, Devices.Device device)
+        private async void DeviceAdded(object sender, IDevice device)
         {
-            await Publish(CreateMessages(device));
+            var messages = CreateMessages(device);
+            if (!messages.IsNullOrEmpty())
+            {
+                foreach (var message in messages)
+                {
+                    if (message != null && message.Payload != null)
+                    {
+                        await Publish(message);
+                    }
+                }
+            }
         }
 
-        private async void DataItemAdded(object sender, IObservation dataItem)
+        private async void ObservationAdded(object sender, IObservation observation)
         {
-            await Publish(CreateMessage(dataItem));
+            var message = CreateMessage(observation);
+            if (message != null && message.Payload != null)
+            {
+                await Publish(message);
+            }
         }
 
 
@@ -114,13 +129,13 @@ namespace MTConnect.Agents
             return null;
         }
 
-        private IEnumerable<MqttApplicationMessage> CreateMessages(Devices.Device device)
+        private IEnumerable<MqttApplicationMessage> CreateMessages(IDevice device)
         {
             if (device != null)
             {
                 var messages = new List<MqttApplicationMessage>();
 
-                var topic = $"Devices/{device.Name}";
+                var topic = $"Devices/{device.Uuid}";
                 messages.Add(CreateMessage(topic, device));
 
                 // DataItems
@@ -157,7 +172,7 @@ namespace MTConnect.Agents
             return null;
         }
 
-        private IEnumerable<MqttApplicationMessage> CreateMessages(string parentTopic, Devices.Component component)
+        private IEnumerable<MqttApplicationMessage> CreateMessages(string parentTopic, IComponent component)
         {
             var messages = new List<MqttApplicationMessage>();
 
@@ -200,7 +215,7 @@ namespace MTConnect.Agents
             return messages;
         }
 
-        private IEnumerable<MqttApplicationMessage> CreateMessages(string parentTopic, Devices.Composition composition)
+        private IEnumerable<MqttApplicationMessage> CreateMessages(string parentTopic, IComposition composition)
         {
             var messages = new List<MqttApplicationMessage>();
 
@@ -225,27 +240,16 @@ namespace MTConnect.Agents
             return messages;
         }
 
-        private MqttApplicationMessage CreateMessage(IObservation dataItem)
+        private MqttApplicationMessage CreateMessage(IObservation observation)
         {
-            if (dataItem != null && !dataItem.Values.IsNullOrEmpty())
+            if (observation != null && !observation.Values.IsNullOrEmpty())
             {
-                var topic = $"Streams/{dataItem.DeviceName}/{dataItem.Key}";
-                return CreateMessage(topic, dataItem);
+                var topic = $"Observations/{observation.DeviceUuid}/{observation.DataItemId}";
+                return CreateMessage(topic, observation);
             }
 
             return null;
         }
-
-        //private MqttApplicationMessage CreateMessage(IObservation dataItem)
-        //{
-        //    if (dataItem != null)
-        //    {
-        //        var topic = $"Streams/{dataItem.DeviceName}/{dataItem.Key}/{dataItem.ValueType}";
-        //        return CreateMessage(topic, dataItem);
-        //    }
-
-        //    return null;
-        //}
 
         #endregion
     }

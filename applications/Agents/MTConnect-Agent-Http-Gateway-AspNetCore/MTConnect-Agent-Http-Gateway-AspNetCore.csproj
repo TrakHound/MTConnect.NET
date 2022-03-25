@@ -1,0 +1,67 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFrameworks>net6.0</TargetFrameworks>
+    <RootNamespace>MTConnect.Applications</RootNamespace>
+  </PropertyGroup>
+
+  <PropertyGroup>
+   <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+   <AssemblyVersion>0.2.1</AssemblyVersion>
+   <Authors>TrakHound Inc.</Authors>
+   <Company>TrakHound Inc.</Company>
+   <Copyright>Copyright (c) 2022 TrakHound Inc., All Rights Reserved.</Copyright>
+   <PackageProjectUrl>https://www.TrakHound.com</PackageProjectUrl>
+   <RepositoryUrl>https://github.com/TrakHound/MTConnect.NET</RepositoryUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Loggers\AdapterLogger.cs" />
+    <Compile Remove="Loggers\AdapterShdrLogger.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="agent.config.json" />
+    <Content Remove="NLog.config" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_WebToolingArtifacts Remove="Properties\PublishProfiles\NET-6-win-x64.pubxml" />
+    <_WebToolingArtifacts Remove="Properties\PublishProfiles\NET-6-win-x86.pubxml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="agent.config.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Loggers\AdapterLogger.cs" />
+    <None Include="Loggers\AdapterShdrLogger.cs" />
+    <None Include="NLog.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="6.0.0" />
+    <PackageReference Include="NLog.Web.AspNetCore" Version="4.14.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\MTConnect.NET-HTTP-AspNetCore\MTConnect.NET-HTTP-AspNetCore.csproj" />
+    <ProjectReference Include="..\..\..\src\MTConnect.NET-XML\MTConnect.NET-XML.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="devices.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="devices-okuma.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

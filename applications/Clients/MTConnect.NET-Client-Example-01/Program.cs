@@ -19,7 +19,7 @@ client.OnProbeReceived += (sender, document) =>
         {
             Console.WriteLine($"DataItemId = {dataItem.Id}");
             Console.WriteLine($"Type = {dataItem.Type} : {dataItem.TypeDescription}");
-            Console.WriteLine($"SubType = {dataItem.SubType} : {dataItem.GetSubTypeDescription()}");
+            Console.WriteLine($"SubType = {dataItem.SubType} : {dataItem.SubTypeDescription}");
             Console.WriteLine("----------------");
         }
 
@@ -32,7 +32,7 @@ client.OnProbeReceived += (sender, document) =>
 };
 client.OnSampleReceived += (sender, document) =>
 {
-    Console.WriteLine($"MTConnectStreams : {document.GetDataItems().Count()} DataItems");
+    Console.WriteLine($"MTConnectStreams : {document.GetObservations().Count()} Observations");
 
     //foreach (var deviceStream in document.Streams)
     //{

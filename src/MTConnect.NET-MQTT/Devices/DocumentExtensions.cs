@@ -12,7 +12,7 @@ namespace MTConnect.Devices
 {
     public static class DocumentExtensions
     {
-        public static IEnumerable<MqttApplicationMessage> ToMqttMessage(this DevicesDocument document)
+        public static IEnumerable<MqttApplicationMessage> ToMqttMessage(this DevicesResponseDocument document)
         {
             if (document != null && !document.Devices.IsNullOrEmpty())
             {
