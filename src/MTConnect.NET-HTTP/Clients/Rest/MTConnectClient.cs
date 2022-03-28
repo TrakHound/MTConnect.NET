@@ -41,6 +41,7 @@ namespace MTConnect.Clients.Rest
         /// </param>
         public MTConnectClient(string authority, string device = null, string documentFormat = MTConnect.DocumentFormat.XML)
         {
+            Id = Guid.NewGuid().ToString();
             Init();
             Authority = authority;
             Device = device;
@@ -56,6 +57,11 @@ namespace MTConnect.Clients.Rest
             RetryInterval = 10000;
         }
 
+
+        /// <summary>
+        /// A unique Identifier used to indentify this instance of the MTConnectClient class
+        /// </summary>
+        public string Id { get; }
 
         /// <summary>
         /// The authority portion consists of the DNS name or IP address associated with an Agent and an optional
@@ -510,7 +516,7 @@ namespace MTConnect.Clients.Rest
         {
             if (observations != null && observations.Count() > 0)
             {
-                var assetsChanged = observations.Where(o => o.Type == Devices.Events.AssetChangedDataItem.TypeId);
+                var assetsChanged = observations.Where(o => o.Type == Devices.DataItems.Events.AssetChangedDataItem.TypeId);
                 if (assetsChanged != null)
                 {
                     foreach (var assetChanged in assetsChanged)

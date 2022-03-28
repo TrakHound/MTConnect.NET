@@ -3,6 +3,8 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
+using MTConnect.Devices.DataItems.Samples;
+
 namespace MTConnect.Observations.Samples.Values
 {
     /// <summary>
@@ -10,10 +12,10 @@ namespace MTConnect.Observations.Samples.Values
     /// </summary>
     public class PressureValue : SampleValue
     {
-        public PressureValue(double nativeValue, string nativeUnits = Devices.Samples.PressureDataItem.DefaultUnits)
+        public PressureValue(double nativeValue, string nativeUnits = PressureDataItem.DefaultUnits)
         {
             Value = nativeValue;
-            _units = Devices.Samples.PressureDataItem.DefaultUnits;
+            _units = PressureDataItem.DefaultUnits;
             _nativeUnits = nativeUnits;
         }
     }

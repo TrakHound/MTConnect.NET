@@ -22,8 +22,8 @@ namespace MTConnect.Devices
     {
         public const string DescriptionText = "An abstract XML Element. Replaced in the XML document by types of Component elements representing physical and logical parts of the Device. There can be multiple types of Component XML Elements in the document.";
 
-        private static readonly Version DefaultMaximumVersion = new Version(1, 8);
-        private static readonly Version DefaultMinimumVersion = new Version(1, 0);
+        private static readonly Version DefaultMaximumVersion = MTConnectVersions.Max;
+        private static readonly Version DefaultMinimumVersion = MTConnectVersions.Version10;
 
         private static Dictionary<string, Type> _types;
 
@@ -37,11 +37,11 @@ namespace MTConnect.Devices
 
         [XmlIgnore]
         [JsonIgnore]
-        public Version MaximumVersion { get; set; }
+        public virtual Version MaximumVersion { get; set; }
 
         [XmlIgnore]
         [JsonIgnore]
-        public Version MinimumVersion { get; set; }
+        public virtual Version MinimumVersion { get; set; }
 
 
         /// <summary>
@@ -356,12 +356,26 @@ namespace MTConnect.Devices
                 obj.Name = component.Name;
                 obj.NativeName = component.NativeName;
                 obj.Type = component.Type;
-                obj.Description = component.Description;
-                obj.SampleRate = component.SampleRate;
-                obj.SampleInterval = component.SampleInterval;
-                obj.References = component.References;
-                obj.Configuration = component.Configuration;
 
+                // Set Component Description
+                if (component.Description != null)
+                {
+                    var description = new Description();
+                    description.Manufacturer = component.Description.Manufacturer;
+                    if (mtconnectVersion >= MTConnectVersions.Version12) description.Model = component.Description.Model;
+                    description.SerialNumber = component.Description.SerialNumber;
+                    description.Station = component.Description.Station;
+                    description.CDATA = component.Description.CDATA;
+                    obj.Description = description;
+                }
+
+                if (mtconnectVersion < MTConnectVersions.Version12) obj.SampleRate = component.SampleRate;
+                if (mtconnectVersion >= MTConnectVersions.Version12) obj.SampleInterval = component.SampleInterval;
+                if (mtconnectVersion >= MTConnectVersions.Version13) obj.References = component.References;
+                if (mtconnectVersion >= MTConnectVersions.Version17) obj.Configuration = component.Configuration;
+                if (mtconnectVersion >= MTConnectVersions.Version18) obj.CoordinateSystemIdRef = component.CoordinateSystemIdRef;
+
+                // Add DataItems
                 if (!component.DataItems.IsNullOrEmpty())
                 {
                     var dataItems = new List<IDataItem>();
@@ -375,6 +389,7 @@ namespace MTConnect.Devices
                     obj.DataItems = dataItems;
                 }
 
+                // Add Compositions
                 if (!component.Compositions.IsNullOrEmpty())
                 {
                     var compositions = new List<IComposition>();
@@ -388,6 +403,7 @@ namespace MTConnect.Devices
                     obj.Compositions = compositions;
                 }
 
+                // Add Components
                 if (!component.Components.IsNullOrEmpty())
                 {
                     var subcomponents = new List<IComponent>();
@@ -401,8 +417,14 @@ namespace MTConnect.Devices
                     obj.Components = subcomponents;
                 }
 
+                // Don't return an Empty Component
+                if (obj.Components.IsNullOrEmpty() && obj.Compositions.IsNullOrEmpty() && obj.DataItems.IsNullOrEmpty())
+                {
+                    return null;
+                }
+
                 // Check Version Compatibilty
-                if (mtconnectVersion >= component.MinimumVersion && mtconnectVersion <= component.MaximumVersion)
+                if (mtconnectVersion >= obj.MinimumVersion && mtconnectVersion <= obj.MaximumVersion)
                 {
                     return obj;
                 }
@@ -410,55 +432,5 @@ namespace MTConnect.Devices
 
             return null;
         }
-
-
-        //public static Component Process(Component component, Version version)
-        //{
-        //    if (version < component.MinimumVersion || version > component.MaximumVersion)
-        //    {
-        //        return null;
-        //    }
-
-        //    if (!component.DataItems.IsNullOrEmpty())
-        //    {
-        //        var dataItems = new List<DataItem>();
-
-        //        foreach (var dataItem in component.DataItems.ToList())
-        //        {
-        //            var dataItemObj = DataItem.Process(dataItem, version);
-        //            if (dataItemObj != null) dataItems.Add(dataItemObj);
-        //        }
-
-        //        component.DataItems = dataItems;
-        //    }
-
-        //    if (!component.Compositions.IsNullOrEmpty())
-        //    {
-        //        var compositions = new List<Composition>();
-
-        //        foreach (var composition in component.Compositions.ToList())
-        //        {
-        //            var compositionObj = Composition.Process(composition, version);
-        //            if (compositionObj != null) compositions.Add(compositionObj);
-        //        }
-
-        //        component.Compositions = compositions;
-        //    }
-
-        //    if (!component.Components.IsNullOrEmpty())
-        //    {
-        //        var subcomponents = new List<Component>();
-
-        //        foreach (var subcomponent in component.Components.ToList())
-        //        {
-        //            var subcomponentObj = Process(subcomponent, version);
-        //            if (subcomponentObj != null) subcomponents.Add(subcomponentObj);
-        //        }
-
-        //        component.Components = subcomponents;
-        //    }
-
-        //    return component;
-        //}
     }
 }

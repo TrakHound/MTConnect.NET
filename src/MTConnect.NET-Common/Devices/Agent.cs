@@ -17,6 +17,9 @@ namespace MTConnect.Devices
 
         public override string TypeDescription => DescriptionText;
 
+        public override System.Version MinimumVersion => MTConnectVersions.Version17;
+
+
         public Agent()
         {
             Type = TypeId;

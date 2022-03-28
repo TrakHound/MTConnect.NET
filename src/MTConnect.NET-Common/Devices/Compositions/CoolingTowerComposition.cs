@@ -16,6 +16,8 @@ namespace MTConnect.Devices.Compositions
 
         public override string TypeDescription => DescriptionText;
 
+        public override System.Version MinimumVersion => MTConnectVersions.Version17;
+
 
         public CoolingTowerComposition()  { Type = TypeId; }
     }

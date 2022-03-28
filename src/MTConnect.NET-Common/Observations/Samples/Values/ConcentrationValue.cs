@@ -3,6 +3,8 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
+using MTConnect.Devices.DataItems.Samples;
+
 namespace MTConnect.Observations.Samples.Values
 {
     /// <summary>
@@ -10,10 +12,10 @@ namespace MTConnect.Observations.Samples.Values
     /// </summary>
     public class ConcentrationValue : SampleValue
     {
-        public ConcentrationValue(double nativeValue, string nativeUnits = Devices.Samples.ConcentrationDataItem.DefaultUnits)
+        public ConcentrationValue(double nativeValue, string nativeUnits = ConcentrationDataItem.DefaultUnits)
         {
             Value = nativeValue;
-            _units = Devices.Samples.ConcentrationDataItem.DefaultUnits;
+            _units = ConcentrationDataItem.DefaultUnits;
             _nativeUnits = nativeUnits;
         }
     }

@@ -3,6 +3,8 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
+using MTConnect.Devices.DataItems.Samples;
+
 namespace MTConnect.Observations.Samples.Values
 {
     /// <summary>
@@ -10,10 +12,10 @@ namespace MTConnect.Observations.Samples.Values
     /// </summary>
     public class VoltAmpereReactiveValue : SampleValue
     {
-        public VoltAmpereReactiveValue(double nativeValue, string nativeUnits = Devices.Samples.VoltAmpereReactiveDataItem.DefaultUnits)
+        public VoltAmpereReactiveValue(double nativeValue, string nativeUnits = VoltAmpereReactiveDataItem.DefaultUnits)
         {
             Value = nativeValue;
-            _units = Devices.Samples.VoltAmpereReactiveDataItem.DefaultUnits;
+            _units = VoltAmpereReactiveDataItem.DefaultUnits;
             _nativeUnits = nativeUnits;
         }
     }

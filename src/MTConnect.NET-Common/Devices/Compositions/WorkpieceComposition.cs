@@ -16,6 +16,8 @@ namespace MTConnect.Devices.Compositions
 
         public override string TypeDescription => DescriptionText;
 
+        public override System.Version MinimumVersion => MTConnectVersions.Version16;
+
 
         public WorkpieceComposition()  { Type = TypeId; }
     }

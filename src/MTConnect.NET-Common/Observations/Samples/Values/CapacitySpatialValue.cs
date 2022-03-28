@@ -3,6 +3,8 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
+using MTConnect.Devices.DataItems.Samples;
+
 namespace MTConnect.Observations.Samples.Values
 {
     /// <summary>
@@ -10,10 +12,10 @@ namespace MTConnect.Observations.Samples.Values
     /// </summary>
     public class CapacitySpatialValue : SampleValue
     {
-        public CapacitySpatialValue(double nativeValue, string nativeUnits = Devices.Samples.CapacitySpatialDataItem.DefaultUnits)
+        public CapacitySpatialValue(double nativeValue, string nativeUnits = CapacitySpatialDataItem.DefaultUnits)
         {
             Value = nativeValue;
-            _units = Devices.Samples.CapacitySpatialDataItem.DefaultUnits;
+            _units = CapacitySpatialDataItem.DefaultUnits;
             _nativeUnits = nativeUnits;
         }
     }

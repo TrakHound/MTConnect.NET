@@ -18,6 +18,8 @@ namespace MTConnect.Devices.Components
 
         public override string TypeDescription => DescriptionText;
 
+        public override System.Version MinimumVersion => MTConnectVersions.Version14;
+
 
         public DielectricComponent()  { Type = TypeId; }
     }

@@ -15,6 +15,8 @@ namespace MTConnect.Devices.Components
 
         public override string TypeDescription => "Environmental is an Auxiliary that represents the information for a unit or function involved in monitoring, managing, or conditioning the environment around or within a piece of equipment.";
 
+        public override System.Version MinimumVersion => MTConnectVersions.Version14;
+        
         public EnvironmentalComponent()  { Type = TypeId; }
     }
 }

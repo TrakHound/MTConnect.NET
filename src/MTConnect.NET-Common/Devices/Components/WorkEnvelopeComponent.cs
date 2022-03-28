@@ -17,6 +17,8 @@ namespace MTConnect.Devices.Components
 
         public override string TypeDescription => DescriptionText;
 
+        public override System.Version MinimumVersion => MTConnectVersions.Version16;
+
 
         public WorkEnvelopeComponent()  { Type = TypeId; }
     }

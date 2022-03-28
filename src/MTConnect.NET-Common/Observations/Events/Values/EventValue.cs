@@ -4,7 +4,7 @@
 // file 'LICENSE.txt', which is part of this source code package.
 
 using MTConnect.Devices;
-using MTConnect.Devices.Events;
+using MTConnect.Devices.DataItems.Events;
 using MTConnect.Observations;
 
 namespace MTConnect.Observations.Events.Values

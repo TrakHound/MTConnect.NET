@@ -3,6 +3,8 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
+using MTConnect.Devices.DataItems.Samples;
+
 namespace MTConnect.Observations.Samples.Values
 {
     /// <summary>
@@ -10,10 +12,10 @@ namespace MTConnect.Observations.Samples.Values
     /// </summary>
     public class DiameterValue : SampleValue
     {
-        public DiameterValue(double nativeValue, string nativeUnits = Devices.Samples.DiameterDataItem.DefaultUnits)
+        public DiameterValue(double nativeValue, string nativeUnits = DiameterDataItem.DefaultUnits)
         {
             Value = nativeValue;
-            _units = Devices.Samples.DiameterDataItem.DefaultUnits;
+            _units = DiameterDataItem.DefaultUnits;
             _nativeUnits = nativeUnits;
         }
     }

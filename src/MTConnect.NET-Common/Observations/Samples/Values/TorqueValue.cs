@@ -3,6 +3,8 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
+using MTConnect.Devices.DataItems.Samples;
+
 namespace MTConnect.Observations.Samples.Values
 {
     /// <summary>
@@ -10,10 +12,10 @@ namespace MTConnect.Observations.Samples.Values
     /// </summary>
     public class TorqueValue : SampleValue
     {
-        public TorqueValue(double nativeValue, string nativeUnits = Devices.Samples.TorqueDataItem.DefaultUnits)
+        public TorqueValue(double nativeValue, string nativeUnits = TorqueDataItem.DefaultUnits)
         {
             Value = nativeValue;
-            _units = Devices.Samples.TorqueDataItem.DefaultUnits;
+            _units = TorqueDataItem.DefaultUnits;
             _nativeUnits = nativeUnits;
         }
     }

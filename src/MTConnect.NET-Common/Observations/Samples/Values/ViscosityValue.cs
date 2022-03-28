@@ -3,6 +3,8 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
+using MTConnect.Devices.DataItems.Samples;
+
 namespace MTConnect.Observations.Samples.Values
 {
     /// <summary>
@@ -10,10 +12,10 @@ namespace MTConnect.Observations.Samples.Values
     /// </summary>
     public class ViscosityValue : SampleValue
     {
-        public ViscosityValue(double nativeValue, string nativeUnits = Devices.Samples.ViscosityDataItem.DefaultUnits)
+        public ViscosityValue(double nativeValue, string nativeUnits = ViscosityDataItem.DefaultUnits)
         {
             Value = nativeValue;
-            _units = Devices.Samples.ViscosityDataItem.DefaultUnits;
+            _units = ViscosityDataItem.DefaultUnits;
             _nativeUnits = nativeUnits;
         }
     }

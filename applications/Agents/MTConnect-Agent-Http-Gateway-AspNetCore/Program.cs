@@ -18,7 +18,7 @@ using System;
 namespace MTConnect.Applications
 {
     public class Program
-    {
+    { 
         public static void Main(string[] args)
         {
             var logger = NLogBuilder.ConfigureNLog("nlog.config").GetCurrentClassLogger();
@@ -46,7 +46,7 @@ namespace MTConnect.Applications
             catch (Exception exception)
             {
                 //NLog: catch setup errors
-                logger.Error(exception, "Stopped program because of exception");
+                logger.Fatal(exception, "Stopped program because of exception");
                 throw;
             }
             finally

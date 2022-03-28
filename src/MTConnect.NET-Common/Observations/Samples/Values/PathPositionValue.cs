@@ -3,6 +3,8 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
+using MTConnect.Devices.DataItems.Samples;
+
 namespace MTConnect.Observations.Samples.Values
 {
     /// <summary>
@@ -36,10 +38,10 @@ namespace MTConnect.Observations.Samples.Values
         }
 
 
-        public PathPositionValue(double nativeX, double nativeY, double nativeZ, string nativeUnits = Devices.Samples.PathPositionDataItem.DefaultUnits)
+        public PathPositionValue(double nativeX, double nativeY, double nativeZ, string nativeUnits = PathPositionDataItem.DefaultUnits)
         {
             Value = new Position3D(nativeX, nativeY, nativeZ);
-            _units = Devices.Samples.PathPositionDataItem.DefaultUnits;
+            _units = PathPositionDataItem.DefaultUnits;
             _nativeUnits = nativeUnits;
         }
 

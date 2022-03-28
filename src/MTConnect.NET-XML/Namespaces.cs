@@ -33,6 +33,7 @@ namespace MTConnect
 
                     switch (minorVersion)
                     {
+                        case 0: return Version10.Devices;                  
                         case 1: return Version11.Devices;                  
                         case 2: return Version12.Devices;                  
                         case 3: return Version13.Devices;                  
@@ -58,6 +59,7 @@ namespace MTConnect
 
                     switch (minorVersion)
                     {
+                        case 0: return Version10.Streams;
                         case 1: return Version11.Streams;
                         case 2: return Version12.Streams;
                         case 3: return Version13.Streams;
@@ -236,6 +238,18 @@ namespace MTConnect
             public const string Devices = "urn:mtconnect.org:MTConnectDevices:1.1";
             public const string Error = "urn:mtconnect.org:MTConnectError:1.1";
             public const string Streams = "urn:mtconnect.org:MTConnectStreams:1.1";
+
+            public static bool Match(string ns)
+            {
+                return ns == Devices || ns == Error || ns == Streams;
+            }
+        }
+
+        internal static class Version10
+        {
+            public const string Devices = "urn:mtconnect.org:MTConnectDevices:1.0";
+            public const string Error = "urn:mtconnect.org:MTConnectError:1.0";
+            public const string Streams = "urn:mtconnect.org:MTConnectStreams:1.0";
 
             public static bool Match(string ns)
             {

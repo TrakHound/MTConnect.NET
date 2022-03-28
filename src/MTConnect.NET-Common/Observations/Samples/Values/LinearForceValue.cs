@@ -3,6 +3,8 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
+using MTConnect.Devices.DataItems.Samples;
+
 namespace MTConnect.Observations.Samples.Values
 {
     /// <summary>
@@ -10,10 +12,10 @@ namespace MTConnect.Observations.Samples.Values
     /// </summary>
     public class LinearForceValue : SampleValue
     {
-        public LinearForceValue(double nativeValue, string nativeUnits = Devices.Samples.LinearForceDataItem.DefaultUnits)
+        public LinearForceValue(double nativeValue, string nativeUnits = LinearForceDataItem.DefaultUnits)
         {
             Value = nativeValue;
-            _units = Devices.Samples.LinearForceDataItem.DefaultUnits;
+            _units = LinearForceDataItem.DefaultUnits;
             _nativeUnits = nativeUnits;
         }
     }

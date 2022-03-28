@@ -3,22 +3,19 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-//using MTConnect.Adapters.Shdr;
 using MTConnect.Agents;
 using MTConnect.Applications.Configuration;
 using MTConnect.Applications.Loggers;
 using MTConnect.Assets;
+using MTConnect.Errors;
 using MTConnect.Clients.Rest;
 using MTConnect.Devices;
-using MTConnect.Observations;
 using MTConnect.Observations.Input;
 using MTConnect.Streams;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -30,6 +27,7 @@ namespace MTConnect.Applications
         private readonly IMTConnectAgent _mtconnectAgent;
         private readonly ILogger<AgentService> _logger;
         private readonly AgentLogger _agentLogger;
+        private readonly List<MTConnectClient> _clients = new List<MTConnectClient>();
         private System.Timers.Timer _metricsTimer;
 
 
@@ -82,12 +80,31 @@ namespace MTConnect.Applications
                             agentClient.Interval = clientConfiguration.Interval;
                             agentClient.Heartbeat = clientConfiguration.Heartbeat;
 
+                            // Subscribe to the Event handlers to receive status events
+                            agentClient.OnClientStarting += (s, e) => ClientStarting(((MTConnectClient)s).Authority);
+                            agentClient.OnClientStarted += (s, e) => ClientStarted(((MTConnectClient)s).Authority);
+                            agentClient.OnClientStopping += (s, e) => ClientStopping(((MTConnectClient)s).Authority);
+                            agentClient.OnClientStopped += (s, e) => ClientStopped(((MTConnectClient)s).Authority);
+                            agentClient.OnStreamStarting += (s, streamUrl) => StreamStarting(streamUrl);
+                            agentClient.OnStreamStarted += (s, streamUrl) => StreamStarted(streamUrl);
+                            agentClient.OnStreamStopping += (s, streamUrl) => StreamStopping(streamUrl);
+                            agentClient.OnStreamStopped += (s, streamUrl) => StreamStopped(streamUrl);
+
                             // Subscribe to the Event handlers to receive the MTConnect documents
                             agentClient.OnProbeReceived += (s, doc) => DevicesDocumentReceived(doc);
                             agentClient.OnCurrentReceived += (s, doc) => StreamsDocumentReceived(doc);
                             agentClient.OnSampleReceived += (s, doc) => StreamsDocumentReceived(doc);
                             agentClient.OnAssetsReceived += (s, doc) => AssetsDocumentReceived(doc);
 
+                            // Subscribe to the Error Handlers
+                            agentClient.OnMTConnectError += (s, doc) => AgentClientError(doc);
+                            agentClient.OnConnectionError += (s, ex) => AgentClientConnectionError(ex);
+                            agentClient.OnInternalError += (s, ex) => AgentClientInternalError(ex);
+
+                            // Add to local list (to be able to stop it later)
+                            _clients.Add(agentClient);
+
+                            // Start the Client
                             agentClient.Start();
                         }
                     }
@@ -99,7 +116,75 @@ namespace MTConnect.Applications
 
         public async Task StopAsync(CancellationToken cancellationToken)
         {
+            // Stop all of the MTConnectClients
+            if (!_clients.IsNullOrEmpty())
+            {
+                foreach (var client in _clients)
+                {
+                    if (client != null) client.Stop();
+                }
+            }
+
+            // Stop the Metrics Timer
             if (_metricsTimer != null) _metricsTimer.Dispose();
+        }
+
+
+        private void AgentClientError(IErrorResponseDocument errorDocument)
+        {
+            _logger?.LogError($"MTConnect Connection : MTConnect Error Received from MTConnect Agent");
+        }
+
+        private void AgentClientConnectionError(Exception ex)
+        {
+            _logger?.LogError($"MTConnect Connection : Error Connecting to MTConnect Agent : {ex.Message}");
+        }
+
+        private void AgentClientInternalError(Exception ex)
+        {
+            _logger?.LogDebug($"MTConnect Connection : Error in MTConnectClient : {ex.Message}");
+        }
+
+
+        private void ClientStarting(string url)
+        {
+            _logger?.LogInformation($"MTConnect Connection : {url} : MTConnect Client Starting..");
+        }
+
+        private void ClientStarted(string url)
+        {
+            _logger?.LogInformation($"MTConnect Connection : {url} : MTConnect Client Started");
+        }
+
+        private void ClientStopping(string url)
+        {
+            _logger?.LogInformation($"MTConnect Connection : {url} : MTConnect Client Stopping..");
+        }
+
+        private void ClientStopped(string url)
+        {
+            _logger?.LogInformation($"MTConnect Connection : {url} : MTConnect Client Stopped");
+        }
+
+
+        private void StreamStarting(string url)
+        {
+            _logger?.LogInformation($"MTConnect Connection : {url} : MTConnect Stream Starting..");
+        }
+
+        private void StreamStarted(string url)
+        {
+            _logger?.LogInformation($"MTConnect Connection : {url} : MTConnect Stream Started");
+        }
+
+        private void StreamStopping(string url)
+        {
+            _logger?.LogInformation($"MTConnect Connection : {url} : MTConnect Stream Stopping..");
+        }
+
+        private void StreamStopped(string url)
+        {
+            _logger?.LogInformation($"MTConnect Connection : {url} : MTConnect Stream Stopped");
         }
 
 
@@ -109,7 +194,6 @@ namespace MTConnect.Applications
             {
                 foreach (var device in document.Devices)
                 {
-                    Console.WriteLine(device.Id);
                     _mtconnectAgent.AddDevice(device);
                 }
             }

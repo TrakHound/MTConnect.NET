@@ -17,6 +17,8 @@ namespace MTConnect.Devices.Compositions
 
         public override string TypeDescription => DescriptionText;
 
+        public override System.Version MinimumVersion => MTConnectVersions.Version15;
+
 
         public GalvanomotorComposition()  { Type = TypeId; }
     }

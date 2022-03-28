@@ -3,6 +3,8 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
+using MTConnect.Devices.DataItems.Samples;
+
 namespace MTConnect.Observations.Samples.Values
 {
     /// <summary>
@@ -23,10 +25,10 @@ namespace MTConnect.Observations.Samples.Values
         }
 
 
-        public OrientationValue(double nativeA, double nativeB, double nativeC, string nativeUnits = Devices.Samples.OrientationDataItem.DefaultUnits)
+        public OrientationValue(double nativeA, double nativeB, double nativeC, string nativeUnits = OrientationDataItem.DefaultUnits)
         {
             Value = new Degree3D(nativeA, nativeB, nativeC);
-            _units = Devices.Samples.OrientationDataItem.DefaultUnits;
+            _units = OrientationDataItem.DefaultUnits;
             _nativeUnits = nativeUnits;
         }
     }

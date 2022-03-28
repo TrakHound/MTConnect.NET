@@ -4,6 +4,7 @@
 // file 'LICENSE.txt', which is part of this source code package.
 
 using System;
+using MTConnect.Devices.DataItems.Samples;
 
 namespace MTConnect.Observations.Samples.Values
 {
@@ -17,8 +18,8 @@ namespace MTConnect.Observations.Samples.Values
         public AccumulatedTimeValue(TimeSpan accumulatedTime)
         {
             Value = accumulatedTime.TotalSeconds;
-            _units = Devices.Samples.AccumulatedTimeDataItem.DefaultUnits;
-            _nativeUnits = Devices.Samples.AccumulatedTimeDataItem.DefaultUnits;
+            _units = AccumulatedTimeDataItem.DefaultUnits;
+            _nativeUnits = AccumulatedTimeDataItem.DefaultUnits;
         }
 
 

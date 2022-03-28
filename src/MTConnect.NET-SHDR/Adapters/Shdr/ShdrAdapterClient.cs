@@ -324,7 +324,7 @@ namespace MTConnect.Adapters.Shdr
                             var condition = ShdrFaultState.FromString(line);
                             if (condition != null) await _agent.AddObservationAsync(_device.Uuid, condition);
                         }
-                        else if (dataItem.Type == Devices.Events.MessageDataItem.TypeId)
+                        else if (dataItem.Type == Devices.DataItems.Events.MessageDataItem.TypeId)
                         {
                             var message = ShdrMessage.FromString(line);
                             if (message != null) await _agent.AddObservationAsync(_device.Uuid, message);

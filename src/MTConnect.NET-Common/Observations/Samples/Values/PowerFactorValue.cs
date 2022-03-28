@@ -3,6 +3,8 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
+using MTConnect.Devices.DataItems.Samples;
+
 namespace MTConnect.Observations.Samples.Values
 {
     /// <summary>
@@ -10,10 +12,10 @@ namespace MTConnect.Observations.Samples.Values
     /// </summary>
     public class PowerFactorValue : SampleValue
     {
-        public PowerFactorValue(double nativeValue, string nativeUnits = Devices.Samples.PowerFactorDataItem.DefaultUnits)
+        public PowerFactorValue(double nativeValue, string nativeUnits = PowerFactorDataItem.DefaultUnits)
         {
             Value = nativeValue;
-            _units = Devices.Samples.PowerFactorDataItem.DefaultUnits;
+            _units = PowerFactorDataItem.DefaultUnits;
             _nativeUnits = nativeUnits;
         }
     }

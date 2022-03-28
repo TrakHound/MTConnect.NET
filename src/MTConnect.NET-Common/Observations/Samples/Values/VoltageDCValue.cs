@@ -3,6 +3,8 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
+using MTConnect.Devices.DataItems.Samples;
+
 namespace MTConnect.Observations.Samples.Values
 {
     /// <summary>
@@ -10,10 +12,10 @@ namespace MTConnect.Observations.Samples.Values
     /// </summary>
     public class VoltageDCValue : SampleValue
     {
-        public VoltageDCValue(double nativeValue, string nativeUnits = Devices.Samples.VoltageDCDataItem.DefaultUnits)
+        public VoltageDCValue(double nativeValue, string nativeUnits = VoltageDCDataItem.DefaultUnits)
         {
             Value = nativeValue;
-            _units = Devices.Samples.VoltageDCDataItem.DefaultUnits;
+            _units = VoltageDCDataItem.DefaultUnits;
             _nativeUnits = nativeUnits;
         }
     }

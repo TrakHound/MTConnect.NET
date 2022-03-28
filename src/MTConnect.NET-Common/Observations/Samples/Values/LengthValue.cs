@@ -3,6 +3,8 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
+using MTConnect.Devices.DataItems.Samples;
+
 namespace MTConnect.Observations.Samples.Values
 {
     /// <summary>
@@ -10,10 +12,10 @@ namespace MTConnect.Observations.Samples.Values
     /// </summary>
     public class LengthValue : SampleValue
     {
-        public LengthValue(double nativeValue, string nativeUnits = Devices.Samples.LengthDataItem.DefaultUnits)
+        public LengthValue(double nativeValue, string nativeUnits = LengthDataItem.DefaultUnits)
         {
             Value = nativeValue;
-            _units = Devices.Samples.LengthDataItem.DefaultUnits;
+            _units = LengthDataItem.DefaultUnits;
             _nativeUnits = nativeUnits;
         }
     }

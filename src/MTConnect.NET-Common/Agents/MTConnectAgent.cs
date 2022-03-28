@@ -8,6 +8,8 @@ using MTConnect.Agents.Metrics;
 using MTConnect.Assets;
 using MTConnect.Buffers;
 using MTConnect.Devices;
+using MTConnect.Devices.DataItems.Events;
+using MTConnect.Devices.DataItems.Samples;
 using MTConnect.Errors;
 using MTConnect.Headers;
 //using MTConnect.Models;
@@ -216,9 +218,9 @@ namespace MTConnect.Agents
 
         #region "Headers"
 
-        private MTConnectDevicesHeader GetDevicesHeader(Version version)
+        private MTConnectDevicesHeader GetDevicesHeader(Version mtconnectVersion = null)
         {
-            var v = version != null ? version : Version;
+            var version = mtconnectVersion != null ? mtconnectVersion : Version;
 
             var header = new MTConnectDevicesHeader
             {
@@ -228,18 +230,20 @@ namespace MTConnect.Agents
                 CreationTime = DateTime.UtcNow,
                 InstanceId = InstanceId,
                 Sender = System.Net.Dns.GetHostName(),
-                Version = v.ToString(),
+                Version = GetAgentVersion().ToString(),
                 TestIndicator = null
             };
 
-            if (v < MTConnectVersions.Version14) header.AssetBufferSize = -1;
-            if (v < MTConnectVersions.Version14) header.AssetCount = -1;
+            if (version < MTConnectVersions.Version14) header.AssetBufferSize = -1;
+            if (version < MTConnectVersions.Version14) header.AssetCount = -1;
 
             return header;
         }
 
-        private MTConnectStreamsHeader GetStreamsHeader(IStreamingResults results)
+        private MTConnectStreamsHeader GetStreamsHeader(IStreamingResults results, Version mtconnectVersion = null)
         {
+            var v = mtconnectVersion != null ? mtconnectVersion : Version;
+
             return new MTConnectStreamsHeader
             {
                 BufferSize = _observationBuffer.BufferSize,
@@ -287,7 +291,7 @@ namespace MTConnect.Agents
 
         #region "Internal"
 
-        private List<IDevice> ProcessDevices(IEnumerable<IDevice> devices, Version version = null)
+        private List<IDevice> ProcessDevices(IEnumerable<IDevice> devices, Version mtconnectVersion = null)
         {
             var objs = new List<IDevice>();
 
@@ -295,7 +299,7 @@ namespace MTConnect.Agents
             {
                 foreach (var device in devices)
                 {
-                    objs.Add(Device.Process(device, version != null ? version : Version));
+                    objs.Add(Device.Process(device, mtconnectVersion != null ? mtconnectVersion : Version));
                 }
             }
 
@@ -309,17 +313,19 @@ namespace MTConnect.Agents
         /// Get an MTConnectDevices Response Document containing all devices.
         /// </summary>
         /// <returns>MTConnectDevices Response Document</returns>
-        public IDevicesResponseDocument GetDevices(Version version = null)
+        public IDevicesResponseDocument GetDevices(Version mtconnectVersion = null)
         {
             DevicesRequestReceived?.Invoke(null);
 
             if (_deviceBuffer != null)
             {
+                var version = mtconnectVersion != null ? mtconnectVersion : Version;
+
                 var devices = _deviceBuffer.GetDevices();
                 if (devices != null && devices.Count() > 0)
                 {
                     var doc = new DevicesResponseDocument();
-                    doc.Version = Version;
+                    doc.Version = version;
 
                     var header = GetDevicesHeader(version);
                     header.Version = GetAgentVersion().ToString();
@@ -340,17 +346,19 @@ namespace MTConnect.Agents
         /// Get an MTConnectDevices Response Document containing all devices.
         /// </summary>
         /// <returns>MTConnectDevices Response Document</returns>
-        public async Task<IDevicesResponseDocument> GetDevicesAsync(Version version = null)
+        public async Task<IDevicesResponseDocument> GetDevicesAsync(Version mtconnectVersion = null)
         {
             DevicesRequestReceived?.Invoke(null);
 
             if (_deviceBuffer != null)
             {
+                var version = mtconnectVersion != null ? mtconnectVersion : Version;
+
                 var devices = await _deviceBuffer.GetDevicesAsync();
                 if (devices != null && devices.Count() > 0)
                 {
                     var doc = new DevicesResponseDocument();
-                    doc.Version = Version;
+                    doc.Version = version;
 
                     var header = GetDevicesHeader(version);
                     header.Version = GetAgentVersion().ToString();
@@ -372,7 +380,7 @@ namespace MTConnect.Agents
         /// </summary>
         /// <param name="deviceKey">The (name or uuid) of the requested Device</param>
         /// <returns>MTConnectDevices Response Document</returns>
-        public IDevicesResponseDocument GetDevices(string deviceKey, Version version = null)
+        public IDevicesResponseDocument GetDevices(string deviceKey, Version mtconnectVersion = null)
         {
             DevicesRequestReceived?.Invoke(deviceKey);
 
@@ -380,11 +388,13 @@ namespace MTConnect.Agents
             {
                 _deviceKeys.TryGetValue(deviceKey, out var deviceUuid);
 
+                var version = mtconnectVersion != null ? mtconnectVersion : Version;
+
                 var device = _deviceBuffer.GetDevice(deviceUuid);
                 if (device != null)
                 {
                     var doc = new DevicesResponseDocument();
-                    doc.Version = Version;
+                    doc.Version = version;
 
                     var header = GetDevicesHeader(version);
                     header.Version = GetAgentVersion().ToString();
@@ -406,7 +416,7 @@ namespace MTConnect.Agents
         /// </summary>
         /// <param name="deviceKey">The (name or uuid) of the requested Device</param>
         /// <returns>MTConnectDevices Response Document</returns>
-        public async Task<IDevicesResponseDocument> GetDevicesAsync(string deviceKey, Version version = null)
+        public async Task<IDevicesResponseDocument> GetDevicesAsync(string deviceKey, Version mtconnectVersion = null)
         {
             DevicesRequestReceived?.Invoke(deviceKey);
 
@@ -414,11 +424,13 @@ namespace MTConnect.Agents
             {
                 _deviceKeys.TryGetValue(deviceKey, out var deviceUuid);
 
+                var version = mtconnectVersion != null ? mtconnectVersion : Version;
+
                 var device = await _deviceBuffer.GetDeviceAsync(deviceUuid);
                 if (device != null)
                 {
                     var doc = new DevicesResponseDocument();
-                    doc.Version = Version;
+                    doc.Version = version;
 
                     var header = GetDevicesHeader(version);
                     header.Version = GetAgentVersion().ToString();
@@ -444,7 +456,7 @@ namespace MTConnect.Agents
         /// </summary>
         /// <param name="count">The Maximum Number of DataItems to return</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        public IStreamsResponseDocument GetDeviceStreams(int count = 0)
+        public IStreamsResponseDocument GetDeviceStreams(int count = 0, Version mtconnectVersion = null)
         {
             StreamsRequestReceived?.Invoke(null);
 
@@ -466,7 +478,7 @@ namespace MTConnect.Agents
 
                     // Query the Observation Buffer 
                     var results = _observationBuffer.GetObservations(deviceUuids, dataItemIds, count: count);
-                    var document = CreateDeviceStreamsDocument(devices, results);
+                    var document = CreateDeviceStreamsDocument(devices, results, mtconnectVersion);
                     if (document != null)
                     {
                         StreamsResponseSent?.Invoke(document);
@@ -483,7 +495,7 @@ namespace MTConnect.Agents
         /// </summary>
         /// <param name="count">The Maximum Number of DataItems to return</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        public async Task<IStreamsResponseDocument> GetDeviceStreamsAsync(int count = 0)
+        public async Task<IStreamsResponseDocument> GetDeviceStreamsAsync(int count = 0, Version mtconnectVersion = null)
         {
             StreamsRequestReceived?.Invoke(null);
 
@@ -505,7 +517,7 @@ namespace MTConnect.Agents
 
                     // Query the Observation Buffer 
                     var results = await _observationBuffer.GetObservationsAsync(deviceUuids, dataItemIds, count: count);
-                    var document = CreateDeviceStreamsDocument(devices, results);
+                    var document = CreateDeviceStreamsDocument(devices, results, mtconnectVersion);
                     if (document != null)
                     {
                         StreamsResponseSent?.Invoke(document);
@@ -523,7 +535,7 @@ namespace MTConnect.Agents
         /// <param name="at">The sequence number to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        public IStreamsResponseDocument GetDeviceStreams(long at, int count = 0)
+        public IStreamsResponseDocument GetDeviceStreams(long at, int count = 0, Version mtconnectVersion = null)
         {
             StreamsRequestReceived?.Invoke(null);
 
@@ -545,7 +557,7 @@ namespace MTConnect.Agents
 
                     // Query the Observation Buffer 
                     var results = _observationBuffer.GetObservations(deviceUuids, dataItemIds, at: at, count: count);
-                    var document = CreateDeviceStreamsDocument(devices, results);
+                    var document = CreateDeviceStreamsDocument(devices, results, mtconnectVersion);
                     if (document != null)
                     {
                         StreamsResponseSent?.Invoke(document);
@@ -563,7 +575,7 @@ namespace MTConnect.Agents
         /// <param name="at">The sequence number to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        public async Task<IStreamsResponseDocument> GetDeviceStreamsAsync(long at, int count = 0)
+        public async Task<IStreamsResponseDocument> GetDeviceStreamsAsync(long at, int count = 0, Version mtconnectVersion = null)
         {
             StreamsRequestReceived?.Invoke(null);
 
@@ -585,7 +597,7 @@ namespace MTConnect.Agents
 
                     // Query the Observation Buffer 
                     var results = await _observationBuffer.GetObservationsAsync(deviceUuids, dataItemIds, at: at, count: count);
-                    var document = CreateDeviceStreamsDocument(devices, results);
+                    var document = CreateDeviceStreamsDocument(devices, results, mtconnectVersion);
                     if (document != null)
                     {
                         StreamsResponseSent?.Invoke(document);
@@ -604,7 +616,7 @@ namespace MTConnect.Agents
         /// <param name="at">The sequence number to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        public IStreamsResponseDocument GetDeviceStreams(IEnumerable<string> dataItemIds, long at, int count = 0)
+        public IStreamsResponseDocument GetDeviceStreams(IEnumerable<string> dataItemIds, long at, int count = 0, Version mtconnectVersion = null)
         {
             StreamsRequestReceived?.Invoke(null);
 
@@ -618,7 +630,7 @@ namespace MTConnect.Agents
 
                     // Query the Observation Buffer 
                     var results = _observationBuffer.GetObservations(deviceUuids, dataItemIds, at: at, count: count);
-                    var document = CreateDeviceStreamsDocument(devices, results);
+                    var document = CreateDeviceStreamsDocument(devices, results, mtconnectVersion);
                     if (document != null)
                     {
                         StreamsResponseSent?.Invoke(document);
@@ -637,7 +649,7 @@ namespace MTConnect.Agents
         /// <param name="at">The sequence number to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        public async Task<IStreamsResponseDocument> GetDeviceStreamsAsync(IEnumerable<string> dataItemIds, long at, int count = 0)
+        public async Task<IStreamsResponseDocument> GetDeviceStreamsAsync(IEnumerable<string> dataItemIds, long at, int count = 0, Version mtconnectVersion = null)
         {
             StreamsRequestReceived?.Invoke(null);
 
@@ -651,7 +663,7 @@ namespace MTConnect.Agents
 
                     // Query the Observation Buffer 
                     var results = await _observationBuffer.GetObservationsAsync(deviceUuids, dataItemIds, at: at, count: count);
-                    var document = CreateDeviceStreamsDocument(devices, results);
+                    var document = CreateDeviceStreamsDocument(devices, results, mtconnectVersion);
                     if (document != null)
                     {
                         StreamsResponseSent?.Invoke(document);
@@ -670,7 +682,7 @@ namespace MTConnect.Agents
         /// <param name="to">The sequence number of the last observation to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        public IStreamsResponseDocument GetDeviceStreams(long from, long to, int count = 0)
+        public IStreamsResponseDocument GetDeviceStreams(long from, long to, int count = 0, Version mtconnectVersion = null)
         {
             StreamsRequestReceived?.Invoke(null);
 
@@ -692,7 +704,7 @@ namespace MTConnect.Agents
 
                     // Query the Observation Buffer 
                     var results = _observationBuffer.GetObservations(deviceUuids, dataItemIds, from: from, to: to, count: count);
-                    var document = CreateDeviceStreamsDocument(devices, results);
+                    var document = CreateDeviceStreamsDocument(devices, results, mtconnectVersion);
                     if (document != null)
                     {
                         StreamsResponseSent?.Invoke(document);
@@ -711,7 +723,7 @@ namespace MTConnect.Agents
         /// <param name="to">The sequence number of the last observation to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        public async Task<IStreamsResponseDocument> GetDeviceStreamsAsync(long from, long to, int count = 0)
+        public async Task<IStreamsResponseDocument> GetDeviceStreamsAsync(long from, long to, int count = 0, Version mtconnectVersion = null)
         {
             StreamsRequestReceived?.Invoke(null);
 
@@ -733,7 +745,7 @@ namespace MTConnect.Agents
 
                     // Query the Observation Buffer 
                     var results = await _observationBuffer.GetObservationsAsync(deviceUuids, dataItemIds, from: from, to: to, count: count);
-                    var document = CreateDeviceStreamsDocument(devices, results);
+                    var document = CreateDeviceStreamsDocument(devices, results, mtconnectVersion);
                     if (document != null)
                     {
                         StreamsResponseSent?.Invoke(document);
@@ -753,7 +765,7 @@ namespace MTConnect.Agents
         /// <param name="to">The sequence number of the last observation to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        public IStreamsResponseDocument GetDeviceStreams(IEnumerable<string> dataItemIds, long from, long to, int count = 0)
+        public IStreamsResponseDocument GetDeviceStreams(IEnumerable<string> dataItemIds, long from, long to, int count = 0, Version mtconnectVersion = null)
         {
             StreamsRequestReceived?.Invoke(null);
 
@@ -767,7 +779,7 @@ namespace MTConnect.Agents
 
                     // Query the Observation Buffer 
                     var results = _observationBuffer.GetObservations(deviceUuids, dataItemIds, from, to, count: count);
-                    var document = CreateDeviceStreamsDocument(devices, results);
+                    var document = CreateDeviceStreamsDocument(devices, results, mtconnectVersion);
                     if (document != null)
                     {
                         StreamsResponseSent?.Invoke(document);
@@ -787,7 +799,7 @@ namespace MTConnect.Agents
         /// <param name="to">The sequence number of the last observation to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        public async Task<IStreamsResponseDocument> GetDeviceStreamsAsync(IEnumerable<string> dataItemIds, long from, long to, int count = 0)
+        public async Task<IStreamsResponseDocument> GetDeviceStreamsAsync(IEnumerable<string> dataItemIds, long from, long to, int count = 0, Version mtconnectVersion = null)
         {
             StreamsRequestReceived?.Invoke(null);
 
@@ -801,7 +813,7 @@ namespace MTConnect.Agents
 
                     // Query the Observation Buffer 
                     var results = await _observationBuffer.GetObservationsAsync(deviceUuids, dataItemIds, from, to, count: count);
-                    var document = CreateDeviceStreamsDocument(devices, results);
+                    var document = CreateDeviceStreamsDocument(devices, results, mtconnectVersion);
                     if (document != null)
                     {
                         StreamsResponseSent?.Invoke(document);
@@ -820,7 +832,7 @@ namespace MTConnect.Agents
         /// <param name="deviceKey">The (name or uuid) of the requested Device</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        public IStreamsResponseDocument GetDeviceStream(string deviceKey, int count = 0)
+        public IStreamsResponseDocument GetDeviceStream(string deviceKey, int count = 0, Version mtconnectVersion = null)
         {
             StreamsRequestReceived?.Invoke(deviceKey);
 
@@ -839,7 +851,7 @@ namespace MTConnect.Agents
 
                     // Query the Observation Buffer 
                     var results = _observationBuffer.GetObservations(deviceUuid, dataItemIds, count: count);
-                    var document = CreateDeviceStreamsDocument(device, results);
+                    var document = CreateDeviceStreamsDocument(device, results, mtconnectVersion);
                     if (document != null)
                     {
                         StreamsResponseSent?.Invoke(document);
@@ -857,7 +869,7 @@ namespace MTConnect.Agents
         /// <param name="deviceKey">The (name or uuid) of the requested Device</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        public async Task<IStreamsResponseDocument> GetDeviceStreamAsync(string deviceKey, int count = 0)
+        public async Task<IStreamsResponseDocument> GetDeviceStreamAsync(string deviceKey, int count = 0, Version mtconnectVersion = null)
         {
             StreamsRequestReceived?.Invoke(deviceKey);
 
@@ -876,7 +888,7 @@ namespace MTConnect.Agents
 
                     // Query the Observation Buffer 
                     var results = await _observationBuffer.GetObservationsAsync(deviceUuid, dataItemIds, count: count);
-                    var document = CreateDeviceStreamsDocument(device, results);
+                    var document = CreateDeviceStreamsDocument(device, results, mtconnectVersion);
                     if (document != null)
                     {
                         StreamsResponseSent?.Invoke(document);
@@ -895,7 +907,7 @@ namespace MTConnect.Agents
         /// <param name="dataItemIds">A list of DataItemId's to specify what observations to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        public IStreamsResponseDocument GetDeviceStream(string deviceKey, long at, int count = 0)
+        public IStreamsResponseDocument GetDeviceStream(string deviceKey, long at, int count = 0, Version mtconnectVersion = null)
         {
             StreamsRequestReceived?.Invoke(deviceKey);
 
@@ -914,7 +926,7 @@ namespace MTConnect.Agents
 
                     // Query the Observation Buffer 
                     var results = _observationBuffer.GetObservations(deviceUuid, dataItemIds, at: at, count: count);
-                    var document = CreateDeviceStreamsDocument(device, results);
+                    var document = CreateDeviceStreamsDocument(device, results, mtconnectVersion);
                     if (document != null)
                     {
                         StreamsResponseSent?.Invoke(document);
@@ -933,7 +945,7 @@ namespace MTConnect.Agents
         /// <param name="dataItemIds">A list of DataItemId's to specify what observations to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        public async Task<IStreamsResponseDocument> GetDeviceStreamAsync(string deviceKey, long at, int count = 0)
+        public async Task<IStreamsResponseDocument> GetDeviceStreamAsync(string deviceKey, long at, int count = 0, Version mtconnectVersion = null)
         {
             StreamsRequestReceived?.Invoke(deviceKey);
 
@@ -952,7 +964,7 @@ namespace MTConnect.Agents
 
                     // Query the Observation Buffer 
                     var results = await _observationBuffer.GetObservationsAsync(deviceUuid, dataItemIds, at: at, count: count);
-                    var document = CreateDeviceStreamsDocument(device, results);
+                    var document = CreateDeviceStreamsDocument(device, results, mtconnectVersion);
                     if (document != null)
                     {
                         StreamsResponseSent?.Invoke(document);
@@ -971,7 +983,7 @@ namespace MTConnect.Agents
         /// <param name="at">The sequence number to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        public IStreamsResponseDocument GetDeviceStream(string deviceKey, IEnumerable<string> dataItemIds, int count = 0)
+        public IStreamsResponseDocument GetDeviceStream(string deviceKey, IEnumerable<string> dataItemIds, int count = 0, Version mtconnectVersion = null)
         {
             StreamsRequestReceived?.Invoke(deviceKey);
 
@@ -985,7 +997,7 @@ namespace MTConnect.Agents
                 {
                     // Query the Observation Buffer 
                     var results = _observationBuffer.GetObservations(deviceUuid, dataItemIds, count: count);
-                    var document = CreateDeviceStreamsDocument(device, results);
+                    var document = CreateDeviceStreamsDocument(device, results, mtconnectVersion);
                     if (document != null)
                     {
                         StreamsResponseSent?.Invoke(document);
@@ -1004,7 +1016,7 @@ namespace MTConnect.Agents
         /// <param name="at">The sequence number to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        public async Task<IStreamsResponseDocument> GetDeviceStreamAsync(string deviceKey, IEnumerable<string> dataItemIds, int count = 0)
+        public async Task<IStreamsResponseDocument> GetDeviceStreamAsync(string deviceKey, IEnumerable<string> dataItemIds, int count = 0, Version mtconnectVersion = null)
         {
             StreamsRequestReceived?.Invoke(deviceKey);
 
@@ -1018,7 +1030,7 @@ namespace MTConnect.Agents
                 {
                     // Query the Observation Buffer 
                     var results = await _observationBuffer.GetObservationsAsync(deviceUuid, dataItemIds, count: count);
-                    var document = CreateDeviceStreamsDocument(device, results);
+                    var document = CreateDeviceStreamsDocument(device, results, mtconnectVersion);
                     if (document != null)
                     {
                         StreamsResponseSent?.Invoke(document);
@@ -1038,7 +1050,7 @@ namespace MTConnect.Agents
         /// <param name="at">The sequence number to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        public IStreamsResponseDocument GetDeviceStream(string deviceKey, IEnumerable<string> dataItemIds, long at, int count = 0)
+        public IStreamsResponseDocument GetDeviceStream(string deviceKey, IEnumerable<string> dataItemIds, long at, int count = 0, Version mtconnectVersion = null)
         {
             StreamsRequestReceived?.Invoke(deviceKey);
 
@@ -1052,7 +1064,7 @@ namespace MTConnect.Agents
                 {
                     // Query the Observation Buffer 
                     var results = _observationBuffer.GetObservations(deviceUuid, dataItemIds, at: at, count: count);
-                    var document = CreateDeviceStreamsDocument(device, results);
+                    var document = CreateDeviceStreamsDocument(device, results, mtconnectVersion);
                     if (document != null)
                     {
                         StreamsResponseSent?.Invoke(document);
@@ -1072,7 +1084,7 @@ namespace MTConnect.Agents
         /// <param name="at">The sequence number to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        public async Task<IStreamsResponseDocument> GetDeviceStreamAsync(string deviceKey, IEnumerable<string> dataItemIds, long at, int count = 0)
+        public async Task<IStreamsResponseDocument> GetDeviceStreamAsync(string deviceKey, IEnumerable<string> dataItemIds, long at, int count = 0, Version mtconnectVersion = null)
         {
             StreamsRequestReceived?.Invoke(deviceKey);
 
@@ -1086,7 +1098,7 @@ namespace MTConnect.Agents
                 {
                     // Query the Observation Buffer 
                     var results = await _observationBuffer.GetObservationsAsync(deviceUuid, dataItemIds, at: at, count: count);
-                    var document = CreateDeviceStreamsDocument(device, results);
+                    var document = CreateDeviceStreamsDocument(device, results, mtconnectVersion);
                     if (document != null)
                     {
                         StreamsResponseSent?.Invoke(document);
@@ -1106,7 +1118,7 @@ namespace MTConnect.Agents
         /// <param name="to">The sequence number of the last observation to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        public IStreamsResponseDocument GetDeviceStream(string deviceKey, long from, long to, int count = 0)
+        public IStreamsResponseDocument GetDeviceStream(string deviceKey, long from, long to, int count = 0, Version mtconnectVersion = null)
         {
             StreamsRequestReceived?.Invoke(deviceKey);
 
@@ -1125,7 +1137,7 @@ namespace MTConnect.Agents
 
                     // Query the Observation Buffer 
                     var results = _observationBuffer.GetObservations(deviceUuid, dataItemIds, from, to: to, count: count);
-                    var document = CreateDeviceStreamsDocument(device, results);
+                    var document = CreateDeviceStreamsDocument(device, results, mtconnectVersion);
                     if (document != null)
                     {
                         StreamsResponseSent?.Invoke(document);
@@ -1145,7 +1157,7 @@ namespace MTConnect.Agents
         /// <param name="to">The sequence number of the last observation to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        public async Task<IStreamsResponseDocument> GetDeviceStreamAsync(string deviceKey, long from, long to, int count = 0)
+        public async Task<IStreamsResponseDocument> GetDeviceStreamAsync(string deviceKey, long from, long to, int count = 0, Version mtconnectVersion = null)
         {
             StreamsRequestReceived?.Invoke(deviceKey);
 
@@ -1164,7 +1176,7 @@ namespace MTConnect.Agents
 
                     // Query the Observation Buffer 
                     var results = await _observationBuffer.GetObservationsAsync(deviceUuid, dataItemIds, from, to: to, count: count);
-                    var document = CreateDeviceStreamsDocument(device, results);
+                    var document = CreateDeviceStreamsDocument(device, results, mtconnectVersion);
                     if (document != null)
                     {
                         StreamsResponseSent?.Invoke(document);
@@ -1185,7 +1197,7 @@ namespace MTConnect.Agents
         /// <param name="to">The sequence number of the last observation to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        public IStreamsResponseDocument GetDeviceStream(string deviceKey, IEnumerable<string> dataItemIds, long from, long to, int count = 0)
+        public IStreamsResponseDocument GetDeviceStream(string deviceKey, IEnumerable<string> dataItemIds, long from, long to, int count = 0, Version mtconnectVersion = null)
         {
             StreamsRequestReceived?.Invoke(deviceKey);
 
@@ -1199,7 +1211,7 @@ namespace MTConnect.Agents
                 {
                     // Query the Observation Buffer 
                     var results = _observationBuffer.GetObservations(deviceUuid, dataItemIds, from, to: to, count: count);
-                    var document = CreateDeviceStreamsDocument(device, results);
+                    var document = CreateDeviceStreamsDocument(device, results, mtconnectVersion);
                     if (document != null)
                     {
                         StreamsResponseSent?.Invoke(document);
@@ -1220,7 +1232,7 @@ namespace MTConnect.Agents
         /// <param name="to">The sequence number of the last observation to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        public async Task<IStreamsResponseDocument> GetDeviceStreamAsync(string deviceKey, IEnumerable<string> dataItemIds, long from, long to, int count = 0)
+        public async Task<IStreamsResponseDocument> GetDeviceStreamAsync(string deviceKey, IEnumerable<string> dataItemIds, long from, long to, int count = 0, Version mtconnectVersion = null)
         {
             StreamsRequestReceived?.Invoke(deviceKey);
 
@@ -1234,7 +1246,7 @@ namespace MTConnect.Agents
                 {
                     // Query the Observation Buffer 
                     var results = await _observationBuffer.GetObservationsAsync(deviceUuid, dataItemIds, from, to: to, count: count);
-                    var document = CreateDeviceStreamsDocument(device, results);
+                    var document = CreateDeviceStreamsDocument(device, results, mtconnectVersion);
                     if (document != null)
                     {
                         StreamsResponseSent?.Invoke(document);
@@ -1249,34 +1261,36 @@ namespace MTConnect.Agents
 
         #region "Create"
 
-        private IStreamsResponseDocument CreateDeviceStreamsDocument(IDevice device, IStreamingResults results)
+        private IStreamsResponseDocument CreateDeviceStreamsDocument(IDevice device, IStreamingResults results, Version mtconnectVersion)
         {
             if (device != null)
             {
-                return CreateDeviceStreamsDocument(new List<IDevice> { device }, results);
+                return CreateDeviceStreamsDocument(new List<IDevice> { device }, results, mtconnectVersion);
             }
 
             return null;
         }
 
-        private IStreamsResponseDocument CreateDeviceStreamsDocument(IEnumerable<IDevice> devices, IStreamingResults results)
+        private IStreamsResponseDocument CreateDeviceStreamsDocument(IEnumerable<IDevice> devices, IStreamingResults results, Version mtconnectVersion)
         {
             if (results != null)
             {
+                var version = mtconnectVersion != null ? mtconnectVersion : Version;
+
                 // Create list of DeviceStreams to return
                 var deviceStreams = new List<IDeviceStream>();
                 foreach (var device in devices)
                 {
                     // Create a DeviceStream based on the query results from the buffer
-                    deviceStreams.Add(CreateDeviceStream(device, results));
+                    deviceStreams.Add(CreateDeviceStream(device, results, version));
                 }
 
                 if (!deviceStreams.IsNullOrEmpty())
                 {
                     // Create MTConnectStreams Document
                     var doc = new StreamsResponseDocument();
-                    doc.Version = Version;
-                    doc.Header = GetStreamsHeader(results);
+                    doc.Version = version;
+                    doc.Header = GetStreamsHeader(results, version);
                     doc.Streams = deviceStreams.ToList();
 
                     return doc;
@@ -1286,7 +1300,7 @@ namespace MTConnect.Agents
             return null;
         }
 
-        private IDeviceStream CreateDeviceStream(IDevice device, IStreamingResults dataItemResults)
+        private IDeviceStream CreateDeviceStream(IDevice device, IStreamingResults dataItemResults, Version mtconnectVersion)
         {
             if (device != null)
             {
@@ -1320,9 +1334,9 @@ namespace MTConnect.Agents
                         componentStream.Component = component;
                         componentStream.Name = component.Name;
                         componentStream.Uuid = component.Uuid;
-                        componentStream.Samples = GetSamples(device.Uuid, dataItemResults, dataItems, Version);
-                        componentStream.Events = GetEvents(device.Uuid, dataItemResults, dataItems, Version);
-                        componentStream.Conditions = GetConditions(device.Uuid, dataItemResults, dataItems, Version);
+                        componentStream.Samples = GetSamples(device.Uuid, dataItemResults, dataItems, mtconnectVersion);
+                        componentStream.Events = GetEvents(device.Uuid, dataItemResults, dataItems, mtconnectVersion);
+                        componentStream.Conditions = GetConditions(device.Uuid, dataItemResults, dataItems, mtconnectVersion);
                         componentStreams.Add(componentStream);
                     }
                 }
@@ -1334,9 +1348,9 @@ namespace MTConnect.Agents
                 deviceComponentStream.Component = device;
                 deviceComponentStream.Name = device.Name;
                 deviceComponentStream.Uuid = device.Uuid;
-                deviceComponentStream.Samples = GetSamples(device.Uuid, dataItemResults, device.DataItems, Version);
-                deviceComponentStream.Events = GetEvents(device.Uuid, dataItemResults, device.DataItems, Version);
-                deviceComponentStream.Conditions = GetConditions(device.Uuid, dataItemResults, device.DataItems, Version);
+                deviceComponentStream.Samples = GetSamples(device.Uuid, dataItemResults, device.DataItems, mtconnectVersion);
+                deviceComponentStream.Events = GetEvents(device.Uuid, dataItemResults, device.DataItems, mtconnectVersion);
+                deviceComponentStream.Conditions = GetConditions(device.Uuid, dataItemResults, device.DataItems, mtconnectVersion);
                 componentStreams.Add(deviceComponentStream);
 
                 deviceStream.ComponentStreams = componentStreams;
@@ -1359,9 +1373,9 @@ namespace MTConnect.Agents
                 {
                     foreach (var dataItem in filteredDataItems)
                     {
-                        var di = DataItem.Create(dataItem);
-
-                        if (mtconnectVersion >= di.MinimumVersion && mtconnectVersion <= di.MaximumVersion)
+                        // Check Version Compatibility and Create Derived Class (if found)
+                        var di = DataItem.Process(dataItem, mtconnectVersion);
+                        if (di != null)
                         {
                             // Get list of StoredObservations for the DataItem
                             var observations = dataItemResults.Observations.Where(o => o.DeviceUuid == deviceUuid && o.DataItemId == dataItem.Id);
@@ -1408,9 +1422,9 @@ namespace MTConnect.Agents
                 {
                     foreach (var dataItem in filteredDataItems)
                     {
-                        var di = DataItem.Create(dataItem);
-
-                        if (mtconnectVersion >= di.MinimumVersion && mtconnectVersion <= di.MaximumVersion)
+                        // Check Version Compatibility and Create Derived Class (if found)
+                        var di = DataItem.Process(dataItem, mtconnectVersion);
+                        if (di != null)
                         {
                             // Get list of StoredObservations for the DataItem
                             var observations = dataItemResults.Observations.Where(o => o.DeviceUuid == deviceUuid && o.DataItemId == dataItem.Id);
@@ -1457,9 +1471,9 @@ namespace MTConnect.Agents
                 {
                     foreach (var dataItem in filteredDataItems)
                     {
-                        var di = DataItem.Create(dataItem);
-
-                        if (mtconnectVersion >= di.MinimumVersion && mtconnectVersion <= di.MaximumVersion)
+                        // Check Version Compatibility and Create Derived Class (if found)
+                        var di = DataItem.Process(dataItem, mtconnectVersion);
+                        if (di != null)
                         {
                             // Get list of StoredObservations for the DataItem
                             var observations = dataItemResults.Observations.Where(o => o.DeviceUuid == deviceUuid && o.DataItemId == dataItem.Id);
@@ -2128,30 +2142,30 @@ namespace MTConnect.Agents
                     obj.Components = NormalizeComponents(device.Components);
 
                     // Add Required Availability DataItem
-                    if (obj.DataItems.IsNullOrEmpty() || !obj.DataItems.Any(o => o.Type == Devices.Events.AvailabilityDataItem.TypeId))
+                    if (obj.DataItems.IsNullOrEmpty() || !obj.DataItems.Any(o => o.Type == AvailabilityDataItem.TypeId))
                     {
-                        var availability = new Devices.Events.AvailabilityDataItem(obj.Id);
-                        availability.Name = Devices.Events.AvailabilityDataItem.NameId;
+                        var availability = new AvailabilityDataItem(obj.Id);
+                        availability.Name = AvailabilityDataItem.NameId;
                         var x = obj.DataItems.ToList();
                         x.Add(availability);
                         obj.DataItems = x;
                     }
 
                     // Add Required AssetChanged DataItem
-                    if (obj.DataItems.IsNullOrEmpty() || !obj.DataItems.Any(o => o.Type == Devices.Events.AssetChangedDataItem.TypeId))
+                    if (obj.DataItems.IsNullOrEmpty() || !obj.DataItems.Any(o => o.Type == AssetChangedDataItem.TypeId))
                     {
-                        var assetChanged = new Devices.Events.AssetChangedDataItem(obj.Id);
-                        assetChanged.Name = Devices.Events.AssetChangedDataItem.NameId;
+                        var assetChanged = new AssetChangedDataItem(obj.Id);
+                        assetChanged.Name = AssetChangedDataItem.NameId;
                         var x = obj.DataItems.ToList();
                         x.Add(assetChanged);
                         obj.DataItems = x;
                     }
 
                     // Add Required AssetRemoved DataItem
-                    if (obj.DataItems.IsNullOrEmpty() || !obj.DataItems.Any(o => o.Type == Devices.Events.AssetRemovedDataItem.TypeId))
+                    if (obj.DataItems.IsNullOrEmpty() || !obj.DataItems.Any(o => o.Type == AssetRemovedDataItem.TypeId))
                     {
-                        var assetRemoved = new Devices.Events.AssetRemovedDataItem(obj.Id);
-                        assetRemoved.Name = Devices.Events.AssetRemovedDataItem.NameId;
+                        var assetRemoved = new AssetRemovedDataItem(obj.Id);
+                        assetRemoved.Name = AssetRemovedDataItem.NameId;
                         var x = obj.DataItems.ToList();
                         x.Add(assetRemoved);
                         obj.DataItems = x;
@@ -2294,7 +2308,7 @@ namespace MTConnect.Agents
                 var dataItems = device.GetDataItems();
                 if (!dataItems.IsNullOrEmpty())
                 {
-                    var dataItem = dataItems.FirstOrDefault(o => o.Type == Devices.Events.DeviceAddedDataItem.TypeId);
+                    var dataItem = dataItems.FirstOrDefault(o => o.Type == DeviceAddedDataItem.TypeId);
                     if (dataItem != null)
                     {
                         // Create new Observation
@@ -2325,7 +2339,7 @@ namespace MTConnect.Agents
                 var dataItems = device.GetDataItems();
                 if (!dataItems.IsNullOrEmpty())
                 {
-                    var dataItem = dataItems.FirstOrDefault(o => o.Type == Devices.Events.DeviceAddedDataItem.TypeId);
+                    var dataItem = dataItems.FirstOrDefault(o => o.Type == DeviceAddedDataItem.TypeId);
                     if (dataItem != null)
                     {
                         // Create new Observation
@@ -2357,7 +2371,7 @@ namespace MTConnect.Agents
                 var dataItems = device.GetDataItems();
                 if (!dataItems.IsNullOrEmpty())
                 {
-                    var dataItem = dataItems.FirstOrDefault(o => o.Type == Devices.Events.DeviceChangedDataItem.TypeId);
+                    var dataItem = dataItems.FirstOrDefault(o => o.Type == DeviceChangedDataItem.TypeId);
                     if (dataItem != null)
                     {
                         // Create new Observation
@@ -2388,7 +2402,7 @@ namespace MTConnect.Agents
                 var dataItems = device.GetDataItems();
                 if (!dataItems.IsNullOrEmpty())
                 {
-                    var dataItem = dataItems.FirstOrDefault(o => o.Type == Devices.Events.DeviceChangedDataItem.TypeId);
+                    var dataItem = dataItems.FirstOrDefault(o => o.Type == DeviceChangedDataItem.TypeId);
                     if (dataItem != null)
                     {
                         // Create new Observation
@@ -2420,7 +2434,7 @@ namespace MTConnect.Agents
                 var dataItems = device.GetDataItems();
                 if (!dataItems.IsNullOrEmpty())
                 {
-                    var dataItem = dataItems.FirstOrDefault(o => o.Type == Devices.Events.DeviceRemovedDataItem.TypeId);
+                    var dataItem = dataItems.FirstOrDefault(o => o.Type == DeviceRemovedDataItem.TypeId);
                     if (dataItem != null)
                     {
                         // Create new Observation
@@ -2451,7 +2465,7 @@ namespace MTConnect.Agents
                 var dataItems = device.GetDataItems();
                 if (!dataItems.IsNullOrEmpty())
                 {
-                    var dataItem = dataItems.FirstOrDefault(o => o.Type == Devices.Events.DeviceRemovedDataItem.TypeId);
+                    var dataItem = dataItems.FirstOrDefault(o => o.Type == DeviceRemovedDataItem.TypeId);
                     if (dataItem != null)
                     {
                         // Create new Observation
@@ -2945,8 +2959,8 @@ namespace MTConnect.Agents
                             // Add Observation to Streaming Buffer
                             if (_observationBuffer.AddObservation(deviceUuid, dataItem, observation))
                             {
-                                if (dataItem.Type != Devices.Samples.ObservationUpdateRateDataItem.TypeId &&
-                                    dataItem.Type != Devices.Samples.AssetUpdateRateDataItem.TypeId)
+                                if (dataItem.Type != ObservationUpdateRateDataItem.TypeId &&
+                                    dataItem.Type != AssetUpdateRateDataItem.TypeId)
                                 {
                                     // Update Agent Metrics
                                     _metrics.UpdateObservation(deviceUuid, dataItem.Id);
@@ -3023,8 +3037,8 @@ namespace MTConnect.Agents
                             // Add Observation to Streaming Buffer
                             if (_observationBuffer.AddObservation(deviceUuid, dataItem, observation))
                             {
-                                if (dataItem.Type != Devices.Samples.ObservationUpdateRateDataItem.TypeId &&
-                                    dataItem.Type != Devices.Samples.AssetUpdateRateDataItem.TypeId)
+                                if (dataItem.Type != ObservationUpdateRateDataItem.TypeId &&
+                                    dataItem.Type != AssetUpdateRateDataItem.TypeId)
                                 {
                                     // Update Agent Metrics
                                     _metrics.UpdateObservation(deviceUuid, dataItem.Id);
@@ -3111,7 +3125,7 @@ namespace MTConnect.Agents
                     if (validationResults.IsValid)
                     {
                         // Update ASSET_CHANGED for device
-                        var assetChangedId = DataItem.CreateId(device.Id, Devices.Events.AssetChangedDataItem.NameId);
+                        var assetChangedId = DataItem.CreateId(device.Id, AssetChangedDataItem.NameId);
                         AddObservation(deviceName, assetChangedId, ValueKeys.CDATA, asset.AssetId, asset.Timestamp);
 
                         // Add Asset to AssetBuffer
@@ -3146,7 +3160,7 @@ namespace MTConnect.Agents
                     if (validationResults.IsValid)
                     {
                         // Update ASSET_CHANGED for device
-                        var assetChangedId = DataItem.CreateId(device.Id, Devices.Events.AssetChangedDataItem.NameId);
+                        var assetChangedId = DataItem.CreateId(device.Id, AssetChangedDataItem.NameId);
                         AddObservation(deviceName, assetChangedId, ValueKeys.CDATA, asset.AssetId, asset.Timestamp);
 
                         // Add Asset to AssetBuffer
@@ -3303,14 +3317,14 @@ namespace MTConnect.Agents
                     if (!dataItems.IsNullOrEmpty())
                     {
                         // Update ObservationUpdateRate DataItem
-                        var observationUpdateRate = dataItems.FirstOrDefault(o => o.Type == Devices.Samples.ObservationUpdateRateDataItem.TypeId);
+                        var observationUpdateRate = dataItems.FirstOrDefault(o => o.Type == ObservationUpdateRateDataItem.TypeId);
                         if (observationUpdateRate != null)
                         {
                             AddObservation(device.Name, observationUpdateRate.Id, ValueKeys.CDATA, deviceMetrics.ObservationAverage);
                         }
 
                         // Update ObservationUpdateRate DataItem
-                        var assetUpdateRate = dataItems.FirstOrDefault(o => o.Type == Devices.Samples.AssetUpdateRateDataItem.TypeId);
+                        var assetUpdateRate = dataItems.FirstOrDefault(o => o.Type == AssetUpdateRateDataItem.TypeId);
                         if (assetUpdateRate != null)
                         {
                             AddObservation(device.Name, assetUpdateRate.Id, ValueKeys.CDATA, deviceMetrics.AssetAverage);

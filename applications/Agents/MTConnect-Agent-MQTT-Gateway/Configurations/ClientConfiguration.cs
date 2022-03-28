@@ -37,7 +37,7 @@ namespace MTConnect.Applications.Configuration
         /// <summary>
         ///
         /// </summary>
-        [JsonPropertyName("hearbeat")]
+        [JsonPropertyName("heartbeat")]
         public int Heartbeat { get; set; }
 
         /// <summary>

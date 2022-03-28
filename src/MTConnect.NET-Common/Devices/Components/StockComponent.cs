@@ -19,6 +19,8 @@ namespace MTConnect.Devices.Components
 
         public override string TypeDescription => DescriptionText;
 
+        public override System.Version MinimumVersion => MTConnectVersions.Version13;
+
 
         public StockComponent()  { Type = TypeId; }
     }

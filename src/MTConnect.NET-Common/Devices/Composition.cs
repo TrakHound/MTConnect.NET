@@ -21,8 +21,8 @@ namespace MTConnect.Devices
         public const string DescriptionText = "Composition XML elements are used to describe the lowest level physical building blocks of a piece of equipment contained within a Component.";
 
 
-        private static readonly Version DefaultMaximumVersion = new Version(1, 8);
-        private static readonly Version DefaultMinimumVersion = new Version(1, 4);
+        private static readonly Version DefaultMaximumVersion = MTConnectVersions.Max;
+        private static readonly Version DefaultMinimumVersion = MTConnectVersions.Version14;
 
         private static Dictionary<string, Type> _types;
 
@@ -43,11 +43,11 @@ namespace MTConnect.Devices
 
         [XmlIgnore]
         [JsonIgnore]
-        public Version MaximumVersion { get; set; }
+        public virtual Version MaximumVersion { get; set; }
 
         [XmlIgnore]
         [JsonIgnore]
-        public Version MinimumVersion { get; set; }
+        public virtual Version MinimumVersion { get; set; }
 
 
         /// <summary>
@@ -245,12 +245,25 @@ namespace MTConnect.Devices
                 obj.Name = composition.Name;
                 obj.NativeName = composition.NativeName;
                 obj.Type = composition.Type;
-                obj.Description = composition.Description;
+
+                // Set Composition Description
+                if (composition.Description != null)
+                {
+                    var description = new Description();
+                    description.Manufacturer = composition.Description.Manufacturer;
+                    if (mtconnectVersion >= MTConnectVersions.Version12) description.Model = composition.Description.Model;
+                    description.SerialNumber = composition.Description.SerialNumber;
+                    description.Station = composition.Description.Station;
+                    description.CDATA = composition.Description.CDATA;
+                    obj.Description = description;
+                }
+
                 obj.SampleRate = composition.SampleRate;
                 obj.SampleInterval = composition.SampleInterval;
                 obj.References = composition.References;
-                obj.Configuration = composition.Configuration;
+                if (mtconnectVersion >= MTConnectVersions.Version17) obj.Configuration = composition.Configuration;
 
+                // Add DataItems
                 if (!composition.DataItems.IsNullOrEmpty())
                 {
                     var dataItems = new List<IDataItem>();
@@ -265,7 +278,7 @@ namespace MTConnect.Devices
                 }
 
                 // Check Version Compatibilty
-                if (mtconnectVersion >= composition.MinimumVersion && mtconnectVersion <= composition.MaximumVersion)
+                if (mtconnectVersion >= obj.MinimumVersion && mtconnectVersion <= obj.MaximumVersion)
                 {
                     return obj;
                 }

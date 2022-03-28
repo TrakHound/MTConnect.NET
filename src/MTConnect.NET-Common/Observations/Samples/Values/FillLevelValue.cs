@@ -3,6 +3,8 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
+using MTConnect.Devices.DataItems.Samples;
+
 namespace MTConnect.Observations.Samples.Values
 {
     /// <summary>
@@ -10,10 +12,10 @@ namespace MTConnect.Observations.Samples.Values
     /// </summary>
     public class FillLevelValue : SampleValue
     {
-        public FillLevelValue(double nativeValue, string nativeUnits = Devices.Samples.FillLevelDataItem.DefaultUnits)
+        public FillLevelValue(double nativeValue, string nativeUnits = FillLevelDataItem.DefaultUnits)
         {
             Value = nativeValue;
-            _units = Devices.Samples.FillLevelDataItem.DefaultUnits;
+            _units = FillLevelDataItem.DefaultUnits;
             _nativeUnits = nativeUnits;
         }
     }

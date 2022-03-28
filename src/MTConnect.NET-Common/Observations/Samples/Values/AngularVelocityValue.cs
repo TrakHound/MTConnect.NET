@@ -3,6 +3,8 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
+using MTConnect.Devices.DataItems.Samples;
+
 namespace MTConnect.Observations.Samples.Values
 {
     /// <summary>
@@ -10,10 +12,10 @@ namespace MTConnect.Observations.Samples.Values
     /// </summary>
     public class AngularVelocityValue : SampleValue
     {
-        public AngularVelocityValue(double nativeValue, string nativeUnits = Devices.Samples.AngularVelocityDataItem.DefaultUnits)
+        public AngularVelocityValue(double nativeValue, string nativeUnits = AngularVelocityDataItem.DefaultUnits)
         {
             Value = nativeValue;
-            _units = Devices.Samples.AngularVelocityDataItem.DefaultUnits;
+            _units = AngularVelocityDataItem.DefaultUnits;
             _nativeUnits = nativeUnits;
         }
     }

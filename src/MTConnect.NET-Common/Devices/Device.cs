@@ -23,12 +23,12 @@ namespace MTConnect.Devices
         public const string TypeId = "Device";
         public const string DescriptionText = "The primary container element of each device. Device is contained within the top level Devices container. There MAY be multiple Device elements in an XML document.";
 
-        private static readonly Version DefaultMaximumVersion = new Version(1, 8);
-        private static readonly Version DefaultMinimumVersion = new Version(1, 0);
+        private static readonly Version DefaultMaximumVersion = MTConnectVersions.Max;
+        private static readonly Version DefaultMinimumVersion = MTConnectVersions.Version10;
 
-        public Version MaximumVersion => DefaultMaximumVersion;
+        public virtual Version MaximumVersion => DefaultMaximumVersion;
 
-        public Version MinimumVersion => DefaultMinimumVersion;
+        public virtual Version MinimumVersion => DefaultMinimumVersion;
 
 
         /// <summary>
@@ -480,7 +480,7 @@ namespace MTConnect.Devices
 
         #endregion
 
-        public static Device Process(IDevice device, Version version)
+        public static Device Process(IDevice device, Version mtconnectVersion)
         {
             if (device != null)
             {
@@ -496,49 +496,63 @@ namespace MTConnect.Devices
                     obj.NativeName = device.NativeName;
                     obj.Uuid = device.Uuid;
                     obj.Type = device.Type;
-                    obj.Description = device.Description;
-                    obj.SampleRate = device.SampleRate;
-                    obj.SampleInterval = device.SampleInterval;
-                    obj.Iso841Class = device.Iso841Class;
-                    obj.CoordinateSystemIdRef = device.CoordinateSystemIdRef;
-                    obj.MTConnectVersion = device.MTConnectVersion;
-                    obj.Configuration = device.Configuration;
-                    obj.References = device.References;
-                    obj.Description = device.Description;
 
+                    // Set Device Description
+                    if (device.Description != null)
+                    {
+                        var description = new Description();
+                        description.Manufacturer = device.Description.Manufacturer;
+                        if (mtconnectVersion >= MTConnectVersions.Version12) description.Model = device.Description.Model;
+                        description.SerialNumber = device.Description.SerialNumber;
+                        description.Station = device.Description.Station;
+                        description.CDATA = device.Description.CDATA;
+                        obj.Description = description;
+                    }
+
+                    if (mtconnectVersion < MTConnectVersions.Version12) obj.Iso841Class = device.Iso841Class;
+                    if (mtconnectVersion < MTConnectVersions.Version12) obj.SampleRate = device.SampleRate;
+                    if (mtconnectVersion >= MTConnectVersions.Version12) obj.SampleInterval = device.SampleInterval;
+                    if (mtconnectVersion >= MTConnectVersions.Version13) obj.References = device.References;
+                    if (mtconnectVersion >= MTConnectVersions.Version17) obj.Configuration = device.Configuration;
+                    if (mtconnectVersion >= MTConnectVersions.Version18) obj.CoordinateSystemIdRef = device.CoordinateSystemIdRef;
+                    if (mtconnectVersion >= MTConnectVersions.Version17) obj.MTConnectVersion = device.MTConnectVersion;
+
+                    // Add DataItems
                     if (!device.DataItems.IsNullOrEmpty())
                     {
                         var dataItems = new List<IDataItem>();
 
                         foreach (var dataItem in device.DataItems)
                         {
-                            var dataItemObj = DataItem.Process(dataItem, version);
+                            var dataItemObj = DataItem.Process(dataItem, mtconnectVersion);
                             if (dataItemObj != null) dataItems.Add(dataItemObj);
                         }
 
                         obj.DataItems = dataItems;
                     }
 
+                    // Add Compositions
                     if (!device.Compositions.IsNullOrEmpty())
                     {
                         var compositions = new List<IComposition>();
 
                         foreach (var composition in device.Compositions)
                         {
-                            var compositionObj = Composition.Process(composition, version);
+                            var compositionObj = Composition.Process(composition, mtconnectVersion);
                             if (compositionObj != null) compositions.Add(compositionObj);
                         }
 
                         obj.Compositions = compositions;
                     }
 
+                    // Add Components
                     if (!device.Components.IsNullOrEmpty())
                     {
                         var components = new List<IComponent>();
 
                         foreach (var component in device.Components)
                         {
-                            var componentObj = Component.Process(component, version);
+                            var componentObj = Component.Process(component, mtconnectVersion);
                             if (componentObj != null) components.Add(componentObj);
                         }
 

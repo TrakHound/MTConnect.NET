@@ -3,7 +3,7 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
-using System;
+using MTConnect.Devices.DataItems.Samples;
 
 namespace MTConnect.Observations.Samples.Values
 {
@@ -12,10 +12,10 @@ namespace MTConnect.Observations.Samples.Values
     /// </summary>
     public class EquipmentTimerValue : SampleValue
     {
-        public EquipmentTimerValue(double nativeValue, string nativeUnits = Devices.Samples.EquipmentTimerDataItem.DefaultUnits)
+        public EquipmentTimerValue(double nativeValue, string nativeUnits = EquipmentTimerDataItem.DefaultUnits)
         {
             Value = nativeValue;
-            _units = Devices.Samples.EquipmentTimerDataItem.DefaultUnits;
+            _units = EquipmentTimerDataItem.DefaultUnits;
             _nativeUnits = nativeUnits;
         }
     }

@@ -3,6 +3,8 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
+using MTConnect.Devices.DataItems.Samples;
+
 namespace MTConnect.Observations.Samples.Values
 {
     /// <summary>
@@ -10,10 +12,10 @@ namespace MTConnect.Observations.Samples.Values
     /// </summary>
     public class ElectricalEnergyValue : SampleValue
     {
-        public ElectricalEnergyValue(double nativeValue, string nativeUnits = Devices.Samples.ElectricalEnergyDataItem.DefaultUnits)
+        public ElectricalEnergyValue(double nativeValue, string nativeUnits = ElectricalEnergyDataItem.DefaultUnits)
         {
             Value = nativeValue;
-            _units = Devices.Samples.ElectricalEnergyDataItem.DefaultUnits;
+            _units = ElectricalEnergyDataItem.DefaultUnits;
             _nativeUnits = nativeUnits;
         }
     }

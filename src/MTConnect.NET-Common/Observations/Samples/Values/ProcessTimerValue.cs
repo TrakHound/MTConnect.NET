@@ -3,6 +3,7 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
+using MTConnect.Devices.DataItems.Samples;
 using System;
 
 namespace MTConnect.Observations.Samples.Values
@@ -18,8 +19,8 @@ namespace MTConnect.Observations.Samples.Values
         public ProcessTimerValue(TimeSpan accumulatedTime)
         {
             Value = accumulatedTime.TotalSeconds;
-            _units = Devices.Samples.ProcessTimerDataItem.DefaultUnits;
-            _nativeUnits = Devices.Samples.ProcessTimerDataItem.DefaultUnits;
+            _units = ProcessTimerDataItem.DefaultUnits;
+            _nativeUnits = ProcessTimerDataItem.DefaultUnits;
         }
 
 

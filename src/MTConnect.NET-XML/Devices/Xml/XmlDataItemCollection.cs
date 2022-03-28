@@ -61,6 +61,7 @@ namespace MTConnect.Devices.Xml
                         obj.ResetTrigger = dataItem.ResetTrigger;
                         obj.CoordinateSystem = dataItem.CoordinateSystem;
                         obj.Constraints = dataItem.Constraints;
+                        obj.CompositionId = dataItem.CompositionId;
                         obj.Definition = dataItem.Definition;
                         obj.Units = dataItem.Units;
                         obj.Statistic = dataItem.Statistic;
@@ -161,6 +162,7 @@ namespace MTConnect.Devices.Xml
                                         obj.NativeScale = dataItem.NativeScale;
                                         obj.SampleRate = dataItem.SampleRate;
                                         obj.Source = dataItem.Source;
+                                        obj.CompositionId = dataItem.CompositionId;
                                         obj.Representation = dataItem.Representation;
                                         obj.ResetTrigger = dataItem.ResetTrigger;
                                         obj.CoordinateSystem = dataItem.CoordinateSystem;

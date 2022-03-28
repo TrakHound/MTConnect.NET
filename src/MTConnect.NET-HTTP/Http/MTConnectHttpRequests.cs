@@ -152,8 +152,8 @@ namespace MTConnect.Http
             IStreamsResponseDocument document;
 
             // Get MTConnectStreams document from the MTConnectAgent
-            if (dataItemIds != null) document = await mtconnectAgent.GetDeviceStreamsAsync(dataItemIds, at);
-            else document = await mtconnectAgent.GetDeviceStreamsAsync(at);
+            if (dataItemIds != null) document = await mtconnectAgent.GetDeviceStreamsAsync(dataItemIds, at, mtconnectVersion: mtconnectVersion);
+            else document = await mtconnectAgent.GetDeviceStreamsAsync(at, mtconnectVersion: mtconnectVersion);
 
             if (document != null)
             {
@@ -230,8 +230,8 @@ namespace MTConnect.Http
                 IStreamsResponseDocument document;
 
                 // Get MTConnectStreams document from the MTConnectAgent
-                if (dataItemIds != null) document = await mtconnectAgent.GetDeviceStreamAsync(deviceName, dataItemIds, at);
-                else document = await mtconnectAgent.GetDeviceStreamAsync(deviceName, at);
+                if (dataItemIds != null) document = await mtconnectAgent.GetDeviceStreamAsync(deviceName, dataItemIds, at, mtconnectVersion: mtconnectVersion);
+                else document = await mtconnectAgent.GetDeviceStreamAsync(deviceName, at, mtconnectVersion: mtconnectVersion);
 
                 if (document != null)
                 {
@@ -336,8 +336,8 @@ namespace MTConnect.Http
             IStreamsResponseDocument document;
 
             // Get MTConnectStreams document from the MTConnectAgent
-            if (dataItemIds != null) document = await mtconnectAgent.GetDeviceStreamsAsync(dataItemIds, from, to, count);
-            else document = await mtconnectAgent.GetDeviceStreamsAsync(from, to, count);
+            if (dataItemIds != null) document = await mtconnectAgent.GetDeviceStreamsAsync(dataItemIds, from, to, count, mtconnectVersion);
+            else document = await mtconnectAgent.GetDeviceStreamsAsync(from, to, count, mtconnectVersion);
 
             if (document != null)
             {
@@ -438,8 +438,8 @@ namespace MTConnect.Http
                 IStreamsResponseDocument document;
 
                 // Get MTConnectStreams document from the MTConnectAgent
-                if (dataItemIds != null) document = await mtconnectAgent.GetDeviceStreamAsync(deviceName, dataItemIds, from, to, count);
-                else document = await mtconnectAgent.GetDeviceStreamAsync(deviceName, from, to, count);
+                if (dataItemIds != null) document = await mtconnectAgent.GetDeviceStreamAsync(deviceName, dataItemIds, from, to, count, mtconnectVersion);
+                else document = await mtconnectAgent.GetDeviceStreamAsync(deviceName, from, to, count, mtconnectVersion);
 
                 if (document != null)
                 {

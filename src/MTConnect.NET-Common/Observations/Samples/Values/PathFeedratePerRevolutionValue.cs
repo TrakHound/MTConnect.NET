@@ -3,6 +3,8 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
+using MTConnect.Devices.DataItems.Samples;
+
 namespace MTConnect.Observations.Samples.Values
 {
     /// <summary>
@@ -10,10 +12,10 @@ namespace MTConnect.Observations.Samples.Values
     /// </summary>
     public class PathFeedratePerRevolutionValue : SampleValue
     {
-        public PathFeedratePerRevolutionValue(double nativeValue, string nativeUnits = Devices.Samples.PathFeedratePerRevolutionDataItem.DefaultUnits)
+        public PathFeedratePerRevolutionValue(double nativeValue, string nativeUnits = PathFeedratePerRevolutionDataItem.DefaultUnits)
         {
             Value = nativeValue;
-            _units = Devices.Samples.PathFeedratePerRevolutionDataItem.DefaultUnits;
+            _units = PathFeedratePerRevolutionDataItem.DefaultUnits;
             _nativeUnits = nativeUnits;
         }
     }
