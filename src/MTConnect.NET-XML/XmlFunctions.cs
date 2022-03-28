@@ -4,7 +4,10 @@
 // file 'LICENSE', which is part of this source code package.
 
 using MTConnect.Writers;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Xml;
 
 namespace MTConnect
@@ -44,6 +47,66 @@ namespace MTConnect
             catch { }
 
             return xml;
+        }
+
+        public static string CreateHeaderComment()
+        {
+            var assembly = Assembly.GetEntryAssembly();
+
+            var title = assembly.GetName().Name;
+            var version = assembly.GetName().Version;
+            var copyright = "";
+            var projectUrl = "";
+
+            var customAttributes = assembly.GetCustomAttributes();
+            if (!customAttributes.IsNullOrEmpty())
+            {
+                // Get Product Attribute
+                var productAttribute = customAttributes.FirstOrDefault(o => o.GetType() == typeof(AssemblyProductAttribute));
+                if (productAttribute != null) title = ((AssemblyProductAttribute)productAttribute).Product;
+
+                // Get Copyright Attribute
+                var copyrightAttribute = customAttributes.FirstOrDefault(o => o.GetType() == typeof(AssemblyCopyrightAttribute));
+                if (copyrightAttribute != null) copyright = ((AssemblyCopyrightAttribute)copyrightAttribute).Copyright;
+
+                // Get Project Url Attribute
+                var metadataAttributes = customAttributes.Where(o => o.GetType() == typeof(AssemblyMetadataAttribute));
+                if (!metadataAttributes.IsNullOrEmpty())
+                {
+                    foreach (AssemblyMetadataAttribute metadataAttribute in metadataAttributes)
+                    {
+                        var projectAttribute = metadataAttribute;
+                        if (projectAttribute.Key == "RepositoryUrl")
+                        {
+                            projectUrl = projectAttribute.Value;
+                        }
+                    }
+                }
+            }
+
+            // Add Header Comments
+            var headerComments = new List<string>();
+
+            headerComments.Add("This document was produced using the following MTConnect Agent Application :");
+            headerComments.Add(" -  -  -  -  -  ");
+            headerComments.Add($"{title} : Version {version}");
+            headerComments.Add($"{copyright}");
+            headerComments.Add($"For more information about this MTConnect Agent Application visit ({projectUrl})");
+            headerComments.Add(" -  -  -  -  -  ");
+            headerComments.Add("This Document was produced using the MTConnect.NET library which is licensed under the Apache Version 2.0 License (https://www.apache.org/licenses/LICENSE-2.0)");
+            headerComments.Add("Source code for this Library is available at Github.com (https://github.com/TrakHound/MTConnect.NET)");
+            headerComments.Add(" -  -  -  -  -  ");
+            headerComments.Add("For more information about TrakHound visit (http://trakhound.com)");
+            headerComments.Add("For more information about MTConnect visit (http://mtconnect.org)");
+            headerComments.Add(" -  -  -  -  -  ");
+
+            var headerXml = "";
+            foreach (var headerComment in headerComments)
+            {
+                headerXml += $"<!-- {headerComment} -->";
+            }
+
+            return headerXml;
         }
     }
 }

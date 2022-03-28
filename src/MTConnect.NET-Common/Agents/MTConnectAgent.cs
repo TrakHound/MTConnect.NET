@@ -1302,7 +1302,9 @@ namespace MTConnect.Agents
 
         private IDeviceStream CreateDeviceStream(IDevice device, IStreamingResults dataItemResults, Version mtconnectVersion)
         {
-            if (device != null)
+            // Process Device (to check MTConnect Version compatibility
+            var deviceObj = Device.Process(device, mtconnectVersion);
+            if (deviceObj != null)
             {
                 // Create DeviceStream
                 var deviceStream = new DeviceStream();
@@ -1316,28 +1318,33 @@ namespace MTConnect.Agents
                 {
                     foreach (var component in components)
                     {
-                        // Get All DataItems (Component Root DataItems and Composition DataItems)
-                        var dataItems = new List<IDataItem>();
-                        if (!component.DataItems.IsNullOrEmpty()) dataItems.AddRange(component.DataItems);
-                        if (!component.Compositions.IsNullOrEmpty())
+                        // Process Component (to check MTConnect Version compatibility
+                        var componentObj = Component.Process(component, mtconnectVersion);
+                        if (componentObj != null)
                         {
-                            foreach (var composition in component.Compositions)
+                            // Get All DataItems (Component Root DataItems and Composition DataItems)
+                            var dataItems = new List<IDataItem>();
+                            if (!component.DataItems.IsNullOrEmpty()) dataItems.AddRange(component.DataItems);
+                            if (!component.Compositions.IsNullOrEmpty())
                             {
-                                if (!composition.DataItems.IsNullOrEmpty()) dataItems.AddRange(composition.DataItems);
+                                foreach (var composition in component.Compositions)
+                                {
+                                    if (!composition.DataItems.IsNullOrEmpty()) dataItems.AddRange(composition.DataItems);
+                                }
                             }
-                        }
 
-                        // Create a ComponentStream for the Component
-                        var componentStream = new ComponentStream();
-                        componentStream.ComponentId = component.Id;
-                        componentStream.ComponentType = component.Type;
-                        componentStream.Component = component;
-                        componentStream.Name = component.Name;
-                        componentStream.Uuid = component.Uuid;
-                        componentStream.Samples = GetSamples(device.Uuid, dataItemResults, dataItems, mtconnectVersion);
-                        componentStream.Events = GetEvents(device.Uuid, dataItemResults, dataItems, mtconnectVersion);
-                        componentStream.Conditions = GetConditions(device.Uuid, dataItemResults, dataItems, mtconnectVersion);
-                        componentStreams.Add(componentStream);
+                            // Create a ComponentStream for the Component
+                            var componentStream = new ComponentStream();
+                            componentStream.ComponentId = component.Id;
+                            componentStream.ComponentType = component.Type;
+                            componentStream.Component = component;
+                            componentStream.Name = component.Name;
+                            componentStream.Uuid = component.Uuid;
+                            componentStream.Samples = GetSamples(device.Uuid, dataItemResults, dataItems, mtconnectVersion);
+                            componentStream.Events = GetEvents(device.Uuid, dataItemResults, dataItems, mtconnectVersion);
+                            componentStream.Conditions = GetConditions(device.Uuid, dataItemResults, dataItems, mtconnectVersion);
+                            componentStreams.Add(componentStream);
+                        }
                     }
                 }
 

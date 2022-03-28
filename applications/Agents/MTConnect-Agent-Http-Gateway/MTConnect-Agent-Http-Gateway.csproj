@@ -5,6 +5,16 @@
     <TargetFramework>net6.0</TargetFramework>
     <RootNamespace>MTConnect_Agent_Relay</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
+	<Company>TrakHound Inc.</Company>
+	<Copyright>Copyright (c) 2022 TrakHound Inc., All Rights Reserved.</Copyright>
+	<PackageProjectUrl>http://trakhound.com</PackageProjectUrl>
+	<PackageReadmeFile>README.md</PackageReadmeFile>
+	<RepositoryUrl>https://github.com/TrakHound/MTConnect.NET</RepositoryUrl>
+	<RepositoryType>git</RepositoryType>
+	<PackageTags>mtconnect;iiot;</PackageTags>
+	<AssemblyVersion>0.2.1</AssemblyVersion>
+	<Authors>TrakHound Inc.</Authors>
+	<Product>TrakHound MTConnect Http Gateway Agent</Product>
   </PropertyGroup>
 
   <ItemGroup>

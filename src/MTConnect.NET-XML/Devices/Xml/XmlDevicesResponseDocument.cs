@@ -148,6 +148,18 @@ namespace MTConnect.Devices.Xml
                         string replace = "<MTConnectDevices xmlns:m=\"" + ns + "\" xmlns=\"" + ns + "\" xmlns:xsi=\"" + Namespaces.DefaultXmlSchemaInstance + "\"" + extendedNamespaces + " xsi:schemaLocation=\"" + schemaLocation + "\"";
                         xml = Regex.Replace(xml, regex, replace);
 
+                        if (outputComments)
+                        {
+                            // Specify Xml Delcaration
+                            var xmlDeclaration = "<?xml version=\"1.0\" encoding=\"utf-8\"?>";
+
+                            // Remove Xml Declaration (in order to add Header Comment)
+                            xml = xml.Replace(xmlDeclaration, "");
+
+                            // Add Header Comments
+                            xml = xmlDeclaration + XmlFunctions.CreateHeaderComment() + xml;
+                        }
+
                         return XmlFunctions.FormatXml(xml, indent, outputComments);
                     }
                 }

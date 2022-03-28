@@ -4,6 +4,7 @@
 // file 'LICENSE', which is part of this source code package.
 
 using MTConnect.Headers;
+using MTConnect.Writers;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -153,7 +154,7 @@ namespace MTConnect.Errors
                     var ns = Namespaces.GetError(document.Version.Major, document.Version.Minor);
                     var schemaLocation = Schemas.GetError(document.Version.Major, document.Version.Minor);
 
-                    using (var writer = new StringWriter())
+                    using (var writer = new Utf8Writer())
                     {
                         _serializer.Serialize(writer, new XmlErrorResponseDocument(document));
 
@@ -169,6 +170,18 @@ namespace MTConnect.Errors
                         regex = @"<MTConnectError";
                         string replace = "<MTConnectError xmlns:m=\"" + ns + "\" xmlns=\"" + ns + "\" xmlns:xsi=\"" + Namespaces.DefaultXmlSchemaInstance + "\" xsi:schemaLocation=\"" + schemaLocation + "\"";
                         xml = Regex.Replace(xml, regex, replace);
+
+                        if (outputComments)
+                        {
+                            // Specify Xml Delcaration
+                            var xmlDeclaration = "<?xml version=\"1.0\" encoding=\"utf-8\"?>";
+
+                            // Remove Xml Declaration (in order to add Header Comment)
+                            xml = xml.Replace(xmlDeclaration, "");
+
+                            // Add Header Comments
+                            xml = xmlDeclaration + XmlFunctions.CreateHeaderComment() + xml;
+                        }
 
                         return XmlFunctions.FormatXml(xml, indent, outputComments);
                     }                      

@@ -476,6 +476,14 @@ namespace MTConnect.Http
                 // Set Format Options
                 var formatOptions = new List<KeyValuePair<string, string>>();
 
+                // Read IndentOutput from Query string
+                var indentOutputString = httpRequest.QueryString["indentOutput"];
+                if (!string.IsNullOrEmpty(indentOutputString)) formatOptions.Add(new KeyValuePair<string, string>("indentOutput", indentOutputString));
+
+                // Read OutputComments from Query string
+                var outputCommentsString = httpRequest.QueryString["outputComments"];
+                if (!string.IsNullOrEmpty(outputCommentsString)) formatOptions.Add(new KeyValuePair<string, string>("outputComments", outputCommentsString));
+
 
                 if (interval > 0)
                 {
@@ -522,67 +530,6 @@ namespace MTConnect.Http
                 }
             }
         }
-
-        ///// <summary>
-        ///// An Agent responds to a Current Request with an MTConnectStreams Response Document that contains
-        ///// the current value of Data Entities associated with each piece of Streaming Data available from the Agent, subject to any filtering defined in the Request.
-        ///// </summary>
-        //private async Task ProcessCurrent(HttpListenerRequest httpRequest, HttpListenerResponse httpResponse)
-        //{
-        //    if (httpRequest != null && httpRequest.Url != null && httpResponse != null)
-        //    {
-        //        // Read DeviceName from URL Path
-        //        var deviceName = GetDeviceName(httpRequest.Url, MTConnectRequestType.Current);
-
-        //        // Read "path" parameter from Query string
-        //        var path = httpRequest.QueryString["path"];
-
-        //        // Read "at" parameter from Query string
-        //        var at = httpRequest.QueryString["at"].ToLong();
-
-        //        // Read "interval" parameter from Query string
-        //        var interval = httpRequest.QueryString["interval"].ToInt();
-
-        //        // Read MTConnectVersion from Query string
-        //        var versionString = httpRequest.QueryString["version"];
-        //        Version.TryParse(versionString, out var version);
-
-        //        // Read DocumentFormat from Query string
-        //        var documentFormatString = httpRequest.QueryString["documentFormat"];
-        //        var documentFormat = DocumentFormat.XML;
-        //        if (!string.IsNullOrEmpty(documentFormatString) && documentFormatString.ToUpper() == DocumentFormat.JSON.ToString())
-        //        {
-        //            documentFormat = DocumentFormat.JSON;
-        //        }
-
-        //        // Set Format Options
-        //        var formatOptions = new List<KeyValuePair<string, string>>();
-
-        //        // Read IndentOutput from Query string
-        //        var indentOutputString = httpRequest.QueryString["indentOutput"];
-        //        if (!string.IsNullOrEmpty(indentOutputString)) formatOptions.Add(new KeyValuePair<string, string>("indentOutput", indentOutputString));
-
-        //        // Read OutputComments from Query string
-        //        var outputCommentsString = httpRequest.QueryString["outputComments"];
-        //        if (!string.IsNullOrEmpty(outputCommentsString)) formatOptions.Add(new KeyValuePair<string, string>("outputComments", outputCommentsString));
-
-
-        //        if (!string.IsNullOrEmpty(deviceName))
-        //        {
-        //            // Get MTConnectStreams document from the MTConnectAgent
-        //            var response = await MTConnectHttpRequests.GetDeviceCurrentRequest(_mtconnectAgent, deviceName, path, at, interval, version, documentFormat, formatOptions);
-        //            await WriteResponse(response, httpResponse);
-        //            ResponseSent?.Invoke(this, response);
-        //        }
-        //        else
-        //        {
-        //            // Get MTConnectStreams document from the MTConnectAgent
-        //            var response = await MTConnectHttpRequests.GetCurrentRequest(_mtconnectAgent, path, at, interval, version, documentFormat, formatOptions);
-        //            await WriteResponse(response, httpResponse);
-        //            ResponseSent?.Invoke(this, response);
-        //        }
-        //    }
-        //}
 
         /// <summary>
         /// An Agent responds to a Sample Request with an MTConnectStreams Response Document that contains a set of values for Data Entities
