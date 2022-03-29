@@ -17,7 +17,8 @@
 		<Description>MTConnect.NET-HTTP implements the HTTP protocol for use with the MTConnect.NET library. Supports MTConnect Versions up to 1.8. Supports .NET Framework 4.6.1 up to .NET 6</Description>
 		<Version>3.2.0</Version>
 		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-		<PackageIcon>mtconnect-net.png</PackageIcon>
+		<PackageIconUrl>https://static.trakhound.com/mtconnect-net.png</PackageIconUrl>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 	</PropertyGroup>
 
   <ItemGroup>
@@ -84,6 +85,12 @@
 	<ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
 		<Reference Include="System.Text.Json" />
 		<PackageReference Include="System.Text.Json" Version="6.0.1" />
+	</ItemGroup>
+	<ItemGroup>
+	  <None Include="Clients\Rest\README.md">
+	    <Pack>True</Pack>
+	    <PackagePath>\</PackagePath>
+	  </None>
 	</ItemGroup>
 
 </Project>
