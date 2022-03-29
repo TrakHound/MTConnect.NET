@@ -8,7 +8,7 @@ on:
 env:
   DOTNET_VERSION: '6.0.x'
 jobs:
-  build-and-test:
+  MTConnect-NET-Common:
     name: build-and-test-${{matrix.os}}-MTConnect-NET-Common
     runs-on: ${{ matrix.os }}
     strategy:
@@ -29,3 +29,24 @@ jobs:
     - name: Test
       run: dotnet test --no-restore --verbosity normal
       working-directory: src/MTConnect.NET-Common
+  MTConnect-NET-HTTP:
+    name: build-and-test-${{matrix.os}}-MTConnect-NET-HTTP
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+    - name: Install dependencies
+      run: dotnet restore
+      working-directory: src/MTConnect.NET-HTTP
+    - name: Build
+      run: dotnet build --configuration Release --no-restore
+      working-directory: src/MTConnect.NET-HTTP
+    - name: Test
+      run: dotnet test --no-restore --verbosity normal
+      working-directory: src/MTConnect.NET-HTTP
