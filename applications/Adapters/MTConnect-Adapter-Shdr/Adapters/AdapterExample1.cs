@@ -94,6 +94,69 @@ namespace MTConnect.Applications.Adapters.Shdr.Adapters
             if (_simulator != null) _simulator.Disconnect();
         }
 
+        public void SetUnavailable()
+        {
+            _adapter.SetUnavailable();
+            //_adapter.SetUnavailable(UnixDateTime.Now);
+        }
+
+        public void UpdateUnavaiableTest()
+        {
+            var axesDataItem = new ShdrDataItem("f_sim_p1_axes", "X Y Z S");
+            _adapter.AddDataItem(axesDataItem);
+
+
+            var message1 = new ShdrMessage("message", "Change Inserts", "CHG_INSRT");
+            _adapter.AddMessage(message1);
+
+
+            var system = new ShdrCondition("p1system");
+            system.AddWarning("Bad Request", "400");
+            system.AddFault("Not Found", "404");
+            system.AddWarning("Method Not Found", "405");
+            _adapter.AddCondition(system);
+
+
+            var timeValues = new List<double> { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+            var time = new ShdrTimeSeries("p1Sensor", timeValues, 100);
+            _adapter.AddTimeSeries(time);
+
+
+            var dataSet = new ShdrDataSet("p1Variables");
+            dataSet.Entries = new List<DataSetEntry>
+            {
+                new DataSetEntry("T1", 12.3456),
+                new DataSetEntry("T2", 23.4567),
+                new DataSetEntry("T3", 34.5678),
+                new DataSetEntry("T4", 45.6789)
+            };
+
+            _adapter.AddDataSet(dataSet);
+
+
+            var table = new ShdrTable("p1ToolTable");
+
+            var entries = new List<TableEntry>();
+
+            var cells1 = new List<TableCell>
+            {
+                new TableCell("LENGTH", 4.1234),
+                new TableCell("DIAMETER", 0.498),
+            };
+            entries.Add(new TableEntry("T1", cells1));
+
+            var cells2 = new List<TableCell>
+            {
+                new TableCell("LENGTH", 8.7421),
+                new TableCell("DIAMETER", 0.374),
+            };
+            entries.Add(new TableEntry("T2", cells2));
+
+            table.Entries = entries;
+
+            _adapter.AddTable(table);
+        }
+
         public void Update()
         {
             var message1 = new ShdrMessage("message", "Change Inserts", "CHG_INSRT");

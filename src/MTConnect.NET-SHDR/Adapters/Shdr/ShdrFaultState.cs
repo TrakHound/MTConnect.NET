@@ -6,8 +6,6 @@
 using MTConnect.Observations;
 using MTConnect.Observations.Input;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MTConnect.Adapters.Shdr
 {
@@ -20,7 +18,8 @@ namespace MTConnect.Adapters.Shdr
             string text = null,
             string nativeCode = null,
             string nativeSeverity = null,
-            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED
+            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED,
+            long timestamp = 0
             )
         {
             Level = level;
@@ -28,6 +27,7 @@ namespace MTConnect.Adapters.Shdr
             NativeSeverity = nativeSeverity;
             Qualifier = qualifier;
             Text = text;
+            Timestamp = timestamp;
         }
 
         public ShdrFaultState(ConditionObservationInput conditionObservation)

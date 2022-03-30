@@ -56,14 +56,14 @@ namespace MTConnect.Observations.Input
         /// <summary>
         /// A MD5 Hash of the Observation that can be used for comparison
         /// </summary>
-        public string ChangeId
+        public virtual string ChangeId
         {
             get
             {
                 if (!Values.IsNullOrEmpty())
                 {
                     var valueString = "";
-                    foreach (var value in Values) valueString += value.Value;
+                    foreach (var value in Values) valueString += $"{value.Key}={value.Value}:";
                     return valueString.ToMD5Hash();
                 }
                 
@@ -128,6 +128,12 @@ namespace MTConnect.Observations.Input
                 new ObservationValue(valueKey, value != null ? value.ToString() : string.Empty)
             };
             Timestamp = timestamp.ToUnixTime();
+        }
+
+
+        public void Unavailable()
+        {
+            AddValue(ValueKeys.CDATA, Observation.Unavailable);
         }
 
 

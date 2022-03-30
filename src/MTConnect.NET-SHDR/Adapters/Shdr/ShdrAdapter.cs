@@ -3,7 +3,6 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
-using MTConnect.Observations;
 using MTConnect.Observations.Input;
 using System;
 using System.Collections.Generic;
@@ -179,14 +178,14 @@ namespace MTConnect.Adapters.Shdr
         }
 
 
-        public void SetUnavailable()
+        public void SetUnavailable(long timestamp = 0)
         {
-            SetDataItemsUnavailable();
-            SetMessagesUnavailable();
-            SetConditionsUnavailable();
-            SetTimeSeriesUnavailable();
-            SetDataSetsUnavailable();
-            SetTablesUnavailable();
+            SetDataItemsUnavailable(timestamp);
+            SetMessagesUnavailable(timestamp);
+            SetConditionsUnavailable(timestamp);
+            SetTimeSeriesUnavailable(timestamp);
+            SetDataSetsUnavailable(timestamp);
+            SetTablesUnavailable(timestamp);
         }
 
 
@@ -601,22 +600,29 @@ namespace MTConnect.Adapters.Shdr
         }
 
 
-        private void SetDataItemsUnavailable()
+        private void SetDataItemsUnavailable(long timestamp = 0)
         {
+            // Get list of All DataItems
             var dataItems = GetDataItems();
             if (!dataItems.IsNullOrEmpty())
             {
-                // Set each DataItem to Unavailable
-                foreach (var dataItem in dataItems)
+                var unavailableObservations = new List<ShdrDataItem>();
+                var ts = timestamp > 0 ? timestamp : UnixDateTime.Now;
+
+                // Set each Observation to Unavailable
+                foreach (var item in dataItems)
                 {
-                    dataItem.Values = new List<ObservationValue>
-                    {
-                        new ObservationValue(ValueKeys.CDATA, Observation.Unavailable)
-                    };
+                    // Create new Unavailable Observation
+                    var unavailableObservation = new ShdrDataItem();
+                    unavailableObservation.DeviceKey = item.DeviceKey;
+                    unavailableObservation.DataItemKey = item.DataItemKey;
+                    unavailableObservation.Timestamp = ts;
+                    unavailableObservation.Unavailable();
+                    unavailableObservations.Add(unavailableObservation);
                 }
 
-                // Add DataItems (only will add those that are changed)
-                AddDataItems(dataItems);
+                // Add Observations (only will add those that are changed)
+                AddDataItems(unavailableObservations);
             }
         }
 
@@ -826,22 +832,29 @@ namespace MTConnect.Adapters.Shdr
         }
 
 
-        private void SetMessagesUnavailable()
+        private void SetMessagesUnavailable(long timestamp = 0)
         {
+            // Get list of all Messages
             var messages = GetMessages();
             if (!messages.IsNullOrEmpty())
             {
-                // Set each Message to Unavailable
-                foreach (var message in messages)
+                var unavailableObservations = new List<ShdrMessage>();
+                var ts = timestamp > 0 ? timestamp : UnixDateTime.Now;
+
+                // Set each Observation to Unavailable
+                foreach (var item in messages)
                 {
-                    message.Values = new List<ObservationValue>
-                    {
-                        new ObservationValue(ValueKeys.CDATA, Observation.Unavailable)
-                    };
+                    // Create new Unavailable Observation
+                    var unavailableObservation = new ShdrMessage();
+                    unavailableObservation.DeviceKey = item.DeviceKey;
+                    unavailableObservation.DataItemKey = item.DataItemKey;
+                    unavailableObservation.Timestamp = ts;
+                    unavailableObservation.Unavailable();
+                    unavailableObservations.Add(unavailableObservation);
                 }
 
-                // Add Messages (only will add those that are changed)
-                AddMessages(messages);
+                // Add Observations (only will add those that are changed)
+                AddMessages(unavailableObservations);
             }
         }
 
@@ -1026,16 +1039,26 @@ namespace MTConnect.Adapters.Shdr
         }
 
 
-        private void SetConditionsUnavailable()
+        private void SetConditionsUnavailable(long timestamp = 0)
         {
+            // Get a list of all Conditions
             var conditions = GetConditions();
             if (!conditions.IsNullOrEmpty())
             {
-                // Set each Condition to Unavailable
-                foreach (var condition in conditions) condition.Unavailable();
+                var unavailableConditions = new List<ShdrCondition>();
+                var ts = timestamp > 0 ? timestamp : UnixDateTime.Now;
+
+                // Set all of the Conditions to UNAVAILABLE
+                foreach (var condition in conditions)
+                {
+                    var unavailableCondition = new ShdrCondition(condition.DataItemKey);
+                    unavailableCondition.DeviceKey = condition.DeviceKey;
+                    unavailableCondition.Unavailable(ts);
+                    unavailableConditions.Add(unavailableCondition);
+                }
 
                 // Add Conditions (only will add those that are changed)
-                AddConditions(conditions);
+                AddConditions(unavailableConditions);
             }
         }
 
@@ -1221,16 +1244,29 @@ namespace MTConnect.Adapters.Shdr
         }
 
 
-        private void SetTimeSeriesUnavailable()
+        private void SetTimeSeriesUnavailable(long timestamp = 0)
         {
+            // Get list of TimeSeries
             var timeSeries = GetTimeSeries();
             if (!timeSeries.IsNullOrEmpty())
             {
-                // Set each TimeSeries to Unavailable
-                foreach (var item in timeSeries) item.IsUnavailable = true;
+                var unavailableObservations = new List<ShdrTimeSeries>();
+                var ts = timestamp > 0 ? timestamp : UnixDateTime.Now;
 
-                // Add TimeSeries (only will add those that are changed)
-                AddTimeSeries(timeSeries);
+                // Set each Observation to Unavailable
+                foreach (var item in timeSeries)
+                {
+                    // Create new Unavailable Observation
+                    var unavailableObservation = new ShdrTimeSeries();
+                    unavailableObservation.DeviceKey = item.DeviceKey;
+                    unavailableObservation.DataItemKey = item.DataItemKey;
+                    unavailableObservation.Timestamp = ts;
+                    unavailableObservation.IsUnavailable = true;
+                    unavailableObservations.Add(unavailableObservation);
+                }
+
+                // Add Observations (only will add those that are changed)
+                AddTimeSeries(unavailableObservations);
             }
         }
 
@@ -1416,16 +1452,29 @@ namespace MTConnect.Adapters.Shdr
         }
 
 
-        private void SetDataSetsUnavailable()
+        private void SetDataSetsUnavailable(long timestamp = 0)
         {
+            // Get list of DataSets
             var dataSets = GetDataSets();
             if (!dataSets.IsNullOrEmpty())
             {
-                // Set each DataSet to Unavailable
-                foreach (var item in dataSets) item.IsUnavailable = true;
+                var unavailableObservations = new List<ShdrDataSet>();
+                var ts = timestamp > 0 ? timestamp : UnixDateTime.Now;
 
-                // Add DataSet (only will add those that are changed)
-                AddDataSets(dataSets);
+                // Set each Observation to Unavailable
+                foreach (var item in dataSets)
+                {
+                    // Create new Unavailable Observation
+                    var unavailableObservation = new ShdrDataSet();
+                    unavailableObservation.DeviceKey = item.DeviceKey;
+                    unavailableObservation.DataItemKey = item.DataItemKey;
+                    unavailableObservation.Timestamp = ts;
+                    unavailableObservation.IsUnavailable = true;
+                    unavailableObservations.Add(unavailableObservation);
+                }
+
+                // Add Observations (only will add those that are changed)
+                AddDataSets(unavailableObservations);
             }
         }
 
@@ -1611,16 +1660,29 @@ namespace MTConnect.Adapters.Shdr
         }
 
 
-        private void SetTablesUnavailable()
+        private void SetTablesUnavailable(long timestamp = 0)
         {
+            // Get list of Tables
             var tables = GetTables();
             if (!tables.IsNullOrEmpty())
             {
-                // Set each Table to Unavailable
-                foreach (var item in tables) item.IsUnavailable = true;
+                var unavailableObservations = new List<ShdrTable>();
+                var ts = timestamp > 0 ? timestamp : UnixDateTime.Now;
 
-                // Add Table (only will add those that are changed)
-                AddTables(tables);
+                // Set each Observation to Unavailable
+                foreach (var item in tables)
+                {
+                    // Create new Unavailable Observation
+                    var unavailableObservation = new ShdrTable();
+                    unavailableObservation.DeviceKey = item.DeviceKey;
+                    unavailableObservation.DataItemKey = item.DataItemKey;
+                    unavailableObservation.Timestamp = ts;
+                    unavailableObservation.IsUnavailable = true;
+                    unavailableObservations.Add(unavailableObservation);
+                }
+
+                // Add Observations (only will add those that are changed)
+                AddTables(unavailableObservations);
             }
         }
 
@@ -1763,7 +1825,6 @@ namespace MTConnect.Adapters.Shdr
                 {
                     // Set Timestamp (if not already set)
                     if (item.Timestamp > DateTime.MinValue) item.Timestamp = DateTime.UtcNow;
-                    //if (item.Timestamp <= 0) item.Timestamp = UnixDateTime.Now;
 
                     // Update Asset
                     UpdateAsset(item);

@@ -11,6 +11,8 @@ namespace MTConnect.Adapters.Shdr
 {
     public class ShdrCondition
     {
+        public string DeviceKey { get; set; }
+
         public string DataItemKey { get; set; }
 
         public IEnumerable<ShdrFaultState> FaultStates { get; set; }
@@ -44,30 +46,30 @@ namespace MTConnect.Adapters.Shdr
             DataItemKey = dataItemKey;
         }
 
-        public ShdrCondition(string dataItemKey, ConditionLevel level)
+        public ShdrCondition(string dataItemKey, ConditionLevel level, long timestamp = 0)
         {
             DataItemKey = dataItemKey;
 
-            AddFaultState(new ShdrFaultState(level));
+            AddFaultState(new ShdrFaultState(level, timestamp: timestamp));
         }
 
 
         /// <summary>
         /// Set the FaultState of the Condition to UNAVAILABLE and clear any other FaultStates
         /// </summary>
-        public void Unavailable()
+        public void Unavailable(long timestamp = 0)
         {
             ClearFaultStates();
-            AddFaultState(new ShdrFaultState(ConditionLevel.UNAVAILABLE));
+            AddFaultState(new ShdrFaultState(ConditionLevel.UNAVAILABLE, timestamp: timestamp));
         }
 
         /// <summary>
         /// Set the FaultState of the Condition to NORMAL and clear any other FaultStates
         /// </summary>
-        public void Normal()
+        public void Normal(long timestamp = 0)
         {
             ClearFaultStates();
-            AddFaultState(new ShdrFaultState(ConditionLevel.NORMAL));
+            AddFaultState(new ShdrFaultState(ConditionLevel.NORMAL, timestamp: timestamp));
         }
 
         /// <summary>
@@ -77,11 +79,12 @@ namespace MTConnect.Adapters.Shdr
             string text = null,
             string nativeCode = null,
             string nativeSeverity = null,
-            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED
+            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED,
+            long timestamp = 0
             )
         {
             ClearFaultStates();
-            AddFaultState(new ShdrFaultState(ConditionLevel.WARNING, text, nativeCode, nativeSeverity, qualifier));
+            AddFaultState(new ShdrFaultState(ConditionLevel.WARNING, text, nativeCode, nativeSeverity, qualifier, timestamp));
         }
 
         /// <summary>
@@ -91,11 +94,12 @@ namespace MTConnect.Adapters.Shdr
             string text = null,
             string nativeCode = null,
             string nativeSeverity = null,
-            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED
+            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED,
+            long timestamp = 0
             )
         {
             ClearFaultStates();
-            AddFaultState(new ShdrFaultState(ConditionLevel.FAULT, text, nativeCode, nativeSeverity, qualifier));
+            AddFaultState(new ShdrFaultState(ConditionLevel.FAULT, text, nativeCode, nativeSeverity, qualifier, timestamp));
         }
 
         /// <summary>
@@ -105,10 +109,11 @@ namespace MTConnect.Adapters.Shdr
             string text = null,
             string nativeCode = null,
             string nativeSeverity = null,
-            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED
+            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED,
+            long timestamp = 0
             )
         {
-            AddFaultState(new ShdrFaultState(ConditionLevel.WARNING, text, nativeCode, nativeSeverity, qualifier));
+            AddFaultState(new ShdrFaultState(ConditionLevel.WARNING, text, nativeCode, nativeSeverity, qualifier, timestamp));
         }
 
         /// <summary>
@@ -118,10 +123,11 @@ namespace MTConnect.Adapters.Shdr
             string text = null,
             string nativeCode = null,
             string nativeSeverity = null,
-            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED
+            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED,
+            long timestamp = 0
             )
         {
-            AddFaultState(new ShdrFaultState(ConditionLevel.FAULT, text, nativeCode, nativeSeverity, qualifier));
+            AddFaultState(new ShdrFaultState(ConditionLevel.FAULT, text, nativeCode, nativeSeverity, qualifier, timestamp));
         }
 
         /// <summary>
@@ -167,56 +173,5 @@ namespace MTConnect.Adapters.Shdr
 
             return "";
         }
-
-
-        ///// <summary>
-        ///// Convert ShdrCondition to an SHDR string
-        ///// </summary>
-        ///// <returns>SHDR string</returns>
-        //public override string ToString()
-        //{
-        //    if (!string.IsNullOrEmpty(DataItemKey) && !FaultStates.IsNullOrEmpty())
-        //    {
-        //        var lines = new List<string>();
-
-        //        foreach (var faultState in FaultStates)
-        //        {
-        //            var text = !string.IsNullOrEmpty(faultState.Text) ? faultState.Text.Replace("|", @"\|") : "";
-        //            var qualifier = faultState.Qualifier != ConditionQualifier.NOT_SPECIFIED ? faultState.Qualifier.ToString() : "";
-
-        //            string line;
-
-        //            if (faultState.Timestamp > 0)
-        //            {
-        //                if (faultState.Level != ConditionLevel.UNAVAILABLE)
-        //                {
-        //                    line = $"{faultState.Timestamp.ToDateTime().ToString("o")}|{DataItemKey}|{faultState.Level}|{faultState.NativeCode}|{faultState.NativeSeverity}|{qualifier}|{text}";
-        //                }
-        //                else
-        //                {
-        //                    line = $"{faultState.Timestamp.ToDateTime().ToString("o")}|{DataItemKey}|{faultState.Level}||||";
-        //                }
-        //            }
-        //            else
-        //            {
-        //                if (faultState.Level != ConditionLevel.UNAVAILABLE)
-        //                {
-        //                    line = $"{DataItemKey}|{faultState.Level}|{faultState.NativeCode}|{faultState.NativeSeverity}|{qualifier}|{text}";
-        //                }
-        //                else
-        //                {
-        //                    line = $"{DataItemKey}|{faultState.Level}||||";
-        //                }
-        //            }
-
-        //            lines.Add(line);
-        //        }
-
-        //        // Convert list of lines to single string with new line terminator
-        //        return string.Join(ShdrLine.LineTerminator, lines);
-        //    }
-
-        //    return "";
-        //}
     }
 }

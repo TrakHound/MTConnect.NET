@@ -20,6 +20,23 @@ namespace MTConnect.Adapters.Shdr
 
         public bool IsSent { get; set; }
 
+        public override string ChangeId
+        {
+            get
+            {
+                if (IsUnavailable) return Observation.Unavailable.ToMD5Hash();
+
+                if (!Values.IsNullOrEmpty())
+                {
+                    var valueString = "";
+                    foreach (var value in Values) valueString += $"{value.Key}={value.Value}:";
+                    return valueString.ToMD5Hash();
+                }
+
+                return null;
+            }
+        }
+
 
         public ShdrTable() { }
 

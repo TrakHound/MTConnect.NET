@@ -17,6 +17,22 @@ namespace MTConnect.Adapters.Shdr
 
         public bool IsSent { get; set; }
 
+        public override string ChangeId
+        {
+            get
+            {
+                if (IsUnavailable) return Observation.Unavailable.ToMD5Hash();
+
+                if (!Values.IsNullOrEmpty())
+                {
+                    var valueString = "";
+                    foreach (var value in Values) valueString += value.Value + ":";
+                    return valueString.ToMD5Hash();
+                }
+                
+                return null;
+            }
+        }
 
         public ShdrTimeSeries() { }
 
@@ -62,7 +78,7 @@ namespace MTConnect.Adapters.Shdr
         /// <returns>SHDR string</returns>
         public override string ToString()
         {
-            if (!string.IsNullOrEmpty(DataItemKey) && !Samples.IsNullOrEmpty())
+            if (!string.IsNullOrEmpty(DataItemKey))
             {
                 if (Timestamp > 0)
                 {

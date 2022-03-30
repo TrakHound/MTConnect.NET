@@ -19,56 +19,62 @@ namespace MTConnect.Applications.Adapters.Shdr
 
             while (true)
             {
-                _adapterExample1.AddCuttingTools();
+                _adapterExample1.UpdateUnavaiableTest();
                 Console.ReadLine();
 
-                _adapterExample1.UpdateTestTable1();
+                _adapterExample1.SetUnavailable();
                 Console.ReadLine();
 
-                _adapterExample1.UpdateTestTable2();
-                Console.ReadLine();
+                //_adapterExample1.AddCuttingTools();
+                //Console.ReadLine();
 
-                _adapterExample1.UpdateTestTable3();
-                Console.ReadLine();
+                //_adapterExample1.UpdateTestTable1();
+                //Console.ReadLine();
 
-                _adapterExample1.Update();
-                Console.ReadLine();
+                //_adapterExample1.UpdateTestTable2();
+                //Console.ReadLine();
 
-                _adapterExample1.UpdateTemperature1();
-                Console.ReadLine();
+                //_adapterExample1.UpdateTestTable3();
+                //Console.ReadLine();
 
-                _adapterExample1.UpdateTemperature2();
-                Console.ReadLine();
+                //_adapterExample1.Update();
+                //Console.ReadLine();
 
-                _adapterExample1.UpdateDataSet1();
-                Console.ReadLine();
+                //_adapterExample1.UpdateTemperature1();
+                //Console.ReadLine();
 
-                _adapterExample1.UpdateDataSet2();
-                Console.ReadLine();
+                //_adapterExample1.UpdateTemperature2();
+                //Console.ReadLine();
 
-                _adapterExample1.UpdateDataSet3();
-                Console.ReadLine();
+                //_adapterExample1.UpdateDataSet1();
+                //Console.ReadLine();
 
-                _adapterExample1.UpdateDataSet4();
-                Console.ReadLine();
+                //_adapterExample1.UpdateDataSet2();
+                //Console.ReadLine();
 
-                _adapterExample1.UpdateDataSet2();
-                Console.ReadLine();
+                //_adapterExample1.UpdateDataSet3();
+                //Console.ReadLine();
 
-                _adapterExample1.UpdateDataSet3();
-                Console.ReadLine();
+                //_adapterExample1.UpdateDataSet4();
+                //Console.ReadLine();
 
-                _adapterExample1.UpdateDataSet4();
-                Console.ReadLine();
+                //_adapterExample1.UpdateDataSet2();
+                //Console.ReadLine();
 
-                _adapterExample1.UpdateTest1();
-                Console.ReadLine();
+                //_adapterExample1.UpdateDataSet3();
+                //Console.ReadLine();
 
-                _adapterExample1.UpdateTest2();
-                Console.ReadLine();
+                //_adapterExample1.UpdateDataSet4();
+                //Console.ReadLine();
 
-                _adapterExample1.UpdateTest3();
-                Console.ReadLine();
+                //_adapterExample1.UpdateTest1();
+                //Console.ReadLine();
+
+                //_adapterExample1.UpdateTest2();
+                //Console.ReadLine();
+
+                //_adapterExample1.UpdateTest3();
+                //Console.ReadLine();
             }
 
             //while (true)
