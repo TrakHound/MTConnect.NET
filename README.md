@@ -25,11 +25,23 @@ Other features of MTConnect.NET :
 - Full client support for requesting data from any MTConnect Agent (Probe, Current, Sample Stream, Assets, etc.). See [Clients](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET/Clients/Rest) for more information.
 
 ## Applications
-- [MTConnect Agent](https://github.com/TrakHound/MTConnect.NET/tree/master/applications/Agents/MTConnect-Agent) : A traditional MTConnect Agent using a REST Api, in-memory buffer, and SHDR for Adapters. Uses the [MTConnectHttpServer](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET/Http/MTConnectHttpServer.cs) as the  web server.
+- [MTConnect HTTP Agent](https://github.com/TrakHound/MTConnect.NET/tree/master/applications/Agents/MTConnect-Agent-Http) : A traditional MTConnect Agent using a REST Api, in-memory buffer, and SHDR for Adapters. Uses the MTConnectHttpServer as the  web server.
 
-- [MTConnect Agent - AspNetCore](https://github.com/TrakHound/MTConnect.NET/tree/master/applications/Agents/MTConnect-Agent-AspNetCore) : Similar to the MTConenct Agent application but uses either the built-in Kestrel server or can be setup through IIS (Internet Information Services). This allows the agent to be used with all of the features available through ASP.NET and IIS such as security, permissions, monitoring, etc.
+- [MTConnect HTTP Agent - AspNetCore](https://github.com/TrakHound/MTConnect.NET/tree/master/applications/Agents/MTConnect-Agent-Http-AspNetCore) : Similar to the MTConnect Agent application but uses either the built-in Kestrel server or can be setup through IIS (Internet Information Services). This allows the agent to be used with all of the features available through ASP.NET and IIS such as security, permissions, monitoring, etc.
+
+- [MTConnect HTTP Gateway Agent](https://github.com/TrakHound/MTConnect.NET/tree/master/applications/Agents/MTConnect-Agent-Http-Gateway) : An Agent that runs mulitple MTConnectClients on the backend and passes that data to an MTConnectAgent. This can be used to access MTConnect data on a central server.
+
+- [MTConnect HTTP Gateway Agent - AspNetCore](https://github.com/TrakHound/MTConnect.NET/tree/master/applications/Agents/MTConnect-Agent-Http-Gateway-AspNetCore) : An Agent that runs mulitple MTConnectClients on the backend and passes that data to an MTConnectAgent. This can be used to access MTConnect data on a central server. Uses either the built-in Kestrel server or can be setup through IIS (Internet Information Services). This allows the agent to be used with all of the features available through ASP.NET and IIS such as security, permissions, monitoring, etc.
 
 - [MTConnect MQTT Agent](https://github.com/TrakHound/MTConnect.NET/tree/master/applications/Agents/MTConnect-Agent-MQTT) : (In-Progress) An MTConnect Agent with an MQTT broker built-in.
+
+- [MTConnect MQTT Gateway Agent](https://github.com/TrakHound/MTConnect.NET/tree/master/applications/Agents/MTConnect-Agent-MQTT-Gateway) : (In-Progress) An MTConnect Gateway Agent with an MQTT broker built-in.
+
+### Live Demo
+A live demo of the MTConnect Gateway HTTP Agent (AspNetCore) application is running at [https://mtconnect.trakhound.com](https://mtconnect.trakhound.com?outputComments=true&indentOutput=true&version=1.8).
+- [https://mtconnect.trakhound.com/current](https://mtconnect.trakhound.com/current?outputComments=true&indentOutput=true&version=1.8)
+- [https://mtconnect.trakhound.com/sample](https://mtconnect.trakhound.com/sample?outputComments=true&indentOutput=true&version=1.8&count=500)
+- [https://mtconnect.trakhound.com/assets](https://mtconnect.trakhound.com/assets?outputComments=true&indentOutput=true)
 
 ## Beta
 A [Discussion](https://github.com/TrakHound/MTConnect.NET/discussions/16) has been created to log the progress of the Beta. Feel free to use this discussion to request features or ask questions.
@@ -37,7 +49,11 @@ A [Discussion](https://github.com/TrakHound/MTConnect.NET/discussions/16) has be
 ## Nuget Packages
 The Nuget packages for the libraries in this repo are listed below:
 - [MTConnect.NET](https://www.nuget.org/packages/MTConnect.NET/)
-- [MTConnect.NET-AspNetCore](https://www.nuget.org/packages/MTConnect.NET-AspNetCore/)
+- [MTConnect.NET-Common](https://www.nuget.org/packages/MTConnect.NET-Common/)
+- [MTConnect.NET-HTTP](https://www.nuget.org/packages/MTConnect.NET-HTTP/)
+- [MTConnect.NET-HTTP-AspNetCore](https://www.nuget.org/packages/MTConnect.NET-HTTP-AspNetCore/)
+- [MTConnect.NET-XML](https://www.nuget.org/packages/MTConnect.NET-XML/)
+- [MTConnect.NET-SHDR](https://www.nuget.org/packages/MTConnect.NET-SHDR/)
 - [MTConnect.NET-MQTT](https://www.nuget.org/packages/MTConnect.NET-MQTT/)
 - [MTConnect.NET-Pallets](https://www.nuget.org/packages/MTConnect.NET-Pallets/)
 
