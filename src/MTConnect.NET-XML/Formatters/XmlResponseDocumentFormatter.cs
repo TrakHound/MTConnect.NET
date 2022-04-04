@@ -25,13 +25,16 @@ namespace MTConnect.Formatters
 
         public FormattedDocumentResult Format(IDevicesResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
+            // Read Devices Stylesheet
+            var stylesheet = GetFormatterOption<string>(options, "devicesStyle.location");
+
             // Read Indent Option passed to Formatter
             var indentOutput = GetFormatterOption<bool>(options, "indentOutput");
 
             // Read OutputComments Option passed to Formatter
             var outputComments = GetFormatterOption<bool>(options, "outputComments");
 
-            var xml = XmlDevicesResponseDocument.ToXml(document, null, indentOutput, outputComments);
+            var xml = XmlDevicesResponseDocument.ToXml(document, null, stylesheet, indentOutput, outputComments);
             if (!string.IsNullOrEmpty(xml))
             {
                 return new FormattedDocumentResult(xml, ContentType);
@@ -42,13 +45,16 @@ namespace MTConnect.Formatters
 
         public FormattedDocumentResult Format(IStreamsResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
+            // Read Devices Stylesheet
+            var stylesheet = GetFormatterOption<string>(options, "streamsStyle.location");
+
             // Read Indent Option passed to Formatter
             var indentOutput = GetFormatterOption<bool>(options, "indentOutput");
 
             // Read OutputComments Option passed to Formatter
             var outputComments = GetFormatterOption<bool>(options, "outputComments");
 
-            var xml = XmlStreamsResponseDocument.ToXml(document, null, indentOutput, outputComments);
+            var xml = XmlStreamsResponseDocument.ToXml(document, null, stylesheet, indentOutput, outputComments);
             if (!string.IsNullOrEmpty(xml))
             {
                 return new FormattedDocumentResult(xml, ContentType);
@@ -59,13 +65,16 @@ namespace MTConnect.Formatters
 
         public FormattedDocumentResult Format(IAssetsResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
+            // Read Devices Stylesheet
+            var stylesheet = GetFormatterOption<string>(options, "assetsStyle.location");
+
             // Read Indent Option passed to Formatter
             var indentOutput = GetFormatterOption<bool>(options, "indentOutput");
 
             // Read OutputComments Option passed to Formatter
             var outputComments = GetFormatterOption<bool>(options, "outputComments");
 
-            var xml = XmlAssetsResponseDocument.ToXml(document, indentOutput, outputComments);
+            var xml = XmlAssetsResponseDocument.ToXml(document, stylesheet, indentOutput, outputComments);
             if (!string.IsNullOrEmpty(xml))
             {
                 return new FormattedDocumentResult(xml, ContentType);
@@ -76,13 +85,16 @@ namespace MTConnect.Formatters
 
         public FormattedDocumentResult Format(IErrorResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
+            // Read Devices Stylesheet
+            var stylesheet = GetFormatterOption<string>(options, "errorStyle.location");
+
             // Read Indent Option passed to Formatter
             var indentOutput = GetFormatterOption<bool>(options, "indentOutput");
 
             // Read OutputComments Option passed to Formatter
             var outputComments = GetFormatterOption<bool>(options, "outputComments");
 
-            var xml = XmlErrorResponseDocument.ToXml(document, indentOutput, outputComments);
+            var xml = XmlErrorResponseDocument.ToXml(document, stylesheet, indentOutput, outputComments);
             if (!string.IsNullOrEmpty(xml))
             {
                 return new FormattedDocumentResult(xml, ContentType);

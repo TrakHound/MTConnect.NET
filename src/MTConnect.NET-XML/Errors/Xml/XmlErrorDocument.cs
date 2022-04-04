@@ -145,7 +145,12 @@ namespace MTConnect.Errors
         }
 
 
-        public static string ToXml(IErrorResponseDocument document, bool indent = false, bool outputComments = false)
+        public static string ToXml(
+            IErrorResponseDocument document,
+            string styleSheet = null,
+            bool indent = false,
+            bool outputComments = false
+            )
         {
             if (document != null && document.Header != null)
             {
@@ -171,17 +176,25 @@ namespace MTConnect.Errors
                         string replace = "<MTConnectError xmlns:m=\"" + ns + "\" xmlns=\"" + ns + "\" xmlns:xsi=\"" + Namespaces.DefaultXmlSchemaInstance + "\" xsi:schemaLocation=\"" + schemaLocation + "\"";
                         xml = Regex.Replace(xml, regex, replace);
 
+                        // Specify Xml Delcaration
+                        var xmlDeclaration = "<?xml version=\"1.0\" encoding=\"utf-8\"?>";
+
+                        // Remove Xml Declaration (in order to add Header Comment)
+                        xml = xml.Replace(xmlDeclaration, "");
+
+                        // Add Header Comments
                         if (outputComments)
                         {
-                            // Specify Xml Delcaration
-                            var xmlDeclaration = "<?xml version=\"1.0\" encoding=\"utf-8\"?>";
-
-                            // Remove Xml Declaration (in order to add Header Comment)
-                            xml = xml.Replace(xmlDeclaration, "");
-
-                            // Add Header Comments
-                            xml = xmlDeclaration + XmlFunctions.CreateHeaderComment() + xml;
+                            xml = XmlFunctions.CreateHeaderComment() + xml;
                         }
+
+                        // Add Stylesheet
+                        if (!string.IsNullOrEmpty(styleSheet))
+                        {
+                            xml = $"<?xml-stylesheet type=\"text/xsl\" href=\"{styleSheet}?version={document.Version}\"?>" + xml;
+                        }
+
+                        xml = xmlDeclaration + xml;
 
                         return XmlFunctions.FormatXml(xml, indent, outputComments);
                     }                      

@@ -116,26 +116,32 @@ namespace MTConnect.Streams.Xml
             return null;
         }
 
-        public static string ToXml(IStreamsResponseDocument streamsDocument, bool indent = false)
-        {
-            return ToXml(streamsDocument, null, indent);
-        }
+        //public static string ToXml(IStreamsResponseDocument streamsDocument, bool indent = false)
+        //{
+        //    return ToXml(streamsDocument, null, indent);
+        //}
 
-        public static string ToXml(IStreamsResponseDocument streamsDocument, IEnumerable<NamespaceConfiguration> extendedSchemas, bool indent = true, bool outputComments = false)
+        public static string ToXml(
+            IStreamsResponseDocument document,
+            IEnumerable<NamespaceConfiguration> extendedSchemas = null,
+            string styleSheet = null,
+            bool indent = true,
+            bool outputComments = false
+            )
         {
-            if (streamsDocument != null && streamsDocument.Header != null)
+            if (document != null && document.Header != null)
             {
                 try
                 {
-                    var ns = Namespaces.GetStreams(streamsDocument.Version.Major, streamsDocument.Version.Minor);
-                    var schemaLocation = Schemas.GetStreams(streamsDocument.Version.Major, streamsDocument.Version.Minor);
+                    var ns = Namespaces.GetStreams(document.Version.Major, document.Version.Minor);
+                    var schemaLocation = Schemas.GetStreams(document.Version.Major, document.Version.Minor);
                     var extendedNamespaces = "";
 
                     using (var textWriter = new Utf8Writer())
                     {
                         textWriter.NewLine = "\r\n";
 
-                        _serializer.Serialize(textWriter, new XmlStreamsResponseDocument(streamsDocument));
+                        _serializer.Serialize(textWriter, new XmlStreamsResponseDocument(document));
 
                         var xml = textWriter.ToString();
 
@@ -163,17 +169,25 @@ namespace MTConnect.Streams.Xml
                         string replace = "<MTConnectStreams xmlns:m=\"" + ns + "\" xmlns=\"" + ns + "\" xmlns:xsi=\"" + Namespaces.DefaultXmlSchemaInstance + "\"" + extendedNamespaces + " xsi:schemaLocation=\"" + schemaLocation + "\"";
                         xml = Regex.Replace(xml, regex, replace);
 
+                        // Specify Xml Delcaration
+                        var xmlDeclaration = "<?xml version=\"1.0\" encoding=\"utf-8\"?>";
+
+                        // Remove Xml Declaration (in order to add Header Comment)
+                        xml = xml.Replace(xmlDeclaration, "");
+
+                        // Add Header Comments
                         if (outputComments)
                         {
-                            // Specify Xml Delcaration
-                            var xmlDeclaration = "<?xml version=\"1.0\" encoding=\"utf-8\"?>";
-
-                            // Remove Xml Declaration (in order to add Header Comment)
-                            xml = xml.Replace(xmlDeclaration, "");
-
-                            // Add Header Comments
-                            xml = xmlDeclaration + XmlFunctions.CreateHeaderComment() + xml;
+                            xml = XmlFunctions.CreateHeaderComment() + xml;
                         }
+
+                        // Add Stylesheet
+                        if (!string.IsNullOrEmpty(styleSheet))
+                        {
+                            xml = $"<?xml-stylesheet type=\"text/xsl\" href=\"{styleSheet}?version={document.Version}\"?>" + xml;
+                        }
+
+                        xml = xmlDeclaration + xml;
 
                         return XmlFunctions.FormatXml(xml, indent, outputComments);
                     }

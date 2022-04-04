@@ -82,12 +82,17 @@ namespace MTConnect.Agents
         /// <summary>
         /// Raised when a new Observation is attempted to be added to the Agent
         /// </summary>
-        EventHandler<IObservationInput> AddObservationAttempted { get; set; }
+        EventHandler<IObservationInput> ObservationReceived { get; set; }
 
         /// <summary>
         /// Raised when a new Observation is successfully added to the Agent
         /// </summary>
         EventHandler<IObservation> ObservationAdded { get; set; }
+
+        /// <summary>
+        /// Raised when a new Asset is attempted to be added to the Agent
+        /// </summary>
+        EventHandler<IAsset> AssetReceived { get; set; }
 
         /// <summary>
         /// Raised when a new Asset is added to the Agent

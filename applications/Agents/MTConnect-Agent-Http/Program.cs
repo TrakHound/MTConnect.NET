@@ -8,10 +8,8 @@ using MTConnect.Agents;
 using MTConnect.Agents.Configuration;
 using MTConnect.Assets;
 using MTConnect.Devices;
-using MTConnect.Devices.Xml;
 using MTConnect.Http;
 using MTConnect.Observations;
-using MTConnect.Observations.Input;
 using MTConnect.Streams;
 using NLog;
 using System;
@@ -189,7 +187,7 @@ namespace MTConnect.Applications
 
             Console.WriteLine("--------------------");
             Console.WriteLine("Copyright 2022 TrakHound Inc., All Rights Reserved");
-            Console.WriteLine("MTConnect Agent : Version " + version.ToString());
+            Console.WriteLine("MTConnect HTTP Agent : Version " + version.ToString());
             Console.WriteLine("--------------------");
             Console.WriteLine("This application is licensed under the Apache Version 2.0 License (https://www.apache.org/licenses/LICENSE-2.0)");
             Console.WriteLine("Source code available at Github.com (https://github.com/TrakHound/MTConnect.NET)");
@@ -251,16 +249,6 @@ namespace MTConnect.Applications
         {
             _agentValidationLogger.Warn($"[Agent-Validation] : {result.Message}");
         }
-
-        //private static void InvalidDataItem(Devices.DataItem dataItem, string valueType, string value)
-        //{
-        //    _agentValidationLogger.Warn($"[Agent-Validation] : Validation Failed for {dataItem.Id} : {valueType} = \'{value}\' is Invalid for DataItem of Type \'{dataItem.Type}\'");
-        //}
-
-        //private static void InvalidDataItem(Devices.DataItem dataItem, Observations.IObservation observation)
-        //{
-        //    _agentValidationLogger.Warn($"[Agent-Validation] : Validation Failed for {dataItem.Id} : \'{observation.Value}\' is Invalid for DataItem of Type \'{dataItem.Type}\'");
-        //}
 
 
         private static void AdapterConnected(object sender, string message)

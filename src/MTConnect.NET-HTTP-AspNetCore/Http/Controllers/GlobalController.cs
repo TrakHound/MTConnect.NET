@@ -57,7 +57,10 @@ namespace MTConnect.Http.Controllers
 
             // Set Format Options
             var formatOptions = new List<KeyValuePair<string, string>>();
+
             if (indentOutput.HasValue) formatOptions.Add(new KeyValuePair<string, string>("indentOutput", indentOutput.Value.ToString()));
+            else formatOptions.Add(new KeyValuePair<string, string>("indentOutput", _agent.Configuration.Pretty.ToString()));
+
             if (outputComments.HasValue) formatOptions.Add(new KeyValuePair<string, string>("outputComments", outputComments.Value.ToString()));
 
             var response = await MTConnectHttpRequests.GetProbeRequest(_agent, version, documentFormat, formatOptions);
@@ -99,7 +102,10 @@ namespace MTConnect.Http.Controllers
         {
             // Set Format Options
             var formatOptions = new List<KeyValuePair<string, string>>();
+
             if (indentOutput.HasValue) formatOptions.Add(new KeyValuePair<string, string>("indentOutput", indentOutput.Value.ToString()));
+            else formatOptions.Add(new KeyValuePair<string, string>("indentOutput", _agent.Configuration.Pretty.ToString()));
+
             if (outputComments.HasValue) formatOptions.Add(new KeyValuePair<string, string>("outputComments", outputComments.Value.ToString()));
 
             if (interval > 0)
@@ -177,51 +183,6 @@ namespace MTConnect.Http.Controllers
             }
         }
 
-
-        ///// <summary>
-        ///// An Agent responds to a Current Request with an MTConnectStreams Response Document that contains
-        ///// the current value of Data Entities associated with each piece of Streaming Data available from the Agent, subject to any filtering defined in the Request.
-        ///// </summary>
-        ///// <param name="path">An XPath that defines specific information or a set of information to be included in an MTConnectStreams Response Document.</param>
-        ///// <param name="at">Requests that the MTConnect Response Documents MUST include the current value for all Data Entities relative to the time that a specific sequence number was recorded.</param>
-        ///// <param name="interval">The Agent MUST continuously publish Response Documents when the query parameters include interval using the value as the minimum period between adjacent publications.</param>
-        ///// <param name="version">The MTConnect Version of the response document</param>
-        ///// <param name="documentFormat">The format of the response document</param>
-        ///// <param name="indentOutput">A boolean flag to indent the response document (pretty)</param>
-        ///// <returns></returns>
-        //[HttpGet("current")]
-        //[ProducesResponseType(StatusCodes.Status200OK)]
-        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
-        //[ProducesResponseType(StatusCodes.Status404NotFound)]
-        //[ProducesResponseType(StatusCodes.Status405MethodNotAllowed)]
-        //[ProducesResponseType(StatusCodes.Status406NotAcceptable)]
-        //[ProducesResponseType(StatusCodes.Status431RequestHeaderFieldsTooLarge)]
-        //[ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        //public async Task<IActionResult> GetDeviceCurrent(
-        //    [FromQuery] string path = null,
-        //    [FromQuery] long at = 0,
-        //    [FromQuery] int interval = 0,
-        //    [FromQuery] Version version = null,
-        //    [FromQuery] string documentFormat = DocumentFormat.XML,
-        //    [FromQuery] bool? indentOutput = null,
-        //    [FromQuery] bool? outputComments = null
-        //    )
-        //{
-        //    _logger.LogInformation($"[Api-Interface] : {Request.Host} : Current Requested a MTConnectStreams Document : [{Request.Method}] : {Request.Path} : {Request.QueryString}");
-
-        //    // Set Format Options
-        //    var formatOptions = new List<KeyValuePair<string, string>>();
-        //    if (indentOutput.HasValue) formatOptions.Add(new KeyValuePair<string, string>("indentOutput", indentOutput.Value.ToString()));
-        //    if (outputComments.HasValue) formatOptions.Add(new KeyValuePair<string, string>("outputComments", outputComments.Value.ToString()));
-
-        //    var response = await MTConnectHttpRequests.GetCurrentRequest(_agent, path, at, interval, version, documentFormat, formatOptions);
-
-        //    _logger.LogInformation($"[Api-Interface] : {Request.Host} : [{Request.Method}] : {Request.Path} : {Request.QueryString} : Current Response ({response.StatusCode}) in {response.ResponseDuration}ms");
-
-        //    return CreateResult(response);
-        //}
-
-
         /// <summary>
         /// An Agent responds to a Sample Request with an MTConnectStreams Response Document that contains a set of values for Data Entities
         /// currently available for Streaming Data from the Agent, subject to any filtering defined in the Request.
@@ -258,7 +219,10 @@ namespace MTConnect.Http.Controllers
         {
             // Set Format Options
             var formatOptions = new List<KeyValuePair<string, string>>();
+
             if (indentOutput.HasValue) formatOptions.Add(new KeyValuePair<string, string>("indentOutput", indentOutput.Value.ToString()));
+            else formatOptions.Add(new KeyValuePair<string, string>("indentOutput", _agent.Configuration.Pretty.ToString()));
+
             if (outputComments.HasValue) formatOptions.Add(new KeyValuePair<string, string>("outputComments", outputComments.Value.ToString()));
 
             if (interval > 0)

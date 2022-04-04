@@ -33,7 +33,7 @@ namespace MTConnect.Formatters
                 if (!dataItems.IsNullOrEmpty())
                 {
                     // Convert Document to XML
-                    var xml = XmlDevicesResponseDocument.ToXml(devicesDocument, null, false);
+                    var xml = XmlDevicesResponseDocument.ToXml(devicesDocument);
                     if (!string.IsNullOrEmpty(xml))
                     {
                         // Clear the namespaces from the document (this may be needed but a better implementation of namespaces will be needed)

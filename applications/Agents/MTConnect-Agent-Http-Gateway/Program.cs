@@ -14,6 +14,7 @@ using MTConnect.Observations;
 using MTConnect.Observations.Input;
 using MTConnect.Streams;
 using NLog;
+using System;
 using System.Net;
 using System.Reflection;
 
@@ -115,41 +116,6 @@ namespace MTConnect.Applications
                         }
                     }
                 }
-
-                //// Add Adapter Clients
-                //if (!configuration.Adapters.IsNullOrEmpty())
-                //{
-                //    var devices = Device.FromFile(configuration.Devices, DocumentFormat.XML);
-                //    if (!devices.IsNullOrEmpty())
-                //    {
-                //        // Add Device(s) to Agent
-                //        foreach (var device in devices)
-                //        {
-                //            _agent.AddDevice(device);
-                //        }
-
-                //        foreach (var adapterConfiguration in configuration.Adapters)
-                //        {
-                //            var device = devices.FirstOrDefault(o => o.Name == adapterConfiguration.Device);
-                //            if (device != null)
-                //            {
-                //                var adapterClient = new ShdrAdapterClient(adapterConfiguration, _agent, device);
-
-                //                if (verboseLogging)
-                //                {
-                //                    adapterClient.AdapterConnected += AdapterConnected;
-                //                    adapterClient.AdapterDisconnected += AdapterDisconnected;
-                //                    adapterClient.AdapterConnectionError += AdapterConnectionError;
-                //                    adapterClient.PingSent += AdapterPingSent;
-                //                    adapterClient.PongReceived += AdapterPongReceived;
-                //                    adapterClient.ProtocolReceived += AdapterProtocolReceived;
-                //                }
-
-                //                adapterClient.Start();
-                //            }
-                //        }
-                //    }
-                //}
 
                 // Start Agent Metrics
                 StartMetrics();
@@ -265,7 +231,7 @@ namespace MTConnect.Applications
 
             Console.WriteLine("--------------------");
             Console.WriteLine("Copyright 2022 TrakHound Inc., All Rights Reserved");
-            Console.WriteLine("MTConnect Agent Relay : Version " + version.ToString());
+            Console.WriteLine("MTConnect HTTP Gateway Agent : Version " + version.ToString());
             Console.WriteLine("--------------------");
             Console.WriteLine("This application is licensed under the Apache Version 2.0 License (https://www.apache.org/licenses/LICENSE-2.0)");
             Console.WriteLine("Source code available at Github.com (https://github.com/TrakHound/MTConnect.NET)");
@@ -408,7 +374,7 @@ namespace MTConnect.Applications
         {
             if (!string.IsNullOrEmpty(url) && port > 0)
             {
-                if (url.Contains('/'))
+                if (url.Contains("/"))
                 {
                     var p = url.Split('/');
                     if (p.Length > 1)
@@ -416,7 +382,7 @@ namespace MTConnect.Applications
                         p[0] = $"{p[0]}:{port}";
                     }
 
-                    return string.Join('/', p);
+                    return string.Join("/", p);
                 }
 
                 return $"{url}:{port}";

@@ -60,7 +60,10 @@ namespace MTConnect.Http.Controllers
 
             // Set Format Options
             var formatOptions = new List<KeyValuePair<string, string>>();
+
             if (indentOutput.HasValue) formatOptions.Add(new KeyValuePair<string, string>("indentOutput", indentOutput.Value.ToString()));
+            else formatOptions.Add(new KeyValuePair<string, string>("indentOutput", _agent.Configuration.Pretty.ToString()));
+
             if (outputComments.HasValue) formatOptions.Add(new KeyValuePair<string, string>("outputComments", outputComments.Value.ToString()));
 
             var response = await MTConnectHttpRequests.GetAssetsRequest(_agent, type, removed, count, version, documentFormat, formatOptions);

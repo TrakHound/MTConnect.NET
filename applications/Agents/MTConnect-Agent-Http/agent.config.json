@@ -8,5 +8,9 @@
 			"host": "localhost",
 			"port": 7878
 		}
-	]
+	],
+
+	"streamsStyle": {
+		"location": "styles/stylesheet-streams.xsl"
+	}
 }

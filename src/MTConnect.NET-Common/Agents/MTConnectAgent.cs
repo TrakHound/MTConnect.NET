@@ -96,12 +96,17 @@ namespace MTConnect.Agents
         /// <summary>
         /// Raised when a new Observation is attempted to be added to the Agent
         /// </summary>
-        public EventHandler<IObservationInput> AddObservationAttempted { get; set; }
+        public EventHandler<IObservationInput> ObservationReceived { get; set; }
 
         /// <summary>
         /// Raised when a new Observation is added to the Agent
         /// </summary>
         public EventHandler<IObservation> ObservationAdded { get; set; }
+
+        /// <summary>
+        /// Raised when a new Asset is attempted to be added to the Agent
+        /// </summary>
+        public EventHandler<IAsset> AssetReceived { get; set; }
 
         /// <summary>
         /// Raised when a new Asset is added to the Agent
@@ -2918,7 +2923,7 @@ namespace MTConnect.Agents
         {
             if (observationInput != null)
             {
-                AddObservationAttempted?.Invoke(this, observationInput);
+                ObservationReceived?.Invoke(this, observationInput);
 
                 observationInput.DeviceKey = deviceKey;
                 var timestamp = observationInput.Timestamp > 0 ? observationInput.Timestamp : UnixDateTime.Now;
@@ -2935,7 +2940,10 @@ namespace MTConnect.Agents
                     if (validationResults.IsValid)
                     {
                         // Convert Units (if needed)
-                        observationInput = ConvertObservationValue(dataItem, observationInput);
+                        if (_configuration.ConversionRequired)
+                        {
+                            observationInput = ConvertObservationValue(dataItem, observationInput);
+                        }
 
                         bool update;
 
@@ -2996,7 +3004,7 @@ namespace MTConnect.Agents
         {
             if (observationInput != null)
             {
-                AddObservationAttempted?.Invoke(this, observationInput);
+                ObservationReceived?.Invoke(this, observationInput);
 
                 observationInput.DeviceKey = deviceKey;
                 var timestamp = observationInput.Timestamp > 0 ? observationInput.Timestamp : UnixDateTime.Now;
@@ -3013,7 +3021,10 @@ namespace MTConnect.Agents
                     if (validationResults.IsValid)
                     {
                         // Convert Units (if needed)
-                        observationInput = ConvertObservationValue(dataItem, observationInput);
+                        if (_configuration.ConversionRequired)
+                        {
+                            observationInput = ConvertObservationValue(dataItem, observationInput);
+                        }
 
                         bool update;
 
@@ -3116,12 +3127,15 @@ namespace MTConnect.Agents
         /// <summary>
         /// Add a new Asset to the Agent
         /// </summary>
-        public bool AddAsset(string deviceName, IAsset asset)
+        public bool AddAsset(string deviceKey, IAsset asset)
         {
             if (_deviceBuffer != null && _assetBuffer != null)
             {
+                // Get Device UUID from deviceKey
+                _deviceKeys.TryGetValue(deviceKey, out var deviceUuid);
+
                 // Get Device from DeviceBuffer
-                var device = _deviceBuffer.GetDevice(deviceName);
+                var device = _deviceBuffer.GetDevice(deviceUuid);
                 if (device != null)
                 {
                     // Set Device UUID Property
@@ -3133,10 +3147,16 @@ namespace MTConnect.Agents
                     {
                         // Update ASSET_CHANGED for device
                         var assetChangedId = DataItem.CreateId(device.Id, AssetChangedDataItem.NameId);
-                        AddObservation(deviceName, assetChangedId, ValueKeys.CDATA, asset.AssetId, asset.Timestamp);
+                        AddObservation(deviceUuid, assetChangedId, ValueKeys.CDATA, asset.AssetId, asset.Timestamp);
 
                         // Add Asset to AssetBuffer
-                        return _assetBuffer.AddAsset(asset);
+                        if (_assetBuffer.AddAsset(asset))
+                        {
+                            // Update Agent Metrics
+                            _metrics.UpdateAsset(deviceUuid, asset.AssetId);
+
+                            AssetAdded?.Invoke(this, asset);
+                        }
                     }
                     else
                     {
@@ -3151,12 +3171,15 @@ namespace MTConnect.Agents
         /// <summary>
         /// Add a new Asset to the Agent
         /// </summary>
-        public async Task<bool> AddAssetAsync(string deviceName, IAsset asset)
+        public async Task<bool> AddAssetAsync(string deviceKey, IAsset asset)
         {
             if (_assetBuffer != null)
             {
+                // Get Device UUID from deviceKey
+                _deviceKeys.TryGetValue(deviceKey, out var deviceUuid);
+
                 // Get Device from DeviceBuffer
-                var device = await _deviceBuffer.GetDeviceAsync(deviceName);
+                var device = await _deviceBuffer.GetDeviceAsync(deviceUuid);
                 if (device != null)
                 {
                     // Set Device UUID Property
@@ -3168,10 +3191,16 @@ namespace MTConnect.Agents
                     {
                         // Update ASSET_CHANGED for device
                         var assetChangedId = DataItem.CreateId(device.Id, AssetChangedDataItem.NameId);
-                        AddObservation(deviceName, assetChangedId, ValueKeys.CDATA, asset.AssetId, asset.Timestamp);
+                        AddObservation(deviceUuid, assetChangedId, ValueKeys.CDATA, asset.AssetId, asset.Timestamp);
 
                         // Add Asset to AssetBuffer
-                        return await _assetBuffer.AddAssetAsync(asset);
+                        if (await _assetBuffer.AddAssetAsync(asset))
+                        {
+                            // Update Agent Metrics
+                            _metrics.UpdateAsset(deviceUuid, asset.AssetId);
+
+                            AssetAdded?.Invoke(this, asset);
+                        }
                     }
                     else
                     {
@@ -3186,7 +3215,7 @@ namespace MTConnect.Agents
         /// <summary>
         /// Add new Assets to the Agent
         /// </summary>
-        public bool AddAssets(string deviceName, IEnumerable<IAsset> assets)
+        public bool AddAssets(string deviceKey, IEnumerable<IAsset> assets)
         {
             if (_assetBuffer != null && !assets.IsNullOrEmpty())
             {
@@ -3194,7 +3223,7 @@ namespace MTConnect.Agents
 
                 foreach (var asset in assets)
                 {
-                    success = AddAsset(deviceName, asset);
+                    success = AddAsset(deviceKey, asset);
                     if (!success) break;
                 }
 
@@ -3207,7 +3236,7 @@ namespace MTConnect.Agents
         /// <summary>
         /// Add new Assets to the Agent
         /// </summary>
-        public async Task<bool> AddAssetsAsync(string deviceName, IEnumerable<IAsset> assets)
+        public async Task<bool> AddAssetsAsync(string deviceKey, IEnumerable<IAsset> assets)
         {
             if (_assetBuffer != null && !assets.IsNullOrEmpty())
             {
@@ -3215,7 +3244,7 @@ namespace MTConnect.Agents
 
                 foreach (var asset in assets)
                 {
-                    success = await AddAssetAsync(deviceName, asset);
+                    success = await AddAssetAsync(deviceKey, asset);
                     if (!success) break;
                 }
 
@@ -3317,7 +3346,7 @@ namespace MTConnect.Agents
         {
             if (deviceMetrics != null && _deviceBuffer != null)
             {
-                var device = _deviceBuffer.GetDevice(deviceMetrics.DeviceName);
+                var device = _deviceBuffer.GetDevice(deviceMetrics.DeviceUuid);
                 if (device != null)
                 {
                     var dataItems = device.GetDataItems();
@@ -3330,7 +3359,7 @@ namespace MTConnect.Agents
                             AddObservation(device.Name, observationUpdateRate.Id, ValueKeys.CDATA, deviceMetrics.ObservationAverage);
                         }
 
-                        // Update ObservationUpdateRate DataItem
+                        // Update AssetUpdateRate DataItem
                         var assetUpdateRate = dataItems.FirstOrDefault(o => o.Type == AssetUpdateRateDataItem.TypeId);
                         if (assetUpdateRate != null)
                         {

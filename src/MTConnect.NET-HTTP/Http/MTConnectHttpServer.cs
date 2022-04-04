@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -21,7 +22,6 @@ namespace MTConnect.Http
     public class MTConnectHttpServer
     {
         private const string DefaultServer = "127.0.0.1";
-        //private const string DefaultServer = "localhost";
         private const int DefaultPort = 5000;
         private const string EmptyServer = "0.0.0.0";
 
@@ -228,6 +228,7 @@ namespace MTConnect.Http
                                         case MTConnectRequestType.Sample: await ProcessSample(request, response); break;
                                         case MTConnectRequestType.Assets: await ProcessAssets(request, response); break;
                                         case MTConnectRequestType.Asset: await ProcessAsset(request, response); break;
+                                        default: await ProcessStatic(request, response); break;
                                     }
 
                                     break;
@@ -315,8 +316,9 @@ namespace MTConnect.Http
                     case MTConnectRequestType.Assets: return MTConnectRequestType.Assets;
                 }
             }
+            else return MTConnectRequestType.Probe;
 
-            return MTConnectRequestType.Probe;
+            return "";
         }
 
         private static string[] GetUriSegments(Uri uri)
@@ -410,11 +412,12 @@ namespace MTConnect.Http
                 }
 
                 // Set Format Options
-                var formatOptions = new List<KeyValuePair<string, string>>();
+                var formatOptions = CreateFormatOptions(documentFormat);
 
                 // Read IndentOutput from Query string
                 var indentOutputString = httpRequest.QueryString["indentOutput"];
                 if (!string.IsNullOrEmpty(indentOutputString)) formatOptions.Add(new KeyValuePair<string, string>("indentOutput", indentOutputString));
+                else formatOptions.Add(new KeyValuePair<string, string>("indentOutput", _configuration.Pretty.ToString()));
 
                 // Read OutputComments from Query string
                 var outputCommentsString = httpRequest.QueryString["outputComments"];
@@ -474,11 +477,12 @@ namespace MTConnect.Http
                 }
 
                 // Set Format Options
-                var formatOptions = new List<KeyValuePair<string, string>>();
+                var formatOptions = CreateFormatOptions(documentFormat);
 
                 // Read IndentOutput from Query string
                 var indentOutputString = httpRequest.QueryString["indentOutput"];
                 if (!string.IsNullOrEmpty(indentOutputString)) formatOptions.Add(new KeyValuePair<string, string>("indentOutput", indentOutputString));
+                else formatOptions.Add(new KeyValuePair<string, string>("indentOutput", _configuration.Pretty.ToString()));
 
                 // Read OutputComments from Query string
                 var outputCommentsString = httpRequest.QueryString["outputComments"];
@@ -575,11 +579,12 @@ namespace MTConnect.Http
                 }
 
                 // Set Format Options
-                var formatOptions = new List<KeyValuePair<string, string>>();
+                var formatOptions = CreateFormatOptions(documentFormat);
 
                 // Read IndentOutput from Query string
                 var indentOutputString = httpRequest.QueryString["indentOutput"];
                 if (!string.IsNullOrEmpty(indentOutputString)) formatOptions.Add(new KeyValuePair<string, string>("indentOutput", indentOutputString));
+                else formatOptions.Add(new KeyValuePair<string, string>("indentOutput", _configuration.Pretty.ToString()));
 
                 // Read OutputComments from Query string
                 var outputCommentsString = httpRequest.QueryString["outputComments"];
@@ -677,11 +682,12 @@ namespace MTConnect.Http
                 }
 
                 // Set Format Options
-                var formatOptions = new List<KeyValuePair<string, string>>();
+                var formatOptions = CreateFormatOptions(documentFormat);
 
                 // Read IndentOutput from Query string
                 var indentOutputString = httpRequest.QueryString["indentOutput"];
                 if (!string.IsNullOrEmpty(indentOutputString)) formatOptions.Add(new KeyValuePair<string, string>("indentOutput", indentOutputString));
+                else formatOptions.Add(new KeyValuePair<string, string>("indentOutput", _configuration.Pretty.ToString()));
 
                 // Read OutputComments from Query string
                 var outputCommentsString = httpRequest.QueryString["outputComments"];
@@ -725,11 +731,12 @@ namespace MTConnect.Http
                 }
 
                 // Set Format Options
-                var formatOptions = new List<KeyValuePair<string, string>>();
+                var formatOptions = CreateFormatOptions(documentFormat);
 
                 // Read IndentOutput from Query string
                 var indentOutputString = httpRequest.QueryString["indentOutput"];
                 if (!string.IsNullOrEmpty(indentOutputString)) formatOptions.Add(new KeyValuePair<string, string>("indentOutput", indentOutputString));
+                else formatOptions.Add(new KeyValuePair<string, string>("indentOutput", _configuration.Pretty.ToString()));
 
                 // Read OutputComments from Query string
                 var outputCommentsString = httpRequest.QueryString["outputComments"];
@@ -741,6 +748,169 @@ namespace MTConnect.Http
                 await WriteResponse(response, httpResponse);
                 ResponseSent?.Invoke(this, response);
             }
+        }
+
+
+        private async Task ProcessStatic(HttpListenerRequest httpRequest, HttpListenerResponse httpResponse)
+        {
+            if (httpRequest != null && httpResponse != null)
+            {
+                try
+                {
+                    var statusCode = 404;
+                    var contentType = "text/plain";
+                    byte[] fileContents = null;
+                    var relativePath = httpRequest.Url.LocalPath.Trim('/');
+
+                    // Read MTConnectVersion from Query string
+                    var versionString = httpRequest.QueryString["version"];
+                    Version.TryParse(versionString, out var version);
+                    if (version == null) version = _configuration.DefaultVersion;
+
+                    var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, relativePath);
+                    if (File.Exists(filePath))
+                    {
+                        if (_configuration.DevicesStyle != null && relativePath == _configuration.DevicesStyle.Location)
+                        {
+                            fileContents = ReadDevicesStylesheet(filePath, version);
+                        }
+                        else if (_configuration.StreamsStyle != null && relativePath == _configuration.StreamsStyle.Location)
+                        {
+                            fileContents = ReadStreamsStylesheet(filePath, version);
+                        }
+                        else
+                        {
+                            fileContents = File.ReadAllBytes(filePath);
+                        }
+                    }
+
+                    statusCode = fileContents != null ? 200 : 500;
+                    contentType = MimeTypes.GetMimeType(Path.GetExtension(filePath));
+
+                    // Set HTTP Response Status Code
+                    httpResponse.StatusCode = statusCode;
+                    httpResponse.ContentType = contentType;
+
+                    // Write File Contents to Response Stream
+                    if (fileContents != null)
+                    {
+                        using (var stream = httpResponse.OutputStream)
+                        {
+                            await stream.WriteAsync(fileContents, 0, fileContents.Length);
+                        }
+                    }
+                }
+                catch { }
+            }
+        }
+
+        private byte[] ReadDevicesStylesheet(string filePath, Version mtconnectVersion)
+        {
+            if (filePath != null)
+            {
+                try
+                {
+                    var fileContents = File.ReadAllText(filePath);
+                    if (!string.IsNullOrEmpty(fileContents))
+                    {
+                        string s = fileContents;
+                        string pattern = null;
+                        string replace = null;
+
+                        try
+                        {
+                            // Replace Devices Namespace
+                            pattern = @"urn:mtconnect\.org:MTConnectDevices:(\d\.\d)";
+                            replace = $@"urn:mtconnect.org:MTConnectDevices:{mtconnectVersion}";
+                            s = Regex.Replace(fileContents, pattern, replace);
+                        }
+                        catch { }
+
+                        try
+                        {
+                            // Replace Streams Namespace
+                            pattern = @"urn:mtconnect\.org:MTConnectStreams:(\d\.\d)";
+                            replace = $@"urn:mtconnect.org:MTConnectStreams:{mtconnectVersion}";
+                            s = Regex.Replace(s, pattern, replace);
+                        }
+                        catch { }
+
+                        return Encoding.UTF8.GetBytes(s);
+                    }
+                }
+                catch { }
+            }
+
+            return null;
+        }
+
+        private byte[] ReadStreamsStylesheet(string filePath, Version mtconnectVersion)
+        {
+            if (filePath != null)
+            {
+                try
+                {
+                    var fileContents = File.ReadAllText(filePath);
+                    if (!string.IsNullOrEmpty(fileContents))
+                    {
+                        // Replace Streams Namespace
+                        var pattern = @"urn:mtconnect\.org:MTConnectStreams:(\d\.\d)";
+                        var replace = $@"urn:mtconnect.org:MTConnectStreams:{mtconnectVersion}";
+                        var s = Regex.Replace(fileContents, pattern, replace);
+
+                        return Encoding.UTF8.GetBytes(s);
+                    }
+                }
+                catch { }
+            }
+
+            return null;
+        }
+
+
+        private List<KeyValuePair<string, string>> CreateFormatOptions(string documentFormat)
+        {
+            var x = new List<KeyValuePair<string, string>>();
+
+            switch (documentFormat)
+            {
+                case DocumentFormat.XML:
+
+                    if (_configuration != null)
+                    {
+                        // Add Devices Stylesheet
+                        if (_configuration.DevicesStyle != null)
+                        {
+                            x.Add(new KeyValuePair<string, string>("devicesStyle.location", _configuration.DevicesStyle.Location));
+                            x.Add(new KeyValuePair<string, string>("devicesStyle.path", _configuration.DevicesStyle.Path));
+                        }
+
+                        // Add Streams Stylesheet
+                        if (_configuration.StreamsStyle != null)
+                        {
+                            x.Add(new KeyValuePair<string, string>("streamsStyle.location", _configuration.StreamsStyle.Location));
+                            x.Add(new KeyValuePair<string, string>("streamsStyle.path", _configuration.StreamsStyle.Path));
+                        }
+
+                        // Add Assets Stylesheet
+                        if (_configuration.AssetsStyle != null)
+                        {
+                            x.Add(new KeyValuePair<string, string>("assetsStyle.location", _configuration.AssetsStyle.Location));
+                            x.Add(new KeyValuePair<string, string>("assetsStyle.path", _configuration.AssetsStyle.Path));
+                        }
+
+                        // Add Error Stylesheet
+                        if (_configuration.ErrorStyle != null)
+                        {
+                            x.Add(new KeyValuePair<string, string>("errorStyle.location", _configuration.ErrorStyle.Location));
+                            x.Add(new KeyValuePair<string, string>("errorStyle.path", _configuration.ErrorStyle.Path));
+                        }
+                    }
+
+                    break;
+            }
+
+            return x;
         }
     }
 }

@@ -124,7 +124,7 @@ namespace MTConnect.Agents.Configuration
         /// Change the schema version to a different version number.
         /// </summary>
         [JsonPropertyName("schemaVersion")]
-        public string SchemaVersion { get; set; }
+        public Version DefaultVersion { get; set; }
 
         /// <summary>
         /// Global default for data item units conversion in the agent. Assumes the adapter has already done unit conversion.
@@ -193,16 +193,16 @@ namespace MTConnect.Agents.Configuration
 
 
         [JsonPropertyName("devicesStyle")]
-        public List<StyleConfiguration> DevicesStyle { get; set; }
+        public StyleConfiguration DevicesStyle { get; set; }
 
         [JsonPropertyName("streamsStyle")]
-        public List<StyleConfiguration> StreamsStyle { get; set; }
+        public StyleConfiguration StreamsStyle { get; set; }
 
         [JsonPropertyName("assetsStyle")]
-        public List<StyleConfiguration> AssetsStyle { get; set; }
+        public StyleConfiguration AssetsStyle { get; set; }
 
         [JsonPropertyName("errorStyle")]
-        public List<StyleConfiguration> ErrorStyle { get; set; }
+        public StyleConfiguration ErrorStyle { get; set; }
 
 
 
@@ -215,19 +215,19 @@ namespace MTConnect.Agents.Configuration
             PidFile = "agent.pid";
             ServiceName = "MTConnect Agent";
             Port = 5000;
-            ServerIp = "0.0.0.0";
+            ServerIp = "127.0.0.1";
             AllowPut = false;
             AllowPutFrom = null;
             LegacyTimeout = 600;
             ReconnectInterval = 10000;
             IgnoreTimestamps = false;
             PreserveUuid = true;
-            SchemaVersion = "1.7";
+            DefaultVersion = new Version(1, 8);
             ConversionRequired = true;
             UpcaseDataItemValue = true;
             MonitorConfigFiles = false;
             MinimumConfigReloadAge = 15;
-            Pretty = false;
+            Pretty = true;
             ShdrVersion = "1";
             SuppressIpAddress = false;
         }

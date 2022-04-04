@@ -144,13 +144,13 @@ namespace MTConnect.Agents.Metrics
             }
         }
 
-        public DeviceMetrics GetDeviceMetric(string deviceName)
+        public DeviceMetrics GetDeviceMetric(string deviceUuid)
         {
-            if (!string.IsNullOrEmpty(deviceName))
+            if (!string.IsNullOrEmpty(deviceUuid))
             {
                 lock (_lock)
                 {
-                    if (_devices.TryGetValue(deviceName, out var deviceStatistics))
+                    if (_devices.TryGetValue(deviceUuid, out var deviceStatistics))
                     {
                         return deviceStatistics;
                     }
@@ -194,18 +194,18 @@ namespace MTConnect.Agents.Metrics
         }
 
 
-        public void UpdateObservation(string deviceName, string dataItemId)
+        public void UpdateObservation(string deviceUuid, string dataItemId)
         {
-            if (!string.IsNullOrEmpty(deviceName) && !string.IsNullOrEmpty(dataItemId))
+            if (!string.IsNullOrEmpty(deviceUuid) && !string.IsNullOrEmpty(dataItemId))
             {
                 lock (_lock)
                 {
-                    _devices.TryGetValue(deviceName, out var deviceStatistics);
+                    _devices.TryGetValue(deviceUuid, out var deviceStatistics);
 
                     if (deviceStatistics == null)
                     {
-                        deviceStatistics = new DeviceMetrics(deviceName);
-                        _devices.Add(deviceName, deviceStatistics);
+                        deviceStatistics = new DeviceMetrics(deviceUuid);
+                        _devices.Add(deviceUuid, deviceStatistics);
                     }
 
                     deviceStatistics.UpdateObservation(dataItemId);
@@ -213,18 +213,18 @@ namespace MTConnect.Agents.Metrics
             }
         }
 
-        public void UpdateAsset(string deviceName, string assetId)
+        public void UpdateAsset(string deviceUuid, string assetId)
         {
-            if (!string.IsNullOrEmpty(deviceName) && !string.IsNullOrEmpty(assetId))
+            if (!string.IsNullOrEmpty(deviceUuid) && !string.IsNullOrEmpty(assetId))
             {
                 lock (_lock)
                 {
-                    _devices.TryGetValue(deviceName, out var deviceStatistics);
+                    _devices.TryGetValue(deviceUuid, out var deviceStatistics);
 
                     if (deviceStatistics == null)
                     {
-                        deviceStatistics = new DeviceMetrics(deviceName);
-                        _devices.Add(deviceName, deviceStatistics);
+                        deviceStatistics = new DeviceMetrics(deviceUuid);
+                        _devices.Add(deviceUuid, deviceStatistics);
                     }
 
                     deviceStatistics.UpdateAsset(assetId);

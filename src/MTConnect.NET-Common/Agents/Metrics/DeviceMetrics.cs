@@ -27,7 +27,7 @@ namespace MTConnect.Agents.Metrics
         private double _lastAssetAverage = 0;
 
 
-        public string DeviceName { get; set; }
+        public string DeviceUuid { get; set; }
 
         public int ObservationDelta
         {
@@ -76,9 +76,9 @@ namespace MTConnect.Agents.Metrics
 
         public DeviceMetrics() { }
 
-        public DeviceMetrics(string deviceName)
+        public DeviceMetrics(string deviceUuid)
         {
-            DeviceName = deviceName;
+            DeviceUuid = deviceUuid;
         }
 
 
