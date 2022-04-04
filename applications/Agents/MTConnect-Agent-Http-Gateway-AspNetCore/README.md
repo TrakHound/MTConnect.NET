@@ -1,4 +1,4 @@
-# MTConnect® Agent (AspNetCore)
+# MTConnect Agent (AspNetCore)
 This implemenation of an MTConnect Agent uses ASP.NET Core built using the .NET 6 framework. ASP.NET Core allows the ability to either run locally using the built-in Kestrel web server or to use with IIS (Internet Information Services).
 
 ## Overview
