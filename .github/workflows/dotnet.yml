@@ -23,11 +23,8 @@ jobs:
     - name: Clean
       run: dotnet clean --configuration Release
       working-directory: src/MTConnect.NET-Common
-    - name: Install dependencies
-      run: dotnet restore
-      working-directory: src/MTConnect.NET-Common
     - name: Build
-      run: dotnet build --configuration Release --no-restore
+      run: dotnet build --configuration Release --force
       working-directory: src/MTConnect.NET-Common
     - name: Test
       run: dotnet test --no-restore --verbosity normal
