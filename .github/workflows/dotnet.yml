@@ -20,6 +20,9 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
+    - name: Clean
+      run: dotnet clean
+      working-directory: src/MTConnect.NET-Common
     - name: Install dependencies
       run: dotnet restore
       working-directory: src/MTConnect.NET-Common
