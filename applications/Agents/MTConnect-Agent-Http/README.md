@@ -1,4 +1,4 @@
-# MTConnect® Agent
+# MTConnect Http Agent
 
 ## Overview
 This implementation is designed to mimic the functionality of the traditional [c++ MTConnect Agent](https://github.com/mtconnect/cppagent) that has been in the industry since the introduction of the MTConnect standard. It uses the SHDR protocol to receive data from Adapters, an in-memory buffer, and a Http REST interface for retrieving data.
