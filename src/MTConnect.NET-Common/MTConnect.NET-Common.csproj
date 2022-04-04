@@ -11,7 +11,6 @@
     <RootNamespace>MTConnect</RootNamespace>
     <Authors>TrakHound</Authors>
     <Company>TrakHound Inc.</Company>
-    <AssemblyVersion>0.3.1</AssemblyVersion>
     <Configurations>Debug;Release;Package</Configurations>
     <Copyright>Copyright (c) 2022 TrakHound Inc., All Rights Reserved.</Copyright>
     <PackageProjectUrl>https://www.TrakHound.com</PackageProjectUrl>

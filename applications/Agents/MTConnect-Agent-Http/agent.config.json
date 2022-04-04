@@ -1,15 +1,13 @@
 ﻿{
 	"devices": "devices.xml",
 	"port": 5000,
-
 	"adapters": [
 		{
-			"device": "M12346",
-			"host": "localhost",
+			"device": "VMC-3Axis",
+			"host": "127.0.0.1",
 			"port": 7878
 		}
 	],
-
 	"streamsStyle": {
 		"location": "styles/stylesheet-streams.xsl"
 	}

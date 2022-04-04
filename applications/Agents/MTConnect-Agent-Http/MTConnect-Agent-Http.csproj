@@ -19,7 +19,6 @@
     <RepositoryUrl>https://github.com/TrakHound/MTConnect.NET</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>mtconnect;iiot;</PackageTags>
-    <AssemblyVersion>0.2.1</AssemblyVersion>
     <Authors>TrakHound Inc.</Authors>
     <Product>TrakHound MTConnect Http Agent</Product>
   </PropertyGroup>
@@ -34,6 +33,9 @@
 
   <ItemGroup>
     <None Update="agent.config.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="devices-Copy.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="devices-okuma.xml">
@@ -51,25 +53,6 @@
     <None Update="README.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
-    </None>
-    <None Update="schemas\MTConnectDevices_1.8.xsd">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="schemas\MTConnectStreams_1.8.xsd">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="styles\devices-stylesheet.xsl">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <SubType>Designer</SubType>
-    </None>
-    <None Update="styles\stylesheet-streams.xsl">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="styles\streams.css">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="styles\trakhound-logo-v5-03-text.svg">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
