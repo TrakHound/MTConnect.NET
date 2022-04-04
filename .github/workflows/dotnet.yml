@@ -21,7 +21,7 @@ jobs:
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
     - name: Clean
-      run: dotnet clean
+      run: dotnet clean --configuration Release
       working-directory: src/MTConnect.NET-Common
     - name: Install dependencies
       run: dotnet restore
