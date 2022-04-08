@@ -405,10 +405,10 @@ namespace MTConnect.Clients.Rest
                                 if (deviceStream != null && deviceStream.Observations != null) CheckAssetChanged(deviceStream.Observations, cancellationToken);
                             }
 
-                            // Read the Next Available Sequence from the MTConnect Agent
+                            // Read the Last Available Sequence from the MTConnect Agent
                             if (initialRequest && !_initializeFromBuffer && _lastSequence == 0)
                             {
-                                _lastSequence = current.Header.NextSequence;
+                                _lastSequence = current.Header.LastSequence;
                             }
 
                             // Check if Agent Instance ID has changed (Agent has been reset)
