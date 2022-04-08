@@ -47,12 +47,30 @@ namespace MTConnect.Buffers
         /// <summary>
         /// A number representing the sequence number assigned to the last Observation that was added to the buffer
         /// </summary>
-        public long LastSequence => _sequence > 1 ? _sequence - 1 : 1;
+        public long LastSequence
+        {
+            get
+            {
+                lock (_lock)
+                {
+                    return _sequence > 1 ? _sequence - 1 : 1;
+                }
+            }
+        }
 
         /// <summary>
         /// A number representing the sequence number of the Observation that is the next piece of data to be retrieved from the buffer
         /// </summary>
-        public long NextSequence => _sequence;
+        public long NextSequence
+        {
+            get
+            {
+                lock (_lock)
+                {
+                    return _sequence;
+                }
+            }
+        }
 
 
         public MTConnectObservationBuffer()
@@ -81,7 +99,10 @@ namespace MTConnect.Buffers
         /// </summary>
         public void IncrementSequence()
         {
-            _sequence++;
+            lock (_lock)
+            {
+                _sequence++;
+            }
         }
 
         /// <summary>
@@ -89,7 +110,10 @@ namespace MTConnect.Buffers
         /// </summary>
         public void IncrementSequence(int count)
         {
-            _sequence += count;
+            lock (_lock)
+            {
+                _sequence += count;
+            }
         }
 
         #endregion
@@ -115,8 +139,8 @@ namespace MTConnect.Buffers
             lock (_lock)
             {
                 firstSequence = Math.Max(1, _sequence - BufferSize);
-                lastSequence = _sequence;
-                nextSequence = _sequence + 1;
+                lastSequence = _sequence > 1 ? _sequence - 1 : 1;
+                nextSequence = _sequence;
 
                 var firstItem = _archiveObservations[0];
                 var length = _sequence - firstItem.Sequence;
@@ -169,8 +193,8 @@ namespace MTConnect.Buffers
             lock (_lock)
             {
                 //firstSequence = Math.Max(1, _sequence - BufferSize);
-                //lastSequence = _sequence;
-                //nextSequence = _sequence + 1;
+                //lastSequence = _sequence > 1 ? _sequence - 1 : 1;
+                //nextSequence = _sequence;
 
                 var firstItem = _archiveObservations[0];
                 var length = _sequence - firstItem.Sequence;
@@ -183,8 +207,8 @@ namespace MTConnect.Buffers
             lock (_lock)
             {
                 firstSequence = Math.Max(1, _sequence - BufferSize);
-                lastSequence = _sequence;
-                nextSequence = _sequence + 1;
+                lastSequence = _sequence > 1 ? _sequence - 1 : 1;
+                nextSequence = _sequence;
 
                 foreach (var query in queries)
                 {
