@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.0.31919.166
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.32002.261
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Applications", "Applications", "{94845A24-EEE7-4FEF-B033-99C02DD39C30}"
 EndProject
@@ -60,6 +60,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect-Agent-MQTT-Gateway", "..\applications\Agents\MTConnect-Agent-MQTT-Gateway\MTConnect-Agent-MQTT-Gateway.csproj", "{AC29B643-38DA-4C31-B961-FAEEB314FA4E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-HTTP-AspNetCore", "MTConnect.NET-HTTP-AspNetCore\MTConnect.NET-HTTP-AspNetCore.csproj", "{E15CC46D-0B0C-4A7D-9D7D-32E2265FAC86}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntegrationTests", "Tests\IntegrationTests\IntegrationTests.csproj", "{3241C13A-EA6F-4C6E-9A02-9B69DC0E4047}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -194,6 +196,12 @@ Global
 		{E15CC46D-0B0C-4A7D-9D7D-32E2265FAC86}.Package|Any CPU.Build.0 = Package|Any CPU
 		{E15CC46D-0B0C-4A7D-9D7D-32E2265FAC86}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E15CC46D-0B0C-4A7D-9D7D-32E2265FAC86}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3241C13A-EA6F-4C6E-9A02-9B69DC0E4047}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3241C13A-EA6F-4C6E-9A02-9B69DC0E4047}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3241C13A-EA6F-4C6E-9A02-9B69DC0E4047}.Package|Any CPU.ActiveCfg = Debug|Any CPU
+		{3241C13A-EA6F-4C6E-9A02-9B69DC0E4047}.Package|Any CPU.Build.0 = Debug|Any CPU
+		{3241C13A-EA6F-4C6E-9A02-9B69DC0E4047}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3241C13A-EA6F-4C6E-9A02-9B69DC0E4047}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -221,6 +229,7 @@ Global
 		{A067EB5B-6FA5-4BCA-A25C-4B725BB14523} = {6C3F47E0-BC95-48CB-93A4-C34A0D5CA43B}
 		{AC29B643-38DA-4C31-B961-FAEEB314FA4E} = {6C3F47E0-BC95-48CB-93A4-C34A0D5CA43B}
 		{E15CC46D-0B0C-4A7D-9D7D-32E2265FAC86} = {E0233BEB-F66C-43C4-9DC8-20182894CF5F}
+		{3241C13A-EA6F-4C6E-9A02-9B69DC0E4047} = {14375E03-6BF8-45E6-B868-D2399368992B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CC13D3AD-18BF-4695-AB2A-087EF0885B20}
