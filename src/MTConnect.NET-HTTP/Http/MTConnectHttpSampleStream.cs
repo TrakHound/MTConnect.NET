@@ -101,6 +101,7 @@ namespace MTConnect.Http
                     var stpw = new System.Diagnostics.Stopwatch();
 
                     long lastSequence = Math.Max(0, _from);
+                    long nextSequence = lastSequence;
                     long lastDocumentSent = 0;
                     long lastHeartbeatSent = 0;
                     long now = UnixDateTime.Now;
@@ -110,8 +111,6 @@ namespace MTConnect.Http
                     while (!cancellationToken.IsCancellationRequested)
                     {
                         stpw.Restart();
-
-                        var nextSequence = lastSequence + 1;
 
                         // Read the MTConnectStreams document from the IMTConnectAgent
                         if (!string.IsNullOrEmpty(_deviceName))
@@ -161,6 +160,7 @@ namespace MTConnect.Http
                                 if (!dataItems.IsNullOrEmpty())
                                 {
                                     lastSequence = dataItems.Select(o => o.Sequence).Max();
+                                    nextSequence = lastSequence + 1;
                                 }
                             }
                         }
