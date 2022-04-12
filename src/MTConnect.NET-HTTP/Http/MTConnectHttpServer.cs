@@ -491,29 +491,34 @@ namespace MTConnect.Http
 
                 if (interval > 0)
                 {
+                    var currentStream = new MTConnectHttpCurrentStream(_mtconnectAgent, deviceName, path, interval, heartbeat, documentFormat, formatOptions);
+
                     try
                     {
                         using (var responseStream = httpResponse.OutputStream)
                         {
                             // Create Sample Stream
-                            var sampleStream = new MTConnectHttpCurrentStream(_mtconnectAgent, deviceName, path, interval, heartbeat, documentFormat, formatOptions);
-                            sampleStream.HeartbeatReceived += async (s, args) => await WriteToResponseStream(responseStream, args);
-                            sampleStream.DocumentReceived += async (s, args) => await WriteToResponseStream(responseStream, args);
+                            currentStream.HeartbeatReceived += async (s, args) => await WriteFromStream(currentStream, responseStream, args);
+                            currentStream.DocumentReceived += async (s, args) => await WriteFromStream(currentStream, responseStream, args);
 
                             // Set HTTP Response Headers
                             httpResponse.Headers.Add("Server", "MTConnectAgent");
                             httpResponse.Headers.Add("Expires", "-1");
                             httpResponse.Headers.Add("Connection", "close");
                             httpResponse.Headers.Add("Cache-Control", "no-cache, private, max-age=0");
-                            httpResponse.Headers.Add("Content-Type", $"multipart/x-mixed-replace;boundary={sampleStream.Boundary}");
+                            httpResponse.Headers.Add("Content-Type", $"multipart/x-mixed-replace;boundary={currentStream.Boundary}");
 
                             // Start the MTConnectHttpStream
-                            sampleStream.Start(CancellationToken.None);
+                            currentStream.Start(CancellationToken.None);
 
                             while (true) { await Task.Delay(100); }
                         }
                     }
                     catch { }
+                    finally
+                    {
+                        if (currentStream != null) currentStream.Stop();
+                    }
                 }
                 else
                 {
@@ -534,6 +539,7 @@ namespace MTConnect.Http
                 }
             }
         }
+
 
         /// <summary>
         /// An Agent responds to a Sample Request with an MTConnectStreams Response Document that contains a set of values for Data Entities
@@ -593,14 +599,15 @@ namespace MTConnect.Http
 
                 if (interval > 0)
                 {
+                    var sampleStream = new MTConnectHttpSampleStream(_mtconnectAgent, deviceName, path, from, count, interval, heartbeat, documentFormat, formatOptions);
+
                     try
                     {
                         using (var responseStream = httpResponse.OutputStream)
                         {
                             // Create Sample Stream
-                            var sampleStream = new MTConnectHttpSampleStream(_mtconnectAgent, deviceName, path, from, count, interval, heartbeat, documentFormat, formatOptions);
-                            sampleStream.HeartbeatReceived += async (s, args) => await WriteToResponseStream(responseStream, args);
-                            sampleStream.DocumentReceived += async (s, args) => await WriteToResponseStream(responseStream, args);
+                            sampleStream.HeartbeatReceived += async (s, args) => await WriteFromStream(sampleStream, responseStream, args);
+                            sampleStream.DocumentReceived += async (s, args) => await WriteFromStream(sampleStream, responseStream, args);
 
                             // Set HTTP Response Headers
                             httpResponse.Headers.Add("Server", "MTConnectAgent");
@@ -616,6 +623,10 @@ namespace MTConnect.Http
                         }
                     }
                     catch { }
+                    finally
+                    {
+                        if (sampleStream != null) sampleStream.Stop();
+                    }
                 }
                 else
                 {
@@ -627,7 +638,7 @@ namespace MTConnect.Http
                         ResponseSent?.Invoke(this, response);
                     }
                     else
-                    {                        
+                    {
                         // Get MTConnectStreams document from the MTConnectAgent
                         var response = await MTConnectHttpRequests.GetSampleRequest(_mtconnectAgent, path, from, to, count, version, documentFormat, formatOptions);
                         await WriteResponse(response, httpResponse);
@@ -636,21 +647,6 @@ namespace MTConnect.Http
                 }
             }
         }
-
-        private static async Task WriteToResponseStream(Stream responseStream, MTConnectHttpStreamArgs args)
-        {
-            try
-            {
-                if (responseStream != null)
-                {
-                    var bytes = Encoding.ASCII.GetBytes(args.Message);
-                    await responseStream.WriteAsync(bytes, 0, bytes.Length);
-                }
-            }
-            catch { }
-        }
-
-
 
         /// <summary>
         /// An Agent responds to an Asset Request with an MTConnectAssets Response Document that contains
@@ -911,6 +907,48 @@ namespace MTConnect.Http
             }
 
             return x;
+        }
+
+
+        private static async Task WriteToResponseStream(Stream responseStream, MTConnectHttpStreamArgs args)
+        {
+            if (responseStream != null)
+            {
+                var bytes = Encoding.ASCII.GetBytes(args.Message);
+                await responseStream.WriteAsync(bytes, 0, bytes.Length);
+            }
+        }
+
+        private async Task WriteFromStream(MTConnectHttpCurrentStream currentStream, Stream responseStream, MTConnectHttpStreamArgs args)
+        {
+            if (currentStream != null && responseStream != null)
+            {
+                try
+                {
+                    await WriteToResponseStream(responseStream, args);
+                }
+                catch (Exception ex)
+                {
+                    if (ClientDisconnected != null) ClientDisconnected.Invoke(this, currentStream.Id);
+                    currentStream.Stop();
+                }
+            }
+        }
+
+        private async Task WriteFromStream(MTConnectHttpSampleStream sampleStream, Stream responseStream, MTConnectHttpStreamArgs args)
+        {
+            if (sampleStream != null && responseStream != null)
+            {
+                try
+                {
+                    await WriteToResponseStream(responseStream, args);
+                }
+                catch (Exception ex)
+                {
+                    if (ClientDisconnected != null) ClientDisconnected.Invoke(this, sampleStream.Id);
+                    sampleStream.Stop();
+                }
+            }
         }
     }
 }
