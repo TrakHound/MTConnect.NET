@@ -209,27 +209,27 @@ namespace MTConnect.Applications
 
         private static void StreamsRequested(string deviceName)
         {
-            _agentLogger.Info($"[Agent] : MTConnectDevices Requested : " + deviceName);
+            _agentLogger.Info($"[Agent] : MTConnectStreams Requested : " + deviceName);
         }
 
         private static void StreamsSent(IStreamsResponseDocument document)
         {
             if (document != null && document.Header != null)
             {
-                _agentLogger.Info($"[Agent] : MTConnectDevices Sent : " + document.Header.CreationTime);
+                _agentLogger.Info($"[Agent] : MTConnectStreams Sent : " + document.Header.CreationTime);
             }
         }
 
         private static void AssetsRequested(string deviceName)
         {
-            _agentLogger.Info($"[Agent] : MTConnectDevices Requested : " + deviceName);
+            _agentLogger.Info($"[Agent] : MTConnectAssets Requested : " + deviceName);
         }
 
         private static void AssetsSent(IAssetsResponseDocument document)
         {
             if (document != null && document.Header != null)
             {
-                _agentLogger.Info($"[Agent] : MTConnectDevices Sent : " + document.Header.CreationTime);
+                _agentLogger.Info($"[Agent] : MTConnectAssets Sent : " + document.Header.CreationTime);
             }
         }
 
