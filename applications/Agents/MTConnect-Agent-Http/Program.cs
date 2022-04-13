@@ -124,7 +124,7 @@ namespace MTConnect.Applications
                 StartMetrics();
 
                 // Start the Http Server
-                var server = new MTConnectHttpServer(_agent);
+                var server = new ShdrMTConnectHttpServer(_agent);
 
                 if (verboseLogging)
                 {

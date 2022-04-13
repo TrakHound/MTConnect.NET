@@ -3371,6 +3371,5 @@ namespace MTConnect.Agents
         }
 
         #endregion
-
     }
 }

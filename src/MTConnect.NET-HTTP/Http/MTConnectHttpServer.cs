@@ -5,6 +5,7 @@
 
 using MTConnect.Agents;
 using MTConnect.Agents.Configuration;
+using MTConnect.Errors;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -215,7 +216,6 @@ namespace MTConnect.Http
 
                         if (uri != null)
                         {
-
                             switch (method)
                             {
                                 case "GET":
@@ -237,9 +237,7 @@ namespace MTConnect.Http
 
                                     if (_configuration != null && _configuration.AllowPut)
                                     {
-                                        Console.WriteLine("PUT");
-
-                                        contextClosure.Response.StatusCode = 200;
+                                        await ProcessPut(request, response);
                                     }
                                     else
                                     {
@@ -380,6 +378,28 @@ namespace MTConnect.Http
                         httpResponse.StatusCode = mtconnectResponse.StatusCode;
 
                         var bytes = Encoding.ASCII.GetBytes(mtconnectResponse.Content);
+                        await stream.WriteAsync(bytes, 0, bytes.Length);
+                    }
+                }
+                catch { }
+            }
+        }
+
+        /// <summary>
+        /// Write a string to the HttpListenerResponse Output Stream
+        /// </summary>
+        private async Task WriteResponse(string content, HttpListenerResponse httpResponse, HttpStatusCode statusCode, string contentType = MimeTypes.XML)
+        {
+            if (httpResponse != null)
+            {
+                try
+                {
+                    using (var stream = httpResponse.OutputStream)
+                    {
+                        httpResponse.ContentType = contentType;
+                        httpResponse.StatusCode = (int)statusCode;
+
+                        var bytes = Encoding.ASCII.GetBytes(content);
                         await stream.WriteAsync(bytes, 0, bytes.Length);
                     }
                 }
@@ -744,6 +764,75 @@ namespace MTConnect.Http
                 await WriteResponse(response, httpResponse);
                 ResponseSent?.Invoke(this, response);
             }
+        }
+
+
+        private async Task ProcessPut(HttpListenerRequest httpRequest, HttpListenerResponse httpResponse)
+        {
+            if (httpRequest != null && httpRequest.Url != null && httpResponse != null)
+            {
+                if (httpRequest.QueryString != null && httpRequest.QueryString.Count > 0)
+                {
+                    var urlSegments = GetUriSegments(httpRequest.Url);
+
+                    // Read DeviceKey from URL Path
+                    var deviceKey = httpRequest.Url.LocalPath?.Trim('/');
+                    if (urlSegments.Length > 1)
+                    {
+                        deviceKey = urlSegments[urlSegments.Length - 1];
+                    }
+
+                    // Get list of KeyValuePairs from Url Query
+                    var items = new List<KeyValuePair<string, string>>();
+                    foreach (var key in httpRequest.QueryString.AllKeys)
+                    {
+                        var urlValue = httpRequest.QueryString[key];
+                        if (!string.IsNullOrEmpty(urlValue))
+                        {
+                            // Decode the input that was read from the URL
+                            var value = System.Web.HttpUtility.UrlDecode(urlValue);
+
+                            // Add to list of items
+                            items.Add(new KeyValuePair<string, string>(key, value));
+                        }
+                    }
+
+                    if (!items.IsNullOrEmpty())
+                    {
+                        var success = false;
+
+                        foreach (var item in items)
+                        {
+                            // Call the OnObservationInput method that is intended to be overridden by a derived class
+                            success = await OnObservationInput(deviceKey, item.Key, item.Value);
+                            if (!success) break;
+                        }
+
+                        if (success)
+                        {
+                            // Write the "<success/>" respone to the Http Response Stream
+                            // along with a 200 Status Code
+                            await WriteResponse("<success/>", httpResponse, HttpStatusCode.OK);
+                        }
+                        else
+                        {
+                            // Return MTConnectError Response Document along with a 404 Http Status Code
+                            var errorDocument = await _mtconnectAgent.GetErrorAsync(ErrorCode.UNSUPPORTED, $"Cannot find device: {deviceKey}");
+                            var mtconnectResponse = new MTConnectHttpResponse(errorDocument, 404, DocumentFormat.XML, 0, null);
+                            await WriteResponse(mtconnectResponse, httpResponse);
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Method run when an Observation is attempted to be added to the MTConnect Agent from an HTTP PUT request
+        /// </summary>
+        /// <returns>Returns False if a Device cannot be found from the specified DeviceKey</returns>
+        protected virtual async Task<bool> OnObservationInput(string deviceKey, string dataItemKey, string input)
+        {
+            return false;
         }
 
 
