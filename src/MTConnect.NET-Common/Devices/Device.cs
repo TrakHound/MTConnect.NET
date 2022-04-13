@@ -234,6 +234,36 @@ namespace MTConnect.Devices
         }
 
         /// <summary>
+        /// Return the DataItem matching either the ID, Name, or Source of the specified Key
+        /// </summary>
+        public IDataItem GetDataItemByKey(string dataItemKey)
+        {
+            if (!string.IsNullOrEmpty(dataItemKey))
+            {
+                var dataItems = GetDataItems();
+                if (!dataItems.IsNullOrEmpty())
+                {
+                    // Check DataItem ID
+                    var dataItem = dataItems.FirstOrDefault(o => o.Id == dataItemKey);
+
+                    // Check DataItem Name
+                    if (dataItem == null) dataItem = dataItems.FirstOrDefault(o => o.Name == dataItemKey);
+
+                    // Check DataItem Source DataItemId
+                    if (dataItem == null) dataItem = dataItems.FirstOrDefault(o => o.Source != null && o.Source.DataItemId == dataItemKey);
+
+                    // Check DataItem Source CDATA
+                    if (dataItem == null) dataItem = dataItems.FirstOrDefault(o => o.Source != null && o.Source.CDATA == dataItemKey);
+
+                    // Return DataItem
+                    return dataItem;
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
         /// Return a list of All Components
         /// </summary>
         public IEnumerable<IComponent> GetComponents()

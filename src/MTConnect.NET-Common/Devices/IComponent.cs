@@ -106,6 +106,11 @@ namespace MTConnect.Devices
         IEnumerable<IDataItem> GetDataItems();
 
         /// <summary>
+        /// Return the DataItem matching either the ID, Name, or Source of the specified Key
+        /// </summary>
+        IDataItem GetDataItemByKey(string dataItemKey);
+
+        /// <summary>
         /// Return a list of All Components
         /// </summary>
         IEnumerable<IComponent> GetComponents();

@@ -358,29 +358,11 @@ namespace MTConnect.Adapters.Shdr
         {
             if (_device != null && !string.IsNullOrEmpty(line))
             {
+                // Get the DataItemKey from the SHDR line
                 var key = GetKey(line);
-                if (!string.IsNullOrEmpty(key))
-                {
-                    var dataItems = _device.GetDataItems();
-                    if (!dataItems.IsNullOrEmpty())
-                    {
-                        // Find DataItem with Key matching DataItemId
-                        var dataItem = dataItems.FirstOrDefault(o => o.Id == key);
-                        if (dataItem != null)
-                        {
-                            return dataItem;
-                        }
-                        else
-                        {
-                            // Find DataItem with Key matching Name
-                            dataItem = dataItems.FirstOrDefault(o => o.Name == key);
-                            if (dataItem != null)
-                            {
-                                return dataItem;
-                            }
-                        }
-                    }
-                }
+
+                // Return the DataItem matching the DataItemKey
+                return _device.GetDataItemByKey(key);
             }
 
             return null;
