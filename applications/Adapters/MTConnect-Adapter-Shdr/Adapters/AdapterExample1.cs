@@ -31,7 +31,7 @@ namespace MTConnect.Applications.Adapters.Shdr.Adapters
             _simulator = new Simulator.DeviceSimulator(deviceName, 100);
 
             _adapter = new ShdrAdapter(deviceName);
-            _adapter.Interval = 100;
+            _adapter.Interval = 0;
             _adapter.AgentConnected += (sender, connectionId) => Console.WriteLine($"Agent Connection (ID = {connectionId}) : Agent Connected");
             _adapter.AgentDisconnected += (sender, connectionId) => Console.WriteLine($"Agent Connection (ID = {connectionId}) : Agent Disconnected");
             _adapter.PingReceived += (sender, connectionId) => Console.WriteLine($"Agent Connection (ID = {connectionId}) : Agent Ping Received");
@@ -98,6 +98,20 @@ namespace MTConnect.Applications.Adapters.Shdr.Adapters
         {
             _adapter.SetUnavailable();
             //_adapter.SetUnavailable(UnixDateTime.Now);
+        }
+
+        private int j = 1;
+        private int k = 1;
+        private int l = 1;
+
+        public void UpdateValue()
+        {
+            var axisXDataItem = new ShdrDataItem("Xpos", j++);
+            var axisYDataItem = new ShdrDataItem("Ypos", k++);
+            var axisZDataItem = new ShdrDataItem("Zpos", l++);
+            _adapter.AddDataItem(axisXDataItem);
+            _adapter.AddDataItem(axisYDataItem);
+            _adapter.AddDataItem(axisZDataItem);
         }
 
         public void UpdateUnavaiableTest()

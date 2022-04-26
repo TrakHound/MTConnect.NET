@@ -9,31 +9,51 @@
 
 	<PropertyGroup>
 		<RootNamespace>MTConnect</RootNamespace>
+		<Configurations>Debug;Release;Package</Configurations>
 		<Authors>TrakHound</Authors>
 		<Company>TrakHound Inc.</Company>
-		<Configurations>Debug;Release;Package</Configurations>
 		<Copyright>Copyright (c) 2022 TrakHound Inc., All Rights Reserved.</Copyright>
-		<PackageProjectUrl>https://www.TrakHound.com</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/TrakHound/MTConnect.NET</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
-		<PackageTags>mtconnect;iiot;</PackageTags>
 		<Description>MTConnect.NET-SHDR implements the SHDR Adapter Protocol for use with the MTConnect.NET library. Supports MTConnect Versions up to 1.8. Supports .NET Framework 4.6.1 up to .NET 6</Description>
-		<Version>3.2.0</Version>
+		<PackageProjectUrl>https://www.TrakHound.com</PackageProjectUrl>
+		<PackageTags>mtconnect;iiot;</PackageTags>
 		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
 		<PackageIconUrl>https://static.trakhound.com/mtconnect-net.png</PackageIconUrl>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
+
+		<!-- Optional: Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+
+		<!-- Optional: Embed source files that are not tracked by the source control manager in the PDB -->
+		<EmbedUntrackedSources>true</EmbedUntrackedSources>
+
+		<!-- Optional: Build symbol package (.snupkg) to distribute the PDB containing Source Link -->
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 	</PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\MTConnect.NET-HTTP\MTConnect.NET-HTTP.csproj" />
-    <ProjectReference Include="..\MTConnect.NET-XML\MTConnect.NET-XML.csproj" />
-  </ItemGroup>
+	<PropertyGroup Condition="'$(Configuration)'=='Release'">
+		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <None Include="Adapters\Shdr\README.md">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\MTConnect.NET-HTTP\MTConnect.NET-HTTP.csproj" />
+		<ProjectReference Include="..\MTConnect.NET-XML\MTConnect.NET-XML.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="Adapters\Shdr\README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
 
 </Project>

@@ -1,9 +1,10 @@
 ﻿{
 	"devices": "devices.xml",
 	"port": 5000,
+	"allowPut": true,
 	"adapters": [
 		{
-			"device": "VMC-3Axis",
+			"device": "M12346",
 			"host": "127.0.0.1",
 			"port": 7878
 		}
