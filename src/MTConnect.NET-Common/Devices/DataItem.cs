@@ -388,9 +388,11 @@ namespace MTConnect.Devices
             var assemblies = Assemblies.Get();
             if (!assemblies.IsNullOrEmpty())
             {
-                var allTypes = assemblies.SelectMany(x => x.GetTypes());
+                var types = assemblies
+                    .SelectMany(
+                        x => x.GetMatchingTypesInAssembly(
+                            t => typeof(DataItem).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract));
 
-                var types = allTypes.Where(x => typeof(DataItem).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract);
                 if (!types.IsNullOrEmpty())
                 {
                     var objs = new Dictionary<string, Type>();

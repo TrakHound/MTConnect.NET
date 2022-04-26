@@ -191,10 +191,12 @@ namespace MTConnect.Formatters
             var assemblies = Assemblies.Get();
             if (!assemblies.IsNullOrEmpty())
             {
-                var allTypes = assemblies.SelectMany(x => x.GetTypes());
-
                 // Get IResponseDocumentFormatter Types
-                var types = allTypes.Where(x => typeof(IResponseDocumentFormatter).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract);
+                var types = assemblies
+                    .SelectMany(
+                        x => x.GetMatchingTypesInAssembly(
+                            t => typeof(IResponseDocumentFormatter).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract));
+
                 if (!types.IsNullOrEmpty())
                 {
                     foreach (var type in types)
