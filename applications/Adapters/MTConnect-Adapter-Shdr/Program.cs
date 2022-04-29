@@ -13,7 +13,7 @@ namespace MTConnect.Applications.Adapters.Shdr
 
         static async Task Main(string[] args)
         {
-            _adapterExample1 = new Adapters.AdapterExample1("OKUMA-Lathe");
+            _adapterExample1 = new Adapters.AdapterExample1("OKUMA.Lathe");
             _adapterExample1.Start();
             Console.ReadLine();
 

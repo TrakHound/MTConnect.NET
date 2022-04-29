@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <RootNamespace>MTConnect_Agent_Sensor</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Program-Example-2.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Program-Example-2.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\MTConnect.NET-XML\MTConnect.NET-XML.csproj" />
+  </ItemGroup>
+
+</Project>

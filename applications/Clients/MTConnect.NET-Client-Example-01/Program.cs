@@ -1,10 +1,10 @@
 using MTConnect.Clients.Rest;
 
-var deviceName = "M12346";
-var baseUrl = "localhost:5001";
+var deviceName = "OKUMA-Lathe";
+var baseUrl = "localhost:5006";
 
 var client = new MTConnectClient(baseUrl, deviceName);
-client.Interval = 500;
+client.Interval = 50;
 client.OnProbeReceived += (sender, document) =>
 {
     Console.WriteLine("Probe Received");
