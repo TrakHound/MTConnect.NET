@@ -60,6 +60,7 @@ namespace MTConnect.Devices.Xml
                         obj.Representation = dataItem.Representation;
                         obj.ResetTrigger = dataItem.ResetTrigger;
                         obj.CoordinateSystem = dataItem.CoordinateSystem;
+                        obj.CoordinateSystemIdRef = dataItem.CoordinateSystemIdRef;
                         obj.Constraints = dataItem.Constraints;
                         obj.CompositionId = dataItem.CompositionId;
                         obj.Definition = dataItem.Definition;
@@ -166,6 +167,7 @@ namespace MTConnect.Devices.Xml
                                         obj.Representation = dataItem.Representation;
                                         obj.ResetTrigger = dataItem.ResetTrigger;
                                         obj.CoordinateSystem = dataItem.CoordinateSystem;
+                                        obj.CoordinateSystemIdRef = dataItem.CoordinateSystemIdRef;
                                         obj.Constraints = dataItem.Constraints;
                                         obj.Definition = dataItem.Definition;
                                         obj.Units = dataItem.Units;

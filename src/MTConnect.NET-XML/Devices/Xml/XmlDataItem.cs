@@ -63,6 +63,12 @@ namespace MTConnect.Devices.Xml
         public bool CoordinateSystemSpecified => CoordinateSystem != DataItemCoordinateSystem.MACHINE;
 
         /// <summary>
+        /// The associated CoordinateSystem context for the DataItem.
+        /// </summary>
+        [XmlAttribute("coordinateSystemIdRef")]
+        public string CoordinateSystemIdRef { get; set; }
+
+        /// <summary>
         /// The name of the DataItem. A name is provided as an additional human readable identifier for this DataItem in addtion to the id.
         /// It is not required and will be implementation dependent.
         /// </summary>
@@ -238,6 +244,7 @@ namespace MTConnect.Devices.Xml
                 Representation = dataItem.Representation;
                 ResetTrigger = dataItem.ResetTrigger;
                 CoordinateSystem = dataItem.CoordinateSystem;
+                CoordinateSystemIdRef = dataItem.CoordinateSystemIdRef;
                 Constraints = dataItem.Constraints;
                 Definition = dataItem.Definition;
                 Units = dataItem.Units;
@@ -285,6 +292,7 @@ namespace MTConnect.Devices.Xml
             dataItem.Representation = Representation;
             dataItem.ResetTrigger = ResetTrigger;
             dataItem.CoordinateSystem = CoordinateSystem;
+            dataItem.CoordinateSystemIdRef = CoordinateSystemIdRef;
             dataItem.Constraints = Constraints;
             dataItem.Definition = Definition;
             dataItem.Units = Units;
