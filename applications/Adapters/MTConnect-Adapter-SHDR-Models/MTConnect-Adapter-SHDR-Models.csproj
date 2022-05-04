@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
     <RootNamespace>MTConnect_Adapter_SHDR_Models</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -9,7 +8,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\MTConnect.NET\MTConnect.NET-Common.csproj" />
+    <Compile Remove="PlcSimulator.cs" />
+    <Compile Remove="Program.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="PlcSimulator.cs" />
+    <None Include="Program.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\MTConnect.NET-Common\MTConnect.NET-Common.csproj" />
   </ItemGroup>
 
 </Project>
