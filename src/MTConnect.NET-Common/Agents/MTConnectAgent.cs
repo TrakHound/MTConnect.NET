@@ -171,10 +171,10 @@ namespace MTConnect.Agents
         public MTConnectAgent(MTConnectAgentConfiguration configuration)
         {
             InstanceId = CreateInstanceId();
-            _configuration = configuration;
+            _configuration = configuration != null ? configuration : new MTConnectAgentConfiguration();
             _deviceBuffer = new MTConnectDeviceBuffer();
-            _observationBuffer = new MTConnectObservationBuffer(configuration);
-            _assetBuffer = new MTConnectAssetBuffer(configuration);
+            _observationBuffer = new MTConnectObservationBuffer(_configuration);
+            _assetBuffer = new MTConnectAssetBuffer(_configuration);
         }
 
         public MTConnectAgent(
@@ -2925,24 +2925,27 @@ namespace MTConnect.Agents
             {
                 ObservationReceived?.Invoke(this, observationInput);
 
-                observationInput.DeviceKey = deviceKey;
-                var timestamp = observationInput.Timestamp > 0 ? observationInput.Timestamp : UnixDateTime.Now;
+                var input = new ObservationInput();
+                input.DeviceKey = deviceKey;
+                input.DataItemKey = observationInput.DataItemKey;
+                input.Values = observationInput.Values;
+                input.Timestamp = observationInput.Timestamp > 0 ? observationInput.Timestamp : UnixDateTime.Now;
 
                 // Get Device UUID from deviceKey
                 _deviceKeys.TryGetValue(deviceKey, out var deviceUuid);
 
                 // Get DataItem based on Observation's Key
-                var dataItem = GetDataItemFromKey(deviceUuid, observationInput.DataItemKey);
+                var dataItem = GetDataItemFromKey(deviceUuid, input.DataItemKey);
                 if (dataItem != null)
                 {
                     // Validate Observation Input with DataItem type
-                    var validationResults = dataItem.IsValid(Version, observationInput);
+                    var validationResults = dataItem.IsValid(Version, input);
                     if (validationResults.IsValid)
                     {
                         // Convert Units (if needed)
                         if (_configuration.ConversionRequired)
                         {
-                            observationInput = ConvertObservationValue(dataItem, observationInput);
+                            observationInput = ConvertObservationValue(dataItem, input);
                         }
 
                         bool update;
@@ -2950,11 +2953,11 @@ namespace MTConnect.Agents
                         // Check if Observation Needs to be Updated
                         if (dataItem.Category == DataItemCategory.CONDITION)
                         {
-                            update = UpdateCurrentCondition(deviceUuid, dataItem, observationInput);
+                            update = UpdateCurrentCondition(deviceUuid, dataItem, input);
                         }
                         else
                         {
-                            update = UpdateCurrentObservation(deviceUuid, dataItem, observationInput);
+                            update = UpdateCurrentObservation(deviceUuid, dataItem, input);
                         }
 
                         // Check if Observation Needs to be Updated
@@ -2968,7 +2971,7 @@ namespace MTConnect.Agents
                             observation.SetProperty(nameof(Observation.SubType), dataItem.SubType);
                             observation.SetProperty(nameof(Observation.Name), dataItem.Name);
                             observation.SetProperty(nameof(Observation.CompositionId), dataItem.CompositionId);
-                            observation.SetProperty(nameof(Observation.Timestamp), observationInput.Timestamp.ToDateTime());
+                            observation.SetProperty(nameof(Observation.Timestamp), input.Timestamp.ToDateTime());
                             observation.AddValues(observationInput.Values);
 
                             // Add Observation to Streaming Buffer
@@ -3006,24 +3009,27 @@ namespace MTConnect.Agents
             {
                 ObservationReceived?.Invoke(this, observationInput);
 
-                observationInput.DeviceKey = deviceKey;
-                var timestamp = observationInput.Timestamp > 0 ? observationInput.Timestamp : UnixDateTime.Now;
+                var input = new ObservationInput();
+                input.DeviceKey = deviceKey;
+                input.DataItemKey = observationInput.DataItemKey;
+                input.Values = observationInput.Values;
+                input.Timestamp = observationInput.Timestamp > 0 ? observationInput.Timestamp : UnixDateTime.Now;
 
                 // Get Device UUID from deviceKey
                 _deviceKeys.TryGetValue(deviceKey, out var deviceUuid);
 
                 // Get DataItem based on Observation's Key
-                var dataItem = await GetDataItemFromKeyAsync(deviceUuid, observationInput.DataItemKey);
+                var dataItem = await GetDataItemFromKeyAsync(deviceUuid, input.DataItemKey);
                 if (dataItem != null)
                 {
                     // Validate Observation with DataItem type
-                    var validationResults = dataItem.IsValid(Version, observationInput);
+                    var validationResults = dataItem.IsValid(Version, input);
                     if (validationResults.IsValid)
                     {
                         // Convert Units (if needed)
                         if (_configuration.ConversionRequired)
                         {
-                            observationInput = ConvertObservationValue(dataItem, observationInput);
+                            observationInput = ConvertObservationValue(dataItem, input);
                         }
 
                         bool update;
@@ -3031,11 +3037,11 @@ namespace MTConnect.Agents
                         // Check if Observation Needs to be Updated
                         if (dataItem.Category == DataItemCategory.CONDITION)
                         {
-                            update = UpdateCurrentCondition(deviceUuid, dataItem, observationInput);
+                            update = UpdateCurrentCondition(deviceUuid, dataItem, input);
                         }
                         else
                         {
-                            update = UpdateCurrentObservation(deviceUuid, dataItem, observationInput);
+                            update = UpdateCurrentObservation(deviceUuid, dataItem, input);
                         }
 
                         // Check if Observation Needs to be Updated
@@ -3049,7 +3055,7 @@ namespace MTConnect.Agents
                             observation.SetProperty(nameof(Observation.SubType), dataItem.SubType);
                             observation.SetProperty(nameof(Observation.Name), dataItem.Name);
                             observation.SetProperty(nameof(Observation.CompositionId), dataItem.CompositionId);
-                            observation.SetProperty(nameof(Observation.Timestamp), observationInput.Timestamp.ToDateTime());
+                            observation.SetProperty(nameof(Observation.Timestamp), input.Timestamp.ToDateTime());
                             observation.AddValues(observationInput.Values);
 
                             // Add Observation to Streaming Buffer

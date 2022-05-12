@@ -61,7 +61,7 @@ namespace MTConnect.Devices.Xml
         {
             var document = new DevicesResponseDocument();
 
-            document.Header = Header.ToDevicesHeader();
+            if (Header != null) document.Header = Header.ToDevicesHeader();
 
             if (!Devices.IsNullOrEmpty())
             {

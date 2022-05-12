@@ -20,6 +20,8 @@ namespace MTConnect.Devices
     /// </summary>
     public class Device : IDevice
     {
+        public const string DefaultFilename = "devices.xml";
+
         public const string TypeId = "Device";
         public const string DescriptionText = "The primary container element of each device. Device is contained within the top level Devices container. There MAY be multiple Device elements in an XML document.";
 
@@ -359,13 +361,14 @@ namespace MTConnect.Devices
         /// <param name="filePath">The path to the Device Configuration file</param>
         public static IEnumerable<IDevice> FromFile(string filePath, string documentFormatterId)
         {
-            if (!string.IsNullOrEmpty(filePath))
+            var path = !string.IsNullOrEmpty(filePath) ? filePath : DefaultFilename;
+            if (!string.IsNullOrEmpty(path))
             {
                 try
                 {
-                    if (File.Exists(filePath))
+                    if (File.Exists(path))
                     {
-                        var contents = File.ReadAllText(filePath);
+                        var contents = File.ReadAllText(path);
                         if (!string.IsNullOrEmpty(contents))
                         {
                             var devicesDocument = Formatters.ResponseDocumentFormatter.CreateDevicesResponseDocument(documentFormatterId, contents);

@@ -9,15 +9,22 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Program-Example-2.cs" />
+    <Compile Remove="Agent-Embedded-Sensor.cs" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="Program-Example-2.cs" />
+    <None Include="Agent-Embedded-Sensor.cs" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\src\MTConnect.NET-HTTP\MTConnect.NET-HTTP.csproj" />
     <ProjectReference Include="..\..\..\src\MTConnect.NET-XML\MTConnect.NET-XML.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="devices.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
