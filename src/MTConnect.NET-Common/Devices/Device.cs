@@ -137,6 +137,9 @@ namespace MTConnect.Devices
         [JsonIgnore]
         public virtual string TypeDescription => DescriptionText;
 
+        [JsonIgnore]
+        public bool IsOrganizer => false;
+
 
         public Device()
         {

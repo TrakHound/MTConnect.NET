@@ -157,6 +157,10 @@ namespace MTConnect.Devices
         [JsonIgnore]
         public virtual string TypeDescription => DescriptionText;
 
+        [XmlIgnore]
+        [JsonIgnore]
+        public bool IsOrganizer => Organizers.Components.Contains(Type);
+
 
 
         public Component()

@@ -95,6 +95,8 @@ namespace MTConnect.Devices
 
         string TypeDescription { get; }
 
+        bool IsOrganizer { get; }
+
         Version MaximumVersion { get; }
 
         Version MinimumVersion { get; }
