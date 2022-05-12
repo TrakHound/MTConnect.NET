@@ -516,13 +516,13 @@ namespace MTConnect.Clients.Rest
         {
             if (observations != null && observations.Count() > 0)
             {
-                var assetsChanged = observations.Where(o => o.Type == Devices.DataItems.Events.AssetChangedDataItem.TypeId);
+                var assetsChanged = observations.Where(o => o.Type == Devices.DataItems.Events.AssetChangedDataItem.TypeId.ToPascalCase());
                 if (assetsChanged != null)
                 {
                     foreach (var assetChanged in assetsChanged)
                     {
                         string assetId = assetChanged.GetValue(ValueKeys.CDATA);
-                        if (assetId != "UNAVAILABLE")
+                        if (assetId != Observation.Unavailable)
                         {
                             var doc = await RunAssets(assetId, cancel);
                             if (doc != null)
