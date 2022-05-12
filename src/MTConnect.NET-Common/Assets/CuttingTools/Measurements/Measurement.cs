@@ -15,6 +15,9 @@ namespace MTConnect.Assets.CuttingTools.Measurements
     /// </summary>
     public abstract class Measurement
     {
+        public const string DescriptionText = "A Measurement MUST be a scalar floating-point value that MAY be constrained to a maximum and minimum value.";
+
+
         [XmlIgnore]
         [JsonPropertyName("type")]
         public string Type { get; set; }
@@ -98,5 +101,9 @@ namespace MTConnect.Assets.CuttingTools.Measurements
         [XmlIgnore]
         [JsonIgnore]
         public bool NominalSpecified => Nominal > 0;
+
+        [XmlIgnore]
+        [JsonIgnore]
+        public string TypeDescription { get; }
     }
 }
