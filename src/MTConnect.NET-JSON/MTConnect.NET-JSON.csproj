@@ -7,7 +7,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Assets\JsonAssetsDocument.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\MTConnect.NET-Common\MTConnect.NET-Common.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Assets\JsonAssetsDocument.cs" />
   </ItemGroup>
 
 </Project>

@@ -45,14 +45,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Compile Remove="Assets\Json\JsonAssetsDocument.cs" />
-		<Compile Remove="Assets\Xml\XmlAssetCollection.cs" />
-		<Compile Remove="Assets\Xml\XmlAssetsDocument.cs" />
-		<Compile Remove="Devices\Json\JsonComponent.cs" />
-		<Compile Remove="Devices\Json\JsonComposition.cs" />
-		<Compile Remove="Devices\Json\JsonDataItem.cs" />
-		<Compile Remove="Devices\Json\JsonDevice.cs" />
-		<Compile Remove="Devices\Json\JsonDevicesDocument.cs" />
 		<Compile Remove="Models\AbstractDeviceModel.cs" />
 		<Compile Remove="Models\AgentModel.cs" />
 		<Compile Remove="Models\Assets\CuttingToolModel.cs" />
@@ -321,19 +313,9 @@
 		<Compile Remove="Models\ICompositionModel.cs" />
 		<Compile Remove="Models\IDataItemModel.cs" />
 		<Compile Remove="Models\IDeviceModel.cs" />
-		<Compile Remove="Observations\Events\AvailabilityObservation.cs" />
-		<Compile Remove="Observations\Events\EmergencyStopObservation.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Include="Assets\Json\JsonAssetsDocument.cs" />
-		<None Include="Assets\Xml\XmlAssetCollection.cs" />
-		<None Include="Assets\Xml\XmlAssetsDocument.cs" />
-		<None Include="Devices\Json\JsonComponent.cs" />
-		<None Include="Devices\Json\JsonComposition.cs" />
-		<None Include="Devices\Json\JsonDataItem.cs" />
-		<None Include="Devices\Json\JsonDevice.cs" />
-		<None Include="Devices\Json\JsonDevicesDocument.cs" />
 		<None Include="Models\AbstractDeviceModel.cs" />
 		<None Include="Models\AgentModel.cs" />
 		<None Include="Models\Assets\CuttingToolModel.cs" />
@@ -602,8 +584,6 @@
 		<None Include="Models\ICompositionModel.cs" />
 		<None Include="Models\IDataItemModel.cs" />
 		<None Include="Models\IDeviceModel.cs" />
-		<None Include="Observations\Events\AvailabilityObservation.cs" />
-		<None Include="Observations\Events\EmergencyStopObservation.cs" />
 	</ItemGroup>
 
 	<!--Conditionally obtain references for the .NET Framework 4.6.1 target-->
@@ -664,7 +644,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All"/>
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
 	</ItemGroup>
 
 </Project>
