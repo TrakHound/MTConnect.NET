@@ -17,7 +17,7 @@ namespace MTConnect
             var ns = Namespaces.Get(xml);
             if (ns != null)
             {
-                if (Namespaces.Version19.Match(ns)) return new Version(1, 9);
+                if (Namespaces.Version20.Match(ns)) return new Version(2, 0);
                 if (Namespaces.Version18.Match(ns)) return new Version(1, 8);
                 if (Namespaces.Version17.Match(ns)) return new Version(1, 7);
                 if (Namespaces.Version16.Match(ns)) return new Version(1, 6);
