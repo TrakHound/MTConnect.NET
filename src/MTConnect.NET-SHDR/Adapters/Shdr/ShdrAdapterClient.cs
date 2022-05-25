@@ -95,12 +95,13 @@ namespace MTConnect.Adapters.Shdr
 
 
         public ShdrAdapterClient(
+            string id,
             AdapterConfiguration configuration,
             IMTConnectAgent agent,
             IDevice device
             )
         {
-            Id = StringFunctions.RandomString(10);
+            Id = id;
             _configuration = configuration;
             _agent = agent;
             _device = device;

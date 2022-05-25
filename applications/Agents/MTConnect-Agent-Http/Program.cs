@@ -26,7 +26,7 @@ namespace MTConnect.Applications
         private static readonly Logger _httpLogger = LogManager.GetLogger("http-logger");
         private static readonly Logger _adapterLogger = LogManager.GetLogger("adapter-logger");
         private static readonly Logger _adapterShdrLogger = LogManager.GetLogger("adapter-shdr-logger");
-        private static IMTConnectAgent _agent;
+        private static MTConnectAgent _agent;
 
 
         /// <summary>
@@ -83,26 +83,37 @@ namespace MTConnect.Applications
                     _agent.InvalidDataItemAdded += InvalidDataItem;
                 }
 
-                // Add Adapter Clients
-                if (!configuration.Adapters.IsNullOrEmpty())
+                // Add Devices
+                var devices = Device.FromFile(configuration.Devices, DocumentFormat.XML);
+                if (!devices.IsNullOrEmpty())
                 {
-                    var devices = Device.FromFile(configuration.Devices, DocumentFormat.XML);
-                    if (!devices.IsNullOrEmpty())
+                    // Add Device(s) to Agent
+                    foreach (var device in devices)
                     {
-                        // Add Device(s) to Agent
-                        foreach (var device in devices)
-                        {
-                            _agentLogger.Info($"Device Read From File : {device.Name}");
+                        _agentLogger.Info($"Device Read From File : {device.Name}");
 
-                            _agent.AddDevice(device);
-                        }
+                        _agent.AddDevice(device);
+                    }
 
+                    //// Add Agent Device (if not configured in Devices.xml)
+                    //if (_agent.Agent == null) _agent.Agent = _agent.CreateAgentDevice();
+
+                    // Add Adapter Clients
+                    if (!configuration.Adapters.IsNullOrEmpty())
+                    {
                         foreach (var adapterConfiguration in configuration.Adapters)
                         {
+                            // Get the Device matching the "Device" configured in the AdapterConfiguration
                             var device = devices.FirstOrDefault(o => o.Name == adapterConfiguration.Device);
                             if (device != null)
                             {
-                                var adapterClient = new ShdrAdapterClient(adapterConfiguration, _agent, device);
+                                var adapterId = $"_{StringFunctions.RandomString(10)}";
+
+                                // Add Adapter Component to Agent Device
+                                _agent.AddAdapterComponent(adapterId, adapterConfiguration);
+
+                                // Create new SHDR Adapter Client to read from SHDR stream
+                                var adapterClient = new ShdrAdapterClient(adapterId, adapterConfiguration, _agent, device);
 
                                 if (verboseLogging)
                                 {
@@ -114,6 +125,7 @@ namespace MTConnect.Applications
                                     adapterClient.ProtocolReceived += AdapterProtocolReceived;
                                 }
 
+                                // Start the Adapter Client
                                 adapterClient.Start();
                             }
                         }
@@ -254,12 +266,14 @@ namespace MTConnect.Applications
         private static void AdapterConnected(object sender, string message)
         {
             var adapterClient = (ShdrAdapterClient)sender;
+            _agent.UpdateAdapterConnectionStatus(adapterClient.Id, Observations.Events.Values.ConnectionStatus.ESTABLISHED);
             _adapterLogger.Info($"[Adapter] : ID = " + adapterClient.Id + " : " + message);
         }
 
         private static void AdapterDisconnected(object sender, string message)
         {
             var adapterClient = (ShdrAdapterClient)sender;
+            _agent.UpdateAdapterConnectionStatus(adapterClient.Id, Observations.Events.Values.ConnectionStatus.CLOSED);
             _adapterLogger.Info($"[Adapter] : ID = " + adapterClient.Id + " : " + message);
         }
 
