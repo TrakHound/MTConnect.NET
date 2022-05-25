@@ -16,7 +16,7 @@ The Agent, Buffers, and Adapter are separated into individual classes in order t
 - Integration with cloud services such as AWS and Azure
 
 Other features of MTConnect.NET :
-- [Models](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-Common/Models) framework for setting and accessing data using an object model as opposed to DataItem ID's and Types
+- (In-Progress) [Models](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-Common/Models) framework for setting and accessing data using an object model as opposed to DataItem ID's and Types
 - Extensible through plugin libraries to extend Types
 - Full data validation
 - Fully documented objects using text from the MTConnect Standard. This enables Intellisense in applications such as Visual Studio.
@@ -55,7 +55,6 @@ The Nuget packages for the libraries in this repo are listed below:
 - [MTConnect.NET-XML](https://www.nuget.org/packages/MTConnect.NET-XML/)
 - [MTConnect.NET-SHDR](https://www.nuget.org/packages/MTConnect.NET-SHDR/)
 - [MTConnect.NET-MQTT](https://www.nuget.org/packages/MTConnect.NET-MQTT/)
-- [MTConnect.NET-Pallets](https://www.nuget.org/packages/MTConnect.NET-Pallets/)
 
 ## Supported Frameworks
 - .NET 6.0
@@ -74,13 +73,11 @@ The Nuget packages for the libraries in this repo are listed below:
 ## MTConnect Version Compatibility
 MTConnect.NET is designed to be fully compatible for all versions of the MTConnect standard. This is done through processing by the [MTConnectAgent](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-Common/Agents/MTConnectAgent.cs) class before data is output. This allows the version to be a parameter when requesting data from the Agent. More information can be found in the [Devices README](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-Common/Devices/README.md).
 
-*NOTE: All data items have not been set for compatiblity as of yet. This should be finished before the Beta is completed.*
-
 ## Data Validation
 Validation is performed on a Device, Component, Composition, or DataItem level through the classes in [Devices](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-Common/Devices). This allows for validation without the need to use XML schemas.
 
 ## Releases
-Releases are available under the Releases tab
+Releases are available at : [Releases](https://github.com/TrakHound/MTConnect.NET/releases)
 
 ## Agents
 Agents are implemented using the MTConnectAgent class and IMTConnectAgent interface. The MTConnectAgent class implements the MTConnect® standard and is inteded to be full implemenation. More information about agents can be found at [Agents](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-Common/Agents) and Agent Applications can be found at [Agent Applications](https://github.com/TrakHound/MTConnect.NET/tree/master/applications/Agents).
