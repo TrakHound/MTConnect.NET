@@ -14,7 +14,7 @@ using System.Collections.Generic;
 
 namespace MTConnect.Models
 {
-    public interface IDeviceModel
+    public interface IDeviceModel : Devices.IDevice
     {
         string Id { get; set; }
 
@@ -70,6 +70,9 @@ namespace MTConnect.Models
         IAuxiliariesModel Auxiliaries { get; }
 
 
+        EventHandler<IObservation> ObservationUpdated { get; set; }
+
+
         #region "Assets"
 
         IAsset GetAsset(string assetId);
@@ -85,7 +88,7 @@ namespace MTConnect.Models
         #endregion
 
 
-        IEnumerable<Observation> GetObservations();
+        IEnumerable<IObservation> GetObservations();
 
         //IEnumerable<ObservationInput> GetObservations(long timestamp = 0);
 

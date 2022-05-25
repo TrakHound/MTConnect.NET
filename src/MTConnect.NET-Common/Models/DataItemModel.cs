@@ -70,7 +70,7 @@ namespace MTConnect.Models
 
         public DataItemModel() { }
 
-        public DataItemModel(DataItem dataItem)
+        public DataItemModel(IDataItem dataItem)
         {
             if (dataItem != null)
             {
@@ -87,6 +87,8 @@ namespace MTConnect.Models
                 Representation = dataItem.Representation;
                 ResetTrigger = dataItem.ResetTrigger;
                 CoordinateSystem = dataItem.CoordinateSystem;
+                CoordinateSystemIdRef = dataItem.CoordinateSystemIdRef;
+                CompositionId = dataItem.CompositionId;
                 Constraints = dataItem.Constraints;
                 Definition = dataItem.Definition;
                 Units = dataItem.Units;

@@ -6,7 +6,7 @@
 using MTConnect.Devices;
 using MTConnect.Devices.Components;
 using MTConnect.Devices.Compositions;
-using MTConnect.Devices.Events;
+using MTConnect.Devices.DataItems.Events;
 using MTConnect.Models.Compositions;
 using MTConnect.Observations.Events.Values;
 

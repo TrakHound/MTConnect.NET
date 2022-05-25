@@ -4,7 +4,7 @@
 // file 'LICENSE.txt', which is part of this source code package.
 
 using MTConnect.Devices.Compositions;
-using MTConnect.Devices.Conditions;
+using MTConnect.Devices.DataItems.Conditions;
 
 namespace MTConnect.Models.Compositions
 {
@@ -18,7 +18,7 @@ namespace MTConnect.Models.Compositions
         /// </summary>
         public Observations.ConditionObservation SystemCondition
         {
-            get => GetCondition(Devices.Conditions.SystemCondition.NameId);
+            get => GetCondition(Devices.DataItems.Conditions.SystemCondition.NameId);
             set => AddCondition(new SystemCondition(Id), value);
         }
 
@@ -27,7 +27,7 @@ namespace MTConnect.Models.Compositions
         /// </summary>
         public Observations.ConditionObservation HardwareCondition
         {
-            get => GetCondition(Devices.Conditions.HardwareCondition.NameId);
+            get => GetCondition(Devices.DataItems.Conditions.HardwareCondition.NameId);
             set => AddCondition(new HardwareCondition(Id), value);
         }
 
@@ -36,7 +36,7 @@ namespace MTConnect.Models.Compositions
         /// </summary>
         public Observations.ConditionObservation CommunicationsCondition
         {
-            get => GetCondition(Devices.Conditions.CommunicationsCondition.NameId);
+            get => GetCondition(Devices.DataItems.Conditions.CommunicationsCondition.NameId);
             set => AddCondition(new CommunicationsCondition(Id), value);
         }
 

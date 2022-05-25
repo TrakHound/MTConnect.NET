@@ -6,8 +6,8 @@
 using MTConnect.Devices;
 using MTConnect.Devices.Components;
 using MTConnect.Devices.Compositions;
-using MTConnect.Devices.Events;
-using MTConnect.Devices.Samples;
+using MTConnect.Devices.DataItems.Events;
+using MTConnect.Devices.DataItems.Samples;
 using MTConnect.Models.Compositions;
 using MTConnect.Models.DataItems;
 using MTConnect.Observations.Events.Values;
@@ -36,10 +36,10 @@ namespace MTConnect.Models.Components
         /// </summary>
         public AngularVelocityValue AngularVelocity
         {
-            get => DataItemManager.GetSampleValue<AngularVelocityValue>(Devices.Samples.AngularVelocityDataItem.NameId);
+            get => DataItemManager.GetSampleValue<AngularVelocityValue>(Devices.DataItems.Samples.AngularVelocityDataItem.NameId);
             set => DataItemManager.AddDataItem(new AngularVelocityDataItem(Id), value);
         }
-        public IDataItemModel AngularVelocityDataItem => DataItemManager.GetDataItem(Devices.Samples.AngularVelocityDataItem.NameId);
+        public IDataItemModel AngularVelocityDataItem => DataItemManager.GetDataItem(Devices.DataItems.Samples.AngularVelocityDataItem.NameId);
 
         /// <summary>
         /// The positive rate of change of angular velocity

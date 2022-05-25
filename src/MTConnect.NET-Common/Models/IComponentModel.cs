@@ -4,8 +4,9 @@
 // file 'LICENSE.txt', which is part of this source code package.
 
 using MTConnect.Devices;
-using System.Collections.Generic;
 using MTConnect.Observations;
+using System;
+using System.Collections.Generic;
 
 namespace MTConnect.Models
 {
@@ -37,9 +38,9 @@ namespace MTConnect.Models
 
         string DescriptionText { get; set; }
 
-        Configuration Configuration { get; set; }
+        IConfiguration Configuration { get; set; }
 
-        List<Reference> References { get; set; }
+        IEnumerable<IReference> References { get; set; }
 
         List<IComponentModel> ComponentModels { get; set; }
 
@@ -48,6 +49,8 @@ namespace MTConnect.Models
         List<IDataItemModel> DataItemModels { get; set; }
 
 
-        IEnumerable<Observation> GetObservations();
+        EventHandler<IObservation> ObservationUpdated { get; set; }
+
+        IEnumerable<IObservation> GetObservations();
     }
 }

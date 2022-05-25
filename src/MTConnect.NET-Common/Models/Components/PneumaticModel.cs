@@ -5,8 +5,8 @@
 
 using MTConnect.Devices;
 using MTConnect.Devices.Components;
-using MTConnect.Devices.Events;
-using MTConnect.Devices.Samples;
+using MTConnect.Devices.DataItems.Events;
+using MTConnect.Devices.DataItems.Samples;
 using MTConnect.Observations.Events.Values;
 using MTConnect.Observations.Samples.Values;
 
@@ -32,10 +32,10 @@ namespace MTConnect.Models.Components
         /// </summary>
         public PressureValue Pressure
         {
-            get => DataItemManager.GetSampleValue<PressureValue>(Devices.Samples.PressureDataItem.NameId);
+            get => DataItemManager.GetSampleValue<PressureValue>(Devices.DataItems.Samples.PressureDataItem.NameId);
             set => DataItemManager.AddDataItem(new PressureDataItem(Id), value);
         }
-        public IDataItemModel PressureDataItem => DataItemManager.GetDataItem(Devices.Samples.PressureDataItem.NameId);
+        public IDataItemModel PressureDataItem => DataItemManager.GetDataItem(Devices.DataItems.Samples.PressureDataItem.NameId);
 
 
         public PneumaticModel()

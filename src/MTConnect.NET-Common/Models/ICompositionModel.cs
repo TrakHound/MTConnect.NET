@@ -3,6 +3,8 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
+using MTConnect.Observations;
+using System;
 using System.Collections.Generic;
 
 namespace MTConnect.Models
@@ -30,5 +32,10 @@ namespace MTConnect.Models
         string DescriptionText { get; set; }
 
         List<IDataItemModel> DataItemModels { get; set; }
+
+
+        EventHandler<IObservation> ObservationUpdated { get; set; }
+
+        IEnumerable<IObservation> GetObservations();
     }
 }

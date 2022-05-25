@@ -3,7 +3,7 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
-using MTConnect.Devices.Samples;
+using MTConnect.Devices.DataItems.Samples;
 using MTConnect.Observations.Samples.Values;
 
 namespace MTConnect.Models.Compositions

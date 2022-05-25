@@ -7,7 +7,7 @@ using MTConnect.Devices;
 
 namespace MTConnect.Models
 {
-    public interface IDataItemModel
+    public interface IDataItemModel : IDataItem
     {
         DataItemCategory DataItemCategory { get; set; }
 

@@ -5,7 +5,7 @@
 
 using MTConnect.Devices;
 using MTConnect.Devices.Components;
-using MTConnect.Devices.Events;
+using MTConnect.Devices.DataItems.Events;
 using MTConnect.Models.Components;
 using MTConnect.Models.DataItems;
 using MTConnect.Observations.Events.Values;
@@ -23,10 +23,10 @@ namespace MTConnect.Models
         /// </summary>
         public Availability Availability
         {
-            get => DataItemManager.GetDataItemValue<Availability>(Devices.Events.AvailabilityDataItem.TypeId);
+            get => DataItemManager.GetDataItemValue<Availability>(Devices.DataItems.Events.AvailabilityDataItem.TypeId);
             set => DataItemManager.AddDataItem(new AvailabilityDataItem(Id), value);
         }
-        public IDataItemModel AvailabilityDataItem => DataItemManager.GetDataItem(Devices.Events.AvailabilityDataItem.TypeId);
+        public IDataItemModel AvailabilityDataItem => DataItemManager.GetDataItem(Devices.DataItems.Events.AvailabilityDataItem.TypeId);
 
 
         /// <summary>
@@ -36,7 +36,7 @@ namespace MTConnect.Models
         {
             get
             {
-                var versionString = DataItemManager.GetDataItemValue(Devices.Events.MTConnectVersionDataItem.TypeId);
+                var versionString = DataItemManager.GetDataItemValue(Devices.DataItems.Events.MTConnectVersionDataItem.TypeId);
                 if (!string.IsNullOrEmpty(versionString))
                 {
                     if (Version.TryParse(versionString, out var version))
@@ -48,7 +48,7 @@ namespace MTConnect.Models
             }
             set => DataItemManager.AddDataItem(new MTConnectVersionDataItem(Id), value);
         }
-        public IDataItemModel MTConnectVersionDataItem => DataItemManager.GetDataItem(Devices.Events.MTConnectVersionDataItem.TypeId);
+        public IDataItemModel MTConnectVersionDataItem => DataItemManager.GetDataItem(Devices.DataItems.Events.MTConnectVersionDataItem.TypeId);
 
         /// <summary>
         /// Network details of a component.
@@ -89,6 +89,7 @@ namespace MTConnect.Models
         public IAuxiliariesModel Auxiliaries => ComponentManager.GetComponentModel<AuxiliariesModel>(typeof(AuxiliariesComponent));
 
 
+
         public DeviceModel()
         {
             Init();
@@ -99,7 +100,7 @@ namespace MTConnect.Models
             Init(deviceName, deviceId);
         }
 
-        public DeviceModel(Device device)
+        public DeviceModel(IDevice device)
         {
             Init(device);
         }

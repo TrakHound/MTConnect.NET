@@ -5,8 +5,8 @@
 
 using MTConnect.Devices;
 using MTConnect.Devices.Components;
-using MTConnect.Devices.Conditions;
-using MTConnect.Devices.Events;
+using MTConnect.Devices.DataItems.Conditions;
+using MTConnect.Devices.DataItems.Events;
 using MTConnect.Observations.Events.Values;
 using MTConnect.Models.DataItems;
 using System.Collections.Generic;
@@ -24,10 +24,10 @@ namespace MTConnect.Models.Components
         /// </summary>
         public EmergencyStop EmergencyStop
         {
-            get => DataItemManager.GetDataItemValue<EmergencyStop>(Devices.Events.EmergencyStopDataItem.TypeId);
+            get => DataItemManager.GetDataItemValue<EmergencyStop>(Devices.DataItems.Events.EmergencyStopDataItem.TypeId);
             set => DataItemManager.AddDataItem(new EmergencyStopDataItem(Id), value);
         }
-        public IDataItemModel EmergencyStopDataItem => DataItemManager.GetDataItem(Devices.Events.EmergencyStopDataItem.TypeId);
+        public IDataItemModel EmergencyStopDataItem => DataItemManager.GetDataItem(Devices.DataItems.Events.EmergencyStopDataItem.TypeId);
 
 
         /// <summary>
@@ -35,10 +35,10 @@ namespace MTConnect.Models.Components
         /// </summary>
         public ControllerMode ControllerMode
         {
-            get => DataItemManager.GetDataItemValue<ControllerMode>(Devices.Events.ControllerModeDataItem.NameId);
+            get => DataItemManager.GetDataItemValue<ControllerMode>(Devices.DataItems.Events.ControllerModeDataItem.NameId);
             set => DataItemManager.AddDataItem(new ControllerModeDataItem(Id), value);
         }
-        public IDataItemModel ControllerModeDataItem => DataItemManager.GetDataItem(Devices.Events.ControllerModeDataItem.NameId);
+        public IDataItemModel ControllerModeDataItem => DataItemManager.GetDataItem(Devices.DataItems.Events.ControllerModeDataItem.NameId);
 
 
         /// <summary>
@@ -56,10 +56,10 @@ namespace MTConnect.Models.Components
         /// </summary>
         public FunctionalMode FunctionalMode
         {
-            get => DataItemManager.GetDataItemValue<FunctionalMode>(Devices.Events.FunctionalModeDataItem.NameId);
+            get => DataItemManager.GetDataItemValue<FunctionalMode>(Devices.DataItems.Events.FunctionalModeDataItem.NameId);
             set => DataItemManager.AddDataItem(new FunctionalModeDataItem(Id), value);
         }
-        public IDataItemModel FunctionalModeDataItem => DataItemManager.GetDataItem(Devices.Events.FunctionalModeDataItem.NameId);
+        public IDataItemModel FunctionalModeDataItem => DataItemManager.GetDataItem(Devices.DataItems.Events.FunctionalModeDataItem.NameId);
 
 
         /// <summary>
@@ -67,7 +67,7 @@ namespace MTConnect.Models.Components
         /// </summary>
         public Observations.ConditionObservation SystemCondition
         {
-            get => DataItemManager.GetCondition(Devices.Conditions.SystemCondition.NameId);
+            get => DataItemManager.GetCondition(Devices.DataItems.Conditions.SystemCondition.NameId);
             set => DataItemManager.AddCondition(new SystemCondition(Id), value);
         }
 
@@ -94,7 +94,7 @@ namespace MTConnect.Models.Components
         /// </summary>
         public Observations.ConditionObservation CommunicationsCondition
         {
-            get => DataItemManager.GetCondition(Devices.Conditions.CommunicationsCondition.NameId);
+            get => DataItemManager.GetCondition(Devices.DataItems.Conditions.CommunicationsCondition.NameId);
             set => DataItemManager.AddCondition(new CommunicationsCondition(Id), value);
         }
 

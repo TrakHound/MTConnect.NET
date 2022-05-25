@@ -4,8 +4,8 @@
 // file 'LICENSE.txt', which is part of this source code package.
 
 using MTConnect.Devices;
-using MTConnect.Devices.Events;
-using MTConnect.Devices.Samples;
+using MTConnect.Devices.DataItems.Events;
+using MTConnect.Devices.DataItems.Samples;
 using MTConnect.Observations.Events.Values;
 using MTConnect.Observations.Samples.Values;
 using MTConnect.Models.Compositions;

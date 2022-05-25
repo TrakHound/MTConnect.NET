@@ -4,7 +4,7 @@
 // file 'LICENSE.txt', which is part of this source code package.
 
 using MTConnect.Devices.Components;
-using MTConnect.Devices.Events;
+using MTConnect.Devices.DataItems.Events;
 using MTConnect.Models.Components;
 using MTConnect.Observations.Events.Values;
 
@@ -20,10 +20,10 @@ namespace MTConnect.Models
         /// </summary>
         public Availability Availability
         {
-            get => DataItemManager.GetDataItemValue<Availability>(Devices.DataItem.CreateId(Id, Devices.Events.AvailabilityDataItem.NameId));
+            get => DataItemManager.GetDataItemValue<Availability>(Devices.DataItem.CreateId(Id, Devices.DataItems.Events.AvailabilityDataItem.NameId));
             set => DataItemManager.AddDataItem(new AvailabilityDataItem(Id), value);
         }
-        public IDataItemModel AvailabilityDataItem => DataItemManager.GetDataItem(Devices.Events.AvailabilityDataItem.NameId);
+        public IDataItemModel AvailabilityDataItem => DataItemManager.GetDataItem(Devices.DataItems.Events.AvailabilityDataItem.NameId);
 
 
         /// <summary>

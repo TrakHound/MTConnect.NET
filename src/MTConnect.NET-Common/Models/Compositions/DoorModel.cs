@@ -4,7 +4,7 @@
 // file 'LICENSE.txt', which is part of this source code package.
 
 using MTConnect.Devices.Compositions;
-using MTConnect.Devices.Events;
+using MTConnect.Devices.DataItems.Events;
 using MTConnect.Observations.Events.Values;
 
 namespace MTConnect.Models.Compositions
@@ -19,20 +19,20 @@ namespace MTConnect.Models.Compositions
         /// </summary>
         public DoorState DoorState
         {
-            get => GetDataItemValue<DoorState>(Devices.Events.DoorStateDataItem.NameId);
+            get => GetDataItemValue<DoorState>(Devices.DataItems.Events.DoorStateDataItem.NameId);
             set => AddDataItem(new DoorStateDataItem(Id), value);
         }
-        public IDataItemModel DoorStateDataItem => GetDataItem(Devices.Events.DoorStateDataItem.NameId);
+        public IDataItemModel DoorStateDataItem => GetDataItem(Devices.DataItems.Events.DoorStateDataItem.NameId);
 
         /// <summary>
         /// The state or operating mode of a Lock.
         /// </summary>
         public LockState LockState
         {
-            get => GetDataItemValue<LockState>(Devices.Events.LockStateDataItem.NameId);
+            get => GetDataItemValue<LockState>(Devices.DataItems.Events.LockStateDataItem.NameId);
             set => AddDataItem(new LockStateDataItem(Id), value);
         }
-        public IDataItemModel LockStateDataItem => GetDataItem(Devices.Events.LockStateDataItem.NameId);
+        public IDataItemModel LockStateDataItem => GetDataItem(Devices.DataItems.Events.LockStateDataItem.NameId);
 
 
         public DoorModel() 

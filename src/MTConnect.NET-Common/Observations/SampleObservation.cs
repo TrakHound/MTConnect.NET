@@ -118,7 +118,7 @@ namespace MTConnect.Observations
         }
 
 
-        public static SampleObservation Create(DataItem dataItem)
+        public static SampleObservation Create(IDataItem dataItem)
         {
             if (dataItem != null)
             {

@@ -54,15 +54,15 @@ namespace MTConnect.Models
                     obj.DataItemModels = composition.DataItemModels;
 
                     // Copy DataItems
-                    foreach (var dataItem in composition._dataItems)
+                    foreach (var dataItem in composition.DataItemManager.DataItemValues)
                     {
-                        obj._dataItems.Add(dataItem.Key, dataItem.Value);
+                        obj.DataItemManager.DataItemValues.Add(dataItem.Key, dataItem.Value);
                     }
 
                     // Copy Conditions
-                    foreach (var condition in composition._conditions)
+                    foreach (var condition in composition.DataItemManager.Conditions)
                     {
-                        obj._conditions.Add(condition.Key, condition.Value);
+                        obj.DataItemManager.Conditions.Add(condition.Key, condition.Value);
                     }
 
                     return obj;

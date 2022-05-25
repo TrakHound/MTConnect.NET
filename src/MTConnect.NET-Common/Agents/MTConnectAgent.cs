@@ -162,6 +162,8 @@ namespace MTConnect.Agents
         public MTConnectAgent()
         {
             InstanceId = CreateInstanceId();
+            Version = MTConnectVersions.Max;
+            _configuration = new MTConnectAgentConfiguration();
             _deviceBuffer = new MTConnectDeviceBuffer();
             _observationBuffer = new MTConnectObservationBuffer();
             _assetBuffer = new MTConnectAssetBuffer();
@@ -171,6 +173,7 @@ namespace MTConnect.Agents
         public MTConnectAgent(MTConnectAgentConfiguration configuration)
         {
             InstanceId = CreateInstanceId();
+            Version = MTConnectVersions.Max;
             _configuration = configuration != null ? configuration : new MTConnectAgentConfiguration();
             _deviceBuffer = new MTConnectDeviceBuffer();
             _observationBuffer = new MTConnectObservationBuffer(_configuration);
@@ -184,6 +187,8 @@ namespace MTConnect.Agents
             )
         {
             InstanceId = CreateInstanceId();
+            Version = MTConnectVersions.Max;
+            _configuration = new MTConnectAgentConfiguration();
             _deviceBuffer = deviceBuffer;
             _observationBuffer = streamingBuffer;
             _assetBuffer = assetBuffer;
@@ -197,6 +202,7 @@ namespace MTConnect.Agents
             )
         {
             InstanceId = CreateInstanceId();
+            Version = MTConnectVersions.Max;
             _configuration = configuration;
             _deviceBuffer = deviceBuffer;
             _observationBuffer = streamingBuffer;

@@ -5,7 +5,7 @@
 
 using MTConnect.Devices;
 using MTConnect.Devices.Compositions;
-using MTConnect.Devices.Samples;
+using MTConnect.Devices.DataItems.Samples;
 using MTConnect.Observations.Samples.Values;
 
 namespace MTConnect.Models.Compositions
@@ -20,10 +20,10 @@ namespace MTConnect.Models.Compositions
         /// </summary>
         public AccumulatedTimeValue AccumulatedTime
         {
-            get => (AccumulatedTimeValue)GetSampleValue(DataItem.CreateId(Id, Devices.Samples.AccumulatedTimeDataItem.NameId));
+            get => (AccumulatedTimeValue)GetSampleValue(DataItem.CreateId(Id, Devices.DataItems.Samples.AccumulatedTimeDataItem.NameId));
             set => AddDataItem(new AccumulatedTimeDataItem(Id), value);
         }
-        public IDataItemModel AccumulatedTimeDataItem => GetDataItem(Devices.Samples.AccumulatedTimeDataItem.NameId);
+        public IDataItemModel AccumulatedTimeDataItem => GetDataItem(Devices.DataItems.Samples.AccumulatedTimeDataItem.NameId);
 
 
         public ChainModel() 

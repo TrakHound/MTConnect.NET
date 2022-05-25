@@ -6,7 +6,7 @@
 using MTConnect.Devices;
 using MTConnect.Devices.Components;
 using MTConnect.Devices.Compositions;
-using MTConnect.Devices.Events;
+using MTConnect.Devices.DataItems.Events;
 using MTConnect.Models.Compositions;
 using MTConnect.Observations.Events.Values;
 using System.Linq;
@@ -23,10 +23,10 @@ namespace MTConnect.Models.Components
         /// </summary>
         public Execution Execution
         {
-            get => DataItemManager.GetDataItemValue<Execution>(DataItem.CreateId(Id, Devices.Events.ExecutionDataItem.NameId));
+            get => DataItemManager.GetDataItemValue<Execution>(DataItem.CreateId(Id, Devices.DataItems.Events.ExecutionDataItem.NameId));
             set => DataItemManager.AddDataItem(new ExecutionDataItem(Id), value);
         }
-        public IDataItemModel ExecutionDataItem => DataItemManager.GetDataItem(Devices.Events.ExecutionDataItem.NameId);
+        public IDataItemModel ExecutionDataItem => DataItemManager.GetDataItem(Devices.DataItems.Events.ExecutionDataItem.NameId);
 
         /// <summary>
         /// A mechanism that converts electrical, pneumatic, or hydraulic energy into mechanical energy.

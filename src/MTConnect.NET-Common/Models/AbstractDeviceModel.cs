@@ -3,6 +3,7 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
+using System;
 using MTConnect.Assets;
 using MTConnect.Devices;
 using MTConnect.Observations.Input;
@@ -29,6 +30,8 @@ namespace MTConnect.Models
 
         internal DataItemManager DataItemManager => _componentManager.DataItemManager;
 
+        public EventHandler<IObservation> ObservationUpdated { get; set; }
+
 
         public override IDescription Description => DeviceDescription;
 
@@ -54,6 +57,7 @@ namespace MTConnect.Models
             set
             {
                 if (base.Description == null) base.Description = new Description();
+                if (DeviceDescription == null) DeviceDescription = new Description();
                 DeviceDescription.Manufacturer = value;
             }
         }
@@ -67,6 +71,7 @@ namespace MTConnect.Models
             set
             {
                 if (base.Description == null) base.Description = new Description();
+                if (DeviceDescription == null) DeviceDescription = new Description();
                 DeviceDescription.Model = value;
             }
         }
@@ -80,6 +85,7 @@ namespace MTConnect.Models
             set
             {
                 if (base.Description == null) base.Description = new Description();
+                if (DeviceDescription == null) DeviceDescription = new Description();
                 DeviceDescription.SerialNumber = value;
             }
         }
@@ -93,6 +99,7 @@ namespace MTConnect.Models
             set
             {
                 if (base.Description == null) base.Description = new Description();
+                if (DeviceDescription == null) DeviceDescription = new Description();
                 DeviceDescription.Station = value;
             }
         }
@@ -106,6 +113,7 @@ namespace MTConnect.Models
             set
             {
                 if (base.Description == null) base.Description = new Description();
+                if (DeviceDescription == null) DeviceDescription = new Description();
                 DeviceDescription.CDATA = value;
             }
         }
@@ -154,6 +162,7 @@ namespace MTConnect.Models
         protected void Init()
         {
             _componentManager = new ComponentManager();
+            _componentManager.ObservationUpdated += OnObservationUpdated;
         }
 
         protected void Init(string deviceName, string deviceId = "dev")
@@ -162,9 +171,10 @@ namespace MTConnect.Models
             Name = deviceName;
             Uuid = deviceId;
             _componentManager = new ComponentManager(deviceId);
+            _componentManager.ObservationUpdated += OnObservationUpdated;
         }
 
-        protected void Init(Device device)
+        protected void Init(IDevice device)
         {
             if (device != null)
             {
@@ -182,6 +192,7 @@ namespace MTConnect.Models
                 }
 
                 _componentManager = new ComponentManager(device.Id);
+                _componentManager.ObservationUpdated += OnObservationUpdated;
 
                 // Add Components
                 var componentModels = ComponentManager.CreateComponentModels(device.Components);
@@ -204,6 +215,10 @@ namespace MTConnect.Models
             }
         }
 
+        private void OnObservationUpdated(object sender, IObservation observation)
+        {
+            if (ObservationUpdated != null) ObservationUpdated.Invoke(this, observation);
+        }
 
         public void UpdateObservations(IDeviceStream stream) => ComponentManager.UpdateObservations(stream);
 
@@ -252,7 +267,7 @@ namespace MTConnect.Models
         public void UpdateCondition(ConditionObservation condition, string type, string subType = null) => DataItemManager.UpdateCondition(condition, type, subType);
 
 
-        public void AddCondition(Devices.DataItem dataItem, ConditionObservation condition) => DataItemManager.AddCondition(dataItem, condition);
+        public void AddCondition(DataItem dataItem, ConditionObservation condition) => DataItemManager.AddCondition(dataItem, condition);
 
         public void AddCondition(IDataItemModel dataItem, ConditionObservation condition) => DataItemManager.AddCondition(dataItem, condition);
 
@@ -366,7 +381,7 @@ namespace MTConnect.Models
 
         #region "Adapter"
 
-        public IEnumerable<Observation> GetObservations() => ComponentManager.GetObservations();
+        public IEnumerable<IObservation> GetObservations() => ComponentManager.GetObservations();
         //public IEnumerable<ObservationInput> GetObservations(long timestamp = 0) => ComponentManager.GetObservations(timestamp);
 
         public IEnumerable<ConditionObservationInput> GetConditionObservations(long timestamp = 0) => ComponentManager.GetConditionObservations(timestamp);

@@ -91,22 +91,39 @@ namespace MTConnect.Models
                     foreach (var dataItemModel in DataItemModels.OfType<DataItemModel>()) x.Add(dataItemModel);
                 }
 
+                if (!CompositionModels.IsNullOrEmpty())
+                {
+                    foreach (var composition in CompositionModels)
+                    {
+                        if (!composition.DataItemModels.IsNullOrEmpty())
+                        {
+                            foreach (var dataItemModel in composition.DataItemModels.OfType<DataItemModel>())
+                            {
+                                x.Add(dataItemModel);
+                            }
+                        }
+                    }
+                }
+
                 return x;
             }
         }
 
 
+        public EventHandler<IObservation> ObservationUpdated { get; set; }
+
+
         public ComponentManager() 
         {
             _dataItemManager = new DataItemManager();
-            //DataItemModels = new IEnumerable<IDataItemModel>();
+            _dataItemManager.ObservationUpdated += OnObservationUpdated;
             ComponentModels = new List<IComponentModel>();
         }
 
         public ComponentManager(string id)
         {
             _dataItemManager = new DataItemManager(id);
-            //DataItemModels = new List<IDataItemModel>();
+            _dataItemManager.ObservationUpdated += OnObservationUpdated;
             ComponentModels = new List<IComponentModel>();
             Id = id;
         }
@@ -114,7 +131,7 @@ namespace MTConnect.Models
 
         #region "Create"
 
-        public static IComponentModel Create(Component component)
+        public static IComponentModel Create(IComponent component)
         {
             if (component != null)
             {
@@ -152,7 +169,45 @@ namespace MTConnect.Models
             return null;
         }
 
-        public static List<IComponentModel> CreateComponentModels(IEnumerable<Component> components)
+        public static ICompositionModel Create(IComposition component)
+        {
+            if (component != null)
+            {
+                var obj = CreateCompositionModel(component.Type);
+                if (obj != null)
+                {
+                    obj.Id = component.Id;
+                    obj.Uuid = component.Uuid;
+                    obj.Name = component.Name;
+                    obj.NativeName = component.NativeName;
+                    obj.Type = component.Type;
+
+                    if (component.Description != null)
+                    {
+                        obj.Manufacturer = component.Description.Manufacturer;
+                        obj.Model = component.Description.Model;
+                        obj.SerialNumber = component.Description.SerialNumber;
+                        obj.Station = component.Description.Station;
+                        obj.DescriptionText = component.Description.CDATA;
+                    }
+
+                    obj.SampleRate = component.SampleRate;
+                    obj.SampleInterval = component.SampleInterval;
+                    obj.References = component.References;
+                    obj.Configuration = component.Configuration;
+
+                    //obj.ComponentModels = CreateComponentModels(component.Components);
+                    //obj.CompositionModels = CreateCompositionModels(component.Compositions);
+                    obj.DataItemModels = CreateDataItemModels(component.DataItems);
+
+                    return obj;
+                }
+            }
+
+            return null;
+        }
+
+        public static List<IComponentModel> CreateComponentModels(IEnumerable<IComponent> components)
         {
             if (!components.IsNullOrEmpty())
             {
@@ -170,7 +225,7 @@ namespace MTConnect.Models
             return new List<IComponentModel>();
         }
 
-        public static List<ICompositionModel> CreateCompositionModels(IEnumerable<Composition> compositions)
+        public static List<ICompositionModel> CreateCompositionModels(IEnumerable<IComposition> compositions)
         {
             if (!compositions.IsNullOrEmpty())
             {
@@ -178,7 +233,7 @@ namespace MTConnect.Models
 
                 foreach (var composition in compositions)
                 {
-                    var obj = CompositionModel.Create(composition);
+                    var obj = Create(composition);
                     if (obj != null) objs.Add(obj);
                 }
 
@@ -188,7 +243,7 @@ namespace MTConnect.Models
             return new List<ICompositionModel>();
         }
 
-        public static List<IDataItemModel> CreateDataItemModels(IEnumerable<DataItem> dataItems)
+        public static List<IDataItemModel> CreateDataItemModels(IEnumerable<IDataItem> dataItems)
         {
             if (!dataItems.IsNullOrEmpty())
             {
@@ -229,6 +284,28 @@ namespace MTConnect.Models
             return null;
         }
 
+        public static CompositionModel CreateCompositionModel(string type)
+        {
+            if (!string.IsNullOrEmpty(type))
+            {
+                var types = GetAllCompositionModelTypes();
+                if (!types.IsNullOrEmpty())
+                {
+                    foreach (var t in types)
+                    {
+                        try
+                        {
+                            var obj = (CompositionModel)Activator.CreateInstance(t);
+                            if (obj.Type == type) return obj;
+                        }
+                        catch { }
+                    }
+                }
+            }
+
+            return null;
+        }
+
         private static IEnumerable<Type> GetAllComponentModelTypes()
         {
             // Search loaded assemblies for IComponentModel classes
@@ -238,6 +315,20 @@ namespace MTConnect.Models
             {
                 var types = assemblies.SelectMany(x => x.GetTypes());
                 return types.Where(x => typeof(IComponentModel).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract);
+            }
+
+            return Enumerable.Empty<Type>();
+        }
+
+        private static IEnumerable<Type> GetAllCompositionModelTypes()
+        {
+            // Search loaded assemblies for IComponentModel classes
+            // This allows for custom types to be included in DLL's and read at runtime
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            if (!assemblies.IsNullOrEmpty())
+            {
+                var types = assemblies.SelectMany(x => x.GetTypes());
+                return types.Where(x => typeof(ICompositionModel).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract);
             }
 
             return Enumerable.Empty<Type>();
@@ -284,8 +375,18 @@ namespace MTConnect.Models
         {
             if (component != null)
             {
+                component.ObservationUpdated += OnObservationUpdated;
+
                 if (ComponentModels == null) ComponentModels = new List<IComponentModel>();
                 ComponentModels.Add(component);
+
+                if (!component.CompositionModels.IsNullOrEmpty())
+                {
+                    foreach (var composition in component.CompositionModels)
+                    {
+                        AddCompositionModel(composition);
+                    }
+                }
 
                 if (!component.DataItemModels.IsNullOrEmpty())
                 {
@@ -308,6 +409,15 @@ namespace MTConnect.Models
                     model.Name = name;
 
                     AddComponentModel(model);
+
+                    if (!model.Compositions.IsNullOrEmpty())
+                    {
+                        foreach (var composition in model.Compositions)
+                        {
+                            //AddCompositionModel(composition);
+                        }
+                    }
+
                     if (!model.DataItems.IsNullOrEmpty())
                     {
                         foreach (var dataItem in model.DataItems)
@@ -315,6 +425,7 @@ namespace MTConnect.Models
                             DataItemManager.AddDataItem(dataItem, null);
                         }
                     }
+
                     return model;
                 }
                 catch { }
@@ -349,12 +460,25 @@ namespace MTConnect.Models
             return obj;
         }
 
-        public void AddCompositionModel(CompositionModel composition)
+        public void AddCompositionModel(ICompositionModel composition)
         {
             if (composition != null)
             {
+                composition.ObservationUpdated += OnObservationUpdated;
+
                 if (CompositionModels == null) CompositionModels = new List<ICompositionModel>();
                 CompositionModels.Add(composition);
+            }
+        }
+
+        public void AddCompositionModels(IEnumerable<ICompositionModel> compositions)
+        {
+            if (!compositions.IsNullOrEmpty())
+            {
+                foreach (var composition in compositions)
+                {
+                    AddCompositionModel(composition);
+                }
             }
         }
 
@@ -376,6 +500,7 @@ namespace MTConnect.Models
 
             return null;
         }
+
 
         #endregion
 
@@ -404,42 +529,64 @@ namespace MTConnect.Models
 
         #region "Observations"
 
-        public IEnumerable<Observation> GetObservations()
+        private void OnObservationUpdated(object sender, IObservation observation)
         {
-            var objs = new List<Observation>();
+            if (ObservationUpdated != null) ObservationUpdated.Invoke(this, observation);
+        }
+
+
+        public IObservation GetObservation(string type, string subType = null)
+        {
+            return _dataItemManager.GetObservation(type, subType);
+        }
+
+        public IEnumerable<IObservation> GetObservations()
+        {
+            var objs = new List<IObservation>();
 
             if (!DataItems.IsNullOrEmpty())
             {
                 foreach (var dataItem in DataItems)
                 {
-                    var value = _dataItemManager.GetDataItemValue(dataItem.Type, dataItem.SubType);
-                    if (value != null)
-                    {
-                        Observation observation = null;
+                    var observation = _dataItemManager.GetObservation(dataItem.Type, dataItem.SubType);
+                    if (observation != null) objs.Add(observation);
 
-                        switch (dataItem.Category)
-                        {
-                            case DataItemCategory.EVENT:
+                    //var value = _dataItemManager.GetDataItemValue(dataItem.Type, dataItem.SubType);
+                    //if (value != null)
+                    //{
+                    //    Observation observation = null;
 
-                                observation = EventObservation.Create(dataItem);
-                                switch (dataItem.Representation)
-                                {
-                                    case DataItemRepresentation.VALUE: observation.AddValue(ValueKeys.CDATA, value); break;
-                                }
-                                break;
+                    //    switch (dataItem.Category)
+                    //    {
+                    //        case DataItemCategory.EVENT:
 
-                            case DataItemCategory.SAMPLE:
+                    //            observation = EventObservation.Create(dataItem);
+                    //            switch (dataItem.Representation)
+                    //            {
+                    //                case DataItemRepresentation.VALUE: observation.AddValue(ValueKeys.CDATA, value); break;
+                    //            }
+                    //            break;
 
-                                observation = SampleObservation.Create(dataItem);
-                                switch (dataItem.Representation)
-                                {
-                                    case DataItemRepresentation.VALUE: observation.AddValue(ValueKeys.CDATA, value); break;
-                                }
-                                break;
-                        }
+                    //        case DataItemCategory.SAMPLE:
 
-                        if (observation != null) objs.Add(observation);
-                    }
+                    //            observation = SampleObservation.Create(dataItem);
+                    //            switch (dataItem.Representation)
+                    //            {
+                    //                case DataItemRepresentation.VALUE: observation.AddValue(ValueKeys.CDATA, value); break;
+                    //            }
+                    //            break;
+                    //    }
+
+                    //    if (observation != null) objs.Add(observation);
+                    //}
+                }
+            }
+
+            if (!CompositionModels.IsNullOrEmpty())
+            {
+                foreach (var compositionModel in CompositionModels)
+                {
+                    objs.AddRange(compositionModel.GetObservations());
                 }
             }
 

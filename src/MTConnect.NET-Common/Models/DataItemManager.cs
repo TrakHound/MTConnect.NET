@@ -3,7 +3,8 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
-using MTConnect.Devices.Events;
+using MTConnect.Devices;
+using MTConnect.Devices.DataItems.Events;
 using MTConnect.Models.DataItems;
 using MTConnect.Observations;
 using MTConnect.Observations.Events.Values;
@@ -41,6 +42,8 @@ namespace MTConnect.Models
             }
         }
 
+        public EventHandler<IObservation> ObservationUpdated { get; set; }
+
 
         public DataItemManager() 
         {
@@ -63,6 +66,45 @@ namespace MTConnect.Models
                     return $"{type}:{subType}";
                 }
                 else return type;
+            }
+
+            return null;
+        }
+
+
+        public IObservation GetObservation(string type, string subType = null)
+        {
+            var dataItem = GetDataItem(type, subType);
+            if (dataItem != null)
+            {
+                var value = GetDataItemValue(type, subType);
+                if (value != null)
+                {
+                    Observation observation = null;
+
+                    switch (dataItem.Category)
+                    {
+                        case DataItemCategory.EVENT:
+
+                            observation = EventObservation.Create(dataItem);
+                            switch (dataItem.Representation)
+                            {
+                                case DataItemRepresentation.VALUE: observation.AddValue(ValueKeys.CDATA, value); break;
+                            }
+                            break;
+
+                        case DataItemCategory.SAMPLE:
+
+                            observation = SampleObservation.Create(dataItem);
+                            switch (dataItem.Representation)
+                            {
+                                case DataItemRepresentation.VALUE: observation.AddValue(ValueKeys.CDATA, value); break;
+                            }
+                            break;
+                    }
+
+                    return observation;
+                }
             }
 
             return null;
@@ -180,15 +222,30 @@ namespace MTConnect.Models
         public void UpdateDataItem(object value, string type, string subType = null)
         {
             var key = CreateKey(type, subType);
-            if (key != null && value != null)
+            if (key != null)
             {
                 lock (_lock)
                 {
                     _dataItemValues.Remove(key);
                     _dataItemValues.Add(key, value);
                 }
+
+                if (ObservationUpdated != null) ObservationUpdated.Invoke(Id, GetObservation(type, subType));
             }
         }
+
+        //public void UpdateDataItem(object value, string type, string subType = null)
+        //{
+        //    var key = CreateKey(type, subType);
+        //    if (key != null && value != null)
+        //    {
+        //        lock (_lock)
+        //        {
+        //            _dataItemValues.Remove(key);
+        //            _dataItemValues.Add(key, value);
+        //        }
+        //    }
+        //}
 
 
         public void AddDataItem(IDataItemModel dataItem, object value)
@@ -204,7 +261,7 @@ namespace MTConnect.Models
             }
         }
 
-        public void AddDataItem(Devices.DataItem dataItem, object value)
+        public void AddDataItem(IDataItem dataItem, object value)
         {
             if (dataItem != null && !string.IsNullOrEmpty(dataItem.Type))
             {
@@ -228,11 +285,11 @@ namespace MTConnect.Models
 
                 if (!string.IsNullOrEmpty(subType))
                 {
-                    dataItem = DataItemModels.FirstOrDefault(o => o.DataItemId == Devices.DataItem.CreateDataItemId(Id, type, subType));
+                    dataItem = DataItemModels.FirstOrDefault(o => o.Type == type && o.SubType == subType);
                 }
                 else
                 {
-                    dataItem = DataItemModels.FirstOrDefault(o => o.DataItemId == Devices.DataItem.CreateDataItemId(Id, type));
+                    dataItem = DataItemModels.FirstOrDefault(o => o.Type == type);
                 }
 
                 return dataItem;

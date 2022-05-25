@@ -74,7 +74,7 @@ namespace MTConnect.Observations
         }
 
 
-        public static EventObservation Create(DataItem dataItem)
+        public static EventObservation Create(IDataItem dataItem)
         {
             if (dataItem != null)
             {

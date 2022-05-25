@@ -3,8 +3,8 @@
 // file 'LICENSE.txt', which is part of this source code package.
 
 using MTConnect.Devices.Compositions;
-using MTConnect.Devices.Events;
-using MTConnect.Devices.Samples;
+using MTConnect.Devices.DataItems.Events;
+using MTConnect.Devices.DataItems.Samples;
 using MTConnect.Models.DataItems;
 using MTConnect.Observations.Samples.Values;
 using System;
@@ -21,10 +21,10 @@ namespace MTConnect.Models.Compositions
         /// </summary>
         public AccumulatedTimeValue AccumulatedTime
         {
-            get => GetSampleValue<AccumulatedTimeValue>(Devices.Samples.AccumulatedTimeDataItem.NameId);
+            get => GetSampleValue<AccumulatedTimeValue>(Devices.DataItems.Samples.AccumulatedTimeDataItem.NameId);
             set => AddDataItem(new AccumulatedTimeDataItem(Id), value);
         }
-        public IDataItemModel AccumulatedTimeDataItem => GetDataItem(Devices.Samples.AccumulatedTimeDataItem.NameId);
+        public IDataItemModel AccumulatedTimeDataItem => GetDataItem(Devices.DataItems.Samples.AccumulatedTimeDataItem.NameId);
 
 
         /// <summary>
@@ -54,15 +54,15 @@ namespace MTConnect.Models.Compositions
             var x = new DateCodeModel();
    
             // Manufacture
-            x.Manufacture = GetStringValue(DateCodeDataItem.NameId, DateCodeDataItem.GetSubTypeId(DateCodeDataItem.SubTypes.MANUFACTURE)).ToDateTime();
+            x.Manufacture = GetDataItemValue(DateCodeDataItem.NameId, DateCodeDataItem.GetSubTypeId(DateCodeDataItem.SubTypes.MANUFACTURE)).ToDateTime();
             x.ManufactureDataItem = GetDataItem(DateCodeDataItem.NameId, DateCodeDataItem.GetSubTypeId(DateCodeDataItem.SubTypes.MANUFACTURE));
 
             // Expiration
-            x.Expiration = GetStringValue(DateCodeDataItem.NameId, DateCodeDataItem.GetSubTypeId(DateCodeDataItem.SubTypes.EXPIRATION)).ToDateTime();
+            x.Expiration = GetDataItemValue(DateCodeDataItem.NameId, DateCodeDataItem.GetSubTypeId(DateCodeDataItem.SubTypes.EXPIRATION)).ToDateTime();
             x.ExpirationDataItem = GetDataItem(DateCodeDataItem.NameId, DateCodeDataItem.GetSubTypeId(DateCodeDataItem.SubTypes.EXPIRATION));
 
             // First Use
-            x.FirstUse = GetStringValue(DateCodeDataItem.NameId, DateCodeDataItem.GetSubTypeId(DateCodeDataItem.SubTypes.FIRST_USE)).ToDateTime();
+            x.FirstUse = GetDataItemValue(DateCodeDataItem.NameId, DateCodeDataItem.GetSubTypeId(DateCodeDataItem.SubTypes.FIRST_USE)).ToDateTime();
             x.FirstUseDataItem = GetDataItem(DateCodeDataItem.NameId, DateCodeDataItem.GetSubTypeId(DateCodeDataItem.SubTypes.FIRST_USE));
 
             return x;

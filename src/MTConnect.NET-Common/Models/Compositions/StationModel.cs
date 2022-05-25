@@ -4,7 +4,7 @@
 // file 'LICENSE.txt', which is part of this source code package.
 
 using MTConnect.Devices.Compositions;
-using MTConnect.Devices.Events;
+using MTConnect.Devices.DataItems.Events;
 using MTConnect.Models.Assets;
 using MTConnect.Models.DataItems;
 
@@ -38,10 +38,10 @@ namespace MTConnect.Models.Compositions
         {
             var x = new CuttingToolModel();
 
-            x.Number = GetStringValue(ToolNumberDataItem.NameId);
+            x.Number = GetDataItemValue(ToolNumberDataItem.NameId);
             x.NumberDataItem = GetDataItem(ToolNumberDataItem.NameId);
 
-            x.Group = GetStringValue(ToolGroupDataItem.NameId);
+            x.Group = GetDataItemValue(ToolGroupDataItem.NameId);
             x.GroupDataItem = GetDataItem(ToolGroupDataItem.NameId);
 
             var offsetLength = GetDataItem(ToolOffsetDataItem.NameId, ToolOffsetDataItem.GetSubTypeId(ToolOffsetDataItem.SubTypes.LENGTH));
@@ -51,14 +51,14 @@ namespace MTConnect.Models.Compositions
             {
                 x.Offset = new ToolOffsetModel
                 {
-                    Length = offsetLength != null ? GetStringValue(ToolOffsetDataItem.NameId, ToolOffsetDataItem.GetSubTypeId(ToolOffsetDataItem.SubTypes.LENGTH)) : null,
+                    Length = offsetLength != null ? GetDataItemValue(ToolOffsetDataItem.NameId, ToolOffsetDataItem.GetSubTypeId(ToolOffsetDataItem.SubTypes.LENGTH)) : null,
                     LengthDataItem = offsetLength,
-                    Radial = offsetRadial != null ? GetStringValue(ToolOffsetDataItem.NameId, ToolOffsetDataItem.GetSubTypeId(ToolOffsetDataItem.SubTypes.RADIAL)) : null,
+                    Radial = offsetRadial != null ? GetDataItemValue(ToolOffsetDataItem.NameId, ToolOffsetDataItem.GetSubTypeId(ToolOffsetDataItem.SubTypes.RADIAL)) : null,
                     RadialDataItem = offsetRadial
                 };
             }
 
-            x.AssetId = GetStringValue(ToolAssetIdDataItem.NameId);
+            x.AssetId = GetDataItemValue(ToolAssetIdDataItem.NameId);
 
             return x;
         }

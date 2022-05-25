@@ -4,8 +4,8 @@
 // file 'LICENSE.txt', which is part of this source code package.
 
 using MTConnect.Devices.Compositions;
-using MTConnect.Devices.Conditions;
-using MTConnect.Devices.Samples;
+using MTConnect.Devices.DataItems.Conditions;
+using MTConnect.Devices.DataItems.Samples;
 using MTConnect.Observations.Samples.Values;
 
 namespace MTConnect.Models.Compositions
@@ -20,50 +20,50 @@ namespace MTConnect.Models.Compositions
         /// </summary>
         public CapacityFluidValue CapacityFluid
         {
-            get => GetSampleValue<CapacityFluidValue>(Devices.Samples.CapacityFluidDataItem.NameId);
+            get => GetSampleValue<CapacityFluidValue>(Devices.DataItems.Samples.CapacityFluidDataItem.NameId);
             set => AddDataItem(new CapacityFluidDataItem(Id), value);
         }
-        public IDataItemModel CapacityFluidDataItem => GetDataItem(Devices.Samples.CapacityFluidDataItem.NameId);
+        public IDataItemModel CapacityFluidDataItem => GetDataItem(Devices.DataItems.Samples.CapacityFluidDataItem.NameId);
 
         /// <summary>
         /// The measurement of the amount of a substance remaining compared to the planned maximum amount of that substance.
         /// </summary>
         public FillLevelValue FillLevel
         {
-            get => GetSampleValue<FillLevelValue>(Devices.Samples.FillLevelDataItem.NameId);
+            get => GetSampleValue<FillLevelValue>(Devices.DataItems.Samples.FillLevelDataItem.NameId);
             set => AddDataItem(new FillLevelDataItem(Id), value);
         }
-        public IDataItemModel FillLevelDataItem => GetDataItem(Devices.Samples.FillLevelDataItem.NameId);
+        public IDataItemModel FillLevelDataItem => GetDataItem(Devices.DataItems.Samples.FillLevelDataItem.NameId);
 
         /// <summary>
         /// An indication of a fault associated with a piece of equipment or component that cannot be classified as a specific type.
         /// </summary>
         public Observations.ConditionObservation SystemCondition
         {
-            get => GetCondition(Devices.Conditions.SystemCondition.NameId);
+            get => GetCondition(Devices.DataItems.Conditions.SystemCondition.NameId);
             set => AddCondition(new SystemCondition(Id), value);
         }
-        public IDataItemModel SystemConditionDataItem => GetDataItem(Devices.Conditions.SystemCondition.NameId);
+        public IDataItemModel SystemConditionDataItem => GetDataItem(Devices.DataItems.Conditions.SystemCondition.NameId);
 
         /// <summary>
         /// An indication of a fault associated with the hardware subsystem of the Structural Element.
         /// </summary>
         public Observations.ConditionObservation HardwareCondition
         {
-            get => GetCondition(Devices.Conditions.HardwareCondition.NameId);
+            get => GetCondition(Devices.DataItems.Conditions.HardwareCondition.NameId);
             set => AddCondition(new HardwareCondition(Id), value);
         }
-        public IDataItemModel HardwareConditionDataItem => GetDataItem(Devices.Conditions.HardwareCondition.NameId);
+        public IDataItemModel HardwareConditionDataItem => GetDataItem(Devices.DataItems.Conditions.HardwareCondition.NameId);
 
         /// <summary>
         /// An indication that the piece of equipment has experienced a communications failure.
         /// </summary>
         public Observations.ConditionObservation CommunicationsCondition
         {
-            get => GetCondition(Devices.Conditions.CommunicationsCondition.NameId);
+            get => GetCondition(Devices.DataItems.Conditions.CommunicationsCondition.NameId);
             set => AddCondition(new CommunicationsCondition(Id), value);
         }
-        public IDataItemModel CommunicationsConditionDataItem => GetDataItem(Devices.Conditions.CommunicationsCondition.NameId);
+        public IDataItemModel CommunicationsConditionDataItem => GetDataItem(Devices.DataItems.Conditions.CommunicationsCondition.NameId);
 
 
         public TankModel() 

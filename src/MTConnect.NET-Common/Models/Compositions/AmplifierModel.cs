@@ -4,7 +4,7 @@
 // file 'LICENSE.txt', which is part of this source code package.
 
 using MTConnect.Devices.Compositions;
-using MTConnect.Devices.Samples;
+using MTConnect.Devices.DataItems.Samples;
 using MTConnect.Observations.Samples.Values;
 
 namespace MTConnect.Models.Compositions
@@ -19,10 +19,10 @@ namespace MTConnect.Models.Compositions
         /// </summary>
         public TemperatureValue Temperature
         {
-            get => GetSampleValue<TemperatureValue>(Devices.Samples.TemperatureDataItem.NameId, Devices.Samples.TemperatureDataItem.GetSubTypeId(Devices.Samples.TemperatureDataItem.SubTypes.ACTUAL));
-            set => AddDataItem(new TemperatureDataItem(Id, Devices.Samples.TemperatureDataItem.SubTypes.ACTUAL), value);
+            get => GetSampleValue<TemperatureValue>(Devices.DataItems.Samples.TemperatureDataItem.NameId, Devices.DataItems.Samples.TemperatureDataItem.GetSubTypeId(Devices.DataItems.Samples.TemperatureDataItem.SubTypes.ACTUAL));
+            set => AddDataItem(new TemperatureDataItem(Id, Devices.DataItems.Samples.TemperatureDataItem.SubTypes.ACTUAL), value);
         }
-        public IDataItemModel TemperatureDataItem => GetDataItem(Devices.Samples.TemperatureDataItem.NameId, Devices.Samples.TemperatureDataItem.GetSubTypeId(Devices.Samples.TemperatureDataItem.SubTypes.ACTUAL));
+        public IDataItemModel TemperatureDataItem => GetDataItem(Devices.DataItems.Samples.TemperatureDataItem.NameId, Devices.DataItems.Samples.TemperatureDataItem.GetSubTypeId(Devices.DataItems.Samples.TemperatureDataItem.SubTypes.ACTUAL));
 
 
         /// <summary>
@@ -30,10 +30,10 @@ namespace MTConnect.Models.Compositions
         /// </summary>
         public AccumulatedTimeValue AccumulatedTime
         {
-            get => (AccumulatedTimeValue)GetSampleValue(Devices.DataItem.CreateId(Id, Devices.Samples.AccumulatedTimeDataItem.NameId));
+            get => (AccumulatedTimeValue)GetSampleValue(Devices.DataItem.CreateId(Id, Devices.DataItems.Samples.AccumulatedTimeDataItem.NameId));
             set => AddDataItem(new AccumulatedTimeDataItem(Id), value);
         }
-        public IDataItemModel AccumulatedTimeDataItem => GetDataItem(Devices.Samples.AccumulatedTimeDataItem.NameId);
+        public IDataItemModel AccumulatedTimeDataItem => GetDataItem(Devices.DataItems.Samples.AccumulatedTimeDataItem.NameId);
 
 
         public AmplifierModel() 

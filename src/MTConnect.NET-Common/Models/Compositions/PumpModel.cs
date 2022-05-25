@@ -4,9 +4,9 @@
 // file 'LICENSE.txt', which is part of this source code package.
 
 using MTConnect.Devices.Compositions;
-using MTConnect.Devices.Conditions;
-using MTConnect.Devices.Events;
-using MTConnect.Devices.Samples;
+using MTConnect.Devices.DataItems.Conditions;
+using MTConnect.Devices.DataItems.Events;
+using MTConnect.Devices.DataItems.Samples;
 using MTConnect.Models.DataItems;
 using MTConnect.Observations.Samples.Values;
 using System;
@@ -23,30 +23,30 @@ namespace MTConnect.Models.Compositions
         /// </summary>
         public FlowValue Flow
         {
-            get => GetSampleValue<FlowValue>(Devices.Samples.FlowDataItem.NameId);
+            get => GetSampleValue<FlowValue>(Devices.DataItems.Samples.FlowDataItem.NameId);
             set => AddDataItem(new FlowDataItem(Id), value);
         }
-        public IDataItemModel FlowDataItem => GetDataItem(Devices.Samples.FlowDataItem.NameId);
+        public IDataItemModel FlowDataItem => GetDataItem(Devices.DataItems.Samples.FlowDataItem.NameId);
 
         /// <summary>
         /// The measurement of temperature.
         /// </summary>
         public TemperatureValue Temperature
         {
-            get => GetSampleValue<TemperatureValue>(Devices.Samples.TemperatureDataItem.NameId, Devices.Samples.TemperatureDataItem.GetSubTypeId(Devices.Samples.TemperatureDataItem.SubTypes.ACTUAL));
-            set => AddDataItem(new TemperatureDataItem(Id, Devices.Samples.TemperatureDataItem.SubTypes.ACTUAL), value);
+            get => GetSampleValue<TemperatureValue>(Devices.DataItems.Samples.TemperatureDataItem.NameId, Devices.DataItems.Samples.TemperatureDataItem.GetSubTypeId(Devices.DataItems.Samples.TemperatureDataItem.SubTypes.ACTUAL));
+            set => AddDataItem(new TemperatureDataItem(Id, Devices.DataItems.Samples.TemperatureDataItem.SubTypes.ACTUAL), value);
         }
-        public IDataItemModel TemperatureDataItem => GetDataItem(Devices.Samples.TemperatureDataItem.NameId, Devices.Samples.TemperatureDataItem.GetSubTypeId(Devices.Samples.TemperatureDataItem.SubTypes.ACTUAL));
+        public IDataItemModel TemperatureDataItem => GetDataItem(Devices.DataItems.Samples.TemperatureDataItem.NameId, Devices.DataItems.Samples.TemperatureDataItem.GetSubTypeId(Devices.DataItems.Samples.TemperatureDataItem.SubTypes.ACTUAL));
 
         /// <summary>
         /// The measurement of accumulated time for an activity or event.
         /// </summary>
         public AccumulatedTimeValue AccumulatedTime
         {
-            get => GetSampleValue<AccumulatedTimeValue>(Devices.Samples.AccumulatedTimeDataItem.NameId);
+            get => GetSampleValue<AccumulatedTimeValue>(Devices.DataItems.Samples.AccumulatedTimeDataItem.NameId);
             set => AddDataItem(new AccumulatedTimeDataItem(Id), value);
         }
-        public IDataItemModel AccumulatedTimeDataItem => GetDataItem(Devices.Samples.AccumulatedTimeDataItem.NameId);
+        public IDataItemModel AccumulatedTimeDataItem => GetDataItem(Devices.DataItems.Samples.AccumulatedTimeDataItem.NameId);
 
         /// <summary>
         /// The time and date code associated with a material or other physical item.
@@ -62,30 +62,30 @@ namespace MTConnect.Models.Compositions
         /// </summary>
         public Observations.ConditionObservation SystemCondition
         {
-            get => GetCondition(Devices.Conditions.SystemCondition.NameId);
+            get => GetCondition(Devices.DataItems.Conditions.SystemCondition.NameId);
             set => AddCondition(new SystemCondition(Id), value);
         }
-        public IDataItemModel SystemConditionDataItem => GetDataItem(Devices.Conditions.SystemCondition.NameId);
+        public IDataItemModel SystemConditionDataItem => GetDataItem(Devices.DataItems.Conditions.SystemCondition.NameId);
 
         /// <summary>
         /// An indication of a fault associated with the hardware subsystem of the Structural Element.
         /// </summary>
         public Observations.ConditionObservation HardwareCondition
         {
-            get => GetCondition(Devices.Conditions.HardwareCondition.NameId);
-            set => AddCondition(new Devices.Conditions.HardwareCondition(Id), value);
+            get => GetCondition(Devices.DataItems.Conditions.HardwareCondition.NameId);
+            set => AddCondition(new Devices.DataItems.Conditions.HardwareCondition(Id), value);
         }
-        public IDataItemModel HardwareConditionDataItem => GetDataItem(Devices.Conditions.HardwareCondition.NameId);
+        public IDataItemModel HardwareConditionDataItem => GetDataItem(Devices.DataItems.Conditions.HardwareCondition.NameId);
 
         /// <summary>
         /// An indication that the piece of equipment has experienced a communications failure.
         /// </summary>
         public Observations.ConditionObservation CommunicationsCondition
         {
-            get => GetCondition(Devices.Conditions.CommunicationsCondition.NameId);
+            get => GetCondition(Devices.DataItems.Conditions.CommunicationsCondition.NameId);
             set => AddCondition(new CommunicationsCondition(Id), value);
         }
-        public IDataItemModel CommunicationsConditionDataItem => GetDataItem(Devices.Conditions.CommunicationsCondition.NameId);
+        public IDataItemModel CommunicationsConditionDataItem => GetDataItem(Devices.DataItems.Conditions.CommunicationsCondition.NameId);
 
 
         public PumpModel() 
@@ -105,15 +105,15 @@ namespace MTConnect.Models.Compositions
             var x = new DateCodeModel();
 
             // Manufacture
-            x.Manufacture = GetStringValue(DateCodeDataItem.NameId, DateCodeDataItem.GetSubTypeId(DateCodeDataItem.SubTypes.MANUFACTURE)).ToDateTime();
+            x.Manufacture = GetDataItemValue(DateCodeDataItem.NameId, DateCodeDataItem.GetSubTypeId(DateCodeDataItem.SubTypes.MANUFACTURE)).ToDateTime();
             x.ManufactureDataItem = GetDataItem(DateCodeDataItem.NameId, DateCodeDataItem.GetSubTypeId(DateCodeDataItem.SubTypes.MANUFACTURE));
 
             // Expiration
-            x.Expiration = GetStringValue(DateCodeDataItem.NameId, DateCodeDataItem.GetSubTypeId(DateCodeDataItem.SubTypes.EXPIRATION)).ToDateTime();
+            x.Expiration = GetDataItemValue(DateCodeDataItem.NameId, DateCodeDataItem.GetSubTypeId(DateCodeDataItem.SubTypes.EXPIRATION)).ToDateTime();
             x.ExpirationDataItem = GetDataItem(DateCodeDataItem.NameId, DateCodeDataItem.GetSubTypeId(DateCodeDataItem.SubTypes.EXPIRATION));
 
             // First Use
-            x.FirstUse = GetStringValue(DateCodeDataItem.NameId, DateCodeDataItem.GetSubTypeId(DateCodeDataItem.SubTypes.FIRST_USE)).ToDateTime();
+            x.FirstUse = GetDataItemValue(DateCodeDataItem.NameId, DateCodeDataItem.GetSubTypeId(DateCodeDataItem.SubTypes.FIRST_USE)).ToDateTime();
             x.FirstUseDataItem = GetDataItem(DateCodeDataItem.NameId, DateCodeDataItem.GetSubTypeId(DateCodeDataItem.SubTypes.FIRST_USE));
 
             return x;

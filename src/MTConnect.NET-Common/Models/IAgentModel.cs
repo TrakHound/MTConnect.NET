@@ -47,7 +47,7 @@ namespace MTConnect.Models
         IAdaptersModel Adapters { get; }
 
 
-        IEnumerable<Observation> GetObservations();
+        IEnumerable<IObservation> GetObservations();
         //IEnumerable<ObservationInput> GetObservations(long timestamp = 0);
 
         IEnumerable<ConditionObservationInput> GetConditionObservations(long timestamp = 0);

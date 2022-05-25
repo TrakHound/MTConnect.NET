@@ -5,8 +5,8 @@
 
 using MTConnect.Devices;
 using MTConnect.Devices.Components;
-using MTConnect.Devices.Events;
-using MTConnect.Devices.Samples;
+using MTConnect.Devices.DataItems.Events;
+using MTConnect.Devices.DataItems.Samples;
 using MTConnect.Models.Assets;
 using MTConnect.Models.DataItems;
 using MTConnect.Observations.Events.Values;
@@ -24,20 +24,20 @@ namespace MTConnect.Models.Components
         /// </summary>
         public Execution Execution
         {
-            get => DataItemManager.GetDataItemValue<Execution>(Devices.Events.ExecutionDataItem.TypeId);
+            get => DataItemManager.GetDataItemValue<Execution>(Devices.DataItems.Events.ExecutionDataItem.TypeId);
             set => DataItemManager.AddDataItem(new ExecutionDataItem(Id), value);
         }
-        public IDataItemModel ExecutionDataItem => DataItemManager.GetDataItem(Devices.Events.ExecutionDataItem.TypeId);
+        public IDataItemModel ExecutionDataItem => DataItemManager.GetDataItem(Devices.DataItems.Events.ExecutionDataItem.TypeId);
 
         /// <summary>
         /// An indication of the reason that EXECUTION is reporting a value of WAIT.
         /// </summary>
         public WaitState WaitState
         {
-            get => DataItemManager.GetDataItemValue<WaitState>(Devices.Events.WaitStateDataItem.TypeId);
+            get => DataItemManager.GetDataItemValue<WaitState>(Devices.DataItems.Events.WaitStateDataItem.TypeId);
             set => DataItemManager.AddDataItem(new WaitStateDataItem(Id), value);
         }
-        public IDataItemModel WaitStateDataItem => DataItemManager.GetDataItem(Devices.Events.WaitStateDataItem.TypeId);
+        public IDataItemModel WaitStateDataItem => DataItemManager.GetDataItem(Devices.DataItems.Events.WaitStateDataItem.TypeId);
 
 
         public CuttingToolModel CuttingTool
@@ -52,10 +52,10 @@ namespace MTConnect.Models.Components
         /// </summary>
         public string WorkOffset
         {
-            get => DataItemManager.GetDataItemValue(Devices.Events.WorkOffsetDataItem.TypeId);
+            get => DataItemManager.GetDataItemValue(Devices.DataItems.Events.WorkOffsetDataItem.TypeId);
             set => DataItemManager.AddDataItem(new WorkOffsetDataItem(Id), value);
         }
-        public IDataItemModel WorkOffsetDataItem => DataItemManager.GetDataItem(Devices.Events.WorkOffsetDataItem.TypeId);
+        public IDataItemModel WorkOffsetDataItem => DataItemManager.GetDataItem(Devices.DataItems.Events.WorkOffsetDataItem.TypeId);
 
 
         /// <summary>
@@ -90,30 +90,30 @@ namespace MTConnect.Models.Components
         /// </summary>
         public int ProgramNestLevel
         {
-            get => DataItemManager.GetDataItemValue(Devices.Events.ProgramNestLevelDataItem.TypeId).ToInt();
+            get => DataItemManager.GetDataItemValue(Devices.DataItems.Events.ProgramNestLevelDataItem.TypeId).ToInt();
             set => DataItemManager.AddDataItem(new ProgramNestLevelDataItem(Id), value);
         }
-        public IDataItemModel ProgramNestLevelDataItem => DataItemManager.GetDataItem(Devices.Events.ProgramNestLevelDataItem.TypeId);
+        public IDataItemModel ProgramNestLevelDataItem => DataItemManager.GetDataItem(Devices.DataItems.Events.ProgramNestLevelDataItem.TypeId);
 
         /// <summary>
         /// An indication of the status of the Controller components program editing mode.
         /// </summary>
         public ProgramEdit ProgramEdit
         {
-            get => DataItemManager.GetDataItemValue<ProgramEdit>(Devices.Events.ProgramEditDataItem.TypeId);
+            get => DataItemManager.GetDataItemValue<ProgramEdit>(Devices.DataItems.Events.ProgramEditDataItem.TypeId);
             set => DataItemManager.AddDataItem(new ProgramEditDataItem(Id), value);
         }
-        public IDataItemModel ProgramEditDataItem => DataItemManager.GetDataItem(Devices.Events.ProgramEditDataItem.TypeId);
+        public IDataItemModel ProgramEditDataItem => DataItemManager.GetDataItem(Devices.DataItems.Events.ProgramEditDataItem.TypeId);
 
         /// <summary>
         /// The name of the program being edited.
         /// </summary>
         public string ProgramEditName
         {
-            get => DataItemManager.GetDataItemValue(Devices.Events.ProgramEditNameDataItem.TypeId);
+            get => DataItemManager.GetDataItemValue(Devices.DataItems.Events.ProgramEditNameDataItem.TypeId);
             set => DataItemManager.AddDataItem(new ProgramEditNameDataItem(Id), value);
         }
-        public IDataItemModel ProgramEditNameDataItem => DataItemManager.GetDataItem(Devices.Events.ProgramEditNameDataItem.TypeId);
+        public IDataItemModel ProgramEditNameDataItem => DataItemManager.GetDataItem(Devices.DataItems.Events.ProgramEditNameDataItem.TypeId);
 
         /// <summary>
         /// A reference to the position of a block of program code within a control program.
@@ -129,30 +129,30 @@ namespace MTConnect.Models.Components
         /// </summary>
         public string LineLabel
         {
-            get => DataItemManager.GetDataItemValue(Devices.Events.LineLabelDataItem.TypeId);
+            get => DataItemManager.GetDataItemValue(Devices.DataItems.Events.LineLabelDataItem.TypeId);
             set => DataItemManager.AddDataItem(new LineLabelDataItem(Id), value);
         }
-        public IDataItemModel LineLabelDataItem => DataItemManager.GetDataItem(Devices.Events.LineLabelDataItem.TypeId);
+        public IDataItemModel LineLabelDataItem => DataItemManager.GetDataItem(Devices.DataItems.Events.LineLabelDataItem.TypeId);
 
         /// <summary>
         /// The total count of the number of blocks of program code that have been executed since execution started.
         /// </summary>
         public int BlockCount
         {
-            get => DataItemManager.GetDataItemValue(Devices.Events.BlockCountDataItem.TypeId).ToInt();
+            get => DataItemManager.GetDataItemValue(Devices.DataItems.Events.BlockCountDataItem.TypeId).ToInt();
             set => DataItemManager.AddDataItem(new BlockCountDataItem(Id), value);
         }
-        public IDataItemModel BlockCountDataItem => DataItemManager.GetDataItem(Devices.Events.BlockCountDataItem.TypeId);
+        public IDataItemModel BlockCountDataItem => DataItemManager.GetDataItem(Devices.DataItems.Events.BlockCountDataItem.TypeId);
 
         /// <summary>
         /// The line of code or command being executed by a Controller Structural Element.
         /// </summary>
         public string Block
         {
-            get => DataItemManager.GetDataItemValue(Devices.Events.BlockDataItem.TypeId);
+            get => DataItemManager.GetDataItemValue(Devices.DataItems.Events.BlockDataItem.TypeId);
             set => DataItemManager.AddDataItem(new BlockDataItem(Id), value);
         }
-        public IDataItemModel BlockDataItem => DataItemManager.GetDataItem(Devices.Events.BlockDataItem.TypeId);
+        public IDataItemModel BlockDataItem => DataItemManager.GetDataItem(Devices.DataItems.Events.BlockDataItem.TypeId);
 
         /// <summary>
         /// A measured or calculated position of a control point reported by a piece of equipment. 
@@ -398,14 +398,14 @@ namespace MTConnect.Models.Components
         {
             var x = new PathFeedrateOverrideModel();
 
-            x.Programmed = DataItemManager.GetEventValue<PathFeedrateOverrideValue>(PathFeedrateOverrideDataItem.TypeId, PathFeedrateOverrideDataItem.SubTypes.PROGRAMMED.ToString());
-            x.ProgrammedDataItem = DataItemManager.GetDataItem(PathFeedrateOverrideDataItem.TypeId, PathFeedrateOverrideDataItem.SubTypes.PROGRAMMED.ToString());
+            x.Programmed = DataItemManager.GetEventValue<PathFeedrateOverrideValue>(Devices.DataItems.Events.PathFeedrateOverrideDataItem.TypeId, Devices.DataItems.Events.PathFeedrateOverrideDataItem.SubTypes.PROGRAMMED.ToString());
+            x.ProgrammedDataItem = DataItemManager.GetDataItem(Devices.DataItems.Events.PathFeedrateOverrideDataItem.TypeId, Devices.DataItems.Events.PathFeedrateOverrideDataItem.SubTypes.PROGRAMMED.ToString());
 
-            x.Rapid = DataItemManager.GetEventValue<PathFeedrateOverrideValue>(PathFeedrateOverrideDataItem.TypeId, PathFeedrateOverrideDataItem.SubTypes.RAPID.ToString());
-            x.RapidDataItem = DataItemManager.GetDataItem(PathFeedrateOverrideDataItem.TypeId, PathFeedrateOverrideDataItem.SubTypes.RAPID.ToString());
+            x.Rapid = DataItemManager.GetEventValue<PathFeedrateOverrideValue>(Devices.DataItems.Events.PathFeedrateOverrideDataItem.TypeId, Devices.DataItems.Events.PathFeedrateOverrideDataItem.SubTypes.RAPID.ToString());
+            x.RapidDataItem = DataItemManager.GetDataItem(Devices.DataItems.Events.PathFeedrateOverrideDataItem.TypeId, Devices.DataItems.Events.PathFeedrateOverrideDataItem.SubTypes.RAPID.ToString());
 
-            x.Jog = DataItemManager.GetEventValue<PathFeedrateOverrideValue>(PathFeedrateOverrideDataItem.TypeId, PathFeedrateOverrideDataItem.SubTypes.JOG.ToString());
-            x.JogDataItem = DataItemManager.GetDataItem(PathFeedrateOverrideDataItem.TypeId, PathFeedrateOverrideDataItem.SubTypes.JOG.ToString());
+            x.Jog = DataItemManager.GetEventValue<PathFeedrateOverrideValue>(Devices.DataItems.Events.PathFeedrateOverrideDataItem.TypeId, Devices.DataItems.Events.PathFeedrateOverrideDataItem.SubTypes.JOG.ToString());
+            x.JogDataItem = DataItemManager.GetDataItem(Devices.DataItems.Events.PathFeedrateOverrideDataItem.TypeId, Devices.DataItems.Events.PathFeedrateOverrideDataItem.SubTypes.JOG.ToString());
 
             return x;
 
@@ -415,9 +415,9 @@ namespace MTConnect.Models.Components
         {
             if (feedrateOverride != null)
             {
-                DataItemManager.AddDataItem(new PathFeedrateOverrideDataItem(Id, PathFeedrateOverrideDataItem.SubTypes.PROGRAMMED), feedrateOverride?.Programmed);
-                DataItemManager.AddDataItem(new PathFeedrateOverrideDataItem(Id, PathFeedrateOverrideDataItem.SubTypes.RAPID), feedrateOverride?.Rapid);
-                DataItemManager.AddDataItem(new PathFeedrateOverrideDataItem(Id, PathFeedrateOverrideDataItem.SubTypes.JOG), feedrateOverride?.Jog);
+                DataItemManager.AddDataItem(new Devices.DataItems.Events.PathFeedrateOverrideDataItem(Id, Devices.DataItems.Events.PathFeedrateOverrideDataItem.SubTypes.PROGRAMMED), feedrateOverride?.Programmed);
+                DataItemManager.AddDataItem(new Devices.DataItems.Events.PathFeedrateOverrideDataItem(Id, Devices.DataItems.Events.PathFeedrateOverrideDataItem.SubTypes.RAPID), feedrateOverride?.Rapid);
+                DataItemManager.AddDataItem(new Devices.DataItems.Events.PathFeedrateOverrideDataItem(Id, Devices.DataItems.Events.PathFeedrateOverrideDataItem.SubTypes.JOG), feedrateOverride?.Jog);
             }
         }
     }

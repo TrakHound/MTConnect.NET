@@ -5,8 +5,8 @@
 
 using MTConnect.Devices;
 using MTConnect.Devices.Components;
-using MTConnect.Devices.Events;
-using MTConnect.Devices.Samples;
+using MTConnect.Devices.DataItems.Events;
+using MTConnect.Devices.DataItems.Samples;
 using MTConnect.Observations.Events.Values;
 using System;
 
@@ -22,30 +22,30 @@ namespace MTConnect.Models.Components
         /// </summary>
         public ConnectionStatus ConnectionStatus
         {
-            get => DataItemManager.GetDataItemValue<ConnectionStatus>(DataItem.CreateId(Id, Devices.Events.ConnectionStatusDataItem.NameId));
+            get => DataItemManager.GetDataItemValue<ConnectionStatus>(DataItem.CreateId(Id, Devices.DataItems.Events.ConnectionStatusDataItem.NameId));
             set => DataItemManager.AddDataItem(new ConnectionStatusDataItem(Id), value);
         }
-        public IDataItemModel ConnectionStatusDataItem => DataItemManager.GetDataItem(Devices.Events.ConnectionStatusDataItem.NameId);
+        public IDataItemModel ConnectionStatusDataItem => DataItemManager.GetDataItem(Devices.DataItems.Events.ConnectionStatusDataItem.NameId);
 
         /// <summary>
         /// An indicator of the controlled state of a Linear or Rotary component representing an axis.
         /// </summary>
         public double ObservationUpdateRate
         {
-            get => DataItemManager.GetSampleValue(DataItem.CreateId(Id, Devices.Samples.ObservationUpdateRateDataItem.NameId)).ToDouble();
+            get => DataItemManager.GetSampleValue(DataItem.CreateId(Id, Devices.DataItems.Samples.ObservationUpdateRateDataItem.NameId)).ToDouble();
             set => DataItemManager.AddDataItem(new ObservationUpdateRateDataItem(Id), value);
         }
-        public IDataItemModel ObservationUpdateRateDataItem => DataItemManager.GetDataItem(Devices.Samples.ObservationUpdateRateDataItem.NameId);
+        public IDataItemModel ObservationUpdateRateDataItem => DataItemManager.GetDataItem(Devices.DataItems.Samples.ObservationUpdateRateDataItem.NameId);
 
         /// <summary>
         /// An indicator of the controlled state of a Linear or Rotary component representing an axis.
         /// </summary>
         public double AssetUpdateRate
         {
-            get => DataItemManager.GetSampleValue(DataItem.CreateId(Id, Devices.Samples.AssetUpdateRateDataItem.NameId)).ToDouble();
+            get => DataItemManager.GetSampleValue(DataItem.CreateId(Id, Devices.DataItems.Samples.AssetUpdateRateDataItem.NameId)).ToDouble();
             set => DataItemManager.AddDataItem(new AssetUpdateRateDataItem(Id), value);
         }
-        public IDataItemModel AssetUpdateRateDataItem => DataItemManager.GetDataItem(Devices.Samples.AssetUpdateRateDataItem.NameId);
+        public IDataItemModel AssetUpdateRateDataItem => DataItemManager.GetDataItem(Devices.DataItems.Samples.AssetUpdateRateDataItem.NameId);
 
         /// <summary>
         /// An indicator of the controlled state of a Linear or Rotary component representing an axis.
@@ -54,7 +54,7 @@ namespace MTConnect.Models.Components
         {
             get
             {
-                var valueString = DataItemManager.GetDataItemValue(DataItem.CreateId(Id, Devices.Events.AdapterSoftwareVersionDataItem.NameId));
+                var valueString = DataItemManager.GetDataItemValue(DataItem.CreateId(Id, Devices.DataItems.Events.AdapterSoftwareVersionDataItem.NameId));
                 if (!string.IsNullOrEmpty(valueString))
                 {
                     if (Version.TryParse(valueString, out var version))
@@ -67,7 +67,7 @@ namespace MTConnect.Models.Components
             }
             set => DataItemManager.AddDataItem(new AdapterSoftwareVersionDataItem(Id), value);
         }
-        public IDataItemModel AdapterSoftwareVersionDataItem => DataItemManager.GetDataItem(Devices.Events.AdapterSoftwareVersionDataItem.NameId);
+        public IDataItemModel AdapterSoftwareVersionDataItem => DataItemManager.GetDataItem(Devices.DataItems.Events.AdapterSoftwareVersionDataItem.NameId);
 
         /// <summary>
         /// An indicator of the controlled state of a Linear or Rotary component representing an axis.
@@ -76,7 +76,7 @@ namespace MTConnect.Models.Components
         {
             get
             {
-                var valueString = DataItemManager.GetDataItemValue(DataItem.CreateId(Id, Devices.Events.MTConnectVersionDataItem.NameId));
+                var valueString = DataItemManager.GetDataItemValue(DataItem.CreateId(Id, Devices.DataItems.Events.MTConnectVersionDataItem.NameId));
                 if (!string.IsNullOrEmpty(valueString))
                 {
                     if (Version.TryParse(valueString, out var version))
@@ -89,7 +89,7 @@ namespace MTConnect.Models.Components
             }
             set => DataItemManager.AddDataItem(new MTConnectVersionDataItem(Id), value);
         }
-        public IDataItemModel MTConnectVersionDataItem => DataItemManager.GetDataItem(Devices.Events.MTConnectVersionDataItem.NameId);
+        public IDataItemModel MTConnectVersionDataItem => DataItemManager.GetDataItem(Devices.DataItems.Events.MTConnectVersionDataItem.NameId);
 
 
         public AdapterModel() 

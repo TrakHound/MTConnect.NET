@@ -5,8 +5,8 @@
 
 using MTConnect.Devices;
 using MTConnect.Devices.Components;
-using MTConnect.Devices.Events;
-using MTConnect.Devices.Samples;
+using MTConnect.Devices.DataItems.Events;
+using MTConnect.Devices.DataItems.Samples;
 using MTConnect.Models.DataItems;
 using MTConnect.Observations.Events.Values;
 using MTConnect.Observations.Samples.Values;

@@ -9,11 +9,13 @@
 
   <ItemGroup>
     <Compile Remove="PlcSimulator.cs" />
+    <Compile Remove="Program - Copy.cs" />
     <Compile Remove="Program.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <None Include="PlcSimulator.cs" />
+    <None Include="Program - Copy.cs" />
     <None Include="Program.cs" />
   </ItemGroup>
 

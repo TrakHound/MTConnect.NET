@@ -4,7 +4,7 @@
 // file 'LICENSE.txt', which is part of this source code package.
 
 using MTConnect.Devices;
-using MTConnect.Devices.Events;
+using MTConnect.Devices.DataItems.Events;
 using MTConnect.Models.DataItems;
 using MTConnect.Observations;
 using MTConnect.Observations.Input;
@@ -31,6 +31,8 @@ namespace MTConnect.Models
         internal ComponentManager ComponentManager => _componentManager;
 
         internal DataItemManager DataItemManager => _componentManager.DataItemManager;
+
+        public EventHandler<IObservation> ObservationUpdated { get; set; }
 
 
         public override IDescription Description => DeviceDescription;
@@ -172,7 +174,12 @@ namespace MTConnect.Models
         }
 
 
-        public List<ICompositionModel> CompositionModels { get; set; }
+        //public List<ICompositionModel> CompositionModels { get; set; }
+        public List<ICompositionModel> CompositionModels
+        {
+            get => ComponentManager.CompositionModels;
+            set => ComponentManager.AddCompositionModels(value);
+        }
 
         public override List<Composition> Compositions
         {
@@ -226,6 +233,8 @@ namespace MTConnect.Models
         public ComponentModel() 
         {
             _componentManager = new ComponentManager();
+            _componentManager.ObservationUpdated += OnObservationUpdated;
+
             ComponentModels = new List<IComponentModel>();
             CompositionModels = new List<ICompositionModel>();
             DataItemModels = new List<IDataItemModel>();
@@ -234,6 +243,8 @@ namespace MTConnect.Models
         public ComponentModel(string id, string name)
         {
             _componentManager = new ComponentManager(id);
+            _componentManager.ObservationUpdated += OnObservationUpdated;
+
             ComponentModels = new List<IComponentModel>();
             CompositionModels = new List<ICompositionModel>();
             DataItemModels = new List<IDataItemModel>();
@@ -559,9 +570,9 @@ namespace MTConnect.Models
         //    return obj;
         //}
 
-        //public void AddCompositionModel(CompositionModel composition) => ComponentManager.AddCompositionModel(composition);
+        public void AddCompositionModel(CompositionModel composition) => ComponentManager.AddCompositionModel(composition);
 
-        //public T AddCompositionModel<T>(string name) where T : CompositionModel => ComponentManager.AddCompositionModel<T>(name);
+        public T AddCompositionModel<T>(string name) where T : CompositionModel => ComponentManager.AddCompositionModel<T>(name);
 
         #endregion
 
@@ -664,7 +675,7 @@ namespace MTConnect.Models
         //}
 
 
-        //protected string GetStringValue(string name)
+        //protected string GetDataItemValue(string name)
         //{
         //    var dataItemId = Devices.DataItem.CreateId(Id, name);
         //    if (DataItemValueExists(dataItemId))
@@ -675,7 +686,7 @@ namespace MTConnect.Models
         //    return default;
         //}
 
-        //protected string GetStringValue(string name, string suffix = null)
+        //protected string GetDataItemValue(string name, string suffix = null)
         //{
         //    var dataItemId = CreateId(Id, name, suffix);
         //    if (DataItemValueExists(dataItemId))
@@ -961,7 +972,13 @@ namespace MTConnect.Models
 
         #region "Adapter"
 
-        public IEnumerable<Observation> GetObservations() => ComponentManager.GetObservations();
+        private void OnObservationUpdated(object sender, IObservation observation)
+        {
+            if (ObservationUpdated != null) ObservationUpdated.Invoke(this, observation);
+        }
+
+
+        public IEnumerable<IObservation> GetObservations() => ComponentManager.GetObservations();
         //public IEnumerable<ObservationInput> GetObservations(long timestamp = 0) => ComponentManager.GetObservations(timestamp);
   
         public IEnumerable<ConditionObservationInput> GetConditionObservations(long timestamp = 0) => ComponentManager.GetConditionObservations(timestamp);
@@ -975,19 +992,19 @@ namespace MTConnect.Models
         //{
         //    var x = new ApplicationModel();
 
-        //    x.InstallDate = GetStringValue(ApplicationDataItem.NameId, ApplicationDataItem.GetSubTypeId(ApplicationDataItem.SubTypes.INSTALL_DATE));
+        //    x.InstallDate = GetDataItemValue(ApplicationDataItem.NameId, ApplicationDataItem.GetSubTypeId(ApplicationDataItem.SubTypes.INSTALL_DATE));
         //    x.InstallDateDataItem = GetDataItem(ApplicationDataItem.NameId, ApplicationDataItem.GetSubTypeId(ApplicationDataItem.SubTypes.INSTALL_DATE));
 
-        //    x.License = GetStringValue(ApplicationDataItem.NameId, ApplicationDataItem.GetSubTypeId(ApplicationDataItem.SubTypes.LICENSE));
+        //    x.License = GetDataItemValue(ApplicationDataItem.NameId, ApplicationDataItem.GetSubTypeId(ApplicationDataItem.SubTypes.LICENSE));
         //    x.LicenseDataItem = GetDataItem(ApplicationDataItem.NameId, ApplicationDataItem.GetSubTypeId(ApplicationDataItem.SubTypes.LICENSE));
 
-        //    x.Manufacturer = GetStringValue(ApplicationDataItem.NameId, ApplicationDataItem.GetSubTypeId(ApplicationDataItem.SubTypes.MANUFACTURER));
+        //    x.Manufacturer = GetDataItemValue(ApplicationDataItem.NameId, ApplicationDataItem.GetSubTypeId(ApplicationDataItem.SubTypes.MANUFACTURER));
         //    x.ManufacturerDataItem = GetDataItem(ApplicationDataItem.NameId, ApplicationDataItem.GetSubTypeId(ApplicationDataItem.SubTypes.MANUFACTURER));
 
-        //    x.ReleaseDate = GetStringValue(ApplicationDataItem.NameId, ApplicationDataItem.GetSubTypeId(ApplicationDataItem.SubTypes.RELEASE_DATE));
+        //    x.ReleaseDate = GetDataItemValue(ApplicationDataItem.NameId, ApplicationDataItem.GetSubTypeId(ApplicationDataItem.SubTypes.RELEASE_DATE));
         //    x.ReleaseDateDataItem = GetDataItem(ApplicationDataItem.NameId, ApplicationDataItem.GetSubTypeId(ApplicationDataItem.SubTypes.RELEASE_DATE));
 
-        //    x.Version = GetStringValue(ApplicationDataItem.NameId, ApplicationDataItem.GetSubTypeId(ApplicationDataItem.SubTypes.VERSION));
+        //    x.Version = GetDataItemValue(ApplicationDataItem.NameId, ApplicationDataItem.GetSubTypeId(ApplicationDataItem.SubTypes.VERSION));
         //    x.VersionDataItem = GetDataItem(ApplicationDataItem.NameId, ApplicationDataItem.GetSubTypeId(ApplicationDataItem.SubTypes.VERSION));
 
         //    return x;
@@ -1014,19 +1031,19 @@ namespace MTConnect.Models
         //{
         //    var x = new FirmwareModel();
 
-        //    x.InstallDate = GetStringValue(FirmwareDataItem.NameId, FirmwareDataItem.GetSubTypeId(FirmwareDataItem.SubTypes.INSTALL_DATE));
+        //    x.InstallDate = GetDataItemValue(FirmwareDataItem.NameId, FirmwareDataItem.GetSubTypeId(FirmwareDataItem.SubTypes.INSTALL_DATE));
         //    x.InstallDateDataItem = GetDataItem(FirmwareDataItem.NameId, FirmwareDataItem.GetSubTypeId(FirmwareDataItem.SubTypes.INSTALL_DATE));
 
-        //    x.License = GetStringValue(FirmwareDataItem.NameId, FirmwareDataItem.GetSubTypeId(FirmwareDataItem.SubTypes.LICENSE));
+        //    x.License = GetDataItemValue(FirmwareDataItem.NameId, FirmwareDataItem.GetSubTypeId(FirmwareDataItem.SubTypes.LICENSE));
         //    x.LicenseDataItem = GetDataItem(FirmwareDataItem.NameId, FirmwareDataItem.GetSubTypeId(FirmwareDataItem.SubTypes.LICENSE));
 
-        //    x.Manufacturer = GetStringValue(FirmwareDataItem.NameId, FirmwareDataItem.GetSubTypeId(FirmwareDataItem.SubTypes.MANUFACTURER));
+        //    x.Manufacturer = GetDataItemValue(FirmwareDataItem.NameId, FirmwareDataItem.GetSubTypeId(FirmwareDataItem.SubTypes.MANUFACTURER));
         //    x.ManufacturerDataItem = GetDataItem(FirmwareDataItem.NameId, FirmwareDataItem.GetSubTypeId(FirmwareDataItem.SubTypes.MANUFACTURER));
 
-        //    x.ReleaseDate = GetStringValue(FirmwareDataItem.NameId, FirmwareDataItem.GetSubTypeId(FirmwareDataItem.SubTypes.RELEASE_DATE));
+        //    x.ReleaseDate = GetDataItemValue(FirmwareDataItem.NameId, FirmwareDataItem.GetSubTypeId(FirmwareDataItem.SubTypes.RELEASE_DATE));
         //    x.ReleaseDateDataItem = GetDataItem(FirmwareDataItem.NameId, FirmwareDataItem.GetSubTypeId(FirmwareDataItem.SubTypes.RELEASE_DATE));
 
-        //    x.Version = GetStringValue(FirmwareDataItem.NameId, FirmwareDataItem.GetSubTypeId(FirmwareDataItem.SubTypes.VERSION));
+        //    x.Version = GetDataItemValue(FirmwareDataItem.NameId, FirmwareDataItem.GetSubTypeId(FirmwareDataItem.SubTypes.VERSION));
         //    x.VersionDataItem = GetDataItem(FirmwareDataItem.NameId, FirmwareDataItem.GetSubTypeId(FirmwareDataItem.SubTypes.VERSION));
 
         //    return x;
@@ -1053,19 +1070,19 @@ namespace MTConnect.Models
         //{
         //    var x = new HardwareModel();
 
-        //    x.InstallDate = GetStringValue(HardwareDataItem.NameId, HardwareDataItem.GetSubTypeId(HardwareDataItem.SubTypes.INSTALL_DATE));
+        //    x.InstallDate = GetDataItemValue(HardwareDataItem.NameId, HardwareDataItem.GetSubTypeId(HardwareDataItem.SubTypes.INSTALL_DATE));
         //    x.InstallDateDataItem = GetDataItem(HardwareDataItem.NameId, HardwareDataItem.GetSubTypeId(HardwareDataItem.SubTypes.INSTALL_DATE));
 
-        //    x.License = GetStringValue(HardwareDataItem.NameId, HardwareDataItem.GetSubTypeId(HardwareDataItem.SubTypes.LICENSE));
+        //    x.License = GetDataItemValue(HardwareDataItem.NameId, HardwareDataItem.GetSubTypeId(HardwareDataItem.SubTypes.LICENSE));
         //    x.LicenseDataItem = GetDataItem(HardwareDataItem.NameId, HardwareDataItem.GetSubTypeId(HardwareDataItem.SubTypes.LICENSE));
 
-        //    x.Manufacturer = GetStringValue(HardwareDataItem.NameId, HardwareDataItem.GetSubTypeId(HardwareDataItem.SubTypes.MANUFACTURER));
+        //    x.Manufacturer = GetDataItemValue(HardwareDataItem.NameId, HardwareDataItem.GetSubTypeId(HardwareDataItem.SubTypes.MANUFACTURER));
         //    x.ManufacturerDataItem = GetDataItem(HardwareDataItem.NameId, HardwareDataItem.GetSubTypeId(HardwareDataItem.SubTypes.MANUFACTURER));
 
-        //    x.ReleaseDate = GetStringValue(HardwareDataItem.NameId, HardwareDataItem.GetSubTypeId(HardwareDataItem.SubTypes.RELEASE_DATE));
+        //    x.ReleaseDate = GetDataItemValue(HardwareDataItem.NameId, HardwareDataItem.GetSubTypeId(HardwareDataItem.SubTypes.RELEASE_DATE));
         //    x.ReleaseDateDataItem = GetDataItem(HardwareDataItem.NameId, HardwareDataItem.GetSubTypeId(HardwareDataItem.SubTypes.RELEASE_DATE));
 
-        //    x.Version = GetStringValue(HardwareDataItem.NameId, HardwareDataItem.GetSubTypeId(HardwareDataItem.SubTypes.VERSION));
+        //    x.Version = GetDataItemValue(HardwareDataItem.NameId, HardwareDataItem.GetSubTypeId(HardwareDataItem.SubTypes.VERSION));
         //    x.VersionDataItem = GetDataItem(HardwareDataItem.NameId, HardwareDataItem.GetSubTypeId(HardwareDataItem.SubTypes.VERSION));
 
         //    return x;
@@ -1092,19 +1109,19 @@ namespace MTConnect.Models
         //{
         //    var x = new LibraryModel();
 
-        //    x.InstallDate = GetStringValue(LibraryDataItem.NameId, LibraryDataItem.GetSubTypeId(LibraryDataItem.SubTypes.INSTALL_DATE));
+        //    x.InstallDate = GetDataItemValue(LibraryDataItem.NameId, LibraryDataItem.GetSubTypeId(LibraryDataItem.SubTypes.INSTALL_DATE));
         //    x.InstallDateDataItem = GetDataItem(LibraryDataItem.NameId, LibraryDataItem.GetSubTypeId(LibraryDataItem.SubTypes.INSTALL_DATE));
 
-        //    x.License = GetStringValue(LibraryDataItem.NameId, LibraryDataItem.GetSubTypeId(LibraryDataItem.SubTypes.LICENSE));
+        //    x.License = GetDataItemValue(LibraryDataItem.NameId, LibraryDataItem.GetSubTypeId(LibraryDataItem.SubTypes.LICENSE));
         //    x.LicenseDataItem = GetDataItem(LibraryDataItem.NameId, LibraryDataItem.GetSubTypeId(LibraryDataItem.SubTypes.LICENSE));
 
-        //    x.Manufacturer = GetStringValue(LibraryDataItem.NameId, LibraryDataItem.GetSubTypeId(LibraryDataItem.SubTypes.MANUFACTURER));
+        //    x.Manufacturer = GetDataItemValue(LibraryDataItem.NameId, LibraryDataItem.GetSubTypeId(LibraryDataItem.SubTypes.MANUFACTURER));
         //    x.ManufacturerDataItem = GetDataItem(LibraryDataItem.NameId, LibraryDataItem.GetSubTypeId(LibraryDataItem.SubTypes.MANUFACTURER));
 
-        //    x.ReleaseDate = GetStringValue(LibraryDataItem.NameId, LibraryDataItem.GetSubTypeId(LibraryDataItem.SubTypes.RELEASE_DATE));
+        //    x.ReleaseDate = GetDataItemValue(LibraryDataItem.NameId, LibraryDataItem.GetSubTypeId(LibraryDataItem.SubTypes.RELEASE_DATE));
         //    x.ReleaseDateDataItem = GetDataItem(LibraryDataItem.NameId, LibraryDataItem.GetSubTypeId(LibraryDataItem.SubTypes.RELEASE_DATE));
 
-        //    x.Version = GetStringValue(LibraryDataItem.NameId, LibraryDataItem.GetSubTypeId(LibraryDataItem.SubTypes.VERSION));
+        //    x.Version = GetDataItemValue(LibraryDataItem.NameId, LibraryDataItem.GetSubTypeId(LibraryDataItem.SubTypes.VERSION));
         //    x.VersionDataItem = GetDataItem(LibraryDataItem.NameId, LibraryDataItem.GetSubTypeId(LibraryDataItem.SubTypes.VERSION));
 
         //    return x;

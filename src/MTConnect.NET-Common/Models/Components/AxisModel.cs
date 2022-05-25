@@ -5,7 +5,7 @@
 
 using MTConnect.Devices;
 using MTConnect.Devices.Compositions;
-using MTConnect.Devices.Events;
+using MTConnect.Devices.DataItems.Events;
 using MTConnect.Models.Compositions;
 using MTConnect.Observations.Events.Values;
 
@@ -18,20 +18,20 @@ namespace MTConnect.Models.Components
         /// </summary>
         public AxisState AxisState
         {
-            get => DataItemManager.GetDataItemValue<AxisState>(DataItem.CreateId(Id, Devices.Events.AxisStateDataItem.NameId));
+            get => DataItemManager.GetDataItemValue<AxisState>(DataItem.CreateId(Id, Devices.DataItems.Events.AxisStateDataItem.NameId));
             set => DataItemManager.AddDataItem(new AxisStateDataItem(Id), value);
         }
-        public IDataItemModel AxisStateDataItem => DataItemManager.GetDataItem(Devices.Events.AxisStateDataItem.NameId);
+        public IDataItemModel AxisStateDataItem => DataItemManager.GetDataItem(Devices.DataItems.Events.AxisStateDataItem.NameId);
 
         /// <summary>
         /// An indicator of the state of the axis lockout function when power has been removed and the axis is allowed to move freely.
         /// </summary>
         public AxisInterlock AxisInterlock
         {
-            get => DataItemManager.GetDataItemValue<AxisInterlock>(DataItem.CreateId(Id, Devices.Events.AxisInterlockDataItem.NameId));
+            get => DataItemManager.GetDataItemValue<AxisInterlock>(DataItem.CreateId(Id, Devices.DataItems.Events.AxisInterlockDataItem.NameId));
             set => DataItemManager.AddDataItem(new AxisInterlockDataItem(Id), value);
         }
-        public IDataItemModel AxisInterlockDataItem => DataItemManager.GetDataItem(Devices.Events.AxisInterlockDataItem.NameId);
+        public IDataItemModel AxisInterlockDataItem => DataItemManager.GetDataItem(Devices.DataItems.Events.AxisInterlockDataItem.NameId);
 
         /// <summary>
         /// A mechanism that converts electrical, pneumatic, or hydraulic energy into mechanical energy.
