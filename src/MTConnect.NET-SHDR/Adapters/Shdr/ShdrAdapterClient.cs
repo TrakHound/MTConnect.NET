@@ -144,7 +144,6 @@ namespace MTConnect.Adapters.Shdr
             if (_stop != null) _stop.Cancel();
         }
 
-
         private async Task ListenForAdapter(CancellationToken cancel)
         {
             try
@@ -190,8 +189,18 @@ namespace MTConnect.Adapters.Shdr
                                         var lines = response.Split('\n');
                                         if (!lines.IsNullOrEmpty())
                                         {
-                                            foreach (var line in lines)
+                                            var j = 0;
+
+                                            bool multilineAsset = false;
+                                            string multilineAssetId = null;
+                                            string multilineAssetType = null;
+                                            string multilineId = null;
+                                            var multilineContent = new StringBuilder();
+
+                                            do
                                             {
+                                                var line = lines[j];
+
                                                 if (!string.IsNullOrEmpty(line))
                                                 {
                                                     if (line.StartsWith("*"))
@@ -210,6 +219,49 @@ namespace MTConnect.Adapters.Shdr
                                                             CommandReceived?.Invoke(this, line);
                                                         }
                                                     }
+                                                    else if (ShdrAsset.IsAssetMultilineBegin(line))
+                                                    {
+                                                        multilineAssetId = ShdrAsset.ReadAssetId(line);
+                                                        multilineAssetType = ShdrAsset.ReadAssetType(line);
+                                                        multilineId = ShdrAsset.ReadAssetMultilineId(line);
+                                                        multilineContent.Clear();
+                                                        multilineAsset = true;
+                                                    }
+                                                    else if (ShdrAsset.IsAssetMultilineEnd(multilineId, line))
+                                                    {
+                                                        var assetType = Assets.Asset.GetAssetType(multilineAssetType);
+                                                        if (assetType != null)
+                                                        {
+                                                            var asset = Assets.XmlAsset.FromXml(assetType, multilineContent.ToString());
+                                                            if (asset != null)
+                                                            {
+                                                                await _agent.AddAssetAsync(_device.Uuid, asset);
+                                                            }
+                                                        }
+
+                                                        multilineContent.Clear();
+                                                        multilineAsset = false;
+                                                    }
+                                                    else if (multilineAsset)
+                                                    {
+                                                        multilineContent.Append(line);
+                                                    }
+                                                    else if (ShdrAsset.IsAssetLine(line))
+                                                    {
+                                                        var shdrAsset = ShdrAsset.FromString(line);
+                                                        if (shdrAsset != null)
+                                                        {
+                                                            var assetType = Assets.Asset.GetAssetType(shdrAsset.Type);
+                                                            if (assetType != null)
+                                                            {
+                                                                var asset = Assets.XmlAsset.FromXml(assetType, shdrAsset.Xml);
+                                                                if (asset != null)
+                                                                {
+                                                                    await _agent.AddAssetAsync(_device.Uuid, asset);
+                                                                }
+                                                            }
+                                                        }
+                                                    }
                                                     else
                                                     {
                                                         await ProcessProtocol(line);
@@ -218,7 +270,10 @@ namespace MTConnect.Adapters.Shdr
                                                         ProtocolReceived?.Invoke(this, line);
                                                     }
                                                 }
+
+                                                j++;
                                             }
+                                            while (j < lines.Length);
                                         }
                                     }
 

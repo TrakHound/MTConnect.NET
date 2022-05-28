@@ -5,12 +5,23 @@
 
 using MTConnect.Assets;
 using System;
+using System.Text.RegularExpressions;
 
 namespace MTConnect.Adapters.Shdr
 {
     public class ShdrAsset : Asset
     {
         public const string AssetDesignator = "@ASSET@";
+
+        private const string AssetIdPattern = "@ASSET@\\|(.*)\\|.*\\|--multiline--";
+        private const string AssetTypePattern = "@ASSET@\\|.*\\|(.*)\\|--multiline--";
+        private const string AssetMutlilineBeginPattern = "@ASSET@.*--multiline--(.*)";
+        private const string AssetMutlilineEndPattern = "--multiline--(.*)";
+
+        private static readonly Regex _assetIdRegex = new Regex(AssetIdPattern);
+        private static readonly Regex _assetTypeRegex = new Regex(AssetTypePattern);
+        private static readonly Regex _multilineBeginRegex = new Regex(AssetMutlilineBeginPattern);
+        private static readonly Regex _multilineEndRegex = new Regex(AssetMutlilineEndPattern);
 
 
         public bool IsSent { get; set; }
@@ -42,22 +53,37 @@ namespace MTConnect.Adapters.Shdr
                 AssetId = asset.AssetId;
                 Type = asset.Type;
                 Timestamp = asset.Timestamp;
-                Xml = XmlAsset.ToXml(asset);
+                Xml = XmlAsset.ToXml(asset, false);
             }
         }
 
 
-        public override string ToString()
+        public override string ToString() => ToString(true);
+
+        public string ToString(bool multiline = false)
         {
             if (!string.IsNullOrEmpty(AssetId) && !string.IsNullOrEmpty(Xml))
             {
-                if (Timestamp.ToUnixTime() > 0)
+                if (multiline)
                 {
-                    return $"{Timestamp.ToString("o")}|{AssetDesignator}|{AssetId}|{Type}|{Xml}";
+                    var multilineId = StringFunctions.RandomString(10);
+
+                    var header = $"{AssetDesignator}|{AssetId}|{Type}|--multiline--{multilineId}";
+                    if (Timestamp.ToUnixTime() > 0) header = $"{Timestamp.ToString("o")}|{header}";
+
+                    var xml = XmlFunctions.FormatXml(Xml, true, false, true);
+
+                    var result = header;
+                    result += "\n";
+                    result += xml;
+                    result += $"\n--multiline--{multilineId}\n";
+
+                    return result;
                 }
                 else
                 {
-                    return $"{AssetDesignator}|{AssetId}|{Type}|{Xml}";
+                    if (Timestamp.ToUnixTime() > 0) return $"{Timestamp.ToString("o")}|{AssetDesignator}|{AssetId}|{Type}|{Xml}";
+                    else return $"{AssetDesignator}|{AssetId}|{Type}|{Xml}";
                 }
             }
 
@@ -104,6 +130,130 @@ namespace MTConnect.Adapters.Shdr
             }
 
             return false;
+        }
+
+        public static bool IsAssetMultilineBegin(string input)
+        {
+            if (!string.IsNullOrEmpty(input))
+            {
+                // Expected format (Multiline) : <timestamp>|@ASSET@|<assetId>|<assetType>|--multiline--0FED07ACED
+
+                // Start reading input and read Timestamp first (if specified)
+                var x = ShdrLine.GetNextValue(input);
+
+                if (DateTime.TryParse(x, out _))
+                {
+                    var y = ShdrLine.GetNextSegment(input);
+
+                    return _multilineBeginRegex.IsMatch(y);
+                }
+                else
+                {
+                    //return FromLine(input);
+                }
+            }
+
+            return false;
+        }
+
+        public static bool IsAssetMultilineEnd(string multilineId, string input)
+        {
+            if (!string.IsNullOrEmpty(input))
+            {
+                // Expected format (Multiline) : --multiline--0FED07ACED
+                var match = _multilineEndRegex.Match(input);
+                if (match.Success && match.Groups.Count > 1)
+                {
+                    var id = match.Groups[1].Value;
+                    return id == multilineId;
+                }
+            }
+
+            return false;
+        }
+
+        public static string ReadAssetId(string input)
+        {
+            if (!string.IsNullOrEmpty(input))
+            {
+                // Expected format (Multiline) : <timestamp>|@ASSET@|<assetId>|<assetType>|--multiline--0FED07ACED
+
+                // Start reading input and read Timestamp first (if specified)
+                var x = ShdrLine.GetNextValue(input);
+
+                if (DateTime.TryParse(x, out _))
+                {
+                    var y = ShdrLine.GetNextSegment(input);
+
+                    var match = _assetIdRegex.Match(y);
+                    if (match.Success && match.Groups.Count > 1)
+                    {
+                        return match.Groups[1].Value;
+                    }
+                }
+                else
+                {
+                    //return FromLine(input);
+                }
+            }
+
+            return null;
+        }
+
+        public static string ReadAssetType(string input)
+        {
+            if (!string.IsNullOrEmpty(input))
+            {
+                // Expected format (Multiline) : <timestamp>|@ASSET@|<assetId>|<assetType>|--multiline--0FED07ACED
+
+                // Start reading input and read Timestamp first (if specified)
+                var x = ShdrLine.GetNextValue(input);
+
+                if (DateTime.TryParse(x, out _))
+                {
+                    var y = ShdrLine.GetNextSegment(input);
+
+                    var match = _assetTypeRegex.Match(y);
+                    if (match.Success && match.Groups.Count > 1)
+                    {
+                        return match.Groups[1].Value;
+                    }
+                }
+                else
+                {
+                    //return FromLine(input);
+                }
+            }
+
+            return null;
+        }
+
+        public static string ReadAssetMultilineId(string input)
+        {
+            if (!string.IsNullOrEmpty(input))
+            {
+                // Expected format (Multiline) : <timestamp>|@ASSET@|<assetId>|<assetType>|--multiline--0FED07ACED
+
+                // Start reading input and read Timestamp first (if specified)
+                var x = ShdrLine.GetNextValue(input);
+
+                if (DateTime.TryParse(x, out _))
+                {
+                    var y = ShdrLine.GetNextSegment(input);
+
+                    var match = _multilineBeginRegex.Match(y);
+                    if (match.Success && match.Groups.Count > 1)
+                    {
+                        return match.Groups[1].Value;
+                    }
+                }
+                else
+                {
+                    //return FromLine(input);
+                }
+            }
+
+            return null;
         }
 
         public static ShdrAsset FromString(string input)

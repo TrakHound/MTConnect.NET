@@ -12,9 +12,9 @@ using System.Xml;
 
 namespace MTConnect
 {
-    internal static class XmlFunctions
+    public static class XmlFunctions
     {
-        public static string FormatXml(string xml, bool indent = true, bool outputComments = false)
+        public static string FormatXml(string xml, bool indent = true, bool outputComments = false, bool omitXmlDeclaration = false)
         {
             try
             {
@@ -35,6 +35,7 @@ namespace MTConnect
                     writerSettings.NewLineChars = "\r\n";
                     writerSettings.Indent = indent;
                     writerSettings.Encoding = System.Text.Encoding.UTF8;
+                    writerSettings.OmitXmlDeclaration = omitXmlDeclaration;
 
                     using (var stringWriter = new Utf8Writer())
                     using (var xmlWriter = XmlWriter.Create(stringWriter, writerSettings))
