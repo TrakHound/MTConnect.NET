@@ -2410,9 +2410,9 @@ namespace MTConnect.Agents
 
         private bool AddDeviceAddedObservation(IDevice device, long timestamp = 0)
         {
-            if (device != null && _observationBuffer != null)
+            if (_agent != null && device != null && _observationBuffer != null)
             {
-                var dataItems = device.GetDataItems();
+                var dataItems = _agent.GetDataItems();
                 if (!dataItems.IsNullOrEmpty())
                 {
                     var dataItem = dataItems.FirstOrDefault(o => o.Type == DeviceAddedDataItem.TypeId);
@@ -2420,7 +2420,7 @@ namespace MTConnect.Agents
                     {
                         // Create new Observation
                         var observation = new Observation();
-                        observation.SetProperty(nameof(Observation.DeviceUuid), device.Uuid);
+                        observation.SetProperty(nameof(Observation.DeviceUuid), _agent.Uuid);
                         observation.SetProperty(nameof(Observation.DataItemId), dataItem.Id);
                         observation.SetProperty(nameof(Observation.Timestamp), timestamp.ToDateTime());
                         observation.AddValues(new List<ObservationValue>
@@ -2431,7 +2431,7 @@ namespace MTConnect.Agents
                         ObservationAdded?.Invoke(this, observation);
 
                         // Add to Streaming Buffer
-                        return _observationBuffer.AddObservation(device.Name, dataItem, observation);
+                        return _observationBuffer.AddObservation(_agent.Uuid, dataItem, observation);
                     }
                 }
             }
@@ -2441,9 +2441,9 @@ namespace MTConnect.Agents
 
         private async Task<bool> AddDeviceAddedObservationAsync(IDevice device, long timestamp = 0)
         {
-            if (device != null && _observationBuffer != null)
+            if (_agent != null && device != null && _observationBuffer != null)
             {
-                var dataItems = device.GetDataItems();
+                var dataItems = _agent.GetDataItems();
                 if (!dataItems.IsNullOrEmpty())
                 {
                     var dataItem = dataItems.FirstOrDefault(o => o.Type == DeviceAddedDataItem.TypeId);
@@ -2451,7 +2451,7 @@ namespace MTConnect.Agents
                     {
                         // Create new Observation
                         var observation = new Observation();
-                        observation.SetProperty(nameof(Observation.DeviceUuid), device.Uuid);
+                        observation.SetProperty(nameof(Observation.DeviceUuid), _agent.Uuid);
                         observation.SetProperty(nameof(Observation.DataItemId), dataItem.Id);
                         observation.SetProperty(nameof(Observation.Timestamp), timestamp.ToDateTime());
                         observation.AddValues(new List<ObservationValue>
@@ -2462,7 +2462,7 @@ namespace MTConnect.Agents
                         ObservationAdded?.Invoke(this, observation);
 
                         // Add to Streaming Buffer
-                        return await _observationBuffer.AddObservationAsync(device.Name, dataItem, observation);
+                        return await _observationBuffer.AddObservationAsync(_agent.Uuid, dataItem, observation);
                     }
                 }
             }
@@ -2473,9 +2473,9 @@ namespace MTConnect.Agents
 
         private bool AddDeviceChangedObservation(IDevice device, long timestamp = 0)
         {
-            if (device != null && _observationBuffer != null)
+            if (_agent != null && device != null && _observationBuffer != null)
             {
-                var dataItems = device.GetDataItems();
+                var dataItems = _agent.GetDataItems();
                 if (!dataItems.IsNullOrEmpty())
                 {
                     var dataItem = dataItems.FirstOrDefault(o => o.Type == DeviceChangedDataItem.TypeId);
@@ -2483,7 +2483,7 @@ namespace MTConnect.Agents
                     {
                         // Create new Observation
                         var observation = new Observation();
-                        observation.SetProperty(nameof(Observation.DeviceUuid), device.Uuid);
+                        observation.SetProperty(nameof(Observation.DeviceUuid), _agent.Uuid);
                         observation.SetProperty(nameof(Observation.DataItemId), dataItem.Id);
                         observation.SetProperty(nameof(Observation.Timestamp), timestamp.ToDateTime());
                         observation.AddValues(new List<ObservationValue>
@@ -2494,7 +2494,7 @@ namespace MTConnect.Agents
                         ObservationAdded?.Invoke(this, observation);
 
                         // Add to Streaming Buffer
-                        return _observationBuffer.AddObservation(device.Name, dataItem, observation);
+                        return _observationBuffer.AddObservation(_agent.Uuid, dataItem, observation);
                     }
                 }
             }
@@ -2504,9 +2504,9 @@ namespace MTConnect.Agents
 
         private async Task<bool> AddDeviceChangedObservationAsync(IDevice device, long timestamp = 0)
         {
-            if (device != null && _observationBuffer != null)
+            if (_agent != null && device != null && _observationBuffer != null)
             {
-                var dataItems = device.GetDataItems();
+                var dataItems = _agent.GetDataItems();
                 if (!dataItems.IsNullOrEmpty())
                 {
                     var dataItem = dataItems.FirstOrDefault(o => o.Type == DeviceChangedDataItem.TypeId);
@@ -2514,7 +2514,7 @@ namespace MTConnect.Agents
                     {
                         // Create new Observation
                         var observation = new Observation();
-                        observation.SetProperty(nameof(Observation.DeviceUuid), device.Uuid);
+                        observation.SetProperty(nameof(Observation.DeviceUuid), _agent.Uuid);
                         observation.SetProperty(nameof(Observation.DataItemId), dataItem.Id);
                         observation.SetProperty(nameof(Observation.Timestamp), timestamp.ToDateTime());
                         observation.AddValues(new List<ObservationValue>
@@ -2525,7 +2525,7 @@ namespace MTConnect.Agents
                         ObservationAdded?.Invoke(this, observation);
 
                         // Add to Streaming Buffer
-                        return await _observationBuffer.AddObservationAsync(device.Name, dataItem, observation);
+                        return await _observationBuffer.AddObservationAsync(_agent.Uuid, dataItem, observation);
                     }
                 }
             }
@@ -2536,9 +2536,9 @@ namespace MTConnect.Agents
 
         private bool AddDeviceRemovedObservation(IDevice device, long timestamp = 0)
         {
-            if (device != null && _observationBuffer != null)
+            if (_agent != null && device != null && _observationBuffer != null)
             {
-                var dataItems = device.GetDataItems();
+                var dataItems = _agent.GetDataItems();
                 if (!dataItems.IsNullOrEmpty())
                 {
                     var dataItem = dataItems.FirstOrDefault(o => o.Type == DeviceRemovedDataItem.TypeId);
@@ -2546,7 +2546,7 @@ namespace MTConnect.Agents
                     {
                         // Create new Observation
                         var observation = new Observation();
-                        observation.SetProperty(nameof(Observation.DeviceUuid), device.Uuid);
+                        observation.SetProperty(nameof(Observation.DeviceUuid), _agent.Uuid);
                         observation.SetProperty(nameof(Observation.DataItemId), dataItem.Id);
                         observation.SetProperty(nameof(Observation.Timestamp), timestamp.ToDateTime());
                         observation.AddValues(new List<ObservationValue>
@@ -2557,7 +2557,7 @@ namespace MTConnect.Agents
                         ObservationAdded?.Invoke(this, observation);
 
                         // Add to Streaming Buffer
-                        return _observationBuffer.AddObservation(device.Name, dataItem, observation);
+                        return _observationBuffer.AddObservation(_agent.Uuid, dataItem, observation);
                     }
                 }
             }
@@ -2567,9 +2567,9 @@ namespace MTConnect.Agents
 
         private async Task<bool> AddDeviceRemovedObservationAsync(IDevice device, long timestamp = 0)
         {
-            if (device != null && _observationBuffer != null)
+            if (_agent != null && device != null && _observationBuffer != null)
             {
-                var dataItems = device.GetDataItems();
+                var dataItems = _agent.GetDataItems();
                 if (!dataItems.IsNullOrEmpty())
                 {
                     var dataItem = dataItems.FirstOrDefault(o => o.Type == DeviceRemovedDataItem.TypeId);
@@ -2577,7 +2577,7 @@ namespace MTConnect.Agents
                     {
                         // Create new Observation
                         var observation = new Observation();
-                        observation.SetProperty(nameof(Observation.DeviceUuid), device.Uuid);
+                        observation.SetProperty(nameof(Observation.DeviceUuid), _agent.Uuid);
                         observation.SetProperty(nameof(Observation.DataItemId), dataItem.Id);
                         observation.SetProperty(nameof(Observation.Timestamp), timestamp.ToDateTime());
                         observation.AddValues(new List<ObservationValue>
@@ -2588,7 +2588,7 @@ namespace MTConnect.Agents
                         ObservationAdded?.Invoke(this, observation);
 
                         // Add to Streaming Buffer
-                        return await _observationBuffer.AddObservationAsync(device.Name, dataItem, observation);
+                        return await _observationBuffer.AddObservationAsync(_agent.Uuid, dataItem, observation);
                     }
                 }
             }
