@@ -130,6 +130,13 @@ namespace MTConnect.Observations.Input
             Timestamp = timestamp.ToUnixTime();
         }
 
+        public ObservationInput(IObservation observation)
+        {
+            DataItemKey = observation.DataItemId;
+            Timestamp = observation.Timestamp.ToUnixTime();
+            Values = observation.Values;
+        }
+
 
         public void Unavailable()
         {
