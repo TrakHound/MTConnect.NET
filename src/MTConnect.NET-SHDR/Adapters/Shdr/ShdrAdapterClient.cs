@@ -11,6 +11,7 @@ using MTConnect.Observations;
 using MTConnect.Observations.Input;
 using System;
 using System.Linq;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -129,8 +130,10 @@ namespace MTConnect.Adapters.Shdr
             Server = server;
             Port = port;
 
-            Port = port;
-            ReconnectInterval = 2000;
+            if (_configuration != null)
+            {
+                ReconnectInterval = _configuration.ReconnectInterval;
+            }
         }
 
 
@@ -147,6 +150,8 @@ namespace MTConnect.Adapters.Shdr
 
         private async Task ListenForAdapter(CancellationToken cancel)
         {
+            var reconnectInterval = Math.Max(ReconnectInterval, 100);
+
             try
             {
                 while (!cancel.IsCancellationRequested)
@@ -159,7 +164,11 @@ namespace MTConnect.Adapters.Shdr
                         string response = "";
 
                         // Create new TCP Client
-                        _client = new TcpClient(Server, Port);
+                        var addressFamily = GetIpAddressType(Server);
+                        _client = new TcpClient(addressFamily);
+                        _client.Connect(Server, Port);
+                        //_client = new TcpClient(Server, Port);
+
                         AdapterConnected?.Invoke(this, $"Connected to Adapter at {Server} on Port {Port}");
 
                         // Get the TCP Client Stream
@@ -319,7 +328,7 @@ namespace MTConnect.Adapters.Shdr
                     }
 
                     // Wait for the ReconnectInterval (in milliseconds) until continuing while loop
-                    await Task.Delay(ReconnectInterval, cancel);
+                    await Task.Delay(reconnectInterval, cancel);
                 }
             }
             catch (Exception ex)
@@ -491,6 +500,19 @@ namespace MTConnect.Adapters.Shdr
             }
 
             return null;
+        }
+
+        private static AddressFamily GetIpAddressType(string input)
+        {
+            if (!string.IsNullOrEmpty(input))
+            {
+                if (IPAddress.TryParse(input, out var address))
+                {
+                    return address.AddressFamily;
+                }
+            }
+
+            return AddressFamily.InterNetwork;           
         }
     }
 }
