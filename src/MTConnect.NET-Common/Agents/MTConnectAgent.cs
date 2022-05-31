@@ -8,6 +8,7 @@ using MTConnect.Agents.Metrics;
 using MTConnect.Assets;
 using MTConnect.Buffers;
 using MTConnect.Devices;
+using MTConnect.Devices.DataItems;
 using MTConnect.Devices.DataItems.Events;
 using MTConnect.Devices.DataItems.Samples;
 using MTConnect.Devices.Components;

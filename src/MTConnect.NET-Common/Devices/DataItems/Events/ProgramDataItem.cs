@@ -25,14 +25,34 @@ namespace MTConnect.Devices.DataItems.Events
             ACTIVE,
 
             /// <summary>
+            /// Phase or segment of a recipe or program.
+            /// </summary>
+            ACTIVITY,
+
+            /// <summary>
             /// The identity of the primary logic or motion program currently being executed.It is the starting nest level in a call structure and may contain calls to sub programs.
             /// </summary>
             MAIN,
 
             /// <summary>
+            /// Step of a discrete manufacturing process.
+            /// </summary>
+            OPERATION,
+
+            /// <summary>
+            /// Process as part of product production; can be a subprocess of a larger process.
+            /// </summary>
+            RECIPE,
+
+            /// <summary>
             /// The identity of a control program that is used to specify the order of execution of other programs.
             /// </summary>
-            SCHEDULE
+            SCHEDULE,
+
+            /// <summary>
+            /// Phase of a recipe process.
+            /// </summary>
+            SEGMENT
         }
 
 
@@ -62,8 +82,12 @@ namespace MTConnect.Devices.DataItems.Events
             switch (s)
             {
                 case SubTypes.ACTIVE: return "The identity of the logic or motion program currently executing.";
+                case SubTypes.ACTIVITY: return "Phase or segment of a recipe or program.";
                 case SubTypes.MAIN: return "The identity of the primary logic or motion program currently being executed.It is the starting nest level in a call structure and may contain calls to sub programs.";
+                case SubTypes.OPERATION: return "Step of a discrete manufacturing process.";
+                case SubTypes.RECIPE: return "Process as part of product production; can be a subprocess of a larger process.";
                 case SubTypes.SCHEDULE: return "The identity of a control program that is used to specify the order of execution of other programs.";
+                case SubTypes.SEGMENT: return "Phase of a recipe process.";
             }
 
             return null;
@@ -73,9 +97,13 @@ namespace MTConnect.Devices.DataItems.Events
         {
             switch (subType)
             {
-                case SubTypes.ACTIVE: return "act";
+                case SubTypes.ACTIVE: return "actv";
+                case SubTypes.ACTIVITY: return "acty";
                 case SubTypes.MAIN: return "main";
+                case SubTypes.OPERATION: return "op";
+                case SubTypes.RECIPE: return "rpe";
                 case SubTypes.SCHEDULE: return "sch";
+                case SubTypes.SEGMENT: return "seg";
             }
 
             return null;

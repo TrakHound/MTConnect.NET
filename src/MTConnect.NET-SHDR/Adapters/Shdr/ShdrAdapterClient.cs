@@ -6,6 +6,7 @@
 using MTConnect.Agents;
 using MTConnect.Agents.Configuration;
 using MTConnect.Devices;
+using MTConnect.Devices.DataItems;
 using MTConnect.Observations;
 using MTConnect.Observations.Input;
 using System;

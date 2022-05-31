@@ -5,7 +5,7 @@
 
 using MTConnect.Adapters.Shdr;
 using MTConnect.Agents;
-using MTConnect.Devices;
+using MTConnect.Devices.DataItems;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;

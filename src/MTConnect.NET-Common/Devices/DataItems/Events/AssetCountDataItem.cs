@@ -24,6 +24,7 @@ namespace MTConnect.Devices.DataItems.Events
         {
             Category = CategoryId;
             Type = TypeId;
+            Representation = DataItemRepresentation.DATA_SET;
         }
 
         public AssetCountDataItem(string parentId)
@@ -32,6 +33,7 @@ namespace MTConnect.Devices.DataItems.Events
             Category = CategoryId;
             Type = TypeId;
             Name = NameId;
+            Representation = DataItemRepresentation.DATA_SET;
         }
     }
 }

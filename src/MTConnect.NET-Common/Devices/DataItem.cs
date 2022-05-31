@@ -3,6 +3,8 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE', which is part of this source code package.
 
+using MTConnect.Devices.Configurations.Relationships;
+using MTConnect.Devices.DataItems;
 using MTConnect.Observations;
 using MTConnect.Observations.Input;
 using System;
@@ -511,7 +513,7 @@ namespace MTConnect.Devices
                     if (mtconnectVersion >= MTConnectVersions.Version14) obj.ResetTrigger = dataItem.ResetTrigger;
 
                     // Check CoordinateSystem
-                    obj.CoordinateSystem = dataItem.CoordinateSystem;
+                    if (mtconnectVersion < MTConnectVersions.Version20) obj.CoordinateSystem = dataItem.CoordinateSystem;
 
                     // Check CoordinateSystemIdRef
                     if (mtconnectVersion >= MTConnectVersions.Version15) obj.CoordinateSystemIdRef = dataItem.CoordinateSystemIdRef;

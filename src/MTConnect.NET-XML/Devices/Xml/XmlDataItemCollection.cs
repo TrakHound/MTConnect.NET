@@ -3,6 +3,8 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE', which is part of this source code package.
 
+using MTConnect.Devices.Configurations.Relationships;
+using MTConnect.Devices.DataItems;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;

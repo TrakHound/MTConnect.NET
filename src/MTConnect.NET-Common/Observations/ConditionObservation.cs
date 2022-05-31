@@ -4,6 +4,7 @@
 // file 'LICENSE', which is part of this source code package.
 
 using MTConnect.Devices;
+using MTConnect.Devices.DataItems;
 using MTConnect.Observations.Input;
 using System;
 using System.Text.Json.Serialization;
