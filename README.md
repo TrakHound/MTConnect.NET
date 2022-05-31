@@ -4,8 +4,11 @@
 
 [![MTConnect.NET](https://github.com/TrakHound/MTConnect.NET/actions/workflows/dotnet.yml/badge.svg)](https://github.com/TrakHound/MTConnect.NET/actions/workflows/dotnet.yml)
 
+
+> Updated for the new MTConnect 2.0 release
+
 ## Overview
-MTConnect.NET is a fully featured .NET library for MTConnect® to develop Agents, Adapters, and Clients. Supports MTConnect Versions up to 1.8.
+MTConnect.NET is a fully featured .NET library for MTConnect® to develop Agents, Adapters, and Clients. Supports MTConnect Versions up to 2.0.
 
 The Agent, Buffers, and Adapter are separated into individual classes in order to allow for modular implementations such as the following : 
 
