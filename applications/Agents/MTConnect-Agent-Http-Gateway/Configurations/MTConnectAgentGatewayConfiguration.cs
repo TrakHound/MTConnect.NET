@@ -12,7 +12,7 @@ using MTConnect.Agents.Configuration;
 
 namespace MTConnect.Applications.Configuration
 {
-    public class MTConnectAgentRelayConfiguration : MTConnectAgentConfiguration
+    public class MTConnectAgentGatewayConfiguration : MTConnectAgentConfiguration
     {
         /// <summary>
         /// 
@@ -22,7 +22,7 @@ namespace MTConnect.Applications.Configuration
 
 
 
-        public new static MTConnectAgentRelayConfiguration Read(string path = null)
+        public new static MTConnectAgentGatewayConfiguration Read(string path = null)
         {
             var configurationPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Filename);
             if (path != null) configurationPath = path;
@@ -34,7 +34,7 @@ namespace MTConnect.Applications.Configuration
                     var text = File.ReadAllText(configurationPath);
                     if (!string.IsNullOrEmpty(text))
                     {
-                        return JsonSerializer.Deserialize<MTConnectAgentRelayConfiguration>(text);
+                        return JsonSerializer.Deserialize<MTConnectAgentGatewayConfiguration>(text);
                     }
                 }
                 catch { }

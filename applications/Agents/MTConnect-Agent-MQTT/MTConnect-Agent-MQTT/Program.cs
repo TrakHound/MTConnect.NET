@@ -67,7 +67,7 @@ namespace MTConnect.Applications
             {
                 // Create MTConnectAgent
                 _agent = new MTConnectAgent(configuration);
-                _agent.Version = new Version(1, 8);
+                _agent.Version = MTConnectVersions.Max;
 
                 if (verboseLogging)
                 {
