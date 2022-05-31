@@ -9,6 +9,7 @@ using MTConnect.Applications.Configuration;
 using MTConnect.Assets;
 using MTConnect.Clients.Rest;
 using MTConnect.Devices;
+using MTConnect.Devices.DataItems;
 using MTConnect.Http;
 using MTConnect.Observations;
 using MTConnect.Observations.Input;

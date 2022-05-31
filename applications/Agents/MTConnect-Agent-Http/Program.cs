@@ -8,6 +8,7 @@ using MTConnect.Agents;
 using MTConnect.Agents.Configuration;
 using MTConnect.Assets;
 using MTConnect.Devices;
+using MTConnect.Devices.DataItems;
 using MTConnect.Http;
 using MTConnect.Observations;
 using MTConnect.Streams;
