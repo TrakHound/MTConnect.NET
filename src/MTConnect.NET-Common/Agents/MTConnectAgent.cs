@@ -3085,6 +3085,7 @@ namespace MTConnect.Agents
                                 return true;
                             }
                         }
+                        else return true; // Return true if no update needed
                     }
                     else
                     {
@@ -3169,6 +3170,7 @@ namespace MTConnect.Agents
                                 return true;
                             }
                         }
+                        else return true; // Return true if no update needed
                     }
                     else
                     {
