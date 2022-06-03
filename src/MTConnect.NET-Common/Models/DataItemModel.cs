@@ -5,6 +5,7 @@
 
 using System;
 using MTConnect.Devices;
+using MTConnect.Devices.DataItems;
 
 namespace MTConnect.Models
 {
