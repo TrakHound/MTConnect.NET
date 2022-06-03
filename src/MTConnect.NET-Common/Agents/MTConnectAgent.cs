@@ -2627,7 +2627,7 @@ namespace MTConnect.Agents
                 var obj = NormalizeDevice(device);
 
                 // Get Existing Device (if exists)
-                var existingDevice = _deviceBuffer.GetDevice(obj.Name);
+                var existingDevice = _deviceBuffer.GetDevice(obj.Uuid);
 
                 // Check if Device Already Exists in the Device Buffer and is changed
                 if (existingDevice != null && obj.ChangeId == existingDevice.ChangeId)
@@ -2645,7 +2645,7 @@ namespace MTConnect.Agents
 
                     if (existingDevice != null)
                     {
-                        AddDeviceRemovedObservation(obj);
+                        //AddDeviceRemovedObservation(obj);
                         AddDeviceChangedObservation(obj);
                     }
                     else
@@ -2675,7 +2675,7 @@ namespace MTConnect.Agents
                 var obj = NormalizeDevice(device);
 
                 // Get Existing Device (if exists)
-                var existingDevice = await _deviceBuffer.GetDeviceAsync(obj.Name);
+                var existingDevice = await _deviceBuffer.GetDeviceAsync(obj.Uuid);
 
                 // Check if Device Already Exists in the Device Buffer and is changed
                 if (existingDevice != null && obj.ChangeId == existingDevice.ChangeId)
@@ -2693,7 +2693,7 @@ namespace MTConnect.Agents
 
                     if (existingDevice != null)
                     {
-                        await AddDeviceRemovedObservationAsync(obj);
+                        //await AddDeviceRemovedObservationAsync(obj);
                         await AddDeviceChangedObservationAsync(obj);
                     }
                     else

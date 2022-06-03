@@ -82,6 +82,11 @@ namespace MTConnect.Devices
         /// </summary>
         IEnumerable<IReference> References { get; }
 
+        /// <summary>
+        /// A MD5 Hash of the Composition that can be used to compare Composition objects
+        /// </summary>
+        string ChangeId { get; }
+
         string TypeDescription { get; }
 
         Version MaximumVersion { get; }

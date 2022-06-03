@@ -4,7 +4,6 @@
 // file 'LICENSE', which is part of this source code package.
 
 using MTConnect.Devices.Configurations;
-using MTConnect.Devices.DataItems;
 using MTConnect.Devices.References;
 using System;
 using System.Collections.Generic;
@@ -95,6 +94,11 @@ namespace MTConnect.Devices
         /// An XML container consisting of one or more types of Reference XML elements.
         /// </summary>
         IEnumerable<IReference> References { get; }
+
+        /// <summary>
+        /// A MD5 Hash of the Component that can be used to compare Component objects
+        /// </summary>
+        string ChangeId { get; }
 
         string TypeDescription { get; }
 

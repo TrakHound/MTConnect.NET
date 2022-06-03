@@ -155,6 +155,12 @@ namespace MTConnect.Devices
         [JsonPropertyName("references")]
         public IEnumerable<IReference> References { get; set; }
 
+        /// <summary>
+        /// A MD5 Hash of the Component that can be used to compare Component objects
+        /// </summary>
+        [JsonIgnore]
+        public string ChangeId => CreateChangeId();
+
         [XmlIgnore]
         [JsonIgnore]
         public virtual string TypeDescription => DescriptionText;
@@ -172,6 +178,53 @@ namespace MTConnect.Devices
             DataItems = new List<IDataItem>();
             MaximumVersion = DefaultMaximumVersion;
             MinimumVersion = DefaultMinimumVersion;
+        }
+
+
+        public string CreateChangeId()
+        {
+            return CreateChangeId(this);
+        }
+
+        public static string CreateChangeId(IComponent component)
+        {
+            if (component != null)
+            {
+                var ids = new List<string>();
+
+                ids.Add(ObjectExtensions.GetChangeIdPropertyString(component).ToMD5Hash());
+
+                // Add DataItem Change Ids
+                if (!component.DataItems.IsNullOrEmpty())
+                {
+                    foreach (var dataItem in component.DataItems)
+                    {
+                        ids.Add(dataItem.ChangeId);
+                    }
+                }
+
+                // Add Composition Change Ids
+                if (!component.Compositions.IsNullOrEmpty())
+                {
+                    foreach (var composition in component.Compositions)
+                    {
+                        ids.Add(composition.ChangeId);
+                    }
+                }
+
+                // Add Component Change Ids
+                if (!component.Components.IsNullOrEmpty())
+                {
+                    foreach (var subcomponent in component.Components)
+                    {
+                        ids.Add(subcomponent.ChangeId);
+                    }
+                }
+
+                return StringFunctions.ToMD5Hash(ids.ToArray());
+            }
+
+            return null;
         }
 
 

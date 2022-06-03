@@ -164,19 +164,77 @@ namespace MTConnect.Devices
         {
             if (device != null)
             {
-                try
+                var ids = new List<string>();
+
+                ids.Add(ObjectExtensions.GetChangeIdPropertyString(device).ToMD5Hash());
+
+                // Add DataItem Change Ids
+                if (!device.DataItems.IsNullOrEmpty())
                 {
-                    var json = JsonSerializer.Serialize(device);
-                    if (!string.IsNullOrEmpty(json))
+                    foreach (var dataItem in device.DataItems)
                     {
-                        return json.ToMD5Hash();
+                        ids.Add(dataItem.ChangeId);
                     }
                 }
-                catch { }
+
+                // Add Composition Change Ids
+                if (!device.Compositions.IsNullOrEmpty())
+                {
+                    foreach (var composition in device.Compositions)
+                    {
+                        ids.Add(composition.ChangeId);
+                    }
+                }
+
+                // Add Component Change Ids
+                if (!device.Components.IsNullOrEmpty())
+                {
+                    foreach (var component in device.Components)
+                    {
+                        ids.Add(component.ChangeId);
+                    }
+                }
+
+                return StringFunctions.ToMD5Hash(ids.ToArray());
+
+
+                //try
+                //{
+                //    var json = JsonSerializer.Serialize(device);
+                //    if (!string.IsNullOrEmpty(json))
+                //    {
+                //        return json.ToMD5Hash();
+                //    }
+                //}
+                //catch { }
             }
 
             return null;
         }
+
+        public static string CreateDeviceChangeId(IDevice device)
+        {
+            var s = ObjectExtensions.GetChangeIdPropertyString(device);
+            return s.ToMD5Hash();
+        }
+
+        //public static string CreateChangeId(IDevice device)
+        //{
+        //    if (device != null)
+        //    {
+        //        try
+        //        {
+        //            var json = JsonSerializer.Serialize(device);
+        //            if (!string.IsNullOrEmpty(json))
+        //            {
+        //                return json.ToMD5Hash();
+        //            }
+        //        }
+        //        catch { }
+        //    }
+
+        //    return null;
+        //}
 
 
         /// <summary>

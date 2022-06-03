@@ -143,6 +143,12 @@ namespace MTConnect.Devices
         [JsonPropertyName("references")]
         public IEnumerable<IReference> References { get; set; }
 
+        /// <summary>
+        /// A MD5 Hash of the Composition that can be used to compare Composition objects
+        /// </summary>
+        [JsonIgnore]
+        public string ChangeId => CreateChangeId();
+
         [XmlIgnore]
         [JsonIgnore]
         public bool ReferencesSpecified => !References.IsNullOrEmpty();
@@ -158,6 +164,35 @@ namespace MTConnect.Devices
             DataItems = new List<IDataItem>();
             MaximumVersion = DefaultMaximumVersion;
             MinimumVersion = DefaultMinimumVersion;
+        }
+
+
+        public string CreateChangeId()
+        {
+            return CreateChangeId(this);
+        }
+
+        public static string CreateChangeId(IComposition composition)
+        {
+            if (composition != null)
+            {
+                var ids = new List<string>();
+
+                ids.Add(ObjectExtensions.GetChangeIdPropertyString(composition).ToMD5Hash());
+
+                // Add DataItem Change Ids
+                if (!composition.DataItems.IsNullOrEmpty())
+                {
+                    foreach (var dataItem in composition.DataItems)
+                    {
+                        ids.Add(dataItem.ChangeId);
+                    }
+                }
+
+                return StringFunctions.ToMD5Hash(ids.ToArray());
+            }
+
+            return null;
         }
 
 

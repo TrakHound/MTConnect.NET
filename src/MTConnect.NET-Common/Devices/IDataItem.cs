@@ -156,6 +156,11 @@ namespace MTConnect.Devices
         /// </summary>
         List<Relationship> Relationships { get; }
 
+        /// <summary>
+        /// A MD5 Hash of the DataItem that can be used to compare DataItem objects
+        /// </summary>
+        string ChangeId { get; }
+
         string TypeDescription { get; }
 
         string SubTypeDescription { get; }
