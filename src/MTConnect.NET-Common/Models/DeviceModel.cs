@@ -95,9 +95,9 @@ namespace MTConnect.Models
             Init();
         }
 
-        public DeviceModel(string deviceName, string deviceId = "dev")
+        public DeviceModel(string deviceName, string deviceUuid = null)
         {
-            Init(deviceName, deviceId);
+            Init(deviceName, deviceUuid);
         }
 
         public DeviceModel(IDevice device)

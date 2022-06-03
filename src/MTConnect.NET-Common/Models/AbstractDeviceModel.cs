@@ -148,9 +148,9 @@ namespace MTConnect.Models
             Init();
         }
 
-        public AbstractDeviceModel(string deviceName, string deviceId = "dev")
+        public AbstractDeviceModel(string deviceName, string deviceUuid = null)
         {
-            Init(deviceName, deviceId);
+            Init(deviceName, deviceUuid);
         }
 
         public AbstractDeviceModel(Device device)
@@ -165,12 +165,12 @@ namespace MTConnect.Models
             _componentManager.ObservationUpdated += OnObservationUpdated;
         }
 
-        protected void Init(string deviceName, string deviceId = "dev")
+        protected void Init(string deviceName, string deviceUuid = null)
         {
-            Id = deviceId;
+            Id = "dev_" + StringFunctions.RandomString(5);
             Name = deviceName;
-            Uuid = deviceId;
-            _componentManager = new ComponentManager(deviceId);
+            Uuid = !string.IsNullOrEmpty(deviceUuid) ? deviceUuid : Guid.NewGuid().ToString();
+            _componentManager = new ComponentManager(deviceUuid);
             _componentManager.ObservationUpdated += OnObservationUpdated;
         }
 
@@ -191,7 +191,7 @@ namespace MTConnect.Models
                     DescriptionText = device.Description.CDATA;
                 }
 
-                _componentManager = new ComponentManager(device.Id);
+                _componentManager = new ComponentManager(device.Uuid);
                 _componentManager.ObservationUpdated += OnObservationUpdated;
 
                 // Add Components

@@ -57,5 +57,14 @@ while (true)
         Actual = new PositionValue(98.7654)
     };
     xAxis.Motor.Temperature = new TemperatureValue(rnd.NextDouble());
+
+    var path1 = "path1";
+    deviceModel.Controller.GetPath(path1).Execution = Execution.ACTIVE;
+
+    var mainProgram = deviceModel.Controller.GetPath(path1).MainProgram;
+    mainProgram.Program = "Testing.NC";
+    deviceModel.Controller.GetPath(path1).MainProgram = mainProgram;
+
+    agent.AddDevice(deviceModel);
 }
 
