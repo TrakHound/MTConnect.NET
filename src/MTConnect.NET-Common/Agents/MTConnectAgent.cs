@@ -47,6 +47,7 @@ namespace MTConnect.Agents
         private readonly ConcurrentDictionary<string, IEnumerable<IObservationInput>> _currentConditions = new ConcurrentDictionary<string, IEnumerable<IObservationInput>>();
         private readonly MTConnectAgentMetrics _metrics = new MTConnectAgentMetrics(TimeSpan.FromSeconds(10), TimeSpan.FromMinutes(1));
         private readonly string _uuid = Guid.NewGuid().ToString();
+        private Version _mtconnectVersion;
         private Agent _agent;
 
         /// <summary>
@@ -72,7 +73,15 @@ namespace MTConnect.Agents
         /// <summary>
         /// Gets the MTConnect Version that the Agent is using.
         /// </summary>
-        public Version Version { get; set; }
+        public Version Version
+        {
+            get => _mtconnectVersion;
+            set
+            {
+                _mtconnectVersion = value;
+                if (_agent != null) _agent.MTConnectVersion = _mtconnectVersion;
+            }
+        }
 
         /// <summary>
         /// Get the configured size of the Buffer in the number of maximum number of Observations the buffer can hold at one time.
@@ -173,6 +182,7 @@ namespace MTConnect.Agents
         public MTConnectAgent()
         {
             InstanceId = CreateInstanceId();
+            Version = MTConnectVersions.Max;
             _deviceBuffer = new MTConnectDeviceBuffer();
             _observationBuffer = new MTConnectObservationBuffer();
             _assetBuffer = new MTConnectAssetBuffer();
@@ -184,6 +194,7 @@ namespace MTConnect.Agents
         {
             InstanceId = CreateInstanceId();
             _configuration = configuration != null ? configuration : new MTConnectAgentConfiguration();
+            Version = _configuration != null ? _configuration.DefaultVersion : MTConnectVersions.Max;
             _deviceBuffer = new MTConnectDeviceBuffer();
             _observationBuffer = new MTConnectObservationBuffer(_configuration);
             _assetBuffer = new MTConnectAssetBuffer(_configuration);
@@ -198,6 +209,7 @@ namespace MTConnect.Agents
             )
         {
             InstanceId = CreateInstanceId();
+            Version = MTConnectVersions.Max;
             _deviceBuffer = deviceBuffer;
             _observationBuffer = streamingBuffer;
             _assetBuffer = assetBuffer;
@@ -213,7 +225,8 @@ namespace MTConnect.Agents
             )
         {
             InstanceId = CreateInstanceId();
-            _configuration = configuration;
+            _configuration = configuration != null ? configuration : new MTConnectAgentConfiguration();
+            Version = _configuration != null ? _configuration.DefaultVersion : MTConnectVersions.Max;
             _deviceBuffer = deviceBuffer;
             _observationBuffer = streamingBuffer;
             _assetBuffer = assetBuffer;
@@ -322,7 +335,8 @@ namespace MTConnect.Agents
             {
                 foreach (var device in devices)
                 {
-                    objs.Add(Device.Process(device, mtconnectVersion != null ? mtconnectVersion : Version));
+                    var processedDevice = Device.Process(device, mtconnectVersion != null ? mtconnectVersion : Version);
+                    if (processedDevice != null) objs.Add(processedDevice);
                 }
             }
 
@@ -3487,6 +3501,7 @@ namespace MTConnect.Agents
             agent.Id = $"agent_{StringFunctions.RandomString(10)}";
             agent.Name = "Agent";
             agent.Uuid = _uuid;
+            agent.MTConnectVersion = Version;
 
             var dataItems = new List<IDataItem>();
 
@@ -3583,10 +3598,7 @@ namespace MTConnect.Agents
                     }
 
                     // Add MTConnect Version
-                    //if (mtconnectVersion != null)
-                    //{
-                    //    dataItems.Add(new MTConnectVersionDataItem(adapter.Id));
-                    //}
+                    //if (Version != null) dataItems.Add(new MTConnectVersionDataItem(adapter.Id));
 
                     adapters.DataItems = dataItems;
 
