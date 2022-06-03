@@ -10,7 +10,7 @@ using MTConnect.Observations.Samples.Values;
 using MTConnect.Models.DataItems;
 
 var agent = new MTConnectAgent();
-var server = new MTConnectHttpServer(agent);
+var server = new ShdrMTConnectHttpServer(agent);
 server.Start();
 
 var deviceModel = new DeviceModel("OKUMA-Lathe");
