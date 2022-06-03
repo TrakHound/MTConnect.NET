@@ -15,6 +15,7 @@ namespace MTConnect.Devices.DataItems.Samples
         public const string TypeId = "ASSET_UPDATE_RATE";
         public const string NameId = "assetUpdateRate";
         public const string DefaultUnits = Devices.Units.COUNT_PER_SECOND;
+        public const DataItemStatistic DefaultStatistic = DataItemStatistic.AVERAGE;
         public new const string DescriptionText = "The average rate of change of values for assets in the MTConnect streams. The average is computed over a rolling window defined by the implementation.";
 
         public override string TypeDescription => DescriptionText;
@@ -27,6 +28,8 @@ namespace MTConnect.Devices.DataItems.Samples
             Category = CategoryId;
             Type = TypeId;
             Units = DefaultUnits;
+            Statistic = DefaultStatistic;
+            SignificantDigits = 1;
         }
 
         public AssetUpdateRateDataItem(string parentId)
@@ -36,6 +39,8 @@ namespace MTConnect.Devices.DataItems.Samples
             Type = TypeId;
             Name = NameId;
             Units = DefaultUnits;
+            Statistic = DefaultStatistic;
+            SignificantDigits = 1;
         }
     }
 }

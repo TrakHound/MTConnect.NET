@@ -16,6 +16,7 @@ namespace MTConnect.Devices
             AdaptersComponent.TypeId,
             AuxiliariesComponent.TypeId,
             AxesComponent.TypeId,
+            ControllersComponent.TypeId,
             InterfacesComponent.TypeId,
             MaterialsComponent.TypeId,
             PartsComponent.TypeId,
@@ -43,6 +44,11 @@ namespace MTConnect.Devices
         {
             LinearComponent.TypeId,
             RotaryComponent.TypeId
+        };
+
+        private static readonly IEnumerable<string> _controllers = new List<string>
+        {
+            ControllerComponent.TypeId
         };
 
         private static readonly IEnumerable<string> _interfaces = new List<string>
@@ -114,6 +120,11 @@ namespace MTConnect.Devices
         /// Gets a list of Components that are used to Organize child Axis Components
         /// </summary>
         public static IEnumerable<string> Axes => _axes;
+
+        /// <summary>
+        /// Gets a list of Components that are used to Organize child Controller Components
+        /// </summary>
+        public static IEnumerable<string> Controllers => _controllers;
 
         /// <summary>
         /// Gets a list of Components that are used to Organize child Interface Components

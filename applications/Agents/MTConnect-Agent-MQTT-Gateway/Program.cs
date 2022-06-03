@@ -4,22 +4,19 @@
 // file 'LICENSE.txt', which is part of this source code package.
 
 //using MTConnect.Adapters.Shdr;
+using MQTTnet;
 using MTConnect.Agents;
-using MTConnect.Agents.Configuration;
+using MTConnect.Applications.Configuration;
 using MTConnect.Assets;
 using MTConnect.Clients.Rest;
 using MTConnect.Devices;
-using MTConnect.Http;
-using MQTTnet;
+using MTConnect.Devices.DataItems;
 using MTConnect.Observations;
 using MTConnect.Observations.Input;
 using MTConnect.Streams;
 using NLog;
-using System;
-using System.Linq;
 using System.Net;
 using System.Reflection;
-using MTConnect.Applications.Configuration;
 
 namespace MTConnect.Applications
 {
@@ -72,7 +69,7 @@ namespace MTConnect.Applications
             {
                 // Create MTConnectAgent
                 _agent = new MTConnectAgent(configuration);
-                _agent.Version = new Version(1, 8);
+                _agent.Version = MTConnectVersions.Max;
 
                 if (verboseLogging)
                 {

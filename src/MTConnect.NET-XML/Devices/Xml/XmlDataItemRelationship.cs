@@ -3,6 +3,14 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE', which is part of this source code package.
 
+using MTConnect.Devices.Configurations;
+using MTConnect.Devices.Configurations.CoordinateSystems;
+using MTConnect.Devices.Configurations.Motion;
+using MTConnect.Devices.Configurations.Relationships;
+using MTConnect.Devices.Configurations.Sensor;
+using MTConnect.Devices.Configurations.SolidModel;
+using MTConnect.Devices.Configurations.Specifications;
+using MTConnect.Devices.DataItems;
 using System.Xml;
 using System.Xml.Serialization;
 

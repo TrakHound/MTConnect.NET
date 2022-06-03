@@ -77,7 +77,13 @@ namespace MTConnect.Applications
                             var device = devices.FirstOrDefault(o => o.Name == adapterConfiguration.Device);
                             if (device != null)
                             {
-                                var adapterClient = new ShdrAdapterClient(adapterConfiguration, _mtconnectAgent, device);
+                                var adapterId = $"_{StringFunctions.RandomString(10)}";
+
+                                // Add Adapter Component to Agent Device
+                                _mtconnectAgent.AddAdapterComponent(adapterId, adapterConfiguration);
+
+                                // Create new SHDR Adapter Client to read from SHDR stream
+                                var adapterClient = new ShdrAdapterClient(adapterId, adapterConfiguration, _mtconnectAgent, device);
                                 adapterClient.AdapterConnected += _adapterLogger.AdapterConnected;
                                 adapterClient.AdapterDisconnected += _adapterLogger.AdapterDisconnected;
                                 adapterClient.AdapterConnectionError += _adapterLogger.AdapterConnectionError;

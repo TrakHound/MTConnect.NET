@@ -5,7 +5,7 @@
 
 using MTConnect.Adapters.Shdr;
 using MTConnect.Agents;
-using MTConnect.Devices;
+using MTConnect.Devices.DataItems;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -20,7 +20,7 @@ namespace MTConnect.Http
         private readonly IMTConnectAgent _mtconnectAgent;
 
 
-        public ShdrMTConnectHttpServer(IMTConnectAgent mtconnectAgent, IEnumerable<string> prefixes = null) : base(mtconnectAgent, prefixes) 
+        public ShdrMTConnectHttpServer(IMTConnectAgent mtconnectAgent, IEnumerable<string> prefixes = null, int port = 0) : base(mtconnectAgent, prefixes, port) 
         {
             _mtconnectAgent = mtconnectAgent;
         }

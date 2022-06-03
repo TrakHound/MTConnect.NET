@@ -32,6 +32,7 @@ namespace MTConnect.Applications.Adapters.Shdr.Adapters
 
             _adapter = new ShdrAdapter(deviceName);
             _adapter.Interval = 0;
+            _adapter.MultilineAssets = true;
             _adapter.AgentConnected += (sender, connectionId) => Console.WriteLine($"Agent Connection (ID = {connectionId}) : Agent Connected");
             _adapter.AgentDisconnected += (sender, connectionId) => Console.WriteLine($"Agent Connection (ID = {connectionId}) : Agent Disconnected");
             _adapter.PingReceived += (sender, connectionId) => Console.WriteLine($"Agent Connection (ID = {connectionId}) : Agent Ping Received");
@@ -106,12 +107,19 @@ namespace MTConnect.Applications.Adapters.Shdr.Adapters
 
         public void UpdateValue()
         {
-            var axisXDataItem = new ShdrDataItem("Xpos", j++);
-            var axisYDataItem = new ShdrDataItem("Ypos", k++);
-            var axisZDataItem = new ShdrDataItem("Zpos", l++);
+            var axisXDataItem = new ShdrDataItem("X1load", j++);
+            //var axisYDataItem = new ShdrDataItem("Ypos", k++);
+            //var axisZDataItem = new ShdrDataItem("Zpos", l++);
             _adapter.AddDataItem(axisXDataItem);
-            _adapter.AddDataItem(axisYDataItem);
-            _adapter.AddDataItem(axisZDataItem);
+            //_adapter.AddDataItem(axisYDataItem);
+            //_adapter.AddDataItem(axisZDataItem);
+
+            //var axisXDataItem = new ShdrDataItem("Xpos", j++);
+            //var axisYDataItem = new ShdrDataItem("Ypos", k++);
+            //var axisZDataItem = new ShdrDataItem("Zpos", l++);
+            //_adapter.AddDataItem(axisXDataItem);
+            //_adapter.AddDataItem(axisYDataItem);
+            //_adapter.AddDataItem(axisZDataItem);
         }
 
         public void UpdateUnavaiableTest()

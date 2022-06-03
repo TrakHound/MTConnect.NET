@@ -3,6 +3,7 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE', which is part of this source code package.
 
+using MTConnect.Devices.DataItems;
 using MTConnect.Observations;
 using System.Collections.Generic;
 using System.Xml;
@@ -46,7 +47,7 @@ namespace MTConnect.Streams.Xml
                 {
                     switch (dataItem.Representation)
                     {
-                        case Devices.DataItemRepresentation.VALUE: WriteValueXml(writer, dataItem); break;
+                        case DataItemRepresentation.VALUE: WriteValueXml(writer, dataItem); break;
                     }
                 }
             }
@@ -152,7 +153,7 @@ namespace MTConnect.Streams.Xml
 
                                         switch (observation.Representation)
                                         {
-                                            case Devices.DataItemRepresentation.VALUE: SetValue(observation, child); break;
+                                            case DataItemRepresentation.VALUE: SetValue(observation, child); break;
                                         }
 
                                         Conditions.Add(observation);

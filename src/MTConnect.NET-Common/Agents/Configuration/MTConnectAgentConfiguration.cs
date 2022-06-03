@@ -66,6 +66,12 @@ namespace MTConnect.Agents.Configuration
         public string ServiceName { get; set; }
 
         /// <summary>
+        /// Sets the Service Start Type. True = Auto | False = Manual
+        /// </summary>
+        [JsonPropertyName("serviceAutoStart")]
+        public bool ServiceAutoStart { get; set; }
+
+        /// <summary>
         /// The port number the agent binds to for requests.
         /// </summary>
         [JsonPropertyName("port")]
@@ -211,18 +217,19 @@ namespace MTConnect.Agents.Configuration
             BufferSize = 131072;
             MaxAssets = 1024;
             CheckpointFrequency = 1000;
-            Devices = "Devices.xml";
+            Devices = "devices.xml";
             PidFile = "agent.pid";
-            ServiceName = "MTConnect Agent";
-            Port = 5000;
+            ServiceName = null;
+            ServiceAutoStart = true;
             ServerIp = "127.0.0.1";
+            Port = 5000;
             AllowPut = false;
             AllowPutFrom = null;
             LegacyTimeout = 600;
             ReconnectInterval = 10000;
             IgnoreTimestamps = false;
             PreserveUuid = true;
-            DefaultVersion = new Version(1, 8);
+            DefaultVersion = MTConnectVersions.Max;
             ConversionRequired = true;
             UpcaseDataItemValue = true;
             MonitorConfigFiles = false;
@@ -236,7 +243,7 @@ namespace MTConnect.Agents.Configuration
         public static MTConnectAgentConfiguration Read(string path = null)
         {
             var configurationPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Filename);
-            if (path != null) configurationPath = path;
+            if (!string.IsNullOrEmpty(path)) configurationPath = path;
 
             if (!string.IsNullOrEmpty(configurationPath))
             {

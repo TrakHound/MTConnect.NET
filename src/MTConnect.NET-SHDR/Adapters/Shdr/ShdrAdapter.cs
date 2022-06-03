@@ -65,6 +65,11 @@ namespace MTConnect.Adapters.Shdr
         /// </summary>
         public int Interval { get; set; }
 
+        /// <summary>
+        /// Use multiline Assets
+        /// </summary>
+        public bool MultilineAssets { get; set; }
+
 
         /// <summary>
         /// Raised when a new Agent connection is established. Includes the AgentClient ID as an argument.
@@ -1757,7 +1762,7 @@ namespace MTConnect.Adapters.Shdr
                         item.IsSent = true;
 
                         // Create SHDR string to send
-                        var shdrLine = item.ToString();
+                        var shdrLine = item.ToString(MultilineAssets);
                         WriteLine(shdrLine);
                     }
                 }
@@ -1777,7 +1782,7 @@ namespace MTConnect.Adapters.Shdr
                         item.IsSent = true;
 
                         // Create SHDR string to send
-                        var shdrLine = item.ToString();
+                        var shdrLine = item.ToString(MultilineAssets);
                         await WriteLineAsync(shdrLine);
                     }
                 }
@@ -1841,7 +1846,7 @@ namespace MTConnect.Adapters.Shdr
                 foreach (var item in assets)
                 {
                     // Create SHDR string to send
-                    var shdrLine = item.ToString();
+                    var shdrLine = item.ToString(MultilineAssets);
                     WriteLine(clientId, shdrLine);
                 }
             }
@@ -1855,7 +1860,7 @@ namespace MTConnect.Adapters.Shdr
                 foreach (var item in assets)
                 {
                     // Create SHDR string to send
-                    var shdrLine = item.ToString();
+                    var shdrLine = item.ToString(MultilineAssets);
                     await WriteLineAsync(clientId, shdrLine);
                 }
             }

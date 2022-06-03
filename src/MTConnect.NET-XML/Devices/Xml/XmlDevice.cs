@@ -3,6 +3,7 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE', which is part of this source code package.
 
+using MTConnect.Devices.References;
 using System;
 using System.Collections.Generic;
 using System.Xml;
@@ -164,7 +165,6 @@ namespace MTConnect.Devices.Xml
                 SampleInterval = device.SampleInterval;
                 Iso841Class = device.Iso841Class;
                 CoordinateSystemIdRef = device.CoordinateSystemIdRef;
-
 
                 if (device.MTConnectVersion != null) MTConnectVersion = device.MTConnectVersion.ToString();
                 if (device.Description != null) Description = new XmlDescription(device.Description);

@@ -109,7 +109,7 @@ namespace IntegrationTests
                     var device = devices.FirstOrDefault(o => o.Name == adapterConfiguration.Device);
                     if (device != null)
                     {
-                        var adapterClient = new ShdrAdapterClient(adapterConfiguration, _agent, device);
+                        var adapterClient = new ShdrAdapterClient(StringFunctions.RandomString(10), adapterConfiguration, _agent, device);
 
                         adapterClient.Start();
                     }

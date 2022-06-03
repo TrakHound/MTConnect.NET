@@ -5,7 +5,6 @@
 
 using MTConnect.Headers;
 using MTConnect.Interfaces;
-using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace MTConnect.Devices.Json

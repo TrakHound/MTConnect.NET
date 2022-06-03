@@ -3,20 +3,18 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
+using MQTTnet;
 using MTConnect.Adapters.Shdr;
 using MTConnect.Agents;
 using MTConnect.Agents.Configuration;
 using MTConnect.Assets;
 using MTConnect.Devices;
+using MTConnect.Devices.DataItems;
 using MTConnect.Observations;
 using MTConnect.Streams;
 using NLog;
-using System;
-using System.Linq;
 using System.Net;
 using System.Reflection;
-using MQTTnet;
-using MQTTnet.Server;
 
 namespace MTConnect.Applications
 {
@@ -27,7 +25,7 @@ namespace MTConnect.Applications
         private static readonly Logger _httpLogger = LogManager.GetLogger("http-logger");
         private static readonly Logger _adapterLogger = LogManager.GetLogger("adapter-logger");
         private static readonly Logger _adapterShdrLogger = LogManager.GetLogger("adapter-shdr-logger");
-        private static IMTConnectAgent _agent;
+        private static MTConnectAgent _agent;
 
 
         /// <summary>
@@ -69,7 +67,7 @@ namespace MTConnect.Applications
             {
                 // Create MTConnectAgent
                 _agent = new MTConnectAgent(configuration);
-                _agent.Version = new Version(1, 8);
+                _agent.Version = MTConnectVersions.Max;
 
                 if (verboseLogging)
                 {
@@ -122,7 +120,13 @@ namespace MTConnect.Applications
                             var device = devices.FirstOrDefault(o => o.Name == adapterConfiguration.Device);
                             if (device != null)
                             {
-                                var adapterClient = new ShdrAdapterClient(adapterConfiguration, _agent, device);
+                                var adapterId = $"_{StringFunctions.RandomString(10)}";
+
+                                // Add Adapter Component to Agent Device
+                                _agent.AddAdapterComponent(adapterId, adapterConfiguration);
+
+                                // Create new SHDR Adapter Client to read from SHDR stream
+                                var adapterClient = new ShdrAdapterClient(adapterId, adapterConfiguration, _agent, device);
 
                                 if (verboseLogging)
                                 {

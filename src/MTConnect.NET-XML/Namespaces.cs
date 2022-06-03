@@ -41,8 +41,16 @@ namespace MTConnect
                         case 5: return Version15.Devices;                  
                         case 6: return Version16.Devices;                  
                         case 7: return Version17.Devices;                  
-                        case 8: return Version18.Devices;                  
-                        case 9: return Version19.Devices;                  
+                        case 8: return Version18.Devices;                                  
+                    }
+
+                    break;
+
+                case 2:
+
+                    switch (minorVersion)
+                    {
+                        case 0: return Version20.Devices;
                     }
 
                     break;
@@ -68,7 +76,15 @@ namespace MTConnect
                         case 6: return Version16.Streams;
                         case 7: return Version17.Streams;
                         case 8: return Version18.Streams;
-                        case 9: return Version19.Streams;
+                    }
+
+                    break;
+
+                case 2:
+
+                    switch (minorVersion)
+                    {
+                        case 0: return Version20.Streams;
                     }
 
                     break;
@@ -91,7 +107,15 @@ namespace MTConnect
                         case 6: return Version16.Assets;
                         case 7: return Version17.Assets;
                         case 8: return Version18.Assets;
-                        case 9: return Version19.Assets;
+                    }
+
+                    break;
+
+                case 2:
+
+                    switch (minorVersion)
+                    {
+                        case 0: return Version20.Assets;
                     }
 
                     break;
@@ -114,7 +138,15 @@ namespace MTConnect
                         case 6: return Version16.Error;
                         case 7: return Version17.Error;
                         case 8: return Version18.Error;
-                        case 9: return Version19.Error;
+                    }
+
+                    break;
+
+                case 2:
+
+                    switch (minorVersion)
+                    {
+                        case 0: return Version20.Error;
                     }
 
                     break;
@@ -130,18 +162,21 @@ namespace MTConnect
             return Regex.Replace(xml, regex, "");
         }
 
-        internal static class Version19
+
+        internal static class Version20
         {
-            public const string Assets = "urn:mtconnect.org:MTConnectAssets:1.9";
-            public const string Devices = "urn:mtconnect.org:MTConnectDevices:1.9";
-            public const string Error = "urn:mtconnect.org:MTConnectError:1.9";
-            public const string Streams = "urn:mtconnect.org:MTConnectStreams:1.9";
+            public const string Assets = "urn:mtconnect.org:MTConnectAssets:2.0.0";
+            public const string Devices = "urn:mtconnect.org:MTConnectDevices:2.0.0";
+            public const string Error = "urn:mtconnect.org:MTConnectError:2.0.0";
+            public const string Streams = "urn:mtconnect.org:MTConnectStreams:2.0.0";
 
             public static bool Match(string ns)
             {
                 return ns == Assets || ns == Devices || ns == Error || ns == Streams;
             }
         }
+
+
         internal static class Version18
         {
             public const string Assets = "urn:mtconnect.org:MTConnectAssets:1.8";

@@ -133,8 +133,8 @@ namespace MTConnect.Observations.Input
         public ObservationInput(IObservation observation)
         {
             DataItemKey = observation.DataItemId;
-            Values = observation.Values;
             Timestamp = observation.Timestamp.ToUnixTime();
+            Values = observation.Values;
         }
 
 

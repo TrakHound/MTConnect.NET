@@ -582,5 +582,11 @@ namespace MTConnect.Agents
         // Task<Interfaces.InterfaceResponseState> GetResponseState(string deviceName, string interfaceId);
 
         #endregion
+
+        #region "Agent Device"
+
+        void AddAdapterComponent(string id, AdapterConfiguration configuration);
+
+        #endregion
     }
 }

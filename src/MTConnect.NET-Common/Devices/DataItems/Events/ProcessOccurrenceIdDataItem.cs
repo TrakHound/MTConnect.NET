@@ -20,18 +20,73 @@ namespace MTConnect.Devices.DataItems.Events
         public override System.Version MinimumVersion => MTConnectVersions.Version17;
 
 
+        public enum SubTypes
+        {
+            /// <summary>
+            /// Phase or segment of a recipe or program.
+            /// </summary>
+            ACTIVITY,
+
+            /// <summary>
+            /// Step of a discrete manufacturing process.
+            /// </summary>
+            OPERATION,
+
+            /// <summary>
+            /// Process as part of product production; can be a subprocess of a larger process.
+            /// </summary>
+            RECIPE,
+
+            /// <summary>
+            /// Phase of a recipe process.
+            /// </summary>
+            SEGMENT
+        }
+
+
         public ProcessOccurrenceIdDataItem()
         {
             Category = CategoryId;
             Type = TypeId;
         }
 
-        public ProcessOccurrenceIdDataItem(string parentId)
+        public ProcessOccurrenceIdDataItem(string parentId, SubTypes subType = SubTypes.ACTIVITY)
         {
-            Id = CreateId(parentId, NameId);
+            Id = CreateId(parentId, NameId, GetSubTypeId(subType));
             Category = CategoryId;
             Type = TypeId;
+            SubType = subType.ToString();
             Name = NameId;
+        }
+
+
+        public override string SubTypeDescription => GetSubTypeDescription(SubType);
+
+        public static string GetSubTypeDescription(string subType)
+        {
+            var s = subType.ConvertEnum<SubTypes>();
+            switch (s)
+            {
+                case SubTypes.ACTIVITY: return "Phase or segment of a recipe or program.";
+                case SubTypes.OPERATION: return "Step of a discrete manufacturing process.";
+                case SubTypes.RECIPE: return "Process as part of product production; can be a subprocess of a larger process.";
+                case SubTypes.SEGMENT: return "Phase of a recipe process.";
+            }
+
+            return null;
+        }
+
+        public static string GetSubTypeId(SubTypes subType)
+        {
+            switch (subType)
+            {
+                case SubTypes.ACTIVITY: return "acty";
+                case SubTypes.OPERATION: return "op";
+                case SubTypes.RECIPE: return "rpe";
+                case SubTypes.SEGMENT: return "seg";
+            }
+
+            return null;
         }
     }
 }

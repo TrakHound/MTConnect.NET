@@ -3,6 +3,7 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE', which is part of this source code package.
 
+using MTConnect.Devices.DataItems;
 using MTConnect.Observations;
 using System.Collections.Generic;
 using System.Linq;
@@ -49,9 +50,9 @@ namespace MTConnect.Streams.Xml
                 {
                     switch (dataItem.Representation)
                     {
-                        case Devices.DataItemRepresentation.VALUE: WriteValueXml(writer, (EventValueObservation)dataItem); break;
-                        case Devices.DataItemRepresentation.DATA_SET: WriteDataSetXml(writer, (EventDataSetObservation)dataItem); break;
-                        case Devices.DataItemRepresentation.TABLE: WriteTableXml(writer, (EventTableObservation)dataItem); break;
+                        case DataItemRepresentation.VALUE: WriteValueXml(writer, (EventValueObservation)dataItem); break;
+                        case DataItemRepresentation.DATA_SET: WriteDataSetXml(writer, (EventDataSetObservation)dataItem); break;
+                        case DataItemRepresentation.TABLE: WriteTableXml(writer, (EventTableObservation)dataItem); break;
                     }
                 }
             }
@@ -76,8 +77,8 @@ namespace MTConnect.Streams.Xml
                 // Add Suffix based on Representation
                 switch (observation.Representation)
                 {
-                    case Devices.DataItemRepresentation.DATA_SET: name += XmlObservation.DataSetSuffix; break;
-                    case Devices.DataItemRepresentation.TABLE: name += XmlObservation.TableSuffix; break;
+                    case DataItemRepresentation.DATA_SET: name += XmlObservation.DataSetSuffix; break;
+                    case DataItemRepresentation.TABLE: name += XmlObservation.TableSuffix; break;
                 }
 
                 return name;
@@ -299,9 +300,9 @@ namespace MTConnect.Streams.Xml
 
                                         switch (observation.Representation)
                                         {
-                                            case Devices.DataItemRepresentation.VALUE: XmlObservation.SetValue(observation, child); break;
-                                            case Devices.DataItemRepresentation.DATA_SET: XmlObservation.SetDataSetEntries(observation, child); break;
-                                            case Devices.DataItemRepresentation.TABLE: XmlObservation.SetTableEntries(observation, child); break;
+                                            case DataItemRepresentation.VALUE: XmlObservation.SetValue(observation, child); break;
+                                            case DataItemRepresentation.DATA_SET: XmlObservation.SetDataSetEntries(observation, child); break;
+                                            case DataItemRepresentation.TABLE: XmlObservation.SetTableEntries(observation, child); break;
                                         }
 
                                         Events.Add(observation);

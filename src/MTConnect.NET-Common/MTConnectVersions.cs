@@ -9,7 +9,7 @@ namespace MTConnect
 {
     public static class MTConnectVersions
     {
-        public static Version Max => new Version(1, 8);
+        public static Version Max => Version20;
 
         public static Version Version10 => new Version(1, 0);
         public static Version Version11 => new Version(1, 1);
@@ -20,5 +20,6 @@ namespace MTConnect
         public static Version Version16 => new Version(1, 6);
         public static Version Version17 => new Version(1, 7);
         public static Version Version18 => new Version(1, 8);
+        public static Version Version20 => new Version(2, 0);
     }
 }

@@ -5,6 +5,7 @@
 
 using Microsoft.Extensions.Logging;
 using MTConnect.Devices;
+using MTConnect.Devices.DataItems;
 
 namespace MTConnect.Applications.Loggers
 {

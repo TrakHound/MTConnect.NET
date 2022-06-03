@@ -8,8 +8,10 @@ using MTConnect.Agents.Metrics;
 using MTConnect.Assets;
 using MTConnect.Buffers;
 using MTConnect.Devices;
+using MTConnect.Devices.DataItems;
 using MTConnect.Devices.DataItems.Events;
 using MTConnect.Devices.DataItems.Samples;
+using MTConnect.Devices.Components;
 using MTConnect.Errors;
 using MTConnect.Headers;
 //using MTConnect.Models;
@@ -33,6 +35,9 @@ namespace MTConnect.Agents
     /// </summary>
     public class MTConnectAgent : IMTConnectAgent, IDisposable
     {
+        private const string AdaptersId = "__adapters__";
+
+
         private readonly MTConnectAgentConfiguration _configuration;
         private readonly IMTConnectDeviceBuffer _deviceBuffer;
         private readonly IMTConnectObservationBuffer _observationBuffer;
@@ -41,7 +46,9 @@ namespace MTConnect.Agents
         private readonly ConcurrentDictionary<string, IObservationInput> _currentObservations = new ConcurrentDictionary<string, IObservationInput>();
         private readonly ConcurrentDictionary<string, IEnumerable<IObservationInput>> _currentConditions = new ConcurrentDictionary<string, IEnumerable<IObservationInput>>();
         private readonly MTConnectAgentMetrics _metrics = new MTConnectAgentMetrics(TimeSpan.FromSeconds(10), TimeSpan.FromMinutes(1));
-
+        private readonly string _uuid = Guid.NewGuid().ToString();
+        private Version _mtconnectVersion;
+        private Agent _agent;
 
         /// <summary>
         /// Gets the Configuration associated with the Agent
@@ -54,6 +61,11 @@ namespace MTConnect.Agents
         public MTConnectAgentMetrics Metrics => _metrics;
 
         /// <summary>
+        /// Gets or Sets the Agent Device that represents the MTConnect Agent
+        /// </summary>
+        public Agent Agent => _agent;
+
+        /// <summary>
         /// Gets a representation of the specific instance of the Agent.
         /// </summary>
         public long InstanceId { get; }
@@ -61,7 +73,15 @@ namespace MTConnect.Agents
         /// <summary>
         /// Gets the MTConnect Version that the Agent is using.
         /// </summary>
-        public Version Version { get; set; }
+        public Version Version
+        {
+            get => _mtconnectVersion;
+            set
+            {
+                _mtconnectVersion = value;
+                if (_agent != null) _agent.MTConnectVersion = _mtconnectVersion;
+            }
+        }
 
         /// <summary>
         /// Get the configured size of the Buffer in the number of maximum number of Observations the buffer can hold at one time.
@@ -163,21 +183,23 @@ namespace MTConnect.Agents
         {
             InstanceId = CreateInstanceId();
             Version = MTConnectVersions.Max;
-            _configuration = new MTConnectAgentConfiguration();
             _deviceBuffer = new MTConnectDeviceBuffer();
             _observationBuffer = new MTConnectObservationBuffer();
             _assetBuffer = new MTConnectAssetBuffer();
             _metrics.DeviceMetricsUpdated += DeviceMetricsUpdated;
+            InitializeAgentDevice();
         }
 
         public MTConnectAgent(MTConnectAgentConfiguration configuration)
         {
             InstanceId = CreateInstanceId();
-            Version = MTConnectVersions.Max;
             _configuration = configuration != null ? configuration : new MTConnectAgentConfiguration();
+            Version = _configuration != null ? _configuration.DefaultVersion : MTConnectVersions.Max;
             _deviceBuffer = new MTConnectDeviceBuffer();
             _observationBuffer = new MTConnectObservationBuffer(_configuration);
             _assetBuffer = new MTConnectAssetBuffer(_configuration);
+            _metrics.DeviceMetricsUpdated += DeviceMetricsUpdated;
+            InitializeAgentDevice();
         }
 
         public MTConnectAgent(
@@ -188,10 +210,11 @@ namespace MTConnect.Agents
         {
             InstanceId = CreateInstanceId();
             Version = MTConnectVersions.Max;
-            _configuration = new MTConnectAgentConfiguration();
             _deviceBuffer = deviceBuffer;
             _observationBuffer = streamingBuffer;
             _assetBuffer = assetBuffer;
+            _metrics.DeviceMetricsUpdated += DeviceMetricsUpdated;
+            InitializeAgentDevice();
         }
 
         public MTConnectAgent(
@@ -202,11 +225,13 @@ namespace MTConnect.Agents
             )
         {
             InstanceId = CreateInstanceId();
-            Version = MTConnectVersions.Max;
-            _configuration = configuration;
+            _configuration = configuration != null ? configuration : new MTConnectAgentConfiguration();
+            Version = _configuration != null ? _configuration.DefaultVersion : MTConnectVersions.Max;
             _deviceBuffer = deviceBuffer;
             _observationBuffer = streamingBuffer;
             _assetBuffer = assetBuffer;
+            _metrics.DeviceMetricsUpdated += DeviceMetricsUpdated;
+            InitializeAgentDevice();
         }
 
 
@@ -310,7 +335,8 @@ namespace MTConnect.Agents
             {
                 foreach (var device in devices)
                 {
-                    objs.Add(Device.Process(device, mtconnectVersion != null ? mtconnectVersion : Version));
+                    var processedDevice = Device.Process(device, mtconnectVersion != null ? mtconnectVersion : Version);
+                    if (processedDevice != null) objs.Add(processedDevice);
                 }
             }
 
@@ -332,7 +358,10 @@ namespace MTConnect.Agents
             {
                 var version = mtconnectVersion != null ? mtconnectVersion : Version;
 
-                var devices = _deviceBuffer.GetDevices();
+                var devices = new List<IDevice>();
+                devices.Add(_agent);
+                devices.AddRange(_deviceBuffer.GetDevices());
+
                 if (devices != null && devices.Count() > 0)
                 {
                     var doc = new DevicesResponseDocument();
@@ -365,7 +394,10 @@ namespace MTConnect.Agents
             {
                 var version = mtconnectVersion != null ? mtconnectVersion : Version;
 
-                var devices = await _deviceBuffer.GetDevicesAsync();
+                var devices = new List<IDevice>();
+                devices.Add(_agent);
+                devices.AddRange(await _deviceBuffer.GetDevicesAsync());
+
                 if (devices != null && devices.Count() > 0)
                 {
                     var doc = new DevicesResponseDocument();
@@ -401,7 +433,10 @@ namespace MTConnect.Agents
 
                 var version = mtconnectVersion != null ? mtconnectVersion : Version;
 
-                var device = _deviceBuffer.GetDevice(deviceUuid);
+                IDevice device;
+                if (deviceUuid == _agent.Uuid) device = _agent;
+                else device = _deviceBuffer.GetDevice(deviceUuid);
+
                 if (device != null)
                 {
                     var doc = new DevicesResponseDocument();
@@ -437,7 +472,10 @@ namespace MTConnect.Agents
 
                 var version = mtconnectVersion != null ? mtconnectVersion : Version;
 
-                var device = await _deviceBuffer.GetDeviceAsync(deviceUuid);
+                IDevice device;
+                if (deviceUuid == _agent.Uuid) device = _agent;
+                else device = await _deviceBuffer.GetDeviceAsync(deviceUuid);
+
                 if (device != null)
                 {
                     var doc = new DevicesResponseDocument();
@@ -474,7 +512,10 @@ namespace MTConnect.Agents
             if (_deviceBuffer != null && _observationBuffer != null)
             {
                 // Get list of Devices from the MTConnectDeviceBuffer
-                var devices = _deviceBuffer.GetDevices();
+                var devices = new List<IDevice>();
+                devices.Add(_agent);
+                devices.AddRange(_deviceBuffer.GetDevices());
+
                 if (!devices.IsNullOrEmpty())
                 {
                     var deviceUuids = devices.Select(x => x.Uuid);
@@ -513,7 +554,10 @@ namespace MTConnect.Agents
             if (_deviceBuffer != null && _observationBuffer != null)
             {
                 // Get list of Devices from the MTConnectDeviceBuffer
-                var devices = await _deviceBuffer.GetDevicesAsync();
+                var devices = new List<IDevice>();
+                devices.Add(_agent);
+                devices.AddRange(await _deviceBuffer.GetDevicesAsync());
+
                 if (!devices.IsNullOrEmpty())
                 {
                     var deviceUuids = devices.Select(x => x.Uuid);
@@ -553,7 +597,10 @@ namespace MTConnect.Agents
             if (_deviceBuffer != null && _observationBuffer != null)
             {
                 // Get list of Devices from the MTConnectDeviceBuffer
-                var devices = _deviceBuffer.GetDevices();
+                var devices = new List<IDevice>();
+                devices.Add(_agent);
+                devices.AddRange(_deviceBuffer.GetDevices());
+
                 if (!devices.IsNullOrEmpty())
                 {
                     var deviceUuids = devices.Select(x => x.Uuid);
@@ -593,7 +640,10 @@ namespace MTConnect.Agents
             if (_deviceBuffer != null && _observationBuffer != null)
             {
                 // Get list of Devices from the MTConnectDeviceBuffer
-                var devices = await _deviceBuffer.GetDevicesAsync();
+                var devices = new List<IDevice>();
+                devices.Add(_agent);
+                devices.AddRange(await _deviceBuffer.GetDevicesAsync());
+
                 if (!devices.IsNullOrEmpty())
                 {
                     var deviceUuids = devices.Select(x => x.Uuid);
@@ -634,7 +684,10 @@ namespace MTConnect.Agents
             if (_deviceBuffer != null && _observationBuffer != null)
             {
                 // Get list of Devices from the MTConnectDeviceBuffer
-                var devices = _deviceBuffer.GetDevices();
+                var devices = new List<IDevice>();
+                devices.Add(_agent);
+                devices.AddRange(_deviceBuffer.GetDevices());
+
                 if (!devices.IsNullOrEmpty())
                 {
                     var deviceUuids = devices.Select(x => x.Uuid);
@@ -667,7 +720,10 @@ namespace MTConnect.Agents
             if (_deviceBuffer != null && _observationBuffer != null)
             {
                 // Get list of Devices from the MTConnectDeviceBuffer
-                var devices = await _deviceBuffer.GetDevicesAsync();
+                var devices = new List<IDevice>();
+                devices.Add(_agent);
+                devices.AddRange(await _deviceBuffer.GetDevicesAsync());
+
                 if (!devices.IsNullOrEmpty())
                 {
                     var deviceUuids = devices.Select(x => x.Uuid);
@@ -700,7 +756,10 @@ namespace MTConnect.Agents
             if (_deviceBuffer != null && _observationBuffer != null)
             {
                 // Get list of Devices from the MTConnectDeviceBuffer
-                var devices = _deviceBuffer.GetDevices();
+                var devices = new List<IDevice>();
+                devices.Add(_agent);
+                devices.AddRange(_deviceBuffer.GetDevices());
+
                 if (!devices.IsNullOrEmpty())
                 {
                     var deviceUuids = devices.Select(x => x.Uuid);
@@ -741,7 +800,10 @@ namespace MTConnect.Agents
             if (_deviceBuffer != null && _observationBuffer != null)
             {
                 // Get list of Devices from the MTConnectDeviceBuffer
-                var devices = await _deviceBuffer.GetDevicesAsync();
+                var devices = new List<IDevice>();
+                devices.Add(_agent);
+                devices.AddRange(await _deviceBuffer.GetDevicesAsync());
+
                 if (!devices.IsNullOrEmpty())
                 {
                     var deviceUuids = devices.Select(x => x.Uuid);
@@ -783,7 +845,10 @@ namespace MTConnect.Agents
             if (_deviceBuffer != null && _observationBuffer != null)
             {
                 // Get list of Devices from the MTConnectDeviceBuffer
-                var devices = _deviceBuffer.GetDevices();
+                var devices = new List<IDevice>();
+                devices.Add(_agent);
+                devices.AddRange(_deviceBuffer.GetDevices());
+
                 if (!devices.IsNullOrEmpty())
                 {
                     var deviceUuids = devices.Select(x => x.Uuid);
@@ -817,7 +882,10 @@ namespace MTConnect.Agents
             if (_deviceBuffer != null && _observationBuffer != null)
             {
                 // Get list of Devices from the MTConnectDeviceBuffer
-                var devices = await _deviceBuffer.GetDevicesAsync();
+                var devices = new List<IDevice>();
+                devices.Add(_agent);
+                devices.AddRange(await _deviceBuffer.GetDevicesAsync());
+
                 if (!devices.IsNullOrEmpty())
                 {
                     var deviceUuids = devices.Select(x => x.Uuid);
@@ -852,7 +920,10 @@ namespace MTConnect.Agents
                 _deviceKeys.TryGetValue(deviceKey, out var deviceUuid);
 
                 // Get Device from the MTConnectDeviceBuffer
-                var device = _deviceBuffer.GetDevice(deviceUuid);
+                IDevice device;
+                if (deviceUuid == _agent.Uuid) device = _agent;
+                else device = _deviceBuffer.GetDevice(deviceUuid);
+
                 if (device != null)
                 {
                     // Create list of DataItemIds
@@ -889,7 +960,10 @@ namespace MTConnect.Agents
                 _deviceKeys.TryGetValue(deviceKey, out var deviceUuid);
 
                 // Get Device from the MTConnectDeviceBuffer
-                var device = await _deviceBuffer.GetDeviceAsync(deviceUuid);
+                IDevice device;
+                if (deviceUuid == _agent.Uuid) device = _agent;
+                else device = await _deviceBuffer.GetDeviceAsync(deviceUuid);
+
                 if (device != null)
                 {
                     // Create list of DataItemIds
@@ -915,7 +989,7 @@ namespace MTConnect.Agents
         /// Get a MTConnectStreams Document containing the specified Device.
         /// </summary>
         /// <param name="deviceKey">The (name or uuid) of the requested Device</param>
-        /// <param name="dataItemIds">A list of DataItemId's to specify what observations to include in the response</param>
+        /// <param name="at">The sequence number to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
         public IStreamsResponseDocument GetDeviceStream(string deviceKey, long at, int count = 0, Version mtconnectVersion = null)
@@ -927,7 +1001,10 @@ namespace MTConnect.Agents
                 _deviceKeys.TryGetValue(deviceKey, out var deviceUuid);
 
                 // Get Device from the MTConnectDeviceBuffer
-                var device = _deviceBuffer.GetDevice(deviceUuid);
+                IDevice device;
+                if (deviceUuid == _agent.Uuid) device = _agent;
+                else device = _deviceBuffer.GetDevice(deviceUuid);
+
                 if (device != null)
                 {
                     // Create list of DataItemIds
@@ -953,7 +1030,7 @@ namespace MTConnect.Agents
         /// Get a MTConnectStreams Document containing the specified Device.
         /// </summary>
         /// <param name="deviceKey">The (name or uuid) of the requested Device</param>
-        /// <param name="dataItemIds">A list of DataItemId's to specify what observations to include in the response</param>
+        /// <param name="at">The sequence number to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
         public async Task<IStreamsResponseDocument> GetDeviceStreamAsync(string deviceKey, long at, int count = 0, Version mtconnectVersion = null)
@@ -965,7 +1042,10 @@ namespace MTConnect.Agents
                 _deviceKeys.TryGetValue(deviceKey, out var deviceUuid);
 
                 // Get Device from the MTConnectDeviceBuffer
-                var device = await _deviceBuffer.GetDeviceAsync(deviceUuid);
+                IDevice device;
+                if (deviceUuid == _agent.Uuid) device = _agent;
+                else device = await _deviceBuffer.GetDeviceAsync(deviceUuid);
+
                 if (device != null)
                 {
                     // Create list of DataItemIds
@@ -991,7 +1071,7 @@ namespace MTConnect.Agents
         /// Get a MTConnectStreams Document containing the specified Device.
         /// </summary>
         /// <param name="deviceKey">The (name or uuid) of the requested Device</param>
-        /// <param name="at">The sequence number to include in the response</param>
+        /// <param name="dataItemIds">A list of DataItemId's to specify what observations to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
         public IStreamsResponseDocument GetDeviceStream(string deviceKey, IEnumerable<string> dataItemIds, int count = 0, Version mtconnectVersion = null)
@@ -1003,7 +1083,10 @@ namespace MTConnect.Agents
                 _deviceKeys.TryGetValue(deviceKey, out var deviceUuid);
 
                 // Get Device from the MTConnectDeviceBuffer
-                var device = _deviceBuffer.GetDevice(deviceUuid);
+                IDevice device;
+                if (deviceUuid == _agent.Uuid) device = _agent;
+                else device = _deviceBuffer.GetDevice(deviceUuid);
+
                 if (device != null)
                 {
                     // Query the Observation Buffer 
@@ -1024,7 +1107,7 @@ namespace MTConnect.Agents
         /// Get a MTConnectStreams Document containing the specified Device.
         /// </summary>
         /// <param name="deviceKey">The (name or uuid) of the requested Device</param>
-        /// <param name="at">The sequence number to include in the response</param>
+        /// <param name="dataItemIds">A list of DataItemId's to specify what observations to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
         public async Task<IStreamsResponseDocument> GetDeviceStreamAsync(string deviceKey, IEnumerable<string> dataItemIds, int count = 0, Version mtconnectVersion = null)
@@ -1036,7 +1119,10 @@ namespace MTConnect.Agents
                 _deviceKeys.TryGetValue(deviceKey, out var deviceUuid);
 
                 // Get Device from the MTConnectDeviceBuffer
-                var device = await _deviceBuffer.GetDeviceAsync(deviceUuid);
+                IDevice device;
+                if (deviceUuid == _agent.Uuid) device = _agent;
+                else device = await _deviceBuffer.GetDeviceAsync(deviceUuid);
+
                 if (device != null)
                 {
                     // Query the Observation Buffer 
@@ -1070,7 +1156,10 @@ namespace MTConnect.Agents
                 _deviceKeys.TryGetValue(deviceKey, out var deviceUuid);
 
                 // Get Device from the MTConnectDeviceBuffer
-                var device = _deviceBuffer.GetDevice(deviceUuid);
+                IDevice device;
+                if (deviceUuid == _agent.Uuid) device = _agent;
+                else device = _deviceBuffer.GetDevice(deviceUuid);
+
                 if (device != null)
                 {
                     // Query the Observation Buffer 
@@ -1104,7 +1193,10 @@ namespace MTConnect.Agents
                 _deviceKeys.TryGetValue(deviceKey, out var deviceUuid);
 
                 // Get Device from the MTConnectDeviceBuffer
-                var device = await _deviceBuffer.GetDeviceAsync(deviceUuid);
+                IDevice device;
+                if (deviceUuid == _agent.Uuid) device = _agent;
+                else device = await _deviceBuffer.GetDeviceAsync(deviceUuid);
+
                 if (device != null)
                 {
                     // Query the Observation Buffer 
@@ -1138,7 +1230,10 @@ namespace MTConnect.Agents
                 _deviceKeys.TryGetValue(deviceKey, out var deviceUuid);
 
                 // Get Device from the MTConnectDeviceBuffer
-                var device = _deviceBuffer.GetDevice(deviceUuid);
+                IDevice device;
+                if (deviceUuid == _agent.Uuid) device = _agent;
+                else device = _deviceBuffer.GetDevice(deviceUuid);
+
                 if (device != null)
                 {
                     // Create list of DataItemIds
@@ -1177,7 +1272,10 @@ namespace MTConnect.Agents
                 _deviceKeys.TryGetValue(deviceKey, out var deviceUuid);
 
                 // Get Device from the MTConnectDeviceBuffer
-                var device = await _deviceBuffer.GetDeviceAsync(deviceUuid);
+                IDevice device;
+                if (deviceUuid == _agent.Uuid) device = _agent;
+                else device = await _deviceBuffer.GetDeviceAsync(deviceUuid);
+
                 if (device != null)
                 {
                     // Create list of DataItemIds
@@ -1217,7 +1315,10 @@ namespace MTConnect.Agents
                 _deviceKeys.TryGetValue(deviceKey, out var deviceUuid);
 
                 // Get Device from the MTConnectDeviceBuffer
-                var device = _deviceBuffer.GetDevice(deviceUuid);
+                IDevice device;
+                if (deviceUuid == _agent.Uuid) device = _agent;
+                else device = _deviceBuffer.GetDevice(deviceUuid);
+
                 if (device != null)
                 {
                     // Query the Observation Buffer 
@@ -1252,7 +1353,10 @@ namespace MTConnect.Agents
                 _deviceKeys.TryGetValue(deviceKey, out var deviceUuid);
 
                 // Get Device from the MTConnectDeviceBuffer
-                var device = await _deviceBuffer.GetDeviceAsync(deviceUuid);
+                IDevice device;
+                if (deviceUuid == _agent.Uuid) device = _agent;
+                else device = await _deviceBuffer.GetDeviceAsync(deviceUuid);
+
                 if (device != null)
                 {
                     // Query the Observation Buffer 
@@ -2321,9 +2425,9 @@ namespace MTConnect.Agents
 
         private bool AddDeviceAddedObservation(IDevice device, long timestamp = 0)
         {
-            if (device != null && _observationBuffer != null)
+            if (_agent != null && device != null && _observationBuffer != null)
             {
-                var dataItems = device.GetDataItems();
+                var dataItems = _agent.GetDataItems();
                 if (!dataItems.IsNullOrEmpty())
                 {
                     var dataItem = dataItems.FirstOrDefault(o => o.Type == DeviceAddedDataItem.TypeId);
@@ -2331,7 +2435,7 @@ namespace MTConnect.Agents
                     {
                         // Create new Observation
                         var observation = new Observation();
-                        observation.SetProperty(nameof(Observation.DeviceUuid), device.Uuid);
+                        observation.SetProperty(nameof(Observation.DeviceUuid), _agent.Uuid);
                         observation.SetProperty(nameof(Observation.DataItemId), dataItem.Id);
                         observation.SetProperty(nameof(Observation.Timestamp), timestamp.ToDateTime());
                         observation.AddValues(new List<ObservationValue>
@@ -2342,7 +2446,7 @@ namespace MTConnect.Agents
                         ObservationAdded?.Invoke(this, observation);
 
                         // Add to Streaming Buffer
-                        return _observationBuffer.AddObservation(device.Name, dataItem, observation);
+                        return _observationBuffer.AddObservation(_agent.Uuid, dataItem, observation);
                     }
                 }
             }
@@ -2352,9 +2456,9 @@ namespace MTConnect.Agents
 
         private async Task<bool> AddDeviceAddedObservationAsync(IDevice device, long timestamp = 0)
         {
-            if (device != null && _observationBuffer != null)
+            if (_agent != null && device != null && _observationBuffer != null)
             {
-                var dataItems = device.GetDataItems();
+                var dataItems = _agent.GetDataItems();
                 if (!dataItems.IsNullOrEmpty())
                 {
                     var dataItem = dataItems.FirstOrDefault(o => o.Type == DeviceAddedDataItem.TypeId);
@@ -2362,7 +2466,7 @@ namespace MTConnect.Agents
                     {
                         // Create new Observation
                         var observation = new Observation();
-                        observation.SetProperty(nameof(Observation.DeviceUuid), device.Uuid);
+                        observation.SetProperty(nameof(Observation.DeviceUuid), _agent.Uuid);
                         observation.SetProperty(nameof(Observation.DataItemId), dataItem.Id);
                         observation.SetProperty(nameof(Observation.Timestamp), timestamp.ToDateTime());
                         observation.AddValues(new List<ObservationValue>
@@ -2373,7 +2477,7 @@ namespace MTConnect.Agents
                         ObservationAdded?.Invoke(this, observation);
 
                         // Add to Streaming Buffer
-                        return await _observationBuffer.AddObservationAsync(device.Name, dataItem, observation);
+                        return await _observationBuffer.AddObservationAsync(_agent.Uuid, dataItem, observation);
                     }
                 }
             }
@@ -2384,9 +2488,9 @@ namespace MTConnect.Agents
 
         private bool AddDeviceChangedObservation(IDevice device, long timestamp = 0)
         {
-            if (device != null && _observationBuffer != null)
+            if (_agent != null && device != null && _observationBuffer != null)
             {
-                var dataItems = device.GetDataItems();
+                var dataItems = _agent.GetDataItems();
                 if (!dataItems.IsNullOrEmpty())
                 {
                     var dataItem = dataItems.FirstOrDefault(o => o.Type == DeviceChangedDataItem.TypeId);
@@ -2394,7 +2498,7 @@ namespace MTConnect.Agents
                     {
                         // Create new Observation
                         var observation = new Observation();
-                        observation.SetProperty(nameof(Observation.DeviceUuid), device.Uuid);
+                        observation.SetProperty(nameof(Observation.DeviceUuid), _agent.Uuid);
                         observation.SetProperty(nameof(Observation.DataItemId), dataItem.Id);
                         observation.SetProperty(nameof(Observation.Timestamp), timestamp.ToDateTime());
                         observation.AddValues(new List<ObservationValue>
@@ -2405,7 +2509,7 @@ namespace MTConnect.Agents
                         ObservationAdded?.Invoke(this, observation);
 
                         // Add to Streaming Buffer
-                        return _observationBuffer.AddObservation(device.Name, dataItem, observation);
+                        return _observationBuffer.AddObservation(_agent.Uuid, dataItem, observation);
                     }
                 }
             }
@@ -2415,9 +2519,9 @@ namespace MTConnect.Agents
 
         private async Task<bool> AddDeviceChangedObservationAsync(IDevice device, long timestamp = 0)
         {
-            if (device != null && _observationBuffer != null)
+            if (_agent != null && device != null && _observationBuffer != null)
             {
-                var dataItems = device.GetDataItems();
+                var dataItems = _agent.GetDataItems();
                 if (!dataItems.IsNullOrEmpty())
                 {
                     var dataItem = dataItems.FirstOrDefault(o => o.Type == DeviceChangedDataItem.TypeId);
@@ -2425,7 +2529,7 @@ namespace MTConnect.Agents
                     {
                         // Create new Observation
                         var observation = new Observation();
-                        observation.SetProperty(nameof(Observation.DeviceUuid), device.Uuid);
+                        observation.SetProperty(nameof(Observation.DeviceUuid), _agent.Uuid);
                         observation.SetProperty(nameof(Observation.DataItemId), dataItem.Id);
                         observation.SetProperty(nameof(Observation.Timestamp), timestamp.ToDateTime());
                         observation.AddValues(new List<ObservationValue>
@@ -2436,7 +2540,7 @@ namespace MTConnect.Agents
                         ObservationAdded?.Invoke(this, observation);
 
                         // Add to Streaming Buffer
-                        return await _observationBuffer.AddObservationAsync(device.Name, dataItem, observation);
+                        return await _observationBuffer.AddObservationAsync(_agent.Uuid, dataItem, observation);
                     }
                 }
             }
@@ -2447,9 +2551,9 @@ namespace MTConnect.Agents
 
         private bool AddDeviceRemovedObservation(IDevice device, long timestamp = 0)
         {
-            if (device != null && _observationBuffer != null)
+            if (_agent != null && device != null && _observationBuffer != null)
             {
-                var dataItems = device.GetDataItems();
+                var dataItems = _agent.GetDataItems();
                 if (!dataItems.IsNullOrEmpty())
                 {
                     var dataItem = dataItems.FirstOrDefault(o => o.Type == DeviceRemovedDataItem.TypeId);
@@ -2457,7 +2561,7 @@ namespace MTConnect.Agents
                     {
                         // Create new Observation
                         var observation = new Observation();
-                        observation.SetProperty(nameof(Observation.DeviceUuid), device.Uuid);
+                        observation.SetProperty(nameof(Observation.DeviceUuid), _agent.Uuid);
                         observation.SetProperty(nameof(Observation.DataItemId), dataItem.Id);
                         observation.SetProperty(nameof(Observation.Timestamp), timestamp.ToDateTime());
                         observation.AddValues(new List<ObservationValue>
@@ -2468,7 +2572,7 @@ namespace MTConnect.Agents
                         ObservationAdded?.Invoke(this, observation);
 
                         // Add to Streaming Buffer
-                        return _observationBuffer.AddObservation(device.Name, dataItem, observation);
+                        return _observationBuffer.AddObservation(_agent.Uuid, dataItem, observation);
                     }
                 }
             }
@@ -2478,9 +2582,9 @@ namespace MTConnect.Agents
 
         private async Task<bool> AddDeviceRemovedObservationAsync(IDevice device, long timestamp = 0)
         {
-            if (device != null && _observationBuffer != null)
+            if (_agent != null && device != null && _observationBuffer != null)
             {
-                var dataItems = device.GetDataItems();
+                var dataItems = _agent.GetDataItems();
                 if (!dataItems.IsNullOrEmpty())
                 {
                     var dataItem = dataItems.FirstOrDefault(o => o.Type == DeviceRemovedDataItem.TypeId);
@@ -2488,7 +2592,7 @@ namespace MTConnect.Agents
                     {
                         // Create new Observation
                         var observation = new Observation();
-                        observation.SetProperty(nameof(Observation.DeviceUuid), device.Uuid);
+                        observation.SetProperty(nameof(Observation.DeviceUuid), _agent.Uuid);
                         observation.SetProperty(nameof(Observation.DataItemId), dataItem.Id);
                         observation.SetProperty(nameof(Observation.Timestamp), timestamp.ToDateTime());
                         observation.AddValues(new List<ObservationValue>
@@ -2499,7 +2603,7 @@ namespace MTConnect.Agents
                         ObservationAdded?.Invoke(this, observation);
 
                         // Add to Streaming Buffer
-                        return await _observationBuffer.AddObservationAsync(device.Name, dataItem, observation);
+                        return await _observationBuffer.AddObservationAsync(_agent.Uuid, dataItem, observation);
                     }
                 }
             }
@@ -2995,6 +3099,7 @@ namespace MTConnect.Agents
                                 return true;
                             }
                         }
+                        else return true; // Return true if no update needed
                     }
                     else
                     {
@@ -3079,6 +3184,7 @@ namespace MTConnect.Agents
                                 return true;
                             }
                         }
+                        else return true; // Return true if no update needed
                     }
                     else
                     {
@@ -3380,6 +3486,242 @@ namespace MTConnect.Agents
                     }
                 }
             }
+        }
+
+        #endregion
+
+        #region "Agent Device"
+
+        /// <summary>
+        /// Create a new Agent Device to represent the MTConnect Agent
+        /// </summary>
+        private void InitializeAgentDevice()
+        {
+            var agent = new Agent();
+            agent.Id = $"agent_{StringFunctions.RandomString(10)}";
+            agent.Name = "Agent";
+            agent.Uuid = _uuid;
+            agent.MTConnectVersion = Version;
+
+            var dataItems = new List<IDataItem>();
+
+            // Add Availibility DataItem to Agent
+            dataItems.Add(new AvailabilityDataItem(agent.Id));
+
+            // Add Device Added DataItem to Agent
+            dataItems.Add(new DeviceAddedDataItem(agent.Id));
+
+            // Add Device Removed DataItem to Agent
+            dataItems.Add(new DeviceRemovedDataItem(agent.Id));
+
+            // Add Device Changed DataItem to Agent
+            dataItems.Add(new DeviceChangedDataItem(agent.Id));
+
+            // Add Asset Added DataItem to Agent
+            dataItems.Add(new AssetChangedDataItem(agent.Id));
+
+            // Add Asset Removed DataItem to Agent
+            dataItems.Add(new AssetRemovedDataItem(agent.Id));
+
+            agent.DataItems = dataItems;
+
+            InitializeDataItems(agent);
+
+            _agent = agent;
+
+            // Add Name and UUID to DeviceKey dictionary
+            _deviceKeys.TryAdd(agent.Name, agent.Uuid);
+            _deviceKeys.TryAdd(agent.Uuid, agent.Uuid);
+        }
+
+        /// <summary>
+        /// Add a new Adapter Component to the Agent Device
+        /// </summary>
+        public void AddAdapterComponent(string id, AdapterConfiguration configuration)
+        {
+            var agent = Agent;
+            if (agent != null && configuration != null && !string.IsNullOrEmpty(configuration.Host))
+            {
+                // Create a new Adapter Component
+                var adapter = new AdapterComponent();
+                adapter.Id = id;
+                adapter.Name = $"{configuration.Host}:{configuration.Port}";
+
+                // Adapters Organizer Component
+                Component adapters = null;
+                if (agent.Components.IsNullOrEmpty())
+                {
+                    // Create New Adapters Organizer Component
+                    adapters = new AdaptersComponent() { Id = AdaptersId };
+
+                    var agentComponents = new List<IComponent>();
+                    agentComponents.Add(adapters);
+                    agent.Components = agentComponents;
+                }
+                else
+                {
+                    adapters = agent.Components.FirstOrDefault(o => o.Id == AdaptersId) as Component;
+                }
+
+                if (adapters != null)
+                {
+                    var dataItems = new List<IDataItem>();
+
+                    // Add Connection Status
+                    var connectionStatusDataItem = new ConnectionStatusDataItem(adapter.Id);
+                    dataItems.Add(connectionStatusDataItem);
+
+                    // Add Adapter URI
+                    var adapterUri = $"shdr://{configuration.Host}:{configuration.Port}";
+                    AdapterUriDataItem adapterUriDataItem = null;
+                    if (!configuration.SuppressIpAddress)
+                    {
+                        adapterUriDataItem = new AdapterUriDataItem(adapter.Id);
+                        var adapterUriConstraint = new Constraints();
+                        adapterUriConstraint.Values = new List<string> { adapterUri };
+                        adapterUriDataItem.Constraints = adapterUriConstraint;
+                        dataItems.Add(adapterUriDataItem);
+                    }
+
+                    // Add Observation Update Rate
+                    dataItems.Add(new ObservationUpdateRateDataItem(adapter.Id));
+
+                    // Add Asset Update Rate
+                    dataItems.Add(new AssetUpdateRateDataItem(adapter.Id));
+
+                    // Add Adapter Software Version
+                    AdapterSoftwareVersionDataItem adapterSoftwareVersionDataItem = null;
+                    if (configuration.ShdrVersion != null)
+                    {
+                        adapterSoftwareVersionDataItem = new AdapterSoftwareVersionDataItem(adapter.Id);
+                        dataItems.Add(adapterSoftwareVersionDataItem);
+                    }
+
+                    // Add MTConnect Version
+                    //if (Version != null) dataItems.Add(new MTConnectVersionDataItem(adapter.Id));
+
+                    adapters.DataItems = dataItems;
+
+                    var components = new List<IComponent>();
+                    components.Add(adapters);
+                    agent.Components = components;
+
+
+                    // Add Connection Status Observation
+                    AddAgentObservation(connectionStatusDataItem.Id, Observations.Events.Values.ConnectionStatus.LISTEN);
+
+                    // Add Adapter Uri Observation
+                    if (adapterUri != null)
+                    {
+                        AddAgentObservation(adapterUriDataItem.Id, adapterUri);
+                    }
+
+                    // Add Adapter Software Version Observation
+                    if (adapterSoftwareVersionDataItem != null)
+                    {
+                        AddAgentObservation(adapterSoftwareVersionDataItem.Id, configuration.ShdrVersion);
+                    }
+                }
+            }
+        }
+
+        public void UpdateAdapterConnectionStatus(string adapterId, Observations.Events.Values.ConnectionStatus connectionStatus)
+        {
+            if (_agent != null)
+            {
+                var dataItemKey = DataItem.CreateId(adapterId, ConnectionStatusDataItem.NameId);
+                AddAgentObservation(dataItemKey, connectionStatus);
+            }
+        }
+
+        public void UpdateAdapterObservationRate(string adapterId, double value)
+        {
+            if (_agent != null)
+            {
+                var dataItemKey = DataItem.CreateId(adapterId, ObservationUpdateRateDataItem.NameId);
+                AddAgentObservation(dataItemKey, value);
+            }
+        }
+
+
+        /// <summary>
+        /// Add a new Observation for a DataItem to the Agent Device
+        /// </summary>
+        public bool AddAgentObservation(string dataItemKey, object value)
+        {
+            if (_agent != null && !string.IsNullOrEmpty(dataItemKey) && value != null)
+            {
+                var input = new ObservationInput();
+                input.DeviceKey = _agent.Uuid;
+                input.DataItemKey = dataItemKey;
+                input.AddValue(ValueKeys.CDATA, value);
+                input.Timestamp = UnixDateTime.Now;
+
+                var dataItem = _agent.GetDataItemByKey(dataItemKey);
+                if (dataItem != null)
+                {
+                    // Check if Observation Needs to be Updated
+                    bool update = UpdateCurrentObservation(_agent.Uuid, dataItem, input);
+                    if (update)
+                    {
+                        var observation = new Observation();
+                        observation.SetProperty(nameof(Observation.DeviceUuid), _agent.Uuid);
+                        observation.SetProperty(nameof(Observation.DataItemId), dataItem.Id);
+                        observation.SetProperty(nameof(Observation.Representation), dataItem.Representation);
+                        observation.SetProperty(nameof(Observation.Type), dataItem.Type);
+                        observation.SetProperty(nameof(Observation.SubType), dataItem.SubType);
+                        observation.SetProperty(nameof(Observation.Name), dataItem.Name);
+                        observation.SetProperty(nameof(Observation.CompositionId), dataItem.CompositionId);
+                        observation.SetProperty(nameof(Observation.Timestamp), input.Timestamp.ToDateTime());
+                        observation.AddValues(input.Values);
+
+                        // Add Observation to Streaming Buffer
+                        return _observationBuffer.AddObservation(_agent.Uuid, dataItem, observation);
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Add a new Observation for a DataItem to the Agent Device
+        /// </summary>
+        public async Task<bool> AddAgentObservationAsync(string dataItemKey, object value)
+        {
+            if (_agent != null && !string.IsNullOrEmpty(dataItemKey) && value != null)
+            {
+                var input = new ObservationInput();
+                input.DeviceKey = _agent.Uuid;
+                input.DataItemKey = dataItemKey;
+                input.AddValue(ValueKeys.CDATA, value);
+                input.Timestamp = UnixDateTime.Now;
+
+                var dataItem = _agent.GetDataItemByKey(dataItemKey);
+                if (dataItem != null)
+                {
+                    // Check if Observation Needs to be Updated
+                    bool update = UpdateCurrentObservation(_agent.Uuid, dataItem, input);
+                    if (update)
+                    {
+                        var observation = new Observation();
+                        observation.SetProperty(nameof(Observation.DeviceUuid), _agent.Uuid);
+                        observation.SetProperty(nameof(Observation.DataItemId), dataItem.Id);
+                        observation.SetProperty(nameof(Observation.Representation), dataItem.Representation);
+                        observation.SetProperty(nameof(Observation.Type), dataItem.Type);
+                        observation.SetProperty(nameof(Observation.SubType), dataItem.SubType);
+                        observation.SetProperty(nameof(Observation.Name), dataItem.Name);
+                        observation.SetProperty(nameof(Observation.CompositionId), dataItem.CompositionId);
+                        observation.SetProperty(nameof(Observation.Timestamp), input.Timestamp.ToDateTime());
+                        observation.AddValues(input.Values);
+
+                        // Add Observation to Streaming Buffer
+                        return await _observationBuffer.AddObservationAsync(_agent.Uuid, dataItem, observation);
+                    }
+                }
+            }
+
+            return false;
         }
 
         #endregion
