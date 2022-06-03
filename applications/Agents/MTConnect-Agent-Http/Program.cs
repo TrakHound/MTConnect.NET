@@ -14,30 +14,51 @@ using MTConnect.Observations;
 using MTConnect.Streams;
 using NLog;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.ServiceProcess;
 
 namespace MTConnect.Applications
 {
     public class Program
     {
+        private const string DefaultServiceName = "MTConnect-Agent-HTTP";
+        private const string DefaultServiceDisplayName = "MTConnect HTTP Agent";
+        private const string DefaultServiceDescription = "MTConnect Agent using HTTP to provide access to device information";
+
+        private static readonly Logger _applicationLogger = LogManager.GetLogger("application-logger");
         private static readonly Logger _agentLogger = LogManager.GetLogger("agent-logger");
         private static readonly Logger _agentValidationLogger = LogManager.GetLogger("agent-validation-logger");
         private static readonly Logger _httpLogger = LogManager.GetLogger("http-logger");
         private static readonly Logger _adapterLogger = LogManager.GetLogger("adapter-logger");
         private static readonly Logger _adapterShdrLogger = LogManager.GetLogger("adapter-shdr-logger");
+
+        private static readonly List<ShdrAdapterClient> _adapters = new List<ShdrAdapterClient>();
+
+        private static LogLevel _logLevel = LogLevel.Info;
         private static MTConnectAgent _agent;
+        private static MTConnectHttpServer _server;
+        private static System.Timers.Timer _metricsTimer;
 
 
         /// <summary>
-        /// Program Arguments [help|install|debug|run] [configuration_file]
+        /// Program Arguments [help|install|debug|run] [configuration_file] [http_port]
         /// </summary>
         /// <param name="args"></param>
         public static void Main(string[] args)
         {
-            string command = "debug";
+            PrintHeader();
+
+            string command = "run";
             string configFile = null;
+            int port = 0;
+
+            string serviceName = DefaultServiceName;
+            string serviceDisplayName = DefaultServiceDisplayName;
+            string serviceDescription = DefaultServiceDescription;
+            bool serviceStart = true;
 
             // Read Command Line Arguments
             if (!args.IsNullOrEmpty())
@@ -45,31 +66,99 @@ namespace MTConnect.Applications
                 command = args[0];
 
                 // Configuration File Path
-                if (args.Length > 1) configFile = args[1];
-            }
+                if (args.Length > 1)
+                {
+                    configFile = args[1];
+                    _applicationLogger.Info($"Agent Configuration Path = {configFile}");
+                }
 
-            PrintHeader();
+                // Port
+                if (args.Length > 2)
+                {
+                    if (int.TryParse(args[2], out var p))
+                    {
+                        port = p;
+                        _applicationLogger.Info($"Agent HTTP Port = {port}");
+                    }
+                }
+            }
 
             // Read the Agent Configuation File
             var configuration = MTConnectAgentConfiguration.Read(configFile);
+            if (configuration != null)
+            {
+                // Set Service Name
+                if (!string.IsNullOrEmpty(configuration.ServiceName)) serviceName = configuration.ServiceName;
+
+                // Set Service Auto Start
+                serviceStart = configuration.ServiceAutoStart;
+            }
+
+            // Declare a new Service (to use Service commands)
+            var service = new Service(serviceName, serviceDisplayName, serviceDescription, serviceStart);
 
             switch (command)
             {
-                case "run": Init(configuration); break;
+                case "run":
+                    StartAgent(configuration, false, port);
+                    while (true) System.Threading.Thread.Sleep(100); // Block (exit console by 'Ctrl + C')
 
-                case "debug": Init(configuration, true); break;
+                case "run-service":
+                    ServiceBase.Run(service);
+                    break;
+
+                case "debug":
+                    StartAgent(configuration, true, port);
+                    while (true) System.Threading.Thread.Sleep(100); // Block (exit console by 'Ctrl + C')
+
+                case "install":
+                    service.Stop();
+                    service.Remove();
+                    service.Install(configFile);
+                    break;
+
+                case "install-start":
+                    service.Stop();
+                    service.Remove();
+                    service.Install(configFile);
+                    service.Start();
+                    break;
+
+                case "remove":
+                    service.Stop();
+                    service.Remove();
+                    break;
+
+                case "start":
+                    service.Start();
+                    break;
+
+                case "stop":
+                    service.Stop();
+                    break;
+
+                case "help": 
+                    PrintHelp();
+                    break;
             }
-
-            Console.ReadLine();
         }
 
-        private static void Init(MTConnectAgentConfiguration configuration, bool verboseLogging = false)
+
+        internal static void StartAgent(string configurationPath, bool verboseLogging = false, int port = 0)
+        {
+            // Read the Configuration File
+            var configuration = MTConnectAgentConfiguration.Read(configurationPath);
+
+            // Start the Agent
+            StartAgent(configuration, verboseLogging, port);
+        }
+
+        internal static void StartAgent(MTConnectAgentConfiguration configuration, bool verboseLogging = false, int port = 0)
         {
             if (configuration != null)
             {
                 // Create MTConnectAgent
                 _agent = new MTConnectAgent(configuration);
-                _agent.Version = MTConnectVersions.Max;
 
                 if (verboseLogging)
                 {
@@ -91,13 +180,10 @@ namespace MTConnect.Applications
                     // Add Device(s) to Agent
                     foreach (var device in devices)
                     {
-                        _agentLogger.Info($"Device Read From File : {device.Name}");
+                        _agentLogger.Log(_logLevel, $"Device Read From File : {device.Name}");
 
                         _agent.AddDevice(device);
                     }
-
-                    //// Add Agent Device (if not configured in Devices.xml)
-                    //if (_agent.Agent == null) _agent.Agent = _agent.CreateAgentDevice();
 
                     // Add Adapter Clients
                     if (!configuration.Adapters.IsNullOrEmpty())
@@ -115,6 +201,7 @@ namespace MTConnect.Applications
 
                                 // Create new SHDR Adapter Client to read from SHDR stream
                                 var adapterClient = new ShdrAdapterClient(adapterId, adapterConfiguration, _agent, device);
+                                _adapters.Add(adapterClient);
 
                                 if (verboseLogging)
                                 {
@@ -132,28 +219,49 @@ namespace MTConnect.Applications
                         }
                     }
                 }
+                else
+                {
+                    _agentLogger.Warn($"No Devices Found : Reading from : {configuration.Devices}");
+                }
 
                 // Start Agent Metrics
                 StartMetrics();
 
-                // Start the Http Server
-                var server = new ShdrMTConnectHttpServer(_agent);
+                // Intialize the Http Server
+                _server = new ShdrMTConnectHttpServer(_agent, null, port);
 
+                // Setup Http Server Logging
                 if (verboseLogging)
                 {
-                    server.ListenerStarted += HttpListenerStarted;
-                    server.ListenerStopped += HttpListenerStopped;
-                    server.ListenerException += HttpListenerException;
-                    server.ClientConnected += HttpClientConnected;
-                    server.ClientDisconnected += HttpClientDisconnected;
-                    server.ClientException += HttpClientException;
-                    server.ResponseSent += HttpResponseSent;
+                    _server.ListenerStarted += HttpListenerStarted;
+                    _server.ListenerStopped += HttpListenerStopped;
+                    _server.ListenerException += HttpListenerException;
+                    _server.ClientConnected += HttpClientConnected;
+                    _server.ClientDisconnected += HttpClientDisconnected;
+                    _server.ClientException += HttpClientException;
+                    _server.ResponseSent += HttpResponseSent;
                 }
 
-                server.Start();
+                // Start the Http Server
+                _server.Start();
             }
         }
 
+        internal static void StopAgent()
+        {
+            // Stop Adapter Clients
+            if (!_adapters.IsNullOrEmpty())
+            {
+                foreach (var adapter in _adapters) adapter.Stop();
+            }
+
+            if (_server != null) _server.Stop();
+            if (_agent != null) _agent.Dispose();
+            if (_metricsTimer != null) _metricsTimer.Dispose();
+        }
+
+
+        #region "Metrics"
 
         private static void StartMetrics()
         {
@@ -164,32 +272,33 @@ namespace MTConnect.Applications
             var updateInterval = _agent.Metrics.UpdateInterval.TotalSeconds;
             var windowInterval = _agent.Metrics.WindowInterval.TotalMinutes;
 
-            var metricsTimer = new System.Timers.Timer();
-            metricsTimer.Interval = updateInterval * 1000;
-            metricsTimer.Elapsed += (s, e) =>
+            _metricsTimer = new System.Timers.Timer();
+            _metricsTimer.Interval = updateInterval * 1000;
+            _metricsTimer.Elapsed += (s, e) =>
             {
                 // Observations
                 var observationCount = _agent.Metrics.GetObservationCount();
                 var observationAverage = _agent.Metrics.ObservationAverage;
                 observationDelta = observationCount - observationLastCount;
 
-                _agentLogger.Info("[Agent] : Observations - Delta for last " + updateInterval + " seconds: " + observationDelta);
-                _agentLogger.Info("[Agent] : Observations - Average for last " + windowInterval + " minutes: " + Math.Round(observationAverage, 5));
+                _agentLogger.Debug("[Agent] : Observations - Delta for last " + updateInterval + " seconds: " + observationDelta);
+                _agentLogger.Debug("[Agent] : Observations - Average for last " + windowInterval + " minutes: " + Math.Round(observationAverage, 5));
 
                 // Assets
                 var assetCount = _agent.Metrics.GetAssetCount();
                 var assetAverage = _agent.Metrics.AssetAverage;
                 assetDelta = assetCount - assetLastCount;
 
-                _agentLogger.Info("[Agent] : Assets - Delta for last " + updateInterval + " seconds: " + assetDelta);
-                _agentLogger.Info("[Agent] : Assets - Average for last " + windowInterval + " minutes: " + Math.Round(assetAverage, 5));
+                _agentLogger.Debug("[Agent] : Assets - Delta for last " + updateInterval + " seconds: " + assetDelta);
+                _agentLogger.Debug("[Agent] : Assets - Average for last " + windowInterval + " minutes: " + Math.Round(assetAverage, 5));
 
                 observationLastCount = observationCount;
                 assetLastCount = assetCount;
             };
-            metricsTimer.Start();
+            _metricsTimer.Start();
         }
 
+        #endregion
 
         #region "Console Output"
 
@@ -207,42 +316,76 @@ namespace MTConnect.Applications
             Console.WriteLine("--------------------");
         }
 
+        private static void PrintHelp()
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            var name = assembly.GetName().Name.ToLower();
+
+            Console.WriteLine();
+            Console.WriteLine("Usage:");
+            Console.WriteLine();
+            Console.WriteLine($"     {name} [help|install|install-start|start|stop|remove|debug|run|run-service] [configuration_file] [http_port]");
+            Console.WriteLine();
+            Console.WriteLine("--------------------");
+            Console.WriteLine();
+            Console.WriteLine("Options :");
+            Console.WriteLine();
+            Console.WriteLine(string.Format("{0,15}  |  {1,5}", "help", "Prints usage information"));
+            Console.WriteLine(string.Format("{0,15}  |  {1,5}", "install", "Install as a Service"));
+            Console.WriteLine(string.Format("{0,15}  |  {1,5}", "install-start", "Install as a Service and Start the Service"));
+            Console.WriteLine(string.Format("{0,15}  |  {1,5}", "start", "Start the Service"));
+            Console.WriteLine(string.Format("{0,15}  |  {1,5}", "stop", "Stop the Service"));
+            Console.WriteLine(string.Format("{0,15}  |  {1,5}", "remove", "Remove the Service"));
+            Console.WriteLine(string.Format("{0,15}  |  {1,5}", "debug", "Runs the Agent in the terminal (with verbose logging)"));
+            Console.WriteLine(string.Format("{0,15}  |  {1,5}", "run", "Runs the Agent in the terminal"));
+            Console.WriteLine(string.Format("{0,15}  |  {1,5}", "run-service", "Runs the Agent as a Service"));
+            Console.WriteLine();
+            Console.WriteLine("Arguments :");
+            Console.WriteLine("--------------------");
+            Console.WriteLine();
+            Console.WriteLine(string.Format("{0,20}  |  {1,5}", "configuration_file", "Specifies the Agent Configuration file to load"));
+            Console.WriteLine(string.Format("{0,20}     {1,5}", "", "Default : agent.config.json"));
+            Console.WriteLine();
+            Console.WriteLine(string.Format("{0,20}  |  {1,5}", "http_port", "Specifies the TCP Port to use for the HTTP Server"));
+            Console.WriteLine(string.Format("{0,20}     {1,5}", "", "Note : This overrides what is read from the Configuration file"));
+        }
+
         private static void DevicesRequested(string deviceName)
         {
-            _agentLogger.Info($"[Agent] : MTConnectDevices Requested : " + deviceName);
+            _agentLogger.Debug($"[Agent] : MTConnectDevices Requested : " + deviceName);
         }
 
         private static void DevicesSent(IDevicesResponseDocument document)
         {
             if (document != null && document.Header != null)
             {
-                _agentLogger.Info($"[Agent] : MTConnectDevices Sent : " + document.Header.CreationTime);
+                _agentLogger.Log(_logLevel, $"[Agent] : MTConnectDevices Sent : " + document.Header.CreationTime);
             }
         }
 
         private static void StreamsRequested(string deviceName)
         {
-            _agentLogger.Info($"[Agent] : MTConnectStreams Requested : " + deviceName);
+            _agentLogger.Debug($"[Agent] : MTConnectStreams Requested : " + deviceName);
         }
 
         private static void StreamsSent(IStreamsResponseDocument document)
         {
             if (document != null && document.Header != null)
             {
-                _agentLogger.Info($"[Agent] : MTConnectStreams Sent : " + document.Header.CreationTime);
+                _agentLogger.Log(_logLevel, $"[Agent] : MTConnectStreams Sent : " + document.Header.CreationTime);
             }
         }
 
         private static void AssetsRequested(string deviceName)
         {
-            _agentLogger.Info($"[Agent] : MTConnectAssets Requested : " + deviceName);
+            _agentLogger.Debug($"[Agent] : MTConnectAssets Requested : " + deviceName);
         }
 
         private static void AssetsSent(IAssetsResponseDocument document)
         {
             if (document != null && document.Header != null)
             {
-                _agentLogger.Info($"[Agent] : MTConnectAssets Sent : " + document.Header.CreationTime);
+                _agentLogger.Log(_logLevel, $"[Agent] : MTConnectAssets Sent : " + document.Header.CreationTime);
             }
         }
 
@@ -268,76 +411,77 @@ namespace MTConnect.Applications
         {
             var adapterClient = (ShdrAdapterClient)sender;
             _agent.UpdateAdapterConnectionStatus(adapterClient.Id, Observations.Events.Values.ConnectionStatus.ESTABLISHED);
-            _adapterLogger.Info($"[Adapter] : ID = " + adapterClient.Id + " : " + message);
+            _adapterLogger.Log(_logLevel, $"[Adapter] : ID = " + adapterClient.Id + " : " + message);
         }
 
         private static void AdapterDisconnected(object sender, string message)
         {
             var adapterClient = (ShdrAdapterClient)sender;
             _agent.UpdateAdapterConnectionStatus(adapterClient.Id, Observations.Events.Values.ConnectionStatus.CLOSED);
-            _adapterLogger.Info($"[Adapter] : ID = " + adapterClient.Id + " : " + message);
+            _adapterLogger.Log(_logLevel, $"[Adapter] : ID = " + adapterClient.Id + " : " + message);
         }
 
         private static void AdapterConnectionError(object sender, Exception exception)
         {
             var adapterClient = (ShdrAdapterClient)sender;
-            _adapterLogger.Info($"[Adapter] : ID = " + adapterClient.Id + " : " + exception.Message);
+            _adapterLogger.Log(_logLevel, $"[Adapter] : ID = " + adapterClient.Id + " : " + exception.Message);
         }
 
         private static void AdapterPingSent(object sender, string message)
         {
             var adapterClient = (ShdrAdapterClient)sender;
-            _adapterLogger.Info($"[Adapter] : ID = " + adapterClient.Id + " : " + message);
+            _adapterLogger.Debug($"[Adapter] : ID = " + adapterClient.Id + " : " + message);
         }
 
         private static void AdapterPongReceived(object sender, string message)
         {
             var adapterClient = (ShdrAdapterClient)sender;
-            _adapterLogger.Info($"[Adapter] : ID = " + adapterClient.Id + " : " + message);
+            _adapterLogger.Debug($"[Adapter] : ID = " + adapterClient.Id + " : " + message);
         }
 
         private static void AdapterProtocolReceived(object sender, string message)
         {
             var adapterClient = (ShdrAdapterClient)sender;
-            _adapterShdrLogger.Debug($"[Adapter-SHDR] : ID = " + adapterClient.Id + " : " + message);
+            _adapterShdrLogger.Trace($"[Adapter-SHDR] : ID = " + adapterClient.Id + " : " + message);
         }
 
 
         private static void HttpListenerStarted(object sender, string prefix)
         {
-            _httpLogger.Info($"[Http Server] : Listening at " + prefix + "..");
+            _httpLogger.Log(_logLevel, $"[Http Server] : Listening at " + prefix + "..");
         }
 
         private static void HttpListenerStopped(object sender, string prefix)
         {
-            _httpLogger.Info($"[Http Server] : Listener Stopped for " + prefix);
+            _httpLogger.Log(_logLevel, $"[Http Server] : Listener Stopped for " + prefix);
         }
 
         private static void HttpListenerException(object sender, Exception exception)
         {
-            _httpLogger.Info($"[Http Server] : Listener Exception : " + exception.Message);
+            _httpLogger.Log(_logLevel, $"[Http Server] : Listener Exception : " + exception.Message);
         }
 
         private static void HttpClientConnected(object sender, HttpListenerRequest request)
         {
-            _httpLogger.Info($"[Http Server] : Client Connected : " + request.LocalEndPoint + " : " + request.Url);
+            _httpLogger.Debug($"[Http Server] : Client Connected : " + request.LocalEndPoint + " : " + request.Url);
         }
 
         private static void HttpClientDisconnected(object sender, string remoteEndPoint)
         {
-            _httpLogger.Info($"[Http Server] : Client Disconnected : " + remoteEndPoint);
+            _httpLogger.Debug($"[Http Server] : Client Disconnected : " + remoteEndPoint);
         }
 
         private static void HttpClientException(object sender, Exception exception)
         {
-            _httpLogger.Info($"[Http Server] : Client Exception : " + exception.Message);
+            _httpLogger.Log(_logLevel, $"[Http Server] : Client Exception : " + exception.Message);
         }
 
         private static void HttpResponseSent(object sender, MTConnectHttpResponse response)
         {
-            _httpLogger.Info($"[Http Server] : Response Sent : {response.StatusCode} : {response.ContentType} : Agent Process Time {response.ResponseDuration}ms : Document Format Time {response.FormatDuration}ms : Total Response Time {response.ResponseDuration + response.FormatDuration}ms");
+            _httpLogger.Debug($"[Http Server] : Response Sent : {response.StatusCode} : {response.ContentType} : Agent Process Time {response.ResponseDuration}ms : Document Format Time {response.FormatDuration}ms : Total Response Time {response.ResponseDuration + response.FormatDuration}ms");
         }
 
         #endregion
+
     }
 }

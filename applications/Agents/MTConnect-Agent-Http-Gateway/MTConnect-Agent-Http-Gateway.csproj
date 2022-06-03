@@ -21,12 +21,24 @@
 	<Product>TrakHound MTConnect Http Gateway Agent</Product>
   </PropertyGroup>
 
+	<ItemGroup>
+	  <Compile Remove="Program-old.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Include="Program-old.cs" />
+	</ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="NLog" Version="4.7.14" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\MTConnect.NET\MTConnect.NET.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Service.cs" />
   </ItemGroup>
 
   <ItemGroup>
