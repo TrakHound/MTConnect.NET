@@ -364,14 +364,23 @@ namespace MTConnect.Devices
         /// <param name="filePath">The path to the Device Configuration file</param>
         public static IEnumerable<IDevice> FromFile(string filePath, string documentFormatterId)
         {
+            // Set the Filename
             var path = !string.IsNullOrEmpty(filePath) ? filePath : DefaultFilename;
-            if (!string.IsNullOrEmpty(path))
+
+            // Add Working directory (if path is not rooted)
+            var rootPath = path;
+            if (!Path.IsPathRooted(rootPath))
+            {
+                rootPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, path);
+            }
+
+            if (!string.IsNullOrEmpty(rootPath))
             {
                 try
                 {
-                    if (File.Exists(path))
+                    if (File.Exists(rootPath))
                     {
-                        var contents = File.ReadAllText(path);
+                        var contents = File.ReadAllText(rootPath);
                         if (!string.IsNullOrEmpty(contents))
                         {
                             var devicesDocument = Formatters.ResponseDocumentFormatter.CreateDevicesResponseDocument(documentFormatterId, contents);
@@ -527,6 +536,9 @@ namespace MTConnect.Devices
 
                 if (device.Type == TypeId) obj = new Device();
                 else if (device.Type == Agent.TypeId) obj = new Agent();
+
+                // Don't Ouput Agent Device if Version < 1.7
+                if (device.Type == Agent.TypeId && mtconnectVersion < MTConnectVersions.Version17) return null;
 
                 if (obj != null)
                 {
