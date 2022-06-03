@@ -317,6 +317,8 @@ namespace MTConnect.Http
                     case MTConnectRequestType.Sample: return MTConnectRequestType.Sample;
                     case MTConnectRequestType.Assets: return MTConnectRequestType.Assets;
                 }
+
+                return MTConnectRequestType.Probe;
             }
             else return MTConnectRequestType.Probe;
 
