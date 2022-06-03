@@ -5,7 +5,7 @@
 
 namespace MTConnect
 {
-    internal static class Url
+    public static class Url
     {
         public static string Combine(string baseUrl, string path)
         {
@@ -23,6 +23,27 @@ namespace MTConnect
             path = path.TrimStart('/', '\\');
 
             return $"{baseUrl}/{path}";
+        }
+
+        public static string AddPort(string url, int port)
+        {
+            if (!string.IsNullOrEmpty(url) && port > 0)
+            {
+                if (url.Contains("/"))
+                {
+                    var p = url.Split('/');
+                    if (p.Length > 1)
+                    {
+                        p[0] = $"{p[0]}:{port}";
+                    }
+
+                    return string.Join("/", p);
+                }
+
+                return $"{url}:{port}";
+            }
+
+            return url;
         }
     }
 }
