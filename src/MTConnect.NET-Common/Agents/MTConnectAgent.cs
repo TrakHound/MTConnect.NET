@@ -2150,7 +2150,7 @@ namespace MTConnect.Agents
         {
             if (dataItem != null)
             {
-                if (newObservation != existingObservation)
+                if (newObservation.ChangeId != existingObservation.ChangeId)
                 {
                     if (!dataItem.Filters.IsNullOrEmpty() && dataItem.Representation == DataItemRepresentation.VALUE)
                     {
