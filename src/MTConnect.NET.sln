@@ -61,6 +61,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IntegrationTests", "Tests\I
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect-Agent-Examples", "..\applications\Agents\MTConnect-Agent-Examples\MTConnect-Agent-Examples.csproj", "{25D1348F-9110-4729-AFEC-230335D44527}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect-Agent-Http-Adapter", "..\applications\Agents\MTConnect-Agent-Http-Adapter\MTConnect-Agent-Http-Adapter.csproj", "{87343198-B9B9-415C-BD26-FFFF79547999}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleApp8", "C:\temp\ConsoleApp8\ConsoleApp8.csproj", "{E180EAEA-49E5-433B-9B9D-57C80448D298}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-Services", "MTConnect.NET-Services\MTConnect.NET-Services.csproj", "{49B1E68C-0937-406F-9F8D-25D327F78ADD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -194,6 +200,24 @@ Global
 		{25D1348F-9110-4729-AFEC-230335D44527}.Package|Any CPU.Build.0 = Debug|Any CPU
 		{25D1348F-9110-4729-AFEC-230335D44527}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{25D1348F-9110-4729-AFEC-230335D44527}.Release|Any CPU.Build.0 = Release|Any CPU
+		{87343198-B9B9-415C-BD26-FFFF79547999}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{87343198-B9B9-415C-BD26-FFFF79547999}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{87343198-B9B9-415C-BD26-FFFF79547999}.Package|Any CPU.ActiveCfg = Debug|Any CPU
+		{87343198-B9B9-415C-BD26-FFFF79547999}.Package|Any CPU.Build.0 = Debug|Any CPU
+		{87343198-B9B9-415C-BD26-FFFF79547999}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{87343198-B9B9-415C-BD26-FFFF79547999}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E180EAEA-49E5-433B-9B9D-57C80448D298}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E180EAEA-49E5-433B-9B9D-57C80448D298}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E180EAEA-49E5-433B-9B9D-57C80448D298}.Package|Any CPU.ActiveCfg = Debug|Any CPU
+		{E180EAEA-49E5-433B-9B9D-57C80448D298}.Package|Any CPU.Build.0 = Debug|Any CPU
+		{E180EAEA-49E5-433B-9B9D-57C80448D298}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E180EAEA-49E5-433B-9B9D-57C80448D298}.Release|Any CPU.Build.0 = Release|Any CPU
+		{49B1E68C-0937-406F-9F8D-25D327F78ADD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{49B1E68C-0937-406F-9F8D-25D327F78ADD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{49B1E68C-0937-406F-9F8D-25D327F78ADD}.Package|Any CPU.ActiveCfg = Package|Any CPU
+		{49B1E68C-0937-406F-9F8D-25D327F78ADD}.Package|Any CPU.Build.0 = Package|Any CPU
+		{49B1E68C-0937-406F-9F8D-25D327F78ADD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{49B1E68C-0937-406F-9F8D-25D327F78ADD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -221,6 +245,7 @@ Global
 		{E15CC46D-0B0C-4A7D-9D7D-32E2265FAC86} = {E0233BEB-F66C-43C4-9DC8-20182894CF5F}
 		{3241C13A-EA6F-4C6E-9A02-9B69DC0E4047} = {14375E03-6BF8-45E6-B868-D2399368992B}
 		{25D1348F-9110-4729-AFEC-230335D44527} = {6C3F47E0-BC95-48CB-93A4-C34A0D5CA43B}
+		{87343198-B9B9-415C-BD26-FFFF79547999} = {6C3F47E0-BC95-48CB-93A4-C34A0D5CA43B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CC13D3AD-18BF-4695-AB2A-087EF0885B20}

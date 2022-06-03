@@ -166,7 +166,6 @@ namespace MTConnect.Devices.Xml
                 Iso841Class = device.Iso841Class;
                 CoordinateSystemIdRef = device.CoordinateSystemIdRef;
 
-
                 if (device.MTConnectVersion != null) MTConnectVersion = device.MTConnectVersion.ToString();
                 if (device.Description != null) Description = new XmlDescription(device.Description);
                 if (device.Configuration != null) Configuration = new XmlConfiguration(device.Configuration);
