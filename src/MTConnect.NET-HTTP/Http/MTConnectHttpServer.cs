@@ -74,16 +74,16 @@ namespace MTConnect.Http
         public EventHandler<MTConnectHttpResponse> ResponseSent { get; set; }
 
 
-        public MTConnectHttpServer(IMTConnectAgent mtconnectAgent, IEnumerable<string> prefixes = null)
+        public MTConnectHttpServer(IMTConnectAgent mtconnectAgent, IEnumerable<string> prefixes = null, int port = 0)
         {
             _mtconnectAgent = mtconnectAgent;
             _configuration = mtconnectAgent.Configuration;
 
-            LoadPrefixes(mtconnectAgent.Configuration, prefixes);
+            LoadPrefixes(mtconnectAgent.Configuration, prefixes, port);
         }
 
 
-        private void LoadPrefixes(MTConnectAgentConfiguration configuration, IEnumerable<string> prefixes = null)
+        private void LoadPrefixes(MTConnectAgentConfiguration configuration, IEnumerable<string> prefixes = null, int port = 0)
         {
             if (!prefixes.IsNullOrEmpty())
             {
@@ -92,7 +92,7 @@ namespace MTConnect.Http
             else if (configuration != null)
             {
                 var serverIp = DefaultServer;
-                var port = DefaultPort;
+                var serverPort = DefaultPort;
 
                 // Configuration Server IP
                 if (!string.IsNullOrEmpty(configuration.ServerIp))
@@ -103,14 +103,18 @@ namespace MTConnect.Http
                     }
                 }
 
-                // Configuration Port
-                if (configuration.Port > 0)
+                // Set Port (if not overridden in method, read from Configuration)
+                if (port > 0)
                 {
-                    port = configuration.Port;
+                    serverPort = port;
+                }
+                else if (configuration.Port > 0)
+                {
+                    serverPort = configuration.Port;
                 }
 
                 // Construct Prefix URL
-                _prefixes.Add("http://" + serverIp + ":" + port + "/");
+                _prefixes.Add("http://" + serverIp + ":" + serverPort + "/");
 
             }
             else _prefixes.Add(DefaultPrefix);
