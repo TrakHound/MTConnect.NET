@@ -43,6 +43,11 @@ namespace MTConnect.Observations.Input
         /// </summary>
         ResetTriggered ResetTriggered { get; set; }
 
+        /// <summary>
+        /// A MD5 Hash of the Observation that can be used for comparison
+        /// </summary>
+        string ChangeId { get; }
+
 
         void AddValue(string valueKey, object value);
 

@@ -182,6 +182,7 @@ namespace MTConnect.Agents
         public MTConnectAgent()
         {
             InstanceId = CreateInstanceId();
+            _configuration = new MTConnectAgentConfiguration();
             Version = MTConnectVersions.Max;
             _deviceBuffer = new MTConnectDeviceBuffer();
             _observationBuffer = new MTConnectObservationBuffer();
@@ -209,6 +210,7 @@ namespace MTConnect.Agents
             )
         {
             InstanceId = CreateInstanceId();
+            _configuration = new MTConnectAgentConfiguration();
             Version = MTConnectVersions.Max;
             _deviceBuffer = deviceBuffer;
             _observationBuffer = streamingBuffer;
@@ -2148,7 +2150,7 @@ namespace MTConnect.Agents
         {
             if (dataItem != null)
             {
-                if (newObservation != existingObservation)
+                if (newObservation.ChangeId != existingObservation.ChangeId)
                 {
                     if (!dataItem.Filters.IsNullOrEmpty() && dataItem.Representation == DataItemRepresentation.VALUE)
                     {
