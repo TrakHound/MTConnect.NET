@@ -92,7 +92,7 @@ namespace MTConnect.Applications
             if (configuration != null)
             {
                 // Set Service Name
-                if (!string.IsNullOrEmpty(configuration.ServiceName)) serviceName = configuration.ServiceName;
+                if (!string.IsNullOrEmpty(configuration.ServiceName)) serviceDisplayName = configuration.ServiceName;
 
                 // Set Service Auto Start
                 serviceStart = configuration.ServiceAutoStart;
