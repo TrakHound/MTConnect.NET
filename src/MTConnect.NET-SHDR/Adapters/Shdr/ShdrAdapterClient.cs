@@ -167,7 +167,6 @@ namespace MTConnect.Adapters.Shdr
                         var addressFamily = GetIpAddressType(Server);
                         _client = new TcpClient(addressFamily);
                         _client.Connect(Server, Port);
-                        //_client = new TcpClient(Server, Port);
 
                         AdapterConnected?.Invoke(this, $"Connected to Adapter at {Server} on Port {Port}");
 
@@ -311,6 +310,7 @@ namespace MTConnect.Adapters.Shdr
                             }
                         }
                     }
+                    catch (TaskCanceledException ex) { }
                     catch (Exception ex)
                     {
                         AdapterConnectionError?.Invoke(this, ex);
@@ -331,6 +331,7 @@ namespace MTConnect.Adapters.Shdr
                     await Task.Delay(reconnectInterval, cancel);
                 }
             }
+            catch (TaskCanceledException ex) { }
             catch (Exception ex)
             {
                 AdapterConnectionError?.Invoke(this, ex);

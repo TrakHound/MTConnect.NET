@@ -34,6 +34,7 @@ namespace MTConnect.Http
         private readonly List<string> _prefixes = new List<string>();
 
         private CancellationTokenSource _stop;
+        private CancellationTokenSource _stopped;
 
 
         /// <summary>
@@ -171,7 +172,7 @@ namespace MTConnect.Http
                     while (listener.IsListening && !cancellationToken.IsCancellationRequested)
                     {
                         var result = listener.BeginGetContext(ListenerCallback, listener);
-                        result.AsyncWaitHandle.WaitOne();
+                        result.AsyncWaitHandle.WaitOne(1000);
                     }
                 }
                 catch (Exception ex)
@@ -254,8 +255,6 @@ namespace MTConnect.Http
 
                                     if (_configuration != null && _configuration.AllowPut)
                                     {
-                                        Console.WriteLine("POST");
-
                                         contextClosure.Response.StatusCode = 200;
                                     }
                                     else
@@ -265,8 +264,6 @@ namespace MTConnect.Http
                                     break;
 
                                 case "DELETE":
-
-                                    Console.WriteLine("DELETE");
 
                                     contextClosure.Response.StatusCode = 200;
 
@@ -286,6 +283,15 @@ namespace MTConnect.Http
                     }
                 });
             }
+            catch (HttpListenerException ex)
+            {
+                // Ignore Disposed Object Exception (happens when the listener is stopped)
+                if (ex.ErrorCode != 995)
+                {
+                    if (ClientException != null) ClientException.Invoke(this, ex);
+                }
+            }
+            catch (ObjectDisposedException ex) { }
             catch (Exception ex)
             {
                 if (ClientException != null) ClientException.Invoke(this, ex);
