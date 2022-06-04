@@ -118,29 +118,29 @@ namespace MTConnect.Applications
                     while (true) System.Threading.Thread.Sleep(100); // Block (exit console by 'Ctrl + C')
 
                 case "install":
-                    service.Stop();
-                    service.Remove();
-                    service.Install(configFile);
+                    service.StopService();
+                    service.RemoveService();
+                    service.InstallService(configFile);
                     break;
 
                 case "install-start":
-                    service.Stop();
-                    service.Remove();
-                    service.Install(configFile);
-                    service.Start();
+                    service.StopService();
+                    service.RemoveService();
+                    service.InstallService(configFile);
+                    service.StartService();
                     break;
 
                 case "remove":
-                    service.Stop();
-                    service.Remove();
+                    service.StopService();
+                    service.RemoveService();
                     break;
 
                 case "start":
-                    service.Start();
+                    service.StartService();
                     break;
 
                 case "stop":
-                    service.Stop();
+                    service.StopService();
                     break;
 
                 case "help": 

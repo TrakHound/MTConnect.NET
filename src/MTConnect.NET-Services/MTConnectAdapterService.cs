@@ -94,22 +94,22 @@ namespace MTConnect.Services
         }
 
 
-        public void Install(string configurationPath = null)
+        public void InstallService(string configurationPath = null)
         {
             if (WindowsService.IsCompatible()) WindowsInstall(configurationPath);
         }
 
-        public void Remove()
+        public void RemoveService()
         {
             if (WindowsService.IsCompatible()) WindowsRemove();
         }
 
-        public void Start()
+        public void StartService()
         {
             if (WindowsService.IsCompatible()) WindowsStart();
         }
 
-        public void Stop()
+        public void StopService()
         {
             if (WindowsService.IsCompatible()) WindowsStop();
         }

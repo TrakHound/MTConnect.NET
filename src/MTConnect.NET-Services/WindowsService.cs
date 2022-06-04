@@ -26,6 +26,7 @@ namespace MTConnect.Services
 
         public static bool IsCompatible()
         {
+#if NET5_0_OR_GREATER
             try
             {
                 return RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
@@ -33,6 +34,9 @@ namespace MTConnect.Services
             catch { }
 
             return false;
+#else
+           return true;
+#endif
         }
 
         public static bool IsUserAdministrator()
