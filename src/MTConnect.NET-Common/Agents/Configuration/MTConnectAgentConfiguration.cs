@@ -25,6 +25,9 @@ namespace MTConnect.Agents.Configuration
         [JsonPropertyName("changeToken")]
         public string ChangeToken { get; set; }
 
+        [JsonIgnore]
+        public string Path { get; set; }
+
 
         /// <summary>
         /// The 2^X number of slots available in the circular buffer for samples, events, and conditions.
@@ -242,8 +245,15 @@ namespace MTConnect.Agents.Configuration
 
         public static MTConnectAgentConfiguration Read(string path = null)
         {
-            var configurationPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Filename);
-            if (!string.IsNullOrEmpty(path)) configurationPath = path;
+            var configurationPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Filename);
+            if (!string.IsNullOrEmpty(path))
+            {
+                configurationPath = path;
+                if (!System.IO.Path.IsPathRooted(configurationPath))
+                {
+                    configurationPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, configurationPath);
+                }
+            }
 
             if (!string.IsNullOrEmpty(configurationPath))
             {
@@ -252,7 +262,9 @@ namespace MTConnect.Agents.Configuration
                     var text = File.ReadAllText(configurationPath);
                     if (!string.IsNullOrEmpty(text))
                     {
-                        return JsonSerializer.Deserialize<MTConnectAgentConfiguration>(text);
+                        var configuration = JsonSerializer.Deserialize<MTConnectAgentConfiguration>(text);
+                        configuration.Path = configurationPath;
+                        return configuration;
                     }
                 }
                 catch { }
@@ -263,16 +275,16 @@ namespace MTConnect.Agents.Configuration
 
         public void Save(string path = null, bool createBackup = true)
         {
-            var configurationPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Filename);
+            var configurationPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Filename);
             if (path != null) configurationPath = path;
 
             if (createBackup)
             {
                 // Create Backup of Configuration File
-                var backupDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, BackupDirectoryName);
+                var backupDir = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, BackupDirectoryName);
                 if (!Directory.Exists(backupDir)) Directory.CreateDirectory(backupDir);
-                var backupFilename = Path.ChangeExtension(UnixDateTime.Now.ToString(), ".backup.json");
-                var backupPath = Path.Combine(backupDir, backupFilename);
+                var backupFilename = System.IO.Path.ChangeExtension(UnixDateTime.Now.ToString(), ".backup.json");
+                var backupPath = System.IO.Path.Combine(backupDir, backupFilename);
                 if (File.Exists(configurationPath))
                 {
                     File.Copy(configurationPath, backupPath);

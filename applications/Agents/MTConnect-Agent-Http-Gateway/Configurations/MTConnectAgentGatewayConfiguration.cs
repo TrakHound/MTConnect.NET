@@ -24,7 +24,7 @@ namespace MTConnect.Applications.Configuration
 
         public new static MTConnectAgentGatewayConfiguration Read(string path = null)
         {
-            var configurationPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Filename);
+            var configurationPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Filename);
             if (path != null) configurationPath = path;
 
             if (!string.IsNullOrEmpty(configurationPath))

@@ -4,6 +4,7 @@
 // file 'LICENSE.txt', which is part of this source code package.
 
 using MTConnect.Agents;
+using MTConnect.Agents.Configuration;
 using MTConnect.Applications.Configuration;
 using MTConnect.Assets;
 using MTConnect.Clients.Rest;
@@ -38,7 +39,11 @@ namespace MTConnect.Applications
         private static LogLevel _logLevel = LogLevel.Info;
         private static MTConnectAgent _agent;
         private static MTConnectHttpServer _server;
+        private static ConfigurationFileWatcher<MTConnectAgentGatewayConfiguration> _configurationWatcher;
         private static System.Timers.Timer _metricsTimer;
+        private static bool _started = false;
+        private static int _port = 0;
+        private static bool _verboseLogging = true;
 
 
         /// <summary>
@@ -49,7 +54,7 @@ namespace MTConnect.Applications
         {
             PrintHeader();
 
-            string command = "run";
+            string command = "debug";
             string configFile = null;
             int port = 0;
 
@@ -80,6 +85,7 @@ namespace MTConnect.Applications
                     }
                 }
             }
+            _port = port;
 
             // Read the Agent Configuation File
             var configuration = MTConnectAgentGatewayConfiguration.Read(configFile);
@@ -98,7 +104,8 @@ namespace MTConnect.Applications
             switch (command)
             {
                 case "run":
-                    StartAgent(configuration, false, port);
+                    _verboseLogging = false;
+                    StartAgent(configuration, _verboseLogging, port);
                     while (true) System.Threading.Thread.Sleep(100); // Block (exit console by 'Ctrl + C')
 
                 case "run-service":
@@ -106,7 +113,8 @@ namespace MTConnect.Applications
                     break;
 
                 case "debug":
-                    StartAgent(configuration, true, port);
+                    _verboseLogging = true;
+                    StartAgent(configuration, _verboseLogging, port);
                     while (true) System.Threading.Thread.Sleep(100); // Block (exit console by 'Ctrl + C')
 
                 case "install":
@@ -153,7 +161,7 @@ namespace MTConnect.Applications
 
         internal static void StartAgent(MTConnectAgentGatewayConfiguration configuration, bool verboseLogging = false, int port = 0)
         {
-            if (configuration != null)
+            if (!_started && configuration != null)
             {
                 // Create MTConnectAgent
                 _agent = new MTConnectAgent(configuration);
@@ -225,22 +233,59 @@ namespace MTConnect.Applications
 
                 // Start the Http Server
                 _server.Start();
+
+
+                // Set the Configuration File Watcher
+                if (_configurationWatcher != null) _configurationWatcher.Dispose();
+                _configurationWatcher = new ConfigurationFileWatcher<MTConnectAgentGatewayConfiguration>(configuration.Path);
+                _configurationWatcher.ConfigurationUpdated += ConfigurationFileUpdated;
+                _configurationWatcher.ErrorReceived += ConfigurationFileError;
+
+                _started = true;
             }
         }
 
         internal static void StopAgent()
         {
-            // Stop MTConnect Clients
-            if (!_clients.IsNullOrEmpty())
+            if (_started)
             {
-                foreach (var client in _clients) client.Stop();
-            }
+                // Stop MTConnect Clients
+                if (!_clients.IsNullOrEmpty())
+                {
+                    foreach (var client in _clients) client.Stop();
+                }
 
-            if (_server != null) _server.Stop();
-            if (_agent != null) _agent.Dispose();
-            if (_metricsTimer != null) _metricsTimer.Dispose();
+                if (_server != null) _server.Stop();
+                if (_agent != null) _agent.Dispose();
+                if (_configurationWatcher != null) _configurationWatcher.Dispose();
+                if (_metricsTimer != null) _metricsTimer.Dispose();
+
+                System.Threading.Thread.Sleep(2000); // Delay 2 seconds to allow Http Server to stop
+
+                _started = false;
+            }
         }
 
+
+        #region "Configuration"
+
+        private static void ConfigurationFileUpdated(object sender, MTConnectAgentGatewayConfiguration configuration)
+        {
+            if (configuration != null)
+            {
+                _applicationLogger.Info("[Application] : Configuration File Updated");
+
+                StopAgent();
+                StartAgent(configuration, _verboseLogging, _port);
+            }
+        }
+
+        private static void ConfigurationFileError(object sender, string message)
+        {
+            _applicationLogger.Error($"[Application] : Configuration File Error : {message}");
+        }
+
+        #endregion
 
         #region "Client Event Handlers"
 
