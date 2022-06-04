@@ -3,16 +3,13 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
-using System;
-using System.Collections.Generic;
-using System.IO;
+using MTConnect.Agents.Configuration;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using MTConnect.Agents.Configuration;
 
 namespace MTConnect.Applications.Configuration
 {
-    public class MTConnectAgentRelayConfiguration : MTConnectAgentConfiguration
+    public class MTConnectAgentGatewayConfiguration : MTConnectAgentConfiguration
     {
         /// <summary>
         /// 
@@ -22,9 +19,9 @@ namespace MTConnect.Applications.Configuration
 
 
 
-        public new static MTConnectAgentRelayConfiguration Read(string path = null)
+        public new static MTConnectAgentGatewayConfiguration Read(string path = null)
         {
-            var configurationPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Filename);
+            var configurationPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Filename);
             if (path != null) configurationPath = path;
 
             if (!string.IsNullOrEmpty(configurationPath))
@@ -34,7 +31,7 @@ namespace MTConnect.Applications.Configuration
                     var text = File.ReadAllText(configurationPath);
                     if (!string.IsNullOrEmpty(text))
                     {
-                        return JsonSerializer.Deserialize<MTConnectAgentRelayConfiguration>(text);
+                        return JsonSerializer.Deserialize<MTConnectAgentGatewayConfiguration>(text);
                     }
                 }
                 catch { }

@@ -69,7 +69,7 @@ namespace MTConnect.Applications
 
         private static void AddServices(WebApplicationBuilder builder)
         {
-            var configuration = MTConnectAgentRelayConfiguration.Read();
+            var configuration = MTConnectAgentGatewayConfiguration.Read();
             if (configuration != null)
             {
                 // Create MTConnectAgent

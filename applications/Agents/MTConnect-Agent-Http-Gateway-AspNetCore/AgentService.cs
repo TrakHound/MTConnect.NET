@@ -23,7 +23,7 @@ namespace MTConnect.Applications
 {
     public class AgentService : IHostedService
     {
-        private readonly MTConnectAgentRelayConfiguration _relayConfiguration;
+        private readonly MTConnectAgentGatewayConfiguration _relayConfiguration;
         private readonly IMTConnectAgent _mtconnectAgent;
         private readonly ILogger<AgentService> _logger;
         private readonly AgentLogger _agentLogger;
@@ -38,7 +38,7 @@ namespace MTConnect.Applications
             ILogger<AgentService> logger
             )
         {
-            _relayConfiguration = MTConnectAgentRelayConfiguration.Read();
+            _relayConfiguration = MTConnectAgentGatewayConfiguration.Read();
             _mtconnectAgent = mtconnectAgent;
             _logger = logger;
             _agentLogger = agentLogger;

@@ -3,12 +3,12 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
+using MTConnect.Agents.Configuration;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using MTConnect.Agents.Configuration;
 
 namespace MTConnect.Applications.Configuration
 {
@@ -24,7 +24,7 @@ namespace MTConnect.Applications.Configuration
 
         public new static MTConnectAgentAdapterConfiguration Read(string path = null)
         {
-            var configurationPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Filename);
+            var configurationPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Filename);
             if (path != null) configurationPath = path;
 
             if (!string.IsNullOrEmpty(configurationPath))

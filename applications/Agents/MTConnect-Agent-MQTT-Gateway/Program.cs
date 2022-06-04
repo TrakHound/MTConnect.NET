@@ -51,7 +51,7 @@ namespace MTConnect.Applications
             PrintHeader();
 
             // Read the Agent Configuation File
-            var configuration = MTConnectAgentRelayConfiguration.Read(configFile);
+            var configuration = MTConnectAgentGatewayConfiguration.Read(configFile);
 
             switch (command)
             {
@@ -63,7 +63,7 @@ namespace MTConnect.Applications
             Console.ReadLine();
         }
 
-        private static void Init(MTConnectAgentRelayConfiguration configuration, bool verboseLogging = false)
+        private static void Init(MTConnectAgentGatewayConfiguration configuration, bool verboseLogging = false)
         {
             if (configuration != null)
             {
