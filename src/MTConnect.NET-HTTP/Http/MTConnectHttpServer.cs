@@ -313,18 +313,29 @@ namespace MTConnect.Http
                     {
                         return MTConnectRequestType.Asset;
                     }
-                }
 
-                var path = segments[segments.Length - 1];
-                switch (path.ToLower())
+                    var path = segments[segments.Length - 1];
+                    switch (path.ToLower())
+                    {
+                        case MTConnectRequestType.Probe: return MTConnectRequestType.Probe;
+                        case MTConnectRequestType.Current: return MTConnectRequestType.Current;
+                        case MTConnectRequestType.Sample: return MTConnectRequestType.Sample;
+                        case MTConnectRequestType.Assets: return MTConnectRequestType.Assets;
+                    }
+                }
+                else
                 {
-                    case MTConnectRequestType.Probe: return MTConnectRequestType.Probe;
-                    case MTConnectRequestType.Current: return MTConnectRequestType.Current;
-                    case MTConnectRequestType.Sample: return MTConnectRequestType.Sample;
-                    case MTConnectRequestType.Assets: return MTConnectRequestType.Assets;
-                }
+                    var path = segments[segments.Length - 1];
+                    switch (path.ToLower())
+                    {
+                        case MTConnectRequestType.Probe: return MTConnectRequestType.Probe;
+                        case MTConnectRequestType.Current: return MTConnectRequestType.Current;
+                        case MTConnectRequestType.Sample: return MTConnectRequestType.Sample;
+                        case MTConnectRequestType.Assets: return MTConnectRequestType.Assets;
+                    }
 
-                return MTConnectRequestType.Probe;
+                    if (!Path.HasExtension(path)) return MTConnectRequestType.Probe;
+                }
             }
             else return MTConnectRequestType.Probe;
 
@@ -879,10 +890,10 @@ namespace MTConnect.Http
                         {
                             fileContents = File.ReadAllBytes(filePath);
                         }
-                    }
 
-                    statusCode = fileContents != null ? 200 : 500;
-                    contentType = MimeTypes.GetMimeType(Path.GetExtension(filePath));
+                        statusCode = fileContents != null ? 200 : 500;
+                        contentType = MimeTypes.GetMimeType(Path.GetExtension(filePath));
+                    }
 
                     // Set HTTP Response Status Code
                     httpResponse.StatusCode = statusCode;
