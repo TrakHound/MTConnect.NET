@@ -47,10 +47,10 @@ namespace MTConnect.Devices.Xml
         public MotionActuationType Actuation { get; set; }
 
         /// <summary>
-        /// Axis defines the axis along or around which the Component moves relative to a coordinate system.
+        /// The natural language description of the CoordinateSystem.
         /// </summary>
-        [XmlElement("Axis")]
-        public string Axis { get; set; }
+        [XmlElement("Description")]
+        public string Description { get; set; }
 
         /// <summary>
         /// The coordinates of the origin position of a coordinate system.
@@ -65,10 +65,10 @@ namespace MTConnect.Devices.Xml
         public XmlTransformation Transformation { get; set; }
 
         /// <summary>
-        /// The natural language description of the CoordinateSystem.
+        /// Axis defines the axis along or around which the Component moves relative to a coordinate system.
         /// </summary>
-        [XmlElement("Description")]
-        public string Description { get; set; }
+        [XmlElement("Axis")]
+        public string Axis { get; set; }
 
 
         public XmlMotion() { }
