@@ -327,6 +327,20 @@ namespace MTConnect.Devices
             }
         }
 
+        /// <summary>
+        /// Function used to return the DataItem Type in Pascal case. Handles types with acronyms.
+        /// </summary>
+        public static string GetPascalCaseType(string type)
+        {
+            switch (type)
+            {
+                case DataItems.Events.AdapterUriDataItem.TypeId: return "AdapterURI";
+                case DataItems.Events.MTConnectVersionDataItem.TypeId: return "MTConnectVersion";
+            }
+
+            return type.ToPascalCase();
+        }
+
 
         public static IDataItem Create(IDataItem dataItem)
         {
