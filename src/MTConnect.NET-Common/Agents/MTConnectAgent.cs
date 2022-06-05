@@ -289,6 +289,7 @@ namespace MTConnect.Agents
             {
                 BufferSize = _observationBuffer.BufferSize,
                 CreationTime = DateTime.UtcNow,
+                DeviceModelChangeTime = _deviceModelChangeTime.ToDateTime().ToString("o"),
                 InstanceId = InstanceId,
                 Sender = System.Net.Dns.GetHostName(),
                 Version = GetAgentVersion().ToString(),
