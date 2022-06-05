@@ -67,11 +67,11 @@ namespace MTConnect.Streams.Xml
                 var match = Regex.Match(observation.Type, NodePrefixPattern);
                 if (match.Success)
                 {
-                    name = match.Groups[2].Value.ToPascalCase();
+                    name = Devices.DataItem.GetPascalCaseType(match.Groups[2].Value);
                 }
                 else
                 {
-                    name = observation.Type.ToPascalCase();
+                    name = Devices.DataItem.GetPascalCaseType(observation.Type);
                 }
 
                 // Add Suffix based on Representation
