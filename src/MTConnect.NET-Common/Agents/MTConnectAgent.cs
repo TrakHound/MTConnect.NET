@@ -47,6 +47,7 @@ namespace MTConnect.Agents
         private readonly ConcurrentDictionary<string, IEnumerable<IObservationInput>> _currentConditions = new ConcurrentDictionary<string, IEnumerable<IObservationInput>>();
         private readonly MTConnectAgentMetrics _metrics = new MTConnectAgentMetrics(TimeSpan.FromSeconds(10), TimeSpan.FromMinutes(1));
         private readonly string _uuid = Guid.NewGuid().ToString();
+        private long _deviceModelChangeTime;
         private Version _mtconnectVersion;
         private Agent _agent;
 
@@ -266,12 +267,14 @@ namespace MTConnect.Agents
                 AssetBufferSize = _assetBuffer.BufferSize,
                 AssetCount = _assetBuffer.AssetCount,
                 CreationTime = DateTime.UtcNow,
+                DeviceModelChangeTime = _deviceModelChangeTime.ToDateTime().ToString("o"),
                 InstanceId = InstanceId,
                 Sender = System.Net.Dns.GetHostName(),
                 Version = GetAgentVersion().ToString(),
                 TestIndicator = null
             };
 
+            if (version < MTConnectVersions.Version17) header.DeviceModelChangeTime = null;
             if (version < MTConnectVersions.Version14) header.AssetBufferSize = -1;
             if (version < MTConnectVersions.Version14) header.AssetCount = -1;
 
@@ -2655,6 +2658,7 @@ namespace MTConnect.Agents
 
                     InitializeDataItems(obj);
 
+                    _deviceModelChangeTime = UnixDateTime.Now;
                     DeviceAdded?.Invoke(this, obj);
                 }
 
@@ -2703,6 +2707,7 @@ namespace MTConnect.Agents
 
                     await InitializeDataItemsAsync(obj);
 
+                    _deviceModelChangeTime = UnixDateTime.Now;
                     DeviceAdded?.Invoke(this, obj);
                 }
 
