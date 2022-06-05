@@ -20,6 +20,6 @@ namespace MTConnect.Devices
         /// <summary>
         /// The services or functions provided by the associated piece of equipment is not required for the operation of this piece of equipment.
         /// </summary>
-        NON_CRITICAL
+        NONCRITICAL
     }
 }

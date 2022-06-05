@@ -15,7 +15,7 @@ namespace MTConnect.Devices
         /// <summary>
         /// The services or functions provided by the associated piece of equipment is not required for the operation of this piece of equipment.
         /// </summary>
-        public const string NON_CRITICAL = "The services or functions provided by the associated piece of equipment is not required for the operation of this piece of equipment.";
+        public const string NONCRITICAL = "The services or functions provided by the associated piece of equipment is not required for the operation of this piece of equipment.";
 
 
         public static string Get(Criticality criticality)
@@ -23,7 +23,7 @@ namespace MTConnect.Devices
             switch (criticality)
             {
                 case Criticality.CRITICAL: return CRITICAL;
-                case Criticality.NON_CRITICAL: return NON_CRITICAL;
+                case Criticality.NONCRITICAL: return NONCRITICAL;
             }
 
             return "";
