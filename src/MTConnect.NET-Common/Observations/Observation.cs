@@ -94,7 +94,7 @@ namespace MTConnect.Observations
         [JsonPropertyName("type")]
         public virtual string Type => GetProperty<string>(nameof(Type));
 
-        internal bool TypeOutput => false;
+        internal bool TypeOutput { get; set; } = false;
 
         /// <summary>
         /// The subtype of the DataItem defined in the Device Information Model that this DataItem element represents
