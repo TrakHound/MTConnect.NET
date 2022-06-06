@@ -34,17 +34,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Compile Remove="Models\Components\SpindleAxisModel.cs" />
-	  <Compile Remove="Models\CompositionModel - Copy.cs" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<None Include="../../README.md">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
 		</None>
-		<None Include="Models\Components\SpindleAxisModel.cs" />
-		<None Include="Models\CompositionModel - Copy.cs" />
 	</ItemGroup>
 
 	<PropertyGroup Condition="'$(Configuration)'=='Release'">
