@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -16,8 +15,6 @@ namespace MTConnect
     public static class StringFunctions
     {
         private static readonly Random _random = new Random();
-        //private static readonly TextInfo _textInfo = new CultureInfo("en-US", false).TextInfo;
-
 
         public static bool ToBoolean(this string s)
         {
@@ -57,7 +54,6 @@ namespace MTConnect
             if (!string.IsNullOrEmpty(s))
             {
                 var parts = s.SplitOnWord();
-                //var parts = s.Split('_');
                 if (!parts.IsNullOrEmpty())
                 {
                     var sb = new StringBuilder();
@@ -66,16 +62,6 @@ namespace MTConnect
                         sb.Append(parts[i].UppercaseFirstCharacter());
                     }
                     return sb.ToString();
-
-                    //var l = new List<string>();
-
-                    //foreach (var part in parts)
-                    //{
-                    //    l.Add(part.UppercaseFirstCharacter());
-                    //    //l.Add(_textInfo.ToTitleCase(part.ToLower()));
-                    //}
-
-                    //return string.Concat(l);
                 }
             }
 
@@ -87,7 +73,6 @@ namespace MTConnect
             if (!string.IsNullOrEmpty(s))
             {
                 var parts = s.SplitOnWord();
-                //var parts = s.Split('_');
                 if (!parts.IsNullOrEmpty())
                 {
                     var sb = new StringBuilder();
@@ -96,16 +81,6 @@ namespace MTConnect
                         sb.Append(parts[i].UppercaseFirstCharacter());
                     }
                     return sb.ToString();
-
-                    //var l = new List<string>();
-
-                    //foreach (var part in parts)
-                    //{
-                    //    l.Add(part.UppercaseFirstCharacter());
-                    //    //l.Add(_textInfo.ToTitleCase(part.ToLower()));
-                    //}
-
-                    //return string.Join(" ", l);
                 }
             }
 
@@ -117,7 +92,6 @@ namespace MTConnect
             if (!string.IsNullOrEmpty(s))
             {
                 var parts = s.SplitOnWord();
-                //var parts = s.Split('_');
                 if (!parts.IsNullOrEmpty())
                 {
                     var sb = new StringBuilder();
@@ -127,18 +101,6 @@ namespace MTConnect
                         else sb.Append(parts[i].ToLower());
                     }
                     return sb.ToString();
-
-
-                    //var l = new List<string>();
-
-                    //for (var i = 0; i <= parts.Count() - 1; i++)
-                    //{
-                    //    if (i > 0) l.Add(parts[i].UppercaseFirstCharacter());
-                    //    //if (i > 0) l.Add(_textInfo.ToTitleCase(parts[i].ToLower()));
-                    //    else l.Add(parts[i].ToLower());
-                    //}
-
-                    //return string.Concat(l);
                 }
             }
 
@@ -165,7 +127,6 @@ namespace MTConnect
                 {
                     // Split string by Uppercase characters
                     parts = SplitOnUppercase(s);
-                    //parts = Regex.Split(s, @"(?<!^)(?=[A-Z])");
                 }
 
                 return parts;
@@ -193,7 +154,6 @@ namespace MTConnect
                         if (i == s.Length - 1)
                         {
                             p += s.Substring(x);
-                            //parts.Add(s.Substring(x));
                         }
                     }
                     return p.Split(' ');
@@ -203,35 +163,6 @@ namespace MTConnect
 
             return null;
         }
-
-        //public static string[] SplitOnUppercase(this string s)
-        //{
-        //    if (!string.IsNullOrEmpty(s))
-        //    {
-        //        if (s != s.ToUpper())
-        //        {
-        //            var parts = new List<string>();
-        //            var x = 0;
-        //            for (var i = 0; i < s.Length; i++)
-        //            {
-        //                if (i > 0 && char.IsUpper(s[i]))
-        //                {
-        //                    parts.Add(s.Substring(x, i - x));
-        //                    x = i;
-        //                }
-
-        //                if (i == s.Length - 1)
-        //                {
-        //                    parts.Add(s.Substring(x));
-        //                }
-        //            }
-        //            return parts.ToArray();
-        //        }
-        //        else return new string[] { s };
-        //    }
-
-        //    return null;
-        //}
 
         public static string UppercaseFirstCharacter(this string s)
         {
@@ -246,8 +177,6 @@ namespace MTConnect
                     else sb.Append(char.ToLower(s[i]));
                 }
                 return sb.ToString();
-
-                //return char.ToUpper(s[0]) + s.Substring(1);
             }
 
             return s.ToUpper();
@@ -357,6 +286,26 @@ namespace MTConnect
             var md5 = MD5.Create();
             var hash = md5.ComputeHash(Encoding.UTF8.GetBytes(s));
             return string.Concat(hash.Select(b => b.ToString("x2")));
+        }
+
+        public static string ToMD5Hash(string[] lines)
+        {
+            if (lines != null && lines.Length > 0)
+            {
+                var x1 = lines[0];
+                var h = x1.ToMD5Hash();
+
+                for (int i = 1; i < lines.Length; i++)
+                {
+                    x1 = lines[i].ToMD5Hash();
+                    x1 = h + x1;
+                    h = x1.ToMD5Hash();
+                }
+
+                return h;
+            }
+
+            return null;
         }
 
         public static string ToFileSize(this long byteCount)

@@ -191,6 +191,12 @@ namespace MTConnect.Devices
         [JsonPropertyName("relationships")]
         public List<Relationship> Relationships { get; set; }
 
+        /// <summary>
+        /// A MD5 Hash of the DataItem that can be used to compare DataItem objects
+        /// </summary>
+        [JsonIgnore]
+        public string ChangeId => CreateChangeId();
+
         [JsonIgnore]
         public virtual string TypeDescription => DescriptionText;
 
@@ -215,6 +221,35 @@ namespace MTConnect.Devices
         {
             Filters = new List<Filter>();
             Relationships = new List<Relationship>();
+        }
+
+
+        public string CreateChangeId()
+        {
+            return CreateChangeId(this);
+        }
+
+        public static string CreateChangeId(IDataItem dataItem)
+        {
+            if (dataItem != null)
+            {
+                var ids = new List<string>();
+
+                ids.Add(ObjectExtensions.GetChangeIdPropertyString(dataItem).ToMD5Hash());
+
+                //// Add Component Change Ids
+                //if (!component.Components.IsNullOrEmpty())
+                //{
+                //    foreach (var subcomponent in component.Components)
+                //    {
+                //        ids.Add(subcomponent.ChangeId);
+                //    }
+                //}
+
+                return StringFunctions.ToMD5Hash(ids.ToArray());
+            }
+
+            return null;
         }
 
 

@@ -1,117 +1,70 @@
 ﻿using MTConnect.Observations;
+using MTConnect.Observations.Input;
+using MTConnect.Agents;
 using MTConnect.Streams;
 using MTConnect.Clients.Rest;
+using MTConnect.Observations.Events.Values;
+using MTConnect.Http;
+using MTConnect.Models;
+using MTConnect.Observations.Samples.Values;
+using MTConnect.Models.DataItems;
 
-//var agentUrl = "https://smstestbed.nist.gov/vds/";
-//var agentUrl = "https://smstestbed.nist.gov/vds/GFAgie01";
-var agentUrl = "localhost:5000";
-//var agentUrl = "localhost:5006";
-//var agentUrl = "mtconnect.trakhound.com";
-var client = new MTConnect.Clients.Rest.MTConnectClient(agentUrl);
-client.Interval = 500;
-client.Heartbeat = 10000;
-//client.CurrentOnly = true;
+var agent = new MTConnectAgent();
+var server = new ShdrMTConnectHttpServer(agent);
+server.Start();
 
-client.OnProbeReceived += (s, doc) =>
+var deviceModel = new DeviceModel("OKUMA-Lathe");
+deviceModel.ObservationUpdated += (o, observation) =>
 {
-    Console.WriteLine($"ProbeReceived : {doc.GetDataItems().Count()} DataItems");
+    if (observation != null)
+    {
+        Console.WriteLine($"{observation.DataItemId} => {observation.GetValue(ValueKeys.CDATA)}");
+
+        agent.AddObservation(deviceModel.Name, new ObservationInput(observation));
+    }
 };
 
-client.OnCurrentReceived += ObservationsReceived;
-client.OnSampleReceived += ObservationsReceived;
-client.Start();
+deviceModel.Availability = Availability.AVAILABLE;
+deviceModel.Controller.EmergencyStop = EmergencyStop.TRIGGERED;
 
+var xAxis = deviceModel.Axes.GetXAxis();
+xAxis.MachinePosition = new PositionModel 
+{ 
+    Actual = new PositionValue(12.3456)
+};
+xAxis.Motor.Temperature = new TemperatureValue(35.12);
 
-void ObservationsReceived(object sender, IStreamsResponseDocument document)
+agent.AddDevice(deviceModel);
+
+var observationInputs = new List<IObservationInput>();
+foreach (var observation in deviceModel.GetObservations())
 {
-    Console.WriteLine($"{document.GetObservations().Count()} : ObservationsReceived");
-
-    //if (document.Streams != null)
-    //{
-    //    foreach (var deviceStream in document.Streams)
-    //    {
-    //        Console.WriteLine($"{deviceStream.Name} : {deviceStream.Uuid}");
-    //        Console.WriteLine("----------");
-
-    //        if (deviceStream.ComponentStreams != null)
-    //        {
-    //            foreach (var componentStream in deviceStream.ComponentStreams)
-    //            {
-    //                Console.WriteLine($"{componentStream.ComponentType} : {componentStream.ComponentId} : {componentStream.Name}");
-    //                Console.WriteLine($"{componentStream.Observations.Count()} Observations");
-    //                Console.WriteLine("----------");
-
-    //                //foreach (var observation in componentStream.SampleValues)
-    //                //{
-    //                //    Console.WriteLine($"{observation.Representation} : {observation.DataItemId} = {observation.CDATA} @ {observation.Timestamp.ToString("o")}");
-    //                //}
-
-    //                //foreach (var observation in componentStream.SampleDataSets)
-    //                //{
-    //                //    foreach (var entry in observation.Entries)
-    //                //    {
-    //                //        Console.WriteLine($"{observation.Representation} : {observation.DataItemId} : {entry.Key} = {entry.Value} @ {observation.Timestamp.ToString("o")}");
-    //                //    }
-    //                //}
-
-    //                //foreach (var observation in componentStream.SampleTables)
-    //                //{
-    //                //    foreach (var entry in observation.Entries)
-    //                //    {
-    //                //        foreach (var cell in entry.Cells)
-    //                //        {
-    //                //            Console.WriteLine($"{observation.Representation} : {observation.DataItemId} : {entry.Key} : {cell.Key} = {cell.Value} @ {observation.Timestamp.ToString("o")}");
-    //                //        }
-    //                //    }
-    //                //}
-
-    //                //foreach (var observation in componentStream.SampleTimeSeries)
-    //                //{
-    //                //    foreach (var sample in observation.Samples)
-    //                //    {
-    //                //        Console.WriteLine($"{observation.Representation} : {observation.DataItemId} : {sample} @ {observation.Timestamp.ToString("o")}");
-    //                //    }
-    //                //}
-
-
-    //                //foreach (var observation in componentStream.EventValues)
-    //                //{
-    //                //    Console.WriteLine($"{observation.Representation} : {observation.DataItemId} = {observation.CDATA} @ {observation.Timestamp.ToString("o")}");
-    //                //}
-
-    //                //foreach (var observation in componentStream.EventDataSets)
-    //                //{
-    //                //    foreach (var entry in observation.Entries)
-    //                //    {
-    //                //        Console.WriteLine($"{observation.Representation} : {observation.DataItemId} : {entry.Key} = {entry.Value} @ {observation.Timestamp.ToString("o")}");
-    //                //    }
-    //                //}
-
-    //                //foreach (var observation in componentStream.EventTables)
-    //                //{
-    //                //    foreach (var entry in observation.Entries)
-    //                //    {
-    //                //        foreach (var cell in entry.Cells)
-    //                //        {
-    //                //            Console.WriteLine($"{observation.Representation} : {observation.DataItemId} : {entry.Key} : {cell.Key} = {cell.Value} @ {observation.Timestamp.ToString("o")}");
-    //                //        }
-    //                //    }
-    //                //}
-
-    //                //foreach (var observation in componentStream.Conditions)
-    //                //{
-    //                //    foreach (var value in observation.Values)
-    //                //    {
-    //                //        Console.WriteLine($"{observation.Representation} : {observation.DataItemId} : {value.Key} = {value.Value} @ {observation.Timestamp.ToString("o")}");
-    //                //    }
-    //                //}
-
-    //                Console.WriteLine();
-    //            }
-    //        }
-    //    }
-    //}
+    agent.AddObservation(deviceModel.Name, new ObservationInput(observation));
 }
 
-Console.ReadLine();
+
+var rnd = new Random();
+
+while (true)
+{
+    Console.ReadLine();
+
+    deviceModel.Availability = Availability.AVAILABLE;
+    deviceModel.Controller.EmergencyStop = EmergencyStop.ARMED;
+
+    xAxis.MachinePosition = new PositionModel
+    {
+        Actual = new PositionValue(98.7654)
+    };
+    xAxis.Motor.Temperature = new TemperatureValue(rnd.NextDouble());
+
+    var path1 = "path1";
+    deviceModel.Controller.GetPath(path1).Execution = Execution.ACTIVE;
+
+    var mainProgram = deviceModel.Controller.GetPath(path1).MainProgram;
+    mainProgram.Program = "Testing.NC";
+    deviceModel.Controller.GetPath(path1).MainProgram = mainProgram;
+
+    agent.AddDevice(deviceModel);
+}
 

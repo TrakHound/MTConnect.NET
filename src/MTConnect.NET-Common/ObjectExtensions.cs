@@ -4,6 +4,7 @@
 // file 'LICENSE.txt', which is part of this source code package.
 
 using System;
+using System.Reflection;
 
 namespace MTConnect
 {
@@ -119,5 +120,53 @@ namespace MTConnect
 
         //    return default;
         //}
+
+        public static string[] GetChangeIdPropertyList(object obj)
+        {
+            if (obj != null)
+            {
+                var properties = obj.GetType().GetProperties();
+                if (properties != null && properties.Length > 0)
+                {
+                    var items = new string[properties.Length];
+
+                    for (int i = 0; i < properties.Length; i++)
+                    {
+                        var name = properties[i].Name;
+
+                        if (name != "ChangeId" && properties[i].MemberType == MemberTypes.Property)
+                        {
+                            var type = properties[i].PropertyType;
+                            if (type.IsValueType || type == typeof(string) || type == typeof(DateTime))
+                            {
+                                var value = properties[i].GetValue(obj);
+
+                                items[i] = $"{name}:{value}";
+                            }
+                        }
+                    }
+
+                    return items;
+                }
+            }
+
+            return null;
+        }
+
+        public static string GetChangeIdPropertyString(object obj)
+        {
+            var s = "";
+
+            var items = GetChangeIdPropertyList(obj);
+            if (!items.IsNullOrEmpty())
+            {
+                foreach (var item in items)
+                {
+                    if (item != null) s += item + "|";
+                }
+            }
+
+            return s.TrimEnd('|');
+        }
     }
 }
