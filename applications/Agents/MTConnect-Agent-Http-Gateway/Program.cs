@@ -39,7 +39,7 @@ namespace MTConnect.Applications
         private static LogLevel _logLevel = LogLevel.Info;
         private static MTConnectAgent _agent;
         private static MTConnectHttpServer _server;
-        private static ConfigurationFileWatcher<MTConnectAgentGatewayConfiguration> _configurationWatcher;
+        private static AgentConfigurationFileWatcher<MTConnectAgentGatewayConfiguration> _configurationWatcher;
         private static System.Timers.Timer _metricsTimer;
         private static bool _started = false;
         private static int _port = 0;
@@ -237,7 +237,7 @@ namespace MTConnect.Applications
 
                 // Set the Configuration File Watcher
                 if (_configurationWatcher != null) _configurationWatcher.Dispose();
-                _configurationWatcher = new ConfigurationFileWatcher<MTConnectAgentGatewayConfiguration>(configuration.Path);
+                _configurationWatcher = new AgentConfigurationFileWatcher<MTConnectAgentGatewayConfiguration>(configuration.Path);
                 _configurationWatcher.ConfigurationUpdated += ConfigurationFileUpdated;
                 _configurationWatcher.ErrorReceived += ConfigurationFileError;
 

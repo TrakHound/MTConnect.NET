@@ -36,11 +36,12 @@ namespace MTConnect.Applications
         private static readonly Logger _adapterShdrLogger = LogManager.GetLogger("adapter-shdr-logger");
 
         private static readonly List<ShdrAdapterClient> _adapters = new List<ShdrAdapterClient>();
+        private static readonly List<DeviceConfigurationFileWatcher> _deviceConfigurationWatchers = new List<DeviceConfigurationFileWatcher>();
 
         private static LogLevel _logLevel = LogLevel.Info;
         private static MTConnectAgent _agent;
         private static MTConnectHttpServer _server;
-        private static ConfigurationFileWatcher<MTConnectAgentConfiguration> _configurationWatcher;
+        private static AgentConfigurationFileWatcher<MTConnectAgentConfiguration> _agentConfigurationWatcher;
         private static System.Timers.Timer _metricsTimer;
         private static bool _started = false;
         private static int _port = 0;
@@ -165,6 +166,9 @@ namespace MTConnect.Applications
         {
             if (!_started && configuration != null)
             {
+                _adapters.Clear();
+                _deviceConfigurationWatchers.Clear();
+
                 // Create MTConnectAgent
                 _agent = new MTConnectAgent(configuration);
 
@@ -182,7 +186,7 @@ namespace MTConnect.Applications
                 }
 
                 // Add Devices
-                var devices = Device.FromFile(configuration.Devices, DocumentFormat.XML);
+                var devices = DeviceConfiguration.FromFile(configuration.Devices, DocumentFormat.XML);
                 if (!devices.IsNullOrEmpty())
                 {
                     // Add Device(s) to Agent
@@ -226,6 +230,17 @@ namespace MTConnect.Applications
                             }
                         }
                     }
+
+                    // Set Device Configuration File Watcher
+                    var paths = devices.Select(o => o.Path).Distinct();
+                    foreach (var path in paths)
+                    {
+                        // Create a Device Configuration File Watcher
+                        var deviceConfigurationWatcher = new DeviceConfigurationFileWatcher(path);
+                        deviceConfigurationWatcher.ConfigurationUpdated += DeviceConfigurationFileUpdated;
+                        deviceConfigurationWatcher.ErrorReceived += DeviceConfigurationFileError;
+                        _deviceConfigurationWatchers.Add(deviceConfigurationWatcher);
+                    }
                 }
                 else
                 {
@@ -254,11 +269,11 @@ namespace MTConnect.Applications
                 _server.Start();
 
 
-                // Set the Configuration File Watcher
-                if (_configurationWatcher != null) _configurationWatcher.Dispose();
-                _configurationWatcher = new ConfigurationFileWatcher<MTConnectAgentConfiguration>(configuration.Path);
-                _configurationWatcher.ConfigurationUpdated += ConfigurationFileUpdated;
-                _configurationWatcher.ErrorReceived += ConfigurationFileError;
+                // Set the Agent Configuration File Watcher
+                if (_agentConfigurationWatcher != null) _agentConfigurationWatcher.Dispose();
+                _agentConfigurationWatcher = new AgentConfigurationFileWatcher<MTConnectAgentConfiguration>(configuration.Path);
+                _agentConfigurationWatcher.ConfigurationUpdated += AgentConfigurationFileUpdated;
+                _agentConfigurationWatcher.ErrorReceived += AgentConfigurationFileError;
 
                 _started = true;
             }
@@ -274,9 +289,15 @@ namespace MTConnect.Applications
                     foreach (var adapter in _adapters) adapter.Stop();
                 }
 
+                // Stop Device Configuration FileWatchers
+                if (!_deviceConfigurationWatchers.IsNullOrEmpty())
+                {
+                    foreach (var deviceConfigurationFileWatcher in _deviceConfigurationWatchers) deviceConfigurationFileWatcher.Dispose();
+                }
+
                 if (_server != null) _server.Stop();
                 if (_agent != null) _agent.Dispose();
-                if (_configurationWatcher != null) _configurationWatcher.Dispose();
+                if (_agentConfigurationWatcher != null) _agentConfigurationWatcher.Dispose();
                 if (_metricsTimer != null) _metricsTimer.Dispose();
 
                 System.Threading.Thread.Sleep(2000); // Delay 2 seconds to allow Http Server to stop
@@ -286,22 +307,42 @@ namespace MTConnect.Applications
         }
 
 
-        #region "Configuration"
+        #region "Agent Configuration"
 
-        private static void ConfigurationFileUpdated(object sender, MTConnectAgentConfiguration configuration)
+        private static void AgentConfigurationFileUpdated(object sender, MTConnectAgentConfiguration configuration)
         {
             if (configuration != null)
             {
-                _applicationLogger.Info("[Application] : Configuration File Updated");
+                _applicationLogger.Info($"[Application] : Agent Configuration File Updated ({configuration.Path})");
 
                 StopAgent();
                 StartAgent(configuration, _verboseLogging, _port);
             }
         }
 
-        private static void ConfigurationFileError(object sender, string message)
+        private static void AgentConfigurationFileError(object sender, string message)
         {
-            _applicationLogger.Error($"[Application] : Configuration File Error : {message}");
+            _applicationLogger.Error($"[Application] : Agent Configuration File Error : {message}");
+        }
+
+        #endregion
+
+        #region "Device Configuration"
+
+        private static void DeviceConfigurationFileUpdated(object sender, DeviceConfiguration configuration)
+        {
+            if (configuration != null)
+            {
+                _applicationLogger.Info($"[Application] : Device Configuration File Updated ({configuration.Path})");
+
+                // Add Device to MTConnect Agent
+                _agent.AddDevice(configuration);
+            }
+        }
+
+        private static void DeviceConfigurationFileError(object sender, string message)
+        {
+            _applicationLogger.Error($"[Application] : Device Configuration File Error : {message}");
         }
 
         #endregion
