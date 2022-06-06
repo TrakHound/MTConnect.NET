@@ -235,8 +235,8 @@ namespace MTConnect.Agents.Configuration
             DefaultVersion = MTConnectVersions.Max;
             ConversionRequired = true;
             UpcaseDataItemValue = true;
-            MonitorConfigFiles = false;
-            MinimumConfigReloadAge = 15;
+            MonitorConfigFiles = true;
+            MinimumConfigReloadAge = 2;
             Pretty = true;
             ShdrVersion = "1";
             SuppressIpAddress = false;

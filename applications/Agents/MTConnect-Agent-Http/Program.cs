@@ -231,15 +231,18 @@ namespace MTConnect.Applications
                         }
                     }
 
-                    // Set Device Configuration File Watcher
-                    var paths = devices.Select(o => o.Path).Distinct();
-                    foreach (var path in paths)
+                    if (configuration.MonitorConfigFiles)
                     {
-                        // Create a Device Configuration File Watcher
-                        var deviceConfigurationWatcher = new DeviceConfigurationFileWatcher(path);
-                        deviceConfigurationWatcher.ConfigurationUpdated += DeviceConfigurationFileUpdated;
-                        deviceConfigurationWatcher.ErrorReceived += DeviceConfigurationFileError;
-                        _deviceConfigurationWatchers.Add(deviceConfigurationWatcher);
+                        // Set Device Configuration File Watcher
+                        var paths = devices.Select(o => o.Path).Distinct();
+                        foreach (var path in paths)
+                        {
+                            // Create a Device Configuration File Watcher
+                            var deviceConfigurationWatcher = new DeviceConfigurationFileWatcher(path, configuration.MinimumConfigReloadAge * 1000);
+                            deviceConfigurationWatcher.ConfigurationUpdated += DeviceConfigurationFileUpdated;
+                            deviceConfigurationWatcher.ErrorReceived += DeviceConfigurationFileError;
+                            _deviceConfigurationWatchers.Add(deviceConfigurationWatcher);
+                        }
                     }
                 }
                 else
@@ -269,11 +272,14 @@ namespace MTConnect.Applications
                 _server.Start();
 
 
-                // Set the Agent Configuration File Watcher
-                if (_agentConfigurationWatcher != null) _agentConfigurationWatcher.Dispose();
-                _agentConfigurationWatcher = new AgentConfigurationFileWatcher<MTConnectAgentConfiguration>(configuration.Path);
-                _agentConfigurationWatcher.ConfigurationUpdated += AgentConfigurationFileUpdated;
-                _agentConfigurationWatcher.ErrorReceived += AgentConfigurationFileError;
+                if (configuration.MonitorConfigFiles)
+                {
+                    // Set the Agent Configuration File Watcher
+                    if (_agentConfigurationWatcher != null) _agentConfigurationWatcher.Dispose();
+                    _agentConfigurationWatcher = new AgentConfigurationFileWatcher<MTConnectAgentConfiguration>(configuration.Path, configuration.MinimumConfigReloadAge * 1000);
+                    _agentConfigurationWatcher.ConfigurationUpdated += AgentConfigurationFileUpdated;
+                    _agentConfigurationWatcher.ErrorReceived += AgentConfigurationFileError;
+                }
 
                 _started = true;
             }
