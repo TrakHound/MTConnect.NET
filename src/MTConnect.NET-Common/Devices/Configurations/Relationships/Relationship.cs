@@ -3,6 +3,7 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE', which is part of this source code package.
 
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace MTConnect.Devices.Configurations.Relationships
@@ -36,5 +37,27 @@ namespace MTConnect.Devices.Configurations.Relationships
         /// </summary>
         [JsonPropertyName("idRef")]
         public string IdRef { get; set; }
+
+        /// <summary>
+        /// A MD5 Hash of the Relationship that can be used to compare Relationship objects
+        /// </summary>
+        [JsonIgnore]
+        public string ChangeId => CreateChangeId();
+
+
+        public string CreateChangeId()
+        {
+            return CreateChangeId(this);
+        }
+
+        public static string CreateChangeId(IRelationship relationship)
+        {
+            if (relationship != null)
+            {
+                return ObjectExtensions.GetChangeIdPropertyString(relationship).ToMD5Hash();
+            }
+
+            return null;
+        }
     }
 }

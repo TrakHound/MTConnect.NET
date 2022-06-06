@@ -30,5 +30,10 @@ namespace MTConnect.Devices.Configurations.Relationships
         /// A reference to the associated component element.
         /// </summary>
         string IdRef { get; }
+
+        /// <summary>
+        /// A MD5 Hash of the Relationship that can be used to compare Relationship objects
+        /// </summary>
+        string ChangeId { get; }
     }
 }
