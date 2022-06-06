@@ -37,13 +37,13 @@ namespace MTConnect.Formatters
             // Read OutputComments Option passed to Formatter
             var outputComments = GetFormatterOption<bool>(options, "outputComments");
 
-            var xml = XmlDevicesResponseDocument.ToXml(document, schema, null, stylesheet, indentOutput, outputComments);
+            var xml = XmlDevicesResponseDocument.ToXml(document, null, stylesheet, indentOutput, outputComments);
             if (!string.IsNullOrEmpty(xml))
             {
                 var validationResponse = XmlValidator.Validate(xml, schema);
                 if (validationResponse.Success)
                 {
-                    return new FormattedDocumentResult(xml, ContentType);
+                    return FormattedDocumentResult.Successful(xml, ContentType, "XML Validation Successful");
                 }
                 else
                 {

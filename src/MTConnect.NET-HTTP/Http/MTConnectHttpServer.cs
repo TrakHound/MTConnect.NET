@@ -36,6 +36,7 @@ namespace MTConnect.Http
         private static readonly Dictionary<string, string> _devicesSchemas = new Dictionary<string, string>();
         private static readonly Dictionary<string, string> _streamsSchemas = new Dictionary<string, string>();
         private static readonly Dictionary<string, string> _assetsSchemas = new Dictionary<string, string>();
+        //private static List<FileSystemWatcher> _schemaWatchers = new List<FileSystemWatcher>();
 
         private CancellationTokenSource _stop;
         private CancellationTokenSource _stopped;

@@ -3,6 +3,7 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE', which is part of this source code package.
 
+using System;
 using MTConnect.Writers;
 using System.Collections.Generic;
 using System.IO;
@@ -13,38 +14,8 @@ using System.Xml.Schema;
 
 namespace MTConnect
 {
-    public class XmlValidator
+    public static class XmlValidator
     {
-        private string _xml;
-        private string _schema;
-
-
-        public XmlValidator(string xml, string schema = null)
-        {
-            _xml = xml;
-            _schema = schema;
-        }
-
-        private static IEnumerable<XmlSchema> ReadSchemas(string schemaXml)
-        {
-            var schemas = new List<XmlSchema>();
-
-            if (!string.IsNullOrEmpty(schemaXml))
-            {
-                try
-                {
-                    using (var reader = new StringReader(schemaXml))
-                    {
-                        var schema = XmlSchema.Read(reader, null);
-                        if (schema != null) schemas.Add(schema);
-                    }
-                }
-                catch { }
-            }
-
-            return schemas;
-        }
-
         public static XmlValidationResponse Validate(string documentXml, string schemaXml = null)
         {
             var success = false;
@@ -53,7 +24,26 @@ namespace MTConnect
             try
             {
                 // Get list of XmlSchemas
-                var schemas = ReadSchemas(schemaXml);
+                var schemas = new List<XmlSchema>();
+                if (!string.IsNullOrEmpty(schemaXml))
+                {
+                    try
+                    {
+                        using (var reader = new StringReader(schemaXml))
+                        {
+                            var schema = XmlSchema.Read(reader, null);
+                            if (schema != null) schemas.Add(schema);
+                        }
+                    }
+                    catch (XmlSchemaException ex)
+                    {
+                        errors.Add($"(XML Validation Error) : Error Reading XSD Schema : {ex.SourceUri} Line {ex.LineNumber}, {ex.LinePosition} : {ex.Message}");
+                    }
+                    catch (Exception ex)
+                    {
+                        errors.Add($"(XML Validation Error) : Error Reading XSD Schema : {ex.Message}");
+                    }
+                }
 
                 // Set XML Reader Settings
                 var readerSettings = new XmlReaderSettings();
@@ -63,7 +53,6 @@ namespace MTConnect
                 //readerSettings.ValidationFlags = XmlSchemaValidationFlags.None;
                 readerSettings.ValidationEventHandler += (s, e) =>
                 {
-                    System.Console.WriteLine(e.Message);
                     errors.Add($"(XML Validation {e.Severity}) : {e.Exception.Source} Line {e.Exception.LineNumber}, {e.Exception.LinePosition} : {e.Message}");
                 };
 
@@ -77,7 +66,14 @@ namespace MTConnect
                     success = errors.IsNullOrEmpty();
                 }
             }
-            catch { }
+            catch (XmlSchemaException ex)
+            {
+                errors.Add($"(XML Validation Error) : Error Adding XSD Schema : {ex.SourceUri} Line {ex.LineNumber}, {ex.LinePosition} : {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                errors.Add($"(XML Validation Error) : Error During Validation : {ex.Message}");
+            }
 
             return new XmlValidationResponse(success, errors);
         }

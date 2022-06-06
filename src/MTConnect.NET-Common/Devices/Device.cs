@@ -194,17 +194,6 @@ namespace MTConnect.Devices
                 }
 
                 return StringFunctions.ToMD5Hash(ids.ToArray());
-
-
-                //try
-                //{
-                //    var json = JsonSerializer.Serialize(device);
-                //    if (!string.IsNullOrEmpty(json))
-                //    {
-                //        return json.ToMD5Hash();
-                //    }
-                //}
-                //catch { }
             }
 
             return null;
@@ -215,24 +204,6 @@ namespace MTConnect.Devices
             var s = ObjectExtensions.GetChangeIdPropertyString(device);
             return s.ToMD5Hash();
         }
-
-        //public static string CreateChangeId(IDevice device)
-        //{
-        //    if (device != null)
-        //    {
-        //        try
-        //        {
-        //            var json = JsonSerializer.Serialize(device);
-        //            if (!string.IsNullOrEmpty(json))
-        //            {
-        //                return json.ToMD5Hash();
-        //            }
-        //        }
-        //        catch { }
-        //    }
-
-        //    return null;
-        //}
 
 
         /// <summary>

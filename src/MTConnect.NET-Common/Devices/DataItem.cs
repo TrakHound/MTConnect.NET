@@ -234,17 +234,16 @@ namespace MTConnect.Devices
             if (dataItem != null)
             {
                 var ids = new List<string>();
-
                 ids.Add(ObjectExtensions.GetChangeIdPropertyString(dataItem).ToMD5Hash());
 
-                //// Add Component Change Ids
-                //if (!component.Components.IsNullOrEmpty())
-                //{
-                //    foreach (var subcomponent in component.Components)
-                //    {
-                //        ids.Add(subcomponent.ChangeId);
-                //    }
-                //}
+                // Add Relationship Change ID's
+                if (!dataItem.Relationships.IsNullOrEmpty())
+                {
+                    foreach (var relationship in dataItem.Relationships)
+                    {
+                        ids.Add(relationship.ChangeId);
+                    }
+                }
 
                 return StringFunctions.ToMD5Hash(ids.ToArray());
             }

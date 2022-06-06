@@ -42,22 +42,22 @@ namespace MTConnect.Http
             {
                 // Return MTConnectDevices Response Document
                 var response = new MTConnectHttpResponse(document, documentFormat.ToString(), stpw.ElapsedMilliseconds, formatOptions);
-                if (response.Success)
-                {
-                    return response;
-                }
-                else
+                if (!response.Success)
                 {
                     var errors = new List<Error>();
-                    if (!response.Errors.IsNullOrEmpty())
+                    if (!response.FormatErrors.IsNullOrEmpty())
                     {
-                        foreach (var error in response.Errors) errors.Add(new Error(ErrorCode.INTERNAL_ERROR, error));
+                        foreach (var error in response.FormatErrors) errors.Add(new Error(ErrorCode.INTERNAL_ERROR, error));
                     }
 
                     // Return MTConnectError Response Document
                     var error500Document = await mtconnectAgent.GetErrorAsync(errors);
-                    return new MTConnectHttpResponse(error500Document, 500, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
+                    var errorResponse = new MTConnectHttpResponse(error500Document, 500, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
+                    errorResponse.FormatErrors = response.FormatErrors;
+                    return errorResponse;
                 }
+
+                return response;
             }
             else
             {
@@ -95,22 +95,22 @@ namespace MTConnect.Http
                 {
                     // Return MTConnectDevices Response Document
                     var response = new MTConnectHttpResponse(document, documentFormat.ToString(), stpw.ElapsedMilliseconds, formatOptions);
-                    if (response.Success)
-                    {
-                        return response;
-                    }
-                    else
+                    if (!response.Success)
                     {
                         var errors = new List<Error>();
-                        if (!response.Errors.IsNullOrEmpty())
+                        if (!response.FormatErrors.IsNullOrEmpty())
                         {
-                            foreach (var error in response.Errors) errors.Add(new Error(ErrorCode.INTERNAL_ERROR, error));
+                            foreach (var error in response.FormatErrors) errors.Add(new Error(ErrorCode.INTERNAL_ERROR, error));
                         }
 
                         // Return MTConnectError Response Document
                         var error500Document = await mtconnectAgent.GetErrorAsync(errors);
-                        return new MTConnectHttpResponse(error500Document, 500, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
+                        var errorResponse = new MTConnectHttpResponse(error500Document, 500, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
+                        errorResponse.FormatErrors = response.FormatErrors;
+                        return errorResponse;
                     }
+
+                    return response;
                 }
                 else
                 {

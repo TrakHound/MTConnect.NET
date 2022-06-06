@@ -3,12 +3,11 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
-using MTConnect.Agents;
 using MTConnect.Assets;
 using MTConnect.Devices;
 using MTConnect.Errors;
-using MTConnect.Streams;
 using MTConnect.Formatters;
+using MTConnect.Streams;
 using System.Collections.Generic;
 
 namespace MTConnect.Http
@@ -23,7 +22,9 @@ namespace MTConnect.Http
 
         public int StatusCode { get; set; }
 
-        public IEnumerable<string> Errors { get; set; }
+        public IEnumerable<string> FormatMessages { get; set; }
+
+        public IEnumerable<string> FormatErrors { get; set; }
 
         public long FormatDuration { get; set; }
 
@@ -36,7 +37,8 @@ namespace MTConnect.Http
             Content = null;
             ContentType = null;
             StatusCode = 500;
-            Errors = null;
+            FormatMessages = null;
+            FormatErrors = null;
             FormatDuration = 0;
             ResponseDuration = responseDuration;
 
@@ -48,7 +50,8 @@ namespace MTConnect.Http
                 FormatDuration = result.ResponseDuration;
                 Success = result.Success;
                 StatusCode = result.Success ? 200 : 500;
-                Errors = result.Errors;
+                FormatMessages = result.Messages;
+                FormatErrors = result.Errors;
             }
         }
 
@@ -58,7 +61,8 @@ namespace MTConnect.Http
             Content = null;
             ContentType = null;
             StatusCode = 500;
-            Errors = null;
+            FormatMessages = null;
+            FormatErrors = null;
             FormatDuration = 0;
             ResponseDuration = responseDuration;
 
@@ -70,6 +74,8 @@ namespace MTConnect.Http
                 FormatDuration = result.ResponseDuration;
                 Success = result.Success;
                 StatusCode = result.Success ? 200 : 500;
+                FormatMessages = result.Messages;
+                FormatErrors = result.Errors;
             }
         }
 
@@ -79,7 +85,8 @@ namespace MTConnect.Http
             Content = null;
             ContentType = null;
             StatusCode = 500;
-            Errors = null;
+            FormatMessages = null;
+            FormatErrors = null;
             FormatDuration = 0;
             ResponseDuration = responseDuration;
 
@@ -91,6 +98,8 @@ namespace MTConnect.Http
                 FormatDuration = result.ResponseDuration;
                 Success = result.Success;
                 StatusCode = result.Success ? 200 : 500;
+                FormatMessages = result.Messages;
+                FormatErrors = result.Errors;
             }
         }
 
@@ -100,7 +109,8 @@ namespace MTConnect.Http
             Content = null;
             ContentType = null;
             StatusCode = statusCode;
-            Errors = null;
+            FormatMessages = null;
+            FormatErrors = null;
             FormatDuration = 0;
             ResponseDuration = responseDuration;
 
@@ -112,6 +122,8 @@ namespace MTConnect.Http
                 FormatDuration = result.ResponseDuration;
                 Success = result.Success;
                 StatusCode = result.Success ? 200 : 500;
+                FormatMessages = result.Messages;
+                FormatErrors = result.Errors;
             }
         }
     }
