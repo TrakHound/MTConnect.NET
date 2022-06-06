@@ -10,10 +10,10 @@ using System.Text.Json;
 namespace MTConnect.Agents.Configuration
 {
     /// <summary>
-    /// Configuration File Watcher that notifies when the specified <typeparamref name="TConfiguration"/> is updated
+    /// Agent Configuration File Watcher that notifies when the specified <typeparamref name="TConfiguration"/> is updated
     /// </summary>
     /// <typeparam name="TConfiguration">The type of MTConnectAgentConfiguration file to read</typeparam>
-    public class ConfigurationFileWatcher<TConfiguration> : IDisposable where TConfiguration : MTConnectAgentConfiguration
+    public class AgentConfigurationFileWatcher<TConfiguration> : IDisposable where TConfiguration : MTConnectAgentConfiguration
     {
         private const int DefaultInterval = 2000;
 
@@ -29,7 +29,7 @@ namespace MTConnect.Agents.Configuration
         public EventHandler<string> ErrorReceived { get; set; }
 
 
-        public ConfigurationFileWatcher(string path, int interval = DefaultInterval)
+        public AgentConfigurationFileWatcher(string path, int interval = DefaultInterval)
         {
             _path = path;
             _interval = interval;
