@@ -32,6 +32,10 @@ namespace MTConnect.Http
         private readonly IMTConnectAgent _mtconnectAgent;
         private readonly MTConnectAgentConfiguration _configuration;
         private readonly List<string> _prefixes = new List<string>();
+        private static readonly object _lock = new object();
+        private static readonly Dictionary<string, string> _devicesSchemas = new Dictionary<string, string>();
+        private static readonly Dictionary<string, string> _streamsSchemas = new Dictionary<string, string>();
+        private static readonly Dictionary<string, string> _assetsSchemas = new Dictionary<string, string>();
 
         private CancellationTokenSource _stop;
         private CancellationTokenSource _stopped;
@@ -445,6 +449,7 @@ namespace MTConnect.Http
                 // Read MTConnectVersion from Query string
                 var versionString = httpRequest.QueryString["version"];
                 Version.TryParse(versionString, out var version);
+                if (version == null) version = _mtconnectAgent.Version;
 
                 // Read DocumentFormat from Query string
                 var documentFormatString = httpRequest.QueryString["documentFormat"];
@@ -455,7 +460,7 @@ namespace MTConnect.Http
                 }
 
                 // Set Format Options
-                var formatOptions = CreateFormatOptions(documentFormat);
+                var formatOptions = CreateFormatOptions(MTConnectRequestType.Probe, documentFormat, version);
 
                 // Read IndentOutput from Query string
                 var indentOutputString = httpRequest.QueryString["indentOutput"];
@@ -510,6 +515,7 @@ namespace MTConnect.Http
                 // Read MTConnectVersion from Query string
                 var versionString = httpRequest.QueryString["version"];
                 Version.TryParse(versionString, out var version);
+                if (version == null) version = _mtconnectAgent.Version;
 
                 // Read DocumentFormat from Query string
                 var documentFormatString = httpRequest.QueryString["documentFormat"];
@@ -520,7 +526,7 @@ namespace MTConnect.Http
                 }
 
                 // Set Format Options
-                var formatOptions = CreateFormatOptions(documentFormat);
+                var formatOptions = CreateFormatOptions(MTConnectRequestType.Current, documentFormat, version);
 
                 // Read IndentOutput from Query string
                 var indentOutputString = httpRequest.QueryString["indentOutput"];
@@ -618,6 +624,7 @@ namespace MTConnect.Http
                 // Read MTConnectVersion from Query string
                 var versionString = httpRequest.QueryString["version"];
                 Version.TryParse(versionString, out var version);
+                if (version == null) version = _mtconnectAgent.Version;
 
                 // Read DocumentFormat from Query string
                 var documentFormatString = httpRequest.QueryString["documentFormat"];
@@ -628,7 +635,7 @@ namespace MTConnect.Http
                 }
 
                 // Set Format Options
-                var formatOptions = CreateFormatOptions(documentFormat);
+                var formatOptions = CreateFormatOptions(MTConnectRequestType.Sample, documentFormat, version);
 
                 // Read IndentOutput from Query string
                 var indentOutputString = httpRequest.QueryString["indentOutput"];
@@ -711,6 +718,7 @@ namespace MTConnect.Http
                 // Read MTConnectVersion from Query string
                 var versionString = httpRequest.QueryString["version"];
                 Version.TryParse(versionString, out var version);
+                if (version == null) version = _mtconnectAgent.Version;
 
                 // Read DocumentFormat from Query string
                 var documentFormatString = httpRequest.QueryString["documentFormat"];
@@ -721,7 +729,7 @@ namespace MTConnect.Http
                 }
 
                 // Set Format Options
-                var formatOptions = CreateFormatOptions(documentFormat);
+                var formatOptions = CreateFormatOptions(MTConnectRequestType.Assets, documentFormat, version);
 
                 // Read IndentOutput from Query string
                 var indentOutputString = httpRequest.QueryString["indentOutput"];
@@ -760,6 +768,7 @@ namespace MTConnect.Http
                 // Read MTConnectVersion from Query string
                 var versionString = httpRequest.QueryString["version"];
                 Version.TryParse(versionString, out var version);
+                if (version == null) version = _mtconnectAgent.Version;
 
                 // Read DocumentFormat from Query string
                 var documentFormatString = httpRequest.QueryString["documentFormat"];
@@ -770,7 +779,7 @@ namespace MTConnect.Http
                 }
 
                 // Set Format Options
-                var formatOptions = CreateFormatOptions(documentFormat);
+                var formatOptions = CreateFormatOptions(MTConnectRequestType.Asset, documentFormat, version);
 
                 // Read IndentOutput from Query string
                 var indentOutputString = httpRequest.QueryString["indentOutput"];
@@ -976,7 +985,104 @@ namespace MTConnect.Http
         }
 
 
-        private List<KeyValuePair<string, string>> CreateFormatOptions(string documentFormat)
+        private string ReadDevicesSchema(Version mtconnectVersion)
+        {
+            if (mtconnectVersion != null)
+            {
+                var versionKey = mtconnectVersion.ToString();
+                string schema = null;
+                lock (_lock) if (_devicesSchemas.TryGetValue(versionKey, out var x)) schema = x;
+
+                if (string.IsNullOrEmpty(schema))
+                {
+                    var dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "schemas");
+                    var filename = $"MTConnectDevices_{mtconnectVersion.Major}.{mtconnectVersion.Minor}.xsd";
+                    if (mtconnectVersion >= MTConnectVersions.Version20) filename = $"MTConnectDevices_{mtconnectVersion.Major}.{mtconnectVersion.Minor}.{mtconnectVersion.Build}.xsd";
+                    var path = Path.Combine(dir, filename);
+
+                    try
+                    {
+                        schema = File.ReadAllText(path);
+                        if (!string.IsNullOrEmpty(schema))
+                        {
+                            lock (_lock) _devicesSchemas.Add(versionKey, schema);
+                        }
+                    }
+                    catch { }
+                }
+
+                return schema;
+            }
+
+            return null;
+        }
+
+        private string ReadStreamsSchema(Version mtconnectVersion)
+        {
+            if (mtconnectVersion != null)
+            {
+                var versionKey = mtconnectVersion.ToString();
+                string schema = null;
+                lock (_lock) if (_streamsSchemas.TryGetValue(versionKey, out var x)) schema = x;
+
+                if (string.IsNullOrEmpty(schema))
+                {
+                    var dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "schemas");
+                    var filename = $"MTConnectStreams_{mtconnectVersion.Major}.{mtconnectVersion.Minor}.xsd";
+                    if (mtconnectVersion >= MTConnectVersions.Version20) filename = $"MTConnectStreams_{mtconnectVersion.Major}.{mtconnectVersion.Minor}.{mtconnectVersion.Build}.xsd";
+                    var path = Path.Combine(dir, filename);
+
+                    try
+                    {
+                        schema = File.ReadAllText(path);
+                        if (!string.IsNullOrEmpty(schema))
+                        {
+                            lock (_lock) _streamsSchemas.Add(versionKey, schema);
+                        }
+                    }
+                    catch { }
+                }
+
+                return schema;
+            }
+
+            return null;
+        }
+
+        private string ReadAssetsSchema(Version mtconnectVersion)
+        {
+            if (mtconnectVersion != null)
+            {
+                var versionKey = mtconnectVersion.ToString();
+                string schema = null;
+                lock (_lock) if (_assetsSchemas.TryGetValue(versionKey, out var x)) schema = x;
+
+                if (string.IsNullOrEmpty(schema))
+                {
+                    var dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "schemas");
+                    var filename = $"MTConnectAssets_{mtconnectVersion.Major}.{mtconnectVersion.Minor}.xsd";
+                    if (mtconnectVersion >= MTConnectVersions.Version20) filename = $"MTConnectAssets_{mtconnectVersion.Major}.{mtconnectVersion.Minor}.{mtconnectVersion.Build}.xsd";
+                    var path = Path.Combine(dir, filename);
+
+                    try
+                    {
+                        schema = File.ReadAllText(path);
+                        if (!string.IsNullOrEmpty(schema))
+                        {
+                            lock (_lock) _assetsSchemas.Add(versionKey, schema);
+                        }
+                    }
+                    catch { }
+                }
+
+                return schema;
+            }
+
+            return null;
+        }
+
+
+        private List<KeyValuePair<string, string>> CreateFormatOptions(string requestType, string documentFormat, Version mtconnectVersion)
         {
             var x = new List<KeyValuePair<string, string>>();
 
@@ -986,6 +1092,19 @@ namespace MTConnect.Http
 
                     if (_configuration != null)
                     {
+                        // Add Devices Schema
+                        //if (_configuration != null)
+                        //{
+                        switch (requestType)
+                        {
+                            case MTConnectRequestType.Probe: x.Add(new KeyValuePair<string, string>("schema", ReadDevicesSchema(mtconnectVersion))); break;
+                            case MTConnectRequestType.Current: x.Add(new KeyValuePair<string, string>("schema", ReadStreamsSchema(mtconnectVersion))); break;
+                            case MTConnectRequestType.Sample: x.Add(new KeyValuePair<string, string>("schema", ReadStreamsSchema(mtconnectVersion))); break;
+                            case MTConnectRequestType.Asset: x.Add(new KeyValuePair<string, string>("schema", ReadAssetsSchema(mtconnectVersion))); break;
+                            case MTConnectRequestType.Assets: x.Add(new KeyValuePair<string, string>("schema", ReadAssetsSchema(mtconnectVersion))); break;
+                        }                   
+                        //}
+
                         // Add Devices Stylesheet
                         if (_configuration.DevicesStyle != null)
                         {

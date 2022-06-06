@@ -41,7 +41,23 @@ namespace MTConnect.Http
             if (document != null)
             {
                 // Return MTConnectDevices Response Document
-                return new MTConnectHttpResponse(document, documentFormat.ToString(), stpw.ElapsedMilliseconds, formatOptions);
+                var response = new MTConnectHttpResponse(document, documentFormat.ToString(), stpw.ElapsedMilliseconds, formatOptions);
+                if (response.Success)
+                {
+                    return response;
+                }
+                else
+                {
+                    var errors = new List<Error>();
+                    if (!response.Errors.IsNullOrEmpty())
+                    {
+                        foreach (var error in response.Errors) errors.Add(new Error(ErrorCode.INTERNAL_ERROR, error));
+                    }
+
+                    // Return MTConnectError Response Document
+                    var error500Document = await mtconnectAgent.GetErrorAsync(errors);
+                    return new MTConnectHttpResponse(error500Document, 500, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
+                }
             }
             else
             {
@@ -78,7 +94,23 @@ namespace MTConnect.Http
                 if (document != null)
                 {
                     // Return MTConnectDevices Response Document
-                    return new MTConnectHttpResponse(document, documentFormat.ToString(), stpw.ElapsedMilliseconds, formatOptions);
+                    var response = new MTConnectHttpResponse(document, documentFormat.ToString(), stpw.ElapsedMilliseconds, formatOptions);
+                    if (response.Success)
+                    {
+                        return response;
+                    }
+                    else
+                    {
+                        var errors = new List<Error>();
+                        if (!response.Errors.IsNullOrEmpty())
+                        {
+                            foreach (var error in response.Errors) errors.Add(new Error(ErrorCode.INTERNAL_ERROR, error));
+                        }
+
+                        // Return MTConnectError Response Document
+                        var error500Document = await mtconnectAgent.GetErrorAsync(errors);
+                        return new MTConnectHttpResponse(error500Document, 500, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
+                    }
                 }
                 else
                 {

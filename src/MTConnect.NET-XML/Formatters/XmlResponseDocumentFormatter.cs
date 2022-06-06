@@ -25,6 +25,9 @@ namespace MTConnect.Formatters
 
         public FormattedDocumentResult Format(IDevicesResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
+            // Read Devices Schema
+            var schema = GetFormatterOption<string>(options, "schema");
+
             // Read Devices Stylesheet
             var stylesheet = GetFormatterOption<string>(options, "devicesStyle.location");
 
@@ -34,10 +37,18 @@ namespace MTConnect.Formatters
             // Read OutputComments Option passed to Formatter
             var outputComments = GetFormatterOption<bool>(options, "outputComments");
 
-            var xml = XmlDevicesResponseDocument.ToXml(document, null, stylesheet, indentOutput, outputComments);
+            var xml = XmlDevicesResponseDocument.ToXml(document, schema, null, stylesheet, indentOutput, outputComments);
             if (!string.IsNullOrEmpty(xml))
             {
-                return new FormattedDocumentResult(xml, ContentType);
+                var validationResponse = XmlValidator.Validate(xml, schema);
+                if (validationResponse.Success)
+                {
+                    return new FormattedDocumentResult(xml, ContentType);
+                }
+                else
+                {
+                    return FormattedDocumentResult.Error(validationResponse.Errors);
+                }
             }
 
             return FormattedDocumentResult.Error();
@@ -123,7 +134,6 @@ namespace MTConnect.Formatters
         {
             return XmlErrorResponseDocument.FromXml(content);
         }
-
 
         private static T GetFormatterOption<T>(IEnumerable<KeyValuePair<string, string>> options, string key)
         {

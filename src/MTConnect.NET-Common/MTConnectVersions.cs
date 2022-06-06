@@ -20,6 +20,6 @@ namespace MTConnect
         public static Version Version16 => new Version(1, 6);
         public static Version Version17 => new Version(1, 7);
         public static Version Version18 => new Version(1, 8);
-        public static Version Version20 => new Version(2, 0);
+        public static Version Version20 => new Version(2, 0, 0);
     }
 }
