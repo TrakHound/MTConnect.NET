@@ -516,6 +516,24 @@ namespace MTConnect.Applications
         private static void HttpResponseSent(object sender, MTConnectHttpResponse response)
         {
             _httpLogger.Debug($"[Http Server] : Response Sent : {response.StatusCode} : {response.ContentType} : Agent Process Time {response.ResponseDuration}ms : Document Format Time {response.FormatDuration}ms : Total Response Time {response.ResponseDuration + response.FormatDuration}ms");
+
+            // Format Messages
+            if (!response.FormatMessages.IsNullOrEmpty())
+            {
+                foreach (var message in response.FormatMessages)
+                {
+                    _agentValidationLogger.Debug($"[Http Server] : Formatter Message : {message}");
+                }
+            }
+
+            // Format Errors
+            if (!response.FormatErrors.IsNullOrEmpty())
+            {
+                foreach (var error in response.FormatErrors)
+                {
+                    _agentValidationLogger.Error($"[Http Server] : Formatter Error : {error}");
+                }
+            }
         }
 
         #endregion

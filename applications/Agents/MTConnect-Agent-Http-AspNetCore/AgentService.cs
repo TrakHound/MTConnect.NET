@@ -7,6 +7,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MTConnect.Adapters.Shdr;
 using MTConnect.Agents;
+using MTConnect.Agents.Configuration;
 using MTConnect.Applications.Loggers;
 using MTConnect.Devices;
 using System;
@@ -63,7 +64,7 @@ namespace MTConnect.Applications
                 // Add Adapter Clients
                 if (!_mtconnectAgent.Configuration.Adapters.IsNullOrEmpty())
                 {
-                    var devices = await Device.FromFileAsync(_mtconnectAgent.Configuration.Devices, DocumentFormat.XML);
+                    var devices = await DeviceConfiguration.FromFileAsync(_mtconnectAgent.Configuration.Devices, DocumentFormat.XML);
                     if (!devices.IsNullOrEmpty())
                     {
                         // Add Device(s) to Agent
