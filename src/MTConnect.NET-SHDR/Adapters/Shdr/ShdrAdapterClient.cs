@@ -97,14 +97,13 @@ namespace MTConnect.Adapters.Shdr
 
 
         public ShdrAdapterClient(
-            string id,
             AdapterConfiguration configuration,
             IMTConnectAgent agent,
             IDevice device
             )
         {
-            Id = id;
             _configuration = configuration;
+            Id = configuration != null ? configuration.Id : StringFunctions.RandomString(10);
             _agent = agent;
             _device = device;
 
@@ -151,6 +150,7 @@ namespace MTConnect.Adapters.Shdr
         private async Task ListenForAdapter(CancellationToken cancel)
         {
             var reconnectInterval = Math.Max(ReconnectInterval, 100);
+            var connected = false;
 
             try
             {
@@ -169,6 +169,7 @@ namespace MTConnect.Adapters.Shdr
                         _client.Connect(Server, Port);
 
                         AdapterConnected?.Invoke(this, $"Connected to Adapter at {Server} on Port {Port}");
+                        connected = true;
 
                         // Get the TCP Client Stream
                         using (var stream = _client.GetStream())
@@ -320,11 +321,17 @@ namespace MTConnect.Adapters.Shdr
                         if (_client != null)
                         {
                             _client.Close();
-                            AdapterDisconnected?.Invoke(this, $"Disconnected from {Server} on Port {Port}");
 
-                            // Set DataItems to Unavailable if disconnected from Adapter
-                            await SetDeviceUnavailable(UnixDateTime.Now);
+                            if (connected)
+                            {
+                                AdapterDisconnected?.Invoke(this, $"Disconnected from {Server} on Port {Port}");
+
+                                // Set DataItems to Unavailable if disconnected from Adapter
+                                await SetDeviceUnavailable(UnixDateTime.Now);
+                            }
                         }
+
+                        connected = false;
                     }
 
                     // Wait for the ReconnectInterval (in milliseconds) until continuing while loop
