@@ -55,11 +55,17 @@ namespace MTConnect.Assets.Files
         [XmlElement("CreationTime")]
         public DateTime CreationTime { get; set; }
 
+        [XmlIgnore]
+        public bool CreationTimeSpecified => CreationTime > DateTime.MinValue;
+
         /// <summary>
         /// The time the file was modified.
         /// </summary>
         [XmlElement("ModificationTime")]
         public DateTime ModificationTime { get; set; }
+
+        [XmlIgnore]
+        public bool ModificationTimeSpecified => ModificationTime > DateTime.MinValue;
 
         /// <summary>
         /// The URL reference to the file location. 
