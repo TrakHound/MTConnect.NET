@@ -8,7 +8,7 @@
 > Updated for the new MTConnect 2.0 release
 
 ## Overview
-MTConnect.NET is a fully featured .NET library for MTConnect® to develop Agents, Adapters, and Clients. Supports MTConnect Versions up to 2.0.
+MTConnect.NET is a fully featured .NET library for MTConnect to develop Agents, Adapters, and Clients. Supports MTConnect Versions up to 2.0.
 
 The Agent, Buffers, and Adapter are separated into individual classes in order to allow for modular implementations such as the following : 
 
@@ -22,6 +22,7 @@ Other features of MTConnect.NET :
 - (In-Progress) [Models](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-Common/Models) framework for setting and accessing data using an object model as opposed to DataItem ID's and Types
 - Extensible through plugin libraries to extend Types
 - Full data validation
+  - (In-progress) XML Schema Validation
 - Fully documented objects using text from the MTConnect Standard. This enables Intellisense in applications such as Visual Studio.
 - Full list of Component, Composition, and DataItem types. See [Devices](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-Common/Devices) for more information.
 - Default Units and UnitConversion is done automatically when sending Streams and when reading Streams.
@@ -83,7 +84,7 @@ Validation is performed on a Device, Component, Composition, or DataItem level t
 Releases are available at : [Releases](https://github.com/TrakHound/MTConnect.NET/releases)
 
 ## Agents
-Agents are implemented using the MTConnectAgent class and IMTConnectAgent interface. The MTConnectAgent class implements the MTConnect® standard and is inteded to be full implemenation. More information about agents can be found at [Agents](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-Common/Agents) and Agent Applications can be found at [Agent Applications](https://github.com/TrakHound/MTConnect.NET/tree/master/applications/Agents).
+Agents are implemented using the MTConnectAgent class and IMTConnectAgent interface. The MTConnectAgent class implements the MTConnect standard and is inteded to be full implemenation. More information about agents can be found at [Agents](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-Common/Agents) and Agent Applications can be found at [Agent Applications](https://github.com/TrakHound/MTConnect.NET/tree/master/applications/Agents).
 
 ### Traditional Implementation
 ![Traditional Agent Architecture](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/Traditional-Architecture-Diagram.png) 
