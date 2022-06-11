@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 namespace MTConnect.Buffers
 {
     /// <summary>
-    /// Circular Ephemeral Buffer used to store Streaming Data
+    /// Circular Ephemeral Buffer used to store MTConnect Observation Data
     /// </summary>
     public class MTConnectObservationBuffer : IMTConnectObservationBuffer
     {
@@ -193,10 +193,6 @@ namespace MTConnect.Buffers
 
             lock (_lock)
             {
-                //firstSequence = Math.Max(1, _sequence - BufferSize);
-                //lastSequence = _sequence > 1 ? _sequence - 1 : 1;
-                //nextSequence = _sequence;
-
                 var firstItem = _archiveObservations[0];
                 var length = _sequence - firstItem.Sequence;
 
@@ -337,7 +333,7 @@ namespace MTConnect.Buffers
         /// <param name="at">The sequence number to include in the results</param>
         /// <param name="count">The maximum number of Observations to include in the result</param>
         /// <returns>An object that implements the IStreamingResults interface containing the query results</returns>
-        public IStreamingResults GetObservations(string deviceUuid, IEnumerable<string> dataItemIds = null, long from = -1, long to = -1, long at = -1, int count = 0)
+        public virtual IStreamingResults GetObservations(string deviceUuid, IEnumerable<string> dataItemIds = null, long from = -1, long to = -1, long at = -1, int count = 0)
         {
             if (!string.IsNullOrEmpty(deviceUuid))
             {
@@ -357,7 +353,7 @@ namespace MTConnect.Buffers
         /// <param name="at">The sequence number to include in the results</param>
         /// <param name="count">The maximum number of Observations to include in the result</param>
         /// <returns>An object that implements the IStreamingResults interface containing the query results</returns>
-        public async Task<IStreamingResults> GetObservationsAsync(string deviceUuid, IEnumerable<string> dataItemIds = null, long from = -1, long to = -1, long at = -1, int count = 0)
+        public virtual async Task<IStreamingResults> GetObservationsAsync(string deviceUuid, IEnumerable<string> dataItemIds = null, long from = -1, long to = -1, long at = -1, int count = 0)
         {
             if (!string.IsNullOrEmpty(deviceUuid))
             {
@@ -377,7 +373,7 @@ namespace MTConnect.Buffers
         /// <param name="at">The sequence number to include in the results</param>
         /// <param name="count">The maximum number of Observations to include in the result</param>
         /// <returns>An object that implements the IStreamingResults interface containing the query results</returns>
-        public IStreamingResults GetObservations(IEnumerable<string> deviceUuids, IEnumerable<string> dataItemIds = null, long from = -1, long to = -1, long at = -1, int count = 0)
+        public virtual IStreamingResults GetObservations(IEnumerable<string> deviceUuids, IEnumerable<string> dataItemIds = null, long from = -1, long to = -1, long at = -1, int count = 0)
         {
             if (!deviceUuids.IsNullOrEmpty())
             {
@@ -415,7 +411,7 @@ namespace MTConnect.Buffers
         /// <param name="at">The sequence number to include in the results</param>
         /// <param name="count">The maximum number of Observations to include in the result</param>
         /// <returns>An object that implements the IStreamingResults interface containing the query results</returns>
-        public async Task<IStreamingResults> GetObservationsAsync(IEnumerable<string> deviceUuids, IEnumerable<string> dataItemIds = null, long from = -1, long to = -1, long at = -1, int count = 0)
+        public virtual async Task<IStreamingResults> GetObservationsAsync(IEnumerable<string> deviceUuids, IEnumerable<string> dataItemIds = null, long from = -1, long to = -1, long at = -1, int count = 0)
         {
             if (!deviceUuids.IsNullOrEmpty())
             {
@@ -500,6 +496,9 @@ namespace MTConnect.Buffers
                     }
 
                     _currentObservations.TryAdd(hash, observation);
+
+                    // Call Overridable Method
+                    OnCurrentObservationAdd(observation);
                 }
             }
         }
@@ -540,6 +539,9 @@ namespace MTConnect.Buffers
 
                     // Add to stored List
                     _currentConditions.TryAdd(hash, observations);
+
+                    // Call Overridable Method
+                    OnCurrentConditionAdd(observations);
                 }
             }
         }
@@ -615,6 +617,8 @@ namespace MTConnect.Buffers
 
         private void AddBufferObservation(StoredObservation observation)
         {
+            long bufferIndex = 0;
+
             if (_bufferIndex >= BufferSize - 1)
             {
                 lock (_lock)
@@ -623,6 +627,7 @@ namespace MTConnect.Buffers
                     Array.Copy(a, 1, _archiveObservations, 0, a.Length - 1);
                     _archiveObservations[_archiveObservations.Length - 1] = observation;
                     _bufferIndex++;
+                    bufferIndex = _bufferIndex;
                 }
             }
             else
@@ -631,8 +636,12 @@ namespace MTConnect.Buffers
                 {
                     _archiveObservations[_bufferIndex] = observation;
                     _bufferIndex++;
+                    bufferIndex = _bufferIndex;
                 }
             }
+
+            // Call Overridable Method
+            OnBufferObservationAdd(bufferIndex, observation);
         }
 
         private void AddBufferObservations(IEnumerable<StoredObservation> observations)
@@ -649,12 +658,11 @@ namespace MTConnect.Buffers
         /// <summary>
         /// Add a new Observation to the Buffer
         /// </summary>
-        /// <param name="deviceName">The UUID of the Device the data is associated with</param>
-        /// <param name="dataItemId">The ID of the DataItem</param>
+        /// <param name="deviceUuid">The UUID of the Device the data is associated with</param>
+        /// <param name="dataItem">The DataItem that the Observation represents</param>
         /// <param name="observation">The Observation to Add</param>
-        /// <param name="sequence">The sequence number to add the DataItem at</param>
         /// <returns>A boolean value indicating whether the Observation was added to the Buffer successfully (true) or not (false)</returns>
-        public bool AddObservation(string deviceUuid, IDataItem dataItem, IObservation observation)
+        public virtual bool AddObservation(string deviceUuid, IDataItem dataItem, IObservation observation)
         {
             if (!string.IsNullOrEmpty(deviceUuid) && dataItem != null && observation != null)
             {
@@ -692,15 +700,21 @@ namespace MTConnect.Buffers
         /// <summary>
         /// Add a new Observation to the Buffer
         /// </summary>
-        /// <param name="deviceName">The UUID of the Device the data is associated with</param>
-        /// <param name="dataItemId">The ID of the Observation</param>
+        /// <param name="deviceUuid">The UUID of the Device the data is associated with</param>
+        /// <param name="dataItem">The DataItem that the Observation represents</param>
         /// <param name="observation">The Observation to Add</param>
-        /// <param name="sequence">The sequence number to add the Observation at</param>
         /// <returns>A boolean value indicating whether the Observation was added to the Buffer successfully (true) or not (false)</returns>
-        public async Task<bool> AddObservationAsync(string deviceUuid, IDataItem dataItem, IObservation observation)
+        public virtual async Task<bool> AddObservationAsync(string deviceUuid, IDataItem dataItem, IObservation observation)
         {
             return AddObservation(deviceUuid, dataItem, observation);
         }
+
+
+        protected virtual void OnCurrentObservationAdd(StoredObservation observation) { }
+
+        protected virtual void OnCurrentConditionAdd(IEnumerable<StoredObservation> observations) { }
+
+        protected virtual void OnBufferObservationAdd(long bufferIndex, StoredObservation observation) { }
 
         #endregion
 

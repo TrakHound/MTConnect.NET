@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace MTConnect.Buffers
 {
     /// <summary>
-    /// Buffer interface used to store Streaming Data
+    /// Buffer interface used to store MTConnect Observation Data
     /// </summary>
     public interface IMTConnectObservationBuffer
     {
