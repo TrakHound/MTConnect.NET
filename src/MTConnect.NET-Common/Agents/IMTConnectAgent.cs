@@ -460,22 +460,22 @@ namespace MTConnect.Agents
         /// <summary>
         /// Add a new MTConnectDevice to the Agent's Buffer
         /// </summary>
-        bool AddDevice(IDevice device);
+        bool AddDevice(IDevice device, bool intializeDataItems = true);
 
         /// <summary>
         /// Add a new MTConnectDevice to the Agent's Buffer
         /// </summary>
-        Task<bool> AddDeviceAsync(IDevice device);
+        Task<bool> AddDeviceAsync(IDevice device, bool intializeDataItems = true);
 
         /// <summary>
         /// Add new MTConnectDevices to the Agent's Buffer
         /// </summary>
-        bool AddDevices(IEnumerable<IDevice> devices);
+        bool AddDevices(IEnumerable<IDevice> devices, bool intializeDataItems = true);
 
         /// <summary>
         /// Add new MTConnectDevices to the Agent's Buffer
         /// </summary>
-        Task<bool> AddDevicesAsync(IEnumerable<IDevice> devices);
+        Task<bool> AddDevicesAsync(IEnumerable<IDevice> devices, bool intializeDataItems = true);
 
 
         /// <summary>
@@ -585,7 +585,7 @@ namespace MTConnect.Agents
 
         #region "Agent Device"
 
-        void AddAdapterComponent(string id, AdapterConfiguration configuration);
+        void AddAdapterComponent(AdapterConfiguration configuration, bool initializeDataItems = true);
 
         #endregion
     }

@@ -10,6 +10,17 @@ namespace MTConnect.Agents.Configuration
 {
     public class AdapterConfiguration
     {
+        [JsonIgnore]
+        public string Id
+        {
+            get
+            {
+                var id = $"{Host}:{Port}";
+                id = id.ToMD5Hash().Substring(0, 10);
+                return $"adapter_{id}";
+            }
+        }
+
         /// <summary>
         /// The name of the device that corresponds to the name of the device in the Devices file. Each adapter can map to one device. 
         /// Specifying a "*" will map to the default device.
