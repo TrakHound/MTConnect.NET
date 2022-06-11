@@ -8,6 +8,7 @@ using MTConnect.Agents;
 using MTConnect.Devices.DataItems;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace MTConnect.Http
@@ -80,6 +81,41 @@ namespace MTConnect.Http
             }
 
             return false;
+        }
+
+        protected override async Task<bool> OnAssetInput(string assetId, string deviceKey, string assetType, byte[] requestBytes)
+        {
+            var requestBody = ReadRequestBody(requestBytes);
+            if (!string.IsNullOrEmpty(deviceKey) && !string.IsNullOrEmpty(assetType) && !string.IsNullOrEmpty(requestBody))
+            {
+                var type = Assets.Asset.GetAssetType(assetType);
+                if (type != null)
+                {
+                    var asset = Assets.XmlAsset.FromXml(type, requestBody);
+                    if (asset != null)
+                    {
+                        asset.AssetId = assetId;
+                        return await _mtconnectAgent.AddAssetAsync(deviceKey, asset);
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private string ReadRequestBody(byte[] bytes)
+        {
+            if (bytes != null)
+            {
+                try
+                {
+                    var utf8Bytes = Encoding.Convert(Encoding.ASCII, Encoding.UTF8, bytes);
+                    return Encoding.UTF8.GetString(utf8Bytes);
+                }
+                catch { }
+            }
+
+            return null;
         }
     }
 }

@@ -140,6 +140,25 @@ namespace MTConnect.Http
         }
 
 
+        /// <summary>
+        /// Method run when an Observation is attempted to be added to the MTConnect Agent from an HTTP PUT request
+        /// </summary>
+        /// <returns>Returns False if a Device cannot be found from the specified DeviceKey</returns>
+        protected virtual async Task<bool> OnObservationInput(string deviceKey, string dataItemKey, string input)
+        {
+            return false;
+        }
+
+        /// <summary>
+        /// Method run when an Asset is attempted to be added to the MTConnect Agent from an HTTP PUT request
+        /// </summary>
+        /// <returns>Returns False if a Device cannot be found from the specified DeviceKey</returns>
+        protected virtual async Task<bool> OnAssetInput(string assetId, string deviceKey, string assetType, byte[] requestBody)
+        {
+            return false;
+        }
+
+
         private async Task Worker(CancellationToken cancellationToken)
         {
             do
@@ -260,7 +279,7 @@ namespace MTConnect.Http
 
                                     if (_configuration != null && _configuration.AllowPut)
                                     {
-                                        contextClosure.Response.StatusCode = 200;
+                                        await ProcessPost(request, response);
                                     }
                                     else
                                     {
@@ -810,10 +829,7 @@ namespace MTConnect.Http
 
                     // Read DeviceKey from URL Path
                     var deviceKey = httpRequest.Url.LocalPath?.Trim('/');
-                    if (urlSegments.Length > 1)
-                    {
-                        deviceKey = urlSegments[urlSegments.Length - 1];
-                    }
+                    if (urlSegments.Length > 1) deviceKey = urlSegments[urlSegments.Length - 1];
 
                     // Get list of KeyValuePairs from Url Query
                     var items = new List<KeyValuePair<string, string>>();
@@ -859,13 +875,73 @@ namespace MTConnect.Http
             }
         }
 
-        /// <summary>
-        /// Method run when an Observation is attempted to be added to the MTConnect Agent from an HTTP PUT request
-        /// </summary>
-        /// <returns>Returns False if a Device cannot be found from the specified DeviceKey</returns>
-        protected virtual async Task<bool> OnObservationInput(string deviceKey, string dataItemKey, string input)
+        private async Task ProcessPost(HttpListenerRequest httpRequest, HttpListenerResponse httpResponse)
         {
-            return false;
+            if (httpRequest != null && httpRequest.Url != null && httpResponse != null)
+            {
+                var requestBytes = await ReadRequestBytes(httpRequest.InputStream);
+                if (!requestBytes.IsNullOrEmpty())
+                {
+                    var urlSegments = GetUriSegments(httpRequest.Url);
+
+                    // Read AssetId from URL Path
+                    var assetId = httpRequest.Url.LocalPath?.Trim('/');
+                    if (urlSegments.Length > 1) assetId = urlSegments[urlSegments.Length - 1];
+
+                    if (!string.IsNullOrEmpty(assetId))
+                    {
+                        // Get Device Key (UUID or Name)
+                        var deviceKey = httpRequest.QueryString["device"];
+
+                        // Get the Asset Type
+                        var assetType = httpRequest.QueryString["type"];
+
+                        // Call the OnAssetInput method that is intended to be overridden by a derived class
+                        var success = await OnAssetInput(assetId, deviceKey, assetType, requestBytes);
+
+                        if (success)
+                        {
+                            // Write the "<success/>" respone to the Http Response Stream
+                            // along with a 200 Status Code
+                            await WriteResponse("<success/>", httpResponse, HttpStatusCode.OK);
+                        }
+                        else
+                        {
+                            // Return MTConnectError Response Document along with a 404 Http Status Code
+                            var errorDocument = await _mtconnectAgent.GetErrorAsync(ErrorCode.UNSUPPORTED, $"Cannot find device: {deviceKey}");
+                            var mtconnectResponse = new MTConnectHttpResponse(errorDocument, 404, DocumentFormat.XML, 0, null);
+                            await WriteResponse(mtconnectResponse, httpResponse);
+                        }
+                    }
+                }
+            }
+        }
+
+        private async Task<byte[]> ReadRequestBytes(Stream inputStream)
+        {
+            if (inputStream != null)
+            {
+                try
+                {
+                    var bufferSize = 1048576 * 2; // 2 MB
+                    var bytes = new byte[bufferSize];
+                    await inputStream.ReadAsync(bytes, 0, bytes.Length);
+
+                    return TrimEnd(bytes);
+                }
+                catch { }
+            }
+
+            return null;
+        }
+
+        public static byte[] TrimEnd(byte[] array)
+        {
+            int lastIndex = Array.FindLastIndex(array, b => b != 0);
+
+            Array.Resize(ref array, lastIndex + 1);
+
+            return array;
         }
 
 
