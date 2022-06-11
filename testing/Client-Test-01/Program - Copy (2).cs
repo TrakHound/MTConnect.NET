@@ -1,70 +1,84 @@
-﻿using MTConnect.Observations;
-using MTConnect.Observations.Input;
-using MTConnect.Agents;
-using MTConnect.Streams;
-using MTConnect.Clients.Rest;
-using MTConnect.Observations.Events.Values;
-using MTConnect.Http;
-using MTConnect.Models;
-using MTConnect.Observations.Samples.Values;
-using MTConnect.Models.DataItems;
+﻿using System.Text.RegularExpressions;
 
-var agent = new MTConnectAgent();
-var server = new ShdrMTConnectHttpServer(agent);
-server.Start();
 
-var deviceModel = new DeviceModel("OKUMA-Lathe");
-deviceModel.ObservationUpdated += (o, observation) =>
+//static long GetSequenceBottom(long n, int interval = 1000)
+//{
+//    if (interval > 0)
+//    {
+//        var x = n / interval;
+//        var y = x * interval;
+
+//        return y;
+//    }
+
+//    return 0;
+//}
+
+static long GetSequenceTop(long n, int interval = 1000)
 {
-    if (observation != null)
+    if (interval > 0)
     {
-        Console.WriteLine($"{observation.DataItemId} => {observation.GetValue(ValueKeys.CDATA)}");
+        var x = n / interval;
+        x = x * interval;
 
-        agent.AddObservation(deviceModel.Name, new ObservationInput(observation));
+        var y = 0;
+        if (n % interval > 0) y = interval;
+
+        return x + y;
     }
-};
 
-deviceModel.Availability = Availability.AVAILABLE;
-deviceModel.Controller.EmergencyStop = EmergencyStop.TRIGGERED;
-
-var xAxis = deviceModel.Axes.GetXAxis();
-xAxis.MachinePosition = new PositionModel 
-{ 
-    Actual = new PositionValue(12.3456)
-};
-xAxis.Motor.Temperature = new TemperatureValue(35.12);
-
-agent.AddDevice(deviceModel);
-
-var observationInputs = new List<IObservationInput>();
-foreach (var observation in deviceModel.GetObservations())
-{
-    agent.AddObservation(deviceModel.Name, new ObservationInput(observation));
+    return 0;
 }
 
-
-var rnd = new Random();
-
-while (true)
+static IEnumerable<string> GetFiles(IEnumerable<string> files, long from, long to, int interval = 1000)
 {
-    Console.ReadLine();
+    var found = new List<string>();
+    var regex = new Regex("observations_([0-9]*)");
 
-    deviceModel.Availability = Availability.AVAILABLE;
-    deviceModel.Controller.EmergencyStop = EmergencyStop.ARMED;
-
-    xAxis.MachinePosition = new PositionModel
+    var x = new Dictionary<long, string>();
+    foreach (var file in files)
     {
-        Actual = new PositionValue(98.7654)
-    };
-    xAxis.Motor.Temperature = new TemperatureValue(rnd.NextDouble());
+        var match = regex.Match(file);
+        if (match.Success && match.Groups.Count > 1)
+        {
+            var sequence = long.Parse(match.Groups[1].Value);
+            x.Add(sequence, file);
+        }
+    }
 
-    var path1 = "path1";
-    deviceModel.Controller.GetPath(path1).Execution = Execution.ACTIVE;
+    long m = GetSequenceTop(from);
+    var n = GetSequenceTop(to);
 
-    var mainProgram = deviceModel.Controller.GetPath(path1).MainProgram;
-    mainProgram.Program = "Testing.NC";
-    deviceModel.Controller.GetPath(path1).MainProgram = mainProgram;
+    string s;
+    if (x.TryGetValue(m, out s)) found.Add(s);
 
-    agent.AddDevice(deviceModel);
+    do
+    {
+        m += interval;
+
+        if (x.TryGetValue(m, out s)) found.Add(s);
+    }
+    while (m < n);
+
+    return found;
 }
 
+var files = new List<string>();
+files.Add("observations_100");
+files.Add("observations_200");
+files.Add("observations_300");
+files.Add("observations_400");
+files.Add("observations_500");
+files.Add("observations_600");
+files.Add("observations_700");
+files.Add("observations_800");
+files.Add("observations_900");
+files.Add("observations_1000");
+
+var found = GetFiles(files, 1000, 3453, 100);
+foreach (var file in found)
+{
+    Console.WriteLine(file);
+}
+
+Console.ReadLine();

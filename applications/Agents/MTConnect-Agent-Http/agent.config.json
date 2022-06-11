@@ -1,10 +1,10 @@
 ﻿{
-	"devices": "devices.xml",
+	"devices": "devices-okuma.xml",
 	"port": 5005,
 	"allowPut": true,
 	"adapters": [
 		{
-			"device": "M12346",
+			"device": "OKUMA-Lathe",
 			"host": "localhost",
 			"port": 7878,
 			"reconnectInterval": 100

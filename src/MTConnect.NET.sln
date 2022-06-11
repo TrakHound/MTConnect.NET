@@ -65,7 +65,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect-Agent-Http-Adapte
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-Services", "MTConnect.NET-Services\MTConnect.NET-Services.csproj", "{49B1E68C-0937-406F-9F8D-25D327F78ADD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MTConnect.NET-Models", "MTConnect.NET-Models\MTConnect.NET-Models.csproj", "{ACE5B7F1-6AB7-47B1-A4F6-BA5B154AE7C0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-Models", "MTConnect.NET-Models\MTConnect.NET-Models.csproj", "{ACE5B7F1-6AB7-47B1-A4F6-BA5B154AE7C0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

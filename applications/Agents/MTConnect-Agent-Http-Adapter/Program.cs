@@ -5,6 +5,7 @@
 
 using MTConnect.Adapters.Shdr;
 using MTConnect.Agents;
+using MTConnect.Agents.Configuration;
 using MTConnect.Applications.Configuration;
 using MTConnect.Assets;
 using MTConnect.Clients.Rest;
@@ -91,7 +92,7 @@ namespace MTConnect.Applications
                 }
 
                 // Add Devices
-                var devices = Device.FromFile(configuration.Devices, DocumentFormat.XML);
+                var devices = DeviceConfiguration.FromFile(configuration.Devices, DocumentFormat.XML);
                 if (!devices.IsNullOrEmpty())
                 {
                     // Add Device(s) to Agent

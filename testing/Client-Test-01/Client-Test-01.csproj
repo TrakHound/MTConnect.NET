@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <Compile Remove="Program - Copy %282%29 - Copy %282%29.cs" />
+    <Compile Remove="Program - Copy %282%29 - Copy %283%29.cs" />
     <Compile Remove="Program - Copy %282%29 - Copy.cs" />
     <Compile Remove="Program - Copy.cs" />
     <Compile Remove="Program.cs" />
@@ -16,16 +17,10 @@
 
   <ItemGroup>
     <None Include="Program - Copy (2) - Copy (2).cs" />
+    <None Include="Program - Copy (2) - Copy (3).cs" />
     <None Include="Program - Copy (2) - Copy.cs" />
     <None Include="Program - Copy.cs" />
     <None Include="Program.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\MTConnect.NET-HTTP\MTConnect.NET-HTTP.csproj" />
-    <ProjectReference Include="..\..\src\MTConnect.NET-SHDR\MTConnect.NET-SHDR.csproj" />
-    <ProjectReference Include="..\..\src\MTConnect.NET-XML\MTConnect.NET-XML.csproj" />
-    <ProjectReference Include="..\..\src\MTConnect.NET\MTConnect.NET.csproj" />
   </ItemGroup>
 
 </Project>
