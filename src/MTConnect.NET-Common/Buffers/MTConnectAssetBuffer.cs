@@ -50,6 +50,8 @@ namespace MTConnect.Buffers
             }
         }
 
+        protected virtual void OnAssetAdd(IAsset asset) { }
+
 
         /// <summary>
         /// Get a list of all Assets from the Buffer
@@ -139,7 +141,11 @@ namespace MTConnect.Buffers
                     _storedAssets.TryRemove(firstId.Key, out var _);
                 }
 
-                return _storedAssets.TryAdd(asset.AssetId, asset);
+                if (_storedAssets.TryAdd(asset.AssetId, asset))
+                {
+                    OnAssetAdd(asset);
+                    return true;
+                }
             }
 
             return false;

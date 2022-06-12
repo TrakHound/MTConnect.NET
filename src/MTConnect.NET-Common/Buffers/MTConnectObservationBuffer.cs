@@ -182,6 +182,23 @@ namespace MTConnect.Buffers
                 objs);
         }
 
+
+        private IEnumerable<StoredObservation> GetCurrentObservations()
+        {
+            var x = new List<StoredObservation>();
+
+            var observations = _currentObservations.Values;
+            if (!observations.IsNullOrEmpty()) x.AddRange(observations);
+
+            var conditions = _currentConditions.Values;
+            if (!conditions.IsNullOrEmpty())
+            {
+                foreach (var condition in conditions) x.AddRange(condition);
+            }
+
+            return x;
+        }
+
         private StreamingResults GetCurrentObservations(IEnumerable<StreamingQuery> queries, long at = 0)
         {
             var observations = new List<StoredObservation>();
@@ -497,7 +514,8 @@ namespace MTConnect.Buffers
 
                     _currentObservations.TryAdd(hash, observation);
 
-                    // Call Overridable Method
+                    // Call Overridable Methods
+                    OnCurrentChange(GetCurrentObservations());
                     OnCurrentObservationAdd(observation);
                 }
             }
@@ -541,6 +559,7 @@ namespace MTConnect.Buffers
                     _currentConditions.TryAdd(hash, observations);
 
                     // Call Overridable Method
+                    OnCurrentChange(GetCurrentObservations());
                     OnCurrentConditionAdd(observations);
                 }
             }
@@ -709,6 +728,8 @@ namespace MTConnect.Buffers
             return AddObservation(deviceUuid, dataItem, observation);
         }
 
+
+        protected virtual void OnCurrentChange(IEnumerable<StoredObservation> observations) { }
 
         protected virtual void OnCurrentObservationAdd(StoredObservation observation) { }
 
