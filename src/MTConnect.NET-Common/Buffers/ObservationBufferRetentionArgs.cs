@@ -6,15 +6,21 @@
 
 namespace MTConnect.Buffers
 {
-    public struct FileBufferLoadArgs
+    public struct ObservationBufferRetentionArgs
     {
+        public long From { get; }
+
+        public long To { get; }
+
         public long Count { get; }
 
         public long Duration { get; }
 
 
-        public FileBufferLoadArgs(long count, long duration)
+        public ObservationBufferRetentionArgs(long from, long to, long count, long duration)
         {
+            From = from;
+            To = to;
             Count = count;
             Duration = duration;
         }

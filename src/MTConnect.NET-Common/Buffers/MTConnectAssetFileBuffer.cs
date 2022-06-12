@@ -30,6 +30,7 @@ namespace MTConnect.Buffers
 
         private CancellationTokenSource stop;
         private bool _isStarted;
+        private bool _isLoading;
         //private bool _exists;
 
 
@@ -43,6 +44,14 @@ namespace MTConnect.Buffers
 
         public long QueuedItemCount => _items.Count;
 
+        public bool UseCompression { get; set; } = true;
+
+        public EventHandler BufferLoadStarted { get; set; }
+
+        public EventHandler<AssetBufferLoadArgs> BufferLoadCompleted { get; set; }
+
+        //public EventHandler<AssetBufferRetentionArgs> BufferRetentionCompleted { get; set; }
+
 
         public MTConnectAssetFileBuffer()
         {
@@ -53,7 +62,10 @@ namespace MTConnect.Buffers
 
         protected override void OnAssetAdd(IAsset asset)
         {
-            Add(asset);
+            if (!_isLoading)
+            {
+                Add(asset);
+            }
         }
 
 
@@ -123,6 +135,36 @@ namespace MTConnect.Buffers
 
         #endregion
 
+        #region "Load"
+
+        public bool Load()
+        {
+            var found = false;
+            _isLoading = true;
+
+            var stpw = System.Diagnostics.Stopwatch.StartNew();
+            if (BufferLoadStarted != null) BufferLoadStarted.Invoke(this, new EventArgs());
+
+            var assets = Read();
+            if (!assets.IsNullOrEmpty())
+            {
+                foreach (var asset in assets)
+                {
+                    AddAsset(asset);
+                }
+
+                return found;
+            }
+
+            stpw.Stop();
+            if (found && BufferLoadCompleted != null) BufferLoadCompleted.Invoke(this, new AssetBufferLoadArgs(assets.Count(), stpw.ElapsedMilliseconds));
+
+            _isLoading = false;
+            return found;
+        }
+
+        #endregion
+
         #region "Read"
 
         public IEnumerable<IAsset> Read()
@@ -149,10 +191,15 @@ namespace MTConnect.Buffers
 
         private IAsset ReadAsset(string path)
         {
-            var xml = ReadFile(path);
-            if (!string.IsNullOrEmpty(xml))
+            var json = ReadFile(path);
+            if (!string.IsNullOrEmpty(json))
             {
-
+                try
+                {
+                    var asset = JsonSerializer.Deserialize<Asset>(json);
+                    if (asset != null) return asset;
+                }
+                catch { }
             }
 
             return null;
@@ -232,7 +279,21 @@ namespace MTConnect.Buffers
                 var filename = asset.AssetId;
                 var path = Path.Combine(dir, filename);
 
-                await File.WriteAllTextAsync(path, asset.Xml);
+                try
+                {
+                    var options = new JsonSerializerOptions
+                    {
+                        WriteIndented = true,
+                        DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                    };
+
+                    var json = JsonSerializer.Serialize(asset, options);
+                    if (!string.IsNullOrEmpty(json))
+                    {
+                        await File.WriteAllTextAsync(path, json);
+                    }
+                }
+                catch { }
             }
 
             return false;

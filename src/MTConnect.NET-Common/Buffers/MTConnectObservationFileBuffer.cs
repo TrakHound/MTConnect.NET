@@ -50,9 +50,9 @@ namespace MTConnect.Buffers
 
         public EventHandler BufferLoadStarted { get; set; }
 
-        public EventHandler<FileBufferLoadArgs> BufferLoadCompleted { get; set; }
+        public EventHandler<ObservationBufferLoadArgs> BufferLoadCompleted { get; set; }
 
-        public EventHandler<FileBufferRetentionArgs> BufferRetentionCompleted { get; set; }
+        public EventHandler<ObservationBufferRetentionArgs> BufferRetentionCompleted { get; set; }
 
 
         public MTConnectObservationFileBuffer()
@@ -186,6 +186,9 @@ namespace MTConnect.Buffers
             var found = false;
             _isLoading = true;
 
+            var stpw = System.Diagnostics.Stopwatch.StartNew();
+            if (BufferLoadStarted != null) BufferLoadStarted.Invoke(this, new EventArgs());
+
             // Read Observations from Page Files
             var observations = ReadStoredObservations();
             if (!observations.IsNullOrEmpty())
@@ -219,6 +222,9 @@ namespace MTConnect.Buffers
                 }
             }
 
+            stpw.Stop();
+            if (found && BufferLoadCompleted != null) BufferLoadCompleted.Invoke(this, new ObservationBufferLoadArgs(observations.Count(), stpw.ElapsedMilliseconds));
+
             _isLoading = false;
             return found;
         }
@@ -230,8 +236,6 @@ namespace MTConnect.Buffers
         public IEnumerable<ObservationInput> ReadAll()
         {
             var inputs = new List<ObservationInput>();
-            var stpw = System.Diagnostics.Stopwatch.StartNew();
-            if (BufferLoadStarted != null) BufferLoadStarted.Invoke(this, new EventArgs());
 
             // Get Stored Observations
             var storedObservations = new List<StoredObservation>();
@@ -255,9 +259,6 @@ namespace MTConnect.Buffers
                     inputs.Add(input);
                 }
             }
-
-            stpw.Stop();
-            if (BufferLoadCompleted != null) BufferLoadCompleted.Invoke(this, new FileBufferLoadArgs(inputs.Count(), stpw.ElapsedMilliseconds));
 
             return inputs;
         }
@@ -542,7 +543,7 @@ namespace MTConnect.Buffers
                 }
 
                 stpw.Stop();
-                if (BufferRetentionCompleted != null) BufferRetentionCompleted.Invoke(this, new FileBufferRetentionArgs(from, to, sequenceFiles.Count(), stpw.ElapsedMilliseconds));
+                if (BufferRetentionCompleted != null) BufferRetentionCompleted.Invoke(this, new ObservationBufferRetentionArgs(from, to, sequenceFiles.Count(), stpw.ElapsedMilliseconds));
             }
         }
 

@@ -60,6 +60,7 @@ namespace MTConnect.Assets
         public string Description { get; set; }
 
         [XmlIgnore]
+        [JsonPropertyName("xml")]
         public string Xml { get; set; }
 
 
