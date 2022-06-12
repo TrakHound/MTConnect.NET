@@ -517,14 +517,14 @@ namespace MTConnect.Buffers
                 {
                     await Task.Delay(Interval, cancellationToken);
 
-                    await RunRetention();
+                    RunRetention();
                 }
                 catch (TaskCanceledException) { }
                 catch { }
             }
         }
 
-        private async Task RunRetention()
+        private void RunRetention()
         {
             if (FirstSequence > 1)
             {
