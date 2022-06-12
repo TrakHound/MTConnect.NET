@@ -5,6 +5,7 @@
 
 using MTConnect.Agents;
 using MTConnect.Agents.Configuration;
+using MTConnect.Devices.DataItems;
 using MTConnect.Observations.Input;
 using System;
 using System.Collections.Generic;
@@ -32,6 +33,7 @@ namespace MTConnect.Buffers
         private readonly MTConnectObservationQueue _currentItems;
         private CancellationTokenSource stop;
         private bool _isStarted;
+        private bool _isLoading;
 
 
         public int Interval { get; set; } = 1000;
@@ -44,7 +46,13 @@ namespace MTConnect.Buffers
 
         public long QueuedItemCount => _items.Count;
 
-        public bool CompressionEnabled { get; set; } = true;
+        public bool UseCompression { get; set; } = true;
+
+        public EventHandler BufferLoadStarted { get; set; }
+
+        public EventHandler<FileBufferLoadArgs> BufferLoadCompleted { get; set; }
+
+        public EventHandler<FileBufferRetentionArgs> BufferRetentionCompleted { get; set; }
 
 
         public MTConnectObservationFileBuffer()
@@ -65,12 +73,18 @@ namespace MTConnect.Buffers
 
         protected override void OnCurrentChange(IEnumerable<StoredObservation> observations)
         {
-            AddCurrent(observations);
+            if (!_isLoading)
+            {
+                AddCurrent(observations);
+            }
         }
 
         protected override void OnBufferObservationAdd(long bufferIndex, StoredObservation observation)
         {
-            Add(observation);
+            if (!_isLoading)
+            {
+                Add(observation);
+            }
         }
 
 
@@ -165,14 +179,85 @@ namespace MTConnect.Buffers
 
         #endregion
 
+        #region "Load"
+
+        public bool Load()
+        {
+            var found = false;
+            _isLoading = true;
+
+            // Read Observations from Page Files
+            var observations = ReadStoredObservations();
+            if (!observations.IsNullOrEmpty())
+            {
+                var oObservations = observations.OrderBy(o => o.Sequence);
+                var sequence = oObservations.LastOrDefault().Sequence;
+
+                SetSequence(1);
+                AddBufferObservations(oObservations);
+                SetSequence(sequence + 1);
+
+                found = true;
+            }
+
+            // Read Current Observations from Device Files
+            var currentObservations = ReadStoredCurrentObservations();
+            if (!currentObservations.IsNullOrEmpty())
+            {
+                foreach (var observation in currentObservations)
+                {
+                    if (observation.DataItemCategory == DataItemCategory.CONDITION)
+                    {
+                        // Add to Current Conditions
+                        AddCurrentCondition(observation);
+                    }
+                    else
+                    {
+                        // Add to Current Observations
+                        AddCurrentObservation(observation);
+                    }
+                }
+            }
+
+            _isLoading = false;
+            return found;
+        }
+
+        #endregion
+
         #region "Read"
 
         public IEnumerable<ObservationInput> ReadAll()
         {
             var inputs = new List<ObservationInput>();
+            var stpw = System.Diagnostics.Stopwatch.StartNew();
+            if (BufferLoadStarted != null) BufferLoadStarted.Invoke(this, new EventArgs());
 
-            inputs.AddRange(Read());
-            inputs.AddRange(ReadCurrent());
+            // Get Stored Observations
+            var storedObservations = new List<StoredObservation>();
+            storedObservations.AddRange(ReadStoredObservations());
+            storedObservations.AddRange(ReadStoredCurrentObservations());
+
+            if (!storedObservations.IsNullOrEmpty())
+            {
+                // Sort Observations by Sequence
+                // NOTE: Important because the order that observations are added to the Agent matters
+                var oObservations = storedObservations.OrderBy(o => o.Sequence);
+
+                foreach (var observation in oObservations)
+                {
+                    // Create ObservationInput from StoredObservation
+                    var input = new ObservationInput();
+                    input.DeviceKey = observation.DeviceUuid;
+                    input.DataItemKey = observation.DataItemId;
+                    input.Values = observation.Values;
+                    input.Timestamp = observation.Timestamp;
+                    inputs.Add(input);
+                }
+            }
+
+            stpw.Stop();
+            if (BufferLoadCompleted != null) BufferLoadCompleted.Invoke(this, new FileBufferLoadArgs(inputs.Count(), stpw.ElapsedMilliseconds));
 
             return inputs;
         }
@@ -360,23 +445,28 @@ namespace MTConnect.Buffers
             {
                 try
                 {
-                    //return File.ReadAllLines(path);
-
-                    using (var fileStream = File.Open(path, FileMode.Open))
+                    if (UseCompression)
                     {
-                        using (var readStream = new MemoryStream())
-                        using (var gzipStream = new GZipStream(fileStream, CompressionMode.Decompress))
+                        using (var fileStream = File.Open(path, FileMode.Open))
                         {
-                            gzipStream.CopyTo(readStream);
-
-                            var bytes = readStream.ToArray();
-
-                            var s = Encoding.ASCII.GetString(bytes);
-                            if (!string.IsNullOrEmpty(s))
+                            using (var readStream = new MemoryStream())
+                            using (var gzipStream = new GZipStream(fileStream, CompressionMode.Decompress))
                             {
-                                return s.Split("\r\n");
+                                gzipStream.CopyTo(readStream);
+
+                                var bytes = readStream.ToArray();
+
+                                var s = Encoding.ASCII.GetString(bytes);
+                                if (!string.IsNullOrEmpty(s))
+                                {
+                                    return s.Split("\r\n");
+                                }
                             }
                         }
+                    }
+                    else
+                    {
+                        return File.ReadAllLines(path);
                     }
                 }
                 catch { }
@@ -438,10 +528,9 @@ namespace MTConnect.Buffers
         {
             if (FirstSequence > 1)
             {
+                var stpw = System.Diagnostics.Stopwatch.StartNew();
                 var from = 0;
                 var to = GetSequenceBottom(FirstSequence - 1);
-
-                Console.WriteLine($"Removing : {from} - {to}");
 
                 var sequenceFiles = GetFiles(from, to);
                 if (!sequenceFiles.IsNullOrEmpty())
@@ -449,9 +538,11 @@ namespace MTConnect.Buffers
                     foreach (var sequenceFile in sequenceFiles)
                     {
                         File.Delete(sequenceFile);
-                        Console.WriteLine(Path.GetFileName(sequenceFile));
                     }
                 }
+
+                stpw.Stop();
+                if (BufferRetentionCompleted != null) BufferRetentionCompleted.Invoke(this, new FileBufferRetentionArgs(from, to, sequenceFiles.Count(), stpw.ElapsedMilliseconds));
             }
         }
 
@@ -637,7 +728,7 @@ namespace MTConnect.Buffers
 
                 try
                 {
-                    if (CompressionEnabled)
+                    if (UseCompression)
                     {
                         // Get Bytes
                         var bytes = Encoding.ASCII.GetBytes(sb.ToString());

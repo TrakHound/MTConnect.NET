@@ -96,6 +96,17 @@ namespace MTConnect.Buffers
         #region "Sequence"
 
         /// <summary>
+        /// Sets the Agent's Sequence to the specified value
+        /// </summary>
+        protected void SetSequence(long sequence)
+        {
+            lock (_lock)
+            {
+                _sequence = sequence;
+            }
+        }
+
+        /// <summary>
         /// Increment the Agent's Sequence number by one
         /// </summary>
         public void IncrementSequence()
@@ -212,6 +223,7 @@ namespace MTConnect.Buffers
             {
                 var firstItem = _archiveObservations[0];
                 var length = _sequence - firstItem.Sequence;
+                if (length > BufferSize) length = BufferSize;
 
                 storedObservations = new StoredObservation[length];
 
@@ -470,7 +482,7 @@ namespace MTConnect.Buffers
 
         #region "Internal"
 
-        private void AddCurrentObservation(StoredObservation observation)
+        protected void AddCurrentObservation(StoredObservation observation)
         {
             if (_currentObservations != null && !string.IsNullOrEmpty(observation.DeviceUuid) && !string.IsNullOrEmpty(observation.DataItemId))
             {
@@ -521,7 +533,7 @@ namespace MTConnect.Buffers
             }
         }
 
-        private void AddCurrentCondition(StoredObservation observation)
+        protected void AddCurrentCondition(StoredObservation observation)
         {
             if (_currentConditions != null && !string.IsNullOrEmpty(observation.DeviceUuid) && !string.IsNullOrEmpty(observation.DataItemId))
             {
@@ -634,7 +646,7 @@ namespace MTConnect.Buffers
         }
 
 
-        private void AddBufferObservation(StoredObservation observation)
+        protected void AddBufferObservation(StoredObservation observation)
         {
             long bufferIndex = 0;
 
@@ -663,7 +675,7 @@ namespace MTConnect.Buffers
             OnBufferObservationAdd(bufferIndex, observation);
         }
 
-        private void AddBufferObservations(IEnumerable<StoredObservation> observations)
+        protected void AddBufferObservations(IEnumerable<StoredObservation> observations)
         {
             if (!observations.IsNullOrEmpty())
             {
