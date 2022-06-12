@@ -32,19 +32,21 @@ namespace MTConnect.Agents.Information
             }
         }
 
+        [JsonPropertyName("instanceId")]
+        public long InstanceId { get; set; }
+
+        [JsonPropertyName("deviceModelChangeTime")]
+        public long DeviceModelChangeTime { get; set; }
+
 
         public MTConnectAgentInformation()
         {
             Uuid = Guid.NewGuid().ToString();
+            InstanceId = UnixDateTime.Now;
         }
 
 
         public static MTConnectAgentInformation Read(string path = null)
-        {
-            return Read<MTConnectAgentInformation>(path);
-        }
-
-        public static T Read<T>(string path = null) where T : MTConnectAgentInformation
         {
             var configurationPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Filename);
             if (!string.IsNullOrEmpty(path))
@@ -63,7 +65,7 @@ namespace MTConnect.Agents.Information
                     var text = File.ReadAllText(configurationPath);
                     if (!string.IsNullOrEmpty(text))
                     {
-                        return JsonSerializer.Deserialize<T>(text);
+                        return JsonSerializer.Deserialize<MTConnectAgentInformation>(text);
                     }
                 }
                 catch { }

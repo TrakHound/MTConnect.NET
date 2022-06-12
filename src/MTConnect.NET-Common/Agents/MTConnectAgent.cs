@@ -192,13 +192,19 @@ namespace MTConnect.Agents
         public MTConnectAssetValidationHandler InvalidAssetAdded { get; set; }
 
 
-        public MTConnectAgent(MTConnectAgentInformation information = null, long instanceId = 0, bool initializeAgentDevice = true)
+        public MTConnectAgent(
+            MTConnectAgentInformation information = null,
+            long instanceId = 0,
+            long deviceModelChangeTime = 0,
+            bool initializeAgentDevice = true
+            )
         {
             _uuid = information != null ? information.Uuid : Guid.NewGuid().ToString();
             _componentId = information != null ? information.ComponentId : StringFunctions.RandomString(10);
             _configuration = new MTConnectAgentConfiguration();
             _information = information != null ? information : new MTConnectAgentInformation();
             _instanceId = instanceId > 0 ? instanceId : CreateInstanceId();
+            _deviceModelChangeTime = deviceModelChangeTime;
             _mtconnectVersion = MTConnectVersions.Max;
             _deviceBuffer = new MTConnectDeviceBuffer();
             _observationBuffer = new MTConnectObservationBuffer();
@@ -208,12 +214,19 @@ namespace MTConnect.Agents
             StartAgentInformationUpdateTimer();
         }
 
-        public MTConnectAgent(MTConnectAgentConfiguration configuration, MTConnectAgentInformation information = null, long instanceId = 0, bool initializeAgentDevice = true)
+        public MTConnectAgent(
+            MTConnectAgentConfiguration configuration,
+            MTConnectAgentInformation information = null,
+            long instanceId = 0,
+            long deviceModelChangeTime = 0,
+            bool initializeAgentDevice = true
+            )
         {
             _uuid = information != null ? information.Uuid : Guid.NewGuid().ToString();
             _componentId = information != null ? information.ComponentId : StringFunctions.RandomString(10);
             _configuration = configuration != null ? configuration : new MTConnectAgentConfiguration();
             _information = information != null ? information : new MTConnectAgentInformation();
+            _deviceModelChangeTime = deviceModelChangeTime;
             _mtconnectVersion = _configuration != null ? _configuration.DefaultVersion : MTConnectVersions.Max;
             _instanceId = instanceId > 0 ? instanceId : CreateInstanceId();
             _deviceBuffer = new MTConnectDeviceBuffer();
@@ -230,6 +243,7 @@ namespace MTConnect.Agents
             IMTConnectAssetBuffer assetBuffer,
             MTConnectAgentInformation information = null,
             long instanceId = 0,
+            long deviceModelChangeTime = 0,
             bool initializeAgentDevice = true
             )
         {
@@ -238,6 +252,7 @@ namespace MTConnect.Agents
             _configuration = new MTConnectAgentConfiguration();
             _information = information != null ? information : new MTConnectAgentInformation();
             _instanceId = instanceId > 0 ? instanceId : CreateInstanceId();
+            _deviceModelChangeTime = deviceModelChangeTime;
             _mtconnectVersion = MTConnectVersions.Max;
             _deviceBuffer = deviceBuffer != null ? deviceBuffer : new MTConnectDeviceBuffer();
             _observationBuffer = observationBuffer != null ? observationBuffer : new MTConnectObservationBuffer(_configuration);
@@ -254,6 +269,7 @@ namespace MTConnect.Agents
             IMTConnectAssetBuffer assetBuffer,
             MTConnectAgentInformation information = null,
             long instanceId = 0,
+            long deviceModelChangeTime = 0,
             bool initializeAgentDevice = true
             )
         {
@@ -262,6 +278,7 @@ namespace MTConnect.Agents
             _configuration = configuration != null ? configuration : new MTConnectAgentConfiguration();
             _information = information != null ? information : new MTConnectAgentInformation();
             _instanceId = instanceId > 0 ? instanceId : CreateInstanceId();
+            _deviceModelChangeTime = deviceModelChangeTime;
             _mtconnectVersion = _configuration != null ? _configuration.DefaultVersion : MTConnectVersions.Max;
             _deviceBuffer = deviceBuffer != null ? deviceBuffer : new MTConnectDeviceBuffer();
             _observationBuffer = observationBuffer != null ? observationBuffer : new MTConnectObservationBuffer(_configuration);
@@ -3829,8 +3846,26 @@ namespace MTConnect.Agents
 
         private void UpdateAgentInformation(object sender, EventArgs args)
         {
+            if (!_updateInformation)
+            {
+                // Check if InstanceId is the same
+                if (_information.InstanceId != _instanceId)
+                {
+                    _information.InstanceId = _instanceId;
+                    _updateInformation = true;
+                }
+
+                // Check if DeviceModelChangeTime is the same
+                if (_information.DeviceModelChangeTime != _deviceModelChangeTime)
+                {
+                    _information.DeviceModelChangeTime = _deviceModelChangeTime;
+                    _updateInformation = true;
+                }
+            }
+
             if (_updateInformation)
             {
+                // Save to File
                 _information.Save();
                 _updateInformation = false;
             }
