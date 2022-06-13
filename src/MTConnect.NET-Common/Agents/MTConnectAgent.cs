@@ -79,6 +79,11 @@ namespace MTConnect.Agents
         public Agent Agent => _agent;
 
         /// <summary>
+        /// Gets the UUID that uniquely identifies the Agent
+        /// </summary>
+        public string Uuid => _uuid;
+
+        /// <summary>
         /// Gets a representation of the specific instance of the Agent.
         /// </summary>
         public long InstanceId => _instanceId;
@@ -193,16 +198,15 @@ namespace MTConnect.Agents
 
 
         public MTConnectAgent(
-            MTConnectAgentInformation information = null,
+            string uuid = null,
             long instanceId = 0,
             long deviceModelChangeTime = 0,
             bool initializeAgentDevice = true
             )
         {
-            _uuid = information != null ? information.Uuid : Guid.NewGuid().ToString();
-            _componentId = information != null ? information.ComponentId : StringFunctions.RandomString(10);
+            _uuid = !string.IsNullOrEmpty(uuid) ? uuid : Guid.NewGuid().ToString();
             _configuration = new MTConnectAgentConfiguration();
-            _information = information != null ? information : new MTConnectAgentInformation();
+            _information = new MTConnectAgentInformation(_uuid, _instanceId, _deviceModelChangeTime);
             _instanceId = instanceId > 0 ? instanceId : CreateInstanceId();
             _deviceModelChangeTime = deviceModelChangeTime;
             _mtconnectVersion = MTConnectVersions.Max;
@@ -216,16 +220,15 @@ namespace MTConnect.Agents
 
         public MTConnectAgent(
             MTConnectAgentConfiguration configuration,
-            MTConnectAgentInformation information = null,
+            string uuid = null,
             long instanceId = 0,
             long deviceModelChangeTime = 0,
             bool initializeAgentDevice = true
             )
         {
-            _uuid = information != null ? information.Uuid : Guid.NewGuid().ToString();
-            _componentId = information != null ? information.ComponentId : StringFunctions.RandomString(10);
+            _uuid = !string.IsNullOrEmpty(uuid) ? uuid : Guid.NewGuid().ToString();
             _configuration = configuration != null ? configuration : new MTConnectAgentConfiguration();
-            _information = information != null ? information : new MTConnectAgentInformation();
+            _information = new MTConnectAgentInformation(_uuid, _instanceId, _deviceModelChangeTime);
             _deviceModelChangeTime = deviceModelChangeTime;
             _mtconnectVersion = _configuration != null ? _configuration.DefaultVersion : MTConnectVersions.Max;
             _instanceId = instanceId > 0 ? instanceId : CreateInstanceId();
@@ -241,16 +244,15 @@ namespace MTConnect.Agents
             IMTConnectDeviceBuffer deviceBuffer,
             IMTConnectObservationBuffer observationBuffer,
             IMTConnectAssetBuffer assetBuffer,
-            MTConnectAgentInformation information = null,
+            string uuid = null,
             long instanceId = 0,
             long deviceModelChangeTime = 0,
             bool initializeAgentDevice = true
             )
         {
-            _uuid = information != null ? information.Uuid : Guid.NewGuid().ToString();
-            _componentId = information != null ? information.ComponentId : StringFunctions.RandomString(10);
+            _uuid = !string.IsNullOrEmpty(uuid) ? uuid : Guid.NewGuid().ToString();
             _configuration = new MTConnectAgentConfiguration();
-            _information = information != null ? information : new MTConnectAgentInformation();
+            _information = new MTConnectAgentInformation(_uuid, _instanceId, _deviceModelChangeTime);
             _instanceId = instanceId > 0 ? instanceId : CreateInstanceId();
             _deviceModelChangeTime = deviceModelChangeTime;
             _mtconnectVersion = MTConnectVersions.Max;
@@ -267,18 +269,17 @@ namespace MTConnect.Agents
             IMTConnectDeviceBuffer deviceBuffer,
             IMTConnectObservationBuffer observationBuffer,
             IMTConnectAssetBuffer assetBuffer,
-            MTConnectAgentInformation information = null,
+            string uuid = null,
             long instanceId = 0,
             long deviceModelChangeTime = 0,
             bool initializeAgentDevice = true
             )
         {
-            _uuid = information != null ? information.Uuid : Guid.NewGuid().ToString();
-            _componentId = information != null ? information.ComponentId : StringFunctions.RandomString(10);
+            _uuid = !string.IsNullOrEmpty(uuid) ? uuid : Guid.NewGuid().ToString();
             _configuration = configuration != null ? configuration : new MTConnectAgentConfiguration();
-            _information = information != null ? information : new MTConnectAgentInformation();
             _instanceId = instanceId > 0 ? instanceId : CreateInstanceId();
             _deviceModelChangeTime = deviceModelChangeTime;
+            _information = new MTConnectAgentInformation(_uuid, _instanceId, _deviceModelChangeTime);
             _mtconnectVersion = _configuration != null ? _configuration.DefaultVersion : MTConnectVersions.Max;
             _deviceBuffer = deviceBuffer != null ? deviceBuffer : new MTConnectDeviceBuffer();
             _observationBuffer = observationBuffer != null ? observationBuffer : new MTConnectObservationBuffer(_configuration);
@@ -3585,7 +3586,7 @@ namespace MTConnect.Agents
         public void InitializeAgentDevice(bool initializeDataItems = true)
         {
             var agent = new Agent();
-            agent.Id = _componentId;
+            agent.Id = $"agent_{_uuid.ToMD5Hash().Substring(0, 10)}";
             agent.Name = "Agent";
             agent.Uuid = _uuid;
             agent.MTConnectVersion = Version;

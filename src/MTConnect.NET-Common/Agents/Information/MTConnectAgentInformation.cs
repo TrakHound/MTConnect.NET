@@ -21,16 +21,16 @@ namespace MTConnect.Agents.Information
         [JsonPropertyName("uuid")]
         public string Uuid { get; set; }
 
-        [JsonIgnore]
-        public string ComponentId
-        {
-            get
-            {
-                var id = Uuid;
-                id = id.ToMD5Hash().Substring(0, 10);
-                return $"agent_{id}";
-            }
-        }
+        //[JsonIgnore]
+        //public string ComponentId
+        //{
+        //    get
+        //    {
+        //        var id = Uuid;
+        //        id = id.ToMD5Hash().Substring(0, 10);
+        //        return $"agent_{id}";
+        //    }
+        //}
 
         [JsonPropertyName("instanceId")]
         public long InstanceId { get; set; }
@@ -43,6 +43,13 @@ namespace MTConnect.Agents.Information
         {
             Uuid = Guid.NewGuid().ToString();
             InstanceId = UnixDateTime.Now;
+        }
+
+        public MTConnectAgentInformation(string uuid, long instanceId = 0, long deviceModelChangeTime = 0)
+        {
+            Uuid = uuid;
+            InstanceId = instanceId;
+            DeviceModelChangeTime = deviceModelChangeTime;
         }
 
 
