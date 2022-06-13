@@ -108,7 +108,7 @@ namespace MTConnect.Assets.Files
 
             if (baseResult.IsValid)
             {
-                if (Size > 0)
+                if (Size <= 0)
                 {
                     message = "Size property is Required and must be greater than 0";
                     result = false;
