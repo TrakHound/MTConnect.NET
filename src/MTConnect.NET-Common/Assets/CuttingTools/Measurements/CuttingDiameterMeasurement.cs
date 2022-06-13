@@ -3,7 +3,7 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE', which is part of this source code package.
 
-namespace MTConnect.Assets.CuttingTools.Measurements.CuttingItem
+namespace MTConnect.Assets.CuttingTools.Measurements
 {
     /// <summary>
     /// The diameter of a circle on which the defined point Pk located on this Cutting Tool.
@@ -27,7 +27,14 @@ namespace MTConnect.Assets.CuttingTools.Measurements.CuttingItem
             Type = TypeId;
             Code = CodeId;
             Units = Devices.Units.MILLIMETER;
-            CDATA = value;
+            Value = value;
+        }
+
+        public CuttingDiameterMeasurement(Measurement measurement) : base(measurement)
+        {
+            Type = TypeId;
+            Code = CodeId;
+            Units = Devices.Units.MILLIMETER;
         }
     }
 }

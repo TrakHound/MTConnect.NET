@@ -3,30 +3,37 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE', which is part of this source code package.
 
-namespace MTConnect.Assets.CuttingTools.Measurements.CuttingItem
+namespace MTConnect.Assets.CuttingTools.Measurements
 {
     /// <summary>
     /// The dimension between two parallel tangents on the outside edge of a flange.
     /// </summary>
-    public class FlangeDiameterMeasurement : CuttingItemMeasurement
+    public class FlangeDiameterMaxMeasurement : AssemblyMeasurement
     {
-        public const string TypeId = "FlangeDiameter";
+        public const string TypeId = "FlangeDiamterMax";
         public const string CodeId = "DF";
 
 
-        public FlangeDiameterMeasurement()
+        public FlangeDiameterMaxMeasurement()
         {
             Type = TypeId;
             Code = CodeId;
             Units = Devices.Units.MILLIMETER;
         }
 
-        public FlangeDiameterMeasurement(double value)
+        public FlangeDiameterMaxMeasurement(double value)
         {
             Type = TypeId;
             Code = CodeId;
             Units = Devices.Units.MILLIMETER;
-            CDATA = value;
+            Value = value;
+        }
+
+        public FlangeDiameterMaxMeasurement(Measurement measurement) : base(measurement)
+        {
+            Type = TypeId;
+            Code = CodeId;
+            Units = Devices.Units.MILLIMETER;
         }
     }
 }

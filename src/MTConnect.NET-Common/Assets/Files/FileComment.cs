@@ -4,6 +4,7 @@
 // file 'LICENSE', which is part of this source code package.
 
 using System;
+using System.Text.Json.Serialization;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -18,9 +19,11 @@ namespace MTConnect.Assets.Files
         /// The time the comment was made.
         /// </summary>
         [XmlAttribute("timestamp")]
+        [JsonPropertyName("timestamp")]
         public DateTime Timestamp { get; set; }
 
         [XmlText]
+        [JsonPropertyName("value")]
         public string Value { get; set; }
     }
 }

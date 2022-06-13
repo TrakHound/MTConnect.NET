@@ -3,6 +3,7 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE', which is part of this source code package.
 
+using System.Text.Json.Serialization;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -17,9 +18,11 @@ namespace MTConnect.Assets.Files
         /// The name of the FileProperty
         /// </summary>
         [XmlAttribute("name")]
+        [JsonPropertyName("name")]
         public string Name { get; set; }
 
         [XmlText]
+        [JsonPropertyName("value")]
         public string Value { get; set; }
     }
 }

@@ -78,7 +78,6 @@ namespace MTConnect.Assets
                                         // Create new Asset
                                         var asset = (IAsset)serializer.Deserialize(new XmlNodeReader(child));
                                         asset.Type = child.Name;
-                                        asset.Xml = child.OuterXml;
                                         Assets.Add(asset);
                                     }
                                 }

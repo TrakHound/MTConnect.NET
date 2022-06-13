@@ -3,7 +3,7 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE', which is part of this source code package.
 
-namespace MTConnect.Assets.CuttingTools.Measurements.CuttingItem
+namespace MTConnect.Assets.CuttingTools.Measurements
 {
     /// <summary>
     /// The angle between the major cutting edge and the same cutting edge rotated by 180 degrees about the tool axis.
@@ -26,7 +26,14 @@ namespace MTConnect.Assets.CuttingTools.Measurements.CuttingItem
             Type = TypeId;
             Code = CodeId;
             Units = Devices.Units.DEGREE;
-            CDATA = value;
+            Value = value;
+        }
+
+        public PointAngleMeasurement(Measurement measurement) : base(measurement)
+        {
+            Type = TypeId;
+            Code = CodeId;
+            Units = Devices.Units.DEGREE;
         }
     }
 }

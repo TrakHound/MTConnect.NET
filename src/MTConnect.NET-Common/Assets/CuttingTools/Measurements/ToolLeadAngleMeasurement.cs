@@ -3,7 +3,7 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE', which is part of this source code package.
 
-namespace MTConnect.Assets.CuttingTools.Measurements.CuttingItem
+namespace MTConnect.Assets.CuttingTools.Measurements
 {
     /// <summary>
     /// The angle between the tool cutting edge plane and a plane perpendicular to the tool feed plane measured in a plane parallel the xy-plane.
@@ -26,7 +26,14 @@ namespace MTConnect.Assets.CuttingTools.Measurements.CuttingItem
             Type = TypeId;
             Code = CodeId;
             Units = Devices.Units.DEGREE;
-            CDATA = value;
+            Value = value;
+        }
+
+        public ToolLeadAngleMeasurement(Measurement measurement) : base(measurement)
+        {
+            Type = TypeId;
+            Code = CodeId;
+            Units = Devices.Units.DEGREE;
         }
     }
 }

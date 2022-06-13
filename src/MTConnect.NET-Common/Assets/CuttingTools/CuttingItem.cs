@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.Xml;
 using System.Xml.Serialization;
 using MTConnect.Assets.CuttingTools.Measurements;
-using MTConnect.Assets.CuttingTools.Measurements.CuttingItem;
 
 namespace MTConnect.Assets.CuttingTools
 {
@@ -21,30 +20,35 @@ namespace MTConnect.Assets.CuttingTools
         /// The number or numbers representing the individual cutting item or items on the tool.
         /// </summary>
         [XmlAttribute("indices")]
+        [JsonPropertyName("indices")]
         public int Indices { get; set; }
 
         /// <summary>
         /// The manufacturer identifier of this cutting item
         /// </summary>
         [XmlAttribute("itemId")]
+        [JsonPropertyName("itemId")]
         public string ItemId { get; set; }
 
         /// <summary>
         /// The manufacturers of the cutting item
         /// </summary>
         [XmlAttribute("manufacturers")]
+        [JsonPropertyName("manufacturers")]
         public string Manufacturers { get; set; }
 
         /// <summary>
         /// The material composition for this cutting item
         /// </summary>
         [XmlAttribute("grade")]
+        [JsonPropertyName("grade")]
         public string Grade { get; set; }
 
         /// <summary>
         /// A free-form description of the cutting item.
         /// </summary>
         [XmlElement("Description")]
+        [JsonPropertyName("description")]
         public string Description { get; set; }
 
 
@@ -52,12 +56,14 @@ namespace MTConnect.Assets.CuttingTools
         /// A free form description of the location on the cutting tool.
         /// </summary>
         [XmlElement("Locus")]
+        [JsonPropertyName("locus")]
         public string Locus { get; set; }
 
         /// <summary>
         /// The life of this cutting item.
         /// </summary>
         [XmlElement("ItemLife")]
+        [JsonPropertyName("itemLife")]
         public List<ItemLife> ItemLife { get; set; }
 
         [XmlIgnore]
@@ -70,6 +76,7 @@ namespace MTConnect.Assets.CuttingTools
         /// </summary>
         [XmlArray("CutterStatus")]
         [XmlArrayItem("Status", typeof(CutterStatus))]
+        [JsonPropertyName("cutterStatus")]
         public List<CutterStatus> CutterStatus { get; set; }
 
         [XmlIgnore]
@@ -80,6 +87,7 @@ namespace MTConnect.Assets.CuttingTools
         /// The tool group the part program assigned this item.      
         /// </summary>
         [XmlElement("ProgramToolGroup")]
+        [JsonPropertyName("programToolGroup")]
         public string ProgramToolGroup { get; set; }
 
         /// <summary>
@@ -107,6 +115,7 @@ namespace MTConnect.Assets.CuttingTools
         [XmlArrayItem(ToolOrientationMeasurement.TypeId, typeof(ToolOrientationMeasurement))]
         [XmlArrayItem(WeightMeasurement.TypeId, typeof(WeightMeasurement))]
         [XmlArrayItem(WiperEdgeLengthMeasurement.TypeId, typeof(WiperEdgeLengthMeasurement))]
+        [JsonPropertyName("measurements")]
         public List<Measurement> Measurements { get; set; }
 
         [XmlIgnore]
@@ -118,6 +127,34 @@ namespace MTConnect.Assets.CuttingTools
         {
             CutterStatus = new List<CutterStatus>();
             Measurements = new List<Measurement>();
+        }
+
+
+        public CuttingItem Process()
+        {
+            var cuttingItem = new CuttingItem();
+            cuttingItem.Indices = Indices;
+            cuttingItem.ItemId = ItemId;
+            cuttingItem.Manufacturers = Manufacturers;
+            cuttingItem.Grade = Grade;
+            cuttingItem.Description = Description;
+            cuttingItem.Locus = Locus;
+            cuttingItem.ItemLife = ItemLife;
+            cuttingItem.CutterStatus = CutterStatus;
+            cuttingItem.ProgramToolGroup = ProgramToolGroup;
+
+            if (!Measurements.IsNullOrEmpty())
+            {
+                var measurements = new List<Measurement>();
+                foreach (var measurement in Measurements)
+                {
+                    var typeMeasurement = Measurement.Create(measurement.Type, measurement);
+                    if (typeMeasurement != null) measurements.Add(typeMeasurement);
+                }
+                cuttingItem.Measurements = measurements;
+            }
+
+            return cuttingItem;
         }
     }
 }

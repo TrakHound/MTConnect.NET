@@ -3,7 +3,7 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE', which is part of this source code package.
 
-namespace MTConnect.Assets.CuttingTools.Measurements.Assembly
+namespace MTConnect.Assets.CuttingTools.Measurements
 {
     /// <summary>
     /// The distance measured along the X axis from that point of the item closest to the
@@ -30,7 +30,14 @@ namespace MTConnect.Assets.CuttingTools.Measurements.Assembly
             Type = TypeId;
             Code = CodeId;
             Units = Devices.Units.MILLIMETER;
-            CDATA = value;
+            Value = value;
+        }
+
+        public BodyLengthMaxMeasurement(Measurement measurement) : base(measurement)
+        {
+            Type = TypeId;
+            Code = CodeId;
+            Units = Devices.Units.MILLIMETER;
         }
     }
 }

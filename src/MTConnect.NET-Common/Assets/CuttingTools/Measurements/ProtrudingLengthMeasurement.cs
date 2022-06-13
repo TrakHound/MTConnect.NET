@@ -3,7 +3,7 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE', which is part of this source code package.
 
-namespace MTConnect.Assets.CuttingTools.Measurements.Assembly
+namespace MTConnect.Assets.CuttingTools.Measurements
 {
     /// <summary>
     /// The dimension from the yz-plane to the furthest point of the Tool Item or Adaptive Item measured in the -X direction.
@@ -26,7 +26,14 @@ namespace MTConnect.Assets.CuttingTools.Measurements.Assembly
             Type = TypeId;
             Code = CodeId;
             Units = Devices.Units.MILLIMETER;
-            CDATA = value;
+            Value = value;
+        }
+
+        public ProtrudingLengthMeasurement(Measurement measurement) : base(measurement)
+        {
+            Type = TypeId;
+            Code = CodeId;
+            Units = Devices.Units.MILLIMETER;
         }
     }
 }

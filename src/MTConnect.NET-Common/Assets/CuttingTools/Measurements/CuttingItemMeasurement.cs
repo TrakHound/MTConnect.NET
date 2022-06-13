@@ -5,5 +5,10 @@
 
 namespace MTConnect.Assets.CuttingTools.Measurements
 {
-    public abstract class CuttingItemMeasurement : Measurement { }
+    public abstract class CuttingItemMeasurement : Measurement
+    {
+        public CuttingItemMeasurement() { }
+
+        public CuttingItemMeasurement(Measurement measurement) : base(measurement) { }
+    }
 }

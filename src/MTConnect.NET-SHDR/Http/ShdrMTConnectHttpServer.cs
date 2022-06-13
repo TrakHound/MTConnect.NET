@@ -88,15 +88,12 @@ namespace MTConnect.Http
             var requestBody = ReadRequestBody(requestBytes);
             if (!string.IsNullOrEmpty(deviceKey) && !string.IsNullOrEmpty(assetType) && !string.IsNullOrEmpty(requestBody))
             {
-                var type = Assets.Asset.GetAssetType(assetType);
-                if (type != null)
+                var asset = Assets.XmlAsset.FromXml(assetType, requestBody);
+                if (asset != null)
                 {
-                    var asset = Assets.XmlAsset.FromXml(type, requestBody);
-                    if (asset != null)
-                    {
-                        asset.AssetId = assetId;
-                        return await _mtconnectAgent.AddAssetAsync(deviceKey, asset);
-                    }
+                    asset.AssetId = assetId;
+                    asset.Timestamp = asset.Timestamp;
+                    return await _mtconnectAgent.AddAssetAsync(deviceKey, asset);
                 }
             }
 

@@ -5,5 +5,10 @@
 
 namespace MTConnect.Assets.CuttingTools.Measurements
 {
-    public abstract class CommonMeasurement : Measurement { }
+    public abstract class CommonMeasurement : Measurement
+    {
+        public CommonMeasurement() { }
+
+        public CommonMeasurement(Measurement measurement) : base(measurement) { }
+    }
 }

@@ -3,7 +3,7 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE', which is part of this source code package.
 
-namespace MTConnect.Assets.CuttingTools.Measurements.Assembly
+namespace MTConnect.Assets.CuttingTools.Measurements
 {
     /// <summary>
     /// The largest length dimension of the Cutting Tool including the master insert where applicable.
@@ -26,7 +26,14 @@ namespace MTConnect.Assets.CuttingTools.Measurements.Assembly
             Type = TypeId;
             Code = CodeId;
             Units = Devices.Units.MILLIMETER;
-            CDATA = value;
+            Value = value;
+        }
+
+        public OverallToolLengthMeasurement(Measurement measurement) : base(measurement)
+        {
+            Type = TypeId;
+            Code = CodeId;
+            Units = Devices.Units.MILLIMETER;
         }
     }
 }

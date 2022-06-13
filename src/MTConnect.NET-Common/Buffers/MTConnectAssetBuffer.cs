@@ -141,6 +141,7 @@ namespace MTConnect.Buffers
                     _storedAssets.TryRemove(firstId.Key, out var _);
                 }
 
+                _storedAssets.TryRemove(asset.AssetId, out var _);
                 if (_storedAssets.TryAdd(asset.AssetId, asset))
                 {
                     OnAssetAdd(asset);

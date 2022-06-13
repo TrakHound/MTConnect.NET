@@ -3,6 +3,7 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE', which is part of this source code package.
 
+using System.Text.Json.Serialization;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -17,6 +18,7 @@ namespace MTConnect.Assets.Files
         /// uuid of the target device or application.
         /// </summary>
         [XmlAttribute("deviceUuid")]
+        [JsonPropertyName("deviceUuid")]
         public string DeviceUuid { get; set; }
     }
 }

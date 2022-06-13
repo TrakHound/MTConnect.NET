@@ -32,7 +32,7 @@ namespace MTConnect.Assets
         [JsonIgnore]
         public Version Version { get; set; }
 
-        [JsonIgnore]
-        public string Xml { get; set; }
+        //[JsonIgnore]
+        //public string Xml { get; set; }
     }
 }

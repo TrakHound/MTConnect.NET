@@ -6,14 +6,13 @@
 using System.Text.Json.Serialization;
 using System.Xml;
 using System.Xml.Serialization;
-using MTConnect.Devices;
 
 namespace MTConnect.Assets.CuttingTools.Measurements
 {
     /// <summary>
     /// A Measurement MUST be a scalar floating-point value that MAY be constrained to a maximum and minimum value.
     /// </summary>
-    public abstract class Measurement
+    public class Measurement
     {
         public const string DescriptionText = "A Measurement MUST be a scalar floating-point value that MAY be constrained to a maximum and minimum value.";
 
@@ -23,8 +22,8 @@ namespace MTConnect.Assets.CuttingTools.Measurements
         public string Type { get; set; }
 
         [XmlText]
-        [JsonPropertyName("cdata")]
-        public double CDATA { get; set; }
+        [JsonPropertyName("value")]
+        public double Value { get; set; }
 
         /// <summary>
         /// The number of significant digits in the reported value. 
@@ -44,11 +43,6 @@ namespace MTConnect.Assets.CuttingTools.Measurements
         [XmlAttribute("units")]
         [JsonPropertyName("units")]
         public string Units { get; set; }
-        //public Units Units { get; set; }
-
-        //[XmlIgnore]
-        //[JsonIgnore]
-        //public bool UnitsSpecified => Units != Units.NOT_SPECIFIED;
 
         /// <summary>
         /// The units the measurement was originally recorded in.
@@ -56,11 +50,6 @@ namespace MTConnect.Assets.CuttingTools.Measurements
         [XmlAttribute("nativeUnits")]
         [JsonPropertyName("nativeUnits")]
         public string NativeUnits { get; set; }
-        //public NativeUnits NativeUnits { get; set; }
-
-        //[XmlIgnore]
-        //[JsonIgnore]
-        //public bool NativeUnitsSpecified => NativeUnits != NativeUnits.NOT_SPECIFIED;
 
         /// <summary>
         /// A shop specific code for this measurement. ISO 13399 codes MAY be used to for these codes as well.
@@ -105,5 +94,70 @@ namespace MTConnect.Assets.CuttingTools.Measurements
         [XmlIgnore]
         [JsonIgnore]
         public string TypeDescription { get; }
+
+
+        public Measurement() { }
+
+        public Measurement(Measurement measurement)
+        {
+            if (measurement != null)
+            {
+                Value = measurement.Value;
+                Nominal = measurement.Nominal;
+                Minimum = measurement.Minimum;
+                Maximum = measurement.Maximum;
+                SignificantDigits = measurement.SignificantDigits;
+                NativeUnits = measurement.NativeUnits;
+            }
+        }
+
+        public static Measurement Create(string type, Measurement measurement)
+        {
+            if (!string.IsNullOrEmpty(type))
+            {
+                switch (type)
+                {
+                    // Common
+                    case FunctionalLengthMeasurement.TypeId: return new FunctionalLengthMeasurement(measurement);
+                    case WeightMeasurement.TypeId: return new WeightMeasurement(measurement);
+
+                    // Assembly
+                    case BodyDiameterMaxMeasurement.TypeId: return new BodyDiameterMaxMeasurement(measurement);
+                    case BodyLengthMaxMeasurement.TypeId: return new BodyLengthMaxMeasurement(measurement);
+                    case DepthOfCutMaxMeasurement.TypeId: return new DepthOfCutMaxMeasurement(measurement);
+                    case CuttingDiameterMaxMeasurement.TypeId: return new CuttingDiameterMaxMeasurement(measurement);
+                    case FlangeDiameterMaxMeasurement.TypeId: return new FlangeDiameterMaxMeasurement(measurement);
+                    case OverallToolLengthMeasurement.TypeId: return new OverallToolLengthMeasurement(measurement);
+                    case ShankDiameterMeasurement.TypeId: return new ShankDiameterMeasurement(measurement);
+                    case ShankHeightMeasurement.TypeId: return new ShankHeightMeasurement(measurement);
+                    case ShankLengthMeasurement.TypeId: return new ShankLengthMeasurement(measurement);
+                    case UsableLengthMaxMeasurement.TypeId: return new UsableLengthMaxMeasurement(measurement);
+                    case ProtrudingLengthMeasurement.TypeId: return new ProtrudingLengthMeasurement(measurement);
+
+                    // Cutting Item
+                    case ChamferFlatLengthMeasurement.TypeId: return new ChamferFlatLengthMeasurement(measurement);
+                    case ChamferWidthMeasurement.TypeId: return new ChamferWidthMeasurement(measurement);
+                    case CornerRadiusMeasurement.TypeId: return new CornerRadiusMeasurement(measurement);
+                    case CuttingDiameterMeasurement.TypeId: return new CuttingDiameterMeasurement(measurement);
+                    case CuttingEdgeLengthMeasurement.TypeId: return new CuttingEdgeLengthMeasurement(measurement);
+                    case CuttingHeightMeasurement.TypeId: return new CuttingHeightMeasurement(measurement);
+                    case CuttingReferencePointMeasurement.TypeId: return new CuttingReferencePointMeasurement(measurement);
+                    case DriveAngleMeasurement.TypeId: return new DriveAngleMeasurement(measurement);
+                    case FlangeDiameterMeasurement.TypeId: return new FlangeDiameterMeasurement(measurement);               
+                    case FunctionalWidthMeasurement.TypeId: return new FunctionalWidthMeasurement(measurement);
+                    case InscribedCircleDiameterMeasurement.TypeId: return new InscribedCircleDiameterMeasurement(measurement);
+                    case InsertWidthMeasurement.TypeId: return new InsertWidthMeasurement(measurement);
+                    case PointAngleMeasurement.TypeId: return new PointAngleMeasurement(measurement);
+                    case StepDiameterLengthMeasurement.TypeId: return new StepDiameterLengthMeasurement(measurement);
+                    case StepIncludedAngleMeasurement.TypeId: return new StepIncludedAngleMeasurement(measurement);
+                    case ToolCuttingEdgeAngleMeasurement.TypeId: return new ToolCuttingEdgeAngleMeasurement(measurement);
+                    case ToolLeadAngleMeasurement.TypeId: return new ToolLeadAngleMeasurement(measurement);
+                    case ToolOrientationMeasurement.TypeId: return new ToolOrientationMeasurement(measurement);
+                    case WiperEdgeLengthMeasurement.TypeId: return new WiperEdgeLengthMeasurement(measurement);
+                }
+            }
+
+            return null;
+        }
     }
 }

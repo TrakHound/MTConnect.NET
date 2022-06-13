@@ -3,7 +3,7 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE', which is part of this source code package.
 
-namespace MTConnect.Assets.CuttingTools.Measurements.CuttingItem
+namespace MTConnect.Assets.CuttingTools.Measurements
 {
     /// <summary>
     /// The theoretical length of the cutting edge of a Cutting Item over sharp corners.
@@ -26,7 +26,14 @@ namespace MTConnect.Assets.CuttingTools.Measurements.CuttingItem
             Type = TypeId;
             Code = CodeId;
             Units = Devices.Units.MILLIMETER;
-            CDATA = value;
+            Value = value;
+        }
+
+        public CuttingEdgeLengthMeasurement(Measurement measurement) : base(measurement)
+        {
+            Type = TypeId;
+            Code = CodeId;
+            Units = Devices.Units.MILLIMETER;
         }
     }
 }

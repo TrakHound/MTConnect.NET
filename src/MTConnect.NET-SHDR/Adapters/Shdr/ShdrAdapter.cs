@@ -1800,7 +1800,7 @@ namespace MTConnect.Adapters.Shdr
             if (asset != null)
             {
                 // Set Timestamp (if not already set)
-                if (asset.Timestamp > DateTime.MinValue) asset.Timestamp = DateTime.UtcNow;
+                if (asset.Timestamp > 0) asset.Timestamp = UnixDateTime.Now;
 
                 // Update Asset
                 UpdateAsset(asset);
@@ -1829,7 +1829,7 @@ namespace MTConnect.Adapters.Shdr
                 foreach (var item in assets)
                 {
                     // Set Timestamp (if not already set)
-                    if (item.Timestamp > DateTime.MinValue) item.Timestamp = DateTime.UtcNow;
+                    if (item.Timestamp > 0) item.Timestamp = UnixDateTime.Now;
 
                     // Update Asset
                     UpdateAsset(item);

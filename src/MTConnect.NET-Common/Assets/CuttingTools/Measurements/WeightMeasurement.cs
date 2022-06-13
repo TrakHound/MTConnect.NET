@@ -25,8 +25,15 @@ namespace MTConnect.Assets.CuttingTools.Measurements
         {
             Type = TypeId;
             Code = CodeId;
-            Units = Devices.Units.MILLIMETER;
-            CDATA = value;
+            Units = Devices.Units.MILLIGRAM;
+            Value = value;
+        }
+
+        public WeightMeasurement(Measurement measurement) : base(measurement)
+        {
+            Type = TypeId;
+            Code = CodeId;
+            Units = Devices.Units.MILLIGRAM;
         }
     }
 }

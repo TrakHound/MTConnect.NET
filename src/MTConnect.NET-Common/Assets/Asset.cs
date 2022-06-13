@@ -14,8 +14,8 @@ using System.Xml.Serialization;
 namespace MTConnect.Assets
 {
     /// <summary>
-    /// An Asset XML element is a container type XML element used to organize
-    /// information describing an entity that is not a piece of equipment.
+    /// It is used in the manufacturing process, but is not permanently associated with a single piece of equipment. 
+    /// It can be removed from the piece of equipment without compromising its function, and can be associated with other pieces of equipment during its lifecycle.
     /// </summary>
     public class Asset : IAsset
     {
@@ -25,24 +25,28 @@ namespace MTConnect.Assets
         /// <summary>
         /// The unique identifier for the MTConnect Asset.
         /// </summary>
+        [XmlAttribute("assetId")]
         [JsonPropertyName("assetId")]
         public string AssetId { get; set; }
 
         /// <summary>
         /// The type for the MTConnect Asset
         /// </summary>
+        [XmlAttribute("type")]
         [JsonPropertyName("type")]
         public string Type { get; set; }
 
         /// <summary>
         /// The time this MTConnect Asset was last modified.
         /// </summary>
+        [XmlAttribute("timestamp")]
         [JsonPropertyName("timestamp")]
         public DateTime Timestamp { get; set; }
 
         /// <summary>
         /// The piece of equipments UUID that supplied this data.
         /// </summary>
+        [XmlAttribute("deviceUuid")]
         [JsonPropertyName("deviceUuid")]
         public string DeviceUuid { get; set; }
 
@@ -50,18 +54,16 @@ namespace MTConnect.Assets
         /// This is an optional attribute that is an indicator that the MTConnect
         /// Asset has been removed from the piece of equipment.
         /// </summary>
+        [XmlAttribute("removed")]
         [JsonPropertyName("removed")]
         public bool Removed { get; set; }
 
         /// <summary>
         /// An optional element that can contain any descriptive content.
         /// </summary>
+        [XmlAttribute("description")]
         [JsonPropertyName("description")]
         public string Description { get; set; }
-
-        [XmlIgnore]
-        [JsonPropertyName("xml")]
-        public string Xml { get; set; }
 
 
         public static IAsset Create(string type)
@@ -142,75 +144,6 @@ namespace MTConnect.Assets
 
             return new Dictionary<string, Type>();
         }
-
-
-        public virtual IAsset Process(Version mtconnectVersion)
-        {
-            return this;
-        }
-
-        public virtual AssetValidationResult IsValid(Version mtconnectVersion)
-        {
-            return new AssetValidationResult(true);
-        }
-    }
-
-    /// <summary>
-    /// An Asset XML element is a container type XML element used to organize
-    /// information describing an entity that is not a piece of equipment.
-    /// </summary>
-    public class Asset<T> : IAsset where T : IAsset
-    {
-        /// <summary>
-        /// The unique identifier for the MTConnect Asset.
-        /// </summary>
-        [XmlAttribute("assetId")]
-        [JsonPropertyName("assetId")]
-        public string AssetId { get; set; }
-
-        /// <summary>
-        /// The type for the MTConnect Asset
-        /// </summary>
-        [XmlIgnore]
-        [JsonPropertyName("type")]
-        public string Type { get; set; }
-
-        /// <summary>
-        /// The time this MTConnect Asset was last modified.
-        /// </summary>
-        [XmlAttribute("timestamp")]
-        [JsonPropertyName("timestamp")]
-        public DateTime Timestamp { get; set; }
-
-        /// <summary>
-        /// The piece of equipments UUID that supplied this data.
-        /// </summary>
-        [XmlAttribute("deviceUuid")]
-        [JsonPropertyName("deviceUuid")]
-        public string DeviceUuid { get; set; }
-
-        /// <summary>
-        /// This is an optional attribute that is an indicator that the MTConnect
-        /// Asset has been removed from the piece of equipment.
-        /// </summary>
-        [XmlAttribute("removed")]
-        [JsonPropertyName("removed")]
-        public bool Removed { get; set; }
-
-        [XmlIgnore]
-        [JsonIgnore]
-        public bool RemovedSpecified => Removed;
-
-        /// <summary>
-        /// An optional element that can contain any descriptive content.
-        /// </summary>
-        [XmlElement("Description")]
-        [JsonPropertyName("description")]
-        public string Description { get; set; }
-
-        [XmlIgnore]
-        [JsonIgnore]
-        public string Xml { get; set; }
 
 
         public virtual IAsset Process(Version mtconnectVersion)

@@ -51,9 +51,6 @@ namespace MTConnect.Assets
         [JsonPropertyName("description")]
         string Description { get; set; }
 
-        [JsonPropertyName("xml")]
-        string Xml { get; set; }
-
 
         IAsset Process(Version mtconnectVersion);
 

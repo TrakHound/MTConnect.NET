@@ -16,10 +16,12 @@ namespace MTConnect.Assets.CuttingTools
         /// The number of Cutting Item.
         /// </summary>
         [XmlAttribute("count")]
+        [JsonPropertyName("count")]
         public int Count { get; set; }
 
 
         [XmlElement("CuttingItem")]
+        [JsonPropertyName("cuttingItem")]
         public List<CuttingItem> CuttingItems { get; set; }
 
 

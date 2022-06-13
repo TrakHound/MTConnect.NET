@@ -153,7 +153,7 @@ namespace MTConnect.Buffers
                     AddAsset(asset);
                 }
 
-                return found;
+                found = true;
             }
 
             stpw.Stop();
@@ -175,13 +175,21 @@ namespace MTConnect.Buffers
             {
                 // Get Assets Directory Path
                 var dir = GetDirectory();
-
-                // Get a list of all asset buffer files in directory
-                var files = Directory.GetFiles(dir);
-                foreach (var file in files)
+                var typeDirs = Directory.GetDirectories(dir);
+                if (!typeDirs.IsNullOrEmpty())
                 {
-                    var asset = ReadAsset(file);
-                    if (asset != null) assets.Add(asset);
+                    foreach (var typeDir in typeDirs)
+                    {
+                        var assetType = Path.GetFileName(typeDir);
+
+                        // Get a list of all asset buffer files in directory
+                        var files = Directory.GetFiles(typeDir);
+                        foreach (var file in files)
+                        {
+                            var asset = ReadAsset(assetType, file);
+                            if (asset != null) assets.Add(asset);
+                        }
+                    }
                 }
             }
             catch { }
@@ -189,15 +197,16 @@ namespace MTConnect.Buffers
             return assets;
         }
 
-        private IAsset ReadAsset(string path)
+        private IAsset ReadAsset(string assetType, string path)
         {
             var json = ReadFile(path);
             if (!string.IsNullOrEmpty(json))
             {
                 try
                 {
-                    var asset = JsonSerializer.Deserialize<Asset>(json);
-                    if (asset != null) return asset;
+                    var type = Asset.GetAssetType(assetType);
+                    var asset = JsonSerializer.Deserialize(json, type);
+                    if (asset != null) return (IAsset)asset;
                 }
                 catch { }
             }
@@ -273,9 +282,9 @@ namespace MTConnect.Buffers
 
         private async Task<bool> WriteToFile(IAsset asset)
         {
-            if (asset != null && !string.IsNullOrEmpty(asset.AssetId))
+            if (asset != null && !string.IsNullOrEmpty(asset.AssetId) && !string.IsNullOrEmpty(asset.Type))
             {
-                var dir = GetDirectory();
+                var dir = GetDirectory(asset.Type);
                 var filename = asset.AssetId;
                 var path = Path.Combine(dir, filename);
 
@@ -284,10 +293,12 @@ namespace MTConnect.Buffers
                     var options = new JsonSerializerOptions
                     {
                         WriteIndented = true,
-                        DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                        DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault
                     };
 
-                    var json = JsonSerializer.Serialize(asset, options);
+                    var assetType = Asset.GetAssetType(asset.Type);
+
+                    var json = JsonSerializer.Serialize(asset, assetType, options);
                     if (!string.IsNullOrEmpty(json))
                     {
                         await File.WriteAllTextAsync(path, json);
@@ -337,9 +348,10 @@ namespace MTConnect.Buffers
             return Directory.Exists(dir);
         }
 
-        private string GetDirectory(bool createIfNotExists = true)
+        private string GetDirectory(string assetType = null, bool createIfNotExists = true)
         {
             string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, DirectoryBuffer, DirectoryAssets);
+            if (!string.IsNullOrEmpty(assetType)) dir = Path.Combine(dir, assetType);
             if (createIfNotExists && !Directory.Exists(dir)) Directory.CreateDirectory(dir);
 
             return dir;

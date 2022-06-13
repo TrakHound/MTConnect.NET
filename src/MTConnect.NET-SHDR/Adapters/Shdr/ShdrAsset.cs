@@ -9,7 +9,7 @@ using System.Text.RegularExpressions;
 
 namespace MTConnect.Adapters.Shdr
 {
-    public class ShdrAsset : Asset
+    public class ShdrAsset
     {
         public const string AssetDesignator = "@ASSET@";
 
@@ -24,6 +24,16 @@ namespace MTConnect.Adapters.Shdr
         private static readonly Regex _multilineEndRegex = new Regex(AssetMutlilineEndPattern);
 
 
+        public string AssetId { get; set; }
+
+        public string AssetType { get; set; }
+
+        public IAsset Asset { get; set; }
+
+        public string Xml { get; set; }
+
+        public long Timestamp { get; set; }
+
         public bool IsSent { get; set; }
 
         public string ChangeId
@@ -32,8 +42,8 @@ namespace MTConnect.Adapters.Shdr
             {
                 var x = new ShdrAsset();
                 x.AssetId = AssetId;
-                x.Type = Type;
-                x.Timestamp = DateTime.MinValue; // Normalize Timestamp in order to compare
+                x.AssetType = AssetType;
+                x.Timestamp = 0; // Normalize Timestamp in order to compare
                 x.Xml = x.Xml;
                 return x.ToString();
             }
@@ -42,18 +52,24 @@ namespace MTConnect.Adapters.Shdr
 
         public ShdrAsset() { }
 
+        public ShdrAsset(string assetId, string assetType, string xml, long timestamp = 0)
+        {
+            AssetId = assetId;
+            AssetType = assetType;
+            Asset = XmlAsset.FromXml(assetType, xml);
+            Xml = xml;
+            Timestamp = timestamp;
+        }
+
         public ShdrAsset(IAsset asset)
         {
             if (asset != null)
             {
-                var type = asset.GetType();
-                Console.WriteLine(type.ToString());
-
-
                 AssetId = asset.AssetId;
-                Type = asset.Type;
-                Timestamp = asset.Timestamp;
-                Xml = XmlAsset.ToXml(asset, false);
+                AssetType = asset.Type;
+                Asset = asset;
+                Xml = XmlAsset.ToXml(asset);
+                Timestamp = asset.Timestamp.ToUnixTime();
             }
         }
 
@@ -68,8 +84,8 @@ namespace MTConnect.Adapters.Shdr
                 {
                     var multilineId = StringFunctions.RandomString(10);
 
-                    var header = $"{AssetDesignator}|{AssetId}|{Type}|--multiline--{multilineId}";
-                    if (Timestamp.ToUnixTime() > 0) header = $"{Timestamp.ToString("o")}|{header}";
+                    var header = $"{AssetDesignator}|{AssetId}|{AssetType}|--multiline--{multilineId}";
+                    if (Timestamp > 0) header = $"{Timestamp.ToString("o")}|{header}";
 
                     var xml = XmlFunctions.FormatXml(Xml, true, false, true);
 
@@ -82,8 +98,8 @@ namespace MTConnect.Adapters.Shdr
                 }
                 else
                 {
-                    if (Timestamp.ToUnixTime() > 0) return $"{Timestamp.ToString("o")}|{AssetDesignator}|{AssetId}|{Type}|{Xml}";
-                    else return $"{AssetDesignator}|{AssetId}|{Type}|{Xml}";
+                    if (Timestamp > 0) return $"{Timestamp.ToString("o")}|{AssetDesignator}|{AssetId}|{AssetType}|{Xml}";
+                    else return $"{AssetDesignator}|{AssetId}|{AssetType}|{Xml}";
                 }
             }
 
@@ -94,13 +110,13 @@ namespace MTConnect.Adapters.Shdr
         {
             if (asset != null && !string.IsNullOrEmpty(asset.AssetId) && !string.IsNullOrEmpty(asset.Xml))
             {
-                if (asset.Timestamp.ToUnixTime() > 0 && !ignoreTimestamp)
+                if (asset.Timestamp > 0 && !ignoreTimestamp)
                 {
-                    return $"{asset.Timestamp.ToString("o")}|{AssetDesignator}|{asset.AssetId}|{asset.Type}|{asset.Xml}";
+                    return $"{asset.Timestamp.ToString("o")}|{AssetDesignator}|{asset.AssetId}|{asset.AssetType}|{asset.Xml}";
                 }
                 else
                 {
-                    return $"{AssetDesignator}|{asset.AssetId}|{asset.Type}|{asset.Xml}";
+                    return $"{AssetDesignator}|{asset.AssetId}|{asset.AssetType}|{asset.Xml}";
                 }
             }
 
@@ -287,7 +303,7 @@ namespace MTConnect.Adapters.Shdr
                 try
                 {
                     var asset = new ShdrAsset();
-                    asset.Timestamp = timestamp.ToDateTime();
+                    asset.Timestamp = timestamp;
 
                     // Skip @ASSET@. We already know if it is an Asset or not by this point.
                     var y = ShdrLine.GetNextSegment(input);
@@ -303,7 +319,7 @@ namespace MTConnect.Adapters.Shdr
                             // Set Asset Type
                             x = ShdrLine.GetNextValue(y);
                             y = ShdrLine.GetNextSegment(y);
-                            asset.Type = x;
+                            asset.AssetType = x;
 
                             if (y != null)
                             {

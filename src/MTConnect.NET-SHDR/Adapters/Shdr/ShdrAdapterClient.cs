@@ -261,7 +261,7 @@ namespace MTConnect.Adapters.Shdr
                                                         var shdrAsset = ShdrAsset.FromString(line);
                                                         if (shdrAsset != null)
                                                         {
-                                                            var assetType = Assets.Asset.GetAssetType(shdrAsset.Type);
+                                                            var assetType = Assets.Asset.GetAssetType(shdrAsset.AssetType);
                                                             if (assetType != null)
                                                             {
                                                                 var asset = Assets.XmlAsset.FromXml(assetType, shdrAsset.Xml);
@@ -376,7 +376,7 @@ namespace MTConnect.Adapters.Shdr
                     var shdrAsset = ShdrAsset.FromString(line);
                     if (shdrAsset != null)
                     {
-                        var assetType = Assets.Asset.GetAssetType(shdrAsset.Type);
+                        var assetType = Assets.Asset.GetAssetType(shdrAsset.AssetType);
                         if (assetType != null)
                         {
                             var asset = Assets.XmlAsset.FromXml(assetType, shdrAsset.Xml);
