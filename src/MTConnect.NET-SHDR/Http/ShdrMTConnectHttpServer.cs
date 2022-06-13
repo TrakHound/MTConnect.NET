@@ -6,6 +6,7 @@
 using MTConnect.Adapters.Shdr;
 using MTConnect.Agents;
 using MTConnect.Devices.DataItems;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -92,7 +93,7 @@ namespace MTConnect.Http
                 if (asset != null)
                 {
                     asset.AssetId = assetId;
-                    asset.Timestamp = asset.Timestamp;
+                    asset.Timestamp = asset.Timestamp > DateTime.MinValue ? asset.Timestamp : DateTime.UtcNow;
                     return await _mtconnectAgent.AddAssetAsync(deviceKey, asset);
                 }
             }
