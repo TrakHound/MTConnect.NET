@@ -32,7 +32,7 @@ namespace MTConnect.Buffers
         /// <summary>
         /// Get a list of AssetId's that are currently in the Buffer
         /// </summary>
-        public IEnumerable<string> AssetIds { get; }
+        IEnumerable<string> AssetIds { get; }
 
 
         /// <summary>

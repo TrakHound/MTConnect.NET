@@ -17,12 +17,6 @@ namespace MTConnect.Agents
         public string Value { get; set; }
 
 
-        public FileObservationValue() 
-        {
-            Key = null;
-            Value = null;
-        }
-
         public FileObservationValue(string key, string value)
         {
             Key = key;
