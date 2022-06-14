@@ -1866,6 +1866,36 @@ namespace MTConnect.Adapters.Shdr
             }
         }
 
+
+        public void RemoveAsset(string assetId, long timestamp = 0)
+        {
+            // Create SHDR string to send
+            var shdrLine = ShdrAsset.Remove(assetId, timestamp);
+            WriteLine(shdrLine);
+        }
+
+        public async Task RemoveAssetAsync(string assetId, long timestamp = 0)
+        {
+            // Create SHDR string to send
+            var shdrLine = ShdrAsset.Remove(assetId, timestamp);
+            await WriteLineAsync(shdrLine);
+        }
+
+
+        public void RemoveAllAssets(string assetType, long timestamp = 0)
+        {
+            // Create SHDR string to send
+            var shdrLine = ShdrAsset.RemoveAll(assetType, timestamp);
+            WriteLine(shdrLine);
+        }
+
+        public async Task RemoveAllAssetsAsync(string assetType, long timestamp = 0)
+        {
+            // Create SHDR string to send
+            var shdrLine = ShdrAsset.RemoveAll(assetType, timestamp);
+            await WriteLineAsync(shdrLine);
+        }
+
         #endregion
     }
 }

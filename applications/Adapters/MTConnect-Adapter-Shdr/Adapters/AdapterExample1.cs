@@ -105,6 +105,17 @@ namespace MTConnect.Applications.Adapters.Shdr.Adapters
         private int k = 1;
         private int l = 1;
 
+        public void RemoveAsset()
+        {
+            _adapter.RemoveAsset("file.patrick1");
+        }
+
+        public void RemoveAllAssets()
+        {
+            _adapter.RemoveAllAssets("CuttingTool");
+        }
+
+
         public void UpdateValue()
         {
             var axisXDataItem = new ShdrDataItem("X1load", j++);
@@ -719,7 +730,7 @@ namespace MTConnect.Applications.Adapters.Shdr.Adapters
                 ProgramToolGroup = "5"
             };
             tool.CuttingToolLifeCycle.Measurements.Add(new Assets.CuttingTools.Measurements.FunctionalLengthMeasurement(7.6543));
-            tool.CuttingToolLifeCycle.Measurements.Add(new Assets.CuttingTools.Measurements.Assembly.CuttingDiameterMaxMeasurement(0.375));
+            tool.CuttingToolLifeCycle.Measurements.Add(new Assets.CuttingTools.Measurements.CuttingDiameterMaxMeasurement(0.375));
             tool.CuttingToolLifeCycle.CuttingItems.Add(new Assets.CuttingTools.CuttingItem
             {
                 ItemId = "12.1",

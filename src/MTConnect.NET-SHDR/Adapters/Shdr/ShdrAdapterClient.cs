@@ -272,6 +272,22 @@ namespace MTConnect.Adapters.Shdr
                                                             }
                                                         }
                                                     }
+                                                    else if (ShdrAsset.IsAssetRemove(line))
+                                                    {
+                                                        var removeAssetId = ShdrAsset.ReadRemoveAssetId(line);
+                                                        if (!string.IsNullOrEmpty(removeAssetId))
+                                                        {
+                                                            await _agent.RemoveAssetAsync(removeAssetId);
+                                                        }
+                                                    }
+                                                    else if (ShdrAsset.IsAssetRemoveAll(line))
+                                                    {
+                                                        var removeAssetType = ShdrAsset.ReadRemoveAllAssetType(line);
+                                                        if (!string.IsNullOrEmpty(removeAssetType))
+                                                        {
+                                                            await _agent.RemoveAllAssetsAsync(removeAssetType);
+                                                        }
+                                                    }
                                                     else
                                                     {
                                                         await ProcessProtocol(line);

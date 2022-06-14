@@ -12,16 +12,25 @@ namespace MTConnect.Adapters.Shdr
     public class ShdrAsset
     {
         public const string AssetDesignator = "@ASSET@";
+        public const string AssetRemoveDesignator = "@REMOVE_ASSET@";
+        public const string AssetRemoveAllDesignator = "@REMOVE_ALL_ASSET@";
+        public const string AssetUpdateDesignator = "@UPDATE_ASSET@";
 
-        private const string AssetIdPattern = "@ASSET@\\|(.*)\\|.*\\|--multiline--";
-        private const string AssetTypePattern = "@ASSET@\\|.*\\|(.*)\\|--multiline--";
-        private const string AssetMutlilineBeginPattern = "@ASSET@.*--multiline--(.*)";
+        private const string AssetIdPattern = $"{AssetDesignator}\\|(.*)\\|.*\\|--multiline--";
+        private const string AssetTypePattern = $"{AssetDesignator}\\|.*\\|(.*)\\|--multiline--";
+        private const string AssetMutlilineBeginPattern = $"{AssetDesignator}.*--multiline--(.*)";
         private const string AssetMutlilineEndPattern = "--multiline--(.*)";
+        private const string AssetRemovePattern = $"{AssetRemoveDesignator}\\|(.*)";
+        private const string AssetRemoveAllPattern = $"{AssetRemoveAllDesignator}\\|(.*)";
+        private const string AssetUpdatePattern = $"{AssetUpdateDesignator}\\|(.*)";
 
         private static readonly Regex _assetIdRegex = new Regex(AssetIdPattern);
         private static readonly Regex _assetTypeRegex = new Regex(AssetTypePattern);
         private static readonly Regex _multilineBeginRegex = new Regex(AssetMutlilineBeginPattern);
         private static readonly Regex _multilineEndRegex = new Regex(AssetMutlilineEndPattern);
+        private static readonly Regex _assetRemoveRegex = new Regex(AssetRemovePattern);
+        private static readonly Regex _assetRemoveAllRegex = new Regex(AssetRemoveAllPattern);
+        private static readonly Regex _assetUpdateRegex = new Regex(AssetUpdatePattern);
 
 
         public string AssetId { get; set; }
@@ -123,6 +132,47 @@ namespace MTConnect.Adapters.Shdr
             return "";
         }
 
+
+        #region "Commands"
+
+        /// <summary>
+        /// Create an SHDR string to Remove the specified Asset ID
+        /// </summary>
+        /// <param name="assetId">The Asset ID of the Asset to remove</param>
+        /// <param name="timestamp">The timestamp to output in the SHDR string</param>
+        public static string Remove(string assetId, long timestamp = 0)
+        {
+            if (!string.IsNullOrEmpty(assetId))
+            {
+                var ts = timestamp > 0 ? timestamp : UnixDateTime.Now;
+
+                return $"{ts.ToDateTime().ToString("o")}|{AssetRemoveDesignator}|{assetId}";
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Create an SHDR string to Remove All Assets of the specified Type
+        /// </summary>
+        /// <param name="assetType">The Asset Type of the Asset(s) to remove</param>
+        /// <param name="timestamp">The timestamp to output in the SHDR string</param>
+        public static string RemoveAll(string assetType, long timestamp = 0)
+        {
+            if (!string.IsNullOrEmpty(assetType))
+            {
+                var ts = timestamp > 0 ? timestamp : UnixDateTime.Now;
+
+                return $"{ts.ToDateTime().ToString("o")}|{AssetRemoveAllDesignator}|{assetType}";
+            }
+
+            return null;
+        }
+
+        #endregion
+
+        #region "Detect"
+
         public static bool IsAssetLine(string input)
         {
             if (!string.IsNullOrEmpty(input))
@@ -187,6 +237,46 @@ namespace MTConnect.Adapters.Shdr
 
             return false;
         }
+
+        public static bool IsAssetRemove(string input)
+        {
+            if (!string.IsNullOrEmpty(input))
+            {
+                // Expected format : @REMOVE_ASSET@|<AssetId>
+                var match = _assetRemoveRegex.Match(input);
+                return match.Success && match.Groups.Count > 1;
+            }
+
+            return false;
+        }
+
+        public static bool IsAssetRemoveAll(string input)
+        {
+            if (!string.IsNullOrEmpty(input))
+            {
+                // Expected format : @REMOVE_ASSET_ALL@|<Type>
+                var match = _assetRemoveAllRegex.Match(input);
+                return match.Success && match.Groups.Count > 1;
+            }
+
+            return false;
+        }
+
+        public static bool IsAssetUpdate(string input)
+        {
+            if (!string.IsNullOrEmpty(input))
+            {
+                // Expected format : @UPDATE_ASSET@|<AssetId>|<PropertyName>|<PropertyValue>|...
+                var match = _assetUpdateRegex.Match(input);
+                return match.Success && match.Groups.Count > 1;
+            }
+
+            return false;
+        }
+
+        #endregion
+
+        #region "Read"
 
         public static string ReadAssetId(string input)
         {
@@ -272,6 +362,59 @@ namespace MTConnect.Adapters.Shdr
             return null;
         }
 
+        public static string ReadRemoveAssetId(string input)
+        {
+            if (!string.IsNullOrEmpty(input))
+            {
+                // Start reading input and read Timestamp first (if specified)
+                var x = ShdrLine.GetNextValue(input);
+
+                if (DateTime.TryParse(x, out _))
+                {
+                    var y = ShdrLine.GetNextSegment(input);
+
+                    var match = _assetRemoveRegex.Match(y);
+                    if (match.Success && match.Groups.Count > 1)
+                    {
+                        return match.Groups[1].Value;
+                    }
+                }
+                else
+                {
+                    //return FromLine(input);
+                }
+            }
+
+            return null;
+        }
+
+        public static string ReadRemoveAllAssetType(string input)
+        {
+            if (!string.IsNullOrEmpty(input))
+            {
+                // Start reading input and read Timestamp first (if specified)
+                var x = ShdrLine.GetNextValue(input);
+
+                if (DateTime.TryParse(x, out _))
+                {
+                    var y = ShdrLine.GetNextSegment(input);
+
+                    var match = _assetRemoveAllRegex.Match(y);
+                    if (match.Success && match.Groups.Count > 1)
+                    {
+                        return match.Groups[1].Value;
+                    }
+                }
+                else
+                {
+                    //return FromLine(input);
+                }
+            }
+
+            return null;
+        }
+
+
         public static ShdrAsset FromString(string input)
         {
             if (!string.IsNullOrEmpty(input))
@@ -339,5 +482,7 @@ namespace MTConnect.Adapters.Shdr
 
             return null;
         }
+
+        #endregion
     }
 }

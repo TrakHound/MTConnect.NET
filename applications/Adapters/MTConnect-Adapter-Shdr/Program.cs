@@ -19,7 +19,14 @@ namespace MTConnect.Applications.Adapters.Shdr
 
             while (true)
             {
-                _adapterExample1.UpdateValue();
+                _adapterExample1.RemoveAsset();
+                Console.ReadLine();
+
+                _adapterExample1.RemoveAllAssets();
+                Console.ReadLine();
+
+
+                //_adapterExample1.UpdateValue();
                 //Console.ReadLine();
 
                 //_adapterExample1.AddCuttingTools();
@@ -82,7 +89,7 @@ namespace MTConnect.Applications.Adapters.Shdr
                 //_adapterExample1.UpdateTest3();
                 //Console.ReadLine();
 
-                await Task.Delay(5);
+                //await Task.Delay(5);
             }
 
             //while (true)

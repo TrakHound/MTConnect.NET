@@ -1915,6 +1915,68 @@ namespace MTConnect.Agents
             return null;
         }
 
+
+        /// <summary>
+        /// Remove the Asset with the specified Asset ID
+        /// </summary>
+        /// <param name="assetId">The ID of the Asset to remove</param>
+        /// <returns>Returns True if the Asset was successfully removed</returns>
+        public bool RemoveAsset(string assetId)
+        {
+            if (!string.IsNullOrEmpty(assetId) && _assetBuffer != null)
+            {
+                return _assetBuffer.RemoveAsset(assetId);
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Remove the Asset with the specified Asset ID
+        /// </summary>
+        /// <param name="assetId">The ID of the Asset to remove</param>
+        /// <returns>Returns True if the Asset was successfully removed</returns>
+        public async Task<bool> RemoveAssetAsync(string assetId)
+        {
+            if (!string.IsNullOrEmpty(assetId) && _assetBuffer != null)
+            {
+                return await _assetBuffer.RemoveAssetAsync(assetId);
+            }
+
+            return false;
+        }
+
+
+        /// <summary>
+        /// Remove all Assets with the specified Type
+        /// </summary>
+        /// <param name="assetType">The Type of the Asset(s) to remove</param>
+        /// <returns>Returns True if the Asset(s) was successfully removed</returns>
+        public bool RemoveAllAssets(string assetType)
+        {
+            if (!string.IsNullOrEmpty(assetType) && _assetBuffer != null)
+            {
+                return _assetBuffer.RemoveAllAssets(assetType);
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Remove all Assets with the specified Type
+        /// </summary>
+        /// <param name="assetType">The Type of the Asset(s) to remove</param>
+        /// <returns>Returns True if the Asset(s) was successfully removed</returns>
+        public async Task<bool> RemoveAllAssetsAsync(string assetType)
+        {
+            if (!string.IsNullOrEmpty(assetType) && _assetBuffer != null)
+            {
+                return await _assetBuffer.RemoveAllAssetsAsync(assetType);
+            }
+
+            return false;
+        }
+
         #endregion
 
         #region "Errors"

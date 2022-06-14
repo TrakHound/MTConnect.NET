@@ -418,6 +418,36 @@ namespace MTConnect.Agents
         /// <returns>MTConnectAssets Response Document</returns>
         Task<IAssetsResponseDocument> GetAssetAsync(string assetId, Version mtconnectVersion = null);
 
+
+        /// <summary>
+        /// Remove the Asset with the specified Asset ID
+        /// </summary>
+        /// <param name="assetId">The ID of the Asset to remove</param>
+        /// <returns>Returns True if the Asset was successfully removed</returns>
+        bool RemoveAsset(string assetId);
+
+        /// <summary>
+        /// Remove the Asset with the specified Asset ID
+        /// </summary>
+        /// <param name="assetId">The ID of the Asset to remove</param>
+        /// <returns>Returns True if the Asset was successfully removed</returns>
+        Task<bool> RemoveAssetAsync(string assetId);
+
+
+        /// <summary>
+        /// Remove all Assets with the specified Type
+        /// </summary>
+        /// <param name="assetType">The Type of the Asset(s) to remove</param>
+        /// <returns>Returns True if the Asset(s) was successfully removed</returns>
+        bool RemoveAllAssets(string assetType);
+
+        /// <summary>
+        /// Remove all Assets with the specified Type
+        /// </summary>
+        /// <param name="assetType">The Type of the Asset(s) to remove</param>
+        /// <returns>Returns True if the Asset(s) was successfully removed</returns>
+        Task<bool> RemoveAllAssetsAsync(string assetType);
+
         #endregion
 
         #region "Errors"

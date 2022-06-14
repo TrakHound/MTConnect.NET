@@ -219,5 +219,94 @@ namespace MTConnect.Buffers
         {
             return AddAsset(asset);
         }
+
+
+        /// <summary>
+        /// Remove the Asset with the specified Asset ID
+        /// </summary>
+        /// <param name="assetId">The ID of the Asset to remove</param>
+        public bool RemoveAsset(string assetId)
+        {
+            if (!string.IsNullOrEmpty(assetId))
+            {
+                var asset = GetAsset(assetId);
+                if (asset != null)
+                {
+                    asset.Removed = true;
+                    return AddAsset(asset);
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Remove the Asset with the specified Asset ID
+        /// </summary>
+        /// <param name="assetId">The ID of the Asset to remove</param>
+        public async Task<bool> RemoveAssetAsync(string assetId)
+        {
+            if (!string.IsNullOrEmpty(assetId))
+            {
+                var asset = await GetAssetAsync(assetId);
+                if (asset != null)
+                {
+                    asset.Removed = true;
+                    return await AddAssetAsync(asset);
+                }
+            }
+
+            return false;
+        }
+
+
+        /// <summary>
+        /// Remove all Assets with the specified Type
+        /// </summary>
+        /// <param name="assetType">The Type of the Asset(s) to remove</param>
+        public bool RemoveAllAssets(string assetType)
+        {
+            if (!string.IsNullOrEmpty(assetType))
+            {
+                var assets = GetAssets(assetType);
+                if (!assets.IsNullOrEmpty())
+                {
+                    foreach (var asset in assets)
+                    {
+                        asset.Removed = true;
+                        return AddAsset(asset);
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Remove all Assets with the specified Type
+        /// </summary>
+        /// <param name="assetType">The Type of the Asset(s) to remove</param>
+        public async Task<bool> RemoveAllAssetsAsync(string assetType)
+        {
+            if (!string.IsNullOrEmpty(assetType))
+            {
+                var assets = await GetAssetsAsync(assetType);
+                if (!assets.IsNullOrEmpty())
+                {
+                    var success = false;
+
+                    foreach (var asset in assets)
+                    {
+                        asset.Removed = true;
+                        success = await AddAssetAsync(asset);
+                        if (!success) break;
+                    }
+
+                    return success;
+                }
+            }
+
+            return false;
+        }
     }
 }

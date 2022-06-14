@@ -69,5 +69,31 @@ namespace MTConnect.Buffers
         /// </summary>
         /// <param name="asset">The Asset to add to the Buffer</param>
         Task<bool> AddAssetAsync(IAsset asset);
+
+
+        /// <summary>
+        /// Remove the Asset with the specified Asset ID
+        /// </summary>
+        /// <param name="assetId">The ID of the Asset to remove</param>
+        bool RemoveAsset(string assetId);
+
+        /// <summary>
+        /// Remove the Asset with the specified Asset ID
+        /// </summary>
+        /// <param name="assetId">The ID of the Asset to remove</param>
+        Task<bool> RemoveAssetAsync(string assetId);
+
+
+        /// <summary>
+        /// Remove all Assets with the specified Type
+        /// </summary>
+        /// <param name="assetType">The Type of the Asset(s) to remove</param>
+        bool RemoveAllAssets(string assetType);
+
+        /// <summary>
+        /// Remove all Assets with the specified Type
+        /// </summary>
+        /// <param name="assetType">The Type of the Asset(s) to remove</param>
+        Task<bool> RemoveAllAssetsAsync(string assetType);
     }
 }
