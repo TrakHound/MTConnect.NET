@@ -46,8 +46,6 @@ namespace MTConnect.Buffers
 
         public EventHandler<AssetBufferLoadArgs> BufferLoadCompleted { get; set; }
 
-        //public EventHandler<AssetBufferRetentionArgs> BufferRetentionCompleted { get; set; }
-
 
         public MTConnectAssetFileBuffer()
         {
@@ -75,7 +73,7 @@ namespace MTConnect.Buffers
         /// <summary>
         /// Start the Buffer Read/Write thread
         /// </summary>
-        public void Start()
+        private void Start()
         {
             if (!_isStarted)
             {
@@ -90,7 +88,7 @@ namespace MTConnect.Buffers
         /// <summary>
         /// Stop the Buffer
         /// </summary>
-        public void Stop()
+        private void Stop()
         {
             if (_isStarted)
             {
@@ -153,7 +151,7 @@ namespace MTConnect.Buffers
 
         #region "Read"
 
-        public IEnumerable<AssetReadItem> Read()
+        private IEnumerable<AssetReadItem> Read()
         {
             var items = new List<AssetReadItem>();
 
@@ -312,9 +310,7 @@ namespace MTConnect.Buffers
             if (asset != null && !string.IsNullOrEmpty(asset.AssetId) && !string.IsNullOrEmpty(asset.Type))
             {
                 var dir = GetDirectory();
-                //var filename = $"{index}_{asset.Type}_{asset.AssetId}";
                 var filename = $"{index}_{asset.Type}";
-                //var filename = asset.AssetId;
                 var path = Path.Combine(dir, filename);
 
                 try

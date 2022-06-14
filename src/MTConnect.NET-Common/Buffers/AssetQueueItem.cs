@@ -7,7 +7,7 @@ using MTConnect.Assets;
 
 namespace MTConnect.Buffers
 {
-    public struct AssetQueueItem
+    struct AssetQueueItem
     {
         public int Index { get; set; }
 

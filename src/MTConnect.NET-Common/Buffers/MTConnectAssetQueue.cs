@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace MTConnect.Buffers
 {
-    public class MTConnectAssetQueue
+    class MTConnectAssetQueue
     {
         private readonly int _limit;
         private readonly Dictionary<string, AssetQueueItem> _items = new Dictionary<string, AssetQueueItem>();

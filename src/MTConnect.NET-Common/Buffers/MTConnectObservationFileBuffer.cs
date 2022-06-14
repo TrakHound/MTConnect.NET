@@ -6,7 +6,6 @@
 using MTConnect.Agents;
 using MTConnect.Agents.Configuration;
 using MTConnect.Devices.DataItems;
-using MTConnect.Observations.Input;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -94,7 +93,7 @@ namespace MTConnect.Buffers
         /// <summary>
         /// Start the Buffer Read/Write thread
         /// </summary>
-        public void Start()
+        private void Start()
         {
             if (!_isStarted)
             {
@@ -110,7 +109,7 @@ namespace MTConnect.Buffers
         /// <summary>
         /// Stop the Buffer
         /// </summary>
-        public void Stop()
+        private void Stop()
         {
             if (_isStarted)
             {
@@ -235,83 +234,6 @@ namespace MTConnect.Buffers
         #endregion
 
         #region "Read"
-
-        public IEnumerable<ObservationInput> ReadAll()
-        {
-            var inputs = new List<ObservationInput>();
-
-            // Get Stored Observations
-            var storedObservations = new List<StoredObservation>();
-            storedObservations.AddRange(ReadStoredObservations());
-            storedObservations.AddRange(ReadStoredCurrentObservations());
-
-            if (!storedObservations.IsNullOrEmpty())
-            {
-                // Sort Observations by Sequence
-                // NOTE: Important because the order that observations are added to the Agent matters
-                var oObservations = storedObservations.OrderBy(o => o.Sequence);
-
-                foreach (var observation in oObservations)
-                {
-                    // Create ObservationInput from StoredObservation
-                    var input = new ObservationInput();
-                    input.DeviceKey = observation.DeviceUuid;
-                    input.DataItemKey = observation.DataItemId;
-                    input.Values = observation.Values;
-                    input.Timestamp = observation.Timestamp;
-                    inputs.Add(input);
-                }
-            }
-
-            return inputs;
-        }
-
-        public IEnumerable<ObservationInput> Read()
-        {
-            var inputs = new List<ObservationInput>();
-
-            var observations = ReadStoredObservations();
-            if (!observations.IsNullOrEmpty())
-            {
-                var oObservations = observations.OrderBy(o => o.Sequence);
-
-                foreach (var observation in oObservations)
-                {
-                    var input = new ObservationInput();
-                    input.DeviceKey = observation.DeviceUuid;
-                    input.DataItemKey = observation.DataItemId;
-                    input.Values = observation.Values;
-                    input.Timestamp = observation.Timestamp;
-                    inputs.Add(input);
-                }
-            }
-
-            return inputs;
-        }
-
-        public IEnumerable<ObservationInput> ReadCurrent()
-        {
-            var inputs = new List<ObservationInput>();
-
-            var observations = ReadStoredCurrentObservations();
-            if (!observations.IsNullOrEmpty())
-            {
-                var oObservations = observations.OrderBy(o => o.Sequence);
-
-                foreach (var observation in oObservations)
-                {
-                    var input = new ObservationInput();
-                    input.DeviceKey = observation.DeviceUuid;
-                    input.DataItemKey = observation.DataItemId;
-                    input.Values = observation.Values;
-                    input.Timestamp = observation.Timestamp;
-                    inputs.Add(input);
-                }
-            }
-
-            return inputs;
-        }
-
 
         private IEnumerable<StoredObservation> ReadStoredObservations()
         {
