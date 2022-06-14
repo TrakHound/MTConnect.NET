@@ -146,13 +146,13 @@ namespace MTConnect.Streams.Xml
                         // Add Common Attributes to Node
                         XmlObservation.AddAttributes(observation, node);
 
+                        // Count Attribute
+                        attribute = _document.CreateAttribute("count");
+                        attribute.Value = !observation.Entries.IsNullOrEmpty() ? observation.Entries.Count().ToString() : "0";
+                        node.Attributes.Append(attribute);
+
                         if (!observation.Entries.IsNullOrEmpty())
                         {
-                            // Count Attribute
-                            attribute = _document.CreateAttribute("count");
-                            attribute.Value = observation.Entries.Count().ToString();
-                            node.Attributes.Append(attribute);
-
                             foreach (var entry in observation.Entries.OrderBy(o => o.Key))
                             {
                                 // Create the Entry XML Element
@@ -175,6 +175,10 @@ namespace MTConnect.Streams.Xml
 
                                 node.AppendChild(entryNode);
                             }
+                        }
+                        else
+                        {
+                            node.InnerText = Observation.Unavailable;
                         }
 
                         // Write Node to XmlWriter
@@ -203,13 +207,13 @@ namespace MTConnect.Streams.Xml
                         // Add Common Attributes to Node
                         XmlObservation.AddAttributes(observation, node);
 
+                        // Count Attribute
+                        attribute = _document.CreateAttribute("count");
+                        attribute.Value = !observation.Entries.IsNullOrEmpty() ? observation.Entries.Count().ToString() : "0";
+                        node.Attributes.Append(attribute);
+
                         if (!observation.Entries.IsNullOrEmpty())
                         {
-                            // Count Attribute
-                            attribute = _document.CreateAttribute("count");
-                            attribute.Value = observation.Entries.Count().ToString();
-                            node.Attributes.Append(attribute);
-
                             foreach (var entry in observation.Entries.OrderBy(o => o.Key))
                             {
                                 // Create the Entry XML Element
@@ -249,6 +253,10 @@ namespace MTConnect.Streams.Xml
 
                                 node.AppendChild(entryNode);
                             }
+                        }
+                        else
+                        {
+                            node.InnerText = Observation.Unavailable;
                         }
 
                         // Write Node to XmlWriter
