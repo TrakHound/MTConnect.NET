@@ -4,11 +4,8 @@
 // file 'LICENSE', which is part of this source code package.
 
 using System;
-using MTConnect.Writers;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Reflection;
 using System.Xml;
 using System.Xml.Schema;
 
@@ -21,58 +18,68 @@ namespace MTConnect
             var success = false;
             var errors = new List<string>();
 
-            try
+            if (!string.IsNullOrEmpty(documentXml))
             {
-                // Get list of XmlSchemas
-                var schemas = new List<XmlSchema>();
-                if (!string.IsNullOrEmpty(schemaXml))
+                if (string.IsNullOrEmpty(schemaXml))
+                {
+                    // If no Schema specified then return as Success
+                    success = true;
+                }
+                else
                 {
                     try
                     {
-                        using (var reader = new StringReader(schemaXml))
+                        // Get list of XmlSchemas
+                        var schemas = new List<XmlSchema>();
+                        if (!string.IsNullOrEmpty(schemaXml))
                         {
-                            var schema = XmlSchema.Read(reader, null);
-                            if (schema != null) schemas.Add(schema);
+                            try
+                            {
+                                using (var reader = new StringReader(schemaXml))
+                                {
+                                    var schema = XmlSchema.Read(reader, null);
+                                    if (schema != null) schemas.Add(schema);
+                                }
+                            }
+                            catch (XmlSchemaException ex)
+                            {
+                                errors.Add($"(XML Validation Error) : Error Reading XSD Schema : {ex.SourceUri} Line {ex.LineNumber}, {ex.LinePosition} : {ex.Message}");
+                            }
+                            catch (Exception ex)
+                            {
+                                errors.Add($"(XML Validation Error) : Error Reading XSD Schema : {ex.Message}");
+                            }
+                        }
+
+                        // Set XML Reader Settings
+                        var readerSettings = new XmlReaderSettings();
+                        foreach (var schema in schemas) readerSettings.Schemas.Add(schema);
+                        readerSettings.ValidationType = ValidationType.Schema;
+
+                        readerSettings.ValidationEventHandler += (s, e) =>
+                        {
+                            errors.Add($"(XML Validation {e.Severity}) : {e.Exception.Source} Line {e.Exception.LineNumber}, {e.Exception.LinePosition} : {e.Message}");
+                        };
+
+                        // Set XML Reader Settings
+                        using (var stringReader = new StringReader(documentXml))
+                        using (var xmlReader = XmlReader.Create(stringReader, readerSettings))
+                        {
+                            var document = new XmlDocument();
+                            document.Load(xmlReader);
+
+                            success = errors.IsNullOrEmpty();
                         }
                     }
                     catch (XmlSchemaException ex)
                     {
-                        errors.Add($"(XML Validation Error) : Error Reading XSD Schema : {ex.SourceUri} Line {ex.LineNumber}, {ex.LinePosition} : {ex.Message}");
+                        errors.Add($"(XML Validation Error) : Error Adding XSD Schema : {ex.SourceUri} Line {ex.LineNumber}, {ex.LinePosition} : {ex.Message}");
                     }
                     catch (Exception ex)
                     {
-                        errors.Add($"(XML Validation Error) : Error Reading XSD Schema : {ex.Message}");
+                        errors.Add($"(XML Validation Error) : Error During Validation : {ex.Message}");
                     }
                 }
-
-                // Set XML Reader Settings
-                var readerSettings = new XmlReaderSettings();
-                foreach (var schema in schemas) readerSettings.Schemas.Add(schema);
-                readerSettings.ValidationType = ValidationType.Schema;
-                //readerSettings.ConformanceLevel = ConformanceLevel.Document;
-                //readerSettings.ValidationFlags = XmlSchemaValidationFlags.None;
-                readerSettings.ValidationEventHandler += (s, e) =>
-                {
-                    errors.Add($"(XML Validation {e.Severity}) : {e.Exception.Source} Line {e.Exception.LineNumber}, {e.Exception.LinePosition} : {e.Message}");
-                };
-
-                // Set XML Reader Settings
-                using (var stringReader = new StringReader(documentXml))
-                using (var xmlReader = XmlReader.Create(stringReader, readerSettings))
-                {
-                    var document = new XmlDocument();
-                    document.Load(xmlReader);
-
-                    success = errors.IsNullOrEmpty();
-                }
-            }
-            catch (XmlSchemaException ex)
-            {
-                errors.Add($"(XML Validation Error) : Error Adding XSD Schema : {ex.SourceUri} Line {ex.LineNumber}, {ex.LinePosition} : {ex.Message}");
-            }
-            catch (Exception ex)
-            {
-                errors.Add($"(XML Validation Error) : Error During Validation : {ex.Message}");
             }
 
             return new XmlValidationResponse(success, errors);

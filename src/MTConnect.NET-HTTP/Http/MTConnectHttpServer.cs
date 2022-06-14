@@ -30,7 +30,7 @@ namespace MTConnect.Http
 
 
         private readonly IMTConnectAgent _mtconnectAgent;
-        private readonly MTConnectAgentConfiguration _configuration;
+        //private readonly MTConnectAgentConfiguration _configuration;
         private readonly List<string> _prefixes = new List<string>();
         private static readonly object _lock = new object();
         private static readonly Dictionary<string, string> _devicesSchemas = new Dictionary<string, string>();
@@ -83,7 +83,6 @@ namespace MTConnect.Http
         public MTConnectHttpServer(IMTConnectAgent mtconnectAgent, IEnumerable<string> prefixes = null, int port = 0)
         {
             _mtconnectAgent = mtconnectAgent;
-            _configuration = mtconnectAgent.Configuration;
 
             LoadPrefixes(mtconnectAgent.Configuration, prefixes, port);
         }
@@ -264,7 +263,7 @@ namespace MTConnect.Http
 
                                 case "PUT":
 
-                                    if (_configuration != null && _configuration.AllowPut)
+                                    if (_mtconnectAgent.Configuration != null && _mtconnectAgent.Configuration.AllowPut)
                                     {
                                         await ProcessPut(request, response);
                                     }
@@ -277,7 +276,7 @@ namespace MTConnect.Http
 
                                 case "POST":
 
-                                    if (_configuration != null && _configuration.AllowPut)
+                                    if (_mtconnectAgent.Configuration != null && _mtconnectAgent.Configuration.AllowPut)
                                     {
                                         await ProcessPost(request, response);
                                     }
@@ -482,15 +481,20 @@ namespace MTConnect.Http
                 // Set Format Options
                 var formatOptions = CreateFormatOptions(MTConnectRequestType.Probe, documentFormat, version);
 
+                // Read ValidationLevel from Query string
+                var validationLevelString = httpRequest.QueryString["validationLevel"];
+                if (!string.IsNullOrEmpty(validationLevelString)) formatOptions.Add(new KeyValuePair<string, string>("validationLevel", validationLevelString));
+                else formatOptions.Add(new KeyValuePair<string, string>("validationLevel", ((int)_mtconnectAgent.Configuration.ValidationLevel).ToString()));
+
                 // Read IndentOutput from Query string
                 var indentOutputString = httpRequest.QueryString["indentOutput"];
                 if (!string.IsNullOrEmpty(indentOutputString)) formatOptions.Add(new KeyValuePair<string, string>("indentOutput", indentOutputString));
-                else formatOptions.Add(new KeyValuePair<string, string>("indentOutput", _configuration.IndentOutput.ToString()));
+                else formatOptions.Add(new KeyValuePair<string, string>("indentOutput", _mtconnectAgent.Configuration.IndentOutput.ToString()));
 
                 // Read OutputComments from Query string
                 var outputCommentsString = httpRequest.QueryString["outputComments"];
                 if (!string.IsNullOrEmpty(outputCommentsString)) formatOptions.Add(new KeyValuePair<string, string>("outputComments", outputCommentsString));
-                else formatOptions.Add(new KeyValuePair<string, string>("outputComments", _configuration.OutputComments.ToString()));
+                else formatOptions.Add(new KeyValuePair<string, string>("outputComments", _mtconnectAgent.Configuration.OutputComments.ToString()));
 
 
                 if (!string.IsNullOrEmpty(deviceName))
@@ -549,15 +553,20 @@ namespace MTConnect.Http
                 // Set Format Options
                 var formatOptions = CreateFormatOptions(MTConnectRequestType.Current, documentFormat, version);
 
+                // Read ValidationLevel from Query string
+                var validationLevelString = httpRequest.QueryString["validationLevel"];
+                if (!string.IsNullOrEmpty(validationLevelString)) formatOptions.Add(new KeyValuePair<string, string>("validationLevel", validationLevelString));
+                else formatOptions.Add(new KeyValuePair<string, string>("validationLevel", _mtconnectAgent.Configuration.ValidationLevel.ToString()));
+
                 // Read IndentOutput from Query string
                 var indentOutputString = httpRequest.QueryString["indentOutput"];
                 if (!string.IsNullOrEmpty(indentOutputString)) formatOptions.Add(new KeyValuePair<string, string>("indentOutput", indentOutputString));
-                else formatOptions.Add(new KeyValuePair<string, string>("indentOutput", _configuration.IndentOutput.ToString()));
+                else formatOptions.Add(new KeyValuePair<string, string>("indentOutput", _mtconnectAgent.Configuration.IndentOutput.ToString()));
 
                 // Read OutputComments from Query string
                 var outputCommentsString = httpRequest.QueryString["outputComments"];
                 if (!string.IsNullOrEmpty(outputCommentsString)) formatOptions.Add(new KeyValuePair<string, string>("outputComments", outputCommentsString));
-                else formatOptions.Add(new KeyValuePair<string, string>("outputComments", _configuration.OutputComments.ToString()));
+                else formatOptions.Add(new KeyValuePair<string, string>("outputComments", _mtconnectAgent.Configuration.OutputComments.ToString()));
 
 
                 if (interval > 0)
@@ -659,15 +668,20 @@ namespace MTConnect.Http
                 // Set Format Options
                 var formatOptions = CreateFormatOptions(MTConnectRequestType.Sample, documentFormat, version);
 
+                // Read ValidationLevel from Query string
+                var validationLevelString = httpRequest.QueryString["validationLevel"];
+                if (!string.IsNullOrEmpty(validationLevelString)) formatOptions.Add(new KeyValuePair<string, string>("validationLevel", validationLevelString));
+                else formatOptions.Add(new KeyValuePair<string, string>("validationLevel", _mtconnectAgent.Configuration.ValidationLevel.ToString()));
+
                 // Read IndentOutput from Query string
                 var indentOutputString = httpRequest.QueryString["indentOutput"];
                 if (!string.IsNullOrEmpty(indentOutputString)) formatOptions.Add(new KeyValuePair<string, string>("indentOutput", indentOutputString));
-                else formatOptions.Add(new KeyValuePair<string, string>("indentOutput", _configuration.IndentOutput.ToString()));
+                else formatOptions.Add(new KeyValuePair<string, string>("indentOutput", _mtconnectAgent.Configuration.IndentOutput.ToString()));
 
                 // Read OutputComments from Query string
                 var outputCommentsString = httpRequest.QueryString["outputComments"];
                 if (!string.IsNullOrEmpty(outputCommentsString)) formatOptions.Add(new KeyValuePair<string, string>("outputComments", outputCommentsString));
-                else formatOptions.Add(new KeyValuePair<string, string>("outputComments", _configuration.OutputComments.ToString()));
+                else formatOptions.Add(new KeyValuePair<string, string>("outputComments", _mtconnectAgent.Configuration.OutputComments.ToString()));
 
 
                 if (interval > 0)
@@ -754,15 +768,20 @@ namespace MTConnect.Http
                 // Set Format Options
                 var formatOptions = CreateFormatOptions(MTConnectRequestType.Assets, documentFormat, version);
 
+                // Read ValidationLevel from Query string
+                var validationLevelString = httpRequest.QueryString["validationLevel"];
+                if (!string.IsNullOrEmpty(validationLevelString)) formatOptions.Add(new KeyValuePair<string, string>("validationLevel", validationLevelString));
+                else formatOptions.Add(new KeyValuePair<string, string>("validationLevel", _mtconnectAgent.Configuration.ValidationLevel.ToString()));
+
                 // Read IndentOutput from Query string
                 var indentOutputString = httpRequest.QueryString["indentOutput"];
                 if (!string.IsNullOrEmpty(indentOutputString)) formatOptions.Add(new KeyValuePair<string, string>("indentOutput", indentOutputString));
-                else formatOptions.Add(new KeyValuePair<string, string>("indentOutput", _configuration.IndentOutput.ToString()));
+                else formatOptions.Add(new KeyValuePair<string, string>("indentOutput", _mtconnectAgent.Configuration.IndentOutput.ToString()));
 
                 // Read OutputComments from Query string
                 var outputCommentsString = httpRequest.QueryString["outputComments"];
                 if (!string.IsNullOrEmpty(outputCommentsString)) formatOptions.Add(new KeyValuePair<string, string>("outputComments", outputCommentsString));
-                else formatOptions.Add(new KeyValuePair<string, string>("outputComments", _configuration.OutputComments.ToString()));
+                else formatOptions.Add(new KeyValuePair<string, string>("outputComments", _mtconnectAgent.Configuration.OutputComments.ToString()));
 
 
                 // Get MTConnectAssets document from the MTConnectAgent
@@ -805,15 +824,20 @@ namespace MTConnect.Http
                 // Set Format Options
                 var formatOptions = CreateFormatOptions(MTConnectRequestType.Asset, documentFormat, version);
 
+                // Read ValidationLevel from Query string
+                var validationLevelString = httpRequest.QueryString["validationLevel"];
+                if (!string.IsNullOrEmpty(validationLevelString)) formatOptions.Add(new KeyValuePair<string, string>("validationLevel", validationLevelString));
+                else formatOptions.Add(new KeyValuePair<string, string>("validationLevel", _mtconnectAgent.Configuration.ValidationLevel.ToString()));
+
                 // Read IndentOutput from Query string
                 var indentOutputString = httpRequest.QueryString["indentOutput"];
                 if (!string.IsNullOrEmpty(indentOutputString)) formatOptions.Add(new KeyValuePair<string, string>("indentOutput", indentOutputString));
-                else formatOptions.Add(new KeyValuePair<string, string>("indentOutput", _configuration.IndentOutput.ToString()));
+                else formatOptions.Add(new KeyValuePair<string, string>("indentOutput", _mtconnectAgent.Configuration.IndentOutput.ToString()));
 
                 // Read OutputComments from Query string
                 var outputCommentsString = httpRequest.QueryString["outputComments"];
                 if (!string.IsNullOrEmpty(outputCommentsString)) formatOptions.Add(new KeyValuePair<string, string>("outputComments", outputCommentsString));
-                else formatOptions.Add(new KeyValuePair<string, string>("outputComments", _configuration.OutputComments.ToString()));
+                else formatOptions.Add(new KeyValuePair<string, string>("outputComments", _mtconnectAgent.Configuration.OutputComments.ToString()));
 
 
                 // Get MTConnectAssets document from the MTConnectAgent
@@ -964,16 +988,16 @@ namespace MTConnect.Http
                     // Read MTConnectVersion from Query string
                     var versionString = httpRequest.QueryString["version"];
                     Version.TryParse(versionString, out var version);
-                    if (version == null) version = _configuration.DefaultVersion;
+                    if (version == null) version = _mtconnectAgent.Configuration.DefaultVersion;
 
                     var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, relativePath);
                     if (File.Exists(filePath))
                     {
-                        if (_configuration.DevicesStyle != null && relativePath == _configuration.DevicesStyle.Location)
+                        if (_mtconnectAgent.Configuration.DevicesStyle != null && relativePath == _mtconnectAgent.Configuration.DevicesStyle.Location)
                         {
                             fileContents = ReadDevicesStylesheet(filePath, version);
                         }
-                        else if (_configuration.StreamsStyle != null && relativePath == _configuration.StreamsStyle.Location)
+                        else if (_mtconnectAgent.Configuration.StreamsStyle != null && relativePath == _mtconnectAgent.Configuration.StreamsStyle.Location)
                         {
                             fileContents = ReadStreamsStylesheet(filePath, version);
                         }
@@ -1172,7 +1196,7 @@ namespace MTConnect.Http
             {
                 case DocumentFormat.XML:
 
-                    if (_configuration != null)
+                    if (_mtconnectAgent.Configuration != null)
                     {
                         // Add Devices Schema
                         //if (_configuration != null)
@@ -1188,31 +1212,31 @@ namespace MTConnect.Http
                         //}
 
                         // Add Devices Stylesheet
-                        if (_configuration.DevicesStyle != null)
+                        if (_mtconnectAgent.Configuration.DevicesStyle != null)
                         {
-                            x.Add(new KeyValuePair<string, string>("devicesStyle.location", _configuration.DevicesStyle.Location));
-                            x.Add(new KeyValuePair<string, string>("devicesStyle.path", _configuration.DevicesStyle.Path));
+                            x.Add(new KeyValuePair<string, string>("devicesStyle.location", _mtconnectAgent.Configuration.DevicesStyle.Location));
+                            x.Add(new KeyValuePair<string, string>("devicesStyle.path", _mtconnectAgent.Configuration.DevicesStyle.Path));
                         }
 
                         // Add Streams Stylesheet
-                        if (_configuration.StreamsStyle != null)
+                        if (_mtconnectAgent.Configuration.StreamsStyle != null)
                         {
-                            x.Add(new KeyValuePair<string, string>("streamsStyle.location", _configuration.StreamsStyle.Location));
-                            x.Add(new KeyValuePair<string, string>("streamsStyle.path", _configuration.StreamsStyle.Path));
+                            x.Add(new KeyValuePair<string, string>("streamsStyle.location", _mtconnectAgent.Configuration.StreamsStyle.Location));
+                            x.Add(new KeyValuePair<string, string>("streamsStyle.path", _mtconnectAgent.Configuration.StreamsStyle.Path));
                         }
 
                         // Add Assets Stylesheet
-                        if (_configuration.AssetsStyle != null)
+                        if (_mtconnectAgent.Configuration.AssetsStyle != null)
                         {
-                            x.Add(new KeyValuePair<string, string>("assetsStyle.location", _configuration.AssetsStyle.Location));
-                            x.Add(new KeyValuePair<string, string>("assetsStyle.path", _configuration.AssetsStyle.Path));
+                            x.Add(new KeyValuePair<string, string>("assetsStyle.location", _mtconnectAgent.Configuration.AssetsStyle.Location));
+                            x.Add(new KeyValuePair<string, string>("assetsStyle.path", _mtconnectAgent.Configuration.AssetsStyle.Path));
                         }
 
                         // Add Error Stylesheet
-                        if (_configuration.ErrorStyle != null)
+                        if (_mtconnectAgent.Configuration.ErrorStyle != null)
                         {
-                            x.Add(new KeyValuePair<string, string>("errorStyle.location", _configuration.ErrorStyle.Location));
-                            x.Add(new KeyValuePair<string, string>("errorStyle.path", _configuration.ErrorStyle.Path));
+                            x.Add(new KeyValuePair<string, string>("errorStyle.location", _mtconnectAgent.Configuration.ErrorStyle.Location));
+                            x.Add(new KeyValuePair<string, string>("errorStyle.path", _mtconnectAgent.Configuration.ErrorStyle.Path));
                         }
                     }
 

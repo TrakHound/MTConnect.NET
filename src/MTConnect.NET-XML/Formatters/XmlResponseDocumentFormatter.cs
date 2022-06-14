@@ -37,17 +37,30 @@ namespace MTConnect.Formatters
             // Read OutputComments Option passed to Formatter
             var outputComments = GetFormatterOption<bool>(options, "outputComments");
 
+            // Read Validation Level Option passed to Formatter (0 = Ignore, 1 = Warning, 2 = Strict)
+            var validationLevel = GetFormatterOption<int>(options, "validationLevel");
+
             var xml = XmlDevicesResponseDocument.ToXml(document, null, stylesheet, indentOutput, outputComments);
             if (!string.IsNullOrEmpty(xml))
             {
-                var validationResponse = XmlValidator.Validate(xml, schema);
-                if (validationResponse.Success)
+                if (validationLevel > 0)
                 {
-                    return FormattedDocumentResult.Successful(xml, ContentType, "XML Validation Successful");
+                    // Validate XML against XSD Schema
+                    var validationResponse = XmlValidator.Validate(xml, schema);
+                    if (validationResponse.Success)
+                    {
+                        return FormattedDocumentResult.Successful(xml, ContentType, "XML Validation Successful");
+                    }
+                    else
+                    {
+                        // Return Successful if ValidationLevel set to Warning
+                        if (validationLevel < 2) return FormattedDocumentResult.Warning(xml, ContentType, validationResponse.Errors);
+                        else return FormattedDocumentResult.Error(validationResponse.Errors);                   
+                    }
                 }
                 else
                 {
-                    return FormattedDocumentResult.Error(validationResponse.Errors);
+                    return FormattedDocumentResult.Successful(xml, ContentType);
                 }
             }
 

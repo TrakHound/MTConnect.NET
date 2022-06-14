@@ -24,6 +24,8 @@ namespace MTConnect.Http
 
         public IEnumerable<string> FormatMessages { get; set; }
 
+        public IEnumerable<string> FormatWarnings { get; set; }
+
         public IEnumerable<string> FormatErrors { get; set; }
 
         public long FormatDuration { get; set; }
@@ -38,6 +40,7 @@ namespace MTConnect.Http
             ContentType = null;
             StatusCode = 500;
             FormatMessages = null;
+            FormatWarnings = null;
             FormatErrors = null;
             FormatDuration = 0;
             ResponseDuration = responseDuration;
@@ -51,6 +54,7 @@ namespace MTConnect.Http
                 Success = result.Success;
                 StatusCode = result.Success ? 200 : 500;
                 FormatMessages = result.Messages;
+                FormatWarnings = result.Warnings;
                 FormatErrors = result.Errors;
             }
         }
@@ -62,6 +66,7 @@ namespace MTConnect.Http
             ContentType = null;
             StatusCode = 500;
             FormatMessages = null;
+            FormatWarnings = null;
             FormatErrors = null;
             FormatDuration = 0;
             ResponseDuration = responseDuration;
@@ -75,6 +80,7 @@ namespace MTConnect.Http
                 Success = result.Success;
                 StatusCode = result.Success ? 200 : 500;
                 FormatMessages = result.Messages;
+                FormatWarnings = result.Warnings;
                 FormatErrors = result.Errors;
             }
         }
@@ -86,6 +92,7 @@ namespace MTConnect.Http
             ContentType = null;
             StatusCode = 500;
             FormatMessages = null;
+            FormatWarnings = null;
             FormatErrors = null;
             FormatDuration = 0;
             ResponseDuration = responseDuration;
@@ -99,6 +106,7 @@ namespace MTConnect.Http
                 Success = result.Success;
                 StatusCode = result.Success ? 200 : 500;
                 FormatMessages = result.Messages;
+                FormatWarnings = result.Warnings;
                 FormatErrors = result.Errors;
             }
         }
@@ -110,6 +118,7 @@ namespace MTConnect.Http
             ContentType = null;
             StatusCode = statusCode;
             FormatMessages = null;
+            FormatWarnings = null;
             FormatErrors = null;
             FormatDuration = 0;
             ResponseDuration = responseDuration;
@@ -123,6 +132,7 @@ namespace MTConnect.Http
                 Success = result.Success;
                 StatusCode = result.Success ? 200 : 500;
                 FormatMessages = result.Messages;
+                FormatWarnings = result.Warnings;
                 FormatErrors = result.Errors;
             }
         }
