@@ -9,16 +9,33 @@ using System.Linq;
 
 namespace MTConnect.Adapters.Shdr
 {
+    /// <summary>
+    /// An Observation representing an MTConnect Condition
+    /// </summary>
     public class ShdrCondition
     {
+        private string _changeId;
+
+
+        /// <summary>
+        /// Flag to set whether the Observation has been sent by the adapter or not
+        /// </summary>
+        internal bool IsSent { get; set; }
+
+        /// <summary>
+        /// The UUID or Name of the Device that the Observation is associated with
+        /// </summary>
         public string DeviceKey { get; set; }
 
+        /// <summary>
+        /// The (ID, Name, or Source) of the DataItem that the Observation is associated with
+        /// </summary>
         public string DataItemKey { get; set; }
 
+        /// <summary>
+        /// Gets or Sets the FaultStates associated with the Condition Observation
+        /// </summary>
         public IEnumerable<ShdrFaultState> FaultStates { get; set; }
-
-        public bool IsSent { get; set; }
-
 
         /// <summary>
         /// A MD5 Hash of the Condition that can be used for comparison
@@ -27,14 +44,8 @@ namespace MTConnect.Adapters.Shdr
         {
             get
             {
-                if (!FaultStates.IsNullOrEmpty())
-                {
-                    var valueString = "";
-                    foreach (var faultState in FaultStates) valueString += faultState.ChangeId;
-                    return valueString.ToMD5Hash();
-                }
-
-                return null;
+                if (_changeId == null) _changeId = CreateChangeId(this);
+                return _changeId;
             }
         }
 
@@ -144,12 +155,14 @@ namespace MTConnect.Adapters.Shdr
                 if (x == null) x = new List<ShdrFaultState>();
                 x.Add(faultState);
                 FaultStates = x;
+                _changeId = null;
             }
         }
 
         public void ClearFaultStates()
         {
             FaultStates = null;
+            _changeId = null;
         }
 
         /// <summary>
@@ -172,6 +185,22 @@ namespace MTConnect.Adapters.Shdr
             }
 
             return "";
+        }
+
+
+        private static string CreateChangeId(ShdrCondition condition)
+        {
+            if (condition != null)
+            {
+                if (!condition.FaultStates.IsNullOrEmpty())
+                {
+                    var valueString = "";
+                    foreach (var faultState in condition.FaultStates) valueString += faultState.ChangeId;
+                    return valueString.ToMD5Hash();
+                }
+            }
+
+            return null;
         }
     }
 }

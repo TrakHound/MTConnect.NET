@@ -11,6 +11,7 @@ namespace MTConnect.Adapters.Shdr
 
         public string Message { get; set; }
 
+
         public AdapterEventArgs(string clientId, string message)
         {
             ClientId = clientId;

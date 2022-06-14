@@ -9,6 +9,9 @@ using System;
 
 namespace MTConnect.Adapters.Shdr
 {
+    /// <summary>
+    /// A FaultState associated with an MTConnect Condition Observation
+    /// </summary>
     public class ShdrFaultState: ConditionObservationInput
     {
         public ShdrFaultState() { }

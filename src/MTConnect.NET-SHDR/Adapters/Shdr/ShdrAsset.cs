@@ -9,6 +9,9 @@ using System.Text.RegularExpressions;
 
 namespace MTConnect.Adapters.Shdr
 {
+    /// <summary>
+    /// An Asset representing an MTConnect Asset to be sent using the SHDR protocol
+    /// </summary>
     public class ShdrAsset
     {
         public const string AssetDesignator = "@ASSET@";
@@ -32,29 +35,45 @@ namespace MTConnect.Adapters.Shdr
         private static readonly Regex _assetRemoveAllRegex = new Regex(AssetRemoveAllPattern);
         private static readonly Regex _assetUpdateRegex = new Regex(AssetUpdatePattern);
 
+        /// <summary>
+        /// Flag to set whether the Asset has been sent by the adapter or not
+        /// </summary>
+        internal bool IsSent { get; set; }
 
+        /// <summary>
+        /// The unique idenifier of the Asset
+        /// </summary>
         public string AssetId { get; set; }
 
+        /// <summary>
+        /// The Type associated with the Asset
+        /// </summary>
         public string AssetType { get; set; }
 
-        public IAsset Asset { get; set; }
+        /// <summary>
+        /// The Asset object that represents the MTConnect Asset to output in the SHDR protocol
+        /// </summary>
+        public IAsset Asset { get; }
 
-        public string Xml { get; set; }
+        /// <summary>
+        /// The XML representation of the MTConnect Asset
+        /// </summary>
+        public string Xml { get; }
 
+        /// <summary>
+        /// The Timestamp (in Unix Ticks) that represents when the Asset was created / updated
+        /// </summary>
         public long Timestamp { get; set; }
 
-        public bool IsSent { get; set; }
-
+        /// <summary>
+        /// A MD5 Hash of the Asset that can be used for comparison
+        /// </summary>
         public string ChangeId
         {
             get
             {
-                var x = new ShdrAsset();
-                x.AssetId = AssetId;
-                x.AssetType = AssetType;
-                x.Timestamp = 0; // Normalize Timestamp in order to compare
-                x.Xml = x.Xml;
-                return x.ToString();
+                // Normalize Timestamp in order to compare
+                return ToString(new ShdrAsset(AssetId, AssetType, Xml, 0));
             }
         }
 
@@ -445,9 +464,6 @@ namespace MTConnect.Adapters.Shdr
             {
                 try
                 {
-                    var asset = new ShdrAsset();
-                    asset.Timestamp = timestamp;
-
                     // Skip @ASSET@. We already know if it is an Asset or not by this point.
                     var y = ShdrLine.GetNextSegment(input);
                     if (y != null)
@@ -455,14 +471,14 @@ namespace MTConnect.Adapters.Shdr
                         // Set Asset ID
                         var x = ShdrLine.GetNextValue(y);
                         y = ShdrLine.GetNextSegment(y);
-                        asset.AssetId = x;
+                        var assetId = x;
 
                         if (y != null)
                         {
                             // Set Asset Type
                             x = ShdrLine.GetNextValue(y);
                             y = ShdrLine.GetNextSegment(y);
-                            asset.AssetType = x;
+                            var assetType = x;
 
                             if (y != null)
                             {
@@ -470,8 +486,7 @@ namespace MTConnect.Adapters.Shdr
                                 x = ShdrLine.GetNextValue(y);
                                 if (x != null)
                                 {
-                                    asset.Xml = x;
-                                    return asset;
+                                    return new ShdrAsset(assetId, assetType, x, timestamp);
                                 }
                             }
                         }

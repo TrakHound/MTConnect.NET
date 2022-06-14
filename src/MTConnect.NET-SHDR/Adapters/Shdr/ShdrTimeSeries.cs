@@ -11,28 +11,16 @@ using System.Linq;
 
 namespace MTConnect.Adapters.Shdr
 {
+    /// <summary>
+    /// An Observation representing an MTConnect Sample with a Representation of TIME_SERIES
+    /// </summary>
     public class ShdrTimeSeries : TimeSeriesObservationInput
     {
-        public bool IsUnavailable { get; set; }
+        /// <summary>
+        /// Flag to set whether the Observation has been sent by the adapter or not
+        /// </summary>
+        internal bool IsSent { get; set; }
 
-        public bool IsSent { get; set; }
-
-        public override string ChangeId
-        {
-            get
-            {
-                if (IsUnavailable) return Observation.Unavailable.ToMD5Hash();
-
-                if (!Values.IsNullOrEmpty())
-                {
-                    var valueString = "";
-                    foreach (var value in Values) valueString += value.Value + ":";
-                    return valueString.ToMD5Hash();
-                }
-                
-                return null;
-            }
-        }
 
         public ShdrTimeSeries() { }
 

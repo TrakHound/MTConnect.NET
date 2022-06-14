@@ -12,12 +12,19 @@ using System.Text.RegularExpressions;
 
 namespace MTConnect.Adapters.Shdr
 {
+    /// <summary>
+    /// An Observation representing either an MTConnect Sample or Event DataItem with a Representation of VALUE
+    /// </summary>
     public class ShdrDataItem : ObservationInput
     {
         private static readonly Regex _deviceNameRegex = new Regex("(.*):(.*)");
         private static readonly Regex _resetTriggeredRegex = new Regex(@":([A-Z_]+)\s+(.*)");
 
-        public bool IsSent { get; set; }
+
+        /// <summary>
+        /// Flag to set whether the Observation has been sent by the adapter or not
+        /// </summary>
+        internal bool IsSent { get; set; }
 
         public string CDATA
         {
@@ -87,20 +94,24 @@ namespace MTConnect.Adapters.Shdr
                 var valueString = GetValue(ValueKeys.CDATA);
                 if (valueString != null)
                 {
-                    var value = valueString.Replace("|", @"\|");
-                    var resetTriggered = ResetTriggered != ResetTriggered.NOT_SPECIFIED ? $":{ResetTriggered} " : "";
+                    var value = valueString.Replace("|", @"\|").Trim();
+                    var resetTriggered = ResetTriggered != ResetTriggered.NOT_SPECIFIED ? $":{ResetTriggered}" : "";
 
                     if (Timestamp > 0 && Duration > 0)
                     {
-                        return $"{Timestamp.ToDateTime().ToString("o")}@{Duration}|{DataItemKey}|{resetTriggered}{value}";
+                        return $"{Timestamp.ToDateTime().ToString("o")}@{Duration}|{DataItemKey}|{value}{resetTriggered}";
                     }
                     else if (Timestamp > 0)
                     {
-                        return $"{Timestamp.ToDateTime().ToString("o")}|{DataItemKey}|{resetTriggered}{value}";
+                        return $"{Timestamp.ToDateTime().ToString("o")}|{DataItemKey}|{value}{resetTriggered}";
+                    }
+                    else if (Duration > 0)
+                    {
+                        return $"@{Duration}|{DataItemKey}|{value}{resetTriggered}";
                     }
                     else
                     {
-                        return $"{DataItemKey}|{resetTriggered}{value}";
+                        return $"{DataItemKey}|{value}{resetTriggered}";
                     }
                 }     
             }
@@ -115,20 +126,24 @@ namespace MTConnect.Adapters.Shdr
                 var valueString = dataItem.GetValue(ValueKeys.CDATA);
                 if (valueString != null)
                 {
-                    var value = valueString.Replace("|", @"\|");
-                    var resetTriggered = dataItem.ResetTriggered != ResetTriggered.NOT_SPECIFIED ? $":{dataItem.ResetTriggered} " : "";
+                    var value = valueString.Replace("|", @"\|").Trim();
+                    var resetTriggered = dataItem.ResetTriggered != ResetTriggered.NOT_SPECIFIED ? $":{dataItem.ResetTriggered}" : "";
 
                     if (dataItem.Timestamp > 0 && dataItem.Duration > 0)
                     {
-                        return $"{dataItem.Timestamp.ToDateTime().ToString("o")}@{dataItem.Duration}|{dataItem.DataItemKey}|{resetTriggered}{value}";
+                        return $"{dataItem.Timestamp.ToDateTime().ToString("o")}@{dataItem.Duration}|{dataItem.DataItemKey}|{value}{resetTriggered}";
                     }
                     else if (dataItem.Timestamp > 0 && !ignoreTimestamp)
                     {
-                        return $"{GetTimestampString(dataItem.Timestamp, dataItem.Duration)}|{dataItem.DataItemKey}|{resetTriggered}{value}";
+                        return $"{GetTimestampString(dataItem.Timestamp, dataItem.Duration)}|{dataItem.DataItemKey}|{value}{resetTriggered}";
+                    }
+                    else if (dataItem.Duration > 0)
+                    {
+                        return $"@{dataItem.Duration}|{dataItem.DataItemKey}|{value}{resetTriggered}";
                     }
                     else
                     {
-                        return $"{dataItem.DataItemKey}|{resetTriggered}{value}";
+                        return $"{dataItem.DataItemKey}|{value}{resetTriggered}";
                     }
                 }
             }
@@ -138,14 +153,23 @@ namespace MTConnect.Adapters.Shdr
 
         private static string GetTimestampString(long timestamp, double duration = 0)
         {
-            if (duration > 0)
+            if (timestamp > 0)
             {
-                return $"{timestamp.ToDateTime().ToString("o")}@{duration}";
+                if (duration > 0)
+                {
+                    return $"{timestamp.ToDateTime().ToString("o")}@{duration}";
+                }
+                else
+                {
+                    return timestamp.ToDateTime().ToString("o");
+                }
             }
-            else
+            else if (duration > 0)
             {
-                return timestamp.ToDateTime().ToString("o");
+                return $"@{duration}";
             }
+
+            return null;
         }
 
         private static string GetTimestampString(DateTime timestamp, double duration = 0)
@@ -190,7 +214,9 @@ namespace MTConnect.Adapters.Shdr
                     var timestamps = dataItems.Select(o => o.Timestamp).Distinct();
                     if (!timestamps.IsNullOrEmpty())
                     {
-                        foreach (var timestamp in timestamps)
+                        var oTimestamps = timestamps.OrderBy(o => o);
+
+                        foreach (var timestamp in oTimestamps)
                         {
                             string line = null;
 
@@ -199,7 +225,8 @@ namespace MTConnect.Adapters.Shdr
                             if (!timestampDataItems.IsNullOrEmpty())
                             {
                                 // Add Timestamp to beginning of line
-                                line = GetTimestampString(timestamp) + "|";
+                                var timestampPrefix = GetTimestampString(timestamp);
+                                if (!string.IsNullOrEmpty(timestampPrefix)) line = timestampPrefix + "|";
 
                                 // Add each DataItem to line
                                 for (var i = 0; i < timestampDataItems.Count; i++)

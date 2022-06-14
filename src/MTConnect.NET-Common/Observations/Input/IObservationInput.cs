@@ -44,6 +44,11 @@ namespace MTConnect.Observations.Input
         ResetTriggered ResetTriggered { get; set; }
 
         /// <summary>
+        /// Gets or Sets whether the Observation is Unavailable
+        /// </summary>
+        bool IsUnavailable { get; set; }
+
+        /// <summary>
         /// A MD5 Hash of the Observation that can be used for comparison
         /// </summary>
         string ChangeId { get; }

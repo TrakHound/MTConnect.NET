@@ -208,7 +208,7 @@ namespace MTConnect.Adapters.Shdr
             AddAllTimeSeries(clientId, timestamp);
             AddAllDataSets(clientId, timestamp);
             AddAllTables(clientId, timestamp);
-            AddAllAssets(clientId);
+            WriteAllAssets(clientId);
 
             AgentConnected?.Invoke(this, clientId);
         }
@@ -1725,7 +1725,9 @@ namespace MTConnect.Adapters.Shdr
 
         #region "Assets"
 
-        public ShdrAsset GetAsset(string key)
+        #region "Internal"
+
+        private ShdrAsset GetAssetFromQueue(string key)
         {
             if (!string.IsNullOrEmpty(key))
             {
@@ -1741,7 +1743,7 @@ namespace MTConnect.Adapters.Shdr
             return null;
         }
 
-        public IEnumerable<ShdrAsset> GetAssets()
+        private IEnumerable<ShdrAsset> GetAssetsFromQueue()
         {
             lock (_lock)
             {
@@ -1779,9 +1781,38 @@ namespace MTConnect.Adapters.Shdr
         }
 
 
+        private void AddAssetToQueue(ShdrAsset asset)
+        {
+            if (asset != null)
+            {
+                // Set Timestamp (if not already set)
+                if (asset.Timestamp > 0) asset.Timestamp = UnixDateTime.Now;
+
+                // Update Asset
+                UpdateAsset(asset);
+            }
+        }
+
+        private void AddAssetsToQueue(IEnumerable<ShdrAsset> assets)
+        {
+            if (!assets.IsNullOrEmpty())
+            {
+                // Get List of Assets that need to be Updated
+                foreach (var item in assets)
+                {
+                    // Set Timestamp (if not already set)
+                    if (item.Timestamp > 0) item.Timestamp = UnixDateTime.Now;
+
+                    // Update Asset
+                    UpdateAsset(item);
+                }
+            }
+        }
+
+
         private void WriteAssets()
         {
-            var assets = GetAssets();
+            var assets = GetAssetsFromQueue();
             if (!assets.IsNullOrEmpty())
             {
                 // Get List of Assets that need to be Updated
@@ -1801,7 +1832,7 @@ namespace MTConnect.Adapters.Shdr
 
         private async Task WriteAssetsAsync()
         {
-            var assets = GetAssets();
+            var assets = GetAssetsFromQueue();
             if (!assets.IsNullOrEmpty())
             {
                 // Get List of Assets that need to be Updated
@@ -1820,57 +1851,9 @@ namespace MTConnect.Adapters.Shdr
         }
 
 
-        public void AddAsset(Assets.IAsset asset)
+        private void WriteAllAssets(string clientId)
         {
-            AddAsset(new ShdrAsset(asset));
-        }
-
-        public void AddAsset(ShdrAsset asset)
-        {
-            if (asset != null)
-            {
-                // Set Timestamp (if not already set)
-                if (asset.Timestamp > 0) asset.Timestamp = UnixDateTime.Now;
-
-                // Update Asset
-                UpdateAsset(asset);
-            }
-        }
-
-        public void AddAssets(IEnumerable<Assets.IAsset> assets)
-        {
-            if (!assets.IsNullOrEmpty())
-            {
-                var items = new List<ShdrAsset>();
-                foreach (var item in assets)
-                {
-                    items.Add(new ShdrAsset(item));
-                }
-
-                AddAssets(items);
-            }
-        }
-
-        public void AddAssets(IEnumerable<ShdrAsset> assets)
-        {
-            if (!assets.IsNullOrEmpty())
-            {
-                // Get List of Assets that need to be Updated
-                foreach (var item in assets)
-                {
-                    // Set Timestamp (if not already set)
-                    if (item.Timestamp > 0) item.Timestamp = UnixDateTime.Now;
-
-                    // Update Asset
-                    UpdateAsset(item);
-                }
-            }
-        }
-
-
-        private void AddAllAssets(string clientId)
-        {
-            var assets = GetAssets();
+            var assets = GetAssetsFromQueue();
             if (!assets.IsNullOrEmpty())
             {
                 foreach (var item in assets)
@@ -1882,9 +1865,9 @@ namespace MTConnect.Adapters.Shdr
             }
         }
 
-        private async Task AddAllAssetsAsync(string clientId)
+        private async Task WriteAllAssetsAsync(string clientId)
         {
-            var assets = GetAssets();
+            var assets = GetAssetsFromQueue();
             if (!assets.IsNullOrEmpty())
             {
                 foreach (var item in assets)
@@ -1896,33 +1879,91 @@ namespace MTConnect.Adapters.Shdr
             }
         }
 
+        #endregion
 
+
+        /// <summary>
+        /// Add the specified MTConnect Asset to the queue to be written to the adapter stream
+        /// </summary>
+        /// <param name="asset">The Asset to add</param>
+        public void AddAsset(Assets.IAsset asset)
+        {
+            AddAssetToQueue(new ShdrAsset(asset));
+        }
+
+        /// <summary>
+        /// Add the specified MTConnect Assets to the queue to be written to the adapter stream
+        /// </summary>
+        /// <param name="assets">The Assets to add</param>
+        public void AddAssets(IEnumerable<Assets.IAsset> assets)
+        {
+            if (!assets.IsNullOrEmpty())
+            {
+                var items = new List<ShdrAsset>();
+                foreach (var item in assets)
+                {
+                    items.Add(new ShdrAsset(item));
+                }
+
+                AddAssetsToQueue(items);
+            }
+        }
+
+
+        /// <summary>
+        /// Remove the specified Asset using the SHDR command @REMOVE_ASSET@
+        /// </summary>
+        /// <param name="assetId">The AssetId of the Asset to remove</param>
+        /// <param name="timestamp">The timestamp to send as part of the SHDR command</param>
         public void RemoveAsset(string assetId, long timestamp = 0)
         {
             // Create SHDR string to send
             var shdrLine = ShdrAsset.Remove(assetId, timestamp);
+
+            // Write line to stream
             WriteLine(shdrLine);
         }
 
+        /// <summary>
+        /// Remove the specified Asset using the SHDR command @REMOVE_ASSET@
+        /// </summary>
+        /// <param name="assetId">The AssetId of the Asset to remove</param>
+        /// <param name="timestamp">The timestamp to send as part of the SHDR command</param>
         public async Task RemoveAssetAsync(string assetId, long timestamp = 0)
         {
             // Create SHDR string to send
             var shdrLine = ShdrAsset.Remove(assetId, timestamp);
+
+            // Write line to stream
             await WriteLineAsync(shdrLine);
         }
 
 
+        /// <summary>
+        /// Remove all Assets of the specified Type using the SHDR command @REMOVE_ALL_ASSETS@
+        /// </summary>
+        /// <param name="assetType">The Type of the Assets to remove</param>
+        /// <param name="timestamp">The timestamp to send as part of the SHDR command</param>
         public void RemoveAllAssets(string assetType, long timestamp = 0)
         {
             // Create SHDR string to send
             var shdrLine = ShdrAsset.RemoveAll(assetType, timestamp);
+
+            // Write line to stream
             WriteLine(shdrLine);
         }
 
+        /// <summary>
+        /// Remove all Assets of the specified Type using the SHDR command @REMOVE_ALL_ASSETS@
+        /// </summary>
+        /// <param name="assetType">The Type of the Assets to remove</param>
+        /// <param name="timestamp">The timestamp to send as part of the SHDR command</param>
         public async Task RemoveAllAssetsAsync(string assetType, long timestamp = 0)
         {
             // Create SHDR string to send
             var shdrLine = ShdrAsset.RemoveAll(assetType, timestamp);
+
+            // Write line to stream
             await WriteLineAsync(shdrLine);
         }
 
