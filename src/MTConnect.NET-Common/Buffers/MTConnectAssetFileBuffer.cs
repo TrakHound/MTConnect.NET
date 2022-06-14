@@ -349,8 +349,7 @@ namespace MTConnect.Buffers
 
                     var options = new JsonSerializerOptions
                     {
-                        WriteIndented = true,
-                        DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault
+                        WriteIndented = true
                     };
 
                     var assetType = Asset.GetAssetType(asset.Type);
