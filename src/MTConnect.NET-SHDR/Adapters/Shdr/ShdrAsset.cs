@@ -19,13 +19,13 @@ namespace MTConnect.Adapters.Shdr
         public const string AssetRemoveAllDesignator = "@REMOVE_ALL_ASSET@";
         public const string AssetUpdateDesignator = "@UPDATE_ASSET@";
 
-        private const string AssetIdPattern = $"{AssetDesignator}\\|(.*)\\|.*\\|--multiline--";
-        private const string AssetTypePattern = $"{AssetDesignator}\\|.*\\|(.*)\\|--multiline--";
-        private const string AssetMutlilineBeginPattern = $"{AssetDesignator}.*--multiline--(.*)";
-        private const string AssetMutlilineEndPattern = "--multiline--(.*)";
-        private const string AssetRemovePattern = $"{AssetRemoveDesignator}\\|(.*)";
-        private const string AssetRemoveAllPattern = $"{AssetRemoveAllDesignator}\\|(.*)";
-        private const string AssetUpdatePattern = $"{AssetUpdateDesignator}\\|(.*)";
+        private static string AssetIdPattern = $"{AssetDesignator}\\|(.*)\\|.*\\|--multiline--";
+        private static string AssetTypePattern = $"{AssetDesignator}\\|.*\\|(.*)\\|--multiline--";
+        private static string AssetMutlilineBeginPattern = $"{AssetDesignator}.*--multiline--(.*)";
+        private static string AssetMutlilineEndPattern = "--multiline--(.*)";
+        private static string AssetRemovePattern = $"{AssetRemoveDesignator}\\|(.*)";
+        private static string AssetRemoveAllPattern = $"{AssetRemoveAllDesignator}\\|(.*)";
+        private static string AssetUpdatePattern = $"{AssetUpdateDesignator}\\|(.*)";
 
         private static readonly Regex _assetIdRegex = new Regex(AssetIdPattern);
         private static readonly Regex _assetTypeRegex = new Regex(AssetTypePattern);
