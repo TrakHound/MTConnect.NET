@@ -50,7 +50,6 @@ namespace MTConnect.Agents
         private readonly MTConnectAgentMetrics _metrics = new MTConnectAgentMetrics(TimeSpan.FromSeconds(10), TimeSpan.FromMinutes(1));
         private readonly long _instanceId;
         private readonly string _uuid;
-        private readonly string _componentId;
         private long _deviceModelChangeTime;
         private Version _mtconnectVersion;
         private Agent _agent;
@@ -3185,8 +3184,14 @@ namespace MTConnect.Agents
                 var input = new ObservationInput();
                 input.DeviceKey = deviceKey;
                 input.DataItemKey = observationInput.DataItemKey;
-                input.Values = observationInput.Values;
-                input.Timestamp = observationInput.Timestamp > 0 ? observationInput.Timestamp : UnixDateTime.Now;
+
+                // Convert Case (if Ignored)
+                if (_configuration.IgnoreObservationCase) input.Values = Observation.UppercaseValues(observationInput.Values);
+                else input.Values = observationInput.Values;
+
+                // Set Timestamp
+                if (_configuration.IgnoreTimestamps) input.Timestamp = UnixDateTime.Now;
+                else input.Timestamp = observationInput.Timestamp > 0 ? observationInput.Timestamp : UnixDateTime.Now;
 
                 // Get Device UUID from deviceKey
                 _deviceKeys.TryGetValue(deviceKey, out var deviceUuid);
@@ -3195,12 +3200,20 @@ namespace MTConnect.Agents
                 var dataItem = GetDataItemFromKey(deviceUuid, input.DataItemKey);
                 if (dataItem != null)
                 {
-                    // Validate Observation Input with DataItem type
-                    var validationResults = dataItem.IsValid(Version, input);
-                    if (validationResults.IsValid)
+                    var success = false;
+                    var validationResult = new DataItemValidationResult(true);
+
+                    if (_configuration.ValidationLevel > ValidationLevel.Ignore)
+                    {
+                        // Validate Observation Input with DataItem type
+                        validationResult = dataItem.IsValid(Version, input);
+                        if (!validationResult.IsValid) validationResult.Message = $"{dataItem.Type} : {dataItem.Id} : {validationResult.Message}";
+                    }
+
+                    if (validationResult.IsValid || _configuration.ValidationLevel != ValidationLevel.Strict)
                     {
                         // Convert Units (if needed)
-                        if (_configuration.ConversionRequired)
+                        if (_configuration.ConvertUnits)
                         {
                             observationInput = ConvertObservationValue(dataItem, input);
                         }
@@ -3243,15 +3256,15 @@ namespace MTConnect.Agents
 
                                 ObservationAdded?.Invoke(this, observation);
 
-                                return true;
+                                success = true;
                             }
                         }
-                        else return true; // Return true if no update needed
+                        else success = true; // Return true if no update needed
                     }
-                    else
-                    {
-                        if (InvalidDataItemAdded != null) InvalidDataItemAdded.Invoke(dataItem, validationResults);
-                    }
+
+                    if (!validationResult.IsValid && InvalidDataItemAdded != null) InvalidDataItemAdded.Invoke(dataItem, validationResult);
+
+                    return success;
                 }
             }
 
@@ -3270,8 +3283,14 @@ namespace MTConnect.Agents
                 var input = new ObservationInput();
                 input.DeviceKey = deviceKey;
                 input.DataItemKey = observationInput.DataItemKey;
-                input.Values = observationInput.Values;
-                input.Timestamp = observationInput.Timestamp > 0 ? observationInput.Timestamp : UnixDateTime.Now;
+
+                // Convert Case (if Ignored)
+                if (_configuration.IgnoreObservationCase) input.Values = Observation.UppercaseValues(observationInput.Values);
+                else input.Values = observationInput.Values;
+
+                // Set Timestamp
+                if (_configuration.IgnoreTimestamps) input.Timestamp = UnixDateTime.Now;
+                else input.Timestamp = observationInput.Timestamp > 0 ? observationInput.Timestamp : UnixDateTime.Now;
 
                 // Get Device UUID from deviceKey
                 _deviceKeys.TryGetValue(deviceKey, out var deviceUuid);
@@ -3280,12 +3299,20 @@ namespace MTConnect.Agents
                 var dataItem = await GetDataItemFromKeyAsync(deviceUuid, input.DataItemKey);
                 if (dataItem != null)
                 {
-                    // Validate Observation with DataItem type
-                    var validationResults = dataItem.IsValid(Version, input);
-                    if (validationResults.IsValid)
+                    var success = false;
+                    var validationResult = new DataItemValidationResult(true);
+
+                    if (_configuration.ValidationLevel > ValidationLevel.Ignore)
+                    {
+                        // Validate Observation Input with DataItem type
+                        validationResult = dataItem.IsValid(Version, input);
+                        if (!validationResult.IsValid) validationResult.Message = $"{dataItem.Type} : {dataItem.Id} : {validationResult.Message}";
+                    }
+
+                    if (validationResult.IsValid || _configuration.ValidationLevel != ValidationLevel.Strict)
                     {
                         // Convert Units (if needed)
-                        if (_configuration.ConversionRequired)
+                        if (_configuration.ConvertUnits)
                         {
                             observationInput = ConvertObservationValue(dataItem, input);
                         }
@@ -3328,15 +3355,15 @@ namespace MTConnect.Agents
 
                                 ObservationAdded?.Invoke(this, observation);
 
-                                return true;
+                                success = true;
                             }
                         }
-                        else return true; // Return true if no update needed
+                        else success = true; // Return true if no update needed
                     }
-                    else
-                    {
-                        if (InvalidDataItemAdded != null) InvalidDataItemAdded.Invoke(dataItem, validationResults);
-                    }
+
+                    if (!validationResult.IsValid && InvalidDataItemAdded != null) InvalidDataItemAdded.Invoke(dataItem, validationResult);
+
+                    return success;
                 }
             }
 

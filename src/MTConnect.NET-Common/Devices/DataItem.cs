@@ -265,28 +265,35 @@ namespace MTConnect.Devices
         /// <returns>A DataItemValidationResult indicating if Validation was successful and a Message</returns>
         public DataItemValidationResult IsValid(Version mtconnectVersion, IObservationInput observation)
         {
+            var result = new DataItemValidationResult(true);
+
             switch (Category)
             {
                 // Validate Sample
                 case DataItemCategory.SAMPLE:
                     var sampleValidation = ValidateSample(mtconnectVersion, observation);
-                    if (!sampleValidation.IsValid) return sampleValidation;
+                    if (!sampleValidation.IsValid) result = sampleValidation;
                     break;
 
                 // Validate Event
                 case DataItemCategory.EVENT:
                     var eventValidation = ValidateEvent(mtconnectVersion, observation);
-                    if (!eventValidation.IsValid) return eventValidation;
+                    if (!eventValidation.IsValid) result = eventValidation;
                     break;
 
                 // Validate Condition
                 case DataItemCategory.CONDITION:
                     var conditionValidation = ValidateCondition(mtconnectVersion, observation);
-                    if (!conditionValidation.IsValid) return conditionValidation;
+                    if (!conditionValidation.IsValid) result = conditionValidation;
                     break;
-            }            
+            }       
+            
+            if (result.IsValid)
+            {
+                result = OnValidation(mtconnectVersion, observation);
+            }
 
-            return new DataItemValidationResult(true);
+            return result;
         }
 
         private DataItemValidationResult ValidateSample(Version mtconnectVersion, IObservationInput observation)

@@ -788,6 +788,28 @@ namespace MTConnect.Observations
             return value;
         }
 
+        public static IEnumerable<ObservationValue> UppercaseValues(IEnumerable<ObservationValue> values)
+        {
+            if (!values.IsNullOrEmpty())
+            {
+                var x = new List<ObservationValue>();
+
+                foreach (var value in values)
+                {
+                    if (value.Value != null && !value.Value.IsNumeric() && !value.Value.Contains(' '))
+                    {
+                        var v = value.Value.ToUpper();
+                        x.Add(new ObservationValue(value.Key, v));
+                    }
+                    else x.Add(value);
+                }
+
+                return x;
+            }
+
+            return null;
+        }
+
 
         protected static Dictionary<string, Type> GetAllTypes()
         {

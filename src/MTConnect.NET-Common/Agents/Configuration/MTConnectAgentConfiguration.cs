@@ -41,12 +41,14 @@ namespace MTConnect.Agents.Configuration
         [JsonPropertyName("assetBufferSize")]
         public int AssetBufferSize { get; set; }
 
+
         /// <summary>
         /// The XML file to load that specifies the devices and is supplied as the result of a probe request. 
         /// If the key is not found the defaults are tried.
         /// </summary>
         [JsonPropertyName("devices")]
         public string Devices { get; set; }
+
 
         /// <summary>
         /// Changes the service name when installing or removing the service. This allows multiple agents to run as services on the same machine.
@@ -60,6 +62,7 @@ namespace MTConnect.Agents.Configuration
         [JsonPropertyName("serviceAutoStart")]
         public bool ServiceAutoStart { get; set; }
 
+
         /// <summary>
         /// The port number the agent binds to for requests.
         /// </summary>
@@ -71,6 +74,95 @@ namespace MTConnect.Agents.Configuration
         /// </summary>
         [JsonPropertyName("serverIp")]
         public string ServerIp { get; set; }
+
+
+        /// <summary>
+        /// Overwrite timestamps with the agent time. 
+        /// This will correct clock drift but will not give as accurate relative time since it will not take into consideration network latencies. 
+        /// This can be overridden on a per adapter basis.
+        /// </summary>
+        [JsonPropertyName("ignoreTimestamps")]
+        public bool IgnoreTimestamps { get; set; }
+
+        /// <summary>
+        /// Gets or Sets the default MTConnect version to output response documents for.
+        /// </summary>
+        [JsonPropertyName("defaultVersion")]
+        public Version DefaultVersion { get; set; }
+
+        /// <summary>
+        /// Gets or Sets the default for Converting Units when adding Observations
+        /// </summary>
+        [JsonPropertyName("convertUnits")]
+        public bool ConvertUnits { get; set; }
+
+        /// <summary>
+        /// Gets or Sets the default for Ignoring the case of Observation values
+        /// </summary>
+        [JsonPropertyName("ignoreObservationCase")]
+        public bool IgnoreObservationCase { get; set; }
+
+        /// <summary>
+        /// Gets or Sets the default response document validation level. 0 = Ignore, 1 = Warning, 2 = Strict
+        /// </summary>
+        [JsonPropertyName("validationLevel")]
+        public ValidationLevel ValidationLevel { get; set; }
+
+
+        /// <summary>
+        /// Gets or Sets the default response document indendation
+        /// </summary>
+        [JsonPropertyName("indentOutput")]
+        public bool IndentOutput { get; set; }
+
+        /// <summary>
+        /// Gets or Sets the default response document comments output. Comments contiain descriptions from the MTConnect standard
+        /// </summary>
+        [JsonPropertyName("outputComments")]
+        public bool OutputComments { get; set; }
+
+
+        /// <summary>
+        /// Gets or Sets whether Configuration files are monitored. If enabled and a configuration file is changed, the Agent will restart
+        /// </summary>
+        [JsonPropertyName("monitorConfigurationFiles")]
+        public bool MonitorConfigurationFiles { get; set; }
+
+        /// <summary>
+        /// Gets or Sets the minimum time (in seconds) between Agent restarts when MonitorConfigurationFiles is enabled
+        /// </summary>
+        [JsonPropertyName("configurationFileRestartInterval")]
+        public int ConfigurationFileRestartInterval { get; set; }
+
+
+        /// <summary>
+        /// Specifies the SHDR protocol version used by the adapter. 
+        /// When greater than one (1), allows multiple complex observations, like Condition and Message on the same line. 
+        /// If it equials one (1), then any observation requiring more than a key/value pair need to be on separate lines. 
+        /// This is the default for all adapters.
+        /// </summary>
+        [JsonPropertyName("shdrVersion")]
+        public string ShdrVersion { get; set; }
+
+        /// <summary>
+        /// Do not overwrite the UUID with the UUID from the adapter, preserve the UUID in the Devices.xml file. 
+        /// This can be overridden on a per adapter basis.
+        /// </summary>
+        [JsonPropertyName("preserveUuid")]
+        public bool PreserveUuid { get; set; }
+
+        /// <summary>
+        /// Suppress the Adapter IP Address and port when creating the Agent Device ids and names for 1.7. This applies to all adapters.
+        /// </summary>
+        [JsonPropertyName("suppressIpAddress")]
+        public bool SuppressIpAddress { get; set; }
+
+        /// <summary>
+        /// Adapters begins a list of device blocks. If the Adapters are not specified and the Devices file only contains one device, 
+        /// a default device entry will be created with an adapter located on the localhost and port 7878 associated with the device in the devices file.
+        /// </summary>
+        [JsonPropertyName("adapters")]
+        public List<AdapterConfiguration> Adapters { get; set; }
 
         /// <summary>
         /// Allow HTTP PUT or POST of data item values or assets.
@@ -100,84 +192,6 @@ namespace MTConnect.Agents.Configuration
         [JsonPropertyName("reconnectInterval")]
         public int ReconnectInterval { get; set; }
 
-        /// <summary>
-        /// Overwrite timestamps with the agent time. 
-        /// This will correct clock drift but will not give as accurate relative time since it will not take into consideration network latencies. 
-        /// This can be overridden on a per adapter basis.
-        /// </summary>
-        [JsonPropertyName("ignoreTimestamps")]
-        public bool IgnoreTimestamps { get; set; }
-
-        /// <summary>
-        /// Do not overwrite the UUID with the UUID from the adapter, preserve the UUID in the Devices.xml file. 
-        /// This can be overridden on a per adapter basis.
-        /// </summary>
-        [JsonPropertyName("preserveUuid")]
-        public bool PreserveUuid { get; set; }
-
-        /// <summary>
-        /// Gets or Sets the default MTConnect version to output response documents for.
-        /// </summary>
-        [JsonPropertyName("defaultVersion")]
-        public Version DefaultVersion { get; set; }
-
-        /// <summary>
-        /// Global default for data item units conversion in the agent. Assumes the adapter has already done unit conversion.
-        /// </summary>
-        [JsonPropertyName("conversionRequired")]
-        public bool ConversionRequired { get; set; }
-
-        /// <summary>
-        /// Always converts the value of the data items to upper case.
-        /// </summary>
-        [JsonPropertyName("upcaseDataItemValue")]
-        public bool UpcaseDataItemValue { get; set; }
-
-        /// <summary>
-        /// Monitor agent.cfg and Devices.xml files and restart agent if they change.
-        /// </summary>
-        [JsonPropertyName("monitorConfigFiles")]
-        public bool MonitorConfigFiles { get; set; }
-
-        /// <summary>
-        /// The minimum age of a config file before an agent reload is triggered (seconds).
-        /// </summary>
-        [JsonPropertyName("minimumConfigReloadAge")]
-        public int MinimumConfigReloadAge { get; set; }
-
-        /// <summary>
-        /// Gets or Sets the default response document indendation
-        /// </summary>
-        [JsonPropertyName("indentOutput")]
-        public bool IndentOutput { get; set; }
-
-        /// <summary>
-        /// Gets or Sets the default response document comments output. Comments contiain descriptions from the MTConnect standard
-        /// </summary>
-        [JsonPropertyName("outputComments")]
-        public bool OutputComments { get; set; }
-
-        /// <summary>
-        /// Specifies the SHDR protocol version used by the adapter. 
-        /// When greater than one (1), allows multiple complex observations, like Condition and Message on the same line. 
-        /// If it equials one (1), then any observation requiring more than a key/value pair need to be on separate lines. 
-        /// This is the default for all adapters.
-        /// </summary>
-        [JsonPropertyName("shdrVersion")]
-        public string ShdrVersion { get; set; }
-
-        /// <summary>
-        /// Suppress the Adapter IP Address and port when creating the Agent Device ids and names for 1.7. This applies to all adapters.
-        /// </summary>
-        [JsonPropertyName("suppressIpAddress")]
-        public bool SuppressIpAddress { get; set; }
-
-        /// <summary>
-        /// Adapters begins a list of device blocks. If the Adapters are not specified and the Devices file only contains one device, 
-        /// a default device entry will be created with an adapter located on the localhost and port 7878 associated with the device in the devices file.
-        /// </summary>
-        [JsonPropertyName("adapters")]
-        public List<AdapterConfiguration> Adapters { get; set; }
 
 
         [JsonPropertyName("devicesNamespaces")]
@@ -223,14 +237,23 @@ namespace MTConnect.Agents.Configuration
             IgnoreTimestamps = false;
             PreserveUuid = true;
             DefaultVersion = MTConnectVersions.Max;
-            ConversionRequired = true;
-            UpcaseDataItemValue = true;
-            MonitorConfigFiles = true;
-            MinimumConfigReloadAge = 2;
+            ValidationLevel = ValidationLevel.Warning;
+            ConvertUnits = true;
+            IgnoreObservationCase = true;
+            MonitorConfigurationFiles = true;
+            ConfigurationFileRestartInterval = 2;
             IndentOutput = true;
             OutputComments = false;
             ShdrVersion = "1";
             SuppressIpAddress = false;
+
+            if (Adapters.IsNullOrEmpty())
+            {
+                Adapters = new List<AdapterConfiguration>
+                {
+                    new AdapterConfiguration()
+                };
+            }
         }
 
 
