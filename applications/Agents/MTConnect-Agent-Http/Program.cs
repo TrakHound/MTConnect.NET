@@ -579,6 +579,15 @@ namespace MTConnect.Applications
                 }
             }
 
+            // Format Warnings
+            if (!response.FormatWarnings.IsNullOrEmpty())
+            {
+                foreach (var warning in response.FormatWarnings)
+                {
+                    _agentValidationLogger.Warn($"[Http Server] : Formatter Warning : {warning}");
+                }
+            }
+
             // Format Errors
             if (!response.FormatErrors.IsNullOrEmpty())
             {
