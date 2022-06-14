@@ -24,7 +24,7 @@ namespace MTConnect.Adapters.Shdr
         private readonly object _lock = new object();
         private readonly AgentClientConnectionListener _connectionListener;
         private readonly Dictionary<string, AgentClient> _clients = new Dictionary<string, AgentClient>();
-        private readonly Dictionary<string, ShdrDataItem> _dataItems = new Dictionary<string, ShdrDataItem>();
+        private readonly Dictionary<string, IEnumerable<ShdrDataItem>> _dataItems = new Dictionary<string, IEnumerable<ShdrDataItem>>();
         private readonly Dictionary<string, ShdrMessage> _messages = new Dictionary<string, ShdrMessage>();
         private readonly Dictionary<string, ShdrCondition> _conditions = new Dictionary<string, ShdrCondition>();
         private readonly Dictionary<string, ShdrTimeSeries> _timeSeries = new Dictionary<string, ShdrTimeSeries>();
@@ -402,9 +402,25 @@ namespace MTConnect.Adapters.Shdr
             {
                 lock (_lock)
                 {
-                    if (_dataItems.TryGetValue(key, out ShdrDataItem dataItem))
+                    if (_dataItems.TryGetValue(key, out var dataItems))
                     {
-                        return dataItem;
+                        return dataItems.FirstOrDefault();
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        public IEnumerable<ShdrDataItem> GetDataItems(string key)
+        {
+            if (!string.IsNullOrEmpty(key))
+            {
+                lock (_lock)
+                {
+                    if (_dataItems.TryGetValue(key, out var dataItems))
+                    {
+                        return dataItems;
                     }
                 }
             }
@@ -416,7 +432,13 @@ namespace MTConnect.Adapters.Shdr
         {
             lock (_lock)
             {
-                return _dataItems.Values.ToList();
+                var x = new List<ShdrDataItem>();
+                var values = _dataItems.Values.ToList();
+                foreach (var dataItemValues in values)
+                {
+                    x.AddRange(dataItemValues);
+                }
+                return x;
             }
         }
 
@@ -430,17 +452,25 @@ namespace MTConnect.Adapters.Shdr
                     // Check to see if DataItem already exists in DataItem list
                     if (!_dataItems.TryGetValue(dataItem.DataItemKey, out var existing))
                     {
-                        _dataItems.Add(dataItem.DataItemKey, dataItem);
+                        var x = new List<ShdrDataItem>();
+                        x.Add(dataItem);
+
+                        _dataItems.Add(dataItem.DataItemKey, x);
                         return true;
                     }
                     else
                     {
-                        if (existing.ChangeId != dataItem.ChangeId)
+                        var x = new List<ShdrDataItem>();
+                        x.AddRange(existing);
+
+                        if (!existing.Any(o => o.ChangeId == dataItem.ChangeId))
                         {
+                            x.Add(dataItem);
+
                             dataItem.IsSent = false;
 
                             _dataItems.Remove(dataItem.DataItemKey);
-                            _dataItems.Add(dataItem.DataItemKey, dataItem);
+                            _dataItems.Add(dataItem.DataItemKey, x);
 
                             return true;
                         }
