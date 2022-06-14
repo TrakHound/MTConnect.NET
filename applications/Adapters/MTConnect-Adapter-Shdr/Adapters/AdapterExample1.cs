@@ -119,6 +119,7 @@ namespace MTConnect.Applications.Adapters.Shdr.Adapters
         public void UpdateValue()
         {
             var axisXDataItem = new ShdrDataItem("X1load", j++);
+            axisXDataItem.ResetTriggered = ResetTriggered.DAY;
             //var axisYDataItem = new ShdrDataItem("Ypos", k++);
             //var axisZDataItem = new ShdrDataItem("Zpos", l++);
             _adapter.AddDataItem(axisXDataItem);
