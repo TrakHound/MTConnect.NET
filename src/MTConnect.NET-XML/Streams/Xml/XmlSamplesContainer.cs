@@ -281,6 +281,11 @@ namespace MTConnect.Streams.Xml
                         // Add Common Attributes to Node
                         XmlObservation.AddAttributes(observation, node);
 
+                        // Count Attribute
+                        var attribute = _document.CreateAttribute("sampleCount");
+                        attribute.Value = !observation.Samples.IsNullOrEmpty() ? observation.Samples.Count().ToString() : "0";
+                        node.Attributes.Append(attribute);
+
                         // Set InnerText to the CDATA
                         if (!observation.Samples.IsNullOrEmpty())
                         {
