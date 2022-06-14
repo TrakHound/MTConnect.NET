@@ -84,12 +84,9 @@ namespace MTConnect.Buffers
             if (configuration != null)
             {
                 BufferSize = configuration.BufferSize;
-                _archiveObservations = new StoredObservation[configuration.BufferSize];
             }
-            else
-            {
-                _archiveObservations = new StoredObservation[BufferSize];
-            }
+
+            _archiveObservations = new StoredObservation[BufferSize];
         }
 
 

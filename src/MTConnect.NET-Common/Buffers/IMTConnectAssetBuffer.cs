@@ -29,6 +29,11 @@ namespace MTConnect.Buffers
         /// </summary>
         long AssetCount { get; }
 
+        /// <summary>
+        /// Get a list of AssetId's that are currently in the Buffer
+        /// </summary>
+        public IEnumerable<string> AssetIds { get; }
+
 
         /// <summary>
         /// Get a list of all Assets from the Buffer

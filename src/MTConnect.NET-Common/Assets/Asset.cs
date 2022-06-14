@@ -58,6 +58,10 @@ namespace MTConnect.Assets
         [JsonPropertyName("removed")]
         public bool Removed { get; set; }
 
+        [XmlIgnore]
+        [JsonIgnore]
+        public bool RemovedSpecified => Removed;
+
         /// <summary>
         /// An optional element that can contain any descriptive content.
         /// </summary>

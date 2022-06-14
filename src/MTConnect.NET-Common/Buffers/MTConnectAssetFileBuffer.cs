@@ -3,9 +3,8 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE', which is part of this source code package.
 
-using MTConnect.Agents;
+using MTConnect.Agents.Configuration;
 using MTConnect.Assets;
-using MTConnect.Observations.Input;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -26,19 +25,16 @@ namespace MTConnect.Buffers
         public const string DirectoryAssets = "assets";
 
         private readonly MTConnectAssetQueue _items;
-        private readonly object _lock = new object();
+        private readonly Regex _regex = new Regex("([0-9]*)_(.*)");
 
         private CancellationTokenSource stop;
         private bool _isStarted;
         private bool _isLoading;
-        //private bool _exists;
+        private long _pageIndex = 0;
 
+        public int WriteInterval { get; set; } = 1000;
 
-        public int Interval { get; set; } = 500;
-
-        //public int PageSize { get; set; } = DefaultPageSize;
-
-        //public int MaxRecordsPerFile { get; set; } = 5000;
+        public int RetentionInterval { get; set; } = 10000;
 
         public int MaxItemsPerWrite { get; set; } = 1000;
 
@@ -60,11 +56,18 @@ namespace MTConnect.Buffers
             Start();
         }
 
-        protected override void OnAssetAdd(IAsset asset)
+        public MTConnectAssetFileBuffer(MTConnectAgentConfiguration configuration) : base(configuration)
+        {
+            _items = new MTConnectAssetQueue();
+
+            Start();
+        }
+
+        protected override void OnAssetAdd(int bufferIndex, IAsset asset, int originalIndex)
         {
             if (!_isLoading)
             {
-                Add(asset);
+                Add(bufferIndex, asset, originalIndex);
             }
         }
 
@@ -80,7 +83,6 @@ namespace MTConnect.Buffers
 
                 stop = new CancellationTokenSource();
 
-                //_ = Task.Run(() => CheckWorker(stop.Token));
                 _ = Task.Run(() => WriteWorker(stop.Token));
             }
         }
@@ -107,33 +109,12 @@ namespace MTConnect.Buffers
         }
 
 
-        #region "Add"
-
-        public bool Add(IAsset asset)
+        public bool Add(int index, IAsset asset, int originalIndex)
         {
             // Add to internal Queue
-            return _items.Add(asset);
+            return _items.Add(index, asset, originalIndex);
         }
 
-        public bool Add(IEnumerable<IAsset> assets)
-        {
-            if (!assets.IsNullOrEmpty())
-            {
-                var success = true;
-
-                foreach (var asset in assets)
-                {
-                    success = Add(asset);
-                    if (!success) break;
-                }
-
-                return success;
-            }
-
-            return false;
-        }
-
-        #endregion
 
         #region "Load"
 
@@ -145,19 +126,24 @@ namespace MTConnect.Buffers
             var stpw = System.Diagnostics.Stopwatch.StartNew();
             if (BufferLoadStarted != null) BufferLoadStarted.Invoke(this, new EventArgs());
 
-            var assets = Read();
-            if (!assets.IsNullOrEmpty())
+            var items = Read();
+            if (!items.IsNullOrEmpty())
             {
-                foreach (var asset in assets)
+                var oItems = items.OrderBy(o => o.Index);
+
+                foreach (var item in oItems)
                 {
-                    AddAsset(asset);
+                    if (AddAsset(item.Asset))
+                    {
+                        _pageIndex++;
+                    }
                 }
 
                 found = true;
             }
 
             stpw.Stop();
-            if (found && BufferLoadCompleted != null) BufferLoadCompleted.Invoke(this, new AssetBufferLoadArgs(assets.Count(), stpw.ElapsedMilliseconds));
+            if (found && BufferLoadCompleted != null) BufferLoadCompleted.Invoke(this, new AssetBufferLoadArgs(items.Count(), stpw.ElapsedMilliseconds));
 
             _isLoading = false;
             return found;
@@ -167,34 +153,38 @@ namespace MTConnect.Buffers
 
         #region "Read"
 
-        public IEnumerable<IAsset> Read()
+        public IEnumerable<AssetReadItem> Read()
         {
-            var assets = new List<IAsset>();
+            var items = new List<AssetReadItem>();
 
             try
             {
                 // Get Assets Directory Path
                 var dir = GetDirectory();
-                var typeDirs = Directory.GetDirectories(dir);
-                if (!typeDirs.IsNullOrEmpty())
+                var files = Directory.GetFiles(dir);
+                if (!files.IsNullOrEmpty())
                 {
-                    foreach (var typeDir in typeDirs)
+                    foreach (var file in files)
                     {
-                        var assetType = Path.GetFileName(typeDir);
-
-                        // Get a list of all asset buffer files in directory
-                        var files = Directory.GetFiles(typeDir);
-                        foreach (var file in files)
+                        var match = _regex.Match(Path.GetFileName(file));
+                        if (match.Success && match.Groups.Count > 2)
                         {
+                            var index = match.Groups[1].ToInt();
+                            var assetType = match.Groups[2].ToString();
+
+                            // Read the Asset from the File
                             var asset = ReadAsset(assetType, file);
-                            if (asset != null) assets.Add(asset);
+                            if (asset != null)
+                            {
+                                items.Add(new AssetReadItem(index, asset));
+                            }
                         }
                     }
                 }
             }
             catch { }
 
-            return assets;
+            return items;
         }
 
         private IAsset ReadAsset(string assetType, string path)
@@ -220,20 +210,25 @@ namespace MTConnect.Buffers
             {
                 try
                 {
-                    return File.ReadAllText(path);
+                    if (UseCompression)
+                    {
+                        using (var fileStream = File.Open(path, FileMode.Open))
+                        {
+                            using (var readStream = new MemoryStream())
+                            using (var gzipStream = new GZipStream(fileStream, CompressionMode.Decompress))
+                            {
+                                gzipStream.CopyTo(readStream);
 
-                    //using (var fileStream = File.Open(path, FileMode.Open))
-                    //{
-                    //    using (var readStream = new MemoryStream())
-                    //    using (var gzipStream = new GZipStream(fileStream, CompressionMode.Decompress))
-                    //    {
-                    //        gzipStream.CopyTo(readStream);
+                                var bytes = readStream.ToArray();
 
-                    //        var bytes = readStream.ToArray();
-
-                    //        return Encoding.ASCII.GetString(bytes);
-                    //    }
-                    //}
+                                return Encoding.ASCII.GetString(bytes);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        return File.ReadAllText(path);
+                    }
                 }
                 catch { }
             }
@@ -251,7 +246,7 @@ namespace MTConnect.Buffers
             {
                 try
                 {
-                    await Task.Delay(Interval, cancellationToken);
+                    await Task.Delay(WriteInterval, cancellationToken);
 
                     await WriteItems(MaxItemsPerWrite);
                 }
@@ -275,21 +270,84 @@ namespace MTConnect.Buffers
             {
                 foreach (var item in queueItems)
                 {
-                    await WriteToFile(item);
+                    await WriteToFile(item.Index, item.Asset, item.OriginalIndex);
                 }
             }
         }
 
-        private async Task<bool> WriteToFile(IAsset asset)
+        private void UpdateFileIndexes(int index)
+        {
+            var dir = GetDirectory();
+            var files = Directory.GetFiles(dir);
+            if (!files.IsNullOrEmpty())
+            {
+                foreach (var file in files)
+                {
+                    var fileDirectory = Path.GetDirectoryName(file);
+                    var filename = Path.GetFileName(file);
+
+                    var match = _regex.Match(filename);
+                    if (match.Success && match.Groups.Count > 2)
+                    {
+                        var fileIndex = match.Groups[1].ToInt();
+                        var fileAssetType = match.Groups[2].ToString();
+
+                        if (fileIndex > index)
+                        {
+                            var newFilename = $"{fileIndex - 1}_{fileAssetType}";
+                            var newPath = Path.Combine(fileDirectory, newFilename);
+                            File.Move(file, newPath, true);
+                        }
+                        else if (fileIndex == index)
+                        {
+                            File.Delete(file);
+                        }
+                    }
+                }
+            }
+        }
+
+        private async Task<bool> WriteToFile(int index, IAsset asset, int originalIndex)
         {
             if (asset != null && !string.IsNullOrEmpty(asset.AssetId) && !string.IsNullOrEmpty(asset.Type))
             {
-                var dir = GetDirectory(asset.Type);
-                var filename = asset.AssetId;
+                var dir = GetDirectory();
+                //var filename = $"{index}_{asset.Type}_{asset.AssetId}";
+                var filename = $"{index}_{asset.Type}";
+                //var filename = asset.AssetId;
                 var path = Path.Combine(dir, filename);
 
                 try
                 {
+                    // Shift File Indexes (if needed)
+                    if (originalIndex >= 0)
+                    {
+                        UpdateFileIndexes(originalIndex);
+                    }
+                    else if (_pageIndex >= BufferSize && index >= BufferSize - 1)
+                    {
+                        UpdateFileIndexes(0);
+                    }
+
+                    // Remove Existing File with the same Index
+                    // (run for multiple files just to be safe)
+                    var existingFiles = Directory.GetFiles(dir);
+                    if (!existingFiles.IsNullOrEmpty())
+                    {
+                        foreach (var file in existingFiles)
+                        {
+                            var match = _regex.Match(Path.GetFileName(file));
+                            if (match.Success && match.Groups.Count > 2)
+                            {
+                                var fileIndex = match.Groups[1].ToInt();
+                                if (fileIndex == index)
+                                {
+                                    File.Delete(file);
+                                }
+                            }
+                        }
+                    }
+
                     var options = new JsonSerializerOptions
                     {
                         WriteIndented = true,
@@ -301,7 +359,31 @@ namespace MTConnect.Buffers
                     var json = JsonSerializer.Serialize(asset, assetType, options);
                     if (!string.IsNullOrEmpty(json))
                     {
-                        await File.WriteAllTextAsync(path, json);
+                        if (UseCompression)
+                        {
+                            // Get Bytes
+                            var bytes = Encoding.ASCII.GetBytes(json);
+
+                            using (var stream = new MemoryStream())
+                            {
+                                using (var gzipStream = new GZipStream(stream, CompressionMode.Compress))
+                                {
+                                    await gzipStream.WriteAsync(bytes, 0, bytes.Length);
+                                    await gzipStream.FlushAsync();
+                                }
+
+                                var fileBytes = stream.ToArray();
+                                await File.WriteAllBytesAsync(path, fileBytes);
+                            }
+                        }
+                        else
+                        {
+                            await File.WriteAllTextAsync(path, json);
+                        }
+
+                        _pageIndex++;
+                        if (_pageIndex > BufferSize) _pageIndex = BufferSize;
+                        return true;
                     }
                 }
                 catch { }
@@ -312,41 +394,6 @@ namespace MTConnect.Buffers
 
         #endregion
 
-
-        public long GetDirectorySize()
-        {
-            try
-            {
-                if (GetDirectoryExists())
-                {
-                    var dir = GetDirectory();
-                    var files = Directory.GetFiles(dir);
-                    if (!files.IsNullOrEmpty())
-                    {
-                        long x = 0;
-
-                        foreach (var file in files)
-                        {
-                            var fileInfo = new FileInfo(file);
-                            if (fileInfo != null) x += fileInfo.Length;
-                        }
-
-                        return x;
-                    }
-                }            
-            }
-            catch (Exception) { }
-
-            return -1;
-        }
-
-
-        private bool GetDirectoryExists()
-        {
-            string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, DirectoryBuffer);
-
-            return Directory.Exists(dir);
-        }
 
         private string GetDirectory(string assetType = null, bool createIfNotExists = true)
         {

@@ -3,10 +3,9 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
-using MTConnect.Assets;
 using MTConnect.Agents.Configuration;
+using MTConnect.Assets;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -19,7 +18,10 @@ namespace MTConnect.Buffers
     public class MTConnectAssetBuffer : IMTConnectAssetBuffer
     {       
         private readonly string _id = Guid.NewGuid().ToString();
-        private readonly ConcurrentDictionary<string, IAsset> _storedAssets = new ConcurrentDictionary<string, IAsset>();
+        private readonly IAsset[] _storedAssets;
+        private readonly Dictionary<string, int> _assetIds = new Dictionary<string, int>();
+        private readonly object _lock = new object();
+        private int _bufferIndex = 0;
 
         /// <summary>
         /// Get a unique identifier for the Buffer
@@ -36,11 +38,22 @@ namespace MTConnect.Buffers
         /// </summary>
         public long AssetCount
         {
-            get { return _storedAssets.Count; }
+            get { return _assetIds.Keys.Count(); }
+        }
+
+        /// <summary>
+        /// Get a list of AssetId's that are currently in the Buffer
+        /// </summary>
+        public IEnumerable<string> AssetIds
+        {
+            get { return _assetIds.Keys.ToList(); }
         }
 
 
-        public MTConnectAssetBuffer() { }
+        public MTConnectAssetBuffer() 
+        {
+            _storedAssets = new IAsset[BufferSize];
+        }
 
         public MTConnectAssetBuffer(MTConnectAgentConfiguration configuration)
         {
@@ -48,9 +61,13 @@ namespace MTConnect.Buffers
             {
                 BufferSize = configuration.MaxAssets;
             }
+
+            _storedAssets = new IAsset[BufferSize];
         }
 
-        protected virtual void OnAssetAdd(IAsset asset) { }
+        protected virtual void OnAssetAdd(int bufferIndex, IAsset asset, int originalIndex) { }
+
+        protected virtual void OnAssetRemoved(IAsset asset) { }
 
 
         /// <summary>
@@ -58,7 +75,7 @@ namespace MTConnect.Buffers
         /// </summary>
         public IEnumerable<IAsset> GetAssets(string type = null, bool removed = false, int count = 100)
         {
-            var assets = _storedAssets.Values.ToList();
+            var assets = _storedAssets.ToList();
 
             // Filter by Type
             if (!string.IsNullOrEmpty(type))
@@ -80,21 +97,26 @@ namespace MTConnect.Buffers
         /// </summary>
         public async Task<IEnumerable<IAsset>> GetAssetsAsync(string type = null, bool removed = false, int count = 100)
         {
-            var assets = _storedAssets.Values.ToList();
-
-            // Filter by Type
-            if (!string.IsNullOrEmpty(type))
+            var assets = _storedAssets.ToList();
+            assets = assets.Where(o => o != null).ToList();
+            if (!assets.IsNullOrEmpty())
             {
-                assets = assets.Where(o => o.Type == type).ToList();
+                // Filter by Type
+                if (!string.IsNullOrEmpty(type))
+                {
+                    assets = assets.Where(o => o.Type == type).ToList();
+                }
+
+                // Filter Removed Assets
+                if (!removed)
+                {
+                    assets = assets.Where(o => !o.Removed).ToList();
+                }
+
+                return assets?.Take(100);
             }
 
-            // Filter Removed Assets
-            if (!removed)
-            {
-                assets = assets.Where(o => !o.Removed).ToList();
-            }
-
-            return assets?.Take(100);
+            return null;
         }
 
         /// <summary>
@@ -103,9 +125,9 @@ namespace MTConnect.Buffers
         /// <param name="assetId">The ID of the Asset to return</param>
         public IAsset GetAsset(string assetId)
         {
-            if (_storedAssets.TryGetValue(assetId, out IAsset asset))
+            if (_assetIds.TryGetValue(assetId, out int index))
             {
-                return asset;
+                return _storedAssets[index];
             }
 
             return null;
@@ -117,9 +139,9 @@ namespace MTConnect.Buffers
         /// <param name="assetId">The ID of the Asset to return</param>
         public async Task<IAsset> GetAssetAsync(string assetId)
         {
-            if (_storedAssets.TryGetValue(assetId, out IAsset asset))
+            if (_assetIds.TryGetValue(assetId, out int index))
             {
-                return asset;
+                return _storedAssets[index];
             }
 
             return null;
@@ -134,17 +156,54 @@ namespace MTConnect.Buffers
         {
             if (asset != null)
             {
-                if (_storedAssets.Count >= BufferSize - 1)
+                if (!string.IsNullOrEmpty(asset.AssetId))
                 {
-                    _storedAssets.ToList();
-                    var firstId = _storedAssets.ToList().FirstOrDefault();
-                    _storedAssets.TryRemove(firstId.Key, out var _);
-                }
+                    int addIndex = 0;
+                    int originalIndex = -1;
 
-                _storedAssets.TryRemove(asset.AssetId, out var _);
-                if (_storedAssets.TryAdd(asset.AssetId, asset))
-                {
-                    OnAssetAdd(asset);
+                    lock (_lock)
+                    {
+                        if (_assetIds.Remove(asset.AssetId, out int index))
+                        {
+                            originalIndex = index;
+
+                            // Shift array over at the Index of the Asset ID
+                            var a = _storedAssets;
+                            Array.Copy(a, index + 1, _storedAssets, index, a.Length - index - 1);
+
+                            // Add existing Asset to the end of the array
+                            _storedAssets[_bufferIndex - 1] = asset;
+                            addIndex = _bufferIndex - 1;
+                        }
+                        else
+                        {
+                            if (_bufferIndex >= BufferSize)
+                            {
+                                // Add to end of Buffer (push first item out)
+                                var a = _storedAssets;
+                                Array.Copy(a, 1, _storedAssets, 0, a.Length - 1);
+                                _storedAssets[_storedAssets.Length - 1] = asset;
+                                addIndex = _storedAssets.Length - 1;
+                            }
+                            else
+                            {
+                                // Add at current _bufferIndex
+                                _storedAssets[_bufferIndex] = asset;
+                                addIndex = _bufferIndex;
+                                _bufferIndex++;
+                            }
+                        }
+
+                        // Reset AssetId References
+                        _assetIds.Clear();
+                        for (var i = 0; i <= _bufferIndex - 1; i++)
+                        {
+                            var a = _storedAssets[i];
+                            _assetIds.Add(a.AssetId, i);
+                        }
+                    }
+
+                    OnAssetAdd(addIndex, asset, originalIndex);
                     return true;
                 }
             }

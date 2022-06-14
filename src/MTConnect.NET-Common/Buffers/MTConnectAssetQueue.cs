@@ -12,7 +12,7 @@ namespace MTConnect.Buffers
     public class MTConnectAssetQueue
     {
         private readonly int _limit;
-        private readonly Dictionary<string, IAsset> _items = new Dictionary<string, IAsset>();
+        private readonly Dictionary<string, AssetQueueItem> _items = new Dictionary<string, AssetQueueItem>();
         private readonly object _lock = new object();
 
 
@@ -37,14 +37,14 @@ namespace MTConnect.Buffers
         /// <summary>
         /// Take (n) number of IAssets and remove from the Queue
         /// </summary>
-        public IEnumerable<IAsset> Take(int count = 1)
+        public IEnumerable<AssetQueueItem> Take(int count = 1)
         {
             lock (_lock)
             {
                 var items = _items.Take(count);
                 if (!items.IsNullOrEmpty())
                 {
-                    var x = new List<IAsset>();
+                    var x = new List<AssetQueueItem>();
 
                     foreach (var item in items)
                     {
@@ -61,7 +61,7 @@ namespace MTConnect.Buffers
             return null;
         }
 
-        public bool Add(IAsset asset)
+        public bool Add(int index, IAsset asset, int originalIndex)
         {
             if (asset != null)
             {
@@ -78,12 +78,12 @@ namespace MTConnect.Buffers
                                 if (_items.TryGetValue(hash, out var _))
                                 {
                                     _items.Remove(hash);
-                                    _items.Add(hash, asset);
+                                    _items.Add(hash, new AssetQueueItem(index, asset, originalIndex));
                                     return true;
                                 }
                                 else
                                 {
-                                    _items.Add(hash, asset);
+                                    _items.Add(hash, new AssetQueueItem(index, asset, originalIndex));
                                     return true;
                                 }
                             }

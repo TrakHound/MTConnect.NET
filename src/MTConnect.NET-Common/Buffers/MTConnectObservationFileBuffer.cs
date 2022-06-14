@@ -8,6 +8,7 @@ using MTConnect.Agents.Configuration;
 using MTConnect.Devices.DataItems;
 using MTConnect.Observations.Input;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -36,7 +37,9 @@ namespace MTConnect.Buffers
         private bool _isLoading;
 
 
-        public int Interval { get; set; } = 1000;
+        public int WriteInterval { get; set; } = 1000;
+
+        public int RetentionInterval { get; set; } = 5000;
 
         public int PageSize { get; set; } = DefaultPageSize;
 
@@ -312,7 +315,8 @@ namespace MTConnect.Buffers
 
         private IEnumerable<StoredObservation> ReadStoredObservations()
         {
-            var items = new List<StoredObservation>();
+            var items = new ConcurrentBag<StoredObservation>();
+            //var items = new List<StoredObservation>();
 
             try
             {
@@ -321,16 +325,57 @@ namespace MTConnect.Buffers
 
                 // Get a list of all observation buffer files in directory
                 var files = Directory.GetFiles(dir);
-                foreach (var file in files)
+                if (!files.IsNullOrEmpty())
                 {
-                    var fileItems = ReadFile(file);
-                    items.AddRange(fileItems);
+                    //var x = new ConcurrentDictionary<long, string>();
+                    Parallel.ForEach(files, file =>
+                    {
+                        var fileItems = ReadFile(file);
+                        foreach (var item in fileItems) items.Add(item);
+                        //items.(fileItems);
+
+                        //var sequence = long.Parse(Path.GetFileName(file));
+                        //x.TryAdd(sequence, file);
+                    });
                 }
+
+
+                //foreach (var file in files)
+                //{
+                //    var fileItems = ReadFile(file);
+                //    items.AddRange(fileItems);
+                //}
+
+
             }
             catch { }
 
             return items;
         }
+
+        //private IEnumerable<StoredObservation> ReadStoredObservations()
+        //{
+        //    var items = new List<StoredObservation>();
+
+        //    try
+        //    {
+        //        // Get Observations Directory Path
+        //        var dir = GetDirectory();
+
+        //        // Get a list of all observation buffer files in directory
+        //        var files = Directory.GetFiles(dir);
+        //        foreach (var file in files)
+        //        {
+        //            var fileItems = ReadFile(file);
+        //            items.AddRange(fileItems);
+        //        }
+
+
+        //    }
+        //    catch { }
+
+        //    return items;
+        //}
 
         private IEnumerable<StoredObservation> ReadStoredCurrentObservations()
         {
@@ -391,12 +436,17 @@ namespace MTConnect.Buffers
             var files = Directory.GetFiles(dir);
             if (!files.IsNullOrEmpty())
             {
-                var x = new Dictionary<long, string>();
-                foreach (var file in files)
+                var x = new ConcurrentDictionary<long, string>();
+                Parallel.ForEach(files, file =>
                 {
                     var sequence = long.Parse(Path.GetFileName(file));
-                    x.Add(sequence, file);
-                }
+                    x.TryAdd(sequence, file);
+                });
+                //foreach (var file in files)
+                //{
+                //    var sequence = long.Parse(Path.GetFileName(file));
+                //    x.Add(sequence, file);
+                //}
 
                 long m = GetSequenceTop(from);
                 var n = GetSequenceTop(to);
@@ -416,6 +466,42 @@ namespace MTConnect.Buffers
             return found;
         }
 
+        //private IEnumerable<string> GetFiles(long from, long to, int pageSize = DefaultPageSize)
+        //{
+        //    var found = new List<string>();
+
+        //    // Get Observations Directory Path
+        //    var dir = GetDirectory();
+
+        //    // Get a list of all observation buffer files in directory
+        //    var files = Directory.GetFiles(dir);
+        //    if (!files.IsNullOrEmpty())
+        //    {
+        //        var x = new Dictionary<long, string>();
+        //        foreach (var file in files)
+        //        {
+        //            var sequence = long.Parse(Path.GetFileName(file));
+        //            x.Add(sequence, file);
+        //        }
+
+        //        long m = GetSequenceTop(from);
+        //        var n = GetSequenceTop(to);
+
+        //        string s;
+        //        if (x.TryGetValue(m, out s)) found.Add(s);
+
+        //        do
+        //        {
+        //            m += pageSize;
+
+        //            if (x.TryGetValue(m, out s)) found.Add(s);
+        //        }
+        //        while (m < n);
+        //    }
+
+        //    return found;
+        //}
+
         private IEnumerable<string> GetCurrentFiles()
         {
             // Get Current Observations Directory Path
@@ -430,14 +516,37 @@ namespace MTConnect.Buffers
         {
             var items = new List<StoredObservation>();
 
+            //var stpw = System.Diagnostics.Stopwatch.StartNew();
+
             if (File.Exists(path))
             {
                 var lines = ReadFileLines(path);
-                return ReadObservations(lines);
+                items.AddRange(ReadObservations(lines));
+                //return ReadObservations(lines);
             }
+
+            //stpw.Stop();
+            //Console.WriteLine($"{path} : {stpw.ElapsedMilliseconds}ms");
 
             return items;
         }
+
+        //private IEnumerable<StoredObservation> ReadFile(IEnumerable<string> files)
+        //{
+        //    var items = new List<StoredObservation>();
+
+        //    if (!files.IsNullOrEmpty())
+        //    {
+        //        File.ReadAllTextAsync()
+        //    }
+        //    if (File.Exists(path))
+        //    {
+        //        var lines = ReadFileLines(path);
+        //        return ReadObservations(lines);
+        //    }
+
+        //    return items;
+        //}
 
 
         private string[] ReadFileLines(string path)
@@ -484,17 +593,20 @@ namespace MTConnect.Buffers
 
                 foreach (var line in lines)
                 {
-                    try
+                    if (!string.IsNullOrEmpty(line))
                     {
-                        var a = JsonSerializer.Deserialize<object[]>(line);
-                        var fileObservation = FileObservation.FromArray(a);
-                        var observation = fileObservation.ToStoredObservation();
-                        if (observation.IsValid)
+                        try
                         {
-                            items.Add(observation);
+                            var a = JsonSerializer.Deserialize<object[]>(line);
+                            var fileObservation = FileObservation.FromArray(a);
+                            var observation = fileObservation.ToStoredObservation();
+                            if (observation.IsValid)
+                            {
+                                items.Add(observation);
+                            }
                         }
+                        catch { }
                     }
-                    catch { }
                 }
 
                 return items;
@@ -510,13 +622,13 @@ namespace MTConnect.Buffers
         private async Task RetentionWorker(CancellationToken cancellationToken)
         {
             // Delay half the Interval to offset from WriteWorker
-            await Task.Delay(Interval / 2, cancellationToken);
+            await Task.Delay(WriteInterval / 2, cancellationToken);
 
             while (!cancellationToken.IsCancellationRequested)
             {
                 try
                 {
-                    await Task.Delay(Interval, cancellationToken);
+                    await Task.Delay(RetentionInterval, cancellationToken);
 
                     RunRetention();
                 }
@@ -557,7 +669,7 @@ namespace MTConnect.Buffers
             {
                 try
                 {
-                    await Task.Delay(Interval, cancellationToken);
+                    await Task.Delay(WriteInterval, cancellationToken);
 
                     await WriteItems(MaxItemsPerWrite);
                     await WriteCurrentItems(MaxItemsPerWrite);
