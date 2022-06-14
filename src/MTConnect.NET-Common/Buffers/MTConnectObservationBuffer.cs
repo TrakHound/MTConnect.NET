@@ -38,7 +38,7 @@ namespace MTConnect.Buffers
         /// <summary>
         /// Get the configured size of the Buffer in the number of maximum number of Observations the buffer can hold at one time.
         /// </summary>
-        public long BufferSize { get; set; } = 131072;
+        public long BufferSize { get; set; } = 150000;
 
         /// <summary>
         /// A number representing the sequence number assigned to the oldest Observation stored in the buffer

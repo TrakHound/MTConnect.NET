@@ -229,14 +229,14 @@ namespace MTConnect.Applications
                         }
                     }
 
-                    if (configuration.MonitorConfigFiles)
+                    if (configuration.MonitorConfigurationFiles)
                     {
                         // Set Device Configuration File Watcher
                         var paths = devices.Select(o => o.Path).Distinct();
                         foreach (var path in paths)
                         {
                             // Create a Device Configuration File Watcher
-                            var deviceConfigurationWatcher = new DeviceConfigurationFileWatcher(path, configuration.MinimumConfigReloadAge * 1000);
+                            var deviceConfigurationWatcher = new DeviceConfigurationFileWatcher(path, configuration.ConfigurationFileRestartInterval * 1000);
                             deviceConfigurationWatcher.ConfigurationUpdated += DeviceConfigurationFileUpdated;
                             deviceConfigurationWatcher.ErrorReceived += DeviceConfigurationFileError;
                             _deviceConfigurationWatchers.Add(deviceConfigurationWatcher);
@@ -270,11 +270,11 @@ namespace MTConnect.Applications
                 _server.Start();
 
 
-                if (configuration.MonitorConfigFiles)
+                if (configuration.MonitorConfigurationFiles)
                 {
                     // Set the Agent Configuration File Watcher
                     if (_agentConfigurationWatcher != null) _agentConfigurationWatcher.Dispose();
-                    _agentConfigurationWatcher = new AgentConfigurationFileWatcher<MTConnectAgentConfiguration>(configuration.Path, configuration.MinimumConfigReloadAge * 1000);
+                    _agentConfigurationWatcher = new AgentConfigurationFileWatcher<MTConnectAgentConfiguration>(configuration.Path, configuration.ConfigurationFileRestartInterval * 1000);
                     _agentConfigurationWatcher.ConfigurationUpdated += AgentConfigurationFileUpdated;
                     _agentConfigurationWatcher.ErrorReceived += AgentConfigurationFileError;
                 }
