@@ -59,7 +59,7 @@ namespace MTConnect.Buffers
         {
             if (configuration != null)
             {
-                BufferSize = configuration.MaxAssets;
+                BufferSize = configuration.AssetBufferSize;
             }
 
             _storedAssets = new IAsset[BufferSize];

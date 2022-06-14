@@ -95,7 +95,7 @@ namespace IntegrationTests
             _agent.Version = new Version(1, 8);
 
             // Add Adapter Clients
-            var devices = Device.FromFile(configuration.Devices, DocumentFormat.XML).ToList();
+            var devices = DeviceConfiguration.FromFile(configuration.Devices, DocumentFormat.XML).ToList();
             if (!devices.IsNullOrEmpty())
             {
                 // Add Device(s) to Agent
@@ -109,7 +109,7 @@ namespace IntegrationTests
                     var device = devices.FirstOrDefault(o => o.Name == adapterConfiguration.Device);
                     if (device != null)
                     {
-                        var adapterClient = new ShdrAdapterClient(StringFunctions.RandomString(10), adapterConfiguration, _agent, device);
+                        var adapterClient = new ShdrAdapterClient(adapterConfiguration, _agent, device);
 
                         adapterClient.Start();
                     }
@@ -154,7 +154,7 @@ namespace IntegrationTests
                 }
             };
             tool.CuttingToolLifeCycle.Measurements.Add(new MTConnect.Assets.CuttingTools.Measurements.FunctionalLengthMeasurement(7.6543));
-            tool.CuttingToolLifeCycle.Measurements.Add(new MTConnect.Assets.CuttingTools.Measurements.Assembly.CuttingDiameterMaxMeasurement(0.375));
+            tool.CuttingToolLifeCycle.Measurements.Add(new MTConnect.Assets.CuttingTools.Measurements.CuttingDiameterMaxMeasurement(0.375));
             tool.CuttingToolLifeCycle.CuttingItems.Add(new MTConnect.Assets.CuttingTools.CuttingItem
             {
                 ItemId = "12.1",

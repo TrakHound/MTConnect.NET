@@ -11,7 +11,7 @@ using System.Collections.Generic;
 namespace MTConnect.Assets.Pallets
 {
     [XmlRoot("Pallet")]
-    public class PalletAsset : Asset<PalletAsset>
+    public class PalletAsset : Asset
     {
         [XmlAttribute("palletId")]
         [JsonPropertyName("palletId")]

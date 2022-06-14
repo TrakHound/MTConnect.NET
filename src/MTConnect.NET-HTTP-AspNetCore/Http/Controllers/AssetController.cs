@@ -56,9 +56,10 @@ namespace MTConnect.Http.Controllers
             var formatOptions = new List<KeyValuePair<string, string>>();
 
             if (indentOutput.HasValue) formatOptions.Add(new KeyValuePair<string, string>("indentOutput", indentOutput.Value.ToString()));
-            else formatOptions.Add(new KeyValuePair<string, string>("indentOutput", _agent.Configuration.Pretty.ToString()));
+            else formatOptions.Add(new KeyValuePair<string, string>("indentOutput", _agent.Configuration.IndentOutput.ToString()));
 
             if (outputComments.HasValue) formatOptions.Add(new KeyValuePair<string, string>("outputComments", outputComments.Value.ToString()));
+            else formatOptions.Add(new KeyValuePair<string, string>("outputComments", _agent.Configuration.OutputComments.ToString()));
 
             var response = await MTConnectHttpRequests.GetAssetRequest(_agent, assetId, version, documentFormat, formatOptions);
 
@@ -87,7 +88,6 @@ namespace MTConnect.Http.Controllers
                     var asset = new Assets.Asset();
                     asset.AssetId = assetId;
                     asset.Type = type;
-                    asset.Xml = body;
 
                     // Store the Asset in the Agent
                     if (await _agent.AddAssetAsync(device, asset))

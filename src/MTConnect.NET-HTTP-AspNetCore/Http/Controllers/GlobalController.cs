@@ -59,9 +59,10 @@ namespace MTConnect.Http.Controllers
             var formatOptions = new List<KeyValuePair<string, string>>();
 
             if (indentOutput.HasValue) formatOptions.Add(new KeyValuePair<string, string>("indentOutput", indentOutput.Value.ToString()));
-            else formatOptions.Add(new KeyValuePair<string, string>("indentOutput", _agent.Configuration.Pretty.ToString()));
+            else formatOptions.Add(new KeyValuePair<string, string>("indentOutput", _agent.Configuration.IndentOutput.ToString()));
 
             if (outputComments.HasValue) formatOptions.Add(new KeyValuePair<string, string>("outputComments", outputComments.Value.ToString()));
+            else formatOptions.Add(new KeyValuePair<string, string>("outputComments", _agent.Configuration.OutputComments.ToString()));
 
             var response = await MTConnectHttpRequests.GetProbeRequest(_agent, version, documentFormat, formatOptions);
 
@@ -104,9 +105,10 @@ namespace MTConnect.Http.Controllers
             var formatOptions = new List<KeyValuePair<string, string>>();
 
             if (indentOutput.HasValue) formatOptions.Add(new KeyValuePair<string, string>("indentOutput", indentOutput.Value.ToString()));
-            else formatOptions.Add(new KeyValuePair<string, string>("indentOutput", _agent.Configuration.Pretty.ToString()));
+            else formatOptions.Add(new KeyValuePair<string, string>("indentOutput", _agent.Configuration.IndentOutput.ToString()));
 
             if (outputComments.HasValue) formatOptions.Add(new KeyValuePair<string, string>("outputComments", outputComments.Value.ToString()));
+            else formatOptions.Add(new KeyValuePair<string, string>("outputComments", _agent.Configuration.OutputComments.ToString()));
 
             if (interval > 0)
             {
@@ -221,9 +223,10 @@ namespace MTConnect.Http.Controllers
             var formatOptions = new List<KeyValuePair<string, string>>();
 
             if (indentOutput.HasValue) formatOptions.Add(new KeyValuePair<string, string>("indentOutput", indentOutput.Value.ToString()));
-            else formatOptions.Add(new KeyValuePair<string, string>("indentOutput", _agent.Configuration.Pretty.ToString()));
+            else formatOptions.Add(new KeyValuePair<string, string>("indentOutput", _agent.Configuration.IndentOutput.ToString()));
 
             if (outputComments.HasValue) formatOptions.Add(new KeyValuePair<string, string>("outputComments", outputComments.Value.ToString()));
+            else formatOptions.Add(new KeyValuePair<string, string>("outputComments", _agent.Configuration.OutputComments.ToString()));
 
             if (interval > 0)
             {

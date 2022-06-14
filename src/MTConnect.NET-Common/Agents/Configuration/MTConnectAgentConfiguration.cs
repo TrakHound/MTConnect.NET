@@ -30,24 +30,16 @@ namespace MTConnect.Agents.Configuration
 
 
         /// <summary>
-        /// The 2^X number of slots available in the circular buffer for samples, events, and conditions.
+        /// The maximum number of Observations the agent can hold in its buffer
         /// </summary>
-        [JsonPropertyName("bufferSize")]
-        public int BufferSize { get; set; }
+        [JsonPropertyName("observationBufferSize")]
+        public int ObservationBufferSize { get; set; }
 
         /// <summary>
-        /// The maximum number of assets the agent can hold in its buffer. The number is the actual count, not an exponent.
+        /// The maximum number of assets the agent can hold in its buffer
         /// </summary>
-        [JsonPropertyName("maxAssets")]
-        public int MaxAssets { get; set; }
-
-        /// <summary>
-        /// The frequency checkpoints are created in the stream. 
-        /// This is used for current with the at argument. 
-        /// This is an advanced configuration item and should not be changed unless you understand the internal workings of the agent.
-        /// </summary>
-        [JsonPropertyName("checkpointFrequency")]
-        public int CheckpointFrequency { get; set; }
+        [JsonPropertyName("assetBufferSize")]
+        public int AssetBufferSize { get; set; }
 
         /// <summary>
         /// The XML file to load that specifies the devices and is supplied as the result of a probe request. 
@@ -55,12 +47,6 @@ namespace MTConnect.Agents.Configuration
         /// </summary>
         [JsonPropertyName("devices")]
         public string Devices { get; set; }
-
-        /// <summary>
-        /// UNIX only. The full path of the file that contains the process id of the daemon. This is not supported in Windows.
-        /// </summary>
-        [JsonPropertyName("pidFile")]
-        public string PidFile { get; set; }
 
         /// <summary>
         /// Changes the service name when installing or removing the service. This allows multiple agents to run as services on the same machine.
@@ -130,9 +116,9 @@ namespace MTConnect.Agents.Configuration
         public bool PreserveUuid { get; set; }
 
         /// <summary>
-        /// Change the schema version to a different version number.
+        /// Gets or Sets the default MTConnect version to output response documents for.
         /// </summary>
-        [JsonPropertyName("schemaVersion")]
+        [JsonPropertyName("defaultVersion")]
         public Version DefaultVersion { get; set; }
 
         /// <summary>
@@ -160,10 +146,16 @@ namespace MTConnect.Agents.Configuration
         public int MinimumConfigReloadAge { get; set; }
 
         /// <summary>
-        /// Pretty print the output with indententation
+        /// Gets or Sets the default response document indendation
         /// </summary>
-        [JsonPropertyName("pretty")]
-        public bool Pretty { get; set; }
+        [JsonPropertyName("indentOutput")]
+        public bool IndentOutput { get; set; }
+
+        /// <summary>
+        /// Gets or Sets the default response document comments output. Comments contiain descriptions from the MTConnect standard
+        /// </summary>
+        [JsonPropertyName("outputComments")]
+        public bool OutputComments { get; set; }
 
         /// <summary>
         /// Specifies the SHDR protocol version used by the adapter. 
@@ -217,11 +209,9 @@ namespace MTConnect.Agents.Configuration
 
         public MTConnectAgentConfiguration()
         {
-            BufferSize = 131072;
-            MaxAssets = 1024;
-            CheckpointFrequency = 1000;
+            ObservationBufferSize = 131072;
+            AssetBufferSize = 1024;
             Devices = "devices.xml";
-            PidFile = "agent.pid";
             ServiceName = null;
             ServiceAutoStart = true;
             ServerIp = "127.0.0.1";
@@ -237,7 +227,8 @@ namespace MTConnect.Agents.Configuration
             UpcaseDataItemValue = true;
             MonitorConfigFiles = true;
             MinimumConfigReloadAge = 2;
-            Pretty = true;
+            IndentOutput = true;
+            OutputComments = false;
             ShdrVersion = "1";
             SuppressIpAddress = false;
         }

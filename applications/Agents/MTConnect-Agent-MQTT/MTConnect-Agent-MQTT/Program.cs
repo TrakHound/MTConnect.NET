@@ -106,7 +106,7 @@ namespace MTConnect.Applications
                 // Add Adapter Clients
                 if (!configuration.Adapters.IsNullOrEmpty())
                 {
-                    var devices = Device.FromFile(configuration.Devices, DocumentFormat.XML);
+                    var devices = DeviceConfiguration.FromFile(configuration.Devices, DocumentFormat.XML);
                     if (!devices.IsNullOrEmpty())
                     {
                         // Add Device(s) to Agent
@@ -120,13 +120,11 @@ namespace MTConnect.Applications
                             var device = devices.FirstOrDefault(o => o.Name == adapterConfiguration.Device);
                             if (device != null)
                             {
-                                var adapterId = $"_{StringFunctions.RandomString(10)}";
-
                                 // Add Adapter Component to Agent Device
-                                _agent.AddAdapterComponent(adapterId, adapterConfiguration);
+                                _agent.AddAdapterComponent(adapterConfiguration);
 
                                 // Create new SHDR Adapter Client to read from SHDR stream
-                                var adapterClient = new ShdrAdapterClient(adapterId, adapterConfiguration, _agent, device);
+                                var adapterClient = new ShdrAdapterClient(adapterConfiguration, _agent, device);
 
                                 if (verboseLogging)
                                 {

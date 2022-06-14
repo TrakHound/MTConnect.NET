@@ -1,6 +1,5 @@
 ﻿using MTConnect.Agents;
 using MTConnect.Agents.Configuration;
-using MTConnect.Devices;
 using MTConnect.Http;
 using MTConnect.Observations.Events.Values;
 using MTConnect.Observations.Input;
@@ -19,7 +18,7 @@ namespace MTConnect.Applications
             agent.Version = new Version(1, 8);
 
             // Read Devices.xml File
-            var devices = Device.FromFile(configuration?.Devices, DocumentFormat.XML);
+            var devices = DeviceConfiguration.FromFile(configuration?.Devices, DocumentFormat.XML);
 
             // Add Devices to MTConnect Agent
             agent.AddDevices(devices);
