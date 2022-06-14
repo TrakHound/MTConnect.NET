@@ -8,7 +8,7 @@ using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace MTConnect.Agents.Information
+namespace MTConnect.Agents
 {
     public class MTConnectAgentInformation
     {
@@ -20,17 +20,6 @@ namespace MTConnect.Agents.Information
 
         [JsonPropertyName("uuid")]
         public string Uuid { get; set; }
-
-        //[JsonIgnore]
-        //public string ComponentId
-        //{
-        //    get
-        //    {
-        //        var id = Uuid;
-        //        id = id.ToMD5Hash().Substring(0, 10);
-        //        return $"agent_{id}";
-        //    }
-        //}
 
         [JsonPropertyName("instanceId")]
         public long InstanceId { get; set; }

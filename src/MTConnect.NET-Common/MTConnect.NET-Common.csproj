@@ -34,15 +34,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Compile Remove="Agents\Information\MTConnectAgentPersistentInformation.cs" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<None Include="../../README.md">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
 		</None>
-		<None Include="Agents\Information\MTConnectAgentPersistentInformation.cs" />
 	</ItemGroup>
 
 	<PropertyGroup Condition="'$(Configuration)'=='Release'">

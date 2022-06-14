@@ -4,7 +4,6 @@
 // file 'LICENSE.txt', which is part of this source code package.
 
 using MTConnect.Agents.Configuration;
-using MTConnect.Agents.Information;
 using MTConnect.Agents.Metrics;
 using MTConnect.Assets;
 using MTConnect.Buffers;
