@@ -288,11 +288,6 @@ namespace MTConnect.Devices
                     break;
             }       
             
-            if (result.IsValid)
-            {
-                result = OnValidation(mtconnectVersion, observation);
-            }
-
             return result;
         }
 
@@ -306,7 +301,7 @@ namespace MTConnect.Devices
                 if (cdata == Observation.Unavailable) return new DataItemValidationResult(true);
             }
 
-            return new DataItemValidationResult(true);
+            return OnValidation(mtconnectVersion, observation);
         }
 
         private DataItemValidationResult ValidateEvent(Version mtconnectVersion, IObservationInput observation)
@@ -319,7 +314,7 @@ namespace MTConnect.Devices
                 if (cdata == Observation.Unavailable) return new DataItemValidationResult(true);
             }
 
-            return new DataItemValidationResult(true);
+            return OnValidation(mtconnectVersion, observation);
         }
 
         private DataItemValidationResult ValidateCondition(Version mtconnectVersion, IObservationInput observation)
@@ -330,7 +325,7 @@ namespace MTConnect.Devices
             // Check if Unavailable
             if (level == ConditionLevel.UNAVAILABLE) return new DataItemValidationResult(true);
 
-            return new DataItemValidationResult(true);
+            return OnValidation(mtconnectVersion, observation);
         }
 
         protected virtual DataItemValidationResult OnValidation(Version mtconnectVerion, IObservationInput observation)
