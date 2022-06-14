@@ -97,9 +97,6 @@
 		<Reference Include="System.Text.Json" />
 		<PackageReference Include="System.Text.Json" Version="6.0.1" />
 	</ItemGroup>
-	<ItemGroup>
-		<Folder Include="Observations\Conditions\" />
-	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />

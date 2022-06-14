@@ -316,7 +316,6 @@ namespace MTConnect.Buffers
         private IEnumerable<StoredObservation> ReadStoredObservations()
         {
             var items = new ConcurrentBag<StoredObservation>();
-            //var items = new List<StoredObservation>();
 
             try
             {
@@ -327,55 +326,17 @@ namespace MTConnect.Buffers
                 var files = Directory.GetFiles(dir);
                 if (!files.IsNullOrEmpty())
                 {
-                    //var x = new ConcurrentDictionary<long, string>();
                     Parallel.ForEach(files, file =>
                     {
                         var fileItems = ReadFile(file);
                         foreach (var item in fileItems) items.Add(item);
-                        //items.(fileItems);
-
-                        //var sequence = long.Parse(Path.GetFileName(file));
-                        //x.TryAdd(sequence, file);
                     });
                 }
-
-
-                //foreach (var file in files)
-                //{
-                //    var fileItems = ReadFile(file);
-                //    items.AddRange(fileItems);
-                //}
-
-
             }
             catch { }
 
             return items;
         }
-
-        //private IEnumerable<StoredObservation> ReadStoredObservations()
-        //{
-        //    var items = new List<StoredObservation>();
-
-        //    try
-        //    {
-        //        // Get Observations Directory Path
-        //        var dir = GetDirectory();
-
-        //        // Get a list of all observation buffer files in directory
-        //        var files = Directory.GetFiles(dir);
-        //        foreach (var file in files)
-        //        {
-        //            var fileItems = ReadFile(file);
-        //            items.AddRange(fileItems);
-        //        }
-
-
-        //    }
-        //    catch { }
-
-        //    return items;
-        //}
 
         private IEnumerable<StoredObservation> ReadStoredCurrentObservations()
         {
@@ -442,11 +403,6 @@ namespace MTConnect.Buffers
                     var sequence = long.Parse(Path.GetFileName(file));
                     x.TryAdd(sequence, file);
                 });
-                //foreach (var file in files)
-                //{
-                //    var sequence = long.Parse(Path.GetFileName(file));
-                //    x.Add(sequence, file);
-                //}
 
                 long m = GetSequenceTop(from);
                 var n = GetSequenceTop(to);
@@ -466,42 +422,6 @@ namespace MTConnect.Buffers
             return found;
         }
 
-        //private IEnumerable<string> GetFiles(long from, long to, int pageSize = DefaultPageSize)
-        //{
-        //    var found = new List<string>();
-
-        //    // Get Observations Directory Path
-        //    var dir = GetDirectory();
-
-        //    // Get a list of all observation buffer files in directory
-        //    var files = Directory.GetFiles(dir);
-        //    if (!files.IsNullOrEmpty())
-        //    {
-        //        var x = new Dictionary<long, string>();
-        //        foreach (var file in files)
-        //        {
-        //            var sequence = long.Parse(Path.GetFileName(file));
-        //            x.Add(sequence, file);
-        //        }
-
-        //        long m = GetSequenceTop(from);
-        //        var n = GetSequenceTop(to);
-
-        //        string s;
-        //        if (x.TryGetValue(m, out s)) found.Add(s);
-
-        //        do
-        //        {
-        //            m += pageSize;
-
-        //            if (x.TryGetValue(m, out s)) found.Add(s);
-        //        }
-        //        while (m < n);
-        //    }
-
-        //    return found;
-        //}
-
         private IEnumerable<string> GetCurrentFiles()
         {
             // Get Current Observations Directory Path
@@ -516,38 +436,14 @@ namespace MTConnect.Buffers
         {
             var items = new List<StoredObservation>();
 
-            //var stpw = System.Diagnostics.Stopwatch.StartNew();
-
             if (File.Exists(path))
             {
                 var lines = ReadFileLines(path);
                 items.AddRange(ReadObservations(lines));
-                //return ReadObservations(lines);
             }
-
-            //stpw.Stop();
-            //Console.WriteLine($"{path} : {stpw.ElapsedMilliseconds}ms");
 
             return items;
         }
-
-        //private IEnumerable<StoredObservation> ReadFile(IEnumerable<string> files)
-        //{
-        //    var items = new List<StoredObservation>();
-
-        //    if (!files.IsNullOrEmpty())
-        //    {
-        //        File.ReadAllTextAsync()
-        //    }
-        //    if (File.Exists(path))
-        //    {
-        //        var lines = ReadFileLines(path);
-        //        return ReadObservations(lines);
-        //    }
-
-        //    return items;
-        //}
-
 
         private string[] ReadFileLines(string path)
         {
