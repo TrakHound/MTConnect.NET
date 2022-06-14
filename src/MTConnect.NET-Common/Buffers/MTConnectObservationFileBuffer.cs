@@ -387,7 +387,7 @@ namespace MTConnect.Buffers
                                 var s = Encoding.ASCII.GetString(bytes);
                                 if (!string.IsNullOrEmpty(s))
                                 {
-                                    return s.Split("\r\n");
+                                    return s.Split(new string[] { "\r\n" }, StringSplitOptions.None);
                                 }
                             }
                         }
@@ -673,12 +673,12 @@ namespace MTConnect.Buffers
                             }
 
                             var fileBytes = stream.ToArray();
-                            await File.WriteAllBytesAsync(path, fileBytes);
+                            File.WriteAllBytes(path, fileBytes);
                         }
                     }
                     else
                     {
-                        await File.WriteAllTextAsync(path, sb.ToString());
+                        File.WriteAllText(path, sb.ToString());
                     }
 
                     return true;

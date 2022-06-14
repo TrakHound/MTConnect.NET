@@ -160,11 +160,15 @@ namespace MTConnect.Buffers
                 {
                     int addIndex = 0;
                     int originalIndex = -1;
+                    int index;
 
                     lock (_lock)
                     {
-                        if (_assetIds.Remove(asset.AssetId, out int index))
+                        if (_assetIds.TryGetValue(asset.AssetId, out index))
                         {
+                            // Remove from Dictionary
+                            _assetIds.Remove(asset.AssetId);
+
                             originalIndex = index;
 
                             // Shift array over at the Index of the Asset ID

@@ -294,7 +294,10 @@ namespace MTConnect.Buffers
                         {
                             var newFilename = $"{fileIndex - 1}_{fileAssetType}";
                             var newPath = Path.Combine(fileDirectory, newFilename);
-                            File.Move(file, newPath, true);
+
+                            // Rename File to use the new Index
+                            if (File.Exists(newPath)) File.Delete(newPath);
+                            File.Move(file, newPath);
                         }
                         else if (fileIndex == index)
                         {
@@ -369,12 +372,12 @@ namespace MTConnect.Buffers
                                 }
 
                                 var fileBytes = stream.ToArray();
-                                await File.WriteAllBytesAsync(path, fileBytes);
+                                File.WriteAllBytes(path, fileBytes);
                             }
                         }
                         else
                         {
-                            await File.WriteAllTextAsync(path, json);
+                            File.WriteAllText(path, json);
                         }
 
                         _pageIndex++;
