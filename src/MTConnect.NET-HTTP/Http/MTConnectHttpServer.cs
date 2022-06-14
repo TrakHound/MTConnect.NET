@@ -556,7 +556,7 @@ namespace MTConnect.Http
                 // Read ValidationLevel from Query string
                 var validationLevelString = httpRequest.QueryString["validationLevel"];
                 if (!string.IsNullOrEmpty(validationLevelString)) formatOptions.Add(new KeyValuePair<string, string>("validationLevel", validationLevelString));
-                else formatOptions.Add(new KeyValuePair<string, string>("validationLevel", _mtconnectAgent.Configuration.ValidationLevel.ToString()));
+                else formatOptions.Add(new KeyValuePair<string, string>("validationLevel", ((int)_mtconnectAgent.Configuration.ValidationLevel).ToString()));
 
                 // Read IndentOutput from Query string
                 var indentOutputString = httpRequest.QueryString["indentOutput"];
@@ -671,7 +671,7 @@ namespace MTConnect.Http
                 // Read ValidationLevel from Query string
                 var validationLevelString = httpRequest.QueryString["validationLevel"];
                 if (!string.IsNullOrEmpty(validationLevelString)) formatOptions.Add(new KeyValuePair<string, string>("validationLevel", validationLevelString));
-                else formatOptions.Add(new KeyValuePair<string, string>("validationLevel", _mtconnectAgent.Configuration.ValidationLevel.ToString()));
+                else formatOptions.Add(new KeyValuePair<string, string>("validationLevel", ((int)_mtconnectAgent.Configuration.ValidationLevel).ToString()));
 
                 // Read IndentOutput from Query string
                 var indentOutputString = httpRequest.QueryString["indentOutput"];
@@ -771,7 +771,7 @@ namespace MTConnect.Http
                 // Read ValidationLevel from Query string
                 var validationLevelString = httpRequest.QueryString["validationLevel"];
                 if (!string.IsNullOrEmpty(validationLevelString)) formatOptions.Add(new KeyValuePair<string, string>("validationLevel", validationLevelString));
-                else formatOptions.Add(new KeyValuePair<string, string>("validationLevel", _mtconnectAgent.Configuration.ValidationLevel.ToString()));
+                else formatOptions.Add(new KeyValuePair<string, string>("validationLevel", ((int)_mtconnectAgent.Configuration.ValidationLevel).ToString()));
 
                 // Read IndentOutput from Query string
                 var indentOutputString = httpRequest.QueryString["indentOutput"];
@@ -827,7 +827,7 @@ namespace MTConnect.Http
                 // Read ValidationLevel from Query string
                 var validationLevelString = httpRequest.QueryString["validationLevel"];
                 if (!string.IsNullOrEmpty(validationLevelString)) formatOptions.Add(new KeyValuePair<string, string>("validationLevel", validationLevelString));
-                else formatOptions.Add(new KeyValuePair<string, string>("validationLevel", _mtconnectAgent.Configuration.ValidationLevel.ToString()));
+                else formatOptions.Add(new KeyValuePair<string, string>("validationLevel", ((int)_mtconnectAgent.Configuration.ValidationLevel).ToString()));
 
                 // Read IndentOutput from Query string
                 var indentOutputString = httpRequest.QueryString["indentOutput"];
@@ -1198,9 +1198,7 @@ namespace MTConnect.Http
 
                     if (_mtconnectAgent.Configuration != null)
                     {
-                        // Add Devices Schema
-                        //if (_configuration != null)
-                        //{
+                        // Add XSD Schema
                         switch (requestType)
                         {
                             case MTConnectRequestType.Probe: x.Add(new KeyValuePair<string, string>("schema", ReadDevicesSchema(mtconnectVersion))); break;
@@ -1209,7 +1207,6 @@ namespace MTConnect.Http
                             case MTConnectRequestType.Asset: x.Add(new KeyValuePair<string, string>("schema", ReadAssetsSchema(mtconnectVersion))); break;
                             case MTConnectRequestType.Assets: x.Add(new KeyValuePair<string, string>("schema", ReadAssetsSchema(mtconnectVersion))); break;
                         }                   
-                        //}
 
                         // Add Devices Stylesheet
                         if (_mtconnectAgent.Configuration.DevicesStyle != null)

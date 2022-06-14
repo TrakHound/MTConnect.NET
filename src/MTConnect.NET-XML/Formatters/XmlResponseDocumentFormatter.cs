@@ -25,7 +25,7 @@ namespace MTConnect.Formatters
 
         public FormattedDocumentResult Format(IDevicesResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
-            // Read Devices Schema
+            // Read XSD Schema
             var schema = GetFormatterOption<string>(options, "schema");
 
             // Read Devices Stylesheet
@@ -69,6 +69,9 @@ namespace MTConnect.Formatters
 
         public FormattedDocumentResult Format(IStreamsResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
+            // Read XSD Schema
+            var schema = GetFormatterOption<string>(options, "schema");
+
             // Read Devices Stylesheet
             var stylesheet = GetFormatterOption<string>(options, "streamsStyle.location");
 
@@ -78,10 +81,31 @@ namespace MTConnect.Formatters
             // Read OutputComments Option passed to Formatter
             var outputComments = GetFormatterOption<bool>(options, "outputComments");
 
+            // Read Validation Level Option passed to Formatter (0 = Ignore, 1 = Warning, 2 = Strict)
+            var validationLevel = GetFormatterOption<int>(options, "validationLevel");
+
             var xml = XmlStreamsResponseDocument.ToXml(document, null, stylesheet, indentOutput, outputComments);
             if (!string.IsNullOrEmpty(xml))
             {
-                return new FormattedDocumentResult(xml, ContentType);
+                if (validationLevel > 0)
+                {
+                    // Validate XML against XSD Schema
+                    var validationResponse = XmlValidator.Validate(xml, schema);
+                    if (validationResponse.Success)
+                    {
+                        return FormattedDocumentResult.Successful(xml, ContentType, "XML Validation Successful");
+                    }
+                    else
+                    {
+                        // Return Successful if ValidationLevel set to Warning
+                        if (validationLevel < 2) return FormattedDocumentResult.Warning(xml, ContentType, validationResponse.Errors);
+                        else return FormattedDocumentResult.Error(validationResponse.Errors);
+                    }
+                }
+                else
+                {
+                    return FormattedDocumentResult.Successful(xml, ContentType);
+                }
             }
 
             return FormattedDocumentResult.Error();
@@ -89,6 +113,9 @@ namespace MTConnect.Formatters
 
         public FormattedDocumentResult Format(IAssetsResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
+            // Read XSD Schema
+            var schema = GetFormatterOption<string>(options, "schema");
+
             // Read Devices Stylesheet
             var stylesheet = GetFormatterOption<string>(options, "assetsStyle.location");
 
@@ -98,10 +125,31 @@ namespace MTConnect.Formatters
             // Read OutputComments Option passed to Formatter
             var outputComments = GetFormatterOption<bool>(options, "outputComments");
 
+            // Read Validation Level Option passed to Formatter (0 = Ignore, 1 = Warning, 2 = Strict)
+            var validationLevel = GetFormatterOption<int>(options, "validationLevel");
+
             var xml = XmlAssetsResponseDocument.ToXml(document, stylesheet, indentOutput, outputComments);
             if (!string.IsNullOrEmpty(xml))
             {
-                return new FormattedDocumentResult(xml, ContentType);
+                if (validationLevel > 0)
+                {
+                    // Validate XML against XSD Schema
+                    var validationResponse = XmlValidator.Validate(xml, schema);
+                    if (validationResponse.Success)
+                    {
+                        return FormattedDocumentResult.Successful(xml, ContentType, "XML Validation Successful");
+                    }
+                    else
+                    {
+                        // Return Successful if ValidationLevel set to Warning
+                        if (validationLevel < 2) return FormattedDocumentResult.Warning(xml, ContentType, validationResponse.Errors);
+                        else return FormattedDocumentResult.Error(validationResponse.Errors);
+                    }
+                }
+                else
+                {
+                    return FormattedDocumentResult.Successful(xml, ContentType);
+                }
             }
 
             return FormattedDocumentResult.Error();
@@ -109,6 +157,9 @@ namespace MTConnect.Formatters
 
         public FormattedDocumentResult Format(IErrorResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
+            // Read XSD Schema
+            var schema = GetFormatterOption<string>(options, "schema");
+
             // Read Devices Stylesheet
             var stylesheet = GetFormatterOption<string>(options, "errorStyle.location");
 
@@ -118,10 +169,30 @@ namespace MTConnect.Formatters
             // Read OutputComments Option passed to Formatter
             var outputComments = GetFormatterOption<bool>(options, "outputComments");
 
+            // Read Validation Level Option passed to Formatter (0 = Ignore, 1 = Warning, 2 = Strict)
+            var validationLevel = GetFormatterOption<int>(options, "validationLevel");
+
             var xml = XmlErrorResponseDocument.ToXml(document, stylesheet, indentOutput, outputComments);
             if (!string.IsNullOrEmpty(xml))
             {
-                return new FormattedDocumentResult(xml, ContentType);
+                if (validationLevel > 0)
+                {
+                    // Validate XML against XSD Schema
+                    var validationResponse = XmlValidator.Validate(xml, schema);
+                    if (validationResponse.Success)
+                    {
+                        return FormattedDocumentResult.Successful(xml, ContentType, "XML Validation Successful");
+                    }
+                    else
+                    {
+                        // Return Successful if ValidationLevel set to Warning
+                        return FormattedDocumentResult.Warning(xml, ContentType, validationResponse.Errors);
+                    }
+                }
+                else
+                {
+                    return FormattedDocumentResult.Successful(xml, ContentType);
+                }
             }
 
             return FormattedDocumentResult.Error();
