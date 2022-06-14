@@ -8,7 +8,7 @@ using System;
 namespace MTConnect
 {
     /// <summary>
-    /// DateTime represented in Unix Milliseconds (The time in milliseconds since the Unix Epoch)
+    /// DateTime represented in Unix Ticks (The time in Ticks (1 / 10,000 of a Millisecond) since the Unix Epoch)
     /// </summary>
     public static class UnixDateTime
     {
@@ -29,22 +29,52 @@ namespace MTConnect
 
         public static long ToUnixTime(this DateTime d)
         {
-            return Convert.ToInt64(Math.Round((d - EpochTime).TotalMilliseconds, 0));
+            var x = d;
+            if (d.Kind == DateTimeKind.Local) x = d.ToUniversalTime();
+            var duration = x - EpochTime;
+            return duration.Ticks;
         }
 
-        public static DateTime ToDateTime(this long ts)
+
+        public static DateTime ToDateTime(this long unixTicks)
         {
-            return FromUnixTime(ts);
+            return FromUnixTime(unixTicks);
         }
 
-        public static DateTime ToLocalDateTime(this long ts)
+        public static DateTime ToLocalDateTime(this long unixTicks)
         {
-            return FromUnixTime(ts).ToLocalTime();
+            return FromUnixTime(unixTicks).ToLocalTime();
         }
 
-        public static DateTime FromUnixTime(long unixMilliseconds)
+        public static DateTime FromUnixTime(long unixTicks)
         {
-            return EpochTime.AddMilliseconds(unixMilliseconds);
+            return EpochTime.AddTicks(unixTicks);
         }
     }
+
+    //public static class UnixTimeExtensions
+    //{
+    //    public static readonly DateTime EpochTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
+
+    //    public static long ToUnixTime(this DateTime d)
+    //    {
+    //        return Convert.ToInt64(Math.Round((d - EpochTime).TotalMilliseconds, 0));
+    //    }
+
+    //    public static DateTime ToDateTime(this long ts)
+    //    {
+    //        return FromUnixTime(ts);
+    //    }
+
+    //    public static DateTime ToLocalDateTime(this long ts)
+    //    {
+    //        return FromUnixTime(ts).ToLocalTime();
+    //    }
+
+    //    public static DateTime FromUnixTime(long unixMilliseconds)
+    //    {
+    //        return EpochTime.AddMilliseconds(unixMilliseconds);
+    //    }
+    //}
 }
