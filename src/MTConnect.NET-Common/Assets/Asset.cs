@@ -36,12 +36,23 @@ namespace MTConnect.Assets
         [JsonPropertyName("type")]
         public string Type { get; set; }
 
+        [XmlIgnore]
+        [JsonIgnore]
+        public bool TypeSpecified => false;
+
+        /// <summary>
+        /// The time this MTConnect Asset was last modified.
+        /// </summary>
+        [XmlIgnore]
+        [JsonIgnore]
+        public long Timestamp { get; set; }
+
         /// <summary>
         /// The time this MTConnect Asset was last modified.
         /// </summary>
         [XmlAttribute("timestamp")]
         [JsonPropertyName("timestamp")]
-        public DateTime Timestamp { get; set; }
+        public DateTime DateTime { get; set; }
 
         /// <summary>
         /// The piece of equipments UUID that supplied this data.
@@ -152,6 +163,8 @@ namespace MTConnect.Assets
 
         public virtual IAsset Process(Version mtconnectVersion)
         {
+            if (mtconnectVersion < MTConnectVersions.Version12) return null;
+
             return this;
         }
 

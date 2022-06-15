@@ -4,7 +4,7 @@
 // file 'LICENSE.txt', which is part of this source code package.
 
 using NUnit.Framework;
-using MTConnect.Adapters.Shdr;
+using MTConnect.Shdr;
 using MTConnect.Observations.Events.Values;
 using System.Collections.Generic;
 

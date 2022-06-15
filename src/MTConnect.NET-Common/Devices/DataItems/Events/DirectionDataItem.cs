@@ -54,6 +54,14 @@ namespace MTConnect.Devices.DataItems.Events
         }
 
 
+        protected override IDataItem OnProcess(IDataItem dataItem, Version mtconnectVersion)
+        {
+            if (!string.IsNullOrEmpty(SubType) && mtconnectVersion < MTConnectVersions.Version12) return null;
+
+            return dataItem;
+        }
+
+
         /// <summary>
         /// Determine if the DataItem with the specified Observation is valid in the specified MTConnectVersion
         /// </summary>

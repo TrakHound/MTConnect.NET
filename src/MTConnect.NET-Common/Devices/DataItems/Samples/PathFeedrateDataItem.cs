@@ -3,6 +3,8 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
+using System;
+
 namespace MTConnect.Devices.DataItems.Samples
 {
     /// <summary>
@@ -37,6 +39,11 @@ namespace MTConnect.Devices.DataItems.Samples
             JOG,
 
             /// <summary>
+            /// (DEPRECATED) Operator’s overridden value.
+            /// </summary>
+            OVERRIDE,
+
+            /// <summary>
             /// Directive value without offsets and adjustments.
             /// </summary>
             PROGRAMMED,
@@ -65,6 +72,16 @@ namespace MTConnect.Devices.DataItems.Samples
             SubType = subType.ToString();
             Name = NameId;
             Units = DefaultUnits;
+        }
+
+
+        protected override IDataItem OnProcess(IDataItem dataItem, Version mtconnectVersion)
+        {
+            if (SubType == SubTypes.JOG.ToString() && mtconnectVersion < MTConnectVersions.Version13) return null;
+            if (SubType == SubTypes.PROGRAMMED.ToString() && mtconnectVersion < MTConnectVersions.Version13) return null;
+            if (SubType == SubTypes.RAPID.ToString() && mtconnectVersion < MTConnectVersions.Version13) return null;
+
+            return dataItem;
         }
 
         public override string SubTypeDescription => GetSubTypeDescription(SubType);

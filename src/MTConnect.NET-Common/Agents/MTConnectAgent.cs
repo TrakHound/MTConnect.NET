@@ -3,18 +3,16 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
-using MTConnect.Agents.Configuration;
 using MTConnect.Agents.Metrics;
 using MTConnect.Assets;
 using MTConnect.Buffers;
+using MTConnect.Configurations;
 using MTConnect.Devices;
 using MTConnect.Devices.DataItems;
 using MTConnect.Devices.DataItems.Events;
 using MTConnect.Devices.DataItems.Samples;
-using MTConnect.Devices.Components;
 using MTConnect.Errors;
 using MTConnect.Headers;
-//using MTConnect.Models;
 using MTConnect.Observations;
 using MTConnect.Observations.Input;
 using MTConnect.Streams;
@@ -35,11 +33,10 @@ namespace MTConnect.Agents
     /// </summary>
     public class MTConnectAgent : IMTConnectAgent, IDisposable
     {
-        private const string AdaptersId = "__adapters__";
         private const int InformationUpdateInterval = 1000;
 
 
-        private readonly MTConnectAgentConfiguration _configuration;
+        private readonly AgentConfiguration _configuration;
         private readonly MTConnectAgentInformation _information;
         private readonly IMTConnectDeviceBuffer _deviceBuffer;
         private readonly IMTConnectObservationBuffer _observationBuffer;
@@ -59,7 +56,7 @@ namespace MTConnect.Agents
         /// <summary>
         /// Gets the Configuration associated with the Agent
         /// </summary>
-        public MTConnectAgentConfiguration Configuration => _configuration;
+        public AgentConfiguration Configuration => _configuration;
 
         /// <summary>
         /// Gets the Information associated with the Agent
@@ -203,7 +200,7 @@ namespace MTConnect.Agents
             )
         {
             _uuid = !string.IsNullOrEmpty(uuid) ? uuid : Guid.NewGuid().ToString();
-            _configuration = new MTConnectAgentConfiguration();
+            _configuration = new AgentConfiguration();
             _information = new MTConnectAgentInformation(_uuid, _instanceId, _deviceModelChangeTime);
             _instanceId = instanceId > 0 ? instanceId : CreateInstanceId();
             _deviceModelChangeTime = deviceModelChangeTime;
@@ -212,12 +209,12 @@ namespace MTConnect.Agents
             _observationBuffer = new MTConnectObservationBuffer();
             _assetBuffer = new MTConnectAssetBuffer();
             _metrics.DeviceMetricsUpdated += DeviceMetricsUpdated;
-            if (initializeAgentDevice) InitializeAgentDevice();
+            InitializeAgentDevice(initializeAgentDevice);
             StartAgentInformationUpdateTimer();
         }
 
         public MTConnectAgent(
-            MTConnectAgentConfiguration configuration,
+            AgentConfiguration configuration,
             string uuid = null,
             long instanceId = 0,
             long deviceModelChangeTime = 0,
@@ -225,7 +222,7 @@ namespace MTConnect.Agents
             )
         {
             _uuid = !string.IsNullOrEmpty(uuid) ? uuid : Guid.NewGuid().ToString();
-            _configuration = configuration != null ? configuration : new MTConnectAgentConfiguration();
+            _configuration = configuration != null ? configuration : new AgentConfiguration();
             _information = new MTConnectAgentInformation(_uuid, _instanceId, _deviceModelChangeTime);
             _deviceModelChangeTime = deviceModelChangeTime;
             _mtconnectVersion = _configuration != null ? _configuration.DefaultVersion : MTConnectVersions.Max;
@@ -234,7 +231,7 @@ namespace MTConnect.Agents
             _observationBuffer = new MTConnectObservationBuffer(_configuration);
             _assetBuffer = new MTConnectAssetBuffer(_configuration);
             _metrics.DeviceMetricsUpdated += DeviceMetricsUpdated;
-            if (initializeAgentDevice) InitializeAgentDevice();
+            InitializeAgentDevice(initializeAgentDevice);
             StartAgentInformationUpdateTimer();
         }
 
@@ -249,7 +246,7 @@ namespace MTConnect.Agents
             )
         {
             _uuid = !string.IsNullOrEmpty(uuid) ? uuid : Guid.NewGuid().ToString();
-            _configuration = new MTConnectAgentConfiguration();
+            _configuration = new AgentConfiguration();
             _information = new MTConnectAgentInformation(_uuid, _instanceId, _deviceModelChangeTime);
             _instanceId = instanceId > 0 ? instanceId : CreateInstanceId();
             _deviceModelChangeTime = deviceModelChangeTime;
@@ -258,12 +255,12 @@ namespace MTConnect.Agents
             _observationBuffer = observationBuffer != null ? observationBuffer : new MTConnectObservationBuffer(_configuration);
             _assetBuffer = assetBuffer != null ? assetBuffer : new MTConnectAssetBuffer(_configuration);
             _metrics.DeviceMetricsUpdated += DeviceMetricsUpdated;
-            if (initializeAgentDevice) InitializeAgentDevice();
+            InitializeAgentDevice(initializeAgentDevice);
             StartAgentInformationUpdateTimer();
         }
 
         public MTConnectAgent(
-            MTConnectAgentConfiguration configuration,
+            AgentConfiguration configuration,
             IMTConnectDeviceBuffer deviceBuffer,
             IMTConnectObservationBuffer observationBuffer,
             IMTConnectAssetBuffer assetBuffer,
@@ -274,7 +271,7 @@ namespace MTConnect.Agents
             )
         {
             _uuid = !string.IsNullOrEmpty(uuid) ? uuid : Guid.NewGuid().ToString();
-            _configuration = configuration != null ? configuration : new MTConnectAgentConfiguration();
+            _configuration = configuration != null ? configuration : new AgentConfiguration();
             _instanceId = instanceId > 0 ? instanceId : CreateInstanceId();
             _deviceModelChangeTime = deviceModelChangeTime;
             _information = new MTConnectAgentInformation(_uuid, _instanceId, _deviceModelChangeTime);
@@ -283,7 +280,7 @@ namespace MTConnect.Agents
             _observationBuffer = observationBuffer != null ? observationBuffer : new MTConnectObservationBuffer(_configuration);
             _assetBuffer = assetBuffer != null ? assetBuffer : new MTConnectAssetBuffer(_configuration);
             _metrics.DeviceMetricsUpdated += DeviceMetricsUpdated;
-            if (initializeAgentDevice) InitializeAgentDevice();
+            InitializeAgentDevice(initializeAgentDevice);
             StartAgentInformationUpdateTimer();
         }
 
@@ -303,6 +300,21 @@ namespace MTConnect.Agents
         private static Version GetAgentVersion()
         {
             return Assembly.GetExecutingAssembly().GetName().Version;
+        }
+
+        private void InitializeAgentDevice(bool initializeDataItems = true)
+        {
+            _agent = new Agent(this);
+
+            // Add Name and UUID to DeviceKey dictionary
+            _deviceKeys.TryAdd(_agent.Name, _agent.Uuid);
+            _deviceKeys.TryAdd(_agent.Uuid, _agent.Uuid);
+
+            if (initializeDataItems)
+            {
+                _agent.InitializeDataItems();
+                _agent.InitializeObservations();
+            }
         }
 
 
@@ -334,9 +346,9 @@ namespace MTConnect.Agents
 
         private MTConnectStreamsHeader GetStreamsHeader(IStreamingResults results, Version mtconnectVersion = null)
         {
-            var v = mtconnectVersion != null ? mtconnectVersion : Version;
+            var version = mtconnectVersion != null ? mtconnectVersion : Version;
 
-            return new MTConnectStreamsHeader
+            var header = new MTConnectStreamsHeader
             {
                 BufferSize = _observationBuffer.BufferSize,
                 CreationTime = DateTime.UtcNow,
@@ -349,6 +361,10 @@ namespace MTConnect.Agents
                 NextSequence = results.NextSequence,
                 TestIndicator = null
             };
+
+            if (version < MTConnectVersions.Version17) header.DeviceModelChangeTime = null;
+
+            return header;
         }
 
         private MTConnectAssetsHeader GetAssetsHeader()
@@ -1765,7 +1781,7 @@ namespace MTConnect.Agents
 
                     // Create MTConnectAssets Response Document
                     var document = new AssetsResponseDocument();
-                    document.Version = Version;
+                    document.Version = version;
                     document.Header = header;
                     document.Assets = processedAssets;
 
@@ -1817,7 +1833,7 @@ namespace MTConnect.Agents
 
                     // Create MTConnectAssets Response Document
                     var document = new AssetsResponseDocument();
-                    document.Version = Version;
+                    document.Version = version;
                     document.Header = header;
                     document.Assets = processedAssets;
 
@@ -1859,7 +1875,7 @@ namespace MTConnect.Agents
 
                     // Create MTConnectAssets Response Document
                     var document = new AssetsResponseDocument();
-                    document.Version = Version;
+                    document.Version = version;
                     document.Header = header;
                     document.Assets = new List<IAsset> { processedAsset };
 
@@ -1900,7 +1916,7 @@ namespace MTConnect.Agents
 
                     // Create MTConnectAssets Response Document
                     var document = new AssetsResponseDocument();
-                    document.Version = Version;
+                    document.Version = version;
                     document.Header = header;
                     document.Assets = new List<IAsset> { processedAsset };
 
@@ -1918,12 +1934,41 @@ namespace MTConnect.Agents
         /// Remove the Asset with the specified Asset ID
         /// </summary>
         /// <param name="assetId">The ID of the Asset to remove</param>
+        /// <param name="timestamp">The Timestamp of when the Asset was removed in Unix Ticks (1/10,000 of a millisecond)</param>
         /// <returns>Returns True if the Asset was successfully removed</returns>
-        public bool RemoveAsset(string assetId)
+        public bool RemoveAsset(string assetId, long timestamp = 0)
         {
             if (!string.IsNullOrEmpty(assetId) && _assetBuffer != null)
             {
-                return _assetBuffer.RemoveAsset(assetId);
+                var ts = timestamp > 0 ? timestamp : UnixDateTime.Now;
+
+                // Get the Asset from the Buffer
+                var asset = _assetBuffer.GetAsset(assetId);
+                if (asset != null)
+                {
+                    var deviceUuid = asset.DeviceUuid;
+
+                    // Remove the Asset from the Buffer
+                    if (_assetBuffer.RemoveAsset(assetId))
+                    {
+                        // Get the Device from the Buffer (to set the AssetRemoved DataItem)
+                        var device = _deviceBuffer.GetDevice(deviceUuid);
+                        if (device != null)
+                        {
+                            // Update AssetRemoved DataItem
+                            if (!device.DataItems.IsNullOrEmpty())
+                            {
+                                var assetRemoved = device.DataItems.FirstOrDefault(o => o.Type == AssetRemovedDataItem.TypeId);
+                                if (assetRemoved != null)
+                                {
+                                    AddObservation(deviceUuid, assetRemoved.Id, ValueKeys.CDATA, asset.AssetId, ts);
+                                }
+                            }
+                        }
+
+                        return true;
+                    }
+                }
             }
 
             return false;
@@ -1933,28 +1978,118 @@ namespace MTConnect.Agents
         /// Remove the Asset with the specified Asset ID
         /// </summary>
         /// <param name="assetId">The ID of the Asset to remove</param>
+        /// <param name="timestamp">The Timestamp of when the Asset was removed in Unix Ticks (1/10,000 of a millisecond)</param>
         /// <returns>Returns True if the Asset was successfully removed</returns>
-        public async Task<bool> RemoveAssetAsync(string assetId)
+        public async Task<bool> RemoveAssetAsync(string assetId, long timestamp = 0)
         {
             if (!string.IsNullOrEmpty(assetId) && _assetBuffer != null)
             {
-                return await _assetBuffer.RemoveAssetAsync(assetId);
+                var ts = timestamp > 0 ? timestamp : UnixDateTime.Now;
+
+                // Get the Asset from the Buffer
+                var asset = await _assetBuffer.GetAssetAsync(assetId);
+                if (asset != null)
+                {
+                    var deviceUuid = asset.DeviceUuid;
+
+                    // Remove the Asset from the Buffer
+                    if (await _assetBuffer.RemoveAssetAsync(assetId))
+                    {
+                        // Get the Device from the Buffer (to set the AssetRemoved DataItem)
+                        var device = await _deviceBuffer.GetDeviceAsync(deviceUuid);
+                        if (device != null)
+                        {
+                            // Update AssetRemoved DataItem
+                            if (!device.DataItems.IsNullOrEmpty())
+                            {
+                                var assetRemoved = device.DataItems.FirstOrDefault(o => o.Type == AssetRemovedDataItem.TypeId);
+                                if (assetRemoved != null)
+                                {
+                                    AddObservation(deviceUuid, assetRemoved.Id, ValueKeys.CDATA, asset.AssetId, ts);
+                                }
+                            }
+                        }
+
+                        return true;
+                    }
+                }
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Remove the Asset with the specified Asset ID
+        /// </summary>
+        /// <param name="assetId">The ID of the Asset to remove</param>
+        /// <param name="timestamp">The Timestamp of when the Asset was removed</param>
+        /// <returns>Returns True if the Asset was successfully removed</returns>
+        public bool RemoveAsset(string assetId, DateTime timestamp)
+        {
+            return RemoveAsset(assetId, timestamp.ToUnixTime());
+        }
+
+        /// <summary>
+        /// Remove the Asset with the specified Asset ID
+        /// </summary>
+        /// <param name="assetId">The ID of the Asset to remove</param>
+        /// <param name="timestamp">The Timestamp of when the Asset was removed</param>
+        /// <returns>Returns True if the Asset was successfully removed</returns>
+        public async Task<bool> RemoveAssetAsync(string assetId, DateTime timestamp)
+        {
+            return await RemoveAssetAsync(assetId, timestamp.ToUnixTime());
         }
 
 
         /// <summary>
         /// Remove all Assets with the specified Type
         /// </summary>
-        /// <param name="assetType">The Type of the Asset(s) to remove</param>
-        /// <returns>Returns True if the Asset(s) was successfully removed</returns>
-        public bool RemoveAllAssets(string assetType)
+        /// <param name="assetType">The Type of the Assets to remove</param>
+        /// <param name="timestamp">The Timestamp of when the Assets were removed in Unix Ticks (1/10,000 of a millisecond)</param>
+        /// <returns>Returns True if the Assets were successfully removed</returns>
+        public bool RemoveAllAssets(string assetType, long timestamp = 0)
         {
             if (!string.IsNullOrEmpty(assetType) && _assetBuffer != null)
             {
-                return _assetBuffer.RemoveAllAssets(assetType);
+                var ts = timestamp > 0 ? timestamp : UnixDateTime.Now;
+
+                // Get the Assets from the Buffer
+                var assets = _assetBuffer.GetAssets(assetType);
+                if (!assets.IsNullOrEmpty())
+                {
+                    var deviceUuids = assets.Select(o => o.DeviceUuid).Distinct();
+
+                    // Remove the Assets from the Buffer
+                    if (_assetBuffer.RemoveAllAssets(assetType))
+                    {
+                        foreach (var deviceUuid in deviceUuids)
+                        {
+                            // Get the Device from the Buffer (to set the AssetRemoved DataItem)
+                            var device = _deviceBuffer.GetDevice(deviceUuid);
+                            if (device != null)
+                            {
+                                var deviceAssets = assets.Where(o => o.DeviceUuid == deviceUuid);
+                                if (!deviceAssets.IsNullOrEmpty())
+                                {
+                                    foreach (var asset in deviceAssets)
+                                    {
+                                        // Update AssetRemoved DataItem
+                                        if (!device.DataItems.IsNullOrEmpty())
+                                        {
+                                            var assetRemoved = device.DataItems.FirstOrDefault(o => o.Type == AssetRemovedDataItem.TypeId);
+                                            if (assetRemoved != null)
+                                            {
+                                                AddObservation(deviceUuid, assetRemoved.Id, ValueKeys.CDATA, asset.AssetId, ts);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        return true;
+                    }
+                }
             }
 
             return false;
@@ -1963,16 +2098,77 @@ namespace MTConnect.Agents
         /// <summary>
         /// Remove all Assets with the specified Type
         /// </summary>
-        /// <param name="assetType">The Type of the Asset(s) to remove</param>
-        /// <returns>Returns True if the Asset(s) was successfully removed</returns>
-        public async Task<bool> RemoveAllAssetsAsync(string assetType)
+        /// <param name="assetType">The Type of the Assets to remove</param>
+        /// <param name="timestamp">The Timestamp of when the Assets were removed in Unix Ticks (1/10,000 of a millisecond)</param>
+        /// <returns>Returns True if the Assets were successfully removed</returns>
+        public async Task<bool> RemoveAllAssetsAsync(string assetType, long timestamp = 0)
         {
             if (!string.IsNullOrEmpty(assetType) && _assetBuffer != null)
             {
-                return await _assetBuffer.RemoveAllAssetsAsync(assetType);
+                var ts = timestamp > 0 ? timestamp : UnixDateTime.Now;
+
+                // Get the Assets from the Buffer
+                var assets = await _assetBuffer.GetAssetsAsync(assetType);
+                if (!assets.IsNullOrEmpty())
+                {
+                    var deviceUuids = assets.Select(o => o.DeviceUuid).Distinct();
+
+                    // Remove the Assets from the Buffer
+                    if (await _assetBuffer.RemoveAllAssetsAsync(assetType))
+                    {
+                        foreach (var deviceUuid in deviceUuids)
+                        {
+                            // Get the Device from the Buffer (to set the AssetRemoved DataItem)
+                            var device = await _deviceBuffer.GetDeviceAsync(deviceUuid);
+                            if (device != null)
+                            {
+                                var deviceAssets = assets.Where(o => o.DeviceUuid == deviceUuid);
+                                if (!deviceAssets.IsNullOrEmpty())
+                                {
+                                    foreach (var asset in deviceAssets)
+                                    {
+                                        // Update AssetRemoved DataItem
+                                        if (!device.DataItems.IsNullOrEmpty())
+                                        {
+                                            var assetRemoved = device.DataItems.FirstOrDefault(o => o.Type == AssetRemovedDataItem.TypeId);
+                                            if (assetRemoved != null)
+                                            {
+                                                AddObservation(deviceUuid, assetRemoved.Id, ValueKeys.CDATA, asset.AssetId, ts);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        return true;
+                    }
+                }
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Remove all Assets with the specified Type
+        /// </summary>
+        /// <param name="assetType">The Type of the Assets to remove</param>
+        /// <param name="timestamp">The Timestamp of when the Assets were removed</param>
+        /// <returns>Returns True if the Assets were successfully removed</returns>
+        public bool RemoveAllAssets(string assetType, DateTime timestamp)
+        {
+            return RemoveAllAssets(assetType, timestamp.ToUnixTime());
+        }
+
+        /// <summary>
+        /// Remove all Assets with the specified Type
+        /// </summary>
+        /// <param name="assetType">The Type of the Assets to remove</param>
+        /// <param name="timestamp">The Timestamp of when the Assets were removed</param>
+        /// <returns>Returns True if the Assets were successfully removed</returns>
+        public async Task<bool> RemoveAllAssetsAsync(string assetType, DateTime timestamp)
+        {
+            return await RemoveAllAssetsAsync(assetType, timestamp.ToUnixTime());
         }
 
         #endregion
@@ -1985,10 +2181,12 @@ namespace MTConnect.Agents
         /// <param name="errorCode">Provides a descriptive code that indicates the type of error that was encountered by an Agent when attempting to respond to a Request for information.</param>
         /// <param name="cdata">The CDATA for Error contains a textual description of the error and any additional information an Agent is capable of providing regarding a specific error.</param>
         /// <returns>MTConnectError Response Document</returns>
-        public IErrorResponseDocument GetError(ErrorCode errorCode, string cdata = null)
+        public IErrorResponseDocument GetError(ErrorCode errorCode, string cdata = null, Version mtconnectVersion = null)
         {
+            var version = mtconnectVersion != null ? mtconnectVersion : Version;
+
             var doc = new ErrorResponseDocument();
-            doc.Version = Version;
+            doc.Version = version;
 
             var header = GetErrorHeader();
             header.Version = GetAgentVersion().ToString();
@@ -2010,10 +2208,12 @@ namespace MTConnect.Agents
         /// <param name="errorCode">Provides a descriptive code that indicates the type of error that was encountered by an Agent when attempting to respond to a Request for information.</param>
         /// <param name="cdata">The CDATA for Error contains a textual description of the error and any additional information an Agent is capable of providing regarding a specific error.</param>
         /// <returns>MTConnectError Response Document</returns>
-        public async Task<IErrorResponseDocument> GetErrorAsync(ErrorCode errorCode, string cdata = null)
+        public async Task<IErrorResponseDocument> GetErrorAsync(ErrorCode errorCode, string cdata = null, Version mtconnectVersion = null)
         {
+            var version = mtconnectVersion != null ? mtconnectVersion : Version;
+
             var doc = new ErrorResponseDocument();
-            doc.Version = Version;
+            doc.Version = version;
 
             var header = GetErrorHeader();
             header.Version = GetAgentVersion().ToString();
@@ -2034,10 +2234,12 @@ namespace MTConnect.Agents
         /// </summary>
         /// <param name="errors">A list of Errors to include in the response Document</param>
         /// <returns>MTConnectError Response Document</returns>
-        public IErrorResponseDocument GetError(IEnumerable<IError> errors)
+        public IErrorResponseDocument GetError(IEnumerable<IError> errors, Version mtconnectVersion = null)
         {
+            var version = mtconnectVersion != null ? mtconnectVersion : Version;
+
             var doc = new ErrorResponseDocument();
-            doc.Version = Version;
+            doc.Version = version;
 
             var header = GetErrorHeader();
             header.Version = GetAgentVersion().ToString();
@@ -2055,10 +2257,12 @@ namespace MTConnect.Agents
         /// </summary>
         /// <param name="errors">A list of Errors to include in the response Document</param>
         /// <returns>MTConnectError Response Document</returns>
-        public async Task<IErrorResponseDocument> GetErrorAsync(IEnumerable<IError> errors)
+        public async Task<IErrorResponseDocument> GetErrorAsync(IEnumerable<IError> errors, Version mtconnectVersion = null)
         {
+            var version = mtconnectVersion != null ? mtconnectVersion : Version;
+
             var doc = new ErrorResponseDocument();
-            doc.Version = Version;
+            doc.Version = version;
 
             var header = GetErrorHeader();
             header.Version = GetAgentVersion().ToString();
@@ -3005,9 +3209,15 @@ namespace MTConnect.Agents
 
 
         /// <summary>
-        /// Add a new Observation for a DataItem of category EVENT or SAMPLE to the Agent
+        /// Add a new Observation to the Agent for the specified Device and DataItem
         /// </summary>
-        public bool AddObservation(string deviceKey, string dataItemKey, object value)
+        /// <param name="deviceKey">The (Name or Uuid) of the Device</param>
+        /// <param name="dataItemKey">The (Name, ID, or Source) of the DataItem</param>
+        /// <param name="value">The Value of the Observation (equivalent to ValueKey = Value)</param>
+        /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
+        /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+        /// <returns>True if the Observation was added successfully</returns>
+        public bool AddObservation(string deviceKey, string dataItemKey, object value, bool? convertUnits = null, bool? ignoreCase = null)
         {
             return AddObservation(deviceKey, new ObservationInput
             {
@@ -3019,9 +3229,15 @@ namespace MTConnect.Agents
         }
 
         /// <summary>
-        /// Add a new Observation for a DataItem of category EVENT or SAMPLE to the Agent
+        /// Add a new Observation to the Agent for the specified Device and DataItem
         /// </summary>
-        public async Task<bool> AddObservationAsync(string deviceKey, string dataItemKey, object value)
+        /// <param name="deviceKey">The (Name or Uuid) of the Device</param>
+        /// <param name="dataItemKey">The (Name, ID, or Source) of the DataItem</param>
+        /// <param name="value">The Value of the Observation (equivalent to ValueKey = Value)</param>
+        /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
+        /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+        /// <returns>True if the Observation was added successfully</returns>
+        public async Task<bool> AddObservationAsync(string deviceKey, string dataItemKey, object value, bool? convertUnits = null, bool? ignoreCase = null)
         {
             return await AddObservationAsync(deviceKey, new ObservationInput
             {
@@ -3033,9 +3249,16 @@ namespace MTConnect.Agents
         }
 
         /// <summary>
-        /// Add a new Observation for a DataItem of category EVENT or SAMPLE to the Agent
+        /// Add a new Observation to the Agent for the specified Device and DataItem
         /// </summary>
-        public bool AddObservation(string deviceKey, string dataItemKey, object value, long timestamp)
+        /// <param name="deviceKey">The (Name or Uuid) of the Device</param>
+        /// <param name="dataItemKey">The (Name, ID, or Source) of the DataItem</param>
+        /// <param name="value">The Value of the Observation (equivalent to ValueKey = Value)</param>
+        /// <param name="timestamp">The Timestamp of the Observation in Unix Ticks (1/10,000 of a millisecond)</param>
+        /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
+        /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+        /// <returns>True if the Observation was added successfully</returns>
+        public bool AddObservation(string deviceKey, string dataItemKey, object value, long timestamp, bool? convertUnits = null, bool? ignoreCase = null)
         {
             return AddObservation(deviceKey, new ObservationInput
             {
@@ -3047,9 +3270,16 @@ namespace MTConnect.Agents
         }
 
         /// <summary>
-        /// Add a new Observation for a DataItem of category EVENT or SAMPLE to the Agent
+        /// Add a new Observation to the Agent for the specified Device and DataItem
         /// </summary>
-        public async Task<bool> AddObservationAsync(string deviceKey, string dataItemKey, object value, long timestamp)
+        /// <param name="deviceKey">The (Name or Uuid) of the Device</param>
+        /// <param name="dataItemKey">The (Name, ID, or Source) of the DataItem</param>
+        /// <param name="value">The Value of the Observation (equivalent to ValueKey = Value)</param>
+        /// <param name="timestamp">The Timestamp of the Observation in Unix Ticks (1/10,000 of a millisecond)</param>
+        /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
+        /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+        /// <returns>True if the Observation was added successfully</returns>
+        public async Task<bool> AddObservationAsync(string deviceKey, string dataItemKey, object value, long timestamp, bool? convertUnits = null, bool? ignoreCase = null)
         {
             return await AddObservationAsync(deviceKey, new ObservationInput
             {
@@ -3061,9 +3291,16 @@ namespace MTConnect.Agents
         }
 
         /// <summary>
-        /// Add a new Observation for a DataItem of category EVENT or SAMPLE to the Agent
+        /// Add a new Observation to the Agent for the specified Device and DataItem
         /// </summary>
-        public bool AddObservation(string deviceKey, string dataItemKey, object value, DateTime timestamp)
+        /// <param name="deviceKey">The (Name or Uuid) of the Device</param>
+        /// <param name="dataItemKey">The (Name, ID, or Source) of the DataItem</param>
+        /// <param name="value">The Value of the Observation (equivalent to ValueKey = Value)</param>
+        /// <param name="timestamp">The Timestamp of the Observation</param>
+        /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
+        /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+        /// <returns>True if the Observation was added successfully</returns>
+        public bool AddObservation(string deviceKey, string dataItemKey, object value, DateTime timestamp, bool? convertUnits = null, bool? ignoreCase = null)
         {
             return AddObservation(deviceKey, new ObservationInput
             {
@@ -3075,9 +3312,16 @@ namespace MTConnect.Agents
         }
 
         /// <summary>
-        /// Add a new Observation for a DataItem of category EVENT or SAMPLE to the Agent
+        /// Add a new Observation to the Agent for the specified Device and DataItem
         /// </summary>
-        public async Task<bool> AddObservationAsync(string deviceKey, string dataItemKey, object value, DateTime timestamp)
+        /// <param name="deviceKey">The (Name or Uuid) of the Device</param>
+        /// <param name="dataItemKey">The (Name, ID, or Source) of the DataItem</param>
+        /// <param name="value">The Value of the Observation (equivalent to ValueKey = Value)</param>
+        /// <param name="timestamp">The Timestamp of the Observation</param>
+        /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
+        /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+        /// <returns>True if the Observation was added successfully</returns>
+        public async Task<bool> AddObservationAsync(string deviceKey, string dataItemKey, object value, DateTime timestamp, bool? convertUnits = null, bool? ignoreCase = null)
         {
             return await AddObservationAsync(deviceKey, new ObservationInput
             {
@@ -3089,9 +3333,16 @@ namespace MTConnect.Agents
         }
 
         /// <summary>
-        /// Add a new Observation for a DataItem to the Agent
+        /// Add a new Observation to the Agent for the specified Device and DataItem
         /// </summary>
-        public bool AddObservation(string deviceKey, string dataItemKey, string valueKey, object value)
+        /// <param name="deviceKey">The (Name or Uuid) of the Device</param>
+        /// <param name="dataItemKey">The (Name, ID, or Source) of the DataItem</param>
+        /// <param name="valueKey">The ValueKey to use for the Value parameter</param>
+        /// <param name="value">The Value of the Observation</param>
+        /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
+        /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+        /// <returns>True if the Observation was added successfully</returns>
+        public bool AddObservation(string deviceKey, string dataItemKey, string valueKey, object value, bool? convertUnits = null, bool? ignoreCase = null)
         {
             return AddObservation(deviceKey, new ObservationInput
             {
@@ -3103,9 +3354,16 @@ namespace MTConnect.Agents
         }
 
         /// <summary>
-        /// Add a new Observation for a DataItem to the Agent
+        /// Add a new Observation to the Agent for the specified Device and DataItem
         /// </summary>
-        public async Task<bool> AddObservationAsync(string deviceKey, string dataItemKey, string valueKey, object value)
+        /// <param name="deviceKey">The (Name or Uuid) of the Device</param>
+        /// <param name="dataItemKey">The (Name, ID, or Source) of the DataItem</param>
+        /// <param name="valueKey">The ValueKey to use for the Value parameter</param>
+        /// <param name="value">The Value of the Observation</param>
+        /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
+        /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+        /// <returns>True if the Observation was added successfully</returns>
+        public async Task<bool> AddObservationAsync(string deviceKey, string dataItemKey, string valueKey, object value, bool? convertUnits = null, bool? ignoreCase = null)
         {
             return await AddObservationAsync(deviceKey, new ObservationInput
             {
@@ -3117,9 +3375,17 @@ namespace MTConnect.Agents
         }
 
         /// <summary>
-        /// Add a new Observation for a DataItem to the Agent
+        /// Add a new Observation to the Agent for the specified Device and DataItem
         /// </summary>
-        public bool AddObservation(string deviceKey, string dataItemKey, string valueKey, object value, long timestamp)
+        /// <param name="deviceKey">The (Name or Uuid) of the Device</param>
+        /// <param name="dataItemKey">The (Name, ID, or Source) of the DataItem</param>
+        /// <param name="valueKey">The ValueKey to use for the Value parameter</param>
+        /// <param name="value">The Value of the Observation</param>
+        /// <param name="timestamp">The Timestamp of the Observation in Unix Ticks (1/10,000 of a millisecond)</param>
+        /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
+        /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+        /// <returns>True if the Observation was added successfully</returns>
+        public bool AddObservation(string deviceKey, string dataItemKey, string valueKey, object value, long timestamp, bool? convertUnits = null, bool? ignoreCase = null)
         {
             return AddObservation(deviceKey, new ObservationInput
             {
@@ -3131,9 +3397,17 @@ namespace MTConnect.Agents
         }
 
         /// <summary>
-        /// Add a new Observation for a DataItem to the Agent
+        /// Add a new Observation to the Agent for the specified Device and DataItem
         /// </summary>
-        public async Task<bool> AddObservationAsync(string deviceKey, string dataItemKey, string valueKey, object value, long timestamp)
+        /// <param name="deviceKey">The (Name or Uuid) of the Device</param>
+        /// <param name="dataItemKey">The (Name, ID, or Source) of the DataItem</param>
+        /// <param name="valueKey">The ValueKey to use for the Value parameter</param>
+        /// <param name="value">The Value of the Observation</param>
+        /// <param name="timestamp">The Timestamp of the Observation in Unix Ticks (1/10,000 of a millisecond)</param>
+        /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
+        /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+        /// <returns>True if the Observation was added successfully</returns>
+        public async Task<bool> AddObservationAsync(string deviceKey, string dataItemKey, string valueKey, object value, long timestamp, bool? convertUnits = null, bool? ignoreCase = null)
         {
             return await AddObservationAsync(deviceKey, new ObservationInput
             {
@@ -3145,9 +3419,17 @@ namespace MTConnect.Agents
         }
 
         /// <summary>
-        /// Add a new Observation for a DataItem to the Agent
+        /// Add a new Observation to the Agent for the specified Device and DataItem
         /// </summary>
-        public bool AddObservation(string deviceKey, string dataItemKey, string valueKey, object value, DateTime timestamp)
+        /// <param name="deviceKey">The (Name or Uuid) of the Device</param>
+        /// <param name="dataItemKey">The (Name, ID, or Source) of the DataItem</param>
+        /// <param name="valueKey">The ValueKey to use for the Value parameter</param>
+        /// <param name="value">The Value of the Observation</param>
+        /// <param name="timestamp">The Timestamp of the Observation</param>
+        /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
+        /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+        /// <returns>True if the Observation was added successfully</returns>
+        public bool AddObservation(string deviceKey, string dataItemKey, string valueKey, object value, DateTime timestamp, bool? convertUnits = null, bool? ignoreCase = null)
         {
             return AddObservation(deviceKey, new ObservationInput
             {
@@ -3159,9 +3441,17 @@ namespace MTConnect.Agents
         }
 
         /// <summary>
-        /// Add a new Observation for a DataItem of to the Agent
+        /// Add a new Observation to the Agent for the specified Device and DataItem
         /// </summary>
-        public async Task<bool> AddObservationAsync(string deviceKey, string dataItemKey, string valueKey, object value, DateTime timestamp)
+        /// <param name="deviceKey">The (Name or Uuid) of the Device</param>
+        /// <param name="dataItemKey">The (Name, ID, or Source) of the DataItem</param>
+        /// <param name="valueKey">The ValueKey to use for the Value parameter</param>
+        /// <param name="value">The Value of the Observation</param>
+        /// <param name="timestamp">The Timestamp of the Observation</param>
+        /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
+        /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+        /// <returns>True if the Observation was added successfully</returns>
+        public async Task<bool> AddObservationAsync(string deviceKey, string dataItemKey, string valueKey, object value, DateTime timestamp, bool? convertUnits = null, bool? ignoreCase = null)
         {
             return await AddObservationAsync(deviceKey, new ObservationInput
             {
@@ -3173,9 +3463,15 @@ namespace MTConnect.Agents
         }
 
         /// <summary>
-        /// Add a new Observation for a DataItem to the Agent
+        /// Add a new Observation to the Agent for the specified Device and DataItem
         /// </summary>
-        public bool AddObservation(string deviceKey, IObservationInput observationInput)
+        /// <param name="deviceKey">The (Name or Uuid) of the Device</param>
+        /// <param name="observationInput">The Observation to add</param>
+        /// <param name="ignoreTimestamp">Used to override the default configuration for the Agent to IgnoreTimestamp</param>
+        /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
+        /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+        /// <returns>True if the Observation was added successfully</returns>
+        public bool AddObservation(string deviceKey, IObservationInput observationInput, bool? ignoreTimestamp = null, bool? convertUnits = null, bool? ignoreCase = null)
         {
             if (observationInput != null)
             {
@@ -3186,11 +3482,17 @@ namespace MTConnect.Agents
                 input.DataItemKey = observationInput.DataItemKey;
 
                 // Convert Case (if Ignored)
-                if (_configuration.IgnoreObservationCase) input.Values = Observation.UppercaseValues(observationInput.Values);
+                if ((!ignoreCase.HasValue && _configuration.IgnoreObservationCase) || (ignoreCase.HasValue && ignoreCase.Value))
+                {
+                    input.Values = Observation.UppercaseValues(observationInput.Values);
+                }
                 else input.Values = observationInput.Values;
 
                 // Set Timestamp
-                if (_configuration.IgnoreTimestamps) input.Timestamp = UnixDateTime.Now;
+                if ((!ignoreTimestamp.HasValue && _configuration.IgnoreTimestamps) || (ignoreTimestamp.HasValue && ignoreTimestamp.Value))
+                {
+                    input.Timestamp = UnixDateTime.Now;
+                }
                 else input.Timestamp = observationInput.Timestamp > 0 ? observationInput.Timestamp : UnixDateTime.Now;
 
                 // Get Device UUID from deviceKey
@@ -3213,7 +3515,7 @@ namespace MTConnect.Agents
                     if (validationResult.IsValid || _configuration.ValidationLevel != ValidationLevel.Strict)
                     {
                         // Convert Units (if needed)
-                        if (_configuration.ConvertUnits)
+                        if ((!convertUnits.HasValue && _configuration.ConvertUnits) || (convertUnits.HasValue && convertUnits.Value))
                         {
                             observationInput = ConvertObservationValue(dataItem, input);
                         }
@@ -3272,9 +3574,15 @@ namespace MTConnect.Agents
         }
 
         /// <summary>
-        /// Add a new Observation for a DataItem to the Agent
+        /// Add a new Observation to the Agent for the specified Device and DataItem
         /// </summary>
-        public async Task<bool> AddObservationAsync(string deviceKey, IObservationInput observationInput)
+        /// <param name="deviceKey">The (Name or Uuid) of the Device</param>
+        /// <param name="observationInput">The Observation to add</param>
+        /// <param name="ignoreTimestamp">Used to override the default configuration for the Agent to IgnoreTimestamp</param>
+        /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
+        /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+        /// <returns>True if the Observation was added successfully</returns>
+        public async Task<bool> AddObservationAsync(string deviceKey, IObservationInput observationInput, bool? ignoreTimestamp = null, bool? convertUnits = null, bool? ignoreCase = null)
         {
             if (observationInput != null)
             {
@@ -3285,11 +3593,17 @@ namespace MTConnect.Agents
                 input.DataItemKey = observationInput.DataItemKey;
 
                 // Convert Case (if Ignored)
-                if (_configuration.IgnoreObservationCase) input.Values = Observation.UppercaseValues(observationInput.Values);
+                if ((!ignoreCase.HasValue && _configuration.IgnoreObservationCase) || (ignoreCase.HasValue && ignoreCase.Value))
+                {
+                    input.Values = Observation.UppercaseValues(observationInput.Values);
+                }
                 else input.Values = observationInput.Values;
 
                 // Set Timestamp
-                if (_configuration.IgnoreTimestamps) input.Timestamp = UnixDateTime.Now;
+                if ((!ignoreTimestamp.HasValue && _configuration.IgnoreTimestamps) || (ignoreTimestamp.HasValue && ignoreTimestamp.Value))
+                {
+                    input.Timestamp = UnixDateTime.Now;
+                }
                 else input.Timestamp = observationInput.Timestamp > 0 ? observationInput.Timestamp : UnixDateTime.Now;
 
                 // Get Device UUID from deviceKey
@@ -3312,7 +3626,7 @@ namespace MTConnect.Agents
                     if (validationResult.IsValid || _configuration.ValidationLevel != ValidationLevel.Strict)
                     {
                         // Convert Units (if needed)
-                        if (_configuration.ConvertUnits)
+                        if ((!convertUnits.HasValue && _configuration.ConvertUnits) || (convertUnits.HasValue && convertUnits.Value))
                         {
                             observationInput = ConvertObservationValue(dataItem, input);
                         }
@@ -3373,15 +3687,15 @@ namespace MTConnect.Agents
         /// <summary>
         /// Add new Observations for DataItems to the Agent
         /// </summary>
-        public bool AddObservations(string deviceKey, IEnumerable<IObservationInput> observations)
+        public bool AddObservations(string deviceKey, IEnumerable<IObservationInput> observationInputs)
         {
-            if (!observations.IsNullOrEmpty())
+            if (!observationInputs.IsNullOrEmpty())
             {
                 bool success = false;
 
-                foreach (var observation in observations)
+                foreach (var observationInput in observationInputs)
                 {
-                    success = AddObservation(deviceKey, observation);
+                    success = AddObservation(deviceKey, observationInput);
                     if (!success) break;
                 }
 
@@ -3394,15 +3708,15 @@ namespace MTConnect.Agents
         /// <summary>
         /// Add new Observations for DataItems to the Agent
         /// </summary>
-        public async Task<bool> AddObservationsAsync(string deviceKey, IEnumerable<IObservationInput> observations)
+        public async Task<bool> AddObservationsAsync(string deviceKey, IEnumerable<IObservationInput> observationInputs)
         {
-            if (!observations.IsNullOrEmpty())
+            if (!observationInputs.IsNullOrEmpty())
             {
                 bool success = false;
 
-                foreach (var observation in observations)
+                foreach (var observationInput in observationInputs)
                 {
-                    success = await AddObservationAsync(deviceKey, observation);
+                    success = await AddObservationAsync(deviceKey, observationInput);
                     if (!success) break;
                 }
 
@@ -3417,9 +3731,13 @@ namespace MTConnect.Agents
         #region "Assets"
 
         /// <summary>
-        /// Add a new Asset to the Agent
+        /// Add a new Asset to the Agent for the specified Device and DataItem
         /// </summary>
-        public bool AddAsset(string deviceKey, IAsset asset)
+        /// <param name="deviceKey">The (Name or Uuid) of the Device</param>
+        /// <param name="asset">The Asset to add</param>
+        /// <param name="ignoreTimestamp">Used to override the default configuration for the Agent to IgnoreTimestamp</param>
+        /// <returns>True if the Asset was added successfully</returns>
+        public bool AddAsset(string deviceKey, IAsset asset, bool? ignoreTimestamp = null)
         {
             if (_deviceBuffer != null && _assetBuffer != null)
             {
@@ -3433,17 +3751,30 @@ namespace MTConnect.Agents
                     // Set Device UUID Property
                     asset.DeviceUuid = device.Uuid;
 
+                    // Set Timestamp
+                    if ((!ignoreTimestamp.HasValue && _configuration.IgnoreTimestamps) || (ignoreTimestamp.HasValue && ignoreTimestamp.Value))
+                    {
+                        asset.Timestamp = UnixDateTime.Now;
+                    }
+                    else asset.Timestamp = asset.Timestamp > 0 ? asset.Timestamp : UnixDateTime.Now;
+
                     // Validate Asset based on Device's MTConnectVersion
                     var validationResults = asset.IsValid(device.MTConnectVersion);
                     if (validationResults.IsValid)
                     {
-                        // Update ASSET_CHANGED for device
-                        var assetChangedId = DataItem.CreateId(device.Id, AssetChangedDataItem.NameId);
-                        AddObservation(deviceUuid, assetChangedId, ValueKeys.CDATA, asset.AssetId, asset.Timestamp);
-
                         // Add Asset to AssetBuffer
                         if (_assetBuffer.AddAsset(asset))
                         {
+                            // Update AssetChanged DataItem
+                            if (!device.DataItems.IsNullOrEmpty())
+                            {
+                                var assetChanged = device.DataItems.FirstOrDefault(o => o.Type == AssetChangedDataItem.TypeId);
+                                if (assetChanged != null)
+                                {
+                                    AddObservation(deviceUuid, assetChanged.Id, ValueKeys.CDATA, asset.AssetId, asset.Timestamp);
+                                }
+                            }
+
                             // Update Agent Metrics
                             _metrics.UpdateAsset(deviceUuid, asset.AssetId);
 
@@ -3462,9 +3793,13 @@ namespace MTConnect.Agents
         }
 
         /// <summary>
-        /// Add a new Asset to the Agent
+        /// Add a new Asset to the Agent for the specified Device and DataItem
         /// </summary>
-        public async Task<bool> AddAssetAsync(string deviceKey, IAsset asset)
+        /// <param name="deviceKey">The (Name or Uuid) of the Device</param>
+        /// <param name="asset">The Asset to add</param>
+        /// <param name="ignoreTimestamp">Used to override the default configuration for the Agent to IgnoreTimestamp</param>
+        /// <returns>True if the Asset was added successfully</returns>
+        public async Task<bool> AddAssetAsync(string deviceKey, IAsset asset, bool? ignoreTimestamp = null)
         {
             if (_assetBuffer != null)
             {
@@ -3478,17 +3813,30 @@ namespace MTConnect.Agents
                     // Set Device UUID Property
                     asset.DeviceUuid = device.Uuid;
 
+                    // Set Timestamp
+                    if ((!ignoreTimestamp.HasValue && _configuration.IgnoreTimestamps) || (ignoreTimestamp.HasValue && ignoreTimestamp.Value))
+                    {
+                        asset.Timestamp = UnixDateTime.Now;
+                    }
+                    else asset.Timestamp = asset.Timestamp > 0 ? asset.Timestamp : UnixDateTime.Now;
+
                     // Validate Asset based on Device's MTConnectVersion
                     var validationResults = asset.IsValid(device.MTConnectVersion);
                     if (validationResults.IsValid)
                     {
-                        // Update ASSET_CHANGED for device
-                        var assetChangedId = DataItem.CreateId(device.Id, AssetChangedDataItem.NameId);
-                        AddObservation(deviceUuid, assetChangedId, ValueKeys.CDATA, asset.AssetId, asset.Timestamp);
-
                         // Add Asset to AssetBuffer
                         if (await _assetBuffer.AddAssetAsync(asset))
                         {
+                            // Update AssetChanged DataItem
+                            if (!device.DataItems.IsNullOrEmpty())
+                            {
+                                var assetChanged = device.DataItems.FirstOrDefault(o => o.Type == AssetChangedDataItem.TypeId);
+                                if (assetChanged != null)
+                                {
+                                    await AddObservationAsync(deviceUuid, assetChanged.Id, ValueKeys.CDATA, asset.AssetId, asset.Timestamp);
+                                }
+                            }
+
                             // Update Agent Metrics
                             _metrics.UpdateAsset(deviceUuid, asset.AssetId);
 
@@ -3509,6 +3857,9 @@ namespace MTConnect.Agents
         /// <summary>
         /// Add new Assets to the Agent
         /// </summary>
+        /// <param name="deviceKey">The (Name or Uuid) of the Device</param>
+        /// <param name="assets">The Assets to add</param>
+        /// <returns>True if the Assets was added successfully</returns>
         public bool AddAssets(string deviceKey, IEnumerable<IAsset> assets)
         {
             if (_assetBuffer != null && !assets.IsNullOrEmpty())
@@ -3530,6 +3881,9 @@ namespace MTConnect.Agents
         /// <summary>
         /// Add new Assets to the Agent
         /// </summary>
+        /// <param name="deviceKey">The (Name or Uuid) of the Device</param>
+        /// <param name="assets">The Assets to add</param>
+        /// <returns>True if the Assets was added successfully</returns>
         public async Task<bool> AddAssetsAsync(string deviceKey, IEnumerable<IAsset> assets)
         {
             if (_assetBuffer != null && !assets.IsNullOrEmpty())
@@ -3547,88 +3901,6 @@ namespace MTConnect.Agents
 
             return false;
         }
-
-        #endregion
-
-        #region "DeviceModels"
-
-        ///// <summary>
-        ///// Add a new DeviceModel to the Agent's Buffer. This adds all of the data contained in the Device Model (Device and Observations).
-        ///// </summary>
-        //public bool AddDeviceModel(DeviceModel deviceModel)
-        //{
-        //    //if (deviceModel != null)
-        //    //{
-        //    //    bool success;
-
-        //    //    success = AddDevice(deviceModel);
-        //    //    if (success) success = AddObservations(deviceModel.Name, deviceModel.GetObservations());
-
-        //    //    return success;
-        //    //}
-
-        //    return false;
-        //}
-
-        ///// <summary>
-        ///// Add a new DeviceModel to the Agent's Buffer. This adds all of the data contained in the Device Model (Device and Observations).
-        ///// </summary>
-        //public async Task<bool> AddDeviceModelAsync(DeviceModel deviceModel)
-        //{
-        //    //if (deviceModel != null)
-        //    //{
-        //    //    bool success;
-
-        //    //    success = await AddDeviceAsync(deviceModel);
-        //    //    if (success) success = await AddObservationsAsync(deviceModel.Name, deviceModel.GetObservations());
-
-        //    //    return success;
-        //    //}
-
-        //    return false;
-        //}
-
-        ///// <summary>
-        ///// Add new DeviceModels to the Agent's Buffer. This adds all of the data contained in the Device Models (Device and Observations).
-        ///// </summary>
-        //public bool AddDeviceModels(IEnumerable<DeviceModel> deviceModels)
-        //{
-        //    if (!deviceModels.IsNullOrEmpty())
-        //    {
-        //        var success = false;
-
-        //        foreach (var deviceModel in deviceModels)
-        //        {
-        //            success = AddDeviceModel(deviceModel);
-        //            if (!success) break;
-        //        }
-
-        //        return success;
-        //    }
-
-        //    return false;
-        //}
-
-        ///// <summary>
-        ///// Add new DeviceModels to the Agent's Buffer. This adds all of the data contained in the Device Models (Device and Observations).
-        ///// </summary>
-        //public async Task<bool> AddDeviceModelsAsync(IEnumerable<DeviceModel> deviceModels)
-        //{
-        //    if (!deviceModels.IsNullOrEmpty())
-        //    {
-        //        var success = false;
-
-        //        foreach (var deviceModel in deviceModels)
-        //        {
-        //            success = await AddDeviceModelAsync(deviceModel);
-        //            if (!success) break;
-        //        }
-
-        //        return success;
-        //    }
-
-        //    return false;
-        //}
 
         #endregion
 
@@ -3662,257 +3934,6 @@ namespace MTConnect.Agents
                     }
                 }
             }
-        }
-
-        #endregion
-
-        #region "Agent Device"
-
-        /// <summary>
-        /// Create a new Agent Device to represent the MTConnect Agent
-        /// </summary>
-        public void InitializeAgentDevice(bool initializeDataItems = true)
-        {
-            var agent = new Agent();
-            agent.Id = $"agent_{_uuid.ToMD5Hash().Substring(0, 10)}";
-            agent.Name = "Agent";
-            agent.Uuid = _uuid;
-            agent.MTConnectVersion = Version;
-
-            var dataItems = new List<IDataItem>();
-
-            // Add Availibility DataItem to Agent
-            var availabilityDataItem = new AvailabilityDataItem(agent.Id);
-            dataItems.Add(availabilityDataItem);
-
-            // Add Device Added DataItem to Agent
-            dataItems.Add(new DeviceAddedDataItem(agent.Id));
-
-            // Add Device Removed DataItem to Agent
-            dataItems.Add(new DeviceRemovedDataItem(agent.Id));
-
-            // Add Device Changed DataItem to Agent
-            dataItems.Add(new DeviceChangedDataItem(agent.Id));
-
-            // Add Asset Added DataItem to Agent
-            dataItems.Add(new AssetChangedDataItem(agent.Id));
-
-            // Add Asset Removed DataItem to Agent
-            dataItems.Add(new AssetRemovedDataItem(agent.Id));
-
-            agent.DataItems = dataItems;
-
-            _agent = agent;
-
-            // Add Name and UUID to DeviceKey dictionary
-            _deviceKeys.TryAdd(agent.Name, agent.Uuid);
-            _deviceKeys.TryAdd(agent.Uuid, agent.Uuid);
-
-            if (initializeDataItems)
-            {
-                // Initialize Availability
-                AddAgentObservation(availabilityDataItem.Id, Observations.Events.Values.Availability.AVAILABLE);
-
-                InitializeDataItems(agent);
-            }
-        }
-
-        /// <summary>
-        /// Add a new Adapter Component to the Agent Device
-        /// </summary>
-        public void AddAdapterComponent(AdapterConfiguration configuration, bool initializeDataItems = true)
-        {
-            var agent = Agent;
-            if (agent != null && configuration != null && !string.IsNullOrEmpty(configuration.Host))
-            {
-                // Create a new Adapter Component
-                var adapter = new AdapterComponent();
-                adapter.Id = configuration.Id;
-                adapter.Name = $"{configuration.Host}:{configuration.Port}";
-
-                // Adapters Organizer Component
-                Component adapters = null;
-                if (agent.Components.IsNullOrEmpty())
-                {
-                    // Create New Adapters Organizer Component
-                    adapters = new AdaptersComponent() { Id = AdaptersId };
-
-                    var agentComponents = new List<IComponent>();
-                    agentComponents.Add(adapters);
-                    agent.Components = agentComponents;
-                }
-                else
-                {
-                    adapters = agent.Components.FirstOrDefault(o => o.Id == AdaptersId) as Component;
-                }
-
-                if (adapters != null)
-                {
-                    var dataItems = new List<IDataItem>();
-
-                    // Add Connection Status
-                    var connectionStatusDataItem = new ConnectionStatusDataItem(adapter.Id);
-                    dataItems.Add(connectionStatusDataItem);
-
-                    // Add Adapter URI
-                    var adapterUri = $"shdr://{configuration.Host}:{configuration.Port}";
-                    AdapterUriDataItem adapterUriDataItem = null;
-                    if (!configuration.SuppressIpAddress)
-                    {
-                        adapterUriDataItem = new AdapterUriDataItem(adapter.Id);
-                        var adapterUriConstraint = new Constraints();
-                        adapterUriConstraint.Values = new List<string> { adapterUri };
-                        adapterUriDataItem.Constraints = adapterUriConstraint;
-                        dataItems.Add(adapterUriDataItem);
-                    }
-
-                    // Add Observation Update Rate
-                    dataItems.Add(new ObservationUpdateRateDataItem(adapter.Id));
-
-                    // Add Asset Update Rate
-                    dataItems.Add(new AssetUpdateRateDataItem(adapter.Id));
-
-                    // Add Adapter Software Version
-                    AdapterSoftwareVersionDataItem adapterSoftwareVersionDataItem = null;
-                    if (configuration.ShdrVersion != null)
-                    {
-                        adapterSoftwareVersionDataItem = new AdapterSoftwareVersionDataItem(adapter.Id);
-                        dataItems.Add(adapterSoftwareVersionDataItem);
-                    }
-
-                    // Add MTConnect Version
-                    //if (Version != null) dataItems.Add(new MTConnectVersionDataItem(adapter.Id));
-
-                    adapter.DataItems = dataItems;
-
-                    var adapterComponents = new List<IComponent>();
-                    adapterComponents.Add(adapter);
-                    adapters.Components = adapterComponents;
-
-                    var components = new List<IComponent>();
-                    components.Add(adapters);
-                    agent.Components = components;
-
-
-                    if (initializeDataItems)
-                    {
-                        // Add Connection Status Observation
-                        AddAgentObservation(connectionStatusDataItem.Id, Observations.Events.Values.ConnectionStatus.LISTEN);
-
-                        // Add Adapter Uri Observation
-                        if (adapterUri != null)
-                        {
-                            AddAgentObservation(adapterUriDataItem.Id, adapterUri);
-                        }
-
-                        // Add Adapter Software Version Observation
-                        if (adapterSoftwareVersionDataItem != null)
-                        {
-                            AddAgentObservation(adapterSoftwareVersionDataItem.Id, configuration.ShdrVersion);
-                        }
-                    }
-                }
-            }
-        }
-
-
-        public void UpdateAdapterConnectionStatus(string adapterId, Observations.Events.Values.ConnectionStatus connectionStatus)
-        {
-            if (_agent != null)
-            {
-                var dataItemKey = DataItem.CreateId(adapterId, ConnectionStatusDataItem.NameId);
-                AddAgentObservation(dataItemKey, connectionStatus);
-            }
-        }
-
-        public void UpdateAdapterObservationRate(string adapterId, double value)
-        {
-            if (_agent != null)
-            {
-                var dataItemKey = DataItem.CreateId(adapterId, ObservationUpdateRateDataItem.NameId);
-                AddAgentObservation(dataItemKey, value);
-            }
-        }
-
-
-        /// <summary>
-        /// Add a new Observation for a DataItem to the Agent Device
-        /// </summary>
-        public bool AddAgentObservation(string dataItemKey, object value)
-        {
-            if (_agent != null && !string.IsNullOrEmpty(dataItemKey) && value != null)
-            {
-                var input = new ObservationInput();
-                input.DeviceKey = _agent.Uuid;
-                input.DataItemKey = dataItemKey;
-                input.AddValue(ValueKeys.CDATA, value);
-                input.Timestamp = UnixDateTime.Now;
-
-                var dataItem = _agent.GetDataItemByKey(dataItemKey);
-                if (dataItem != null)
-                {
-                    // Check if Observation Needs to be Updated
-                    bool update = UpdateCurrentObservation(_agent.Uuid, dataItem, input);
-                    if (update)
-                    {
-                        var observation = new Observation();
-                        observation.SetProperty(nameof(Observation.DeviceUuid), _agent.Uuid);
-                        observation.SetProperty(nameof(Observation.DataItemId), dataItem.Id);
-                        observation.SetProperty(nameof(Observation.Representation), dataItem.Representation);
-                        observation.SetProperty(nameof(Observation.Type), dataItem.Type);
-                        observation.SetProperty(nameof(Observation.SubType), dataItem.SubType);
-                        observation.SetProperty(nameof(Observation.Name), dataItem.Name);
-                        observation.SetProperty(nameof(Observation.CompositionId), dataItem.CompositionId);
-                        observation.SetProperty(nameof(Observation.Timestamp), input.Timestamp.ToDateTime());
-                        observation.AddValues(input.Values);
-
-                        // Add Observation to Streaming Buffer
-                        return _observationBuffer.AddObservation(_agent.Uuid, dataItem, observation);
-                    }
-                }
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// Add a new Observation for a DataItem to the Agent Device
-        /// </summary>
-        public async Task<bool> AddAgentObservationAsync(string dataItemKey, object value)
-        {
-            if (_agent != null && !string.IsNullOrEmpty(dataItemKey) && value != null)
-            {
-                var input = new ObservationInput();
-                input.DeviceKey = _agent.Uuid;
-                input.DataItemKey = dataItemKey;
-                input.AddValue(ValueKeys.CDATA, value);
-                input.Timestamp = UnixDateTime.Now;
-
-                var dataItem = _agent.GetDataItemByKey(dataItemKey);
-                if (dataItem != null)
-                {
-                    // Check if Observation Needs to be Updated
-                    bool update = UpdateCurrentObservation(_agent.Uuid, dataItem, input);
-                    if (update)
-                    {
-                        var observation = new Observation();
-                        observation.SetProperty(nameof(Observation.DeviceUuid), _agent.Uuid);
-                        observation.SetProperty(nameof(Observation.DataItemId), dataItem.Id);
-                        observation.SetProperty(nameof(Observation.Representation), dataItem.Representation);
-                        observation.SetProperty(nameof(Observation.Type), dataItem.Type);
-                        observation.SetProperty(nameof(Observation.SubType), dataItem.SubType);
-                        observation.SetProperty(nameof(Observation.Name), dataItem.Name);
-                        observation.SetProperty(nameof(Observation.CompositionId), dataItem.CompositionId);
-                        observation.SetProperty(nameof(Observation.Timestamp), input.Timestamp.ToDateTime());
-                        observation.AddValues(input.Values);
-
-                        // Add Observation to Streaming Buffer
-                        return await _observationBuffer.AddObservationAsync(_agent.Uuid, dataItem, observation);
-                    }
-                }
-            }
-
-            return false;
         }
 
         #endregion

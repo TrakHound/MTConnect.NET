@@ -9,7 +9,7 @@ using System.Text.Json.Serialization;
 
 namespace MTConnect.Applications.Configuration
 {
-    public class MTConnectAgentGatewayConfiguration : MTConnectAgentConfiguration
+    public class MTConnectAgentGatewayConfiguration : AgentConfiguration
     {
         /// <summary>
         /// 

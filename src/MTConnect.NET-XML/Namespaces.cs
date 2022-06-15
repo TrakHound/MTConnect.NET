@@ -101,6 +101,7 @@ namespace MTConnect
 
                     switch (minorVersion)
                     {
+                        case 2: return Version12.Assets;
                         case 3: return Version13.Assets;
                         case 4: return Version14.Assets;
                         case 5: return Version15.Assets;
@@ -132,6 +133,9 @@ namespace MTConnect
 
                     switch (minorVersion)
                     {
+                        case 0: return Version10.Error;
+                        case 1: return Version11.Error;
+                        case 2: return Version12.Error;
                         case 3: return Version13.Error;
                         case 4: return Version14.Error;
                         case 5: return Version15.Error;
@@ -258,6 +262,7 @@ namespace MTConnect
 
         internal static class Version12
         {
+            public const string Assets = "urn:mtconnect.org:MTConnectAssets:1.2";
             public const string Devices = "urn:mtconnect.org:MTConnectDevices:1.2";
             public const string Error = "urn:mtconnect.org:MTConnectError:1.2";
             public const string Streams = "urn:mtconnect.org:MTConnectStreams:1.2";

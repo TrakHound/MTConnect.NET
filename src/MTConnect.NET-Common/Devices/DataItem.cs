@@ -252,10 +252,16 @@ namespace MTConnect.Devices
         }
 
 
-        public virtual IDataItem Process(Version mtconnectVersion)
+        public IDataItem Process(Version mtconnectVersion)
         {
             return Process(this, mtconnectVersion);
         }
+
+        protected virtual IDataItem OnProcess(IDataItem dataItem, Version mtconnectVersion)
+        {
+            return dataItem;
+        }
+
 
         /// <summary>
         /// Determine if the DataItem with the specified Observation is valid in the specified MTConnectVersion
@@ -601,7 +607,8 @@ namespace MTConnect.Devices
                 // Check Version Compatibilty
                 if (mtconnectVersion >= obj.MinimumVersion && mtconnectVersion <= obj.MaximumVersion)
                 {
-                    return obj;
+                    // Call overridable method (used to process based on Type)
+                    return obj.OnProcess(obj, mtconnectVersion);
                 }
             }
 

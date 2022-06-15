@@ -3,9 +3,10 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
-using MTConnect.Adapters.Shdr;
 using MTConnect.Agents;
+using MTConnect.Configurations;
 using MTConnect.Devices.DataItems;
+using MTConnect.Shdr;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,14 +16,22 @@ using System.Threading.Tasks;
 namespace MTConnect.Http
 {
     /// <summary>
-    /// An Http Web Server for processing MTConnect REST Api Requests with a processor PUT requests for SHDR data sent in the URL query string
+    /// An Http Web Server for processing MTConnect REST Api Requests with
+    /// a processor PUT requests for SHDR data sent in the URL query string
+    /// and a processor for POST request for XML Asset data
     /// </summary>
     public class ShdrMTConnectHttpServer : MTConnectHttpServer
     {
         private readonly IMTConnectAgent _mtconnectAgent;
 
 
-        public ShdrMTConnectHttpServer(IMTConnectAgent mtconnectAgent, IEnumerable<string> prefixes = null, int port = 0) : base(mtconnectAgent, prefixes, port) 
+        public ShdrMTConnectHttpServer(
+            HttpAgentConfiguration configuration,
+            IMTConnectAgent mtconnectAgent,
+            IEnumerable<string> prefixes = null,
+            int port = 0
+            )
+            : base(configuration, mtconnectAgent, prefixes, port) 
         {
             _mtconnectAgent = mtconnectAgent;
         }
@@ -93,7 +102,7 @@ namespace MTConnect.Http
                 if (asset != null)
                 {
                     asset.AssetId = assetId;
-                    asset.Timestamp = asset.Timestamp > DateTime.MinValue ? asset.Timestamp : DateTime.UtcNow;
+                    asset.Timestamp = asset.Timestamp > 0 ? asset.Timestamp : UnixDateTime.Now;
                     return await _mtconnectAgent.AddAssetAsync(deviceKey, asset);
                 }
             }

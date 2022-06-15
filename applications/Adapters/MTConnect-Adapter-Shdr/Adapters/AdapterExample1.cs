@@ -8,6 +8,7 @@ using MTConnect.Observations.Events;
 using MTConnect.Observations.Samples.Values;
 using MTConnect.Observations;
 using MTConnect.Adapters.Shdr;
+using MTConnect.Shdr;
 
 namespace MTConnect.Applications.Adapters.Shdr.Adapters
 {
@@ -112,7 +113,8 @@ namespace MTConnect.Applications.Adapters.Shdr.Adapters
 
         public void RemoveAllAssets()
         {
-            _adapter.RemoveAllAssets("CuttingTool");
+            _adapter.RemoveAllAssets("File");
+            //_adapter.RemoveAllAssets("CuttingTool");
         }
 
 
@@ -740,7 +742,7 @@ namespace MTConnect.Applications.Adapters.Shdr.Adapters
             tool.CuttingToolLifeCycle.CutterStatus.Add(Assets.CuttingTools.CutterStatus.AVAILABLE);
             tool.CuttingToolLifeCycle.CutterStatus.Add(Assets.CuttingTools.CutterStatus.NEW);
             tool.CuttingToolLifeCycle.CutterStatus.Add(Assets.CuttingTools.CutterStatus.MEASURED);
-            tool.Timestamp = DateTime.Now;
+            tool.DateTime = DateTime.Now;
 
             _adapter.AddAsset(tool);
         }

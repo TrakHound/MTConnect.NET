@@ -3,6 +3,8 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
+using System;
+
 namespace MTConnect.Devices.DataItems.Samples
 {
     /// <summary>
@@ -18,7 +20,7 @@ namespace MTConnect.Devices.DataItems.Samples
 
         public override string TypeDescription => DescriptionText;
 
-        public override System.Version MinimumVersion => MTConnectVersions.Version17;
+        public override Version MinimumVersion => MTConnectVersions.Version17;
 
         public enum SubTypes
         {
@@ -58,6 +60,15 @@ namespace MTConnect.Devices.DataItems.Samples
             Name = NameId;
             Units = DefaultUnits;
         }
+
+
+        protected override IDataItem OnProcess(IDataItem dataItem, Version mtconnectVersion)
+        {
+            if (!string.IsNullOrEmpty(SubType) && mtconnectVersion < MTConnectVersions.Version18) return null;
+
+            return dataItem;
+        }
+
 
         public override string SubTypeDescription => GetSubTypeDescription(SubType);
 

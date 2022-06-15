@@ -3,8 +3,8 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE', which is part of this source code package.
 
-using MTConnect.Agents.Configuration;
 using MTConnect.Assets;
+using MTConnect.Configurations;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -54,7 +54,7 @@ namespace MTConnect.Buffers
             Start();
         }
 
-        public MTConnectAssetFileBuffer(MTConnectAgentConfiguration configuration) : base(configuration)
+        public MTConnectAssetFileBuffer(AgentConfiguration configuration) : base(configuration)
         {
             _items = new MTConnectAssetQueue();
 

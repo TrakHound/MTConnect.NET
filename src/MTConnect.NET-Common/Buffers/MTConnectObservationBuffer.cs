@@ -4,7 +4,7 @@
 // file 'LICENSE.txt', which is part of this source code package.
 
 using MTConnect.Agents;
-using MTConnect.Agents.Configuration;
+using MTConnect.Configurations;
 using MTConnect.Devices;
 using MTConnect.Devices.DataItems;
 using MTConnect.Observations;
@@ -79,7 +79,7 @@ namespace MTConnect.Buffers
             _archiveObservations = new StoredObservation[BufferSize];
         }
 
-        public MTConnectObservationBuffer(MTConnectAgentConfiguration configuration)
+        public MTConnectObservationBuffer(AgentConfiguration configuration)
         {
             if (configuration != null)
             {

@@ -22,10 +22,12 @@
   </PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="Configurations\ClientConfiguration.cs" />
 	  <Compile Remove="Program-old.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
+	  <None Include="Configurations\ClientConfiguration.cs" />
 	  <None Include="Program-old.cs" />
 	</ItemGroup>
 

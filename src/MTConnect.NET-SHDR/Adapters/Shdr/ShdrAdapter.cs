@@ -3,7 +3,9 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
+using MTConnect.Configurations;
 using MTConnect.Observations.Input;
+using MTConnect.Shdr;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -122,6 +124,24 @@ namespace MTConnect.Adapters.Shdr
             _connectionListener.ClientDisconnected += ClientDisconnected;
             _connectionListener.ClientPingReceived += ClientPingReceived;
             _connectionListener.ClientPongSent += ClientPongSent;
+        }
+
+        public ShdrAdapter(ShdrAdapterConfiguration configuration)
+        {
+            if (configuration != null)
+            {
+                DeviceKey = configuration.DeviceKey;
+                Port = configuration.Port;
+                Heartbeat = configuration.Heartbeat;
+                Timeout = 5000;
+                Interval = 100;
+
+                _connectionListener = new AgentClientConnectionListener(Port, Heartbeat);
+                _connectionListener.ClientConnected += ClientConnected;
+                _connectionListener.ClientDisconnected += ClientDisconnected;
+                _connectionListener.ClientPingReceived += ClientPingReceived;
+                _connectionListener.ClientPongSent += ClientPongSent;
+            }
         }
 
 
@@ -284,7 +304,7 @@ namespace MTConnect.Adapters.Shdr
 
         #region "Write"
 
-        private void WriteLine(string line)
+        private bool WriteLine(string line)
         {
             if (!string.IsNullOrEmpty(line))
             {
@@ -294,25 +314,29 @@ namespace MTConnect.Adapters.Shdr
                 {
                     foreach (var client in clients)
                     {
-                        WriteLineToClient(client, line);
+                        return WriteLineToClient(client, line);
                     }
                 }              
             }
+
+            return false;
         }
 
-        private void WriteLine(string clientId, string line)
+        private bool WriteLine(string clientId, string line)
         {
             if (!string.IsNullOrEmpty(line))
             {
                 var client = GetAgentClient(clientId);
                 if (client != null)
                 {
-                    WriteLineToClient(client, line);
+                    return WriteLineToClient(client, line);
                 }
             }
+
+            return false;
         }
 
-        private async Task WriteLineAsync(string line)
+        private async Task<bool> WriteLineAsync(string line)
         {
             if (!string.IsNullOrEmpty(line))
             {
@@ -322,25 +346,30 @@ namespace MTConnect.Adapters.Shdr
                 {
                     foreach (var client in clients)
                     {
-                        await WriteLineToClientAsync(client, line);
+                        return await WriteLineToClientAsync(client, line);
                     }
                 }
             }
+
+            return false;
         }
 
-        private async Task WriteLineAsync(string clientId, string line)
+        private async Task<bool> WriteLineAsync(string clientId, string line)
         {
             if (!string.IsNullOrEmpty(line))
             {
                 var client = GetAgentClient(clientId);
                 if (client != null)
                 {
-                    await WriteLineToClientAsync(client, line);
+                    return await WriteLineToClientAsync(client, line);
                 }
             }
+
+            return false;
         }
 
-        private void WriteLineToClient(AgentClient client, string line)
+
+        private bool WriteLineToClient(AgentClient client, string line)
         {
             if (client != null)
             {
@@ -358,15 +387,19 @@ namespace MTConnect.Adapters.Shdr
                     stream.Write(bytes, 0, bytes.Length);
 
                     LineSent?.Invoke(this, new AdapterEventArgs(client.Id, line));
+
+                    return true;
                 }
                 catch (Exception ex)
                 {
                     SendError?.Invoke(this, new AdapterEventArgs(client.Id, ex.Message));
                 }
             }
+
+            return false;
         }
 
-        private async Task WriteLineToClientAsync(AgentClient client, string line)
+        private async Task<bool> WriteLineToClientAsync(AgentClient client, string line)
         {
             if (client != null)
             {
@@ -384,12 +417,16 @@ namespace MTConnect.Adapters.Shdr
                     await stream.WriteAsync(bytes, 0, bytes.Length);
 
                     LineSent?.Invoke(this, new AdapterEventArgs(client.Id, line));
+
+                    return true;
                 }
                 catch (Exception ex)
                 {
                     SendError?.Invoke(this, new AdapterEventArgs(client.Id, ex.Message));
                 }
             }
+
+            return false;
         }
 
         #endregion
@@ -482,11 +519,13 @@ namespace MTConnect.Adapters.Shdr
         }
 
 
-        private void WriteDataItems()
+        private bool WriteDataItems()
         {
             var dataItems = GetDataItems();
             if (!dataItems.IsNullOrEmpty())
             {
+                var success = true;
+
                 // Get List of DataItems that need to be Updated
                 var items = new List<ShdrDataItem>();
                 foreach (var item in dataItems)
@@ -502,16 +541,22 @@ namespace MTConnect.Adapters.Shdr
                 {
                     // Create SHDR string to send
                     var shdrLine = ShdrDataItem.ToString(items);
-                    WriteLine(shdrLine);
+                    success = WriteLine(shdrLine);
                 }
+
+                return success;
             }
+
+            return false;
         }
 
-        private async Task WriteDataItemsAsync()
+        private async Task<bool> WriteDataItemsAsync()
         {
             var dataItems = GetDataItems();
             if (!dataItems.IsNullOrEmpty())
             {
+                var success = true;
+
                 // Get List of DataItems that need to be Updated
                 var items = new List<ShdrDataItem>();
                 foreach (var item in dataItems)
@@ -527,9 +572,13 @@ namespace MTConnect.Adapters.Shdr
                 {
                     // Create SHDR string to send
                     var shdrLine = ShdrDataItem.ToString(items);
-                    await WriteLineAsync(shdrLine);
+                    success = await WriteLineAsync(shdrLine);
                 }
+
+                return success;
             }
+
+            return false;
         }
 
 
@@ -721,11 +770,13 @@ namespace MTConnect.Adapters.Shdr
         }
 
 
-        private void WriteMessages()
+        private bool WriteMessages()
         {
             var messages = GetMessages();
             if (!messages.IsNullOrEmpty())
             {
+                var success = true;
+
                 // Get List of Messages that need to be Updated
                 var items = new List<ShdrMessage>();
                 foreach (var item in messages)
@@ -743,13 +794,18 @@ namespace MTConnect.Adapters.Shdr
                     {
                         // Create SHDR string to send
                         var shdrLine = item.ToString();
-                        WriteLine(shdrLine);
+                        success = WriteLine(shdrLine);
+                        if (!success) break;
                     }
                 }
+
+                return success;
             }
+
+            return false;
         }
 
-        private async Task WriteMessagesAsync()
+        private async Task<bool> WriteMessagesAsync()
         {
             var messages = GetMessages();
             if (!messages.IsNullOrEmpty())
@@ -767,14 +823,21 @@ namespace MTConnect.Adapters.Shdr
 
                 if (!items.IsNullOrEmpty())
                 {
+                    var success = true;
+
                     foreach (var item in items)
                     {
                         // Create SHDR string to send
                         var shdrLine = item.ToString();
-                        await WriteLineAsync(shdrLine);
+                        success = await WriteLineAsync(shdrLine);
+                        if (!success) break;
                     }
+
+                    return success;
                 }
             }
+
+            return false;
         }
 
 
@@ -921,6 +984,7 @@ namespace MTConnect.Adapters.Shdr
             }
         }
 
+
         private bool UpdateCondition(ShdrCondition condition)
         {
             if (condition != null)
@@ -952,11 +1016,13 @@ namespace MTConnect.Adapters.Shdr
         }
 
 
-        private void WriteConditions()
+        private bool WriteConditions()
         {
             var conditions = GetConditions();
             if (!conditions.IsNullOrEmpty())
             {
+                var success = true;
+
                 // Get List of Conditions that need to be Updated
                 foreach (var condition in conditions)
                 {
@@ -966,17 +1032,24 @@ namespace MTConnect.Adapters.Shdr
 
                         // Create SHDR string to send
                         var shdrLine = condition.ToString();
-                        WriteLine(shdrLine);
+                        success = WriteLine(shdrLine);
+                        if (!success) break;
                     }
                 }
+
+                return success;
             }
+
+            return false;
         }
 
-        private async Task WriteConditionsAsync()
+        private async Task<bool> WriteConditionsAsync()
         {
             var conditions = GetConditions();
             if (!conditions.IsNullOrEmpty())
             {
+                var success = true;
+
                 // Get List of Conditions that need to be Updated
                 foreach (var condition in conditions)
                 {
@@ -986,10 +1059,15 @@ namespace MTConnect.Adapters.Shdr
 
                         // Create SHDR string to send
                         var shdrLine = condition.ToString();
-                        await WriteLineAsync(shdrLine);
+                        success = await WriteLineAsync(shdrLine);
+                        if (!success) break;
                     }
                 }
+
+                return success;
             }
+
+            return false;
         }
 
 
@@ -1157,11 +1235,13 @@ namespace MTConnect.Adapters.Shdr
         }
 
 
-        private void WriteTimeSeries()
+        private bool WriteTimeSeries()
         {
             var timeSeries = GetTimeSeries();
             if (!timeSeries.IsNullOrEmpty())
             {
+                var success = true;
+
                 // Get List of TimeSeries that need to be Updated
                 foreach (var item in timeSeries)
                 {
@@ -1171,17 +1251,24 @@ namespace MTConnect.Adapters.Shdr
 
                         // Create SHDR string to send
                         var shdrLine = item.ToString();
-                        WriteLine(shdrLine);
+                        success = WriteLine(shdrLine);
+                        if (!success) break;
                     }
                 }
+
+                return success;
             }
+
+            return false;
         }
 
-        private async Task WriteTimeSeriesAsync()
+        private async Task<bool> WriteTimeSeriesAsync()
         {
             var timeSeries = GetTimeSeries();
             if (!timeSeries.IsNullOrEmpty())
             {
+                var success = true;
+
                 // Get List of TimeSeries that need to be Updated
                 foreach (var item in timeSeries)
                 {
@@ -1191,10 +1278,15 @@ namespace MTConnect.Adapters.Shdr
 
                         // Create SHDR string to send
                         var shdrLine = item.ToString();
-                        await WriteLineAsync(shdrLine);
+                        success = await WriteLineAsync(shdrLine);
+                        if (!success) break;
                     }
                 }
+
+                return success;
             }
+
+            return false;
         }
 
 
@@ -1365,11 +1457,13 @@ namespace MTConnect.Adapters.Shdr
         }
 
 
-        private void WriteDataSets()
+        private bool WriteDataSets()
         {
             var dataSets = GetDataSets();
             if (!dataSets.IsNullOrEmpty())
             {
+                var success = true;
+
                 // Get List of DataSet that need to be Updated
                 foreach (var item in dataSets)
                 {
@@ -1379,17 +1473,24 @@ namespace MTConnect.Adapters.Shdr
 
                         // Create SHDR string to send
                         var shdrLine = item.ToString();
-                        WriteLine(shdrLine);
+                        success = WriteLine(shdrLine);
+                        if (!success) break;
                     }
                 }
+
+                return success;
             }
+
+            return false;
         }
 
-        private async Task WriteDataSetsAsync()
+        private async Task<bool> WriteDataSetsAsync()
         {
             var dataSets = GetDataSets();
             if (!dataSets.IsNullOrEmpty())
             {
+                var success = true;
+
                 // Get List of DataSet that need to be Updated
                 foreach (var item in dataSets)
                 {
@@ -1399,10 +1500,15 @@ namespace MTConnect.Adapters.Shdr
 
                         // Create SHDR string to send
                         var shdrLine = item.ToString();
-                        await WriteLineAsync(shdrLine);
+                        success = await WriteLineAsync(shdrLine);
+                        if (!success) break;
                     }
                 }
+
+                return success;
             }
+
+            return false;
         }
 
 
@@ -1573,11 +1679,13 @@ namespace MTConnect.Adapters.Shdr
         }
 
 
-        private void WriteTables()
+        private bool WriteTables()
         {
             var tables = GetTables();
             if (!tables.IsNullOrEmpty())
             {
+                var success = true;
+
                 // Get List of Table that need to be Updated
                 foreach (var item in tables)
                 {
@@ -1587,17 +1695,24 @@ namespace MTConnect.Adapters.Shdr
 
                         // Create SHDR string to send
                         var shdrLine = item.ToString();
-                        WriteLine(shdrLine);
+                        success = WriteLine(shdrLine);
+                        if (!success) break;
                     }
                 }
+
+                return success;
             }
+
+            return false;
         }
 
-        private async Task WriteTablesAsync()
+        private async Task<bool> WriteTablesAsync()
         {
             var tables = GetTables();
             if (!tables.IsNullOrEmpty())
             {
+                var success = true;
+
                 // Get List of Table that need to be Updated
                 foreach (var item in tables)
                 {
@@ -1607,10 +1722,15 @@ namespace MTConnect.Adapters.Shdr
 
                         // Create SHDR string to send
                         var shdrLine = item.ToString();
-                        await WriteLineAsync(shdrLine);
+                        success = await WriteLineAsync(shdrLine);
+                        if (!success) break;
                     }
                 }
+
+                return success;
             }
+
+            return false;
         }
 
 
@@ -1810,11 +1930,13 @@ namespace MTConnect.Adapters.Shdr
         }
 
 
-        private void WriteAssets()
+        private bool WriteAssets()
         {
             var assets = GetAssetsFromQueue();
             if (!assets.IsNullOrEmpty())
             {
+                var success = true;
+
                 // Get List of Assets that need to be Updated
                 foreach (var item in assets)
                 {
@@ -1824,17 +1946,24 @@ namespace MTConnect.Adapters.Shdr
 
                         // Create SHDR string to send
                         var shdrLine = item.ToString(MultilineAssets);
-                        WriteLine(shdrLine);
+                        success = WriteLine(shdrLine);
+                        if (!success) break;
                     }
                 }
+
+                return success;
             }
+
+            return false;
         }
 
-        private async Task WriteAssetsAsync()
+        private async Task<bool> WriteAssetsAsync()
         {
             var assets = GetAssetsFromQueue();
             if (!assets.IsNullOrEmpty())
             {
+                var success = true;
+
                 // Get List of Assets that need to be Updated
                 foreach (var item in assets)
                 {
@@ -1844,39 +1973,58 @@ namespace MTConnect.Adapters.Shdr
 
                         // Create SHDR string to send
                         var shdrLine = item.ToString(MultilineAssets);
-                        await WriteLineAsync(shdrLine);
+                        success = await WriteLineAsync(shdrLine);
+                        if (!success) break;
                     }
                 }
+
+                return success;
             }
+
+            return false;
         }
 
 
-        private void WriteAllAssets(string clientId)
+        private bool WriteAllAssets(string clientId)
         {
             var assets = GetAssetsFromQueue();
             if (!assets.IsNullOrEmpty())
             {
+                var success = true;
+
                 foreach (var item in assets)
                 {
                     // Create SHDR string to send
                     var shdrLine = item.ToString(MultilineAssets);
-                    WriteLine(clientId, shdrLine);
+                    success = WriteLine(clientId, shdrLine);
+                    if (!success) break;
                 }
+
+                return success;
             }
+
+            return false;
         }
 
-        private async Task WriteAllAssetsAsync(string clientId)
+        private async Task<bool> WriteAllAssetsAsync(string clientId)
         {
             var assets = GetAssetsFromQueue();
             if (!assets.IsNullOrEmpty())
             {
+                var success = true;
+
                 foreach (var item in assets)
                 {
                     // Create SHDR string to send
                     var shdrLine = item.ToString(MultilineAssets);
-                    await WriteLineAsync(clientId, shdrLine);
+                    success = await WriteLineAsync(clientId, shdrLine);
+                    if (!success) break;
                 }
+
+                return success;
             }
+
+            return false;
         }
 
         #endregion

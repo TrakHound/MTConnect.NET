@@ -4,8 +4,8 @@
 	"allowPut": true,
 	"adapters": [
 		{
-			"device": "OKUMA-Lathe",
-			"host": "localhost",
+			"deviceKey": "OKUMA-Lathe",
+			"hostname": "localhost",
 			"port": 7878,
 			"reconnectInterval": 100
 		}

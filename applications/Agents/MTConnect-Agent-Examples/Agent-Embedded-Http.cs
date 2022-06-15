@@ -11,7 +11,7 @@ namespace MTConnect.Applications
         public static void Main(string[] args)
         {
             // Read Agent Configuration File
-            var configuration = MTConnectAgentConfiguration.Read();
+            var configuration = AgentConfiguration.Read();
 
             // Create MTConnect Agent
             var agent = new MTConnectAgent(configuration);

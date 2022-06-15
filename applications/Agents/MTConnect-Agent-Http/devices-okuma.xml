@@ -28,7 +28,7 @@
 								<DataItem category="EVENT" id="L2S1ChuckState" name="S1ChuckState" type="CHUCK_STATE">
 									<InitialValue>OPEN</InitialValue>
 								</DataItem>
-								<DataItem category="SAMPLE" id="L2S1SurfaceSpeed" name="S1SurfaceSpeed" nativeUnits="MILLIMETER/SECOND" type="e:SURFACE_SPEED" units="MILLIMETER/SECOND"/>
+								<!--<DataItem category="SAMPLE" id="L2S1SurfaceSpeed" name="S1SurfaceSpeed" nativeUnits="MILLIMETER/SECOND" type="e:SURFACE_SPEED" units="MILLIMETER/SECOND"/>-->
 							</DataItems>
 						</Rotary>
 						<Rotary id="L2c2" name="C2" nativeName="S">
@@ -43,7 +43,7 @@
 									</Constraints>
 								</DataItem>
 								<DataItem category="EVENT" id="L2S2ChuckState" name="S2ChuckState" type="CHUCK_STATE"/>
-								<DataItem category="SAMPLE" id="L2S2SurfaceSpeed" name="S2SurfaceSpeed" nativeUnits="MILLIMETER/SECOND" type="e:SURFACE_SPEED" units="MILLIMETER/SECOND"/>
+								<!--<DataItem category="SAMPLE" id="L2S2SurfaceSpeed" name="S2SurfaceSpeed" nativeUnits="MILLIMETER/SECOND" type="e:SURFACE_SPEED" units="MILLIMETER/SECOND"/>-->
 							</DataItems>
 						</Rotary>
 						<Linear id="L2x1" name="X">
@@ -103,16 +103,16 @@
 								<DataItem category="SAMPLE" id="L2p1RunningTime" name="p1RunningTime" subType="x:RUNNING_TIME" type="ACCUMULATED_TIME"/>
 								<DataItem category="SAMPLE" id="L2p1CuttingTime" name="p1CuttingTime" subType="x:CUTTING_TIME" type="ACCUMULATED_TIME"/>
 								<DataItem category="SAMPLE" id="L2p1SpindleRunTime" name="p1SpindleRunTime" subType="x:SPINDLE_RUN_TIME" type="ACCUMULATED_TIME"/>
-								<DataItem category="EVENT" id="L2p1CommonVariable" name="p1CommonVariable" subType="x:COMMON" type="e:VARIABLES"/>
-								<DataItem category="EVENT" id="L2p1MacManPanelHistory" name="p1MacManPanelHistory" subType="x:PANEL_HISTORY" type="e:MACMAN"/>
-								<DataItem category="EVENT" id="L2p1MachineOperationPanelOutputDryRun" name="p1MachineOperationPanelOutputDryRun" subType="x:DRY_RUN" type="e:OUTPUT_SIGNAL"/>
-								<DataItem category="EVENT" id="L2p1MachineOperationPanelOutputMachineLock" name="p1MachineOperationPanelOutputMachineLock" subType="x:MACHINE_LOCK" type="e:OUTPUT_SIGNAL"/>
+								<!--<DataItem category="EVENT" id="L2p1CommonVariable" name="p1CommonVariable" subType="x:COMMON" type="e:VARIABLES"/>-->
+								<!--<DataItem category="EVENT" id="L2p1MacManPanelHistory" name="p1MacManPanelHistory" subType="x:PANEL_HISTORY" type="e:MACMAN"/>-->
+								<!--<DataItem category="EVENT" id="L2p1MachineOperationPanelOutputDryRun" name="p1MachineOperationPanelOutputDryRun" subType="x:DRY_RUN" type="e:OUTPUT_SIGNAL"/>-->
+								<!--<DataItem category="EVENT" id="L2p1MachineOperationPanelOutputMachineLock" name="p1MachineOperationPanelOutputMachineLock" subType="x:MACHINE_LOCK" type="e:OUTPUT_SIGNAL"/>-->
 								<DataItem category="EVENT" id="L2p1CurrentTool" name="p1CurrentTool" type="TOOL_NUMBER"/>
 								<DataItem category="EVENT" id="L2p1ToolAssetId" name="p1ToolAssetId" type="TOOL_ASSET_ID"/>
 								<DataItem category="EVENT" id="L2p1ProgramHeader" name="p1ProgramHeader" type="PROGRAM_HEADER"/>
-								<DataItem category="EVENT" id="L2p1Variables" name="p1Variables" type="x:VARIABLES" representation="DATA_SET"/>
-								<DataItem category="EVENT" id="L2p1ToolTable" name="p1ToolTable" type="TOOL_TABLE" representation="TABLE"/>
-								<DataItem category="SAMPLE" id="L2p1Sensor" name="p1Sensor" type="x:TEMPERATURE" representation="TIME_SERIES"/>
+								<!--<DataItem category="EVENT" id="L2p1Variables" name="p1Variables" type="x:VARIABLES" representation="DATA_SET"/>-->
+								<!--<DataItem category="EVENT" id="L2p1ToolTable" name="p1ToolTable" type="TOOL_TABLE" representation="TABLE"/>-->
+								<!--<DataItem category="SAMPLE" id="L2p1Sensor" name="p1Sensor" type="x:TEMPERATURE" representation="TIME_SERIES"/>-->
 							</DataItems>
 						</Path>
 						<Path id="L2p2" name="path2">
@@ -137,11 +137,11 @@
 								<DataItem category="SAMPLE" id="L2p2RunningTime" name="p2RunningTime" subType="x:RUNNING_TIME" type="ACCUMULATED_TIME"/>
 								<DataItem category="SAMPLE" id="L2p2CuttingTime" name="p2CuttingTime" subType="x:CUTTING_TIME" type="ACCUMULATED_TIME"/>
 								<DataItem category="SAMPLE" id="L2p2SpindleRunTime" name="p2SpindleRunTime" subType="x:SPINDLE_RUN_TIME" type="ACCUMULATED_TIME"/>
-								<DataItem category="EVENT" id="L2p2CommonVariable" name="p2CommonVariable" subType="x:COMMON" type="e:VARIABLES"/>
-								<DataItem category="EVENT" id="L2p2CommonVariableSet" name="p2CommonVariableSet" representation="DATA_SET" type="VARIABLE"/>
-								<DataItem category="EVENT" id="L2p2CommonVariableTable" name="p2CommonVariableTable" representation="TABLE" type="VARIABLE"/>
-								<DataItem category="EVENT" id="L2p2MacManPanelHistory" name="p2MacManPanelHistory" subType="x:PANEL_HISTORY" type="e:MACMAN"/>
-								<DataItem category="EVENT" id="L2p2MachineOperationPanelOutputDryRun" name="p2MachineOperationPanelOutputDryRun" subType="x:DRY_RUN" type="e:OUTPUT_SIGNAL"/>
+								<!--<DataItem category="EVENT" id="L2p2CommonVariable" name="p2CommonVariable" subType="x:COMMON" type="e:VARIABLES"/>-->
+								<!--<DataItem category="EVENT" id="L2p2CommonVariableSet" name="p2CommonVariableSet" representation="DATA_SET" type="VARIABLE"/>-->
+								<!--<DataItem category="EVENT" id="L2p2CommonVariableTable" name="p2CommonVariableTable" representation="TABLE" type="VARIABLE"/>-->
+								<!--<DataItem category="EVENT" id="L2p2MacManPanelHistory" name="p2MacManPanelHistory" subType="x:PANEL_HISTORY" type="e:MACMAN"/>-->
+								<!--<DataItem category="EVENT" id="L2p2MachineOperationPanelOutputDryRun" name="p2MachineOperationPanelOutputDryRun" subType="x:DRY_RUN" type="e:OUTPUT_SIGNAL"/>
 								<DataItem category="EVENT" id="L2p2MachineOperationPanelOutputMachineLock" name="p2MachineOperationPanelOutputMachineLock" subType="x:MACHINE_LOCK" type="e:OUTPUT_SIGNAL"/>
 								<DataItem category="EVENT" id="L2PlcMonitorIO_1" name="PlcMonitorIO_1" subType="x:PLC_MONITOR_IO_1" type="e:INPUT_OUTPUT_SIGNAL"/>
 								<DataItem category="EVENT" id="L2PlcMonitorIO_2" name="PlcMonitorIO_2" subType="x:PLC_MONITOR_IO_2" type="e:INPUT_OUTPUT_SIGNAL"/>
@@ -152,7 +152,7 @@
 								<DataItem category="EVENT" id="L2PlcMonitorIO_7" name="PlcMonitorIO_7" subType="x:PLC_MONITOR_IO_7" type="e:INPUT_OUTPUT_SIGNAL"/>
 								<DataItem category="EVENT" id="L2PlcMonitorIO_8" name="PlcMonitorIO_8" subType="x:PLC_MONITOR_IO_8" type="e:INPUT_OUTPUT_SIGNAL"/>
 								<DataItem category="EVENT" id="L2PlcMonitorIO_9" name="PlcMonitorIO_9" subType="x:PLC_MONITOR_IO_9" type="e:INPUT_OUTPUT_SIGNAL"/>
-								<DataItem category="EVENT" id="L2PlcMonitorIO_10" name="PlcMonitorIO_10" subType="x:PLC_MONITOR_IO_10" type="e:INPUT_OUTPUT_SIGNAL"/>
+								<DataItem category="EVENT" id="L2PlcMonitorIO_10" name="PlcMonitorIO_10" subType="x:PLC_MONITOR_IO_10" type="e:INPUT_OUTPUT_SIGNAL"/>-->
 								<DataItem category="EVENT" id="L2p2CurrentTool" name="p2CurrentTool" type="TOOL_NUMBER"/>
 								<DataItem category="EVENT" id="L2p2ToolAssetId" name="p2ToolAssetId" type="TOOL_ASSET_ID"/>
 								<DataItem category="EVENT" id="L2p2ProgramHeader" name="p2ProgramHeader" type="PROGRAM_HEADER"/>

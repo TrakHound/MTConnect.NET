@@ -51,7 +51,7 @@ namespace MTConnect.Http
                     }
 
                     // Return MTConnectError Response Document
-                    var error500Document = await mtconnectAgent.GetErrorAsync(errors);
+                    var error500Document = await mtconnectAgent.GetErrorAsync(errors, mtconnectVersion);
                     var errorResponse = new MTConnectHttpResponse(error500Document, 500, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
                     errorResponse.FormatErrors = response.FormatErrors;
                     return errorResponse;
@@ -62,7 +62,7 @@ namespace MTConnect.Http
             else
             {
                 // Return MTConnectError Response Document
-                var error404Document = await mtconnectAgent.GetErrorAsync(ErrorCode.NO_DEVICE, $"The Request could not be interpreted. No Devices were Found");
+                var error404Document = await mtconnectAgent.GetErrorAsync(ErrorCode.NO_DEVICE, $"The Request could not be interpreted. No Devices were Found", mtconnectVersion);
                 return new MTConnectHttpResponse(error404Document, 404, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
         }
@@ -104,7 +104,7 @@ namespace MTConnect.Http
                         }
 
                         // Return MTConnectError Response Document
-                        var error500Document = await mtconnectAgent.GetErrorAsync(errors);
+                        var error500Document = await mtconnectAgent.GetErrorAsync(errors, mtconnectVersion);
                         var errorResponse = new MTConnectHttpResponse(error500Document, 500, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
                         errorResponse.FormatErrors = response.FormatErrors;
                         return errorResponse;
@@ -115,13 +115,13 @@ namespace MTConnect.Http
                 else
                 {
                     // Return MTConnectError Response Document
-                    var error404Document = await mtconnectAgent.GetErrorAsync(ErrorCode.NO_DEVICE, $"The Request could not be interpreted. The Device \"{deviceName}\" was Not Found");
+                    var error404Document = await mtconnectAgent.GetErrorAsync(ErrorCode.NO_DEVICE, $"The Request could not be interpreted. The Device \"{deviceName}\" was Not Found", mtconnectVersion);
                     return new MTConnectHttpResponse(error404Document, 404, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
                 }
             }
 
             // Return MTConnectError Response Document
-            var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.INVALID_REQUEST, $"An empty \"deviceName\" was received and the request could not be processed");
+            var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.INVALID_REQUEST, $"An empty \"deviceName\" was received and the request could not be processed", mtconnectVersion);
             return new MTConnectHttpResponse(errorDocument, 400, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
         }
 
@@ -156,28 +156,28 @@ namespace MTConnect.Http
             // Return MTConnectError Response Document : Invalid Request if "at" is less than zero
             if (at < 0)
             {
-                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestNegativeAt);
+                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestNegativeAt, mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 400, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
 
             // Return MTConnectError Response Document : Invalid Request if "at" and "interval" are specified
             if (at > 0 && interval > 0)
             {
-                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestAtIntervalConjunction);
+                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestAtIntervalConjunction, mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 400, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
 
             // Return MTConnectError Response Document : Out Of Range if "at" less than Agent FirstSequence
             if (at > 0 && at < mtconnectAgent.FirstSequence)
             {
-                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.OUT_OF_RANGE, ErrorText.OutOfRangeAt);
+                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.OUT_OF_RANGE, ErrorText.OutOfRangeAt, mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 404, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
 
             // Return MTConnectError Response Document : Out Of Range if "at" greater than Agent LastSequence
             if (at > 0 && at > mtconnectAgent.LastSequence)
             {
-                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.OUT_OF_RANGE, ErrorText.OutOfRangeAt);
+                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.OUT_OF_RANGE, ErrorText.OutOfRangeAt, mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 404, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
 
@@ -200,7 +200,7 @@ namespace MTConnect.Http
                     }
 
                     // Return MTConnectError Response Document
-                    var error500Document = await mtconnectAgent.GetErrorAsync(errors);
+                    var error500Document = await mtconnectAgent.GetErrorAsync(errors, mtconnectVersion);
                     var errorResponse = new MTConnectHttpResponse(error500Document, 500, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
                     errorResponse.FormatErrors = response.FormatErrors;
                     return errorResponse;
@@ -211,7 +211,7 @@ namespace MTConnect.Http
             else
             {
                 // Return MTConnectError Response Document
-                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.NO_DEVICE, $"The Request could not be interpreted. No Devices were Found");
+                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.NO_DEVICE, $"The Request could not be interpreted. No Devices were Found", mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 404, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
         }
@@ -248,28 +248,28 @@ namespace MTConnect.Http
             // Return MTConnectError Response Document : Invalid Request if "at" is less than zero
             if (at < 0)
             {
-                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestNegativeAt);
+                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestNegativeAt, mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 400, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
 
             // Return MTConnectError Response Document : Invalid Request if "at" and "interval" are specified
             if (at > 0 && interval > 0)
             {
-                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestAtIntervalConjunction);
+                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestAtIntervalConjunction, mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 400, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
 
             // Return MTConnectError Response Document : Out Of Range if "at" less than Agent FirstSequence
             if (at > 0 && at < mtconnectAgent.FirstSequence)
             {
-                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.OUT_OF_RANGE, ErrorText.OutOfRangeAt);
+                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.OUT_OF_RANGE, ErrorText.OutOfRangeAt, mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 404, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
 
             // Return MTConnectError Response Document : Out Of Range if "at" greater than Agent LastSequence
             if (at > 0 && at > mtconnectAgent.LastSequence)
             {
-                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.OUT_OF_RANGE, ErrorText.OutOfRangeAt);
+                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.OUT_OF_RANGE, ErrorText.OutOfRangeAt, mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 404, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
 
@@ -294,7 +294,7 @@ namespace MTConnect.Http
                         }
 
                         // Return MTConnectError Response Document
-                        var error500Document = await mtconnectAgent.GetErrorAsync(errors);
+                        var error500Document = await mtconnectAgent.GetErrorAsync(errors, mtconnectVersion);
                         var errorResponse = new MTConnectHttpResponse(error500Document, 500, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
                         errorResponse.FormatErrors = response.FormatErrors;
                         return errorResponse;
@@ -305,14 +305,14 @@ namespace MTConnect.Http
                 else
                 {
                     // Return MTConnectError Response Document
-                    var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.NO_DEVICE, $"The Request could not be interpreted. The Device \"{deviceName}\" was Not Found");
+                    var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.NO_DEVICE, $"The Request could not be interpreted. The Device \"{deviceName}\" was Not Found", mtconnectVersion);
                     return new MTConnectHttpResponse(errorDocument, 404, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
                 }
             }
             else
             {
                 // Return MTConnectError Response Document
-                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.INVALID_REQUEST, $"An empty \"deviceName\" was received and the request could not be processed");
+                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.INVALID_REQUEST, $"An empty \"deviceName\" was received and the request could not be processed", mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 400, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
         }
@@ -351,49 +351,49 @@ namespace MTConnect.Http
             // Return MTConnectError Response Document : Invalid Request if "from" is less than zero
             if (from < 0)
             {
-                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestNegativeFrom);
+                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestNegativeFrom, mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 400, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
 
             // Return MTConnectError Response Document : Invalid Request if "to" is less than zero
             if (to < 0)
             {
-                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestNegativeTo);
+                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestNegativeTo, mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 400, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
 
             // Return MTConnectError Response Document : Invalid Request if "to" is less than "from"
             if (to > 0 && to < from)
             {
-                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestToLessThanFrom);
+                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestToLessThanFrom, mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 400, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
 
             // Return MTConnectError Response Document : Invalid Request if "to" is given and "count" is less than zero
             if (to > 0 && count < 0)
             {
-                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestNegativeCount);
+                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestNegativeCount, mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 400, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
 
             // Return MTConnectError Response Document : Out Of Range if "from" less than Agent FirstSequence or greater than Agent LastSequence
             if (from > 0 && (from < mtconnectAgent.FirstSequence || from > mtconnectAgent.LastSequence))
             {
-                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.OUT_OF_RANGE, ErrorText.OutOfRangeFrom);
+                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.OUT_OF_RANGE, ErrorText.OutOfRangeFrom, mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 404, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
 
             // Return MTConnectError Response Document : Out Of Range if "to" less than Agent FirstSequence or greater than Agent LastSequence
             if (to > 0 && (to < mtconnectAgent.FirstSequence || to > mtconnectAgent.LastSequence))
             {
-                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.OUT_OF_RANGE, ErrorText.OutOfRangeTo);
+                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.OUT_OF_RANGE, ErrorText.OutOfRangeTo, mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 404, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
 
             // Return MTConnectError Response Document : Out Of Range if "count" is greater than the size of the buffer or equal to zero
             if (count == 0 && count > mtconnectAgent.BufferSize)
             {
-                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.OUT_OF_RANGE, ErrorText.OutOfRangeCount);
+                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.OUT_OF_RANGE, ErrorText.OutOfRangeCount, mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 404, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
 
@@ -416,7 +416,7 @@ namespace MTConnect.Http
                     }
 
                     // Return MTConnectError Response Document
-                    var error500Document = await mtconnectAgent.GetErrorAsync(errors);
+                    var error500Document = await mtconnectAgent.GetErrorAsync(errors, mtconnectVersion);
                     var errorResponse = new MTConnectHttpResponse(error500Document, 500, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
                     errorResponse.FormatErrors = response.FormatErrors;
                     return errorResponse;
@@ -427,7 +427,7 @@ namespace MTConnect.Http
             else
             {
                 // Return MTConnectError Response Document
-                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.NO_DEVICE, $"The Request could not be interpreted. No Devices were Not Found");
+                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.NO_DEVICE, $"The Request could not be interpreted. No Devices were Not Found", mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 404, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
         }
@@ -467,49 +467,49 @@ namespace MTConnect.Http
             // Return MTConnectError Response Document : Invalid Request if "from" is less than zero
             if (from < 0)
             {
-                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestNegativeFrom);
+                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestNegativeFrom, mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 400, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
 
             // Return MTConnectError Response Document : Invalid Request if "to" is less than zero
             if (to < 0)
             {
-                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestNegativeTo);
+                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestNegativeTo, mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 400, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
 
             // Return MTConnectError Response Document : Invalid Request if "to" is less than "from"
             if (to > 0 && to < from)
             {
-                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestToLessThanFrom);
+                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestToLessThanFrom, mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 400, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
 
             // Return MTConnectError Response Document : Invalid Request if "to" is given and "count" is less than zero
             if (to > 0 && count < 0)
             {
-                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestNegativeCount);
+                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestNegativeCount, mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 400, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
 
             // Return MTConnectError Response Document : Out Of Range if "from" less than Agent FirstSequence or greater than Agent LastSequence
             if (from > 0 && (from < mtconnectAgent.FirstSequence || from > mtconnectAgent.LastSequence))
             {
-                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.OUT_OF_RANGE, ErrorText.OutOfRangeFrom);
+                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.OUT_OF_RANGE, ErrorText.OutOfRangeFrom, mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 404, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
 
             // Return MTConnectError Response Document : Out Of Range if "to" less than Agent FirstSequence or greater than Agent LastSequence
             if (to > 0 && (to < mtconnectAgent.FirstSequence || to > mtconnectAgent.LastSequence))
             {
-                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.OUT_OF_RANGE, ErrorText.OutOfRangeTo);
+                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.OUT_OF_RANGE, ErrorText.OutOfRangeTo, mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 404, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
 
             // Return MTConnectError Response Document : Out Of Range if "count" is greater than the size of the buffer or equal to zero
             if (count == 0 && count > mtconnectAgent.BufferSize)
             {
-                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.OUT_OF_RANGE, ErrorText.OutOfRangeCount);
+                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.OUT_OF_RANGE, ErrorText.OutOfRangeCount, mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 404, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
 
@@ -534,7 +534,7 @@ namespace MTConnect.Http
                         }
 
                         // Return MTConnectError Response Document
-                        var error500Document = await mtconnectAgent.GetErrorAsync(errors);
+                        var error500Document = await mtconnectAgent.GetErrorAsync(errors, mtconnectVersion);
                         var errorResponse = new MTConnectHttpResponse(error500Document, 500, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
                         errorResponse.FormatErrors = response.FormatErrors;
                         return errorResponse;
@@ -545,14 +545,14 @@ namespace MTConnect.Http
                 else
                 {
                     // Return MTConnectError Response Document
-                    var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.NO_DEVICE, $"The Request could not be interpreted. The Device \"{deviceName}\" was Not Found");
+                    var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.NO_DEVICE, $"The Request could not be interpreted. The Device \"{deviceName}\" was Not Found", mtconnectVersion);
                     return new MTConnectHttpResponse(errorDocument, 404, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
                 }
             }
             else
             {
                 // Return MTConnectError Response Document
-                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.INVALID_REQUEST, $"An empty \"deviceName\" was received and the request could not be processed");
+                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.INVALID_REQUEST, $"An empty \"deviceName\" was received and the request could not be processed", mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 400, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
         }
@@ -601,7 +601,7 @@ namespace MTConnect.Http
                     }
 
                     // Return MTConnectError Response Document
-                    var error500Document = await mtconnectAgent.GetErrorAsync(errors);
+                    var error500Document = await mtconnectAgent.GetErrorAsync(errors, mtconnectVersion);
                     var errorResponse = new MTConnectHttpResponse(error500Document, 500, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
                     errorResponse.FormatErrors = response.FormatErrors;
                     return errorResponse;
@@ -612,7 +612,7 @@ namespace MTConnect.Http
             else
             {
                 // Return MTConnectError Response Document
-                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.ASSET_NOT_FOUND, $"The Request could not be interpreted.");
+                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.ASSET_NOT_FOUND, $"The Request could not be interpreted.", mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 404, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
         }
@@ -654,7 +654,7 @@ namespace MTConnect.Http
                         }
 
                         // Return MTConnectError Response Document
-                        var error500Document = await mtconnectAgent.GetErrorAsync(errors);
+                        var error500Document = await mtconnectAgent.GetErrorAsync(errors, mtconnectVersion);
                         var errorResponse = new MTConnectHttpResponse(error500Document, 500, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
                         errorResponse.FormatErrors = response.FormatErrors;
                         return errorResponse;
@@ -665,14 +665,14 @@ namespace MTConnect.Http
                 else
                 {
                     // Return MTConnectError Response Document
-                    var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.ASSET_NOT_FOUND, $"The Request could not be interpreted.");
+                    var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.ASSET_NOT_FOUND, $"The Request could not be interpreted.", mtconnectVersion);
                     return new MTConnectHttpResponse(errorDocument, 404, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
                 }
             }
             else
             {
                 // Return MTConnectError Response Document
-                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.INVALID_REQUEST, $"An empty \"assetId\" was received and the request could not be processed");
+                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.INVALID_REQUEST, $"An empty \"assetId\" was received and the request could not be processed", mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 400, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
         }

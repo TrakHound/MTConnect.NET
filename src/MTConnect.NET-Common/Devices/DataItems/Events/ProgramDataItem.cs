@@ -3,6 +3,8 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
+using System;
+
 namespace MTConnect.Devices.DataItems.Events
 {
     /// <summary>
@@ -72,6 +74,20 @@ namespace MTConnect.Devices.DataItems.Events
             Type = TypeId;
             SubType = subType.ToString();
             Name = NameId;
+        }
+
+
+        protected override IDataItem OnProcess(IDataItem dataItem, Version mtconnectVersion)
+        {
+            if (SubType == SubTypes.ACTIVE.ToString() && mtconnectVersion < MTConnectVersions.Version15) return null;
+            if (SubType == SubTypes.ACTIVITY.ToString() && mtconnectVersion < MTConnectVersions.Version20) return null;
+            if (SubType == SubTypes.MAIN.ToString() && mtconnectVersion < MTConnectVersions.Version15) return null;
+            if (SubType == SubTypes.OPERATION.ToString() && mtconnectVersion < MTConnectVersions.Version20) return null;
+            if (SubType == SubTypes.RECIPE.ToString() && mtconnectVersion < MTConnectVersions.Version20) return null;
+            if (SubType == SubTypes.SCHEDULE.ToString() && mtconnectVersion < MTConnectVersions.Version15) return null;
+            if (SubType == SubTypes.SEGMENT.ToString() && mtconnectVersion < MTConnectVersions.Version20) return null;
+
+            return dataItem;
         }
 
         public override string SubTypeDescription => GetSubTypeDescription(SubType);

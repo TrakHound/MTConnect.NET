@@ -4,18 +4,14 @@
 // file 'LICENSE.txt', which is part of this source code package.
 
 using MTConnect.Agents;
-using MTConnect.Agents.Configuration;
+using MTConnect.Assets;
+using MTConnect.Configurations;
 using MTConnect.Devices;
 using MTConnect.Devices.DataItems;
 using MTConnect.Observations;
 using MTConnect.Observations.Input;
-using System;
+using MTConnect.Shdr;
 using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace MTConnect.Adapters.Shdr
@@ -23,84 +19,14 @@ namespace MTConnect.Adapters.Shdr
     /// <summary>
     /// A client to connect to MTConnect Adapters using TCP and communicating using the SHDR Protocol
     /// </summary>
-    public class ShdrAdapterClient
+    public class ShdrAdapterClient : ShdrClient
     {
-        public const string PingMessage = "* PING\n";
-        public const int BufferSize = 1048576;
-        public const int DefaultPongHeartbeat = 60000;
-
-        private readonly AdapterConfiguration _configuration;
+        private readonly ShdrAdapterConfiguration _configuration;
         private readonly IMTConnectAgent _agent;
         private readonly IDevice _device;
-        private TcpClient _client;
-        private long _lastHeartbeat = 0;
-        private CancellationTokenSource _stop;
 
 
-        /// <summary>
-        /// The unique ID of the Client Connection
-        /// </summary>
-        public string Id { get; set; }
-
-        /// <summary>
-        /// The Address to listen for connections
-        /// </summary>
-        public string Server { get; set; }
-
-        /// <summary>
-        /// The TCP Port to listen for connections on
-        /// </summary>
-        public int Port { get; set; }
-        
-        /// <summary>
-        /// The Interval (in milliseconds) to attempt to reconnect when a connection is lost
-        /// </summary>
-        public int ReconnectInterval { get; set; }
-
-
-        /// <summary>
-        /// Raised when the connection to the Adapter is established
-        /// </summary>
-        public EventHandler<string> AdapterConnected { get; set; }
-
-        /// <summary>
-        /// Raised when the connection to the Adapter is disconnected
-        /// </summary>
-        public EventHandler<string> AdapterDisconnected { get; set; }
-
-        /// <summary>
-        /// Raised when an error occurs during the connection to the Adapter
-        /// </summary>
-        public EventHandler<Exception> AdapterConnectionError { get; set; }
-
-
-        /// <summary>
-        /// Raised when a Pong message response is received from the Adapter
-        /// </summary>
-        public EventHandler<string> PongReceived { get; set; }
-
-        /// <summary>
-        /// Raised when a Ping message request is sent to the Adapter
-        /// </summary>
-        public EventHandler<string> PingSent { get; set; }
-
-
-        /// <summary>
-        /// Raised when an SHDR Protocol line message is received from the Adapter
-        /// </summary>
-        public EventHandler<string> ProtocolReceived { get; set; }
-
-        /// <summary>
-        /// Raised when an SHDR Command message is received from the Adapter
-        /// </summary>
-        public EventHandler<string> CommandReceived { get; set; }
-
-
-        public ShdrAdapterClient(
-            AdapterConfiguration configuration,
-            IMTConnectAgent agent,
-            IDevice device
-            )
+        public ShdrAdapterClient(ShdrAdapterConfiguration configuration, IMTConnectAgent agent, IDevice device)
         {
             _configuration = configuration;
             Id = configuration != null ? configuration.Id : StringFunctions.RandomString(10);
@@ -109,24 +35,24 @@ namespace MTConnect.Adapters.Shdr
 
             if (_configuration != null)
             {
-                Server = _configuration.Host;
+                Hostname = _configuration.Hostname;
                 Port = _configuration.Port;
                 ReconnectInterval = _configuration.ReconnectInterval;
             }
         }
 
         public ShdrAdapterClient(
-            AdapterConfiguration configuration,
+            ShdrAdapterConfiguration configuration,
             IMTConnectAgent agent,
             IDevice device,
-            string server,
+            string hostname,
             int port
             )
         {
             _configuration = configuration;
             _agent = agent;
             _device = device;
-            Server = server;
+            Hostname = hostname;
             Port = port;
 
             if (_configuration != null)
@@ -136,327 +62,171 @@ namespace MTConnect.Adapters.Shdr
         }
 
 
-        public void Start()
+        protected override async Task OnDisconnect()
         {
-            _stop = new CancellationTokenSource();
-            _= Task.Run(() => ListenForAdapter(_stop.Token));
-        }
-
-        public void Stop()
-        {
-            if (_stop != null) _stop.Cancel();
-        }
-
-        private async Task ListenForAdapter(CancellationToken cancel)
-        {
-            var reconnectInterval = Math.Max(ReconnectInterval, 100);
-            var connected = false;
-
-            try
+            if (_device != null)
             {
-                while (!cancel.IsCancellationRequested)
-                {
-                    try
-                    {
-                        var heartbeat = DefaultPongHeartbeat;
-                        var buffer = new byte[BufferSize];
-                        int i = 0;
-                        string response = "";
-
-                        // Create new TCP Client
-                        var addressFamily = GetIpAddressType(Server);
-                        _client = new TcpClient(addressFamily);
-                        _client.Connect(Server, Port);
-
-                        AdapterConnected?.Invoke(this, $"Connected to Adapter at {Server} on Port {Port}");
-                        connected = true;
-
-                        // Get the TCP Client Stream
-                        using (var stream = _client.GetStream())
-                        {
-                            // Send Initial PING Request
-                            var messageBytes = Encoding.ASCII.GetBytes(PingMessage);
-                            await stream.WriteAsync(messageBytes, 0, messageBytes.Length, cancel);
-                            PingSent?.Invoke(this, $"Initial PING sent to : {Server} on Port {Port}");
-
-                            // Read the Initial PONG Response
-                            i = await stream.ReadAsync(buffer, 0, buffer.Length, cancel);
-
-                            while (!cancel.IsCancellationRequested)
-                            {
-                                var now = UnixDateTime.Now;
-
-                                if (i > 0)
-                                {
-                                    // Get string from buffer
-                                    var s = Encoding.ASCII.GetString(buffer, 0, i);
-
-                                    // Add buffer to XML
-                                    response += s;
-
-                                    if (response.Contains("\n"))
-                                    {
-                                        var lines = response.Split('\n');
-                                        if (!lines.IsNullOrEmpty())
-                                        {
-                                            var j = 0;
-
-                                            bool multilineAsset = false;
-                                            string multilineAssetId = null;
-                                            string multilineAssetType = null;
-                                            string multilineId = null;
-                                            var multilineContent = new StringBuilder();
-
-                                            do
-                                            {
-                                                var line = lines[j];
-
-                                                if (!string.IsNullOrEmpty(line))
-                                                {
-                                                    if (line.StartsWith("*"))
-                                                    {
-                                                        if (line.StartsWith("* PONG"))
-                                                        {
-                                                            heartbeat = GetPongHeartbeat(line);
-                                                            _lastHeartbeat = now;
-                                                            PongReceived?.Invoke(this, $"PONG Received from : {Server} on Port {Port} : Heartbeat = {heartbeat}ms");
-                                                        }
-                                                        else
-                                                        {
-                                                            await ProcessCommand(line);
-
-                                                            // Raise CommandReceived Event passing the Line that was read as a parameter
-                                                            CommandReceived?.Invoke(this, line);
-                                                        }
-                                                    }
-                                                    else if (ShdrAsset.IsAssetMultilineBegin(line))
-                                                    {
-                                                        multilineAssetId = ShdrAsset.ReadAssetId(line);
-                                                        multilineAssetType = ShdrAsset.ReadAssetType(line);
-                                                        multilineId = ShdrAsset.ReadAssetMultilineId(line);
-                                                        multilineContent.Clear();
-                                                        multilineAsset = true;
-                                                    }
-                                                    else if (ShdrAsset.IsAssetMultilineEnd(multilineId, line))
-                                                    {
-                                                        var assetType = Assets.Asset.GetAssetType(multilineAssetType);
-                                                        if (assetType != null)
-                                                        {
-                                                            var asset = Assets.XmlAsset.FromXml(assetType, multilineContent.ToString());
-                                                            if (asset != null)
-                                                            {
-                                                                await _agent.AddAssetAsync(_device.Uuid, asset);
-                                                            }
-                                                        }
-
-                                                        multilineContent.Clear();
-                                                        multilineAsset = false;
-                                                    }
-                                                    else if (multilineAsset)
-                                                    {
-                                                        multilineContent.Append(line);
-                                                    }
-                                                    else if (ShdrAsset.IsAssetLine(line))
-                                                    {
-                                                        var shdrAsset = ShdrAsset.FromString(line);
-                                                        if (shdrAsset != null)
-                                                        {
-                                                            var assetType = Assets.Asset.GetAssetType(shdrAsset.AssetType);
-                                                            if (assetType != null)
-                                                            {
-                                                                var asset = Assets.XmlAsset.FromXml(assetType, shdrAsset.Xml);
-                                                                if (asset != null)
-                                                                {
-                                                                    await _agent.AddAssetAsync(_device.Uuid, asset);
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                    else if (ShdrAsset.IsAssetRemove(line))
-                                                    {
-                                                        var removeAssetId = ShdrAsset.ReadRemoveAssetId(line);
-                                                        if (!string.IsNullOrEmpty(removeAssetId))
-                                                        {
-                                                            await _agent.RemoveAssetAsync(removeAssetId);
-                                                        }
-                                                    }
-                                                    else if (ShdrAsset.IsAssetRemoveAll(line))
-                                                    {
-                                                        var removeAssetType = ShdrAsset.ReadRemoveAllAssetType(line);
-                                                        if (!string.IsNullOrEmpty(removeAssetType))
-                                                        {
-                                                            await _agent.RemoveAllAssetsAsync(removeAssetType);
-                                                        }
-                                                    }
-                                                    else
-                                                    {
-                                                        await ProcessProtocol(line);
-
-                                                        // Raise ProtocolReceived Event passing the Line that was read as a parameter
-                                                        ProtocolReceived?.Invoke(this, line);
-                                                    }
-                                                }
-
-                                                j++;
-                                            }
-                                            while (j < lines.Length);
-                                        }
-                                    }
-
-                                    response = "";
-
-                                    // Clear Buffer
-                                    Array.Clear(buffer, 0, buffer.Length);
-                                }
-
-                                // Send PING Heartbeat if needed
-                                if ((now - _lastHeartbeat) > heartbeat)
-                                {
-                                    messageBytes = Encoding.ASCII.GetBytes(PingMessage);
-                                    await stream.WriteAsync(messageBytes, 0, messageBytes.Length, cancel);
-                                    PingSent?.Invoke(this, $"PING sent to : {Server} on Port {Port}");
-                                }
-
-                                // Read Next Chunk if new Data is Available
-                                if (stream.DataAvailable)
-                                {
-                                    i = await stream.ReadAsync(buffer, 0, buffer.Length, cancel);
-                                }
-
-                                await Task.Delay(1, cancel);
-                            }
-                        }
-                    }
-                    catch (TaskCanceledException ex) { }
-                    catch (Exception ex)
-                    {
-                        AdapterConnectionError?.Invoke(this, ex);
-                    }
-                    finally
-                    {
-                        if (_client != null)
-                        {
-                            _client.Close();
-
-                            if (connected)
-                            {
-                                AdapterDisconnected?.Invoke(this, $"Disconnected from {Server} on Port {Port}");
-
-                                // Set DataItems to Unavailable if disconnected from Adapter
-                                await SetDeviceUnavailable(UnixDateTime.Now);
-                            }
-                        }
-
-                        connected = false;
-                    }
-
-                    // Wait for the ReconnectInterval (in milliseconds) until continuing while loop
-                    await Task.Delay(reconnectInterval, cancel);
-                }
-            }
-            catch (TaskCanceledException ex) { }
-            catch (Exception ex)
-            {
-                AdapterConnectionError?.Invoke(this, ex);
+                // Set DataItems to Unavailable if disconnected from Adapter
+                await SetDeviceUnavailable(UnixDateTime.Now);
             }
         }
 
 
-        private int GetPongHeartbeat(string input)
+        protected override async Task<IDataItem> OnGetDataItem(string dataItemKey)
         {
-            var regex = new Regex(@"\* PONG ([0-9]*)");
-            var match = regex.Match(input);
-            if (match.Success && match.Groups.Count > 1)
+            if (_device != null && !string.IsNullOrEmpty(dataItemKey))
             {
-                return match.Groups[1].Value.ToInt();
-            }
-
-            return DefaultPongHeartbeat;
-        }
-
-
-        private async Task ProcessCommand(string line)
-        {
-            if (_agent != null && _device != null && !string.IsNullOrEmpty(line))
-            {
-
-            }
-        }
-
-        private async Task ProcessProtocol(string line)
-        {
-            if (_agent != null && _device != null && !string.IsNullOrEmpty(line))
-            {
-                if (ShdrAsset.IsAssetLine(line))
-                {
-                    var shdrAsset = ShdrAsset.FromString(line);
-                    if (shdrAsset != null)
-                    {
-                        var assetType = Assets.Asset.GetAssetType(shdrAsset.AssetType);
-                        if (assetType != null)
-                        {
-                            var asset = Assets.XmlAsset.FromXml(assetType, shdrAsset.Xml);
-                            if (asset != null)
-                            {
-                                await _agent.AddAssetAsync(_device.Uuid, asset);
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    // Get DataItem based on Key in line
-                    var dataItem = GetDataItem(line);
-                    if (dataItem != null)
-                    {
-                        if (dataItem.Category == DataItemCategory.CONDITION)
-                        {
-                            var condition = ShdrFaultState.FromString(line);
-                            if (condition != null) await _agent.AddObservationAsync(_device.Uuid, condition);
-                        }
-                        else if (dataItem.Type == Devices.DataItems.Events.MessageDataItem.TypeId)
-                        {
-                            var message = ShdrMessage.FromString(line);
-                            if (message != null) await _agent.AddObservationAsync(_device.Uuid, message);
-                        }
-                        else if (dataItem.Representation == DataItemRepresentation.TABLE)
-                        {
-                            var table = ShdrTable.FromString(line);
-                            if (table != null) await _agent.AddObservationAsync(_device.Uuid, table);
-                        }
-                        else if (dataItem.Representation == DataItemRepresentation.DATA_SET)
-                        {
-                            var dataSet = ShdrDataSet.FromString(line);
-                            if (dataSet != null) await _agent.AddObservationAsync(_device.Uuid, dataSet);
-                        }
-                        else if (dataItem.Representation == DataItemRepresentation.TIME_SERIES)
-                        {
-                            var timeSeries = ShdrTimeSeries.FromString(line);
-                            if (timeSeries != null) await _agent.AddObservationAsync(_device.Uuid, timeSeries);
-                        }
-                        else
-                        {
-                            var dataItems = ShdrDataItem.FromString(line);
-                            if (!dataItems.IsNullOrEmpty()) await _agent.AddObservationsAsync(_device.Uuid, dataItems);
-                        }
-                    }
-                }
-            }
-        }
-
-        private IDataItem GetDataItem(string line)
-        {
-            if (_device != null && !string.IsNullOrEmpty(line))
-            {
-                // Get the DataItemKey from the SHDR line
-                var key = GetKey(line);
-
                 // Return the DataItem matching the DataItemKey
-                return _device.GetDataItemByKey(key);
+                return _device.GetDataItemByKey(dataItemKey);
             }
 
             return null;
         }
+
+        protected override async Task OnDataItemReceived(ShdrDataItem dataItem)
+        {
+            if (_device != null && _configuration != null)
+            {
+                // Set Ignore Timestamp Override
+                bool? ignoreTimestamp = null;
+                if (_configuration.IgnoreTimestamps) ignoreTimestamp = true;
+
+                // Set Convert Units Override
+                bool? convertUnits = null;
+                if (_configuration.ConvertUnits) convertUnits = true;
+
+                // Set Ignore Case Override
+                bool? ignoreCase = null;
+                if (_configuration.IgnoreObservationCase) ignoreCase = true;
+
+
+                await _agent.AddObservationAsync(_device.Uuid, dataItem, ignoreTimestamp, convertUnits, ignoreCase);
+            }
+        }
+
+        protected override async Task OnConditionFaultStateReceived(ShdrFaultState faultState)
+        {
+            if (_device != null)
+            {
+                // Set Ignore Timestamp Override
+                bool? ignoreTimestamp = null;
+                if (_configuration.IgnoreTimestamps) ignoreTimestamp = true;
+
+                await _agent.AddObservationAsync(_device.Uuid, faultState, ignoreTimestamp);
+            }
+        }
+
+        protected override async Task OnMessageReceived(ShdrMessage message)
+        {
+            if (_device != null)
+            {
+                // Set Ignore Timestamp Override
+                bool? ignoreTimestamp = null;
+                if (_configuration.IgnoreTimestamps) ignoreTimestamp = true;
+
+                await _agent.AddObservationAsync(_device.Uuid, message, ignoreTimestamp);
+            }
+        }
+
+        protected override async Task OnTableReceived(ShdrTable table)
+        {
+            if (_device != null)
+            {
+                // Set Ignore Timestamp Override
+                bool? ignoreTimestamp = null;
+                if (_configuration.IgnoreTimestamps) ignoreTimestamp = true;
+
+                // Set Convert Units Override
+                bool? convertUnits = null;
+                if (_configuration.ConvertUnits) convertUnits = true;
+
+                // Set Ignore Case Override
+                bool? ignoreCase = null;
+                if (_configuration.IgnoreObservationCase) ignoreCase = true;
+
+                await _agent.AddObservationAsync(_device.Uuid, table, ignoreTimestamp, convertUnits, ignoreCase);
+            }
+        }
+
+        protected override async Task OnDataSetReceived(ShdrDataSet dataSet)
+        {
+            if (_device != null)
+            {
+                // Set Ignore Timestamp Override
+                bool? ignoreTimestamp = null;
+                if (_configuration.IgnoreTimestamps) ignoreTimestamp = true;
+
+                // Set Convert Units Override
+                bool? convertUnits = null;
+                if (_configuration.ConvertUnits) convertUnits = true;
+
+                // Set Ignore Case Override
+                bool? ignoreCase = null;
+                if (_configuration.IgnoreObservationCase) ignoreCase = true;
+
+                await _agent.AddObservationAsync(_device.Uuid, dataSet, ignoreTimestamp, convertUnits, ignoreCase);
+            }
+        }
+
+        protected override async Task OnTimeSeriesReceived(ShdrTimeSeries timeSeries)
+        {
+            if (_device != null)
+            {
+                // Set Ignore Timestamp Override
+                bool? ignoreTimestamp = null;
+                if (_configuration.IgnoreTimestamps) ignoreTimestamp = true;
+
+                // Set Convert Units Override
+                bool? convertUnits = null;
+                if (_configuration.ConvertUnits) convertUnits = true;
+
+                await _agent.AddObservationAsync(_device.Uuid, timeSeries, ignoreTimestamp, convertUnits);
+            }
+        }
+
+
+        protected override async Task OnAssetReceived(IAsset asset)
+        {
+            if (_device != null)
+            {
+                // Set Ignore Timestamp Override
+                bool? ignoreTimestamp = null;
+                if (_configuration.IgnoreTimestamps) ignoreTimestamp = true;
+
+                await _agent.AddAssetAsync(_device.Uuid, asset, ignoreTimestamp);
+            }
+        }
+
+        protected override async Task OnRemoveAssetReceived(string assetId, long timestamp)
+        {
+            if (_device != null)
+            {
+                // Set Ignore Timestamp Override
+                bool? ignoreTimestamp = null;
+                if (_configuration.IgnoreTimestamps) ignoreTimestamp = true;
+
+                var ts = timestamp;
+                if (ignoreTimestamp.HasValue && ignoreTimestamp.Value) ts = 0;
+
+                await _agent.RemoveAssetAsync(assetId, ts);
+            }
+        }
+
+        protected override async Task OnRemoveAllAssetsReceived(string assetType, long timestamp)
+        {
+            if (_device != null)
+            {
+                // Set Ignore Timestamp Override
+                bool? ignoreTimestamp = null;
+                if (_configuration.IgnoreTimestamps) ignoreTimestamp = true;
+
+                var ts = timestamp;
+                if (ignoreTimestamp.HasValue && ignoreTimestamp.Value) ts = 0;
+
+                await _agent.RemoveAllAssetsAsync(assetType, ts);
+            }
+        }
+
 
 
         private async Task SetDeviceUnavailable(long timestamp = 0)
@@ -469,6 +239,10 @@ namespace MTConnect.Adapters.Shdr
         {
             if (_agent != null && _device != null)
             {
+                // Set Ignore Timestamp Override
+                bool? ignoreTimestamp = null;
+                if (_configuration.IgnoreTimestamps) ignoreTimestamp = true;
+
                 var dataItems = _device.GetDataItems();
                 if (!dataItems.IsNullOrEmpty())
                 {
@@ -478,7 +252,7 @@ namespace MTConnect.Adapters.Shdr
                         foreach (var dataItem in dataItems)
                         {
                             var observation = new ObservationInput(dataItem.Id, Observation.Unavailable, timestamp);
-                            await _agent.AddObservationAsync(_device.Uuid, observation);
+                            await _agent.AddObservationAsync(_device.Uuid, observation, ignoreTimestamp);
                         }
                     }
                 }
@@ -489,6 +263,10 @@ namespace MTConnect.Adapters.Shdr
         {
             if (_agent != null && _device != null)
             {
+                // Set Ignore Timestamp Override
+                bool? ignoreTimestamp = null;
+                if (_configuration.IgnoreTimestamps) ignoreTimestamp = true;
+
                 var dataItems = _device.GetDataItems();
                 if (!dataItems.IsNullOrEmpty())
                 {
@@ -498,45 +276,11 @@ namespace MTConnect.Adapters.Shdr
                         foreach (var dataItem in dataItems)
                         {
                             var condition = new ConditionObservationInput(dataItem.Id, ConditionLevel.UNAVAILABLE, timestamp);
-                            await _agent.AddObservationAsync(_device.Uuid, condition);
+                            await _agent.AddObservationAsync(_device.Uuid, condition, ignoreTimestamp);
                         }
                     }
                 }
             }
-        }
-
-        private string GetKey(string line)
-        {
-            if (!string.IsNullOrEmpty(line))
-            {
-                var x = ShdrLine.GetNextValue(line);
-                var y = ShdrLine.GetNextSegment(line);
-
-                var timestamp = ShdrLine.GetTimestamp(x);
-                if (timestamp.HasValue)
-                {
-                    return ShdrLine.GetNextValue(y);
-                }
-                else
-                {
-                    return x;
-                }
-            }
-
-            return null;
-        }
-
-        private static AddressFamily GetIpAddressType(string input)
-        {
-            if (!string.IsNullOrEmpty(input))
-            {
-                if (IPAddress.TryParse(input, out var address))
-                {
-                    return address.AddressFamily;
-                }
-            }
-
-            return AddressFamily.InterNetwork;           
         }
     }
 }

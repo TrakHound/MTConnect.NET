@@ -3,6 +3,8 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
+using System;
+
 namespace MTConnect.Devices.DataItems.Events
 {
     /// <summary>
@@ -80,6 +82,18 @@ namespace MTConnect.Devices.DataItems.Events
             Units = Devices.Units.COUNT;
         }
 
+
+        protected override IDataItem OnProcess(IDataItem dataItem, Version mtconnectVersion)
+        {
+            if (SubType == SubTypes.ABORTED.ToString() && mtconnectVersion < MTConnectVersions.Version18) return null;
+            if (SubType == SubTypes.COMPLETE.ToString() && mtconnectVersion < MTConnectVersions.Version18) return null;
+            if (SubType == SubTypes.FAILED.ToString() && mtconnectVersion < MTConnectVersions.Version18) return null;
+            if (SubType == SubTypes.REMAINING.ToString() && mtconnectVersion < MTConnectVersions.Version13) return null;
+            if (SubType == SubTypes.TARGET.ToString() && mtconnectVersion < MTConnectVersions.Version13) return null;
+
+            return dataItem;
+        }
+
         public override string SubTypeDescription => GetSubTypeDescription(SubType);
 
         public static string GetSubTypeDescription(string subType)
@@ -87,7 +101,7 @@ namespace MTConnect.Devices.DataItems.Events
             var s = subType.ConvertEnum<SubTypes>();
             switch (s)
             {
-                case SubTypes.ALL: return "An accumulation representing all actions, items, or activities being counted independent of the outcome.ALL is the default subType.";
+                case SubTypes.ALL: return "An accumulation representing all actions, items, or activities being counted independent of the outcome. ALL is the default subType.";
                 case SubTypes.BAD: return "An accumulation representing actions, items, or activities being counted that do not conform to specification or expectation.";
                 case SubTypes.GOOD: return "An accumulation representing actions, items, or activities being counted that conform to specification or expectation.";
                 case SubTypes.TARGET: return "The goal of the operation or process.";

@@ -3,12 +3,11 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
-using MTConnect.Agents.Configuration;
 using MTConnect.Agents.Metrics;
 using MTConnect.Assets;
+using MTConnect.Configurations;
 using MTConnect.Devices;
 using MTConnect.Errors;
-//using MTConnect.Models;
 using MTConnect.Observations;
 using MTConnect.Observations.Input;
 using MTConnect.Streams;
@@ -27,14 +26,24 @@ namespace MTConnect.Agents
     public interface IMTConnectAgent
     {
         /// <summary>
+        /// Gets the Device that represents the Agent in the Information Model
+        /// </summary>
+        Agent Agent { get; }
+
+        /// <summary>
         /// Gets the Configuration associated with the Agent
         /// </summary>
-        MTConnectAgentConfiguration Configuration { get; }
+        AgentConfiguration Configuration { get; }
 
         /// <summary>
         /// Gets the Metrics associated with the Agent
         /// </summary>
         MTConnectAgentMetrics Metrics { get; }
+
+        /// <summary>
+        /// Gets the unique identifier for the Agent
+        /// </summary>
+        string Uuid { get; }
 
         /// <summary>
         /// Gets a representation of the specific instance of the Agent.
@@ -423,30 +432,66 @@ namespace MTConnect.Agents
         /// Remove the Asset with the specified Asset ID
         /// </summary>
         /// <param name="assetId">The ID of the Asset to remove</param>
+        /// <param name="timestamp">The Timestamp of when the Asset was removed in Unix Ticks (1/10,000 of a millisecond)</param>
         /// <returns>Returns True if the Asset was successfully removed</returns>
-        bool RemoveAsset(string assetId);
+        bool RemoveAsset(string assetId, long timestamp = 0);
 
         /// <summary>
         /// Remove the Asset with the specified Asset ID
         /// </summary>
         /// <param name="assetId">The ID of the Asset to remove</param>
+        /// <param name="timestamp">The Timestamp of when the Asset was removed in Unix Ticks (1/10,000 of a millisecond)</param>
         /// <returns>Returns True if the Asset was successfully removed</returns>
-        Task<bool> RemoveAssetAsync(string assetId);
+        Task<bool> RemoveAssetAsync(string assetId, long timestamp = 0);
+
+        /// <summary>
+        /// Remove the Asset with the specified Asset ID
+        /// </summary>
+        /// <param name="assetId">The ID of the Asset to remove</param>
+        /// <param name="timestamp">The Timestamp of when the Asset was removed</param>
+        /// <returns>Returns True if the Asset was successfully removed</returns>
+        bool RemoveAsset(string assetId, DateTime timestamp);
+
+        /// <summary>
+        /// Remove the Asset with the specified Asset ID
+        /// </summary>
+        /// <param name="assetId">The ID of the Asset to remove</param>
+        /// <param name="timestamp">The Timestamp of when the Asset was removed</param>
+        /// <returns>Returns True if the Asset was successfully removed</returns>
+        Task<bool> RemoveAssetAsync(string assetId, DateTime timestamp);
 
 
         /// <summary>
         /// Remove all Assets with the specified Type
         /// </summary>
-        /// <param name="assetType">The Type of the Asset(s) to remove</param>
-        /// <returns>Returns True if the Asset(s) was successfully removed</returns>
-        bool RemoveAllAssets(string assetType);
+        /// <param name="assetType">The Type of the Assets to remove</param>
+        /// <param name="timestamp">The Timestamp of when the Assets were removed in Unix Ticks (1/10,000 of a millisecond)</param>
+        /// <returns>Returns True if the Assets were successfully removed</returns>
+        bool RemoveAllAssets(string assetType, long timestamp = 0);
 
         /// <summary>
         /// Remove all Assets with the specified Type
         /// </summary>
-        /// <param name="assetType">The Type of the Asset(s) to remove</param>
-        /// <returns>Returns True if the Asset(s) was successfully removed</returns>
-        Task<bool> RemoveAllAssetsAsync(string assetType);
+        /// <param name="assetType">The Type of the Assets to remove</param>
+        /// <param name="timestamp">The Timestamp of when the Assets were removed in Unix Ticks (1/10,000 of a millisecond)</param>
+        /// <returns>Returns True if the Assets were successfully removed</returns>
+        Task<bool> RemoveAllAssetsAsync(string assetType, long timestamp = 0);
+
+        /// <summary>
+        /// Remove all Assets with the specified Type
+        /// </summary>
+        /// <param name="assetType">The Type of the Assets to remove</param>
+        /// <param name="timestamp">The Timestamp of when the Assets were removed</param>
+        /// <returns>Returns True if the Assets were successfully removed</returns>
+        bool RemoveAllAssets(string assetType, DateTime timestamp);
+
+        /// <summary>
+        /// Remove all Assets with the specified Type
+        /// </summary>
+        /// <param name="assetType">The Type of the Assets to remove</param>
+        /// <param name="timestamp">The Timestamp of when the Assets were removed</param>
+        /// <returns>Returns True if the Assets were successfully removed</returns>
+        Task<bool> RemoveAllAssetsAsync(string assetType, DateTime timestamp);
 
         #endregion
 
@@ -458,7 +503,7 @@ namespace MTConnect.Agents
         /// <param name="errorCode">Provides a descriptive code that indicates the type of error that was encountered by an Agent when attempting to respond to a Request for information.</param>
         /// <param name="cdata">The CDATA for Error contains a textual description of the error and any additional information an Agent is capable of providing regarding a specific error.</param>
         /// <returns>MTConnectError Response Document</returns>
-        IErrorResponseDocument GetError(ErrorCode errorCode, string cdata = null);
+        IErrorResponseDocument GetError(ErrorCode errorCode, string cdata = null, Version mtconnectVersion = null);
 
         /// <summary>
         /// Get an MTConnectErrors Document containing the specified ErrorCode
@@ -466,21 +511,21 @@ namespace MTConnect.Agents
         /// <param name="errorCode">Provides a descriptive code that indicates the type of error that was encountered by an Agent when attempting to respond to a Request for information.</param>
         /// <param name="cdata">The CDATA for Error contains a textual description of the error and any additional information an Agent is capable of providing regarding a specific error.</param>
         /// <returns>MTConnectError Response Document</returns>
-        Task<IErrorResponseDocument> GetErrorAsync(ErrorCode errorCode, string cdata = null);
+        Task<IErrorResponseDocument> GetErrorAsync(ErrorCode errorCode, string cdata = null, Version mtconnectVersion = null);
 
         /// <summary>
         /// Get an MTConnectErrors Document containing the specified Errors
         /// </summary>
         /// <param name="errors">A list of Errors to include in the response Document</param>
         /// <returns>MTConnectError Response Document</returns>
-        IErrorResponseDocument GetError(IEnumerable<IError> errors);
+        IErrorResponseDocument GetError(IEnumerable<IError> errors, Version mtconnectVersion = null);
 
         /// <summary>
         /// Get an MTConnectErrors Document containing the specified Errors
         /// </summary>
         /// <param name="errors">A list of Errors to include in the response Document</param>
         /// <returns>MTConnectError Response Document</returns>
-        Task<IErrorResponseDocument> GetErrorAsync(IEnumerable<IError> errors);
+        Task<IErrorResponseDocument> GetErrorAsync(IEnumerable<IError> errors, Version mtconnectVersion = null);
 
         #endregion
 
@@ -509,86 +554,218 @@ namespace MTConnect.Agents
 
 
         /// <summary>
-        /// Add a new Observation for a DataItem of category EVENT or SAMPLE to the Agent
+        /// Add a new Observation to the Agent for the specified Device and DataItem
         /// </summary>
-        bool AddObservation(string deviceKey, string dataItemId, object value);
+        /// <param name="deviceKey">The (Name or Uuid) of the Device</param>
+        /// <param name="dataItemKey">The (Name, ID, or Source) of the DataItem</param>
+        /// <param name="value">The Value of the Observation (equivalent to ValueKey = Value)</param>
+        /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
+        /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+        /// <returns>True if the Observation was added successfully</returns>
+        bool AddObservation(string deviceKey, string dataItemKey, object value, bool? convertUnits = null, bool? ignoreCase = null);
 
         /// <summary>
-        /// Add a new Observation for a DataItem of category EVENT or SAMPLE to the Agent
+        /// Add a new Observation to the Agent for the specified Device and DataItem
         /// </summary>
-        Task<bool> AddObservationAsync(string deviceKey, string dataItemId, object value);
-
-        /// <summary>
-        /// Add a new Observation for a DataItem of category EVENT or SAMPLE to the Agent
-        /// </summary>
-        bool AddObservation(string deviceKey, string dataItemId, string valueKey, object value);
-
-        /// <summary>
-        /// Add a new Observation for a DataItem of category EVENT or SAMPLE to the Agent
-        /// </summary>
-        Task<bool> AddObservationAsync(string deviceKey, string dataItemId, string valueKey, object value);
-
-        /// <summary>
-        /// Add a new Observation for a DataItem of category EVENT or SAMPLE to the Agent
-        /// </summary>
-        bool AddObservation(string deviceKey, IObservationInput observation);
-
-        /// <summary>
-        /// Add a new Observation for a DataItem of category EVENT or SAMPLE to the Agent
-        /// </summary>
-        Task<bool> AddObservationAsync(string deviceKey, IObservationInput observation);
-
-        /// <summary>
-        /// Add new Observations for DataItems of category EVENT or SAMPLE to the Agent
-        /// </summary>
-        bool AddObservations(string deviceKey, IEnumerable<IObservationInput> observations);
-
-        /// <summary>
-        /// Add new Observations for DataItems of category EVENT or SAMPLE to the Agent
-        /// </summary>
-        Task<bool> AddObservationsAsync(string deviceKey, IEnumerable<IObservationInput> observations);
+        /// <param name="deviceKey">The (Name or Uuid) of the Device</param>
+        /// <param name="dataItemKey">The (Name, ID, or Source) of the DataItem</param>
+        /// <param name="value">The Value of the Observation (equivalent to ValueKey = Value)</param>
+        /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
+        /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+        /// <returns>True if the Observation was added successfully</returns>
+        Task<bool> AddObservationAsync(string deviceKey, string dataItemKey, object value, bool? convertUnits = null, bool? ignoreCase = null);
 
 
         /// <summary>
-        /// Add a new Asset to the Agent
+        /// Add a new Observation to the Agent for the specified Device and DataItem
         /// </summary>
-        bool AddAsset(string deviceKey, IAsset asset);
+        /// <param name="deviceKey">The (Name or Uuid) of the Device</param>
+        /// <param name="dataItemKey">The (Name, ID, or Source) of the DataItem</param>
+        /// <param name="value">The Value of the Observation (equivalent to ValueKey = Value)</param>
+        /// <param name="timestamp">The Timestamp of the Observation in Unix Ticks (1/10,000 of a millisecond)</param>
+        /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
+        /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+        /// <returns>True if the Observation was added successfully</returns>
+        bool AddObservation(string deviceKey, string dataItemKey, object value, long timestamp, bool? convertUnits = null, bool? ignoreCase = null);
 
         /// <summary>
-        /// Add a new Asset to the Agent
+        /// Add a new Observation to the Agent for the specified Device and DataItem
         /// </summary>
-        Task<bool> AddAssetAsync(string deviceKey, IAsset asset);
+        /// <param name="deviceKey">The (Name or Uuid) of the Device</param>
+        /// <param name="dataItemKey">The (Name, ID, or Source) of the DataItem</param>
+        /// <param name="value">The Value of the Observation (equivalent to ValueKey = Value)</param>
+        /// <param name="timestamp">The Timestamp of the Observation in Unix Ticks (1/10,000 of a millisecond)</param>
+        /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
+        /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+        /// <returns>True if the Observation was added successfully</returns>
+        Task<bool> AddObservationAsync(string deviceKey, string dataItemKey, object value, long timestamp, bool? convertUnits = null, bool? ignoreCase = null);
+
+        /// <summary>
+        /// Add a new Observation to the Agent for the specified Device and DataItem
+        /// </summary>
+        /// <param name="deviceKey">The (Name or Uuid) of the Device</param>
+        /// <param name="dataItemKey">The (Name, ID, or Source) of the DataItem</param>
+        /// <param name="value">The Value of the Observation (equivalent to ValueKey = Value)</param>
+        /// <param name="timestamp">The Timestamp of the Observation</param>
+        /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
+        /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+        /// <returns>True if the Observation was added successfully</returns>
+        bool AddObservation(string deviceKey, string dataItemKey, object value, DateTime timestamp, bool? convertUnits = null, bool? ignoreCase = null);
+
+        /// <summary>
+        /// Add a new Observation to the Agent for the specified Device and DataItem
+        /// </summary>
+        /// <param name="deviceKey">The (Name or Uuid) of the Device</param>
+        /// <param name="dataItemKey">The (Name, ID, or Source) of the DataItem</param>
+        /// <param name="value">The Value of the Observation (equivalent to ValueKey = Value)</param>
+        /// <param name="timestamp">The Timestamp of the Observation</param>
+        /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
+        /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+        /// <returns>True if the Observation was added successfully</returns>
+        Task<bool> AddObservationAsync(string deviceKey, string dataItemKey, object value, DateTime timestamp, bool? convertUnits = null, bool? ignoreCase = null);
+
+        /// <summary>
+        /// Add a new Observation to the Agent for the specified Device and DataItem
+        /// </summary>
+        /// <param name="deviceKey">The (Name or Uuid) of the Device</param>
+        /// <param name="dataItemKey">The (Name, ID, or Source) of the DataItem</param>
+        /// <param name="valueKey">The ValueKey to use for the Value parameter</param>
+        /// <param name="value">The Value of the Observation</param>
+        /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
+        /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+        /// <returns>True if the Observation was added successfully</returns>
+        bool AddObservation(string deviceKey, string dataItemKey, string valueKey, object value, bool? convertUnits = null, bool? ignoreCase = null);
+
+        /// <summary>
+        /// Add a new Observation to the Agent for the specified Device and DataItem
+        /// </summary>
+        /// <param name="deviceKey">The (Name or Uuid) of the Device</param>
+        /// <param name="dataItemKey">The (Name, ID, or Source) of the DataItem</param>
+        /// <param name="valueKey">The ValueKey to use for the Value parameter</param>
+        /// <param name="value">The Value of the Observation</param>
+        /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
+        /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+        /// <returns>True if the Observation was added successfully</returns>
+        Task<bool> AddObservationAsync(string deviceKey, string dataItemKey, string valueKey, object value, bool? convertUnits = null, bool? ignoreCase = null);
+
+        /// <summary>
+        /// Add a new Observation to the Agent for the specified Device and DataItem
+        /// </summary>
+        /// <param name="deviceKey">The (Name or Uuid) of the Device</param>
+        /// <param name="dataItemKey">The (Name, ID, or Source) of the DataItem</param>
+        /// <param name="valueKey">The ValueKey to use for the Value parameter</param>
+        /// <param name="value">The Value of the Observation</param>
+        /// <param name="timestamp">The Timestamp of the Observation in Unix Ticks (1/10,000 of a millisecond)</param>
+        /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
+        /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+        /// <returns>True if the Observation was added successfully</returns>
+        bool AddObservation(string deviceKey, string dataItemKey, string valueKey, object value, long timestamp, bool? convertUnits = null, bool? ignoreCase = null);
+
+        /// <summary>
+        /// Add a new Observation to the Agent for the specified Device and DataItem
+        /// </summary>
+        /// <param name="deviceKey">The (Name or Uuid) of the Device</param>
+        /// <param name="dataItemKey">The (Name, ID, or Source) of the DataItem</param>
+        /// <param name="valueKey">The ValueKey to use for the Value parameter</param>
+        /// <param name="value">The Value of the Observation</param>
+        /// <param name="timestamp">The Timestamp of the Observation in Unix Ticks (1/10,000 of a millisecond)</param>
+        /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
+        /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+        /// <returns>True if the Observation was added successfully</returns>
+        Task<bool> AddObservationAsync(string deviceKey, string dataItemKey, string valueKey, object value, long timestamp, bool? convertUnits = null, bool? ignoreCase = null);
+
+        /// <summary>
+        /// Add a new Observation to the Agent for the specified Device and DataItem
+        /// </summary>
+        /// <param name="deviceKey">The (Name or Uuid) of the Device</param>
+        /// <param name="dataItemKey">The (Name, ID, or Source) of the DataItem</param>
+        /// <param name="valueKey">The ValueKey to use for the Value parameter</param>
+        /// <param name="value">The Value of the Observation</param>
+        /// <param name="timestamp">The Timestamp of the Observation</param>
+        /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
+        /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+        /// <returns>True if the Observation was added successfully</returns>
+        bool AddObservation(string deviceKey, string dataItemKey, string valueKey, object value, DateTime timestamp, bool? convertUnits = null, bool? ignoreCase = null);
+
+        /// <summary>
+        /// Add a new Observation to the Agent for the specified Device and DataItem
+        /// </summary>
+        /// <param name="deviceKey">The (Name or Uuid) of the Device</param>
+        /// <param name="dataItemKey">The (Name, ID, or Source) of the DataItem</param>
+        /// <param name="valueKey">The ValueKey to use for the Value parameter</param>
+        /// <param name="value">The Value of the Observation</param>
+        /// <param name="timestamp">The Timestamp of the Observation</param>
+        /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
+        /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+        /// <returns>True if the Observation was added successfully</returns>
+        Task<bool> AddObservationAsync(string deviceKey, string dataItemKey, string valueKey, object value, DateTime timestamp, bool? convertUnits = null, bool? ignoreCase = null);
+
+        /// <summary>
+        /// Add a new Observation to the Agent for the specified Device and DataItem
+        /// </summary>
+        /// <param name="deviceKey">The (Name or Uuid) of the Device</param>
+        /// <param name="observationInput">The Observation to add</param>
+        /// <param name="ignoreTimestamp">Used to override the default configuration for the Agent to IgnoreTimestamp</param>
+        /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
+        /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+        /// <returns>True if the Observation was added successfully</returns>
+        bool AddObservation(string deviceKey, IObservationInput observationInput, bool? ignoreTimestamp = null, bool? convertUnits = null, bool? ignoreCase = null);
+
+        /// <summary>
+        /// Add a new Observation to the Agent for the specified Device and DataItem
+        /// </summary>
+        /// <param name="deviceKey">The (Name or Uuid) of the Device</param>
+        /// <param name="observationInput">The Observation to add</param>
+        /// <param name="ignoreTimestamp">Used to override the default configuration for the Agent to IgnoreTimestamp</param>
+        /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
+        /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+        /// <returns>True if the Observation was added successfully</returns>
+        Task<bool> AddObservationAsync(string deviceKey, IObservationInput observationInput, bool? ignoreTimestamp = null, bool? convertUnits = null, bool? ignoreCase = null);
+
+        /// <summary>
+        /// Add new Observations to the Agent for the specified Device
+        /// </summary>
+        bool AddObservations(string deviceKey, IEnumerable<IObservationInput> observationInputs);
+
+        /// <summary>
+        /// Add new Observations to the Agent for the specified Device
+        /// </summary>
+        Task<bool> AddObservationsAsync(string deviceKey, IEnumerable<IObservationInput> observationInputs);
+
+
+        /// <summary>
+        /// Add a new Asset to the Agent for the specified Device and DataItem
+        /// </summary>
+        /// <param name="deviceKey">The (Name or Uuid) of the Device</param>
+        /// <param name="asset">The Asset to add</param>
+        /// <param name="ignoreTimestamp">Used to override the default configuration for the Agent to IgnoreTimestamp</param>
+        /// <returns>True if the Asset was added successfully</returns>
+        bool AddAsset(string deviceKey, IAsset asset, bool? ignoreTimestamp = null);
+
+        /// <summary>
+        /// Add a new Asset to the Agent for the specified Device and DataItem
+        /// </summary>
+        /// <param name="deviceKey">The (Name or Uuid) of the Device</param>
+        /// <param name="asset">The Asset to add</param>
+        /// <param name="ignoreTimestamp">Used to override the default configuration for the Agent to IgnoreTimestamp</param>
+        /// <returns>True if the Asset was added successfully</returns>
+        Task<bool> AddAssetAsync(string deviceKey, IAsset asset, bool? ignoreTimestamp = null);
 
         /// <summary>
         /// Add new Assets to the Agent
         /// </summary>
+        /// <param name="deviceKey">The (Name or Uuid) of the Device</param>
+        /// <param name="assets">The Assets to add</param>
+        /// <returns>True if the Assets was added successfully</returns>
         bool AddAssets(string deviceKey, IEnumerable<IAsset> assets);
 
         /// <summary>
         /// Add new Assets to the Agent
         /// </summary>
+        /// <param name="deviceKey">The (Name or Uuid) of the Device</param>
+        /// <param name="assets">The Assets to add</param>
+        /// <returns>True if the Assets was added successfully</returns>
         Task<bool> AddAssetsAsync(string deviceKey, IEnumerable<IAsset> assets);
-
-
-        ///// <summary>
-        ///// Add a new DeviceModel to the Agent's Buffer. This adds all of the data contained in the Device Model (Device and Observations).
-        ///// </summary>
-        //bool AddDeviceModel(DeviceModel deviceModel);
-
-        ///// <summary>
-        ///// Add a new DeviceModel to the Agent's Buffer. This adds all of the data contained in the Device Model (Device and Observations).
-        ///// </summary>
-        //Task<bool> AddDeviceModelAsync(DeviceModel deviceModel);
-
-        ///// <summary>
-        ///// Add new DeviceModels to the Agent's Buffer. This adds all of the data contained in the Device Models (Device and Observations).
-        ///// </summary>
-        //bool AddDeviceModels(IEnumerable<DeviceModel> deviceModels);
-
-        ///// <summary>
-        ///// Add new DeviceModels to the Agent's Buffer. This adds all of the data contained in the Device Models (Device and Observations).
-        ///// </summary>
-        //Task<bool> AddDeviceModelsAsync(IEnumerable<DeviceModel> deviceModels);
 
         #endregion
 
@@ -610,12 +787,6 @@ namespace MTConnect.Agents
         // Task<Interfaces.InterfaceRequestState> GetRequestState(string deviceName, string interfaceId);
 
         // Task<Interfaces.InterfaceResponseState> GetResponseState(string deviceName, string interfaceId);
-
-        #endregion
-
-        #region "Agent Device"
-
-        void AddAdapterComponent(AdapterConfiguration configuration, bool initializeDataItems = true);
 
         #endregion
     }

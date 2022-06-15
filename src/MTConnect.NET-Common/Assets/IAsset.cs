@@ -30,7 +30,7 @@ namespace MTConnect.Assets
         /// The time this MTConnect Asset was last modified.
         /// </summary>
         [JsonPropertyName("timestamp")]
-        DateTime Timestamp { get; set; }
+        long Timestamp { get; set; }
 
         /// <summary>
         /// The piece of equipments UUID that supplied this data.

@@ -4,12 +4,9 @@
 // file 'LICENSE', which is part of this source code package.
 
 using MTConnect.Assets;
-using MTConnect.Assets.Xml;
 using MTConnect.Devices;
-using MTConnect.Devices.Xml;
 using MTConnect.Errors;
 using MTConnect.Streams;
-using MTConnect.Streams.Xml;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,7 +23,7 @@ namespace MTConnect.Formatters
         public FormattedDocumentResult Format(IDevicesResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read XSD Schema
-            var schema = GetFormatterOption<string>(options, "schema");
+            var schemas = GetFormatterOptions<string>(options, "schema");
 
             // Read Devices Stylesheet
             var stylesheet = GetFormatterOption<string>(options, "devicesStyle.location");
@@ -46,7 +43,7 @@ namespace MTConnect.Formatters
                 if (validationLevel > 0)
                 {
                     // Validate XML against XSD Schema
-                    var validationResponse = XmlValidator.Validate(xml, schema);
+                    var validationResponse = XmlValidator.Validate(xml, schemas);
                     if (validationResponse.Success)
                     {
                         return FormattedDocumentResult.Successful(xml, ContentType, "XML Validation Successful");
@@ -70,7 +67,7 @@ namespace MTConnect.Formatters
         public FormattedDocumentResult Format(IStreamsResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read XSD Schema
-            var schema = GetFormatterOption<string>(options, "schema");
+            var schemas = GetFormatterOptions<string>(options, "schema");
 
             // Read Devices Stylesheet
             var stylesheet = GetFormatterOption<string>(options, "streamsStyle.location");
@@ -90,7 +87,7 @@ namespace MTConnect.Formatters
                 if (validationLevel > 0)
                 {
                     // Validate XML against XSD Schema
-                    var validationResponse = XmlValidator.Validate(xml, schema);
+                    var validationResponse = XmlValidator.Validate(xml, schemas);
                     if (validationResponse.Success)
                     {
                         return FormattedDocumentResult.Successful(xml, ContentType, "XML Validation Successful");
@@ -114,7 +111,7 @@ namespace MTConnect.Formatters
         public FormattedDocumentResult Format(IAssetsResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read XSD Schema
-            var schema = GetFormatterOption<string>(options, "schema");
+            var schemas = GetFormatterOptions<string>(options, "schema");
 
             // Read Devices Stylesheet
             var stylesheet = GetFormatterOption<string>(options, "assetsStyle.location");
@@ -134,7 +131,7 @@ namespace MTConnect.Formatters
                 if (validationLevel > 0)
                 {
                     // Validate XML against XSD Schema
-                    var validationResponse = XmlValidator.Validate(xml, schema);
+                    var validationResponse = XmlValidator.Validate(xml, schemas);
                     if (validationResponse.Success)
                     {
                         return FormattedDocumentResult.Successful(xml, ContentType, "XML Validation Successful");
@@ -158,7 +155,7 @@ namespace MTConnect.Formatters
         public FormattedDocumentResult Format(IErrorResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read XSD Schema
-            var schema = GetFormatterOption<string>(options, "schema");
+            var schemas = GetFormatterOptions<string>(options, "schema");
 
             // Read Devices Stylesheet
             var stylesheet = GetFormatterOption<string>(options, "errorStyle.location");
@@ -178,7 +175,7 @@ namespace MTConnect.Formatters
                 if (validationLevel > 0)
                 {
                     // Validate XML against XSD Schema
-                    var validationResponse = XmlValidator.Validate(xml, schema);
+                    var validationResponse = XmlValidator.Validate(xml, schemas);
                     if (validationResponse.Success)
                     {
                         return FormattedDocumentResult.Successful(xml, ContentType, "XML Validation Successful");
@@ -235,6 +232,33 @@ namespace MTConnect.Formatters
             }
 
             return default;
+        }
+
+        private static IEnumerable<T> GetFormatterOptions<T>(IEnumerable<KeyValuePair<string, string>> options, string key)
+        {
+            var l = new List<T>();
+
+            if (!options.IsNullOrEmpty())
+            {
+                var x = options.Where(o => o.Key == key);
+                if (!x.IsNullOrEmpty())
+                {
+                    foreach (var y in x)
+                    {
+                        if (!string.IsNullOrEmpty(y.Value))
+                        {
+                            try
+                            {
+                                var obj = (T)Convert.ChangeType(y.Value, typeof(T));
+                                l.Add(obj);
+                            }
+                            catch { }
+                        }
+                    }
+                }
+            }
+
+            return l;
         }
     }
 }

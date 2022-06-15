@@ -5,10 +5,11 @@
 
 using MTConnect.Adapters.Shdr;
 using MTConnect.Agents;
-using MTConnect.Agents.Configuration;
 using MTConnect.Assets;
+using MTConnect.Configurations;
 using MTConnect.Devices;
 using MTConnect.Devices.DataItems;
+using MTConnect.Devices.DataItems.Events;
 using MTConnect.Http;
 using MTConnect.Observations;
 using MTConnect.Streams;
@@ -39,9 +40,9 @@ namespace MTConnect.Applications
         private static readonly List<DeviceConfigurationFileWatcher> _deviceConfigurationWatchers = new List<DeviceConfigurationFileWatcher>();
 
         private static LogLevel _logLevel = LogLevel.Info;
-        private static MTConnectAgent _agent;
-        private static MTConnectHttpServer _server;
-        private static AgentConfigurationFileWatcher<MTConnectAgentConfiguration> _agentConfigurationWatcher;
+        private static MTConnectAgent _mtconnectAgent;
+        private static MTConnectHttpServer _httpServer;
+        private static AgentConfigurationFileWatcher<ShdrAgentConfiguration> _agentConfigurationWatcher;
         private static System.Timers.Timer _metricsTimer;
         private static bool _started = false;
         private static int _port = 0;
@@ -89,8 +90,8 @@ namespace MTConnect.Applications
             }
             _port = port;
 
-            // Read the Agent Configuation File
-            var configuration = MTConnectAgentConfiguration.Read(configFile);
+            // Read the Http Agent Configuation File
+            var configuration = AgentConfiguration.Read<ShdrAgentConfiguration>(configFile);
             if (configuration != null)
             {
                 // Set Service Name
@@ -156,33 +157,40 @@ namespace MTConnect.Applications
         internal static void StartAgent(string configurationPath, bool verboseLogging = false, int port = 0)
         {
             // Read the Configuration File
-            var configuration = MTConnectAgentConfiguration.Read(configurationPath);
+            var configuration = AgentConfiguration.Read<ShdrAgentConfiguration>(configurationPath);
 
             // Start the Agent
             StartAgent(configuration, verboseLogging, port);
         }
 
-        internal static void StartAgent(MTConnectAgentConfiguration configuration, bool verboseLogging = false, int port = 0)
+        internal static void StartAgent(ShdrAgentConfiguration configuration, bool verboseLogging = false, int port = 0)
         {
             if (!_started && configuration != null)
             {
                 _adapters.Clear();
                 _deviceConfigurationWatchers.Clear();
 
+                // Read Agent Information File
+                var agentInformation = MTConnectAgentInformation.Read();
+                if (agentInformation == null)
+                {
+                    agentInformation = new MTConnectAgentInformation();
+                    agentInformation.Save();
+                }
+
                 // Create MTConnectAgent
-                _agent = new MTConnectAgent(configuration);
+                _mtconnectAgent = new MTConnectAgent(configuration, agentInformation.Uuid);
 
                 if (verboseLogging)
                 {
-                    _agent.DevicesRequestReceived += DevicesRequested;
-                    _agent.DevicesResponseSent += DevicesSent;
-                    _agent.StreamsRequestReceived += StreamsRequested;
-                    _agent.StreamsResponseSent += StreamsSent;
-                    _agent.AssetsRequestReceived += AssetsRequested;
-                    _agent.AssetsResponseSent += AssetsSent;
-                    _agent.ObservationAdded += ObservationAdded;
-
-                    _agent.InvalidDataItemAdded += InvalidDataItem;
+                    _mtconnectAgent.DevicesRequestReceived += DevicesRequested;
+                    _mtconnectAgent.DevicesResponseSent += DevicesSent;
+                    _mtconnectAgent.StreamsRequestReceived += StreamsRequested;
+                    _mtconnectAgent.StreamsResponseSent += StreamsSent;
+                    _mtconnectAgent.AssetsRequestReceived += AssetsRequested;
+                    _mtconnectAgent.AssetsResponseSent += AssetsSent;
+                    _mtconnectAgent.ObservationAdded += ObservationAdded;
+                    _mtconnectAgent.InvalidDataItemAdded += InvalidDataItem;
                 }
 
                 // Add Devices
@@ -194,7 +202,7 @@ namespace MTConnect.Applications
                     {
                         _agentLogger.Log(_logLevel, $"Device Read From File : {device.Name}");
 
-                        _agent.AddDevice(device);
+                        _mtconnectAgent.AddDevice(device);
                     }
 
                     // Add Adapter Clients
@@ -203,14 +211,33 @@ namespace MTConnect.Applications
                         foreach (var adapterConfiguration in configuration.Adapters)
                         {
                             // Get the Device matching the "Device" configured in the AdapterConfiguration
-                            var device = devices.FirstOrDefault(o => o.Name == adapterConfiguration.Device);
+                            var device = devices.FirstOrDefault(o => o.Uuid == adapterConfiguration.DeviceKey || o.Name == adapterConfiguration.DeviceKey);
                             if (device != null)
                             {
+                                var adapterComponent = new ShdrAdapterComponent(adapterConfiguration);
+
                                 // Add Adapter Component to Agent Device
-                                _agent.AddAdapterComponent(adapterConfiguration);
+                                _mtconnectAgent.Agent.AddAdapterComponent(adapterComponent);
+
+                                if (!adapterComponent.DataItems.IsNullOrEmpty())
+                                {
+                                    // Initialize Connection Status Observation
+                                    var connectionStatusDataItem = adapterComponent.DataItems.FirstOrDefault(o => o.Type == ConnectionStatusDataItem.TypeId);
+                                    if (connectionStatusDataItem != null)
+                                    {
+                                        _mtconnectAgent.AddObservation(_mtconnectAgent.Uuid, connectionStatusDataItem.Id, Observations.Events.Values.ConnectionStatus.LISTEN);
+                                    }
+
+                                    // Initialize Adapter URI Observation
+                                    var adapterUriDataItem = adapterComponent.DataItems.FirstOrDefault(o => o.Type == AdapterUriDataItem.TypeId);
+                                    if (adapterUriDataItem != null)
+                                    {
+                                        _mtconnectAgent.AddObservation(_mtconnectAgent.Uuid, adapterUriDataItem.Id, adapterComponent.Uri);
+                                    }
+                                }
 
                                 // Create new SHDR Adapter Client to read from SHDR stream
-                                var adapterClient = new ShdrAdapterClient(adapterConfiguration, _agent, device);
+                                var adapterClient = new ShdrAdapterClient(adapterConfiguration, _mtconnectAgent, device);
                                 _adapters.Add(adapterClient);
 
                                 if (verboseLogging)
@@ -252,29 +279,29 @@ namespace MTConnect.Applications
                 StartMetrics();
 
                 // Intialize the Http Server
-                _server = new ShdrMTConnectHttpServer(_agent, null, port);
+                _httpServer = new ShdrMTConnectHttpServer(configuration, _mtconnectAgent, null, port);
 
                 // Setup Http Server Logging
                 if (verboseLogging)
                 {
-                    _server.ListenerStarted += HttpListenerStarted;
-                    _server.ListenerStopped += HttpListenerStopped;
-                    _server.ListenerException += HttpListenerException;
-                    _server.ClientConnected += HttpClientConnected;
-                    _server.ClientDisconnected += HttpClientDisconnected;
-                    _server.ClientException += HttpClientException;
-                    _server.ResponseSent += HttpResponseSent;
+                    _httpServer.ListenerStarted += HttpListenerStarted;
+                    _httpServer.ListenerStopped += HttpListenerStopped;
+                    _httpServer.ListenerException += HttpListenerException;
+                    _httpServer.ClientConnected += HttpClientConnected;
+                    _httpServer.ClientDisconnected += HttpClientDisconnected;
+                    _httpServer.ClientException += HttpClientException;
+                    _httpServer.ResponseSent += HttpResponseSent;
                 }
 
                 // Start the Http Server
-                _server.Start();
+                _httpServer.Start();
 
 
                 if (configuration.MonitorConfigurationFiles)
                 {
                     // Set the Agent Configuration File Watcher
                     if (_agentConfigurationWatcher != null) _agentConfigurationWatcher.Dispose();
-                    _agentConfigurationWatcher = new AgentConfigurationFileWatcher<MTConnectAgentConfiguration>(configuration.Path, configuration.ConfigurationFileRestartInterval * 1000);
+                    _agentConfigurationWatcher = new AgentConfigurationFileWatcher<ShdrAgentConfiguration>(configuration.Path, configuration.ConfigurationFileRestartInterval * 1000);
                     _agentConfigurationWatcher.ConfigurationUpdated += AgentConfigurationFileUpdated;
                     _agentConfigurationWatcher.ErrorReceived += AgentConfigurationFileError;
                 }
@@ -299,8 +326,8 @@ namespace MTConnect.Applications
                     foreach (var deviceConfigurationFileWatcher in _deviceConfigurationWatchers) deviceConfigurationFileWatcher.Dispose();
                 }
 
-                if (_server != null) _server.Stop();
-                if (_agent != null) _agent.Dispose();
+                if (_httpServer != null) _httpServer.Stop();
+                if (_mtconnectAgent != null) _mtconnectAgent.Dispose();
                 if (_agentConfigurationWatcher != null) _agentConfigurationWatcher.Dispose();
                 if (_metricsTimer != null) _metricsTimer.Dispose();
 
@@ -313,7 +340,7 @@ namespace MTConnect.Applications
 
         #region "Agent Configuration"
 
-        private static void AgentConfigurationFileUpdated(object sender, MTConnectAgentConfiguration configuration)
+        private static void AgentConfigurationFileUpdated(object sender, ShdrAgentConfiguration configuration)
         {
             if (configuration != null)
             {
@@ -340,7 +367,7 @@ namespace MTConnect.Applications
                 _applicationLogger.Info($"[Application] : Device Configuration File Updated ({configuration.Path})");
 
                 // Add Device to MTConnect Agent
-                _agent.AddDevice(configuration);
+                _mtconnectAgent.AddDevice(configuration);
             }
         }
 
@@ -359,24 +386,24 @@ namespace MTConnect.Applications
             int observationDelta = 0;
             int assetLastCount = 0;
             int assetDelta = 0;
-            var updateInterval = _agent.Metrics.UpdateInterval.TotalSeconds;
-            var windowInterval = _agent.Metrics.WindowInterval.TotalMinutes;
+            var updateInterval = _mtconnectAgent.Metrics.UpdateInterval.TotalSeconds;
+            var windowInterval = _mtconnectAgent.Metrics.WindowInterval.TotalMinutes;
 
             _metricsTimer = new System.Timers.Timer();
             _metricsTimer.Interval = updateInterval * 1000;
             _metricsTimer.Elapsed += (s, e) =>
             {
                 // Observations
-                var observationCount = _agent.Metrics.GetObservationCount();
-                var observationAverage = _agent.Metrics.ObservationAverage;
+                var observationCount = _mtconnectAgent.Metrics.GetObservationCount();
+                var observationAverage = _mtconnectAgent.Metrics.ObservationAverage;
                 observationDelta = observationCount - observationLastCount;
 
                 _agentLogger.Debug("[Agent] : Observations - Delta for last " + updateInterval + " seconds: " + observationDelta);
                 _agentLogger.Debug("[Agent] : Observations - Average for last " + windowInterval + " minutes: " + Math.Round(observationAverage, 5));
 
                 // Assets
-                var assetCount = _agent.Metrics.GetAssetCount();
-                var assetAverage = _agent.Metrics.AssetAverage;
+                var assetCount = _mtconnectAgent.Metrics.GetAssetCount();
+                var assetAverage = _mtconnectAgent.Metrics.AssetAverage;
                 assetDelta = assetCount - assetLastCount;
 
                 _agentLogger.Debug("[Agent] : Assets - Delta for last " + updateInterval + " seconds: " + assetDelta);
@@ -500,14 +527,14 @@ namespace MTConnect.Applications
         private static void AdapterConnected(object sender, string message)
         {
             var adapterClient = (ShdrAdapterClient)sender;
-            _agent.UpdateAdapterConnectionStatus(adapterClient.Id, Observations.Events.Values.ConnectionStatus.ESTABLISHED);
+            //_mtconnectAgent.UpdateAdapterConnectionStatus(adapterClient.Id, Observations.Events.Values.ConnectionStatus.ESTABLISHED);
             _adapterLogger.Log(_logLevel, $"[Adapter] : ID = " + adapterClient.Id + " : " + message);
         }
 
         private static void AdapterDisconnected(object sender, string message)
         {
             var adapterClient = (ShdrAdapterClient)sender;
-            _agent.UpdateAdapterConnectionStatus(adapterClient.Id, Observations.Events.Values.ConnectionStatus.CLOSED);
+            //_mtconnectAgent.UpdateAdapterConnectionStatus(adapterClient.Id, Observations.Events.Values.ConnectionStatus.CLOSED);
             _adapterLogger.Log(_logLevel, $"[Adapter] : ID = " + adapterClient.Id + " : " + message);
         }
 

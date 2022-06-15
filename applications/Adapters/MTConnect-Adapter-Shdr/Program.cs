@@ -27,7 +27,7 @@ namespace MTConnect.Applications.Adapters.Shdr
 
 
                 _adapterExample1.UpdateValue();
-                //Console.ReadLine();
+                Console.ReadLine();
 
                 //_adapterExample1.AddCuttingTools();
                 //Console.ReadLine();

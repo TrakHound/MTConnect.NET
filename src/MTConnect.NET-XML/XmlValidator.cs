@@ -13,14 +13,14 @@ namespace MTConnect
 {
     public static class XmlValidator
     {
-        public static XmlValidationResponse Validate(string documentXml, string schemaXml = null)
+        public static XmlValidationResponse Validate(string documentXml, IEnumerable<string> schemaXmls = null)
         {
             var success = false;
             var errors = new List<string>();
 
             if (!string.IsNullOrEmpty(documentXml))
             {
-                if (string.IsNullOrEmpty(schemaXml))
+                if (schemaXmls.IsNullOrEmpty())
                 {
                     // If no Schema specified then return as Success
                     success = true;
@@ -31,23 +31,26 @@ namespace MTConnect
                     {
                         // Get list of XmlSchemas
                         var schemas = new List<XmlSchema>();
-                        if (!string.IsNullOrEmpty(schemaXml))
+                        if (!schemaXmls.IsNullOrEmpty())
                         {
-                            try
+                            foreach (var schemaXml in schemaXmls)
                             {
-                                using (var reader = new StringReader(schemaXml))
+                                try
                                 {
-                                    var schema = XmlSchema.Read(reader, null);
-                                    if (schema != null) schemas.Add(schema);
+                                    using (var reader = new StringReader(schemaXml))
+                                    {
+                                        var schema = XmlSchema.Read(reader, null);
+                                        if (schema != null) schemas.Add(schema);
+                                    }
                                 }
-                            }
-                            catch (XmlSchemaException ex)
-                            {
-                                errors.Add($"(XML Validation Error) : Error Reading XSD Schema : {ex.SourceUri} Line {ex.LineNumber}, {ex.LinePosition} : {ex.Message}");
-                            }
-                            catch (Exception ex)
-                            {
-                                errors.Add($"(XML Validation Error) : Error Reading XSD Schema : {ex.Message}");
+                                catch (XmlSchemaException ex)
+                                {
+                                    errors.Add($"(XML Validation Error) : Error Reading XSD Schema : {ex.SourceUri} Line {ex.LineNumber}, {ex.LinePosition} : {ex.Message}");
+                                }
+                                catch (Exception ex)
+                                {
+                                    errors.Add($"(XML Validation Error) : Error Reading XSD Schema : {ex.Message}");
+                                }
                             }
                         }
 
@@ -84,5 +87,77 @@ namespace MTConnect
 
             return new XmlValidationResponse(success, errors);
         }
+
+        //public static XmlValidationResponse Validate(string documentXml, string schemaXml = null)
+        //{
+        //    var success = false;
+        //    var errors = new List<string>();
+
+        //    if (!string.IsNullOrEmpty(documentXml))
+        //    {
+        //        if (string.IsNullOrEmpty(schemaXml))
+        //        {
+        //            // If no Schema specified then return as Success
+        //            success = true;
+        //        }
+        //        else
+        //        {
+        //            try
+        //            {
+        //                // Get list of XmlSchemas
+        //                var schemas = new List<XmlSchema>();
+        //                if (!string.IsNullOrEmpty(schemaXml))
+        //                {
+        //                    try
+        //                    {
+        //                        using (var reader = new StringReader(schemaXml))
+        //                        {
+        //                            var schema = XmlSchema.Read(reader, null);
+        //                            if (schema != null) schemas.Add(schema);
+        //                        }
+        //                    }
+        //                    catch (XmlSchemaException ex)
+        //                    {
+        //                        errors.Add($"(XML Validation Error) : Error Reading XSD Schema : {ex.SourceUri} Line {ex.LineNumber}, {ex.LinePosition} : {ex.Message}");
+        //                    }
+        //                    catch (Exception ex)
+        //                    {
+        //                        errors.Add($"(XML Validation Error) : Error Reading XSD Schema : {ex.Message}");
+        //                    }
+        //                }
+
+        //                // Set XML Reader Settings
+        //                var readerSettings = new XmlReaderSettings();
+        //                foreach (var schema in schemas) readerSettings.Schemas.Add(schema);
+        //                readerSettings.ValidationType = ValidationType.Schema;
+
+        //                readerSettings.ValidationEventHandler += (s, e) =>
+        //                {
+        //                    errors.Add($"(XML Validation {e.Severity}) : {e.Exception.Source} Line {e.Exception.LineNumber}, {e.Exception.LinePosition} : {e.Message}");
+        //                };
+
+        //                // Set XML Reader Settings
+        //                using (var stringReader = new StringReader(documentXml))
+        //                using (var xmlReader = XmlReader.Create(stringReader, readerSettings))
+        //                {
+        //                    var document = new XmlDocument();
+        //                    document.Load(xmlReader);
+
+        //                    success = errors.IsNullOrEmpty();
+        //                }
+        //            }
+        //            catch (XmlSchemaException ex)
+        //            {
+        //                errors.Add($"(XML Validation Error) : Error Adding XSD Schema : {ex.SourceUri} Line {ex.LineNumber}, {ex.LinePosition} : {ex.Message}");
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                errors.Add($"(XML Validation Error) : Error During Validation : {ex.Message}");
+        //            }
+        //        }
+        //    }
+
+        //    return new XmlValidationResponse(success, errors);
+        //}
     }
 }

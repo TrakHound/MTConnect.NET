@@ -31,6 +31,7 @@ namespace MTConnect.Applications
 
         private static readonly Logger _applicationLogger = LogManager.GetLogger("application-logger");
         private static readonly Logger _agentLogger = LogManager.GetLogger("agent-logger");
+        private static readonly Logger _clientLogger = LogManager.GetLogger("client-logger");
         private static readonly Logger _agentValidationLogger = LogManager.GetLogger("agent-validation-logger");
         private static readonly Logger _httpLogger = LogManager.GetLogger("http-logger");
 
@@ -39,7 +40,7 @@ namespace MTConnect.Applications
         private static LogLevel _logLevel = LogLevel.Info;
         private static MTConnectAgent _agent;
         private static MTConnectHttpServer _server;
-        private static AgentConfigurationFileWatcher<MTConnectAgentGatewayConfiguration> _configurationWatcher;
+        private static AgentConfigurationFileWatcher<AgentGatewayConfiguration> _configurationWatcher;
         private static System.Timers.Timer _metricsTimer;
         private static bool _started = false;
         private static int _port = 0;
@@ -88,7 +89,7 @@ namespace MTConnect.Applications
             _port = port;
 
             // Read the Agent Configuation File
-            var configuration = MTConnectAgentGatewayConfiguration.Read(configFile);
+            var configuration = AgentGatewayConfiguration.Read(configFile);
             if (configuration != null)
             {
                 // Set Service Name
@@ -153,13 +154,13 @@ namespace MTConnect.Applications
         internal static void StartAgent(string configurationPath, bool verboseLogging = false, int port = 0)
         {
             // Read the Configuration File
-            var configuration = MTConnectAgentGatewayConfiguration.Read(configurationPath);
+            var configuration = AgentGatewayConfiguration.Read(configurationPath);
 
             // Start the Agent
             StartAgent(configuration, verboseLogging, port);
         }
 
-        internal static void StartAgent(MTConnectAgentGatewayConfiguration configuration, bool verboseLogging = false, int port = 0)
+        internal static void StartAgent(AgentGatewayConfiguration configuration, bool verboseLogging = false, int port = 0)
         {
             if (!_started && configuration != null)
             {
@@ -203,6 +204,10 @@ namespace MTConnect.Applications
                             _clients.Add(agentClient);
 
                             // Subscribe to the Event handlers to receive the MTConnect documents
+                            agentClient.OnClientStarted += (s, e) => AgentClientStarted();
+                            agentClient.OnClientStopped += (s, e) => AgentClientStopped();
+                            agentClient.OnStreamStarted += (s, query) => AgentClientStreamStarted(query);
+                            agentClient.OnStreamStopped += (s, e) => AgentClientStreamStopped();
                             agentClient.OnProbeReceived += (s, doc) => DevicesDocumentReceived(doc);
                             agentClient.OnCurrentReceived += (s, doc) => StreamsDocumentReceived(doc);
                             agentClient.OnSampleReceived += (s, doc) => StreamsDocumentReceived(doc);
@@ -237,7 +242,7 @@ namespace MTConnect.Applications
 
                 // Set the Configuration File Watcher
                 if (_configurationWatcher != null) _configurationWatcher.Dispose();
-                _configurationWatcher = new AgentConfigurationFileWatcher<MTConnectAgentGatewayConfiguration>(configuration.Path);
+                _configurationWatcher = new AgentConfigurationFileWatcher<AgentGatewayConfiguration>(configuration.Path);
                 _configurationWatcher.ConfigurationUpdated += ConfigurationFileUpdated;
                 _configurationWatcher.ErrorReceived += ConfigurationFileError;
 
@@ -269,7 +274,7 @@ namespace MTConnect.Applications
 
         #region "Configuration"
 
-        private static void ConfigurationFileUpdated(object sender, MTConnectAgentGatewayConfiguration configuration)
+        private static void ConfigurationFileUpdated(object sender, AgentGatewayConfiguration configuration)
         {
             if (configuration != null)
             {
@@ -289,10 +294,32 @@ namespace MTConnect.Applications
 
         #region "Client Event Handlers"
 
+        private static void AgentClientStarted()
+        {
+            _clientLogger.Info($"[Client] : Client Started");
+        }
+
+        private static void AgentClientStopped()
+        {
+            _clientLogger.Info($"[Client] : Client Stopped");
+        }
+
+        private static void AgentClientStreamStarted(string query)
+        {
+            _clientLogger.Info($"[Client] : Client Stream Started : {query}");
+        }
+
+        private static void AgentClientStreamStopped()
+        {
+            _clientLogger.Info($"[Client] : Client Stream Stopped");
+        }
+
         private static void DevicesDocumentReceived(IDevicesResponseDocument document)
         {
             if (document != null && !document.Devices.IsNullOrEmpty())
             {
+                _clientLogger.Debug($"[Client] : MTConnectDevices Received : " + document.Header.CreationTime);
+
                 foreach (var device in document.Devices)
                 {
                     _agent.AddDevice(device);
@@ -304,6 +331,8 @@ namespace MTConnect.Applications
         {
             if (document != null && !document.Streams.IsNullOrEmpty())
             {
+                _clientLogger.Debug($"[Client] : MTConnectStreams Received : " + document.Header.CreationTime);
+
                 foreach (var stream in document.Streams)
                 {
                     var observations = stream.Observations;
@@ -328,6 +357,8 @@ namespace MTConnect.Applications
         {
             if (document != null && !document.Assets.IsNullOrEmpty())
             {
+                _clientLogger.Debug($"[Client] : MTConnectAssets Received : " + document.Header.CreationTime);
+
                 foreach (var asset in document.Assets)
                 {
                     _agent.AddAsset(asset.DeviceUuid, asset);

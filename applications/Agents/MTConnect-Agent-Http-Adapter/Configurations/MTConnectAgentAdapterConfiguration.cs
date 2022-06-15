@@ -12,7 +12,7 @@ using System.Text.Json.Serialization;
 
 namespace MTConnect.Applications.Configuration
 {
-    public class MTConnectAgentAdapterConfiguration : MTConnectAgentConfiguration
+    public class MTConnectAgentAdapterConfiguration : AgentConfiguration
     {
         /// <summary>
         /// 

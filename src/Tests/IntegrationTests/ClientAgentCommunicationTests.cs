@@ -62,7 +62,7 @@ namespace IntegrationTests
             _machineId = Guid.NewGuid().ToString();
             _machineName = $"Machine{_fixture.CurrentAgentPort}";
 
-            var configuration = new MTConnectAgentConfiguration
+            var configuration = new AgentConfiguration
             {
                 Devices = "devices.xml",
                 Port = _fixture.CurrentAgentPort,

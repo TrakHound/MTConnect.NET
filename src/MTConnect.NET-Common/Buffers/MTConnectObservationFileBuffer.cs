@@ -4,7 +4,7 @@
 // file 'LICENSE', which is part of this source code package.
 
 using MTConnect.Agents;
-using MTConnect.Agents.Configuration;
+using MTConnect.Configurations;
 using MTConnect.Devices.DataItems;
 using System;
 using System.Collections.Concurrent;
@@ -64,7 +64,7 @@ namespace MTConnect.Buffers
             Start();
         }
 
-        public MTConnectObservationFileBuffer(MTConnectAgentConfiguration configuration) : base(configuration)
+        public MTConnectObservationFileBuffer(AgentConfiguration configuration) : base(configuration)
         {
             _items = new MTConnectObservationQueue();
             _currentItems = new MTConnectObservationQueue();
