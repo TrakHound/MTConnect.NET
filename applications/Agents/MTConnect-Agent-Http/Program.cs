@@ -191,6 +191,7 @@ namespace MTConnect.Applications
                     _mtconnectAgent.AssetsResponseSent += AssetsSent;
                     _mtconnectAgent.ObservationAdded += ObservationAdded;
                     _mtconnectAgent.InvalidDataItemAdded += InvalidDataItem;
+                    _mtconnectAgent.InvalidAssetAdded += InvalidAsset;
                 }
 
                 // Add Devices
@@ -513,6 +514,11 @@ namespace MTConnect.Applications
         }
 
         private static void InvalidDataItem(IDataItem dataItem, DataItemValidationResult result)
+        {
+            _agentValidationLogger.Warn($"[Agent-Validation] : {result.Message}");
+        }
+
+        private static void InvalidAsset(IAsset asset, AssetValidationResult result)
         {
             _agentValidationLogger.Warn($"[Agent-Validation] : {result.Message}");
         }
