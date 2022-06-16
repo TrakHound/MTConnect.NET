@@ -1759,36 +1759,37 @@ namespace MTConnect.Agents
 
             if (_assetBuffer != null)
             {
+                // Set MTConnect Version
+                var version = mtconnectVersion != null ? mtconnectVersion : Version;
+
+                var processedAssets = new List<IAsset>();
+
                 // Get Assets from AssetsBuffer
                 var assets = _assetBuffer.GetAssets(type, removed, count);
                 if (!assets.IsNullOrEmpty())
                 {
-                    // Set MTConnect Version
-                    var version = mtconnectVersion != null ? mtconnectVersion : Version;
-
                     // Process Assets
-                    var processedAssets = new List<IAsset>();
                     foreach (var asset in assets)
                     {
                         var processedAsset = asset.Process(version);
                         if (processedAsset != null) processedAssets.Add(processedAsset);
                     }
-
-                    // Create AssetsHeader
-                    var header = GetAssetsHeader();
-                    header.Version = GetAgentVersion().ToString();
-                    header.InstanceId = InstanceId;
-
-                    // Create MTConnectAssets Response Document
-                    var document = new AssetsResponseDocument();
-                    document.Version = version;
-                    document.Header = header;
-                    document.Assets = processedAssets;
-
-                    AssetsResponseSent?.Invoke(document);
-
-                    return document;
                 }
+
+                // Create AssetsHeader
+                var header = GetAssetsHeader();
+                header.Version = GetAgentVersion().ToString();
+                header.InstanceId = InstanceId;
+
+                // Create MTConnectAssets Response Document
+                var document = new AssetsResponseDocument();
+                document.Version = version;
+                document.Header = header;
+                document.Assets = processedAssets;
+
+                AssetsResponseSent?.Invoke(document);
+
+                return document;
             }
 
             return null;
@@ -1811,36 +1812,37 @@ namespace MTConnect.Agents
 
             if (_assetBuffer != null)
             {
+                // Set MTConnect Version
+                var version = mtconnectVersion != null ? mtconnectVersion : Version;
+
+                var processedAssets = new List<IAsset>();
+
                 // Get Assets from AssetsBuffer
                 var assets = await _assetBuffer.GetAssetsAsync(type, removed, count);
                 if (!assets.IsNullOrEmpty())
                 {
-                    // Set MTConnect Version
-                    var version = mtconnectVersion != null ? mtconnectVersion : Version;
-
                     // Process Assets
-                    var processedAssets = new List<IAsset>();
                     foreach (var asset in assets)
                     {
                         var processedAsset = asset.Process(version);
                         if (processedAsset != null) processedAssets.Add(processedAsset);
                     }
-
-                    // Create AssetsHeader
-                    var header = GetAssetsHeader();
-                    header.Version = GetAgentVersion().ToString();
-                    header.InstanceId = InstanceId;
-
-                    // Create MTConnectAssets Response Document
-                    var document = new AssetsResponseDocument();
-                    document.Version = version;
-                    document.Header = header;
-                    document.Assets = processedAssets;
-
-                    AssetsResponseSent?.Invoke(document);
-
-                    return document;
                 }
+
+                // Create AssetsHeader
+                var header = GetAssetsHeader();
+                header.Version = GetAgentVersion().ToString();
+                header.InstanceId = InstanceId;
+
+                // Create MTConnectAssets Response Document
+                var document = new AssetsResponseDocument();
+                document.Version = version;
+                document.Header = header;
+                document.Assets = processedAssets;
+
+                AssetsResponseSent?.Invoke(document);
+
+                return document;
             }
 
             return null;
