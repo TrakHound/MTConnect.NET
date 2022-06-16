@@ -242,9 +242,10 @@ namespace MTConnect.Applications
 
                                 if (verboseLogging)
                                 {
-                                    adapterClient.AdapterConnected += AdapterConnected;
-                                    adapterClient.AdapterDisconnected += AdapterDisconnected;
-                                    adapterClient.AdapterConnectionError += AdapterConnectionError;
+                                    adapterClient.Connected += AdapterConnected;
+                                    adapterClient.Disconnected += AdapterDisconnected;
+                                    adapterClient.ConnectionError += AdapterConnectionError;
+                                    adapterClient.Listening += AdapterListening;
                                     adapterClient.PingSent += AdapterPingSent;
                                     adapterClient.PongReceived += AdapterPongReceived;
                                     adapterClient.ProtocolReceived += AdapterProtocolReceived;
@@ -527,14 +528,20 @@ namespace MTConnect.Applications
         private static void AdapterConnected(object sender, string message)
         {
             var adapterClient = (ShdrAdapterClient)sender;
-            //_mtconnectAgent.UpdateAdapterConnectionStatus(adapterClient.Id, Observations.Events.Values.ConnectionStatus.ESTABLISHED);
+
+            var dataItemId = DataItem.CreateId(adapterClient.Id, ConnectionStatusDataItem.NameId);
+            _mtconnectAgent.AddObservation(_mtconnectAgent.Uuid, dataItemId, Observations.Events.Values.ConnectionStatus.ESTABLISHED);
+
             _adapterLogger.Log(_logLevel, $"[Adapter] : ID = " + adapterClient.Id + " : " + message);
         }
 
         private static void AdapterDisconnected(object sender, string message)
         {
             var adapterClient = (ShdrAdapterClient)sender;
-            //_mtconnectAgent.UpdateAdapterConnectionStatus(adapterClient.Id, Observations.Events.Values.ConnectionStatus.CLOSED);
+
+            var dataItemId = DataItem.CreateId(adapterClient.Id, ConnectionStatusDataItem.NameId);
+            _mtconnectAgent.AddObservation(_mtconnectAgent.Uuid, dataItemId, Observations.Events.Values.ConnectionStatus.CLOSED);
+
             _adapterLogger.Log(_logLevel, $"[Adapter] : ID = " + adapterClient.Id + " : " + message);
         }
 
@@ -542,6 +549,16 @@ namespace MTConnect.Applications
         {
             var adapterClient = (ShdrAdapterClient)sender;
             _adapterLogger.Log(_logLevel, $"[Adapter] : ID = " + adapterClient.Id + " : " + exception.Message);
+        }
+
+        private static void AdapterListening(object sender, string message)
+        {
+            var adapterClient = (ShdrAdapterClient)sender;
+
+            var dataItemId = DataItem.CreateId(adapterClient.Id, ConnectionStatusDataItem.NameId);
+            _mtconnectAgent.AddObservation(_mtconnectAgent.Uuid, dataItemId, Observations.Events.Values.ConnectionStatus.LISTEN);
+
+            _adapterLogger.Log(_logLevel, $"[Adapter] : ID = " + adapterClient.Id + " : " + message);
         }
 
         private static void AdapterPingSent(object sender, string message)

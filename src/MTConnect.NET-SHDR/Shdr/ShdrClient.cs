@@ -66,19 +66,24 @@ namespace MTConnect.Shdr
 
 
         /// <summary>
-        /// Raised when the connection to the Adapter is established
+        /// Raised when a client connection is established
         /// </summary>
-        public EventHandler<string> AdapterConnected { get; set; }
+        public EventHandler<string> Connected { get; set; }
 
         /// <summary>
-        /// Raised when the connection to the Adapter is disconnected
+        /// Raised when the client is disconnected
         /// </summary>
-        public EventHandler<string> AdapterDisconnected { get; set; }
+        public EventHandler<string> Disconnected { get; set; }
 
         /// <summary>
-        /// Raised when an error occurs during the connection to the Adapter
+        /// Raised when an error occurs during the connection
         /// </summary>
-        public EventHandler<Exception> AdapterConnectionError { get; set; }
+        public EventHandler<Exception> ConnectionError { get; set; }
+
+        /// <summary>
+        /// Raised when the client is not connected but is listening for new connections
+        /// </summary>
+        public EventHandler<string> Listening { get; set; }
 
 
         /// <summary>
@@ -207,7 +212,7 @@ namespace MTConnect.Shdr
                         _client.ReceiveTimeout = ConnectionTimeout;
                         _client.SendTimeout = ConnectionTimeout;
 
-                        AdapterConnected?.Invoke(this, $"Connected to Adapter at {Hostname} on Port {Port}");
+                        Connected?.Invoke(this, $"Connected to Adapter at {Hostname} on Port {Port}");
                         connected = true;
 
                         await OnConnect();
@@ -410,7 +415,7 @@ namespace MTConnect.Shdr
                     catch (TaskCanceledException) { }
                     catch (Exception ex)
                     {
-                        AdapterConnectionError?.Invoke(this, ex);
+                        ConnectionError?.Invoke(this, ex);
                     }
                     finally
                     {
@@ -420,7 +425,7 @@ namespace MTConnect.Shdr
 
                             if (connected)
                             {
-                                AdapterDisconnected?.Invoke(this, $"Disconnected from {Hostname} on Port {Port}");
+                                Disconnected?.Invoke(this, $"Disconnected from {Hostname} on Port {Port}");
 
                                 await OnDisconnect();
                             }
@@ -431,12 +436,14 @@ namespace MTConnect.Shdr
 
                     // Wait for the ReconnectInterval (in milliseconds) until continuing while loop
                     await Task.Delay(reconnectInterval, cancel);
+
+                    Listening?.Invoke(this, $"Listening for connection from {Hostname} on Port {Port}");
                 }
             }
             catch (TaskCanceledException) { }
             catch (Exception ex)
             {
-                AdapterConnectionError?.Invoke(this, ex);
+                ConnectionError?.Invoke(this, ex);
             }
         }
 

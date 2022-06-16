@@ -29,6 +29,7 @@ namespace MTConnect.Devices
             {
                 Id = configuration.Id;
                 Name = "adapterShdr";
+                Uri = $"shdr://{configuration.Hostname}:{configuration.Port}";
 
 
                 var dataItems = new List<IDataItem>();
@@ -37,9 +38,7 @@ namespace MTConnect.Devices
                 var connectionStatusDataItem = new ConnectionStatusDataItem(Id);
                 dataItems.Add(connectionStatusDataItem);
 
-                // Add Adapter URI
-                Uri = $"shdr://{configuration.Hostname}:{configuration.Port}";
-                //AdapterUriDataItem adapterUriDataItem = null;
+                // Add Adapter URI DataItem
                 if (configuration.OutputConnectionInformation)
                 {
                     var adapterUriDataItem = new AdapterUriDataItem(Id);

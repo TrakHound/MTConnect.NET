@@ -34,15 +34,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Compile Remove="Devices\DataItems\Samples\PathFeedrateOverrideDataItem.cs" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<None Include="../../README.md">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
 		</None>
-		<None Include="Devices\DataItems\Samples\PathFeedrateOverrideDataItem.cs" />
 	</ItemGroup>
 
 	<PropertyGroup Condition="'$(Configuration)'=='Release'">

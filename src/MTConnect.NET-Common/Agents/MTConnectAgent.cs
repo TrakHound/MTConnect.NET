@@ -305,6 +305,7 @@ namespace MTConnect.Agents
         private void InitializeAgentDevice(bool initializeDataItems = true)
         {
             _agent = new Agent(this);
+            _agent.InitializeDataItems();
 
             // Add Name and UUID to DeviceKey dictionary
             _deviceKeys.TryAdd(_agent.Name, _agent.Uuid);
@@ -312,7 +313,6 @@ namespace MTConnect.Agents
 
             if (initializeDataItems)
             {
-                _agent.InitializeDataItems();
                 _agent.InitializeObservations();
             }
         }
