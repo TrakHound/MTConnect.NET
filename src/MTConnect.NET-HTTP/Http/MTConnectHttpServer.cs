@@ -1082,12 +1082,15 @@ namespace MTConnect.Http
                     var fileContents = File.ReadAllText(filePath);
                     if (!string.IsNullOrEmpty(fileContents))
                     {
-                        // Replace Streams Namespace
-                        var pattern = @"urn:mtconnect\.org:MTConnectStreams:(\d\.\d)";
-                        var replace = $@"urn:mtconnect.org:MTConnectStreams:{mtconnectVersion}";
-                        var s = Regex.Replace(fileContents, pattern, replace);
+                        if (mtconnectVersion != null)
+                        {
+                            // Replace Streams Namespace
+                            var pattern = @"urn:mtconnect\.org:MTConnectStreams:(\d\.\d)";
+                            var replace = $@"urn:mtconnect.org:MTConnectStreams:{mtconnectVersion.Major}.{mtconnectVersion.Minor}";
+                            fileContents = Regex.Replace(fileContents, pattern, replace);
+                        }
 
-                        return Encoding.UTF8.GetBytes(s);
+                        return Encoding.UTF8.GetBytes(fileContents);
                     }
                 }
                 catch { }
