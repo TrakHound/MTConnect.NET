@@ -6,7 +6,6 @@
 using MTConnect.Adapters.Shdr;
 using MTConnect.Agents;
 using MTConnect.Configurations;
-using MTConnect.Applications.Configuration;
 using MTConnect.Assets;
 using MTConnect.Clients.Rest;
 using MTConnect.Devices;
@@ -58,7 +57,7 @@ namespace MTConnect.Applications
             PrintHeader();
 
             // Read the Agent Configuation File
-            var configuration = MTConnectAgentAdapterConfiguration.Read(configFile);
+            var configuration = AgentAdapterConfiguration.Read(configFile);
 
             switch (command)
             {
@@ -70,7 +69,7 @@ namespace MTConnect.Applications
             Console.ReadLine();
         }
 
-        private static void Init(MTConnectAgentAdapterConfiguration configuration, bool verboseLogging = false)
+        private static void Init(AgentAdapterConfiguration configuration, bool verboseLogging = false)
         {
             if (configuration != null)
             {
@@ -138,7 +137,7 @@ namespace MTConnect.Applications
                 StartMetrics();
 
                 // Start the Http Server
-                var server = new ShdrMTConnectHttpServer(_agent);
+                var server = new ShdrMTConnectHttpServer(configuration, _agent);
 
                 if (verboseLogging)
                 {
@@ -361,43 +360,43 @@ namespace MTConnect.Applications
         }
 
 
-        private static void AdapterConnected(object sender, string message)
-        {
-            var adapterClient = (ShdrAdapterClient)sender;
-            _agent.UpdateAdapterConnectionStatus(adapterClient.Id, Observations.Events.Values.ConnectionStatus.ESTABLISHED);
-            _adapterLogger.Info($"[Adapter] : ID = " + adapterClient.Id + " : " + message);
-        }
+        //private static void AdapterConnected(object sender, string message)
+        //{
+        //    var adapterClient = (ShdrAdapterClient)sender;
+        //    _agent.UpdateAdapterConnectionStatus(adapterClient.Id, Observations.Events.Values.ConnectionStatus.ESTABLISHED);
+        //    _adapterLogger.Info($"[Adapter] : ID = " + adapterClient.Id + " : " + message);
+        //}
 
-        private static void AdapterDisconnected(object sender, string message)
-        {
-            var adapterClient = (ShdrAdapterClient)sender;
-            _agent.UpdateAdapterConnectionStatus(adapterClient.Id, Observations.Events.Values.ConnectionStatus.CLOSED);
-            _adapterLogger.Info($"[Adapter] : ID = " + adapterClient.Id + " : " + message);
-        }
+        //private static void AdapterDisconnected(object sender, string message)
+        //{
+        //    var adapterClient = (ShdrAdapterClient)sender;
+        //    _agent.UpdateAdapterConnectionStatus(adapterClient.Id, Observations.Events.Values.ConnectionStatus.CLOSED);
+        //    _adapterLogger.Info($"[Adapter] : ID = " + adapterClient.Id + " : " + message);
+        //}
 
-        private static void AdapterConnectionError(object sender, Exception exception)
-        {
-            var adapterClient = (ShdrAdapterClient)sender;
-            _adapterLogger.Info($"[Adapter] : ID = " + adapterClient.Id + " : " + exception.Message);
-        }
+        //private static void AdapterConnectionError(object sender, Exception exception)
+        //{
+        //    var adapterClient = (ShdrAdapterClient)sender;
+        //    _adapterLogger.Info($"[Adapter] : ID = " + adapterClient.Id + " : " + exception.Message);
+        //}
 
-        private static void AdapterPingSent(object sender, string message)
-        {
-            var adapterClient = (ShdrAdapterClient)sender;
-            _adapterLogger.Info($"[Adapter] : ID = " + adapterClient.Id + " : " + message);
-        }
+        //private static void AdapterPingSent(object sender, string message)
+        //{
+        //    var adapterClient = (ShdrAdapterClient)sender;
+        //    _adapterLogger.Info($"[Adapter] : ID = " + adapterClient.Id + " : " + message);
+        //}
 
-        private static void AdapterPongReceived(object sender, string message)
-        {
-            var adapterClient = (ShdrAdapterClient)sender;
-            _adapterLogger.Info($"[Adapter] : ID = " + adapterClient.Id + " : " + message);
-        }
+        //private static void AdapterPongReceived(object sender, string message)
+        //{
+        //    var adapterClient = (ShdrAdapterClient)sender;
+        //    _adapterLogger.Info($"[Adapter] : ID = " + adapterClient.Id + " : " + message);
+        //}
 
-        private static void AdapterProtocolReceived(object sender, string message)
-        {
-            var adapterClient = (ShdrAdapterClient)sender;
-            _adapterShdrLogger.Debug($"[Adapter-SHDR] : ID = " + adapterClient.Id + " : " + message);
-        }
+        //private static void AdapterProtocolReceived(object sender, string message)
+        //{
+        //    var adapterClient = (ShdrAdapterClient)sender;
+        //    _adapterShdrLogger.Debug($"[Adapter-SHDR] : ID = " + adapterClient.Id + " : " + message);
+        //}
 
 
         private static void HttpListenerStarted(object sender, string prefix)

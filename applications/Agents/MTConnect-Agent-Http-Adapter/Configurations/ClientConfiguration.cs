@@ -5,7 +5,7 @@
 
 using System.Text.Json.Serialization;
 
-namespace MTConnect.Applications.Configuration
+namespace MTConnect.Configurations
 {
     public class ClientConfiguration
     {

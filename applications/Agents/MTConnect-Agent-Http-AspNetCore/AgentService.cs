@@ -7,7 +7,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MTConnect.Adapters.Shdr;
 using MTConnect.Agents;
-using MTConnect.Agents.Configuration;
+using MTConnect.Configurations;
 using MTConnect.Applications.Loggers;
 using MTConnect.Devices;
 using System;
@@ -20,6 +20,7 @@ namespace MTConnect.Applications
 {
     public class AgentService : IHostedService
     {
+        private readonly ShdrAgentConfiguration _configuration;
         private readonly IMTConnectAgent _mtconnectAgent;
         private readonly ILogger<AgentService> _logger;
         private readonly AgentLogger _agentLogger;
@@ -30,6 +31,7 @@ namespace MTConnect.Applications
 
 
         public AgentService(
+            ShdrAgentConfiguration configuration,
             IMTConnectAgent mtconnectAgent, 
             AgentLogger agentLogger,
             AgentValidationLogger agentValidationLogger,
@@ -38,6 +40,7 @@ namespace MTConnect.Applications
             ILogger<AgentService> logger
             )
         {
+            _configuration = configuration;
             _mtconnectAgent = mtconnectAgent;
             _logger = logger;
             _agentLogger = agentLogger;
@@ -59,12 +62,12 @@ namespace MTConnect.Applications
         {
             _adapterClients.Clear();
 
-            if (_mtconnectAgent.Configuration != null)
+            if (_configuration != null)
             {
                 // Add Adapter Clients
-                if (!_mtconnectAgent.Configuration.Adapters.IsNullOrEmpty())
+                if (!_configuration.Adapters.IsNullOrEmpty())
                 {
-                    var devices = await DeviceConfiguration.FromFileAsync(_mtconnectAgent.Configuration.Devices, DocumentFormat.XML);
+                    var devices = await DeviceConfiguration.FromFileAsync(_configuration.Devices, DocumentFormat.XML);
                     if (!devices.IsNullOrEmpty())
                     {
                         // Add Device(s) to Agent
@@ -73,19 +76,21 @@ namespace MTConnect.Applications
                             await _mtconnectAgent.AddDeviceAsync(device);
                         }
 
-                        foreach (var adapterConfiguration in _mtconnectAgent.Configuration.Adapters)
+                        foreach (var adapterConfiguration in _configuration.Adapters)
                         {
-                            var device = devices.FirstOrDefault(o => o.Name == adapterConfiguration.Device);
+                            var device = devices.FirstOrDefault(o => o.Name == adapterConfiguration.DeviceKey);
                             if (device != null)
                             {
+                                var adapterComponent = new ShdrAdapterComponent(adapterConfiguration);
+
                                 // Add Adapter Component to Agent Device
-                                _mtconnectAgent.AddAdapterComponent(adapterConfiguration);
+                                _mtconnectAgent.Agent.AddAdapterComponent(adapterComponent);
 
                                 // Create new SHDR Adapter Client to read from SHDR stream
                                 var adapterClient = new ShdrAdapterClient(adapterConfiguration, _mtconnectAgent, device);
-                                adapterClient.AdapterConnected += _adapterLogger.AdapterConnected;
-                                adapterClient.AdapterDisconnected += _adapterLogger.AdapterDisconnected;
-                                adapterClient.AdapterConnectionError += _adapterLogger.AdapterConnectionError;
+                                adapterClient.Connected += _adapterLogger.AdapterConnected;
+                                adapterClient.Disconnected += _adapterLogger.AdapterDisconnected;
+                                adapterClient.ConnectionError += _adapterLogger.AdapterConnectionError;
                                 adapterClient.PingSent += _adapterLogger.AdapterPingSent;
                                 adapterClient.PongReceived += _adapterLogger.AdapterPongReceived;
                                 adapterClient.ProtocolReceived += _adapterShdrLogger.AdapterProtocolReceived;

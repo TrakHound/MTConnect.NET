@@ -6,7 +6,7 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MTConnect.Agents;
-using MTConnect.Applications.Configuration;
+using MTConnect.Configurations;
 using MTConnect.Applications.Loggers;
 using MTConnect.Assets;
 using MTConnect.Errors;
@@ -23,7 +23,7 @@ namespace MTConnect.Applications
 {
     public class AgentService : IHostedService
     {
-        private readonly MTConnectAgentGatewayConfiguration _relayConfiguration;
+        private readonly AgentGatewayConfiguration _configuration;
         private readonly IMTConnectAgent _mtconnectAgent;
         private readonly ILogger<AgentService> _logger;
         private readonly AgentLogger _agentLogger;
@@ -32,13 +32,14 @@ namespace MTConnect.Applications
 
 
         public AgentService(
+            AgentGatewayConfiguration configuration,
             IMTConnectAgent mtconnectAgent, 
             AgentLogger agentLogger,
             AgentValidationLogger agentValidationLogger,
             ILogger<AgentService> logger
             )
         {
-            _relayConfiguration = MTConnectAgentGatewayConfiguration.Read();
+            _configuration = configuration;
             _mtconnectAgent = mtconnectAgent;
             _logger = logger;
             _agentLogger = agentLogger;
@@ -59,9 +60,9 @@ namespace MTConnect.Applications
             if (_mtconnectAgent.Configuration != null)
             {
                 // Add Agent Clients
-                if (!_relayConfiguration.Clients.IsNullOrEmpty())
+                if (!_configuration.Clients.IsNullOrEmpty())
                 {
-                    foreach (var clientConfiguration in _relayConfiguration.Clients)
+                    foreach (var clientConfiguration in _configuration.Clients)
                     {
                         if (!string.IsNullOrEmpty(clientConfiguration.Address))
                         {
@@ -76,7 +77,7 @@ namespace MTConnect.Applications
                             if (clientConfiguration.UseSSL) baseUrl = string.Format("https://{0}", AddPort(address, port));
                             else baseUrl = string.Format("http://{0}", AddPort(address, port));
 
-                            var agentClient = new MTConnectClient(baseUrl, clientConfiguration.DeviceName);
+                            var agentClient = new MTConnectClient(baseUrl, clientConfiguration.DeviceKey);
                             agentClient.Interval = clientConfiguration.Interval;
                             agentClient.Heartbeat = clientConfiguration.Heartbeat;
 

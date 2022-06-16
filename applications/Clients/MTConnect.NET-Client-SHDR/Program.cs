@@ -1,7 +1,7 @@
 ﻿using MTConnect.Shdr;
 
 var client = new ShdrClient("localhost", 7878);
-client.AdapterConnected += (s, e) =>
+client.Connected += (s, e) =>
 {
     Console.WriteLine("Connection Established");
 };
@@ -9,7 +9,7 @@ client.ProtocolReceived += (s, line) =>
 {
     Console.WriteLine(line);
 };
-client.AdapterDisconnected += (s, e) =>
+client.Disconnected += (s, e) =>
 {
     Console.WriteLine("Disconnected");
 };

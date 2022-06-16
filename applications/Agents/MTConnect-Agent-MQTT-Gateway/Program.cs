@@ -6,9 +6,9 @@
 //using MTConnect.Adapters.Shdr;
 using MQTTnet;
 using MTConnect.Agents;
-using MTConnect.Applications.Configuration;
 using MTConnect.Assets;
 using MTConnect.Clients.Rest;
+using MTConnect.Configurations;
 using MTConnect.Devices;
 using MTConnect.Devices.DataItems;
 using MTConnect.Observations;
@@ -51,7 +51,7 @@ namespace MTConnect.Applications
             PrintHeader();
 
             // Read the Agent Configuation File
-            var configuration = MTConnectAgentGatewayConfiguration.Read(configFile);
+            var configuration = AgentGatewayConfiguration.Read(configFile);
 
             switch (command)
             {
@@ -63,7 +63,7 @@ namespace MTConnect.Applications
             Console.ReadLine();
         }
 
-        private static void Init(MTConnectAgentGatewayConfiguration configuration, bool verboseLogging = false)
+        private static void Init(AgentGatewayConfiguration configuration, bool verboseLogging = false)
         {
             if (configuration != null)
             {
@@ -123,7 +123,7 @@ namespace MTConnect.Applications
                             if (clientConfiguration.UseSSL) baseUrl = string.Format("https://{0}", AddPort(address, port));
                             else baseUrl = string.Format("http://{0}", AddPort(address, port));
 
-                            var agentClient = new MTConnectClient(baseUrl, clientConfiguration.DeviceName);
+                            var agentClient = new MTConnectClient(baseUrl, clientConfiguration.DeviceKey);
                             agentClient.Interval = clientConfiguration.Interval;
                             agentClient.Heartbeat = clientConfiguration.Heartbeat;
 

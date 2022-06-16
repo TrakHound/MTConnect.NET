@@ -1,5 +1,5 @@
 ﻿using MTConnect.Agents;
-using MTConnect.Agents.Configuration;
+using MTConnect.Configurations;
 using MTConnect.Http;
 using MTConnect.Observations.Events.Values;
 using MTConnect.Observations.Input;
@@ -11,7 +11,7 @@ namespace MTConnect.Applications
         public static void Main(string[] args)
         {
             // Read Agent Configuration File
-            var configuration = AgentConfiguration.Read();
+            var configuration = AgentConfiguration.Read<HttpAgentConfiguration>();
 
             // Create MTConnect Agent
             var agent = new MTConnectAgent(configuration);
@@ -25,7 +25,7 @@ namespace MTConnect.Applications
 
 
             // Start the Http Server
-            var server = new MTConnectHttpServer(agent);
+            var server = new MTConnectHttpServer(configuration, agent);
             server.Start();
 
 

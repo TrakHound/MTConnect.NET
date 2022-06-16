@@ -6,7 +6,7 @@
 using MQTTnet;
 using MTConnect.Adapters.Shdr;
 using MTConnect.Agents;
-using MTConnect.Agents.Configuration;
+using MTConnect.Configurations;
 using MTConnect.Assets;
 using MTConnect.Devices;
 using MTConnect.Devices.DataItems;
@@ -49,7 +49,7 @@ namespace MTConnect.Applications
             PrintHeader();
 
             // Read the Agent Configuation File
-            var configuration = AgentConfiguration.Read(configFile);
+            var configuration = AgentConfiguration.Read<ShdrAgentConfiguration>(configFile);
 
             switch (command)
             {
@@ -61,7 +61,7 @@ namespace MTConnect.Applications
             Console.ReadLine();
         }
 
-        private static void Init(AgentConfiguration configuration, bool verboseLogging = false)
+        private static void Init(ShdrAgentConfiguration configuration, bool verboseLogging = false)
         {
             if (configuration != null)
             {
@@ -117,20 +117,22 @@ namespace MTConnect.Applications
 
                         foreach (var adapterConfiguration in configuration.Adapters)
                         {
-                            var device = devices.FirstOrDefault(o => o.Name == adapterConfiguration.Device);
+                            var device = devices.FirstOrDefault(o => o.Name == adapterConfiguration.DeviceKey);
                             if (device != null)
                             {
+                                var adapterComponent = new ShdrAdapterComponent(adapterConfiguration);
+
                                 // Add Adapter Component to Agent Device
-                                _agent.AddAdapterComponent(adapterConfiguration);
+                                _agent.Agent.AddAdapterComponent(adapterComponent);
 
                                 // Create new SHDR Adapter Client to read from SHDR stream
                                 var adapterClient = new ShdrAdapterClient(adapterConfiguration, _agent, device);
 
                                 if (verboseLogging)
                                 {
-                                    adapterClient.AdapterConnected += AdapterConnected;
-                                    adapterClient.AdapterDisconnected += AdapterDisconnected;
-                                    adapterClient.AdapterConnectionError += AdapterConnectionError;
+                                    adapterClient.Connected += AdapterConnected;
+                                    adapterClient.Disconnected += AdapterDisconnected;
+                                    adapterClient.ConnectionError += AdapterConnectionError;
                                     adapterClient.PingSent += AdapterPingSent;
                                     adapterClient.PongReceived += AdapterPongReceived;
                                     adapterClient.ProtocolReceived += AdapterProtocolReceived;

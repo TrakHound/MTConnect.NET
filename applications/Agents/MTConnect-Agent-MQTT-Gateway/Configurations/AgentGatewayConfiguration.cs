@@ -3,25 +3,22 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
-using MTConnect.Agents.Configuration;
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace MTConnect.Applications.Configuration
+namespace MTConnect.Configurations
 {
-    public class MTConnectAgentGatewayConfiguration : AgentConfiguration
+    public class AgentGatewayConfiguration : HttpAgentConfiguration
     {
         /// <summary>
         /// 
         /// </summary>
         [JsonPropertyName("clients")]
-        public List<ClientConfiguration> Clients { get; set; }
+        public List<HttpClientConfiguration> Clients { get; set; }
 
 
-        public new static MTConnectAgentGatewayConfiguration Read(string path = null)
+
+        public new static AgentGatewayConfiguration Read(string path = null)
         {
             var configurationPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Filename);
             if (path != null) configurationPath = path;
@@ -33,7 +30,7 @@ namespace MTConnect.Applications.Configuration
                     var text = File.ReadAllText(configurationPath);
                     if (!string.IsNullOrEmpty(text))
                     {
-                        return JsonSerializer.Deserialize<MTConnectAgentGatewayConfiguration>(text);
+                        return JsonSerializer.Deserialize<AgentGatewayConfiguration>(text);
                     }
                 }
                 catch { }
