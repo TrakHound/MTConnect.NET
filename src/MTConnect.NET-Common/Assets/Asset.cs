@@ -21,6 +21,9 @@ namespace MTConnect.Assets
     {
         private static Dictionary<string, Type> _types;
 
+        private long _timestamp;
+        private DateTime _dateTime;
+
 
         /// <summary>
         /// The unique identifier for the MTConnect Asset.
@@ -45,14 +48,30 @@ namespace MTConnect.Assets
         /// </summary>
         [XmlIgnore]
         [JsonIgnore]
-        public long Timestamp { get; set; }
+        public long Timestamp
+        {
+            get => _timestamp;
+            set
+            {
+                _timestamp = value;
+                if (_dateTime.ToUnixTime() != _timestamp) _dateTime = _timestamp.ToDateTime();
+            }
+        }
 
         /// <summary>
         /// The time this MTConnect Asset was last modified.
         /// </summary>
         [XmlAttribute("timestamp")]
         [JsonPropertyName("timestamp")]
-        public DateTime DateTime { get; set; }
+        public DateTime DateTime
+        {
+            get => _dateTime;
+            set
+            {
+                _dateTime = value;
+                if (_timestamp.ToDateTime() != _dateTime) _timestamp = _dateTime.ToUnixTime();
+            }
+        }
 
         /// <summary>
         /// The piece of equipments UUID that supplied this data.
