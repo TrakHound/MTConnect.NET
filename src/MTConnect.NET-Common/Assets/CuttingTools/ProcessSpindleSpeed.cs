@@ -16,21 +16,24 @@ namespace MTConnect.Assets.CuttingTools
         /// </summary>
         [XmlAttribute("maximum")]
         [JsonPropertyName("maximum")]
-        public int Maximum { get; set; }
+        public double Maximum { get; set; }
 
         /// <summary>
         /// The lower bound for the tools spindle speed.
         /// </summary>
         [XmlAttribute("minimum")]
         [JsonPropertyName("minimum")]
-        public int Minimum { get; set; }
+        public double Minimum { get; set; }
 
         /// <summary>
         /// The nominal speed the tool is designed to operate at.
         /// </summary>
-        [XmlText]
         [XmlAttribute("nominal")]
         [JsonPropertyName("nominal")]
-        public int Nominal { get; set; }
+        public double Nominal { get; set; }
+
+        [XmlText]
+        [JsonPropertyName("value")]
+        public double Value { get; set; }
     }
 }
