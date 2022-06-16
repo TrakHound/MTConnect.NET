@@ -484,6 +484,8 @@ namespace MTConnect.Adapters.Shdr
         {
             if (dataItem != null)
             {
+                var success = false;
+
                 lock (_lock)
                 {
                     // Check to see if DataItem already exists in DataItem list
@@ -493,7 +495,7 @@ namespace MTConnect.Adapters.Shdr
                         x.Add(dataItem);
 
                         _dataItems.Add(dataItem.DataItemKey, x);
-                        return true;
+                        success = true;
                     }
                     else
                     {
@@ -509,10 +511,12 @@ namespace MTConnect.Adapters.Shdr
                             _dataItems.Remove(dataItem.DataItemKey);
                             _dataItems.Add(dataItem.DataItemKey, x);
 
-                            return true;
+                            success = true;
                         }
                     }
                 }
+
+                return success;
             }
 
             return false;

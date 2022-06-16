@@ -10,12 +10,13 @@ using Microsoft.Extensions.Logging;
 using MTConnect;
 using MTConnect.Adapters.Shdr;
 using MTConnect.Agents;
-using MTConnect.Agents.Configuration;
+using MTConnect.Configurations;
 using MTConnect.Clients.Rest;
 using MTConnect.Devices;
 using MTConnect.Errors;
 using MTConnect.Http;
 using MTConnect.Observations.Samples.Values;
+using MTConnect.Shdr;
 using MTConnect.Streams;
 using Xunit;
 using Xunit.Abstractions;
@@ -60,18 +61,19 @@ namespace IntegrationTests
             _logger = testOutputHelper.BuildLogger(LogLevel.Trace);
 
             _machineId = Guid.NewGuid().ToString();
-            _machineName = $"Machine{_fixture.CurrentAgentPort}";
+            _machineName = "M12346";
+            //_machineName = $"Machine{_fixture.CurrentAgentPort}";
 
-            var configuration = new AgentConfiguration
+            var configuration = new ShdrAgentConfiguration
             {
                 Devices = "devices.xml",
                 Port = _fixture.CurrentAgentPort,
-                Adapters = new List<AdapterConfiguration>()
+                Adapters = new List<ShdrAdapterConfiguration>()
                 {
                     new()
                     {
-                        Device = _machineName, 
-                        Host = "localhost", 
+                        DeviceKey = _machineName, 
+                        Hostname = "localhost", 
                         Port = _fixture.CurrentAdapterPort
                     }
                 }
@@ -83,16 +85,17 @@ namespace IntegrationTests
                 configuration.Devices,
                 _logger);
 
-            _adapter = new ShdrAdapter(_machineName, _fixture.CurrentAdapterPort)
+            _adapter = new ShdrAdapter(_machineName, _fixture.CurrentAdapterPort, 2000)
             {
                 Interval = 100
+                
             };
             _adapter.Start();
 
             AddCuttingTools();
 
             _agent = new MTConnectAgent(configuration);
-            _agent.Version = new Version(1, 8);
+            //_agent.Version = new Version(1, 8);
 
             // Add Adapter Clients
             var devices = DeviceConfiguration.FromFile(configuration.Devices, DocumentFormat.XML).ToList();
@@ -106,7 +109,7 @@ namespace IntegrationTests
 
                 foreach (var adapterConfiguration in configuration.Adapters)
                 {
-                    var device = devices.FirstOrDefault(o => o.Name == adapterConfiguration.Device);
+                    var device = devices.FirstOrDefault(o => o.Name == adapterConfiguration.DeviceKey);
                     if (device != null)
                     {
                         var adapterClient = new ShdrAdapterClient(adapterConfiguration, _agent, device);
@@ -116,7 +119,7 @@ namespace IntegrationTests
                 }
             }
 
-            _server = new MTConnectHttpServer(_agent);
+            _server = new MTConnectHttpServer(configuration, _agent);
             _server.Start();
         }
 
@@ -163,7 +166,7 @@ namespace IntegrationTests
             tool.CuttingToolLifeCycle.CutterStatus.Add(MTConnect.Assets.CuttingTools.CutterStatus.AVAILABLE);
             tool.CuttingToolLifeCycle.CutterStatus.Add(MTConnect.Assets.CuttingTools.CutterStatus.NEW);
             tool.CuttingToolLifeCycle.CutterStatus.Add(MTConnect.Assets.CuttingTools.CutterStatus.MEASURED);
-            tool.Timestamp = DateTime.Now;
+            tool.Timestamp = UnixDateTime.Now;
 
             _adapter.AddAsset(tool);
         }
