@@ -139,10 +139,10 @@ namespace MTConnect
 
         static class Version20
         {
-            public const string Assets = "urn:mtconnect.org:MTConnectAssets:2.0.0 /schemas/MTConnectAssets_2.0.0.xsd";
-            public const string Devices = "urn:mtconnect.org:MTConnectDevices:2.0.0 /schemas/MTConnectDevices_2.0.0.xsd";
-            public const string Error = "urn:mtconnect.org:MTConnectError:2.0.0 /schemas/MTConnectError_2.0.0.xsd";
-            public const string Streams = "urn:mtconnect.org:MTConnectStreams:2.0.0 /schemas/MTConnectStreams_2.0.0.xsd";
+            public const string Assets = "urn:mtconnect.org:MTConnectAssets:2.0.0 /schemas/MTConnectAssets_2.0.xsd";
+            public const string Devices = "urn:mtconnect.org:MTConnectDevices:2.0.0 /schemas/MTConnectDevices_2.0.xsd";
+            public const string Error = "urn:mtconnect.org:MTConnectError:2.0.0 /schemas/MTConnectError_2.0.xsd";
+            public const string Streams = "urn:mtconnect.org:MTConnectStreams:2.0.0 /schemas/MTConnectStreams_2.0.xsd";
 
             public static bool Match(string ns)
             {

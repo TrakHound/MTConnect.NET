@@ -169,10 +169,10 @@ namespace MTConnect
 
         internal static class Version20
         {
-            public const string Assets = "urn:mtconnect.org:MTConnectAssets:2.0.0";
-            public const string Devices = "urn:mtconnect.org:MTConnectDevices:2.0.0";
-            public const string Error = "urn:mtconnect.org:MTConnectError:2.0.0";
-            public const string Streams = "urn:mtconnect.org:MTConnectStreams:2.0.0";
+            public const string Assets = "urn:mtconnect.org:MTConnectAssets:2.0";
+            public const string Devices = "urn:mtconnect.org:MTConnectDevices:2.0";
+            public const string Error = "urn:mtconnect.org:MTConnectError:2.0";
+            public const string Streams = "urn:mtconnect.org:MTConnectStreams:2.0";
 
             public static bool Match(string ns)
             {

@@ -144,7 +144,7 @@ namespace MTConnect.Assets
 
                         // Add the default namespace, "m" namespace, xsi, and schemaLocation
                         regex = @"<MTConnectAssets";
-                        string replace = "<MTConnectAssets xmlns:m=\"" + ns + "\" xmlns=\"" + ns + "\" xmlns:xsi=\"" + Namespaces.DefaultXmlSchemaInstance + "\" xsi:schemaLocation=\"" + schemaLocation + "\"";
+                        string replace = "<MTConnectAssets xmlns:m=\"" + ns + "\" xmlns=\"" + ns + "\" xmlns:xsi=\"" + Namespaces.DefaultXmlSchemaInstance + "\" xsi:schemaLocation=\"" + schemaLocation + "\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"";
                         xml = Regex.Replace(xml, regex, replace);
 
                         // Specify Xml Delcaration

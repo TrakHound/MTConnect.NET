@@ -1109,7 +1109,6 @@ namespace MTConnect.Http
                 {
                     var dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "schemas");
                     var filename = $"MTConnectDevices_{mtconnectVersion.Major}.{mtconnectVersion.Minor}.xsd";
-                    if (mtconnectVersion >= MTConnectVersions.Version20) filename = $"MTConnectDevices_{mtconnectVersion.Major}.{mtconnectVersion.Minor}.{mtconnectVersion.Build}.xsd";
                     var path = Path.Combine(dir, filename);
 
                     try
@@ -1141,7 +1140,6 @@ namespace MTConnect.Http
                 {
                     var dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "schemas");
                     var filename = $"MTConnectStreams_{mtconnectVersion.Major}.{mtconnectVersion.Minor}.xsd";
-                    if (mtconnectVersion >= MTConnectVersions.Version20) filename = $"MTConnectStreams_{mtconnectVersion.Major}.{mtconnectVersion.Minor}.{mtconnectVersion.Build}.xsd";
                     var path = Path.Combine(dir, filename);
 
                     try
@@ -1173,7 +1171,6 @@ namespace MTConnect.Http
                 {
                     var dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "schemas");
                     var filename = $"MTConnectAssets_{mtconnectVersion.Major}.{mtconnectVersion.Minor}.xsd";
-                    if (mtconnectVersion >= MTConnectVersions.Version20) filename = $"MTConnectAssets_{mtconnectVersion.Major}.{mtconnectVersion.Minor}.{mtconnectVersion.Build}.xsd";
                     var path = Path.Combine(dir, filename);
 
                     try
