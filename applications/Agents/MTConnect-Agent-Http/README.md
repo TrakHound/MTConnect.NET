@@ -4,19 +4,19 @@
 This implementation is designed to mimic the functionality of the traditional [c++ MTConnect Agent](https://github.com/mtconnect/cppagent) that has been in the industry since the introduction of the MTConnect standard. It uses the SHDR protocol to receive data from Adapters, an in-memory buffer, and a Http REST interface for retrieving data.
 
 ### Beta Notes
-This application is currently in the Beta stage. Please feel free to use and debug this application and it's source code. There are a few features that are missing as of now and they will completed before the first official release.
+> We are nearing the end of our Beta and are getting close to a first official release! 
+
+Please feel free to use and debug this application and it's source code. There are a few features that are missing as of now and they will completed before the first official release.
 - Please use the [Issues](https://github.com/TrakHound/MTConnect.NET-Core/issues) tab to create issues for specific problems that you may encounter 
 - Please feel free to use the [Pull Requests](https://github.com/TrakHound/MTConnect.NET-Core/pulls) tab for any suggested improvements to the source code
 - For any other questions or feedback, please contact TrakHound directly at info@trakhound.com.
 
-*We are looking to have the first official release that will be production ready by the end of March 2022.*
-
 ## Releases
 Releases for this application are located under the Releases tab. The current release is listed below:
-- [MTConnect Agent Current Release](https://github.com/TrakHound/MTConnect.NET/releases/tag/v0.3.0-beta-agents)
+- [MTConnect Agent Current Release](https://github.com/TrakHound/MTConnect.NET/releases/tag/v0.4.1-beta-agents)
 
 ## Configuration
-The configuration is designed to mimic that of the c++ MTConnect Agent so that migration to this agent is made easier. The main difference is that instead of using the Boost C++ file format, this configuration file uses JSON. The default configuration file is shown below:
+More information about [Configurations](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-Common/Configurations). The default configuration file is shown below :
 ```json
 {
     "devices": "devices.xml",
@@ -24,8 +24,8 @@ The configuration is designed to mimic that of the c++ MTConnect Agent so that m
 
     "adapters": [
         {
-            "device": "OKUMA.Lathe",
-            "host": "localhost",
+            "deviceKey": "OKUMA.Lathe",
+            "hostname": "localhost",
             "port": 7878
         }
     ],
