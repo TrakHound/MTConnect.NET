@@ -39,7 +39,7 @@ namespace MTConnect.Applications
         private static readonly List<ShdrAdapterClient> _adapters = new List<ShdrAdapterClient>();
         private static readonly List<DeviceConfigurationFileWatcher> _deviceConfigurationWatchers = new List<DeviceConfigurationFileWatcher>();
 
-        private static LogLevel _logLevel = LogLevel.Info;
+        private static LogLevel _logLevel = LogLevel.Debug;
         private static MTConnectAgent _mtconnectAgent;
         private static MTConnectHttpServer _httpServer;
         private static AgentConfigurationFileWatcher<ShdrAgentConfiguration> _agentConfigurationWatcher;
@@ -575,17 +575,17 @@ namespace MTConnect.Applications
 
         private static void HttpListenerStarted(object sender, string prefix)
         {
-            _httpLogger.Log(_logLevel, $"[Http Server] : Listening at " + prefix + "..");
+            _httpLogger.Info($"[Http Server] : Listening at " + prefix + "..");
         }
 
         private static void HttpListenerStopped(object sender, string prefix)
         {
-            _httpLogger.Log(_logLevel, $"[Http Server] : Listener Stopped for " + prefix);
+            _httpLogger.Info($"[Http Server] : Listener Stopped for " + prefix);
         }
 
         private static void HttpListenerException(object sender, Exception exception)
         {
-            _httpLogger.Log(_logLevel, $"[Http Server] : Listener Exception : " + exception.Message);
+            _httpLogger.Warn($"[Http Server] : Listener Exception : " + exception.Message);
         }
 
         private static void HttpClientConnected(object sender, HttpListenerRequest request)

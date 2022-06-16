@@ -66,19 +66,6 @@ namespace MTConnect.Configurations
         public bool ServiceAutoStart { get; set; }
 
 
-        ///// <summary>
-        ///// The port number the agent binds to for requests.
-        ///// </summary>
-        //[JsonPropertyName("port")]
-        //public int Port { get; set; }
-
-        ///// <summary>
-        ///// The server IP Address to bind to. Can be used to select the interface in IPV4 or IPV6.
-        ///// </summary>
-        //[JsonPropertyName("serverIp")]
-        //public string ServerIp { get; set; }
-
-
         /// <summary>
         /// Overwrite timestamps with the agent time. 
         /// This will correct clock drift but will not give as accurate relative time since it will not take into consideration network latencies. 
@@ -138,64 +125,6 @@ namespace MTConnect.Configurations
         public int ConfigurationFileRestartInterval { get; set; }
 
 
-        ///// <summary>
-        ///// Specifies the SHDR protocol version used by the adapter. 
-        ///// When greater than one (1), allows multiple complex observations, like Condition and Message on the same line. 
-        ///// If it equials one (1), then any observation requiring more than a key/value pair need to be on separate lines. 
-        ///// This is the default for all adapters.
-        ///// </summary>
-        //[JsonPropertyName("shdrVersion")]
-        //public string ShdrVersion { get; set; }
-
-        ///// <summary>
-        ///// Do not overwrite the UUID with the UUID from the adapter, preserve the UUID in the Devices.xml file. 
-        ///// This can be overridden on a per adapter basis.
-        ///// </summary>
-        //[JsonPropertyName("preserveUuid")]
-        //public bool PreserveUuid { get; set; }
-
-        ///// <summary>
-        ///// Suppress the Adapter IP Address and port when creating the Agent Device ids and names for 1.7. This applies to all adapters.
-        ///// </summary>
-        //[JsonPropertyName("suppressIpAddress")]
-        //public bool SuppressIpAddress { get; set; }
-
-        ///// <summary>
-        ///// Adapters begins a list of device blocks. If the Adapters are not specified and the Devices file only contains one device, 
-        ///// a default device entry will be created with an adapter located on the localhost and port 7878 associated with the device in the devices file.
-        ///// </summary>
-        //[JsonPropertyName("adapters")]
-        //public List<AdapterConfiguration> Adapters { get; set; }
-
-        ///// <summary>
-        ///// Allow HTTP PUT or POST of data item values or assets.
-        ///// </summary>
-        //[JsonPropertyName("allowPut")]
-        //public bool AllowPut { get; set; }
-
-        ///// <summary>
-        ///// Allow HTTP PUT or POST from a specific host or list of hosts. 
-        ///// Lists are comma (,) separated and the host names will be validated by translating them into IP addresses.
-        ///// </summary>
-        //[JsonPropertyName("allowPutFrom")]
-        //public List<string> AllowPutFrom { get; set; }
-
-        ///// <summary>
-        ///// The default length of time an adapter can be silent before it is disconnected. 
-        ///// This is only for legacy adapters that do not support heartbeats.
-        ///// </summary>
-        //[JsonPropertyName("legacyTimeout")]
-        //public int LegacyTimeout { get; set; }
-
-        ///// <summary>
-        ///// The amount of time between adapter reconnection attempts. 
-        ///// This is useful for implementation of high performance adapters where availability needs to be tracked in near-real-time. 
-        ///// Time is specified in milliseconds (ms).
-        ///// </summary>
-        //[JsonPropertyName("reconnectInterval")]
-        //public int ReconnectInterval { get; set; }
-
-
 
         [JsonPropertyName("devicesNamespaces")]
         public List<NamespaceConfiguration> DevicesNamespaces { get; set; }
@@ -231,14 +160,6 @@ namespace MTConnect.Configurations
             Devices = "devices.xml";
             ServiceName = null;
             ServiceAutoStart = true;
-            //ServerIp = "127.0.0.1";
-            //Port = 5000;
-            //AllowPut = false;
-            //AllowPutFrom = null;
-            //LegacyTimeout = 600;
-            //ReconnectInterval = 10000;
-            //IgnoreTimestamps = false;
-            //PreserveUuid = true;
             DefaultVersion = MTConnectVersions.Max;
             ValidationLevel = ValidationLevel.Warning;
             ConvertUnits = true;
@@ -247,16 +168,6 @@ namespace MTConnect.Configurations
             ConfigurationFileRestartInterval = 2;
             IndentOutput = true;
             OutputComments = false;
-            //ShdrVersion = "1";
-            //SuppressIpAddress = false;
-
-            //if (Adapters.IsNullOrEmpty())
-            //{
-            //    Adapters = new List<AdapterConfiguration>
-            //    {
-            //        new AdapterConfiguration()
-            //    };
-            //}
         }
 
 

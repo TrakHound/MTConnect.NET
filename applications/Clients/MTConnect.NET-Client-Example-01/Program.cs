@@ -1,7 +1,7 @@
 using MTConnect.Clients.Rest;
 
 var deviceName = "OKUMA-Lathe";
-var baseUrl = "localhost:5006";
+var baseUrl = "localhost:5005";
 
 var probe = new MTConnectProbeClient(baseUrl, deviceName);
 var doc = probe.Get();
