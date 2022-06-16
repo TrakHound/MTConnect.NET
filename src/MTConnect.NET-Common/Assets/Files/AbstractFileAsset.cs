@@ -36,14 +36,14 @@ namespace MTConnect.Assets.Files
         /// </summary>
         [XmlAttribute("applicationCategory")]
         [JsonPropertyName("applicationCategory")]
-        public string ApplicationCategory { get; set; }
+        public ApplicationCategory ApplicationCategory { get; set; }
 
         /// <summary>
         /// The type of application that will use this file.
         /// </summary>
         [XmlAttribute("applicationType")]
         [JsonPropertyName("applicationType")]
-        public string ApplicationType { get; set; }
+        public ApplicationType ApplicationType { get; set; }
 
         /// <summary>
         /// FileProperties organizes one or more FileProperty entities for Files.
@@ -93,16 +93,6 @@ namespace MTConnect.Assets.Files
             else if (string.IsNullOrEmpty(MediaType))
             {
                 message = "MediaType property is Required";
-                result = false;
-            }
-            else if (string.IsNullOrEmpty(ApplicationCategory))
-            {
-                message = "ApplicationCategory property is Required";
-                result = false;
-            }
-            else if (string.IsNullOrEmpty(ApplicationType))
-            {
-                message = "ApplicationType property is Required";
                 result = false;
             }
 

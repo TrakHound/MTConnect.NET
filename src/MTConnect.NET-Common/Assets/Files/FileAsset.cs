@@ -39,7 +39,14 @@ namespace MTConnect.Assets.Files
         /// </summary>
         [XmlAttribute("state")]
         [JsonPropertyName("state")]
-        public string State { get; set; }
+        public FileState State { get; set; }
+
+        /// <summary>
+        /// The URL reference to the file location. 
+        /// </summary>
+        [XmlElement("FileLocation")]
+        [JsonPropertyName("fileLocation")]
+        public FileLocation FileLocation { get; set; }
 
         /// <summary>
         /// A secure hash of the file.
@@ -54,6 +61,17 @@ namespace MTConnect.Assets.Files
         [XmlElement("PublicKey")]
         [JsonPropertyName("publicKey")]
         public string PublicKey { get; set; }
+
+        /// <summary>
+        /// Destinations organizes one or more Destination elements.
+        /// </summary>
+        [XmlArray("Destinations")]
+        [XmlArrayItem("Destination", typeof(Destination))]
+        [JsonPropertyName("destinations")]
+        public List<Destination> Destinations { get; set; }
+
+        [XmlIgnore]
+        public bool DestinationsSpecified => !Destinations.IsNullOrEmpty();
 
         /// <summary>
         /// The time the file was created.
@@ -75,30 +93,20 @@ namespace MTConnect.Assets.Files
         [XmlIgnore]
         public bool ModificationTimeSpecified => ModificationTime > DateTime.MinValue;
 
-        /// <summary>
-        /// The URL reference to the file location. 
-        /// </summary>
-        [XmlElement("FileLocation")]
-        [JsonPropertyName("fileLocation")]
-        public FileLocation FileLocation { get; set; }
-
-        /// <summary>
-        /// Destinations organizes one or more Destination elements.
-        /// </summary>
-        [XmlArray("Destinations")]
-        [XmlArrayItem("Destination", typeof(Destination))]
-        [JsonPropertyName("destinations")]
-        public List<Destination> Destinations { get; set; }
-
-        [XmlIgnore]
-        public bool DestinationsSpecified => !Destinations.IsNullOrEmpty();
-
 
         public FileAsset()
         {
             Type = TypeId;
         }
 
+
+        public override IAsset Process(Version mtconnectVersion)
+        {
+            if (Size <= 0) return null;
+            if (string.IsNullOrEmpty(VersionId)) return null;
+
+            return base.Process(mtconnectVersion);
+        }
 
         public override AssetValidationResult IsValid(Version mtconnectVersion)
         {
@@ -118,12 +126,7 @@ namespace MTConnect.Assets.Files
                     message = "VersionId property is Required";
                     result = false;
                 }
-                else if (string.IsNullOrEmpty(State))
-                {
-                    message = "State property is Required";
-                    result = false;
-                }
-                else if (CreationTime > DateTime.MinValue)
+                else if (CreationTime <= DateTime.MinValue)
                 {
                     message = "CreationTime property is Required";
                     result = false;
