@@ -1,4 +1,4 @@
-# MTConnect® Http REST Clients
+# MTConnect Http REST Clients
 These client classes use the Http REST Api that is described in **Part 1 : Section 5.4 & Section 8 of the MTConnect Standard**.
 
 ## MTConnectClient
