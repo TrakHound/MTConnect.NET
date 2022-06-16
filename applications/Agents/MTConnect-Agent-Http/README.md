@@ -15,6 +15,50 @@ Please feel free to use and debug this application and it's source code. There a
 Releases for this application are located under the Releases tab. The current release is listed below:
 - [MTConnect Agent Current Release](https://github.com/TrakHound/MTConnect.NET/releases/tag/v0.4.1-beta-agents)
 
+## Usage
+The Agent can be run from a command line prompt or as a Windows Service using the format below:
+```
+agent [help|install|install-start|start|stop|remove|debug|run|run-service] [configuration_file] [http_port]
+
+--------------------
+
+Options :
+
+           help  |  Prints usage information
+        install  |  Install as a Service
+  install-start  |  Install as a Service and Start the Service
+          start  |  Start the Service
+           stop  |  Stop the Service
+         remove  |  Remove the Service
+          debug  |  Runs the Agent in the terminal (with verbose logging)
+            run  |  Runs the Agent in the terminal
+    run-service  |  Runs the Agent as a Service
+
+Arguments :
+--------------------
+
+  configuration_file  |  Specifies the Agent Configuration file to load
+                         Default : agent.config.json
+
+           http_port  |  Specifies the TCP Port to use for the HTTP Server
+                         Note : This overrides what is read from the Configuration file
+```
+#### Example 1:
+Install the Agent as a Windows Service (Note: requires Administrator Privileges)
+ > agent install
+
+#### Example 2:
+Install the Agent as a Windows Service using the configuration file "agent-config.json" and Starts the service (Note: requires Administrator Privileges)
+> agent install-start agent-config.json
+
+#### Example 3:
+Starts the Windows Service (Note: requires Administrator Privileges)
+> agent start
+
+#### Example 4:
+Runs the Agent in the command line prompt using verbose logging and overrides the Http Port to 5001
+> agent debug "" 5001
+
 ## Configuration
 More information about [Configurations](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-Common/Configurations). The default configuration file is shown below :
 ```json
