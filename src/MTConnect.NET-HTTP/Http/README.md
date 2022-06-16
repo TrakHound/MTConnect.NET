@@ -6,6 +6,22 @@ The HTTP interface for MTConnect Agents is provided by the MTConnectHttpServer c
 ### Probe
 Probe requests are used to retreive MTConnect Information Model data from the underlying MTConnectAgent. The MTConnectHttpServer class supports all of the requests defined in the MTConnect standard as well as some additional parameters that are specific to MTConnect.NET.
 
+> http<nolink>://\<HOSTNAME>:\<PORT>
+  
+> http<nolink>://\<HOSTNAME>:\<PORT>/probe
+  
+> http:<nolink>://\<HOSTNAME>:\<PORT>/\<DEVICE_UUID>
+  
+> http:<nolink>://\<HOSTNAME>:\<PORT>/\<DEVICE_NAME>
+  
+> http:<nolink>://\<HOSTNAME>:\<PORT>/\<DEVICE_UUID>/probe
+  
+> http:<nolink>://\<HOSTNAME>:\<PORT>/\<DEVICE_NAME>/probe
+
+Example: http:<nolink>://localhost:5000
+  
+Example: http:<nolink>://localhost:5000/VMC-3Axis
+
 #### Query Parameters
 
 `version`
