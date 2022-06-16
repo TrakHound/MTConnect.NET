@@ -14,22 +14,29 @@ The Agent, Buffers, and Adapter are separated into individual classes in order t
 
 - A traditional Agent that uses a REST Api, in-memory buffer, and Adapters that communicate using the SHDR protocol
 - An agent imbedded with the Adapter (which elminates the need for the Adapter TCP communication)
-- Buffers that read from a permanent storage source (ex. SQL, SQLite, etc.)
 - Interfaces other than Http REST such as MQTT
 - Integration with cloud services such as AWS and Azure
 
 Other features of MTConnect.NET :
 - (In-Progress) [Models](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-Common/Models) framework for setting and accessing data using an object model as opposed to DataItem ID's and Types
 - Extensible through plugin libraries to extend Types
+- Presistent Buffers that are backed up on the File System. Retains state after Agent is restarted
+- Supports multiple MTConnect Version output. Automatically removes data that is not compatible with the requested version
+- Supports running as Windows Service with easy to use command line arguments
 - Full data validation
-  - (In-progress) XML Schema Validation
+  - Validation on Input
+  - XML Schema Validation on output
+  - Configurable Validation Levels
 - Fully documented objects using text from the MTConnect Standard. This enables Intellisense in applications such as Visual Studio.
-- Full list of Component, Composition, and DataItem types. See [Devices](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-Common/Devices) for more information.
-- Default Units and UnitConversion is done automatically when sending Streams and when reading Streams.
+- Full list of Device, Component, Composition, and DataItem types. See [Devices](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-Common/Devices) for more information.
+- Full list of Asset types. See [Devices](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-Common/Assets) for more information.
+- Fully supports Unit conversion. Default Units and UnitConversion is done automatically when sending Streams and when reading Streams.
 - Full client support for requesting data from any MTConnect Agent (Probe, Current, Sample Stream, Assets, etc.). See [Clients](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-HTTP/Clients/Rest) for more information.
 
 ## Applications
-- [MTConnect HTTP Agent](https://github.com/TrakHound/MTConnect.NET/tree/master/applications/Agents/MTConnect-Agent-Http) : A traditional MTConnect Agent using a REST Api, in-memory buffer, and SHDR for Adapters. Uses the MTConnectHttpServer as the  web server.
+- [MTConnect HTTP Agent](https://github.com/TrakHound/MTConnect.NET/tree/master/applications/Agents/MTConnect-Agent-Http) : A traditional MTConnect Agent using a REST Api, in-memory buffer, and SHDR for Adapters. Uses the MTConnectHttpServer as the web server.
+
+- (NEW) [MTConnect HTTP Persistent Agent](https://github.com/TrakHound/MTConnect.NET/tree/master/applications/Agents/MTConnect-Agent-Http-Persistent) : A traditional MTConnect Agent using a REST Api, in-memory buffer as well as backed up on the File System (retains state after restart), and SHDR for Adapters. Uses the MTConnectHttpServer as the web server.
 
 - [MTConnect HTTP Agent - AspNetCore](https://github.com/TrakHound/MTConnect.NET/tree/master/applications/Agents/MTConnect-Agent-Http-AspNetCore) : Similar to the MTConnect Agent application but uses either the built-in Kestrel server or can be setup through IIS (Internet Information Services). This allows the agent to be used with all of the features available through ASP.NET and IIS such as security, permissions, monitoring, etc.
 
@@ -78,7 +85,7 @@ The Nuget packages for the libraries in this repo are listed below:
 MTConnect.NET is designed to be fully compatible for all versions of the MTConnect standard. This is done through processing by the [MTConnectAgent](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-Common/Agents/MTConnectAgent.cs) class before data is output. This allows the version to be a parameter when requesting data from the Agent. More information can be found in the [Devices README](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-Common/Devices/README.md).
 
 ## Data Validation
-Validation is performed on a Device, Component, Composition, or DataItem level through the classes in [Devices](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-Common/Devices). This allows for validation without the need to use XML schemas.
+Validation is performed on a Device, Component, Composition, or DataItem level through the classes in [Devices](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-Common/Devices). This allows for validation without the need to use XML schemas (although XML Validation against XSD schemas is supported).
 
 ## Releases
 Releases are available at : [Releases](https://github.com/TrakHound/MTConnect.NET/releases)
