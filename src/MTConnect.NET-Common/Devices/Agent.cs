@@ -85,7 +85,7 @@ namespace MTConnect.Devices
             if (_agent != null)
             {
                 // Initialize Availability
-                _agent.AddObservation(Uuid, DataItem.CreateDataItemId(Id, AvailabilityDataItem.TypeId), Observations.Events.Values.Availability.AVAILABLE);
+                _agent.AddObservation(Uuid, DataItem.CreateId(Id, AvailabilityDataItem.NameId), Observations.Events.Values.Availability.AVAILABLE);
 
                 _agent.InitializeDataItems(this);
             }

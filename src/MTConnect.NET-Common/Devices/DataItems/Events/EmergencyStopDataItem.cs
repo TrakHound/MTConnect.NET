@@ -32,7 +32,7 @@ namespace MTConnect.Devices.DataItems.Events
 
         public EmergencyStopDataItem(string parentId)
         {
-            Id = CreateDataItemId(parentId, TypeId);
+            Id = CreateId(parentId, NameId);
             Category = CategoryId;
             Type = TypeId;
             Name = NameId;
