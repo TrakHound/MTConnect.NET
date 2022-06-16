@@ -338,8 +338,8 @@ namespace MTConnect.Agents
             };
 
             if (version < MTConnectVersions.Version17) header.DeviceModelChangeTime = null;
-            if (version < MTConnectVersions.Version14) header.AssetBufferSize = -1;
-            if (version < MTConnectVersions.Version14) header.AssetCount = -1;
+            if (version < MTConnectVersions.Version12) header.AssetBufferSize = -1;
+            if (version < MTConnectVersions.Version12) header.AssetCount = -1;
 
             return header;
         }
@@ -367,18 +367,25 @@ namespace MTConnect.Agents
             return header;
         }
 
-        private MTConnectAssetsHeader GetAssetsHeader()
+        private MTConnectAssetsHeader GetAssetsHeader(Version mtconnectVersion = null)
         {
-            return new MTConnectAssetsHeader
+            var version = mtconnectVersion != null ? mtconnectVersion : Version;
+
+            var header = new MTConnectAssetsHeader
             {
                 AssetBufferSize = _assetBuffer.BufferSize,
                 AssetCount = _assetBuffer.AssetCount,
                 CreationTime = DateTime.UtcNow,
+                DeviceModelChangeTime = _deviceModelChangeTime.ToDateTime().ToString("o"),
                 InstanceId = InstanceId,
                 Sender = System.Net.Dns.GetHostName(),
                 Version = Version.ToString(),
                 TestIndicator = null
             };
+
+            if (version < MTConnectVersions.Version17) header.DeviceModelChangeTime = null;
+
+            return header;
         }
 
         private MTConnectErrorHeader GetErrorHeader()
@@ -1777,7 +1784,7 @@ namespace MTConnect.Agents
                 }
 
                 // Create AssetsHeader
-                var header = GetAssetsHeader();
+                var header = GetAssetsHeader(version);
                 header.Version = GetAgentVersion().ToString();
                 header.InstanceId = InstanceId;
 
@@ -1830,7 +1837,7 @@ namespace MTConnect.Agents
                 }
 
                 // Create AssetsHeader
-                var header = GetAssetsHeader();
+                var header = GetAssetsHeader(version);
                 header.Version = GetAgentVersion().ToString();
                 header.InstanceId = InstanceId;
 
@@ -1871,7 +1878,7 @@ namespace MTConnect.Agents
                     var processedAsset = asset.Process(version);
 
                     // Create AssetsHeader
-                    var header = GetAssetsHeader();
+                    var header = GetAssetsHeader(version);
                     header.Version = GetAgentVersion().ToString();
                     header.InstanceId = InstanceId;
 
@@ -1912,7 +1919,7 @@ namespace MTConnect.Agents
                     var processedAsset = asset.Process(version);
 
                     // Create AssetsHeader
-                    var header = GetAssetsHeader();
+                    var header = GetAssetsHeader(version);
                     header.Version = GetAgentVersion().ToString();
                     header.InstanceId = InstanceId;
 
