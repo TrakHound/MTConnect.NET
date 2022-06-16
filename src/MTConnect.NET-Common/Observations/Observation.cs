@@ -26,6 +26,9 @@ namespace MTConnect.Observations
         /// </summary>
         public const string Unavailable = "UNAVAILABLE";
         public const string UnavailableDescription = "If an Agent cannot determine a Valid Data Value for a DataItem, the value returned for the CDATA for the Data Entity MUST be reported as UNAVAILABLE.";
+        private const string UppercaseValuePattern = "^[a-zA-Z_]*$";
+
+        private static readonly Regex _uppercaseValueRegex = new Regex(UppercaseValuePattern);
 
         private readonly object _lock = new object();
         protected readonly Dictionary<string, object> _properties = new Dictionary<string, object>();
@@ -85,6 +88,8 @@ namespace MTConnect.Observations
         [JsonPropertyName("category")]
         public DataItemCategory Category => GetProperty<DataItemCategory>(nameof(Category));
 
+        [XmlIgnore]
+        [JsonIgnore]
         internal bool CategoryOutput => false;
 
         /// <summary>
@@ -94,6 +99,8 @@ namespace MTConnect.Observations
         [JsonPropertyName("type")]
         public virtual string Type => GetProperty<string>(nameof(Type));
 
+        [XmlIgnore]
+        [JsonIgnore]
         internal bool TypeOutput { get; set; } = false;
 
         /// <summary>
@@ -121,6 +128,8 @@ namespace MTConnect.Observations
         [JsonIgnore]
         public DataItemRepresentation Representation => GetProperty<DataItemRepresentation>("Representation");
 
+        [XmlIgnore]
+        [JsonIgnore]
         internal bool RepresentationOutput => false;
 
         /// <summary>
@@ -130,6 +139,8 @@ namespace MTConnect.Observations
         [JsonIgnore]
         public IEnumerable<ObservationValue> Values => _values.Values;
 
+        [XmlIgnore]
+        [JsonIgnore]
         internal bool ValuesOutput => false;
 
         /// <summary>
@@ -139,6 +150,8 @@ namespace MTConnect.Observations
         [JsonIgnore]
         public bool IsUnavailable => GetValue(ValueKeys.CDATA) == Unavailable;
 
+        [XmlIgnore]
+        [JsonIgnore]
         internal bool IsUnavailableOutput => false;
 
 
@@ -796,12 +809,18 @@ namespace MTConnect.Observations
 
                 foreach (var value in values)
                 {
-                    if (value.Value != null && !value.Value.IsNumeric() && !value.Value.Contains(' '))
+                    if (value.Value != null)
                     {
-                        var v = value.Value.ToUpper();
-                        x.Add(new ObservationValue(value.Key, v));
+                        if (_uppercaseValueRegex.IsMatch(value.Value))
+                        {
+                            var v = value.Value.ToUpper();
+                            x.Add(new ObservationValue(value.Key, v));
+                        }
+                        else
+                        {
+                            x.Add(value);
+                        }
                     }
-                    else x.Add(value);
                 }
 
                 return x;
