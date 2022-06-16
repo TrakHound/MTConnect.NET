@@ -221,12 +221,12 @@ namespace MTConnect.Applications
 
                                 if (!adapterComponent.DataItems.IsNullOrEmpty())
                                 {
-                                    // Initialize Connection Status Observation
-                                    var connectionStatusDataItem = adapterComponent.DataItems.FirstOrDefault(o => o.Type == ConnectionStatusDataItem.TypeId);
-                                    if (connectionStatusDataItem != null)
-                                    {
-                                        _mtconnectAgent.AddObservation(_mtconnectAgent.Uuid, connectionStatusDataItem.Id, Observations.Events.Values.ConnectionStatus.LISTEN);
-                                    }
+                                    //// Initialize Connection Status Observation
+                                    //var connectionStatusDataItem = adapterComponent.DataItems.FirstOrDefault(o => o.Type == ConnectionStatusDataItem.TypeId);
+                                    //if (connectionStatusDataItem != null)
+                                    //{
+                                    //    _mtconnectAgent.AddObservation(_mtconnectAgent.Uuid, connectionStatusDataItem.Id, Observations.Events.Values.ConnectionStatus.LISTEN);
+                                    //}
 
                                     // Initialize Adapter URI Observation
                                     var adapterUriDataItem = adapterComponent.DataItems.FirstOrDefault(o => o.Type == AdapterUriDataItem.TypeId);

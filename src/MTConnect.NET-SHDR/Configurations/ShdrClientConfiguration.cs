@@ -22,7 +22,7 @@ namespace MTConnect.Configurations
             {
                 var id = $"{Hostname}:{Port}";
                 id = id.ToMD5Hash().Substring(0, 10);
-                return $"adapter_{id}";
+                return $"adapter_shdr_{id}";
             }
         }
 

@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
+	<AssemblyName>agent</AssemblyName>
     <OutputType>Exe</OutputType>
     <RootNamespace>MTConnect</RootNamespace>
     <StartupObject>MTConnect.Applications.Program</StartupObject>

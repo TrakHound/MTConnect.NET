@@ -13,11 +13,24 @@ namespace MTConnect.Configurations
     public class HttpClientConfiguration
     {
         /// <summary>
-        /// The name of the device that corresponds to the name of the device in the Devices file. Each adapter can map to one device. 
-        /// Specifying a "*" will map to the default device.
+        /// The unique identifier for the Adapter
         /// </summary>
-        [JsonPropertyName("deviceName")]
-        public string DeviceName { get; set; }
+        [JsonIgnore]
+        public string Id
+        {
+            get
+            {
+                var id = $"{Address}:{Port}/{DeviceKey}";
+                id = id.ToMD5Hash().Substring(0, 10);
+                return $"adapter_http_{id}";
+            }
+        }
+
+        /// <summary>
+        /// The Name or UUID of the MTConnect Device
+        /// </summary>
+        [JsonPropertyName("deviceKey")]
+        public string DeviceKey { get; set; }
 
         /// <summary>
         /// The URL address the client MTConnect Agent is located at.
@@ -49,12 +62,41 @@ namespace MTConnect.Configurations
         [JsonPropertyName("useSSL")]
         public bool UseSSL { get; set; }
 
+        /// <summary>
+        /// Gets or Sets whether the Connection Information (Host / Port) is output to the Agent to be collected by a client
+        /// </summary>
+        [JsonPropertyName("outputConnectionInformation")]
+        public bool OutputConnectionInformation { get; set; }
+
 
         public HttpClientConfiguration()
         {
             Port = 5000;
             Interval = 500;
             Heartbeat = 1000;
+            OutputConnectionInformation = true;
+        }
+
+
+        public static string CreateBaseUri(HttpClientConfiguration configuration)
+        {
+            if (configuration != null)
+            {
+                string baseUrl = null;
+                var clientAddress = configuration.Address;
+                var clientPort = configuration.Port;
+
+                if (configuration.UseSSL) clientAddress = clientAddress.Replace("https://", "");
+                else clientAddress = clientAddress.Replace("http://", "");
+
+                // Create the MTConnect Agent Base URL
+                if (configuration.UseSSL) baseUrl = string.Format("https://{0}", Url.AddPort(clientAddress, clientPort));
+                else baseUrl = string.Format("http://{0}", Url.AddPort(clientAddress, clientPort));
+
+                return baseUrl;
+            }
+
+            return null;
         }
     }
 }

@@ -8,18 +8,19 @@
 	</PropertyGroup>
 
 	<PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <RootNamespace>MTConnect</RootNamespace>
-	<Company>TrakHound Inc.</Company>
-	<Copyright>Copyright (c) 2022 TrakHound Inc., All Rights Reserved.</Copyright>
-	<PackageProjectUrl>http://trakhound.com</PackageProjectUrl>
-	<PackageReadmeFile>README.md</PackageReadmeFile>
-	<RepositoryUrl>https://github.com/TrakHound/MTConnect.NET</RepositoryUrl>
-	<RepositoryType>git</RepositoryType>
-	<PackageTags>mtconnect;iiot;</PackageTags>
-	<Authors>TrakHound Inc.</Authors>
-	<Product>TrakHound MTConnect Http Gateway Agent</Product>
-  </PropertyGroup>
+		<AssemblyName>agent</AssemblyName>
+		<OutputType>Exe</OutputType>
+		<RootNamespace>MTConnect</RootNamespace>
+		<Company>TrakHound Inc.</Company>
+		<Copyright>Copyright (c) 2022 TrakHound Inc., All Rights Reserved.</Copyright>
+		<PackageProjectUrl>http://trakhound.com</PackageProjectUrl>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<RepositoryUrl>https://github.com/TrakHound/MTConnect.NET</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackageTags>mtconnect;iiot;</PackageTags>
+		<Authors>TrakHound Inc.</Authors>
+		<Product>TrakHound MTConnect Http Gateway Agent</Product>
+	  </PropertyGroup>
 
 	<ItemGroup>
 	  <Compile Remove="Configurations\ClientConfiguration.cs" />

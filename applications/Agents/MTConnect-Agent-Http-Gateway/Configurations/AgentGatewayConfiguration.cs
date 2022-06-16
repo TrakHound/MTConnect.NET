@@ -6,7 +6,7 @@
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
-namespace MTConnect.Configuration
+namespace MTConnect.Configurations
 {
     /// <summary>
     /// Configuration for an MTConnect Gateway Agent

@@ -4,12 +4,12 @@
 // file 'LICENSE.txt', which is part of this source code package.
 
 using MTConnect.Agents;
-using MTConnect.Agents.Configuration;
-using MTConnect.Applications.Configuration;
+using MTConnect.Configurations;
 using MTConnect.Assets;
 using MTConnect.Clients.Rest;
 using MTConnect.Devices;
 using MTConnect.Devices.DataItems;
+using MTConnect.Devices.DataItems.Events;
 using MTConnect.Http;
 using MTConnect.Observations;
 using MTConnect.Observations.Input;
@@ -17,6 +17,7 @@ using MTConnect.Streams;
 using NLog;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.ServiceProcess;
@@ -38,8 +39,8 @@ namespace MTConnect.Applications
         private static readonly List<MTConnectClient> _clients = new List<MTConnectClient>();
 
         private static LogLevel _logLevel = LogLevel.Info;
-        private static MTConnectAgent _agent;
-        private static MTConnectHttpServer _server;
+        private static MTConnectAgent _mtconnectAgent;
+        private static MTConnectHttpServer _httpServer;
         private static AgentConfigurationFileWatcher<AgentGatewayConfiguration> _configurationWatcher;
         private static System.Timers.Timer _metricsTimer;
         private static bool _started = false;
@@ -89,7 +90,7 @@ namespace MTConnect.Applications
             _port = port;
 
             // Read the Agent Configuation File
-            var configuration = AgentGatewayConfiguration.Read(configFile);
+            var configuration = AgentConfiguration.Read<AgentGatewayConfiguration>(configFile);
             if (configuration != null)
             {
                 // Set Service Name
@@ -154,7 +155,7 @@ namespace MTConnect.Applications
         internal static void StartAgent(string configurationPath, bool verboseLogging = false, int port = 0)
         {
             // Read the Configuration File
-            var configuration = AgentGatewayConfiguration.Read(configurationPath);
+            var configuration = AgentConfiguration.Read<AgentGatewayConfiguration>(configurationPath);
 
             // Start the Agent
             StartAgent(configuration, verboseLogging, port);
@@ -165,19 +166,19 @@ namespace MTConnect.Applications
             if (!_started && configuration != null)
             {
                 // Create MTConnectAgent
-                _agent = new MTConnectAgent(configuration);
+                _mtconnectAgent = new MTConnectAgent(configuration);
 
                 if (verboseLogging)
                 {
-                    _agent.DevicesRequestReceived += DevicesRequested;
-                    _agent.DevicesResponseSent += DevicesSent;
-                    _agent.StreamsRequestReceived += StreamsRequested;
-                    _agent.StreamsResponseSent += StreamsSent;
-                    _agent.AssetsRequestReceived += AssetsRequested;
-                    _agent.AssetsResponseSent += AssetsSent;
-                    _agent.ObservationAdded += ObservationAdded;
+                    _mtconnectAgent.DevicesRequestReceived += DevicesRequested;
+                    _mtconnectAgent.DevicesResponseSent += DevicesSent;
+                    _mtconnectAgent.StreamsRequestReceived += StreamsRequested;
+                    _mtconnectAgent.StreamsResponseSent += StreamsSent;
+                    _mtconnectAgent.AssetsRequestReceived += AssetsRequested;
+                    _mtconnectAgent.AssetsResponseSent += AssetsSent;
+                    _mtconnectAgent.ObservationAdded += ObservationAdded;
 
-                    _agent.InvalidDataItemAdded += InvalidDataItem;
+                    _mtconnectAgent.InvalidDataItemAdded += InvalidDataItem;
                 }
 
                 // Add Agent Clients
@@ -187,18 +188,43 @@ namespace MTConnect.Applications
                     {
                         if (!string.IsNullOrEmpty(clientConfiguration.Address))
                         {
-                            string baseUrl = null;
-                            var clientAddress = clientConfiguration.Address;
-                            var clientPort = clientConfiguration.Port;
+                            //string baseUrl = null;
+                            //var clientAddress = clientConfiguration.Address;
+                            //var clientPort = clientConfiguration.Port;
 
-                            if (clientConfiguration.UseSSL) clientAddress = clientAddress.Replace("https://", "");
-                            else clientAddress = clientAddress.Replace("http://", "");
+                            //if (clientConfiguration.UseSSL) clientAddress = clientAddress.Replace("https://", "");
+                            //else clientAddress = clientAddress.Replace("http://", "");
 
-                            // Create the MTConnect Agent Base URL
-                            if (clientConfiguration.UseSSL) baseUrl = string.Format("https://{0}", Url.AddPort(clientAddress, clientPort));
-                            else baseUrl = string.Format("http://{0}", Url.AddPort(clientAddress, clientPort));
+                            //// Create the MTConnect Agent Base URL
+                            //if (clientConfiguration.UseSSL) baseUrl = string.Format("https://{0}", Url.AddPort(clientAddress, clientPort));
+                            //else baseUrl = string.Format("http://{0}", Url.AddPort(clientAddress, clientPort));
 
-                            var agentClient = new MTConnectClient(baseUrl, clientConfiguration.DeviceName);
+                            var baseUri = HttpClientConfiguration.CreateBaseUri(clientConfiguration);
+
+                            var adapterComponent = new HttpAdapterComponent(clientConfiguration);
+
+                            // Add Adapter Component to Agent Device
+                            _mtconnectAgent.Agent.AddAdapterComponent(adapterComponent);
+
+                            if (!adapterComponent.DataItems.IsNullOrEmpty())
+                            {
+                                //// Initialize Connection Status Observation
+                                //var connectionStatusDataItem = adapterComponent.DataItems.FirstOrDefault(o => o.Type == ConnectionStatusDataItem.TypeId);
+                                //if (connectionStatusDataItem != null)
+                                //{
+                                //    _mtconnectAgent.AddObservation(_mtconnectAgent.Uuid, connectionStatusDataItem.Id, Observations.Events.Values.ConnectionStatus.LISTEN);
+                                //}
+
+                                // Initialize Adapter URI Observation
+                                var adapterUriDataItem = adapterComponent.DataItems.FirstOrDefault(o => o.Type == AdapterUriDataItem.TypeId);
+                                if (adapterUriDataItem != null)
+                                {
+                                    _mtconnectAgent.AddObservation(_mtconnectAgent.Uuid, adapterUriDataItem.Id, adapterComponent.Uri);
+                                }
+                            }
+
+
+                            var agentClient = new MTConnectClient(baseUri, clientConfiguration.DeviceKey);
                             agentClient.Interval = clientConfiguration.Interval;
                             agentClient.Heartbeat = clientConfiguration.Heartbeat;
                             _clients.Add(agentClient);
@@ -222,22 +248,22 @@ namespace MTConnect.Applications
                 StartMetrics();
 
                 // Intialize the Http Server
-                _server = new ShdrMTConnectHttpServer(_agent, null, port);
+                _httpServer = new ShdrMTConnectHttpServer(configuration, _mtconnectAgent, null, port);
 
                 // Setup Http Server Logging
                 if (verboseLogging)
                 {
-                    _server.ListenerStarted += HttpListenerStarted;
-                    _server.ListenerStopped += HttpListenerStopped;
-                    _server.ListenerException += HttpListenerException;
-                    _server.ClientConnected += HttpClientConnected;
-                    _server.ClientDisconnected += HttpClientDisconnected;
-                    _server.ClientException += HttpClientException;
-                    _server.ResponseSent += HttpResponseSent;
+                    _httpServer.ListenerStarted += HttpListenerStarted;
+                    _httpServer.ListenerStopped += HttpListenerStopped;
+                    _httpServer.ListenerException += HttpListenerException;
+                    _httpServer.ClientConnected += HttpClientConnected;
+                    _httpServer.ClientDisconnected += HttpClientDisconnected;
+                    _httpServer.ClientException += HttpClientException;
+                    _httpServer.ResponseSent += HttpResponseSent;
                 }
 
                 // Start the Http Server
-                _server.Start();
+                _httpServer.Start();
 
 
                 // Set the Configuration File Watcher
@@ -260,8 +286,8 @@ namespace MTConnect.Applications
                     foreach (var client in _clients) client.Stop();
                 }
 
-                if (_server != null) _server.Stop();
-                if (_agent != null) _agent.Dispose();
+                if (_httpServer != null) _httpServer.Stop();
+                if (_mtconnectAgent != null) _mtconnectAgent.Dispose();
                 if (_configurationWatcher != null) _configurationWatcher.Dispose();
                 if (_metricsTimer != null) _metricsTimer.Dispose();
 
@@ -322,7 +348,7 @@ namespace MTConnect.Applications
 
                 foreach (var device in document.Devices)
                 {
-                    _agent.AddDevice(device);
+                    _mtconnectAgent.AddDevice(device);
                 }
             }
         }
@@ -346,7 +372,7 @@ namespace MTConnect.Applications
                             input.Timestamp = observation.Timestamp.ToUnixTime();
                             input.Values = observation.Values;
 
-                            _agent.AddObservation(stream.Uuid, input);
+                            _mtconnectAgent.AddObservation(stream.Uuid, input);
                         }
                     }
                 }
@@ -361,7 +387,7 @@ namespace MTConnect.Applications
 
                 foreach (var asset in document.Assets)
                 {
-                    _agent.AddAsset(asset.DeviceUuid, asset);
+                    _mtconnectAgent.AddAsset(asset.DeviceUuid, asset);
                 }
             }
         }
@@ -376,24 +402,24 @@ namespace MTConnect.Applications
             int observationDelta = 0;
             int assetLastCount = 0;
             int assetDelta = 0;
-            var updateInterval = _agent.Metrics.UpdateInterval.TotalSeconds;
-            var windowInterval = _agent.Metrics.WindowInterval.TotalMinutes;
+            var updateInterval = _mtconnectAgent.Metrics.UpdateInterval.TotalSeconds;
+            var windowInterval = _mtconnectAgent.Metrics.WindowInterval.TotalMinutes;
 
             _metricsTimer = new System.Timers.Timer();
             _metricsTimer.Interval = updateInterval * 1000;
             _metricsTimer.Elapsed += (s, e) =>
             {
                 // Observations
-                var observationCount = _agent.Metrics.GetObservationCount();
-                var observationAverage = _agent.Metrics.ObservationAverage;
+                var observationCount = _mtconnectAgent.Metrics.GetObservationCount();
+                var observationAverage = _mtconnectAgent.Metrics.ObservationAverage;
                 observationDelta = observationCount - observationLastCount;
 
                 _agentLogger.Debug("[Agent] : Observations - Delta for last " + updateInterval + " seconds: " + observationDelta);
                 _agentLogger.Debug("[Agent] : Observations - Average for last " + windowInterval + " minutes: " + Math.Round(observationAverage, 5));
 
                 // Assets
-                var assetCount = _agent.Metrics.GetAssetCount();
-                var assetAverage = _agent.Metrics.AssetAverage;
+                var assetCount = _mtconnectAgent.Metrics.GetAssetCount();
+                var assetAverage = _mtconnectAgent.Metrics.AssetAverage;
                 assetDelta = assetCount - assetLastCount;
 
                 _agentLogger.Debug("[Agent] : Assets - Delta for last " + updateInterval + " seconds: " + assetDelta);

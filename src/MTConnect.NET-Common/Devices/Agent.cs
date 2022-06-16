@@ -118,6 +118,7 @@ namespace MTConnect.Devices
                 if (adapters != null)
                 {
                     var adapterComponents = new List<IComponent>();
+                    if (!adapters.Components.IsNullOrEmpty()) adapterComponents.AddRange(adapters.Components);
                     adapterComponents.Add(component);
                     adapters.Components = adapterComponents;
 
