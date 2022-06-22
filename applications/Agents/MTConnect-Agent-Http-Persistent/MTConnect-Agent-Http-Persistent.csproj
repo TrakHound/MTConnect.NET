@@ -24,18 +24,22 @@
 		<Product>TrakHound MTConnect Http Agent</Product>
 	</PropertyGroup>
 
-	<ItemGroup>
-		<PackageReference Include="Microsoft.Windows.Compatibility" Version="6.0.0" />
-		<PackageReference Include="NLog" Version="4.7.14" />
+	<ItemGroup Condition="'$(Configuration)'=='Debug'">
+		<ProjectReference Include="..\..\..\src\MTConnect.NET\MTConnect.NET.csproj" />
 	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="NLog" Version="5.0.0" />
-  </ItemGroup>
+	<ItemGroup Condition="'$(Configuration)'=='Release'">
+		<ProjectReference Include="..\..\..\src\MTConnect.NET\MTConnect.NET.csproj" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\src\MTConnect.NET\MTConnect.NET.csproj" />
-  </ItemGroup>
+	<ItemGroup Condition="'$(Configuration)'=='Docker'">
+		<PackageReference Include="MTConnect.NET" Version="3.4.2" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="NLog" Version="4.7.14" />
+		<PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" Version="4.3.0" />
+	</ItemGroup>
 
   <ItemGroup>
     <Compile Update="Service.cs">
