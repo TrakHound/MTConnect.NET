@@ -42,7 +42,7 @@ namespace MTConnect.Applications
         /// <param name="args"></param>
         public static void Main(string[] args)
         {
-            string command = "debug";
+            string command = "run";
             string configFile = null;
 
             // Read Command Line Arguments

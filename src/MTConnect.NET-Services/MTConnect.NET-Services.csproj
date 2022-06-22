@@ -41,7 +41,7 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.Windows.Compatibility" Version="6.0.0" />
+		<PackageReference Include="System.ServiceProcess.ServiceController" Version="6.0.0" />
 	</ItemGroup>
 
 	<ItemGroup>

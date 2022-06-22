@@ -57,7 +57,7 @@ namespace MTConnect.Applications
         {
             PrintHeader();
 
-            string command = "debug";
+            string command = "run";
             string configFile = null;
             int port = 0;
 
@@ -102,8 +102,12 @@ namespace MTConnect.Applications
             }
 
             // Declare a new Service (to use Service commands)
-            var service = new Service(serviceName, serviceDisplayName, serviceDescription, serviceStart);
-
+            Service service = null;
+            if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
+            {
+                service = new Service(serviceName, serviceDisplayName, serviceDescription, serviceStart);
+            }
+            
             switch (command)
             {
                 case "run":
@@ -112,8 +116,14 @@ namespace MTConnect.Applications
                     while (true) System.Threading.Thread.Sleep(100); // Block (exit console by 'Ctrl + C')
 
                 case "run-service":
+
                     _verboseLogging = true;
-                    ServiceBase.Run(service);
+                    if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
+                    {
+                        ServiceBase.Run(service);
+                    }
+                    else _applicationLogger.Info($"'Run-Service' Command is not supported on this Operating System");
+
                     break;
 
                 case "debug":
@@ -122,32 +132,67 @@ namespace MTConnect.Applications
                     while (true) System.Threading.Thread.Sleep(100); // Block (exit console by 'Ctrl + C')
 
                 case "install":
-                    service.StopService();
-                    service.RemoveService();
-                    service.InstallService(configFile);
+
+                    if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
+                    {
+                        service.StopService();
+                        service.RemoveService();
+                        service.InstallService(configFile);
+                    }
+                    else _applicationLogger.Info($"'Install' Command is not supported on this Operating System");
+                    
                     break;
 
                 case "install-start":
-                    service.StopService();
-                    service.RemoveService();
-                    service.InstallService(configFile);
-                    service.StartService();
+
+                    if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
+                    {
+                        service.StopService();
+                        service.RemoveService();
+                        service.InstallService(configFile);
+                        service.StartService();
+                    }
+                    else _applicationLogger.Info($"'Install-Start' Command is not supported on this Operating System");
+
                     break;
 
                 case "remove":
-                    service.StopService();
-                    service.RemoveService();
+
+                    if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
+                    {
+                        service.StopService();
+                        service.RemoveService();
+                    }
+                    else _applicationLogger.Info($"'Remove' Command is not supported on this Operating System");
+
                     break;
 
                 case "start":
-                    service.StartService();
+
+                    if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
+                    {
+                        service.StartService();
+                    }
+                    else _applicationLogger.Info($"'Start' Command is not supported on this Operating System");
+
                     break;
 
                 case "stop":
-                    service.StopService();
+
+                    if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
+                    {
+                        service.StopService();
+                    }
+                    else _applicationLogger.Info($"'Stop' Command is not supported on this Operating System");
+
                     break;
 
                 case "help": 
+                    PrintHelp();
+                    break;
+
+                default:
+                    _applicationLogger.Info($"'{command}' : Command not recognized : See help for more information");
                     PrintHelp();
                     break;
             }
@@ -333,7 +378,7 @@ namespace MTConnect.Applications
         }
 
 
-        #region "Agent Configuration"
+#region "Agent Configuration"
 
         private static void AgentConfigurationFileUpdated(object sender, ShdrAgentConfiguration configuration)
         {
@@ -351,9 +396,9 @@ namespace MTConnect.Applications
             _applicationLogger.Error($"[Application] : Agent Configuration File Error : {message}");
         }
 
-        #endregion
+#endregion
 
-        #region "Device Configuration"
+#region "Device Configuration"
 
         private static void DeviceConfigurationFileUpdated(object sender, DeviceConfiguration configuration)
         {
@@ -371,9 +416,9 @@ namespace MTConnect.Applications
             _applicationLogger.Error($"[Application] : Device Configuration File Error : {message}");
         }
 
-        #endregion
+#endregion
 
-        #region "Metrics"
+#region "Metrics"
 
         private static void StartMetrics()
         {
@@ -410,9 +455,9 @@ namespace MTConnect.Applications
             _metricsTimer.Start();
         }
 
-        #endregion
+#endregion
 
-        #region "Console Output"
+#region "Console Output"
 
         private static void PrintHeader()
         {
@@ -641,7 +686,7 @@ namespace MTConnect.Applications
             }
         }
 
-        #endregion
+#endregion
 
     }
 }
