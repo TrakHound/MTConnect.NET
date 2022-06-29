@@ -87,6 +87,7 @@ namespace MTConnect.Applications
                 // Individual Logger Classes
                 builder.Services.AddSingleton<AgentGatewayConfiguration>(configuration);
                 builder.Services.AddSingleton<AgentLogger>();
+                builder.Services.AddSingleton<AgentMetricLogger>();
                 builder.Services.AddSingleton<AgentValidationLogger>();
 
                 // Add the AgentService that handles the MTConnect Agent

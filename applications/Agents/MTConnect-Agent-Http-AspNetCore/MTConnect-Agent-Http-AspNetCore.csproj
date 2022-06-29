@@ -54,6 +54,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\MTConnect.NET-HTTP-AspNetCore\MTConnect.NET-HTTP-AspNetCore.csproj" />
+    <ProjectReference Include="..\..\..\src\MTConnect.NET-JSON\MTConnect.NET-JSON.csproj" />
     <ProjectReference Include="..\..\..\src\MTConnect.NET-SHDR\MTConnect.NET-SHDR.csproj" />
   </ItemGroup>
 

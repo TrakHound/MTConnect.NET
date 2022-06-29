@@ -35,6 +35,7 @@ namespace MTConnect.Applications
             ShdrAgentConfiguration configuration,
             IMTConnectAgent mtconnectAgent, 
             AgentLogger agentLogger,
+            AgentMetricLogger agentMetricLogger,
             AgentValidationLogger agentValidationLogger,
             AdapterLogger adapterLogger,
             AdapterShdrLogger adapterShdrLogger,
@@ -45,6 +46,7 @@ namespace MTConnect.Applications
             _mtconnectAgent = mtconnectAgent;
             _logger = logger;
             _agentLogger = agentLogger;
+            _agentMetricLogger = agentMetricLogger;
             _adapterLogger = adapterLogger;
             _adapterShdrLogger = adapterShdrLogger;
 

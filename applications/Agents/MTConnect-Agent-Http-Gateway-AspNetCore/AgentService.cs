@@ -29,6 +29,8 @@ namespace MTConnect.Applications
         private readonly IMTConnectAgent _mtconnectAgent;
         private readonly ILogger<AgentService> _logger;
         private readonly AgentLogger _agentLogger;
+        private readonly AgentMetricLogger _agentMetricLogger;
+        private readonly AgentValidationLogger _agentValidationLogger;
         private readonly List<MTConnectClient> _clients = new List<MTConnectClient>();
         private System.Timers.Timer _metricsTimer;
 
@@ -37,6 +39,7 @@ namespace MTConnect.Applications
             AgentGatewayConfiguration configuration,
             IMTConnectAgent mtconnectAgent, 
             AgentLogger agentLogger,
+            AgentMetricLogger agentMetricLogger,
             AgentValidationLogger agentValidationLogger,
             ILogger<AgentService> logger
             )
@@ -45,6 +48,8 @@ namespace MTConnect.Applications
             _mtconnectAgent = mtconnectAgent;
             _logger = logger;
             _agentLogger = agentLogger;
+            _agentMetricLogger = agentMetricLogger;
+            _agentValidationLogger = agentValidationLogger;
 
             _mtconnectAgent.DevicesRequestReceived += agentLogger.DevicesRequested;
             _mtconnectAgent.DevicesResponseSent += agentLogger.DevicesResponseSent;
