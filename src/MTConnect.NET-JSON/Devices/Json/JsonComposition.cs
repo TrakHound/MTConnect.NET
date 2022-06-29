@@ -5,6 +5,8 @@
 
 using MTConnect.Devices.Configurations;
 using MTConnect.Devices.References;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json.Serialization;
 
 namespace MTConnect.Devices.Json

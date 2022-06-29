@@ -5,6 +5,8 @@
 
 using MTConnect.Devices.Configurations;
 using MTConnect.Devices.References;
+using System;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace MTConnect.Devices.Json
@@ -23,6 +25,12 @@ namespace MTConnect.Devices.Json
         /// </summary>
         [JsonPropertyName("id")]
         public string Id { get; set; }
+
+        /// <summary>
+        /// The type of device
+        /// </summary>
+        [JsonPropertyName("type")]
+        public string Type { get; set; }
 
         /// <summary>
         /// The name of the Device.
@@ -127,6 +135,7 @@ namespace MTConnect.Devices.Json
             if (device != null)
             {
                 Id = device.Id;
+                Type = device.Type;
                 Name = device.Name;
                 NativeName = device.NativeName;
                 Uuid = device.Uuid;

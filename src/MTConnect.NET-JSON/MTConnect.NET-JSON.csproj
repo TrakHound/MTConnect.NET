@@ -1,21 +1,91 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <RootNamespace>MTConnect</RootNamespace>
-    <ImplicitUsings>enable</ImplicitUsings>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)'=='Debug'">
+		<TargetFrameworks>net6.0</TargetFrameworks>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)'=='Release'">
+		<TargetFrameworks>net461;net462;net47;net471;net472;net48;netstandard2.0;netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="Assets\JsonAssetsDocument.cs" />
-  </ItemGroup>
+	<PropertyGroup>
+		<RootNamespace>MTConnect</RootNamespace>
+		<Configurations>Debug;Release;Package</Configurations>
+		<Authors>TrakHound</Authors>
+		<Company>TrakHound Inc.</Company>
+		<Copyright>Copyright (c) 2022 TrakHound Inc., All Rights Reserved.</Copyright>
+		<RepositoryUrl>https://github.com/TrakHound/MTConnect.NET</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<Description>MTConnect.NET-JSON implements the JSON Document Format for use with the MTConnect.NET library. Supports MTConnect Versions up to 2.0. Supports .NET Framework 4.6.1 up to .NET 6</Description>
+		<PackageProjectUrl>https://www.TrakHound.com</PackageProjectUrl>
+		<PackageTags>mtconnect;iiot;</PackageTags>
+		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+		<PackageIconUrl>https://static.trakhound.com/mtconnect-net.png</PackageIconUrl>
 
-  <ItemGroup>
-    <ProjectReference Include="..\MTConnect.NET-Common\MTConnect.NET-Common.csproj" />
-  </ItemGroup>
+		<!-- Optional: Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
 
-  <ItemGroup>
-    <None Include="Assets\JsonAssetsDocument.cs" />
-  </ItemGroup>
+		<!-- Optional: Embed source files that are not tracked by the source control manager in the PDB -->
+		<EmbedUntrackedSources>true</EmbedUntrackedSources>
+
+		<!-- Optional: Build symbol package (.snupkg) to distribute the PDB containing Source Link -->
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)'=='Release'">
+		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\MTConnect.NET-Common\MTConnect.NET-Common.csproj" />
+	</ItemGroup>
+
+	<!--Conditionally obtain references for the .NET Framework 4.6.1 target-->
+	<ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
+		<Reference Include="System.Text.Json" />
+		<PackageReference Include="System.Text.Json" Version="6.0.1" />
+	</ItemGroup>
+
+	<!--Conditionally obtain references for the .NET Framework 4.6.2 target-->
+	<ItemGroup Condition=" '$(TargetFramework)' == 'net462' ">
+		<Reference Include="System.Text.Json" />
+		<PackageReference Include="System.Text.Json" Version="6.0.1" />
+	</ItemGroup>
+
+	<!--Conditionally obtain references for the .NET Framework 4.7 target-->
+	<ItemGroup Condition=" '$(TargetFramework)' == 'net47' ">
+		<Reference Include="System.Text.Json" />
+		<PackageReference Include="System.Text.Json" Version="6.0.1" />
+	</ItemGroup>
+
+	<!--Conditionally obtain references for the .NET Framework 4.7.1 target-->
+	<ItemGroup Condition=" '$(TargetFramework)' == 'net471' ">
+		<Reference Include="System.Text.Json" />
+		<PackageReference Include="System.Text.Json" Version="6.0.1" />
+	</ItemGroup>
+
+	<!--Conditionally obtain references for the .NET Framework 4.7.2 target-->
+	<ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
+		<Reference Include="System.Text.Json" />
+		<PackageReference Include="System.Text.Json" Version="6.0.1" />
+	</ItemGroup>
+
+	<!--Conditionally obtain references for the .NET Framework 4.8 target-->
+	<ItemGroup Condition=" '$(TargetFramework)' == 'net48' ">
+		<Reference Include="System.Text.Json" />
+		<PackageReference Include="System.Text.Json" Version="6.0.1" />
+	</ItemGroup>
+
+	<!--Conditionally obtain references for the .NET Standard target-->
+	<ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+		<Reference Include="System.Text.Json" />
+		<PackageReference Include="System.Text.Json" Version="6.0.1" />
+	</ItemGroup>
 
 </Project>

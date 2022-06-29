@@ -28,13 +28,13 @@ namespace MTConnect.Streams.Json
                 SubType = e.SubType;
                 CompositionId = e.CompositionId;
                 if (e.ResetTriggered != Observations.ResetTriggered.NOT_SPECIFIED) ResetTriggered = e.ResetTriggered.ToString();
-                //CDATA = e.CDATA;
+                Result = e.GetValue(ValueKeys.CDATA);
                 //Entries = e.Entries;
                 //if (e.Count > 0) Count = e.Count;
             }
         }
 
-        public JsonEvent(Observations.Observation e)
+        public JsonEvent(Observation e)
         {
             if (e != null)
             {
@@ -42,11 +42,11 @@ namespace MTConnect.Streams.Json
                 Timestamp = e.Timestamp;
                 Name = e.Name;
                 Sequence = e.Sequence;
-                Type = e.Type;
-                SubType = e.SubType;
+                Type = e.Type.ToPascalCase();
+                SubType = e.SubType.ToPascalCase();
                 CompositionId = e.CompositionId;
                 //if (e.ResetTriggered != Streams.ResetTriggered.NOT_SPECIFIED) ResetTriggered = e.ResetTriggered.ToString();
-                //CDATA = e.CDATA;
+                Result = e.GetValue(ValueKeys.CDATA);
                 //Entries = e.Entries;
                 //if (e.Count > 0) Count = e.Count;
             }

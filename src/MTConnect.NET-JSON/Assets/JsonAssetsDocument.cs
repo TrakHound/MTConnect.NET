@@ -15,7 +15,7 @@ namespace MTConnect.Assets.Json
         /// Contains the Header information in an MTConnect Assets XML document
         /// </summary>
         [JsonPropertyName("header")]
-        public IMTConnectAssetsHeader Header { get; set; }
+        public MTConnectAssetsHeader Header { get; set; }
 
         /// <summary>
         /// An XML container that consists of one or more types of Asset XML elements.
@@ -28,7 +28,16 @@ namespace MTConnect.Assets.Json
         {
             if (assetsDocument != null)
             {
-                Header = assetsDocument.Header;
+                var header = new MTConnectAssetsHeader();
+                header.InstanceId = assetsDocument.Header.InstanceId;
+                header.Version = assetsDocument.Header.Version;
+                header.Sender = assetsDocument.Header.Sender;
+                header.AssetBufferSize = assetsDocument.Header.AssetBufferSize;
+                header.AssetCount = assetsDocument.Header.AssetCount;
+                header.DeviceModelChangeTime = assetsDocument.Header.DeviceModelChangeTime;
+                header.TestIndicator = assetsDocument.Header.TestIndicator;
+                header.CreationTime = assetsDocument.Header.CreationTime;
+                Header = header;
 
                 // Add Assets
                 if (!assetsDocument.Assets.IsNullOrEmpty())
@@ -52,12 +61,12 @@ namespace MTConnect.Assets.Json
             // Add Assets
             if (!Assets.IsNullOrEmpty())
             {
-                var assets = new List<IAsset>();
-                foreach (var asset in Assets)
-                {
-                    //assets.Add(asset);
-                }
-                assetsDocument.Assets = assets;
+                //var assets = new List<object>();
+                //foreach (var asset in Assets)
+                //{
+                //    assets.Add(asset);
+                //}
+                //assetsDocument.Assets = assets;
             }
             else assetsDocument.Assets = new List<IAsset>();
 

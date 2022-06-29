@@ -133,7 +133,6 @@ namespace MTConnect.Streams.Json
         {
             var componentStream = new ComponentStream();
 
-            //componentStream.Component = Type;
             componentStream.ComponentId = ComponentId;
             componentStream.Name = Name;
             componentStream.NativeName = NativeName;
@@ -153,24 +152,13 @@ namespace MTConnect.Streams.Json
             // Add Events
             if (!Events.IsNullOrEmpty())
             {
-                var events = new List<Observations.EventObservation>();
+                var events = new List<EventObservation>();
                 foreach (var e in Events)
                 {
                     events.Add(e.ToEvent());
                 }
                 componentStream.Events = events;
             }
-
-            //// Add Events
-            //if (!Events.IsNullOrEmpty())
-            //{
-            //    var events = new List<Event>();
-            //    foreach (var e in Events)
-            //    {
-            //        events.Add(e.ToEvent());
-            //    }
-            //    componentStream.Events = events;
-            //}
 
             // Add Conditions
             if (!Conditions.IsNullOrEmpty())

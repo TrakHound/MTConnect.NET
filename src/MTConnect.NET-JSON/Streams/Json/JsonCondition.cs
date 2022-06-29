@@ -61,14 +61,14 @@ namespace MTConnect.Streams.Json
                 SubType = condition.SubType;
                 CompositionId = condition.CompositionId;
                 //if (condition.ResetTriggered != Streams.ResetTriggered.NOT_SPECIFIED) ResetTriggered = condition.ResetTriggered.ToString();
-                //CDATA = condition.CDATA;
+                if (!string.IsNullOrEmpty(condition.CDATA)) Result = condition.CDATA;
                 //Entries = condition.Entries;
                 //if (condition.Count > 0) Count = condition.Count;
 
-                //Level = condition.Level.ToString();
-                //NativeCode = condition.NativeCode;
-                //NativeSeverity = condition.NativeSeverity;
-                //if (condition.Qualifier != ConditionQualifier.NOT_SPECIFIED) Qualifier = condition.Qualifier.ToString();
+                Level = condition.Level.ToString();
+                NativeCode = condition.NativeCode;
+                NativeSeverity = condition.NativeSeverity;
+                if (condition.Qualifier != ConditionQualifier.NOT_SPECIFIED) Qualifier = condition.Qualifier.ToString();
                 //Statistic = condition.Statistic;
             }
         }

@@ -7,6 +7,8 @@ using System.Text.Json.Serialization;
 using System.Xml;
 using System.Xml.Serialization;
 using MTConnect.Observations;
+using MTConnect.Devices;
+using MTConnect.Devices.DataItems;
 
 namespace MTConnect.Streams.Json
 {
@@ -47,23 +49,23 @@ namespace MTConnect.Streams.Json
 
         public JsonSample(SampleObservation sample)
         {
-            //if (sample != null)
-            //{
-            //    DataItemId = sample.DataItemId;
-            //    Timestamp = sample.Timestamp;
-            //    Name = sample.Name;
-            //    Sequence = sample.Sequence;
-            //    Type = sample.Type;
-            //    SubType = sample.SubType;
-            //    CompositionId = sample.CompositionId;
-            //    if (sample.ResetTriggered != Streams.ResetTriggered.NOT_SPECIFIED) ResetTriggered = sample.ResetTriggered.ToString();
-            //    CDATA = sample.CDATA;
-            //    if (!sample.Entries.IsNullOrEmpty()) Entries = sample.Entries;
-            //    if (sample.Count > 0) Count = sample.Count;
-            //    if (sample.SampleRate > 0) SampleRate = sample.SampleRate;
-            //    if (sample.Statistic != Devices.DataItemStatistic.NONE) Statistic = sample.Statistic.ToString();
-            //    if (sample.Duration > 0) Duration = sample.Duration;
-            //}
+            if (sample != null)
+            {
+                DataItemId = sample.DataItemId;
+                Timestamp = sample.Timestamp;
+                Name = sample.Name;
+                Sequence = sample.Sequence;
+                Type = sample.Type;
+                SubType = sample.SubType;
+                CompositionId = sample.CompositionId;
+                if (sample.ResetTriggered != Observations.ResetTriggered.NOT_SPECIFIED) ResetTriggered = sample.ResetTriggered.ToString();
+                Result = sample.GetValue(ValueKeys.CDATA);
+                //if (!sample.Entries.IsNullOrEmpty()) Entries = sample.Entries;
+                //if (sample.Count > 0) Count = sample.Count;
+                if (sample.SampleRate > 0) SampleRate = sample.SampleRate;
+                if (sample.Statistic != DataItemStatistic.NONE) Statistic = sample.Statistic.ToString();
+                if (sample.Duration > 0) Duration = sample.Duration;
+            }
         }
 
         public SampleObservation ToSample()

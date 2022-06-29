@@ -5,6 +5,7 @@
 
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
+using MTConnect.Headers;
 
 namespace MTConnect.Streams.Json
 {
@@ -17,7 +18,7 @@ namespace MTConnect.Streams.Json
         /// Contains the Header information in an MTConnect Streams XML document
         /// </summary>
         [JsonPropertyName("header")]
-        public Headers.IMTConnectStreamsHeader Header { get; set; }
+        public MTConnectStreamsHeader Header { get; set; }
 
         /// <summary>
         /// Streams is a container type XML element used to group the data reported from one or more pieces of equipment into a single XML document.
@@ -32,7 +33,18 @@ namespace MTConnect.Streams.Json
         {
             if (streamsDocument != null)
             {
-                Header = streamsDocument.Header;
+                var header = new MTConnectStreamsHeader();
+                header.InstanceId = streamsDocument.Header.InstanceId;
+                header.Version = streamsDocument.Header.Version;
+                header.Sender = streamsDocument.Header.Sender;
+                header.BufferSize = streamsDocument.Header.BufferSize;
+                header.FirstSequence = streamsDocument.Header.FirstSequence;
+                header.LastSequence = streamsDocument.Header.LastSequence;
+                header.NextSequence = streamsDocument.Header.NextSequence;
+                header.DeviceModelChangeTime = streamsDocument.Header.DeviceModelChangeTime;
+                header.TestIndicator = streamsDocument.Header.TestIndicator;
+                header.CreationTime = streamsDocument.Header.CreationTime;
+                Header = header;
 
                 var xmlStreams = new List<JsonDeviceStream>();
                 if (!streamsDocument.Streams.IsNullOrEmpty())

@@ -54,6 +54,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\MTConnect.NET-Common\MTConnect.NET-Common.csproj" />
 		<ProjectReference Include="..\MTConnect.NET-HTTP\MTConnect.NET-HTTP.csproj" />
+		<ProjectReference Include="..\MTConnect.NET-JSON\MTConnect.NET-JSON.csproj" />
 		<ProjectReference Include="..\MTConnect.NET-Services\MTConnect.NET-Services.csproj" />
 		<ProjectReference Include="..\MTConnect.NET-SHDR\MTConnect.NET-SHDR.csproj" />
 		<ProjectReference Include="..\MTConnect.NET-XML\MTConnect.NET-XML.csproj" />

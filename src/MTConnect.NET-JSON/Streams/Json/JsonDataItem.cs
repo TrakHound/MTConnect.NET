@@ -71,8 +71,8 @@ namespace MTConnect.Streams.Json
         [JsonPropertyName("resetTriggered")]
         public string ResetTriggered { get; set; }
 
-        [JsonPropertyName("cdata")]
-        public string CDATA { get; set; }
+        [JsonPropertyName("result")]
+        public string Result { get; set; }
 
         //[JsonPropertyName("entries")]
         //public List<Entry> Entries { get; set; }

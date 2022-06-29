@@ -5,6 +5,9 @@
 
 using MTConnect.Headers;
 using MTConnect.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json.Serialization;
 
 namespace MTConnect.Devices.Json
@@ -12,7 +15,7 @@ namespace MTConnect.Devices.Json
     public class JsonDevicesDocument
     {
         [JsonPropertyName("header")]
-        public IMTConnectDevicesHeader Header { get; set; }
+        public MTConnectDevicesHeader Header { get; set; }
 
         [JsonPropertyName("devices")]
         public List<JsonDevice> Devices { get; set; }
@@ -27,7 +30,17 @@ namespace MTConnect.Devices.Json
         {
             if (document != null)
             {
-                Header = document.Header;
+                var header = new MTConnectDevicesHeader();
+                header.InstanceId = document.Header.InstanceId;
+                header.Version = document.Header.Version;
+                header.Sender = document.Header.Sender;
+                header.BufferSize = document.Header.BufferSize;
+                header.AssetBufferSize = document.Header.AssetBufferSize;
+                header.AssetCount = document.Header.AssetCount;
+                header.DeviceModelChangeTime = document.Header.DeviceModelChangeTime;
+                header.TestIndicator = document.Header.TestIndicator;
+                header.CreationTime = document.Header.CreationTime;
+                Header = header;
 
                 if (!document.Devices.IsNullOrEmpty())
                 {
