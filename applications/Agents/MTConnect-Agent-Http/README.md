@@ -13,7 +13,7 @@ Please feel free to use and debug this application and it's source code. There a
 
 ## Releases
 Releases for this application are located under the Releases tab. The current release is listed below:
-- [MTConnect Agent Current Release](https://github.com/TrakHound/MTConnect.NET/releases/tag/v0.4.1-beta-agents)
+- [MTConnect Agent Current Release](https://github.com/TrakHound/MTConnect.NET/releases/tag/v0.5.1-beta-agents)
 
 ## Usage
 The Agent can be run from a command line prompt or as a Windows Service using the format below:
