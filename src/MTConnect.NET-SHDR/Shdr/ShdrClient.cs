@@ -422,6 +422,9 @@ namespace MTConnect.Shdr
                         if (_client != null)
                         {
                             _client.Close();
+                            _client.Dispose();
+
+                            GC.Collect();
 
                             if (connected)
                             {
@@ -444,6 +447,23 @@ namespace MTConnect.Shdr
             catch (Exception ex)
             {
                 ConnectionError?.Invoke(this, ex);
+
+                if (_client != null)
+                {
+                    _client.Close();
+                    _client.Dispose();
+
+                    GC.Collect();
+
+                    if (connected)
+                    {
+                        Disconnected?.Invoke(this, $"Disconnected from {Hostname} on Port {Port}");
+
+                        await OnDisconnect();
+                    }
+                }
+
+                connected = false;
             }
         }
 
