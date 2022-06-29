@@ -178,7 +178,10 @@ namespace MTConnect.Formatters
                     _firstRead = false;
                 }
 
-                _formatters.TryGetValue(id, out var formatter);
+                // Normalize the FormatterId
+                var formatterId = id.ToLower();
+
+                _formatters.TryGetValue(formatterId, out var formatter);
                 return formatter;
             }
 
@@ -205,7 +208,11 @@ namespace MTConnect.Formatters
                         {
                             // Create new Instance of the Formatter and add to cached dictionary
                             var formatter = (IResponseDocumentFormatter)Activator.CreateInstance(type);
-                            _formatters.TryAdd(formatter.Id, formatter);
+
+                            // Normalize the FormatterId
+                            var formatterId = formatter.Id.ToLower();
+
+                            _formatters.TryAdd(formatterId, formatter);
                         }
                         catch { }
                     }
