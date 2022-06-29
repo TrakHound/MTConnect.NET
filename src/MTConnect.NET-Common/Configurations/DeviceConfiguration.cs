@@ -79,7 +79,7 @@ namespace MTConnect.Configurations
                         var contents = File.ReadAllText(rootPath);
                         if (!string.IsNullOrEmpty(contents))
                         {
-                            var devicesDocument = Formatters.ResponseDocumentFormatter.CreateDevicesResponseDocument(documentFormatterId, contents);
+                            var devicesDocument = Formatters.ResponseDocumentFormatter.CreateDevicesResponseDocument(documentFormatterId, contents).Document;
                             if (devicesDocument != null && devicesDocument.Devices != null && devicesDocument.Devices.Count() > 0)
                             {
                                 var devices = new List<DeviceConfiguration>();
@@ -127,7 +127,7 @@ namespace MTConnect.Configurations
                         var contents = await File.ReadAllTextAsync(rootPath);
                         if (!string.IsNullOrEmpty(contents))
                         {
-                            var devicesDocument = Formatters.ResponseDocumentFormatter.CreateDevicesResponseDocument(documentFormatterId, contents);
+                            var devicesDocument = Formatters.ResponseDocumentFormatter.CreateDevicesResponseDocument(documentFormatterId, contents).Document;
                             if (devicesDocument != null && devicesDocument.Devices != null && devicesDocument.Devices.Count() > 0)
                             {
                                 var devices = new List<DeviceConfiguration>();

@@ -176,6 +176,6 @@ namespace MTConnect.Devices
         /// <param name="mtconnectVersion">The Version of the MTConnect Standard</param>
         /// <param name="observation">The Observation to validate</param>
         /// <returns>A DataItemValidationResult indicating if Validation was successful and a Message</returns>
-        DataItemValidationResult IsValid(Version mtconnectVersion, IObservationInput observation);
+        ValidationResult IsValid(Version mtconnectVersion, IObservationInput observation);
     }
 }

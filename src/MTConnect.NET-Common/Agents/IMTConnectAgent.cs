@@ -150,7 +150,30 @@ namespace MTConnect.Agents
         MTConnectErrorHandler ErrorResponseSent { get; set; }
 
 
+        /// <summary>
+        /// Raised when an Invalid Component is Added
+        /// </summary>
+        MTConnectComponentValidationHandler InvalidComponentAdded { get; set; }
+
+        /// <summary>
+        /// Raised when an Invalid Composition is Added
+        /// </summary>
+        MTConnectCompositionValidationHandler InvalidCompositionAdded { get; set; }
+
+        /// <summary>
+        /// Raised when an Invalid DataItem is Added
+        /// </summary>
         MTConnectDataItemValidationHandler InvalidDataItemAdded { get; set; }
+
+        /// <summary>
+        /// Raised when an Invalid Observation is Added
+        /// </summary>
+        MTConnectObservationValidationHandler InvalidObservationAdded { get; set; }
+
+        /// <summary>
+        /// Raised when an Invalid Asset is Added
+        /// </summary>
+        MTConnectAssetValidationHandler InvalidAssetAdded { get; set; }
 
         #endregion
 

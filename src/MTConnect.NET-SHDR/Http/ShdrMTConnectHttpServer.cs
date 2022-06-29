@@ -85,8 +85,16 @@ namespace MTConnect.Http
                             if (!dataItems.IsNullOrEmpty()) await _mtconnectAgent.AddObservationsAsync(device.Uuid, dataItems);
                         }
                     }
+                    else
+                    {
+                        _mtconnectAgent.InvalidObservationAdded.Invoke(deviceKey, dataItemKey, new ValidationResult(false, $"DataItemKey \"{dataItemKey}\" not Found in Device"));
+                    }
 
                     return true;
+                }
+                else
+                {
+                    _mtconnectAgent.InvalidObservationAdded.Invoke(deviceKey, dataItemKey, new ValidationResult(false, $"Device \"{deviceKey}\" not Found"));
                 }
             }
 

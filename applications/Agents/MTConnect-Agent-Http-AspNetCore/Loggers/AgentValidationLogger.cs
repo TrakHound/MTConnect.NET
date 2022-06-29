@@ -20,7 +20,7 @@ namespace MTConnect.Applications.Loggers
         }
 
 
-        public void InvalidDataItemAdded(IDataItem dataItem, DataItemValidationResult result)
+        public void InvalidDataItemAdded(IDataItem dataItem, ValidationResult result)
         {
             _logger.LogWarning($"[Agent-Validation] : Validation Failed :  {result.Message}");
         }

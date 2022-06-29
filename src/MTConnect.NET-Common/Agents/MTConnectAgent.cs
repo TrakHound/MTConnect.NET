@@ -188,9 +188,24 @@ namespace MTConnect.Agents
         public MTConnectErrorHandler ErrorResponseSent { get; set; }
 
         /// <summary>
-        /// Raised when an Invalid DataItem Observation is Added
+        /// Raised when an Invalid Component is Added
+        /// </summary>
+        public MTConnectComponentValidationHandler InvalidComponentAdded { get; set; }
+
+        /// <summary>
+        /// Raised when an Invalid Composition is Added
+        /// </summary>
+        public MTConnectCompositionValidationHandler InvalidCompositionAdded { get; set; }
+
+        /// <summary>
+        /// Raised when an Invalid DataItem is Added
         /// </summary>
         public MTConnectDataItemValidationHandler InvalidDataItemAdded { get; set; }
+
+        /// <summary>
+        /// Raised when an Invalid Observation is Added
+        /// </summary>
+        public MTConnectObservationValidationHandler InvalidObservationAdded { get; set; }
 
         /// <summary>
         /// Raised when an Invalid Asset is Added
@@ -2646,6 +2661,40 @@ namespace MTConnect.Agents
                         obj.DataItems = x;
                     }
 
+
+                    // Generic Components
+                    var genericComponents = obj.GetComponents()?.Where(o => o.GetType() == typeof(Component));
+                    if (!genericComponents.IsNullOrEmpty())
+                    {
+                        foreach (var genericComponent in genericComponents)
+                        {
+                            var validationResults = new ValidationResult(false, $"Invalid Component : \"{genericComponent.Type}\" Not Found");
+                            if (InvalidComponentAdded != null) InvalidComponentAdded.Invoke(obj.Uuid, genericComponent, validationResults);
+                        }
+                    }
+
+                    // Generic Compositions
+                    var genericCompositions = obj.GetCompositions()?.Where(o => o.GetType() == typeof(Composition));
+                    if (!genericCompositions.IsNullOrEmpty())
+                    {
+                        foreach (var genericComposition in genericCompositions)
+                        {
+                            var validationResults = new ValidationResult(false, $"Invalid Composition : \"{genericComposition.Type}\" Not Found");
+                            if (InvalidCompositionAdded != null) InvalidCompositionAdded.Invoke(obj.Uuid, genericComposition, validationResults);
+                        }
+                    }
+
+                    // Generic DataItems
+                    var genericDataItems = obj.GetDataItems()?.Where(o => o.GetType() == typeof(DataItem));
+                    if (!genericDataItems.IsNullOrEmpty())
+                    {
+                        foreach (var genericDataItem in genericDataItems)
+                        {
+                            var validationResults = new ValidationResult(false, $"Invalid DataItem : \"{genericDataItem.Type}\" Not Found");
+                            if (InvalidDataItemAdded != null) InvalidDataItemAdded.Invoke(obj.Uuid, genericDataItem, validationResults);
+                        }
+                    }
+ 
                     return obj;
                 } 
             }
@@ -3522,7 +3571,7 @@ namespace MTConnect.Agents
                 if (dataItem != null)
                 {
                     var success = false;
-                    var validationResult = new DataItemValidationResult(true);
+                    var validationResult = new ValidationResult(true);
 
                     if (_configuration.ValidationLevel > ValidationLevel.Ignore)
                     {
@@ -3583,9 +3632,16 @@ namespace MTConnect.Agents
                         else success = true; // Return true if no update needed
                     }
 
-                    if (!validationResult.IsValid && InvalidDataItemAdded != null) InvalidDataItemAdded.Invoke(dataItem, validationResult);
+                    if (!validationResult.IsValid && InvalidObservationAdded != null)
+                    {
+                        InvalidObservationAdded.Invoke(deviceUuid, observationInput.DataItemKey, validationResult);
+                    }
 
                     return success;
+                }
+                else if (InvalidObservationAdded != null)
+                {
+                    InvalidObservationAdded.Invoke(deviceUuid, observationInput.DataItemKey, new ValidationResult(false, $"DataItemKey \"{observationInput.DataItemKey}\" not Found in Device"));
                 }
             }
 
@@ -3633,7 +3689,7 @@ namespace MTConnect.Agents
                 if (dataItem != null)
                 {
                     var success = false;
-                    var validationResult = new DataItemValidationResult(true);
+                    var validationResult = new ValidationResult(true);
 
                     if (_configuration.ValidationLevel > ValidationLevel.Ignore)
                     {
@@ -3694,9 +3750,16 @@ namespace MTConnect.Agents
                         else success = true; // Return true if no update needed
                     }
 
-                    if (!validationResult.IsValid && InvalidDataItemAdded != null) InvalidDataItemAdded.Invoke(dataItem, validationResult);
+                    if (!validationResult.IsValid && InvalidObservationAdded != null)
+                    {
+                        InvalidObservationAdded.Invoke(deviceUuid, observationInput.DataItemKey, validationResult);
+                    }
 
                     return success;
+                }
+                else  if (InvalidObservationAdded != null)
+                {
+                    InvalidObservationAdded.Invoke(deviceUuid, observationInput.DataItemKey, new ValidationResult(false, $"DataItemKey \"{observationInput.DataItemKey}\" not Found in Device"));
                 }
             }
 

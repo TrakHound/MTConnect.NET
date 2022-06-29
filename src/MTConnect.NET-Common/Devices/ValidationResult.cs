@@ -5,14 +5,14 @@
 
 namespace MTConnect.Devices.DataItems
 {
-    public struct DataItemValidationResult
+    public struct ValidationResult
     {
         public bool IsValid { get; set; }
 
         public string Message { get; set; }
 
 
-        public DataItemValidationResult(bool isValid, string message = null)
+        public ValidationResult(bool isValid, string message = null)
         {
             IsValid = isValid;
             Message = message;

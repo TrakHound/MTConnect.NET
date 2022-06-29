@@ -68,7 +68,7 @@ namespace MTConnect.Devices.DataItems.Events
         /// <param name="mtconnectVersion">The Version of the MTConnect Standard</param>
         /// <param name="observation">The Observation to validate</param>
         /// <returns>A DataItemValidationResult indicating if Validation was successful and a Message</returns>
-        protected override DataItemValidationResult OnValidation(Version mtconnectVersion, IObservationInput observation)
+        protected override ValidationResult OnValidation(Version mtconnectVersion, IObservationInput observation)
         {
             if (observation != null && !observation.Values.IsNullOrEmpty())
             {
@@ -77,7 +77,7 @@ namespace MTConnect.Devices.DataItems.Events
                 if (cdata != null)
                 {
                     // Check if Unavailable
-                    if (cdata == Observation.Unavailable) return new DataItemValidationResult(true);
+                    if (cdata == Observation.Unavailable) return new ValidationResult(true);
 
                     if (mtconnectVersion >= MTConnectVersions.Version12)
                     {
@@ -89,11 +89,11 @@ namespace MTConnect.Devices.DataItems.Events
                             {
                                 if (cdata == validValue.ToString())
                                 {
-                                    return new DataItemValidationResult(true);
+                                    return new ValidationResult(true);
                                 }
                             }
 
-                            return new DataItemValidationResult(false, "'" + cdata + "' is not a valid value");
+                            return new ValidationResult(false, "'" + cdata + "' is not a valid value");
                         }
                         else if (SubType == SubTypes.ROTARY.ToString())
                         {
@@ -103,25 +103,25 @@ namespace MTConnect.Devices.DataItems.Events
                             {
                                 if (cdata == validValue.ToString())
                                 {
-                                    return new DataItemValidationResult(true);
+                                    return new ValidationResult(true);
                                 }
                             }
 
-                            return new DataItemValidationResult(false, "'" + cdata + "' is not a valid value");
+                            return new ValidationResult(false, "'" + cdata + "' is not a valid value");
                         }
                     }
                     else
                     {
-                        return new DataItemValidationResult(true);
+                        return new ValidationResult(true);
                     }
                 }
                 else
                 {
-                    return new DataItemValidationResult(false, "No CDATA is specified for the Observation");
+                    return new ValidationResult(false, "No CDATA is specified for the Observation");
                 }
             }
 
-            return new DataItemValidationResult(false, "No Observation is Specified");
+            return new ValidationResult(false, "No Observation is Specified");
         }
 
         public override string SubTypeDescription => GetSubTypeDescription(SubType);

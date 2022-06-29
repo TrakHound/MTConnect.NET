@@ -269,9 +269,9 @@ namespace MTConnect.Devices
         /// <param name="mtconnectVersion">The Version of the MTConnect Standard</param>
         /// <param name="observation">The Observation to validate</param>
         /// <returns>A DataItemValidationResult indicating if Validation was successful and a Message</returns>
-        public DataItemValidationResult IsValid(Version mtconnectVersion, IObservationInput observation)
+        public ValidationResult IsValid(Version mtconnectVersion, IObservationInput observation)
         {
-            var result = new DataItemValidationResult(true);
+            var result = new ValidationResult(true);
 
             switch (Category)
             {
@@ -297,46 +297,46 @@ namespace MTConnect.Devices
             return result;
         }
 
-        private DataItemValidationResult ValidateSample(Version mtconnectVersion, IObservationInput observation)
+        private ValidationResult ValidateSample(Version mtconnectVersion, IObservationInput observation)
         {
             // Get the CDATA Value for the Observation
             var cdata = observation.GetValue(ValueKeys.CDATA);
             if (cdata != null)
             {
                 // Check if Unavailable
-                if (cdata == Observation.Unavailable) return new DataItemValidationResult(true);
+                if (cdata == Observation.Unavailable) return new ValidationResult(true);
             }
 
             return OnValidation(mtconnectVersion, observation);
         }
 
-        private DataItemValidationResult ValidateEvent(Version mtconnectVersion, IObservationInput observation)
+        private ValidationResult ValidateEvent(Version mtconnectVersion, IObservationInput observation)
         {
             // Get the CDATA Value for the Observation
             var cdata = observation.GetValue(ValueKeys.CDATA);
             if (cdata != null)
             {
                 // Check if Unavailable
-                if (cdata == Observation.Unavailable) return new DataItemValidationResult(true);
+                if (cdata == Observation.Unavailable) return new ValidationResult(true);
             }
 
             return OnValidation(mtconnectVersion, observation);
         }
 
-        private DataItemValidationResult ValidateCondition(Version mtconnectVersion, IObservationInput observation)
+        private ValidationResult ValidateCondition(Version mtconnectVersion, IObservationInput observation)
         {
             // Get the Level Value for the Observation
             var level = observation.GetValue(ValueKeys.Level).ConvertEnum<ConditionLevel>();
 
             // Check if Unavailable
-            if (level == ConditionLevel.UNAVAILABLE) return new DataItemValidationResult(true);
+            if (level == ConditionLevel.UNAVAILABLE) return new ValidationResult(true);
 
             return OnValidation(mtconnectVersion, observation);
         }
 
-        protected virtual DataItemValidationResult OnValidation(Version mtconnectVerion, IObservationInput observation)
+        protected virtual ValidationResult OnValidation(Version mtconnectVerion, IObservationInput observation)
         {
-            return new DataItemValidationResult(true);
+            return new ValidationResult(true);
         }
 
 

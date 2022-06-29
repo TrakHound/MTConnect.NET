@@ -12,6 +12,7 @@ using MTConnect.Devices.DataItems;
 using MTConnect.Devices.DataItems.Events;
 using MTConnect.Http;
 using MTConnect.Observations;
+using MTConnect.Observations.Input;
 using MTConnect.Streams;
 using NLog;
 using System;
@@ -236,7 +237,10 @@ namespace MTConnect.Applications
                     _mtconnectAgent.AssetsRequestReceived += AssetsRequested;
                     _mtconnectAgent.AssetsResponseSent += AssetsSent;
                     _mtconnectAgent.ObservationAdded += ObservationAdded;
+                    _mtconnectAgent.InvalidComponentAdded += InvalidComponent;
+                    _mtconnectAgent.InvalidCompositionAdded += InvalidComposition;
                     _mtconnectAgent.InvalidDataItemAdded += InvalidDataItem;
+                    _mtconnectAgent.InvalidObservationAdded += InvalidObservation;
                     _mtconnectAgent.InvalidAssetAdded += InvalidAsset;
                 }
 
@@ -559,9 +563,24 @@ namespace MTConnect.Applications
             }
         }
 
-        private static void InvalidDataItem(IDataItem dataItem, DataItemValidationResult result)
+        private static void InvalidComponent(string deviceUuid, IComponent component, ValidationResult result)
         {
-            _agentValidationLogger.Warn($"[Agent-Validation] : {result.Message}");
+            _agentValidationLogger.Warn($"[Agent-Validation] : {deviceUuid} : ComponentId = {component.Id} : {result.Message}");
+        }
+
+        private static void InvalidComposition(string deviceUuid, IComposition composition, ValidationResult result)
+        {
+            _agentValidationLogger.Warn($"[Agent-Validation] : {deviceUuid} : CompositionId = {composition.Id} : {result.Message}");
+        }
+
+        private static void InvalidDataItem(string deviceUuid, IDataItem dataItem, ValidationResult result)
+        {
+            _agentValidationLogger.Warn($"[Agent-Validation] : {deviceUuid} : DataItemId = {dataItem.Id} : {result.Message}");
+        }
+
+        private static void InvalidObservation(string deviceUuid, string dataItemKey, ValidationResult result)
+        {
+            _agentValidationLogger.Warn($"[Agent-Validation] : {deviceUuid} : DataItemKey = {dataItemKey} : {result.Message}");
         }
 
         private static void InvalidAsset(IAsset asset, AssetValidationResult result)

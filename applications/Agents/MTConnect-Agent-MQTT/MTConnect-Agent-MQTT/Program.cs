@@ -253,7 +253,7 @@ namespace MTConnect.Applications
             }
         }
 
-        private static void InvalidDataItem(IDataItem dataItem, DataItemValidationResult result)
+        private static void InvalidDataItem(IDataItem dataItem, ValidationResult result)
         {
             _agentValidationLogger.Warn($"[Agent-Validation] : {result.Message}");
         }
