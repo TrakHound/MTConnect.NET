@@ -30,7 +30,7 @@ namespace MTConnect.Devices
             if (configuration != null && !string.IsNullOrEmpty(configuration.Address))
             {
                 Id = configuration.Id;
-                Name = "adapterShdr";
+                Name = "adapterHttp";
                 BaseUri = HttpClientConfiguration.CreateBaseUri(configuration);
                 if (!string.IsNullOrEmpty(BaseUri))
                 {
