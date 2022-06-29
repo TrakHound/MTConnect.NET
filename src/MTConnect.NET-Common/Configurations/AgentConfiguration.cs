@@ -161,7 +161,7 @@ namespace MTConnect.Configurations
             ServiceName = null;
             ServiceAutoStart = true;
             DefaultVersion = MTConnectVersions.Max;
-            ValidationLevel = ValidationLevel.Warning;
+            ValidationLevel = ValidationLevel.Ignore;
             ConvertUnits = true;
             IgnoreObservationCase = true;
             MonitorConfigurationFiles = true;
