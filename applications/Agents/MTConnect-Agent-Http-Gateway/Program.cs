@@ -4,9 +4,9 @@
 // file 'LICENSE.txt', which is part of this source code package.
 
 using MTConnect.Agents;
-using MTConnect.Configurations;
 using MTConnect.Assets;
 using MTConnect.Clients.Rest;
+using MTConnect.Configurations;
 using MTConnect.Devices;
 using MTConnect.Devices.DataItems;
 using MTConnect.Devices.DataItems.Events;
@@ -32,6 +32,7 @@ namespace MTConnect.Applications
 
         private static readonly Logger _applicationLogger = LogManager.GetLogger("application-logger");
         private static readonly Logger _agentLogger = LogManager.GetLogger("agent-logger");
+        private static readonly Logger _agentMetricLogger = LogManager.GetLogger("agent-metric-logger");
         private static readonly Logger _clientLogger = LogManager.GetLogger("client-logger");
         private static readonly Logger _agentValidationLogger = LogManager.GetLogger("agent-validation-logger");
         private static readonly Logger _httpLogger = LogManager.GetLogger("http-logger");
@@ -230,19 +231,7 @@ namespace MTConnect.Applications
                     {
                         if (!string.IsNullOrEmpty(clientConfiguration.Address))
                         {
-                            //string baseUrl = null;
-                            //var clientAddress = clientConfiguration.Address;
-                            //var clientPort = clientConfiguration.Port;
-
-                            //if (clientConfiguration.UseSSL) clientAddress = clientAddress.Replace("https://", "");
-                            //else clientAddress = clientAddress.Replace("http://", "");
-
-                            //// Create the MTConnect Agent Base URL
-                            //if (clientConfiguration.UseSSL) baseUrl = string.Format("https://{0}", Url.AddPort(clientAddress, clientPort));
-                            //else baseUrl = string.Format("http://{0}", Url.AddPort(clientAddress, clientPort));
-
                             var baseUri = HttpClientConfiguration.CreateBaseUri(clientConfiguration);
-
                             var adapterComponent = new HttpAdapterComponent(clientConfiguration);
 
                             // Add Adapter Component to Agent Device
@@ -456,16 +445,16 @@ namespace MTConnect.Applications
                 var observationAverage = _mtconnectAgent.Metrics.ObservationAverage;
                 observationDelta = observationCount - observationLastCount;
 
-                _agentLogger.Debug("[Agent] : Observations - Delta for last " + updateInterval + " seconds: " + observationDelta);
-                _agentLogger.Debug("[Agent] : Observations - Average for last " + windowInterval + " minutes: " + Math.Round(observationAverage, 5));
+                _agentMetricLogger.Debug("[Agent] : Observations - Delta for last " + updateInterval + " seconds: " + observationDelta);
+                _agentMetricLogger.Debug("[Agent] : Observations - Average for last " + windowInterval + " minutes: " + Math.Round(observationAverage, 5));
 
                 // Assets
                 var assetCount = _mtconnectAgent.Metrics.GetAssetCount();
                 var assetAverage = _mtconnectAgent.Metrics.AssetAverage;
                 assetDelta = assetCount - assetLastCount;
 
-                _agentLogger.Debug("[Agent] : Assets - Delta for last " + updateInterval + " seconds: " + assetDelta);
-                _agentLogger.Debug("[Agent] : Assets - Average for last " + windowInterval + " minutes: " + Math.Round(assetAverage, 5));
+                _agentMetricLogger.Debug("[Agent] : Assets - Delta for last " + updateInterval + " seconds: " + assetDelta);
+                _agentMetricLogger.Debug("[Agent] : Assets - Average for last " + windowInterval + " minutes: " + Math.Round(assetAverage, 5));
 
                 observationLastCount = observationCount;
                 assetLastCount = assetCount;
@@ -599,7 +588,7 @@ namespace MTConnect.Applications
 
         private static void HttpClientConnected(object sender, HttpListenerRequest request)
         {
-            _httpLogger.Debug($"[Http Server] : Client Connected : " + request.LocalEndPoint + " : " + request.Url);
+            _httpLogger.Info($"[Http Server] : Http Client Connected : (" + request.HttpMethod + ") : " + request.LocalEndPoint + " : " + request.Url);
         }
 
         private static void HttpClientDisconnected(object sender, string remoteEndPoint)
@@ -614,7 +603,7 @@ namespace MTConnect.Applications
 
         private static void HttpResponseSent(object sender, MTConnectHttpResponse response)
         {
-            _httpLogger.Debug($"[Http Server] : Response Sent : {response.StatusCode} : {response.ContentType} : Agent Process Time {response.ResponseDuration}ms : Document Format Time {response.FormatDuration}ms : Total Response Time {response.ResponseDuration + response.FormatDuration}ms");
+            _httpLogger.Info($"[Http Server] : Response Sent : {response.StatusCode} : {response.ContentType} : Agent Process Time {response.ResponseDuration}ms : Document Format Time {response.FormatDuration}ms : Total Response Time {response.ResponseDuration + response.FormatDuration}ms");
 
             // Format Messages
             if (!response.FormatMessages.IsNullOrEmpty())

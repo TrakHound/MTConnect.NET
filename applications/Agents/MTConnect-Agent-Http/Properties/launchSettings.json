@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "MTConnect-Agent-Http": {
+      "commandName": "Project",
+      "commandLineArgs": "debug"
+    }
+  }
+}

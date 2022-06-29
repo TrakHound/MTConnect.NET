@@ -1,32 +1,32 @@
 ﻿{
-	"port": 5000,
-
+	"port": 5002,
+	"serverIp": "localhost",
 	"clients": [
 		{
 			"address": "https://smstestbed.nist.gov/vds/",
 			"port": 443,
-			"deviceName": "GFAgie01",
+			"deviceKey": "GFAgie01",
 			"useSSL": true,
 			"heartbeat": 0
 		},
 		{
 			"address": "https://smstestbed.nist.gov/vds/",
 			"port": 443,
-			"deviceName": "Mazak01",
+			"deviceKey": "Mazak01",
 			"useSSL": true,
 			"heartbeat": 0
 		},
 		{
 			"address": "https://smstestbed.nist.gov/vds/",
 			"port": 443,
-			"deviceName": "Mazak03",
+			"deviceKey": "Mazak03",
 			"useSSL": true,
 			"heartbeat": 0
 		},
 		{
 			"address": "https://smstestbed.nist.gov/vds/",
 			"port": 443,
-			"deviceName": "Hurco01",
+			"deviceKey": "Hurco01",
 			"useSSL": true,
 			"heartbeat": 0
 		}

@@ -32,6 +32,7 @@ namespace MTConnect.Applications
 
         private static readonly Logger _applicationLogger = LogManager.GetLogger("application-logger");
         private static readonly Logger _agentLogger = LogManager.GetLogger("agent-logger");
+        private static readonly Logger _agentMetricLogger = LogManager.GetLogger("agent-metric-logger");
         private static readonly Logger _agentValidationLogger = LogManager.GetLogger("agent-validation-logger");
         private static readonly Logger _httpLogger = LogManager.GetLogger("http-logger");
         private static readonly Logger _adapterLogger = LogManager.GetLogger("adapter-logger");
@@ -338,15 +339,6 @@ namespace MTConnect.Applications
                     _agentLogger.Warn($"No Devices Found : Reading from : {configuration.Devices}");
                 }
 
-                //// Add Observations from Buffer
-                //if (!bufferObservations.IsNullOrEmpty())
-                //{
-                //    foreach (var bufferObservation in bufferObservations)
-                //    {
-                //        _agent.AddObservation(bufferObservation.DeviceKey, bufferObservation);
-                //    }
-                //}
-
                 // Start Adapters
                 if (!_adapters.IsNullOrEmpty())
                 {
@@ -478,16 +470,16 @@ namespace MTConnect.Applications
                 var observationAverage = _mtconnectAgent.Metrics.ObservationAverage;
                 observationDelta = observationCount - observationLastCount;
 
-                _agentLogger.Debug("[Agent] : Observations - Delta for last " + updateInterval + " seconds: " + observationDelta);
-                _agentLogger.Debug("[Agent] : Observations - Average for last " + windowInterval + " minutes: " + Math.Round(observationAverage, 5));
+                _agentMetricLogger.Info("[Agent] : Observations - Delta for last " + updateInterval + " seconds: " + observationDelta);
+                _agentMetricLogger.Info("[Agent] : Observations - Average for last " + windowInterval + " minutes: " + Math.Round(observationAverage, 5));
 
                 // Assets
                 var assetCount = _mtconnectAgent.Metrics.GetAssetCount();
                 var assetAverage = _mtconnectAgent.Metrics.AssetAverage;
                 assetDelta = assetCount - assetLastCount;
 
-                _agentLogger.Debug("[Agent] : Assets - Delta for last " + updateInterval + " seconds: " + assetDelta);
-                _agentLogger.Debug("[Agent] : Assets - Average for last " + windowInterval + " minutes: " + Math.Round(assetAverage, 5));
+                _agentMetricLogger.Info("[Agent] : Assets - Delta for last " + updateInterval + " seconds: " + assetDelta);
+                _agentMetricLogger.Info("[Agent] : Assets - Average for last " + windowInterval + " minutes: " + Math.Round(assetAverage, 5));
 
                 observationLastCount = observationCount;
                 assetLastCount = assetCount;
@@ -707,7 +699,7 @@ namespace MTConnect.Applications
 
         private static void HttpClientConnected(object sender, HttpListenerRequest request)
         {
-            _httpLogger.Debug($"[Http Server] : Client Connected : " + request.LocalEndPoint + " : " + request.Url);
+            _httpLogger.Info($"[Http Server] : Http Client Connected : (" + request.HttpMethod + ") : " + request.LocalEndPoint + " : " + request.Url);
         }
 
         private static void HttpClientDisconnected(object sender, string remoteEndPoint)
@@ -722,7 +714,7 @@ namespace MTConnect.Applications
 
         private static void HttpResponseSent(object sender, MTConnectHttpResponse response)
         {
-            _httpLogger.Debug($"[Http Server] : Response Sent : {response.StatusCode} : {response.ContentType} : Agent Process Time {response.ResponseDuration}ms : Document Format Time {response.FormatDuration}ms : Total Response Time {response.ResponseDuration + response.FormatDuration}ms");
+            _httpLogger.Info($"[Http Server] : Response Sent : {response.StatusCode} : {response.ContentType} : Agent Process Time {response.ResponseDuration}ms : Document Format Time {response.FormatDuration}ms : Total Response Time {response.ResponseDuration + response.FormatDuration}ms");
 
             // Format Messages
             if (!response.FormatMessages.IsNullOrEmpty())

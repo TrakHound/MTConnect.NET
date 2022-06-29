@@ -10,8 +10,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Hosting.WindowsServices;
 using Microsoft.Extensions.Logging;
 using MTConnect.Agents;
-using MTConnect.Configurations;
 using MTConnect.Applications.Loggers;
+using MTConnect.Configurations;
 using NLog.Web;
 using System;
 
@@ -80,6 +80,7 @@ namespace MTConnect.Applications
                 // Individual Logger Classes
                 builder.Services.AddSingleton<ShdrAgentConfiguration>(configuration);
                 builder.Services.AddSingleton<AgentLogger>();
+                builder.Services.AddSingleton<AgentMetricLogger>();
                 builder.Services.AddSingleton<AgentValidationLogger>();
                 builder.Services.AddSingleton<AdapterLogger>();
                 builder.Services.AddSingleton<AdapterShdrLogger>();

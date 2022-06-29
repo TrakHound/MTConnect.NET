@@ -6,16 +6,18 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MTConnect.Agents;
-using MTConnect.Configurations;
 using MTConnect.Applications.Loggers;
 using MTConnect.Assets;
-using MTConnect.Errors;
 using MTConnect.Clients.Rest;
+using MTConnect.Configurations;
 using MTConnect.Devices;
+using MTConnect.Devices.DataItems.Events;
+using MTConnect.Errors;
 using MTConnect.Observations.Input;
 using MTConnect.Streams;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -66,20 +68,46 @@ namespace MTConnect.Applications
                     {
                         if (!string.IsNullOrEmpty(clientConfiguration.Address))
                         {
-                            string baseUrl = null;
-                            var address = clientConfiguration.Address;
-                            var port = clientConfiguration.Port;
+                            //string baseUrl = null;
+                            //var clientAddress = clientConfiguration.Address;
+                            //var clientPort = clientConfiguration.Port;
 
-                            if (clientConfiguration.UseSSL) address = address.Replace("https://", "");
-                            else address = address.Replace("http://", "");
+                            //if (clientConfiguration.UseSSL) clientAddress = clientAddress.Replace("https://", "");
+                            //else clientAddress = clientAddress.Replace("http://", "");
 
-                            // Create the MTConnect Agent Base URL
-                            if (clientConfiguration.UseSSL) baseUrl = string.Format("https://{0}", AddPort(address, port));
-                            else baseUrl = string.Format("http://{0}", AddPort(address, port));
+                            //// Create the MTConnect Agent Base URL
+                            //if (clientConfiguration.UseSSL) baseUrl = string.Format("https://{0}", Url.AddPort(clientAddress, clientPort));
+                            //else baseUrl = string.Format("http://{0}", Url.AddPort(clientAddress, clientPort));
 
-                            var agentClient = new MTConnectClient(baseUrl, clientConfiguration.DeviceKey);
+                            var baseUri = HttpClientConfiguration.CreateBaseUri(clientConfiguration);
+
+                            var adapterComponent = new HttpAdapterComponent(clientConfiguration);
+
+                            // Add Adapter Component to Agent Device
+                            _mtconnectAgent.Agent.AddAdapterComponent(adapterComponent);
+
+                            if (!adapterComponent.DataItems.IsNullOrEmpty())
+                            {
+                                //// Initialize Connection Status Observation
+                                //var connectionStatusDataItem = adapterComponent.DataItems.FirstOrDefault(o => o.Type == ConnectionStatusDataItem.TypeId);
+                                //if (connectionStatusDataItem != null)
+                                //{
+                                //    _mtconnectAgent.AddObservation(_mtconnectAgent.Uuid, connectionStatusDataItem.Id, Observations.Events.Values.ConnectionStatus.LISTEN);
+                                //}
+
+                                // Initialize Adapter URI Observation
+                                var adapterUriDataItem = adapterComponent.DataItems.FirstOrDefault(o => o.Type == AdapterUriDataItem.TypeId);
+                                if (adapterUriDataItem != null)
+                                {
+                                    _mtconnectAgent.AddObservation(_mtconnectAgent.Uuid, adapterUriDataItem.Id, adapterComponent.Uri);
+                                }
+                            }
+
+
+                            var agentClient = new MTConnectClient(baseUri, clientConfiguration.DeviceKey);
                             agentClient.Interval = clientConfiguration.Interval;
                             agentClient.Heartbeat = clientConfiguration.Heartbeat;
+                            _clients.Add(agentClient);
 
                             // Subscribe to the Event handlers to receive status events
                             agentClient.OnClientStarting += (s, e) => ClientStarting(((MTConnectClient)s).Authority);
@@ -97,17 +125,53 @@ namespace MTConnect.Applications
                             agentClient.OnSampleReceived += (s, doc) => StreamsDocumentReceived(doc);
                             agentClient.OnAssetsReceived += (s, doc) => AssetsDocumentReceived(doc);
 
-                            // Subscribe to the Error Handlers
-                            agentClient.OnMTConnectError += (s, doc) => AgentClientError(doc);
-                            agentClient.OnConnectionError += (s, ex) => AgentClientConnectionError(ex);
-                            agentClient.OnInternalError += (s, ex) => AgentClientInternalError(ex);
-
-                            // Add to local list (to be able to stop it later)
-                            _clients.Add(agentClient);
-
-                            // Start the Client
                             agentClient.Start();
                         }
+
+                        //if (!string.IsNullOrEmpty(clientConfiguration.Address))
+                        //{
+                        //    string baseUrl = null;
+                        //    var address = clientConfiguration.Address;
+                        //    var port = clientConfiguration.Port;
+
+                        //    if (clientConfiguration.UseSSL) address = address.Replace("https://", "");
+                        //    else address = address.Replace("http://", "");
+
+                        //    // Create the MTConnect Agent Base URL
+                        //    if (clientConfiguration.UseSSL) baseUrl = string.Format("https://{0}", AddPort(address, port));
+                        //    else baseUrl = string.Format("http://{0}", AddPort(address, port));
+
+                        //    var agentClient = new MTConnectClient(baseUrl, clientConfiguration.DeviceKey);
+                        //    agentClient.Interval = clientConfiguration.Interval;
+                        //    agentClient.Heartbeat = clientConfiguration.Heartbeat;
+
+                        //    // Subscribe to the Event handlers to receive status events
+                        //    agentClient.OnClientStarting += (s, e) => ClientStarting(((MTConnectClient)s).Authority);
+                        //    agentClient.OnClientStarted += (s, e) => ClientStarted(((MTConnectClient)s).Authority);
+                        //    agentClient.OnClientStopping += (s, e) => ClientStopping(((MTConnectClient)s).Authority);
+                        //    agentClient.OnClientStopped += (s, e) => ClientStopped(((MTConnectClient)s).Authority);
+                        //    agentClient.OnStreamStarting += (s, streamUrl) => StreamStarting(streamUrl);
+                        //    agentClient.OnStreamStarted += (s, streamUrl) => StreamStarted(streamUrl);
+                        //    agentClient.OnStreamStopping += (s, streamUrl) => StreamStopping(streamUrl);
+                        //    agentClient.OnStreamStopped += (s, streamUrl) => StreamStopped(streamUrl);
+
+                        //    // Subscribe to the Event handlers to receive the MTConnect documents
+                        //    agentClient.OnProbeReceived += (s, doc) => DevicesDocumentReceived(doc);
+                        //    agentClient.OnCurrentReceived += (s, doc) => StreamsDocumentReceived(doc);
+                        //    agentClient.OnSampleReceived += (s, doc) => StreamsDocumentReceived(doc);
+                        //    agentClient.OnAssetsReceived += (s, doc) => AssetsDocumentReceived(doc);
+
+                        //    // Subscribe to the Error Handlers
+                        //    agentClient.OnMTConnectError += (s, doc) => AgentClientError(doc);
+                        //    agentClient.OnConnectionError += (s, ex) => AgentClientConnectionError(ex);
+                        //    agentClient.OnInternalError += (s, ex) => AgentClientInternalError(ex);
+
+                        //    // Add to local list (to be able to stop it later)
+                        //    _clients.Add(agentClient);
+
+                        //    // Start the Client
+                        //    agentClient.Start();
+                        //}
                     }
                 }
             }

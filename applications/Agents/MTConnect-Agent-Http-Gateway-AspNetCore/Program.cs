@@ -72,9 +72,16 @@ namespace MTConnect.Applications
             var configuration = AgentConfiguration.Read<AgentGatewayConfiguration>();
             if (configuration != null)
             {
+                // Read Agent Information File
+                var agentInformation = MTConnectAgentInformation.Read();
+                if (agentInformation == null)
+                {
+                    agentInformation = new MTConnectAgentInformation();
+                    agentInformation.Save();
+                }
+
                 // Create MTConnectAgent
-                var agent = new MTConnectAgent(configuration);
-                agent.Version = MTConnectVersions.Max;
+                var agent = new MTConnectAgent(configuration, agentInformation.Uuid);
                 builder.Services.AddSingleton<IMTConnectAgent>(agent);
 
                 // Individual Logger Classes

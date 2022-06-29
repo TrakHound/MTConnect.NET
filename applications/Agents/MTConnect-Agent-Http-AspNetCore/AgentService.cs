@@ -7,8 +7,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MTConnect.Adapters.Shdr;
 using MTConnect.Agents;
-using MTConnect.Configurations;
 using MTConnect.Applications.Loggers;
+using MTConnect.Configurations;
 using MTConnect.Devices;
 using System;
 using System.Collections.Generic;
@@ -24,6 +24,7 @@ namespace MTConnect.Applications
         private readonly IMTConnectAgent _mtconnectAgent;
         private readonly ILogger<AgentService> _logger;
         private readonly AgentLogger _agentLogger;
+        private readonly AgentMetricLogger _agentMetricLogger;
         private readonly AdapterLogger _adapterLogger;
         private readonly AdapterShdrLogger _adapterShdrLogger;
         private readonly List<ShdrAdapterClient> _adapterClients = new List<ShdrAdapterClient>();
@@ -47,12 +48,12 @@ namespace MTConnect.Applications
             _adapterLogger = adapterLogger;
             _adapterShdrLogger = adapterShdrLogger;
 
-            _mtconnectAgent.DevicesRequestReceived += agentLogger.DevicesRequested;
-            _mtconnectAgent.DevicesResponseSent += agentLogger.DevicesResponseSent;
-            _mtconnectAgent.StreamsRequestReceived += agentLogger.StreamsRequested;
-            _mtconnectAgent.StreamsResponseSent += agentLogger.StreamsResponseSent;
-            _mtconnectAgent.AssetsRequestReceived += agentLogger.AssetsRequested;
-            _mtconnectAgent.AssetsResponseSent += agentLogger.AssetsResponseSent;
+            _mtconnectAgent.DevicesRequestReceived += _agentLogger.DevicesRequested;
+            _mtconnectAgent.DevicesResponseSent += _agentLogger.DevicesResponseSent;
+            _mtconnectAgent.StreamsRequestReceived += _agentLogger.StreamsRequested;
+            _mtconnectAgent.StreamsResponseSent += _agentLogger.StreamsResponseSent;
+            _mtconnectAgent.AssetsRequestReceived += _agentLogger.AssetsRequested;
+            _mtconnectAgent.AssetsResponseSent += _agentLogger.AssetsResponseSent;
 
             _mtconnectAgent.InvalidDataItemAdded += agentValidationLogger.InvalidDataItemAdded;
         }
@@ -137,16 +138,16 @@ namespace MTConnect.Applications
                 var observationAverage = _mtconnectAgent.Metrics.ObservationAverage;
                 observationDelta = observationCount - observationLastCount;
 
-                _agentLogger.LogInformation("[Agent] : Observations - Delta for last " + updateInterval + " seconds: " + observationDelta);
-                _agentLogger.LogInformation("[Agent] : Observations - Average for last " + windowInterval + " minutes: " + Math.Round(observationAverage, 5));
+                _agentMetricLogger.LogInformation("[Agent] : Observations - Delta for last " + updateInterval + " seconds: " + observationDelta);
+                _agentMetricLogger.LogInformation("[Agent] : Observations - Average for last " + windowInterval + " minutes: " + Math.Round(observationAverage, 5));
 
                 // Assets
                 var assetCount = _mtconnectAgent.Metrics.GetAssetCount();
                 var assetAverage = _mtconnectAgent.Metrics.AssetAverage;
                 assetDelta = assetCount - assetLastCount;
 
-                _agentLogger.LogInformation("[Agent] : Assets - Delta for last " + updateInterval + " seconds: " + assetDelta);
-                _agentLogger.LogInformation("[Agent] : Assets - Average for last " + windowInterval + " minutes: " + Math.Round(assetAverage, 5));
+                _agentMetricLogger.LogInformation("[Agent] : Assets - Delta for last " + updateInterval + " seconds: " + assetDelta);
+                _agentMetricLogger.LogInformation("[Agent] : Assets - Average for last " + windowInterval + " minutes: " + Math.Round(assetAverage, 5));
 
                 observationLastCount = observationCount;
                 assetLastCount = assetCount;

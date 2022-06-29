@@ -58,9 +58,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="devices - Copy.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="devices.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
