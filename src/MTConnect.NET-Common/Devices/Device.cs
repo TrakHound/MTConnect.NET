@@ -335,6 +335,29 @@ namespace MTConnect.Devices
         }
 
 
+        /// <summary>
+        /// Return a list of All Compositions
+        /// </summary>
+        public IEnumerable<IComposition> GetCompositions()
+        {
+            var l = new List<IComposition>();
+
+            var components = GetComponents();
+            if (!components.IsNullOrEmpty())
+            {
+                foreach (var component in components)
+                {
+                    if (!component.Compositions.IsNullOrEmpty())
+                    {
+                        l.AddRange(component.Compositions);
+                    }
+                }
+            }
+
+            return !l.IsNullOrEmpty() ? l : null;
+        }
+
+
         //#region "Types"
 
         //public void AssignTypePaths()
