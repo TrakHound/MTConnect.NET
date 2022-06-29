@@ -38,6 +38,12 @@ namespace MTConnect.Configurations
         [JsonPropertyName("allowPutFrom")]
         public List<string> AllowPutFrom { get; set; }
 
+        /// <summary>
+        /// The maximum number of Threads to use for the Http Requests
+        /// </summary>
+        [JsonPropertyName("maxListenerThreads")]
+        public int MaxListenerThreads { get; set; }
+
 
         public HttpAgentConfiguration()
         {
@@ -45,6 +51,7 @@ namespace MTConnect.Configurations
             Port = 5000;
             AllowPut = false;
             AllowPutFrom = null;
+            MaxListenerThreads = 5;
         }
     }
 }

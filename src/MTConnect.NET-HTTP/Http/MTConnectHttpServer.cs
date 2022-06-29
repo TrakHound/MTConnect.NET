@@ -20,44 +20,39 @@ namespace MTConnect.Http
     /// <summary>
     /// An Http Web Server for processing MTConnect REST Api Requests
     /// </summary>
-    public class MTConnectHttpServer
+    public class MTConnectHttpServer : HttpServer
     {
-        private const string DefaultServer = "127.0.0.1";
-        private const int DefaultPort = 5000;
-        private const string EmptyServer = "0.0.0.0";
+        //private const string DefaultServer = "127.0.0.1";
+        //private const int DefaultPort = 5000;
+        //private const string EmptyServer = "0.0.0.0";
 
-        private static string DefaultPrefix = "http://" + DefaultServer + ":" + DefaultPort + "/";
-
-
-        private readonly IMTConnectAgent _mtconnectAgent;
-        private readonly HttpAgentConfiguration _configuration;
-        private readonly List<string> _prefixes = new List<string>();
-        private static readonly object _lock = new object();
+        //private static readonly string DefaultPrefix = "http://" + DefaultServer + ":" + DefaultPort + "/";
         private static readonly Dictionary<string, string> _devicesSchemas = new Dictionary<string, string>();
         private static readonly Dictionary<string, string> _streamsSchemas = new Dictionary<string, string>();
         private static readonly Dictionary<string, string> _assetsSchemas = new Dictionary<string, string>();
         private static readonly Dictionary<string, string> _commonSchemas = new Dictionary<string, string>();
+        private static readonly object _lock = new object();
 
-        private CancellationTokenSource _stop;
-        private CancellationTokenSource _stopped;
+        private readonly IMTConnectAgent _mtconnectAgent;
+        private readonly HttpAgentConfiguration _configuration;
 
 
-        /// <summary>
-        /// Event Handler for when the HttpListener is started
-        /// </summary>
-        /// <returns>URL Prefix that the HttpListener is listening for requests on</returns>
-        public EventHandler<string> ListenerStarted { get; set; }
+        ///// <summary>
+        ///// Event Handler for when the HttpListener is started
+        ///// </summary>
+        ///// <returns>URL Prefix that the HttpListener is listening for requests on</returns>
+        //public EventHandler<string> ListenerStarted { get; set; }
 
-        /// <summary>
-        /// Event Handler for when the HttpListener is stopped
-        /// </summary>
-        /// <returns>URL Prefix that the HttpListener is listening for requests on</returns>
-        public EventHandler<string> ListenerStopped { get; set; }
+        ///// <summary>
+        ///// Event Handler for when the HttpListener is stopped
+        ///// </summary>
+        ///// <returns>URL Prefix that the HttpListener is listening for requests on</returns>
+        //public EventHandler<string> ListenerStopped { get; set; }
 
-        /// <summary>
-        /// Event Handler for when an error occurs with the HttpListener
-        /// </summary>
-        public EventHandler<Exception> ListenerException { get; set; }
+        ///// <summary>
+        ///// Event Handler for when an error occurs with the HttpListener
+        ///// </summary>
+        //public EventHandler<Exception> ListenerException { get; set; }
 
         /// <summary>
         /// Event Handler for when a client makes a request to the server
@@ -80,69 +75,55 @@ namespace MTConnect.Http
         public EventHandler<MTConnectHttpResponse> ResponseSent { get; set; }
 
 
-        public MTConnectHttpServer(
-            HttpAgentConfiguration configuration,
-            IMTConnectAgent mtconnectAgent,
-            IEnumerable<string> prefixes = null,
-            int port = 0
-            )
+        public MTConnectHttpServer(HttpAgentConfiguration configuration, IMTConnectAgent mtconnectAgent, IEnumerable<string> prefixes = null, int port = 0) : base(configuration, prefixes, port)
         {
             _mtconnectAgent = mtconnectAgent;
             _configuration = configuration;
 
-            LoadPrefixes(configuration, prefixes, port);
+            //Prefixes = CreatePrefixes(configuration, prefixes, port);
         }
 
 
-        private void LoadPrefixes(HttpAgentConfiguration configuration, IEnumerable<string> prefixes = null, int port = 0)
-        {
-            if (!prefixes.IsNullOrEmpty())
-            {
-                _prefixes.AddRange(prefixes);
-            }
-            else if (configuration != null)
-            {
-                var serverIp = DefaultServer;
-                var serverPort = DefaultPort;
+        //private static IEnumerable<string> CreatePrefixes(HttpAgentConfiguration configuration, IEnumerable<string> prefixes = null, int port = 0)
+        //{
+        //    var x = new List<string>();
 
-                // Configuration Server IP
-                if (!string.IsNullOrEmpty(configuration.ServerIp))
-                {
-                    if (configuration.ServerIp != EmptyServer)
-                    {
-                        serverIp = configuration.ServerIp;
-                    }
-                }
+        //    if (!prefixes.IsNullOrEmpty())
+        //    {
+        //        x.AddRange(prefixes);
+        //    }
+        //    else if (configuration != null)
+        //    {
+        //        var serverIp = DefaultServer;
+        //        var serverPort = DefaultPort;
 
-                // Set Port (if not overridden in method, read from Configuration)
-                if (port > 0)
-                {
-                    serverPort = port;
-                }
-                else if (configuration.Port > 0)
-                {
-                    serverPort = configuration.Port;
-                }
+        //        // Configuration Server IP
+        //        if (!string.IsNullOrEmpty(configuration.ServerIp))
+        //        {
+        //            if (configuration.ServerIp != EmptyServer)
+        //            {
+        //                serverIp = configuration.ServerIp;
+        //            }
+        //        }
 
-                // Construct Prefix URL
-                _prefixes.Add("http://" + serverIp + ":" + serverPort + "/");
+        //        // Set Port (if not overridden in method, read from Configuration)
+        //        if (port > 0)
+        //        {
+        //            serverPort = port;
+        //        }
+        //        else if (configuration.Port > 0)
+        //        {
+        //            serverPort = configuration.Port;
+        //        }
 
-            }
-            else _prefixes.Add(DefaultPrefix);
-        }
+        //        // Construct Prefix URL
+        //        x.Add("http://" + serverIp + ":" + serverPort + "/");
 
+        //    }
+        //    else x.Add(DefaultPrefix);
 
-        public void Start()
-        {
-            _stop = new CancellationTokenSource();
-
-            _ = Task.Run(() => Worker(_stop.Token));
-        }
-
-        public void Stop()
-        {
-            if (_stop != null) _stop.Cancel();
-        }
+        //    return x;
+        //}
 
 
         /// <summary>
@@ -163,167 +144,69 @@ namespace MTConnect.Http
             return false;
         }
 
-
-        private async Task Worker(CancellationToken cancellationToken)
+        protected override async Task OnRequestReceived(HttpListenerContext context)
         {
-            do
+            var request = context.Request;
+            var response = context.Response;
+
+            if (ClientConnected != null) ClientConnected.Invoke(this, request);
+
+            response.Headers.Add("Access-Control-Allow-Origin", "*");
+            response.Headers.Add("Access-Control-Allow-Methods", "POST, PUT, GET, DELETE");
+
+            var uri = request.Url;
+            var method = request.HttpMethod;
+
+            if (uri != null)
             {
-                HttpListener listener = null;
-                bool errorOccurred = false;
-
-                try
+                switch (method)
                 {
-                    // (Access Denied - Exception)
-                    // Must grant permissions to use URL (for each Prefix) in Windows using the command below
-                    // CMD: netsh http add urlacl url = "http://localhost/" user = everyone
+                    case "GET":
 
-                    // (Service Unavailable - HTTP Status)
-                    // Multiple urls are configured using netsh that point to the same place
-
-                    listener = new HttpListener();
-
-                    // Add Prefixes
-                    foreach (var prefix in _prefixes)
-                    {
-                        listener.Prefixes.Add(prefix);
-                    }
-
-                    // Start Listener
-                    listener.Start();
-
-                    // Raise Events to notify when a prefix is being listened on
-                    if (ListenerStarted != null)
-                    {
-                        foreach (var prefix in _prefixes) ListenerStarted.Invoke(this, prefix);
-                    }
-
-                    // Listen for Requests
-                    while (listener.IsListening && !cancellationToken.IsCancellationRequested)
-                    {
-                        var result = listener.BeginGetContext(ListenerCallback, listener);
-                        result.AsyncWaitHandle.WaitOne(1000);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    errorOccurred = true;
-                    if (ListenerException != null) ListenerException.Invoke(this, ex);
-                }
-                finally
-                {
-                    listener.Abort();
-
-                    // Raise Events to notify when a prefix is stopped being listened on
-                    if (ListenerStopped != null)
-                    {
-                        foreach (var prefix in _prefixes) ListenerStopped.Invoke(this, prefix);
-                    }
-                }
-
-                // Delay 1 second when listener errors (to prevent a reoccurring error from overloading)
-                if (errorOccurred) await Task.Delay(1000);
-
-            } while (!cancellationToken.IsCancellationRequested);
-        }
-
-        private void ListenerCallback(IAsyncResult result)
-        {
-            try
-            {
-                var listenerClosure = (HttpListener)result.AsyncState;
-                var contextClosure = listenerClosure.EndGetContext(result);
-
-                _= Task.Run(async () =>
-                {
-                    var request = contextClosure.Request;
-                    var response = contextClosure.Response;
-
-                    try
-                    {
-                        if (ClientConnected != null) ClientConnected.Invoke(this, request);
-
-                        response.Headers.Add("Access-Control-Allow-Origin", "*");
-                        response.Headers.Add("Access-Control-Allow-Methods", "POST, PUT, GET, DELETE");
-
-                        var uri = request.Url;
-                        var method = request.HttpMethod;
-
-                        if (uri != null)
+                        // Get MTConnect Request Type
+                        switch (GetRequestType(uri))
                         {
-                            switch (method)
-                            {
-                                case "GET":
-
-                                    // Get MTConnect Request Type
-                                    switch (GetRequestType(uri))
-                                    {
-                                        case MTConnectRequestType.Probe: await ProcessProbe(request, response); break;
-                                        case MTConnectRequestType.Current: await ProcessCurrent(request, response); break;
-                                        case MTConnectRequestType.Sample: await ProcessSample(request, response); break;
-                                        case MTConnectRequestType.Assets: await ProcessAssets(request, response); break;
-                                        case MTConnectRequestType.Asset: await ProcessAsset(request, response); break;
-                                        default: await ProcessStatic(request, response); break;
-                                    }
-
-                                    break;
-
-                                case "PUT":
-
-                                    if (_configuration != null && _configuration.AllowPut)
-                                    {
-                                        await ProcessPut(request, response);
-                                    }
-                                    else
-                                    {
-                                        contextClosure.Response.StatusCode = 405;
-                                    }
-
-                                    break;
-
-                                case "POST":
-
-                                    if (_configuration != null && _configuration.AllowPut)
-                                    {
-                                        await ProcessPost(request, response);
-                                    }
-                                    else
-                                    {
-                                        contextClosure.Response.StatusCode = 405;
-                                    }
-                                    break;
-
-                                case "DELETE":
-
-                                    contextClosure.Response.StatusCode = 200;
-
-                                    break;
-                            }
+                            case MTConnectRequestType.Probe: await ProcessProbe(request, response); break;
+                            case MTConnectRequestType.Current: await ProcessCurrent(request, response); break;
+                            case MTConnectRequestType.Sample: await ProcessSample(request, response); break;
+                            case MTConnectRequestType.Assets: await ProcessAssets(request, response); break;
+                            case MTConnectRequestType.Asset: await ProcessAsset(request, response); break;
+                            default: await ProcessStatic(request, response); break;
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        if (ClientException != null) ClientException.Invoke(this, ex);
-                    }
-                    finally
-                    {
-                        response.Close();
 
-                        if (ClientDisconnected != null) ClientDisconnected.Invoke(this, request.LocalEndPoint.ToString());
-                    }
-                });
-            }
-            catch (HttpListenerException ex)
-            {
-                // Ignore Disposed Object Exception (happens when the listener is stopped)
-                if (ex.ErrorCode != 995)
-                {
-                    if (ClientException != null) ClientException.Invoke(this, ex);
+                        break;
+
+                    case "PUT":
+
+                        if (_configuration != null && _configuration.AllowPut)
+                        {
+                            await ProcessPut(request, response);
+                        }
+                        else
+                        {
+                            response.StatusCode = 405;
+                        }
+
+                        break;
+
+                    case "POST":
+
+                        if (_configuration != null && _configuration.AllowPut)
+                        {
+                            await ProcessPost(request, response);
+                        }
+                        else
+                        {
+                            response.StatusCode = 405;
+                        }
+                        break;
+
+                    case "DELETE":
+
+                        response.StatusCode = 200;
+
+                        break;
                 }
-            }
-            catch (ObjectDisposedException ex) { }
-            catch (Exception ex)
-            {
-                if (ClientException != null) ClientException.Invoke(this, ex);
             }
         }
 
@@ -474,7 +357,7 @@ namespace MTConnect.Http
                 // Read MTConnectVersion from Query string
                 var versionString = httpRequest.QueryString["version"];
                 Version.TryParse(versionString, out var version);
-                if (version == null) version = _mtconnectAgent.Version;
+                if (version == null) version = _mtconnectAgent.MTConnectVersion;
 
                 // Read DocumentFormat from Query string
                 var documentFormatString = httpRequest.QueryString["documentFormat"];
@@ -546,7 +429,7 @@ namespace MTConnect.Http
                 // Read MTConnectVersion from Query string
                 var versionString = httpRequest.QueryString["version"];
                 Version.TryParse(versionString, out var version);
-                if (version == null) version = _mtconnectAgent.Version;
+                if (version == null) version = _mtconnectAgent.MTConnectVersion;
 
                 // Read DocumentFormat from Query string
                 var documentFormatString = httpRequest.QueryString["documentFormat"];
@@ -661,7 +544,7 @@ namespace MTConnect.Http
                 // Read MTConnectVersion from Query string
                 var versionString = httpRequest.QueryString["version"];
                 Version.TryParse(versionString, out var version);
-                if (version == null) version = _mtconnectAgent.Version;
+                if (version == null) version = _mtconnectAgent.MTConnectVersion;
 
                 // Read DocumentFormat from Query string
                 var documentFormatString = httpRequest.QueryString["documentFormat"];
@@ -761,7 +644,7 @@ namespace MTConnect.Http
                 // Read MTConnectVersion from Query string
                 var versionString = httpRequest.QueryString["version"];
                 Version.TryParse(versionString, out var version);
-                if (version == null) version = _mtconnectAgent.Version;
+                if (version == null) version = _mtconnectAgent.MTConnectVersion;
 
                 // Read DocumentFormat from Query string
                 var documentFormatString = httpRequest.QueryString["documentFormat"];
@@ -817,7 +700,7 @@ namespace MTConnect.Http
                 // Read MTConnectVersion from Query string
                 var versionString = httpRequest.QueryString["version"];
                 Version.TryParse(versionString, out var version);
-                if (version == null) version = _mtconnectAgent.Version;
+                if (version == null) version = _mtconnectAgent.MTConnectVersion;
 
                 // Read DocumentFormat from Query string
                 var documentFormatString = httpRequest.QueryString["documentFormat"];
