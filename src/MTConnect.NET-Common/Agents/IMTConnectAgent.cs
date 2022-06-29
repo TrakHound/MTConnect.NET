@@ -51,9 +51,14 @@ namespace MTConnect.Agents
         long InstanceId { get; }
 
         /// <summary>
+        /// Gets the Agent Version
+        /// </summary>
+        Version Version { get; }
+
+        /// <summary>
         /// Gets the MTConnect Version that the Agent is using.
         /// </summary>
-        Version Version { get; set; }
+        Version MTConnectVersion { get; set; }
 
         /// <summary>
         /// Get the configured size of the Buffer in the number of maximum number of DataItems the buffer can hold at one time.

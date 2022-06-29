@@ -48,6 +48,7 @@ namespace MTConnect.Agents
         private readonly long _instanceId;
         private readonly string _uuid;
         private long _deviceModelChangeTime;
+        private Version _version;
         private Version _mtconnectVersion;
         private Agent _agent;
         private System.Timers.Timer _informationUpdateTimer;
@@ -84,9 +85,14 @@ namespace MTConnect.Agents
         public long InstanceId => _instanceId;
 
         /// <summary>
+        /// Gets the Agent Version
+        /// </summary>
+        public Version Version => _version;
+
+        /// <summary>
         /// Gets the MTConnect Version that the Agent is using.
         /// </summary>
-        public Version Version
+        public Version MTConnectVersion
         {
             get => _mtconnectVersion;
             set
@@ -205,6 +211,7 @@ namespace MTConnect.Agents
             _instanceId = instanceId > 0 ? instanceId : CreateInstanceId();
             _deviceModelChangeTime = deviceModelChangeTime;
             _mtconnectVersion = MTConnectVersions.Max;
+            _version = GetAgentVersion();
             _deviceBuffer = new MTConnectDeviceBuffer();
             _observationBuffer = new MTConnectObservationBuffer();
             _assetBuffer = new MTConnectAssetBuffer();
@@ -226,6 +233,7 @@ namespace MTConnect.Agents
             _information = new MTConnectAgentInformation(_uuid, _instanceId, _deviceModelChangeTime);
             _deviceModelChangeTime = deviceModelChangeTime;
             _mtconnectVersion = _configuration != null ? _configuration.DefaultVersion : MTConnectVersions.Max;
+            _version = GetAgentVersion();
             _instanceId = instanceId > 0 ? instanceId : CreateInstanceId();
             _deviceBuffer = new MTConnectDeviceBuffer();
             _observationBuffer = new MTConnectObservationBuffer(_configuration);
@@ -251,6 +259,7 @@ namespace MTConnect.Agents
             _instanceId = instanceId > 0 ? instanceId : CreateInstanceId();
             _deviceModelChangeTime = deviceModelChangeTime;
             _mtconnectVersion = MTConnectVersions.Max;
+            _version = GetAgentVersion();
             _deviceBuffer = deviceBuffer != null ? deviceBuffer : new MTConnectDeviceBuffer();
             _observationBuffer = observationBuffer != null ? observationBuffer : new MTConnectObservationBuffer(_configuration);
             _assetBuffer = assetBuffer != null ? assetBuffer : new MTConnectAssetBuffer(_configuration);
@@ -276,6 +285,7 @@ namespace MTConnect.Agents
             _deviceModelChangeTime = deviceModelChangeTime;
             _information = new MTConnectAgentInformation(_uuid, _instanceId, _deviceModelChangeTime);
             _mtconnectVersion = _configuration != null ? _configuration.DefaultVersion : MTConnectVersions.Max;
+            _version = GetAgentVersion();
             _deviceBuffer = deviceBuffer != null ? deviceBuffer : new MTConnectDeviceBuffer();
             _observationBuffer = observationBuffer != null ? observationBuffer : new MTConnectObservationBuffer(_configuration);
             _assetBuffer = assetBuffer != null ? assetBuffer : new MTConnectAssetBuffer(_configuration);
@@ -322,7 +332,7 @@ namespace MTConnect.Agents
 
         private MTConnectDevicesHeader GetDevicesHeader(Version mtconnectVersion = null)
         {
-            var version = mtconnectVersion != null ? mtconnectVersion : Version;
+            var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersion;
 
             var header = new MTConnectDevicesHeader
             {
@@ -333,7 +343,7 @@ namespace MTConnect.Agents
                 DeviceModelChangeTime = _deviceModelChangeTime.ToDateTime().ToString("o"),
                 InstanceId = InstanceId,
                 Sender = System.Net.Dns.GetHostName(),
-                Version = GetAgentVersion().ToString(),
+                Version = _version.ToString(),
                 TestIndicator = null
             };
 
@@ -346,7 +356,7 @@ namespace MTConnect.Agents
 
         private MTConnectStreamsHeader GetStreamsHeader(IStreamingResults results, Version mtconnectVersion = null)
         {
-            var version = mtconnectVersion != null ? mtconnectVersion : Version;
+            var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersion;
 
             var header = new MTConnectStreamsHeader
             {
@@ -355,7 +365,7 @@ namespace MTConnect.Agents
                 DeviceModelChangeTime = _deviceModelChangeTime.ToDateTime().ToString("o"),
                 InstanceId = InstanceId,
                 Sender = System.Net.Dns.GetHostName(),
-                Version = GetAgentVersion().ToString(),
+                Version = _version.ToString(),
                 FirstSequence = results.FirstSequence,
                 LastSequence = results.LastSequence,
                 NextSequence = results.NextSequence,
@@ -369,7 +379,7 @@ namespace MTConnect.Agents
 
         private MTConnectAssetsHeader GetAssetsHeader(Version mtconnectVersion = null)
         {
-            var version = mtconnectVersion != null ? mtconnectVersion : Version;
+            var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersion;
 
             var header = new MTConnectAssetsHeader
             {
@@ -379,7 +389,7 @@ namespace MTConnect.Agents
                 DeviceModelChangeTime = _deviceModelChangeTime.ToDateTime().ToString("o"),
                 InstanceId = InstanceId,
                 Sender = System.Net.Dns.GetHostName(),
-                Version = Version.ToString(),
+                Version = _version.ToString(),
                 TestIndicator = null
             };
 
@@ -396,7 +406,7 @@ namespace MTConnect.Agents
                 CreationTime = DateTime.UtcNow,
                 InstanceId = InstanceId,
                 Sender = System.Net.Dns.GetHostName(),
-                Version = Version.ToString(),
+                Version = _version.ToString(),
                 TestIndicator = null
             };
         }
@@ -415,7 +425,7 @@ namespace MTConnect.Agents
             {
                 foreach (var device in devices)
                 {
-                    var processedDevice = Device.Process(device, mtconnectVersion != null ? mtconnectVersion : Version);
+                    var processedDevice = Device.Process(device, mtconnectVersion != null ? mtconnectVersion : MTConnectVersion);
                     if (processedDevice != null) objs.Add(processedDevice);
                 }
             }
@@ -436,7 +446,7 @@ namespace MTConnect.Agents
 
             if (_deviceBuffer != null)
             {
-                var version = mtconnectVersion != null ? mtconnectVersion : Version;
+                var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersion;
 
                 var devices = new List<IDevice>();
                 devices.Add(_agent);
@@ -448,7 +458,7 @@ namespace MTConnect.Agents
                     doc.Version = version;
 
                     var header = GetDevicesHeader(version);
-                    header.Version = GetAgentVersion().ToString();
+                    header.Version = _version.ToString();
 
                     doc.Header = header;
                     doc.Devices = ProcessDevices(devices, version);
@@ -472,7 +482,7 @@ namespace MTConnect.Agents
 
             if (_deviceBuffer != null)
             {
-                var version = mtconnectVersion != null ? mtconnectVersion : Version;
+                var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersion;
 
                 var devices = new List<IDevice>();
                 devices.Add(_agent);
@@ -484,7 +494,7 @@ namespace MTConnect.Agents
                     doc.Version = version;
 
                     var header = GetDevicesHeader(version);
-                    header.Version = GetAgentVersion().ToString();
+                    header.Version = _version.ToString();
 
                     doc.Header = header;
                     doc.Devices = ProcessDevices(devices, version);
@@ -511,7 +521,7 @@ namespace MTConnect.Agents
             {
                 _deviceKeys.TryGetValue(deviceKey, out var deviceUuid);
 
-                var version = mtconnectVersion != null ? mtconnectVersion : Version;
+                var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersion;
 
                 IDevice device;
                 if (deviceUuid == _agent.Uuid) device = _agent;
@@ -523,7 +533,7 @@ namespace MTConnect.Agents
                     doc.Version = version;
 
                     var header = GetDevicesHeader(version);
-                    header.Version = GetAgentVersion().ToString();
+                    header.Version = _version.ToString();
 
                     doc.Header = header;
                     doc.Devices = ProcessDevices(new List<IDevice> { device }, version);
@@ -550,7 +560,7 @@ namespace MTConnect.Agents
             {
                 _deviceKeys.TryGetValue(deviceKey, out var deviceUuid);
 
-                var version = mtconnectVersion != null ? mtconnectVersion : Version;
+                var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersion;
 
                 IDevice device;
                 if (deviceUuid == _agent.Uuid) device = _agent;
@@ -562,7 +572,7 @@ namespace MTConnect.Agents
                     doc.Version = version;
 
                     var header = GetDevicesHeader(version);
-                    header.Version = GetAgentVersion().ToString();
+                    header.Version = _version.ToString();
 
                     doc.Header = header;
                     doc.Devices = ProcessDevices(new List<IDevice> { device }, version);
@@ -1470,7 +1480,7 @@ namespace MTConnect.Agents
         {
             if (results != null)
             {
-                var version = mtconnectVersion != null ? mtconnectVersion : Version;
+                var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersion;
 
                 // Create list of DeviceStreams to return
                 var deviceStreams = new List<IDeviceStream>();
@@ -1767,7 +1777,7 @@ namespace MTConnect.Agents
             if (_assetBuffer != null)
             {
                 // Set MTConnect Version
-                var version = mtconnectVersion != null ? mtconnectVersion : Version;
+                var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersion;
 
                 var processedAssets = new List<IAsset>();
 
@@ -1785,7 +1795,7 @@ namespace MTConnect.Agents
 
                 // Create AssetsHeader
                 var header = GetAssetsHeader(version);
-                header.Version = GetAgentVersion().ToString();
+                header.Version = _version.ToString();
                 header.InstanceId = InstanceId;
 
                 // Create MTConnectAssets Response Document
@@ -1820,7 +1830,7 @@ namespace MTConnect.Agents
             if (_assetBuffer != null)
             {
                 // Set MTConnect Version
-                var version = mtconnectVersion != null ? mtconnectVersion : Version;
+                var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersion;
 
                 var processedAssets = new List<IAsset>();
 
@@ -1838,7 +1848,7 @@ namespace MTConnect.Agents
 
                 // Create AssetsHeader
                 var header = GetAssetsHeader(version);
-                header.Version = GetAgentVersion().ToString();
+                header.Version = _version.ToString();
                 header.InstanceId = InstanceId;
 
                 // Create MTConnectAssets Response Document
@@ -1872,14 +1882,14 @@ namespace MTConnect.Agents
                 if (asset != null)
                 {
                     // Set MTConnect Version
-                    var version = mtconnectVersion != null ? mtconnectVersion : Version;
+                    var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersion;
 
                     // Process Asset
                     var processedAsset = asset.Process(version);
 
                     // Create AssetsHeader
                     var header = GetAssetsHeader(version);
-                    header.Version = GetAgentVersion().ToString();
+                    header.Version = _version.ToString();
                     header.InstanceId = InstanceId;
 
                     // Create MTConnectAssets Response Document
@@ -1913,14 +1923,14 @@ namespace MTConnect.Agents
                 if (asset != null)
                 {
                     // Set MTConnect Version
-                    var version = mtconnectVersion != null ? mtconnectVersion : Version;
+                    var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersion;
 
                     // Process Asset
                     var processedAsset = asset.Process(version);
 
                     // Create AssetsHeader
                     var header = GetAssetsHeader(version);
-                    header.Version = GetAgentVersion().ToString();
+                    header.Version = _version.ToString();
                     header.InstanceId = InstanceId;
 
                     // Create MTConnectAssets Response Document
@@ -2192,13 +2202,13 @@ namespace MTConnect.Agents
         /// <returns>MTConnectError Response Document</returns>
         public IErrorResponseDocument GetError(ErrorCode errorCode, string cdata = null, Version mtconnectVersion = null)
         {
-            var version = mtconnectVersion != null ? mtconnectVersion : Version;
+            var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersion;
 
             var doc = new ErrorResponseDocument();
             doc.Version = version;
 
             var header = GetErrorHeader();
-            header.Version = GetAgentVersion().ToString();
+            header.Version = _version.ToString();
 
             doc.Header = header;
             doc.Errors = new List<Error>
@@ -2219,13 +2229,13 @@ namespace MTConnect.Agents
         /// <returns>MTConnectError Response Document</returns>
         public async Task<IErrorResponseDocument> GetErrorAsync(ErrorCode errorCode, string cdata = null, Version mtconnectVersion = null)
         {
-            var version = mtconnectVersion != null ? mtconnectVersion : Version;
+            var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersion;
 
             var doc = new ErrorResponseDocument();
             doc.Version = version;
 
             var header = GetErrorHeader();
-            header.Version = GetAgentVersion().ToString();
+            header.Version = _version.ToString();
 
             doc.Header = header;
             doc.Errors = new List<Error>
@@ -2245,13 +2255,13 @@ namespace MTConnect.Agents
         /// <returns>MTConnectError Response Document</returns>
         public IErrorResponseDocument GetError(IEnumerable<IError> errors, Version mtconnectVersion = null)
         {
-            var version = mtconnectVersion != null ? mtconnectVersion : Version;
+            var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersion;
 
             var doc = new ErrorResponseDocument();
             doc.Version = version;
 
             var header = GetErrorHeader();
-            header.Version = GetAgentVersion().ToString();
+            header.Version = _version.ToString();
 
             doc.Header = header;
             doc.Errors = errors != null ? errors.ToList() : null;
@@ -2268,13 +2278,13 @@ namespace MTConnect.Agents
         /// <returns>MTConnectError Response Document</returns>
         public async Task<IErrorResponseDocument> GetErrorAsync(IEnumerable<IError> errors, Version mtconnectVersion = null)
         {
-            var version = mtconnectVersion != null ? mtconnectVersion : Version;
+            var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersion;
 
             var doc = new ErrorResponseDocument();
             doc.Version = version;
 
             var header = GetErrorHeader();
-            header.Version = GetAgentVersion().ToString();
+            header.Version = _version.ToString();
 
             doc.Header = header;
             doc.Errors = errors != null ? errors.ToList() : null;
@@ -3517,7 +3527,7 @@ namespace MTConnect.Agents
                     if (_configuration.ValidationLevel > ValidationLevel.Ignore)
                     {
                         // Validate Observation Input with DataItem type
-                        validationResult = dataItem.IsValid(Version, input);
+                        validationResult = dataItem.IsValid(MTConnectVersion, input);
                         if (!validationResult.IsValid) validationResult.Message = $"{dataItem.Type} : {dataItem.Id} : {validationResult.Message}";
                     }
 
@@ -3628,7 +3638,7 @@ namespace MTConnect.Agents
                     if (_configuration.ValidationLevel > ValidationLevel.Ignore)
                     {
                         // Validate Observation Input with DataItem type
-                        validationResult = dataItem.IsValid(Version, input);
+                        validationResult = dataItem.IsValid(MTConnectVersion, input);
                         if (!validationResult.IsValid) validationResult.Message = $"{dataItem.Type} : {dataItem.Id} : {validationResult.Message}";
                     }
 

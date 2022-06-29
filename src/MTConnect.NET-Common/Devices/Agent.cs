@@ -6,8 +6,12 @@
 using MTConnect.Agents;
 using MTConnect.Devices.Components;
 using MTConnect.Devices.DataItems.Events;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.InteropServices;
 
 namespace MTConnect.Devices
 {
@@ -48,9 +52,9 @@ namespace MTConnect.Devices
             if (_agent != null)
             {
                 Id = $"agent_{_agent.Uuid.ToMD5Hash().Substring(0, 10)}";
-                Name = "Agent";
+                Name = "agent";
                 Uuid = _agent.Uuid;
-                MTConnectVersion = _agent.Version;
+                MTConnectVersion = _agent.MTConnectVersion;
             }
         }
 
@@ -59,8 +63,15 @@ namespace MTConnect.Devices
             var dataItems = new List<IDataItem>();
 
             // Add Availibility DataItem to Agent
-            var availabilityDataItem = new AvailabilityDataItem(Id);
-            dataItems.Add(availabilityDataItem);
+            dataItems.Add(new AvailabilityDataItem(Id));
+
+            // Add Application DataItems to Agent
+            dataItems.Add(new ApplicationDataItem(Id, ApplicationDataItem.SubTypes.MANUFACTURER));
+            dataItems.Add(new ApplicationDataItem(Id, ApplicationDataItem.SubTypes.VERSION));
+
+            // Add OperatingSystem DataItems to Agent
+            dataItems.Add(new OperatingSystemDataItem(Id, OperatingSystemDataItem.SubTypes.MANUFACTURER));
+            dataItems.Add(new OperatingSystemDataItem(Id, OperatingSystemDataItem.SubTypes.VERSION));
 
             // Add Device Added DataItem to Agent
             dataItems.Add(new DeviceAddedDataItem(Id));
@@ -86,6 +97,37 @@ namespace MTConnect.Devices
             {
                 // Initialize Availability
                 _agent.AddObservation(Uuid, DataItem.CreateId(Id, AvailabilityDataItem.NameId), Observations.Events.Values.Availability.AVAILABLE);
+
+
+                // Initialize Application Manufacturer
+                var applicationManufacturerName = $"{ApplicationDataItem.NameId}_{ApplicationDataItem.GetSubTypeId(ApplicationDataItem.SubTypes.MANUFACTURER)}";
+                var applicationManufacturerId = DataItem.CreateId(Id, applicationManufacturerName);
+                try
+                {
+                    var fileVersionInfo = FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly().Location);
+                    _agent.AddObservation(Uuid, applicationManufacturerId, fileVersionInfo.CompanyName);
+                }
+                catch { }
+
+                // Initialize Application Version
+                var applicationVersionName = $"{ApplicationDataItem.NameId}_{ApplicationDataItem.GetSubTypeId(ApplicationDataItem.SubTypes.VERSION)}";
+                var applicationVersionId = DataItem.CreateId(Id, applicationVersionName);
+                _agent.AddObservation(Uuid, applicationVersionId, _agent.Version);
+
+
+                // Initialize OperatingSystem Manufacturer
+                var osManufacturerName = $"{OperatingSystemDataItem.NameId}_{OperatingSystemDataItem.GetSubTypeId(OperatingSystemDataItem.SubTypes.MANUFACTURER)}";
+                var osManufacturerId = DataItem.CreateId(Id, osManufacturerName);
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) _agent.AddObservation(Uuid, osManufacturerId, OSPlatform.Windows.ToString());
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) _agent.AddObservation(Uuid, osManufacturerId, OSPlatform.Linux.ToString());
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) _agent.AddObservation(Uuid, osManufacturerId, OSPlatform.OSX.ToString());
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.FreeBSD)) _agent.AddObservation(Uuid, osManufacturerId, OSPlatform.FreeBSD.ToString());
+
+                // Initialize OperatingSystem Version
+                var osVersionName = $"{OperatingSystemDataItem.NameId}_{OperatingSystemDataItem.GetSubTypeId(OperatingSystemDataItem.SubTypes.VERSION)}";
+                var osVersionId = DataItem.CreateId(Id, osVersionName);
+                _agent.AddObservation(Uuid, osVersionId, Environment.OSVersion.ToString());
+
 
                 _agent.InitializeDataItems(this);
             }

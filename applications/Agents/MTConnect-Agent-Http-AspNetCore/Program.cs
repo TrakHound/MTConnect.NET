@@ -74,7 +74,7 @@ namespace MTConnect.Applications
             {
                 // Create MTConnectAgent
                 var agent = new MTConnectAgent(configuration);
-                agent.Version = MTConnectVersions.Max;
+                agent.MTConnectVersion = MTConnectVersions.Max;
                 builder.Services.AddSingleton<IMTConnectAgent>(agent);
 
                 // Individual Logger Classes

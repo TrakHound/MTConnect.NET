@@ -15,7 +15,7 @@ namespace MTConnect.Applications
 
             // Create MTConnect Agent
             var agent = new MTConnectAgent(configuration);
-            agent.Version = new Version(1, 8);
+            agent.MTConnectVersion = new Version(1, 8);
 
             // Read Devices.xml File
             var devices = DeviceConfiguration.FromFile(configuration?.Devices, DocumentFormat.XML);
