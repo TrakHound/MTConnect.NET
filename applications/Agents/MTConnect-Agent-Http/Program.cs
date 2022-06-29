@@ -31,6 +31,7 @@ namespace MTConnect.Applications
 
         private static readonly Logger _applicationLogger = LogManager.GetLogger("application-logger");
         private static readonly Logger _agentLogger = LogManager.GetLogger("agent-logger");
+        private static readonly Logger _agentMetricLogger = LogManager.GetLogger("agent--metric-logger");
         private static readonly Logger _agentValidationLogger = LogManager.GetLogger("agent-validation-logger");
         private static readonly Logger _httpLogger = LogManager.GetLogger("http-logger");
         private static readonly Logger _adapterLogger = LogManager.GetLogger("adapter-logger");
@@ -107,7 +108,7 @@ namespace MTConnect.Applications
             {
                 service = new Service(serviceName, serviceDisplayName, serviceDescription, serviceStart);
             }
-            
+
             switch (command)
             {
                 case "run":
@@ -140,7 +141,7 @@ namespace MTConnect.Applications
                         service.InstallService(configFile);
                     }
                     else _applicationLogger.Info($"'Install' Command is not supported on this Operating System");
-                    
+
                     break;
 
                 case "install-start":
@@ -187,7 +188,7 @@ namespace MTConnect.Applications
 
                     break;
 
-                case "help": 
+                case "help":
                     PrintHelp();
                     break;
 
@@ -378,7 +379,7 @@ namespace MTConnect.Applications
         }
 
 
-#region "Agent Configuration"
+        #region "Agent Configuration"
 
         private static void AgentConfigurationFileUpdated(object sender, ShdrAgentConfiguration configuration)
         {
@@ -396,9 +397,9 @@ namespace MTConnect.Applications
             _applicationLogger.Error($"[Application] : Agent Configuration File Error : {message}");
         }
 
-#endregion
+        #endregion
 
-#region "Device Configuration"
+        #region "Device Configuration"
 
         private static void DeviceConfigurationFileUpdated(object sender, DeviceConfiguration configuration)
         {
@@ -416,9 +417,9 @@ namespace MTConnect.Applications
             _applicationLogger.Error($"[Application] : Device Configuration File Error : {message}");
         }
 
-#endregion
+        #endregion
 
-#region "Metrics"
+        #region "Metrics"
 
         private static void StartMetrics()
         {
@@ -438,16 +439,16 @@ namespace MTConnect.Applications
                 var observationAverage = _mtconnectAgent.Metrics.ObservationAverage;
                 observationDelta = observationCount - observationLastCount;
 
-                _agentLogger.Debug("[Agent] : Observations - Delta for last " + updateInterval + " seconds: " + observationDelta);
-                _agentLogger.Debug("[Agent] : Observations - Average for last " + windowInterval + " minutes: " + Math.Round(observationAverage, 5));
+                _agentMetricLogger.Info("[Agent] : Observations - Delta for last " + updateInterval + " seconds: " + observationDelta);
+                _agentMetricLogger.Info("[Agent] : Observations - Average for last " + windowInterval + " minutes: " + Math.Round(observationAverage, 5));
 
                 // Assets
                 var assetCount = _mtconnectAgent.Metrics.GetAssetCount();
                 var assetAverage = _mtconnectAgent.Metrics.AssetAverage;
                 assetDelta = assetCount - assetLastCount;
 
-                _agentLogger.Debug("[Agent] : Assets - Delta for last " + updateInterval + " seconds: " + assetDelta);
-                _agentLogger.Debug("[Agent] : Assets - Average for last " + windowInterval + " minutes: " + Math.Round(assetAverage, 5));
+                _agentMetricLogger.Info("[Agent] : Assets - Delta for last " + updateInterval + " seconds: " + assetDelta);
+                _agentMetricLogger.Info("[Agent] : Assets - Average for last " + windowInterval + " minutes: " + Math.Round(assetAverage, 5));
 
                 observationLastCount = observationCount;
                 assetLastCount = assetCount;
@@ -455,9 +456,9 @@ namespace MTConnect.Applications
             _metricsTimer.Start();
         }
 
-#endregion
+        #endregion
 
-#region "Console Output"
+        #region "Console Output"
 
         private static void PrintHeader()
         {
@@ -548,7 +549,7 @@ namespace MTConnect.Applications
 
 
         private static void ObservationAdded(object sender, IObservation observation)
-        {         
+        {
             if (!observation.Values.IsNullOrEmpty())
             {
                 foreach (var value in observation.Values)
@@ -641,22 +642,22 @@ namespace MTConnect.Applications
 
         private static void HttpClientConnected(object sender, HttpListenerRequest request)
         {
-            _httpLogger.Debug($"[Http Server] : Client Connected : " + request.LocalEndPoint + " : " + request.Url);
+            _httpLogger.Info($"[Http Server] : Http Client Connected : (" + request.HttpMethod + ") : " + request.LocalEndPoint + " : " + request.Url);
         }
 
         private static void HttpClientDisconnected(object sender, string remoteEndPoint)
         {
-            _httpLogger.Debug($"[Http Server] : Client Disconnected : " + remoteEndPoint);
+            _httpLogger.Debug($"[Http Server] : Http Client Disconnected : " + remoteEndPoint);
         }
 
         private static void HttpClientException(object sender, Exception exception)
         {
-            _httpLogger.Log(_logLevel, $"[Http Server] : Client Exception : " + exception.Message);
+            _httpLogger.Log(_logLevel, $"[Http Server] : Http Client Exception : " + exception.Message);
         }
 
         private static void HttpResponseSent(object sender, MTConnectHttpResponse response)
         {
-            _httpLogger.Debug($"[Http Server] : Response Sent : {response.StatusCode} : {response.ContentType} : Agent Process Time {response.ResponseDuration}ms : Document Format Time {response.FormatDuration}ms : Total Response Time {response.ResponseDuration + response.FormatDuration}ms");
+            _httpLogger.Info($"[Http Server] : Http Response Sent : {response.StatusCode} : {response.ContentType} : Agent Process Time {response.ResponseDuration}ms : Document Format Time {response.FormatDuration}ms : Total Response Time {response.ResponseDuration + response.FormatDuration}ms");
 
             // Format Messages
             if (!response.FormatMessages.IsNullOrEmpty())
@@ -686,7 +687,7 @@ namespace MTConnect.Applications
             }
         }
 
-#endregion
+        #endregion
 
     }
 }
