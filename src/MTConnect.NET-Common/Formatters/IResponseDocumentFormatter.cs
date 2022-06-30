@@ -29,10 +29,10 @@ namespace MTConnect.Formatters
 
         FormattedDocumentReadResult<IDevicesResponseDocument> CreateDevicesResponseDocument(string content, IEnumerable<KeyValuePair<string, string>> options = null);
 
-        IStreamsResponseDocument CreateStreamsResponseDocument(string content, IEnumerable<KeyValuePair<string, string>> options = null);
+        FormattedDocumentReadResult<IStreamsResponseDocument> CreateStreamsResponseDocument(string content, IEnumerable<KeyValuePair<string, string>> options = null);
 
-        IAssetsResponseDocument CreateAssetsResponseDocument(string content, IEnumerable<KeyValuePair<string, string>> options = null);
+        FormattedDocumentReadResult<IAssetsResponseDocument> CreateAssetsResponseDocument(string content, IEnumerable<KeyValuePair<string, string>> options = null);
 
-        IErrorResponseDocument CreateErrorResponseDocument(string content, IEnumerable<KeyValuePair<string, string>> options = null);
+        FormattedDocumentReadResult<IErrorResponseDocument> CreateErrorResponseDocument(string content, IEnumerable<KeyValuePair<string, string>> options = null);
     }
 }

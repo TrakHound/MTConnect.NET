@@ -321,7 +321,7 @@ namespace MTConnect.Clients.Rest
             if (!string.IsNullOrEmpty(documentString))
             {
                 // Process MTConnectDevices Document
-                var document = Formatters.ResponseDocumentFormatter.CreateStreamsResponseDocument(DocumentFormat.ToString(), documentString);
+                var document = Formatters.ResponseDocumentFormatter.CreateStreamsResponseDocument(DocumentFormat.ToString(), documentString).Document;
                 if (document != null)
                 {
                     return document;
@@ -329,7 +329,7 @@ namespace MTConnect.Clients.Rest
                 else
                 {
                     // Process MTConnectError Document (if MTConnectDevices fails)
-                    var errorDocument = Formatters.ResponseDocumentFormatter.CreateErrorResponseDocument(DocumentFormat.ToString(), documentString);
+                    var errorDocument = Formatters.ResponseDocumentFormatter.CreateErrorResponseDocument(DocumentFormat.ToString(), documentString).Document;
                     if (errorDocument != null)
                     {
                         OnMTConnectError?.Invoke(this, errorDocument);

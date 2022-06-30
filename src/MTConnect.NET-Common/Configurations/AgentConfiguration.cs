@@ -45,25 +45,25 @@ namespace MTConnect.Configurations
         public int AssetBufferSize { get; set; }
 
 
-        /// <summary>
-        /// The Path to look for the file(s) that represent the Device Information Models to load into the Agent.
-        /// The path can either be a single file or a directory. The path can be absolute or relative to the executable's directory
-        /// </summary>
-        [JsonPropertyName("devices")]
-        public string Devices { get; set; }
+        ///// <summary>
+        ///// The Path to look for the file(s) that represent the Device Information Models to load into the Agent.
+        ///// The path can either be a single file or a directory. The path can be absolute or relative to the executable's directory
+        ///// </summary>
+        //[JsonPropertyName("devices")]
+        //public string Devices { get; set; }
 
 
-        /// <summary>
-        /// Changes the service name when installing or removing the service. This allows multiple agents to run as services on the same machine.
-        /// </summary>
-        [JsonPropertyName("serviceName")]
-        public string ServiceName { get; set; }
+        ///// <summary>
+        ///// Changes the service name when installing or removing the service. This allows multiple agents to run as services on the same machine.
+        ///// </summary>
+        //[JsonPropertyName("serviceName")]
+        //public string ServiceName { get; set; }
 
-        /// <summary>
-        /// Sets the Service Start Type. True = Auto | False = Manual
-        /// </summary>
-        [JsonPropertyName("serviceAutoStart")]
-        public bool ServiceAutoStart { get; set; }
+        ///// <summary>
+        ///// Sets the Service Start Type. True = Auto | False = Manual
+        ///// </summary>
+        //[JsonPropertyName("serviceAutoStart")]
+        //public bool ServiceAutoStart { get; set; }
 
 
         /// <summary>
@@ -118,44 +118,44 @@ namespace MTConnect.Configurations
         public bool OutputComments { get; set; }
 
 
-        /// <summary>
-        /// Gets or Sets whether Configuration files are monitored. If enabled and a configuration file is changed, the Agent will restart
-        /// </summary>
-        [JsonPropertyName("monitorConfigurationFiles")]
-        public bool MonitorConfigurationFiles { get; set; }
+        ///// <summary>
+        ///// Gets or Sets whether Configuration files are monitored. If enabled and a configuration file is changed, the Agent will restart
+        ///// </summary>
+        //[JsonPropertyName("monitorConfigurationFiles")]
+        //public bool MonitorConfigurationFiles { get; set; }
 
-        /// <summary>
-        /// Gets or Sets the minimum time (in seconds) between Agent restarts when MonitorConfigurationFiles is enabled
-        /// </summary>
-        [JsonPropertyName("configurationFileRestartInterval")]
-        public int ConfigurationFileRestartInterval { get; set; }
-
-
-
-        [JsonPropertyName("devicesNamespaces")]
-        public List<NamespaceConfiguration> DevicesNamespaces { get; set; }
-
-        [JsonPropertyName("streamsNamespaces")]
-        public List<NamespaceConfiguration> StreamsNamespaces { get; set; }
-
-        [JsonPropertyName("assetsNamespaces")]
-        public List<NamespaceConfiguration> AssetsNamespaces { get; set; }
-
-        [JsonPropertyName("errorNamespaces")]
-        public List<NamespaceConfiguration> ErrorNamespaces { get; set; }
+        ///// <summary>
+        ///// Gets or Sets the minimum time (in seconds) between Agent restarts when MonitorConfigurationFiles is enabled
+        ///// </summary>
+        //[JsonPropertyName("configurationFileRestartInterval")]
+        //public int ConfigurationFileRestartInterval { get; set; }
 
 
-        [JsonPropertyName("devicesStyle")]
-        public StyleConfiguration DevicesStyle { get; set; }
 
-        [JsonPropertyName("streamsStyle")]
-        public StyleConfiguration StreamsStyle { get; set; }
+        //[JsonPropertyName("devicesNamespaces")]
+        //public List<NamespaceConfiguration> DevicesNamespaces { get; set; }
 
-        [JsonPropertyName("assetsStyle")]
-        public StyleConfiguration AssetsStyle { get; set; }
+        //[JsonPropertyName("streamsNamespaces")]
+        //public List<NamespaceConfiguration> StreamsNamespaces { get; set; }
 
-        [JsonPropertyName("errorStyle")]
-        public StyleConfiguration ErrorStyle { get; set; }
+        //[JsonPropertyName("assetsNamespaces")]
+        //public List<NamespaceConfiguration> AssetsNamespaces { get; set; }
+
+        //[JsonPropertyName("errorNamespaces")]
+        //public List<NamespaceConfiguration> ErrorNamespaces { get; set; }
+
+
+        //[JsonPropertyName("devicesStyle")]
+        //public StyleConfiguration DevicesStyle { get; set; }
+
+        //[JsonPropertyName("streamsStyle")]
+        //public StyleConfiguration StreamsStyle { get; set; }
+
+        //[JsonPropertyName("assetsStyle")]
+        //public StyleConfiguration AssetsStyle { get; set; }
+
+        //[JsonPropertyName("errorStyle")]
+        //public StyleConfiguration ErrorStyle { get; set; }
 
 
 
@@ -163,16 +163,16 @@ namespace MTConnect.Configurations
         {
             ObservationBufferSize = 131072;
             AssetBufferSize = 1024;
-            Devices = "devices.xml";
-            ServiceName = null;
-            ServiceAutoStart = true;
+            //Devices = "devices.xml";
+            //ServiceName = null;
+            //ServiceAutoStart = true;
             DefaultVersion = MTConnectVersions.Max;
             InputValidationLevel = InputValidationLevel.Warning;
             OutputValidationLevel = ValidationLevel.Ignore;
             ConvertUnits = true;
             IgnoreObservationCase = true;
-            MonitorConfigurationFiles = true;
-            ConfigurationFileRestartInterval = 2;
+            //MonitorConfigurationFiles = true;
+            //ConfigurationFileRestartInterval = 2;
             IndentOutput = true;
             OutputComments = false;
         }

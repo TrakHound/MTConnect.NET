@@ -41,6 +41,14 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Remove="Program - Copy.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Include="Program - Copy.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="NLog" Version="4.7.14" />
 		<PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" Version="4.3.0" />
 	</ItemGroup>
@@ -55,6 +63,9 @@
 		</None>
 		<None Update="devices-Copy.xml">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="device-okuma.xml">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
 		<None Update="devices-okuma.xml">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>

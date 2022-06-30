@@ -128,7 +128,7 @@ namespace MTConnect.Formatters
             return FormattedDocumentReadResult<IDevicesResponseDocument>.Error(null, $"Document Formatter Not found for \"{documentFormatterId}\"");
         }
 
-        public static IStreamsResponseDocument CreateStreamsResponseDocument(string documentFormatterId, string content)
+        public static FormattedDocumentReadResult<IStreamsResponseDocument> CreateStreamsResponseDocument(string documentFormatterId, string content)
         {
             // Get the Formatter with the specified ID
             var formatter = GetFormatter(documentFormatterId);
@@ -138,10 +138,10 @@ namespace MTConnect.Formatters
                 return formatter.CreateStreamsResponseDocument(content);
             }
 
-            return null;
+            return FormattedDocumentReadResult<IStreamsResponseDocument>.Error(null, $"Document Formatter Not found for \"{documentFormatterId}\"");
         }
 
-        public static IAssetsResponseDocument CreateAssetsResponseDocument(string documentFormatterId, string content)
+        public static FormattedDocumentReadResult<IAssetsResponseDocument> CreateAssetsResponseDocument(string documentFormatterId, string content)
         {
             // Get the Formatter with the specified ID
             var formatter = GetFormatter(documentFormatterId);
@@ -151,10 +151,10 @@ namespace MTConnect.Formatters
                 return formatter.CreateAssetsResponseDocument(content);
             }
 
-            return null;
+            return FormattedDocumentReadResult<IAssetsResponseDocument>.Error(null, $"Document Formatter Not found for \"{documentFormatterId}\"");
         }
 
-        public static IErrorResponseDocument CreateErrorResponseDocument(string documentFormatterId, string content)
+        public static FormattedDocumentReadResult<IErrorResponseDocument> CreateErrorResponseDocument(string documentFormatterId, string content)
         {
             // Get the Formatter with the specified ID
             var formatter = GetFormatter(documentFormatterId);
@@ -164,7 +164,7 @@ namespace MTConnect.Formatters
                 return formatter.CreateErrorResponseDocument(content);
             }
 
-            return null;
+            return FormattedDocumentReadResult<IErrorResponseDocument>.Error(null, $"Document Formatter Not found for \"{documentFormatterId}\"");
         }
 
 

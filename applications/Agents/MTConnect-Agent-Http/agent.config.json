@@ -1,7 +1,9 @@
 ﻿{
-	"devices": "devices-okuma.xml",
+	"devices": "devices",
 	"port": 5005,
+	"durable": true,
 	"allowPut": true,
+	"inputValidationLevel": 2,
 	"adapters": [
 		{
 			"deviceKey": "OKUMA-Lathe",

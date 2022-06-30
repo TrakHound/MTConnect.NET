@@ -73,6 +73,10 @@ namespace MTConnect.Buffers
             }
         }
 
+        public ConcurrentDictionary<string, StoredObservation> CurrentObservations => _currentObservations;
+
+        public ConcurrentDictionary<string, IEnumerable<StoredObservation>> CurrentConditions => _currentConditions;
+
 
         public MTConnectObservationBuffer()
         {

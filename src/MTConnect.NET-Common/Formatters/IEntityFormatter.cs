@@ -5,8 +5,6 @@
 
 using MTConnect.Assets;
 using MTConnect.Devices;
-using MTConnect.Errors;
-using MTConnect.Streams;
 using System.Collections.Generic;
 
 namespace MTConnect.Formatters
@@ -19,5 +17,7 @@ namespace MTConnect.Formatters
 
 
         FormattedEntityReadResult<IDevice> CreateDevice(string content, IEnumerable<KeyValuePair<string, string>> options = null);
+
+        FormattedEntityReadResult<IAsset> CreateAsset(string assetType, string content, IEnumerable<KeyValuePair<string, string>> options = null);
     }
 }

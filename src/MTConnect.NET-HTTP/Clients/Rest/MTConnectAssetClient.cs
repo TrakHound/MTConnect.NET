@@ -309,15 +309,15 @@ namespace MTConnect.Clients.Rest
             if (!string.IsNullOrEmpty(documentString))
             {
                 // Process MTConnectAssets Document
-                var document = Formatters.ResponseDocumentFormatter.CreateAssetsResponseDocument(DocumentFormat.ToString(), documentString);
+                var document = Formatters.ResponseDocumentFormatter.CreateAssetsResponseDocument(DocumentFormat.ToString(), documentString).Document;
                 if (document != null)
                 {
                     return document;
                 }
                 else
                 {
-                    // Process MTConnectError Document (if MTConnectDevices fails)
-                    var errorDocument = Formatters.ResponseDocumentFormatter.CreateErrorResponseDocument(DocumentFormat.ToString(), documentString);
+                    // Process MTConnectError Document (if MTConnectAssets fails)
+                    var errorDocument = Formatters.ResponseDocumentFormatter.CreateErrorResponseDocument(DocumentFormat.ToString(), documentString).Document;
                     if (errorDocument != null)
                     {
                         OnMTConnectError?.Invoke(this, errorDocument);

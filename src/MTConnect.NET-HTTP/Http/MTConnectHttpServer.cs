@@ -22,11 +22,6 @@ namespace MTConnect.Http
     /// </summary>
     public class MTConnectHttpServer : HttpServer
     {
-        //private const string DefaultServer = "127.0.0.1";
-        //private const int DefaultPort = 5000;
-        //private const string EmptyServer = "0.0.0.0";
-
-        //private static readonly string DefaultPrefix = "http://" + DefaultServer + ":" + DefaultPort + "/";
         private static readonly Dictionary<string, string> _devicesSchemas = new Dictionary<string, string>();
         private static readonly Dictionary<string, string> _streamsSchemas = new Dictionary<string, string>();
         private static readonly Dictionary<string, string> _assetsSchemas = new Dictionary<string, string>();
@@ -36,23 +31,6 @@ namespace MTConnect.Http
         private readonly IMTConnectAgent _mtconnectAgent;
         private readonly HttpAgentConfiguration _configuration;
 
-
-        ///// <summary>
-        ///// Event Handler for when the HttpListener is started
-        ///// </summary>
-        ///// <returns>URL Prefix that the HttpListener is listening for requests on</returns>
-        //public EventHandler<string> ListenerStarted { get; set; }
-
-        ///// <summary>
-        ///// Event Handler for when the HttpListener is stopped
-        ///// </summary>
-        ///// <returns>URL Prefix that the HttpListener is listening for requests on</returns>
-        //public EventHandler<string> ListenerStopped { get; set; }
-
-        ///// <summary>
-        ///// Event Handler for when an error occurs with the HttpListener
-        ///// </summary>
-        //public EventHandler<Exception> ListenerException { get; set; }
 
         /// <summary>
         /// Event Handler for when a client makes a request to the server
@@ -79,51 +57,7 @@ namespace MTConnect.Http
         {
             _mtconnectAgent = mtconnectAgent;
             _configuration = configuration;
-
-            //Prefixes = CreatePrefixes(configuration, prefixes, port);
         }
-
-
-        //private static IEnumerable<string> CreatePrefixes(HttpAgentConfiguration configuration, IEnumerable<string> prefixes = null, int port = 0)
-        //{
-        //    var x = new List<string>();
-
-        //    if (!prefixes.IsNullOrEmpty())
-        //    {
-        //        x.AddRange(prefixes);
-        //    }
-        //    else if (configuration != null)
-        //    {
-        //        var serverIp = DefaultServer;
-        //        var serverPort = DefaultPort;
-
-        //        // Configuration Server IP
-        //        if (!string.IsNullOrEmpty(configuration.ServerIp))
-        //        {
-        //            if (configuration.ServerIp != EmptyServer)
-        //            {
-        //                serverIp = configuration.ServerIp;
-        //            }
-        //        }
-
-        //        // Set Port (if not overridden in method, read from Configuration)
-        //        if (port > 0)
-        //        {
-        //            serverPort = port;
-        //        }
-        //        else if (configuration.Port > 0)
-        //        {
-        //            serverPort = configuration.Port;
-        //        }
-
-        //        // Construct Prefix URL
-        //        x.Add("http://" + serverIp + ":" + serverPort + "/");
-
-        //    }
-        //    else x.Add(DefaultPrefix);
-
-        //    return x;
-        //}
 
 
         /// <summary>
@@ -373,7 +307,7 @@ namespace MTConnect.Http
                 // Read ValidationLevel from Query string
                 var validationLevelString = httpRequest.QueryString["validationLevel"];
                 if (!string.IsNullOrEmpty(validationLevelString)) formatOptions.Add(new KeyValuePair<string, string>("validationLevel", validationLevelString));
-                else formatOptions.Add(new KeyValuePair<string, string>("validationLevel", ((int)_configuration.ValidationLevel).ToString()));
+                else formatOptions.Add(new KeyValuePair<string, string>("validationLevel", ((int)_configuration.OutputValidationLevel).ToString()));
 
                 // Read IndentOutput from Query string
                 var indentOutputString = httpRequest.QueryString["indentOutput"];
@@ -445,7 +379,7 @@ namespace MTConnect.Http
                 // Read ValidationLevel from Query string
                 var validationLevelString = httpRequest.QueryString["validationLevel"];
                 if (!string.IsNullOrEmpty(validationLevelString)) formatOptions.Add(new KeyValuePair<string, string>("validationLevel", validationLevelString));
-                else formatOptions.Add(new KeyValuePair<string, string>("validationLevel", ((int)_configuration.ValidationLevel).ToString()));
+                else formatOptions.Add(new KeyValuePair<string, string>("validationLevel", ((int)_configuration.OutputValidationLevel).ToString()));
 
                 // Read IndentOutput from Query string
                 var indentOutputString = httpRequest.QueryString["indentOutput"];
@@ -560,7 +494,7 @@ namespace MTConnect.Http
                 // Read ValidationLevel from Query string
                 var validationLevelString = httpRequest.QueryString["validationLevel"];
                 if (!string.IsNullOrEmpty(validationLevelString)) formatOptions.Add(new KeyValuePair<string, string>("validationLevel", validationLevelString));
-                else formatOptions.Add(new KeyValuePair<string, string>("validationLevel", ((int)_configuration.ValidationLevel).ToString()));
+                else formatOptions.Add(new KeyValuePair<string, string>("validationLevel", ((int)_configuration.OutputValidationLevel).ToString()));
 
                 // Read IndentOutput from Query string
                 var indentOutputString = httpRequest.QueryString["indentOutput"];
@@ -660,7 +594,7 @@ namespace MTConnect.Http
                 // Read ValidationLevel from Query string
                 var validationLevelString = httpRequest.QueryString["validationLevel"];
                 if (!string.IsNullOrEmpty(validationLevelString)) formatOptions.Add(new KeyValuePair<string, string>("validationLevel", validationLevelString));
-                else formatOptions.Add(new KeyValuePair<string, string>("validationLevel", ((int)_configuration.ValidationLevel).ToString()));
+                else formatOptions.Add(new KeyValuePair<string, string>("validationLevel", ((int)_configuration.OutputValidationLevel).ToString()));
 
                 // Read IndentOutput from Query string
                 var indentOutputString = httpRequest.QueryString["indentOutput"];
@@ -716,7 +650,7 @@ namespace MTConnect.Http
                 // Read ValidationLevel from Query string
                 var validationLevelString = httpRequest.QueryString["validationLevel"];
                 if (!string.IsNullOrEmpty(validationLevelString)) formatOptions.Add(new KeyValuePair<string, string>("validationLevel", validationLevelString));
-                else formatOptions.Add(new KeyValuePair<string, string>("validationLevel", ((int)_configuration.ValidationLevel).ToString()));
+                else formatOptions.Add(new KeyValuePair<string, string>("validationLevel", ((int)_configuration.OutputValidationLevel).ToString()));
 
                 // Read IndentOutput from Query string
                 var indentOutputString = httpRequest.QueryString["indentOutput"];

@@ -342,6 +342,34 @@ namespace MTConnect.Agents
             }
         }
 
+        public void InitializeCurrentObservations(IEnumerable<StoredObservation> observations)
+        {
+            if (!observations.IsNullOrEmpty())
+            {
+                foreach (var observation in observations)
+                {
+                    var dataItem = GetDataItemFromKey(observation.DeviceUuid, observation.DataItemId);
+                    if (dataItem != null)
+                    {
+                        var input = new ObservationInput();
+                        input.DeviceKey = observation.DeviceUuid;
+                        input.DataItemKey = observation.DataItemId;
+                        input.Timestamp = observation.Timestamp;
+                        input.Values = observation.Values;
+
+                        if (dataItem.Category == DataItemCategory.CONDITION)
+                        {
+                            UpdateCurrentCondition(observation.DeviceUuid, dataItem, input);
+                        }
+                        else
+                        {
+                            UpdateCurrentObservation(observation.DeviceUuid, dataItem, input);
+                        }
+                    }
+                }
+            }
+        }
+
 
         #region "Headers"
 

@@ -45,6 +45,33 @@ namespace MTConnect.Configurations
         public int MaxListenerThreads { get; set; }
 
 
+
+        [JsonPropertyName("devicesNamespaces")]
+        public List<NamespaceConfiguration> DevicesNamespaces { get; set; }
+
+        [JsonPropertyName("streamsNamespaces")]
+        public List<NamespaceConfiguration> StreamsNamespaces { get; set; }
+
+        [JsonPropertyName("assetsNamespaces")]
+        public List<NamespaceConfiguration> AssetsNamespaces { get; set; }
+
+        [JsonPropertyName("errorNamespaces")]
+        public List<NamespaceConfiguration> ErrorNamespaces { get; set; }
+
+
+        [JsonPropertyName("devicesStyle")]
+        public StyleConfiguration DevicesStyle { get; set; }
+
+        [JsonPropertyName("streamsStyle")]
+        public StyleConfiguration StreamsStyle { get; set; }
+
+        [JsonPropertyName("assetsStyle")]
+        public StyleConfiguration AssetsStyle { get; set; }
+
+        [JsonPropertyName("errorStyle")]
+        public StyleConfiguration ErrorStyle { get; set; }
+
+
         public HttpAgentConfiguration()
         {
             ServerIp = "127.0.0.1";

@@ -20,7 +20,7 @@ namespace MTConnect.Formatters
         public string ContentType => "application/xml";
 
 
-        public FormattedDocumentResult Format(IDevicesResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormattedDocumentWriteResult Format(IDevicesResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read XSD Schema
             var schemas = GetFormatterOptions<string>(options, "schema");
@@ -46,25 +46,25 @@ namespace MTConnect.Formatters
                     var validationResponse = XmlValidator.Validate(xml, schemas);
                     if (validationResponse.Success)
                     {
-                        return FormattedDocumentResult.Successful(xml, ContentType, "XML Validation Successful");
+                        return FormattedDocumentWriteResult.Successful(xml, ContentType, "XML Validation Successful");
                     }
                     else
                     {
                         // Return Successful if ValidationLevel set to Warning
-                        if (validationLevel < 2) return FormattedDocumentResult.Warning(xml, ContentType, validationResponse.Errors);
-                        else return FormattedDocumentResult.Error(validationResponse.Errors);                   
+                        if (validationLevel < 2) return FormattedDocumentWriteResult.Warning(xml, ContentType, validationResponse.Errors);
+                        else return FormattedDocumentWriteResult.Error(validationResponse.Errors);                   
                     }
                 }
                 else
                 {
-                    return FormattedDocumentResult.Successful(xml, ContentType);
+                    return FormattedDocumentWriteResult.Successful(xml, ContentType);
                 }
             }
 
-            return FormattedDocumentResult.Error();
+            return FormattedDocumentWriteResult.Error();
         }
 
-        public FormattedDocumentResult Format(IStreamsResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormattedDocumentWriteResult Format(IStreamsResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read XSD Schema
             var schemas = GetFormatterOptions<string>(options, "schema");
@@ -90,25 +90,25 @@ namespace MTConnect.Formatters
                     var validationResponse = XmlValidator.Validate(xml, schemas);
                     if (validationResponse.Success)
                     {
-                        return FormattedDocumentResult.Successful(xml, ContentType, "XML Validation Successful");
+                        return FormattedDocumentWriteResult.Successful(xml, ContentType, "XML Validation Successful");
                     }
                     else
                     {
                         // Return Successful if ValidationLevel set to Warning
-                        if (validationLevel < 2) return FormattedDocumentResult.Warning(xml, ContentType, validationResponse.Errors);
-                        else return FormattedDocumentResult.Error(validationResponse.Errors);
+                        if (validationLevel < 2) return FormattedDocumentWriteResult.Warning(xml, ContentType, validationResponse.Errors);
+                        else return FormattedDocumentWriteResult.Error(validationResponse.Errors);
                     }
                 }
                 else
                 {
-                    return FormattedDocumentResult.Successful(xml, ContentType);
+                    return FormattedDocumentWriteResult.Successful(xml, ContentType);
                 }
             }
 
-            return FormattedDocumentResult.Error();
+            return FormattedDocumentWriteResult.Error();
         }
 
-        public FormattedDocumentResult Format(IAssetsResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormattedDocumentWriteResult Format(IAssetsResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read XSD Schema
             var schemas = GetFormatterOptions<string>(options, "schema");
@@ -134,25 +134,25 @@ namespace MTConnect.Formatters
                     var validationResponse = XmlValidator.Validate(xml, schemas);
                     if (validationResponse.Success)
                     {
-                        return FormattedDocumentResult.Successful(xml, ContentType, "XML Validation Successful");
+                        return FormattedDocumentWriteResult.Successful(xml, ContentType, "XML Validation Successful");
                     }
                     else
                     {
                         // Return Successful if ValidationLevel set to Warning
-                        if (validationLevel < 2) return FormattedDocumentResult.Warning(xml, ContentType, validationResponse.Errors);
-                        else return FormattedDocumentResult.Error(validationResponse.Errors);
+                        if (validationLevel < 2) return FormattedDocumentWriteResult.Warning(xml, ContentType, validationResponse.Errors);
+                        else return FormattedDocumentWriteResult.Error(validationResponse.Errors);
                     }
                 }
                 else
                 {
-                    return FormattedDocumentResult.Successful(xml, ContentType);
+                    return FormattedDocumentWriteResult.Successful(xml, ContentType);
                 }
             }
 
-            return FormattedDocumentResult.Error();
+            return FormattedDocumentWriteResult.Error();
         }
 
-        public FormattedDocumentResult Format(IErrorResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormattedDocumentWriteResult Format(IErrorResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read XSD Schema
             var schemas = GetFormatterOptions<string>(options, "schema");
@@ -178,43 +178,184 @@ namespace MTConnect.Formatters
                     var validationResponse = XmlValidator.Validate(xml, schemas);
                     if (validationResponse.Success)
                     {
-                        return FormattedDocumentResult.Successful(xml, ContentType, "XML Validation Successful");
+                        return FormattedDocumentWriteResult.Successful(xml, ContentType, "XML Validation Successful");
                     }
                     else
                     {
                         // Return Successful if ValidationLevel set to Warning
-                        return FormattedDocumentResult.Warning(xml, ContentType, validationResponse.Errors);
+                        return FormattedDocumentWriteResult.Warning(xml, ContentType, validationResponse.Errors);
                     }
                 }
                 else
                 {
-                    return FormattedDocumentResult.Successful(xml, ContentType);
+                    return FormattedDocumentWriteResult.Successful(xml, ContentType);
                 }
             }
 
-            return FormattedDocumentResult.Error();
+            return FormattedDocumentWriteResult.Error();
         }
 
 
-        public IDevicesResponseDocument CreateDevicesResponseDocument(string content)
+        public FormattedDocumentReadResult<IDevicesResponseDocument> CreateDevicesResponseDocument(string content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
-            return XmlDevicesResponseDocument.FromXml(content);
+            var messages = new List<string>();
+            var warnings = new List<string>();
+            var errors = new List<string>();
+
+            // Read XSD Schema
+            var schemas = GetFormatterOptions<string>(options, "schema");
+
+            // Read Validation Level Option passed to Formatter (0 = Ignore, 1 = Warning, 2 = Strict)
+            var validationLevel = GetFormatterOption<int>(options, "validationLevel");
+
+            if (validationLevel > 0)
+            {
+                // Validate XML against XSD Schema
+                var validationResponse = XmlValidator.Validate(content, schemas);
+                if (validationResponse.Success)
+                {
+                    messages.Add("XML Validation Successful");
+                }
+                else if (!validationResponse.Errors.IsNullOrEmpty())
+                {
+                    if (validationLevel > 1)
+                    {
+                        errors.AddRange(validationResponse.Errors);
+                    }
+                    else
+                    {
+                        warnings.AddRange(validationResponse.Errors);
+                    }
+                }
+            }
+
+            // Read Document
+            var document = XmlDevicesResponseDocument.FromXml(content);
+            var success = document != null;
+
+            return new FormattedDocumentReadResult<IDevicesResponseDocument>(document, success, messages, warnings, errors);
         }
 
-        public IStreamsResponseDocument CreateStreamsResponseDocument(string content)
+        public FormattedDocumentReadResult<IStreamsResponseDocument> CreateStreamsResponseDocument(string content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
-            return XmlStreamsResponseDocument.FromXml(content);
+            var messages = new List<string>();
+            var warnings = new List<string>();
+            var errors = new List<string>();
+
+            // Read XSD Schema
+            var schemas = GetFormatterOptions<string>(options, "schema");
+
+            // Read Validation Level Option passed to Formatter (0 = Ignore, 1 = Warning, 2 = Strict)
+            var validationLevel = GetFormatterOption<int>(options, "validationLevel");
+
+            if (validationLevel > 0)
+            {
+                // Validate XML against XSD Schema
+                var validationResponse = XmlValidator.Validate(content, schemas);
+                if (validationResponse.Success)
+                {
+                    messages.Add("XML Validation Successful");
+                }
+                else if (!validationResponse.Errors.IsNullOrEmpty())
+                {
+                    if (validationLevel > 1)
+                    {
+                        errors.AddRange(validationResponse.Errors);
+                    }
+                    else
+                    {
+                        warnings.AddRange(validationResponse.Errors);
+                    }
+                }
+            }
+
+            // Read Document
+            var document = XmlStreamsResponseDocument.FromXml(content);
+            var success = document != null;
+
+            return new FormattedDocumentReadResult<IStreamsResponseDocument>(document, success, messages, warnings, errors);
         }
 
-        public IAssetsResponseDocument CreateAssetsResponseDocument(string content)
+        public FormattedDocumentReadResult<IAssetsResponseDocument> CreateAssetsResponseDocument(string content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
-            return XmlAssetsResponseDocument.FromXml(content);
+            var messages = new List<string>();
+            var warnings = new List<string>();
+            var errors = new List<string>();
+
+            // Read XSD Schema
+            var schemas = GetFormatterOptions<string>(options, "schema");
+
+            // Read Validation Level Option passed to Formatter (0 = Ignore, 1 = Warning, 2 = Strict)
+            var validationLevel = GetFormatterOption<int>(options, "validationLevel");
+
+            if (validationLevel > 0)
+            {
+                // Validate XML against XSD Schema
+                var validationResponse = XmlValidator.Validate(content, schemas);
+                if (validationResponse.Success)
+                {
+                    messages.Add("XML Validation Successful");
+                }
+                else if (!validationResponse.Errors.IsNullOrEmpty())
+                {
+                    if (validationLevel > 1)
+                    {
+                        errors.AddRange(validationResponse.Errors);
+                    }
+                    else
+                    {
+                        warnings.AddRange(validationResponse.Errors);
+                    }
+                }
+            }
+
+            // Read Document
+            var document = XmlAssetsResponseDocument.FromXml(content);
+            var success = document != null;
+
+            return new FormattedDocumentReadResult<IAssetsResponseDocument>(document, success, messages, warnings, errors);
         }
 
-        public IErrorResponseDocument CreateErrorResponseDocument(string content)
+        public FormattedDocumentReadResult<IErrorResponseDocument> CreateErrorResponseDocument(string content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
-            return XmlErrorResponseDocument.FromXml(content);
+            var messages = new List<string>();
+            var warnings = new List<string>();
+            var errors = new List<string>();
+
+            // Read XSD Schema
+            var schemas = GetFormatterOptions<string>(options, "schema");
+
+            // Read Validation Level Option passed to Formatter (0 = Ignore, 1 = Warning, 2 = Strict)
+            var validationLevel = GetFormatterOption<int>(options, "validationLevel");
+
+            if (validationLevel > 0)
+            {
+                // Validate XML against XSD Schema
+                var validationResponse = XmlValidator.Validate(content, schemas);
+                if (validationResponse.Success)
+                {
+                    messages.Add("XML Validation Successful");
+                }
+                else if (!validationResponse.Errors.IsNullOrEmpty())
+                {
+                    if (validationLevel > 1)
+                    {
+                        errors.AddRange(validationResponse.Errors);
+                    }
+                    else
+                    {
+                        warnings.AddRange(validationResponse.Errors);
+                    }
+                }
+            }
+
+            // Read Document
+            var document = XmlErrorResponseDocument.FromXml(content);
+            var success = document != null;
+
+            return new FormattedDocumentReadResult<IErrorResponseDocument>(document, success, messages, warnings, errors);
         }
+
 
         private static T GetFormatterOption<T>(IEnumerable<KeyValuePair<string, string>> options, string key)
         {

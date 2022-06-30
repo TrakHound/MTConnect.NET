@@ -6,6 +6,7 @@
 using MTConnect.Devices.References;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -19,6 +20,9 @@ namespace MTConnect.Devices
     [XmlRoot("Device")]
     public class XmlDevice
     {
+        private static readonly XmlSerializer _serializer = new XmlSerializer(typeof(XmlDevice));
+
+
         /// <summary>
         /// The unique identifier for this Device in the document.
         /// An id MUST be unique across all the id attributes in the document.
@@ -286,6 +290,33 @@ namespace MTConnect.Devices
             }
 
             return device;
+        }
+
+
+        public static IDevice FromXml(string xml)
+        {
+            if (!string.IsNullOrEmpty(xml))
+            {
+                try
+                {
+                    xml = xml.Trim();
+
+                    using (var textReader = new StringReader(Namespaces.Clear(xml)))
+                    {
+                        using (var xmlReader = XmlReader.Create(textReader))
+                        {
+                            var xmlDevice = (XmlDevice)_serializer.Deserialize(xmlReader);
+                            if (xmlDevice != null)
+                            {
+                                return xmlDevice.ToDevice();
+                            }
+                        }
+                    }
+                }
+                catch { }
+            }
+
+            return null;
         }
     }
 }

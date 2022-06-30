@@ -251,7 +251,7 @@ namespace MTConnect.Clients.Rest
             if (!string.IsNullOrEmpty(xml))
             {
                 // Process MTConnectDevices Document
-                var document = Formatters.ResponseDocumentFormatter.CreateStreamsResponseDocument("XML", xml);
+                var document = Formatters.ResponseDocumentFormatter.CreateStreamsResponseDocument(DocumentFormat.XML, xml).Document;
                 if (document != null)
                 {
                     DocumentReceived?.Invoke(this, document);
@@ -259,7 +259,7 @@ namespace MTConnect.Clients.Rest
                 else
                 {
                     // Process MTConnectError Document (if MTConnectStreams fails)
-                    var errorDocument = Formatters.ResponseDocumentFormatter.CreateErrorResponseDocument(DocumentFormat.XML, xml);
+                    var errorDocument = Formatters.ResponseDocumentFormatter.CreateErrorResponseDocument(DocumentFormat.XML, xml).Document;
                     if (errorDocument != null) ErrorReceived?.Invoke(this, errorDocument);
                 }
             }

@@ -14,12 +14,13 @@
 			<Components>
 				<Axes id="L2axes1" name="Axes">
 					<Components>
-						<Rotary id="L2c1" name="C" nativeName="S">
+						<Spindle id="L2c1" name="C" nativeName="S">
 							<DataItems>
 								<DataItem category="SAMPLE" id="L2S1speed" name="S1speed" nativeUnits="REVOLUTION/MINUTE" subType="ACTUAL" type="ROTARY_VELOCITY" units="REVOLUTION/MINUTE"/>
 								<DataItem category="SAMPLE" id="L2S1cmd" name="S1cmd" nativeUnits="REVOLUTION/MINUTE" subType="COMMANDED" type="ROTARY_VELOCITY" units="REVOLUTION/MINUTE"/>
 								<DataItem category="EVENT" id="L2S1ovr" name="S1ovr" nativeUnits="PERCENT" subType="PROGRAMMED" type="ROTARY_VELOCITY_OVERRIDE" units="PERCENT"/>
-								<DataItem category="SAMPLE" id="L2S1load" name="S1load" nativeUnits="PERCENT" type="LOAD" units="PERCENT"/>
+								<DataItem category="SAMPLE" id="L2S1load" name="S1load" nativeUnits="PERCENT" type="LOAD3" units="PERCENT"/>
+								<!--<DataItem category="SAMPLE" id="L2S1load" name="S1load" nativeUnits="PERCENT" type="LOAD" units="PERCENT"/>-->
 								<DataItem category="EVENT" id="L2S1Mode" name="S1Mode" type="ROTARY_MODE">
 									<Constraints>
 										<Value>SPINDLE</Value>
@@ -28,9 +29,12 @@
 								<DataItem category="EVENT" id="L2S1ChuckState" name="S1ChuckState" type="CHUCK_STATE">
 									<InitialValue>OPEN</InitialValue>
 								</DataItem>
-								<!--<DataItem category="SAMPLE" id="L2S1SurfaceSpeed" name="S1SurfaceSpeed" nativeUnits="MILLIMETER/SECOND" type="e:SURFACE_SPEED" units="MILLIMETER/SECOND"/>-->
+								<DataItem category="SAMPLE" id="L2S1SurfaceSpeed" name="S1SurfaceSpeed" nativeUnits="MILLIMETER/SECOND" type="e:SURFACE_SPEED" units="MILLIMETER/SECOND"/>
 							</DataItems>
-						</Rotary>
+							<Compositions>
+								<Composition id="Xballscrew" type="ENGINE"/>
+							</Compositions>
+						</Spindle>
 						<Rotary id="L2c2" name="C2" nativeName="S">
 							<DataItems>
 								<DataItem category="SAMPLE" id="L2S2speed" name="S2speed" nativeUnits="REVOLUTION/MINUTE" subType="ACTUAL" type="ROTARY_VELOCITY" units="REVOLUTION/MINUTE"/>

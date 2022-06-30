@@ -5,12 +5,8 @@
 
 using MTConnect.Assets;
 using MTConnect.Devices;
-using MTConnect.Errors;
-using MTConnect.Streams;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
 namespace MTConnect.Formatters
@@ -40,11 +36,24 @@ namespace MTConnect.Formatters
             var formatter = GetFormatter(documentFormatterId);
             if (formatter != null)
             {
-                // Create the Response Document using the Formatter
+                // Create the Entity using the Formatter
                 return formatter.CreateDevice(content);
             }
 
             return FormattedEntityReadResult<IDevice>.Error(null, $"Entity Formatter Not found for \"{documentFormatterId}\"");
+        }
+
+        public static FormattedEntityReadResult<IAsset> CreateAsset(string documentFormatterId, string assetType, string content)
+        {
+            // Get the Formatter with the specified ID
+            var formatter = GetFormatter(documentFormatterId);
+            if (formatter != null)
+            {
+                // Create the Entity using the Formatter
+                return formatter.CreateAsset(assetType, content);
+            }
+
+            return FormattedEntityReadResult<IAsset>.Error(null, $"Entity Formatter Not found for \"{documentFormatterId}\"");
         }
 
 
