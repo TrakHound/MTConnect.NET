@@ -4,15 +4,11 @@
 // file 'LICENSE', which is part of this source code package.
 
 using MTConnect.Devices.Configurations;
-using MTConnect.Devices.DataItems;
 using MTConnect.Devices.References;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace MTConnect.Devices
 {
@@ -298,6 +294,25 @@ namespace MTConnect.Devices
             return null;
         }
 
+        public void RemoveDataItem(string dataItemId)
+        {
+            var components = GetComponents();
+            if (!components.IsNullOrEmpty())
+            {
+                foreach (var component in components)
+                {
+                    if (!component.DataItems.IsNullOrEmpty())
+                    {
+                        var dataItems = new List<IDataItem>();
+                        dataItems.AddRange(component.DataItems);
+                        dataItems.RemoveAll(o => o.Id == dataItemId);
+                        component.DataItems = dataItems;
+                    }
+                }
+            }
+        }
+
+
         /// <summary>
         /// Return a list of All Components
         /// </summary>
@@ -335,6 +350,42 @@ namespace MTConnect.Devices
         }
 
 
+        public void RemoveComponent(string componentId)
+        {
+            if (!Components.IsNullOrEmpty())
+            {
+                var components = new List<IComponent>();
+                components.AddRange(Components);
+
+                components.RemoveAll(o => o.Id == componentId);
+
+                foreach (var subComponent in components)
+                {
+                    RemoveComponent(subComponent, componentId);
+                }
+
+                Components = components;
+            }
+        }
+
+        private void RemoveComponent(IComponent component, string componentId)
+        {
+            if (component != null && !component.Components.IsNullOrEmpty())
+            {
+                var components = new List<IComponent>();
+                components.AddRange(component.Components);
+                components.RemoveAll(o => o.Id == componentId);
+
+                foreach (var subComponent in components)
+                {
+                    RemoveComponent(subComponent, componentId);
+                }
+
+                component.Components = components;
+            }
+        }
+
+
         /// <summary>
         /// Return a list of All Compositions
         /// </summary>
@@ -355,6 +406,24 @@ namespace MTConnect.Devices
             }
 
             return !l.IsNullOrEmpty() ? l : null;
+        }
+
+        public void RemoveComposition(string compositionId)
+        {
+            var components = GetComponents();
+            if (!components.IsNullOrEmpty())
+            {
+                foreach (var component in components)
+                {
+                    if (!component.Compositions.IsNullOrEmpty())
+                    {
+                        var compositions = new List<IComposition>();
+                        compositions.AddRange(component.Compositions);
+                        compositions.RemoveAll(o => o.Id == compositionId);
+                        component.Compositions = compositions;
+                    }
+                }
+            }
         }
 
 

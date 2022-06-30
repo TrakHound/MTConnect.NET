@@ -81,14 +81,14 @@ namespace MTConnect.Devices
         /// </summary>
         IConfiguration Configuration { get; }
 
-        IEnumerable<IDataItem> DataItems { get; }
+        IEnumerable<IDataItem> DataItems { get; set; }
 
-        IEnumerable<IComponent> Components { get; }
+        IEnumerable<IComponent> Components { get; set; }
 
         /// <summary>
         /// A container for the Composition elements associated with this Component element.
         /// </summary>
-        IEnumerable<IComposition> Compositions { get; }
+        IEnumerable<IComposition> Compositions { get; set; }
 
         /// <summary>
         /// An XML container consisting of one or more types of Reference XML elements.

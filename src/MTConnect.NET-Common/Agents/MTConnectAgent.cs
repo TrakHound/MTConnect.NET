@@ -2669,7 +2669,16 @@ namespace MTConnect.Agents
                         foreach (var genericComponent in genericComponents)
                         {
                             var validationResults = new ValidationResult(false, $"Invalid Component : \"{genericComponent.Type}\" Not Found");
-                            if (InvalidComponentAdded != null) InvalidComponentAdded.Invoke(obj.Uuid, genericComponent, validationResults);
+                            if (_configuration.InputValidationLevel > InputValidationLevel.Ignore)
+                            {
+                                if (InvalidComponentAdded != null) InvalidComponentAdded.Invoke(obj.Uuid, genericComponent, validationResults);
+
+                                // Remove Component from Device
+                                if (_configuration.InputValidationLevel == InputValidationLevel.Remove) obj.RemoveComponent(genericComponent.Id);
+
+                                // Invalidate entire Device
+                                if (_configuration.InputValidationLevel == InputValidationLevel.Strict) return null;
+                            }
                         }
                     }
 
@@ -2680,7 +2689,16 @@ namespace MTConnect.Agents
                         foreach (var genericComposition in genericCompositions)
                         {
                             var validationResults = new ValidationResult(false, $"Invalid Composition : \"{genericComposition.Type}\" Not Found");
-                            if (InvalidCompositionAdded != null) InvalidCompositionAdded.Invoke(obj.Uuid, genericComposition, validationResults);
+                            if (_configuration.InputValidationLevel > InputValidationLevel.Ignore)
+                            {
+                                if (InvalidCompositionAdded != null) InvalidCompositionAdded.Invoke(obj.Uuid, genericComposition, validationResults);
+
+                                // Remove Compsition from Device
+                                if (_configuration.InputValidationLevel == InputValidationLevel.Remove) obj.RemoveComposition(genericComposition.Id);
+
+                                // Invalidate entire Device
+                                if (_configuration.InputValidationLevel == InputValidationLevel.Strict) return null;
+                            }
                         }
                     }
 
@@ -2691,7 +2709,16 @@ namespace MTConnect.Agents
                         foreach (var genericDataItem in genericDataItems)
                         {
                             var validationResults = new ValidationResult(false, $"Invalid DataItem : \"{genericDataItem.Type}\" Not Found");
-                            if (InvalidDataItemAdded != null) InvalidDataItemAdded.Invoke(obj.Uuid, genericDataItem, validationResults);
+                            if (_configuration.InputValidationLevel > InputValidationLevel.Ignore)
+                            {
+                                if (InvalidDataItemAdded != null) InvalidDataItemAdded.Invoke(obj.Uuid, genericDataItem, validationResults);
+
+                                // Remove DataItem from Device
+                                if (_configuration.InputValidationLevel == InputValidationLevel.Remove) obj.RemoveDataItem(genericDataItem.Id);
+
+                                // Invalidate entire Device
+                                if (_configuration.InputValidationLevel == InputValidationLevel.Strict) return null;
+                            }
                         }
                     }
  
@@ -3025,48 +3052,49 @@ namespace MTConnect.Agents
             {
                 // Create new object (to validate and prevent derived classes that won't serialize right with XML)
                 var obj = NormalizeDevice(device);
-
-                // Get Existing Device (if exists)
-                var existingDevice = _deviceBuffer.GetDevice(obj.Uuid);
-
-                // Check if Device Already Exists in the Device Buffer and is changed
-                if (existingDevice != null && obj.ChangeId == existingDevice.ChangeId)
+                if (obj != null)
                 {
-                    return true;
-                }
+                    // Get Existing Device (if exists)
+                    var existingDevice = _deviceBuffer.GetDevice(obj.Uuid);
 
-                // Add the Device to the Buffer
-                var success = _deviceBuffer.AddDevice(obj);
-                if (success)
-                {
-                    // Add Name and UUID to DeviceKey dictionary
-                    _deviceKeys.TryAdd(obj.Name, obj.Uuid);
-                    _deviceKeys.TryAdd(obj.Uuid, obj.Uuid);
-
-                    if (initializeDataItems)
+                    // Check if Device Already Exists in the Device Buffer and is changed
+                    if (existingDevice != null && obj.ChangeId == existingDevice.ChangeId)
                     {
-                        var timestamp = UnixDateTime.Now;
-
-                        if (existingDevice != null)
-                        {
-                            //AddDeviceRemovedObservation(obj);
-                            AddDeviceChangedObservation(obj, timestamp);
-                        }
-                        else
-                        {
-                            AddDeviceAddedObservation(obj, timestamp);
-                        }
-
-                        InitializeDataItems(obj);
-
-                        _deviceModelChangeTime = timestamp;
-                        _updateInformation = true;
+                        return true;
                     }
 
-                    DeviceAdded?.Invoke(this, obj);
-                }
+                    // Add the Device to the Buffer
+                    var success = _deviceBuffer.AddDevice(obj);
+                    if (success)
+                    {
+                        // Add Name and UUID to DeviceKey dictionary
+                        _deviceKeys.TryAdd(obj.Name, obj.Uuid);
+                        _deviceKeys.TryAdd(obj.Uuid, obj.Uuid);
 
-                return success;
+                        if (initializeDataItems)
+                        {
+                            var timestamp = UnixDateTime.Now;
+
+                            if (existingDevice != null)
+                            {
+                                AddDeviceChangedObservation(obj, timestamp);
+                            }
+                            else
+                            {
+                                AddDeviceAddedObservation(obj, timestamp);
+                            }
+
+                            InitializeDataItems(obj);
+
+                            _deviceModelChangeTime = timestamp;
+                            _updateInformation = true;
+                        }
+
+                        DeviceAdded?.Invoke(this, obj);
+                    }
+
+                    return success;
+                }
             }
 
             return false;
@@ -3081,48 +3109,49 @@ namespace MTConnect.Agents
             {
                 // Create new object (to validate and prevent derived classes that won't serialize right with XML)
                 var obj = NormalizeDevice(device);
-
-                // Get Existing Device (if exists)
-                var existingDevice = await _deviceBuffer.GetDeviceAsync(obj.Uuid);
-
-                // Check if Device Already Exists in the Device Buffer and is changed
-                if (existingDevice != null && obj.ChangeId == existingDevice.ChangeId)
+                if (obj != null)
                 {
-                    return true;
-                }
+                    // Get Existing Device (if exists)
+                    var existingDevice = await _deviceBuffer.GetDeviceAsync(obj.Uuid);
 
-                // Add the Device to the Buffer
-                var success = await _deviceBuffer.AddDeviceAsync(obj);
-                if (success)
-                {
-                    // Add Name and UUID to DeviceKey dictionary
-                    _deviceKeys.TryAdd(obj.Name, obj.Uuid);
-                    _deviceKeys.TryAdd(obj.Uuid, obj.Uuid);
-
-                    if (initializeDataItems)
+                    // Check if Device Already Exists in the Device Buffer and is changed
+                    if (existingDevice != null && obj.ChangeId == existingDevice.ChangeId)
                     {
-                        var timestamp = UnixDateTime.Now;
-
-                        if (existingDevice != null)
-                        {
-                            //await AddDeviceRemovedObservationAsync(obj);
-                            await AddDeviceChangedObservationAsync(obj, timestamp);
-                        }
-                        else
-                        {
-                            await AddDeviceAddedObservationAsync(obj, timestamp);
-                        }
-
-                        await InitializeDataItemsAsync(obj);
-
-                        _deviceModelChangeTime = timestamp;
-                        _updateInformation = true;
+                        return true;
                     }
 
-                    DeviceAdded?.Invoke(this, obj);
-                }
+                    // Add the Device to the Buffer
+                    var success = await _deviceBuffer.AddDeviceAsync(obj);
+                    if (success)
+                    {
+                        // Add Name and UUID to DeviceKey dictionary
+                        _deviceKeys.TryAdd(obj.Name, obj.Uuid);
+                        _deviceKeys.TryAdd(obj.Uuid, obj.Uuid);
 
-                return success;
+                        if (initializeDataItems)
+                        {
+                            var timestamp = UnixDateTime.Now;
+
+                            if (existingDevice != null)
+                            {
+                                await AddDeviceChangedObservationAsync(obj, timestamp);
+                            }
+                            else
+                            {
+                                await AddDeviceAddedObservationAsync(obj, timestamp);
+                            }
+
+                            await InitializeDataItemsAsync(obj);
+
+                            _deviceModelChangeTime = timestamp;
+                            _updateInformation = true;
+                        }
+
+                        DeviceAdded?.Invoke(this, obj);
+                    }
+
+                    return success;
+                }
             }
 
             return false;
@@ -3573,14 +3602,14 @@ namespace MTConnect.Agents
                     var success = false;
                     var validationResult = new ValidationResult(true);
 
-                    if (_configuration.ValidationLevel > ValidationLevel.Ignore)
+                    if (_configuration.InputValidationLevel > InputValidationLevel.Ignore)
                     {
                         // Validate Observation Input with DataItem type
                         validationResult = dataItem.IsValid(MTConnectVersion, input);
                         if (!validationResult.IsValid) validationResult.Message = $"{dataItem.Type} : {dataItem.Id} : {validationResult.Message}";
                     }
 
-                    if (validationResult.IsValid || _configuration.ValidationLevel != ValidationLevel.Strict)
+                    if (validationResult.IsValid || _configuration.InputValidationLevel != InputValidationLevel.Strict)
                     {
                         // Convert Units (if needed)
                         if ((!convertUnits.HasValue && _configuration.ConvertUnits) || (convertUnits.HasValue && convertUnits.Value))
@@ -3691,14 +3720,14 @@ namespace MTConnect.Agents
                     var success = false;
                     var validationResult = new ValidationResult(true);
 
-                    if (_configuration.ValidationLevel > ValidationLevel.Ignore)
+                    if (_configuration.InputValidationLevel > InputValidationLevel.Ignore)
                     {
                         // Validate Observation Input with DataItem type
                         validationResult = dataItem.IsValid(MTConnectVersion, input);
                         if (!validationResult.IsValid) validationResult.Message = $"{dataItem.Type} : {dataItem.Id} : {validationResult.Message}";
                     }
 
-                    if (validationResult.IsValid || _configuration.ValidationLevel != ValidationLevel.Strict)
+                    if (validationResult.IsValid || _configuration.InputValidationLevel != InputValidationLevel.Strict)
                     {
                         // Convert Units (if needed)
                         if ((!convertUnits.HasValue && _configuration.ConvertUnits) || (convertUnits.HasValue && convertUnits.Value))
