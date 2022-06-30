@@ -46,8 +46,8 @@ namespace MTConnect.Configurations
 
 
         /// <summary>
-        /// The XML file to load that specifies the devices and is supplied as the result of a probe request. 
-        /// If the key is not found the defaults are tried.
+        /// The Path to look for the file(s) that represent the Device Information Models to load into the Agent.
+        /// The path can either be a single file or a directory. The path can be absolute or relative to the executable's directory
         /// </summary>
         [JsonPropertyName("devices")]
         public string Devices { get; set; }
@@ -93,10 +93,16 @@ namespace MTConnect.Configurations
         public bool IgnoreObservationCase { get; set; }
 
         /// <summary>
+        /// Gets or Sets the default Input (Observation or Asset) validation level. 0 = Ignore, 1 = Warning, 2 = Remove, 3 = Strict
+        /// </summary>
+        [JsonPropertyName("inputValidationLevel")]
+        public InputValidationLevel InputValidationLevel { get; set; }
+
+        /// <summary>
         /// Gets or Sets the default response document validation level. 0 = Ignore, 1 = Warning, 2 = Strict
         /// </summary>
-        [JsonPropertyName("validationLevel")]
-        public ValidationLevel ValidationLevel { get; set; }
+        [JsonPropertyName("outputValidationLevel")]
+        public ValidationLevel OutputValidationLevel { get; set; }
 
 
         /// <summary>
@@ -161,7 +167,8 @@ namespace MTConnect.Configurations
             ServiceName = null;
             ServiceAutoStart = true;
             DefaultVersion = MTConnectVersions.Max;
-            ValidationLevel = ValidationLevel.Ignore;
+            InputValidationLevel = InputValidationLevel.Warning;
+            OutputValidationLevel = ValidationLevel.Ignore;
             ConvertUnits = true;
             IgnoreObservationCase = true;
             MonitorConfigurationFiles = true;

@@ -79,6 +79,7 @@ namespace MTConnect.Configurations
                         var contents = File.ReadAllText(rootPath);
                         if (!string.IsNullOrEmpty(contents))
                         {
+                            // Read ResponseDocument Format
                             var devicesDocument = Formatters.ResponseDocumentFormatter.CreateDevicesResponseDocument(documentFormatterId, contents).Document;
                             if (devicesDocument != null && devicesDocument.Devices != null && devicesDocument.Devices.Count() > 0)
                             {
@@ -90,6 +91,15 @@ namespace MTConnect.Configurations
                                 }
 
                                 return devices;
+                            }
+                            else
+                            {
+                                // Read Single Entity Format
+                                var device = Formatters.EntityFormatter.CreateDevice(documentFormatterId, contents).Entity;
+                                if (device != null)
+                                {
+                                    return new List<DeviceConfiguration> { new DeviceConfiguration(device, rootPath) };
+                                }
                             }
                         }
                     }
@@ -127,6 +137,7 @@ namespace MTConnect.Configurations
                         var contents = await File.ReadAllTextAsync(rootPath);
                         if (!string.IsNullOrEmpty(contents))
                         {
+                            // Read ResponseDocument Format
                             var devicesDocument = Formatters.ResponseDocumentFormatter.CreateDevicesResponseDocument(documentFormatterId, contents).Document;
                             if (devicesDocument != null && devicesDocument.Devices != null && devicesDocument.Devices.Count() > 0)
                             {
@@ -138,6 +149,15 @@ namespace MTConnect.Configurations
                                 }
 
                                 return devices;
+                            }
+                            else
+                            {
+                                // Read Single Entity Format
+                                var device = Formatters.EntityFormatter.CreateDevice(documentFormatterId, contents).Entity;
+                                if (device != null)
+                                {
+                                    return new List<DeviceConfiguration> { new DeviceConfiguration(device, rootPath) };
+                                }
                             }
                         }
                     }
@@ -154,15 +174,22 @@ namespace MTConnect.Configurations
         /// Gets a list of Devices from files (ex. devices.xml) found in the specified directory path
         /// </summary>
         /// <param name="dirPath">The path to the directory containing Device Configuration files</param>
-        public static IEnumerable<DeviceConfiguration> FromFiles(string dirPath, string documentFormatterId)
+        public static IEnumerable<DeviceConfiguration> FromFiles(string path, string documentFormatterId)
         {
-            if (!string.IsNullOrEmpty(dirPath))
+            if (!string.IsNullOrEmpty(path))
             {
+                // Add Working directory (if path is not rooted)
+                var rootPath = path;
+                if (!System.IO.Path.IsPathRooted(rootPath))
+                {
+                    rootPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, path);
+                }
+
                 try
                 {
-                    if (Directory.Exists(dirPath))
+                    if (Directory.Exists(rootPath))
                     {
-                        var files = Directory.GetFiles(dirPath, "*.xml");
+                        var files = Directory.GetFiles(rootPath, "*.xml");
                         if (files != null && files.Length > 0)
                         {
                             var devices = new List<DeviceConfiguration>();
@@ -182,6 +209,10 @@ namespace MTConnect.Configurations
                             return devices;
                         }
                     }
+                    else
+                    {
+                        return FromFile(rootPath, documentFormatterId);
+                    }
                 }
                 catch { }
             }
@@ -195,15 +226,22 @@ namespace MTConnect.Configurations
         /// Gets a list of Devices from files (ex. devices.xml) found in the specified directory path
         /// </summary>
         /// <param name="dirPath">The path to the directory containing Device Configuration files</param>
-        public static async Task<IEnumerable<DeviceConfiguration>> FromFilesAsync(string dirPath, string documentFormatterId)
+        public static async Task<IEnumerable<DeviceConfiguration>> FromFilesAsync(string path, string documentFormatterId)
         {
-            if (!string.IsNullOrEmpty(dirPath))
+            if (!string.IsNullOrEmpty(path))
             {
+                // Add Working directory (if path is not rooted)
+                var rootPath = path;
+                if (!System.IO.Path.IsPathRooted(rootPath))
+                {
+                    rootPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, path);
+                }
+
                 try
                 {
-                    if (Directory.Exists(dirPath))
+                    if (Directory.Exists(rootPath))
                     {
-                        var files = Directory.GetFiles(dirPath, "*.xml");
+                        var files = Directory.GetFiles(rootPath, "*.xml");
                         if (files != null && files.Length > 0)
                         {
                             var devices = new List<DeviceConfiguration>();
@@ -222,6 +260,10 @@ namespace MTConnect.Configurations
 
                             return devices;
                         }
+                    }
+                    else
+                    {
+                        return await FromFileAsync(rootPath, documentFormatterId);
                     }
                 }
                 catch { }
