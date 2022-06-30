@@ -34,11 +34,11 @@ namespace MTConnect.Formatters
         }
 
 
-        public static FormattedDocumentResult Format(string documentFormatterId, IDevicesResponseDocument document, IEnumerable<KeyValuePair<string, string>> formatOptions = null)
+        public static FormattedDocumentWriteResult Format(string documentFormatterId, IDevicesResponseDocument document, IEnumerable<KeyValuePair<string, string>> formatOptions = null)
         {
             var stpw = Stopwatch.StartNew();
 
-            FormattedDocumentResult result = FormattedDocumentResult.Error();
+            FormattedDocumentWriteResult result = FormattedDocumentWriteResult.Error();
 
             // Get the Formatter with the specified ID
             var formatter = GetFormatter(documentFormatterId);
@@ -54,11 +54,11 @@ namespace MTConnect.Formatters
             return result;
         }
 
-        public static FormattedDocumentResult Format(string documentFormatterId, IStreamsResponseDocument document, IEnumerable<KeyValuePair<string, string>> formatOptions = null)
+        public static FormattedDocumentWriteResult Format(string documentFormatterId, IStreamsResponseDocument document, IEnumerable<KeyValuePair<string, string>> formatOptions = null)
         {
             var stpw = Stopwatch.StartNew();
 
-            FormattedDocumentResult result = FormattedDocumentResult.Error();
+            FormattedDocumentWriteResult result = FormattedDocumentWriteResult.Error();
 
             // Get the Formatter with the specified ID
             var formatter = GetFormatter(documentFormatterId);
@@ -74,11 +74,11 @@ namespace MTConnect.Formatters
             return result;
         }
 
-        public static FormattedDocumentResult Format(string documentFormatterId, IAssetsResponseDocument document, IEnumerable<KeyValuePair<string, string>> formatOptions = null)
+        public static FormattedDocumentWriteResult Format(string documentFormatterId, IAssetsResponseDocument document, IEnumerable<KeyValuePair<string, string>> formatOptions = null)
         {
             var stpw = Stopwatch.StartNew();
 
-            FormattedDocumentResult result = FormattedDocumentResult.Error();
+            FormattedDocumentWriteResult result = FormattedDocumentWriteResult.Error();
 
             // Get the Formatter with the specified ID
             var formatter = GetFormatter(documentFormatterId);
@@ -94,11 +94,11 @@ namespace MTConnect.Formatters
             return result;
         }
 
-        public static FormattedDocumentResult Format(string documentFormatterId, IErrorResponseDocument document, IEnumerable<KeyValuePair<string, string>> formatOptions = null)
+        public static FormattedDocumentWriteResult Format(string documentFormatterId, IErrorResponseDocument document, IEnumerable<KeyValuePair<string, string>> formatOptions = null)
         {
             var stpw = Stopwatch.StartNew();
 
-            FormattedDocumentResult result = FormattedDocumentResult.Error();
+            FormattedDocumentWriteResult result = FormattedDocumentWriteResult.Error();
 
             // Get the Formatter with the specified ID
             var formatter = GetFormatter(documentFormatterId);
@@ -115,7 +115,7 @@ namespace MTConnect.Formatters
         }
 
 
-        public static IDevicesResponseDocument CreateDevicesResponseDocument(string documentFormatterId, string content)
+        public static FormattedDocumentReadResult<IDevicesResponseDocument> CreateDevicesResponseDocument(string documentFormatterId, string content)
         {
             // Get the Formatter with the specified ID
             var formatter = GetFormatter(documentFormatterId);
@@ -125,7 +125,7 @@ namespace MTConnect.Formatters
                 return formatter.CreateDevicesResponseDocument(content);
             }
 
-            return null;
+            return FormattedDocumentReadResult<IDevicesResponseDocument>.Error(null, $"Document Formatter Not found for \"{documentFormatterId}\"");
         }
 
         public static IStreamsResponseDocument CreateStreamsResponseDocument(string documentFormatterId, string content)

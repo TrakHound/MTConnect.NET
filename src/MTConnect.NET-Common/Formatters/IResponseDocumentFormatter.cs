@@ -18,21 +18,21 @@ namespace MTConnect.Formatters
         string ContentType { get; }
 
 
-        FormattedDocumentResult Format(IDevicesResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null);
+        FormattedDocumentWriteResult Format(IDevicesResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null);
 
-        FormattedDocumentResult Format(IStreamsResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null);
+        FormattedDocumentWriteResult Format(IStreamsResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null);
 
-        FormattedDocumentResult Format(IAssetsResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null);
+        FormattedDocumentWriteResult Format(IAssetsResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null);
 
-        FormattedDocumentResult Format(IErrorResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null);
+        FormattedDocumentWriteResult Format(IErrorResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null);
 
 
-        IDevicesResponseDocument CreateDevicesResponseDocument(string content);
+        FormattedDocumentReadResult<IDevicesResponseDocument> CreateDevicesResponseDocument(string content, IEnumerable<KeyValuePair<string, string>> options = null);
 
-        IStreamsResponseDocument CreateStreamsResponseDocument(string content);
+        IStreamsResponseDocument CreateStreamsResponseDocument(string content, IEnumerable<KeyValuePair<string, string>> options = null);
 
-        IAssetsResponseDocument CreateAssetsResponseDocument(string content);
+        IAssetsResponseDocument CreateAssetsResponseDocument(string content, IEnumerable<KeyValuePair<string, string>> options = null);
 
-        IErrorResponseDocument CreateErrorResponseDocument(string content);
+        IErrorResponseDocument CreateErrorResponseDocument(string content, IEnumerable<KeyValuePair<string, string>> options = null);
     }
 }
