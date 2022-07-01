@@ -202,6 +202,219 @@ namespace MTConnect.Devices
         }
 
 
+        #region "Components"
+
+        /// <summary>
+        /// Return a list of All Components
+        /// </summary>
+        public IEnumerable<IComponent> GetComponents()
+        {
+            var l = new List<IComponent>();
+
+            if (!Components.IsNullOrEmpty())
+            {
+                foreach (var subComponent in Components)
+                {
+                    var components = GetComponents(subComponent);
+                    if (!components.IsNullOrEmpty()) l.AddRange(components);
+                }
+            }
+            return !l.IsNullOrEmpty() ? l : null;
+        }
+
+        private IEnumerable<IComponent> GetComponents(IComponent component)
+        {
+            var l = new List<IComponent>();
+
+            l.Add(component);
+
+            if (!component.Components.IsNullOrEmpty())
+            {
+                foreach (var subComponent in component.Components)
+                {
+                    var components = GetComponents(subComponent);
+                    if (!components.IsNullOrEmpty()) l.AddRange(components);
+                }
+            }
+
+            return !l.IsNullOrEmpty() ? l : null;
+        }
+
+
+        /// <summary>
+        /// Add a Component to the Device
+        /// </summary>
+        /// <param name="component">The Component to add</param>
+        public void AddComponent(IComponent component)
+        {
+            if (component != null)
+            {
+                var components = new List<IComponent>();
+
+                if (!Components.IsNullOrEmpty())
+                {
+                    components.AddRange(Components);
+                }
+
+                components.Add(component);
+                Components = components;
+            }
+        }
+
+        /// <summary>
+        /// Add Components to the Device
+        /// </summary>
+        /// <param name="components">The Components to add</param>
+        public void AddComponents(IEnumerable<IComponent> components)
+        {
+            if (!components.IsNullOrEmpty())
+            {
+                var newComponents = new List<IComponent>();
+
+                if (!Components.IsNullOrEmpty())
+                {
+                    newComponents.AddRange(Components);
+                }
+
+                newComponents.AddRange(components);
+                Components = newComponents;
+            }
+        }
+
+
+        /// <summary>
+        /// Remove a Component from the Device
+        /// </summary>
+        /// <param name="componentId">The ID of the Component to remove</param>
+        public void RemoveComponent(string componentId)
+        {
+            if (!Components.IsNullOrEmpty())
+            {
+                var components = new List<IComponent>();
+                components.AddRange(Components);
+
+                components.RemoveAll(o => o.Id == componentId);
+
+                foreach (var subComponent in components)
+                {
+                    RemoveComponent(subComponent, componentId);
+                }
+
+                Components = components;
+            }
+        }
+
+        private void RemoveComponent(IComponent component, string componentId)
+        {
+            if (component != null && !component.Components.IsNullOrEmpty())
+            {
+                var components = new List<IComponent>();
+                components.AddRange(component.Components);
+                components.RemoveAll(o => o.Id == componentId);
+
+                foreach (var subComponent in components)
+                {
+                    RemoveComponent(subComponent, componentId);
+                }
+
+                component.Components = components;
+            }
+        }
+
+        #endregion
+
+        #region "Compositions"
+
+        /// <summary>
+        /// Return a list of All Compositions
+        /// </summary>
+        public IEnumerable<IComposition> GetCompositions()
+        {
+            var l = new List<IComposition>();
+
+            var components = GetComponents();
+            if (!components.IsNullOrEmpty())
+            {
+                foreach (var component in components)
+                {
+                    if (!component.Compositions.IsNullOrEmpty())
+                    {
+                        l.AddRange(component.Compositions);
+                    }
+                }
+            }
+
+            return !l.IsNullOrEmpty() ? l : null;
+        }
+
+
+        /// <summary>
+        /// Add a Composition to the Device
+        /// </summary>
+        /// <param name="composition">The Composition to add</param>
+        public void AddComposition(IComposition composition)
+        {
+            if (composition != null)
+            {
+                var compositions = new List<IComposition>();
+
+                if (!Compositions.IsNullOrEmpty())
+                {
+                    compositions.AddRange(Compositions);
+                }
+
+                compositions.Add(composition);
+                Compositions = compositions;
+            }
+        }
+
+        /// <summary>
+        /// Add Compositions to the Device
+        /// </summary>
+        /// <param name="compositions">The Compositions to add</param>
+        public void AddCompositions(IEnumerable<IComposition> compositions)
+        {
+            if (!compositions.IsNullOrEmpty())
+            {
+                var newCompositions = new List<IComposition>();
+
+                if (!Compositions.IsNullOrEmpty())
+                {
+                    newCompositions.AddRange(Compositions);
+                }
+
+                newCompositions.AddRange(compositions);
+                Compositions = newCompositions;
+            }
+        }
+
+
+        /// <summary>
+        /// Remove a Composition from the Device
+        /// </summary>
+        /// <param name="compositionId">The ID of the Composition to remove</param>
+        public void RemoveComposition(string compositionId)
+        {
+            var components = GetComponents();
+            if (!components.IsNullOrEmpty())
+            {
+                foreach (var component in components)
+                {
+                    if (!component.Compositions.IsNullOrEmpty())
+                    {
+                        var compositions = new List<IComposition>();
+                        compositions.AddRange(component.Compositions);
+                        compositions.RemoveAll(o => o.Id == compositionId);
+                        component.Compositions = compositions;
+                    }
+                }
+            }
+        }
+
+        #endregion
+
+        #region "DataItems"
+
         /// <summary>
         /// Return a list of All DataItems
         /// </summary>
@@ -294,6 +507,52 @@ namespace MTConnect.Devices
             return null;
         }
 
+
+        /// <summary>
+        /// Add a DataItem to the Device
+        /// </summary>
+        /// <param name="dataItem">The DataItem to add</param>
+        public void AddDataItem(IDataItem dataItem)
+        {
+            if (dataItem != null)
+            {
+                var dataItems = new List<IDataItem>();
+
+                if (!DataItems.IsNullOrEmpty())
+                {
+                    dataItems.AddRange(DataItems);
+                }
+
+                dataItems.Add(dataItem);
+                DataItems = dataItems;
+            }
+        }
+
+        /// <summary>
+        /// Add DataItems to the Device
+        /// </summary>
+        /// <param name="dataItems">The DataItems to add</param>
+        public void AddDataItems(IEnumerable<IDataItem> dataItems)
+        {
+            if (!dataItems.IsNullOrEmpty())
+            {
+                var newDataItems = new List<IDataItem>();
+
+                if (!DataItems.IsNullOrEmpty())
+                {
+                    newDataItems.AddRange(DataItems);
+                }
+
+                newDataItems.AddRange(dataItems);
+                DataItems = newDataItems;
+            }
+        }
+
+
+        /// <summary>
+        /// Remove a DataItem from the Device
+        /// </summary>
+        /// <param name="dataItemId">The ID of the DataItem to remove</param>
         public void RemoveDataItem(string dataItemId)
         {
             var components = GetComponents();
@@ -312,119 +571,7 @@ namespace MTConnect.Devices
             }
         }
 
-
-        /// <summary>
-        /// Return a list of All Components
-        /// </summary>
-        public IEnumerable<IComponent> GetComponents()
-        {
-            var l = new List<IComponent>();
-
-            if (!Components.IsNullOrEmpty())
-            {
-                foreach (var subComponent in Components)
-                {
-                    var components = GetComponents(subComponent);
-                    if (!components.IsNullOrEmpty()) l.AddRange(components);
-                }
-            }
-            return !l.IsNullOrEmpty() ? l : null;
-        }
-
-        private IEnumerable<IComponent> GetComponents(IComponent component)
-        {
-            var l = new List<IComponent>();
-
-            l.Add(component);
-
-            if (!component.Components.IsNullOrEmpty())
-            {
-                foreach (var subComponent in component.Components)
-                {
-                    var components = GetComponents(subComponent);
-                    if (!components.IsNullOrEmpty()) l.AddRange(components);
-                }
-            }
-
-            return !l.IsNullOrEmpty() ? l : null;
-        }
-
-
-        public void RemoveComponent(string componentId)
-        {
-            if (!Components.IsNullOrEmpty())
-            {
-                var components = new List<IComponent>();
-                components.AddRange(Components);
-
-                components.RemoveAll(o => o.Id == componentId);
-
-                foreach (var subComponent in components)
-                {
-                    RemoveComponent(subComponent, componentId);
-                }
-
-                Components = components;
-            }
-        }
-
-        private void RemoveComponent(IComponent component, string componentId)
-        {
-            if (component != null && !component.Components.IsNullOrEmpty())
-            {
-                var components = new List<IComponent>();
-                components.AddRange(component.Components);
-                components.RemoveAll(o => o.Id == componentId);
-
-                foreach (var subComponent in components)
-                {
-                    RemoveComponent(subComponent, componentId);
-                }
-
-                component.Components = components;
-            }
-        }
-
-
-        /// <summary>
-        /// Return a list of All Compositions
-        /// </summary>
-        public IEnumerable<IComposition> GetCompositions()
-        {
-            var l = new List<IComposition>();
-
-            var components = GetComponents();
-            if (!components.IsNullOrEmpty())
-            {
-                foreach (var component in components)
-                {
-                    if (!component.Compositions.IsNullOrEmpty())
-                    {
-                        l.AddRange(component.Compositions);
-                    }
-                }
-            }
-
-            return !l.IsNullOrEmpty() ? l : null;
-        }
-
-        public void RemoveComposition(string compositionId)
-        {
-            var components = GetComponents();
-            if (!components.IsNullOrEmpty())
-            {
-                foreach (var component in components)
-                {
-                    if (!component.Compositions.IsNullOrEmpty())
-                    {
-                        var compositions = new List<IComposition>();
-                        compositions.AddRange(component.Compositions);
-                        compositions.RemoveAll(o => o.Id == compositionId);
-                        component.Compositions = compositions;
-                    }
-                }
-            }
-        }
+        #endregion
 
 
         //#region "Types"
