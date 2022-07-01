@@ -187,6 +187,9 @@ namespace MTConnect.Shdr
         protected virtual async Task OnRemoveAllAssetsReceived(string assetType, long timestamp) { }
 
 
+        protected virtual async Task OnDeviceReceived(IDevice device) { }
+
+
 
         private async Task ListenForAdapter(CancellationToken cancel)
         {
@@ -251,6 +254,11 @@ namespace MTConnect.Shdr
                                             long multilineAssetTimestamp = 0;
                                             string multilineAssetId = null;
                                             string multilineAssetType = null;
+
+                                            bool multilineDevice = false;
+                                            string multilineDeviceUuid = null;
+                                            string multilineDeviceType = null;
+
                                             string multilineId = null;
                                             var multilineContent = new StringBuilder();
 
@@ -293,7 +301,7 @@ namespace MTConnect.Shdr
 
                                                         lastResponse = now;
                                                     }
-                                                    else if (ShdrAsset.IsAssetMultilineEnd(multilineId, line))
+                                                    else if (multilineAsset && ShdrAsset.IsAssetMultilineEnd(multilineId, line))
                                                     {
                                                         var assetType = Asset.GetAssetType(multilineAssetType);
                                                         if (assetType != null)
@@ -364,6 +372,57 @@ namespace MTConnect.Shdr
                                                         if (!string.IsNullOrEmpty(removeAssetType))
                                                         {
                                                             await OnRemoveAllAssetsReceived(removeAssetType, removeAssetTimestamp);
+                                                        }
+
+                                                        // Raise ProtocolReceived Event passing the Line that was read as a parameter
+                                                        ProtocolReceived?.Invoke(this, line);
+
+                                                        lastResponse = now;
+                                                    }
+                                                    else if (ShdrDevice.IsDeviceMultilineBegin(line))
+                                                    {
+                                                        multilineDeviceUuid = ShdrDevice.ReadDeviceUuid(line);
+                                                        multilineDeviceType = ShdrDevice.ReadDeviceType(line);
+                                                        multilineId = ShdrDevice.ReadDeviceMultilineId(line);
+                                                        multilineContent.Clear();
+                                                        multilineDevice = true;
+
+                                                        // Raise ProtocolReceived Event passing the Line that was read as a parameter
+                                                        ProtocolReceived?.Invoke(this, line);
+
+                                                        lastResponse = now;
+                                                    }
+                                                    else if (multilineDevice && ShdrDevice.IsDeviceMultilineEnd(multilineId, line))
+                                                    {
+                                                        var device = XmlDevice.FromXml(multilineContent.ToString());
+                                                        if (device != null)
+                                                        {
+                                                            await OnDeviceReceived(device);
+                                                        }
+
+                                                        multilineContent.Clear();
+                                                        multilineDevice = false;
+
+                                                        // Raise ProtocolReceived Event passing the Line that was read as a parameter
+                                                        ProtocolReceived?.Invoke(this, line);
+
+                                                        lastResponse = now;
+                                                    }
+                                                    else if (multilineDevice)
+                                                    {
+                                                        multilineContent.Append(line);
+
+                                                        // Raise ProtocolReceived Event passing the Line that was read as a parameter
+                                                        ProtocolReceived?.Invoke(this, line);
+
+                                                        lastResponse = now;
+                                                    }
+                                                    else if (ShdrDevice.IsDeviceLine(line))
+                                                    {
+                                                        var shdrDevice = ShdrDevice.FromString(line);
+                                                        if (shdrDevice != null && shdrDevice.Device != null)
+                                                        {
+                                                            await OnDeviceReceived(shdrDevice.Device);
                                                         }
 
                                                         // Raise ProtocolReceived Event passing the Line that was read as a parameter

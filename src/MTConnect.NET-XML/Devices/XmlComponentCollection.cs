@@ -43,35 +43,47 @@ namespace MTConnect.Devices
 
                 foreach (var component in Components)
                 {
-                    try
+                    if (!string.IsNullOrEmpty(component.Type))
                     {
-                        // Serialize the base class to a string
-                        using (var dummyWriter = new StringWriter())
+                        try
                         {
-                            _serializer.Serialize(dummyWriter, component, ns);
-                            var xml = dummyWriter.ToString();
+                            // Serialize the base class to a string
+                            using (var dummyWriter = new StringWriter())
+                            {
+                                _serializer.Serialize(dummyWriter, component, ns);
+                                var xml = dummyWriter.ToString();
 
-                            // Remove <?xml line
-                            var startTag = "<Component";
-                            xml = xml.Substring(xml.IndexOf(startTag));
+                                // Remove <?xml line
+                                var startTag = "<Component";
+                                xml = xml.Substring(xml.IndexOf(startTag));
 
-                            // Replace the base class Component start tag name with the derived Component Type
-                            xml = xml.Substring(startTag.Length + 1);
-                            xml = $"<{component.Type} " + xml;
+                                if (xml.EndsWith("/>"))
+                                {
+                                    // Replace the base class Component start tag name with the derived Component Type
+                                    xml = xml.Substring(startTag.Length + 1);
+                                    xml = $"<{component.Type} " + xml;
+                                }
+                                else
+                                {
+                                    // Replace the base class Component start tag name with the derived Component Type
+                                    xml = xml.Substring(startTag.Length + 1);
+                                    xml = $"<{component.Type} " + xml;
 
-                            // Replace the base class Component End tag with the derived Component Type
-                            var endTag = "</Component>";
-                            xml = xml.Substring(0, xml.Length - endTag.Length);
-                            xml = xml + $"</{component.Type}>";
+                                    // Replace the base class Component End tag with the derived Component Type
+                                    var endTag = "</Component>";
+                                    xml = xml.Substring(0, xml.Length - endTag.Length);
+                                    xml = xml + $"</{component.Type}>";
+                                }
 
-                            // Write Component Type Description as Comment
-                            writer.WriteComment($"Type = {component.Type} : {component.TypeDescription}");
-                            writer.WriteWhitespace("\r\n");
+                                // Write Component Type Description as Comment
+                                writer.WriteComment($"Type = {component.Type} : {component.TypeDescription}");
+                                writer.WriteWhitespace("\r\n");
 
-                            writer.WriteRaw(xml);
+                                writer.WriteRaw(xml);
+                            }
                         }
+                        catch { }
                     }
-                    catch { }
                 }
             }
         }

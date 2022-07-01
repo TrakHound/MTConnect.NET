@@ -44,41 +44,44 @@ namespace MTConnect.Devices
 
                 foreach (var composition in Compositions)
                 {
-                    try
+                    if (!string.IsNullOrEmpty(composition.Type))
                     {
-                        // Create a new base class Composition to prevent the Type being required to be specified
-                        // at compile time. This makes it possible to write custom Types
-                        var obj = new XmlComposition();
-                        obj.Id = composition.Id;
-                        obj.Uuid = composition.Uuid;
-                        obj.Name = composition.Name;
-                        obj.NativeName = composition.NativeName;
-                        obj.Type = composition.Type;
-                        obj.Description = new XmlDescription(composition.Description);
-                        obj.SampleRate = composition.SampleRate;
-                        obj.SampleInterval = composition.SampleInterval;
-                        if (composition.Configuration != null) obj.Configuration = new XmlConfiguration(composition.Configuration);
-
-                        // DataItems
-                        if (!composition.DataItems.IsNullOrEmpty())
+                        try
                         {
-                            obj.DataItemCollection = new XmlDataItemCollection { DataItems = composition.DataItems.ToList() };
+                            // Create a new base class Composition to prevent the Type being required to be specified
+                            // at compile time. This makes it possible to write custom Types
+                            var obj = new XmlComposition();
+                            obj.Id = composition.Id;
+                            obj.Uuid = composition.Uuid;
+                            obj.Name = composition.Name;
+                            obj.NativeName = composition.NativeName;
+                            obj.Type = composition.Type;
+                            obj.Description = new XmlDescription(composition.Description);
+                            obj.SampleRate = composition.SampleRate;
+                            obj.SampleInterval = composition.SampleInterval;
+                            if (composition.Configuration != null) obj.Configuration = new XmlConfiguration(composition.Configuration);
+
+                            // DataItems
+                            if (!composition.DataItems.IsNullOrEmpty())
+                            {
+                                obj.DataItemCollection = new XmlDataItemCollection { DataItems = composition.DataItems.ToList() };
+                            }
+
+                            // Serialize the base class to a string
+                            using (var dummyWriter = new StringWriter())
+                            {
+                                _serializer.Serialize(dummyWriter, obj, ns);
+                                var xml = dummyWriter.ToString();
+
+                                // Remove <?xml line
+                                var startTag = "<Composition";
+                                xml = xml.Substring(xml.IndexOf(startTag));
+
+                                writer.WriteRaw(xml);
+                            }
                         }
-
-                        // Serialize the base class to a string
-                        using (var dummyWriter = new StringWriter())
-                        {
-                            _serializer.Serialize(dummyWriter, obj, ns);
-                            var xml = dummyWriter.ToString();
-
-                            // Remove <?xml line
-                            var startTag = "<Composition";
-                            xml = xml.Substring(xml.IndexOf(startTag));
-
-                            writer.WriteRaw(xml);
-                        }
+                        catch { }
                     }
-                    catch { }
                 }
             }
         }

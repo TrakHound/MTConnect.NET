@@ -4,9 +4,11 @@
 // file 'LICENSE', which is part of this source code package.
 
 using MTConnect.Devices.References;
+using MTConnect.Writers;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -293,7 +295,7 @@ namespace MTConnect.Devices
         }
 
 
-        public static IDevice FromXml(string xml)
+        public static IDevice FromXml(string xml, string deviceUuid = null)
         {
             if (!string.IsNullOrEmpty(xml))
             {
@@ -308,9 +310,37 @@ namespace MTConnect.Devices
                             var xmlDevice = (XmlDevice)_serializer.Deserialize(xmlReader);
                             if (xmlDevice != null)
                             {
+                                if (!string.IsNullOrEmpty(deviceUuid)) xmlDevice.Uuid = deviceUuid;
+
                                 return xmlDevice.ToDevice();
                             }
                         }
+                    }
+                }
+                catch { }
+            }
+
+            return null;
+        }
+
+        public static string ToXml(IDevice device)
+        {
+            if (device != null)
+            {
+                try
+                {
+                    using (var writer = new Utf8Writer())
+                    {
+                        _serializer.Serialize(writer, new XmlDevice(device));
+                        var xml = writer.ToString();
+
+                        // Remove the XSD namespace
+                        string regex = @"\s{1}xmlns:xsi=\""http:\/\/www\.w3\.org\/2001\/XMLSchema-instance\""\s{1}xmlns:xsd=\""http:\/\/www\.w3\.org\/2001\/XMLSchema\""";
+                        xml = Regex.Replace(xml, regex, "");
+                        regex = @"\s{1}xmlns:xsd=\""http:\/\/www\.w3\.org\/2001\/XMLSchema\""\s{1}xmlns:xsi=\""http:\/\/www\.w3\.org\/2001\/XMLSchema-instance\""";
+                        xml = Regex.Replace(xml, regex, "");
+
+                        return XmlFunctions.FormatXml(xml, false, false, true);
                     }
                 }
                 catch { }

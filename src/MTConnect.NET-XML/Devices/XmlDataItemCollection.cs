@@ -45,74 +45,77 @@ namespace MTConnect.Devices
 
                 foreach (var dataItem in DataItems)
                 {
-                    try
+                    if (!string.IsNullOrEmpty(dataItem.Type))
                     {
-                        // Create a new base class DataItem to prevent the Type being required to be specified
-                        // at compile time. This makes it possible to write custom Types
-                        var obj = new XmlDataItem();
-                        obj.DataItemCategory = dataItem.Category;
-                        obj.Id = dataItem.Id;
-                        obj.Name = dataItem.Name;
-                        obj.Type = dataItem.Type;
-                        obj.SubType = dataItem.SubType;
-                        obj.NativeUnits = dataItem.NativeUnits;
-                        obj.NativeScale = dataItem.NativeScale;
-                        obj.SampleRate = dataItem.SampleRate;
-                        obj.Source = dataItem.Source;
-                        obj.Representation = dataItem.Representation;
-                        obj.ResetTrigger = dataItem.ResetTrigger;
-                        obj.CoordinateSystem = dataItem.CoordinateSystem;
-                        obj.CoordinateSystemIdRef = dataItem.CoordinateSystemIdRef;
-                        obj.Constraints = dataItem.Constraints;
-                        obj.CompositionId = dataItem.CompositionId;
-                        obj.Definition = dataItem.Definition;
-                        obj.Units = dataItem.Units;
-                        obj.Statistic = dataItem.Statistic;
-                        obj.SignificantDigits = dataItem.SignificantDigits;
-                        obj.Filters = dataItem.Filters;
-                        obj.InitialValue = dataItem.InitialValue;
-
-                        if (!dataItem.Relationships.IsNullOrEmpty())
+                        try
                         {
-                            var relationships = new List<XmlRelationship>();
-                            foreach (var relationship in dataItem.Relationships)
+                            // Create a new base class DataItem to prevent the Type being required to be specified
+                            // at compile time. This makes it possible to write custom Types
+                            var obj = new XmlDataItem();
+                            obj.DataItemCategory = dataItem.Category;
+                            obj.Id = dataItem.Id;
+                            obj.Name = dataItem.Name;
+                            obj.Type = dataItem.Type;
+                            obj.SubType = dataItem.SubType;
+                            obj.NativeUnits = dataItem.NativeUnits;
+                            obj.NativeScale = dataItem.NativeScale;
+                            obj.SampleRate = dataItem.SampleRate;
+                            obj.Source = dataItem.Source;
+                            obj.Representation = dataItem.Representation;
+                            obj.ResetTrigger = dataItem.ResetTrigger;
+                            obj.CoordinateSystem = dataItem.CoordinateSystem;
+                            obj.CoordinateSystemIdRef = dataItem.CoordinateSystemIdRef;
+                            obj.Constraints = dataItem.Constraints;
+                            obj.CompositionId = dataItem.CompositionId;
+                            obj.Definition = dataItem.Definition;
+                            obj.Units = dataItem.Units;
+                            obj.Statistic = dataItem.Statistic;
+                            obj.SignificantDigits = dataItem.SignificantDigits;
+                            obj.Filters = dataItem.Filters;
+                            obj.InitialValue = dataItem.InitialValue;
+
+                            if (!dataItem.Relationships.IsNullOrEmpty())
                             {
-                                if (relationship.GetType() == typeof(DataItemRelationship))
+                                var relationships = new List<XmlRelationship>();
+                                foreach (var relationship in dataItem.Relationships)
                                 {
-                                    relationships.Add(new XmlDataItemRelationship((DataItemRelationship)relationship));
-                                }
+                                    if (relationship.GetType() == typeof(DataItemRelationship))
+                                    {
+                                        relationships.Add(new XmlDataItemRelationship((DataItemRelationship)relationship));
+                                    }
 
-                                if (relationship.GetType() == typeof(SpecificationRelationship))
-                                {
-                                    relationships.Add(new XmlSpecificationRelationship((SpecificationRelationship)relationship));
+                                    if (relationship.GetType() == typeof(SpecificationRelationship))
+                                    {
+                                        relationships.Add(new XmlSpecificationRelationship((SpecificationRelationship)relationship));
+                                    }
                                 }
+                                obj.Relationships = relationships;
                             }
-                            obj.Relationships = relationships;
-                        }
 
 
-                        // Serialize the base class to a string
-                        var w = new StringWriter();
-                        _serializer.Serialize(w, obj, ns);
-                        var xml = w.ToString();
+                            // Serialize the base class to a string
+                            var w = new StringWriter();
+                            _serializer.Serialize(w, obj, ns);
+                            var xml = w.ToString();
 
-                        // Remove <?xml line
-                        xml = xml.Substring(xml.IndexOf("<DataItem"));
+                            // Remove <?xml line
+                            xml = xml.Substring(xml.IndexOf("<DataItem"));
 
-                        // Write DataItem Type Description as Comment
-                        writer.WriteComment($"Type = {dataItem.Type} : {dataItem.TypeDescription}");
-                        writer.WriteWhitespace("\r\n");
-
-                        // Write DataItem SubType Description as Comment
-                        if (!string.IsNullOrEmpty(dataItem.SubType))
-                        {
-                            writer.WriteComment($"SubType = {dataItem.SubType} : {dataItem.SubTypeDescription}");
+                            // Write DataItem Type Description as Comment
+                            writer.WriteComment($"Type = {dataItem.Type} : {dataItem.TypeDescription}");
                             writer.WriteWhitespace("\r\n");
-                        }
 
-                        writer.WriteRaw(xml);
+                            // Write DataItem SubType Description as Comment
+                            if (!string.IsNullOrEmpty(dataItem.SubType))
+                            {
+                                writer.WriteComment($"SubType = {dataItem.SubType} : {dataItem.SubTypeDescription}");
+                                writer.WriteWhitespace("\r\n");
+                            }
+
+                            writer.WriteRaw(xml);
+                        }
+                        catch { }
                     }
-                    catch { }
                 }
             }
         }

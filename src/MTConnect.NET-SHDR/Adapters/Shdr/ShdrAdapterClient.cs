@@ -228,6 +228,15 @@ namespace MTConnect.Adapters.Shdr
         }
 
 
+        protected override async Task OnDeviceReceived(IDevice device)
+        {
+            if (device != null)
+            {
+                await _agent.AddDeviceAsync(device);
+            }
+        }
+
+
 
         private async Task SetDeviceUnavailable(long timestamp = 0)
         {

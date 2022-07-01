@@ -33,6 +33,7 @@ namespace MTConnect.Adapters.Shdr
         private readonly Dictionary<string, ShdrDataSet> _dataSets = new Dictionary<string, ShdrDataSet>();
         private readonly Dictionary<string, ShdrTable> _tables = new Dictionary<string, ShdrTable>();
         private readonly Dictionary<string, ShdrAsset> _assets = new Dictionary<string, ShdrAsset>();
+        private readonly Dictionary<string, ShdrDevice> _devices = new Dictionary<string, ShdrDevice>();
 
         private CancellationTokenSource _stop;
 
@@ -71,6 +72,11 @@ namespace MTConnect.Adapters.Shdr
         /// Use multiline Assets
         /// </summary>
         public bool MultilineAssets { get; set; }
+
+        /// <summary>
+        /// Use multiline Devices
+        /// </summary>
+        public bool MultilineDevices { get; set; }
 
 
         /// <summary>
@@ -186,6 +192,7 @@ namespace MTConnect.Adapters.Shdr
                     await WriteDataSetsAsync();
                     await WriteTablesAsync();
                     await WriteAssetsAsync();
+                    await WriteDevicesAsync();
 
                     stpw.Stop();
 
@@ -229,6 +236,7 @@ namespace MTConnect.Adapters.Shdr
             AddAllDataSets(clientId, timestamp);
             AddAllTables(clientId, timestamp);
             WriteAllAssets(clientId);
+            WriteAllDevices(clientId);
 
             AgentConnected?.Invoke(this, clientId);
         }
@@ -2114,6 +2122,280 @@ namespace MTConnect.Adapters.Shdr
         {
             // Create SHDR string to send
             var shdrLine = ShdrAsset.RemoveAll(assetType, timestamp);
+
+            // Write line to stream
+            await WriteLineAsync(shdrLine);
+        }
+
+        #endregion
+
+        #region "Devices"
+
+        #region "Internal"
+
+        private ShdrDevice GetDeviceFromQueue(string key)
+        {
+            if (!string.IsNullOrEmpty(key))
+            {
+                lock (_lock)
+                {
+                    if (_devices.TryGetValue(key, out ShdrDevice device))
+                    {
+                        return device;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        private IEnumerable<ShdrDevice> GetDevicesFromQueue()
+        {
+            lock (_lock)
+            {
+                return _devices.Values.ToList();
+            }
+        }
+
+
+        private bool UpdateDevice(ShdrDevice device)
+        {
+            if (device != null)
+            {
+                lock (_lock)
+                {
+                    // Check to see if Device already exists in DataItem list
+                    var existing = _devices.FirstOrDefault(o => o.Key == device.DeviceUuid).Value;
+                    if (existing == null)
+                    {
+                        _devices.Add(device.DeviceUuid, device);
+                        return true;
+                    }
+                    else
+                    {
+                        if (existing.ChangeId != device.ChangeId)
+                        {
+                            _devices.Remove(device.DeviceUuid);
+                            _devices.Add(device.DeviceUuid, device);
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            return false;
+        }
+
+
+        private void AddDeviceToQueue(ShdrDevice device)
+        {
+            if (device != null)
+            {
+                //// Set Timestamp (if not already set)
+                //if (device.Timestamp > 0) device.Timestamp = UnixDateTime.Now;
+
+                // Update Device
+                UpdateDevice(device);
+            }
+        }
+
+        private void AddDevicesToQueue(IEnumerable<ShdrDevice> devices)
+        {
+            if (!devices.IsNullOrEmpty())
+            {
+                // Get List of Devices that need to be Updated
+                foreach (var item in devices)
+                {
+                    //// Set Timestamp (if not already set)
+                    //if (item.Timestamp > 0) item.Timestamp = UnixDateTime.Now;
+
+                    // Update Device
+                    UpdateDevice(item);
+                }
+            }
+        }
+
+
+        private bool WriteDevices()
+        {
+            var devices = GetDevicesFromQueue();
+            if (!devices.IsNullOrEmpty())
+            {
+                var success = true;
+
+                // Get List of Devices that need to be Updated
+                foreach (var item in devices)
+                {
+                    if (!item.IsSent)
+                    {
+                        item.IsSent = true;
+
+                        // Create SHDR string to send
+                        var shdrLine = item.ToString(MultilineDevices);
+                        success = WriteLine(shdrLine);
+                        if (!success) break;
+                    }
+                }
+
+                return success;
+            }
+
+            return false;
+        }
+
+        private async Task<bool> WriteDevicesAsync()
+        {
+            var devices = GetDevicesFromQueue();
+            if (!devices.IsNullOrEmpty())
+            {
+                var success = true;
+
+                // Get List of Devices that need to be Updated
+                foreach (var item in devices)
+                {
+                    if (!item.IsSent)
+                    {
+                        item.IsSent = true;
+
+                        // Create SHDR string to send
+                        var shdrLine = item.ToString(MultilineDevices);
+                        success = await WriteLineAsync(shdrLine);
+                        if (!success) break;
+                    }
+                }
+
+                return success;
+            }
+
+            return false;
+        }
+
+
+        private bool WriteAllDevices(string clientId)
+        {
+            var devices = GetDevicesFromQueue();
+            if (!devices.IsNullOrEmpty())
+            {
+                var success = true;
+
+                foreach (var item in devices)
+                {
+                    // Create SHDR string to send
+                    var shdrLine = item.ToString(MultilineDevices);
+                    success = WriteLine(clientId, shdrLine);
+                    if (!success) break;
+                }
+
+                return success;
+            }
+
+            return false;
+        }
+
+        private async Task<bool> WriteAllDevicesAsync(string clientId)
+        {
+            var devices = GetDevicesFromQueue();
+            if (!devices.IsNullOrEmpty())
+            {
+                var success = true;
+
+                foreach (var item in devices)
+                {
+                    // Create SHDR string to send
+                    var shdrLine = item.ToString(MultilineDevices);
+                    success = await WriteLineAsync(clientId, shdrLine);
+                    if (!success) break;
+                }
+
+                return success;
+            }
+
+            return false;
+        }
+
+        #endregion
+
+
+        /// <summary>
+        /// Add the specified MTConnect Device to the queue to be written to the adapter stream
+        /// </summary>
+        /// <param name="device">The Device to add</param>
+        public void AddDevice(Devices.IDevice device)
+        {
+            AddDeviceToQueue(new ShdrDevice(device));
+        }
+
+        /// <summary>
+        /// Add the specified MTConnect Devices to the queue to be written to the adapter stream
+        /// </summary>
+        /// <param name="devices">The Devices to add</param>
+        public void AddDevices(IEnumerable<Devices.IDevice> devices)
+        {
+            if (!devices.IsNullOrEmpty())
+            {
+                var items = new List<ShdrDevice>();
+                foreach (var item in devices)
+                {
+                    items.Add(new ShdrDevice(item));
+                }
+
+                AddDevicesToQueue(items);
+            }
+        }
+
+
+        /// <summary>
+        /// Remove the specified Device using the SHDR command @REMOVE_ASSET@
+        /// </summary>
+        /// <param name="deviceId">The Id of the Device to remove</param>
+        /// <param name="timestamp">The timestamp to send as part of the SHDR command</param>
+        public void RemoveDevice(string deviceId, long timestamp = 0)
+        {
+            // Create SHDR string to send
+            var shdrLine = ShdrDevice.Remove(deviceId, timestamp);
+
+            // Write line to stream
+            WriteLine(shdrLine);
+        }
+
+        /// <summary>
+        /// Remove the specified Device using the SHDR command @REMOVE_ASSET@
+        /// </summary>
+        /// <param name="deviceId">The Id of the Device to remove</param>
+        /// <param name="timestamp">The timestamp to send as part of the SHDR command</param>
+        public async Task RemoveDeviceAsync(string deviceId, long timestamp = 0)
+        {
+            // Create SHDR string to send
+            var shdrLine = ShdrDevice.Remove(deviceId, timestamp);
+
+            // Write line to stream
+            await WriteLineAsync(shdrLine);
+        }
+
+
+        /// <summary>
+        /// Remove all Devices of the specified Type using the SHDR command @REMOVE_ALL_ASSETS@
+        /// </summary>
+        /// <param name="deviceType">The Type of the Devices to remove</param>
+        /// <param name="timestamp">The timestamp to send as part of the SHDR command</param>
+        public void RemoveAllDevices(string deviceType, long timestamp = 0)
+        {
+            // Create SHDR string to send
+            var shdrLine = ShdrDevice.RemoveAll(deviceType, timestamp);
+
+            // Write line to stream
+            WriteLine(shdrLine);
+        }
+
+        /// <summary>
+        /// Remove all Devices of the specified Type using the SHDR command @REMOVE_ALL_ASSETS@
+        /// </summary>
+        /// <param name="deviceType">The Type of the Devices to remove</param>
+        /// <param name="timestamp">The timestamp to send as part of the SHDR command</param>
+        public async Task RemoveAllDevicesAsync(string deviceType, long timestamp = 0)
+        {
+            // Create SHDR string to send
+            var shdrLine = ShdrDevice.RemoveAll(deviceType, timestamp);
 
             // Write line to stream
             await WriteLineAsync(shdrLine);

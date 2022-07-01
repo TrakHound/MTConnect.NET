@@ -70,7 +70,7 @@ namespace MTConnect.Shdr
         public ShdrDevice(string deviceUuid, string xml)
         {
             DeviceUuid = deviceUuid;
-            Device = XmlDevice.FromXml(xml);
+            Device = XmlDevice.FromXml(xml, deviceUuid);
             Xml = xml;
         }
 
@@ -78,9 +78,9 @@ namespace MTConnect.Shdr
         {
             if (device != null)
             {
-                DeviceUuid = device.Uuid;
+                DeviceUuid = !string.IsNullOrEmpty(device.Uuid) ? device.Uuid : Guid.NewGuid().ToString();
                 Device = device;
-                //Xml = XmlDevice.ToXml(device);
+                Xml = XmlDevice.ToXml(device);
             }
         }
 
@@ -170,22 +170,8 @@ namespace MTConnect.Shdr
         {
             if (!string.IsNullOrEmpty(input))
             {
-                // Expected format (Single) : <timestamp>|@ASSET@|<deviceUuid>|<deviceType>|<xml>
-                // Expected format (Single) : 2012-02-21T23:59:33.460470Z|@ASSET@|KSSP300R.1|CuttingTool|<CuttingTool>...
-
-                // Start reading input and read Timestamp first (if specified)
                 var x = ShdrLine.GetNextValue(input);
-
-                if (DateTime.TryParse(x, out _))
-                {
-                    var y = ShdrLine.GetNextSegment(input);
-                    x = ShdrLine.GetNextValue(y);
-                    return x == DeviceDesignator;
-                }
-                else
-                {
-                    //return FromLine(input);
-                }
+                return x == DeviceDesignator;
             }
 
             return false;
@@ -195,21 +181,7 @@ namespace MTConnect.Shdr
         {
             if (!string.IsNullOrEmpty(input))
             {
-                // Expected format (Multiline) : <timestamp>|@ASSET@|<deviceUuid>|<deviceType>|--multiline--0FED07ACED
-
-                // Start reading input and read Timestamp first (if specified)
-                var x = ShdrLine.GetNextValue(input);
-
-                if (DateTime.TryParse(x, out _))
-                {
-                    var y = ShdrLine.GetNextSegment(input);
-
-                    return _multilineBeginRegex.IsMatch(y);
-                }
-                else
-                {
-                    //return FromLine(input);
-                }
+                return _multilineBeginRegex.IsMatch(input);
             }
 
             return false;
@@ -334,24 +306,10 @@ namespace MTConnect.Shdr
         {
             if (!string.IsNullOrEmpty(input))
             {
-                // Expected format (Multiline) : <timestamp>|@ASSET@|<deviceUuid>|<deviceType>|--multiline--0FED07ACED
-
-                // Start reading input and read Timestamp first (if specified)
-                var x = ShdrLine.GetNextValue(input);
-
-                if (DateTime.TryParse(x, out _))
+                var match = _multilineBeginRegex.Match(input);
+                if (match.Success && match.Groups.Count > 1)
                 {
-                    var y = ShdrLine.GetNextSegment(input);
-
-                    var match = _multilineBeginRegex.Match(y);
-                    if (match.Success && match.Groups.Count > 1)
-                    {
-                        return match.Groups[1].Value;
-                    }
-                }
-                else
-                {
-                    //return FromLine(input);
+                    return match.Groups[1].Value;
                 }
             }
 
@@ -441,19 +399,11 @@ namespace MTConnect.Shdr
 
                         if (y != null)
                         {
-                            // Set Device Type
+                            // Set Device XML
                             x = ShdrLine.GetNextValue(y);
-                            y = ShdrLine.GetNextSegment(y);
-                            var deviceType = x;
-
-                            if (y != null)
+                            if (x != null)
                             {
-                                // Set Device XML
-                                x = ShdrLine.GetNextValue(y);
-                                if (x != null)
-                                {
-                                    return new ShdrDevice(deviceUuid, x);
-                                }
+                                return new ShdrDevice(deviceUuid, x);
                             }
                         }
                     }
