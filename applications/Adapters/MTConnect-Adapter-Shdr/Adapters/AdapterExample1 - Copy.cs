@@ -3,9 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MTConnect.Devices;
-using MTConnect.Devices.Components;
-using MTConnect.Devices.DataItems;
 //using MTConnect.Observations;
 using MTConnect.Observations.Events;
 using MTConnect.Observations.Samples.Values;
@@ -34,11 +31,9 @@ namespace MTConnect.Applications.Adapters.Shdr.Adapters
             _deviceName = deviceName;
             _simulator = new Simulator.DeviceSimulator(deviceName, 100);
 
-            //_adapter = new ShdrAdapter();
             _adapter = new ShdrAdapter(deviceName);
             _adapter.Interval = 0;
             _adapter.MultilineAssets = true;
-            _adapter.MultilineDevices = true;
             _adapter.AgentConnected += (sender, connectionId) => Console.WriteLine($"Agent Connection (ID = {connectionId}) : Agent Connected");
             _adapter.AgentDisconnected += (sender, connectionId) => Console.WriteLine($"Agent Connection (ID = {connectionId}) : Agent Disconnected");
             _adapter.PingReceived += (sender, connectionId) => Console.WriteLine($"Agent Connection (ID = {connectionId}) : Agent Ping Received");
@@ -111,46 +106,6 @@ namespace MTConnect.Applications.Adapters.Shdr.Adapters
         private int k = 1;
         private int l = 1;
 
-
-        public void AddDevice()
-        {
-            var devices = Configurations.DeviceConfiguration.FromFile(@"D:\TrakHound\Source-Code\MTConnect.NET\applications\Adapters\MTConnect-Adapter-Shdr\bin\Debug\net6.0\device-mazak.xml", "XML");
-            if (devices != null)
-            {
-                var device = devices.FirstOrDefault();
-                if (device != null)
-                {
-                    var description = new Description();
-                    description.Manufacturer = "Mazak";
-                    description.Model = "Integrex";
-                    description.SerialNumber = "00123456789";
-                    description.CDATA = "Patrick Test";
-                    device.Description = description;
-
-                    _adapter.AddDevice(device);
-                }
-            }
-
-
-
-            //var device = new Device();
-            //device.Id = "testing-123";
-            //device.Name = "testing";
-            //device.Uuid = "testing123";
-
-            //var controller = new ControllerComponent();
-            //controller.Id = "cont";
-
-            //var execution = new Devices.DataItems.Events.ExecutionDataItem();
-            //execution.Id = "exec";
-            //controller.AddDataItem(execution);
-
-            //device.AddComponent(controller);
-
-            //_adapter.AddDevice(device);
-        }
-
-
         public void RemoveAsset()
         {
             _adapter.RemoveAsset("file.patrick1");
@@ -165,14 +120,12 @@ namespace MTConnect.Applications.Adapters.Shdr.Adapters
 
         public void UpdateValue()
         {
-            var now = UnixDateTime.Now;
-            var axisXDataItem = new ShdrDataItem("Xload", j++, now);
-            var axisYDataItem = new ShdrDataItem("Yload", j++, now);
-            //axisXDataItem.ResetTriggered = ResetTriggered.DAY;
+            var axisXDataItem = new ShdrDataItem("X1load", j++);
+            axisXDataItem.ResetTriggered = ResetTriggered.DAY;
             //var axisYDataItem = new ShdrDataItem("Ypos", k++);
             //var axisZDataItem = new ShdrDataItem("Zpos", l++);
             _adapter.AddDataItem(axisXDataItem);
-            _adapter.AddDataItem(axisYDataItem);
+            //_adapter.AddDataItem(axisYDataItem);
             //_adapter.AddDataItem(axisZDataItem);
 
             //var axisXDataItem = new ShdrDataItem("Xpos", j++);
@@ -421,12 +374,12 @@ namespace MTConnect.Applications.Adapters.Shdr.Adapters
         //    _adapter.AddCondition(condition);
         //}
 
-        public void UpdateTest56()
-        {
-            var condition = new ShdrCondition("system_cond");
-            condition.AddWarning("Access Denied", "401");
-            _adapter.AddCondition(condition);
-        }
+        //public void UpdateTest2()
+        //{
+        //    var condition = new ShdrCondition("system_cond");
+        //    condition.AddWarning("Access Denied", "401");
+        //    _adapter.AddCondition(condition);
+        //}
 
         //public void UpdateTest3()
         //{

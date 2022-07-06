@@ -28,6 +28,8 @@ namespace MTConnect.Shdr
         public const int DefaultConnectionTimeout = 30000; // 30 seconds
         public const int DefaultReconnectInterval = 10000; // 10 seconds
 
+        private static readonly Regex _deviceKeyRegex = new Regex("(.*):(.*)");
+
         private TcpClient _client;
         private long _lastHeartbeat = 0;
         private CancellationTokenSource _stop;
@@ -598,7 +600,7 @@ namespace MTConnect.Shdr
             if (!string.IsNullOrEmpty(line))
             {
                 // Get the DataItemKey from the SHDR line
-                var key = GetKey(line);
+                var key = GetDataItemKey(line);
                 if (!string.IsNullOrEmpty(key))
                 {
                     return await OnGetDataItem(key);
@@ -609,7 +611,7 @@ namespace MTConnect.Shdr
         }
 
 
-        private static string GetKey(string line)
+        private static string GetDataItemKey(string line)
         {
             if (!string.IsNullOrEmpty(line))
             {
@@ -619,7 +621,18 @@ namespace MTConnect.Shdr
                 var timestamp = ShdrLine.GetTimestamp(x);
                 if (timestamp.HasValue)
                 {
-                    return ShdrLine.GetNextValue(y);
+                    x = ShdrLine.GetNextValue(y);
+
+                    // Get Device Key (if specified). Example : Device01:avail
+                    var match = _deviceKeyRegex.Match(x);
+                    if (match.Success && match.Groups.Count > 2)
+                    {
+                        return match.Groups[2].Value;
+                    }
+                    else
+                    {
+                        return x;
+                    }
                 }
                 else
                 {

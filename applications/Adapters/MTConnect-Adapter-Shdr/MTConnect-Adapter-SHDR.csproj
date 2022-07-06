@@ -9,12 +9,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Adapters\AdapterExample1 - Copy.cs" />
     <Compile Remove="Adapters\AdapterExample2.cs" />
     <Compile Remove="Program - Copy - Copy.cs" />
     <Compile Remove="Program - Copy.cs" />
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="Adapters\AdapterExample1 - Copy.cs" />
     <None Include="Adapters\AdapterExample2.cs" />
     <None Include="Program - Copy - Copy.cs" />
     <None Include="Program - Copy.cs" />

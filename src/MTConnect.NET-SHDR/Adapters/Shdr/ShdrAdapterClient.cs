@@ -23,7 +23,7 @@ namespace MTConnect.Adapters.Shdr
     {
         private readonly ShdrAdapterConfiguration _configuration;
         private readonly IMTConnectAgent _agent;
-        private readonly IDevice _device;
+        private IDevice _device;
 
 
         public ShdrAdapterClient(ShdrAdapterConfiguration configuration, IMTConnectAgent agent, IDevice device)
@@ -232,6 +232,7 @@ namespace MTConnect.Adapters.Shdr
         {
             if (device != null)
             {
+                _device = device;
                 await _agent.AddDeviceAsync(device);
             }
         }

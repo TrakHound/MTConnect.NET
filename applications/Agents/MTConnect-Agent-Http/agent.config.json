@@ -6,7 +6,7 @@
 	"inputValidationLevel": 2,
 	"adapters": [
 		{
-			"deviceKey": "OKUMA-Lathe",
+			"deviceKey": "M12346",
 			"hostname": "localhost",
 			"port": 7878,
 			"reconnectInterval": 100

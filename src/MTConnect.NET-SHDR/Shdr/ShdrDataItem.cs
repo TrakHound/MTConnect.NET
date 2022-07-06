@@ -17,7 +17,7 @@ namespace MTConnect.Shdr
     /// </summary>
     public class ShdrDataItem : ObservationInput
     {
-        private static readonly Regex _deviceNameRegex = new Regex("(.*):(.*)");
+        private static readonly Regex _deviceKeyRegex = new Regex("(.*):(.*)");
         private static readonly Regex _resetTriggeredRegex = new Regex(@":([A-Z_]+)\s+(.*)");
 
 
@@ -35,14 +35,16 @@ namespace MTConnect.Shdr
 
         public ShdrDataItem() { }
 
-        public ShdrDataItem(string dataItemKey)
+        public ShdrDataItem(string dataItemKey, string deviceKey = null)
         {
+            DeviceKey = deviceKey;
             DataItemKey = dataItemKey;
             Timestamp = 0;
         }
 
-        public ShdrDataItem(string dataItemKey, object value)
+        public ShdrDataItem(string dataItemKey, object value, string deviceKey = null)
         {
+            DeviceKey = deviceKey;
             DataItemKey = dataItemKey;
             Values = new List<ObservationValue>
             {
@@ -51,8 +53,9 @@ namespace MTConnect.Shdr
             Timestamp = 0;
         }
 
-        public ShdrDataItem(string dataItemKey, object value, long timestamp)
+        public ShdrDataItem(string dataItemKey, object value, long timestamp, string deviceKey = null)
         {
+            DeviceKey = deviceKey;
             DataItemKey = dataItemKey;
             Values = new List<ObservationValue>
             {
@@ -61,8 +64,9 @@ namespace MTConnect.Shdr
             Timestamp = timestamp;
         }
 
-        public ShdrDataItem(string dataItemKey, object value, DateTime timestamp)
+        public ShdrDataItem(string dataItemKey, object value, DateTime timestamp, string deviceKey = null)
         {
+            DeviceKey = deviceKey;
             DataItemKey = dataItemKey;
             Values = new List<ObservationValue>
             {
@@ -94,24 +98,27 @@ namespace MTConnect.Shdr
                 var valueString = GetValue(ValueKeys.CDATA);
                 if (valueString != null)
                 {
+                    var target = DataItemKey;
+                    if (!string.IsNullOrEmpty(DeviceKey)) target = $"{DeviceKey}:{target}";
+
                     var value = valueString.Replace("|", @"\|").Trim();
                     var resetTriggered = ResetTriggered != ResetTriggered.NOT_SPECIFIED ? $":{ResetTriggered}" : "";
 
                     if (Timestamp > 0 && Duration > 0)
                     {
-                        return $"{Timestamp.ToDateTime().ToString("o")}@{Duration}|{DataItemKey}|{value}{resetTriggered}";
+                        return $"{Timestamp.ToDateTime().ToString("o")}@{Duration}|{target}|{value}{resetTriggered}";
                     }
                     else if (Timestamp > 0)
                     {
-                        return $"{Timestamp.ToDateTime().ToString("o")}|{DataItemKey}|{value}{resetTriggered}";
+                        return $"{Timestamp.ToDateTime().ToString("o")}|{target}|{value}{resetTriggered}";
                     }
                     else if (Duration > 0)
                     {
-                        return $"@{Duration}|{DataItemKey}|{value}{resetTriggered}";
+                        return $"@{Duration}|{target}|{value}{resetTriggered}";
                     }
                     else
                     {
-                        return $"{DataItemKey}|{value}{resetTriggered}";
+                        return $"{target}|{value}{resetTriggered}";
                     }
                 }     
             }
@@ -119,31 +126,34 @@ namespace MTConnect.Shdr
             return null;
         }
 
-        private static string ToString(ShdrDataItem dataItem, bool ignoreTimestamp = false)
+        private static string ToString(ShdrDataItem dataItem, bool ignoreTimestamp = false, string deviceKey = null)
         {
             if (dataItem != null && !string.IsNullOrEmpty(dataItem.DataItemKey))
             {
                 var valueString = dataItem.GetValue(ValueKeys.CDATA);
                 if (valueString != null)
                 {
+                    var target = dataItem.DataItemKey;
+                    if (!string.IsNullOrEmpty(dataItem.DeviceKey)) target = $"{dataItem.DeviceKey}:{target}";
+
                     var value = valueString.Replace("|", @"\|").Trim();
                     var resetTriggered = dataItem.ResetTriggered != ResetTriggered.NOT_SPECIFIED ? $":{dataItem.ResetTriggered}" : "";
 
                     if (dataItem.Timestamp > 0 && dataItem.Duration > 0)
                     {
-                        return $"{dataItem.Timestamp.ToDateTime().ToString("o")}@{dataItem.Duration}|{dataItem.DataItemKey}|{value}{resetTriggered}";
+                        return $"{dataItem.Timestamp.ToDateTime().ToString("o")}@{dataItem.Duration}|{target}|{value}{resetTriggered}";
                     }
                     else if (dataItem.Timestamp > 0 && !ignoreTimestamp)
                     {
-                        return $"{GetTimestampString(dataItem.Timestamp, dataItem.Duration)}|{dataItem.DataItemKey}|{value}{resetTriggered}";
+                        return $"{GetTimestampString(dataItem.Timestamp, dataItem.Duration)}|{target}|{value}{resetTriggered}";
                     }
                     else if (dataItem.Duration > 0)
                     {
-                        return $"@{dataItem.Duration}|{dataItem.DataItemKey}|{value}{resetTriggered}";
+                        return $"@{dataItem.Duration}|{target}|{value}{resetTriggered}";
                     }
                     else
                     {
-                        return $"{dataItem.DataItemKey}|{value}{resetTriggered}";
+                        return $"{target}|{value}{resetTriggered}";
                     }
                 }
             }
@@ -210,56 +220,66 @@ namespace MTConnect.Shdr
             {
                 if (!dataItems.IsNullOrEmpty())
                 {
-                    // Get list of unique Timestamps in list of ShdrDataItems
-                    var timestamps = dataItems.Select(o => o.Timestamp).Distinct();
-                    if (!timestamps.IsNullOrEmpty())
+                    // Get list of unique DeviceKeys in list of ShdrDataItems
+                    var deviceKeys = dataItems.Select(o => o.DeviceKey).Distinct();
+                    if (!deviceKeys.IsNullOrEmpty())
                     {
-                        var oTimestamps = timestamps.OrderBy(o => o);
-
-                        foreach (var timestamp in oTimestamps)
+                        foreach (var deviceKey in deviceKeys)
                         {
-                            string line = null;
+                            var deviceDataItems = dataItems.Where(o => o.DeviceKey == deviceKey);
 
-                            // Get list of ShdrDataItems at this Timestamp (No Duration)
-                            var timestampDataItems = dataItems.Where(o => o.Timestamp == timestamp && o.Duration <= 0)?.ToList();
-                            if (!timestampDataItems.IsNullOrEmpty())
+                            // Get list of unique Timestamps in list of ShdrDataItems
+                            var timestamps = deviceDataItems.Select(o => o.Timestamp).Distinct();
+                            if (!timestamps.IsNullOrEmpty())
                             {
-                                // Add Timestamp to beginning of line
-                                var timestampPrefix = GetTimestampString(timestamp);
-                                if (!string.IsNullOrEmpty(timestampPrefix)) line = timestampPrefix + "|";
+                                var oTimestamps = timestamps.OrderBy(o => o);
 
-                                // Add each DataItem to line
-                                for (var i = 0; i < timestampDataItems.Count; i++)
+                                foreach (var timestamp in oTimestamps)
                                 {
-                                    var x = ToString(timestampDataItems[i], true);
-                                    if (!string.IsNullOrEmpty(x))
+                                    string line = null;
+
+                                    // Get list of ShdrDataItems at this Timestamp (No Duration)
+                                    var timestampDataItems = deviceDataItems.Where(o => o.Timestamp == timestamp && o.Duration <= 0)?.ToList();
+                                    if (!timestampDataItems.IsNullOrEmpty())
                                     {
-                                        line += x;
+                                        // Add Timestamp to beginning of line
+                                        var timestampPrefix = GetTimestampString(timestamp);
+                                        if (!string.IsNullOrEmpty(timestampPrefix)) line = timestampPrefix + "|";
 
-                                        if (i < timestampDataItems.Count - 1) line += "|";
-                                    }
-                                }
+                                        // Add each DataItem to line
+                                        for (var i = 0; i < timestampDataItems.Count; i++)
+                                        {
+                                            var x = ToString(timestampDataItems[i], true, timestampDataItems[i].DeviceKey);
+                                            if (!string.IsNullOrEmpty(x))
+                                            {
+                                                line += x;
 
-                                // Add line to list of lines
-                                lines.Add(line);
-                            }
+                                                if (i < timestampDataItems.Count - 1) line += "|";
+                                            }
+                                        }
 
-                            // Get list of ShdrDataItems at this Timestamp (With Duration)
-                            timestampDataItems = dataItems.Where(o => o.Timestamp == timestamp && o.Duration > 0)?.ToList();
-                            if (!timestampDataItems.IsNullOrEmpty())
-                            {
-                                foreach (var dataItem in timestampDataItems)
-                                {
-                                    line = dataItem.ToString();
-                                    if (!string.IsNullOrEmpty(line))
-                                    {
                                         // Add line to list of lines
                                         lines.Add(line);
+                                    }
+
+                                    // Get list of ShdrDataItems at this Timestamp (With Duration)
+                                    timestampDataItems = deviceDataItems.Where(o => o.Timestamp == timestamp && o.Duration > 0)?.ToList();
+                                    if (!timestampDataItems.IsNullOrEmpty())
+                                    {
+                                        foreach (var dataItem in timestampDataItems)
+                                        {
+                                            line = dataItem.ToString();
+                                            if (!string.IsNullOrEmpty(line))
+                                            {
+                                                // Add line to list of lines
+                                                lines.Add(line);
+                                            }
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
+                    }  
                 }
 
                 // Convert list of lines to single string with new line terminator
@@ -326,8 +346,8 @@ namespace MTConnect.Shdr
                         var x = ShdrLine.GetNextValue(y);
                         y = ShdrLine.GetNextSegment(y);
 
-                        // Get Device Name (if specified). Example : Device01:avail
-                        var match = _deviceNameRegex.Match(x);
+                        // Get Device Key (if specified). Example : Device01:avail
+                        var match = _deviceKeyRegex.Match(x);
                         if (match.Success && match.Groups.Count > 2)
                         {
                             dataItem.DeviceKey = match.Groups[1].Value;
@@ -342,6 +362,7 @@ namespace MTConnect.Shdr
                         {
                             // Set Value
                             x = ShdrLine.GetNextValue(y);
+                            y = ShdrLine.GetNextSegment(y);
 
                             dataItem.ResetTriggered = ResetTriggered.NOT_SPECIFIED;
                             var valueString = x;

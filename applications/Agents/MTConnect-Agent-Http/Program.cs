@@ -282,51 +282,6 @@ namespace MTConnect.Applications
                         _mtconnectAgent.AddDevice(device, initializeDataItems);
                     }
 
-                    // Add Adapter Clients
-                    if (!configuration.Adapters.IsNullOrEmpty())
-                    {
-                        foreach (var adapterConfiguration in configuration.Adapters)
-                        {
-                            // Get the Device matching the "Device" configured in the AdapterConfiguration
-                            var device = devices.FirstOrDefault(o => o.Uuid == adapterConfiguration.DeviceKey || o.Name == adapterConfiguration.DeviceKey);
-                            if (device != null)
-                            {
-                                var adapterComponent = new ShdrAdapterComponent(adapterConfiguration);
-
-                                // Add Adapter Component to Agent Device
-                                _mtconnectAgent.Agent.AddAdapterComponent(adapterComponent);
-
-                                if (!adapterComponent.DataItems.IsNullOrEmpty())
-                                {
-                                    // Initialize Adapter URI Observation
-                                    var adapterUriDataItem = adapterComponent.DataItems.FirstOrDefault(o => o.Type == AdapterUriDataItem.TypeId);
-                                    if (adapterUriDataItem != null && initializeDataItems)
-                                    {
-                                        _mtconnectAgent.AddObservation(_mtconnectAgent.Uuid, adapterUriDataItem.Id, adapterComponent.Uri);
-                                    }
-                                }
-
-                                // Create new SHDR Adapter Client to read from SHDR stream
-                                var adapterClient = new ShdrAdapterClient(adapterConfiguration, _mtconnectAgent, device);
-                                _adapters.Add(adapterClient);
-
-                                if (verboseLogging)
-                                {
-                                    adapterClient.Connected += AdapterConnected;
-                                    adapterClient.Disconnected += AdapterDisconnected;
-                                    adapterClient.ConnectionError += AdapterConnectionError;
-                                    adapterClient.Listening += AdapterListening;
-                                    adapterClient.PingSent += AdapterPingSent;
-                                    adapterClient.PongReceived += AdapterPongReceived;
-                                    adapterClient.ProtocolReceived += AdapterProtocolReceived;
-                                }
-
-                                // Start the Adapter Client
-                                adapterClient.Start();
-                            }
-                        }
-                    }
-
                     if (configuration.MonitorConfigurationFiles)
                     {
                         // Set Device Configuration File Watcher
@@ -344,6 +299,49 @@ namespace MTConnect.Applications
                 else
                 {
                     _agentLogger.Warn($"No Devices Found : Reading from : {configuration.Devices}");
+                }
+
+                // Add Adapter Clients
+                if (!configuration.Adapters.IsNullOrEmpty())
+                {
+                    foreach (var adapterConfiguration in configuration.Adapters)
+                    {
+                        // Get the Device matching the "Device" configured in the AdapterConfiguration
+                        var device = devices?.FirstOrDefault(o => o.Uuid == adapterConfiguration.DeviceKey || o.Name == adapterConfiguration.DeviceKey);
+
+                        var adapterComponent = new ShdrAdapterComponent(adapterConfiguration);
+
+                        // Add Adapter Component to Agent Device
+                        _mtconnectAgent.Agent.AddAdapterComponent(adapterComponent);
+
+                        if (!adapterComponent.DataItems.IsNullOrEmpty())
+                        {
+                            // Initialize Adapter URI Observation
+                            var adapterUriDataItem = adapterComponent.DataItems.FirstOrDefault(o => o.Type == AdapterUriDataItem.TypeId);
+                            if (adapterUriDataItem != null && initializeDataItems)
+                            {
+                                _mtconnectAgent.AddObservation(_mtconnectAgent.Uuid, adapterUriDataItem.Id, adapterComponent.Uri);
+                            }
+                        }
+
+                        // Create new SHDR Adapter Client to read from SHDR stream
+                        var adapterClient = new ShdrAdapterClient(adapterConfiguration, _mtconnectAgent, device);
+                        _adapters.Add(adapterClient);
+
+                        if (verboseLogging)
+                        {
+                            adapterClient.Connected += AdapterConnected;
+                            adapterClient.Disconnected += AdapterDisconnected;
+                            adapterClient.ConnectionError += AdapterConnectionError;
+                            adapterClient.Listening += AdapterListening;
+                            adapterClient.PingSent += AdapterPingSent;
+                            adapterClient.PongReceived += AdapterPongReceived;
+                            adapterClient.ProtocolReceived += AdapterProtocolReceived;
+                        }
+
+                        // Start the Adapter Client
+                        adapterClient.Start();
+                    }
                 }
 
                 // Initialize Agent Current Observations/Conditions

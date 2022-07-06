@@ -116,6 +116,19 @@ namespace MTConnect.Adapters.Shdr
         public EventHandler<AdapterEventArgs> SendError { get; set; }
 
 
+        public ShdrAdapter(int port = 7878, int heartbeat = 10000)
+        {
+            Port = port;
+            Heartbeat = heartbeat;
+            Timeout = 5000;
+            Interval = 100;
+
+            _connectionListener = new AgentClientConnectionListener(Port, heartbeat);
+            _connectionListener.ClientConnected += ClientConnected;
+            _connectionListener.ClientDisconnected += ClientDisconnected;
+            _connectionListener.ClientPingReceived += ClientPingReceived;
+            _connectionListener.ClientPongSent += ClientPongSent;
+        }
 
         public ShdrAdapter(string deviceKey, int port = 7878, int heartbeat = 10000)
         {
@@ -618,6 +631,8 @@ namespace MTConnect.Adapters.Shdr
         {
             if (dataItem != null)
             {
+                dataItem.DeviceKey = DeviceKey;
+
                 // Set Timestamp (if not already set)
                 if (dataItem.Timestamp <= 0) dataItem.Timestamp = UnixDateTime.Now;
 
