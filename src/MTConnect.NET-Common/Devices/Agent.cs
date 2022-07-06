@@ -121,7 +121,7 @@ namespace MTConnect.Devices
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) _agent.AddObservation(Uuid, osManufacturerId, OSPlatform.Windows.ToString());
                 else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) _agent.AddObservation(Uuid, osManufacturerId, OSPlatform.Linux.ToString());
                 else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) _agent.AddObservation(Uuid, osManufacturerId, OSPlatform.OSX.ToString());
-                else if (RuntimeInformation.IsOSPlatform(OSPlatform.FreeBSD)) _agent.AddObservation(Uuid, osManufacturerId, OSPlatform.FreeBSD.ToString());
+                //else if (RuntimeInformation.IsOSPlatform(OSPlatform.FreeBSD)) _agent.AddObservation(Uuid, osManufacturerId, OSPlatform.FreeBSD.ToString());
 
                 // Initialize OperatingSystem Version
                 var osVersionName = $"{OperatingSystemDataItem.NameId}_{OperatingSystemDataItem.GetSubTypeId(OperatingSystemDataItem.SubTypes.VERSION)}";
