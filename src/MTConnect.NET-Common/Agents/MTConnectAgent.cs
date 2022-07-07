@@ -2474,27 +2474,33 @@ namespace MTConnect.Agents
         {
             if (_currentConditions != null && observation != null && !string.IsNullOrEmpty(deviceUuid) && dataItem != null)
             {
-                var hash = StoredObservation.CreateHash(deviceUuid, dataItem.Id);
                 var observations = new List<IObservationInput>();
-                observations.Add(observation);
 
-                string existingHash = null;
-
+                // Get Existing Condition Observations for DataItem
+                var hash = StoredObservation.CreateHash(deviceUuid, dataItem.Id);
                 _currentConditions.TryGetValue(hash, out var existingObservations);
+
+                if (existingObservations.IsNullOrEmpty() || !existingObservations.Any(o => o.ChangeId == observation.ChangeId))
+                {
+                    observations.Add(observation);
+                }
+
+                // Add previous Condition Observations (if new Condition is not NORMAL or UNAVAILABLE)
+                string existingHash = null;
                 if (observation != null && !existingObservations.IsNullOrEmpty())
                 {
                     existingHash = StringFunctions.ToMD5Hash(existingObservations.Select(o => o.ChangeId).ToArray());
 
                     var conditionLevel = observation.GetValue(ValueKeys.Level);
-                    if (conditionLevel != ConditionLevel.NORMAL.ToString() && 
+                    if (conditionLevel != ConditionLevel.NORMAL.ToString() &&
                         conditionLevel != ConditionLevel.UNAVAILABLE.ToString())
                     {
                         observations.InsertRange(0, existingObservations);
                     }
                 }
 
+                // Compare Hashes. If different, then update current list
                 string newHash = StringFunctions.ToMD5Hash(observations.Select(o => o.ChangeId).ToArray());
-
                 if (newHash != existingHash)
                 {
                     _currentConditions.TryRemove(hash, out var _);
@@ -2504,6 +2510,7 @@ namespace MTConnect.Agents
 
             return false;
         }
+
 
         private static bool FilterPeriod(IDataItem dataItem, long newTimestamp, long existingTimestamp)
         {
