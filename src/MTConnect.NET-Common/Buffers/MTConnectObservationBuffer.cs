@@ -202,6 +202,13 @@ namespace MTConnect.Buffers
             var observations = _currentObservations.Values;
             if (!observations.IsNullOrEmpty()) x.AddRange(observations);
 
+            return x;
+        }
+
+        private IEnumerable<StoredObservation> GetCurrentConditions()
+        {
+            var x = new List<StoredObservation>();
+
             var conditions = _currentConditions.Values;
             if (!conditions.IsNullOrEmpty())
             {
@@ -572,7 +579,7 @@ namespace MTConnect.Buffers
                     _currentConditions.TryAdd(hash, observations);
 
                     // Call Overridable Method
-                    OnCurrentChange(GetCurrentObservations());
+                    OnCurrentConditionChange(GetCurrentConditions());
                     OnCurrentConditionAdd(observations);
                 }
             }
@@ -743,6 +750,8 @@ namespace MTConnect.Buffers
 
 
         protected virtual void OnCurrentChange(IEnumerable<StoredObservation> observations) { }
+
+        protected virtual void OnCurrentConditionChange(IEnumerable<StoredObservation> observations) { }
 
         protected virtual void OnCurrentObservationAdd(StoredObservation observation) { }
 

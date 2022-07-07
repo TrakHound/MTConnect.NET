@@ -31,6 +31,7 @@ namespace MTConnect.Buffers
 
         private readonly MTConnectObservationQueue _items;
         private readonly MTConnectObservationQueue _currentItems;
+        private readonly MTConnectConditionObservationQueue _currentConditionItems;
         private CancellationTokenSource stop;
         private bool _isStarted;
         private bool _isLoading;
@@ -60,6 +61,8 @@ namespace MTConnect.Buffers
         public MTConnectObservationFileBuffer()
         {
             _items = new MTConnectObservationQueue();
+            _currentItems = new MTConnectObservationQueue();
+            _currentConditionItems = new MTConnectConditionObservationQueue();
 
             Start();
         }
@@ -68,6 +71,7 @@ namespace MTConnect.Buffers
         {
             _items = new MTConnectObservationQueue();
             _currentItems = new MTConnectObservationQueue();
+            _currentConditionItems = new MTConnectConditionObservationQueue();
 
             Start();
         }
@@ -78,6 +82,14 @@ namespace MTConnect.Buffers
             if (!_isLoading)
             {
                 AddCurrent(observations);
+            }
+        }
+
+        protected override void OnCurrentConditionChange(IEnumerable<StoredObservation> observations)
+        {
+            if (!_isLoading)
+            {
+                AddCurrentConditions(observations);
             }
         }
 
@@ -157,7 +169,6 @@ namespace MTConnect.Buffers
 
         public bool AddCurrent(StoredObservation observation)
         {
-            // Add to internal Queue
             return _currentItems.Add(observation);
         }
 
@@ -171,6 +182,33 @@ namespace MTConnect.Buffers
                 {
                     success = AddCurrent(observation);
                     if (!success) break;
+                }
+
+                return success;
+            }
+
+            return false;
+        }
+
+
+        public bool AddCurrentConditions(IEnumerable<StoredObservation> observations)
+        {
+            if (!observations.IsNullOrEmpty())
+            {
+                var success = true;
+
+                var deviceUuids = observations.Select(o => o.DeviceUuid).Distinct();
+                foreach (var deviceUuid in deviceUuids)
+                {
+                    var deviceObservations = observations.Where(o => o.DeviceUuid == deviceUuid);
+                    var dataItemIds = deviceObservations.Select(o => o.DataItemId).Distinct();
+                    foreach (var dataItemId in dataItemIds)
+                    {
+                        var dataItemObservations = deviceObservations.Where(o => o.DataItemId == dataItemId);
+
+                        success = _currentConditionItems.Add(dataItemObservations);
+                        if (!success) break;
+                    }
                 }
 
                 return success;
@@ -211,16 +249,19 @@ namespace MTConnect.Buffers
             {
                 foreach (var observation in currentObservations)
                 {
-                    if (observation.DataItemCategory == DataItemCategory.CONDITION)
-                    {
-                        // Add to Current Conditions
-                        AddCurrentCondition(observation);
-                    }
-                    else
-                    {
-                        // Add to Current Observations
-                        AddCurrentObservation(observation);
-                    }
+                    // Add to Current Observations
+                    AddCurrentObservation(observation);
+                }
+            }
+
+            // Read Current Observations from Device Files
+            var currentConditions = ReadStoredCurrentConditionObservations();
+            if (!currentConditions.IsNullOrEmpty())
+            {
+                foreach (var observation in currentConditions)
+                {
+                    // Add to Current Conditions
+                    AddCurrentCondition(observation);
                 }
             }
 
@@ -268,6 +309,25 @@ namespace MTConnect.Buffers
             {
                 // Get a list of all observation buffer files in directory
                 var files = GetCurrentFiles();
+                foreach (var file in files)
+                {
+                    var fileItems = ReadFile(file);
+                    items.AddRange(fileItems);
+                }
+            }
+            catch { }
+
+            return items;
+        }
+
+        private IEnumerable<StoredObservation> ReadStoredCurrentConditionObservations()
+        {
+            var items = new List<StoredObservation>();
+
+            try
+            {
+                // Get a list of all observation buffer files in directory
+                var files = GetCurrentConditionFiles();
                 foreach (var file in files)
                 {
                     var fileItems = ReadFile(file);
@@ -350,7 +410,16 @@ namespace MTConnect.Buffers
             var dir = GetCurrentDirectory();
 
             // Get a list of all current observation buffer files in directory
-            return Directory.GetFiles(dir);
+            return Directory.GetFiles(dir, "*_observations");
+        }
+
+        private IEnumerable<string> GetCurrentConditionFiles()
+        {
+            // Get Current Observations Directory Path
+            var dir = GetCurrentDirectory();
+
+            // Get a list of all current observation buffer files in directory
+            return Directory.GetFiles(dir, "*_conditions");
         }
 
 
@@ -491,6 +560,7 @@ namespace MTConnect.Buffers
 
                     await WriteItems(MaxItemsPerWrite);
                     await WriteCurrentItems(MaxItemsPerWrite);
+                    await WriteCurrentConditionItems(MaxItemsPerWrite);
                 }
                 catch (TaskCanceledException) { }
                 catch { }
@@ -520,6 +590,15 @@ namespace MTConnect.Buffers
             if (!queueItems.IsNullOrEmpty())
             {
                 await WriteToCurrentFiles(queueItems);
+            }
+        }
+
+        private async Task WriteCurrentConditionItems(int maxItems)
+        {
+            var queueItems = _currentConditionItems.Take(maxItems);
+            if (!queueItems.IsNullOrEmpty())
+            {
+                await WriteToCurrentConditionFiles(queueItems);
             }
         }
 
@@ -587,7 +666,8 @@ namespace MTConnect.Buffers
                 var deviceUuids = observations.Select(o => o.DeviceUuid).Distinct();
                 foreach (var deviceUuid in deviceUuids)
                 {
-                    var path = Path.Combine(dir, deviceUuid);
+                    var filename = $"{deviceUuid}_observations";
+                    var path = Path.Combine(dir, filename);
 
                     // Get List of Observations for Device UUID
                     var deviceObservations = observations.Where(o => o.DeviceUuid == deviceUuid);
@@ -597,6 +677,41 @@ namespace MTConnect.Buffers
                     foreach (var dataItemId in dataItemIds)
                     {
                         currentObservations.Add(deviceObservations.Where(o => o.DataItemId == dataItemId).OrderByDescending(o => o.Sequence).FirstOrDefault());
+                    }
+
+                    // Write the Observations to the Page File
+                    await WriteToFile(path, currentObservations, false);
+                }
+            }
+
+            return writtenTotal;
+        }
+
+        /// <summary>
+        /// Write the list of Current Observations to individual files for each Device
+        /// </summary>
+        private async Task<int> WriteToCurrentConditionFiles(IEnumerable<StoredObservation> observations)
+        {
+            int writtenTotal = 0;
+
+            if (!observations.IsNullOrEmpty())
+            {
+                var dir = GetCurrentDirectory();
+
+                var deviceUuids = observations.Select(o => o.DeviceUuid).Distinct();
+                foreach (var deviceUuid in deviceUuids)
+                {
+                    var filename = $"{deviceUuid}_conditions";
+                    var path = Path.Combine(dir, filename);
+
+                    // Get List of Observations for Device UUID
+                    var deviceObservations = observations.Where(o => o.DeviceUuid == deviceUuid);
+
+                    var currentObservations = new List<StoredObservation>();
+                    var dataItemIds = deviceObservations.Select(o => o.DataItemId).Distinct();
+                    foreach (var dataItemId in dataItemIds)
+                    {
+                        currentObservations.AddRange(deviceObservations.Where(o => o.DataItemId == dataItemId).OrderByDescending(o => o.Sequence));
                     }
 
                     // Write the Observations to the Page File
