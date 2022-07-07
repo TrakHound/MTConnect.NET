@@ -10,7 +10,7 @@
 	<Components>
 		<Axes id="L2axes1" name="Axes">
 			<Components>
-				<Spindle id="L2c1" name="C" nativeName="S">
+				<Rotary id="L2c1" name="C" nativeName="S">
 					<DataItems>
 						<DataItem category="SAMPLE" id="L2S1speed" name="S1speed" nativeUnits="REVOLUTION/MINUTE" subType="ACTUAL" type="ROTARY_VELOCITY" units="REVOLUTION/MINUTE"/>
 						<DataItem category="SAMPLE" id="L2S1cmd" name="S1cmd" nativeUnits="REVOLUTION/MINUTE" subType="COMMANDED" type="ROTARY_VELOCITY" units="REVOLUTION/MINUTE"/>
@@ -30,7 +30,7 @@
 					<Compositions>
 						<Composition id="Xballscrew" type="ENGINE"/>
 					</Compositions>
-				</Spindle>
+				</Rotary>
 				<Rotary id="L2c2" name="C2" nativeName="S">
 					<DataItems>
 						<DataItem category="SAMPLE" id="L2S2speed" name="S2speed" nativeUnits="REVOLUTION/MINUTE" subType="ACTUAL" type="ROTARY_VELOCITY" units="REVOLUTION/MINUTE"/>
@@ -74,7 +74,8 @@
 						<DataItem category="SAMPLE" id="L2Z2load" name="Z2load" nativeUnits="PERCENT" type="LOAD" units="PERCENT"/>
 					</DataItems>
 				</Linear>
-			</Components>
+			
+		</Components>
 		</Axes>
 		<Controller id="L2ct1" name="Controller">
 			<DataItems>

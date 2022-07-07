@@ -3,7 +3,6 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
-using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace MTConnect.Configurations
@@ -56,7 +55,7 @@ namespace MTConnect.Configurations
 
         public HttpShdrAgentConfiguration() : base()
         {
-            Devices = "devices.xml";
+            Devices = "devices";
             ServiceName = null;
             ServiceAutoStart = true;
             MonitorConfigurationFiles = true;

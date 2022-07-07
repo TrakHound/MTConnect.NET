@@ -11,8 +11,5 @@
 			"port": 7878,
 			"reconnectInterval": 100
 		}
-	],
-	"streamsStyle": {
-		"location": "styles/stylesheet-streams.xsl"
-	}
+	]
 }
