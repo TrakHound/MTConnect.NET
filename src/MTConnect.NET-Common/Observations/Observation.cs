@@ -40,13 +40,18 @@ namespace MTConnect.Observations
         [JsonIgnore]
         public string DeviceUuid => GetProperty<string>(nameof(DeviceUuid));
 
+        [XmlIgnore]
+        [JsonIgnore]
         internal bool DeviceUuidOutput => false;
 
         [XmlIgnore]
         [JsonIgnore]
         public IDataItem DataItem { get; set; }
 
+        [XmlIgnore]
+        [JsonIgnore]
         internal bool DataItemOutput => false;
+
 
         /// <summary>
         /// The unique identifier for the DataItem. 
@@ -153,6 +158,22 @@ namespace MTConnect.Observations
         [XmlIgnore]
         [JsonIgnore]
         internal bool IsUnavailableOutput => false;
+
+
+        public static Observation Create(IDataItem dataItem)
+        {
+            if (dataItem != null)
+            {
+                switch (dataItem.Category)
+                {
+                    case DataItemCategory.SAMPLE: return SampleObservation.Create(dataItem);
+                    case DataItemCategory.EVENT: return EventObservation.Create(dataItem);
+                    case DataItemCategory.CONDITION: return ConditionObservation.Create(dataItem);
+                }
+            }
+
+            return new Observation();
+        }
 
 
         public T GetProperty<T>(string propertyName)

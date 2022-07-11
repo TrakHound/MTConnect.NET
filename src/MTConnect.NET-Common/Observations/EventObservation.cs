@@ -75,11 +75,12 @@ namespace MTConnect.Observations
         }
 
 
-        public static EventObservation Create(IDataItem dataItem)
+        public new static EventObservation Create(IDataItem dataItem)
         {
             if (dataItem != null)
             {
                 var observation = Create(dataItem.Type, dataItem.Representation);
+                observation.DataItem = dataItem;
                 observation.SetProperty(nameof(DataItemId), dataItem.Id);
                 observation.SetProperty(nameof(Representation), dataItem.Representation);
                 observation.SetProperty(nameof(Type), dataItem.Type);
@@ -87,6 +88,27 @@ namespace MTConnect.Observations
                 observation.SetProperty(nameof(Name), dataItem.Name);
                 observation.SetProperty(nameof(CompositionId), dataItem.CompositionId);
                 return observation;
+            }
+
+            return null;
+        }
+
+        public static EventObservation Create(IObservation observation)
+        {
+            if (observation != null && observation.DataItem != null)
+            {
+                var result = Create(observation.DataItem.Type, observation.DataItem.Representation);
+                result.DataItem = observation.DataItem;
+                result.SetProperty(nameof(DataItemId), observation.DataItem.Id);
+                result.SetProperty(nameof(Representation), observation.DataItem.Representation);
+                result.SetProperty(nameof(Type), observation.DataItem.Type);
+                result.SetProperty(nameof(SubType), observation.DataItem.SubType);
+                result.SetProperty(nameof(Name), observation.DataItem.Name);
+                result.SetProperty(nameof(CompositionId), observation.DataItem.CompositionId);
+                result.SetProperty(nameof(Sequence), observation.Sequence);
+                result.SetProperty(nameof(Timestamp), observation.Timestamp);
+                result.AddValues(observation.Values);
+                return result;
             }
 
             return null;

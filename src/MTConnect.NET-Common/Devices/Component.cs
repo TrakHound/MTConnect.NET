@@ -7,11 +7,11 @@ using MTConnect.Devices.Configurations;
 using MTConnect.Devices.References;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Serialization;
-using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace MTConnect.Devices
 {
@@ -29,13 +29,6 @@ namespace MTConnect.Devices
 
         private static Dictionary<string, Type> _types;
 
-
-        /// <summary>
-        /// The path of the Component by Type
-        /// </summary>
-        [XmlIgnore]
-        [JsonIgnore]
-        public string TypePath { get; set; }
 
         [XmlIgnore]
         [JsonIgnore]
@@ -155,6 +148,15 @@ namespace MTConnect.Devices
         [JsonPropertyName("references")]
         public IEnumerable<IReference> References { get; set; }
 
+
+        /// <summary>
+        /// The Parent of this Component
+        /// </summary>
+        [XmlIgnore]
+        [JsonIgnore]
+        public IContainer Parent { get; set; }
+
+
         /// <summary>
         /// A MD5 Hash of the Component that can be used to compare Component objects
         /// </summary>
@@ -168,6 +170,23 @@ namespace MTConnect.Devices
         [XmlIgnore]
         [JsonIgnore]
         public bool IsOrganizer => Organizers.Components.Contains(Type);
+
+
+        [XmlIgnore]
+        [JsonIgnore]
+        public string IdPath => GenerateIdPath(this);
+
+        [XmlIgnore]
+        [JsonIgnore]
+        public string[] IdPaths => GenerateIdPaths(this);
+
+        [XmlIgnore]
+        [JsonIgnore]
+        public string TypePath => GenerateTypePath(this);
+
+        [XmlIgnore]
+        [JsonIgnore]
+        public string[] TypePaths => GenerateTypePaths(this);
 
 
 
@@ -222,6 +241,66 @@ namespace MTConnect.Devices
                 }
 
                 return StringFunctions.ToMD5Hash(ids.ToArray());
+            }
+
+            return null;
+        }
+
+
+
+        public static string[] GenerateIdPaths(IComponent component)
+        {
+            if (component != null)
+            {
+                var types = new List<string>();
+
+                if (component.Parent != null && !component.Parent.IdPaths.IsNullOrEmpty())
+                {
+                    types.AddRange(component.Parent.IdPaths);
+                }
+
+                types.Add(component.Id);
+
+                return types.ToArray();
+            }
+
+            return null;
+        }
+
+        public static string GenerateIdPath(IComponent component)
+        {
+            if (component != null && !component.IdPaths.IsNullOrEmpty())
+            {
+                return string.Join('/', component.IdPaths);
+            }
+
+            return null;
+        }
+
+        public static string[] GenerateTypePaths(IComponent component)
+        {
+            if (component != null)
+            {
+                var types = new List<string>();
+
+                if (component.Parent != null && !component.Parent.TypePaths.IsNullOrEmpty())
+                {
+                    types.AddRange(component.Parent.TypePaths);
+                }
+
+                types.Add(component.Type);
+
+                return types.ToArray();
+            }
+
+            return null;
+        }
+
+        public static string GenerateTypePath(IComponent component)
+        {
+            if (component != null && !component.TypePaths.IsNullOrEmpty())
+            {
+                return string.Join('/', component.TypePaths);
             }
 
             return null;

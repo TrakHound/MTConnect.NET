@@ -156,6 +156,18 @@ namespace MTConnect.Devices
         /// </summary>
         List<Relationship> Relationships { get; }
 
+
+        /// <summary>
+        /// The Device that this DataItem is associated with
+        /// </summary>
+        IDevice Device { get; }
+
+        /// <summary>
+        /// The Container that this DataItem is directly associated with
+        /// </summary>
+        IContainer Container { get; }
+
+
         /// <summary>
         /// A MD5 Hash of the DataItem that can be used to compare DataItem objects
         /// </summary>
@@ -165,9 +177,19 @@ namespace MTConnect.Devices
 
         string SubTypeDescription { get; }
 
+
         Version MaximumVersion { get; }
 
         Version MinimumVersion { get; }
+
+
+        string IdPath { get; }
+
+        string[] IdPaths { get; }
+
+        string TypePath { get; }
+
+        string[] TypePaths { get; }
 
 
         /// <summary>

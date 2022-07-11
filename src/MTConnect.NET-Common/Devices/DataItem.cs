@@ -197,22 +197,66 @@ namespace MTConnect.Devices
         [JsonIgnore]
         public string ChangeId => CreateChangeId();
 
+        /// <summary>
+        /// The Description of the DataItem based on the Type from the MTConnect Standard
+        /// </summary>
         [JsonIgnore]
         public virtual string TypeDescription => DescriptionText;
 
+        /// <summary>
+        /// The Description of the DataItem based on the SubType from the MTConnect Standard
+        /// </summary>
         [JsonIgnore]
         public virtual string SubTypeDescription => null;
+
+
+        /// <summary>
+        /// The Device that this DataItem is associated with
+        /// </summary>
+        [JsonIgnore]
+        public IDevice Device { get; set; }
+
+        /// <summary>
+        /// The Container that this DataItem is directly associated with
+        /// </summary>
+        [JsonIgnore]
+        public IContainer Container { get; set; }
+
+
+        /// <summary>
+        /// The path of the DataItem by Id
+        /// </summary>
+        [JsonIgnore]
+        public string IdPath => GenerateIdPath(this);
+
+        /// <summary>
+        /// The paths of the DataItem by Id
+        /// </summary>
+        [JsonIgnore]
+        public string[] IdPaths => GenerateIdPaths(this);
 
         /// <summary>
         /// The path of the DataItem by Type
         /// </summary>
         [JsonIgnore]
-        public string TypePath { get; set; }
+        public string TypePath => GenerateTypePath(this);
+
+        /// <summary>
+        /// The paths of the DataItem by Type
+        /// </summary>
+        [JsonIgnore]
+        public string[] TypePaths => GenerateTypePaths(this);
 
 
+        /// <summary>
+        /// The Maximum version of the MTConnect Standard that this DataItem is valid for
+        /// </summary>
         [JsonIgnore]
         public virtual Version MaximumVersion => DefaultMaximumVersion;
 
+        /// <summary>
+        /// The Minimum version of the MTConnect Standard that this DataItem is valid for
+        /// </summary>
         [JsonIgnore]
         public virtual Version MinimumVersion => DefaultMinimumVersion;
 
@@ -221,6 +265,36 @@ namespace MTConnect.Devices
         {
             Filters = new List<Filter>();
             Relationships = new List<Relationship>();
+        }
+
+        public DataItem(IDataItem dataItem)
+        {
+            if (dataItem != null)
+            {
+                Category = dataItem.Category;
+                Id = dataItem.Id;
+                Name = dataItem.Name;
+                Type = dataItem.Type;
+                SubType = dataItem.SubType;
+                NativeUnits = dataItem.NativeUnits;
+                NativeScale = dataItem.NativeScale;
+                SampleRate = dataItem.SampleRate;
+                Source = dataItem.Source;
+                Relationships = dataItem.Relationships;
+                Representation = dataItem.Representation;
+                ResetTrigger = dataItem.ResetTrigger;
+                CoordinateSystem = dataItem.CoordinateSystem;
+                CoordinateSystemIdRef = dataItem.CoordinateSystemIdRef;
+                CompositionId = dataItem.CompositionId;
+                Constraints = dataItem.Constraints;
+                Definition = dataItem.Definition;
+                Units = dataItem.Units;
+                Statistic = dataItem.Statistic;
+                SignificantDigits = dataItem.SignificantDigits;
+                Filters = dataItem.Filters;
+                InitialValue = dataItem.InitialValue;
+                Discrete = dataItem.Discrete;
+            }
         }
 
 
@@ -246,6 +320,65 @@ namespace MTConnect.Devices
                 }
 
                 return StringFunctions.ToMD5Hash(ids.ToArray());
+            }
+
+            return null;
+        }
+
+
+        public static string[] GenerateIdPaths(IDataItem dataItem)
+        {
+            if (dataItem != null)
+            {
+                var types = new List<string>();
+
+                if (dataItem.Container != null && !dataItem.Container.IdPaths.IsNullOrEmpty())
+                {
+                    types.AddRange(dataItem.Container.IdPaths);
+                }
+
+                types.Add(dataItem.Id);
+
+                return types.ToArray();
+            }
+
+            return null;
+        }
+
+        public static string GenerateIdPath(IDataItem dataItem)
+        {
+            if (dataItem != null && !dataItem.IdPaths.IsNullOrEmpty())
+            {
+                return string.Join('/', dataItem.IdPaths);
+            }
+
+            return null;
+        }
+
+        public static string[] GenerateTypePaths(IDataItem dataItem)
+        {
+            if (dataItem != null)
+            {
+                var types = new List<string>();
+
+                if (dataItem.Container != null && !dataItem.Container.TypePaths.IsNullOrEmpty())
+                {
+                    types.AddRange(dataItem.Container.TypePaths);
+                }
+
+                types.Add(dataItem.Type);
+
+                return types.ToArray();
+            }
+
+            return null;
+        }
+
+        public static string GenerateTypePath(IDataItem dataItem)
+        {
+            if (dataItem != null && !dataItem.TypePaths.IsNullOrEmpty())
+            {
+                return string.Join('/', dataItem.TypePaths);
             }
 
             return null;

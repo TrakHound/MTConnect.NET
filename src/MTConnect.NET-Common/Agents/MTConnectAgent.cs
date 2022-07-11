@@ -2374,9 +2374,8 @@ namespace MTConnect.Agents
                             var value = !string.IsNullOrEmpty(dataItem.InitialValue) ? dataItem.InitialValue : Observation.Unavailable;
 
                             // Add Unavailable Observation to ObservationBuffer
-                            var observation = new Observation();
+                            var observation = Observation.Create(dataItem);
                             observation.SetProperty(nameof(Observation.DeviceUuid), device.Uuid);
-                            observation.SetProperty(nameof(Observation.DataItemId), dataItem.Id);
                             observation.SetProperty(nameof(Observation.Timestamp), ts.ToDateTime());
                             observation.AddValues(new List<ObservationValue>
                             {
@@ -2422,9 +2421,8 @@ namespace MTConnect.Agents
                             var value = !string.IsNullOrEmpty(dataItem.InitialValue) ? dataItem.InitialValue : Observation.Unavailable;
 
                             // Add Unavailable Observation to ObservationBuffer
-                            var observation = new Observation();
+                            var observation = Observation.Create(dataItem);
                             observation.SetProperty(nameof(Observation.DeviceUuid), device.Uuid);
-                            observation.SetProperty(nameof(Observation.DataItemId), dataItem.Id);
                             observation.SetProperty(nameof(Observation.Timestamp), ts.ToDateTime());
                             observation.AddValues(new List<ObservationValue>
                             {
@@ -2662,14 +2660,15 @@ namespace MTConnect.Agents
                     obj.Configuration = device.Configuration;
                     obj.References = device.References;
                     obj.Description = NormalizeDescription(device.Description);
-                    obj.DataItems = NormalizeDataItems(device.DataItems);
-                    obj.Compositions = NormalizeCompositions(device.Compositions);
-                    obj.Components = NormalizeComponents(device.Components);
+                    obj.DataItems = NormalizeDataItems(device.DataItems, obj, obj);
+                    obj.Compositions = NormalizeCompositions(device.Compositions, obj, obj);
+                    obj.Components = NormalizeComponents(device.Components, obj, obj);
 
                     // Add Required Availability DataItem
                     if (obj.DataItems.IsNullOrEmpty() || !obj.DataItems.Any(o => o.Type == AvailabilityDataItem.TypeId))
                     {
                         var availability = new AvailabilityDataItem(obj.Id);
+                        availability.Container = obj;
                         availability.Name = AvailabilityDataItem.NameId;
                         var x = obj.DataItems.ToList();
                         x.Add(availability);
@@ -2680,6 +2679,7 @@ namespace MTConnect.Agents
                     if (obj.DataItems.IsNullOrEmpty() || !obj.DataItems.Any(o => o.Type == AssetChangedDataItem.TypeId))
                     {
                         var assetChanged = new AssetChangedDataItem(obj.Id);
+                        assetChanged.Container = obj;
                         assetChanged.Name = AssetChangedDataItem.NameId;
                         var x = obj.DataItems.ToList();
                         x.Add(assetChanged);
@@ -2690,6 +2690,7 @@ namespace MTConnect.Agents
                     if (obj.DataItems.IsNullOrEmpty() || !obj.DataItems.Any(o => o.Type == AssetRemovedDataItem.TypeId))
                     {
                         var assetRemoved = new AssetRemovedDataItem(obj.Id);
+                        assetRemoved.Container = obj;
                         assetRemoved.Name = AssetRemovedDataItem.NameId;
                         var x = obj.DataItems.ToList();
                         x.Add(assetRemoved);
@@ -2764,7 +2765,7 @@ namespace MTConnect.Agents
             return null;
         }
 
-        private List<IComponent> NormalizeComponents(IEnumerable<IComponent> components)
+        private List<IComponent> NormalizeComponents(IEnumerable<IComponent> components, IContainer parent, IDevice device)
         {
             if (!components.IsNullOrEmpty())
             {
@@ -2783,10 +2784,11 @@ namespace MTConnect.Agents
                     obj.SampleInterval = component.SampleInterval;
                     obj.References = component.References;
                     obj.Configuration = component.Configuration;
+                    obj.Parent = parent;
 
-                    obj.Components = NormalizeComponents(component.Components);
-                    obj.Compositions = NormalizeCompositions(component.Compositions);
-                    obj.DataItems = NormalizeDataItems(component.DataItems);
+                    obj.Components = NormalizeComponents(component.Components, obj, device);
+                    obj.Compositions = NormalizeCompositions(component.Compositions, obj, device);
+                    obj.DataItems = NormalizeDataItems(component.DataItems, obj, device);
 
                     objs.Add(obj);
                 }
@@ -2797,7 +2799,7 @@ namespace MTConnect.Agents
             return new List<IComponent>();
         }
 
-        private List<IComposition> NormalizeCompositions(IEnumerable<IComposition> compositions)
+        private List<IComposition> NormalizeCompositions(IEnumerable<IComposition> compositions, IContainer parent, IDevice device)
         {
             if (!compositions.IsNullOrEmpty())
             {
@@ -2816,8 +2818,9 @@ namespace MTConnect.Agents
                     obj.SampleInterval = composition.SampleInterval;
                     obj.References = composition.References;
                     obj.Configuration = composition.Configuration;
+                    obj.Parent = parent;
 
-                    obj.DataItems = NormalizeDataItems(composition.DataItems);
+                    obj.DataItems = NormalizeDataItems(composition.DataItems, obj, device);
 
                     objs.Add(obj);
                 }
@@ -2828,7 +2831,7 @@ namespace MTConnect.Agents
             return new List<IComposition>();
         }
 
-        private List<IDataItem> NormalizeDataItems(IEnumerable<IDataItem> dataItems)
+        private List<IDataItem> NormalizeDataItems(IEnumerable<IDataItem> dataItems, IContainer parent, IDevice device)
         {
             if (!dataItems.IsNullOrEmpty())
             {
@@ -2859,6 +2862,8 @@ namespace MTConnect.Agents
                     obj.Filters = dataItem.Filters;
                     obj.InitialValue = dataItem.InitialValue;
                     obj.Discrete = dataItem.Discrete;
+                    obj.Device = device;
+                    obj.Container = parent;
 
                     objs.Add(obj);
                 }
@@ -2898,9 +2903,8 @@ namespace MTConnect.Agents
                     if (dataItem != null)
                     {
                         // Create new Observation
-                        var observation = new Observation();
+                        var observation = Observation.Create(dataItem);
                         observation.SetProperty(nameof(Observation.DeviceUuid), _agent.Uuid);
-                        observation.SetProperty(nameof(Observation.DataItemId), dataItem.Id);
                         observation.SetProperty(nameof(Observation.Timestamp), timestamp.ToDateTime());
                         observation.AddValues(new List<ObservationValue>
                         {
@@ -2929,9 +2933,8 @@ namespace MTConnect.Agents
                     if (dataItem != null)
                     {
                         // Create new Observation
-                        var observation = new Observation();
+                        var observation = Observation.Create(dataItem);
                         observation.SetProperty(nameof(Observation.DeviceUuid), _agent.Uuid);
-                        observation.SetProperty(nameof(Observation.DataItemId), dataItem.Id);
                         observation.SetProperty(nameof(Observation.Timestamp), timestamp.ToDateTime());
                         observation.AddValues(new List<ObservationValue>
                         {
@@ -2961,9 +2964,8 @@ namespace MTConnect.Agents
                     if (dataItem != null)
                     {
                         // Create new Observation
-                        var observation = new Observation();
+                        var observation = Observation.Create(dataItem);
                         observation.SetProperty(nameof(Observation.DeviceUuid), _agent.Uuid);
-                        observation.SetProperty(nameof(Observation.DataItemId), dataItem.Id);
                         observation.SetProperty(nameof(Observation.Timestamp), timestamp.ToDateTime());
                         observation.AddValues(new List<ObservationValue>
                         {
@@ -2992,10 +2994,9 @@ namespace MTConnect.Agents
                     if (dataItem != null)
                     {
                         // Create new Observation
-                        var observation = new Observation();
+                        var observation = Observation.Create(dataItem);
                         observation.SetProperty(nameof(Observation.DeviceUuid), _agent.Uuid);
-                        observation.SetProperty(nameof(Observation.DataItemId), dataItem.Id);
-                        observation.SetProperty(nameof(Observation.Timestamp), timestamp.ToDateTime());
+                                  observation.SetProperty(nameof(Observation.Timestamp), timestamp.ToDateTime());
                         observation.AddValues(new List<ObservationValue>
                         {
                             new ObservationValue(ValueKeys.CDATA, device.Uuid)
@@ -3024,10 +3025,9 @@ namespace MTConnect.Agents
                     if (dataItem != null)
                     {
                         // Create new Observation
-                        var observation = new Observation();
+                        var observation = Observation.Create(dataItem);
                         observation.SetProperty(nameof(Observation.DeviceUuid), _agent.Uuid);
-                        observation.SetProperty(nameof(Observation.DataItemId), dataItem.Id);
-                        observation.SetProperty(nameof(Observation.Timestamp), timestamp.ToDateTime());
+                          observation.SetProperty(nameof(Observation.Timestamp), timestamp.ToDateTime());
                         observation.AddValues(new List<ObservationValue>
                         {
                             new ObservationValue(ValueKeys.CDATA, device.Uuid)
@@ -3055,9 +3055,8 @@ namespace MTConnect.Agents
                     if (dataItem != null)
                     {
                         // Create new Observation
-                        var observation = new Observation();
+                        var observation = Observation.Create(dataItem);
                         observation.SetProperty(nameof(Observation.DeviceUuid), _agent.Uuid);
-                        observation.SetProperty(nameof(Observation.DataItemId), dataItem.Id);
                         observation.SetProperty(nameof(Observation.Timestamp), timestamp.ToDateTime());
                         observation.AddValues(new List<ObservationValue>
                         {
@@ -3667,14 +3666,8 @@ namespace MTConnect.Agents
                         // Check if Observation Needs to be Updated
                         if (update)
                         {
-                            var observation = new Observation();
+                            var observation = Observation.Create(dataItem);
                             observation.SetProperty(nameof(Observation.DeviceUuid), deviceUuid);
-                            observation.SetProperty(nameof(Observation.DataItemId), dataItem.Id);
-                            observation.SetProperty(nameof(Observation.Representation), dataItem.Representation);
-                            observation.SetProperty(nameof(Observation.Type), dataItem.Type);
-                            observation.SetProperty(nameof(Observation.SubType), dataItem.SubType);
-                            observation.SetProperty(nameof(Observation.Name), dataItem.Name);
-                            observation.SetProperty(nameof(Observation.CompositionId), dataItem.CompositionId);
                             observation.SetProperty(nameof(Observation.Timestamp), input.Timestamp.ToDateTime());
                             observation.AddValues(observationInput.Values);
 
@@ -3785,14 +3778,8 @@ namespace MTConnect.Agents
                         // Check if Observation Needs to be Updated
                         if (update)
                         {
-                            var observation = new Observation();
+                            var observation = Observation.Create(dataItem);
                             observation.SetProperty(nameof(Observation.DeviceUuid), deviceUuid);
-                            observation.SetProperty(nameof(Observation.DataItemId), dataItem.Id);
-                            observation.SetProperty(nameof(Observation.Representation), dataItem.Representation);
-                            observation.SetProperty(nameof(Observation.Type), dataItem.Type);
-                            observation.SetProperty(nameof(Observation.SubType), dataItem.SubType);
-                            observation.SetProperty(nameof(Observation.Name), dataItem.Name);
-                            observation.SetProperty(nameof(Observation.CompositionId), dataItem.CompositionId);
                             observation.SetProperty(nameof(Observation.Timestamp), input.Timestamp.ToDateTime());
                             observation.AddValues(observationInput.Values);
 

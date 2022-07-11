@@ -30,7 +30,7 @@ namespace MTConnect.Devices
 
         public override string TypeDescription => DescriptionText;
 
-        public override System.Version MinimumVersion => MTConnectVersions.Version17;
+        public override Version MinimumVersion => MTConnectVersions.Version17;
 
 
         public Agent()
@@ -63,30 +63,30 @@ namespace MTConnect.Devices
             var dataItems = new List<IDataItem>();
 
             // Add Availibility DataItem to Agent
-            dataItems.Add(new AvailabilityDataItem(Id));
+            dataItems.Add(new AvailabilityDataItem(Id) { Device = this, Container = this });
 
             // Add Application DataItems to Agent
-            dataItems.Add(new ApplicationDataItem(Id, ApplicationDataItem.SubTypes.MANUFACTURER));
-            dataItems.Add(new ApplicationDataItem(Id, ApplicationDataItem.SubTypes.VERSION));
+            dataItems.Add(new ApplicationDataItem(Id, ApplicationDataItem.SubTypes.MANUFACTURER) { Device = this, Container = this });
+            dataItems.Add(new ApplicationDataItem(Id, ApplicationDataItem.SubTypes.VERSION) { Device = this, Container = this });
 
             // Add OperatingSystem DataItems to Agent
-            dataItems.Add(new OperatingSystemDataItem(Id, OperatingSystemDataItem.SubTypes.MANUFACTURER));
-            dataItems.Add(new OperatingSystemDataItem(Id, OperatingSystemDataItem.SubTypes.VERSION));
+            dataItems.Add(new OperatingSystemDataItem(Id, OperatingSystemDataItem.SubTypes.MANUFACTURER) { Device = this, Container = this });
+            dataItems.Add(new OperatingSystemDataItem(Id, OperatingSystemDataItem.SubTypes.VERSION) { Device = this, Container = this });
 
             // Add Device Added DataItem to Agent
-            dataItems.Add(new DeviceAddedDataItem(Id));
+            dataItems.Add(new DeviceAddedDataItem(Id) { Device = this, Container = this });
 
             // Add Device Removed DataItem to Agent
-            dataItems.Add(new DeviceRemovedDataItem(Id));
+            dataItems.Add(new DeviceRemovedDataItem(Id) { Device = this, Container = this });
 
             // Add Device Changed DataItem to Agent
-            dataItems.Add(new DeviceChangedDataItem(Id));
+            dataItems.Add(new DeviceChangedDataItem(Id) { Device = this, Container = this });
 
             // Add Asset Added DataItem to Agent
-            dataItems.Add(new AssetChangedDataItem(Id));
+            dataItems.Add(new AssetChangedDataItem(Id) { Device = this, Container = this });
 
             // Add Asset Removed DataItem to Agent
-            dataItems.Add(new AssetRemovedDataItem(Id));
+            dataItems.Add(new AssetRemovedDataItem(Id) { Device = this, Container = this });
 
             DataItems = dataItems;
         }

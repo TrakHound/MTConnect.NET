@@ -4,7 +4,6 @@
 // file 'LICENSE', which is part of this source code package.
 
 using System;
-using System.Text.Json.Serialization;
 
 namespace MTConnect.Devices
 {
@@ -25,11 +24,5 @@ namespace MTConnect.Devices
         /// the information to be published for a piece of equipment in an MTConnect Response Document.
         /// </summary>
         Version MTConnectVersion { get; }
-
-        /// <summary>
-        /// A MD5 Hash of the Device that can be used to compare Device objects
-        /// </summary>
-        [JsonIgnore]
-        string ChangeId { get; }
     }
 }

@@ -124,6 +124,14 @@ namespace MTConnect.Devices
         /// </summary>
         public IEnumerable<IReference> References { get; set; }
 
+
+        /// <summary>
+        /// The Parent of this Device
+        /// </summary>
+        [JsonIgnore]
+        public IContainer Parent { get; set; }
+
+
         /// <summary>
         /// A MD5 Hash of the Device that can be used to compare Device objects
         /// </summary>
@@ -138,6 +146,19 @@ namespace MTConnect.Devices
 
         [JsonIgnore]
         public bool IsOrganizer => false;
+
+
+        [JsonIgnore]
+        public string IdPath => Id;
+
+        [JsonIgnore]
+        public string[] IdPaths => new string[] { Id };
+
+        [JsonIgnore]
+        public string TypePath => Type;
+
+        [JsonIgnore]
+        public string[] TypePaths => new string[] { Type };
 
 
         public Device()
@@ -573,54 +594,6 @@ namespace MTConnect.Devices
 
         #endregion
 
-
-        //#region "Types"
-
-        //public void AssignTypePaths()
-        //{
-        //    // Set Root DataItems
-        //    foreach (var dataItem in DataItems)
-        //    {
-        //        dataItem.TypePath = dataItem.Type;
-        //    }
-
-        //    // Set Root Components
-        //    foreach (var component in Components)
-        //    {
-        //        AssignTypePaths(component.Type, component);
-        //    }
-
-        //    //// Set Root Components
-        //    //foreach (var component in Components.Components)
-        //    //{
-        //    //    AssignTypePaths(component.Type, component);
-        //    //}
-        //}
-
-        //private static void AssignTypePaths(string parentPath, Component component)
-        //{
-        //    component.TypePath = parentPath;
-
-        //    // Set Root DataItems
-        //    foreach (var dataItem in component.DataItems)
-        //    {
-        //        dataItem.TypePath = parentPath + "/" + dataItem.Type;
-        //    }
-
-        //    // Set Root Components
-        //    foreach (var subcomponent in component.Components)
-        //    {
-        //        AssignTypePaths(parentPath + "/" + subcomponent.Type, subcomponent);
-        //    }
-
-        //    //// Set Root Components
-        //    //foreach (var subcomponent in component.SubComponents.Components)
-        //    //{
-        //    //    AssignTypePaths(parentPath + "/" + subcomponent.Type, subcomponent);
-        //    //}
-        //}
-
-        //#endregion
 
         public static Device Process(IDevice device, Version mtconnectVersion)
         {

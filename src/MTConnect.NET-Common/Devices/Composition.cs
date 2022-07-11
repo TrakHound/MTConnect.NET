@@ -4,7 +4,6 @@
 // file 'LICENSE', which is part of this source code package.
 
 using MTConnect.Devices.Configurations;
-using MTConnect.Devices.DataItems;
 using MTConnect.Devices.References;
 using System;
 using System.Collections.Generic;
@@ -29,20 +28,6 @@ namespace MTConnect.Devices
 
         private static Dictionary<string, Type> _types;
 
-
-        /// <summary>
-        /// The XPath address of the Component
-        /// </summary>
-        [XmlIgnore]
-        [JsonIgnore]
-        public string XPath { get; set; }
-
-        /// <summary>
-        /// The path of the Component by Type
-        /// </summary>
-        [XmlIgnore]
-        [JsonIgnore]
-        public string TypePath { get; set; }
 
         [XmlIgnore]
         [JsonIgnore]
@@ -116,6 +101,13 @@ namespace MTConnect.Devices
         public string Uuid { get; set; }
 
         /// <summary>
+        /// Specifies the CoordinateSystem for this Composition and its children.
+        /// </summary>
+        [XmlAttribute("coordinateSystemIdRef")]
+        [JsonPropertyName("coordinateSystemIdRef")]
+        public string CoordinateSystemIdRef { get; set; }
+
+        /// <summary>
         /// An element that can contain any descriptive content. 
         /// This can contain information about the Component and manufacturer specific details.
         /// </summary>
@@ -143,19 +135,45 @@ namespace MTConnect.Devices
         [JsonPropertyName("references")]
         public IEnumerable<IReference> References { get; set; }
 
+        [XmlIgnore]
+        [JsonIgnore]
+        public bool ReferencesSpecified => !References.IsNullOrEmpty();
+
+
         /// <summary>
         /// A MD5 Hash of the Composition that can be used to compare Composition objects
         /// </summary>
         [JsonIgnore]
         public string ChangeId => CreateChangeId();
 
-        [XmlIgnore]
+
+        /// <summary>
+        /// The Container that this Composition is directly associated with
+        /// </summary>
         [JsonIgnore]
-        public bool ReferencesSpecified => !References.IsNullOrEmpty();
+        public IContainer Parent { get; set; }
+
 
         [XmlIgnore]
         [JsonIgnore]
         public virtual string TypeDescription => DescriptionText;
+
+
+        [XmlIgnore]
+        [JsonIgnore]
+        public string IdPath => GenerateIdPath(this);
+
+        [XmlIgnore]
+        [JsonIgnore]
+        public string[] IdPaths => GenerateIdPaths(this);
+
+        [XmlIgnore]
+        [JsonIgnore]
+        public string TypePath => GenerateTypePath(this);
+
+        [XmlIgnore]
+        [JsonIgnore]
+        public string[] TypePaths => GenerateTypePaths(this);
 
 
 
@@ -211,6 +229,65 @@ namespace MTConnect.Devices
             {
                 return $"{parentId}_{name}";
             }
+        }
+
+
+        public static string[] GenerateIdPaths(IComposition composition)
+        {
+            if (composition != null)
+            {
+                var types = new List<string>();
+
+                if (composition.Parent != null && !composition.Parent.IdPaths.IsNullOrEmpty())
+                {
+                    types.AddRange(composition.Parent.IdPaths);
+                }
+
+                types.Add(composition.Id);
+
+                return types.ToArray();
+            }
+
+            return null;
+        }
+
+        public static string GenerateIdPath(IComposition composition)
+        {
+            if (composition != null && !composition.IdPaths.IsNullOrEmpty())
+            {
+                return string.Join('/', composition.IdPaths);
+            }
+
+            return null;
+        }
+
+        public static string[] GenerateTypePaths(IComposition composition)
+        {
+            if (composition != null)
+            {
+                var types = new List<string>();
+
+                if (composition.Parent != null && !composition.Parent.TypePaths.IsNullOrEmpty())
+                {
+                    types.AddRange(composition.Parent.TypePaths);
+                }
+
+                types.Add(composition.Type);
+
+                return types.ToArray();
+            }
+
+            return null;
+        }
+
+        public static string GenerateTypePath(IComposition composition)
+        {
+            if (composition != null && !composition.TypePaths.IsNullOrEmpty())
+            {
+                return string.Join('/', composition.TypePaths);
+            }
+
+            return null;
         }
 
 
@@ -326,5 +403,120 @@ namespace MTConnect.Devices
 
             return null;
         }
+
+
+        #region "DataItems"
+
+        /// <summary>
+        /// Return a list of All DataItems
+        /// </summary>
+        public IEnumerable<IDataItem> GetDataItems()
+        {
+            var l = new List<IDataItem>();
+
+            // Add Root DataItems
+            if (!DataItems.IsNullOrEmpty()) l.AddRange(DataItems);
+
+            return !l.IsNullOrEmpty() ? l : null;
+        }
+
+        private IEnumerable<IDataItem> GetDataItems(IComposition composition)
+        {
+            var l = new List<IDataItem>();
+
+            // Add Root DataItems
+            if (!composition.DataItems.IsNullOrEmpty()) l.AddRange(composition.DataItems);
+
+            return !l.IsNullOrEmpty() ? l : null;
+        }
+
+        /// <summary>
+        /// Return the DataItem matching either the ID, Name, or Source of the specified Key
+        /// </summary>
+        public IDataItem GetDataItemByKey(string dataItemKey)
+        {
+            if (!string.IsNullOrEmpty(dataItemKey))
+            {
+                var dataItems = GetDataItems();
+                if (!dataItems.IsNullOrEmpty())
+                {
+                    // Check DataItem ID
+                    var dataItem = dataItems.FirstOrDefault(o => o.Id == dataItemKey);
+
+                    // Check DataItem Name
+                    if (dataItem == null) dataItem = dataItems.FirstOrDefault(o => o.Name == dataItemKey);
+
+                    // Check DataItem Source DataItemId
+                    if (dataItem == null) dataItem = dataItems.FirstOrDefault(o => o.Source != null && o.Source.DataItemId == dataItemKey);
+
+                    // Check DataItem Source CDATA
+                    if (dataItem == null) dataItem = dataItems.FirstOrDefault(o => o.Source != null && o.Source.CDATA == dataItemKey);
+
+                    // Return DataItem
+                    return dataItem;
+                }
+            }
+
+            return null;
+        }
+
+
+        /// <summary>
+        /// Add a DataItem to the Component
+        /// </summary>
+        /// <param name="dataItem">The DataItem to add</param>
+        public void AddDataItem(IDataItem dataItem)
+        {
+            if (dataItem != null)
+            {
+                var dataItems = new List<IDataItem>();
+
+                if (!DataItems.IsNullOrEmpty())
+                {
+                    dataItems.AddRange(DataItems);
+                }
+
+                dataItems.Add(dataItem);
+                DataItems = dataItems;
+            }
+        }
+
+        /// <summary>
+        /// Add DataItems to the Component
+        /// </summary>
+        /// <param name="dataItems">The DataItems to add</param>
+        public void AddDataItems(IEnumerable<IDataItem> dataItems)
+        {
+            if (!dataItems.IsNullOrEmpty())
+            {
+                var newDataItems = new List<IDataItem>();
+
+                if (!DataItems.IsNullOrEmpty())
+                {
+                    newDataItems.AddRange(DataItems);
+                }
+
+                newDataItems.AddRange(dataItems);
+                DataItems = newDataItems;
+            }
+        }
+
+
+        /// <summary>
+        /// Remove a DataItem from the Component
+        /// </summary>
+        /// <param name="dataItemId">The ID of the DataItem to remove</param>
+        public void RemoveDataItem(string dataItemId)
+        {
+            if (!DataItems.IsNullOrEmpty())
+            {
+                var dataItems = new List<IDataItem>();
+                dataItems.AddRange(DataItems);
+                dataItems.RemoveAll(o => o.Id == dataItemId);
+                DataItems = dataItems;
+            }
+        }
+
+        #endregion
     }
 }
