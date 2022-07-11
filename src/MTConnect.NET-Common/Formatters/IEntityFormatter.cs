@@ -5,6 +5,7 @@
 
 using MTConnect.Assets;
 using MTConnect.Devices;
+using MTConnect.Observations;
 using System.Collections.Generic;
 
 namespace MTConnect.Formatters
@@ -14,6 +15,19 @@ namespace MTConnect.Formatters
         string Id { get; }
 
         string ContentType { get; }
+
+
+        string Format(IDevice device);
+
+        string Format(IComponent component);
+
+        string Format(IComposition composition);
+
+        string Format(IDataItem dataItem);
+
+        string Format(IObservation observation);
+
+        string Format(IAsset asset);
 
 
         FormattedEntityReadResult<IDevice> CreateDevice(string content, IEnumerable<KeyValuePair<string, string>> options = null);
