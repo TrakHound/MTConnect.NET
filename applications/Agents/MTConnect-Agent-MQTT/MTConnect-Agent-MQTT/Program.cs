@@ -4,6 +4,7 @@
 // file 'LICENSE.txt', which is part of this source code package.
 
 using MQTTnet;
+using MQTTnet.Server;
 using MTConnect.Adapters.Shdr;
 using MTConnect.Agents;
 using MTConnect.Configurations;
@@ -15,6 +16,7 @@ using MTConnect.Streams;
 using NLog;
 using System.Net;
 using System.Reflection;
+using MTConnect.Http;
 
 namespace MTConnect.Applications
 {
@@ -49,7 +51,7 @@ namespace MTConnect.Applications
             PrintHeader();
 
             // Read the Agent Configuation File
-            var configuration = AgentConfiguration.Read<ShdrAgentConfiguration>(configFile);
+            var configuration = AgentConfiguration.Read<MqttAgentConfiguration>(configFile);
 
             switch (command)
             {
@@ -61,7 +63,7 @@ namespace MTConnect.Applications
             Console.ReadLine();
         }
 
-        private static void Init(ShdrAgentConfiguration configuration, bool verboseLogging = false)
+        private static void Init(MqttAgentConfiguration configuration, bool verboseLogging = false)
         {
             if (configuration != null)
             {
@@ -79,13 +81,15 @@ namespace MTConnect.Applications
                     _agent.AssetsResponseSent += AssetsSent;
                     _agent.ObservationAdded += ObservationAdded;
 
-                    _agent.InvalidDataItemAdded += InvalidDataItem;
+                    //_agent.InvalidDataItemAdded += InvalidDataItem;
                 }
 
                 _ = Task.Run(async () =>
                 {
+                    var mqttServerOptions = new MqttServerOptionsBuilder().WithDefaultEndpoint().Build();
+
                     var mqttFactory = new MqttFactory();
-                    using (var mqttServer = mqttFactory.CreateMqttServer())
+                    using (var mqttServer = mqttFactory.CreateMqttServer(mqttServerOptions))
                     {
                         var broker = new MTConnectMqttBroker(_agent, mqttServer);
                         await broker.StartAsync(CancellationToken.None);
@@ -102,6 +106,8 @@ namespace MTConnect.Applications
                         //await mqttServer.StopAsync();
                     }
                 });
+
+                Thread.Sleep(5000);
 
                 // Add Adapter Clients
                 if (!configuration.Adapters.IsNullOrEmpty())
@@ -146,6 +152,24 @@ namespace MTConnect.Applications
 
                 // Start Agent Metrics
                 StartMetrics();
+
+                // Intialize the Http Server
+                var httpServer = new ShdrMTConnectHttpServer(configuration, _agent, null);
+
+                // Setup Http Server Logging
+                if (verboseLogging)
+                {
+                    httpServer.ListenerStarted += HttpListenerStarted;
+                    httpServer.ListenerStopped += HttpListenerStopped;
+                    httpServer.ListenerException += HttpListenerException;
+                    httpServer.ClientConnected += HttpClientConnected;
+                    httpServer.ClientDisconnected += HttpClientDisconnected;
+                    httpServer.ClientException += HttpClientException;
+                    //httpServer.ResponseSent += HttpResponseSent;
+                }
+
+                // Start the Http Server
+                httpServer.Start();
             }
         }
 

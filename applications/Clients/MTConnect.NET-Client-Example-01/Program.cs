@@ -1,17 +1,17 @@
 using MTConnect.Clients.Rest;
 
-var deviceName = "OKUMA-Lathe";
-var baseUrl = "localhost:5005";
+var deviceName = "M12346";
+var baseUrl = "mtconnect.mazakcorp.com:5717";
 
-var probe = new MTConnectProbeClient(baseUrl, deviceName);
-var doc = probe.Get();
-if (doc != null)
-{
+//var probe = new MTConnectProbeClient(baseUrl, deviceName);
+//var doc = probe.Get();
+//if (doc != null)
+//{
 
-}
+//}
 
 var client = new MTConnectClient(baseUrl, deviceName);
-client.Interval = 50;
+client.Interval = 1000;
 client.OnProbeReceived += (sender, document) =>
 {
     Console.WriteLine("Probe Received");
@@ -19,16 +19,16 @@ client.OnProbeReceived += (sender, document) =>
     foreach (var device in document.Devices)
     {
         // Device
-        //Console.WriteLine(device.Id);
+        Console.WriteLine(device.Id);
 
-        // DataItems
-        foreach (var dataItem in device.DataItems)
-        {
-            Console.WriteLine($"DataItemId = {dataItem.Id}");
-            Console.WriteLine($"Type = {dataItem.Type} : {dataItem.TypeDescription}");
-            Console.WriteLine($"SubType = {dataItem.SubType} : {dataItem.SubTypeDescription}");
-            Console.WriteLine("----------------");
-        }
+        //// DataItems
+        //foreach (var dataItem in device.DataItems)
+        //{
+        //    Console.WriteLine($"DataItemId = {dataItem.Id}");
+        //    Console.WriteLine($"Type = {dataItem.Type} : {dataItem.TypeDescription}");
+        //    Console.WriteLine($"SubType = {dataItem.SubType} : {dataItem.SubTypeDescription}");
+        //    Console.WriteLine("----------------");
+        //}
 
         //// Components
         //foreach (var component in device.Components)
@@ -62,6 +62,11 @@ client.OnSampleReceived += (sender, document) =>
 client.OnAssetsReceived += (sender, document) =>
 {
     Console.WriteLine($"MTConnectAssets : {document.Assets.Count()} Assets");
+
+    foreach (var asset in document.Assets)
+    {
+        Console.WriteLine(asset.GetType().ToString());
+    }
 };
 client.Start();
 

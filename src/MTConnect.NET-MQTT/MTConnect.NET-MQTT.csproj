@@ -35,12 +35,14 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="MQTTnet" Version="3.1.1" />
-    <PackageReference Include="MQTTnet.Extensions.ManagedClient" Version="3.1.1" />
+    <PackageReference Include="MQTTnet" Version="4.0.1.184" />
+    <PackageReference Include="MQTTnet.Extensions.ManagedClient" Version="4.0.1.184" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\MTConnect.NET-Common\MTConnect.NET-Common.csproj" />
+    <ProjectReference Include="..\MTConnect.NET-JSON\MTConnect.NET-JSON.csproj" />
+    <ProjectReference Include="..\MTConnect.NET-XML\MTConnect.NET-XML.csproj" />
   </ItemGroup>
 
 </Project>

@@ -10,15 +10,10 @@ namespace MTConnect.Configurations
     public class ClientConfiguration
     {
         /// <summary>
-        /// The name of the device that corresponds to the name of the device in the Devices file
+        /// The Name or UUID of the device to read from
         /// </summary>
-        [JsonPropertyName("deviceName")]
-        public string DeviceName { get; set; }
-
-        /// <summary>
-        /// The name of the device that corresponds to the name of the device to read from
-        [JsonPropertyName("clientDeviceName")]
-        public string ClientDeviceName { get; set; }
+        [JsonPropertyName("deviceKey")]
+        public string DeviceKey { get; set; }
 
         /// <summary>
         /// The URL address the client MTConnect Agent is located at.

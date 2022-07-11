@@ -20,9 +20,9 @@ namespace MTConnect.Applications.Loggers
         }
 
 
-        public void InvalidDataItemAdded(IDataItem dataItem, ValidationResult result)
+        public void InvalidDataItemAdded(string deviceUuid, IDataItem dataItem, ValidationResult result)
         {
-            _logger.LogWarning($"[Agent-Validation] : Validation Failed :  {result.Message}");
+            _logger.LogWarning($"[Agent-Validation] : Validation Failed : {deviceUuid} :  {result.Message}");
         }
     }
 }

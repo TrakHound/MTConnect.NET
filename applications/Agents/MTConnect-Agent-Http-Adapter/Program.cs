@@ -3,11 +3,11 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
-using MTConnect.Adapters.Shdr;
 using MTConnect.Agents;
-using MTConnect.Configurations;
 using MTConnect.Assets;
+using MTConnect.Buffers;
 using MTConnect.Clients.Rest;
+using MTConnect.Configurations;
 using MTConnect.Devices;
 using MTConnect.Devices.DataItems;
 using MTConnect.Devices.DataItems.Events;
@@ -27,22 +27,45 @@ namespace MTConnect.Applications
 {
     public class Program
     {
+        private const string DefaultServiceName = "MTConnect-Agent-HTTP-Adapter";
+        private const string DefaultServiceDisplayName = "MTConnect HTTP Agent Adapter";
+        private const string DefaultServiceDescription = "MTConnect Agent Adapter using HTTP to provide access to device information";
+
+        private static readonly Logger _applicationLogger = LogManager.GetLogger("application-logger");
         private static readonly Logger _agentLogger = LogManager.GetLogger("agent-logger");
         private static readonly Logger _agentMetricLogger = LogManager.GetLogger("agent-metric-logger");
         private static readonly Logger _agentValidationLogger = LogManager.GetLogger("agent-validation-logger");
         private static readonly Logger _httpLogger = LogManager.GetLogger("http-logger");
-        private static MTConnectAgent _agent;
+
+        private static LogLevel _logLevel = LogLevel.Debug;
+        private static MTConnectAgent _mtconnectAgent;
+        private static MTConnectObservationFileBuffer _observationBuffer;
+        private static MTConnectAssetFileBuffer _assetBuffer;
+        private static MTConnectHttpServer _httpServer;
+        private static AgentConfigurationFileWatcher<AgentAdapterConfiguration> _agentConfigurationWatcher;
         private static readonly Dictionary<string, IObservationInput> _dataItems = new Dictionary<string, IObservationInput>();
+        private static System.Timers.Timer _metricsTimer;
+        private static bool _started = false;
+        private static int _port = 0;
+        private static bool _verboseLogging = true;
 
 
         /// <summary>
-        /// Program Arguments [help|install|debug|run] [configuration_file]
+        /// Program Arguments [help|install|debug|run] [configuration_file] [http_port]
         /// </summary>
         /// <param name="args"></param>
         public static void Main(string[] args)
         {
+            PrintHeader();
+
             string command = "run";
             string configFile = null;
+            int port = 0;
+
+            string serviceName = DefaultServiceName;
+            string serviceDisplayName = DefaultServiceDisplayName;
+            string serviceDescription = DefaultServiceDescription;
+            bool serviceStart = true;
 
             // Read Command Line Arguments
             if (!args.IsNullOrEmpty())
@@ -50,143 +73,359 @@ namespace MTConnect.Applications
                 command = args[0];
 
                 // Configuration File Path
-                if (args.Length > 1) configFile = args[1];
+                if (args.Length > 1)
+                {
+                    configFile = args[1];
+                    _applicationLogger.Info($"Agent Configuration Path = {configFile}");
+                }
+
+                // Port
+                if (args.Length > 2)
+                {
+                    if (int.TryParse(args[2], out var p))
+                    {
+                        port = p;
+                        _applicationLogger.Info($"Agent HTTP Port = {port}");
+                    }
+                }
+            }
+            _port = port;
+
+            // Read the Http Agent Configuation File
+            var configuration = AgentConfiguration.Read<HttpShdrAgentConfiguration>(configFile);
+            if (configuration != null)
+            {
+                // Set Service Name
+                if (!string.IsNullOrEmpty(configuration.ServiceName)) serviceDisplayName = configuration.ServiceName;
+
+                // Set Service Auto Start
+                serviceStart = configuration.ServiceAutoStart;
             }
 
-            PrintHeader();
-
-            // Read the Agent Configuation File
-            var configuration = AgentAdapterConfiguration.Read(configFile);
+            // Declare a new Service (to use Service commands)
+            Service service = null;
+            if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
+            {
+                service = new Service(serviceName, serviceDisplayName, serviceDescription, serviceStart);
+            }
 
             switch (command)
             {
-                case "run": Init(configuration); break;
+                case "run":
+                    _verboseLogging = false;
+                    StartAgent(configuration, _verboseLogging, port);
+                    while (true) System.Threading.Thread.Sleep(100); // Block (exit console by 'Ctrl + C')
 
-                case "debug": Init(configuration, true); break;
+                case "run-service":
+
+                    _verboseLogging = true;
+                    if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
+                    {
+                        ServiceBase.Run(service);
+                    }
+                    else _applicationLogger.Info($"'Run-Service' Command is not supported on this Operating System");
+
+                    break;
+
+                case "debug":
+                    _verboseLogging = true;
+                    StartAgent(configuration, _verboseLogging, port);
+                    while (true) System.Threading.Thread.Sleep(100); // Block (exit console by 'Ctrl + C')
+
+                case "install":
+
+                    if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
+                    {
+                        service.StopService();
+                        service.RemoveService();
+                        service.InstallService(configFile);
+                    }
+                    else _applicationLogger.Info($"'Install' Command is not supported on this Operating System");
+
+                    break;
+
+                case "install-start":
+
+                    if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
+                    {
+                        service.StopService();
+                        service.RemoveService();
+                        service.InstallService(configFile);
+                        service.StartService();
+                    }
+                    else _applicationLogger.Info($"'Install-Start' Command is not supported on this Operating System");
+
+                    break;
+
+                case "remove":
+
+                    if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
+                    {
+                        service.StopService();
+                        service.RemoveService();
+                    }
+                    else _applicationLogger.Info($"'Remove' Command is not supported on this Operating System");
+
+                    break;
+
+                case "start":
+
+                    if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
+                    {
+                        service.StartService();
+                    }
+                    else _applicationLogger.Info($"'Start' Command is not supported on this Operating System");
+
+                    break;
+
+                case "stop":
+
+                    if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
+                    {
+                        service.StopService();
+                    }
+                    else _applicationLogger.Info($"'Stop' Command is not supported on this Operating System");
+
+                    break;
+
+                case "help":
+                    PrintHelp();
+                    break;
+
+                default:
+                    _applicationLogger.Info($"'{command}' : Command not recognized : See help for more information");
+                    PrintHelp();
+                    break;
             }
-
-            Console.ReadLine();
         }
 
-        private static void Init(AgentAdapterConfiguration configuration, bool verboseLogging = false)
+        internal static void StartAgent(string configurationPath, bool verboseLogging = false, int port = 0)
         {
-            if (configuration != null)
+            // Read the Configuration File
+            var configuration = AgentConfiguration.Read<AgentAdapterConfiguration>(configurationPath);
+
+            // Start the Agent
+            StartAgent(configuration, verboseLogging, port);
+        }
+
+        internal static void StartAgent(AgentAdapterConfiguration configuration, bool verboseLogging = false, int port = 0)
+        {
+            if (!_started && configuration != null)
             {
+                //_adapters.Clear();
+                //_deviceConfigurationWatchers.Clear();
+                var initializeDataItems = true;
+
+                // Read Agent Information File
+                var agentInformation = MTConnectAgentInformation.Read();
+                if (agentInformation == null)
+                {
+                    agentInformation = new MTConnectAgentInformation();
+                    agentInformation.Save();
+                }
+
+                // Create Observation File Buffer
+                if (configuration.Durable)
+                {
+                    _observationBuffer = new MTConnectObservationFileBuffer(configuration);
+                    _observationBuffer.UseCompression = true;
+                    _observationBuffer.BufferLoadStarted += ObservationBufferStarted;
+                    _observationBuffer.BufferLoadCompleted += ObservationBufferCompleted;
+                    _observationBuffer.BufferRetentionCompleted += ObservationBufferRetentionCompleted;
+
+                    // Create Asset File Buffer
+                    _assetBuffer = new MTConnectAssetFileBuffer(configuration);
+                    _assetBuffer.UseCompression = true;
+                    _assetBuffer.BufferLoadStarted += AssetBufferStarted;
+                    _assetBuffer.BufferLoadCompleted += AssetBufferCompleted;
+
+                    // Read Buffer Observations
+                    initializeDataItems = !_observationBuffer.Load();
+
+                    // Read Buffer Assets
+                    _assetBuffer.Load();
+                }
+
+
                 // Create MTConnectAgent
-                _agent = new MTConnectAgent(configuration);
-                _agent.MTConnectVersion = MTConnectVersions.Max;
+                _mtconnectAgent = new MTConnectAgent(configuration, null, _observationBuffer, _assetBuffer, agentInformation.Uuid, agentInformation.InstanceId, agentInformation.DeviceModelChangeTime, initializeDataItems);
 
                 if (verboseLogging)
                 {
-                    _agent.DevicesRequestReceived += DevicesRequested;
-                    _agent.DevicesResponseSent += DevicesSent;
-                    _agent.StreamsRequestReceived += StreamsRequested;
-                    _agent.StreamsResponseSent += StreamsSent;
-                    _agent.AssetsRequestReceived += AssetsRequested;
-                    _agent.AssetsResponseSent += AssetsSent;
-                    _agent.ObservationAdded += ObservationAdded;
-
-                    _agent.InvalidDataItemAdded += InvalidDataItem;
+                    _mtconnectAgent.DevicesRequestReceived += DevicesRequested;
+                    _mtconnectAgent.DevicesResponseSent += DevicesSent;
+                    _mtconnectAgent.StreamsRequestReceived += StreamsRequested;
+                    _mtconnectAgent.StreamsResponseSent += StreamsSent;
+                    _mtconnectAgent.AssetsRequestReceived += AssetsRequested;
+                    _mtconnectAgent.AssetsResponseSent += AssetsSent;
+                    _mtconnectAgent.ObservationAdded += ObservationAdded;
+                    _mtconnectAgent.InvalidComponentAdded += InvalidComponent;
+                    _mtconnectAgent.InvalidCompositionAdded += InvalidComposition;
+                    _mtconnectAgent.InvalidDataItemAdded += InvalidDataItem;
+                    _mtconnectAgent.InvalidObservationAdded += InvalidObservation;
+                    _mtconnectAgent.InvalidAssetAdded += InvalidAsset;
                 }
 
-                // Add Devices
-                var devices = DeviceConfiguration.FromFile(configuration.Devices, DocumentFormat.XML);
-                if (!devices.IsNullOrEmpty())
+                //// Add Devices
+                //var devices = DeviceConfiguration.FromFiles(configuration.Devices, DocumentFormat.XML);
+                //if (!devices.IsNullOrEmpty())
+                //{
+                //    // Add Device(s) to Agent
+                //    foreach (var device in devices)
+                //    {
+                //        _agentLogger.Info($"Device ({device.Name}) Read From File : {device.Path}");
+
+                //        _mtconnectAgent.AddDevice(device, initializeDataItems);
+                //    }
+
+                //    if (configuration.MonitorConfigurationFiles)
+                //    {
+                //        // Set Device Configuration File Watcher
+                //        var paths = devices.Select(o => o.Path).Distinct();
+                //        foreach (var path in paths)
+                //        {
+                //            // Create a Device Configuration File Watcher
+                //            var deviceConfigurationWatcher = new DeviceConfigurationFileWatcher(path, configuration.ConfigurationFileRestartInterval * 1000);
+                //            deviceConfigurationWatcher.ConfigurationUpdated += DeviceConfigurationFileUpdated;
+                //            deviceConfigurationWatcher.ErrorReceived += DeviceConfigurationFileError;
+                //            _deviceConfigurationWatchers.Add(deviceConfigurationWatcher);
+                //        }
+                //    }
+                //}
+                //else
+                //{
+                //    _agentLogger.Warn($"No Devices Found : Reading from : {configuration.Devices}");
+                //}
+
+                // Add Http Adapter Client
+                if (!configuration.Clients.IsNullOrEmpty())
                 {
-                    // Add Device(s) to Agent
-                    foreach (var device in devices)
+                    foreach (var clientConfiguration in configuration.Clients)
                     {
-                        _agentLogger.Info($"Device Read From File : {device.Name}");
-
-                        _agent.AddDevice(device);
-
-                        // Add Adapter Client
-                        if (!configuration.Clients.IsNullOrEmpty())
+                        if (!string.IsNullOrEmpty(clientConfiguration.Address))
                         {
-                            var clientConfiguration = configuration.Clients.FirstOrDefault(o => o.ClientDeviceName == device.Name);
-                            if (clientConfiguration != null && !string.IsNullOrEmpty(clientConfiguration.Address))
-                            {
-                                string baseUrl = null;
-                                var address = clientConfiguration.Address;
-                                var port = clientConfiguration.Port;
+                            string baseUrl = null;
+                            var deviceAddress = clientConfiguration.Address;
+                            var devicePort = clientConfiguration.Port;
 
-                                if (clientConfiguration.UseSSL) address = address.Replace("https://", "");
-                                else address = address.Replace("http://", "");
+                            if (clientConfiguration.UseSSL) deviceAddress = deviceAddress.Replace("https://", "");
+                            else deviceAddress = deviceAddress.Replace("http://", "");
 
-                                // Create the MTConnect Agent Base URL
-                                if (clientConfiguration.UseSSL) baseUrl = string.Format("https://{0}", AddPort(address, port));
-                                else baseUrl = string.Format("http://{0}", AddPort(address, port));
+                            // Create the MTConnect Agent Base URL
+                            if (clientConfiguration.UseSSL) baseUrl = string.Format("https://{0}", AddPort(deviceAddress, port));
+                            else baseUrl = string.Format("http://{0}", AddPort(deviceAddress, port));
 
-                                var agentClient = new MTConnectClient(baseUrl, clientConfiguration.ClientDeviceName);
-                                agentClient.Interval = clientConfiguration.Interval;
-                                agentClient.Heartbeat = clientConfiguration.Heartbeat;
+                            var agentClient = new MTConnectClient(baseUrl, clientConfiguration.DeviceKey);
+                            agentClient.Interval = clientConfiguration.Interval;
+                            agentClient.Heartbeat = clientConfiguration.Heartbeat;
 
-                                // Subscribe to the Event handlers to receive the MTConnect documents
-                                agentClient.OnCurrentReceived += (s, doc) => StreamsDocumentReceived(device.Uuid, doc);
-                                agentClient.OnSampleReceived += (s, doc) => StreamsDocumentReceived(device.Uuid, doc);
-                                agentClient.OnAssetsReceived += (s, doc) => AssetsDocumentReceived(device.Uuid, doc);
+                            // Subscribe to the Event handlers to receive the MTConnect documents
+                            agentClient.OnCurrentReceived += (s, doc) => StreamsDocumentReceived(clientConfiguration.DeviceKey, doc);
+                            agentClient.OnSampleReceived += (s, doc) => StreamsDocumentReceived(clientConfiguration.DeviceKey, doc);
+                            agentClient.OnAssetsReceived += (s, doc) => AssetsDocumentReceived(clientConfiguration.DeviceKey, doc);
 
-                                agentClient.Start();
-                            }
+                            agentClient.Start();
                         }
                     }
+
+
+                    //var clientConfiguration = configuration.Clients.FirstOrDefault(o => o.ClientDeviceName == device);
+                    //if (clientConfiguration != null && !string.IsNullOrEmpty(clientConfiguration.Address))
+                    //{
+                    //    string baseUrl = null;
+                    //    var deviceAddress = clientConfiguration.Address;
+                    //    var devicePort = clientConfiguration.Port;
+
+                    //    if (clientConfiguration.UseSSL) deviceAddress = deviceAddress.Replace("https://", "");
+                    //    else deviceAddress = deviceAddress.Replace("http://", "");
+
+                    //    // Create the MTConnect Agent Base URL
+                    //    if (clientConfiguration.UseSSL) baseUrl = string.Format("https://{0}", AddPort(deviceAddress, port));
+                    //    else baseUrl = string.Format("http://{0}", AddPort(deviceAddress, port));
+
+                    //    var agentClient = new MTConnectClient(baseUrl, clientConfiguration.ClientDeviceName);
+                    //    agentClient.Interval = clientConfiguration.Interval;
+                    //    agentClient.Heartbeat = clientConfiguration.Heartbeat;
+
+                    //    // Subscribe to the Event handlers to receive the MTConnect documents
+                    //    agentClient.OnCurrentReceived += (s, doc) => StreamsDocumentReceived(device.Uuid, doc);
+                    //    agentClient.OnSampleReceived += (s, doc) => StreamsDocumentReceived(device.Uuid, doc);
+                    //    agentClient.OnAssetsReceived += (s, doc) => AssetsDocumentReceived(device.Uuid, doc);
+
+                    //    agentClient.Start();
+                    //}
+                }
+
+                // Initialize Agent Current Observations/Conditions
+                // This updates the MTConnectAgent's cache used to determine duplicate observations
+                if (_observationBuffer != null)
+                {
+                    _mtconnectAgent.InitializeCurrentObservations(_observationBuffer.CurrentObservations.Values);
+                    _mtconnectAgent.InitializeCurrentObservations(_observationBuffer.CurrentConditions.SelectMany(o => o.Value));
                 }
 
                 // Start Agent Metrics
                 StartMetrics();
 
-                // Start the Http Server
-                var server = new ShdrMTConnectHttpServer(configuration, _agent);
+                // Intialize the Http Server
+                _httpServer = new ShdrMTConnectHttpServer(configuration, _mtconnectAgent, null, port);
 
+                // Setup Http Server Logging
                 if (verboseLogging)
                 {
-                    server.ListenerStarted += HttpListenerStarted;
-                    server.ListenerStopped += HttpListenerStopped;
-                    server.ListenerException += HttpListenerException;
-                    server.ClientConnected += HttpClientConnected;
-                    server.ClientDisconnected += HttpClientDisconnected;
-                    server.ClientException += HttpClientException;
-                    server.ResponseSent += HttpResponseSent;
+                    _httpServer.ListenerStarted += HttpListenerStarted;
+                    _httpServer.ListenerStopped += HttpListenerStopped;
+                    _httpServer.ListenerException += HttpListenerException;
+                    _httpServer.ClientConnected += HttpClientConnected;
+                    _httpServer.ClientDisconnected += HttpClientDisconnected;
+                    _httpServer.ClientException += HttpClientException;
+                    _httpServer.ResponseSent += HttpResponseSent;
                 }
 
-                server.Start();
+                // Start the Http Server
+                _httpServer.Start();
+
+
+                if (configuration.MonitorConfigurationFiles)
+                {
+                    // Set the Agent Configuration File Watcher
+                    if (_agentConfigurationWatcher != null) _agentConfigurationWatcher.Dispose();
+                    _agentConfigurationWatcher = new AgentConfigurationFileWatcher<AgentAdapterConfiguration>(configuration.Path, configuration.ConfigurationFileRestartInterval * 1000);
+                    _agentConfigurationWatcher.ConfigurationUpdated += AgentConfigurationFileUpdated;
+                    _agentConfigurationWatcher.ErrorReceived += AgentConfigurationFileError;
+                }
+
+                _started = true;
             }
         }
 
-
-        private static void StartMetrics()
+        internal static void StopAgent()
         {
-            int observationLastCount = 0;
-            int observationDelta = 0;
-            int assetLastCount = 0;
-            int assetDelta = 0;
-            var updateInterval = _agent.Metrics.UpdateInterval.TotalSeconds;
-            var windowInterval = _agent.Metrics.WindowInterval.TotalMinutes;
-
-            var metricsTimer = new System.Timers.Timer();
-            metricsTimer.Interval = updateInterval * 1000;
-            metricsTimer.Elapsed += (s, e) =>
+            if (_started)
             {
-                // Observations
-                var observationCount = _agent.Metrics.GetObservationCount();
-                var observationAverage = _agent.Metrics.ObservationAverage;
-                observationDelta = observationCount - observationLastCount;
+                // Stop Adapter Clients
+                if (!_adapters.IsNullOrEmpty())
+                {
+                    foreach (var adapter in _adapters) adapter.Stop();
+                }
 
-                _agentLogger.Info("[Agent] : Observations - Delta for last " + updateInterval + " seconds: " + observationDelta);
-                _agentLogger.Info("[Agent] : Observations - Average for last " + windowInterval + " minutes: " + Math.Round(observationAverage, 5));
+                // Stop Device Configuration FileWatchers
+                if (!_deviceConfigurationWatchers.IsNullOrEmpty())
+                {
+                    foreach (var deviceConfigurationFileWatcher in _deviceConfigurationWatchers) deviceConfigurationFileWatcher.Dispose();
+                }
 
-                // Assets
-                var assetCount = _agent.Metrics.GetAssetCount();
-                var assetAverage = _agent.Metrics.AssetAverage;
-                assetDelta = assetCount - assetLastCount;
+                if (_httpServer != null) _httpServer.Stop();
+                if (_mtconnectAgent != null) _mtconnectAgent.Dispose();
+                if (_observationBuffer != null) _observationBuffer.Dispose();
+                if (_assetBuffer != null) _assetBuffer.Dispose();
+                if (_agentConfigurationWatcher != null) _agentConfigurationWatcher.Dispose();
+                if (_metricsTimer != null) _metricsTimer.Dispose();
 
-                _agentLogger.Info("[Agent] : Assets - Delta for last " + updateInterval + " seconds: " + assetDelta);
-                _agentLogger.Info("[Agent] : Assets - Average for last " + windowInterval + " minutes: " + Math.Round(assetAverage, 5));
+                System.Threading.Thread.Sleep(2000); // Delay 2 seconds to allow Http Server to stop
 
-                observationLastCount = observationCount;
-                assetLastCount = assetCount;
-            };
-            metricsTimer.Start();
+                _started = false;
+            }
         }
 
 
@@ -286,6 +525,85 @@ namespace MTConnect.Applications
 
         #endregion
 
+        #region "Agent Configuration"
+
+        private static void AgentConfigurationFileUpdated(object sender, AgentAdapterConfiguration configuration)
+        {
+            if (configuration != null)
+            {
+                _applicationLogger.Info($"[Application] : Agent Configuration File Updated ({configuration.Path})");
+
+                StopAgent();
+                StartAgent(configuration, _verboseLogging, _port);
+            }
+        }
+
+        private static void AgentConfigurationFileError(object sender, string message)
+        {
+            _applicationLogger.Error($"[Application] : Agent Configuration File Error : {message}");
+        }
+
+        #endregion
+
+        #region "Device Configuration"
+
+        private static void DeviceConfigurationFileUpdated(object sender, DeviceConfiguration configuration)
+        {
+            if (configuration != null)
+            {
+                _applicationLogger.Info($"[Application] : Device Configuration File Updated ({configuration.Path})");
+
+                // Add Device to MTConnect Agent
+                _mtconnectAgent.AddDevice(configuration);
+            }
+        }
+
+        private static void DeviceConfigurationFileError(object sender, string message)
+        {
+            _applicationLogger.Error($"[Application] : Device Configuration File Error : {message}");
+        }
+
+        #endregion
+
+        #region "Metrics"
+
+        private static void StartMetrics()
+        {
+            int observationLastCount = 0;
+            int observationDelta = 0;
+            int assetLastCount = 0;
+            int assetDelta = 0;
+            var updateInterval = _mtconnectAgent.Metrics.UpdateInterval.TotalSeconds;
+            var windowInterval = _mtconnectAgent.Metrics.WindowInterval.TotalMinutes;
+
+            _metricsTimer = new System.Timers.Timer();
+            _metricsTimer.Interval = updateInterval * 1000;
+            _metricsTimer.Elapsed += (s, e) =>
+            {
+                // Observations
+                var observationCount = _mtconnectAgent.Metrics.GetObservationCount();
+                var observationAverage = _mtconnectAgent.Metrics.ObservationAverage;
+                observationDelta = observationCount - observationLastCount;
+
+                _agentMetricLogger.Info("[Agent] : Observations - Delta for last " + updateInterval + " seconds: " + observationDelta);
+                _agentMetricLogger.Info("[Agent] : Observations - Average for last " + windowInterval + " minutes: " + Math.Round(observationAverage, 5));
+
+                // Assets
+                var assetCount = _mtconnectAgent.Metrics.GetAssetCount();
+                var assetAverage = _mtconnectAgent.Metrics.AssetAverage;
+                assetDelta = assetCount - assetLastCount;
+
+                _agentMetricLogger.Info("[Agent] : Assets - Delta for last " + updateInterval + " seconds: " + assetDelta);
+                _agentMetricLogger.Info("[Agent] : Assets - Average for last " + windowInterval + " minutes: " + Math.Round(assetAverage, 5));
+
+                observationLastCount = observationCount;
+                assetLastCount = assetCount;
+            };
+            _metricsTimer.Start();
+        }
+
+        #endregion
+
         #region "Console Output"
 
         private static void PrintHeader()
@@ -302,43 +620,87 @@ namespace MTConnect.Applications
             Console.WriteLine("--------------------");
         }
 
+        private static void PrintHelp()
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            var name = assembly.GetName().Name.ToLower();
+
+            Console.WriteLine();
+            Console.WriteLine("Usage:");
+            Console.WriteLine();
+            Console.WriteLine($"     {name} [help|install|install-start|start|stop|remove|debug|run|run-service] [configuration_file] [http_port]");
+            Console.WriteLine();
+            Console.WriteLine("--------------------");
+            Console.WriteLine();
+            Console.WriteLine("Options :");
+            Console.WriteLine();
+            Console.WriteLine(string.Format("{0,15}  |  {1,5}", "help", "Prints usage information"));
+            Console.WriteLine(string.Format("{0,15}  |  {1,5}", "install", "Install as a Service"));
+            Console.WriteLine(string.Format("{0,15}  |  {1,5}", "install-start", "Install as a Service and Start the Service"));
+            Console.WriteLine(string.Format("{0,15}  |  {1,5}", "start", "Start the Service"));
+            Console.WriteLine(string.Format("{0,15}  |  {1,5}", "stop", "Stop the Service"));
+            Console.WriteLine(string.Format("{0,15}  |  {1,5}", "remove", "Remove the Service"));
+            Console.WriteLine(string.Format("{0,15}  |  {1,5}", "debug", "Runs the Agent in the terminal (with verbose logging)"));
+            Console.WriteLine(string.Format("{0,15}  |  {1,5}", "run", "Runs the Agent in the terminal"));
+            Console.WriteLine(string.Format("{0,15}  |  {1,5}", "run-service", "Runs the Agent as a Service"));
+            Console.WriteLine();
+            Console.WriteLine("Arguments :");
+            Console.WriteLine("--------------------");
+            Console.WriteLine();
+            Console.WriteLine(string.Format("{0,20}  |  {1,5}", "configuration_file", "Specifies the Agent Configuration file to load"));
+            Console.WriteLine(string.Format("{0,20}     {1,5}", "", "Default : agent.config.json"));
+            Console.WriteLine();
+            Console.WriteLine(string.Format("{0,20}  |  {1,5}", "http_port", "Specifies the TCP Port to use for the HTTP Server"));
+            Console.WriteLine(string.Format("{0,20}     {1,5}", "", "Note : This overrides what is read from the Configuration file"));
+        }
+
         private static void DevicesRequested(string deviceName)
         {
-            _agentLogger.Info($"[Agent] : MTConnectDevices Requested : " + deviceName);
+            _agentLogger.Debug($"[Agent] : MTConnectDevices Requested : " + deviceName);
         }
 
         private static void DevicesSent(IDevicesResponseDocument document)
         {
             if (document != null && document.Header != null)
             {
-                _agentLogger.Info($"[Agent] : MTConnectDevices Sent : " + document.Header.CreationTime);
+                _agentLogger.Log(_logLevel, $"[Agent] : MTConnectDevices Sent : " + document.Header.CreationTime);
             }
         }
 
         private static void StreamsRequested(string deviceName)
         {
-            _agentLogger.Info($"[Agent] : MTConnectStreams Requested : " + deviceName);
+            _agentLogger.Debug($"[Agent] : MTConnectStreams Requested : " + deviceName);
         }
 
         private static void StreamsSent(IStreamsResponseDocument document)
         {
             if (document != null && document.Header != null)
             {
-                _agentLogger.Info($"[Agent] : MTConnectStreams Sent : " + document.Header.CreationTime);
+                _agentLogger.Log(_logLevel, $"[Agent] : MTConnectStreams Sent : " + document.Header.CreationTime);
             }
         }
 
         private static void AssetsRequested(string deviceName)
         {
-            _agentLogger.Info($"[Agent] : MTConnectAssets Requested : " + deviceName);
+            _agentLogger.Debug($"[Agent] : MTConnectAssets Requested : " + deviceName);
         }
 
         private static void AssetsSent(IAssetsResponseDocument document)
         {
             if (document != null && document.Header != null)
             {
-                _agentLogger.Info($"[Agent] : MTConnectAssets Sent : " + document.Header.CreationTime);
+                _agentLogger.Log(_logLevel, $"[Agent] : MTConnectAssets Sent : " + document.Header.CreationTime);
             }
+        }
+
+        private static void AssetBufferStarted(object sender, EventArgs args)
+        {
+            _agentLogger.Info($"[Agent] : Loading Assets from File Buffer...");
+        }
+
+        private static void AssetBufferCompleted(object sender, AssetBufferLoadArgs args)
+        {
+            _agentLogger.Info($"[Agent] : {args.Count} Assets Loaded from File Buffer in ({TimeSpan.FromMilliseconds(args.Duration).TotalSeconds}s)");
         }
 
 
@@ -353,10 +715,52 @@ namespace MTConnect.Applications
             }
         }
 
-        private static void InvalidDataItem(IDataItem dataItem, ValidationResult result)
+        private static void ObservationBufferStarted(object sender, EventArgs args)
+        {
+            _agentLogger.Info($"[Agent] : Loading Observations from File Buffer...");
+        }
+
+        private static void ObservationBufferCompleted(object sender, ObservationBufferLoadArgs args)
+        {
+            _agentLogger.Info($"[Agent] : {args.Count} Observations Loaded from File Buffer in ({TimeSpan.FromMilliseconds(args.Duration).TotalSeconds}s)");
+        }
+
+        private static void ObservationBufferRetentionCompleted(object sender, ObservationBufferRetentionArgs args)
+        {
+            _agentLogger.Debug($"[Agent] : Observations File Buffer Retention : Removing ({args.From} - {args.To})");
+
+            if (args.Count > 0)
+            {
+                _agentLogger.Debug($"[Agent] : Observations File Buffer Retention : {args.Count} Buffer Files Removed in ({TimeSpan.FromMilliseconds(args.Duration).TotalSeconds}s)");
+            }
+        }
+
+
+        private static void InvalidComponent(string deviceUuid, IComponent component, ValidationResult result)
+        {
+            _agentValidationLogger.Warn($"[Agent-Validation] : {deviceUuid} : ComponentId = {component.Id} : {result.Message}");
+        }
+
+        private static void InvalidComposition(string deviceUuid, IComposition composition, ValidationResult result)
+        {
+            _agentValidationLogger.Warn($"[Agent-Validation] : {deviceUuid} : CompositionId = {composition.Id} : {result.Message}");
+        }
+
+        private static void InvalidDataItem(string deviceUuid, IDataItem dataItem, ValidationResult result)
+        {
+            _agentValidationLogger.Warn($"[Agent-Validation] : {deviceUuid} : DataItemId = {dataItem.Id} : {result.Message}");
+        }
+
+        private static void InvalidObservation(string deviceUuid, string dataItemKey, ValidationResult result)
+        {
+            _agentValidationLogger.Warn($"[Agent-Validation] : {deviceUuid} : DataItemKey = {dataItemKey} : {result.Message}");
+        }
+
+        private static void InvalidAsset(IAsset asset, AssetValidationResult result)
         {
             _agentValidationLogger.Warn($"[Agent-Validation] : {result.Message}");
         }
+
 
         private static void HttpListenerStarted(object sender, string prefix)
         {
@@ -370,27 +774,54 @@ namespace MTConnect.Applications
 
         private static void HttpListenerException(object sender, Exception exception)
         {
-            _httpLogger.Info($"[Http Server] : Listener Exception : " + exception.Message);
+            _httpLogger.Warn($"[Http Server] : Listener Exception : " + exception.Message);
         }
 
         private static void HttpClientConnected(object sender, HttpListenerRequest request)
         {
-            _httpLogger.Info($"[Http Server] : Client Connected : " + request.LocalEndPoint + " : " + request.Url);
+            _httpLogger.Info($"[Http Server] : Http Client Connected : (" + request.HttpMethod + ") : " + request.LocalEndPoint + " : " + request.Url);
         }
 
         private static void HttpClientDisconnected(object sender, string remoteEndPoint)
         {
-            _httpLogger.Info($"[Http Server] : Client Disconnected : " + remoteEndPoint);
+            _httpLogger.Debug($"[Http Server] : Http Client Disconnected : " + remoteEndPoint);
         }
 
         private static void HttpClientException(object sender, Exception exception)
         {
-            _httpLogger.Info($"[Http Server] : Client Exception : " + exception.Message);
+            _httpLogger.Log(_logLevel, $"[Http Server] : Http Client Exception : " + exception.Message);
         }
 
         private static void HttpResponseSent(object sender, MTConnectHttpResponse response)
         {
-            _httpLogger.Info($"[Http Server] : Response Sent : {response.StatusCode} : {response.ContentType} : Agent Process Time {response.ResponseDuration}ms : Document Format Time {response.FormatDuration}ms : Total Response Time {response.ResponseDuration + response.FormatDuration}ms");
+            _httpLogger.Info($"[Http Server] : Http Response Sent : {response.StatusCode} : {response.ContentType} : Agent Process Time {response.ResponseDuration}ms : Document Format Time {response.FormatDuration}ms : Total Response Time {response.ResponseDuration + response.FormatDuration}ms");
+
+            // Format Messages
+            if (!response.FormatMessages.IsNullOrEmpty())
+            {
+                foreach (var message in response.FormatMessages)
+                {
+                    _agentValidationLogger.Debug($"[Http Server] : Formatter Message : {message}");
+                }
+            }
+
+            // Format Warnings
+            if (!response.FormatWarnings.IsNullOrEmpty())
+            {
+                foreach (var warning in response.FormatWarnings)
+                {
+                    _agentValidationLogger.Warn($"[Http Server] : Formatter Warning : {warning}");
+                }
+            }
+
+            // Format Errors
+            if (!response.FormatErrors.IsNullOrEmpty())
+            {
+                foreach (var error in response.FormatErrors)
+                {
+                    _agentValidationLogger.Error($"[Http Server] : Formatter Error : {error}");
+                }
+            }
         }
 
         #endregion

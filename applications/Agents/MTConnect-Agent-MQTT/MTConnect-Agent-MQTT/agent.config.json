@@ -1,10 +1,10 @@
 ﻿{
 	"devices": "devices.xml",
-	"port": 5000,
-
+	"port": 5005,
+	"allowPut": true,
 	"adapters": [
 		{
-			"device": "M12346",
+			"deviceKey": "M12346",
 			"host": "localhost",
 			"port": 7878
 		}

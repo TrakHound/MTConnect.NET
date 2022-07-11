@@ -20,7 +20,7 @@ namespace MTConnect.Applications
 {
     public class AgentService : IHostedService
     {
-        private readonly ShdrAgentConfiguration _configuration;
+        private readonly HttpShdrAgentConfiguration _configuration;
         private readonly IMTConnectAgent _mtconnectAgent;
         private readonly ILogger<AgentService> _logger;
         private readonly AgentLogger _agentLogger;
@@ -32,7 +32,7 @@ namespace MTConnect.Applications
 
 
         public AgentService(
-            ShdrAgentConfiguration configuration,
+            HttpShdrAgentConfiguration configuration,
             IMTConnectAgent mtconnectAgent, 
             AgentLogger agentLogger,
             AgentMetricLogger agentMetricLogger,

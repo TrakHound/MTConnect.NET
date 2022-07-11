@@ -3,15 +3,14 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace MTConnect.Configurations
 {
-    public class AgentAdapterConfiguration : HttpAgentConfiguration
+    /// <summary>
+    /// Configuration for an MTConnect Http-Shdr Agent
+    /// </summary>
+    public class MqttAgentConfiguration : ShdrAgentConfiguration
     {
         /// <summary>
         /// The Path to look for the file(s) that represent the Device Information Models to load into the Agent.
@@ -19,13 +18,6 @@ namespace MTConnect.Configurations
         /// </summary>
         [JsonPropertyName("devices")]
         public string Devices { get; set; }
-
-
-        /// <summary>
-        /// Lists the MTConnect Client connections to read from
-        /// </summary>
-        [JsonPropertyName("clients")]
-        public List<ClientConfiguration> Clients { get; set; }
 
 
         /// <summary>
@@ -61,34 +53,13 @@ namespace MTConnect.Configurations
         public int ConfigurationFileRestartInterval { get; set; }
 
 
-
-        public AgentAdapterConfiguration() : base()
+        public MqttAgentConfiguration() : base()
         {
+            Devices = "devices";
             ServiceName = null;
             ServiceAutoStart = true;
             MonitorConfigurationFiles = true;
             ConfigurationFileRestartInterval = 2;
-        }
-
-        public new static AgentAdapterConfiguration Read(string path = null)
-        {
-            var configurationPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Filename);
-            if (path != null) configurationPath = path;
-
-            if (!string.IsNullOrEmpty(configurationPath))
-            {
-                try
-                {
-                    var text = File.ReadAllText(configurationPath);
-                    if (!string.IsNullOrEmpty(text))
-                    {
-                        return JsonSerializer.Deserialize<AgentAdapterConfiguration>(text);
-                    }
-                }
-                catch { }
-            }
-
-            return null;
         }
     }
 }

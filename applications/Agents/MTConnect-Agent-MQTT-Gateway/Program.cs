@@ -5,6 +5,7 @@
 
 //using MTConnect.Adapters.Shdr;
 using MQTTnet;
+using MQTTnet.Server;
 using MTConnect.Agents;
 using MTConnect.Assets;
 using MTConnect.Clients.Rest;
@@ -63,7 +64,7 @@ namespace MTConnect.Applications
             Console.ReadLine();
         }
 
-        private static void Init(AgentGatewayConfiguration configuration, bool verboseLogging = false)
+        private static async void Init(AgentGatewayConfiguration configuration, bool verboseLogging = false)
         {
             if (configuration != null)
             {
@@ -81,13 +82,22 @@ namespace MTConnect.Applications
                     _agent.AssetsResponseSent += AssetsSent;
                     _agent.ObservationAdded += ObservationAdded;
 
-                    _agent.InvalidDataItemAdded += InvalidDataItem;
+                    //_agent.InvalidDataItemAdded += InvalidDataItem;
                 }
 
                 _ = Task.Run(async () =>
                 {
+                    var serverAddress = IPAddress.Any;
+
+                    var mqttServerOptions = new MqttServerOptions();
+                    mqttServerOptions.DefaultEndpointOptions.BoundInterNetworkAddress = serverAddress;
+                    mqttServerOptions.DefaultEndpointOptions.Port = 1883;
+                    mqttServerOptions.DefaultEndpointOptions.IsEnabled = true;
+                    //var mqttServerOptions = new MqttServerOptionsBuilder().WithDefaultEndpointBoundIPAddress(IPAddress.Any).Build();
+                    //var mqttServerOptions = new MqttServerOptionsBuilder().WithDefaultEndpoint().Build();
+
                     var mqttFactory = new MqttFactory();
-                    using (var mqttServer = mqttFactory.CreateMqttServer())
+                    using (var mqttServer = mqttFactory.CreateMqttServer(mqttServerOptions))
                     {
                         var broker = new MTConnectMqttBroker(_agent, mqttServer);
                         await broker.StartAsync(CancellationToken.None);
@@ -104,6 +114,8 @@ namespace MTConnect.Applications
                         //await mqttServer.StopAsync();
                     }
                 });
+
+                await Task.Delay(5000);
 
                 // Add Agent Clients
                 if (!configuration.Clients.IsNullOrEmpty())
@@ -185,6 +197,7 @@ namespace MTConnect.Applications
             {
                 foreach (var device in document.Devices)
                 {
+                    _httpLogger.Info($"Device Received : {device.Name} : {device.Uuid}");
                     _agent.AddDevice(device);
                 }
             }

@@ -1,6 +1,6 @@
 ﻿{
 	"devices": "devices.xml",
-	"port": 5000,
+	"port": 5005,
 
 	"adapters": [
 		{

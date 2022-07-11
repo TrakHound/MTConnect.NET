@@ -69,7 +69,7 @@ namespace MTConnect.Applications
 
         private static void AddServices(WebApplicationBuilder builder)
         {
-            var configuration = AgentConfiguration.Read<ShdrAgentConfiguration>();
+            var configuration = AgentConfiguration.Read<HttpShdrAgentConfiguration>();
             if (configuration != null)
             {
                 // Create MTConnectAgent
@@ -78,7 +78,7 @@ namespace MTConnect.Applications
                 builder.Services.AddSingleton<IMTConnectAgent>(agent);
 
                 // Individual Logger Classes
-                builder.Services.AddSingleton<ShdrAgentConfiguration>(configuration);
+                builder.Services.AddSingleton<HttpShdrAgentConfiguration>(configuration);
                 builder.Services.AddSingleton<AgentLogger>();
                 builder.Services.AddSingleton<AgentMetricLogger>();
                 builder.Services.AddSingleton<AgentValidationLogger>();

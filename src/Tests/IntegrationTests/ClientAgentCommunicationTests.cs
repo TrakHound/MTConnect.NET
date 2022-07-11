@@ -64,9 +64,10 @@ namespace IntegrationTests
             _machineName = "M12346";
             //_machineName = $"Machine{_fixture.CurrentAgentPort}";
 
+            var devicesFile = "devices.xml";
+
             var configuration = new ShdrAgentConfiguration
             {
-                Devices = "devices.xml",
                 Port = _fixture.CurrentAgentPort,
                 Adapters = new List<ShdrAdapterConfiguration>()
                 {
@@ -82,7 +83,7 @@ namespace IntegrationTests
             GenerateDevicesXml(
                 _machineId,
                 _machineName,
-                configuration.Devices,
+                devicesFile,
                 _logger);
 
             _adapter = new ShdrAdapter(_machineName, _fixture.CurrentAdapterPort, 2000)
@@ -98,7 +99,7 @@ namespace IntegrationTests
             //_agent.Version = new Version(1, 8);
 
             // Add Adapter Clients
-            var devices = DeviceConfiguration.FromFile(configuration.Devices, DocumentFormat.XML).ToList();
+            var devices = DeviceConfiguration.FromFile(devicesFile, DocumentFormat.XML).ToList();
             if (!devices.IsNullOrEmpty())
             {
                 // Add Device(s) to Agent
