@@ -95,17 +95,17 @@ namespace MTConnect.Observations
         internal bool StatisticOutput => Statistic != DataItemStatistic.NONE;
 
         /// <summary>
-        /// Used to describe a value (text or data) published as part of an XML element.
+        /// Used to describe a value (text or data) published as part of an Condition Fault State.
         /// </summary>
         [XmlText]
-        [JsonPropertyName("cdata")]
-        public string CDATA
+        [JsonPropertyName("message")]
+        public string Message
         {
-            get => GetValue(ValueKeys.CDATA);
-            set => AddValue(ValueKeys.CDATA, value);
+            get => GetValue(ValueKeys.Message);
+            set => AddValue(ValueKeys.Message, value);
         }
 
-        internal bool CDATAOutput => false;
+        internal bool MessageOutput => true;
 
         public ConditionObservation()
         {
@@ -114,40 +114,40 @@ namespace MTConnect.Observations
         }
 
 
-        /// <summary>
-        /// Determine if the DataItem with the specified Observation is valid in the specified MTConnectVersion
-        /// </summary>
-        /// <param name="mtconnectVersion">The Version of the MTConnect Standard</param>
-        /// <param name="observation">The Observation to validate</param>
-        /// <returns>A DataItemValidationResult indicating if Validation was successful and a Message</returns>
-        protected ObservationValidationResult Validate<T>(Version mtconnectVersion, IObservationInput observation) where T : struct
-        {
-            if (observation != null && !observation.Values.IsNullOrEmpty())
-            {
-                // Get the CDATA Value for the Observation
-                var cdata = observation.GetValue(ValueKeys.CDATA);
-                if (cdata != null)
-                {
-                    // Check Valid values in Enum
-                    var validValues = Enum.GetValues(typeof(T));
-                    foreach (var validValue in validValues)
-                    {
-                        if (cdata == validValue.ToString())
-                        {
-                            return new ObservationValidationResult(true);
-                        }
-                    }
+        ///// <summary>
+        ///// Determine if the DataItem with the specified Observation is valid in the specified MTConnectVersion
+        ///// </summary>
+        ///// <param name="mtconnectVersion">The Version of the MTConnect Standard</param>
+        ///// <param name="observation">The Observation to validate</param>
+        ///// <returns>A DataItemValidationResult indicating if Validation was successful and a Message</returns>
+        //protected ObservationValidationResult Validate<T>(Version mtconnectVersion, IObservationInput observation) where T : struct
+        //{
+        //    if (observation != null && !observation.Values.IsNullOrEmpty())
+        //    {
+        //        // Get the Message Value for the Observation
+        //        var message = observation.GetValue(ValueKeys.Message);
+        //        if (message != null)
+        //        {
+        //            // Check Valid values in Enum
+        //            var validValues = Enum.GetValues(typeof(T));
+        //            foreach (var validValue in validValues)
+        //            {
+        //                if (message == validValue.ToString())
+        //                {
+        //                    return new ObservationValidationResult(true);
+        //                }
+        //            }
 
-                    return new ObservationValidationResult(false, "'" + cdata + "' is not a valid value");
-                }
-                else
-                {
-                    return new ObservationValidationResult(false, "No CDATA is specified for the Observation");
-                }
-            }
+        //            return new ObservationValidationResult(false, "'" + message + "' is not a valid value");
+        //        }
+        //        else
+        //        {
+        //            return new ObservationValidationResult(false, "No Message is specified for the Observation");
+        //        }
+        //    }
 
-            return new ObservationValidationResult(false, "No Observation is Specified");
-        }
+        //    return new ObservationValidationResult(false, "No Observation is Specified");
+        //}
 
 
         public new static ConditionObservation Create(IDataItem dataItem)

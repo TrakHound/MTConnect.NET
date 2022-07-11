@@ -45,14 +45,14 @@ namespace MTConnect.Observations.Samples.Values
 
         public override double Value 
         { 
-            get => ConvertUnits(CDATA.ToDouble(), Units, NativeUnits); 
-            set => CDATA = value.ToString();
+            get => ConvertUnits(Result.ToDouble(), Units, NativeUnits); 
+            set => Result = value.ToString();
         }
 
         public override double NativeValue
         {
-            get => ConvertUnits(CDATA.ToDouble(), NativeUnits, Units);
-            set => CDATA = value.ToString();
+            get => ConvertUnits(Result.ToDouble(), NativeUnits, Units);
+            set => Result = value.ToString();
         }
 
 

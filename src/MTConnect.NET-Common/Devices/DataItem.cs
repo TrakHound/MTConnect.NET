@@ -432,12 +432,12 @@ namespace MTConnect.Devices
 
         private ValidationResult ValidateSample(Version mtconnectVersion, IObservationInput observation)
         {
-            // Get the CDATA Value for the Observation
-            var cdata = observation.GetValue(ValueKeys.CDATA);
-            if (cdata != null)
+            // Get the Result Value for the Observation
+            var result = observation.GetValue(ValueKeys.Result);
+            if (result != null)
             {
                 // Check if Unavailable
-                if (cdata == Observation.Unavailable) return new ValidationResult(true);
+                if (result == Observation.Unavailable) return new ValidationResult(true);
             }
 
             return OnValidation(mtconnectVersion, observation);
@@ -445,12 +445,12 @@ namespace MTConnect.Devices
 
         private ValidationResult ValidateEvent(Version mtconnectVersion, IObservationInput observation)
         {
-            // Get the CDATA Value for the Observation
-            var cdata = observation.GetValue(ValueKeys.CDATA);
-            if (cdata != null)
+            // Get the Result Value for the Observation
+            var result = observation.GetValue(ValueKeys.Result);
+            if (result != null)
             {
                 // Check if Unavailable
-                if (cdata == Observation.Unavailable) return new ValidationResult(true);
+                if (result == Observation.Unavailable) return new ValidationResult(true);
             }
 
             return OnValidation(mtconnectVersion, observation);

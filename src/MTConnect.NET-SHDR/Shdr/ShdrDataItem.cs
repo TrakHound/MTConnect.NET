@@ -28,8 +28,8 @@ namespace MTConnect.Shdr
 
         public string CDATA
         {
-            get => GetValue(ValueKeys.CDATA);
-            set => AddValue(new ObservationValue(ValueKeys.CDATA, value));
+            get => GetValue(ValueKeys.Result);
+            set => AddValue(new ObservationValue(ValueKeys.Result, value));
         }
 
 
@@ -48,7 +48,7 @@ namespace MTConnect.Shdr
             DataItemKey = dataItemKey;
             Values = new List<ObservationValue>
             {
-                new ObservationValue(ValueKeys.CDATA, value != null ? value.ToString() : string.Empty)
+                new ObservationValue(ValueKeys.Result, value != null ? value.ToString() : string.Empty)
             };
             Timestamp = 0;
         }
@@ -59,7 +59,7 @@ namespace MTConnect.Shdr
             DataItemKey = dataItemKey;
             Values = new List<ObservationValue>
             {
-                new ObservationValue(ValueKeys.CDATA, value != null ? value.ToString() : string.Empty)
+                new ObservationValue(ValueKeys.Result, value != null ? value.ToString() : string.Empty)
             };
             Timestamp = timestamp;
         }
@@ -70,7 +70,7 @@ namespace MTConnect.Shdr
             DataItemKey = dataItemKey;
             Values = new List<ObservationValue>
             {
-                new ObservationValue(ValueKeys.CDATA, value != null ? value.ToString() : string.Empty)
+                new ObservationValue(ValueKeys.Result, value != null ? value.ToString() : string.Empty)
             };
             Timestamp = timestamp.ToUnixTime();
         }
@@ -95,7 +95,7 @@ namespace MTConnect.Shdr
         {
             if (!string.IsNullOrEmpty(DataItemKey))
             {
-                var valueString = GetValue(ValueKeys.CDATA);
+                var valueString = GetValue(ValueKeys.Result);
                 if (valueString != null)
                 {
                     var target = DataItemKey;
@@ -130,7 +130,7 @@ namespace MTConnect.Shdr
         {
             if (dataItem != null && !string.IsNullOrEmpty(dataItem.DataItemKey))
             {
-                var valueString = dataItem.GetValue(ValueKeys.CDATA);
+                var valueString = dataItem.GetValue(ValueKeys.Result);
                 if (valueString != null)
                 {
                     var target = dataItem.DataItemKey;
@@ -379,7 +379,7 @@ namespace MTConnect.Shdr
                             }
 
 
-                            dataItem.AddValue(new ObservationValue(ValueKeys.CDATA, valueString != null ? valueString.ToString() : string.Empty));
+                            dataItem.AddValue(new ObservationValue(ValueKeys.Result, valueString != null ? valueString.ToString() : string.Empty));
 
                             dataItems.Add(dataItem);
                         }

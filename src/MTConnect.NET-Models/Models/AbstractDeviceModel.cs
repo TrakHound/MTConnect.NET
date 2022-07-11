@@ -109,12 +109,12 @@ namespace MTConnect.Models
         /// </summary>
         public new string DescriptionText
         {
-            get => base.Description?.CDATA;
+            get => base.Description?.Value;
             set
             {
                 if (base.Description == null) base.Description = new Description();
                 if (DeviceDescription == null) DeviceDescription = new Description();
-                DeviceDescription.CDATA = value;
+                DeviceDescription.Value = value;
             }
         }
 
@@ -188,7 +188,7 @@ namespace MTConnect.Models
                     Model = device.Description.Model;
                     SerialNumber = device.Description.SerialNumber;
                     Station = device.Description.Station;
-                    DescriptionText = device.Description.CDATA;
+                    DescriptionText = device.Description.Value;
                 }
 
                 _componentManager = new ComponentManager(device.Uuid);

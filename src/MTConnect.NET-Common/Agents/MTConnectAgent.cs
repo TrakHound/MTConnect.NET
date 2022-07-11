@@ -1776,9 +1776,9 @@ namespace MTConnect.Agents
             }
             else
             {
-                // Check if CDATA is only observation set Unavailable
-                var cdata = storedObservation.Values.FirstOrDefault(o => o.Key == ValueKeys.CDATA).Value?.ToString();
-                if (cdata == Observation.Unavailable)
+                // Check if Result is only observation set Unavailable
+                var result = storedObservation.Values.FirstOrDefault(o => o.Key == ValueKeys.Result).Value?.ToString();
+                if (result == Observation.Unavailable)
                 {
                     observation.SetProperty(nameof(Observation.Name), dataItem.Id);
                     observation.SetProperty(nameof(Observation.Representation), dataItem.Representation);
@@ -2023,7 +2023,7 @@ namespace MTConnect.Agents
                                 var assetRemoved = device.DataItems.FirstOrDefault(o => o.Type == AssetRemovedDataItem.TypeId);
                                 if (assetRemoved != null)
                                 {
-                                    AddObservation(deviceUuid, assetRemoved.Id, ValueKeys.CDATA, asset.AssetId, ts);
+                                    AddObservation(deviceUuid, assetRemoved.Id, ValueKeys.Result, asset.AssetId, ts);
                                 }
                             }
                         }
@@ -2067,7 +2067,7 @@ namespace MTConnect.Agents
                                 var assetRemoved = device.DataItems.FirstOrDefault(o => o.Type == AssetRemovedDataItem.TypeId);
                                 if (assetRemoved != null)
                                 {
-                                    AddObservation(deviceUuid, assetRemoved.Id, ValueKeys.CDATA, asset.AssetId, ts);
+                                    AddObservation(deviceUuid, assetRemoved.Id, ValueKeys.Result, asset.AssetId, ts);
                                 }
                             }
                         }
@@ -2141,7 +2141,7 @@ namespace MTConnect.Agents
                                             var assetRemoved = device.DataItems.FirstOrDefault(o => o.Type == AssetRemovedDataItem.TypeId);
                                             if (assetRemoved != null)
                                             {
-                                                AddObservation(deviceUuid, assetRemoved.Id, ValueKeys.CDATA, asset.AssetId, ts);
+                                                AddObservation(deviceUuid, assetRemoved.Id, ValueKeys.Result, asset.AssetId, ts);
                                             }
                                         }
                                     }
@@ -2195,7 +2195,7 @@ namespace MTConnect.Agents
                                             var assetRemoved = device.DataItems.FirstOrDefault(o => o.Type == AssetRemovedDataItem.TypeId);
                                             if (assetRemoved != null)
                                             {
-                                                AddObservation(deviceUuid, assetRemoved.Id, ValueKeys.CDATA, asset.AssetId, ts);
+                                                AddObservation(deviceUuid, assetRemoved.Id, ValueKeys.Result, asset.AssetId, ts);
                                             }
                                         }
                                     }
@@ -2241,9 +2241,9 @@ namespace MTConnect.Agents
         /// Get an MTConnectErrors Document containing the specified ErrorCode
         /// </summary>
         /// <param name="errorCode">Provides a descriptive code that indicates the type of error that was encountered by an Agent when attempting to respond to a Request for information.</param>
-        /// <param name="cdata">The CDATA for Error contains a textual description of the error and any additional information an Agent is capable of providing regarding a specific error.</param>
+        /// <param name="value">A textual description of the error and any additional information an Agent is capable of providing regarding a specific error.</param>
         /// <returns>MTConnectError Response Document</returns>
-        public IErrorResponseDocument GetError(ErrorCode errorCode, string cdata = null, Version mtconnectVersion = null)
+        public IErrorResponseDocument GetError(ErrorCode errorCode, string value = null, Version mtconnectVersion = null)
         {
             var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersion;
 
@@ -2256,7 +2256,7 @@ namespace MTConnect.Agents
             doc.Header = header;
             doc.Errors = new List<Error>
             {
-                new Error(errorCode, cdata)
+                new Error(errorCode, value)
             };
 
             ErrorResponseSent?.Invoke(doc);
@@ -2268,9 +2268,9 @@ namespace MTConnect.Agents
         /// Get an MTConnectErrors Document containing the specified ErrorCode
         /// </summary>
         /// <param name="errorCode">Provides a descriptive code that indicates the type of error that was encountered by an Agent when attempting to respond to a Request for information.</param>
-        /// <param name="cdata">The CDATA for Error contains a textual description of the error and any additional information an Agent is capable of providing regarding a specific error.</param>
+        /// <param name="value">A textual description of the error and any additional information an Agent is capable of providing regarding a specific error.</param>
         /// <returns>MTConnectError Response Document</returns>
-        public async Task<IErrorResponseDocument> GetErrorAsync(ErrorCode errorCode, string cdata = null, Version mtconnectVersion = null)
+        public async Task<IErrorResponseDocument> GetErrorAsync(ErrorCode errorCode, string value = null, Version mtconnectVersion = null)
         {
             var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersion;
 
@@ -2283,7 +2283,7 @@ namespace MTConnect.Agents
             doc.Header = header;
             doc.Errors = new List<Error>
             {
-                new Error(errorCode, cdata)
+                new Error(errorCode, value)
             };
 
             ErrorResponseSent?.Invoke(doc);
@@ -2370,7 +2370,7 @@ namespace MTConnect.Agents
                         // If no observation exists, then add an Unavailable observation
                         if (!exists)
                         {
-                            var valueType = dataItem.Category == DataItemCategory.CONDITION ? ValueKeys.Level : ValueKeys.CDATA;
+                            var valueType = dataItem.Category == DataItemCategory.CONDITION ? ValueKeys.Level : ValueKeys.Result;
                             var value = !string.IsNullOrEmpty(dataItem.InitialValue) ? dataItem.InitialValue : Observation.Unavailable;
 
                             // Add Unavailable Observation to ObservationBuffer
@@ -2417,7 +2417,7 @@ namespace MTConnect.Agents
                         // If no observation exists, then add an Unavailable observation
                         if (!exists)
                         {
-                            var valueType = dataItem.Category == DataItemCategory.CONDITION ? ValueKeys.Level : ValueKeys.CDATA;
+                            var valueType = dataItem.Category == DataItemCategory.CONDITION ? ValueKeys.Level : ValueKeys.Result;
                             var value = !string.IsNullOrEmpty(dataItem.InitialValue) ? dataItem.InitialValue : Observation.Unavailable;
 
                             // Add Unavailable Observation to ObservationBuffer
@@ -2557,8 +2557,8 @@ namespace MTConnect.Agents
                             {
                                 if (filter.Value > 0)
                                 {
-                                    var x = newObservation.GetValue(ValueKeys.CDATA).ToDouble();
-                                    var y = existingObservation.GetValue(ValueKeys.CDATA).ToDouble();
+                                    var x = newObservation.GetValue(ValueKeys.Result).ToDouble();
+                                    var y = existingObservation.GetValue(ValueKeys.Result).ToDouble();
 
                                     // If difference between New and Existing exceeds Filter Minimum Delta Value
                                     return Math.Abs(x - y) > filter.Value;
@@ -2618,8 +2618,8 @@ namespace MTConnect.Agents
                     // Check DataItem Source DataItemId
                     if (dataItem == null) dataItem = dataItems.FirstOrDefault(o => o.Source != null && o.Source.DataItemId == key);
 
-                    // Check DataItem Source CDATA
-                    if (dataItem == null) dataItem = dataItems.FirstOrDefault(o => o.Source != null && o.Source.CDATA == key);
+                    // Check DataItem Source Value
+                    if (dataItem == null) dataItem = dataItems.FirstOrDefault(o => o.Source != null && o.Source.Value == key);
 
                     // Return DataItem
                     return dataItem;
@@ -2883,7 +2883,7 @@ namespace MTConnect.Agents
                 obj.Model = !string.IsNullOrEmpty(description.Model) ? description.Model.Trim() : null;
                 obj.SerialNumber = !string.IsNullOrEmpty(description.SerialNumber) ? description.SerialNumber.Trim() : null;
                 obj.Station = !string.IsNullOrEmpty(description.Station) ? description.Station.Trim() : null;
-                obj.CDATA = !string.IsNullOrEmpty(description.CDATA) ? description.CDATA.Trim() : null;
+                obj.Value = !string.IsNullOrEmpty(description.Value) ? description.Value.Trim() : null;
                 return obj;
             }
 
@@ -2908,7 +2908,7 @@ namespace MTConnect.Agents
                         observation.SetProperty(nameof(Observation.Timestamp), timestamp.ToDateTime());
                         observation.AddValues(new List<ObservationValue>
                         {
-                            new ObservationValue(ValueKeys.CDATA, device.Uuid)
+                            new ObservationValue(ValueKeys.Result, device.Uuid)
                         });
 
                         ObservationAdded?.Invoke(this, observation);
@@ -2938,7 +2938,7 @@ namespace MTConnect.Agents
                         observation.SetProperty(nameof(Observation.Timestamp), timestamp.ToDateTime());
                         observation.AddValues(new List<ObservationValue>
                         {
-                            new ObservationValue(ValueKeys.CDATA, device.Uuid)
+                            new ObservationValue(ValueKeys.Result, device.Uuid)
                         });
 
                         ObservationAdded?.Invoke(this, observation);
@@ -2969,7 +2969,7 @@ namespace MTConnect.Agents
                         observation.SetProperty(nameof(Observation.Timestamp), timestamp.ToDateTime());
                         observation.AddValues(new List<ObservationValue>
                         {
-                            new ObservationValue(ValueKeys.CDATA, device.Uuid)
+                            new ObservationValue(ValueKeys.Result, device.Uuid)
                         });
 
                         ObservationAdded?.Invoke(this, observation);
@@ -2999,7 +2999,7 @@ namespace MTConnect.Agents
                                   observation.SetProperty(nameof(Observation.Timestamp), timestamp.ToDateTime());
                         observation.AddValues(new List<ObservationValue>
                         {
-                            new ObservationValue(ValueKeys.CDATA, device.Uuid)
+                            new ObservationValue(ValueKeys.Result, device.Uuid)
                         });
 
                         ObservationAdded?.Invoke(this, observation);
@@ -3030,7 +3030,7 @@ namespace MTConnect.Agents
                           observation.SetProperty(nameof(Observation.Timestamp), timestamp.ToDateTime());
                         observation.AddValues(new List<ObservationValue>
                         {
-                            new ObservationValue(ValueKeys.CDATA, device.Uuid)
+                            new ObservationValue(ValueKeys.Result, device.Uuid)
                         });
 
                         ObservationAdded?.Invoke(this, observation);
@@ -3060,7 +3060,7 @@ namespace MTConnect.Agents
                         observation.SetProperty(nameof(Observation.Timestamp), timestamp.ToDateTime());
                         observation.AddValues(new List<ObservationValue>
                         {
-                            new ObservationValue(ValueKeys.CDATA, device.Uuid)
+                            new ObservationValue(ValueKeys.Result, device.Uuid)
                         });
 
                         ObservationAdded?.Invoke(this, observation);
@@ -3245,9 +3245,9 @@ namespace MTConnect.Agents
             {
                 if (dataItem.Category == DataItemCategory.SAMPLE)
                 {
-                    // Get the CDATA Value
-                    var cdata = observation.GetValue(ValueKeys.CDATA);
-                    if (!string.IsNullOrEmpty(cdata) && cdata != Observation.Unavailable)
+                    // Get the Result Value
+                    var result = observation.GetValue(ValueKeys.Result);
+                    if (!string.IsNullOrEmpty(result) && result != Observation.Unavailable)
                     {
                         var units = dataItem.Units;
                         var nativeUnits = dataItem.NativeUnits;
@@ -3259,8 +3259,8 @@ namespace MTConnect.Agents
                             units = Remove3dSuffix(units);
                             nativeUnits = Remove3dSuffix(nativeUnits);
 
-                            // Create a new Degree3D object to parse the CDATA
-                            var degree3d = Degree3D.FromString(cdata);
+                            // Create a new Degree3D object to parse the Result
+                            var degree3d = Degree3D.FromString(result);
                             if (degree3d != null)
                             {
                                 degree3d.A = Observation.ConvertUnits(degree3d.A, units, nativeUnits);
@@ -3275,8 +3275,8 @@ namespace MTConnect.Agents
                                     degree3d.C = degree3d.C / dataItem.NativeScale;
                                 }
 
-                                // Convert _3D back to string using the appropriate format and set to CDATA
-                                cdata = degree3d.ToString();
+                                // Convert _3D back to string using the appropriate format and set to Result
+                                result = degree3d.ToString();
                             }
                         }
                         else if (dataItem.Units == Units.MILLIMETER_3D || dataItem.Units == Units.UNIT_VECTOR_3D)
@@ -3285,8 +3285,8 @@ namespace MTConnect.Agents
                             units = Remove3dSuffix(units);
                             nativeUnits = Remove3dSuffix(nativeUnits);
 
-                            // Create a new Position3D object to parse the CDATA
-                            var position3d = Position3D.FromString(cdata);
+                            // Create a new Position3D object to parse the Result
+                            var position3d = Position3D.FromString(result);
                             if (position3d != null)
                             {
                                 position3d.X = Observation.ConvertUnits(position3d.X, units, nativeUnits);
@@ -3301,24 +3301,24 @@ namespace MTConnect.Agents
                                     position3d.Z = position3d.Z / dataItem.NativeScale;
                                 }
 
-                                // Convert _3D back to string using the appropriate format and set CDATA
-                                cdata = position3d.ToString();
+                                // Convert _3D back to string using the appropriate format and set Result
+                                result = position3d.ToString();
                             }
                         }
                         else
                         {
                             // Directly convert the Units if no SampleValue class is found
-                            var value = Observation.ConvertUnits(cdata.ToDouble(), units, nativeUnits);
+                            var value = Observation.ConvertUnits(result.ToDouble(), units, nativeUnits);
 
                             // Apply the NativeScale
                             if (dataItem.NativeScale > 0) value = value / dataItem.NativeScale;
 
-                            // Set CDATA to value
-                            cdata = value.ToString();
+                            // Set Result to value
+                            result = value.ToString();
                         }
 
-                        // Replace the CDATA value in the Observation
-                        observation.AddValue(ValueKeys.CDATA, cdata);
+                        // Replace the Result value in the Observation
+                        observation.AddValue(ValueKeys.Result, result);
                     }
                 }
             }
@@ -3354,7 +3354,7 @@ namespace MTConnect.Agents
             {
                 DeviceKey = deviceKey,
                 DataItemKey = dataItemKey,
-                Values = new List<ObservationValue> { new ObservationValue(ValueKeys.CDATA, value) },
+                Values = new List<ObservationValue> { new ObservationValue(ValueKeys.Result, value) },
                 Timestamp = UnixDateTime.Now
             });
         }
@@ -3374,7 +3374,7 @@ namespace MTConnect.Agents
             {
                 DeviceKey = deviceKey,
                 DataItemKey = dataItemKey,
-                Values = new List<ObservationValue> { new ObservationValue(ValueKeys.CDATA, value) },
+                Values = new List<ObservationValue> { new ObservationValue(ValueKeys.Result, value) },
                 Timestamp = UnixDateTime.Now
             });
         }
@@ -3395,7 +3395,7 @@ namespace MTConnect.Agents
             {
                 DeviceKey = deviceKey,
                 DataItemKey = dataItemKey,
-                Values = new List<ObservationValue> { new ObservationValue(ValueKeys.CDATA, value) },
+                Values = new List<ObservationValue> { new ObservationValue(ValueKeys.Result, value) },
                 Timestamp = timestamp
             });
         }
@@ -3416,7 +3416,7 @@ namespace MTConnect.Agents
             {
                 DeviceKey = deviceKey,
                 DataItemKey = dataItemKey,
-                Values = new List<ObservationValue> { new ObservationValue(ValueKeys.CDATA, value) },
+                Values = new List<ObservationValue> { new ObservationValue(ValueKeys.Result, value) },
                 Timestamp = timestamp
             });
         }
@@ -3437,7 +3437,7 @@ namespace MTConnect.Agents
             {
                 DeviceKey = deviceKey,
                 DataItemKey = dataItemKey,
-                Values = new List<ObservationValue> { new ObservationValue(ValueKeys.CDATA, value) },
+                Values = new List<ObservationValue> { new ObservationValue(ValueKeys.Result, value) },
                 Timestamp = timestamp.ToUnixTime()
             });
         }
@@ -3458,7 +3458,7 @@ namespace MTConnect.Agents
             {
                 DeviceKey = deviceKey,
                 DataItemKey = dataItemKey,
-                Values = new List<ObservationValue> { new ObservationValue(ValueKeys.CDATA, value) },
+                Values = new List<ObservationValue> { new ObservationValue(ValueKeys.Result, value) },
                 Timestamp = timestamp.ToUnixTime()
             });
         }
@@ -3904,7 +3904,7 @@ namespace MTConnect.Agents
                                 var assetChanged = device.DataItems.FirstOrDefault(o => o.Type == AssetChangedDataItem.TypeId);
                                 if (assetChanged != null)
                                 {
-                                    AddObservation(deviceUuid, assetChanged.Id, ValueKeys.CDATA, asset.AssetId, asset.Timestamp);
+                                    AddObservation(deviceUuid, assetChanged.Id, ValueKeys.Result, asset.AssetId, asset.Timestamp);
                                 }
                             }
 
@@ -3966,7 +3966,7 @@ namespace MTConnect.Agents
                                 var assetChanged = device.DataItems.FirstOrDefault(o => o.Type == AssetChangedDataItem.TypeId);
                                 if (assetChanged != null)
                                 {
-                                    await AddObservationAsync(deviceUuid, assetChanged.Id, ValueKeys.CDATA, asset.AssetId, asset.Timestamp);
+                                    await AddObservationAsync(deviceUuid, assetChanged.Id, ValueKeys.Result, asset.AssetId, asset.Timestamp);
                                 }
                             }
 
@@ -4055,14 +4055,14 @@ namespace MTConnect.Agents
                         var observationUpdateRate = dataItems.FirstOrDefault(o => o.Type == ObservationUpdateRateDataItem.TypeId);
                         if (observationUpdateRate != null)
                         {
-                            AddObservation(device.Name, observationUpdateRate.Id, ValueKeys.CDATA, deviceMetrics.ObservationAverage);
+                            AddObservation(device.Name, observationUpdateRate.Id, ValueKeys.Result, deviceMetrics.ObservationAverage);
                         }
 
                         // Update AssetUpdateRate DataItem
                         var assetUpdateRate = dataItems.FirstOrDefault(o => o.Type == AssetUpdateRateDataItem.TypeId);
                         if (assetUpdateRate != null)
                         {
-                            AddObservation(device.Name, assetUpdateRate.Id, ValueKeys.CDATA, deviceMetrics.AssetAverage);
+                            AddObservation(device.Name, assetUpdateRate.Id, ValueKeys.Result, deviceMetrics.AssetAverage);
                         }
                     }
                 }

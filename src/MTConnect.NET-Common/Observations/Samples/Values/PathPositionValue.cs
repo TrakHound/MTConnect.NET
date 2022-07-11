@@ -16,7 +16,7 @@ namespace MTConnect.Observations.Samples.Values
         {
             get
             {
-                var position = Position3D.FromString(CDATA);
+                var position = Position3D.FromString(Result);
                 if (position != null)
                 {
                     position.X = ConvertUnits(position.X, Units, NativeUnits);
@@ -28,13 +28,13 @@ namespace MTConnect.Observations.Samples.Values
 
                 return null;
             }
-            set => CDATA = value.ToString();
+            set => Result = value.ToString();
         }
 
         public override Position3D NativeValue
         {
-            get => Position3D.FromString(CDATA);
-            set => CDATA = value.ToString();
+            get => Position3D.FromString(Result);
+            set => Result = value.ToString();
         }
 
 

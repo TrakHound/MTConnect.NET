@@ -601,8 +601,8 @@ namespace MTConnect.Devices
                     // Check DataItem Source DataItemId
                     if (dataItem == null) dataItem = dataItems.FirstOrDefault(o => o.Source != null && o.Source.DataItemId == dataItemKey);
 
-                    // Check DataItem Source CDATA
-                    if (dataItem == null) dataItem = dataItems.FirstOrDefault(o => o.Source != null && o.Source.CDATA == dataItemKey);
+                    // Check DataItem Source Result
+                    if (dataItem == null) dataItem = dataItems.FirstOrDefault(o => o.Source != null && o.Source.Value == dataItemKey);
 
                     // Return DataItem
                     return dataItem;
@@ -779,7 +779,7 @@ namespace MTConnect.Devices
                     if (mtconnectVersion >= MTConnectVersions.Version12) description.Model = component.Description.Model;
                     description.SerialNumber = component.Description.SerialNumber;
                     description.Station = component.Description.Station;
-                    description.CDATA = component.Description.CDATA;
+                    description.Value = component.Description.Value;
                     obj.Description = description;
                 }
 

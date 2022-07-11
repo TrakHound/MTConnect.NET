@@ -12,11 +12,12 @@ namespace MTConnect.Observations
     /// </summary>
     public class ValueKeys
     {
-        public const string CDATA = "CDATA";
+        public const string Result = "Result";
         public const string Level = "Level";
         public const string NativeCode = "NativeCode";
         public const string NativeSeverity = "NativeSeverity";
         public const string Qualifier = "Qualifier";
+        public const string Message = "Message";
         public const string Statistic = "Statistic";
         public const string SampleRate = "SampleRate";
         public const string Count = "Count";

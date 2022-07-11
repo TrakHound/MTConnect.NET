@@ -10,7 +10,7 @@ namespace MTConnect.Observations
         /// <summary>
         /// DATA is used to describe a value (text or data) published as part of an XML element.
         /// </summary>
-        public const string CDATA = "DATA is used to describe a value (text or data) published as part of an XML element.";
+        public const string Result = "DATA is used to describe a value (text or data) published as part of an XML element.";
 
         /// <summary>
         /// Level of the Condition (Normal, Warning, Fault, or Unavailable)
@@ -37,7 +37,7 @@ namespace MTConnect.Observations
         {
             switch (valueKey)
             {
-                case ValueKeys.CDATA: return CDATA;
+                case ValueKeys.Result: return Result;
                 case ValueKeys.Level: return Level;
                 case ValueKeys.NativeCode: return NativeCode;
                 case ValueKeys.NativeSeverity: return NativeSeverity;

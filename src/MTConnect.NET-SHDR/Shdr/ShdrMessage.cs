@@ -37,7 +37,7 @@ namespace MTConnect.Shdr
             DataItemKey = dataItemKey;
             Values = new List<ObservationValue>
             {
-                new ObservationValue(ValueKeys.CDATA, value != null ? value.ToString() : string.Empty)
+                new ObservationValue(ValueKeys.Result, value != null ? value.ToString() : string.Empty)
             };
             Timestamp = 0;
         }
@@ -46,7 +46,7 @@ namespace MTConnect.Shdr
         {
             DataItemKey = dataItemKey;
             var values = new List<ObservationValue>();
-            values.Add(new ObservationValue(ValueKeys.CDATA, value != null ? value.ToString() : string.Empty));
+            values.Add(new ObservationValue(ValueKeys.Result, value != null ? value.ToString() : string.Empty));
             if (!string.IsNullOrEmpty(nativeCode)) values.Add(new ObservationValue(ValueKeys.NativeCode, nativeCode));
             Values = values;
             Timestamp = 0;
@@ -57,7 +57,7 @@ namespace MTConnect.Shdr
             DataItemKey = dataItemKey;
             Values = new List<ObservationValue>
             {
-                new ObservationValue(ValueKeys.CDATA, value != null ? value.ToString() : string.Empty)
+                new ObservationValue(ValueKeys.Result, value != null ? value.ToString() : string.Empty)
             };
             Timestamp = timestamp;
         }
@@ -66,7 +66,7 @@ namespace MTConnect.Shdr
         {
             DataItemKey = dataItemKey;
             var values = new List<ObservationValue>();
-            values.Add(new ObservationValue(ValueKeys.CDATA, value != null ? value.ToString() : string.Empty));
+            values.Add(new ObservationValue(ValueKeys.Result, value != null ? value.ToString() : string.Empty));
             if (!string.IsNullOrEmpty(nativeCode)) values.Add(new ObservationValue(ValueKeys.NativeCode, nativeCode));
             Values = values;
             Timestamp = timestamp;
@@ -77,7 +77,7 @@ namespace MTConnect.Shdr
             DataItemKey = dataItemKey;
             Values = new List<ObservationValue>
             {
-                new ObservationValue(ValueKeys.CDATA, value != null ? value.ToString() : string.Empty)
+                new ObservationValue(ValueKeys.Result, value != null ? value.ToString() : string.Empty)
             };
             Timestamp = timestamp.ToUnixTime();
         }
@@ -86,7 +86,7 @@ namespace MTConnect.Shdr
         {
             DataItemKey = dataItemKey;
             var values = new List<ObservationValue>();
-            values.Add(new ObservationValue(ValueKeys.CDATA, value != null ? value.ToString() : string.Empty));
+            values.Add(new ObservationValue(ValueKeys.Result, value != null ? value.ToString() : string.Empty));
             if (!string.IsNullOrEmpty(nativeCode)) values.Add(new ObservationValue(ValueKeys.NativeCode, nativeCode));
             Values = values;
             Timestamp = timestamp.ToUnixTime();
@@ -101,7 +101,7 @@ namespace MTConnect.Shdr
         {
             if (!string.IsNullOrEmpty(DataItemKey))
             {
-                var valueString = GetValue(ValueKeys.CDATA);
+                var valueString = GetValue(ValueKeys.Result);
                 var nativeCodeString = GetValue(ValueKeys.NativeCode);
 
                 if (valueString != null || nativeCodeString != null)
@@ -132,7 +132,7 @@ namespace MTConnect.Shdr
         {
             if (dataItem != null && !string.IsNullOrEmpty(dataItem.DataItemKey))
             {
-                var valueString = dataItem.GetValue(ValueKeys.CDATA);
+                var valueString = dataItem.GetValue(ValueKeys.Result);
                 var nativeCodeString = dataItem.GetValue(ValueKeys.NativeCode);
 
                 if (valueString != null || nativeCodeString != null)

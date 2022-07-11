@@ -15,6 +15,6 @@ namespace MTConnect.Devices.DataItems
         /// <summary>
         /// The value associated with each Filter
         /// </summary>
-        public const string CDATA = "The value associated with each Filter";
+        public const string Value = "The value associated with each Filter";
     }
 }

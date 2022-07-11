@@ -107,11 +107,11 @@ namespace MTConnect.Models
         /// </summary>
         public new string DescriptionText
         {
-            get => base.Description?.CDATA;
+            get => base.Description?.Value;
             set
             {
                 if (base.Description == null) base.Description = new Description();
-                DeviceDescription.CDATA = value;
+                DeviceDescription.Value = value;
             }
         }
 

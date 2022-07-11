@@ -466,11 +466,11 @@ namespace MTConnect.Applications
             var convertedObservation = new ObservationInput(observation);
 
             // Get CDATA Value
-            var cdata = convertedObservation.GetValue(ValueKeys.CDATA);
+            var cdata = convertedObservation.GetValue(ValueKeys.Result);
 
             // Change CDATA Value if "INTERRUPTED"
             // NOTE: This is just an example of how a value read from the Client Agent can be converted
-            if (cdata == Execution.INTERRUPTED.ToString()) convertedObservation.AddValue(ValueKeys.CDATA, Execution.STOPPED);
+            if (cdata == Execution.INTERRUPTED.ToString()) convertedObservation.AddValue(ValueKeys.Result, Execution.STOPPED);
 
             return convertedObservation;
         }

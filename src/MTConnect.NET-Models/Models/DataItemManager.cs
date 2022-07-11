@@ -90,7 +90,7 @@ namespace MTConnect.Models
                             observation = EventObservation.Create(dataItem);
                             switch (dataItem.Representation)
                             {
-                                case DataItemRepresentation.VALUE: observation.AddValue(ValueKeys.CDATA, value); break;
+                                case DataItemRepresentation.VALUE: observation.AddValue(ValueKeys.Result, value); break;
                             }
                             break;
 
@@ -99,7 +99,7 @@ namespace MTConnect.Models
                             observation = SampleObservation.Create(dataItem);
                             switch (dataItem.Representation)
                             {
-                                case DataItemRepresentation.VALUE: observation.AddValue(ValueKeys.CDATA, value); break;
+                                case DataItemRepresentation.VALUE: observation.AddValue(ValueKeys.Result, value); break;
                             }
                             break;
                     }

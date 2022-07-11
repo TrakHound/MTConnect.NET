@@ -124,7 +124,7 @@ namespace MTConnect.Applications.Adapters.Shdr.Adapters
                     description.Manufacturer = "Mazak";
                     description.Model = "Integrex";
                     description.SerialNumber = "00123456789";
-                    description.CDATA = "Patrick Test";
+                    description.Value = "Patrick Test";
                     device.Description = description;
 
                     _adapter.AddDevice(device);

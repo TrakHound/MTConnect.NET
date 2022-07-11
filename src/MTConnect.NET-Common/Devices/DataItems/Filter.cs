@@ -17,15 +17,18 @@ namespace MTConnect.Devices.DataItems
         [JsonPropertyName("type")]
         public DataItemFilterType Type { get; set; }
 
+        ///// <summary>
+        ///// The value associated with each Filter
+        ///// </summary>
+        //[XmlText]
+        //[JsonPropertyName("value")]
+        //public string CDATA { get; set; }
+
         /// <summary>
         /// The value associated with each Filter
         /// </summary>
         [XmlText]
-        [JsonPropertyName("cdata")]
-        public string CDATA { get; set; }
-
-        [XmlIgnore]
-        [JsonIgnore]
-        public double Value => CDATA.ToDouble();
+        [JsonPropertyName("value")]
+        public double Value { get; set; }
     }
 }

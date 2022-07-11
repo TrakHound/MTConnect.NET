@@ -49,25 +49,25 @@ namespace MTConnect.Observations
         {
             if (observation != null && !observation.Values.IsNullOrEmpty())
             {
-                // Get the CDATA Value for the Observation
-                var cdata = observation.GetValue(ValueKeys.CDATA);
-                if (cdata != null)
+                // Get the Result Value for the Observation
+                var result = observation.GetValue(ValueKeys.Result);
+                if (result != null)
                 {
                     // Check Valid values in Enum
                     var validValues = Enum.GetValues(typeof(T));
                     foreach (var validValue in validValues)
                     {
-                        if (cdata == validValue.ToString())
+                        if (result == validValue.ToString())
                         {
                             return new ObservationValidationResult(true);
                         }
                     }
 
-                    return new ObservationValidationResult(false, "'" + cdata + "' is not a valid value");
+                    return new ObservationValidationResult(false, "'" + result + "' is not a valid value");
                 }
                 else
                 {
-                    return new ObservationValidationResult(false, "No CDATA is specified for the Observation");
+                    return new ObservationValidationResult(false, "No Result is specified for the Observation");
                 }
             }
 

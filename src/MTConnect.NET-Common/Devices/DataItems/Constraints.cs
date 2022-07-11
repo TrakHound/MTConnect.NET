@@ -53,10 +53,10 @@ namespace MTConnect.Devices.DataItems
 
         /// <summary>
         /// DEPRECATED in Version 1.4 – Moved to the Filters element of a DataItem.
-        /// If the data reported for a DataItem is a numeric value, a new value MUST NOT be reported if the change from the last reported value is less than the delta given as the CDATA of this element.
+        /// If the data reported for a DataItem is a numeric value, a new value MUST NOT be reported if the change from the last reported value is less than the delta given as the Value of this element.
         /// Filter is an abstract type XML element. As such, Filter will never appear in the XML document, but will be replaced by a Filter type.
         /// The only currently supported Filter type if MINIMUM_DELTA.
-        /// The CDATA MUST be an absolute value using the same Units as the reported data.
+        /// The Value MUST be an absolute value using the same Units as the reported data.
         /// Additional filter type MAY be supported in the future.
         /// </summary>
         [XmlElement("Filter")]

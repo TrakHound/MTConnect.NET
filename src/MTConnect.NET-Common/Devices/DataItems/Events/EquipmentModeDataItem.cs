@@ -82,25 +82,25 @@ namespace MTConnect.Devices.DataItems.Events
         {
             if (observation != null && !observation.Values.IsNullOrEmpty())
             {
-                // Get the CDATA Value for the Observation
-                var cdata = observation.GetValue(ValueKeys.CDATA);
-                if (cdata != null)
+                // Get the Result Value for the Observation
+                var result = observation.GetValue(ValueKeys.Result);
+                if (result != null)
                 {
                     // Check Valid values in Enum
                     var validValues = Enum.GetValues(typeof(Observations.Events.Values.ControllerModeOverrideValue));
                     foreach (var validValue in validValues)
                     {
-                        if (cdata == validValue.ToString())
+                        if (result == validValue.ToString())
                         {
                             return new ValidationResult(true);
                         }
                     }
 
-                    return new ValidationResult(false, "'" + cdata + "' is not a valid value");
+                    return new ValidationResult(false, "'" + result + "' is not a valid value");
                 }
                 else
                 {
-                    return new ValidationResult(false, "No CDATA is specified for the Observation");
+                    return new ValidationResult(false, "No Result is specified for the Observation");
                 }
             }
 

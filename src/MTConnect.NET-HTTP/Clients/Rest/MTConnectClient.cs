@@ -521,7 +521,7 @@ namespace MTConnect.Clients.Rest
                 {
                     foreach (var assetChanged in assetsChanged)
                     {
-                        string assetId = assetChanged.GetValue(ValueKeys.CDATA);
+                        string assetId = assetChanged.GetValue(ValueKeys.Result);
                         if (assetId != Observation.Unavailable)
                         {
                             var doc = await RunAssets(assetId, cancel);

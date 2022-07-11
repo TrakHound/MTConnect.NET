@@ -27,7 +27,7 @@ namespace MTConnect.Streams.Json
                 Type = e.Type;
                 SubType = e.SubType;
                 CompositionId = e.CompositionId;
-                Result = e.GetValue(ValueKeys.CDATA);
+                Result = e.GetValue(ValueKeys.Result);
                 ResetTriggered = e.GetValue(ValueKeys.ResetTriggered);
 
                 // DataSet Entries

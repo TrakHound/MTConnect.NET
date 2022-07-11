@@ -51,12 +51,12 @@ namespace MTConnect.Observations.Input
         }
 
         /// <summary>
-        /// The CDATA of the Condition Observation
+        /// The Message of the Condition Observation
         /// </summary>
-        public string Text
+        public string Message
         {
-            get => GetValue(ValueKeys.CDATA);
-            set => AddValue(new ObservationValue(ValueKeys.CDATA, value));
+            get => GetValue(ValueKeys.Message);
+            set => AddValue(new ObservationValue(ValueKeys.Message, value));
         }
 
 

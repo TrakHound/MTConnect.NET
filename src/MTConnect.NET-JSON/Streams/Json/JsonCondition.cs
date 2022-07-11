@@ -60,7 +60,7 @@ namespace MTConnect.Streams.Json
                 Type = condition.Type;
                 SubType = condition.SubType;
                 CompositionId = condition.CompositionId;
-                if (!string.IsNullOrEmpty(condition.CDATA)) Result = condition.CDATA;
+                if (!string.IsNullOrEmpty(condition.Message)) Result = condition.Message;
 
                 Level = condition.Level.ToString();
                 NativeCode = condition.NativeCode;

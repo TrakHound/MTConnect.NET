@@ -19,9 +19,9 @@ namespace MTConnect.Errors
         ErrorCode ErrorCode { get; }
 
         /// <summary>
-        /// The CDATA for Error contains a textual description of the error and any additional
+        /// The Value for Error contains a textual description of the error and any additional
         /// information an Agent is capable of providing regarding a specific error. The Valid Data Value returned for Error MAY be any text string.
         /// </summary>
-        string CDATA { get; }
+        string Value { get; }
     }
 }

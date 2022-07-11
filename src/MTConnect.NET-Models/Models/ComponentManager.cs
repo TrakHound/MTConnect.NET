@@ -151,7 +151,7 @@ namespace MTConnect.Models
                         obj.Model = component.Description.Model;
                         obj.SerialNumber = component.Description.SerialNumber;
                         obj.Station = component.Description.Station;
-                        obj.DescriptionText = component.Description.CDATA;
+                        obj.DescriptionText = component.Description.Value;
                     }
 
                     obj.SampleRate = component.SampleRate;
@@ -189,7 +189,7 @@ namespace MTConnect.Models
                         obj.Model = component.Description.Model;
                         obj.SerialNumber = component.Description.SerialNumber;
                         obj.Station = component.Description.Station;
-                        obj.DescriptionText = component.Description.CDATA;
+                        obj.DescriptionText = component.Description.Value;
                     }
 
                     obj.SampleRate = component.SampleRate;
@@ -680,7 +680,7 @@ namespace MTConnect.Models
                 obj.NativeCode = condition.Value.NativeCode;
                 obj.NativeSeverity = condition.Value.NativeSeverity;
                 obj.Qualifier = condition.Value.Qualifier;
-                obj.Text = condition.Value.CDATA;
+                obj.Text = condition.Value.Message;
                 obj.Timestamp = timestamp;
                 objs.Add(obj);
             }
@@ -721,12 +721,12 @@ namespace MTConnect.Models
                         else if (dataItem.DataItemCategory == DataItemCategory.EVENT)
                         {
                             var obj = stream.EventValues.FirstOrDefault(o => o.DataItemId == dataItem.DataItemId);
-                            if (obj != null) DataItemManager.AddDataItem(dataItem, obj.CDATA);
+                            if (obj != null) DataItemManager.AddDataItem(dataItem, obj.Result);
                         }
                         else if (dataItem.DataItemCategory == DataItemCategory.SAMPLE)
                         {
                             var obj = stream.SampleValues.FirstOrDefault(o => o.DataItemId == dataItem.DataItemId);
-                            if (obj != null) DataItemManager.AddDataItem(dataItem, obj.CDATA);
+                            if (obj != null) DataItemManager.AddDataItem(dataItem, obj.Result);
                         }
                     }
                 }
@@ -765,12 +765,12 @@ namespace MTConnect.Models
                     else if(dataItem.DataItemCategory == DataItemCategory.EVENT)
                     {
                         var obj = stream.EventValues.FirstOrDefault(o => o.DataItemId == dataItem.DataItemId);
-                        if (obj != null) composition.AddDataItem(dataItem, obj.CDATA);
+                        if (obj != null) composition.AddDataItem(dataItem, obj.Result);
                     }
                     else if (dataItem.DataItemCategory == DataItemCategory.SAMPLE)
                     {
                         var obj = stream.SampleValues.FirstOrDefault(o => o.DataItemId == dataItem.DataItemId);
-                        if (obj != null) composition.AddDataItem(dataItem, obj.CDATA);
+                        if (obj != null) composition.AddDataItem(dataItem, obj.Result);
                     }
                 }
             }

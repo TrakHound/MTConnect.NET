@@ -33,6 +33,6 @@ namespace MTConnect.Devices
         /// <summary>
         /// Any additional descriptive information the implementer chooses to include regarding the Component.
         /// </summary>
-        string CDATA { get; }
+        string Value { get; }
     }
 }

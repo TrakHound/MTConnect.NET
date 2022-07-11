@@ -92,7 +92,7 @@ namespace MTConnect.Streams
                         XmlObservation.AddAttributes(observation, node);
 
                         // Set InnerText to the CDATA
-                        node.InnerText = observation.CDATA?.Trim();
+                        node.InnerText = observation.Message?.Trim();
 
                         // Add Comment
                         if (observation.DataItem != null)
@@ -191,7 +191,7 @@ namespace MTConnect.Streams
         {
             if (observation != null && node != null)
             {
-                observation.AddValue(new ObservationValue(ValueKeys.CDATA, node.InnerText));
+                observation.AddValue(new ObservationValue(ValueKeys.Result, node.InnerText));
             }
         }
 

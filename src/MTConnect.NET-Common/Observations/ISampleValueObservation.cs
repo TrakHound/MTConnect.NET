@@ -12,8 +12,8 @@ namespace MTConnect.Observations
     public interface ISampleValueObservation : ISampleObservation
     {
         /// <summary>
-        /// Used to describe a value (text or data) published as part of an XML element.
+        /// Used to describe a value (text or data) published as part of an Observation.
         /// </summary>
-        string CDATA { get; }
+        string Result { get; }
     }
 }

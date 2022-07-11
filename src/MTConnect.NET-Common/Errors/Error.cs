@@ -24,20 +24,20 @@ namespace MTConnect.Errors
         public ErrorCode ErrorCode { get; set; }
 
         /// <summary>
-        /// The CDATA for Error contains a textual description of the error and any additional
+        /// The Value for Error contains a textual description of the error and any additional
         /// information an Agent is capable of providing regarding a specific error. The Valid Data Value returned for Error MAY be any text string.
         /// </summary>
         [XmlText]
-        [JsonPropertyName("cdata")]
-        public string CDATA { get; set; }
+        [JsonPropertyName("value")]
+        public string Value { get; set; }
 
 
         public Error() { }
 
-        public Error(ErrorCode errorCode, string cdata = null)
+        public Error(ErrorCode errorCode, string value = null)
         {
             ErrorCode = errorCode;
-            CDATA = cdata;
+            Value = value;
         }
     }
 }

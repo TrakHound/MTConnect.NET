@@ -18,7 +18,7 @@ namespace MTConnect.Shdr
 
         public ShdrFaultState(
             ConditionLevel level,
-            string text = null,
+            string message = null,
             string nativeCode = null,
             string nativeSeverity = null,
             ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED,
@@ -29,7 +29,7 @@ namespace MTConnect.Shdr
             NativeCode = nativeCode;
             NativeSeverity = nativeSeverity;
             Qualifier = qualifier;
-            Text = text;
+            Message = message;
             Timestamp = timestamp;
         }
 
@@ -43,7 +43,7 @@ namespace MTConnect.Shdr
                 NativeCode = conditionObservation.NativeCode;
                 NativeSeverity = conditionObservation.NativeSeverity;
                 Qualifier = conditionObservation.Qualifier;
-                Text = conditionObservation.Text;
+                Message = conditionObservation.Message;
                 Timestamp = conditionObservation.Timestamp;
             }
         }
@@ -57,7 +57,7 @@ namespace MTConnect.Shdr
         {
             if (!string.IsNullOrEmpty(DataItemKey))
             {
-                var text = !string.IsNullOrEmpty(Text) ? Text.Replace("|", @"\|") : "";
+                var message = !string.IsNullOrEmpty(Message) ? Message.Replace("|", @"\|") : "";
                 var qualifier = Qualifier != ConditionQualifier.NOT_SPECIFIED ? Qualifier.ToString() : "";
 
                 string line;
@@ -66,7 +66,7 @@ namespace MTConnect.Shdr
                 {
                     if (Level != ConditionLevel.UNAVAILABLE)
                     {
-                        line = $"{Timestamp.ToDateTime().ToString("o")}|{DataItemKey}|{Level}|{NativeCode}|{NativeSeverity}|{qualifier}|{text}";
+                        line = $"{Timestamp.ToDateTime().ToString("o")}|{DataItemKey}|{Level}|{NativeCode}|{NativeSeverity}|{qualifier}|{message}";
                     }
                     else
                     {
@@ -77,7 +77,7 @@ namespace MTConnect.Shdr
                 {
                     if (Level != ConditionLevel.UNAVAILABLE)
                     {
-                        line = $"{DataItemKey}|{Level}|{NativeCode}|{NativeSeverity}|{qualifier}|{text}";
+                        line = $"{DataItemKey}|{Level}|{NativeCode}|{NativeSeverity}|{qualifier}|{message}";
                     }
                     else
                     {
@@ -166,9 +166,9 @@ namespace MTConnect.Shdr
                             }
                         }
 
-                        // Set Text
+                        // Set Message
                         x = ShdrLine.GetNextValue(y);
-                        condition.Text = x;
+                        condition.Message = x;
                     }
 
                     return condition;

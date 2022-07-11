@@ -12,8 +12,8 @@ namespace MTConnect.Assets.CuttingTools
     public class Location
     {
         [XmlText]
-        [JsonPropertyName("cdata")]
-        public int CDATA { get; set; }
+        [JsonPropertyName("value")]
+        public int Value { get; set; }
 
         /// <summary>
         /// The type of location being identified. Current MUST be one of POT, STATION, or CRIB.

@@ -16,7 +16,7 @@ namespace MTConnect.Assets.CuttingTools
         /// </summary>
         [XmlText]
         [JsonPropertyName("value")]
-        public double CDATA { get; set; }
+        public double Value { get; set; }
 
         /// <summary>
         /// The type of tool life being accumulated. MINUTES, PART_COUNT, or WEAR

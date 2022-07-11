@@ -72,12 +72,12 @@ namespace MTConnect.Devices.DataItems.Events
         {
             if (observation != null && !observation.Values.IsNullOrEmpty())
             {
-                // Get the CDATA Value for the Observation
-                var cdata = observation.GetValue(ValueKeys.CDATA);
-                if (cdata != null)
+                // Get the Result Value for the Observation
+                var result = observation.GetValue(ValueKeys.Result);
+                if (result != null)
                 {
                     // Check if Unavailable
-                    if (cdata == Observation.Unavailable) return new ValidationResult(true);
+                    if (result == Observation.Unavailable) return new ValidationResult(true);
 
                     if (mtconnectVersion >= MTConnectVersions.Version12)
                     {
@@ -87,13 +87,13 @@ namespace MTConnect.Devices.DataItems.Events
                             var validValues = Enum.GetValues(typeof(Observations.Events.Values.LinearDirection));
                             foreach (var validValue in validValues)
                             {
-                                if (cdata == validValue.ToString())
+                                if (result == validValue.ToString())
                                 {
                                     return new ValidationResult(true);
                                 }
                             }
 
-                            return new ValidationResult(false, "'" + cdata + "' is not a valid value");
+                            return new ValidationResult(false, "'" + result + "' is not a valid value");
                         }
                         else if (SubType == SubTypes.ROTARY.ToString())
                         {
@@ -101,13 +101,13 @@ namespace MTConnect.Devices.DataItems.Events
                             var validValues = Enum.GetValues(typeof(Observations.Events.Values.RotaryDirection));
                             foreach (var validValue in validValues)
                             {
-                                if (cdata == validValue.ToString())
+                                if (result == validValue.ToString())
                                 {
                                     return new ValidationResult(true);
                                 }
                             }
 
-                            return new ValidationResult(false, "'" + cdata + "' is not a valid value");
+                            return new ValidationResult(false, "'" + result + "' is not a valid value");
                         }
                     }
                     else
@@ -117,7 +117,7 @@ namespace MTConnect.Devices.DataItems.Events
                 }
                 else
                 {
-                    return new ValidationResult(false, "No CDATA is specified for the Observation");
+                    return new ValidationResult(false, "No Result is specified for the Observation");
                 }
             }
 

@@ -116,7 +116,7 @@ namespace MTConnect.Streams
                         XmlObservation.AddAttributes(observation, node);
 
                         // Set InnerText to the CDATA
-                        node.InnerText = observation.CDATA?.Trim();
+                        node.InnerText = observation.Result?.Trim();
 
                         // Add Comment
                         if (observation.DataItem != null)
@@ -134,10 +134,10 @@ namespace MTConnect.Streams
                         }
 
                         // Write Value Description as Comment
-                        var valueDescriptionText = Observation.GetDescriptionText(observation.Category, observation.Type, observation.SubType, observation.CDATA);
+                        var valueDescriptionText = Observation.GetDescriptionText(observation.Category, observation.Type, observation.SubType, observation.Result);
                         if (!string.IsNullOrEmpty(valueDescriptionText))
                         {
-                            writer.WriteComment($"CDATA = {observation.CDATA} : {valueDescriptionText}");
+                            writer.WriteComment($"CDATA = {observation.Result} : {valueDescriptionText}");
                             writer.WriteWhitespace("\r\n");
                         }
 

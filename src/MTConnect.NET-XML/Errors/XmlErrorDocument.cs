@@ -77,7 +77,7 @@ namespace MTConnect.Errors
 
                     foreach (var error in document.Errors)
                     {
-                        errors.Add(new Error(error.ErrorCode, error.CDATA));
+                        errors.Add(new Error(error.ErrorCode, error.Value));
                     }
 
                     Errors = errors;

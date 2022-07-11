@@ -45,7 +45,7 @@ namespace MTConnect.Devices
         /// Any additional descriptive information the implementer chooses to include regarding the Component.
         /// </summary>
         [XmlText]
-        [JsonPropertyName("cdata")]
-        public string CDATA { get; set; }
+        [JsonPropertyName("value")]
+        public string Value { get; set; }
     }
 }

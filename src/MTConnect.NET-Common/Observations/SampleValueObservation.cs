@@ -18,13 +18,13 @@ namespace MTConnect.Observations
         /// Used to describe a value (text or data) published as part of an XML element.
         /// </summary>
         [XmlText]
-        [JsonPropertyName("cdata")]
-        public string CDATA
+        [JsonPropertyName("result")]
+        public string Result
         {
-            get => GetValue(ValueKeys.CDATA);
-            set => AddValue(new ObservationValue(ValueKeys.CDATA, value));
+            get => GetValue(ValueKeys.Result);
+            set => AddValue(new ObservationValue(ValueKeys.Result, value));
         }
 
-        internal bool CDATAOutput => false;
+        internal bool ResultOutput => false;
     }
 }

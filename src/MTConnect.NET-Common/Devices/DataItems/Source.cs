@@ -34,8 +34,11 @@ namespace MTConnect.Devices.DataItems
         [JsonPropertyName("compositionId")]
         public string CompositionId { get; set; }
 
+        /// <summary>
+        /// Identifier of the source entity.
+        /// </summary>
         [XmlText]
-        [JsonPropertyName("cdata")]
-        public string CDATA { get; set; }
+        [JsonPropertyName("value")]
+        public string Value { get; set; }
     }
 }

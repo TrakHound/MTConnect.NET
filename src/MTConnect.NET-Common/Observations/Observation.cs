@@ -22,10 +22,10 @@ namespace MTConnect.Observations
     public class Observation : IObservation
     {
         /// <summary>
-        /// If an Agent cannot determine a Valid Data Value for a DataItem, the value returned for the CDATA for the Data Entity MUST be reported as UNAVAILABLE.
+        /// If an Agent cannot determine a Valid Data Value for a DataItem, the value returned for the Result for the Data Entity MUST be reported as UNAVAILABLE.
         /// </summary>
         public const string Unavailable = "UNAVAILABLE";
-        public const string UnavailableDescription = "If an Agent cannot determine a Valid Data Value for a DataItem, the value returned for the CDATA for the Data Entity MUST be reported as UNAVAILABLE.";
+        public const string UnavailableDescription = "If an Agent cannot determine a Valid Data Value for a DataItem, the value returned for the Result for the Data Entity MUST be reported as UNAVAILABLE.";
         private const string UppercaseValuePattern = "^[a-zA-Z_]*$";
 
         private static readonly Regex _uppercaseValueRegex = new Regex(UppercaseValuePattern);
@@ -153,7 +153,7 @@ namespace MTConnect.Observations
         /// </summary>
         [XmlIgnore]
         [JsonIgnore]
-        public bool IsUnavailable => GetValue(ValueKeys.CDATA) == Unavailable;
+        public bool IsUnavailable => GetValue(ValueKeys.Result) == Unavailable;
 
         [XmlIgnore]
         [JsonIgnore]
@@ -308,12 +308,12 @@ namespace MTConnect.Observations
 
         private ObservationValidationResult ValidateSample(Version mtconnectVersion, IObservationInput observation)
         {
-            // Get the CDATA Value for the Observation
-            var cdata = observation.GetValue(ValueKeys.CDATA);
-            if (cdata != null)
+            // Get the Result Value for the Observation
+            var result = observation.GetValue(ValueKeys.Result);
+            if (result != null)
             {
                 // Check if Unavailable
-                if (cdata == Unavailable) return new ObservationValidationResult(true);
+                if (result == Unavailable) return new ObservationValidationResult(true);
             }
 
             return new ObservationValidationResult(true);
@@ -321,12 +321,12 @@ namespace MTConnect.Observations
 
         private ObservationValidationResult ValidateEvent(Version mtconnectVersion, IObservationInput observation)
         {
-            // Get the CDATA Value for the Observation
-            var cdata = observation.GetValue(ValueKeys.CDATA);
-            if (cdata != null)
+            // Get the Result Value for the Observation
+            var result = observation.GetValue(ValueKeys.Result);
+            if (result != null)
             {
                 // Check if Unavailable
-                if (cdata == Unavailable) return new ObservationValidationResult(true);
+                if (result == Unavailable) return new ObservationValidationResult(true);
             }
 
             return new ObservationValidationResult(true);

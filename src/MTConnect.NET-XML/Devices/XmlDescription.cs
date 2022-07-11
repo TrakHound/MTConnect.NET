@@ -59,7 +59,7 @@ namespace MTConnect.Devices
                 Model = desription.Model;
                 SerialNumber = desription.SerialNumber;
                 Station = desription.Station;
-                CDATA = desription.CDATA;
+                CDATA = desription.Value;
             }
         }
 
@@ -70,7 +70,7 @@ namespace MTConnect.Devices
             description.Model = Model;
             description.SerialNumber = SerialNumber;
             description.Station = Station;
-            description.CDATA = CDATA;
+            description.Value = CDATA;
             return description;
         }
     }

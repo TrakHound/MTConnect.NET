@@ -87,7 +87,7 @@ namespace MTConnect.Observations.Input
             DataItemKey = dataItemKey;
             Values = new List<ObservationValue> 
             { 
-                new ObservationValue(ValueKeys.CDATA, value != null ? value.ToString() : string.Empty)
+                new ObservationValue(ValueKeys.Result, value != null ? value.ToString() : string.Empty)
             };
             Timestamp = 0;
         }
@@ -97,7 +97,7 @@ namespace MTConnect.Observations.Input
             DataItemKey = dataItemKey;
             Values = new List<ObservationValue>
             {
-                new ObservationValue(ValueKeys.CDATA, value != null ? value.ToString() : string.Empty)
+                new ObservationValue(ValueKeys.Result, value != null ? value.ToString() : string.Empty)
             };
             Timestamp = timestamp;
         }
@@ -107,7 +107,7 @@ namespace MTConnect.Observations.Input
             DataItemKey = dataItemKey;
             Values = new List<ObservationValue>
             {
-                new ObservationValue(ValueKeys.CDATA, value != null ? value.ToString() : string.Empty)
+                new ObservationValue(ValueKeys.Result, value != null ? value.ToString() : string.Empty)
             };
             Timestamp = timestamp.ToUnixTime();
         }
@@ -142,7 +142,7 @@ namespace MTConnect.Observations.Input
 
         public void Unavailable()
         {
-            AddValue(ValueKeys.CDATA, Observation.Unavailable);
+            AddValue(ValueKeys.Result, Observation.Unavailable);
         }
 
 

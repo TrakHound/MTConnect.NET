@@ -23,6 +23,6 @@ namespace MTConnect.Devices
         public const string CompositionId = "The identifier attribute of the Composition element that represents the physical part of a piece of equipment where the data represented by the DataItem element originated.";
 
 
-        public const string CDATA = "";
+        public const string Value = "";
     }
 }

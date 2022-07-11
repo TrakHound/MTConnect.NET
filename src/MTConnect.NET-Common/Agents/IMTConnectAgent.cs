@@ -529,17 +529,17 @@ namespace MTConnect.Agents
         /// Get an MTConnectErrors Document containing the specified ErrorCode
         /// </summary>
         /// <param name="errorCode">Provides a descriptive code that indicates the type of error that was encountered by an Agent when attempting to respond to a Request for information.</param>
-        /// <param name="cdata">The CDATA for Error contains a textual description of the error and any additional information an Agent is capable of providing regarding a specific error.</param>
+        /// <param name="value">A textual description of the error and any additional information an Agent is capable of providing regarding a specific error.</param>
         /// <returns>MTConnectError Response Document</returns>
-        IErrorResponseDocument GetError(ErrorCode errorCode, string cdata = null, Version mtconnectVersion = null);
+        IErrorResponseDocument GetError(ErrorCode errorCode, string value = null, Version mtconnectVersion = null);
 
         /// <summary>
         /// Get an MTConnectErrors Document containing the specified ErrorCode
         /// </summary>
         /// <param name="errorCode">Provides a descriptive code that indicates the type of error that was encountered by an Agent when attempting to respond to a Request for information.</param>
-        /// <param name="cdata">The CDATA for Error contains a textual description of the error and any additional information an Agent is capable of providing regarding a specific error.</param>
+        /// <param name="value">A textual description of the error and any additional information an Agent is capable of providing regarding a specific error.</param>
         /// <returns>MTConnectError Response Document</returns>
-        Task<IErrorResponseDocument> GetErrorAsync(ErrorCode errorCode, string cdata = null, Version mtconnectVersion = null);
+        Task<IErrorResponseDocument> GetErrorAsync(ErrorCode errorCode, string value = null, Version mtconnectVersion = null);
 
         /// <summary>
         /// Get an MTConnectErrors Document containing the specified Errors

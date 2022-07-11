@@ -25,6 +25,9 @@ namespace MTConnect.Devices.DataItems
         /// </summary>
         string CompositionId { get; }
 
-        string CDATA { get; }
+        /// <summary>
+        /// Identifier of the source entity.
+        /// </summary>
+        string Value { get; }
     }
 }

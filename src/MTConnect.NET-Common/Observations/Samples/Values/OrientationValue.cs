@@ -14,14 +14,14 @@ namespace MTConnect.Observations.Samples.Values
     {
         public override Degree3D Value
         {
-            get => Degree3D.FromString(CDATA);
-            set => CDATA = value.ToString();
+            get => Degree3D.FromString(Result);
+            set => Result = value.ToString();
         }
 
         public override Degree3D NativeValue
         {
-            get => Degree3D.FromString(CDATA);
-            set => CDATA = value.ToString();
+            get => Degree3D.FromString(Result);
+            set => Result = value.ToString();
         }
 
 

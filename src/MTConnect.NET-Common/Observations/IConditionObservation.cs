@@ -41,8 +41,8 @@ namespace MTConnect.Observations
         DataItemStatistic Statistic { get; }
 
         /// <summary>
-        /// Used to describe a value (text or data) published as part of an XML element.
+        /// Used to describe a message published as part of a Condition Fault.
         /// </summary>
-        string CDATA { get; }
+        string Message { get; }
     }
 }

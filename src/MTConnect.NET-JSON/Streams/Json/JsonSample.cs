@@ -59,7 +59,7 @@ namespace MTConnect.Streams.Json
                 SubType = observation.SubType;
                 CompositionId = observation.CompositionId;
 
-                Result = observation.GetValue(ValueKeys.CDATA);
+                Result = observation.GetValue(ValueKeys.Result);
                 ResetTriggered = observation.GetValue(ValueKeys.ResetTriggered);
                 SampleRate = observation.GetValue(ValueKeys.SampleRate).ToDouble();
                 Duration = observation.GetValue(ValueKeys.Duration).ToDouble();

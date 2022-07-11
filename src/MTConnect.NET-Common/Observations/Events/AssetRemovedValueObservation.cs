@@ -9,7 +9,7 @@ using System.Xml.Serialization;
 namespace MTConnect.Observations.Events
 {
     /// <summary>
-    /// The value of the CDATA for the event MUST be the assetId of the asset that has been removed. 
+    /// The value of the Result for the event MUST be the assetId of the asset that has been removed. 
     /// The asset will still be visible if requested with the includeRemoved parameter as described in the protocol section. 
     /// When assets are removed they are not moved to the beginning of the most recently modified list.
     /// </summary>

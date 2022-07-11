@@ -30,6 +30,6 @@ namespace MTConnect.Devices
         /// <summary>
         /// Any additional descriptive information the implementer chooses to include regarding the Component.
         /// </summary>
-        public const string CDATA = "Any additional descriptive information the implementer chooses to include regarding the Component.";
+        public const string Value = "Any additional descriptive information the implementer chooses to include regarding the Component.";
     }
 }
