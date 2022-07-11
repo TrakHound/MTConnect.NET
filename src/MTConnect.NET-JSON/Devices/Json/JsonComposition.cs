@@ -135,6 +135,9 @@ namespace MTConnect.Devices.Json
             }
         }
 
+
+        public override string ToString() => JsonFunctions.Convert(this);
+
         public Composition ToComposition()
         {
             var composition = new Composition();

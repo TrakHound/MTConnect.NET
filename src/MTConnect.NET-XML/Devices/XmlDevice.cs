@@ -201,7 +201,7 @@ namespace MTConnect.Devices
                 {
                     foreach (var dataItem in device.DataItems)
                     {
-                        DataItemCollection.DataItems.Add(dataItem);
+                        DataItemCollection.DataItems.Add(new DataItem(dataItem));
                     }
                 }
 
@@ -226,6 +226,10 @@ namespace MTConnect.Devices
                 }
             }
         }
+
+
+        public override string ToString() => ToXml(ToDevice(), true);
+
 
         public virtual Device ToDevice()
         {
@@ -264,6 +268,8 @@ namespace MTConnect.Devices
                 var dataItems = new List<IDataItem>();
                 foreach (var dataItem in DataItemCollection.DataItems)
                 {
+                    dataItem.Container = device;
+                    dataItem.Device = device;
                     dataItems.Add(dataItem);
                 }
                 device.DataItems = dataItems;
@@ -273,9 +279,11 @@ namespace MTConnect.Devices
             if (!Compositions.IsNullOrEmpty())
             {
                 var compositions = new List<Composition>();
-                foreach (var composition in Compositions)
+                foreach (var xmlComposition in Compositions)
                 {
-                    compositions.Add(composition.ToComposition());
+                    var composition = xmlComposition.ToComposition(device);
+                    composition.Parent = device;
+                    compositions.Add(composition);
                 }
                 device.Compositions = compositions;
             }
@@ -284,9 +292,11 @@ namespace MTConnect.Devices
             if (ComponentCollection != null && !ComponentCollection.Components.IsNullOrEmpty())
             {
                 var components = new List<Component>();
-                foreach (var component in ComponentCollection.Components)
+                foreach (var xmlComponent in ComponentCollection.Components)
                 {
-                    components.Add(component.ToComponent());
+                    var component = xmlComponent.ToComponent(device);
+                    component.Parent = device;
+                    components.Add(component);
                 }
                 device.Components = components;
             }
@@ -307,12 +317,12 @@ namespace MTConnect.Devices
                     {
                         using (var xmlReader = XmlReader.Create(textReader))
                         {
-                            var xmlDevice = (XmlDevice)_serializer.Deserialize(xmlReader);
-                            if (xmlDevice != null)
+                            var xmlObj = (XmlDevice)_serializer.Deserialize(xmlReader);
+                            if (xmlObj != null)
                             {
-                                if (!string.IsNullOrEmpty(deviceUuid)) xmlDevice.Uuid = deviceUuid;
+                                if (!string.IsNullOrEmpty(deviceUuid)) xmlObj.Uuid = deviceUuid;
 
-                                return xmlDevice.ToDevice();
+                                return xmlObj.ToDevice();
                             }
                         }
                     }
@@ -323,7 +333,7 @@ namespace MTConnect.Devices
             return null;
         }
 
-        public static string ToXml(IDevice device)
+        public static string ToXml(IDevice device, bool indent = false)
         {
             if (device != null)
             {
@@ -340,7 +350,7 @@ namespace MTConnect.Devices
                         regex = @"\s{1}xmlns:xsd=\""http:\/\/www\.w3\.org\/2001\/XMLSchema\""\s{1}xmlns:xsi=\""http:\/\/www\.w3\.org\/2001\/XMLSchema-instance\""";
                         xml = Regex.Replace(xml, regex, "");
 
-                        return XmlFunctions.FormatXml(xml, false, false, true);
+                        return XmlFunctions.FormatXml(xml, indent, false, true);
                     }
                 }
                 catch { }

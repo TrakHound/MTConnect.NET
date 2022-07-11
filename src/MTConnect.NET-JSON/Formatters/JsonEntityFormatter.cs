@@ -6,25 +6,27 @@
 using MTConnect.Assets;
 using MTConnect.Devices;
 using MTConnect.Observations;
-using MTConnect.Streams;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using MTConnect.Assets.Json;
+using MTConnect.Devices.Json;
+using MTConnect.Streams.Json;
 
 namespace MTConnect.Formatters
 {
-    public class XmlEntityFormatter : IEntityFormatter
+    public class JsonEntityFormatter : IEntityFormatter
     {
-        public string Id => "XML";
+        public string Id => "JSON";
 
-        public string ContentType => "application/xml";
+        public string ContentType => "application/json";
 
 
         public string Format(IDevice device)
         {
             if (device != null)
             {
-                return new XmlDevice(device).ToString();
+                return new JsonDevice(device).ToString();
             }
 
             return null;
@@ -34,7 +36,7 @@ namespace MTConnect.Formatters
         {
             if (component != null)
             {
-                return new XmlComponent(component).ToString();
+                return new JsonComponent(component).ToString();
             }
 
             return null;
@@ -44,7 +46,7 @@ namespace MTConnect.Formatters
         {
             if (composition != null)
             {
-                return new XmlComposition(composition).ToString();
+                return new JsonComposition(composition).ToString();
             }
 
             return null;
@@ -54,7 +56,7 @@ namespace MTConnect.Formatters
         {
             if (dataItem != null)
             {
-                return new XmlDataItem(dataItem).ToString();
+                return new JsonDataItem(dataItem).ToString();
             }
 
             return null;
@@ -64,7 +66,28 @@ namespace MTConnect.Formatters
         {
             if (observation != null)
             {
-                return XmlObservation.ToXml(observation, true);
+                switch (observation.Category)
+                {
+                    case Devices.DataItems.DataItemCategory.SAMPLE:
+                        var sampleObservation = SampleObservation.Create(observation);
+                        if (sampleObservation != null)
+                        {
+                            return JsonFunctions.Convert(new JsonSample(sampleObservation));
+                        }
+                        break;
+
+                    case Devices.DataItems.DataItemCategory.EVENT:
+                        var eventObservation = EventObservation.Create(observation);
+                        if (eventObservation != null)
+                        {
+                            return JsonFunctions.Convert(new JsonEvent(eventObservation));
+                        }
+                        break;
+                }
+
+
+
+                //return new JsonObservation(observation).ToString();
             }
 
             return null;
@@ -74,7 +97,7 @@ namespace MTConnect.Formatters
         {
             if (asset != null)
             {
-                return XmlAsset.ToXml(asset, true);
+                return JsonFunctions.Convert(asset);
             }
 
             return null;
@@ -83,28 +106,32 @@ namespace MTConnect.Formatters
 
         public FormattedEntityReadResult<IDevice> CreateDevice(string content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
-            var messages = new List<string>();
-            var warnings = new List<string>();
-            var errors = new List<string>();
+            //var messages = new List<string>();
+            //var warnings = new List<string>();
+            //var errors = new List<string>();
 
-            // Read Document
-            var entity = XmlDevice.FromXml(content);
-            var success = entity != null;
+            //// Read Document
+            //var entity = JsonDevice.FromJson(content);
+            //var success = entity != null;
 
-            return new FormattedEntityReadResult<IDevice>(entity, success, messages, warnings, errors);
+            //return new FormattedEntityReadResult<IDevice>(entity, success, messages, warnings, errors);
+
+            return new FormattedEntityReadResult<IDevice>();
         }
 
         public FormattedEntityReadResult<IAsset> CreateAsset(string assetType, string content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
-            var messages = new List<string>();
-            var warnings = new List<string>();
-            var errors = new List<string>();
+            //var messages = new List<string>();
+            //var warnings = new List<string>();
+            //var errors = new List<string>();
 
-            // Read Document
-            var entity = XmlAsset.FromXml(assetType, content);
-            var success = entity != null;
+            //// Read Document
+            //var entity = JsonAsset.FromJson(assetType, content);
+            //var success = entity != null;
 
-            return new FormattedEntityReadResult<IAsset>(entity, success, messages, warnings, errors);
+            //return new FormattedEntityReadResult<IAsset>(entity, success, messages, warnings, errors);
+
+            return new FormattedEntityReadResult<IAsset>();
         }
 
 

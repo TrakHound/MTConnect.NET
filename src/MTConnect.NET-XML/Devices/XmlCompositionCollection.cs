@@ -64,7 +64,7 @@ namespace MTConnect.Devices
                             // DataItems
                             if (!composition.DataItems.IsNullOrEmpty())
                             {
-                                obj.DataItemCollection = new XmlDataItemCollection { DataItems = composition.DataItems.ToList() };
+                                obj.DataItemCollection = new XmlDataItemCollection(composition.DataItems);
                             }
 
                             // Serialize the base class to a string

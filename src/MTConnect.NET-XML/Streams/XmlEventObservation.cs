@@ -1,79 +1,36 @@
-// Copyright (c) 2022 TrakHound Inc., All Rights Reserved.
+﻿// Copyright (c) 2022 TrakHound Inc., All Rights Reserved.
 
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE', which is part of this source code package.
 
 using MTConnect.Devices.DataItems;
 using MTConnect.Observations;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Xml;
-using System.Xml.Schema;
-using System.Xml.Serialization;
 
 namespace MTConnect.Streams
 {
-    /// <summary>
-    /// Samples is a XML container type element. 
-    /// Samples organizes the Data Entities returned in the MTConnectStreams XML document for those DataItem elements defined with a category attribute of EVENT in the MTConnectDevices document.
-    /// </summary>
-    public class XmlSamplesContainer : IXmlSerializable
+    public static class XmlEventObservation
     {
         private const string NodePrefixPattern = "(.*):(.*)";
-        private readonly XmlDocument _document;
-
-        /// <summary>
-        /// An XML container type element that organizes the data reported in the MTConnectStreams document for DataItem elements defined in the MTConnectDevices document with a category attribute of EVENT.
-        /// </summary>
-        [XmlIgnore]
-        public List<SampleObservation> Samples { get; set; }
+        private static readonly XmlDocument _document = new XmlDocument();
 
 
-        public XmlSamplesContainer()
+        public static void WriteXml(XmlWriter writer, IObservation observation)
         {
-            // Initialize the Samples List
-            Samples = new List<SampleObservation>();
-
-            // Create a dummy XmlDocument to use create dummy nodes
-            _document = new XmlDocument();
-        }
-
-        public XmlSamplesContainer(IObservation observation)
-        {
-            // Initialize the Samples List
-            Samples = new List<SampleObservation>();
             if (observation != null)
             {
-                var sampleObservation = SampleObservation.Create(observation);
-                if (sampleObservation != null) Samples.Add(sampleObservation);
-            }
-
-            // Create a dummy XmlDocument to use create dummy nodes
-            _document = new XmlDocument();
-        }
-
-
-        #region "Xml Serialization"
-
-        public void WriteXml(XmlWriter writer)
-        {
-            if (!Samples.IsNullOrEmpty())
-            {
-                foreach (var dataItem in Samples)
+                switch (observation.Representation)
                 {
-                    switch (dataItem.Representation)
-                    {
-                        case DataItemRepresentation.VALUE: WriteValueXml(writer, (SampleValueObservation)dataItem); break;
-                        case DataItemRepresentation.DATA_SET: WriteDataSetXml(writer, (SampleDataSetObservation)dataItem); break;
-                        case DataItemRepresentation.TABLE: WriteTableXml(writer, (SampleTableObservation)dataItem); break;
-                        case DataItemRepresentation.TIME_SERIES: WriteTimeSeriesXml(writer, (SampleTimeSeriesObservation)dataItem); break;
-                    }
+                    case DataItemRepresentation.VALUE: WriteValueXml(writer, (EventValueObservation)observation); break;
+                    case DataItemRepresentation.DATA_SET: WriteDataSetXml(writer, (EventDataSetObservation)observation); break;
+                    case DataItemRepresentation.TABLE: WriteTableXml(writer, (EventTableObservation)observation); break;
                 }
             }
         }
 
-        private static string GetElementName(SampleObservation observation)
+        private static string GetElementName(IEventObservation observation)
         {
             if (observation != null && !string.IsNullOrEmpty(observation.Type))
             {
@@ -94,7 +51,6 @@ namespace MTConnect.Streams
                 {
                     case DataItemRepresentation.DATA_SET: name += XmlObservation.DataSetSuffix; break;
                     case DataItemRepresentation.TABLE: name += XmlObservation.TableSuffix; break;
-                    case DataItemRepresentation.TIME_SERIES: name += XmlObservation.TimeSeriesSuffix; break;
                 }
 
                 return name;
@@ -103,7 +59,7 @@ namespace MTConnect.Streams
             return null;
         }
 
-        private void WriteValueXml(XmlWriter writer, SampleValueObservation observation)
+        private static void WriteValueXml(XmlWriter writer, EventValueObservation observation)
         {
             try
             {
@@ -135,6 +91,14 @@ namespace MTConnect.Streams
                             }
                         }
 
+                        // Write Value Description as Comment
+                        var valueDescriptionText = Observation.GetDescriptionText(observation.Category, observation.Type, observation.SubType, observation.CDATA);
+                        if (!string.IsNullOrEmpty(valueDescriptionText))
+                        {
+                            writer.WriteComment($"CDATA = {observation.CDATA} : {valueDescriptionText}");
+                            writer.WriteWhitespace("\r\n");
+                        }
+
                         // Write Node to XmlWriter
                         writer.WriteNode(new XmlNodeReader(node), false);
                     }
@@ -143,7 +107,7 @@ namespace MTConnect.Streams
             catch { }
         }
 
-        private void WriteDataSetXml(XmlWriter writer, SampleDataSetObservation observation)
+        private static void WriteDataSetXml(XmlWriter writer, EventDataSetObservation observation)
         {
             try
             {
@@ -203,7 +167,7 @@ namespace MTConnect.Streams
             catch { }
         }
 
-        private void WriteTableXml(XmlWriter writer, SampleTableObservation observation)
+        private static void WriteTableXml(XmlWriter writer, EventTableObservation observation)
         {
             try
             {
@@ -280,95 +244,5 @@ namespace MTConnect.Streams
             }
             catch { }
         }
-
-        private void WriteTimeSeriesXml(XmlWriter writer, SampleTimeSeriesObservation observation)
-        {
-            try
-            {
-                // Get Element name
-                var name = GetElementName(observation);
-                if (!string.IsNullOrEmpty(name))
-                {
-                    var node = _document.CreateNode(XmlNodeType.Element, null, name, null);
-                    if (node != null)
-                    {
-                        // Add Common Attributes to Node
-                        XmlObservation.AddAttributes(observation, node);
-
-                        // Count Attribute
-                        var attribute = _document.CreateAttribute("sampleCount");
-                        attribute.Value = !observation.Samples.IsNullOrEmpty() ? observation.Samples.Count().ToString() : "0";
-                        node.Attributes.Append(attribute);
-
-                        // Set InnerText to the CDATA
-                        if (!observation.Samples.IsNullOrEmpty())
-                        {
-                            node.InnerText = string.Join(" ", observation.Samples);
-                        }
-
-                        // Write Node to XmlWriter
-                        writer.WriteNode(new XmlNodeReader(node), false);
-                    }
-                }
-            }
-            catch { }
-        }
-
-
-        public void ReadXml(XmlReader reader)
-        {
-            try
-            {
-                // Read Child Elements
-                using (var inner = reader.ReadSubtree())
-                {
-                    while (inner.Read())
-                    {
-                        if (inner.NodeType == XmlNodeType.Element)
-                        {
-                            var node = _document.ReadNode(inner);
-                            foreach (XmlNode child in node.ChildNodes)
-                            {
-                                if (child.NodeType == XmlNodeType.Element)
-                                {
-                                    var elementName = child.Name;
-                                    var type = XmlObservation.GetDataItemType(elementName);
-                                    var representation = XmlObservation.GetDataItemRepresentation(elementName);
-
-                                    // Create a new Observation based on Type and Representation
-                                    var observation = SampleObservation.Create(type, representation);
-                                    if (observation != null)
-                                    {
-                                        observation.SetProperty(nameof(Observation.Type), type);
-                                        observation.SetProperty(nameof(Observation.Representation), representation);
-
-                                        // Read the XML Attributes and assign the corresponding Properties
-                                        XmlObservation.ReadAttributes(observation, child);
-
-                                        switch (observation.Representation)
-                                        {
-                                            case DataItemRepresentation.VALUE: XmlObservation.SetValue(observation, child); break;
-                                            case DataItemRepresentation.DATA_SET: XmlObservation.SetDataSetEntries(observation, child); break;
-                                            case DataItemRepresentation.TABLE: XmlObservation.SetTableEntries(observation, child); break;
-                                            case DataItemRepresentation.TIME_SERIES: XmlObservation.SetTimeSeriesEntries(observation, child); break;
-                                        }
-
-                                        Samples.Add(observation);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            catch { }
-        }
-
-        public XmlSchema GetSchema()
-        {
-            return (null);
-        }
-
-        #endregion
     }
 }

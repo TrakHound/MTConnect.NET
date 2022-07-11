@@ -3,10 +3,9 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE', which is part of this source code package.
 
+using MTConnect.Observations;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
-using MTConnect.Streams;
-using MTConnect.Observations;
 
 namespace MTConnect.Streams.Json
 {

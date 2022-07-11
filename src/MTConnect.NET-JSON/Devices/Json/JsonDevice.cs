@@ -185,6 +185,9 @@ namespace MTConnect.Devices.Json
             }
         }
 
+
+        public override string ToString() => JsonFunctions.Convert(this);
+
         public Device ToDevice()
         {
             var device = new Device();

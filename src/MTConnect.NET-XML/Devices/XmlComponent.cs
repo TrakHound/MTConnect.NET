@@ -4,7 +4,10 @@
 // file 'LICENSE', which is part of this source code package.
 
 using MTConnect.Devices.References;
+using MTConnect.Writers;
 using System.Collections.Generic;
+using System.IO;
+using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -18,17 +21,7 @@ namespace MTConnect.Devices
     [XmlRoot("Component")]
     public class XmlComponent
     {
-        /// <summary>
-        /// The XPath address of the Component
-        /// </summary>
-        [XmlIgnore]
-        public string XPath { get; set; }
-
-        /// <summary>
-        /// The path of the Component by Type
-        /// </summary>
-        [XmlIgnore]
-        public string TypePath { get; set; }
+        private static readonly XmlSerializer _serializer = new XmlSerializer(typeof(XmlComponent));
 
 
         /// <summary>
@@ -204,7 +197,7 @@ namespace MTConnect.Devices
                 {
                     foreach (var dataItem in component.DataItems)
                     {
-                        DataItemCollection.DataItems.Add(dataItem);
+                        DataItemCollection.DataItems.Add(new DataItem(dataItem));
                     }
                 }
 
@@ -230,7 +223,10 @@ namespace MTConnect.Devices
             }
         }
 
-        public Component ToComponent()
+
+        public override string ToString() => ToXml(ToComponent(), true);
+
+        public Component ToComponent(IDevice device = null)
         {
             var component = Component.Create(Type);
             if (component == null) component = new Component();
@@ -263,6 +259,8 @@ namespace MTConnect.Devices
                 var dataItems = new List<IDataItem>();
                 foreach (var dataItem in DataItemCollection.DataItems)
                 {
+                    dataItem.Container = component;
+                    dataItem.Device = device;
                     dataItems.Add(dataItem);
                 }
                 component.DataItems = dataItems;
@@ -272,9 +270,11 @@ namespace MTConnect.Devices
             if (!Compositions.IsNullOrEmpty())
             {
                 var compositions = new List<Composition>();
-                foreach (var composition in Compositions)
+                foreach (var xmlComposition in Compositions)
                 {
-                    compositions.Add(composition.ToComposition());
+                    var composition = xmlComposition.ToComposition(device);
+                    composition.Parent = component;
+                    compositions.Add(composition);
                 }
                 component.Compositions = compositions;
             }
@@ -283,14 +283,69 @@ namespace MTConnect.Devices
             if (ComponentCollection != null && !ComponentCollection.Components.IsNullOrEmpty())
             {
                 var components = new List<Component>();
-                foreach (var subcomponent in ComponentCollection.Components)
+                foreach (var xmlSubcomponent in ComponentCollection.Components)
                 {
-                    components.Add(subcomponent.ToComponent());
+                    var subcomponent = xmlSubcomponent.ToComponent(device);
+                    subcomponent.Parent = component;
+                    components.Add(subcomponent);
                 }
                 component.Components = components;
             }
 
             return component;
+        }
+
+
+        public static IComponent FromXml(string xml)
+        {
+            if (!string.IsNullOrEmpty(xml))
+            {
+                try
+                {
+                    xml = xml.Trim();
+
+                    using (var textReader = new StringReader(Namespaces.Clear(xml)))
+                    {
+                        using (var xmlReader = XmlReader.Create(textReader))
+                        {
+                            var xmlObj = (XmlComponent)_serializer.Deserialize(xmlReader);
+                            if (xmlObj != null)
+                            {
+                                return xmlObj.ToComponent();
+                            }
+                        }
+                    }
+                }
+                catch { }
+            }
+
+            return null;
+        }
+
+        public static string ToXml(IComponent component, bool indent = false)
+        {
+            if (component != null)
+            {
+                try
+                {
+                    using (var writer = new Utf8Writer())
+                    {
+                        _serializer.Serialize(writer, new XmlComponent(component));
+                        var xml = writer.ToString();
+
+                        // Remove the XSD namespace
+                        string regex = @"\s{1}xmlns:xsi=\""http:\/\/www\.w3\.org\/2001\/XMLSchema-instance\""\s{1}xmlns:xsd=\""http:\/\/www\.w3\.org\/2001\/XMLSchema\""";
+                        xml = Regex.Replace(xml, regex, "");
+                        regex = @"\s{1}xmlns:xsd=\""http:\/\/www\.w3\.org\/2001\/XMLSchema\""\s{1}xmlns:xsi=\""http:\/\/www\.w3\.org\/2001\/XMLSchema-instance\""";
+                        xml = Regex.Replace(xml, regex, "");
+
+                        return XmlFunctions.FormatXml(xml, indent, false, true);
+                    }
+                }
+                catch { }
+            }
+
+            return null;
         }
     }
 }

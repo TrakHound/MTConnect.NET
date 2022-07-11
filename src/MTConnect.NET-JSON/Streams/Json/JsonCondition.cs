@@ -3,8 +3,8 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE', which is part of this source code package.
 
-using System.Text.Json.Serialization;
 using MTConnect.Observations;
+using System.Text.Json.Serialization;
 
 namespace MTConnect.Streams.Json
 {
@@ -12,7 +12,7 @@ namespace MTConnect.Streams.Json
     /// An abstract XML Element. Replaced in the XML document by type(s) of Condition type Data Elements representing CONDITION category data items defined for a Device in the Device Information Model.
     /// There can be multiple types of Condition type XML Elements in a Condition container.
     /// </summary>
-    public class JsonCondition : JsonDataItem
+    public class JsonCondition : JsonObservation
     {
         /// <summary>
         /// Level of the Condition (Normal, Warning, Fault, or Unavailable)
@@ -60,16 +60,12 @@ namespace MTConnect.Streams.Json
                 Type = condition.Type;
                 SubType = condition.SubType;
                 CompositionId = condition.CompositionId;
-                //if (condition.ResetTriggered != Streams.ResetTriggered.NOT_SPECIFIED) ResetTriggered = condition.ResetTriggered.ToString();
                 if (!string.IsNullOrEmpty(condition.CDATA)) Result = condition.CDATA;
-                //Entries = condition.Entries;
-                //if (condition.Count > 0) Count = condition.Count;
 
                 Level = condition.Level.ToString();
                 NativeCode = condition.NativeCode;
                 NativeSeverity = condition.NativeSeverity;
                 if (condition.Qualifier != ConditionQualifier.NOT_SPECIFIED) Qualifier = condition.Qualifier.ToString();
-                //Statistic = condition.Statistic;
             }
         }
 

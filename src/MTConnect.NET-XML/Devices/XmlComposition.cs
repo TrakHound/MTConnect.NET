@@ -5,7 +5,6 @@
 
 using MTConnect.Devices.References;
 using System.Collections.Generic;
-using System.Linq;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -17,19 +16,6 @@ namespace MTConnect.Devices
     [XmlRoot("Composition")]
     public class XmlComposition
     {
-        /// <summary>
-        /// The XPath address of the Component
-        /// </summary>
-        [XmlIgnore]
-        public string XPath { get; set; }
-
-        /// <summary>
-        /// The path of the Component by Type
-        /// </summary>
-        [XmlIgnore]
-        public string TypePath { get; set; }
-
-
         /// <summary>
         /// The unique identifier for this Component in the document.
         /// An id MUST be unique across all the id attributes in the document.
@@ -162,12 +148,12 @@ namespace MTConnect.Devices
                 // DataItems
                 if (!composition.DataItems.IsNullOrEmpty())
                 {
-                    DataItemCollection = new XmlDataItemCollection { DataItems = composition.DataItems.ToList() };
+                    DataItemCollection = new XmlDataItemCollection(composition.DataItems);
                 }
             }
         }
 
-        public Composition ToComposition()
+        public Composition ToComposition(IDevice device = null)
         {
             var composition = Composition.Create(Type);
             if (composition == null) composition = new Composition();
@@ -197,7 +183,14 @@ namespace MTConnect.Devices
             // DataItems
             if (DataItemCollection != null && !DataItemCollection.DataItems.IsNullOrEmpty())
             {
-                composition.DataItems = DataItemCollection.DataItems;
+                var dataItems = new List<IDataItem>();
+                foreach (var dataItem in DataItemCollection.DataItems)
+                {
+                    dataItem.Container = composition;
+                    dataItem.Device = device;
+                    dataItems.Add(dataItem);
+                }
+                composition.DataItems = dataItems;
             }
 
             return composition;

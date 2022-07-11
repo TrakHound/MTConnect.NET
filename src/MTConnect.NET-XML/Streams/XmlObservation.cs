@@ -5,6 +5,7 @@
 
 using MTConnect.Devices.DataItems;
 using MTConnect.Observations;
+using MTConnect.Writers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,12 +14,47 @@ using System.Xml;
 
 namespace MTConnect.Streams
 {
-    internal static class XmlObservation
+    public class XmlObservation
     {
         public const string DataSetSuffix = "DataSet";
         public const string TableSuffix = "Table";
         public const string TimeSeriesSuffix = "TimeSeries";
         public const string XmlAttributeName = "XmlAttributeAttribute";
+
+
+        public static string ToXml(IObservation observation, bool indent = false)
+        {
+            if (observation != null)
+            {
+                try
+                {
+                    using (var writer = new Utf8Writer())
+                    {
+                        var settings = new XmlWriterSettings()
+                        {
+                            OmitXmlDeclaration = true,
+                            CheckCharacters = false
+                        };
+
+                        using (var xmlWriter = XmlWriter.Create(writer, settings))
+                        {
+                            switch (observation.Category)
+                            {
+                                case DataItemCategory.SAMPLE: XmlSampleObservation.WriteXml(xmlWriter, observation); break;
+                                case DataItemCategory.EVENT: XmlEventObservation.WriteXml(xmlWriter, observation); break;
+                                case DataItemCategory.CONDITION: XmlConditionObservation.WriteXml(xmlWriter, observation); break;
+                            }
+
+                            xmlWriter.Flush();
+                            return XmlFunctions.FormatXml(writer.ToString(), indent, false, true);
+                        }
+                    }             
+                }
+                catch { }
+            }
+
+            return null;
+        }
 
 
         #region "Representations"

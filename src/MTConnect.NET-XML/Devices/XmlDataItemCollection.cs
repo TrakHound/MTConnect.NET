@@ -18,19 +18,33 @@ namespace MTConnect.Devices
         private static readonly XmlSerializer _serializer = new XmlSerializer(typeof(XmlDataItem));
 
 
-        private List<IDataItem> _dataItems;
+        private List<DataItem> _dataItems;
         [XmlIgnore]
-        public List<IDataItem> DataItems
+        public List<DataItem> DataItems
         {
             get
             {
-                if (_dataItems == null) _dataItems = new List<IDataItem>();
+                if (_dataItems == null) _dataItems = new List<DataItem>();
                 return _dataItems;
             }
             set
             {
                 _dataItems = value;
             }
+        }
+
+
+        public XmlDataItemCollection() { }
+
+        public XmlDataItemCollection(IEnumerable<IDataItem> dataItems) 
+        {
+            if (!dataItems.IsNullOrEmpty())
+            {
+                foreach (var dataItem in dataItems)
+                {
+                    DataItems.Add(new DataItem(dataItem));
+                }
+            }   
         }
 
 

@@ -169,6 +169,9 @@ namespace MTConnect.Devices.Json
             }
         }
 
+
+        public override string ToString() => JsonFunctions.Convert(this);
+
         public Component ToComponent()
         {
             var component = new Component();

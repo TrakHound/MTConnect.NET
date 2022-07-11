@@ -197,6 +197,9 @@ namespace MTConnect.Devices.Json
             }
         }
 
+
+        public override string ToString() => JsonFunctions.Convert(this);
+
         public DataItem ToDataItem()
         {
             var dataItem = DataItem.Create(Type);

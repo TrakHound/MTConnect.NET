@@ -4,7 +4,7 @@
 // file 'LICENSE', which is part of this source code package.
 
 using MTConnect.Observations;
-using MTConnect.Streams;
+using System.Linq;
 
 namespace MTConnect.Streams.Json
 {
@@ -12,11 +12,11 @@ namespace MTConnect.Streams.Json
     /// An abstract XML Element. Replaced in the XML document by type(s) of Sample XML elements representing SAMPLE category data items defined for a Device in the Device Information Model.
     /// There can be multiple types of Sample XML Elements in a Samples container.
     /// </summary>
-    public class JsonEvent : JsonDataItem
+    public class JsonEvent : JsonObservation
     {
         public JsonEvent() { }
 
-        public JsonEvent(EventObservation e)
+        public JsonEvent(Observation e)
         {
             if (e != null)
             {
@@ -27,28 +27,22 @@ namespace MTConnect.Streams.Json
                 Type = e.Type;
                 SubType = e.SubType;
                 CompositionId = e.CompositionId;
-                if (e.ResetTriggered != Observations.ResetTriggered.NOT_SPECIFIED) ResetTriggered = e.ResetTriggered.ToString();
                 Result = e.GetValue(ValueKeys.CDATA);
-                //Entries = e.Entries;
-                //if (e.Count > 0) Count = e.Count;
-            }
-        }
+                ResetTriggered = e.GetValue(ValueKeys.ResetTriggered);
 
-        public JsonEvent(Observation e)
-        {
-            if (e != null)
-            {
-                DataItemId = e.DataItemId;
-                Timestamp = e.Timestamp;
-                Name = e.Name;
-                Sequence = e.Sequence;
-                Type = e.Type.ToPascalCase();
-                SubType = e.SubType.ToPascalCase();
-                CompositionId = e.CompositionId;
-                //if (e.ResetTriggered != Streams.ResetTriggered.NOT_SPECIFIED) ResetTriggered = e.ResetTriggered.ToString();
-                Result = e.GetValue(ValueKeys.CDATA);
-                //Entries = e.Entries;
-                //if (e.Count > 0) Count = e.Count;
+                // DataSet Entries
+                if (e is EventDataSetObservation)
+                {
+                    Entries = CreateEntries(((EventDataSetObservation)e).Entries);
+                    Count = !Entries.IsNullOrEmpty() ? Entries.Count() : 0;
+                }
+
+                // Table Entries
+                if (e is EventTableObservation)
+                {
+                    Entries = CreateEntries(((EventTableObservation)e).Entries);
+                    Count = !Entries.IsNullOrEmpty() ? Entries.Count() : 0;
+                }
             }
         }
 
@@ -70,9 +64,9 @@ namespace MTConnect.Streams.Json
             return e;
         }
 
-        public Observations.Observation ToObservation()
+        public Observation ToObservation()
         {
-            var e = new Observations.Observation();
+            var e = new Observation();
             //e.DataItemId = DataItemId;
             //e.Timestamp = Timestamp;
             //e.Name = Name;

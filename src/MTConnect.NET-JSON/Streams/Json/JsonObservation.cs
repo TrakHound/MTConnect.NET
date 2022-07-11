@@ -6,10 +6,11 @@
 using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
+using MTConnect.Observations;
 
 namespace MTConnect.Streams.Json
 {
-    public class JsonDataItem
+    public class JsonObservation
     {
         /// <summary>
         /// The unique identifier for the DataItem. 
@@ -74,13 +75,44 @@ namespace MTConnect.Streams.Json
         [JsonPropertyName("result")]
         public string Result { get; set; }
 
-        //[JsonPropertyName("entries")]
-        //public List<Entry> Entries { get; set; }
+        [JsonPropertyName("entries")]
+        public IEnumerable<JsonEntry> Entries { get; set; }
 
         /// <summary>
         /// The number of Entry elements for the observation.
         /// </summary>
         [JsonPropertyName("count")]
         public long? Count { get; set; }
+
+
+        public static IEnumerable<JsonEntry> CreateEntries(IEnumerable<IDataSetEntry> entries)
+        {
+            if (!entries.IsNullOrEmpty())
+            {
+                var jsonEntries = new List<JsonEntry>();
+                foreach (var entry in entries)
+                {
+                    jsonEntries.Add(new JsonEntry(entry));
+                }
+                return jsonEntries;
+            }
+
+            return null;
+        }
+
+        public static IEnumerable<JsonEntry> CreateEntries(IEnumerable<ITableEntry> entries)
+        {
+            if (!entries.IsNullOrEmpty())
+            {
+                var jsonEntries = new List<JsonEntry>();
+                foreach (var entry in entries)
+                {
+                    jsonEntries.Add(new JsonEntry(entry));
+                }
+                return jsonEntries;
+            }
+
+            return null;
+        }
     }
 }

@@ -39,6 +39,20 @@ namespace MTConnect.Streams
             _document = new XmlDocument();
         }
 
+        public XmlEventsContainer(IObservation observation)
+        {
+            // Initialize the Events List
+            Events = new List<EventObservation>();
+            if (observation != null)
+            {
+                var eventObservation = observation as EventObservation;
+                if (eventObservation != null) Events.Add(eventObservation);
+            }
+
+            // Create a dummy XmlDocument to use create dummy nodes
+            _document = new XmlDocument();
+        }
+
 
         #region "Xml Serialization"
 

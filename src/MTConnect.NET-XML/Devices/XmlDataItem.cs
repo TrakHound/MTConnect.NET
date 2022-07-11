@@ -5,7 +5,10 @@
 
 using MTConnect.Devices.Configurations.Relationships;
 using MTConnect.Devices.DataItems;
+using MTConnect.Writers;
 using System.Collections.Generic;
+using System.IO;
+using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -18,6 +21,9 @@ namespace MTConnect.Devices
     [XmlRoot("DataItem")]
     public class XmlDataItem
     {
+        private static readonly XmlSerializer _serializer = new XmlSerializer(typeof(XmlDataItem));
+
+
         /// <summary>
         /// The XPath address of the DataItem
         /// </summary>
@@ -276,6 +282,10 @@ namespace MTConnect.Devices
             }
         }
 
+
+        public override string ToString() => ToXml(ToDataItem(), true);
+
+
         public DataItem ToDataItem()
         {
             var dataItem = DataItem.Create(Type);
@@ -315,6 +325,59 @@ namespace MTConnect.Devices
             }
 
             return dataItem;
+        }
+
+
+        public static IDataItem FromXml(string xml)
+        {
+            if (!string.IsNullOrEmpty(xml))
+            {
+                try
+                {
+                    xml = xml.Trim();
+
+                    using (var textReader = new StringReader(Namespaces.Clear(xml)))
+                    {
+                        using (var xmlReader = XmlReader.Create(textReader))
+                        {
+                            var xmlObj = (XmlDataItem)_serializer.Deserialize(xmlReader);
+                            if (xmlObj != null)
+                            {
+                                return xmlObj.ToDataItem();
+                            }
+                        }
+                    }
+                }
+                catch { }
+            }
+
+            return null;
+        }
+
+        public static string ToXml(IDataItem dataItem, bool indent = false)
+        {
+            if (dataItem != null)
+            {
+                try
+                {
+                    using (var writer = new Utf8Writer())
+                    {
+                        _serializer.Serialize(writer, new XmlDataItem(dataItem));
+                        var xml = writer.ToString();
+
+                        // Remove the XSD namespace
+                        string regex = @"\s{1}xmlns:xsi=\""http:\/\/www\.w3\.org\/2001\/XMLSchema-instance\""\s{1}xmlns:xsd=\""http:\/\/www\.w3\.org\/2001\/XMLSchema\""";
+                        xml = Regex.Replace(xml, regex, "");
+                        regex = @"\s{1}xmlns:xsd=\""http:\/\/www\.w3\.org\/2001\/XMLSchema\""\s{1}xmlns:xsi=\""http:\/\/www\.w3\.org\/2001\/XMLSchema-instance\""";
+                        xml = Regex.Replace(xml, regex, "");
+
+                        return XmlFunctions.FormatXml(xml, indent, false, true);
+                    }
+                }
+                catch { }
+            }
+
+            return null;
         }
     }
 }

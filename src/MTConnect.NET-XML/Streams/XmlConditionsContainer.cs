@@ -36,6 +36,20 @@ namespace MTConnect.Streams
             _document = new XmlDocument();
         }
 
+        public XmlConditionsContainer(IObservation observation)
+        {
+            // Initialize the Conditions List
+            Conditions = new List<ConditionObservation>();
+            if (observation != null)
+            {
+                var conditionObservation = observation as ConditionObservation;
+                if (conditionObservation != null) Conditions.Add(conditionObservation);
+            }
+
+            // Create a dummy XmlDocument to use create dummy nodes
+            _document = new XmlDocument();
+        }
+
 
         #region "Xml Serialization"
 

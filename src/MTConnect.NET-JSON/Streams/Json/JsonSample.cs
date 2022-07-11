@@ -3,12 +3,12 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE', which is part of this source code package.
 
+using MTConnect.Devices.DataItems;
+using MTConnect.Observations;
+using System.Linq;
 using System.Text.Json.Serialization;
 using System.Xml;
 using System.Xml.Serialization;
-using MTConnect.Observations;
-using MTConnect.Devices;
-using MTConnect.Devices.DataItems;
 
 namespace MTConnect.Streams.Json
 {
@@ -16,7 +16,7 @@ namespace MTConnect.Streams.Json
     /// An abstract XML Element. Replaced in the XML document by type(s) of Sample XML elements representing SAMPLE category data items defined for a Device in the Device Information Model.
     /// There can be multiple types of Sample XML Elements in a Samples container.
     /// </summary>
-    public class JsonSample : JsonDataItem
+    public class JsonSample : JsonObservation
     {
         /// <summary>
         /// The rate at which successive samples of the value of a DataItem are recorded.
@@ -47,24 +47,45 @@ namespace MTConnect.Streams.Json
 
         public JsonSample() { }
 
-        public JsonSample(SampleObservation sample)
+        public JsonSample(Observation observation)
         {
-            if (sample != null)
+            if (observation != null)
             {
-                DataItemId = sample.DataItemId;
-                Timestamp = sample.Timestamp;
-                Name = sample.Name;
-                Sequence = sample.Sequence;
-                Type = sample.Type;
-                SubType = sample.SubType;
-                CompositionId = sample.CompositionId;
-                if (sample.ResetTriggered != Observations.ResetTriggered.NOT_SPECIFIED) ResetTriggered = sample.ResetTriggered.ToString();
-                Result = sample.GetValue(ValueKeys.CDATA);
-                //if (!sample.Entries.IsNullOrEmpty()) Entries = sample.Entries;
-                //if (sample.Count > 0) Count = sample.Count;
-                if (sample.SampleRate > 0) SampleRate = sample.SampleRate;
-                if (sample.Statistic != DataItemStatistic.NONE) Statistic = sample.Statistic.ToString();
-                if (sample.Duration > 0) Duration = sample.Duration;
+                DataItemId = observation.DataItemId;
+                Timestamp = observation.Timestamp;
+                Name = observation.Name;
+                Sequence = observation.Sequence;
+                Type = observation.Type;
+                SubType = observation.SubType;
+                CompositionId = observation.CompositionId;
+
+                Result = observation.GetValue(ValueKeys.CDATA);
+                ResetTriggered = observation.GetValue(ValueKeys.ResetTriggered);
+                SampleRate = observation.GetValue(ValueKeys.SampleRate).ToDouble();
+                Duration = observation.GetValue(ValueKeys.Duration).ToDouble();
+
+                var statistic = observation.GetValue(ValueKeys.Statistic);
+                if (statistic != DataItemStatistic.NONE.ToString()) Statistic = statistic;
+
+                // DataSet Entries
+                if (observation is SampleDataSetObservation)
+                {
+                    Entries = CreateEntries(((SampleDataSetObservation)observation).Entries);
+                    Count = !Entries.IsNullOrEmpty() ? Entries.Count() : 0;
+                }
+
+                // Table Entries
+                if (observation is SampleTableObservation)
+                {
+                    Entries = CreateEntries(((SampleTableObservation)observation).Entries);
+                    Count = !Entries.IsNullOrEmpty() ? Entries.Count() : 0;
+                }
+
+                // TimeSeries
+                if (observation is SampleTimeSeriesObservation)
+                {
+
+                }
             }
         }
 

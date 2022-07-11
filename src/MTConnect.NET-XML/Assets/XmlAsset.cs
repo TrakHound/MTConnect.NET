@@ -104,7 +104,7 @@ namespace MTConnect.Assets
         }
 
 
-        public static string ToXml(IAsset asset)
+        public static string ToXml(IAsset asset, bool indent = false)
         {
             try
             {
@@ -122,7 +122,9 @@ namespace MTConnect.Assets
                     var match = regex.Match(xml);
                     if (match.Success)
                     {
-                        return Namespaces.Clear(match.Groups[1].Value);
+                        xml = Namespaces.Clear(match.Groups[1].Value);
+
+                        return XmlFunctions.FormatXml(xml, indent, false, true);
                     }
                 }
             }
