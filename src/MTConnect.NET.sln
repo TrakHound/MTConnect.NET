@@ -71,6 +71,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-Client-SHDR",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleApp1", "C:\temp\ConsoleApp1\ConsoleApp1.csproj", "{3F65E5F4-1AA8-45D6-B1B7-DA2424E637D4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MTConnect.NET-Applications-Agents", "MTConnect.NET-Applications-Agents\MTConnect.NET-Applications-Agents.csproj", "{F41A6B71-15E9-4E02-81DE-559F788250EF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -234,6 +236,12 @@ Global
 		{3F65E5F4-1AA8-45D6-B1B7-DA2424E637D4}.Package|Any CPU.Build.0 = Debug|Any CPU
 		{3F65E5F4-1AA8-45D6-B1B7-DA2424E637D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3F65E5F4-1AA8-45D6-B1B7-DA2424E637D4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F41A6B71-15E9-4E02-81DE-559F788250EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F41A6B71-15E9-4E02-81DE-559F788250EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F41A6B71-15E9-4E02-81DE-559F788250EF}.Package|Any CPU.ActiveCfg = Debug|Any CPU
+		{F41A6B71-15E9-4E02-81DE-559F788250EF}.Package|Any CPU.Build.0 = Debug|Any CPU
+		{F41A6B71-15E9-4E02-81DE-559F788250EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F41A6B71-15E9-4E02-81DE-559F788250EF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -264,6 +272,7 @@ Global
 		{1C315027-20D0-4166-97DC-D6AE80184AE1} = {14375E03-6BF8-45E6-B868-D2399368992B}
 		{05E16071-57D7-46EE-A062-8896C724A2E3} = {F3BC3895-4155-4C8D-BAB2-437741AC9B5D}
 		{3F65E5F4-1AA8-45D6-B1B7-DA2424E637D4} = {14375E03-6BF8-45E6-B868-D2399368992B}
+		{F41A6B71-15E9-4E02-81DE-559F788250EF} = {6C3F47E0-BC95-48CB-93A4-C34A0D5CA43B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CC13D3AD-18BF-4695-AB2A-087EF0885B20}

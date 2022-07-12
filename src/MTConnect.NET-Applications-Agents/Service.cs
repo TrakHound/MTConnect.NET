@@ -3,6 +3,7 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
+using MTConnect.Applications.Agents;
 using MTConnect.Services;
 using NLog;
 
@@ -11,20 +12,24 @@ namespace MTConnect.Applications
     public class Service : MTConnectAgentService
     {
         private static readonly Logger _serviceLogger = LogManager.GetLogger("service-logger");
+        private readonly IMTConnectAgentApplication _application;
 
 
-        public Service(string name = null, string displayName = null, string description = null, bool autoStart = true)
-            : base(name, displayName, description, autoStart) { }
+        public Service(IMTConnectAgentApplication application, string name = null, string displayName = null, string description = null, bool autoStart = true)
+            : base(name, displayName, description, autoStart) 
+        {
+            _application = application;
+        }
 
 
         protected override void StartAgent(string configurationPath)
         {
-            Program.StartAgent(configurationPath);
+            _application.StartAgent(configurationPath);
         }
 
         protected override void StopAgent()
         {
-            Program.StopAgent();
+            _application.StopAgent();
         }
 
 
