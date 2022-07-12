@@ -564,7 +564,8 @@ namespace MTConnect.Buffers
                                 // Don't include existing NORMAL or UNAVAILABLE
                                 conditionLevel = existingObservation.Values.FirstOrDefault(o => o.Key == ValueKeys.Level).Value;
                                 if (conditionLevel != ConditionLevel.NORMAL.ToString() &&
-                                    conditionLevel != ConditionLevel.UNAVAILABLE.ToString())
+                                    conditionLevel != ConditionLevel.UNAVAILABLE.ToString() &&
+                                    existingObservation.Sequence != observation.Sequence)
                                 {
                                     observations.Add(existingObservation);
                                 }
