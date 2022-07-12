@@ -45,27 +45,6 @@ namespace MTConnect.Configurations
         public int AssetBufferSize { get; set; }
 
 
-        ///// <summary>
-        ///// The Path to look for the file(s) that represent the Device Information Models to load into the Agent.
-        ///// The path can either be a single file or a directory. The path can be absolute or relative to the executable's directory
-        ///// </summary>
-        //[JsonPropertyName("devices")]
-        //public string Devices { get; set; }
-
-
-        ///// <summary>
-        ///// Changes the service name when installing or removing the service. This allows multiple agents to run as services on the same machine.
-        ///// </summary>
-        //[JsonPropertyName("serviceName")]
-        //public string ServiceName { get; set; }
-
-        ///// <summary>
-        ///// Sets the Service Start Type. True = Auto | False = Manual
-        ///// </summary>
-        //[JsonPropertyName("serviceAutoStart")]
-        //public bool ServiceAutoStart { get; set; }
-
-
         /// <summary>
         /// Overwrite timestamps with the agent time. 
         /// This will correct clock drift but will not give as accurate relative time since it will not take into consideration network latencies. 
@@ -118,61 +97,15 @@ namespace MTConnect.Configurations
         public bool OutputComments { get; set; }
 
 
-        ///// <summary>
-        ///// Gets or Sets whether Configuration files are monitored. If enabled and a configuration file is changed, the Agent will restart
-        ///// </summary>
-        //[JsonPropertyName("monitorConfigurationFiles")]
-        //public bool MonitorConfigurationFiles { get; set; }
-
-        ///// <summary>
-        ///// Gets or Sets the minimum time (in seconds) between Agent restarts when MonitorConfigurationFiles is enabled
-        ///// </summary>
-        //[JsonPropertyName("configurationFileRestartInterval")]
-        //public int ConfigurationFileRestartInterval { get; set; }
-
-
-
-        //[JsonPropertyName("devicesNamespaces")]
-        //public List<NamespaceConfiguration> DevicesNamespaces { get; set; }
-
-        //[JsonPropertyName("streamsNamespaces")]
-        //public List<NamespaceConfiguration> StreamsNamespaces { get; set; }
-
-        //[JsonPropertyName("assetsNamespaces")]
-        //public List<NamespaceConfiguration> AssetsNamespaces { get; set; }
-
-        //[JsonPropertyName("errorNamespaces")]
-        //public List<NamespaceConfiguration> ErrorNamespaces { get; set; }
-
-
-        //[JsonPropertyName("devicesStyle")]
-        //public StyleConfiguration DevicesStyle { get; set; }
-
-        //[JsonPropertyName("streamsStyle")]
-        //public StyleConfiguration StreamsStyle { get; set; }
-
-        //[JsonPropertyName("assetsStyle")]
-        //public StyleConfiguration AssetsStyle { get; set; }
-
-        //[JsonPropertyName("errorStyle")]
-        //public StyleConfiguration ErrorStyle { get; set; }
-
-
-
         public AgentConfiguration()
         {
             ObservationBufferSize = 131072;
             AssetBufferSize = 1024;
-            //Devices = "devices.xml";
-            //ServiceName = null;
-            //ServiceAutoStart = true;
             DefaultVersion = MTConnectVersions.Max;
             InputValidationLevel = InputValidationLevel.Warning;
             OutputValidationLevel = ValidationLevel.Ignore;
             ConvertUnits = true;
             IgnoreObservationCase = true;
-            //MonitorConfigurationFiles = true;
-            //ConfigurationFileRestartInterval = 2;
             IndentOutput = true;
             OutputComments = false;
         }
@@ -197,7 +130,12 @@ namespace MTConnect.Configurations
                     var text = File.ReadAllText(configurationPath);
                     if (!string.IsNullOrEmpty(text))
                     {
-                        var configuration = JsonSerializer.Deserialize<T>(text);
+                        var options = new JsonSerializerOptions()
+                        {
+                            ReadCommentHandling = JsonCommentHandling.Skip
+                        };
+
+                        var configuration = JsonSerializer.Deserialize<T>(text, options);
                         configuration.Path = configurationPath;
                         return configuration;
                     }
