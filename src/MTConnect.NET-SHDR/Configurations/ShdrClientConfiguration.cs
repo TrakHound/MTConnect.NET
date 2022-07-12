@@ -12,6 +12,9 @@ namespace MTConnect.Configurations
     /// </summary>
     public class ShdrClientConfiguration
     {
+        public const string DeviceKeyWildcard = "*";
+
+
         /// <summary>
         /// The unique identifier for the Adapter
         /// </summary>
@@ -66,6 +69,7 @@ namespace MTConnect.Configurations
 
         public ShdrClientConfiguration()
         {
+            DeviceKey = DeviceKeyWildcard;
             Hostname = "localhost";
             Port = 7878;
             Heartbeat = 5000;
