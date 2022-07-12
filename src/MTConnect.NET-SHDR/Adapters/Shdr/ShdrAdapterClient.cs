@@ -26,10 +26,11 @@ namespace MTConnect.Adapters.Shdr
         private IDevice _device;
 
 
-        public ShdrAdapterClient(ShdrAdapterConfiguration configuration, IMTConnectAgent agent, IDevice device)
+        public ShdrAdapterClient(ShdrAdapterConfiguration configuration, IMTConnectAgent agent, IDevice device, string idSuffix = null)
         {
             _configuration = configuration;
             Id = configuration != null ? configuration.Id : StringFunctions.RandomString(10);
+            if (!string.IsNullOrEmpty(idSuffix)) Id = Id != null ? $"{Id}_{idSuffix}" : idSuffix;
             _agent = agent;
             _device = device;
 
