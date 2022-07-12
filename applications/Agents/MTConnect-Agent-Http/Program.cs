@@ -270,8 +270,10 @@ namespace MTConnect.Applications
                     _mtconnectAgent.InvalidAssetAdded += InvalidAsset;
                 }
 
-                // Add Devices
-                var devices = DeviceConfiguration.FromFiles(configuration.Devices, DocumentFormat.XML);
+                // Read Device Configuration Files
+                var devicesPath = configuration.Devices;
+                if (string.IsNullOrEmpty(devicesPath) && !configuration.AllowShdrDevice) devicesPath = "devices";
+                var devices = DeviceConfiguration.FromFiles(devicesPath, DocumentFormat.XML);
                 if (!devices.IsNullOrEmpty())
                 {
                     // Add Device(s) to Agent
@@ -304,43 +306,39 @@ namespace MTConnect.Applications
                 // Add Adapter Clients
                 if (!configuration.Adapters.IsNullOrEmpty())
                 {
-                    foreach (var adapterConfiguration in configuration.Adapters)
+                    if (!devices.IsNullOrEmpty())
                     {
-                        // Get the Device matching the "Device" configured in the AdapterConfiguration
-                        var device = devices?.FirstOrDefault(o => o.Uuid == adapterConfiguration.DeviceKey || o.Name == adapterConfiguration.DeviceKey);
-
-                        var adapterComponent = new ShdrAdapterComponent(adapterConfiguration);
-
-                        // Add Adapter Component to Agent Device
-                        _mtconnectAgent.Agent.AddAdapterComponent(adapterComponent);
-
-                        if (!adapterComponent.DataItems.IsNullOrEmpty())
+                        // Device Specific Adapters (DeviceKey specified)
+                        var deviceAdapters = configuration.Adapters.Where(o => o.DeviceKey != ShdrClientConfiguration.DeviceKeyWildcard);
+                        if (!deviceAdapters.IsNullOrEmpty())
                         {
-                            // Initialize Adapter URI Observation
-                            var adapterUriDataItem = adapterComponent.DataItems.FirstOrDefault(o => o.Type == AdapterUriDataItem.TypeId);
-                            if (adapterUriDataItem != null && initializeDataItems)
+                            foreach (var adapter in deviceAdapters)
                             {
-                                _mtconnectAgent.AddObservation(_mtconnectAgent.Uuid, adapterUriDataItem.Id, adapterComponent.Uri);
+                                // Find Device matching DeviceKey
+                                var device = devices?.FirstOrDefault(o => o.Uuid == adapter.DeviceKey || o.Name == adapter.DeviceKey);
+                                if (device != null) AddAdapter(adapter, device, initializeDataItems);
                             }
                         }
 
-                        // Create new SHDR Adapter Client to read from SHDR stream
-                        var adapterClient = new ShdrAdapterClient(adapterConfiguration, _mtconnectAgent, device);
-                        _adapters.Add(adapterClient);
-
-                        if (verboseLogging)
+                        // Wildcard Adapters (DeviceKey = '*')
+                        var wildCardAdapters = configuration.Adapters.Where(o => o.DeviceKey == ShdrClientConfiguration.DeviceKeyWildcard);
+                        if (!wildCardAdapters.IsNullOrEmpty())
                         {
-                            adapterClient.Connected += AdapterConnected;
-                            adapterClient.Disconnected += AdapterDisconnected;
-                            adapterClient.ConnectionError += AdapterConnectionError;
-                            adapterClient.Listening += AdapterListening;
-                            adapterClient.PingSent += AdapterPingSent;
-                            adapterClient.PongReceived += AdapterPongReceived;
-                            adapterClient.ProtocolReceived += AdapterProtocolReceived;
+                            foreach (var adapter in wildCardAdapters)
+                            {
+                                // Add Adapter for each Device (every device reads from the same adapter)
+                                foreach (var device in devices) AddAdapter(adapter, device, initializeDataItems, device.Id);
+                            }
                         }
-
-                        // Start the Adapter Client
-                        adapterClient.Start();
+                    }
+                    else if (configuration.AllowShdrDevice) // Prevent accidental generic Adapter creation
+                    {
+                        foreach (var adapter in configuration.Adapters)
+                        {
+                            // Add a generic Adapter Client (no Device)
+                            // Typically used if the Device Model is sent using SHDR
+                            AddAdapter(adapter, null, initializeDataItems);
+                        }
                     }
                 }
 
@@ -416,6 +414,49 @@ namespace MTConnect.Applications
             }
         }
 
+
+        #region "Adapters"
+
+        private static void AddAdapter(ShdrAdapterConfiguration configuration, IDevice device, bool initializeDataItems = true, string idSuffix = null)
+        {
+            if (configuration != null)
+            {
+                var adapterComponent = new ShdrAdapterComponent(configuration, idSuffix);
+
+                // Add Adapter Component to Agent Device
+                _mtconnectAgent.Agent.AddAdapterComponent(adapterComponent);
+
+                if (!adapterComponent.DataItems.IsNullOrEmpty())
+                {
+                    // Initialize Adapter URI Observation
+                    var adapterUriDataItem = adapterComponent.DataItems.FirstOrDefault(o => o.Type == AdapterUriDataItem.TypeId);
+                    if (adapterUriDataItem != null && initializeDataItems)
+                    {
+                        _mtconnectAgent.AddObservation(_mtconnectAgent.Uuid, adapterUriDataItem.Id, adapterComponent.Uri);
+                    }
+                }
+
+                // Create new SHDR Adapter Client to read from SHDR stream
+                var adapterClient = new ShdrAdapterClient(configuration, _mtconnectAgent, device, idSuffix);
+                _adapters.Add(adapterClient);
+
+                if (_verboseLogging)
+                {
+                    adapterClient.Connected += AdapterConnected;
+                    adapterClient.Disconnected += AdapterDisconnected;
+                    adapterClient.ConnectionError += AdapterConnectionError;
+                    adapterClient.Listening += AdapterListening;
+                    adapterClient.PingSent += AdapterPingSent;
+                    adapterClient.PongReceived += AdapterPongReceived;
+                    adapterClient.ProtocolReceived += AdapterProtocolReceived;
+                }
+
+                // Start the Adapter Client
+                adapterClient.Start();
+            }
+        }
+
+        #endregion
 
         #region "Agent Configuration"
 
@@ -496,7 +537,7 @@ namespace MTConnect.Applications
 
         #endregion
 
-        #region "Console Output"
+        #region "Logging"
 
         private static void PrintHeader()
         {
@@ -661,7 +702,7 @@ namespace MTConnect.Applications
             var dataItemId = DataItem.CreateId(adapterClient.Id, ConnectionStatusDataItem.NameId);
             _mtconnectAgent.AddObservation(_mtconnectAgent.Uuid, dataItemId, Observations.Events.Values.ConnectionStatus.ESTABLISHED);
 
-            _adapterLogger.Log(_logLevel, $"[Adapter] : ID = " + adapterClient.Id + " : " + message);
+            _adapterLogger.Info($"[Adapter] : ID = " + adapterClient.Id + " : " + message);
         }
 
         private static void AdapterDisconnected(object sender, string message)
@@ -671,7 +712,7 @@ namespace MTConnect.Applications
             var dataItemId = DataItem.CreateId(adapterClient.Id, ConnectionStatusDataItem.NameId);
             _mtconnectAgent.AddObservation(_mtconnectAgent.Uuid, dataItemId, Observations.Events.Values.ConnectionStatus.CLOSED);
 
-            _adapterLogger.Log(_logLevel, $"[Adapter] : ID = " + adapterClient.Id + " : " + message);
+            _adapterLogger.Info($"[Adapter] : ID = " + adapterClient.Id + " : " + message);
         }
 
         private static void AdapterConnectionError(object sender, Exception exception)

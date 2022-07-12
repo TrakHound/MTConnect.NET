@@ -1,12 +1,11 @@
 ﻿{
-	"devices": "devices",
 	"port": 5005,
 	"durable": true,
 	"allowPut": true,
+	//"allowShdrDevice": true,
 	"inputValidationLevel": 2,
 	"adapters": [
 		{
-			"deviceKey": "M12346",
 			"hostname": "localhost",
 			"port": 7878,
 			"reconnectInterval": 100

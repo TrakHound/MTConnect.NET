@@ -412,6 +412,37 @@ namespace MTConnect.Applications.Adapters.Shdr.Adapters
         }
 
 
+
+        public void TestConditionUnavailable()
+        {
+            var condition = new ShdrCondition("system_cond");
+            condition.Unavailable();
+            _adapter.AddCondition(condition);
+        }
+
+        public void TestConditionNormal()
+        {
+            var condition = new ShdrCondition("system_cond");
+            condition.Normal();
+            _adapter.AddCondition(condition);
+        }
+
+        public void TestConditionWarning()
+        {
+            var condition = new ShdrCondition("system_cond");
+            condition.AddWarning("Access Denied", "401");
+            _adapter.AddCondition(condition);
+        }
+
+        public void TestConditionFault()
+        {
+            var condition = new ShdrCondition("system_cond");
+            condition.AddWarning("Bad Request", "400");
+            condition.AddFault("Not Found", "404");
+            condition.AddFault("Method Not Found", "405");
+            _adapter.AddCondition(condition);
+        }
+
         //public void UpdateTest1()
         //{
         //    var condition = new ShdrCondition("system_cond");
@@ -421,19 +452,7 @@ namespace MTConnect.Applications.Adapters.Shdr.Adapters
         //    _adapter.AddCondition(condition);
         //}
 
-        public void UpdateTest56()
-        {
-            var condition = new ShdrCondition("system_cond");
-            condition.AddWarning("Access Denied", "401");
-            _adapter.AddCondition(condition);
-        }
 
-        //public void UpdateTest3()
-        //{
-        //    var condition = new ShdrCondition("system_cond");
-        //    condition.Normal();
-        //    _adapter.AddCondition(condition);
-        //}
 
 
 

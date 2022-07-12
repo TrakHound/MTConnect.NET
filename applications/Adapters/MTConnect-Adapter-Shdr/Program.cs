@@ -22,6 +22,26 @@ namespace MTConnect.Applications.Adapters.Shdr
 
             while (true)
             {
+                _adapterExample1.TestConditionNormal();
+                Console.ReadLine();
+
+                _adapterExample1.TestConditionWarning();
+                Console.ReadLine();
+
+                _adapterExample1.TestConditionNormal();
+                Console.ReadLine();
+
+                _adapterExample1.TestConditionFault();
+                Console.ReadLine();
+
+                _adapterExample1.TestConditionNormal();
+                Console.ReadLine();
+
+                _adapterExample1.TestConditionUnavailable();
+                Console.ReadLine();
+
+
+
                 //_adapterExample1.RemoveAsset();
                 //Console.ReadLine();
 
@@ -31,11 +51,11 @@ namespace MTConnect.Applications.Adapters.Shdr
 
 
 
-                _adapterExample1.UpdateValue();
-                Console.ReadLine();
+                //_adapterExample1.UpdateValue();
+                //Console.ReadLine();
 
-                _adapterExample1.UpdateTest56();
-                Console.ReadLine();
+                //_adapterExample1.UpdateTest56();
+                //Console.ReadLine();
 
                 //_adapterExample1.AddCuttingTools();
                 //Console.ReadLine();

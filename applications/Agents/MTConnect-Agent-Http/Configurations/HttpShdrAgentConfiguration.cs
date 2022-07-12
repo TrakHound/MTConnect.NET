@@ -41,6 +41,13 @@ namespace MTConnect.Configurations
 
 
         /// <summary>
+        /// Gets or Sets whether a Device Model can be sent from an SHDR Adapter
+        /// </summary>
+        [JsonPropertyName("allowShdrDevice")]
+        public bool AllowShdrDevice { get; set; }
+
+
+        /// <summary>
         /// Gets or Sets whether Configuration files are monitored. If enabled and a configuration file is changed, the Agent will restart
         /// </summary>
         [JsonPropertyName("monitorConfigurationFiles")]
@@ -55,7 +62,7 @@ namespace MTConnect.Configurations
 
         public HttpShdrAgentConfiguration() : base()
         {
-            Devices = "devices";
+            Devices = null;
             ServiceName = null;
             ServiceAutoStart = true;
             MonitorConfigurationFiles = true;
