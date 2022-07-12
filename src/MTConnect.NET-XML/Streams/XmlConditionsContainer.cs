@@ -90,6 +90,7 @@ namespace MTConnect.Streams
                     {
                         // Add Common Attributes to Node
                         XmlObservation.AddAttributes(observation, node);
+                        node.Attributes.RemoveNamedItem("message");
 
                         // Set InnerText to the CDATA
                         node.InnerText = observation.Message?.Trim();
