@@ -10,7 +10,7 @@ namespace MTConnect
     public static class MTConnectVersion
     {
         /// <summary>
-        /// Gets the Version of the MTConnect® standard being used based on the XML Namespace that is used
+        /// Gets the Version of the MTConnect standard being used based on the XML Namespace that is used
         /// </summary>
         public static Version Get(string xml)
         {
@@ -26,6 +26,7 @@ namespace MTConnect
                 if (Namespaces.Version13.Match(ns)) return new Version(1, 3);
                 if (Namespaces.Version12.Match(ns)) return new Version(1, 2);
                 if (Namespaces.Version11.Match(ns)) return new Version(1, 1);
+                if (Namespaces.Version10.Match(ns)) return new Version(1, 0);
             }
 
             return new Version();

@@ -238,7 +238,6 @@ namespace MTConnect.Adapters.Shdr
         }
 
 
-
         private async Task SetDeviceUnavailable(long timestamp = 0)
         {
             await SetDataItemsUnavailable(timestamp);
