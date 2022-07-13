@@ -255,7 +255,7 @@ namespace MTConnect.Devices
         {
             if (composition != null && !composition.IdPaths.IsNullOrEmpty())
             {
-                return string.Join('/', composition.IdPaths);
+                return string.Join("/", composition.IdPaths);
             }
 
             return null;
@@ -284,7 +284,7 @@ namespace MTConnect.Devices
         {
             if (composition != null && !composition.TypePaths.IsNullOrEmpty())
             {
-                return string.Join('/', composition.TypePaths);
+                return string.Join("/", composition.TypePaths);
             }
 
             return null;

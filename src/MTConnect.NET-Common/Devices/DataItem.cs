@@ -349,7 +349,7 @@ namespace MTConnect.Devices
         {
             if (dataItem != null && !dataItem.IdPaths.IsNullOrEmpty())
             {
-                return string.Join('/', dataItem.IdPaths);
+                return string.Join("/", dataItem.IdPaths);
             }
 
             return null;
@@ -378,7 +378,7 @@ namespace MTConnect.Devices
         {
             if (dataItem != null && !dataItem.TypePaths.IsNullOrEmpty())
             {
-                return string.Join('/', dataItem.TypePaths);
+                return string.Join("/", dataItem.TypePaths);
             }
 
             return null;

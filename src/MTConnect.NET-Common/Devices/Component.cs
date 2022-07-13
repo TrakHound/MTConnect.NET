@@ -271,7 +271,7 @@ namespace MTConnect.Devices
         {
             if (component != null && !component.IdPaths.IsNullOrEmpty())
             {
-                return string.Join('/', component.IdPaths);
+                return string.Join("/", component.IdPaths);
             }
 
             return null;
@@ -300,7 +300,7 @@ namespace MTConnect.Devices
         {
             if (component != null && !component.TypePaths.IsNullOrEmpty())
             {
-                return string.Join('/', component.TypePaths);
+                return string.Join("/", component.TypePaths);
             }
 
             return null;
