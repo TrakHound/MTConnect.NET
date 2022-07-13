@@ -29,7 +29,7 @@ namespace MTConnect.Configurations
         /// <summary>
         /// The amount of time (in milliseconds) an adapter can be silent before it is disconnected. 
         /// </summary>
-        [JsonPropertyName("Timeout")]
+        [JsonPropertyName("timeout")]
         public int Timeout { get; set; }
 
         /// <summary>
