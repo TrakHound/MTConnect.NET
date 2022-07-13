@@ -27,14 +27,7 @@ namespace MTConnect.Formatters
 
         public FormattedDocumentWriteResult Format(IDevicesResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
-            var jsonOptions = new JsonSerializerOptions
-            {
-                WriteIndented = true,
-                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault
-               
-            };
-
-            var json = JsonSerializer.Serialize(new JsonDevicesDocument(document), jsonOptions);
+            var json = JsonSerializer.Serialize(new JsonDevicesDocument(document), JsonFunctions.DefaultOptions);
             if (!string.IsNullOrEmpty(json))
             {
                 return FormattedDocumentWriteResult.Successful(json, ContentType);
@@ -45,13 +38,7 @@ namespace MTConnect.Formatters
 
         public FormattedDocumentWriteResult Format(IStreamsResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
-            var jsonOptions = new JsonSerializerOptions
-            {
-                WriteIndented = true,
-                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault
-            };
-
-            var json = JsonSerializer.Serialize(new JsonStreamsDocument(document), jsonOptions);
+            var json = JsonSerializer.Serialize(new JsonStreamsDocument(document), JsonFunctions.DefaultOptions);
             if (!string.IsNullOrEmpty(json))
             {
                 return FormattedDocumentWriteResult.Successful(json, ContentType);
@@ -62,13 +49,7 @@ namespace MTConnect.Formatters
 
         public FormattedDocumentWriteResult Format(IAssetsResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
-            var jsonOptions = new JsonSerializerOptions
-            {
-                WriteIndented = true,
-                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault
-            };
-
-            var json = JsonSerializer.Serialize(new JsonAssetsDocument(document), jsonOptions);
+            var json = JsonSerializer.Serialize(new JsonAssetsDocument(document), JsonFunctions.DefaultOptions);
             if (!string.IsNullOrEmpty(json))
             {
                 return FormattedDocumentWriteResult.Successful(json, ContentType);
