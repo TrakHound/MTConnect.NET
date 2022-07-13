@@ -1,45 +1,40 @@
 ﻿{
 	"port": 5005,
-
+	"durable": true,
 	"clients": [
-		//{
-		//	"address": "https://smstestbed.nist.gov/vds/",
-		//	"port": 443,
-		//	"deviceKey": "GFAgie01",
-		//	"useSSL": true,
-		//	"heartbeat": 0
-		//}
-		//{
-		//	"address": "https://smstestbed.nist.gov/vds/",
-		//	"port": 443,
-		//	"deviceKey": "Mazak01",
-		//	"useSSL": true,
-		//	"heartbeat": 0
-		//}
-		//{
-		//	"address": "https://smstestbed.nist.gov/vds/",
-		//	"port": 443,
-		//	"deviceKey": "Mazak03",
-		//	"useSSL": true,
-		//	"heartbeat": 0
-		//}
-		//{
-		//	"address": "https://smstestbed.nist.gov/vds/",
-		//	"port": 443,
-		//	"deviceKey": "Hurco01",
-		//	"useSSL": true,
-		//	"heartbeat": 0
-		//},
+		{
+			"address": "https://smstestbed.nist.gov/vds/",
+			"port": 443,
+			"deviceKey": "GFAgie01",
+			"useSSL": true,
+			"heartbeat": 0
+		},
+		{
+			"address": "https://smstestbed.nist.gov/vds/",
+			"port": 443,
+			"deviceKey": "Mazak01",
+			"useSSL": true,
+			"heartbeat": 0
+		},
+		{
+			"address": "https://smstestbed.nist.gov/vds/",
+			"port": 443,
+			"deviceKey": "Mazak03",
+			"useSSL": true,
+			"heartbeat": 0
+		},
+		{
+			"address": "https://smstestbed.nist.gov/vds/",
+			"port": 443,
+			"deviceKey": "Hurco01",
+			"useSSL": true,
+			"heartbeat": 0
+		},
 		{
 			"address": "mtconnect.mazakcorp.com",
 			"port": 5717,
 			"deviceKey": "M12346",
 			"heartbeat": 0
 		}
-		//{
-		//	"address": "localhost",
-		//	"port": 5006,
-		//	"deviceKey": "OKUMA-Lathe"
-		//}
 	]
 }
