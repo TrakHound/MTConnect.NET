@@ -137,7 +137,7 @@ namespace MTConnect.Http
 
                     case "DELETE":
 
-                        response.StatusCode = 200;
+                        response.StatusCode = 405;
 
                         break;
                 }
