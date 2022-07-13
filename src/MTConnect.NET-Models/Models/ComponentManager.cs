@@ -680,7 +680,7 @@ namespace MTConnect.Models
                 obj.NativeCode = condition.Value.NativeCode;
                 obj.NativeSeverity = condition.Value.NativeSeverity;
                 obj.Qualifier = condition.Value.Qualifier;
-                obj.Text = condition.Value.Message;
+                obj.Message = condition.Value.Message;
                 obj.Timestamp = timestamp;
                 objs.Add(obj);
             }

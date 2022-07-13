@@ -210,7 +210,7 @@ namespace IntegrationTests
                     _logger.LogDebug(
                         "MTConnect error {0} happened: {1}.",
                         ex.ErrorCode,
-                        ex.CDATA);
+                        ex.Value);
                 }
 
                 tcs.TrySetResult(null);
