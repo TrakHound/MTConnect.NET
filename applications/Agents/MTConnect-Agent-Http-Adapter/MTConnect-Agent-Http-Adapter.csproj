@@ -23,14 +23,6 @@
 		<Product>TrakHound MTConnect Http Agent</Product>
 	</PropertyGroup>
 
-	<ItemGroup>
-	  <Compile Remove="Program - Copy.cs" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <None Include="Program - Copy.cs" />
-	</ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\MTConnect.NET-Applications-Agents\MTConnect.NET-Applications-Agents.csproj" />
   </ItemGroup>
