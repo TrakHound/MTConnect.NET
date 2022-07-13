@@ -9,16 +9,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Agent-Embedded-Http.cs" />
     <Compile Remove="Agent-Embedded-Sensor.cs" />
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="Agent-Embedded-Http.cs" />
     <None Include="Agent-Embedded-Sensor.cs" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\MTConnect.NET-HTTP\MTConnect.NET-HTTP.csproj" />
-    <ProjectReference Include="..\..\..\src\MTConnect.NET-XML\MTConnect.NET-XML.csproj" />
+    <ProjectReference Include="..\..\..\src\MTConnect.NET-Applications-Agents\MTConnect.NET-Applications-Agents.csproj" />
   </ItemGroup>
 
   <ItemGroup>
