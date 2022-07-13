@@ -417,6 +417,7 @@ namespace MTConnect.Agents
         /// <summary>
         /// Get an MTConnectAssets Document containing all Assets.
         /// </summary>
+        /// <param name="deviceKey">Optional  Device name or uuid. If not given, all devices are returned.</param>
         /// <param name="type">Defines the type of MTConnect Asset to be returned in the MTConnectAssets Response Document.</param>
         /// <param name="removed">
         /// An attribute that indicates whether the Asset has been removed from a piece of equipment.
@@ -425,11 +426,12 @@ namespace MTConnect.Agents
         /// </param>
         /// <param name="count">Defines the maximum number of Asset Documents to return in an MTConnectAssets Response Document.</param>
         /// <returns>MTConnectAssets Response Document</returns>
-        IAssetsResponseDocument GetAssets(string type = null, bool removed = false, int count = 100, Version mtconnectVersion = null);
+        IAssetsResponseDocument GetAssets(string deviceKey = null, string type = null, bool removed = false, int count = 100, Version mtconnectVersion = null);
 
         /// <summary>
         /// Get an MTConnectAssets Document containing all Assets.
         /// </summary>
+        /// <param name="deviceKey">Optional  Device name or uuid. If not given, all devices are returned.</param>
         /// <param name="type">Defines the type of MTConnect Asset to be returned in the MTConnectAssets Response Document.</param>
         /// <param name="removed">
         /// An attribute that indicates whether the Asset has been removed from a piece of equipment.
@@ -438,7 +440,7 @@ namespace MTConnect.Agents
         /// </param>
         /// <param name="count">Defines the maximum number of Asset Documents to return in an MTConnectAssets Response Document.</param>
         /// <returns>MTConnectAssets Response Document</returns>
-        Task<IAssetsResponseDocument> GetAssetsAsync(string type = null, bool removed = false, int count = 100, Version mtconnectVersion = null);
+        Task<IAssetsResponseDocument> GetAssetsAsync(string deviceKey = null, string type = null, bool removed = false, int count = 100, Version mtconnectVersion = null);
 
 
         /// <summary>

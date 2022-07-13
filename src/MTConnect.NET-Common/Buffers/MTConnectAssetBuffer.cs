@@ -73,9 +73,15 @@ namespace MTConnect.Buffers
         /// <summary>
         /// Get a list of all Assets from the Buffer
         /// </summary>
-        public IEnumerable<IAsset> GetAssets(string type = null, bool removed = false, int count = 100)
+        public IEnumerable<IAsset> GetAssets(string deviceUuid = null, string type = null, bool removed = false, int count = 100)
         {
             var assets = _storedAssets.ToList();
+
+            // Filter by Device
+            if (!string.IsNullOrEmpty(deviceUuid))
+            {
+                assets = assets.Where(o => o.DeviceUuid == deviceUuid).ToList();
+            }
 
             // Filter by Type
             if (!string.IsNullOrEmpty(type))
@@ -95,12 +101,18 @@ namespace MTConnect.Buffers
         /// <summary>
         /// Get a list of all Assets from the Buffer
         /// </summary>
-        public async Task<IEnumerable<IAsset>> GetAssetsAsync(string type = null, bool removed = false, int count = 100)
+        public async Task<IEnumerable<IAsset>> GetAssetsAsync(string deviceUuid = null, string type = null, bool removed = false, int count = 100)
         {
             var assets = _storedAssets.ToList();
             assets = assets.Where(o => o != null).ToList();
             if (!assets.IsNullOrEmpty())
             {
+                // Filter by Device
+                if (!string.IsNullOrEmpty(deviceUuid))
+                {
+                    assets = assets.Where(o => o.DeviceUuid == deviceUuid).ToList();
+                }
+
                 // Filter by Type
                 if (!string.IsNullOrEmpty(type))
                 {

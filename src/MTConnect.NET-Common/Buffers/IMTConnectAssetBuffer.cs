@@ -38,12 +38,12 @@ namespace MTConnect.Buffers
         /// <summary>
         /// Get a list of all Assets from the Buffer
         /// </summary>
-        IEnumerable<IAsset> GetAssets(string type = null, bool removed = false, int count = 0);
+        IEnumerable<IAsset> GetAssets(string deviceUuid = null, string type = null, bool removed = false, int count = 0);
 
         /// <summary>
         /// Get a list of all Assets from the Buffer
         /// </summary>
-        Task<IEnumerable<IAsset>> GetAssetsAsync(string type = null, bool removed = false, int count = 0);
+        Task<IEnumerable<IAsset>> GetAssetsAsync(string deviceUuid = null, string type = null, bool removed = false, int count = 0);
 
         /// <summary>
         /// Get the specified Asset from the Buffer

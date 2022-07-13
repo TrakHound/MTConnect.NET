@@ -327,6 +327,19 @@ namespace MTConnect.Agents
             return Assembly.GetExecutingAssembly().GetName().Version;
         }
 
+        private string GetDeviceUuid(string deviceKey)
+        {
+            if (!string.IsNullOrEmpty(deviceKey))
+            {
+                if (_deviceKeys.TryGetValue(deviceKey, out var deviceUuid))
+                {
+                    return deviceUuid;
+                }
+            }
+
+            return null;
+        }
+
         private void InitializeAgentDevice(bool initializeDataItems = true)
         {
             _agent = new Agent(this);
@@ -562,8 +575,7 @@ namespace MTConnect.Agents
 
             if (_deviceBuffer != null && !string.IsNullOrEmpty(deviceKey))
             {
-                _deviceKeys.TryGetValue(deviceKey, out var deviceUuid);
-
+                var deviceUuid = GetDeviceUuid(deviceKey);
                 var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersion;
 
                 IDevice device;
@@ -601,8 +613,7 @@ namespace MTConnect.Agents
 
             if (_deviceBuffer != null && !string.IsNullOrEmpty(deviceKey))
             {
-                _deviceKeys.TryGetValue(deviceKey, out var deviceUuid);
-
+                var deviceUuid = GetDeviceUuid(deviceKey);
                 var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersion;
 
                 IDevice device;
@@ -1050,7 +1061,7 @@ namespace MTConnect.Agents
 
             if (_deviceBuffer != null && _observationBuffer != null)
             {
-                _deviceKeys.TryGetValue(deviceKey, out var deviceUuid);
+                var deviceUuid = GetDeviceUuid(deviceKey);
 
                 // Get Device from the MTConnectDeviceBuffer
                 IDevice device;
@@ -1090,7 +1101,7 @@ namespace MTConnect.Agents
 
             if (_deviceBuffer != null && _observationBuffer != null)
             {
-                _deviceKeys.TryGetValue(deviceKey, out var deviceUuid);
+                var deviceUuid = GetDeviceUuid(deviceKey);
 
                 // Get Device from the MTConnectDeviceBuffer
                 IDevice device;
@@ -1131,7 +1142,7 @@ namespace MTConnect.Agents
 
             if (_deviceBuffer != null && _observationBuffer != null)
             {
-                _deviceKeys.TryGetValue(deviceKey, out var deviceUuid);
+                var deviceUuid = GetDeviceUuid(deviceKey);
 
                 // Get Device from the MTConnectDeviceBuffer
                 IDevice device;
@@ -1172,7 +1183,7 @@ namespace MTConnect.Agents
 
             if (_deviceBuffer != null && _observationBuffer != null)
             {
-                _deviceKeys.TryGetValue(deviceKey, out var deviceUuid);
+                var deviceUuid = GetDeviceUuid(deviceKey);
 
                 // Get Device from the MTConnectDeviceBuffer
                 IDevice device;
@@ -1213,7 +1224,7 @@ namespace MTConnect.Agents
 
             if (_deviceBuffer != null && _observationBuffer != null)
             {
-                _deviceKeys.TryGetValue(deviceKey, out var deviceUuid);
+                var deviceUuid = GetDeviceUuid(deviceKey);
 
                 // Get Device from the MTConnectDeviceBuffer
                 IDevice device;
@@ -1249,7 +1260,7 @@ namespace MTConnect.Agents
 
             if (_deviceBuffer != null && _observationBuffer != null)
             {
-                _deviceKeys.TryGetValue(deviceKey, out var deviceUuid);
+                var deviceUuid = GetDeviceUuid(deviceKey);
 
                 // Get Device from the MTConnectDeviceBuffer
                 IDevice device;
@@ -1286,7 +1297,7 @@ namespace MTConnect.Agents
 
             if (_deviceBuffer != null && _observationBuffer != null)
             {
-                _deviceKeys.TryGetValue(deviceKey, out var deviceUuid);
+                var deviceUuid = GetDeviceUuid(deviceKey);
 
                 // Get Device from the MTConnectDeviceBuffer
                 IDevice device;
@@ -1323,7 +1334,7 @@ namespace MTConnect.Agents
 
             if (_deviceBuffer != null && _observationBuffer != null)
             {
-                _deviceKeys.TryGetValue(deviceKey, out var deviceUuid);
+                var deviceUuid = GetDeviceUuid(deviceKey);
 
                 // Get Device from the MTConnectDeviceBuffer
                 IDevice device;
@@ -1360,7 +1371,7 @@ namespace MTConnect.Agents
 
             if (_deviceBuffer != null && _observationBuffer != null)
             {
-                _deviceKeys.TryGetValue(deviceKey, out var deviceUuid);
+                var deviceUuid = GetDeviceUuid(deviceKey);
 
                 // Get Device from the MTConnectDeviceBuffer
                 IDevice device;
@@ -1402,7 +1413,7 @@ namespace MTConnect.Agents
 
             if (_deviceBuffer != null && _observationBuffer != null)
             {
-                _deviceKeys.TryGetValue(deviceKey, out var deviceUuid);
+                var deviceUuid = GetDeviceUuid(deviceKey);
 
                 // Get Device from the MTConnectDeviceBuffer
                 IDevice device;
@@ -1445,7 +1456,7 @@ namespace MTConnect.Agents
 
             if (_deviceBuffer != null && _observationBuffer != null)
             {
-                _deviceKeys.TryGetValue(deviceKey, out var deviceUuid);
+                var deviceUuid = GetDeviceUuid(deviceKey);
 
                 // Get Device from the MTConnectDeviceBuffer
                 IDevice device;
@@ -1483,7 +1494,7 @@ namespace MTConnect.Agents
 
             if (_deviceBuffer != null && _observationBuffer != null)
             {
-                _deviceKeys.TryGetValue(deviceKey, out var deviceUuid);
+                var deviceUuid = GetDeviceUuid(deviceKey);
 
                 // Get Device from the MTConnectDeviceBuffer
                 IDevice device;
@@ -1805,6 +1816,7 @@ namespace MTConnect.Agents
         /// <summary>
         /// Get an MTConnectAssets Document containing all Assets.
         /// </summary>
+        /// <param name="deviceKey">Optional  Device name or uuid. If not given, all devices are returned.</param>
         /// <param name="type">Defines the type of MTConnect Asset to be returned in the MTConnectAssets Response Document.</param>
         /// <param name="removed">
         /// An attribute that indicates whether the Asset has been removed from a piece of equipment.
@@ -1813,7 +1825,7 @@ namespace MTConnect.Agents
         /// </param>
         /// <param name="count">Defines the maximum number of Asset Documents to return in an MTConnectAssets Response Document.</param>
         /// <returns>MTConnectAssets Response Document</returns>
-        public IAssetsResponseDocument GetAssets(string type = null, bool removed = false, int count = 0, Version mtconnectVersion = null)
+        public IAssetsResponseDocument GetAssets(string deviceKey = null, string type = null, bool removed = false, int count = 0, Version mtconnectVersion = null)
         {
             AssetsRequestReceived?.Invoke(null);
 
@@ -1824,8 +1836,11 @@ namespace MTConnect.Agents
 
                 var processedAssets = new List<IAsset>();
 
+                // Get Device UUID from deviceKey
+                string deviceUuid = GetDeviceUuid(deviceKey);
+
                 // Get Assets from AssetsBuffer
-                var assets = _assetBuffer.GetAssets(type, removed, count);
+                var assets = _assetBuffer.GetAssets(deviceUuid, type, removed, count);
                 if (!assets.IsNullOrEmpty())
                 {
                     // Process Assets
@@ -1858,6 +1873,7 @@ namespace MTConnect.Agents
         /// <summary>
         /// Get an MTConnectAssets Document containing all Assets.
         /// </summary>
+        /// <param name="deviceKey">Optional  Device name or uuid. If not given, all devices are returned.</param>
         /// <param name="type">Defines the type of MTConnect Asset to be returned in the MTConnectAssets Response Document.</param>
         /// <param name="removed">
         /// An attribute that indicates whether the Asset has been removed from a piece of equipment.
@@ -1866,7 +1882,7 @@ namespace MTConnect.Agents
         /// </param>
         /// <param name="count">Defines the maximum number of Asset Documents to return in an MTConnectAssets Response Document.</param>
         /// <returns>MTConnectAssets Response Document</returns>
-        public async Task<IAssetsResponseDocument> GetAssetsAsync(string type = null, bool removed = false, int count = 0, Version mtconnectVersion = null)
+        public async Task<IAssetsResponseDocument> GetAssetsAsync(string deviceKey = null, string type = null, bool removed = false, int count = 0, Version mtconnectVersion = null)
         {
             AssetsRequestReceived?.Invoke(null);
 
@@ -1877,8 +1893,11 @@ namespace MTConnect.Agents
 
                 var processedAssets = new List<IAsset>();
 
+                // Get Device UUID from deviceKey
+                string deviceUuid = GetDeviceUuid(deviceKey);
+
                 // Get Assets from AssetsBuffer
-                var assets = await _assetBuffer.GetAssetsAsync(type, removed, count);
+                var assets = await _assetBuffer.GetAssetsAsync(deviceUuid, type, removed, count);
                 if (!assets.IsNullOrEmpty())
                 {
                     // Process Assets
@@ -3627,7 +3646,7 @@ namespace MTConnect.Agents
                 else input.Timestamp = observationInput.Timestamp > 0 ? observationInput.Timestamp : UnixDateTime.Now;
 
                 // Get Device UUID from deviceKey
-                _deviceKeys.TryGetValue(deviceKey, out var deviceUuid);
+                var deviceUuid = GetDeviceUuid(deviceKey);
 
                 // Get DataItem based on Observation's Key
                 var dataItem = GetDataItemFromKey(deviceUuid, input.DataItemKey);
@@ -3739,7 +3758,7 @@ namespace MTConnect.Agents
                 else input.Timestamp = observationInput.Timestamp > 0 ? observationInput.Timestamp : UnixDateTime.Now;
 
                 // Get Device UUID from deviceKey
-                _deviceKeys.TryGetValue(deviceKey, out var deviceUuid);
+                var deviceUuid = GetDeviceUuid(deviceKey);
 
                 // Get DataItem based on Observation's Key
                 var dataItem = await GetDataItemFromKeyAsync(deviceUuid, input.DataItemKey);
@@ -3875,7 +3894,7 @@ namespace MTConnect.Agents
             if (_deviceBuffer != null && _assetBuffer != null)
             {
                 // Get Device UUID from deviceKey
-                _deviceKeys.TryGetValue(deviceKey, out var deviceUuid);
+                var deviceUuid = GetDeviceUuid(deviceKey);
 
                 // Get Device from DeviceBuffer
                 var device = _deviceBuffer.GetDevice(deviceUuid);
@@ -3937,7 +3956,7 @@ namespace MTConnect.Agents
             if (_assetBuffer != null)
             {
                 // Get Device UUID from deviceKey
-                _deviceKeys.TryGetValue(deviceKey, out var deviceUuid);
+                var deviceUuid = GetDeviceUuid(deviceKey);
 
                 // Get Device from DeviceBuffer
                 var device = await _deviceBuffer.GetDeviceAsync(deviceUuid);
