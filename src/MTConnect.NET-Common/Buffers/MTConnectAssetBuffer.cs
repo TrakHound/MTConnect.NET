@@ -89,7 +89,7 @@ namespace MTConnect.Buffers
                 assets = assets.Where(o => !o.Removed).ToList();
             }
 
-            return assets?.Take(100);
+            return assets?.Take(count);
         }
 
         /// <summary>
@@ -113,7 +113,7 @@ namespace MTConnect.Buffers
                     assets = assets.Where(o => !o.Removed).ToList();
                 }
 
-                return assets?.Take(100);
+                return assets?.Take(count);
             }
 
             return null;
