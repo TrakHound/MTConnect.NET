@@ -3,21 +3,21 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace MTConnect.Configurations
 {
     /// <summary>
-    /// Configuration for an MTConnect Shdr > Http Agent
+    /// Configuration for an MTConnect Http Gateway Agent Application
     /// </summary>
-    public class ShdrHttpAgentConfiguration : ShdrAgentConfiguration
+    public class HttpAgentGatewayApplicationConfiguration : HttpAgentConfiguration
     {
         /// <summary>
-        /// The Path to look for the file(s) that represent the Device Information Models to load into the Agent.
-        /// The path can either be a single file or a directory. The path can be absolute or relative to the executable's directory
+        /// List of MTConnect Http Clients to read from
         /// </summary>
-        [JsonPropertyName("devices")]
-        public string Devices { get; set; }
+        [JsonPropertyName("clients")]
+        public List<HttpClientConfiguration> Clients { get; set; }
 
 
         /// <summary>
@@ -41,13 +41,6 @@ namespace MTConnect.Configurations
 
 
         /// <summary>
-        /// Gets or Sets whether a Device Model can be sent from an SHDR Adapter
-        /// </summary>
-        [JsonPropertyName("allowShdrDevice")]
-        public bool AllowShdrDevice { get; set; }
-
-
-        /// <summary>
         /// Gets or Sets whether Configuration files are monitored. If enabled and a configuration file is changed, the Agent will restart
         /// </summary>
         [JsonPropertyName("monitorConfigurationFiles")]
@@ -60,9 +53,9 @@ namespace MTConnect.Configurations
         public int ConfigurationFileRestartInterval { get; set; }
 
 
-        public ShdrHttpAgentConfiguration() : base()
+        public HttpAgentGatewayApplicationConfiguration() : base()
         {
-            Devices = null;
+            Clients = null;
             ServiceName = null;
             ServiceAutoStart = true;
             MonitorConfigurationFiles = true;

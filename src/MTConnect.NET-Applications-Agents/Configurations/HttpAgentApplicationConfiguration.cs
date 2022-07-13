@@ -8,7 +8,7 @@ using System.Text.Json.Serialization;
 namespace MTConnect.Configurations
 {
     /// <summary>
-    /// Configuration for an MTConnect Http-Shdr Agent
+    /// Configuration for an MTConnect Http Agent
     /// </summary>
     public class HttpAgentApplicationConfiguration : HttpAgentConfiguration
     {

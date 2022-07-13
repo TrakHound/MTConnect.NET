@@ -23,15 +23,15 @@
 	  </PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="Program - Copy.cs" />
 	  <Compile Remove="Program-old.cs" />
+	  <Compile Remove="Service.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
+	  <None Include="Program - Copy.cs" />
 	  <None Include="Program-old.cs" />
-	</ItemGroup>
-
-	<ItemGroup Condition="'$(Configuration)'=='Debug'">
-		<ProjectReference Include="..\..\..\src\MTConnect.NET\MTConnect.NET.csproj" />
+	  <None Include="Service.cs" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(Configuration)'=='Release'">
@@ -41,15 +41,10 @@
 	<ItemGroup Condition="'$(Configuration)'=='Docker'">
 		<PackageReference Include="MTConnect.NET" Version="3.4.2" />
 	</ItemGroup>
-	
-  <ItemGroup>
-    <PackageReference Include="NLog" Version="4.7.14" />
-    <PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" Version="4.3.0" />
-  </ItemGroup>
 
-  <ItemGroup>
-    <Compile Update="Service.cs" />
-  </ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\..\..\src\MTConnect.NET-Applications-Agents\MTConnect.NET-Applications-Agents.csproj" />
+	</ItemGroup>
 
   <ItemGroup>
     <None Update="agent.config.json">
