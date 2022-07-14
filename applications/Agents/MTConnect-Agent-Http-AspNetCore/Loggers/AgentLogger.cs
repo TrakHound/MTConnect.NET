@@ -7,6 +7,8 @@ using Microsoft.Extensions.Logging;
 using MTConnect.Assets;
 using MTConnect.Devices;
 using MTConnect.Streams;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MTConnect.Applications.Loggers
 {
@@ -49,9 +51,20 @@ namespace MTConnect.Applications.Loggers
         }
 
 
-        public void AssetsRequested(string deviceName)
+        public void AssetsRequested(IEnumerable<string> assetIds)
         {
-            _logger.LogInformation($"[Agent] : MTConnectAssets Requested : {deviceName}");
+            var ids = "";
+            if (!assetIds.IsNullOrEmpty())
+            {
+                string.Join(";", assetIds.ToArray());
+            }
+
+            _logger.LogDebug($"[Agent] : MTConnectAssets Requested : AssetIds = " + ids);
+        }
+
+        public void DeviceAssetsRequested(string deviceUuid)
+        {
+            _logger.LogDebug($"[Agent] : MTConnectAssets Requested : DeviceUuid = " + deviceUuid);
         }
 
         public void AssetsResponseSent(IAssetsResponseDocument document)

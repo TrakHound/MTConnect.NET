@@ -140,6 +140,11 @@ namespace MTConnect.Agents
         MTConnectAssetsRequestedHandler AssetsRequestReceived { get; set; }
 
         /// <summary>
+        /// Raised when an MTConnectAssets response Document is requested from the Agent for a specific Device
+        /// </summary>
+        MTConnectDeviceAssetsRequestedHandler DeviceAssetsRequestReceived { get; set; }
+
+        /// <summary>
         /// Raised when an MTConnectAssets response Document is sent successfully from the Agent
         /// </summary>
         MTConnectAssetsHandler AssetsResponseSent { get; set; }

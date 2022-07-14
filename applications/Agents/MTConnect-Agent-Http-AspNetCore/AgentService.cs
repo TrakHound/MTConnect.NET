@@ -55,6 +55,7 @@ namespace MTConnect.Applications
             _mtconnectAgent.StreamsRequestReceived += _agentLogger.StreamsRequested;
             _mtconnectAgent.StreamsResponseSent += _agentLogger.StreamsResponseSent;
             _mtconnectAgent.AssetsRequestReceived += _agentLogger.AssetsRequested;
+            _mtconnectAgent.DeviceAssetsRequestReceived += _agentLogger.DeviceAssetsRequested;
             _mtconnectAgent.AssetsResponseSent += _agentLogger.AssetsResponseSent;
 
             _mtconnectAgent.InvalidDataItemAdded += agentValidationLogger.InvalidDataItemAdded;
