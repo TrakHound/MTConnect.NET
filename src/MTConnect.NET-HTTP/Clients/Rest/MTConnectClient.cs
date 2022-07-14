@@ -326,9 +326,9 @@ namespace MTConnect.Clients.Rest
             return await client.GetAsync(cancellationToken);
         }
 
-        private async Task<IAssetsResponseDocument> RunAssets(CancellationToken cancellationToken)
+        private async Task<IAssetsResponseDocument> RunAssets(long count, CancellationToken cancellationToken)
         {
-            var client = new MTConnectAssetClient(Authority, null, DocumentFormat);
+            var client = new MTConnectAssetClient(Authority, null, count, DocumentFormat);
             client.Timeout = Timeout;
             client.OnMTConnectError += (s, doc) => OnMTConnectError?.Invoke(this, doc);
             client.OnConnectionError += (s, ex) => OnConnectionError?.Invoke(this, ex);
@@ -379,13 +379,16 @@ namespace MTConnect.Clients.Rest
                         OnProbeReceived?.Invoke(this, probe);
 
                         // Get All Assets
-                        var assets = await RunAssets(cancellationToken);
-                        if (assets != null)
+                        if (probe.Header.AssetCount > 0)
                         {
-                            _lastResponse = UnixDateTime.Now;
-                            OnResponseReceived?.Invoke(this, new EventArgs());
+                            var assets = await RunAssets(probe.Header.AssetCount, cancellationToken);
+                            if (assets != null)
+                            {
+                                _lastResponse = UnixDateTime.Now;
+                                OnResponseReceived?.Invoke(this, new EventArgs());
 
-                            OnAssetsReceived?.Invoke(this, assets);
+                                OnAssetsReceived?.Invoke(this, assets);
+                            }
                         }
 
                         // Run Current Request
