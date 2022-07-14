@@ -24,12 +24,12 @@ namespace MTConnect.Buffers
         /// <summary>
         /// Get all MTConnectDevices from the Buffer
         /// </summary>
-        IEnumerable<IDevice> GetDevices();
+        IEnumerable<IDevice> GetDevices(string type = null);
 
         /// <summary>
         /// Get all MTConnectDevices from the Buffer
         /// </summary>
-        Task<IEnumerable<IDevice>> GetDevicesAsync();
+        Task<IEnumerable<IDevice>> GetDevicesAsync(string type = null);
 
         /// <summary>
         /// Get the specified MTConnectDevice from the Buffer

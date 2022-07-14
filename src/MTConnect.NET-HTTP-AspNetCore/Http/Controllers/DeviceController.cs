@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 namespace MTConnect.Http.Controllers
 {
     [ApiController]
-    [Route("/{deviceName}")]
+    [Route("/{deviceKey}")]
     public class DeviceController : ControllerBase
     {
         private readonly IMTConnectAgent _agent;
@@ -33,7 +33,7 @@ namespace MTConnect.Http.Controllers
         /// An Agent responds to a Probe Request with an MTConnectDevices Response Document that contains the 
         /// Equipment Metadata for pieces of equipment that are requested and currently represented in the Agent.
         /// </summary>
-        /// <param name="deviceName">A specific Path portion (name or uuid)</param>
+        /// <param name="deviceKey">A specific Path portion (name or uuid)</param>
         /// <param name="version">The MTConnect Version of the response document</param>
         /// <param name="documentFormat">The format of the response document</param>
         /// <param name="indentOutput">A boolean flag to indent the response document (pretty)</param>
@@ -48,7 +48,7 @@ namespace MTConnect.Http.Controllers
         [ProducesResponseType(StatusCodes.Status431RequestHeaderFieldsTooLarge)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetDeviceProbe(
-            [FromRoute] string deviceName,
+            [FromRoute] string deviceKey,
             [FromQuery] Version version = null,
             [FromQuery] string documentFormat = DocumentFormat.XML,
             [FromQuery] bool? indentOutput = null,
@@ -66,7 +66,7 @@ namespace MTConnect.Http.Controllers
             if (outputComments.HasValue) formatOptions.Add(new KeyValuePair<string, string>("outputComments", outputComments.Value.ToString()));
             else formatOptions.Add(new KeyValuePair<string, string>("outputComments", _agent.Configuration.OutputComments.ToString()));
 
-            var response = await MTConnectHttpRequests.GetDeviceProbeRequest(_agent, deviceName, version, documentFormat, formatOptions);
+            var response = await MTConnectHttpRequests.GetDeviceProbeRequest(_agent, deviceKey, version, documentFormat, formatOptions);
 
             _logger.LogInformation($"[Api-Interface] : {Request.Host} : [{Request.Method}] : {Request.Path} : {Request.QueryString} : Response ({response.StatusCode}) in {response.ResponseDuration}ms");
 
@@ -77,7 +77,7 @@ namespace MTConnect.Http.Controllers
         /// An Agent responds to a Current Request with an MTConnectStreams Response Document that contains
         /// the current value of Data Entities associated with each piece of Streaming Data available from the Agent, subject to any filtering defined in the Request.
         /// </summary>
-        /// <param name="deviceName">The (name or uuid) of the requested Device</param>
+        /// <param name="deviceKey">The (name or uuid) of the requested Device</param>
         /// <param name="path">An XPath that defines specific information or a set of information to be included in an MTConnectStreams Response Document.</param>
         /// <param name="at">Requests that the MTConnect Response Documents MUST include the current value for all Data Entities relative to the time that a specific sequence number was recorded.</param>
         /// <param name="interval">The Agent MUST continuously publish Response Documents when the query parameters include interval using the value as the minimum period between adjacent publications.</param>
@@ -94,7 +94,7 @@ namespace MTConnect.Http.Controllers
         [ProducesResponseType(StatusCodes.Status431RequestHeaderFieldsTooLarge)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetDeviceCurrent(
-            [FromRoute] string deviceName,
+            [FromRoute] string deviceKey,
             [FromQuery] string path = null,
             [FromQuery] long at = 0,
             [FromQuery] int interval = 0,
@@ -121,7 +121,7 @@ namespace MTConnect.Http.Controllers
                     _logger.LogInformation($"[Api-Interface] : {Request.Host} : Current Stream Requested at {interval}ms Interval (Heartbeat = {heartbeat}ms) : [{Request.Method}] : {Request.Path} : {Request.QueryString}");
 
                     // Create Sample Stream
-                    var stream = new MTConnectHttpCurrentStream(_agent, deviceName, path, interval, heartbeat, documentFormat, formatOptions);
+                    var stream = new MTConnectHttpCurrentStream(_agent, deviceKey, path, interval, heartbeat, documentFormat, formatOptions);
                     stream.StreamStarted += (s, id) =>
                     {
                         _logger.LogInformation($"[Api-Interface] : {Request.Host} : Current Stream [{id}] Started at {interval}ms Interval (Heartbeat = {heartbeat}ms) : [{Request.Method}] : {Request.Path} : {Request.QueryString}");
@@ -132,7 +132,7 @@ namespace MTConnect.Http.Controllers
                     };
                     stream.StreamException += (s, ex) =>
                     {
-                        _logger.LogInformation($"[Api-Interface] : {Request.Host} : Current Stream [{stream.Id}] Error : {deviceName} : {Request.Host} : {Request.Path} : {Request.QueryString} : {ex.Message}");
+                        _logger.LogInformation($"[Api-Interface] : {Request.Host} : Current Stream [{stream.Id}] Error : {deviceKey} : {Request.Host} : {Request.Path} : {Request.QueryString} : {ex.Message}");
                     };
                     stream.HeartbeatReceived += async (s, args) =>
                     {
@@ -141,7 +141,7 @@ namespace MTConnect.Http.Controllers
                             // Write the Multipart Chunk to the Response Stream
                             await Response.WriteAsync(args.Message, HttpContext.RequestAborted);
 
-                            _logger.LogInformation($"[Api-Interface] : {Request.Host} : Current Stream [{args.StreamId}] : {deviceName} : {Request.Host} : {Request.Path} : {Request.QueryString} : Heartbeat Sent : {args.ResponseDuration}ms");
+                            _logger.LogInformation($"[Api-Interface] : {Request.Host} : Current Stream [{args.StreamId}] : {deviceKey} : {Request.Host} : {Request.Path} : {Request.QueryString} : Heartbeat Sent : {args.ResponseDuration}ms");
                         }
                         catch { }
                     };
@@ -152,7 +152,7 @@ namespace MTConnect.Http.Controllers
                             // Write the Multipart Chunk to the Response Stream
                             await Response.WriteAsync(args.Message, HttpContext.RequestAborted);
 
-                            _logger.LogInformation($"[Api-Interface] : {Request.Host} : Current Stream [{args.StreamId}] : {deviceName} : {Request.Host} : {Request.Path} : {Request.QueryString} : MTConnectStreams Document Sent : {args.ResponseDuration}ms");
+                            _logger.LogInformation($"[Api-Interface] : {Request.Host} : Current Stream [{args.StreamId}] : {deviceKey} : {Request.Host} : {Request.Path} : {Request.QueryString} : MTConnectStreams Document Sent : {args.ResponseDuration}ms");
                         }
                         catch { }
                     };
@@ -180,7 +180,7 @@ namespace MTConnect.Http.Controllers
             {
                 _logger.LogInformation($"[Api-Interface] : {Request.Host} : Current Requested a MTConnectStreams Document : [{Request.Method}] : {Request.Path} : {Request.QueryString}");
 
-                var response = await MTConnectHttpRequests.GetDeviceCurrentRequest(_agent, deviceName, path, at, interval, version, documentFormat, formatOptions);
+                var response = await MTConnectHttpRequests.GetDeviceCurrentRequest(_agent, deviceKey, path, at, interval, version, documentFormat, formatOptions);
 
                 _logger.LogInformation($"[Api-Interface] : {Request.Host} : [{Request.Method}] : {Request.Path} : {Request.QueryString} : Current Response ({response.StatusCode}) in {response.ResponseDuration}ms");
 
@@ -192,7 +192,7 @@ namespace MTConnect.Http.Controllers
         /// An Agent responds to a Sample Request with an MTConnectStreams Response Document that contains a set of values for Data Entities
         /// currently available for Streaming Data from the Agent, subject to any filtering defined in the Request.
         /// </summary>
-        /// <param name="deviceName">The (name or uuid) of the requested Device</param>
+        /// <param name="deviceKey">The (name or uuid) of the requested Device</param>
         /// <param name="path">An XPath that defines specific information or a set of information to be included in an MTConnectStreams Response Document.</param>
         /// <param name="from">The from parameter designates the sequence number of the first observation in the buffer the Agent MUST consider publishing in the Response Document.</param>
         /// <param name="to">The to parameter specifies the sequence number of the observation in the buffer that will be the upper bound of the observations in the Response Document.</param>
@@ -211,7 +211,7 @@ namespace MTConnect.Http.Controllers
         [ProducesResponseType(StatusCodes.Status431RequestHeaderFieldsTooLarge)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetDeviceSample(
-            [FromRoute] string deviceName,
+            [FromRoute] string deviceKey,
             [FromQuery] string path = null,
             [FromQuery] long from = 0,
             [FromQuery] long to = 0,
@@ -240,7 +240,7 @@ namespace MTConnect.Http.Controllers
                     _logger.LogInformation($"[Api-Interface] : {Request.Host} : Samples Stream Requested at {interval}ms Interval (Heartbeat = {heartbeat}ms) : [{Request.Method}] : {Request.Path} : {Request.QueryString}");
 
                     // Create Sample Stream
-                    var stream = new MTConnectHttpSampleStream(_agent, deviceName, path, from, count, interval, heartbeat, documentFormat, formatOptions);
+                    var stream = new MTConnectHttpSampleStream(_agent, deviceKey, path, from, count, interval, heartbeat, documentFormat, formatOptions);
                     stream.StreamStarted += (s, id) =>
                     {
                         _logger.LogInformation($"[Api-Interface] : {Request.Host} : Samples Stream [{id}] Started at {interval}ms Interval (Heartbeat = {heartbeat}ms) : [{Request.Method}] : {Request.Path} : {Request.QueryString}");
@@ -251,7 +251,7 @@ namespace MTConnect.Http.Controllers
                     };
                     stream.StreamException += (s, ex) =>
                     {
-                        _logger.LogInformation($"[Api-Interface] : {Request.Host} : Sample Stream [{stream.Id}] Error : {deviceName} : {Request.Host} : {Request.Path} : {Request.QueryString} : {ex.Message}");
+                        _logger.LogInformation($"[Api-Interface] : {Request.Host} : Sample Stream [{stream.Id}] Error : {deviceKey} : {Request.Host} : {Request.Path} : {Request.QueryString} : {ex.Message}");
                     };
                     stream.HeartbeatReceived += async (s, args) =>
                     {
@@ -260,7 +260,7 @@ namespace MTConnect.Http.Controllers
                             // Write the Multipart Chunk to the Response Stream
                             await Response.WriteAsync(args.Message, HttpContext.RequestAborted);
 
-                            _logger.LogInformation($"[Api-Interface] : {Request.Host} : Sample Stream [{args.StreamId}] : {deviceName} : {Request.Host} : {Request.Path} : {Request.QueryString} : Heartbeat Sent : {args.ResponseDuration}ms");
+                            _logger.LogInformation($"[Api-Interface] : {Request.Host} : Sample Stream [{args.StreamId}] : {deviceKey} : {Request.Host} : {Request.Path} : {Request.QueryString} : Heartbeat Sent : {args.ResponseDuration}ms");
                         }
                         catch { }
                     };
@@ -271,7 +271,7 @@ namespace MTConnect.Http.Controllers
                             // Write the Multipart Chunk to the Response Stream
                             await Response.WriteAsync(args.Message, HttpContext.RequestAborted);
 
-                            _logger.LogInformation($"[Api-Interface] : {Request.Host} : Sample Stream [{args.StreamId}] : {deviceName} : {Request.Host} : {Request.Path} : {Request.QueryString} : MTConnectStreams Document Sent : {args.ResponseDuration}ms");
+                            _logger.LogInformation($"[Api-Interface] : {Request.Host} : Sample Stream [{args.StreamId}] : {deviceKey} : {Request.Host} : {Request.Path} : {Request.QueryString} : MTConnectStreams Document Sent : {args.ResponseDuration}ms");
                         }
                         catch { }
                     };
@@ -299,12 +299,60 @@ namespace MTConnect.Http.Controllers
             {
                 _logger.LogInformation($"[Api-Interface] : {Request.Host} : Samples Requested a MTConnectStreams Document : [{Request.Method}] : {Request.Path} : {Request.QueryString}");
 
-                var response = await MTConnectHttpRequests.GetDeviceSampleRequest(_agent, deviceName, path, from, to, count, version, documentFormat, formatOptions);
+                var response = await MTConnectHttpRequests.GetDeviceSampleRequest(_agent, deviceKey, path, from, to, count, version, documentFormat, formatOptions);
 
                 _logger.LogInformation($"[Api-Interface] : {Request.Host} : [{Request.Method}] : {Request.Path} : {Request.QueryString} : Samples Response ({response.StatusCode}) in {response.ResponseDuration}ms");
 
                 return CreateResult(response);
             }
+        }
+
+        /// <summary>
+        /// An Agent responds to an Asset Request with an MTConnectAssets Response Document that contains
+        /// information for MTConnect Assets from the Agent, subject to any filtering defined in the Request.
+        /// </summary>
+        /// <param name="type">Defines the type of MTConnect Asset to be returned in the MTConnectAssets Response Document.</param>
+        /// <param name="removed">
+        /// An attribute that indicates whether the Asset has been removed from a piece of equipment.
+        /// If the value of the removed parameter in the query is true, then Asset Documents for Assets that have been marked as removed from a piece of equipment will be included in the Response Document.
+        /// If the value of the removed parameter in the query is false, then Asset Documents for Assets that have been marked as removed from a piece of equipment will not be included in the Response Document.
+        /// </param>
+        /// <param name="count">Defines the maximum number of Asset Documents to return in an MTConnectAssets Response Document.</param>
+        /// <param name="version">The MTConnect Version of the response document</param>
+        /// <param name="documentFormat">The format of the response document</param>
+        /// <param name="indentOutput">A boolean flag to indent the response document (pretty)</param>
+        [HttpGet("assets")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetAssets(
+            [FromRoute] string deviceKey,
+            [FromQuery] string type = null,
+            [FromQuery] bool removed = false,
+            [FromQuery] int count = 100,
+            [FromQuery] Version version = null,
+            [FromQuery] string documentFormat = DocumentFormat.XML,
+            [FromQuery] bool? indentOutput = null,
+            [FromQuery] bool? outputComments = null
+            )
+        {
+            _logger.LogInformation($"[Api-Interface] : {Request.Host} : Requested a MTConnectAssets Document : [{Request.Method}] : {deviceKey} : {Request.Path} : {Request.QueryString}");
+
+            // Set Format Options
+            var formatOptions = new List<KeyValuePair<string, string>>();
+
+            if (indentOutput.HasValue) formatOptions.Add(new KeyValuePair<string, string>("indentOutput", indentOutput.Value.ToString()));
+            else formatOptions.Add(new KeyValuePair<string, string>("indentOutput", _agent.Configuration.IndentOutput.ToString()));
+
+            if (outputComments.HasValue) formatOptions.Add(new KeyValuePair<string, string>("outputComments", outputComments.Value.ToString()));
+            else formatOptions.Add(new KeyValuePair<string, string>("outputComments", _agent.Configuration.OutputComments.ToString()));
+
+            var response = await MTConnectHttpRequests.GetAssetsRequest(_agent, deviceKey, type, removed, count, version, documentFormat, formatOptions);
+
+            _logger.LogInformation($"[Api-Interface] : {Request.Host} : [{Request.Method}] : {Request.Path} : Response ({response.StatusCode}) in {response.ResponseDuration}ms");
+
+            return CreateResult(response);
         }
 
 

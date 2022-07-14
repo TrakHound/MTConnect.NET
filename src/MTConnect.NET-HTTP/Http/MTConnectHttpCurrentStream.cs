@@ -19,7 +19,7 @@ namespace MTConnect.Http
         private readonly string _id = StringFunctions.RandomString(10);
         private readonly string _boundary = UnixDateTime.Now.ToString().ToMD5Hash();
         private readonly IMTConnectAgent _mtconnectAgent;
-        private readonly string _deviceName;
+        private readonly string _deviceKey;
         private readonly string _path;
         private readonly int _interval;
         private readonly int _heartbeat;
@@ -49,7 +49,7 @@ namespace MTConnect.Http
 
         public MTConnectHttpCurrentStream(
             IMTConnectAgent mtconnectAgent,
-            string deviceName,
+            string deviceKey,
             string path = null,
             int interval = 500,
             int heartbeat = 1000,
@@ -58,7 +58,7 @@ namespace MTConnect.Http
             )
         {
             _mtconnectAgent = mtconnectAgent;
-            _deviceName = deviceName;
+            _deviceKey = deviceKey;
             _path = path;
             _interval = interval;
             _heartbeat = heartbeat;
@@ -105,9 +105,9 @@ namespace MTConnect.Http
                         stpw.Restart();
 
                         // Read the MTConnectStreams document from the IMTConnectAgent
-                        if (!string.IsNullOrEmpty(_deviceName))
+                        if (!string.IsNullOrEmpty(_deviceKey))
                         {
-                            document = await _mtconnectAgent.GetDeviceStreamAsync(_deviceName);
+                            document = await _mtconnectAgent.GetDeviceStreamAsync(_deviceKey);
                         }
                         else
                         {

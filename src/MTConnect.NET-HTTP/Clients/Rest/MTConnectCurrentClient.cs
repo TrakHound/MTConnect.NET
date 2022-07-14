@@ -199,7 +199,7 @@ namespace MTConnect.Clients.Rest
             return CreateUri(Authority, Device, At, Path, DocumentFormat);
         }
 
-        public static Uri CreateUri(string url, string deviceName, long at = 0, string path = null, string documentFormat = MTConnect.DocumentFormat.XML)
+        public static Uri CreateUri(string url, string deviceKey, long at = 0, string path = null, string documentFormat = MTConnect.DocumentFormat.XML)
         {
             var baseUrl = url;
 
@@ -210,7 +210,7 @@ namespace MTConnect.Clients.Rest
 
             // Check for Trailing Forward Slash
             if (!baseUrl.EndsWith("/")) baseUrl += "/";
-            if (!string.IsNullOrEmpty(deviceName)) baseUrl += deviceName + "/";
+            if (!string.IsNullOrEmpty(deviceKey)) baseUrl += deviceKey + "/";
 
             // Replace 'localhost' with '127.0.0.1' (This is due to a performance issue with .NET Core's System.Net.Http.HttpClient)
             if (baseUrl.Contains("localhost")) baseUrl = baseUrl.Replace("localhost", "127.0.0.1");

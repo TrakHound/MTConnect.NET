@@ -496,7 +496,7 @@ namespace MTConnect.Agents
         /// Get an MTConnectDevices Response Document containing all devices.
         /// </summary>
         /// <returns>MTConnectDevices Response Document</returns>
-        public IDevicesResponseDocument GetDevices(Version mtconnectVersion = null)
+        public IDevicesResponseDocument GetDevices(Version mtconnectVersion = null, string deviceType = null)
         {
             DevicesRequestReceived?.Invoke(null);
 
@@ -505,8 +505,8 @@ namespace MTConnect.Agents
                 var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersion;
 
                 var devices = new List<IDevice>();
-                devices.Add(_agent);
-                devices.AddRange(_deviceBuffer.GetDevices());
+                if (string.IsNullOrEmpty(deviceType) || deviceType.ToLower() == "agent") devices.Add(_agent);
+                devices.AddRange(_deviceBuffer.GetDevices(deviceType));
 
                 if (devices != null && devices.Count() > 0)
                 {
@@ -532,7 +532,7 @@ namespace MTConnect.Agents
         /// Get an MTConnectDevices Response Document containing all devices.
         /// </summary>
         /// <returns>MTConnectDevices Response Document</returns>
-        public async Task<IDevicesResponseDocument> GetDevicesAsync(Version mtconnectVersion = null)
+        public async Task<IDevicesResponseDocument> GetDevicesAsync(Version mtconnectVersion = null, string deviceType = null)
         {
             DevicesRequestReceived?.Invoke(null);
 
@@ -541,8 +541,8 @@ namespace MTConnect.Agents
                 var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersion;
 
                 var devices = new List<IDevice>();
-                devices.Add(_agent);
-                devices.AddRange(await _deviceBuffer.GetDevicesAsync());
+                if (string.IsNullOrEmpty(deviceType) || deviceType.ToLower() == "agent") devices.Add(_agent);
+                devices.AddRange(await _deviceBuffer.GetDevicesAsync(deviceType));
 
                 if (devices != null && devices.Count() > 0)
                 {
@@ -649,7 +649,7 @@ namespace MTConnect.Agents
         /// </summary>
         /// <param name="count">The Maximum Number of DataItems to return</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        public IStreamsResponseDocument GetDeviceStreams(int count = 0, Version mtconnectVersion = null)
+        public IStreamsResponseDocument GetDeviceStreams(int count = 0, Version mtconnectVersion = null, string deviceType = null)
         {
             StreamsRequestReceived?.Invoke(null);
 
@@ -657,8 +657,8 @@ namespace MTConnect.Agents
             {
                 // Get list of Devices from the MTConnectDeviceBuffer
                 var devices = new List<IDevice>();
-                devices.Add(_agent);
-                devices.AddRange(_deviceBuffer.GetDevices());
+                if (string.IsNullOrEmpty(deviceType) || deviceType.ToLower() == "agent") devices.Add(_agent);
+                devices.AddRange(_deviceBuffer.GetDevices(deviceType));
 
                 if (!devices.IsNullOrEmpty())
                 {
@@ -691,7 +691,7 @@ namespace MTConnect.Agents
         /// </summary>
         /// <param name="count">The Maximum Number of DataItems to return</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        public async Task<IStreamsResponseDocument> GetDeviceStreamsAsync(int count = 0, Version mtconnectVersion = null)
+        public async Task<IStreamsResponseDocument> GetDeviceStreamsAsync(int count = 0, Version mtconnectVersion = null, string deviceType = null)
         {
             StreamsRequestReceived?.Invoke(null);
 
@@ -699,8 +699,8 @@ namespace MTConnect.Agents
             {
                 // Get list of Devices from the MTConnectDeviceBuffer
                 var devices = new List<IDevice>();
-                devices.Add(_agent);
-                devices.AddRange(await _deviceBuffer.GetDevicesAsync());
+                if (string.IsNullOrEmpty(deviceType) || deviceType.ToLower() == "agent") devices.Add(_agent);
+                devices.AddRange(_deviceBuffer.GetDevices(deviceType));
 
                 if (!devices.IsNullOrEmpty())
                 {
@@ -734,7 +734,7 @@ namespace MTConnect.Agents
         /// <param name="at">The sequence number to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        public IStreamsResponseDocument GetDeviceStreams(long at, int count = 0, Version mtconnectVersion = null)
+        public IStreamsResponseDocument GetDeviceStreams(long at, int count = 0, Version mtconnectVersion = null, string deviceType = null)
         {
             StreamsRequestReceived?.Invoke(null);
 
@@ -742,8 +742,8 @@ namespace MTConnect.Agents
             {
                 // Get list of Devices from the MTConnectDeviceBuffer
                 var devices = new List<IDevice>();
-                devices.Add(_agent);
-                devices.AddRange(_deviceBuffer.GetDevices());
+                if (string.IsNullOrEmpty(deviceType) || deviceType.ToLower() == "agent") devices.Add(_agent);
+                devices.AddRange(_deviceBuffer.GetDevices(deviceType));
 
                 if (!devices.IsNullOrEmpty())
                 {
@@ -777,7 +777,7 @@ namespace MTConnect.Agents
         /// <param name="at">The sequence number to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        public async Task<IStreamsResponseDocument> GetDeviceStreamsAsync(long at, int count = 0, Version mtconnectVersion = null)
+        public async Task<IStreamsResponseDocument> GetDeviceStreamsAsync(long at, int count = 0, Version mtconnectVersion = null, string deviceType = null)
         {
             StreamsRequestReceived?.Invoke(null);
 
@@ -785,8 +785,8 @@ namespace MTConnect.Agents
             {
                 // Get list of Devices from the MTConnectDeviceBuffer
                 var devices = new List<IDevice>();
-                devices.Add(_agent);
-                devices.AddRange(await _deviceBuffer.GetDevicesAsync());
+                if (string.IsNullOrEmpty(deviceType) || deviceType.ToLower() == "agent") devices.Add(_agent);
+                devices.AddRange(_deviceBuffer.GetDevices(deviceType));
 
                 if (!devices.IsNullOrEmpty())
                 {
@@ -821,7 +821,7 @@ namespace MTConnect.Agents
         /// <param name="at">The sequence number to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        public IStreamsResponseDocument GetDeviceStreams(IEnumerable<string> dataItemIds, long at, int count = 0, Version mtconnectVersion = null)
+        public IStreamsResponseDocument GetDeviceStreams(IEnumerable<string> dataItemIds, long at, int count = 0, Version mtconnectVersion = null, string deviceType = null)
         {
             StreamsRequestReceived?.Invoke(null);
 
@@ -829,8 +829,8 @@ namespace MTConnect.Agents
             {
                 // Get list of Devices from the MTConnectDeviceBuffer
                 var devices = new List<IDevice>();
-                devices.Add(_agent);
-                devices.AddRange(_deviceBuffer.GetDevices());
+                if (string.IsNullOrEmpty(deviceType) || deviceType.ToLower() == "agent") devices.Add(_agent);
+                devices.AddRange(_deviceBuffer.GetDevices(deviceType));
 
                 if (!devices.IsNullOrEmpty())
                 {
@@ -857,7 +857,7 @@ namespace MTConnect.Agents
         /// <param name="at">The sequence number to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        public async Task<IStreamsResponseDocument> GetDeviceStreamsAsync(IEnumerable<string> dataItemIds, long at, int count = 0, Version mtconnectVersion = null)
+        public async Task<IStreamsResponseDocument> GetDeviceStreamsAsync(IEnumerable<string> dataItemIds, long at, int count = 0, Version mtconnectVersion = null, string deviceType = null)
         {
             StreamsRequestReceived?.Invoke(null);
 
@@ -865,8 +865,8 @@ namespace MTConnect.Agents
             {
                 // Get list of Devices from the MTConnectDeviceBuffer
                 var devices = new List<IDevice>();
-                devices.Add(_agent);
-                devices.AddRange(await _deviceBuffer.GetDevicesAsync());
+                if (string.IsNullOrEmpty(deviceType) || deviceType.ToLower() == "agent") devices.Add(_agent);
+                devices.AddRange(_deviceBuffer.GetDevices(deviceType));
 
                 if (!devices.IsNullOrEmpty())
                 {
@@ -893,7 +893,7 @@ namespace MTConnect.Agents
         /// <param name="to">The sequence number of the last observation to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        public IStreamsResponseDocument GetDeviceStreams(long from, long to, int count = 0, Version mtconnectVersion = null)
+        public IStreamsResponseDocument GetDeviceStreams(long from, long to, int count = 0, Version mtconnectVersion = null, string deviceType = null)
         {
             StreamsRequestReceived?.Invoke(null);
 
@@ -901,8 +901,8 @@ namespace MTConnect.Agents
             {
                 // Get list of Devices from the MTConnectDeviceBuffer
                 var devices = new List<IDevice>();
-                devices.Add(_agent);
-                devices.AddRange(_deviceBuffer.GetDevices());
+                if (string.IsNullOrEmpty(deviceType) || deviceType.ToLower() == "agent") devices.Add(_agent);
+                devices.AddRange(_deviceBuffer.GetDevices(deviceType));
 
                 if (!devices.IsNullOrEmpty())
                 {
@@ -937,7 +937,7 @@ namespace MTConnect.Agents
         /// <param name="to">The sequence number of the last observation to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        public async Task<IStreamsResponseDocument> GetDeviceStreamsAsync(long from, long to, int count = 0, Version mtconnectVersion = null)
+        public async Task<IStreamsResponseDocument> GetDeviceStreamsAsync(long from, long to, int count = 0, Version mtconnectVersion = null, string deviceType = null)
         {
             StreamsRequestReceived?.Invoke(null);
 
@@ -945,8 +945,8 @@ namespace MTConnect.Agents
             {
                 // Get list of Devices from the MTConnectDeviceBuffer
                 var devices = new List<IDevice>();
-                devices.Add(_agent);
-                devices.AddRange(await _deviceBuffer.GetDevicesAsync());
+                if (string.IsNullOrEmpty(deviceType) || deviceType.ToLower() == "agent") devices.Add(_agent);
+                devices.AddRange(_deviceBuffer.GetDevices(deviceType));
 
                 if (!devices.IsNullOrEmpty())
                 {
@@ -982,7 +982,7 @@ namespace MTConnect.Agents
         /// <param name="to">The sequence number of the last observation to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        public IStreamsResponseDocument GetDeviceStreams(IEnumerable<string> dataItemIds, long from, long to, int count = 0, Version mtconnectVersion = null)
+        public IStreamsResponseDocument GetDeviceStreams(IEnumerable<string> dataItemIds, long from, long to, int count = 0, Version mtconnectVersion = null, string deviceType = null)
         {
             StreamsRequestReceived?.Invoke(null);
 
@@ -990,8 +990,8 @@ namespace MTConnect.Agents
             {
                 // Get list of Devices from the MTConnectDeviceBuffer
                 var devices = new List<IDevice>();
-                devices.Add(_agent);
-                devices.AddRange(_deviceBuffer.GetDevices());
+                if (string.IsNullOrEmpty(deviceType) || deviceType.ToLower() == "agent") devices.Add(_agent);
+                devices.AddRange(_deviceBuffer.GetDevices(deviceType));
 
                 if (!devices.IsNullOrEmpty())
                 {
@@ -1019,7 +1019,7 @@ namespace MTConnect.Agents
         /// <param name="to">The sequence number of the last observation to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        public async Task<IStreamsResponseDocument> GetDeviceStreamsAsync(IEnumerable<string> dataItemIds, long from, long to, int count = 0, Version mtconnectVersion = null)
+        public async Task<IStreamsResponseDocument> GetDeviceStreamsAsync(IEnumerable<string> dataItemIds, long from, long to, int count = 0, Version mtconnectVersion = null, string deviceType = null)
         {
             StreamsRequestReceived?.Invoke(null);
 
@@ -1027,8 +1027,8 @@ namespace MTConnect.Agents
             {
                 // Get list of Devices from the MTConnectDeviceBuffer
                 var devices = new List<IDevice>();
-                devices.Add(_agent);
-                devices.AddRange(await _deviceBuffer.GetDevicesAsync());
+                if (string.IsNullOrEmpty(deviceType) || deviceType.ToLower() == "agent") devices.Add(_agent);
+                devices.AddRange(_deviceBuffer.GetDevices(deviceType));
 
                 if (!devices.IsNullOrEmpty())
                 {

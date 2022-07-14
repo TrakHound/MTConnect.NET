@@ -19,7 +19,7 @@ namespace MTConnect.Http
         private readonly string _id = StringFunctions.RandomString(10);
         private readonly string _boundary = UnixDateTime.Now.ToString().ToMD5Hash();
         private readonly IMTConnectAgent _mtconnectAgent;
-        private readonly string _deviceName;
+        private readonly string _deviceKey;
         private readonly string _path;
         private readonly long _from;
         private readonly int _count;
@@ -51,7 +51,7 @@ namespace MTConnect.Http
 
         public MTConnectHttpSampleStream(
             IMTConnectAgent mtconnectAgent,
-            string deviceName,
+            string deviceKey,
             string path = null,
             long from = -1,
             int count = 0,
@@ -62,7 +62,7 @@ namespace MTConnect.Http
             )
         {
             _mtconnectAgent = mtconnectAgent;
-            _deviceName = deviceName;
+            _deviceKey = deviceKey;
             _path = path;
             _from = from;
             _count = count;
@@ -113,9 +113,9 @@ namespace MTConnect.Http
                         stpw.Restart();
 
                         // Read the MTConnectStreams document from the IMTConnectAgent
-                        if (!string.IsNullOrEmpty(_deviceName))
+                        if (!string.IsNullOrEmpty(_deviceKey))
                         {
-                            document = await _mtconnectAgent.GetDeviceStreamAsync(_deviceName, nextSequence, long.MaxValue, _count);
+                            document = await _mtconnectAgent.GetDeviceStreamAsync(_deviceKey, nextSequence, long.MaxValue, _count);
                         }
                         else
                         {

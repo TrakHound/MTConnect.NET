@@ -29,6 +29,7 @@ namespace MTConnect.Http
         /// <returns>An MTConnectHttpResponse</returns>
         public static async Task<MTConnectHttpResponse> GetProbeRequest(
             IMTConnectAgent mtconnectAgent, 
+            string deviceType = null,
             Version mtconnectVersion = null,
             string documentFormat = DocumentFormat.XML, 
             IEnumerable<KeyValuePair<string, string>> formatOptions = null
@@ -37,7 +38,7 @@ namespace MTConnect.Http
             var stpw = Stopwatch.StartNew();
 
             // Get MTConnectDevices document from the MTConnectAgent
-            var document = await mtconnectAgent.GetDevicesAsync(mtconnectVersion);
+            var document = await mtconnectAgent.GetDevicesAsync(mtconnectVersion, deviceType);
             if (document != null)
             {
                 // Return MTConnectDevices Response Document
@@ -72,14 +73,13 @@ namespace MTConnect.Http
         /// Equipment Metadata for pieces of equipment that are requested and currently represented in the Agent.
         /// </summary>
         /// <param name="mtconnectAgent">The IMTConnectAgent to request data from</param>
-        /// <param name="deviceName">A specific Path portion (name or uuid)</param>
+        /// <param name="deviceKey">A specific Path portion (name or uuid)</param>
         /// <param name="mtconnectVersion">The MTConnect Version of the response document</param>
         /// <param name="documentFormat">The format of the response document</param>
-        /// <param name="indent">A boolean flag to indent the response document (pretty)</param>
         /// <returns>An MTConnectHttpResponse</returns>
         public static async Task<MTConnectHttpResponse> GetDeviceProbeRequest(
             IMTConnectAgent mtconnectAgent, 
-            string deviceName,
+            string deviceKey,
             Version mtconnectVersion = null,
             string documentFormat = DocumentFormat.XML,
             IEnumerable<KeyValuePair<string, string>> formatOptions = null
@@ -87,10 +87,10 @@ namespace MTConnect.Http
         {
             var stpw = Stopwatch.StartNew();
 
-            if (!string.IsNullOrEmpty(deviceName))
+            if (!string.IsNullOrEmpty(deviceKey))
             {
                 // Get MTConnectDevices document from the MTConnectAgent
-                var document = await mtconnectAgent.GetDevicesAsync(deviceName, mtconnectVersion);
+                var document = await mtconnectAgent.GetDevicesAsync(deviceKey, mtconnectVersion);
                 if (document != null)
                 {
                     // Return MTConnectDevices Response Document
@@ -115,13 +115,13 @@ namespace MTConnect.Http
                 else
                 {
                     // Return MTConnectError Response Document
-                    var error404Document = await mtconnectAgent.GetErrorAsync(ErrorCode.NO_DEVICE, $"The Request could not be interpreted. The Device \"{deviceName}\" was Not Found", mtconnectVersion);
+                    var error404Document = await mtconnectAgent.GetErrorAsync(ErrorCode.NO_DEVICE, $"The Request could not be interpreted. The Device \"{deviceKey}\" was Not Found", mtconnectVersion);
                     return new MTConnectHttpResponse(error404Document, 404, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
                 }
             }
 
             // Return MTConnectError Response Document
-            var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.INVALID_REQUEST, $"An empty \"deviceName\" was received and the request could not be processed", mtconnectVersion);
+            var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.INVALID_REQUEST, $"An empty \"device\" was received and the request could not be processed", mtconnectVersion);
             return new MTConnectHttpResponse(errorDocument, 400, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
         }
 
@@ -136,10 +136,10 @@ namespace MTConnect.Http
         /// <param name="interval">The Agent MUST continuously publish Response Documents when the query parameters include interval using the value as the minimum period between adjacent publications.</param>
         /// <param name="mtconnectVersion">The MTConnect Version of the response document</param>
         /// <param name="documentFormat">The format of the response document</param>
-        /// <param name="indent">A boolean flag to indent the response document (pretty)</param>
         /// <returns>An MTConnectHttpResponse</returns>
         public static async Task<MTConnectHttpResponse> GetCurrentRequest(
             IMTConnectAgent mtconnectAgent,
+            string deviceType = null,
             string path = null,
             long at = 0,
             int interval = 0,
@@ -184,8 +184,8 @@ namespace MTConnect.Http
             IStreamsResponseDocument document;
 
             // Get MTConnectStreams document from the MTConnectAgent
-            if (dataItemIds != null) document = await mtconnectAgent.GetDeviceStreamsAsync(dataItemIds, at, mtconnectVersion: mtconnectVersion);
-            else document = await mtconnectAgent.GetDeviceStreamsAsync(at, mtconnectVersion: mtconnectVersion);
+            if (dataItemIds != null) document = await mtconnectAgent.GetDeviceStreamsAsync(dataItemIds, at, mtconnectVersion: mtconnectVersion, deviceType: deviceType);
+            else document = await mtconnectAgent.GetDeviceStreamsAsync(at, mtconnectVersion: mtconnectVersion, deviceType: deviceType);
 
             if (document != null)
             {
@@ -221,17 +221,16 @@ namespace MTConnect.Http
         /// the current value of Data Entities associated with each piece of Streaming Data available from the Agent, subject to any filtering defined in the Request.
         /// </summary>
         /// <param name="mtconnectAgent">The IMTConnectAgent to request data from</param>
-        /// <param name="deviceName">The (name or uuid) of the requested Device</param>
+        /// <param name="deviceKey">The (name or uuid) of the requested Device</param>
         /// <param name="path">An XPath that defines specific information or a set of information to be included in an MTConnectStreams Response Document.</param>
         /// <param name="at">Requests that the MTConnect Response Documents MUST include the current value for all Data Entities relative to the time that a specific sequence number was recorded.</param>
         /// <param name="interval">The Agent MUST continuously publish Response Documents when the query parameters include interval using the value as the minimum period between adjacent publications.</param>
         /// <param name="mtconnectVersion">The MTConnect Version of the response document</param>
         /// <param name="documentFormat">The format of the response document</param>
-        /// <param name="indent">A boolean flag to indent the response document (pretty)</param>
         /// <returns>An MTConnectHttpResponse</returns>
         public static async Task<MTConnectHttpResponse> GetDeviceCurrentRequest(
             IMTConnectAgent mtconnectAgent,
-            string deviceName,
+            string deviceKey,
             string path = null,
             long at = 0,
             int interval = 0,
@@ -273,13 +272,13 @@ namespace MTConnect.Http
                 return new MTConnectHttpResponse(errorDocument, 404, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
 
-            if (!string.IsNullOrEmpty(deviceName))
+            if (!string.IsNullOrEmpty(deviceKey))
             {
                 IStreamsResponseDocument document;
 
                 // Get MTConnectStreams document from the MTConnectAgent
-                if (dataItemIds != null) document = await mtconnectAgent.GetDeviceStreamAsync(deviceName, dataItemIds, at, mtconnectVersion: mtconnectVersion);
-                else document = await mtconnectAgent.GetDeviceStreamAsync(deviceName, at, mtconnectVersion: mtconnectVersion);
+                if (dataItemIds != null) document = await mtconnectAgent.GetDeviceStreamAsync(deviceKey, dataItemIds, at, mtconnectVersion: mtconnectVersion);
+                else document = await mtconnectAgent.GetDeviceStreamAsync(deviceKey, at, mtconnectVersion: mtconnectVersion);
 
                 if (document != null)
                 {
@@ -305,14 +304,14 @@ namespace MTConnect.Http
                 else
                 {
                     // Return MTConnectError Response Document
-                    var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.NO_DEVICE, $"The Request could not be interpreted. The Device \"{deviceName}\" was Not Found", mtconnectVersion);
+                    var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.NO_DEVICE, $"The Request could not be interpreted. The Device \"{deviceKey}\" was Not Found", mtconnectVersion);
                     return new MTConnectHttpResponse(errorDocument, 404, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
                 }
             }
             else
             {
                 // Return MTConnectError Response Document
-                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.INVALID_REQUEST, $"An empty \"deviceName\" was received and the request could not be processed", mtconnectVersion);
+                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.INVALID_REQUEST, $"An empty \"device\" was received and the request could not be processed", mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 400, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
         }
@@ -330,10 +329,10 @@ namespace MTConnect.Http
         /// <param name="count">The count parameter designates the maximum number of observations the Agent MUST publish in the Response Document.</param>
         /// <param name="mtconnectVersion">The MTConnect Version of the response document</param>
         /// <param name="documentFormat">The format of the response document</param>
-        /// <param name="indent">A boolean flag to indent the response document (pretty)</param>
         /// <returns>An MTConnectHttpResponse</returns>
         public static async Task<MTConnectHttpResponse> GetSampleRequest(
             IMTConnectAgent mtconnectAgent,
+            string deviceType = null,
             string path = null,
             long from = 0,
             long to = 0,
@@ -400,8 +399,8 @@ namespace MTConnect.Http
             IStreamsResponseDocument document;
 
             // Get MTConnectStreams document from the MTConnectAgent
-            if (dataItemIds != null) document = await mtconnectAgent.GetDeviceStreamsAsync(dataItemIds, from, to, count, mtconnectVersion);
-            else document = await mtconnectAgent.GetDeviceStreamsAsync(from, to, count, mtconnectVersion);
+            if (dataItemIds != null) document = await mtconnectAgent.GetDeviceStreamsAsync(dataItemIds, from, to, count, mtconnectVersion, deviceType);
+            else document = await mtconnectAgent.GetDeviceStreamsAsync(from, to, count, mtconnectVersion, deviceType);
 
             if (document != null)
             {
@@ -437,19 +436,17 @@ namespace MTConnect.Http
         /// currently available for Streaming Data from the Agent, subject to any filtering defined in the Request.
         /// </summary>
         /// <param name="mtconnectAgent">The IMTConnectAgent to request data from</param>
-        /// <param name="deviceName">The (name or uuid) of the requested Device</param>
+        /// <param name="deviceKey">The (name or uuid) of the requested Device</param>
         /// <param name="path">An XPath that defines specific information or a set of information to be included in an MTConnectStreams Response Document.</param>
         /// <param name="from">The from parameter designates the sequence number of the first observation in the buffer the Agent MUST consider publishing in the Response Document.</param>
-        /// <param name="to">The to parameter specifies the sequence number of the observation in the buffer that will be the upper bound of the observations in the Response Document.</param>
-        /// <param name="at">Requests that the MTConnect Response Documents MUST include the current value for all Data Entities relative to the time that a specific sequence number was recorded.</param>
+        /// <param name="to">The to parameter specifies the sequence number of the observation in the buffer that will be the upper bound of the observations in the Response Document.</param>  
         /// <param name="count">The count parameter designates the maximum number of observations the Agent MUST publish in the Response Document.</param>
         /// <param name="mtconnectVersion">The MTConnect Version of the response document</param>
         /// <param name="documentFormat">The format of the response document</param>
-        /// <param name="indent">A boolean flag to indent the response document (pretty)</param>
         /// <returns>An MTConnectHttpResponse</returns>
         public static async Task<MTConnectHttpResponse> GetDeviceSampleRequest(
             IMTConnectAgent mtconnectAgent,
-            string deviceName,
+            string deviceKey,
             string path = null,
             long from = 0,
             long to = 0,
@@ -513,13 +510,13 @@ namespace MTConnect.Http
                 return new MTConnectHttpResponse(errorDocument, 404, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
 
-            if (!string.IsNullOrEmpty(deviceName))
+            if (!string.IsNullOrEmpty(deviceKey))
             {
                 IStreamsResponseDocument document;
 
                 // Get MTConnectStreams document from the MTConnectAgent
-                if (dataItemIds != null) document = await mtconnectAgent.GetDeviceStreamAsync(deviceName, dataItemIds, from, to, count, mtconnectVersion);
-                else document = await mtconnectAgent.GetDeviceStreamAsync(deviceName, from, to, count, mtconnectVersion);
+                if (dataItemIds != null) document = await mtconnectAgent.GetDeviceStreamAsync(deviceKey, dataItemIds, from, to, count, mtconnectVersion);
+                else document = await mtconnectAgent.GetDeviceStreamAsync(deviceKey, from, to, count, mtconnectVersion);
 
                 if (document != null)
                 {
@@ -545,14 +542,14 @@ namespace MTConnect.Http
                 else
                 {
                     // Return MTConnectError Response Document
-                    var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.NO_DEVICE, $"The Request could not be interpreted. The Device \"{deviceName}\" was Not Found", mtconnectVersion);
+                    var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.NO_DEVICE, $"The Request could not be interpreted. The Device \"{deviceKey}\" was Not Found", mtconnectVersion);
                     return new MTConnectHttpResponse(errorDocument, 404, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
                 }
             }
             else
             {
                 // Return MTConnectError Response Document
-                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.INVALID_REQUEST, $"An empty \"deviceName\" was received and the request could not be processed", mtconnectVersion);
+                var errorDocument = await mtconnectAgent.GetErrorAsync(ErrorCode.INVALID_REQUEST, $"An empty \"device\" was received and the request could not be processed", mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 400, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
         }
@@ -563,6 +560,7 @@ namespace MTConnect.Http
         /// information for MTConnect Assets from the Agent, subject to any filtering defined in the Request.
         /// </summary>
         /// <param name="mtconnectAgent">The IMTConnectAgent to request data from</param>
+        /// <param name="deviceKey">Optional Device name or uuid. If not given, all devices are returned.</param>
         /// <param name="type">Defines the type of MTConnect Asset to be returned in the MTConnectAssets Response Document.</param>
         /// <param name="removed">
         /// An attribute that indicates whether the Asset has been removed from a piece of equipment.
@@ -572,10 +570,10 @@ namespace MTConnect.Http
         /// <param name="count">Defines the maximum number of Asset Documents to return in an MTConnectAssets Response Document.</param>
         /// <param name="mtconnectVersion">The MTConnect Version of the response document</param>
         /// <param name="documentFormat">The format of the response document</param>
-        /// <param name="indent">A boolean flag to indent the response document (pretty)</param>
         /// <returns>An MTConnectHttpResponse</returns>
         public static async Task<MTConnectHttpResponse> GetAssetsRequest(
             IMTConnectAgent mtconnectAgent,
+            string deviceKey = null,
             string type = null,
             bool removed = false,
             int count = 100,
@@ -587,7 +585,7 @@ namespace MTConnect.Http
             var stpw = Stopwatch.StartNew();
 
             // Get MTConnectAssets document from the MTConnectAgent
-            var document = await mtconnectAgent.GetAssetsAsync(type, removed, count, mtconnectVersion);
+            var document = await mtconnectAgent.GetAssetsAsync(deviceKey, type, removed, count, mtconnectVersion);
             if (document != null)
             {
                 // Return MTConnectAssets Response Document
@@ -625,7 +623,6 @@ namespace MTConnect.Http
         /// <param name="assetId">Identifies the id attribute of an MTConnect Asset to be provided by an Agent.</param>
         /// <param name="mtconnectVersion">The MTConnect Version of the response document</param>
         /// <param name="documentFormat">The format of the response document</param>
-        /// <param name="indent">A boolean flag to indent the response document (pretty)</param>
         /// <returns>An MTConnectHttpResponse</returns>
         public static async Task<MTConnectHttpResponse> GetAssetRequest(
             IMTConnectAgent mtconnectAgent,

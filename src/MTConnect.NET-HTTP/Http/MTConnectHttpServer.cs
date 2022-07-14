@@ -204,7 +204,7 @@ namespace MTConnect.Http
             return segments.ToArray();
         }
 
-        private static string GetDeviceName(Uri url, string requestType)
+        private static string GetDeviceKey(Uri url, string requestType)
         {
             var segments = GetUriSegments(url);
             if (!segments.IsNullOrEmpty())
@@ -285,8 +285,11 @@ namespace MTConnect.Http
         {
             if (httpRequest != null && httpRequest.Url != null && httpResponse != null)
             {
-                // Read DeviceName from URL Path
-                var deviceName = GetDeviceName(httpRequest.Url, MTConnectRequestType.Probe);
+                // Read DeviceKey from URL Path
+                var deviceKey = GetDeviceKey(httpRequest.Url, MTConnectRequestType.Probe);
+
+                // Read Device Type from URL Path
+                var deviceType = httpRequest.QueryString["type"];
 
                 // Read MTConnectVersion from Query string
                 var versionString = httpRequest.QueryString["version"];
@@ -320,17 +323,17 @@ namespace MTConnect.Http
                 else formatOptions.Add(new KeyValuePair<string, string>("outputComments", _configuration.OutputComments.ToString()));
 
 
-                if (!string.IsNullOrEmpty(deviceName))
+                if (!string.IsNullOrEmpty(deviceKey))
                 {
                     // Get MTConnectDevices document from the MTConnectAgent
-                    var response = await MTConnectHttpRequests.GetDeviceProbeRequest(_mtconnectAgent, deviceName, version, documentFormat, formatOptions);
+                    var response = await MTConnectHttpRequests.GetDeviceProbeRequest(_mtconnectAgent, deviceKey, version, documentFormat, formatOptions);
                     await WriteResponse(response, httpResponse);
                     ResponseSent?.Invoke(this, response);
                 }
                 else
                 {
                     // Get MTConnectDevices document from the MTConnectAgent
-                    var response = await MTConnectHttpRequests.GetProbeRequest(_mtconnectAgent, version, documentFormat, formatOptions);
+                    var response = await MTConnectHttpRequests.GetProbeRequest(_mtconnectAgent, deviceType, version, documentFormat, formatOptions);
                     await WriteResponse(response, httpResponse);
                     ResponseSent?.Invoke(this, response);
                 }
@@ -345,8 +348,11 @@ namespace MTConnect.Http
         {
             if (httpRequest != null && httpRequest.Url != null && httpResponse != null)
             {
-                // Read DeviceName from URL Path
-                var deviceName = GetDeviceName(httpRequest.Url, MTConnectRequestType.Current);
+                // Read DeviceKey from URL Path
+                var deviceKey = GetDeviceKey(httpRequest.Url, MTConnectRequestType.Current);
+
+                // Read Device Type from URL Path
+                var deviceType = httpRequest.QueryString["type"];
 
                 // Read "path" parameter from Query string
                 var path = httpRequest.QueryString["path"];
@@ -394,7 +400,7 @@ namespace MTConnect.Http
 
                 if (interval > 0)
                 {
-                    var currentStream = new MTConnectHttpCurrentStream(_mtconnectAgent, deviceName, path, interval, heartbeat, documentFormat, formatOptions);
+                    var currentStream = new MTConnectHttpCurrentStream(_mtconnectAgent, deviceKey, path, interval, heartbeat, documentFormat, formatOptions);
 
                     try
                     {
@@ -425,17 +431,17 @@ namespace MTConnect.Http
                 }
                 else
                 {
-                    if (!string.IsNullOrEmpty(deviceName))
+                    if (!string.IsNullOrEmpty(deviceKey))
                     {
                         // Get MTConnectStreams document from the MTConnectAgent
-                        var response = await MTConnectHttpRequests.GetDeviceCurrentRequest(_mtconnectAgent, deviceName, path, at, interval, version, documentFormat, formatOptions);
+                        var response = await MTConnectHttpRequests.GetDeviceCurrentRequest(_mtconnectAgent, deviceKey, path, at, interval, version, documentFormat, formatOptions);
                         await WriteResponse(response, httpResponse);
                         ResponseSent?.Invoke(this, response);
                     }
                     else
                     {
                         // Get MTConnectStreams document from the MTConnectAgent
-                        var response = await MTConnectHttpRequests.GetCurrentRequest(_mtconnectAgent, path, at, interval, version, documentFormat, formatOptions);
+                        var response = await MTConnectHttpRequests.GetCurrentRequest(_mtconnectAgent, deviceType, path, at, interval, version, documentFormat, formatOptions);
                         await WriteResponse(response, httpResponse);
                         ResponseSent?.Invoke(this, response);
                     }
@@ -452,8 +458,11 @@ namespace MTConnect.Http
         {
             if (httpRequest != null && httpRequest.Url != null && httpResponse != null)
             {
-                // Read DeviceName from URL Path
-                var deviceName = GetDeviceName(httpRequest.Url, MTConnectRequestType.Sample);
+                // Read DeviceKey from URL Path
+                var deviceKey = GetDeviceKey(httpRequest.Url, MTConnectRequestType.Sample);
+
+                // Read Device Type from URL Path
+                var deviceType = httpRequest.QueryString["type"];
 
                 // Read "path" parameter from Query string
                 var path = httpRequest.QueryString["path"];
@@ -509,7 +518,7 @@ namespace MTConnect.Http
 
                 if (interval > 0)
                 {
-                    var sampleStream = new MTConnectHttpSampleStream(_mtconnectAgent, deviceName, path, from, count, interval, heartbeat, documentFormat, formatOptions);
+                    var sampleStream = new MTConnectHttpSampleStream(_mtconnectAgent, deviceKey, path, from, count, interval, heartbeat, documentFormat, formatOptions);
 
                     try
                     {
@@ -540,17 +549,17 @@ namespace MTConnect.Http
                 }
                 else
                 {
-                    if (!string.IsNullOrEmpty(deviceName))
+                    if (!string.IsNullOrEmpty(deviceKey))
                     {
                         // Get MTConnectStreams document from the MTConnectAgent
-                        var response = await MTConnectHttpRequests.GetDeviceSampleRequest(_mtconnectAgent, deviceName, path, from, to, count, version, documentFormat, formatOptions);
+                        var response = await MTConnectHttpRequests.GetDeviceSampleRequest(_mtconnectAgent, deviceKey, path, from, to, count, version, documentFormat, formatOptions);
                         await WriteResponse(response, httpResponse);
                         ResponseSent?.Invoke(this, response);
                     }
                     else
                     {
                         // Get MTConnectStreams document from the MTConnectAgent
-                        var response = await MTConnectHttpRequests.GetSampleRequest(_mtconnectAgent, path, from, to, count, version, documentFormat, formatOptions);
+                        var response = await MTConnectHttpRequests.GetSampleRequest(_mtconnectAgent, deviceType, path, from, to, count, version, documentFormat, formatOptions);
                         await WriteResponse(response, httpResponse);
                         ResponseSent?.Invoke(this, response);
                     }
@@ -566,6 +575,9 @@ namespace MTConnect.Http
         {
             if (httpRequest != null && httpRequest.Url != null && httpResponse != null)
             {
+                // Read DeviceKey from URL Path
+                var deviceKey = GetDeviceKey(httpRequest.Url, MTConnectRequestType.Assets);
+
                 // Read Type parameter from Query string
                 var type = httpRequest.QueryString["type"];
 
@@ -574,6 +586,7 @@ namespace MTConnect.Http
 
                 // Read Count parameter from Query string
                 var count = httpRequest.QueryString["count"].ToInt();
+                if (count < 1) count = 100;
 
                 // Read MTConnectVersion from Query string
                 var versionString = httpRequest.QueryString["version"];
@@ -608,7 +621,7 @@ namespace MTConnect.Http
 
 
                 // Get MTConnectAssets document from the MTConnectAgent
-                var response = await MTConnectHttpRequests.GetAssetsRequest(_mtconnectAgent, type, removed, count, version, documentFormat, formatOptions);
+                var response = await MTConnectHttpRequests.GetAssetsRequest(_mtconnectAgent, deviceKey, type, removed, count, version, documentFormat, formatOptions);
                 await WriteResponse(response, httpResponse);
                 ResponseSent?.Invoke(this, response);
             }

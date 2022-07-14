@@ -31,17 +31,19 @@ namespace MTConnect.Buffers
         /// <summary>
         /// Get all MTConnectDevices from the Buffer
         /// </summary>
-        public IEnumerable<IDevice> GetDevices()
+        public IEnumerable<IDevice> GetDevices(string type = null)
         {
-            return _storedDevices?.Select(o => o.Value);
+            if (!string.IsNullOrEmpty(type)) return _storedDevices?.Select(o => o.Value).Where(o => !string.IsNullOrEmpty(o.Type) && o.Type.ToLower() == type.ToLower());
+            else return _storedDevices?.Select(o => o.Value);
         }
 
         /// <summary>
         /// Get all MTConnectDevices from the Buffer
         /// </summary>
-        public async Task<IEnumerable<IDevice>> GetDevicesAsync()
+        public async Task<IEnumerable<IDevice>> GetDevicesAsync(string type = null)
         {
-            return _storedDevices?.Select(o => o.Value);
+            if (!string.IsNullOrEmpty(type)) return _storedDevices?.Select(o => o.Value).Where(o => !string.IsNullOrEmpty(o.Type) && o.Type.ToLower() == type.ToLower());
+            else return _storedDevices?.Select(o => o.Value);
         }
 
         /// <summary>

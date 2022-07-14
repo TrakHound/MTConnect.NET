@@ -67,7 +67,7 @@ namespace MTConnect.Http.Controllers
             if (outputComments.HasValue) formatOptions.Add(new KeyValuePair<string, string>("outputComments", outputComments.Value.ToString()));
             else formatOptions.Add(new KeyValuePair<string, string>("outputComments", _agent.Configuration.OutputComments.ToString()));
 
-            var response = await MTConnectHttpRequests.GetAssetsRequest(_agent, type, removed, count, version, documentFormat, formatOptions);
+            var response = await MTConnectHttpRequests.GetAssetsRequest(_agent, null, type, removed, count, version, documentFormat, formatOptions);
 
             _logger.LogInformation($"[Api-Interface] : {Request.Host} : [{Request.Method}] : {Request.Path} : Response ({response.StatusCode}) in {response.ResponseDuration}ms");
 

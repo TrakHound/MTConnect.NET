@@ -61,7 +61,7 @@ namespace MTConnect.Clients.Rest
         /// <summary>
         /// A unique Identifier used to indentify this instance of the MTConnectClient class
         /// </summary>
-        public string Id { get; }
+        public string Id { get; set; }
 
         /// <summary>
         /// The authority portion consists of the DNS name or IP address associated with an Agent and an optional
@@ -536,10 +536,10 @@ namespace MTConnect.Clients.Rest
         }
 
 
-        private static string CreateCurrentUrl(string baseUrl, string deviceName, int interval)
+        private static string CreateCurrentUrl(string baseUrl, string deviceKey, int interval)
         {
             var url = baseUrl;
-            if (!string.IsNullOrEmpty(deviceName)) url = Url.Combine(url, deviceName + "/current");
+            if (!string.IsNullOrEmpty(deviceKey)) url = Url.Combine(url, deviceKey + "/current");
             else url = Url.Combine(url, "current");
 
             // Replace 'localhost' with '127.0.0.1' (This is due to a performance issue with .NET Core's System.Net.Http.HttpClient)
@@ -551,10 +551,10 @@ namespace MTConnect.Clients.Rest
             return $"{url}?interval={interval}";
         }
 
-        private static string CreateSampleUrl(string baseUrl, string deviceName, long from, int interval, int heartbeat, long count)
+        private static string CreateSampleUrl(string baseUrl, string deviceKey, long from, int interval, int heartbeat, long count)
         {
             var url = baseUrl;
-            if (!string.IsNullOrEmpty(deviceName)) url = Url.Combine(url, deviceName + "/sample");
+            if (!string.IsNullOrEmpty(deviceKey)) url = Url.Combine(url, deviceKey + "/sample");
             else url = Url.Combine(url, "sample");
 
             // Replace 'localhost' with '127.0.0.1' (This is due to a performance issue with .NET Core's System.Net.Http.HttpClient)

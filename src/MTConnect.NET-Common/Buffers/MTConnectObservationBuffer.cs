@@ -250,7 +250,7 @@ namespace MTConnect.Buffers
                     {
                         foreach (var dataItemId in query.DataItemIds)
                         {
-                            // Create a Hash using DeviceName and DataItemId
+                            // Create a Hash using DeviceUuid and DataItemId
                             var hash = StoredObservation.CreateHash(query.DeviceUuid, dataItemId);
 
                             if (at > 0)

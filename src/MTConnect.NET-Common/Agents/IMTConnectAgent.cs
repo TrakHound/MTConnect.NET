@@ -183,13 +183,13 @@ namespace MTConnect.Agents
         /// Get a MTConnectDevices Response Document containing all devices.
         /// </summary>
         /// <returns>MTConnectDevices Response Document</returns>
-        IDevicesResponseDocument GetDevices(Version mtconnectVersion = null);
+        IDevicesResponseDocument GetDevices(Version mtconnectVersion = null, string deviceType = null);
 
         /// <summary>
         /// Get a MTConnectDevices Response Document containing all devices.
         /// </summary>
         /// <returns>MTConnectDevices Response Document</returns>
-        Task<IDevicesResponseDocument> GetDevicesAsync(Version mtconnectVersion = null);
+        Task<IDevicesResponseDocument> GetDevicesAsync(Version mtconnectVersion = null, string deviceType = null);
 
         /// <summary>
         /// Get a MTConnectDevices Response Document containing the specified device.
@@ -214,14 +214,14 @@ namespace MTConnect.Agents
         /// </summary>
         /// <param name="count">The Maximum Number of DataItems to return</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        IStreamsResponseDocument GetDeviceStreams(int count = 0, Version mtconnectVersion = null);
+        IStreamsResponseDocument GetDeviceStreams(int count = 0, Version mtconnectVersion = null, string deviceType = null);
 
         /// <summary>
         /// Get a MTConnectStreams Document containing all devices.
         /// </summary>
         /// <param name="count">The Maximum Number of DataItems to return</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        Task<IStreamsResponseDocument> GetDeviceStreamsAsync(int count = 0, Version mtconnectVersion = null);
+        Task<IStreamsResponseDocument> GetDeviceStreamsAsync(int count = 0, Version mtconnectVersion = null, string deviceType = null);
 
         /// <summary>
         /// Get a MTConnectStreams Document containing all devices.
@@ -229,7 +229,7 @@ namespace MTConnect.Agents
         /// <param name="at">The sequence number to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        IStreamsResponseDocument GetDeviceStreams(long at, int count = 0, Version mtconnectVersion = null);
+        IStreamsResponseDocument GetDeviceStreams(long at, int count = 0, Version mtconnectVersion = null, string deviceType = null);
 
         /// <summary>
         /// Get a MTConnectStreams Document containing all devices.
@@ -237,7 +237,7 @@ namespace MTConnect.Agents
         /// <param name="at">The sequence number to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        Task<IStreamsResponseDocument> GetDeviceStreamsAsync(long at, int count = 0, Version mtconnectVersion = null);
+        Task<IStreamsResponseDocument> GetDeviceStreamsAsync(long at, int count = 0, Version mtconnectVersion = null, string deviceType = null);
 
         /// <summary>
         /// Get a MTConnectStreams Document containing all devices.
@@ -246,7 +246,7 @@ namespace MTConnect.Agents
         /// <param name="at">The sequence number to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        IStreamsResponseDocument GetDeviceStreams(IEnumerable<string> dataItemIds, long at, int count = 0, Version mtconnectVersion = null);
+        IStreamsResponseDocument GetDeviceStreams(IEnumerable<string> dataItemIds, long at, int count = 0, Version mtconnectVersion = null, string deviceType = null);
 
         /// <summary>
         /// Get a MTConnectStreams Document containing all devices.
@@ -255,7 +255,7 @@ namespace MTConnect.Agents
         /// <param name="at">The sequence number to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        Task<IStreamsResponseDocument> GetDeviceStreamsAsync(IEnumerable<string> dataItemIds, long at, int count = 0, Version mtconnectVersion = null);
+        Task<IStreamsResponseDocument> GetDeviceStreamsAsync(IEnumerable<string> dataItemIds, long at, int count = 0, Version mtconnectVersion = null, string deviceType = null);
 
         /// <summary>
         /// Get a MTConnectStreams Document containing all devices.
@@ -264,7 +264,7 @@ namespace MTConnect.Agents
         /// <param name="to">The sequence number of the last observation to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        IStreamsResponseDocument GetDeviceStreams(long from, long to, int count = 0, Version mtconnectVersion = null);
+        IStreamsResponseDocument GetDeviceStreams(long from, long to, int count = 0, Version mtconnectVersion = null, string deviceType = null);
 
         /// <summary>
         /// Get a MTConnectStreams Document containing all devices.
@@ -273,17 +273,7 @@ namespace MTConnect.Agents
         /// <param name="to">The sequence number of the last observation to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        Task<IStreamsResponseDocument> GetDeviceStreamsAsync(long from, long to, int count = 0, Version mtconnectVersion = null);
-
-        /// <summary>
-        /// Get a MTConnectStreams Document containing all devices.
-        /// </summary>
-        /// <param name="dataItemIds">A list of DataItemId's to specify what observations to include in the response</param>
-        /// <param name="from">The sequence number of the first observation to include in the response</param>
-        /// <param name="to">The sequence number of the last observation to include in the response</param>
-        /// <param name="count">The maximum number of observations to include in the response</param>
-        /// <returns>MTConnectStreams Response Document</returns>
-        IStreamsResponseDocument GetDeviceStreams(IEnumerable<string> dataItemIds, long from, long to, int count = 0, Version mtconnectVersion = null);
+        Task<IStreamsResponseDocument> GetDeviceStreamsAsync(long from, long to, int count = 0, Version mtconnectVersion = null, string deviceType = null);
 
         /// <summary>
         /// Get a MTConnectStreams Document containing all devices.
@@ -293,7 +283,17 @@ namespace MTConnect.Agents
         /// <param name="to">The sequence number of the last observation to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        Task<IStreamsResponseDocument> GetDeviceStreamsAsync(IEnumerable<string> dataItemIds, long from, long to, int count = 0, Version mtconnectVersion = null);
+        IStreamsResponseDocument GetDeviceStreams(IEnumerable<string> dataItemIds, long from, long to, int count = 0, Version mtconnectVersion = null, string deviceType = null);
+
+        /// <summary>
+        /// Get a MTConnectStreams Document containing all devices.
+        /// </summary>
+        /// <param name="dataItemIds">A list of DataItemId's to specify what observations to include in the response</param>
+        /// <param name="from">The sequence number of the first observation to include in the response</param>
+        /// <param name="to">The sequence number of the last observation to include in the response</param>
+        /// <param name="count">The maximum number of observations to include in the response</param>
+        /// <returns>MTConnectStreams Response Document</returns>
+        Task<IStreamsResponseDocument> GetDeviceStreamsAsync(IEnumerable<string> dataItemIds, long from, long to, int count = 0, Version mtconnectVersion = null, string deviceType = null);
 
 
         /// <summary>
