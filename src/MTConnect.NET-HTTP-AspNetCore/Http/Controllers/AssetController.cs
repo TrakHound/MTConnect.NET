@@ -33,17 +33,17 @@ namespace MTConnect.Http.Controllers
         /// An Agent responds to an Asset Request with an MTConnectAssets Response Document that contains
         /// information for MTConnect Assets from the Agent, subject to any filtering defined in the Request.
         /// </summary>
-        /// <param name="assetId">Identifies the id attribute of an MTConnect Asset to be provided by an Agent.</param>
+        /// <param name="assetIds">Identifies the IDs of the MTConnect Assets to be provided by an Agent.</param>
         /// <param name="version">The MTConnect Version of the response document</param>
         /// <param name="documentFormat">The format of the response document</param>
         /// <param name="indentOutput">A boolean flag to indent the response document (pretty)</param>
-        [HttpGet("{assetId}")]
+        [HttpGet("{assetIds}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetAsset(
-            [FromRoute] string assetId,
+            [FromRoute] string assetIds,
             [FromQuery] Version version = null,
             [FromQuery] string documentFormat = DocumentFormat.XML,
             [FromQuery] bool? indentOutput = null,
@@ -51,6 +51,13 @@ namespace MTConnect.Http.Controllers
             )
         {
             _logger.LogInformation($"[Api-Interface] : {Request.Host} : Requested a MTConnectAssets Document : [{Request.Method}] : {Request.Path} : {Request.QueryString}");
+
+            IEnumerable<string> ids = null;
+            if (!string.IsNullOrEmpty(assetIds))
+            {
+                ids = assetIds.Split(';');
+                if (ids.IsNullOrEmpty()) ids = new List<string> { assetIds };
+            }
 
             // Set Format Options
             var formatOptions = new List<KeyValuePair<string, string>>();
@@ -61,7 +68,7 @@ namespace MTConnect.Http.Controllers
             if (outputComments.HasValue) formatOptions.Add(new KeyValuePair<string, string>("outputComments", outputComments.Value.ToString()));
             else formatOptions.Add(new KeyValuePair<string, string>("outputComments", _agent.Configuration.OutputComments.ToString()));
 
-            var response = await MTConnectHttpRequests.GetAssetRequest(_agent, assetId, version, documentFormat, formatOptions);
+            var response = await MTConnectHttpRequests.GetAssetRequest(_agent, ids, version, documentFormat, formatOptions);
 
             _logger.LogInformation($"[Api-Interface] : {Request.Host} : [{Request.Method}] : {Request.Path} : Response ({response.StatusCode}) in {response.ResponseDuration}ms");
 
