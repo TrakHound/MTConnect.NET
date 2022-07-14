@@ -47,7 +47,7 @@ namespace MTConnect.Http.Controllers
         [ProducesResponseType(StatusCodes.Status431RequestHeaderFieldsTooLarge)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetProbe(
-            [FromQuery] string type = null,
+            [FromQuery] string deviceType = null,
             [FromQuery] Version version = null,
             [FromQuery] string documentFormat = DocumentFormat.XML,
             [FromQuery] bool? indentOutput = null,
@@ -65,7 +65,7 @@ namespace MTConnect.Http.Controllers
             if (outputComments.HasValue) formatOptions.Add(new KeyValuePair<string, string>("outputComments", outputComments.Value.ToString()));
             else formatOptions.Add(new KeyValuePair<string, string>("outputComments", _agent.Configuration.OutputComments.ToString()));
 
-            var response = await MTConnectHttpRequests.GetProbeRequest(_agent, type, version, documentFormat, formatOptions);
+            var response = await MTConnectHttpRequests.GetProbeRequest(_agent, deviceType, version, documentFormat, formatOptions);
 
             _logger.LogInformation($"[Api-Interface] : {Request.Host} : [{Request.Method}] : {Request.Path} : {Request.QueryString} : Response ({response.StatusCode}) in {response.ResponseDuration}ms");
 
@@ -92,7 +92,7 @@ namespace MTConnect.Http.Controllers
         [ProducesResponseType(StatusCodes.Status431RequestHeaderFieldsTooLarge)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetCurrent(
-            [FromQuery] string type = null,
+            [FromQuery] string deviceType = null,
             [FromQuery] string path = null,
             [FromQuery] long at = 0,
             [FromQuery] int interval = -1,
@@ -179,7 +179,7 @@ namespace MTConnect.Http.Controllers
             {
                 _logger.LogInformation($"[Api-Interface] : {Request.Host} : Current Requested a MTConnectStreams Document : [{Request.Method}] : {Request.Path} : {Request.QueryString}");
 
-                var response = await MTConnectHttpRequests.GetCurrentRequest(_agent, type, path, at, interval, version, documentFormat, formatOptions);
+                var response = await MTConnectHttpRequests.GetCurrentRequest(_agent, deviceType, path, at, interval, version, documentFormat, formatOptions);
 
                 _logger.LogInformation($"[Api-Interface] : {Request.Host} : [{Request.Method}] : {Request.Path} : {Request.QueryString} : Current Response ({response.StatusCode}) in {response.ResponseDuration}ms");
 
@@ -209,7 +209,7 @@ namespace MTConnect.Http.Controllers
         [ProducesResponseType(StatusCodes.Status431RequestHeaderFieldsTooLarge)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetSample(
-            [FromQuery] string type = null,
+            [FromQuery] string deviceType = null,
             [FromQuery] string path = null,
             [FromQuery] long from = 0,
             [FromQuery] long to = 0,
@@ -298,7 +298,7 @@ namespace MTConnect.Http.Controllers
             {
                 _logger.LogInformation($"[Api-Interface] : {Request.Host} : Samples Requested a MTConnectStreams Document : [{Request.Method}] : {Request.Path} : {Request.QueryString}");
 
-                var response = await MTConnectHttpRequests.GetSampleRequest(_agent, type, path, from, to, count, version, documentFormat, formatOptions);
+                var response = await MTConnectHttpRequests.GetSampleRequest(_agent, deviceType, path, from, to, count, version, documentFormat, formatOptions);
 
                 _logger.LogInformation($"[Api-Interface] : {Request.Host} : [{Request.Method}] : {Request.Path} : {Request.QueryString} : Samples Response ({response.StatusCode}) in {response.ResponseDuration}ms");
 

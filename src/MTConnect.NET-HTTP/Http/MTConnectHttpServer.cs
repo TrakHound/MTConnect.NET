@@ -289,7 +289,7 @@ namespace MTConnect.Http
                 var deviceKey = GetDeviceKey(httpRequest.Url, MTConnectRequestType.Probe);
 
                 // Read Device Type from URL Path
-                var deviceType = httpRequest.QueryString["type"];
+                var deviceType = httpRequest.QueryString["deviceType"];
 
                 // Read MTConnectVersion from Query string
                 var versionString = httpRequest.QueryString["version"];
@@ -352,7 +352,7 @@ namespace MTConnect.Http
                 var deviceKey = GetDeviceKey(httpRequest.Url, MTConnectRequestType.Current);
 
                 // Read Device Type from URL Path
-                var deviceType = httpRequest.QueryString["type"];
+                var deviceType = httpRequest.QueryString["deviceType"];
 
                 // Read "path" parameter from Query string
                 var path = httpRequest.QueryString["path"];
@@ -462,7 +462,7 @@ namespace MTConnect.Http
                 var deviceKey = GetDeviceKey(httpRequest.Url, MTConnectRequestType.Sample);
 
                 // Read Device Type from URL Path
-                var deviceType = httpRequest.QueryString["type"];
+                var deviceType = httpRequest.QueryString["deviceType"];
 
                 // Read "path" parameter from Query string
                 var path = httpRequest.QueryString["path"];
