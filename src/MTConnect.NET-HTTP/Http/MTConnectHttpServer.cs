@@ -637,11 +637,19 @@ namespace MTConnect.Http
             {
                 var urlSegments = GetUriSegments(httpRequest.Url);
 
-                // Read AssetId from URL Path
-                var assetId = httpRequest.Url.LocalPath?.Trim('/');
+                // Read AssetIds from URL Path
+                var assetIdsString = httpRequest.Url.LocalPath?.Trim('/');
                 if (urlSegments.Length > 1)
                 {
-                    assetId = urlSegments[urlSegments.Length - 1];
+                    assetIdsString = urlSegments[urlSegments.Length - 1];
+                }
+
+                // Create list of AssetIds
+                IEnumerable<string> assetIds = null;
+                if (!string.IsNullOrEmpty(assetIdsString))
+                {
+                    assetIds = assetIdsString.Split(';');
+                    if (assetIds.IsNullOrEmpty()) assetIds = new List<string>() { assetIdsString };
                 }
 
                 // Read MTConnectVersion from Query string
@@ -677,7 +685,7 @@ namespace MTConnect.Http
 
 
                 // Get MTConnectAssets document from the MTConnectAgent
-                var response = await MTConnectHttpRequests.GetAssetRequest(_mtconnectAgent, assetId, version, documentFormat, formatOptions);
+                var response = await MTConnectHttpRequests.GetAssetRequest(_mtconnectAgent, assetIds, version, documentFormat, formatOptions);
                 await WriteResponse(response, httpResponse);
                 ResponseSent?.Invoke(this, response);
             }

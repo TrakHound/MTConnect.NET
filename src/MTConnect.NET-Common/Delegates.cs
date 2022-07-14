@@ -7,9 +7,9 @@ using MTConnect.Assets;
 using MTConnect.Devices;
 using MTConnect.Devices.DataItems;
 using MTConnect.Errors;
-using MTConnect.Observations.Input;
 using MTConnect.Streams;
 using System;
+using System.Collections.Generic;
 
 namespace MTConnect
 {
@@ -20,7 +20,8 @@ namespace MTConnect
     public delegate void MTConnectStreamsRequestedHandler(string deviceUuid);
 
     public delegate void MTConnectAssetsHandler(IAssetsResponseDocument document);
-    public delegate void MTConnectAssetsRequestedHandler(string deviceUuid);
+    public delegate void MTConnectAssetsRequestedHandler(IEnumerable<string> assetIds);
+    public delegate void MTConnectDeviceAssetsRequestedHandler(string deviceUuid);
 
     public delegate void MTConnectErrorHandler(IErrorResponseDocument errorDocument);
 

@@ -263,6 +263,7 @@ namespace MTConnect.Applications.Agents
                     _mtconnectAgent.StreamsRequestReceived += StreamsRequested;
                     _mtconnectAgent.StreamsResponseSent += StreamsSent;
                     _mtconnectAgent.AssetsRequestReceived += AssetsRequested;
+                    _mtconnectAgent.DeviceAssetsRequestReceived += DeviceAssetsRequested;
                     _mtconnectAgent.AssetsResponseSent += AssetsSent;
                     _mtconnectAgent.ObservationAdded += ObservationAdded;
                     _mtconnectAgent.InvalidComponentAdded += InvalidComponent;
@@ -605,9 +606,20 @@ namespace MTConnect.Applications.Agents
             }
         }
 
-        private void AssetsRequested(string deviceName)
+        private void AssetsRequested(IEnumerable<string> assetIds)
         {
-            _agentLogger.Debug($"[Agent] : MTConnectAssets Requested : " + deviceName);
+            var ids = "";
+            if (!assetIds.IsNullOrEmpty())
+            {
+                string.Join(";", assetIds.ToArray());
+            }
+
+            _agentLogger.Debug($"[Agent] : MTConnectAssets Requested : AssetIds = " + ids);
+        }
+
+        private void DeviceAssetsRequested(string deviceUuid)
+        {
+            _agentLogger.Debug($"[Agent] : MTConnectAssets Requested : DeviceUuid = " + deviceUuid);
         }
 
         private void AssetsSent(IAssetsResponseDocument document)

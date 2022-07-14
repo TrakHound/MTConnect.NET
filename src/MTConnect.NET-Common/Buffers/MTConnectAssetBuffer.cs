@@ -131,6 +131,56 @@ namespace MTConnect.Buffers
             return null;
         }
 
+
+        /// <summary>
+        /// Get the specified Assets from the Buffer
+        /// </summary>
+        /// <param name="assetIds">The IDs of the Assets to return</param>
+        public IEnumerable<IAsset> GetAssets(IEnumerable<string> assetIds)
+        {
+            if (!assetIds.IsNullOrEmpty())
+            {
+                var assets = new List<IAsset>();
+
+                foreach (var assetId in assetIds)
+                {
+                    if (_assetIds.TryGetValue(assetId, out int index))
+                    {
+                        assets.Add(_storedAssets[index]);
+                    }
+                }
+
+                return assets;
+            }        
+
+            return null;
+        }
+
+        /// <summary>
+        /// Get the specified Assets from the Buffer
+        /// </summary>
+        /// <param name="assetIds">The IDs of the Assets to return</param>
+        public async Task<IEnumerable<IAsset>> GetAssetsAsync(IEnumerable<string> assetIds)
+        {
+            if (!assetIds.IsNullOrEmpty())
+            {
+                var assets = new List<IAsset>();
+
+                foreach (var assetId in assetIds)
+                {
+                    if (_assetIds.TryGetValue(assetId, out int index))
+                    {
+                        assets.Add(_storedAssets[index]);
+                    }
+                }
+
+                return assets;
+            }
+
+            return null;
+        }
+
+
         /// <summary>
         /// Get the specified Asset from the Buffer
         /// </summary>

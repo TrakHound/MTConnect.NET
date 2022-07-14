@@ -626,7 +626,7 @@ namespace MTConnect.Http
         /// <returns>An MTConnectHttpResponse</returns>
         public static async Task<MTConnectHttpResponse> GetAssetRequest(
             IMTConnectAgent mtconnectAgent,
-            string assetId,
+            IEnumerable<string> assetIds,
             Version mtconnectVersion = null,
             string documentFormat = DocumentFormat.XML,
             IEnumerable<KeyValuePair<string, string>> formatOptions = null
@@ -634,10 +634,10 @@ namespace MTConnect.Http
         {
             var stpw = Stopwatch.StartNew();
 
-            if (!string.IsNullOrEmpty(assetId))
+            if (!assetIds.IsNullOrEmpty())
             {
                 // Get MTConnectAssets document from the MTConnectAgent
-                var document = await mtconnectAgent.GetAssetAsync(assetId, mtconnectVersion);
+                var document = await mtconnectAgent.GetAssetsAsync(assetIds, mtconnectVersion);
                 if (document != null)
                 {
                     // Return MTConnectAssets Response Document

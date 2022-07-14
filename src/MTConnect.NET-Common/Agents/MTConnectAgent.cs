@@ -178,6 +178,11 @@ namespace MTConnect.Agents
         public MTConnectAssetsRequestedHandler AssetsRequestReceived { get; set; }
 
         /// <summary>
+        /// Raised when an MTConnectAssets response Document is requested from the Agent for a specific Device
+        /// </summary>
+        public MTConnectDeviceAssetsRequestedHandler DeviceAssetsRequestReceived { get; set; }
+
+        /// <summary>
         /// Raised when an MTConnectAssets response Document is sent successfully from the Agent
         /// </summary>
         public MTConnectAssetsHandler AssetsResponseSent { get; set; }
@@ -1827,7 +1832,7 @@ namespace MTConnect.Agents
         /// <returns>MTConnectAssets Response Document</returns>
         public IAssetsResponseDocument GetAssets(string deviceKey = null, string type = null, bool removed = false, int count = 0, Version mtconnectVersion = null)
         {
-            AssetsRequestReceived?.Invoke(null);
+            DeviceAssetsRequestReceived?.Invoke(deviceKey);
 
             if (_assetBuffer != null)
             {
@@ -1884,7 +1889,7 @@ namespace MTConnect.Agents
         /// <returns>MTConnectAssets Response Document</returns>
         public async Task<IAssetsResponseDocument> GetAssetsAsync(string deviceKey = null, string type = null, bool removed = false, int count = 0, Version mtconnectVersion = null)
         {
-            AssetsRequestReceived?.Invoke(null);
+            DeviceAssetsRequestReceived?.Invoke(deviceKey);
 
             if (_assetBuffer != null)
             {
@@ -1931,39 +1936,45 @@ namespace MTConnect.Agents
         /// <summary>
         /// Get an MTConnectAssets Document containing the specified Asset
         /// </summary>
-        /// <param name="assetId">The ID of the Asset to include in the response</param>
+        /// <param name="assetIds">The IDs of the Assets to include in the response</param>
         /// <returns>MTConnectAssets Response Document</returns>
-        public IAssetsResponseDocument GetAsset(string assetId, Version mtconnectVersion = null)
+        public IAssetsResponseDocument GetAssets(IEnumerable<string> assetIds, Version mtconnectVersion = null)
         {
-            AssetsRequestReceived?.Invoke(assetId);
+            AssetsRequestReceived?.Invoke(assetIds);
 
             if (_assetBuffer != null)
             {
-                // Get Asset from AssetsBuffer
-                var asset = _assetBuffer.GetAsset(assetId);
-                if (asset != null)
+                // Set MTConnect Version
+                var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersion;
+
+                var processedAssets = new List<IAsset>();
+
+                // Get Assets from AssetsBuffer
+                var assets = _assetBuffer.GetAssets(assetIds);
+                if (!assets.IsNullOrEmpty())
                 {
-                    // Set MTConnect Version
-                    var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersion;
-
-                    // Process Asset
-                    var processedAsset = asset.Process(version);
-
-                    // Create AssetsHeader
-                    var header = GetAssetsHeader(version);
-                    header.Version = _version.ToString();
-                    header.InstanceId = InstanceId;
-
-                    // Create MTConnectAssets Response Document
-                    var document = new AssetsResponseDocument();
-                    document.Version = version;
-                    document.Header = header;
-                    document.Assets = new List<IAsset> { processedAsset };
-
-                    AssetsResponseSent?.Invoke(document);
-
-                    return document;
+                    // Process Assets
+                    foreach (var asset in assets)
+                    {
+                        var processedAsset = asset.Process(version);
+                        if (processedAsset != null) processedAssets.Add(processedAsset);
+                    }
                 }
+
+                // Create AssetsHeader
+                var header = GetAssetsHeader(version);
+                header.Version = _version.ToString();
+                header.InstanceId = InstanceId;
+
+                // Create MTConnectAssets Response Document
+                var document = new AssetsResponseDocument();
+                document.Version = version;
+                document.Header = header;
+                document.Assets = processedAssets;
+
+                AssetsResponseSent?.Invoke(document);
+
+                return document;
             }
 
             return null;
@@ -1972,39 +1983,45 @@ namespace MTConnect.Agents
         /// <summary>
         /// Get an MTConnectAssets Document containing the specified Asset
         /// </summary>
-        /// <param name="assetId">The ID of the Asset to include in the response</param>
+        /// <param name="assetIds">The IDs of the Assets to include in the response</param>
         /// <returns>MTConnectAssets Response Document</returns>
-        public async Task<IAssetsResponseDocument> GetAssetAsync(string assetId, Version mtconnectVersion = null)
+        public async Task<IAssetsResponseDocument> GetAssetsAsync(IEnumerable<string> assetIds, Version mtconnectVersion = null)
         {
-            AssetsRequestReceived?.Invoke(assetId);
+            AssetsRequestReceived?.Invoke(assetIds);
 
             if (_assetBuffer != null)
             {
-                // Get Asset from AssetsBuffer
-                var asset = await _assetBuffer.GetAssetAsync(assetId);
-                if (asset != null)
+                // Set MTConnect Version
+                var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersion;
+
+                var processedAssets = new List<IAsset>();
+
+                // Get Assets from AssetsBuffer
+                var assets = await _assetBuffer.GetAssetsAsync(assetIds);
+                if (!assets.IsNullOrEmpty())
                 {
-                    // Set MTConnect Version
-                    var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersion;
-
-                    // Process Asset
-                    var processedAsset = asset.Process(version);
-
-                    // Create AssetsHeader
-                    var header = GetAssetsHeader(version);
-                    header.Version = _version.ToString();
-                    header.InstanceId = InstanceId;
-
-                    // Create MTConnectAssets Response Document
-                    var document = new AssetsResponseDocument();
-                    document.Version = version;
-                    document.Header = header;
-                    document.Assets = new List<IAsset> { processedAsset };
-
-                    AssetsResponseSent?.Invoke(document);
-
-                    return document;
+                    // Process Assets
+                    foreach (var asset in assets)
+                    {
+                        var processedAsset = asset.Process(version);
+                        if (processedAsset != null) processedAssets.Add(processedAsset);
+                    }
                 }
+
+                // Create AssetsHeader
+                var header = GetAssetsHeader(version);
+                header.Version = _version.ToString();
+                header.InstanceId = InstanceId;
+
+                // Create MTConnectAssets Response Document
+                var document = new AssetsResponseDocument();
+                document.Version = version;
+                document.Header = header;
+                document.Assets = processedAssets;
+
+                AssetsResponseSent?.Invoke(document);
+
+                return document;
             }
 
             return null;

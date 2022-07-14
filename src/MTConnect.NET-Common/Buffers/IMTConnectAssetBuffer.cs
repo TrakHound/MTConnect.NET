@@ -45,6 +45,20 @@ namespace MTConnect.Buffers
         /// </summary>
         Task<IEnumerable<IAsset>> GetAssetsAsync(string deviceUuid = null, string type = null, bool removed = false, int count = 0);
 
+
+        /// <summary>
+        /// Get the specified Assets from the Buffer
+        /// </summary>
+        /// <param name="assetIds">The IDs of the Assets to return</param>
+        IEnumerable<IAsset> GetAssets(IEnumerable<string> assetIds);
+
+        /// <summary>
+        /// Get the specified Assets from the Buffer
+        /// </summary>
+        /// <param name="assetIds">The IDs of the Assets to return</param>
+        Task<IEnumerable<IAsset>> GetAssetsAsync(IEnumerable<string> assetIds);
+
+
         /// <summary>
         /// Get the specified Asset from the Buffer
         /// </summary>

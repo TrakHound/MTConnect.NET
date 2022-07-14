@@ -446,16 +446,16 @@ namespace MTConnect.Agents
         /// <summary>
         /// Get a MTConnectAssets Document containing the specified Asset
         /// </summary>
-        /// <param name="assetId">The ID of the Asset to include in the response</param>
+        /// <param name="assetIds">The IDs of the Assets to include in the response</param>
         /// <returns>MTConnectAssets Response Document</returns>
-        IAssetsResponseDocument GetAsset(string assetId, Version mtconnectVersion = null);
+        IAssetsResponseDocument GetAssets(IEnumerable<string> assetIds, Version mtconnectVersion = null);
 
         /// <summary>
         /// Get a MTConnectAssets Document containing the specified Asset
         /// </summary>
-        /// <param name="assetId">The ID of the Asset to include in the response</param>
+        /// <param name="assetIds">The IDs of the Assets to include in the response</param>
         /// <returns>MTConnectAssets Response Document</returns>
-        Task<IAssetsResponseDocument> GetAssetAsync(string assetId, Version mtconnectVersion = null);
+        Task<IAssetsResponseDocument> GetAssetsAsync(IEnumerable<string> assetIds, Version mtconnectVersion = null);
 
 
         /// <summary>
