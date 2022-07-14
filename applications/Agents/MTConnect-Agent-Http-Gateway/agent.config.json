@@ -35,6 +35,12 @@
 			"port": 5717,
 			"deviceKey": "M12346",
 			"heartbeat": 0
+		},
+		{
+			"address": "localhost",
+			"port": 5006,
+			"deviceKey": "OKUMA-Lathe",
+			"heartbeat": 5000
 		}
 	]
 }
