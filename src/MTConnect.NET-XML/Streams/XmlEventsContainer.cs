@@ -137,7 +137,7 @@ namespace MTConnect.Streams
                         var valueDescriptionText = Observation.GetDescriptionText(observation.Category, observation.Type, observation.SubType, observation.Result);
                         if (!string.IsNullOrEmpty(valueDescriptionText))
                         {
-                            writer.WriteComment($"CDATA = {observation.Result} : {valueDescriptionText}");
+                            writer.WriteComment($"Result = {observation.Result} : {valueDescriptionText}");
                             writer.WriteWhitespace("\r\n");
                         }
 

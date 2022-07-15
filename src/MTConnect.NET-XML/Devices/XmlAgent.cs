@@ -65,7 +65,7 @@ namespace MTConnect.Devices
                 {
                     foreach (var dataItem in device.DataItems)
                     {
-                        DataItemCollection.DataItems.Add(new DataItem(dataItem));
+                        DataItemCollection.DataItems.Add(DataItem.Create(dataItem));
                     }
                 }
 

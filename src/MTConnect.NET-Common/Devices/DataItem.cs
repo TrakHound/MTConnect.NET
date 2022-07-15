@@ -517,7 +517,7 @@ namespace MTConnect.Devices
         }
 
 
-        public static IDataItem Create(IDataItem dataItem)
+        public static DataItem Create(IDataItem dataItem)
         {
             var di = Create(dataItem.Type);
             di.Category = dataItem.Category;
