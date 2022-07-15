@@ -296,6 +296,7 @@ namespace MTConnect.Http
 
                                 break;
 
+#if NET5_0_OR_GREATER
                             case HttpResponseCompression.Br:
 
                                 httpResponse.AddHeader("Content-Encoding", "br");
@@ -310,6 +311,7 @@ namespace MTConnect.Http
                                 }
 
                                 break;
+#endif
 
                             case HttpResponseCompression.Deflate:
 

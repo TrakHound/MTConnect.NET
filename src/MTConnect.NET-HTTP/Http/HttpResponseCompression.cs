@@ -10,6 +10,8 @@ namespace MTConnect.Http
         None,
         Gzip,
         Deflate,
-        Br,
+#if NET5_0_OR_GREATER
+        Br
+#endif
     }
 }
