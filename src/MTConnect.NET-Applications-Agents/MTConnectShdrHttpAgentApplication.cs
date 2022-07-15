@@ -17,6 +17,7 @@ using MTConnect.Streams;
 using NLog;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
@@ -95,6 +96,14 @@ namespace MTConnect.Applications.Agents
                 }
             }
             _port = port;
+
+            // Copy Default Configuration File
+            string configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AgentConfiguration.Filename);
+            string defaultPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AgentConfiguration.DefaultFilename);
+            if (!File.Exists(configPath) && File.Exists(defaultPath))
+            {
+                File.Copy(defaultPath, configPath);
+            }
 
             // Read the Http Agent Configuation File
             var configuration = AgentConfiguration.Read<ShdrHttpAgentConfiguration>(configFile);
@@ -413,6 +422,8 @@ namespace MTConnect.Applications.Agents
 
                 Thread.Sleep(2000); // Delay 2 seconds to allow Http Server to stop
 
+                _deviceConfigurationWatchers.Clear();
+                _adapters.Clear();
                 _started = false;
             }
         }

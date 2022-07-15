@@ -1,8 +1,7 @@
 ﻿{
-	"port": 5005,
+	"port": 5000,
 	"durable": true,
 	"allowPut": true,
-	//"allowShdrDevice": true,
 	"inputValidationLevel": 2,
 	"adapters": [
 		{

@@ -15,6 +15,7 @@ using MTConnect.Streams;
 using NLog;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
@@ -90,6 +91,14 @@ namespace MTConnect.Applications.Agents
                 }
             }
             _port = port;
+
+            // Copy Default Configuration File
+            string configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AgentConfiguration.Filename);
+            string defaultPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AgentConfiguration.DefaultFilename);
+            if (!File.Exists(configPath) && File.Exists(defaultPath))
+            {
+                File.Copy(defaultPath, configPath);
+            }
 
             // Read the Http Agent Configuation File
             var configuration = AgentConfiguration.Read<HttpAgentApplicationConfiguration>(configFile);

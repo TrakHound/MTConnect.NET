@@ -18,6 +18,7 @@ using MTConnect.Streams;
 using NLog;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
@@ -95,6 +96,14 @@ namespace MTConnect.Applications.Agents
                 }
             }
             _port = port;
+
+            // Copy Default Configuration File
+            string configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AgentConfiguration.Filename);
+            string defaultPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AgentConfiguration.DefaultFilename);
+            if (!File.Exists(configPath) && File.Exists(defaultPath))
+            {
+                File.Copy(defaultPath, configPath);
+            }
 
             // Read the Http Agent Configuation File
             var configuration = AgentConfiguration.Read<HttpAgentGatewayApplicationConfiguration>(configFile);
@@ -374,6 +383,12 @@ namespace MTConnect.Applications.Agents
                     foreach (var deviceConfigurationFileWatcher in _deviceConfigurationWatchers) deviceConfigurationFileWatcher.Dispose();
                 }
 
+                // Stop Agent Clients
+                if (!_clients.IsNullOrEmpty())
+                {
+                    foreach (var client in _clients) client.Stop();
+                }
+
                 if (_httpServer != null) _httpServer.Stop();
                 if (_mtconnectAgent != null) _mtconnectAgent.Dispose();
                 if (_observationBuffer != null) _observationBuffer.Dispose();
@@ -383,6 +398,8 @@ namespace MTConnect.Applications.Agents
 
                 Thread.Sleep(2000); // Delay 2 seconds to allow Http Server to stop
 
+                _deviceConfigurationWatchers.Clear();
+                _clients.Clear();
                 _started = false;
             }
         }
