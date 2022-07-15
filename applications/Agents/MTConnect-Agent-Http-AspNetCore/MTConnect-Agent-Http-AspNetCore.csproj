@@ -25,7 +25,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="agent.config.json" />
+    <Content Remove="agent.config.default.json" />
     <Content Remove="NLog.config" />
   </ItemGroup>
 
@@ -39,7 +39,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="agent.config.json">
+    <None Include="agent.config.default.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="NLog.config">

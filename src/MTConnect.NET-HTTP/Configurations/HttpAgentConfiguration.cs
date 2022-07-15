@@ -26,6 +26,23 @@ namespace MTConnect.Configurations
         public string ServerIp { get; set; }
 
         /// <summary>
+        /// 
+        /// </summary>
+        [JsonIgnore]
+        public Http.HttpResponseCompression ResponseCompression 
+        {
+            get
+            {
+                var s = ResponseCompressionString;
+                if (!string.IsNullOrEmpty(s)) s = s.ToTitleCase();
+                return s.ConvertEnum<Http.HttpResponseCompression>();
+            }          
+        }
+
+        [JsonPropertyName("responseCompression")]
+        public string ResponseCompressionString { get; set; }
+
+        /// <summary>
         /// Allow HTTP PUT or POST of data item values or assets.
         /// </summary>
         [JsonPropertyName("allowPut")]

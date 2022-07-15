@@ -5,20 +5,26 @@
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Hosting.WindowsServices;
 using Microsoft.Extensions.Logging;
 using MTConnect.Agents;
-using MTConnect.Configurations;
 using MTConnect.Applications.Loggers;
+using MTConnect.Configurations;
 using NLog.Web;
 using System;
+using System.IO;
+using System.IO.Compression;
 
 namespace MTConnect.Applications
 {
     public class Program
-    { 
+    {
+        private static AgentGatewayConfiguration _configuration;
+
+
         public static void Main(string[] args)
         {
             var logger = NLogBuilder.ConfigureNLog("nlog.config").GetCurrentClassLogger();
@@ -69,6 +75,14 @@ namespace MTConnect.Applications
 
         private static void AddServices(WebApplicationBuilder builder)
         {
+            // Copy Default Configuration File
+            string configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AgentConfiguration.Filename);
+            string defaultPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AgentConfiguration.DefaultFilename);
+            if (!File.Exists(configPath) && File.Exists(defaultPath))
+            {
+                File.Copy(defaultPath, configPath);
+            }
+
             var configuration = AgentConfiguration.Read<AgentGatewayConfiguration>();
             if (configuration != null)
             {
@@ -92,6 +106,31 @@ namespace MTConnect.Applications
 
                 // Add the AgentService that handles the MTConnect Agent
                 builder.Services.AddHostedService<AgentService>();
+
+                if (_configuration.ResponseCompression != Http.HttpResponseCompression.None)
+                {
+                    // Add Compression Services
+                    builder.Services.AddResponseCompression(options =>
+                    {
+                        options.EnableForHttps = true;
+
+                        switch (_configuration.ResponseCompression)
+                        {
+                            case Http.HttpResponseCompression.Gzip: options.Providers.Add<GzipCompressionProvider>(); break;
+                            case Http.HttpResponseCompression.Br: options.Providers.Add<BrotliCompressionProvider>(); break;
+                        }
+                    });
+
+                    switch (_configuration.ResponseCompression)
+                    {
+                        case Http.HttpResponseCompression.Gzip:
+                            builder.Services.Configure<GzipCompressionProviderOptions>(options => { options.Level = CompressionLevel.Optimal; });
+                            break;
+                        case Http.HttpResponseCompression.Br:
+                            builder.Services.Configure<BrotliCompressionProviderOptions>(options => { options.Level = CompressionLevel.Optimal; });
+                            break;
+                    }
+                }
 
                 if (configuration.Port > 0)
                 {
@@ -119,6 +158,14 @@ namespace MTConnect.Applications
 
             app.UseStaticFiles();
             app.UseRouting();
+
+            if (_configuration != null)
+            {
+                if (_configuration.ResponseCompression != Http.HttpResponseCompression.None)
+                {
+                    app.UseResponseCompression();
+                }
+            }
 
             app.UseEndpoints(endpoints =>
             {

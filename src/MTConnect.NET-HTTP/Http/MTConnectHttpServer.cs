@@ -9,6 +9,7 @@ using MTConnect.Errors;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -241,14 +242,11 @@ namespace MTConnect.Http
             {
                 try
                 {
-                    using (var stream = httpResponse.OutputStream)
-                    {
-                        httpResponse.ContentType = mtconnectResponse.ContentType;
-                        httpResponse.StatusCode = mtconnectResponse.StatusCode;
+                    httpResponse.ContentType = mtconnectResponse.ContentType;
+                    httpResponse.StatusCode = mtconnectResponse.StatusCode;
 
-                        var bytes = Encoding.ASCII.GetBytes(mtconnectResponse.Content);
-                        await stream.WriteAsync(bytes, 0, bytes.Length);
-                    }
+                    var bytes = Encoding.UTF8.GetBytes(mtconnectResponse.Content);
+                    await WriteToStream(bytes, httpResponse);
                 }
                 catch { }
             }
@@ -263,12 +261,72 @@ namespace MTConnect.Http
             {
                 try
                 {
+                    httpResponse.ContentType = contentType;
+                    httpResponse.StatusCode = (int)statusCode;
+
+                    var bytes = Encoding.UTF8.GetBytes(content);
+                    await WriteToStream(bytes, httpResponse);
+                }
+                catch { }
+            }
+        }
+
+        private async Task WriteToStream(byte[] bytes, HttpListenerResponse httpResponse)
+        {
+            if (httpResponse != null && !bytes.IsNullOrEmpty())
+            {
+                try
+                {
                     using (var stream = httpResponse.OutputStream)
                     {
-                        httpResponse.ContentType = contentType;
-                        httpResponse.StatusCode = (int)statusCode;
+                        switch (_configuration.ResponseCompression)                      
+                        {
+                            case HttpResponseCompression.Gzip:
 
-                        var bytes = Encoding.ASCII.GetBytes(content);
+                                httpResponse.AddHeader("Content-Encoding", "gzip");
+
+                                using (var ms = new MemoryStream())
+                                {
+                                    using (var zip = new GZipStream(ms, CompressionMode.Compress, true))
+                                    {
+                                        zip.Write(bytes, 0, bytes.Length);
+                                    }
+                                    bytes = ms.ToArray();
+                                }
+
+                                break;
+
+                            case HttpResponseCompression.Br:
+
+                                httpResponse.AddHeader("Content-Encoding", "br");
+
+                                using (var ms = new MemoryStream())
+                                {
+                                    using (var zip = new BrotliStream(ms, CompressionMode.Compress, true))
+                                    {
+                                        zip.Write(bytes, 0, bytes.Length);
+                                    }
+                                    bytes = ms.ToArray();
+                                }
+
+                                break;
+
+                            case HttpResponseCompression.Deflate:
+
+                                httpResponse.AddHeader("Content-Encoding", "deflate");
+
+                                using (var ms = new MemoryStream())
+                                {
+                                    using (var zip = new DeflateStream(ms, CompressionMode.Compress, true))
+                                    {
+                                        zip.Write(bytes, 0, bytes.Length);
+                                    }
+                                    bytes = ms.ToArray();
+                                }
+
+                                break;
+                        }
+
                         await stream.WriteAsync(bytes, 0, bytes.Length);
                     }
                 }
@@ -861,10 +919,7 @@ namespace MTConnect.Http
                     // Write File Contents to Response Stream
                     if (fileContents != null)
                     {
-                        using (var stream = httpResponse.OutputStream)
-                        {
-                            await stream.WriteAsync(fileContents, 0, fileContents.Length);
-                        }
+                        await WriteToStream(fileContents, httpResponse);
                     }
                 }
                 catch { }

@@ -5,6 +5,7 @@
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Hosting.WindowsServices;
@@ -14,11 +15,16 @@ using MTConnect.Applications.Loggers;
 using MTConnect.Configurations;
 using NLog.Web;
 using System;
+using System.IO;
+using System.IO.Compression;
 
 namespace MTConnect.Applications
 {
     public class Program
     {
+        private static HttpShdrAgentConfiguration _configuration;
+
+
         public static void Main(string[] args)
         {
             var logger = NLogBuilder.ConfigureNLog("nlog.config").GetCurrentClassLogger();
@@ -69,16 +75,24 @@ namespace MTConnect.Applications
 
         private static void AddServices(WebApplicationBuilder builder)
         {
-            var configuration = AgentConfiguration.Read<HttpShdrAgentConfiguration>();
-            if (configuration != null)
+            // Copy Default Configuration File
+            string configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AgentConfiguration.Filename);
+            string defaultPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AgentConfiguration.DefaultFilename);
+            if (!File.Exists(configPath) && File.Exists(defaultPath))
+            {
+                File.Copy(defaultPath, configPath);
+            }
+
+            _configuration = AgentConfiguration.Read<HttpShdrAgentConfiguration>(configPath);
+            if (_configuration != null)
             {
                 // Create MTConnectAgent
-                var agent = new MTConnectAgent(configuration);
+                var agent = new MTConnectAgent(_configuration);
                 agent.MTConnectVersion = MTConnectVersions.Max;
                 builder.Services.AddSingleton<IMTConnectAgent>(agent);
 
                 // Individual Logger Classes
-                builder.Services.AddSingleton<HttpShdrAgentConfiguration>(configuration);
+                builder.Services.AddSingleton<HttpShdrAgentConfiguration>(_configuration);
                 builder.Services.AddSingleton<AgentLogger>();
                 builder.Services.AddSingleton<AgentMetricLogger>();
                 builder.Services.AddSingleton<AgentValidationLogger>();
@@ -88,9 +102,34 @@ namespace MTConnect.Applications
                 // Add the AgentService that handles the MTConnect Agent
                 builder.Services.AddHostedService<AgentService>();
 
+                if (_configuration.ResponseCompression != Http.HttpResponseCompression.None)
+                {
+                    // Add Compression Services
+                    builder.Services.AddResponseCompression(options =>
+                    {
+                        options.EnableForHttps = true;
+
+                        switch (_configuration.ResponseCompression)
+                        {
+                            case Http.HttpResponseCompression.Gzip: options.Providers.Add<GzipCompressionProvider>(); break;
+                            case Http.HttpResponseCompression.Br: options.Providers.Add<BrotliCompressionProvider>(); break;
+                        }
+                    });
+
+                    switch (_configuration.ResponseCompression)
+                    {
+                        case Http.HttpResponseCompression.Gzip:
+                            builder.Services.Configure<GzipCompressionProviderOptions>(options => { options.Level = CompressionLevel.Optimal; });
+                            break;
+                        case Http.HttpResponseCompression.Br: 
+                            builder.Services.Configure<BrotliCompressionProviderOptions>(options => { options.Level = CompressionLevel.Optimal; }); 
+                            break;
+                    }             
+                }             
+
                 builder.WebHost.UseKestrel(o =>
                     {
-                        o.ListenAnyIP(configuration.Port);
+                        o.ListenAnyIP(_configuration.Port);
                     });
             }
 
@@ -111,6 +150,14 @@ namespace MTConnect.Applications
 
             app.UseStaticFiles();
             app.UseRouting();
+
+            if (_configuration != null)
+            {
+                if (_configuration.ResponseCompression != Http.HttpResponseCompression.None)
+                {
+                    app.UseResponseCompression();
+                }
+            }
 
             app.UseEndpoints(endpoints =>
             {
