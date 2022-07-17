@@ -32,6 +32,7 @@ namespace MTConnect.Applications.Agents
         private const string DefaultServiceName = "MTConnect-Agent-HTTP-Gateway";
         private const string DefaultServiceDisplayName = "MTConnect HTTP Gateway Agent";
         private const string DefaultServiceDescription = "MTConnect Gateway Agent using HTTP to provide access to device information";
+        private const int ClientInformationUpdateInterval = 5000;
 
         private readonly Logger _applicationLogger = LogManager.GetLogger("application-logger");
         private readonly Logger _agentLogger = LogManager.GetLogger("agent-logger");
@@ -42,6 +43,8 @@ namespace MTConnect.Applications.Agents
 
         private readonly List<MTConnectClient> _clients = new List<MTConnectClient>();
         private readonly List<DeviceConfigurationFileWatcher> _deviceConfigurationWatchers = new List<DeviceConfigurationFileWatcher>();
+        private readonly Dictionary<string, MTConnectClientInformation> _clientInformations = new Dictionary<string, MTConnectClientInformation>();
+        private readonly object _lock = new object();
 
         private LogLevel _logLevel = LogLevel.Debug;
         private MTConnectAgent _mtconnectAgent;
@@ -50,6 +53,7 @@ namespace MTConnect.Applications.Agents
         private MTConnectHttpServer _httpServer;
         private AgentConfigurationFileWatcher<HttpAgentGatewayApplicationConfiguration> _agentConfigurationWatcher;
         private System.Timers.Timer _metricsTimer;
+        private System.Timers.Timer _clientInformationTimer;
         private bool _started = false;
         private int _port = 0;
         private bool _verboseLogging = true;
@@ -335,11 +339,38 @@ namespace MTConnect.Applications.Agents
 
                 if (!_clients.IsNullOrEmpty())
                 {
-                    foreach (var client in _clients) client.Start();
+                    foreach (var client in _clients)
+                    {
+                        var clientInformation = MTConnectClientInformation.Read(client.Device);
+                        if (clientInformation != null)
+                        {
+                            lock (_lock)
+                            {
+                                _clientInformations.Remove(client.Device);
+                                _clientInformations.Add(client.Device, clientInformation);
+                            }
+
+                            client.StartFromSequence(clientInformation.InstanceId, clientInformation.LastSequence);
+                        }
+                        else
+                        {
+                            lock (_lock)
+                            {
+                                _clientInformations.Remove(client.Device);
+                                _clientInformations.Add(client.Device, new MTConnectClientInformation(client.Device));
+                            }
+
+                            client.StartFromBuffer();
+                        }
+                    }
                 }
 
                 // Start Agent Metrics
                 StartMetrics();
+
+                // Start Client Information Updates
+                UpdateClientInformations();
+                StartClientInformation();
 
                 // Intialize the Http Server
                 _httpServer = new ShdrMTConnectHttpServer(configuration, _mtconnectAgent, null, port);
@@ -395,10 +426,14 @@ namespace MTConnect.Applications.Agents
                 if (_assetBuffer != null) _assetBuffer.Dispose();
                 if (_agentConfigurationWatcher != null) _agentConfigurationWatcher.Dispose();
                 if (_metricsTimer != null) _metricsTimer.Dispose();
+                if (_clientInformationTimer != null) _clientInformationTimer.Dispose();
+
+                UpdateClientInformations();
 
                 Thread.Sleep(2000); // Delay 2 seconds to allow Http Server to stop
 
                 _deviceConfigurationWatchers.Clear();
+                _clientInformations.Clear();
                 _clients.Clear();
                 _started = false;
             }
@@ -581,6 +616,44 @@ namespace MTConnect.Applications.Agents
                 assetLastCount = assetCount;
             };
             _metricsTimer.Start();
+        }
+
+        #endregion
+
+        #region "Client Information"
+
+        private void StartClientInformation()
+        {
+            _clientInformationTimer = new System.Timers.Timer();
+            _clientInformationTimer.Interval = ClientInformationUpdateInterval;
+            _clientInformationTimer.Elapsed += (s, e) =>
+            {
+                UpdateClientInformations();
+            };
+            _clientInformationTimer.Start();
+        }
+
+        private void UpdateClientInformations()
+        {
+            if (!_clients.IsNullOrEmpty())
+            {
+                foreach (var client in _clients)
+                {
+                    lock (_lock)
+                    {
+                        _clientInformations.TryGetValue(client.Device, out var clientInformation);
+                        if (clientInformation == null) clientInformation = new MTConnectClientInformation(client.Device);
+
+                        if (client.LastInstanceId != clientInformation.InstanceId || client.LastSequence != clientInformation.LastSequence)
+                        {
+                            clientInformation.InstanceId = client.LastInstanceId;
+                            clientInformation.LastSequence = client.LastSequence;
+
+                            clientInformation.Save();
+                        }
+                    }
+                }
+            }
         }
 
         #endregion

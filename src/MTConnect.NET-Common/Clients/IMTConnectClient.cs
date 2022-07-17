@@ -154,12 +154,12 @@ namespace MTConnect.Clients
         /// <summary>
         /// Starts the MTConnectClient from the specified Sequence
         /// </summary>
-        void StartFromSequence(long sequence);
+        void StartFromSequence(long instanceId, long sequence);
 
         /// <summary>
         /// Starts the MTConnectClient from the specified Sequence
         /// </summary>
-        void StartFromSequence(long sequence, CancellationToken cancellationToken);
+        void StartFromSequence(long instanceId, long sequence, CancellationToken cancellationToken);
 
         /// <summary>
         /// Starts the MTConnectClient from the beginning of the MTConnect Agent's Buffer

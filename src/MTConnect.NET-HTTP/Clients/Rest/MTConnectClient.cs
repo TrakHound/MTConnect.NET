@@ -240,12 +240,13 @@ namespace MTConnect.Clients.Rest
         /// <summary>
         /// Starts the MTConnectClient from the specified Sequence
         /// </summary>
-        public void StartFromSequence(long sequence)
+        public void StartFromSequence(long instanceId, long sequence)
         {
             _stop = new CancellationTokenSource();
 
             OnClientStarting?.Invoke(this, new EventArgs());
 
+            _lastInstanceId = instanceId;
             _lastSequence = sequence;
 
             _ = Task.Run(() => Worker(_stop.Token));
@@ -254,13 +255,14 @@ namespace MTConnect.Clients.Rest
         /// <summary>
         /// Starts the MTConnectClient from the specified Sequence
         /// </summary>
-        public void StartFromSequence(long sequence, CancellationToken cancellationToken)
+        public void StartFromSequence(long instanceId, long sequence, CancellationToken cancellationToken)
         {
             _stop = new CancellationTokenSource();
             cancellationToken.Register(() => { Stop(); });
 
             OnClientStarting?.Invoke(this, new EventArgs());
 
+            _lastInstanceId = instanceId;
             _lastSequence = sequence;
 
             _ = Task.Run(() => Worker(_stop.Token));
