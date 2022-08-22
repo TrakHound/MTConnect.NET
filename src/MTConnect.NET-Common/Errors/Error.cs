@@ -3,9 +3,6 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE', which is part of this source code package.
 
-using System.Text.Json.Serialization;
-using System.Xml.Serialization;
-
 namespace MTConnect.Errors
 {
     /// <summary>
@@ -19,16 +16,12 @@ namespace MTConnect.Errors
         /// Provides a descriptive code that indicates the type of error that was encountered
         /// by an Agent when attempting to respond to a Request for information.
         /// </summary>
-        [XmlAttribute("errorCode")]
-        [JsonPropertyName("errorCode")]
         public ErrorCode ErrorCode { get; set; }
 
         /// <summary>
         /// The Value for Error contains a textual description of the error and any additional
         /// information an Agent is capable of providing regarding a specific error. The Valid Data Value returned for Error MAY be any text string.
         /// </summary>
-        [XmlText]
-        [JsonPropertyName("value")]
         public string Value { get; set; }
 
 
