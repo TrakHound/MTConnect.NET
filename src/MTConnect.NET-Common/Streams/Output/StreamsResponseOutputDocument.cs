@@ -25,6 +25,9 @@ namespace MTConnect.Streams.Output
         /// </summary>
         public IDeviceStreamOutput[] Streams { get; set; }
 
+        /// <summary>
+        /// The MTConnect Version of the Response document
+        /// </summary>
         public Version Version { get; set; }
 
         public long FirstObservationSequence { get; set; }

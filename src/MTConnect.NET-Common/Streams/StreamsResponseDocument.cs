@@ -13,7 +13,6 @@ namespace MTConnect.Streams
     /// <summary>
     /// The Streams Information Model provides a representation of the data reported by a piece of equipment used for a manufacturing process, or used for any other purpose.
     /// </summary>
-    //[XmlRoot("MTConnectStreams")]
     public class StreamsResponseDocument : IStreamsResponseDocument
     {
         /// <summary>
@@ -26,6 +25,9 @@ namespace MTConnect.Streams
         /// </summary>
         public IEnumerable<IDeviceStream> Streams { get; set; }
 
+        /// <summary>
+        /// The MTConnect Version of the Response document
+        /// </summary>
         public Version Version { get; set; }
 
 
