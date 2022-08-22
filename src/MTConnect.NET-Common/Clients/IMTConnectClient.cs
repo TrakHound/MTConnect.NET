@@ -144,32 +144,32 @@ namespace MTConnect.Clients
         /// <summary>
         /// Starts the MTConnectClient
         /// </summary>
-        void Start();
+        void Start(string path = null);
 
         /// <summary>
         /// Starts the MTConnectClient
         /// </summary>
-        void Start(CancellationToken cancellationToken);
+        void Start(CancellationToken cancellationToken, string path = null);
 
         /// <summary>
         /// Starts the MTConnectClient from the specified Sequence
         /// </summary>
-        void StartFromSequence(long instanceId, long sequence);
+        void StartFromSequence(long instanceId, long sequence, string path = null);
 
         /// <summary>
         /// Starts the MTConnectClient from the specified Sequence
         /// </summary>
-        void StartFromSequence(long instanceId, long sequence, CancellationToken cancellationToken);
+        void StartFromSequence(long instanceId, long sequence, CancellationToken cancellationToken, string path = null);
 
         /// <summary>
         /// Starts the MTConnectClient from the beginning of the MTConnect Agent's Buffer
         /// </summary>
-        void StartFromBuffer();
+        void StartFromBuffer(string path = null);
 
         /// <summary>
         /// Starts the MTConnectClient from the beginning of the MTConnect Agent's Buffer
         /// </summary>
-        void StartFromBuffer(CancellationToken cancellationToken);
+        void StartFromBuffer(CancellationToken cancellationToken, string path = null);
 
         /// <summary>
         /// Stops the MTConnectClient
