@@ -6,7 +6,6 @@
 using MTConnect.Headers;
 using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
 
 namespace MTConnect.Assets
 {
@@ -20,16 +19,16 @@ namespace MTConnect.Assets
         /// <summary>
         /// Contains the Header information in an MTConnect Assets XML document
         /// </summary>
-        [JsonPropertyName("header")]
         public IMTConnectAssetsHeader Header { get; set; }
 
         /// <summary>
         /// An XML container that consists of one or more types of Asset XML elements.
         /// </summary>
-        [JsonPropertyName("assets")]
         public IEnumerable<IAsset> Assets { get; set; }
 
-        [JsonIgnore]
+        /// <summary>
+        /// The MTConnect Version of the Response document
+        /// </summary>
         public Version Version { get; set; }
     }
 }

@@ -26,6 +26,9 @@ namespace MTConnect.Assets
         /// </summary>
         IEnumerable<IAsset> Assets { get; }
 
+        /// <summary>
+        /// The MTConnect Version of the Response document
+        /// </summary>
         Version Version { get; }
     }
 }
