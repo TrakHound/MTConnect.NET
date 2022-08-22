@@ -5,7 +5,6 @@
 
 using MTConnect.Agents;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -15,7 +14,7 @@ namespace MTConnect.Configurations
     /// <summary>
     /// Configuration for an MTConnect Agent
     /// </summary>
-    public class AgentConfiguration
+    public class AgentConfiguration : IAgentConfiguration
     {
         private const string BackupDirectoryName = "backup";
 
@@ -77,25 +76,6 @@ namespace MTConnect.Configurations
         [JsonPropertyName("inputValidationLevel")]
         public InputValidationLevel InputValidationLevel { get; set; }
 
-        /// <summary>
-        /// Gets or Sets the default response document validation level. 0 = Ignore, 1 = Warning, 2 = Strict
-        /// </summary>
-        [JsonPropertyName("outputValidationLevel")]
-        public ValidationLevel OutputValidationLevel { get; set; }
-
-
-        /// <summary>
-        /// Gets or Sets the default response document indendation
-        /// </summary>
-        [JsonPropertyName("indentOutput")]
-        public bool IndentOutput { get; set; }
-
-        /// <summary>
-        /// Gets or Sets the default response document comments output. Comments contain descriptions from the MTConnect standard
-        /// </summary>
-        [JsonPropertyName("outputComments")]
-        public bool OutputComments { get; set; }
-
 
         public AgentConfiguration()
         {
@@ -103,13 +83,12 @@ namespace MTConnect.Configurations
             AssetBufferSize = 1024;
             DefaultVersion = MTConnectVersions.Max;
             InputValidationLevel = InputValidationLevel.Warning;
-            OutputValidationLevel = ValidationLevel.Ignore;
             ConvertUnits = true;
             IgnoreObservationCase = true;
-            IndentOutput = true;
-            OutputComments = false;
         }
 
+
+        public static AgentConfiguration Read(string path = null) => Read<AgentConfiguration>(path);
 
         public static T Read<T>(string path = null) where T : AgentConfiguration
         {

@@ -76,8 +76,8 @@ namespace MTConnect.Configurations
                 {
                     if (File.Exists(rootPath))
                     {
-                        var contents = File.ReadAllText(rootPath);
-                        if (!string.IsNullOrEmpty(contents))
+                        var contents = File.ReadAllBytes(rootPath);
+                        if (contents != null)
                         {
                             // Read ResponseDocument Format
                             var devicesDocument = Formatters.ResponseDocumentFormatter.CreateDevicesResponseDocument(documentFormatterId, contents).Document;
@@ -134,8 +134,8 @@ namespace MTConnect.Configurations
                 {
                     if (File.Exists(rootPath))
                     {
-                        var contents = await File.ReadAllTextAsync(rootPath);
-                        if (!string.IsNullOrEmpty(contents))
+                        var contents = await File.ReadAllBytesAsync(rootPath);
+                        if (contents != null)
                         {
                             // Read ResponseDocument Format
                             var devicesDocument = Formatters.ResponseDocumentFormatter.CreateDevicesResponseDocument(documentFormatterId, contents).Document;

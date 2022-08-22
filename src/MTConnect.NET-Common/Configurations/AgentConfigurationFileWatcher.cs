@@ -5,7 +5,6 @@
 
 using System;
 using System.IO;
-using System.Text.Json;
 
 namespace MTConnect.Configurations
 {
@@ -13,7 +12,7 @@ namespace MTConnect.Configurations
     /// Agent Configuration File Watcher that notifies when the specified <typeparamref name="TConfiguration"/> is updated
     /// </summary>
     /// <typeparam name="TConfiguration">The type of MTConnectAgentConfiguration file to read</typeparam>
-    public class AgentConfigurationFileWatcher<TConfiguration> : IDisposable where TConfiguration : AgentConfiguration
+    public class AgentConfigurationFileWatcher<TConfiguration> : IAgentConfigurationFileWatcher where TConfiguration : AgentConfiguration
     {
         private const int DefaultInterval = 2000;
 
@@ -24,7 +23,7 @@ namespace MTConnect.Configurations
         private bool _update = false;
 
 
-        public EventHandler<TConfiguration> ConfigurationUpdated { get; set; }
+        public EventHandler<AgentConfiguration> ConfigurationUpdated { get; set; }
 
         public EventHandler<string> ErrorReceived { get; set; }
 
@@ -90,15 +89,11 @@ namespace MTConnect.Configurations
         {
             try
             {
-                var text = File.ReadAllText(_path);
-                if (!string.IsNullOrEmpty(text))
+                var configuration = AgentConfiguration.Read<TConfiguration>(_path);
+                if (configuration != null)
                 {
-                    var configuration = JsonSerializer.Deserialize<TConfiguration>(text);
-                    if (configuration != null)
-                    {
-                        configuration.Path = _path;
-                        return configuration;
-                    }
+                    configuration.Path = _path;
+                    return configuration;
                 }
             }
             catch (Exception ex)
