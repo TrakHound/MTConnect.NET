@@ -78,6 +78,8 @@ namespace MTConnect.Adapters.Shdr
         /// </summary>
         public bool MultilineDevices { get; set; }
 
+        public bool BufferDataItems { get; set; }
+
 
         /// <summary>
         /// Raised when a new Agent connection is established. Includes the AgentClient ID as an argument.
@@ -130,7 +132,7 @@ namespace MTConnect.Adapters.Shdr
             _connectionListener.ClientPongSent += ClientPongSent;
         }
 
-        public ShdrAdapter(string deviceKey, int port = 7878, int heartbeat = 10000)
+        public ShdrAdapter(string deviceKey = null, int port = 7878, int heartbeat = 10000)
         {
             DeviceKey = deviceKey;
             Port = port;
@@ -520,11 +522,10 @@ namespace MTConnect.Adapters.Shdr
                     }
                     else
                     {
-                        var x = new List<ShdrDataItem>();
-                        x.AddRange(existing);
-
                         if (!existing.Any(o => o.ChangeId == dataItem.ChangeId))
                         {
+                            var x = new List<ShdrDataItem>();
+                            if (BufferDataItems) x.AddRange(existing);
                             x.Add(dataItem);
 
                             dataItem.IsSent = false;

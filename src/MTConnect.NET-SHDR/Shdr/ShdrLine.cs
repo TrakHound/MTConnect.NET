@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text.RegularExpressions;
 
 namespace MTConnect.Shdr
@@ -17,8 +18,6 @@ namespace MTConnect.Shdr
         public const char PipeDelimiter = '|';
         public const string LineTerminator = "\r\n";
 
-        private static Regex _timestampRegex = new Regex(@"(.*)\@([0-9\.]+)");
-
         private const string _emptySingleEntryPattern = @"^([^=\s]+)\={0,1}$";
         private const string _emptyEntryPattern = @"([^=\s]+)\s+";
         private const string _emptyEntryWithEqualsPattern = @"([^=\s]+)\={1}\s+";
@@ -27,7 +26,9 @@ namespace MTConnect.Shdr
         private const string _entryDoubleQuotesPattern = @"([^=\s]+)\={1}(\""[^'\\]*(?:\\.[^'\\]*)*\"")";
         private const string _entryCurlyBracesPattern = @"([^=\s]+)\={1}(\{[^'\}\\]*(?:\\.[^'\{\\]*)*\})";
 
+        private static readonly Regex _timestampRegex = new Regex(@"(.*)\@([0-9\.]+)");
         private static readonly Regex _entriesRegex = new Regex($"{_emptySingleEntryPattern}|{_emptyEntryPattern}|{_emptyEntryWithEqualsPattern}|{_entryPattern}|{_entrySingleQuotesPattern}|{_entryDoubleQuotesPattern}|{_entryCurlyBracesPattern}");
+        private static readonly CultureInfo _enUS = new CultureInfo("en-US");
 
 
         /// <summary>
@@ -40,23 +41,42 @@ namespace MTConnect.Shdr
             return !string.IsNullOrEmpty(line) && line.StartsWith("@ASSET@");
         }
 
+
+        internal static bool IsTimestamp(string s)
+        {
+            if (!string.IsNullOrEmpty(s))
+            {
+
+            }
+
+            return false;
+        }
+
         internal static DateTime? GetTimestamp(string s)
         {
             string x = s;
 
-            // Expected Format
-            // Without Duration : 2014-09-29T23:59:33.460470Z
-            // With Duration : 2014-09-29T23:59:33.460470Z@100.0
-            var match = _timestampRegex.Match(s);
-            if (match.Success && match.Groups != null && match.Groups.Count > 2)
+            // Check for duration (faster than running Regex every time)
+            if (x.Contains('@'))
             {
-                // First Group contains Timestamp
-                x = match.Groups[1].Value;
+                // Expected Format
+                // Without Duration : 2014-09-29T23:59:33.460470Z
+                // With Duration : 2014-09-29T23:59:33.460470Z@100.0
+                var match = _timestampRegex.Match(s);
+                if (match.Success && match.Groups != null && match.Groups.Count > 2)
+                {
+                    // First Group contains Timestamp
+                    x = match.Groups[1].Value;
+                }
             }
 
-            if (DateTime.TryParse(x, null, System.Globalization.DateTimeStyles.AdjustToUniversal, out var y))
+            // 16 is the minimum number of chars in a ISO 8601 Timestamp (ex. 1900-01-01T00:00)
+            if (x.Length > 16 && x[4] == '-' && x[7] == '-')
             {
-                return y;
+                if (DateTime.TryParseExact(x, "o", _enUS, DateTimeStyles.AdjustToUniversal, out var y))
+                {
+                    return y;
+                }
             }
 
             return null;
@@ -64,18 +84,21 @@ namespace MTConnect.Shdr
 
         internal static double? GetDuration(string s)
         {
-            // Expected Format
-            // Without Duration : 2014-09-29T23:59:33.460470Z
-            // With Duration : 2014-09-29T23:59:33.460470Z@100.0
-            var match = _timestampRegex.Match(s);
-            if (match.Success && match.Groups != null && match.Groups.Count > 2)
+            if (s != null && s.Contains('@'))
             {
-                // Second group contains Duration
-                var x = match.Groups[2].Value;
-
-                if (double.TryParse(x, out var y))
+                // Expected Format
+                // Without Duration : 2014-09-29T23:59:33.460470Z
+                // With Duration : 2014-09-29T23:59:33.460470Z@100.0
+                var match = _timestampRegex.Match(s);
+                if (match.Success && match.Groups != null && match.Groups.Count > 2)
                 {
-                    return y;
+                    // Second group contains Duration
+                    var x = match.Groups[2].Value;
+
+                    if (double.TryParse(x, out var y))
+                    {
+                        return y;
+                    }
                 }
             }
 

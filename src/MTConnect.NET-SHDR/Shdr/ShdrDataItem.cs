@@ -35,16 +35,14 @@ namespace MTConnect.Shdr
 
         public ShdrDataItem() { }
 
-        public ShdrDataItem(string dataItemKey, string deviceKey = null)
+        public ShdrDataItem(string dataItemKey)
         {
-            DeviceKey = deviceKey;
             DataItemKey = dataItemKey;
             Timestamp = 0;
         }
 
-        public ShdrDataItem(string dataItemKey, object value, string deviceKey = null)
+        public ShdrDataItem(string dataItemKey, object value)
         {
-            DeviceKey = deviceKey;
             DataItemKey = dataItemKey;
             Values = new List<ObservationValue>
             {
@@ -53,9 +51,8 @@ namespace MTConnect.Shdr
             Timestamp = 0;
         }
 
-        public ShdrDataItem(string dataItemKey, object value, long timestamp, string deviceKey = null)
+        public ShdrDataItem(string dataItemKey, object value, long timestamp)
         {
-            DeviceKey = deviceKey;
             DataItemKey = dataItemKey;
             Values = new List<ObservationValue>
             {
@@ -64,9 +61,8 @@ namespace MTConnect.Shdr
             Timestamp = timestamp;
         }
 
-        public ShdrDataItem(string dataItemKey, object value, DateTime timestamp, string deviceKey = null)
+        public ShdrDataItem(string dataItemKey, object value, DateTime timestamp)
         {
-            DeviceKey = deviceKey;
             DataItemKey = dataItemKey;
             Values = new List<ObservationValue>
             {

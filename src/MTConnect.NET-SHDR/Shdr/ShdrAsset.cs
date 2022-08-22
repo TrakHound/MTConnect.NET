@@ -5,6 +5,7 @@
 
 using MTConnect.Assets;
 using System;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace MTConnect.Shdr
@@ -84,7 +85,9 @@ namespace MTConnect.Shdr
         {
             AssetId = assetId;
             AssetType = assetType;
-            Asset = XmlAsset.FromXml(assetType, xml);
+
+            var xmlBytes = Encoding.UTF8.GetBytes(xml);
+            Asset = XmlAsset.FromXml(assetType, xmlBytes);
             Xml = xml;
             Timestamp = timestamp;
         }
@@ -199,18 +202,18 @@ namespace MTConnect.Shdr
                 // Expected format (Single) : <timestamp>|@ASSET@|<assetId>|<assetType>|<xml>
                 // Expected format (Single) : 2012-02-21T23:59:33.460470Z|@ASSET@|KSSP300R.1|CuttingTool|<CuttingTool>...
 
-                // Start reading input and read Timestamp first (if specified)
-                var x = ShdrLine.GetNextValue(input);
-
-                if (DateTime.TryParse(x, out _))
+                // Check if no Timestamp
+                if (input[0] == '@' && input.StartsWith(AssetDesignator))
                 {
-                    var y = ShdrLine.GetNextSegment(input);
-                    x = ShdrLine.GetNextValue(y);
-                    return x == AssetDesignator;
+                    return true;
                 }
-                else
+
+                // Check for Timestamp
+                var i = input.IndexOf('|');
+                if (i > 0)
                 {
-                    //return FromLine(input);
+                    var x = input.Substring(i);
+                    return x[0] == '@' && x.StartsWith(AssetDesignator);
                 }
             }
 
@@ -219,7 +222,7 @@ namespace MTConnect.Shdr
 
         public static bool IsAssetMultilineBegin(string input)
         {
-            if (!string.IsNullOrEmpty(input))
+            if (IsAssetLine(input))
             {
                 // Expected format (Multiline) : <timestamp>|@ASSET@|<assetId>|<assetType>|--multiline--0FED07ACED
 
@@ -241,6 +244,7 @@ namespace MTConnect.Shdr
             return false;
         }
 
+
         public static bool IsAssetMultilineEnd(string multilineId, string input)
         {
             if (!string.IsNullOrEmpty(input))
@@ -257,37 +261,76 @@ namespace MTConnect.Shdr
             return false;
         }
 
+
         public static bool IsAssetRemove(string input)
         {
             if (!string.IsNullOrEmpty(input))
             {
                 // Expected format : @REMOVE_ASSET@|<AssetId>
-                var match = _assetRemoveRegex.Match(input);
-                return match.Success && match.Groups.Count > 1;
+
+                // Check if no Timestamp
+                if (input[0] == '@' && input.StartsWith(AssetRemoveDesignator))
+                {
+                    return true;
+                }
+
+                // Check for Timestamp
+                var i = input.IndexOf('|');
+                if (i > 0)
+                {
+                    var x = input.Substring(i);
+                    return x[0] == '@' && x.StartsWith(AssetRemoveDesignator);
+                }
             }
 
             return false;
         }
+
 
         public static bool IsAssetRemoveAll(string input)
         {
             if (!string.IsNullOrEmpty(input))
             {
-                // Expected format : @REMOVE_ASSET_ALL@|<Type>
-                var match = _assetRemoveAllRegex.Match(input);
-                return match.Success && match.Groups.Count > 1;
+                // Expected format : @REMOVE_ASSET_ALL@|<AssetId>
+
+                // Check if no Timestamp
+                if (input[0] == '@' && input.StartsWith(AssetRemoveAllDesignator))
+                {
+                    return true;
+                }
+
+                // Check for Timestamp
+                var i = input.IndexOf('|');
+                if (i > 0)
+                {
+                    var x = input.Substring(i);
+                    return x[0] == '@' && x.StartsWith(AssetRemoveAllDesignator);
+                }
             }
 
             return false;
         }
+
 
         public static bool IsAssetUpdate(string input)
         {
             if (!string.IsNullOrEmpty(input))
             {
                 // Expected format : @UPDATE_ASSET@|<AssetId>|<PropertyName>|<PropertyValue>|...
-                var match = _assetUpdateRegex.Match(input);
-                return match.Success && match.Groups.Count > 1;
+
+                // Check if no Timestamp
+                if (input[0] == '@' && input.StartsWith(AssetUpdateDesignator))
+                {
+                    return true;
+                }
+
+                // Check for Timestamp
+                var i = input.IndexOf('|');
+                if (i > 0)
+                {
+                    var x = input.Substring(i);
+                    return x[0] == '@' && x.StartsWith(AssetUpdateDesignator);
+                }
             }
 
             return false;

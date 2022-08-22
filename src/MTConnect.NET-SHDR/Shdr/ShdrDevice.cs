@@ -5,6 +5,7 @@
 
 using MTConnect.Devices;
 using System;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace MTConnect.Shdr
@@ -70,7 +71,9 @@ namespace MTConnect.Shdr
         public ShdrDevice(string deviceUuid, string xml)
         {
             DeviceUuid = deviceUuid;
-            Device = XmlDevice.FromXml(xml, deviceUuid);
+
+            var xmlBytes = Encoding.UTF8.GetBytes(xml);
+            Device = XmlDevice.FromXml(xmlBytes, deviceUuid);
             Xml = xml;
         }
 
@@ -80,7 +83,7 @@ namespace MTConnect.Shdr
             {
                 DeviceUuid = !string.IsNullOrEmpty(device.Uuid) ? device.Uuid : Guid.NewGuid().ToString();
                 Device = device;
-                Xml = XmlDevice.ToXml(device);
+                //Xml = XmlDevice.To(device);
             }
         }
 
@@ -97,7 +100,7 @@ namespace MTConnect.Shdr
 
                     var header = $"{DeviceDesignator}|{DeviceUuid}|--multiline--{multilineId}";
 
-                    var xml = XmlFunctions.FormatXml(Xml, true, false, true);
+                    var xml = XmlDevice.ToXml(Device, true);
 
                     var result = header;
                     result += "\n";
@@ -170,8 +173,13 @@ namespace MTConnect.Shdr
         {
             if (!string.IsNullOrEmpty(input))
             {
-                var x = ShdrLine.GetNextValue(input);
-                return x == DeviceDesignator;
+                // Expected format (Single) : <timestamp>|@DEVICE@|<deviceUuid>|<xml>
+                // Expected format (Single) : 2012-02-21T23:59:33.460470Z|@DEVICE@|VMC-3Axis.1234|<Device>...
+
+                if (input[0] == '@' && input.StartsWith(DeviceDesignator))
+                {
+                    return true;
+                }
             }
 
             return false;
@@ -179,7 +187,7 @@ namespace MTConnect.Shdr
 
         public static bool IsDeviceMultilineBegin(string input)
         {
-            if (!string.IsNullOrEmpty(input))
+            if (IsDeviceLine(input))
             {
                 return _multilineBeginRegex.IsMatch(input);
             }
@@ -207,9 +215,11 @@ namespace MTConnect.Shdr
         {
             if (!string.IsNullOrEmpty(input))
             {
-                // Expected format : @REMOVE_ASSET@|<DeviceUuid>
-                var match = _deviceRemoveRegex.Match(input);
-                return match.Success && match.Groups.Count > 1;
+                // Expected format : @REMOVE_DEVICE@|<DeviceUuid>
+                if (input[0] == '@' && input.StartsWith(DeviceRemoveDesignator))
+                {
+                    return true;
+                }
             }
 
             return false;
@@ -219,9 +229,11 @@ namespace MTConnect.Shdr
         {
             if (!string.IsNullOrEmpty(input))
             {
-                // Expected format : @REMOVE_ASSET_ALL@|<Type>
-                var match = _deviceRemoveAllRegex.Match(input);
-                return match.Success && match.Groups.Count > 1;
+                // Expected format : @REMOVE_DEVICE_ALL@|<Type>
+                if (input[0] == '@' && input.StartsWith(DeviceRemoveAllDesignator))
+                {
+                    return true;
+                }
             }
 
             return false;

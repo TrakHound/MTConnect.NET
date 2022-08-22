@@ -23,7 +23,7 @@ namespace MTConnect.Devices
         /// <summary>
         /// Add a new Adapter Component to the Agent Device
         /// </summary>
-        public ShdrAdapterComponent(ShdrAdapterConfiguration configuration, string idSuffix = null)
+        public ShdrAdapterComponent(IShdrAdapterConfiguration configuration, string idSuffix = null)
         {
             if (configuration != null && !string.IsNullOrEmpty(configuration.Hostname))
             {
