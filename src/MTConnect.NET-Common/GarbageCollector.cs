@@ -77,8 +77,6 @@ namespace MTConnect
                     GC.WaitForPendingFinalizers();
                     GC.Collect();
 
-                    var currentProc = Process.GetCurrentProcess();
-                    var bytesInUse = currentProc.PrivateMemorySize64;
 
                     lock (_lock)
                     {
