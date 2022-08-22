@@ -3,9 +3,7 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE', which is part of this source code package.
 
-using MTConnect.Agents;
 using MTConnect.Configurations;
-using MTConnect.Devices.DataItems;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -24,10 +22,10 @@ namespace MTConnect.Buffers
     /// </summary>
     public class MTConnectObservationFileBuffer : MTConnectObservationBuffer, IDisposable
     {
-        public const int DefaultPageSize = 100;
-        public const string DirectoryBuffer = "buffer";
-        public const string DirectoryObservations = "observations";
-        public const string DirectoryCurrent = "current";
+        private const int DefaultPageSize = 100;
+        private const string DirectoryBuffer = "buffer";
+        private const string DirectoryObservations = "observations";
+        private const string DirectoryCurrent = "current";
 
         private readonly MTConnectObservationQueue _items;
         private readonly MTConnectObservationQueue _currentItems;
@@ -37,13 +35,11 @@ namespace MTConnect.Buffers
         private bool _isLoading;
 
 
-        public int WriteInterval { get; set; } = 1000;
+        public int WriteInterval { get; set; } = 5000;
 
-        public int RetentionInterval { get; set; } = 5000;
+        public int RetentionInterval { get; set; } = 10000;
 
         public int PageSize { get; set; } = DefaultPageSize;
-
-        public int MaxRecordsPerFile { get; set; } = 5000;
 
         public int MaxItemsPerWrite { get; set; } = 50000;
 
@@ -67,7 +63,7 @@ namespace MTConnect.Buffers
             Start();
         }
 
-        public MTConnectObservationFileBuffer(AgentConfiguration configuration) : base(configuration)
+        public MTConnectObservationFileBuffer(IAgentConfiguration configuration) : base(configuration)
         {
             _items = new MTConnectObservationQueue();
             _currentItems = new MTConnectObservationQueue();
@@ -77,7 +73,7 @@ namespace MTConnect.Buffers
         }
 
 
-        protected override void OnCurrentChange(IEnumerable<StoredObservation> observations)
+        protected override void OnCurrentChange(IEnumerable<BufferObservation> observations)
         {
             if (!_isLoading)
             {
@@ -85,7 +81,7 @@ namespace MTConnect.Buffers
             }
         }
 
-        protected override void OnCurrentConditionChange(IEnumerable<StoredObservation> observations)
+        protected override void OnCurrentConditionChange(IEnumerable<BufferObservation> observations)
         {
             if (!_isLoading)
             {
@@ -93,7 +89,7 @@ namespace MTConnect.Buffers
             }
         }
 
-        protected override void OnBufferObservationAdd(long bufferIndex, StoredObservation observation)
+        protected override void OnBufferObservationAdd(ref BufferObservation observation)
         {
             if (!_isLoading)
             {
@@ -113,8 +109,8 @@ namespace MTConnect.Buffers
 
                 stop = new CancellationTokenSource();
 
-                _ = Task.Run(() => WriteWorker(stop.Token));
-                _ = Task.Run(() => RetentionWorker(stop.Token));
+                _ = Task.Run(WriteWorker, stop.Token);
+                _ = Task.Run(RetentionWorker, stop.Token);
             }
         }
 
@@ -136,19 +132,35 @@ namespace MTConnect.Buffers
         public void Dispose()
         {
             Stop();
-            GC.SuppressFinalize(this);
+            base.Dispose();
+        }
+
+
+        public static void Reset()
+        {
+            var dir = GetDirectory(false);
+            if (Directory.Exists(dir))
+            {
+                try
+                {
+                    // Remove the entire Directory
+                    // WARNING: This clears the entire buffer
+                    Directory.Delete(dir, true);
+                }
+                catch { }
+            }
         }
 
 
         #region "Add"
 
-        public bool Add(StoredObservation observation)
+        public bool Add(BufferObservation observation)
         {
             // Add to internal Queue
             return _items.Add(observation);
         }
 
-        public bool Add(IEnumerable<StoredObservation> observations)
+        public bool Add(IEnumerable<BufferObservation> observations)
         {
             if (!observations.IsNullOrEmpty())
             {
@@ -167,12 +179,12 @@ namespace MTConnect.Buffers
         }
 
 
-        public bool AddCurrent(StoredObservation observation)
+        public bool AddCurrent(BufferObservation observation)
         {
             return _currentItems.Add(observation);
         }
 
-        public bool AddCurrent(IEnumerable<StoredObservation> observations)
+        public bool AddCurrent(IEnumerable<BufferObservation> observations)
         {
             if (!observations.IsNullOrEmpty())
             {
@@ -191,20 +203,20 @@ namespace MTConnect.Buffers
         }
 
 
-        public bool AddCurrentConditions(IEnumerable<StoredObservation> observations)
+        public bool AddCurrentConditions(IEnumerable<BufferObservation> observations)
         {
             if (!observations.IsNullOrEmpty())
             {
                 var success = true;
 
-                var deviceUuids = observations.Select(o => o.DeviceUuid).Distinct();
-                foreach (var deviceUuid in deviceUuids)
+                var deviceIndexes = observations.Select(o => o.DeviceIndex).Distinct();
+                foreach (var deviceIndex in deviceIndexes)
                 {
-                    var deviceObservations = observations.Where(o => o.DeviceUuid == deviceUuid);
-                    var dataItemIds = deviceObservations.Select(o => o.DataItemId).Distinct();
-                    foreach (var dataItemId in dataItemIds)
+                    var deviceObservations = observations.Where(o => o.DeviceIndex == deviceIndex);
+                    var dataItemIndexes = deviceObservations.Select(o => o.DataItemIndex).Distinct();
+                    foreach (var dataItemIndex in dataItemIndexes)
                     {
-                        var dataItemObservations = deviceObservations.Where(o => o.DataItemId == dataItemId);
+                        var dataItemObservations = deviceObservations.Where(o => o.DataItemIndex == dataItemIndex);
 
                         success = _currentConditionItems.Add(dataItemObservations);
                         if (!success) break;
@@ -230,45 +242,52 @@ namespace MTConnect.Buffers
             if (BufferLoadStarted != null) BufferLoadStarted.Invoke(this, new EventArgs());
 
             // Read Observations from Page Files
-            var observations = ReadStoredObservations();
+            var observations = ReadBufferObservations();
             if (!observations.IsNullOrEmpty())
             {
-                var oObservations = observations.OrderBy(o => o.Sequence);
-                var sequence = oObservations.LastOrDefault().Sequence;
+                // Get last Sequence
+                var sequence = observations[observations.Length - 1].Sequence;
 
                 SetSequence(1);
-                AddBufferObservations(oObservations);
+
+                // Add Observations to the Buffer
+                AddBufferObservations(ref observations);
+
                 SetSequence(sequence + 1);
 
                 found = true;
             }
 
             // Read Current Observations from Device Files
-            var currentObservations = ReadStoredCurrentObservations();
+            var currentObservations = ReadBufferCurrentObservations();
             if (!currentObservations.IsNullOrEmpty())
             {
-                foreach (var observation in currentObservations)
+                for (var i = 0; i < currentObservations.Length; i++)
                 {
                     // Add to Current Observations
-                    AddCurrentObservation(observation);
+                    AddCurrentObservation(ref currentObservations[i]);
                 }
             }
 
             // Read Current Observations from Device Files
-            var currentConditions = ReadStoredCurrentConditionObservations();
+            var currentConditions = ReadBufferCurrentConditions();
             if (!currentConditions.IsNullOrEmpty())
             {
-                foreach (var observation in currentConditions)
+                for (var i = 0; i < currentConditions.Length; i++)
                 {
                     // Add to Current Conditions
-                    AddCurrentCondition(observation);
+                    AddCurrentObservation(ref currentConditions[i]);
                 }
             }
 
             stpw.Stop();
-            if (found && BufferLoadCompleted != null) BufferLoadCompleted.Invoke(this, new ObservationBufferLoadArgs(observations.Count(), stpw.ElapsedMilliseconds));
+            if (found && BufferLoadCompleted != null) BufferLoadCompleted.Invoke(this, new ObservationBufferLoadArgs(observations.Length, stpw.ElapsedMilliseconds));
 
+            observations = null;
             _isLoading = false;
+
+            if (found) GarbageCollector.HighPriorityCollect();
+
             return found;
         }
 
@@ -276,10 +295,8 @@ namespace MTConnect.Buffers
 
         #region "Read"
 
-        private IEnumerable<StoredObservation> ReadStoredObservations()
+        private BufferObservation[] ReadBufferObservations()
         {
-            var items = new ConcurrentBag<StoredObservation>();
-
             try
             {
                 // Get Observations Directory Path
@@ -289,21 +306,40 @@ namespace MTConnect.Buffers
                 var files = Directory.GetFiles(dir);
                 if (!files.IsNullOrEmpty())
                 {
-                    Parallel.ForEach(files, file =>
+                    // Create a list of BufferFile objects (contains sequence information)
+                    var bufferFiles = new List<BufferFile>();
+                    foreach (var file in files)
                     {
-                        var fileItems = ReadFile(file);
-                        foreach (var item in fileItems) items.Add(item);
-                    });
+                        bufferFiles.Add(new BufferFile(file, PageSize));
+                    }
+
+                    // Sort by Sequence (this is important as the buffer needs to be loaded in the same order it was written)
+                    var oBufferFiles = bufferFiles.OrderBy(o => o.SequenceBottom);
+
+                    var items = new BufferObservation[files.Length * PageSize];
+                    var startSequence = oBufferFiles.FirstOrDefault().SequenceBottom;
+                    int itemCount = 0;
+
+                    foreach (var file in oBufferFiles)
+                    {
+                        // Read the file and add the observations to the Items array
+                        itemCount += ReadFile(ref items, file.Path, itemCount);
+                    }
+
+                    // Resize the return array
+                    Array.Resize(ref items, itemCount);
+
+                    return items;
                 }
             }
             catch { }
 
-            return items;
+            return null;
         }
 
-        private IEnumerable<StoredObservation> ReadStoredCurrentObservations()
+        private BufferObservation[] ReadBufferCurrentObservations()
         {
-            var items = new List<StoredObservation>();
+            var items = new List<BufferObservation>();
 
             try
             {
@@ -311,18 +347,18 @@ namespace MTConnect.Buffers
                 var files = GetCurrentFiles();
                 foreach (var file in files)
                 {
-                    var fileItems = ReadFile(file);
+                    var fileItems = ReadCurrentFile(file);
                     items.AddRange(fileItems);
                 }
             }
             catch { }
 
-            return items;
+            return items.ToArray();
         }
 
-        private IEnumerable<StoredObservation> ReadStoredCurrentConditionObservations()
+        private BufferObservation[] ReadBufferCurrentConditions()
         {
-            var items = new List<StoredObservation>();
+            var items = new List<BufferObservation>();
 
             try
             {
@@ -330,13 +366,13 @@ namespace MTConnect.Buffers
                 var files = GetCurrentConditionFiles();
                 foreach (var file in files)
                 {
-                    var fileItems = ReadFile(file);
+                    var fileItems = ReadCurrentFile(file);
                     items.AddRange(fileItems);
                 }
             }
             catch { }
 
-            return items;
+            return items.ToArray();
         }
 
 
@@ -423,14 +459,25 @@ namespace MTConnect.Buffers
         }
 
 
-        private IEnumerable<StoredObservation> ReadFile(string path)
+        private int ReadFile(ref BufferObservation[] observations, string path, int startIndex)
         {
-            var items = new List<StoredObservation>();
+            if (File.Exists(path))
+            {
+                var lines = ReadFileLines(path);
+                if (lines != null) return ReadObservations(ref observations, lines, startIndex);
+            }
+
+            return 0;
+        }
+
+        private IEnumerable<BufferObservation> ReadCurrentFile(string path)
+        {
+            var items = new List<BufferObservation>();
 
             if (File.Exists(path))
             {
                 var lines = ReadFileLines(path);
-                items.AddRange(ReadObservations(lines));
+                if (lines != null) items.AddRange(ReadCurrentObservations(lines));
             }
 
             return items;
@@ -439,13 +486,14 @@ namespace MTConnect.Buffers
         private string[] ReadFileLines(string path)
         {
             if (!string.IsNullOrEmpty(path))
-            {
+            {          
                 try
                 {
-                    if (UseCompression)
+                    if (File.Exists(path))
                     {
-                        using (var fileStream = File.Open(path, FileMode.Open))
+                        if (UseCompression)
                         {
+                            using (var fileStream = File.Open(path, FileMode.Open))
                             using (var readStream = new MemoryStream())
                             using (var gzipStream = new GZipStream(fileStream, CompressionMode.Decompress))
                             {
@@ -460,11 +508,11 @@ namespace MTConnect.Buffers
                                 }
                             }
                         }
-                    }
-                    else
-                    {
-                        return File.ReadAllLines(path);
-                    }
+                        else
+                        {
+                            return File.ReadAllLines(path);
+                        }
+                    }                 
                 }
                 catch { }
             }
@@ -472,11 +520,12 @@ namespace MTConnect.Buffers
             return null;
         }
 
-        private static IEnumerable<StoredObservation> ReadObservations(string[] lines)
+        private static int ReadObservations(ref BufferObservation[] observations, string[] lines, int startIndex)
         {
-            if (!lines.IsNullOrEmpty())
+            if (lines != null && lines.Length > 0)
             {
-                var items = new List<StoredObservation>();
+                var index = startIndex;
+                var count = 0;
 
                 foreach (var line in lines)
                 {
@@ -486,6 +535,38 @@ namespace MTConnect.Buffers
                         {
                             var a = JsonSerializer.Deserialize<object[]>(line);
                             var fileObservation = FileObservation.FromArray(a);
+                            var observation = fileObservation.ToBufferObservation();
+                            if (observation.IsValid)
+                            {
+                                observations[index] = observation;
+                                index++;
+                                count++;
+                            }
+                        }
+                        catch { }
+                    }
+                }
+
+                return count;
+            }
+
+            return 0;
+        }
+
+        private static IEnumerable<BufferObservation> ReadCurrentObservations(string[] lines)
+        {
+            if (!lines.IsNullOrEmpty())
+            {
+                var items = new List<BufferObservation>();
+
+                foreach (var line in lines)
+                {
+                    if (!string.IsNullOrEmpty(line))
+                    {
+                        try
+                        {
+                            var a = JsonSerializer.Deserialize<object[]>(line);
+                            var fileObservation = FileCurrentObservation.FromArray(a);
                             var observation = fileObservation.ToStoredObservation();
                             if (observation.IsValid)
                             {
@@ -499,23 +580,23 @@ namespace MTConnect.Buffers
                 return items;
             }
 
-            return Enumerable.Empty<StoredObservation>();
+            return Enumerable.Empty<BufferObservation>();
         }
 
         #endregion
 
         #region "Retention"
 
-        private async Task RetentionWorker(CancellationToken cancellationToken)
+        private async Task RetentionWorker()
         {
             // Delay half the Interval to offset from WriteWorker
-            await Task.Delay(WriteInterval / 2, cancellationToken);
+            await Task.Delay(WriteInterval / 2, stop.Token);
 
-            while (!cancellationToken.IsCancellationRequested)
+            while (!stop.Token.IsCancellationRequested)
             {
                 try
                 {
-                    await Task.Delay(RetentionInterval, cancellationToken);
+                    await Task.Delay(RetentionInterval, stop.Token);
 
                     RunRetention();
                 }
@@ -550,13 +631,13 @@ namespace MTConnect.Buffers
 
         #region "Write"
 
-        private async Task WriteWorker(CancellationToken cancellationToken)
+        private async Task WriteWorker()
         {
-            while (!cancellationToken.IsCancellationRequested)
+            while (!stop.Token.IsCancellationRequested)
             {
                 try
                 {
-                    await Task.Delay(WriteInterval, cancellationToken);
+                    await Task.Delay(WriteInterval, stop.Token);
 
                     await WriteItems(MaxItemsPerWrite);
                     await WriteCurrentItems(MaxItemsPerWrite);
@@ -606,7 +687,7 @@ namespace MTConnect.Buffers
         /// <summary>
         /// Write the list of Observations to to files with unique filenames
         /// </summary>
-        private async Task<int> WriteToFiles(IEnumerable<StoredObservation> observations)
+        private async Task<int> WriteToFiles(IEnumerable<BufferObservation> observations)
         {
             int writtenTotal = 0;
 
@@ -616,35 +697,22 @@ namespace MTConnect.Buffers
                 {
                     var lines = new StringBuilder();
 
-                    var oObservations = observations.OrderBy(o => o.Sequence);
-                    var firstSequence = oObservations.FirstOrDefault().Sequence;
-                    var lastSequence = oObservations.LastOrDefault().Sequence;
+                    // Get the Observations Directory
+                    var dir = GetDirectory();
 
-                    var skip = 0;
-                    var m = firstSequence;
-                    var n = lastSequence;
-
-                    do
+                    var files = observations.Select(o => GetSequenceTop(o.Sequence, PageSize)).Distinct();
+                    foreach (var file in files)
                     {
-                        // Get Observations to write to Page file
-                        var pageObservations = oObservations.Skip(skip).Take(PageSize);
-                        if (!pageObservations.IsNullOrEmpty())
-                        {
-                            // Get the Observations Directory
-                            var dir = GetDirectory();
+                        var bottom = GetSequenceBottom(file, PageSize);
 
-                            // Filename is the largest Sequence within the PageSize
-                            var file = GetSequenceTop(m, PageSize).ToString();
-                            var path = Path.Combine(dir, file);
+                        var fileObservations = observations.Where(o => o.Sequence >= bottom && o.Sequence < file);
+                        var oObservations = fileObservations.OrderBy(o => o.Sequence);
 
-                            // Write the Observations to the Page File
-                            await WriteToFile(path, pageObservations);
-                        }
+                        var path = Path.Combine(dir, file.ToString());
 
-                        m += PageSize;
-                        skip += PageSize;
+                        // Write the Observations to the Page File
+                        await WriteToFile(path, oObservations);
                     }
-                    while (m < n);
                 }
                 catch { }
             }
@@ -655,7 +723,7 @@ namespace MTConnect.Buffers
         /// <summary>
         /// Write the list of Current Observations to individual files for each Device
         /// </summary>
-        private async Task<int> WriteToCurrentFiles(IEnumerable<StoredObservation> observations)
+        private async Task<int> WriteToCurrentFiles(IEnumerable<BufferObservation> observations)
         {
             int writtenTotal = 0;
 
@@ -663,24 +731,24 @@ namespace MTConnect.Buffers
             {
                 var dir = GetCurrentDirectory();
 
-                var deviceUuids = observations.Select(o => o.DeviceUuid).Distinct();
-                foreach (var deviceUuid in deviceUuids)
+                var deviceIndexes = observations.Select(o => o.DeviceIndex).Distinct();
+                foreach (var deviceIndex in deviceIndexes)
                 {
-                    var filename = $"{deviceUuid}_observations";
+                    var filename = $"{deviceIndex}_observations";
                     var path = Path.Combine(dir, filename);
 
                     // Get List of Observations for Device UUID
-                    var deviceObservations = observations.Where(o => o.DeviceUuid == deviceUuid);
+                    var deviceObservations = observations.Where(o => o.DeviceIndex == deviceIndex);
 
-                    var currentObservations = new List<StoredObservation>();
-                    var dataItemIds = deviceObservations.Select(o => o.DataItemId).Distinct();
+                    var currentObservations = new List<BufferObservation>();
+                    var dataItemIds = deviceObservations.Select(o => o.DataItemIndex).Distinct();
                     foreach (var dataItemId in dataItemIds)
                     {
-                        currentObservations.Add(deviceObservations.Where(o => o.DataItemId == dataItemId).OrderByDescending(o => o.Sequence).FirstOrDefault());
+                        currentObservations.Add(deviceObservations.Where(o => o.DataItemIndex == dataItemId).OrderByDescending(o => o.Sequence).FirstOrDefault());
                     }
 
                     // Write the Observations to the Page File
-                    await WriteToFile(path, currentObservations, false);
+                    await WriteToCurrentFile(path, currentObservations, false);
                 }
             }
 
@@ -690,7 +758,7 @@ namespace MTConnect.Buffers
         /// <summary>
         /// Write the list of Current Observations to individual files for each Device
         /// </summary>
-        private async Task<int> WriteToCurrentConditionFiles(IEnumerable<StoredObservation> observations)
+        private async Task<int> WriteToCurrentConditionFiles(IEnumerable<BufferObservation> observations)
         {
             int writtenTotal = 0;
 
@@ -698,35 +766,110 @@ namespace MTConnect.Buffers
             {
                 var dir = GetCurrentDirectory();
 
-                var deviceUuids = observations.Select(o => o.DeviceUuid).Distinct();
-                foreach (var deviceUuid in deviceUuids)
+                var deviceIndexes = observations.Select(o => o.DeviceIndex).Distinct();
+                foreach (var deviceIndex in deviceIndexes)
                 {
-                    var filename = $"{deviceUuid}_conditions";
+                    var filename = $"{deviceIndex}_conditions";
                     var path = Path.Combine(dir, filename);
 
                     // Get List of Observations for Device UUID
-                    var deviceObservations = observations.Where(o => o.DeviceUuid == deviceUuid);
+                    var deviceObservations = observations.Where(o => o.DeviceIndex == deviceIndex);
 
-                    var currentObservations = new List<StoredObservation>();
-                    var dataItemIds = deviceObservations.Select(o => o.DataItemId).Distinct();
+                    var currentObservations = new List<BufferObservation>();
+                    var dataItemIds = deviceObservations.Select(o => o.DataItemIndex).Distinct();
                     foreach (var dataItemId in dataItemIds)
                     {
-                        currentObservations.AddRange(deviceObservations.Where(o => o.DataItemId == dataItemId).OrderByDescending(o => o.Sequence));
+                        currentObservations.AddRange(deviceObservations.Where(o => o.DataItemIndex == dataItemId).OrderByDescending(o => o.Sequence));
                     }
 
                     // Write the Observations to the Page File
-                    await WriteToFile(path, currentObservations, false);
+                    await WriteToCurrentFile(path, currentObservations, false);
                 }
             }
 
             return writtenTotal;
         }
 
-        private async Task<bool> WriteToFile(string path, IEnumerable<StoredObservation> observations, bool append = true)
+        private async Task<bool> WriteToFile(string path, IEnumerable<BufferObservation> observations, bool append = true)
         {
             if (!string.IsNullOrEmpty(path) && !observations.IsNullOrEmpty())
             {
                 var fileObservations = new List<FileObservation>();
+                var sb = new StringBuilder();
+
+                if (append)
+                {
+                    // Read File Contents
+                    var fileLines = ReadFileLines(path);
+                    if (!fileLines.IsNullOrEmpty())
+                    {
+                        foreach (var line in fileLines)
+                        {
+                            sb.Append(line);
+                            sb.Append("\r\n");
+                        }
+                    }
+                }
+
+                // Append new Observations
+                foreach (var observation in observations)
+                {
+                    fileObservations.Add(new FileObservation(observation));
+                }
+
+                // Serialize File Observations to JSON
+                foreach (var fileObservation in fileObservations)
+                {
+                    try
+                    {
+                        // Append new JSON line
+                        var json = JsonSerializer.Serialize(fileObservation.ToArray());
+                        if (!string.IsNullOrEmpty(json))
+                        {
+                            sb.Append(json);
+                            sb.Append("\r\n");
+                        }
+                    }
+                    catch { }
+                }
+
+                try
+                {
+                    if (UseCompression)
+                    {
+                        // Get Bytes
+                        var bytes = Encoding.ASCII.GetBytes(sb.ToString());
+
+                        using (var stream = new MemoryStream())
+                        {
+                            using (var gzipStream = new GZipStream(stream, CompressionMode.Compress))
+                            {
+                                await gzipStream.WriteAsync(bytes, 0, bytes.Length);
+                                await gzipStream.FlushAsync();
+                            }
+
+                            var fileBytes = stream.ToArray();
+                            File.WriteAllBytes(path, fileBytes);
+                        }
+                    }
+                    else
+                    {
+                        File.WriteAllText(path, sb.ToString());
+                    }
+
+                    return true;
+                }
+                catch { }
+            }
+
+            return false;
+        }
+
+        private async Task<bool> WriteToCurrentFile(string path, IEnumerable<BufferObservation> observations, bool append = true)
+        {
+            if (!string.IsNullOrEmpty(path) && !observations.IsNullOrEmpty())
+            {
+                var fileObservations = new List<FileCurrentObservation>();
 
                 if (append)
                 {
@@ -739,7 +882,7 @@ namespace MTConnect.Buffers
                             try
                             {
                                 var a = JsonSerializer.Deserialize<object[]>(line);
-                                fileObservations.Add(FileObservation.FromArray(a));
+                                fileObservations.Add(FileCurrentObservation.FromArray(a));
                             }
                             catch { }
                         }
@@ -749,7 +892,7 @@ namespace MTConnect.Buffers
                 // Append new Contents
                 foreach (var observation in observations)
                 {
-                    fileObservations.Add(new FileObservation(observation));
+                    fileObservations.Add(new FileCurrentObservation(observation));
                 }
 
                 // Order File Observations by Sequence (the order they will appear in the Page File)
@@ -807,7 +950,7 @@ namespace MTConnect.Buffers
         #endregion
 
 
-        private string GetDirectory(bool createIfNotExists = true)
+        private static string GetDirectory(bool createIfNotExists = true)
         {
             string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, DirectoryBuffer, DirectoryObservations);
             if (createIfNotExists && !Directory.Exists(dir)) Directory.CreateDirectory(dir);
@@ -815,7 +958,7 @@ namespace MTConnect.Buffers
             return dir;
         }
 
-        private string GetCurrentDirectory(bool createIfNotExists = true)
+        private static string GetCurrentDirectory(bool createIfNotExists = true)
         {
             string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, DirectoryBuffer, DirectoryObservations, DirectoryCurrent);
             if (createIfNotExists && !Directory.Exists(dir)) Directory.CreateDirectory(dir);

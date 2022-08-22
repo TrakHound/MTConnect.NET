@@ -3,7 +3,6 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE', which is part of this source code package.
 
-using MTConnect.Agents;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
@@ -13,7 +12,7 @@ namespace MTConnect.Buffers
     public class MTConnectConditionObservationQueue
     {
         private readonly int _limit;
-        private readonly Dictionary<string, IEnumerable<StoredObservation>> _items = new Dictionary<string, IEnumerable<StoredObservation>>();
+        private readonly Dictionary<string, IEnumerable<BufferObservation>> _items = new Dictionary<string, IEnumerable<BufferObservation>>();
         private readonly object _lock = new object();
 
 
@@ -38,14 +37,14 @@ namespace MTConnect.Buffers
         /// <summary>
         /// Take (n) number of StoredObservations and remove from the Queue
         /// </summary>
-        public IEnumerable<StoredObservation> Take(int count = 1)
+        public IEnumerable<BufferObservation> Take(int count = 1)
         {
             lock (_lock)
             {
                 var items = _items.Take(count);
                 if (!items.IsNullOrEmpty())
                 {
-                    var x = new List<StoredObservation>();
+                    var x = new List<BufferObservation>();
 
                     foreach (var item in items)
                     {
@@ -62,7 +61,7 @@ namespace MTConnect.Buffers
             return null;
         }
 
-        public bool Add(IEnumerable<StoredObservation> observations)
+        public bool Add(IEnumerable<BufferObservation> observations)
         {
             if (!observations.IsNullOrEmpty())
             {

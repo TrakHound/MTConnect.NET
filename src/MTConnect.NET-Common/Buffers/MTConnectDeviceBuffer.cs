@@ -8,7 +8,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace MTConnect.Buffers
 {
@@ -18,9 +17,8 @@ namespace MTConnect.Buffers
     /// </summary>
     public class MTConnectDeviceBuffer : IMTConnectDeviceBuffer
     {
+        private readonly ConcurrentDictionary<string, IDevice> _storedDevices = new ConcurrentDictionary<string, IDevice>(); // Device.Uuid => IDevice
         private readonly string _id = Guid.NewGuid().ToString();
-
-        private ConcurrentDictionary<string, IDevice> _storedDevices = new ConcurrentDictionary<string, IDevice>(); // Device.Uuid => IDevice
 
         /// <summary>
         /// Get a unique identifier for the Buffer
@@ -33,36 +31,14 @@ namespace MTConnect.Buffers
         /// </summary>
         public IEnumerable<IDevice> GetDevices(string type = null)
         {
-            if (!string.IsNullOrEmpty(type)) return _storedDevices?.Select(o => o.Value).Where(o => !string.IsNullOrEmpty(o.Type) && o.Type.ToLower() == type.ToLower());
-            else return _storedDevices?.Select(o => o.Value);
-        }
-
-        /// <summary>
-        /// Get all MTConnectDevices from the Buffer
-        /// </summary>
-        public async Task<IEnumerable<IDevice>> GetDevicesAsync(string type = null)
-        {
-            if (!string.IsNullOrEmpty(type)) return _storedDevices?.Select(o => o.Value).Where(o => !string.IsNullOrEmpty(o.Type) && o.Type.ToLower() == type.ToLower());
-            else return _storedDevices?.Select(o => o.Value);
+            if (!string.IsNullOrEmpty(type)) return _storedDevices.Select(o => o.Value).Where(o => !string.IsNullOrEmpty(o.Type) && o.Type.ToLower() == type.ToLower());
+            else return _storedDevices.Select(o => o.Value);
         }
 
         /// <summary>
         /// Get the specified MTConnectDevice from the Buffer
         /// </summary>
         public IDevice GetDevice(string deviceUuid)
-        {
-            if (!string.IsNullOrEmpty(deviceUuid))
-            {
-                _storedDevices.TryGetValue(deviceUuid, out IDevice device);
-                return device;
-            }
-            return null;
-        }
-
-        /// <summary>
-        /// Get the specified MTConnectDevice from the Buffer
-        /// </summary>
-        public async Task<IDevice> GetDeviceAsync(string deviceUuid)
         {
             if (!string.IsNullOrEmpty(deviceUuid))
             {
@@ -98,30 +74,6 @@ namespace MTConnect.Buffers
         }
 
         /// <summary>
-        /// Add a new MTConnectDevice to the Buffer
-        /// </summary>
-        public async Task<bool> AddDeviceAsync(IDevice device)
-        {
-            if (device != null && !string.IsNullOrEmpty(device.Uuid))
-            {
-                // Get the Existing Device (if exists)
-                _storedDevices.TryGetValue(device.Uuid, out IDevice existingDevice);
-
-                // Compare the ChangeId Hash of the Existing Device and the New Device
-                if (existingDevice == null || existingDevice.ChangeId != device.ChangeId)
-                {
-                    // Add Device
-                    _storedDevices.TryRemove(device.Uuid, out _);
-                    _storedDevices.TryAdd(device.Uuid, device);
-                }
-
-                return true;
-            }
-
-            return false;
-        }
-
-        /// <summary>
         /// Add new MTConnectDevices to the Buffer
         /// </summary>
         public bool AddDevices(IEnumerable<IDevice> devices)
@@ -133,27 +85,6 @@ namespace MTConnect.Buffers
                 foreach (var device in devices)
                 {
                     success = AddDevice(device);
-                    if (!success) break;
-                }
-
-                return success;
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// Add new MTConnectDevices to the Buffer
-        /// </summary>
-        public async Task<bool> AddDevicesAsync(IEnumerable<IDevice> devices)
-        {
-            if (!devices.IsNullOrEmpty())
-            {
-                bool success = false;
-
-                foreach (var device in devices)
-                {
-                    success = await AddDeviceAsync(device);
                     if (!success) break;
                 }
 

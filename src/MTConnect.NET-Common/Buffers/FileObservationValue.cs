@@ -6,7 +6,7 @@
 using MTConnect.Observations;
 using System.Text.Json.Serialization;
 
-namespace MTConnect.Agents
+namespace MTConnect.Buffers
 {
     public struct FileObservationValue
     {
@@ -28,6 +28,7 @@ namespace MTConnect.Agents
             Key = observationValue.Key;
             Value = observationValue.Value;
         }
+
 
         public string[] ToArray()
         {

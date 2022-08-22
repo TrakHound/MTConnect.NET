@@ -8,7 +8,6 @@ using MTConnect.Configurations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace MTConnect.Buffers
 {
@@ -22,6 +21,7 @@ namespace MTConnect.Buffers
         private readonly Dictionary<string, int> _assetIds = new Dictionary<string, int>();
         private readonly object _lock = new object();
         private int _bufferIndex = 0;
+
 
         /// <summary>
         /// Get a unique identifier for the Buffer
@@ -55,7 +55,7 @@ namespace MTConnect.Buffers
             _storedAssets = new IAsset[BufferSize];
         }
 
-        public MTConnectAssetBuffer(AgentConfiguration configuration)
+        public MTConnectAssetBuffer(IAgentConfiguration configuration)
         {
             if (configuration != null)
             {
@@ -64,6 +64,7 @@ namespace MTConnect.Buffers
 
             _storedAssets = new IAsset[BufferSize];
         }
+
 
         protected virtual void OnAssetAdd(int bufferIndex, IAsset asset, int originalIndex) { }
 
@@ -80,57 +81,23 @@ namespace MTConnect.Buffers
             // Filter by Device
             if (!string.IsNullOrEmpty(deviceUuid))
             {
-                assets = assets.Where(o => o.DeviceUuid == deviceUuid).ToList();
+                assets = assets.Where(o => o != null && o.DeviceUuid == deviceUuid).ToList();
             }
 
             // Filter by Type
             if (!string.IsNullOrEmpty(type))
             {
-                assets = assets.Where(o => o.Type == type).ToList();
+                assets = assets.Where(o => o != null && o.Type == type).ToList();
             }
 
             // Filter Removed Assets
             if (!removed)
             {
-                assets = assets.Where(o => !o.Removed).ToList();
+                assets = assets.Where(o => o != null && !o.Removed).ToList();
             }
 
             return assets?.Take(count);
         }
-
-        /// <summary>
-        /// Get a list of all Assets from the Buffer
-        /// </summary>
-        public async Task<IEnumerable<IAsset>> GetAssetsAsync(string deviceUuid = null, string type = null, bool removed = false, int count = 100)
-        {
-            var assets = _storedAssets.ToList();
-            assets = assets.Where(o => o != null).ToList();
-            if (!assets.IsNullOrEmpty())
-            {
-                // Filter by Device
-                if (!string.IsNullOrEmpty(deviceUuid))
-                {
-                    assets = assets.Where(o => o.DeviceUuid == deviceUuid).ToList();
-                }
-
-                // Filter by Type
-                if (!string.IsNullOrEmpty(type))
-                {
-                    assets = assets.Where(o => o.Type == type).ToList();
-                }
-
-                // Filter Removed Assets
-                if (!removed)
-                {
-                    assets = assets.Where(o => !o.Removed).ToList();
-                }
-
-                return assets?.Take(count);
-            }
-
-            return null;
-        }
-
 
         /// <summary>
         /// Get the specified Assets from the Buffer
@@ -157,49 +124,10 @@ namespace MTConnect.Buffers
         }
 
         /// <summary>
-        /// Get the specified Assets from the Buffer
-        /// </summary>
-        /// <param name="assetIds">The IDs of the Assets to return</param>
-        public async Task<IEnumerable<IAsset>> GetAssetsAsync(IEnumerable<string> assetIds)
-        {
-            if (!assetIds.IsNullOrEmpty())
-            {
-                var assets = new List<IAsset>();
-
-                foreach (var assetId in assetIds)
-                {
-                    if (_assetIds.TryGetValue(assetId, out int index))
-                    {
-                        assets.Add(_storedAssets[index]);
-                    }
-                }
-
-                return assets;
-            }
-
-            return null;
-        }
-
-
-        /// <summary>
         /// Get the specified Asset from the Buffer
         /// </summary>
         /// <param name="assetId">The ID of the Asset to return</param>
         public IAsset GetAsset(string assetId)
-        {
-            if (_assetIds.TryGetValue(assetId, out int index))
-            {
-                return _storedAssets[index];
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Get the specified Asset from the Buffer
-        /// </summary>
-        /// <param name="assetId">The ID of the Asset to return</param>
-        public async Task<IAsset> GetAssetAsync(string assetId)
         {
             if (_assetIds.TryGetValue(assetId, out int index))
             {
@@ -277,15 +205,6 @@ namespace MTConnect.Buffers
             return false;
         }
 
-        /// <summary>
-        /// Add an Asset to the Buffer
-        /// </summary>
-        /// <param name="asset">The Asset to add to the Buffer</param>
-        public async Task<bool> AddAssetAsync(IAsset asset)
-        {
-            return AddAsset(asset);
-        }
-
 
         /// <summary>
         /// Remove the Asset with the specified Asset ID
@@ -307,26 +226,6 @@ namespace MTConnect.Buffers
         }
 
         /// <summary>
-        /// Remove the Asset with the specified Asset ID
-        /// </summary>
-        /// <param name="assetId">The ID of the Asset to remove</param>
-        public async Task<bool> RemoveAssetAsync(string assetId)
-        {
-            if (!string.IsNullOrEmpty(assetId))
-            {
-                var asset = await GetAssetAsync(assetId);
-                if (asset != null)
-                {
-                    asset.Removed = true;
-                    return await AddAssetAsync(asset);
-                }
-            }
-
-            return false;
-        }
-
-
-        /// <summary>
         /// Remove all Assets with the specified Type
         /// </summary>
         /// <param name="assetType">The Type of the Asset(s) to remove</param>
@@ -342,33 +241,6 @@ namespace MTConnect.Buffers
                         asset.Removed = true;
                         return AddAsset(asset);
                     }
-                }
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// Remove all Assets with the specified Type
-        /// </summary>
-        /// <param name="assetType">The Type of the Asset(s) to remove</param>
-        public async Task<bool> RemoveAllAssetsAsync(string assetType)
-        {
-            if (!string.IsNullOrEmpty(assetType))
-            {
-                var assets = await GetAssetsAsync(assetType);
-                if (!assets.IsNullOrEmpty())
-                {
-                    var success = false;
-
-                    foreach (var asset in assets)
-                    {
-                        asset.Removed = true;
-                        success = await AddAssetAsync(asset);
-                        if (!success) break;
-                    }
-
-                    return success;
                 }
             }
 

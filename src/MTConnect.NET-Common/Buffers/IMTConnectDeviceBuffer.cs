@@ -5,7 +5,6 @@
 
 using MTConnect.Devices;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace MTConnect.Buffers
 {
@@ -27,19 +26,9 @@ namespace MTConnect.Buffers
         IEnumerable<IDevice> GetDevices(string type = null);
 
         /// <summary>
-        /// Get all MTConnectDevices from the Buffer
-        /// </summary>
-        Task<IEnumerable<IDevice>> GetDevicesAsync(string type = null);
-
-        /// <summary>
         /// Get the specified MTConnectDevice from the Buffer
         /// </summary>
         IDevice GetDevice(string deviceUuid);
-
-        /// <summary>
-        /// Get the specified MTConnectDevice from the Buffer
-        /// </summary>
-        Task<IDevice> GetDeviceAsync(string deviceUuid);
 
 
         /// <summary>
@@ -48,18 +37,8 @@ namespace MTConnect.Buffers
         bool AddDevice(IDevice device);
 
         /// <summary>
-        /// Add a new MTConnectDevice to the Buffer
-        /// </summary>
-        Task<bool> AddDeviceAsync(IDevice device);
-
-        /// <summary>
         /// Add new MTConnectDevices to the Buffer
         /// </summary>
         bool AddDevices(IEnumerable<IDevice> devices);
-
-        /// <summary>
-        /// Add new MTConnectDevices to the Buffer
-        /// </summary>
-        Task<bool> AddDevicesAsync(IEnumerable<IDevice> devices);
     }
 }

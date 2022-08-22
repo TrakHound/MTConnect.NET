@@ -54,7 +54,7 @@ namespace MTConnect.Buffers
             Start();
         }
 
-        public MTConnectAssetFileBuffer(AgentConfiguration configuration) : base(configuration)
+        public MTConnectAssetFileBuffer(IAgentConfiguration configuration) : base(configuration)
         {
             _items = new MTConnectAssetQueue();
 
@@ -104,6 +104,21 @@ namespace MTConnect.Buffers
         {
             Stop();
             GC.SuppressFinalize(this);
+        }
+
+        public static void Reset()
+        {
+            var dir = GetDirectory(false);
+            if (Directory.Exists(dir))
+            {
+                try
+                {
+                    // Remove the entire Directory
+                    // WARNING: This clears the entire buffer
+                    Directory.Delete(dir, true);
+                }
+                catch { }
+            }
         }
 
 
@@ -393,10 +408,9 @@ namespace MTConnect.Buffers
         #endregion
 
 
-        private string GetDirectory(string assetType = null, bool createIfNotExists = true)
+        private static string GetDirectory(bool createIfNotExists = true)
         {
             string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, DirectoryBuffer, DirectoryAssets);
-            if (!string.IsNullOrEmpty(assetType)) dir = Path.Combine(dir, assetType);
             if (createIfNotExists && !Directory.Exists(dir)) Directory.CreateDirectory(dir);
 
             return dir;

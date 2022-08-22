@@ -3,16 +3,13 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
-using MTConnect.Agents;
 using MTConnect.Configurations;
-using MTConnect.Devices;
 using MTConnect.Devices.DataItems;
 using MTConnect.Observations;
 using System;
-using System.Collections.Concurrent;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace MTConnect.Buffers
 {
@@ -21,14 +18,16 @@ namespace MTConnect.Buffers
     /// </summary>
     public class MTConnectObservationBuffer : IMTConnectObservationBuffer
     {
-        private readonly string _id = Guid.NewGuid().ToString();
-        private object _lock = new object();
-        private long _sequence = 1;
-        private long _bufferIndex = 0;
+        public const int HighPriorityGC = 5000; // Minimum number of Observations requested that will trigger a High Priority Garbage Collection
 
-        private readonly ConcurrentDictionary<string, StoredObservation> _currentObservations = new ConcurrentDictionary<string, StoredObservation>();
-        private readonly ConcurrentDictionary<string, IEnumerable<StoredObservation>> _currentConditions = new ConcurrentDictionary<string, IEnumerable<StoredObservation>>();
-        private readonly StoredObservation[] _archiveObservations;
+        private readonly string _id = Guid.NewGuid().ToString();
+        private readonly object _lock = new object();
+        private long _sequence = 1;
+        private long _bufferPosition = 0;
+
+        private IDictionary<int, BufferObservation> _currentObservations = new Dictionary<int, BufferObservation>();
+        private IDictionary<int, IEnumerable<BufferObservation>> _currentConditions = new Dictionary<int, IEnumerable<BufferObservation>>();
+        private BufferObservation[] _archiveObservations;
 
         /// <summary>
         /// Get a unique identifier for the Buffer
@@ -38,12 +37,18 @@ namespace MTConnect.Buffers
         /// <summary>
         /// Get the configured size of the Buffer in the number of maximum number of Observations the buffer can hold at one time.
         /// </summary>
-        public long BufferSize { get; set; } = 150000;
+        public int BufferSize { get; set; } = 150000;
 
         /// <summary>
         /// A number representing the sequence number assigned to the oldest Observation stored in the buffer
         /// </summary>
-        public long FirstSequence => _archiveObservations[0].Sequence;
+        public long FirstSequence
+        {
+            get
+            {
+                lock (_lock) return _archiveObservations[0].Sequence > 0 ? _archiveObservations[0].Sequence : 1;
+            }
+        }
 
         /// <summary>
         /// A number representing the sequence number assigned to the last Observation that was added to the buffer
@@ -52,10 +57,7 @@ namespace MTConnect.Buffers
         {
             get
             {
-                lock (_lock)
-                {
-                    return _sequence > 1 ? _sequence - 1 : 1;
-                }
+                lock (_lock) return _sequence > 1 ? _sequence - 1 : 1;
             }
         }
 
@@ -66,32 +68,61 @@ namespace MTConnect.Buffers
         {
             get
             {
-                lock (_lock)
-                {
-                    return _sequence;
-                }
+                lock (_lock) return _sequence;
             }
         }
 
-        public ConcurrentDictionary<string, StoredObservation> CurrentObservations => _currentObservations;
 
-        public ConcurrentDictionary<string, IEnumerable<StoredObservation>> CurrentConditions => _currentConditions;
+        public IDictionary<int, BufferObservation> CurrentObservations
+        {
+            get
+            {
+                lock (_lock) return _currentObservations;
+            }
+        }
+
+        public IDictionary<int, IEnumerable<BufferObservation>> CurrentConditions
+        {
+            get
+            {
+                lock (_lock) return _currentConditions;
+            }
+        }
 
 
         public MTConnectObservationBuffer()
         {
-            _archiveObservations = new StoredObservation[BufferSize];
+            _archiveObservations = new BufferObservation[BufferSize];
         }
 
-        public MTConnectObservationBuffer(AgentConfiguration configuration)
+        public MTConnectObservationBuffer(IAgentConfiguration configuration)
         {
             if (configuration != null)
             {
                 BufferSize = configuration.ObservationBufferSize;
             }
 
-            _archiveObservations = new StoredObservation[BufferSize];
+            _archiveObservations = new BufferObservation[BufferSize];
         }
+
+        public void Dispose()
+        {
+            _archiveObservations = null;
+            _currentObservations.Clear();
+            _currentConditions.Clear();
+        }
+
+
+        protected virtual void OnCurrentChange(IEnumerable<BufferObservation> observations) { }
+
+        protected virtual void OnCurrentConditionChange(IEnumerable<BufferObservation> observations) { }
+
+        protected virtual void OnCurrentObservationAdd(ref BufferObservation observation) { }
+
+        protected virtual void OnCurrentConditionAdd(ref IEnumerable<BufferObservation> observations) { }
+
+        protected virtual void OnBufferObservationAdd(ref BufferObservation observation) { }
+
 
 
         #region "Sequence"
@@ -131,357 +162,398 @@ namespace MTConnect.Buffers
 
         #endregion
 
-        #region "Get"
+        #region "Read"
 
         #region "Internal"
 
-        private StreamingResults GetObservations(
-            IEnumerable<StreamingQuery> queries,
-            long from = -1,
-            long to = -1,
-            int count = 0
-            )
+        private IEnumerable<BufferObservation> GetCurrentObservations()
         {
-            var objs = new List<StoredObservation>();
-            long firstSequence = 0;
-            long lastSequence = 0;
-            long nextSequence = 0;
-            int itemCount = 1;
-            StoredObservation[] observations;
+            var x = new List<BufferObservation>();
 
             lock (_lock)
             {
-                firstSequence = Math.Max(1, _sequence - BufferSize);
-                lastSequence = _sequence > 1 ? _sequence - 1 : 1;
-                nextSequence = _sequence;
-
-                var firstItem = _archiveObservations[0];
-                var length = _sequence - firstItem.Sequence;
-
-                observations = new StoredObservation[length];
-
-                Array.Copy(_archiveObservations, 0, observations, 0, length);
-            }
-
-            if (!observations.IsNullOrEmpty())
-            {
-                foreach (var query in queries)
-                {
-                    foreach (var dataItemId in query.DataItemIds)
-                    {
-                        var dataItemObservations = GetStoredObservations(observations, query.DeviceUuid, dataItemId, from, to);
-                        if (!dataItemObservations.IsNullOrEmpty())
-                        {
-                            foreach (var observation in dataItemObservations)
-                            {
-                                objs.Add(observation);
-                                itemCount++;
-                                if (count > 0 && itemCount > count) break;
-                            }
-                        }
-
-                        if (count > 0 && itemCount > count) break;
-                    }
-
-                    if (count > 0 && itemCount > count) break;
-                }
-            }
-
-            return new StreamingResults(
-                firstSequence,
-                lastSequence,
-                nextSequence,
-                objs);
-        }
-
-
-        private IEnumerable<StoredObservation> GetCurrentObservations()
-        {
-            var x = new List<StoredObservation>();
-
-            var observations = _currentObservations.Values;
-            if (!observations.IsNullOrEmpty()) x.AddRange(observations);
-
-            return x;
-        }
-
-        private IEnumerable<StoredObservation> GetCurrentConditions()
-        {
-            var x = new List<StoredObservation>();
-
-            var conditions = _currentConditions.Values;
-            if (!conditions.IsNullOrEmpty())
-            {
-                foreach (var condition in conditions) x.AddRange(condition);
+                var observations = _currentObservations.Values;
+                if (!observations.IsNullOrEmpty()) x.AddRange(observations);
             }
 
             return x;
         }
 
-        private StreamingResults GetCurrentObservations(IEnumerable<StreamingQuery> queries, long at = 0)
+        private IEnumerable<BufferObservation> GetCurrentConditions()
         {
-            var observations = new List<StoredObservation>();
-            long firstSequence = 0;
-            long lastSequence = 0;
-            long nextSequence = 0;
-            StoredObservation[] storedObservations;
-
+            var x = new List<BufferObservation>();
 
             lock (_lock)
             {
-                var firstItem = _archiveObservations[0];
-                var length = _sequence - firstItem.Sequence;
-                if (length > BufferSize) length = BufferSize;
-
-                storedObservations = new StoredObservation[length];
-
-                Array.Copy(_archiveObservations, 0, storedObservations, 0, length);
+                var conditions = _currentConditions.Values;
+                if (!conditions.IsNullOrEmpty())
+                {
+                    foreach (var condition in conditions) x.AddRange(condition);
+                }
             }
 
-            lock (_lock)
+            return x;
+        }
+
+        private static int[] GetIndexes(ref BufferObservation[] observations, int[] keys, int fromIndex, int toIndex, int count = 0)
+        {
+            if (observations != null && observations.Length > 0 && keys != null && keys.Length > 0)
             {
-                firstSequence = Math.Max(1, _sequence - BufferSize);
-                lastSequence = _sequence > 1 ? _sequence - 1 : 1;
-                nextSequence = _sequence;
+                int totalCount = 0; // Total number of Observations that were matched
+                int oi = fromIndex; // Observations Iterator
+                var oil = Math.Min(toIndex, observations.Length - 1);
 
-                foreach (var query in queries)
+                int max = observations.Length; // Max Observations length
+                if (count > 0) max = Math.Min(count, max); // Ensure max length doesn't exceed array length
+
+                int bki; // BufferKey Iterator
+                int bkmax = keys.Length; // Max BufferKey length
+
+                // Create two-dimensional array to hold the indexes of each matched observation for each BufferKey
+                var keyIndexes = new int[keys.Length, max];
+
+                // Create two-dimensional array to hold the positions that were written in the keyIndexes array
+                var keyPositions = new int[keys.Length, 1];
+
+
+                // Loop through observations[]
+                while (oi <= oil)
                 {
-                    if (!query.DataItemIds.IsNullOrEmpty())
+                    // Reset BufferKey iterator
+                    bki = 0;
+
+                    // Loop through BufferKeys
+                    while (bki < bkmax)
                     {
-                        foreach (var dataItemId in query.DataItemIds)
+                        // Match BufferKey
+                        if (observations[oi]._key == keys[bki])
+                        //if (observations[oi].Key == keys[bki])
                         {
-                            // Create a Hash using DeviceUuid and DataItemId
-                            var hash = StoredObservation.CreateHash(query.DeviceUuid, dataItemId);
+                            // Get the Key position (last position in keyIndexes that was written)
+                            var p = keyPositions[bki, 0];
 
-                            if (at > 0)
-                            {
-                                var storedObservation = GetStoredObservation(storedObservations, query.DeviceUuid, dataItemId, at);
-                                if (storedObservation.IsValid)
-                                {
-                                    observations.Add(storedObservation);
-                                }
-                                else
-                                {
-                                    // Get From Current Observations
-                                    if (_currentObservations.TryGetValue(hash, out var observation))
-                                    {
-                                        observations.Add(observation);
-                                    }
+                            // Write the Index to the keyIndexes array
+                            keyIndexes[bki, p] = oi;
 
-                                    // Get From Current Observations
-                                    if (_currentConditions.TryGetValue(hash, out var conditions))
-                                    {
-                                        observations.AddRange(conditions);
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                // Get From Current Observations
-                                if (_currentObservations.TryGetValue(hash, out var observation))
-                                {
-                                    observations.Add(observation);
-                                }
+                            // Update the Key position
+                            keyPositions[bki, 0] = p + 1;
 
-                                // Get From Current Observations
-                                if (_currentConditions.TryGetValue(hash, out var conditions))
-                                {
-                                    observations.AddRange(conditions);
-                                }
-                            }
+                            totalCount++; // Increment the total found count
+                            break; // Don't continue to loop through BufferKeys if already found
                         }
+
+                        if (totalCount >= max) break; // Break if total found exceeds 'count' parameter
+                        bki++; // Increment BufferKey iterator
+                    }
+
+                    if (totalCount >= max) break; // Break if total found exceeds 'count' parameter
+                    oi++; // Increment observation iterator
+                }
+
+                // If any Observations were Matched
+                if (totalCount > 0)
+                {
+                    // Single dimensional array to return containing the indexes of matched observations in the array passed as a parameter
+                    var indexes = new int[totalCount];
+                    var i = 0; // indexes iterator
+                    bki = 0; // Reset BufferKey iterator
+
+                    int p; // iterator for keyIndexes position
+                    int pl; // max length of keyIndexes to iterate over
+
+                    // Loop through the BufferKeys
+                    // BufferKeys are ordered in ascending order.
+                    // This order is maintained in the returned array so that additional sorting should never be required
+                    while (bki < bkmax)
+                    {
+                        p = 0; // Reset position iterator
+                        pl = keyPositions[bki, 0]; // Set max position length (number of observations found for that BufferKey
+
+                        // Loop through found observations for this BufferKey
+                        while (p < pl)
+                        {
+                            // Write the index of the observation to the return array
+                            indexes[i] = keyIndexes[bki, p];
+
+                            p++; // increment the position iterator
+                            i++; // increment the indexes iterator
+                        }
+
+                        bki++; // Increment BufferKey iterator
+                    }
+
+                    return indexes;
+                }
+            }
+
+            return null;
+        }
+
+        private static int GetLatestIndex(ref BufferObservation[] observations, int key, int atIndex)
+        {
+            var index = -1;
+
+            if (observations != null && observations.Length > 0 && atIndex <= observations.Length - 1)
+            {
+                // Loop through the observations in reverse order (sequence desc)
+                // This find the most recent observation in the buffer
+                for (var i = atIndex; i >= 0; i--)
+                {
+                    // Find the matching Buffer Key
+                    if (observations[i]._key == key)
+                    {
+                        // If found, set the index and break from the loop
+                        index = i;
+                        break;
                     }
                 }
             }
 
-            return new StreamingResults(
-                firstSequence,
-                lastSequence,
-                nextSequence,
-                observations);
-        }
-
-        private static IEnumerable<StoredObservation> GetStoredObservations(
-            StoredObservation[] observations,
-            string deviceUuid,
-            string dataItemId,
-            long from = -1,
-            long to = -1,
-            int count = 0
-            )
-        {
-            if (!observations.IsNullOrEmpty() && !string.IsNullOrEmpty(dataItemId))
-            {
-                var objs = new List<StoredObservation>();
-
-                IEnumerable<StoredObservation> y = null;
-
-                if (from > 0 && to > 0)
-                {
-                    y = observations.Where(o => o.DeviceUuid == deviceUuid && o.DataItemId == dataItemId && o.Sequence >= from && o.Sequence <= to);
-                }
-                else if (from > 0)
-                {
-                    y = observations.Where(o => o.DeviceUuid == deviceUuid && o.DataItemId == dataItemId && o.Sequence >= from);
-                }
-                else if (to > 0)
-                {
-                    y = observations.Where(o => o.DeviceUuid == deviceUuid && o.DataItemId == dataItemId && o.Sequence <= to);
-                }
-                else
-                {
-                    y = observations.Where(o => o.DeviceUuid == deviceUuid && o.DataItemId == dataItemId);
-                }
-
-                if (y != null) objs.AddRange(y);
-
-                return objs;
-            }
-
-            return Enumerable.Empty<StoredObservation>();
-        }
-
-        private static StoredObservation GetStoredObservation(
-            StoredObservation[] observations,
-            string deviceUuid,
-            string dataItemId,
-            long at
-            )
-        {
-            if (!observations.IsNullOrEmpty() && !string.IsNullOrEmpty(deviceUuid) && !string.IsNullOrEmpty(dataItemId))
-            {
-                var obj = observations.Where(o => o.DeviceUuid == deviceUuid && o.DataItemId == dataItemId && o.Sequence <= at).OrderByDescending(o => o.Sequence).FirstOrDefault();
-                if (obj.IsValid) return obj;
-            }
-
-            return new StoredObservation();
+            return index;
         }
 
         #endregion
 
 
         /// <summary>
-        /// Get a list of Observations based on the specified search parameters
+        /// Get a list of the Current Observations based on the specified BufferKeys
         /// </summary>
-        /// <param name="deviceUuid">The UUID of the Device</param>
-        /// <param name="dataItemIds">A list of DataItemId's used to filter results</param>
-        /// <param name="from">The minimum sequence number to include in the results</param>
-        /// <param name="to">The maximum sequence number to include in the results</param>
-        /// <param name="at">The sequence number to include in the results</param>
-        /// <param name="count">The maximum number of Observations to include in the result</param>
+        /// <param name="bufferKeys">A list of Keys (DeviceUuid and DataItemId) to match observations in the buffer</param>
         /// <returns>An object that implements the IStreamingResults interface containing the query results</returns>
-        public virtual IStreamingResults GetObservations(string deviceUuid, IEnumerable<string> dataItemIds = null, long from = -1, long to = -1, long at = -1, int count = 0)
+        public IObservationBufferResults GetCurrentObservations(IEnumerable<int> bufferKeys)
         {
-            if (!string.IsNullOrEmpty(deviceUuid))
+            if (!bufferKeys.IsNullOrEmpty())
             {
-                return GetObservations(new List<string> { deviceUuid }, dataItemIds, from, to, at, count);
+                // Order Buffer Keys (this effects the order of the resulting array and should always be in Ascending order)
+                var oBufferKeys = bufferKeys.OrderBy(o => o).ToArray();
+
+                long firstSequence = 0;
+                long lastSequence = 0;
+                long nextSequence = 0;
+
+                var observations = new List<BufferObservation>();
+
+                lock (_lock)
+                {
+                    firstSequence = Math.Max(1, _sequence - BufferSize);
+                    lastSequence = _sequence > 1 ? _sequence - 1 : 1;
+                    nextSequence = _sequence;
+
+                    foreach (var bufferKey in oBufferKeys)
+                    {
+                        // Get From Current Observations
+                        if (_currentObservations.TryGetValue(bufferKey, out var observation))
+                        {
+                            observations.Add(observation);
+                        }
+
+                        // Get From Current Observations
+                        if (_currentConditions.TryGetValue(bufferKey, out var conditions))
+                        {
+                            observations.AddRange(conditions);
+                        }
+                    }
+                }
+
+                var aObservations = observations.ToArray();
+                var firstObservationSequence = observations.Min(o => o.Sequence);
+                var lastObservationSequence = observations.Max(o => o.Sequence);
+
+                return new ObservationBufferResults
+                {
+                    FirstSequence = firstSequence,
+                    LastSequence = lastSequence,
+                    NextSequence = nextSequence,
+                    Observations = aObservations,
+                    FirstObservationSequence = firstObservationSequence,
+                    LastObservationSequence = lastObservationSequence,
+                    ObservationCount = aObservations.Length
+                };
             }
 
-            return null; ;
+            return ObservationBufferResults.Invalid();
+        }
+
+        /// <summary>
+        /// Get a list of the latest Observations at the specified sequence based on the specified BufferKeys
+        /// </summary>
+        /// <param name="bufferKeys">A list of Keys (DeviceUuid and DataItemId) to match observations in the buffer</param>
+        /// <param name="at">The sequence number to include in the results</param>
+        /// <returns>An object that implements the IStreamingResults interface containing the query results</returns>
+        public IObservationBufferResults GetCurrentObservations(IEnumerable<int> bufferKeys, long at)
+        {
+            if (!bufferKeys.IsNullOrEmpty())
+            {
+                // Order Buffer Keys (this effects the order of the resulting array and should always be in Ascending order)
+                var oBufferKeys = bufferKeys.OrderBy(o => o).ToArray();
+
+                long firstSequence = 0;
+                long lastSequence = 0;
+                long nextSequence = 0;
+                var observations = new BufferObservation[bufferKeys.Count()];
+                BufferObservation[] bufferObservations = null;
+
+                lock (_lock)
+                {
+                    firstSequence = Math.Max(1, _sequence - BufferSize);
+                    lastSequence = _sequence > 1 ? _sequence - 1 : 1;
+                    nextSequence = _sequence;
+
+                    // Determine Indexes
+                    var atIndex = (int)(at - firstSequence);
+
+                    if (_archiveObservations.Length > 0)
+                    {
+                        bufferObservations = _archiveObservations;
+
+                        var indexes = new int[oBufferKeys.Length];
+                        for (var i = 0; i < oBufferKeys.Length; i++)
+                        {
+                            // Get the latest observation based on the "at" parameter
+                            indexes[i] = GetLatestIndex(ref bufferObservations, oBufferKeys[i], atIndex);
+                        }
+
+                        for (var i = 0; i < oBufferKeys.Length; i++)
+                        {
+                            var index = indexes[i];
+                            if (index >= 0)
+                            {
+                                observations[i] = _archiveObservations[index];
+                            }
+                            else
+                            {
+                                // Get From Current Observations
+                                if (_currentObservations.TryGetValue(oBufferKeys[i], out var observation))
+                                {
+                                    observations[i] = observation;
+                                }
+
+                                // Get From Current Observations
+                                if (_currentConditions.TryGetValue(oBufferKeys[i], out var conditions))
+                                {
+                                    observations[i] = observation;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                var aObservations = observations.ToArray();
+                var firstObservationSequence = observations.Min(o => o.Sequence);
+                var lastObservationSequence = observations.Max(o => o.Sequence);
+
+                return new ObservationBufferResults
+                {
+                    FirstSequence = firstSequence,
+                    LastSequence = lastSequence,
+                    NextSequence = nextSequence,
+                    Observations = aObservations,
+                    FirstObservationSequence = firstObservationSequence,
+                    LastObservationSequence = lastObservationSequence,
+                    ObservationCount = aObservations.Length
+                };
+            }
+
+            return ObservationBufferResults.Invalid();
         }
 
         /// <summary>
         /// Get a list of Observations based on the specified search parameters
         /// </summary>
-        /// <param name="deviceUuid">The UUID of the Device</param>
-        /// <param name="dataItemIds">A list of DataItemId's used to filter results</param>
+        /// <param name="bufferKeys">A list of Keys (DeviceUuid and DataItemId) to match observations in the buffer</param>
         /// <param name="from">The minimum sequence number to include in the results</param>
         /// <param name="to">The maximum sequence number to include in the results</param>
-        /// <param name="at">The sequence number to include in the results</param>
         /// <param name="count">The maximum number of Observations to include in the result</param>
         /// <returns>An object that implements the IStreamingResults interface containing the query results</returns>
-        public virtual async Task<IStreamingResults> GetObservationsAsync(string deviceUuid, IEnumerable<string> dataItemIds = null, long from = -1, long to = -1, long at = -1, int count = 0)
+        public IObservationBufferResults GetObservations(IEnumerable<int> bufferKeys, long from = -1, long to = -1, int count = 100)
         {
-            if (!string.IsNullOrEmpty(deviceUuid))
+            if (!bufferKeys.IsNullOrEmpty())
             {
-                return await GetObservationsAsync(new List<string> { deviceUuid }, dataItemIds, from, to, at, count);
+                long now = UnixDateTime.Now;
+                long firstSequence = 0;
+                long lastSequence = 0;
+                long nextSequence = 0;
+                int observationCount = 0;
+                BufferObservation[] observations = null;
+                BufferObservation[] bufferObservations = null;
+                long firstObservationSequence = 0;
+                long lastObservationSequence = 0;
+                int lowestIndex = int.MaxValue;
+                int highestIndex = 0;
+
+                lock (_lock)
+                {
+                    firstSequence = Math.Max(1, _sequence - BufferSize);
+                    lastSequence = _sequence > 1 ? _sequence - 1 : 1;
+                    nextSequence = _sequence;
+
+                    // Determine Indexes
+                    var fromIndex = (int)Math.Max(0, from - firstSequence);
+                    int toIndex = (int)(lastSequence - firstSequence);
+                    if (to > 0)
+                    {
+                        if (to == from) toIndex = fromIndex;
+                        else
+                        {
+                            toIndex = (int)(to - firstSequence);
+                            if (toIndex < 0) toIndex = (int)(lastSequence - firstSequence);
+                        }
+                    }
+
+                    if (_archiveObservations.Length > 0 && toIndex >= fromIndex)
+                    {
+                        bufferObservations = _archiveObservations;
+
+                        // Order Buffer Keys (this effects the order of the resulting array and should always be in Ascending order)
+                        var oBufferKeys = bufferKeys.OrderBy(o => o).ToArray();
+
+                        // Get list of indexes that match the requested Keys
+                        var indexes = GetIndexes(ref bufferObservations, oBufferKeys, fromIndex, toIndex, count);
+                        if (indexes != null && indexes.Length > 0)
+                        {
+                            // Initialize array to return using the number of indexes found as the size
+                            observations = new BufferObservation[indexes.Length];
+                            var observationIndex = 0; // return array iterator
+
+                            for (var i = 0; i < indexes.Length; i++)
+                            {
+                                // Get the index of the observation in the _readBuffer array
+                                var index = indexes[i];
+                                if (index < lowestIndex) lowestIndex = index;
+                                if (index > highestIndex) highestIndex = index;
+
+                                // Write the observation at the _readBuffer index to the return array
+                                observations[observationIndex] = _archiveObservations[index];
+
+                                observationIndex++; // Increment the return array iterator
+                                observationCount++; // Increment the total observations matched count
+                            }
+
+                            firstObservationSequence = _archiveObservations[lowestIndex].Sequence;
+                            lastObservationSequence = _archiveObservations[highestIndex].Sequence;
+                        }
+                    }
+                }
+
+                // Trigger Garbage Collector to Collect()
+                if (observationCount > HighPriorityGC) GarbageCollector.HighPriorityCollect();
+                else GarbageCollector.LowPriorityCollect();
+
+                // Return a StreamingResults struct containing the observations found
+                // as well as the sequences that were active when the observations were read
+                return new ObservationBufferResults
+                {
+                    FirstSequence = firstSequence,
+                    LastSequence = lastSequence,
+                    NextSequence = nextSequence,
+                    Observations = observations,
+                    FirstObservationSequence = firstObservationSequence,
+                    LastObservationSequence = lastObservationSequence,
+                    ObservationCount = observationCount
+                };
             }
 
-            return null; ;
-        }
-
-        /// <summary>
-        /// Get a list of Observations based on the specified search parameters
-        /// </summary>
-        /// <param name="deviceUuids">A list of Device Uuids to include in the results</param>
-        /// <param name="dataItemIds">A list of DataItemId's used to filter results</param>
-        /// <param name="from">The minimum sequence number to include in the results</param>
-        /// <param name="to">The maximum sequence number to include in the results</param>
-        /// <param name="at">The sequence number to include in the results</param>
-        /// <param name="count">The maximum number of Observations to include in the result</param>
-        /// <returns>An object that implements the IStreamingResults interface containing the query results</returns>
-        public virtual IStreamingResults GetObservations(IEnumerable<string> deviceUuids, IEnumerable<string> dataItemIds = null, long from = -1, long to = -1, long at = -1, int count = 0)
-        {
-            if (!deviceUuids.IsNullOrEmpty())
-            {
-                // Get List of DataItemIds for all Devices
-                var queries = new List<StreamingQuery>();
-                foreach (var deviceUuid in deviceUuids)
-                {
-                    queries.Add(new StreamingQuery(deviceUuid, dataItemIds));
-                }
-
-                // Get the Observations stored in the Buffer based on the StreamingQueries
-                StreamingResults results;
-                if (from > 0 || to > 0 || at > 0)
-                {
-                    results = GetObservations(queries, from, to, count: count);
-                }
-                else
-                {
-                    results = GetCurrentObservations(queries);
-                }
-
-                return results;
-            }
-
-            return null; ;
-        }
-
-        /// <summary>
-        /// Get a list of Observations based on the specified search parameters
-        /// </summary>
-        /// <param name="deviceUuids">A list of Device Uuids to include in the results</param>
-        /// <param name="dataItemIds">A list of DataItemId's used to filter results</param>
-        /// <param name="from">The minimum sequence number to include in the results</param>
-        /// <param name="to">The maximum sequence number to include in the results</param>
-        /// <param name="at">The sequence number to include in the results</param>
-        /// <param name="count">The maximum number of Observations to include in the result</param>
-        /// <returns>An object that implements the IStreamingResults interface containing the query results</returns>
-        public virtual async Task<IStreamingResults> GetObservationsAsync(IEnumerable<string> deviceUuids, IEnumerable<string> dataItemIds = null, long from = -1, long to = -1, long at = -1, int count = 0)
-        {
-            if (!deviceUuids.IsNullOrEmpty())
-            {
-                // Get List of DataItemIds for all Devices
-                var queries = new List<StreamingQuery>();
-                foreach (var deviceUuid in deviceUuids)
-                {
-                    queries.Add(new StreamingQuery(deviceUuid, dataItemIds));
-                }
-
-                // Get the Observations stored in the Buffer based on the StreamingQueries
-                StreamingResults results;
-                if (from > 0 || to > 0)
-                {
-                    results = GetObservations(queries, from, to, count);
-                }
-                else if (count > 0)
-                {
-                    results = GetObservations(queries, count: count);
-                }
-                else if (at > 0)
-                {
-                    results = GetCurrentObservations(queries, at);
-                }
-                else
-                {
-                    results = GetCurrentObservations(queries);
-                }
-
-                return results;
-            }
-
-            return null; ;
+            return ObservationBufferResults.Invalid();
         }
 
         #endregion
@@ -490,103 +562,113 @@ namespace MTConnect.Buffers
 
         #region "Internal"
 
-        protected void AddCurrentObservation(StoredObservation observation)
+        protected void AddCurrentObservation(int bufferKey, long sequence, IObservation observation)
         {
-            if (_currentObservations != null && !string.IsNullOrEmpty(observation.DeviceUuid) && !string.IsNullOrEmpty(observation.DataItemId))
-            {
-                // Create a Hash using the DeviceUuid and the DataItemId
-                var hash = StoredObservation.CreateHash(observation.DeviceUuid, observation.DataItemId);
-
-                if (!observation.Values.IsNullOrEmpty())
-                {
-                    // Get Reset Triggered Value from Observation
-                    var resetTriggered = observation.GetValue(ValueKeys.ResetTriggered).ConvertEnum<ResetTriggered>();
-
-                    if (_currentObservations.TryRemove(hash, out var existingObservation))
-                    {
-                        if (resetTriggered == ResetTriggered.NOT_SPECIFIED)
-                        {
-                            // Update Observations based on Representation
-                            switch (observation.DataItemRepresentation)
-                            {
-                                case DataItemRepresentation.DATA_SET:
-
-                                    // Update DataSet Values
-                                    var existingDataSetValues = GetDataSetValues(existingObservation);
-                                    if (!existingDataSetValues.IsNullOrEmpty())
-                                    {
-                                        observation.Values = CombineDataSetValues(observation.Values, existingDataSetValues);
-                                    }
-                                    break;
-
-                                case DataItemRepresentation.TABLE:
-
-                                    // Update Table Values
-                                    var existingTableValues = GetTableValues(existingObservation);
-                                    if (!existingTableValues.IsNullOrEmpty())
-                                    {
-                                        observation.Values = CombineTableValues(observation.Values, existingTableValues);
-                                    }
-                                    break;
-                            }
-                        }
-                    }
-
-                    _currentObservations.TryAdd(hash, observation);
-
-                    // Call Overridable Methods
-                    OnCurrentChange(GetCurrentObservations());
-                    OnCurrentObservationAdd(observation);
-                }
-            }
+            var bufferObservation = new BufferObservation(bufferKey, sequence, observation);
+            AddCurrentObservation(ref bufferObservation);
         }
 
-        protected void AddCurrentCondition(StoredObservation observation)
+        protected void AddCurrentObservation(ref BufferObservation observation)
         {
-            if (_currentConditions != null && !string.IsNullOrEmpty(observation.DeviceUuid) && !string.IsNullOrEmpty(observation.DataItemId))
+            if (!observation.Values.IsNullOrEmpty())
             {
-                // Create a Hash using the DeviceUuid and the DataItemId
-                var hash = StoredObservation.CreateHash(observation.DeviceUuid, observation.DataItemId);
+                // Get Reset Triggered Value from Observation
+                var resetTriggered = observation.GetValue(ValueKeys.ResetTriggered).ConvertEnum<ResetTriggered>();
 
-                if (!observation.Values.IsNullOrEmpty())
+                BufferObservation existingObservation;
+                lock (_lock) _currentObservations.Remove(observation._key, out existingObservation);
+
+                if (existingObservation.IsValid)
                 {
-                    var observations = new List<StoredObservation>();
-
-                    if (_currentConditions.TryRemove(hash, out var existingObservations))
+                    if (resetTriggered == ResetTriggered.NOT_SPECIFIED)
                     {
-                        // Only Add Existing Condition Observations if Not NORMAL or UNAVAILABLE
-                        var conditionLevel = observation.Values.FirstOrDefault(o => o.Key == ValueKeys.Level).Value;
-                        if (conditionLevel != ConditionLevel.NORMAL.ToString() &&
-                            conditionLevel != ConditionLevel.UNAVAILABLE.ToString())
+                        // Update Observations based on Representation
+                        switch (observation.Representation)
                         {
-                            foreach (var existingObservation in existingObservations)
-                            {
-                                // Don't include existing NORMAL or UNAVAILABLE
-                                conditionLevel = existingObservation.Values.FirstOrDefault(o => o.Key == ValueKeys.Level).Value;
-                                if (conditionLevel != ConditionLevel.NORMAL.ToString() &&
-                                    conditionLevel != ConditionLevel.UNAVAILABLE.ToString() &&
-                                    existingObservation.Sequence != observation.Sequence)
+                            case DataItemRepresentation.DATA_SET:
+
+                                // Update DataSet Values
+                                var existingDataSetValues = GetDataSetValues(ref existingObservation);
+                                if (!existingDataSetValues.IsNullOrEmpty())
                                 {
-                                    observations.Add(existingObservation);
+                                    observation.Values = CombineDataSetValues(observation.Values, ref existingDataSetValues);
                                 }
-                            }
+                                break;
+
+                            case DataItemRepresentation.TABLE:
+
+                                // Update Table Values
+                                var existingTableValues = GetTableValues(ref existingObservation);
+                                if (!existingTableValues.IsNullOrEmpty())
+                                {
+                                    observation.Values = CombineTableValues(observation.Values, ref existingTableValues);
+                                }
+                                break;
                         }
                     }
-
-                    // Add the new Observation
-                    observations.Add(observation);
-
-                    // Add to stored List
-                    _currentConditions.TryAdd(hash, observations);
-
-                    // Call Overridable Method
-                    OnCurrentConditionChange(GetCurrentConditions());
-                    OnCurrentConditionAdd(observations);
                 }
+
+                lock (_lock) _currentObservations.TryAdd(observation._key, observation);
+
+                // Call Overridable Methods
+                OnCurrentChange(GetCurrentObservations());
+                OnCurrentObservationAdd(ref observation);
             }
         }
 
-        private static IEnumerable<ObservationValue> CombineDataSetValues(IEnumerable<ObservationValue> values, IEnumerable<ObservationValue> existingValues)
+        protected void AddCurrentCondition(int bufferKey, long sequence, IObservation observation)
+        {
+            var bufferObservation = new BufferObservation(bufferKey, sequence, observation);
+            AddCurrentCondition(ref bufferObservation);
+        }
+
+        protected void AddCurrentCondition(ref BufferObservation observation)
+        {
+            if (!observation.Values.IsNullOrEmpty())
+            {
+                var bufferObservations = new List<BufferObservation>();
+
+                IEnumerable<BufferObservation> existingObservations;
+                lock (_lock) _currentConditions.Remove(observation._key, out existingObservations);
+
+                if (!existingObservations.IsNullOrEmpty())
+                {
+                    // Only Add Existing Condition Observations if Not NORMAL or UNAVAILABLE
+                    var conditionLevel = observation.GetValue(ValueKeys.Level);
+                    if (conditionLevel != ConditionLevel.NORMAL.ToString() &&
+                        conditionLevel != ConditionLevel.UNAVAILABLE.ToString())
+                    {
+                        foreach (var existingObservation in existingObservations)
+                        {
+                            // Get Condition Level Value
+                            conditionLevel = existingObservation.GetValue(ValueKeys.Level);
+
+                            // Don't include existing NORMAL or UNAVAILABLE
+                            if (conditionLevel != ConditionLevel.NORMAL.ToString() &&
+                                conditionLevel != ConditionLevel.UNAVAILABLE.ToString() &&
+                                existingObservation.Sequence != observation.Sequence)
+                            {
+                                bufferObservations.Add(existingObservation);
+                            }
+                        }
+                    }
+                }
+
+                // Add the new Observation
+                bufferObservations.Add(observation);
+                IEnumerable<BufferObservation> iBufferObservations = bufferObservations;
+
+                // Add to stored List
+                lock (_lock) _currentConditions.TryAdd(observation._key, iBufferObservations);
+
+                // Call Overridable Method
+                OnCurrentConditionChange(GetCurrentConditions());
+                OnCurrentConditionAdd(ref iBufferObservations);
+            }
+        }
+
+
+        private static ObservationValue[] CombineDataSetValues(ObservationValue[] values, ref ObservationValue[] existingValues)
         {
             if (!values.IsNullOrEmpty() && !existingValues.IsNullOrEmpty())
             {
@@ -595,100 +677,150 @@ namespace MTConnect.Buffers
 
                 foreach (var value in values)
                 {
-                    returnValues.RemoveAll(o => o.Key == value.Key);
+                    returnValues.RemoveAll(o => o._key == value._key);
                     returnValues.Add(value);
                 }
 
-                return returnValues;
+                // Sort by Key Asc (needed for processing later on, and maybe better performance when searching)
+                return returnValues.OrderBy(o => o._key).ToArray();
             }
 
             return values;
         }
 
-        private static IEnumerable<ObservationValue> CombineTableValues(IEnumerable<ObservationValue> values, IEnumerable<ObservationValue> existingValues)
+        private static ObservationValue[] CombineTableValues(ObservationValue[] values, ref ObservationValue[] existingValues)
         {
             if (!values.IsNullOrEmpty() && !existingValues.IsNullOrEmpty())
             {
                 var returnValues = new List<ObservationValue>();
                 returnValues.AddRange(existingValues);
 
-                var tableValues = values.Where(o => o.Key.StartsWith(ValueKeys.TablePrefix));
+                var tableValues = values.Where(o => o._key.StartsWith(ValueKeys.TablePrefix));
                 if (!tableValues.IsNullOrEmpty())
                 {
-                    var entryKeys = tableValues.Select(o => ValueKeys.GetTableKey(o.Key)).Distinct();
+                    var entryKeys = tableValues.Select(o => ValueKeys.GetTableKey(o._key)).Distinct();
                     foreach (var entryKey in entryKeys)
                     {
-                        returnValues.RemoveAll(o => ValueKeys.GetTableKey(o.Key) == entryKey);
+                        returnValues.RemoveAll(o => ValueKeys.GetTableKey(o._key) == entryKey);
                     }
                 }
-                
+
                 foreach (var value in values)
                 {
-                    returnValues.RemoveAll(o => o.Key == value.Key);
+                    returnValues.RemoveAll(o => o._key == value._key);
                     returnValues.Add(value);
                 }
 
-                return returnValues;
+                // Sort by Key Asc (needed for processing later on, and maybe better performance when searching)
+                return returnValues.OrderBy(o => o._key).ToArray();
             }
 
             return values;
         }
 
-        private static IEnumerable<ObservationValue> GetDataSetValues(StoredObservation observation)
+        private static ObservationValue[] GetDataSetValues(ref BufferObservation observation)
         {
             if (!observation.Values.IsNullOrEmpty())
             {
-                return observation.Values.Where(o => o.Key != null && o.Key.StartsWith(ValueKeys.DataSetPrefix));
+                var x = observation.Values.Where(o => o._key != null && o._key.StartsWith(ValueKeys.DataSetPrefix));
+                if (x != null) return x.ToArray();
             }
 
-            return Enumerable.Empty<ObservationValue>();
+            return null;
         }
 
-        private static IEnumerable<ObservationValue> GetTableValues(StoredObservation observation)
+        private static ObservationValue[] GetTableValues(ref BufferObservation observation)
         {
             if (!observation.Values.IsNullOrEmpty())
             {
-                return observation.Values.Where(o => o.Key != null && o.Key.StartsWith(ValueKeys.TablePrefix));
+                var x = observation.Values.Where(o => o._key != null && o._key.StartsWith(ValueKeys.TablePrefix));
+                if (x != null) return x.ToArray();
             }
 
-            return Enumerable.Empty<ObservationValue>();
+            return null;
         }
 
 
-        protected void AddBufferObservation(StoredObservation observation)
+        protected void AddBufferObservation(int bufferKey, long sequence, IObservation observation)
         {
-            long bufferIndex = 0;
+            var bufferObservation = new BufferObservation(bufferKey, sequence, observation);
+            AddBufferObservation(ref bufferObservation);
+        }
 
-            if (_bufferIndex >= BufferSize - 1)
-            {
-                lock (_lock)
-                {
-                    var a = _archiveObservations;
-                    Array.Copy(a, 1, _archiveObservations, 0, a.Length - 1);
-                    _archiveObservations[_archiveObservations.Length - 1] = observation;
-                    _bufferIndex++;
-                    bufferIndex = _bufferIndex;
-                }
-            }
-            else
-            {
-                lock (_lock)
-                {
-                    _archiveObservations[_bufferIndex] = observation;
-                    _bufferIndex++;
-                    bufferIndex = _bufferIndex;
-                }
-            }
+        protected void AddBufferObservation(ref BufferObservation observation)
+        {
+            WriteObservation(ref observation);
 
             // Call Overridable Method
-            OnBufferObservationAdd(bufferIndex, observation);
+            OnBufferObservationAdd(ref observation);
         }
 
-        protected void AddBufferObservations(IEnumerable<StoredObservation> observations)
+        protected void AddBufferObservations(ref BufferObservation[] observations)
         {
-            if (!observations.IsNullOrEmpty())
+            if (observations != null && observations.Length > 0)
             {
-                foreach (var observation in observations) AddBufferObservation(observation);
+                WriteObservations(ref observations);
+
+                for (var i = 0; i < observations.Length; i++)
+                {
+                    // Call Overridable Method
+                    OnBufferObservationAdd(ref observations[i]);
+                }
+            }
+        }
+
+        private void WriteObservations(ref BufferObservation[] observations)
+        {
+            if (observations != null && observations.Length > 0)
+            {
+                lock (_lock)
+                {
+
+                    // Get the number of Observations that will overflow the buffer
+                    var overflowCount = observations.Length - (BufferSize - _bufferPosition);
+                    if (overflowCount > 0)
+                    {
+                        // Shift Observations over
+                        Array.Copy(_archiveObservations, overflowCount, _archiveObservations, 0, _archiveObservations.Length - overflowCount);
+
+                        // Set the new Buffer Position to begin adding new observations at
+                        _bufferPosition = _bufferPosition - overflowCount;
+                        if (_bufferPosition < 0) _bufferPosition = 0;
+                    }
+                    else overflowCount = 0;
+
+                    // Add Observations
+                    for (var i = overflowCount; i < observations.Length; i++)
+                    {
+                        // Set Buffer Observation
+                        _archiveObservations[_bufferPosition] = observations[i];
+                        _bufferPosition++; // Increment Buffer Position (where the next observation will be written to the Archive Buffer)
+                    }
+                }
+            }
+        }
+
+        private void WriteObservation(ref BufferObservation observation)
+        {
+            lock (_lock)
+            {
+                // Get the number of Observations that will overflow the buffer
+                var overflow = BufferSize - _bufferPosition < 1;
+                if (overflow)
+                {
+                    // Shift Observations over
+                    Array.Copy(_archiveObservations, 1, _archiveObservations, 0, _archiveObservations.Length - 1);
+
+                    // Set the new Buffer Position to begin adding new observations at
+                    _bufferPosition = _bufferPosition - 1;
+                    if (_bufferPosition < 0) _bufferPosition = 0;
+                }
+
+                // Set Buffer Observation
+                _archiveObservations[_bufferPosition] = observation;
+
+                // Increment Buffer Position (where the next observation will be written to the Archive Buffer)
+                _bufferPosition++;
             }
         }
 
@@ -698,67 +830,36 @@ namespace MTConnect.Buffers
         /// <summary>
         /// Add a new Observation to the Buffer
         /// </summary>
-        /// <param name="deviceUuid">The UUID of the Device the data is associated with</param>
-        /// <param name="dataItem">The DataItem that the Observation represents</param>
+        /// <param name="bufferKey">The Key (DeviceUuid and DataItemId) to reference observations in the buffer</param>
         /// <param name="observation">The Observation to Add</param>
         /// <returns>A boolean value indicating whether the Observation was added to the Buffer successfully (true) or not (false)</returns>
-        public virtual bool AddObservation(string deviceUuid, IDataItem dataItem, IObservation observation)
+        public virtual bool AddObservation(int bufferKey, IObservation observation)
         {
-            if (!string.IsNullOrEmpty(deviceUuid) && dataItem != null && observation != null)
+            if (bufferKey > 0 && observation != null)
             {
-                var storedObservation = new StoredObservation
-                {
-                    DeviceUuid = deviceUuid,
-                    DataItemId = dataItem.Id,
-                    DataItemCategory = dataItem.Category,
-                    DataItemRepresentation = dataItem.Representation,
-                    Values = observation.Values,
-                    Sequence = _sequence++,
-                    Timestamp = observation.Timestamp.ToUnixTime()                 
-                };
+                // Get the Sequence to Add Observation at
+                long sequence;
+                lock (_lock) sequence = _sequence++;
 
-                if (dataItem.Category == DataItemCategory.CONDITION)
+                if (observation.Category == DataItemCategory.CONDITION)
                 {
                     // Add to Current Conditions
-                    AddCurrentCondition(storedObservation);
+                    AddCurrentCondition(bufferKey, sequence, observation);
                 }
                 else
                 {
                     // Add to Current Observations
-                    AddCurrentObservation(storedObservation);
+                    AddCurrentObservation(bufferKey, sequence, observation);
                 }
 
                 // Add to Buffer                   
-                AddBufferObservation(storedObservation);
+                AddBufferObservation(bufferKey, sequence, observation);
 
                 return true;
             }
 
             return false;
         }
-
-        /// <summary>
-        /// Add a new Observation to the Buffer
-        /// </summary>
-        /// <param name="deviceUuid">The UUID of the Device the data is associated with</param>
-        /// <param name="dataItem">The DataItem that the Observation represents</param>
-        /// <param name="observation">The Observation to Add</param>
-        /// <returns>A boolean value indicating whether the Observation was added to the Buffer successfully (true) or not (false)</returns>
-        public virtual async Task<bool> AddObservationAsync(string deviceUuid, IDataItem dataItem, IObservation observation)
-        {
-            return AddObservation(deviceUuid, dataItem, observation);
-        }
-
-
-        protected virtual void OnCurrentChange(IEnumerable<StoredObservation> observations) { }
-
-        protected virtual void OnCurrentConditionChange(IEnumerable<StoredObservation> observations) { }
-
-        protected virtual void OnCurrentObservationAdd(StoredObservation observation) { }
-
-        protected virtual void OnCurrentConditionAdd(IEnumerable<StoredObservation> observations) { }
-
-        protected virtual void OnBufferObservationAdd(long bufferIndex, StoredObservation observation) { }
 
         #endregion
 

@@ -3,6 +3,7 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
+using MTConnect.Devices.DataItems;
 using MTConnect.Observations;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,18 +11,20 @@ using System.Text.Json;
 
 namespace MTConnect.Buffers
 {
-    public struct FileObservation
+    public struct FileCurrentObservation
     {
         public int Key { get; set; }
 
         public IEnumerable<object[]> Values { get; set; }
+
+        public int Representation { get; set; }
 
         public long Sequence { get; set; }
 
         public long Timestamp { get; set; }
 
 
-        public FileObservation(BufferObservation observation)
+        public FileCurrentObservation(BufferObservation observation)
         {
             Values = null;
 
@@ -35,6 +38,7 @@ namespace MTConnect.Buffers
                 }
                 Values = values;
             }
+            Representation = (int)observation.Representation;
             Sequence = observation.Sequence;
             Timestamp = observation.Timestamp;
         }
@@ -44,16 +48,17 @@ namespace MTConnect.Buffers
             return new object[] {
                 Key,
                 Values,
+                Representation,
                 Sequence,
                 Timestamp
             };
         }
 
-        public static FileObservation FromArray(object[] a)
+        public static FileCurrentObservation FromArray(object[] a)
         {
-            var fileObservation = new FileObservation();
+            var fileObservation = new FileCurrentObservation();
 
-            if (a != null && a.Length >= 4)
+            if (a != null && a.Length >= 5)
             {
                 fileObservation.Key = a[0].ToInt();
 
@@ -71,14 +76,15 @@ namespace MTConnect.Buffers
                 }
                 fileObservation.Values = values;
 
-                fileObservation.Sequence = a[2].ToLong();
-                fileObservation.Timestamp = a[3].ToLong();
+                fileObservation.Representation = a[2].ToInt();
+                fileObservation.Sequence = a[3].ToLong();
+                fileObservation.Timestamp = a[4].ToLong();
             }
 
             return fileObservation;
         }
 
-        public BufferObservation ToBufferObservation()
+        public BufferObservation ToStoredObservation()
         {
             var observation = new BufferObservation();
             observation.Key = Key;
@@ -91,6 +97,15 @@ namespace MTConnect.Buffers
                     values.Add(new ObservationValue(valueArray[0].ToString(), valueArray[1].ToString()));
                 }
                 observation.Values = values.ToArray();
+            }
+
+            switch (Representation)
+            {
+                case 1: observation.Representation = DataItemRepresentation.DATA_SET; break;
+                case 2: observation.Representation = DataItemRepresentation.DISCRETE; break;
+                case 3: observation.Representation = DataItemRepresentation.TIME_SERIES; break;
+                case 4: observation.Representation = DataItemRepresentation.TABLE; break;
+                default: observation.Representation = DataItemRepresentation.VALUE; break;
             }
 
             observation.Sequence = Sequence;

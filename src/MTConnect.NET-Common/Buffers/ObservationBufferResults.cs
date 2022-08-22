@@ -3,34 +3,47 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
-using System.Collections.Generic;
-using MTConnect.Agents;
-
 namespace MTConnect.Buffers
 {
     /// <summary>
     /// Result set used to retrieve Streaming Data from an IMTConnectObservationBuffer
     /// </summary>
-    public interface IStreamingResults
+    public struct ObservationBufferResults : IObservationBufferResults
     {
         /// <summary>
         /// Gets the First Sequence available when the result set was processed
         /// </summary>
-        long FirstSequence { get; }
+        public long FirstSequence { get; set; }
 
         /// <summary>
         /// Gets the Last Sequence available when the result set was processed
         /// </summary>
-        long LastSequence { get; }
+        public long LastSequence { get; set; }
 
         /// <summary>
         /// Gets the Next Sequence available when the result set was processed
         /// </summary>
-        long NextSequence { get; }
+        public long NextSequence { get; set; }
 
         /// <summary>
         /// Gets the List of Stored Observations contained in the result set
         /// </summary>
-        IEnumerable<StoredObservation> Observations { get; }
+        public BufferObservation[] Observations { get; set; }
+
+        public long FirstObservationSequence { get; set; }
+
+        public long LastObservationSequence { get; set; }
+
+        public int ObservationCount { get; set; }
+
+        public bool IsValid { get; set; }
+
+
+        public static ObservationBufferResults Invalid()
+        {
+            var x = new ObservationBufferResults();
+            x.IsValid = false;
+            return x;
+        }
     }
 }

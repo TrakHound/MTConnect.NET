@@ -5,7 +5,6 @@
 
 using MTConnect.Assets;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace MTConnect.Buffers
 {
@@ -41,23 +40,10 @@ namespace MTConnect.Buffers
         IEnumerable<IAsset> GetAssets(string deviceUuid = null, string type = null, bool removed = false, int count = 0);
 
         /// <summary>
-        /// Get a list of all Assets from the Buffer
-        /// </summary>
-        Task<IEnumerable<IAsset>> GetAssetsAsync(string deviceUuid = null, string type = null, bool removed = false, int count = 0);
-
-
-        /// <summary>
         /// Get the specified Assets from the Buffer
         /// </summary>
         /// <param name="assetIds">The IDs of the Assets to return</param>
         IEnumerable<IAsset> GetAssets(IEnumerable<string> assetIds);
-
-        /// <summary>
-        /// Get the specified Assets from the Buffer
-        /// </summary>
-        /// <param name="assetIds">The IDs of the Assets to return</param>
-        Task<IEnumerable<IAsset>> GetAssetsAsync(IEnumerable<string> assetIds);
-
 
         /// <summary>
         /// Get the specified Asset from the Buffer
@@ -65,24 +51,12 @@ namespace MTConnect.Buffers
         /// <param name="assetId">The ID of the Asset to return</param>
         IAsset GetAsset(string assetId);
 
-        /// <summary>
-        /// Get the specified Asset from the Buffer
-        /// </summary>
-        /// <param name="assetId">The ID of the Asset to return</param>
-        Task<IAsset> GetAssetAsync(string assetId);
-
 
         /// <summary>
         /// Add an Asset to the Buffer
         /// </summary>
         /// <param name="asset">The Asset to add to the Buffer</param>
         bool AddAsset(IAsset asset);
-
-        /// <summary>
-        /// Add an Asset to the Buffer
-        /// </summary>
-        /// <param name="asset">The Asset to add to the Buffer</param>
-        Task<bool> AddAssetAsync(IAsset asset);
 
 
         /// <summary>
@@ -92,22 +66,9 @@ namespace MTConnect.Buffers
         bool RemoveAsset(string assetId);
 
         /// <summary>
-        /// Remove the Asset with the specified Asset ID
-        /// </summary>
-        /// <param name="assetId">The ID of the Asset to remove</param>
-        Task<bool> RemoveAssetAsync(string assetId);
-
-
-        /// <summary>
         /// Remove all Assets with the specified Type
         /// </summary>
         /// <param name="assetType">The Type of the Asset(s) to remove</param>
         bool RemoveAllAssets(string assetType);
-
-        /// <summary>
-        /// Remove all Assets with the specified Type
-        /// </summary>
-        /// <param name="assetType">The Type of the Asset(s) to remove</param>
-        Task<bool> RemoveAllAssetsAsync(string assetType);
     }
 }
