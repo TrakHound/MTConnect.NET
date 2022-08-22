@@ -46,6 +46,6 @@ namespace MTConnect.Devices.DataItems
         /// <summary>
         /// The CellDefinitions aggregates CellDefinition.
         /// </summary>
-        List<CellDefinition> CellDefinitions { get; }
+        IEnumerable<ICellDefinition> CellDefinitions { get; }
     }
 }

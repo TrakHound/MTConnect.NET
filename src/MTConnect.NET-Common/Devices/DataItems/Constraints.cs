@@ -4,8 +4,6 @@
 // file 'LICENSE', which is part of this source code package.
 
 using System.Collections.Generic;
-using System.Xml.Serialization;
-using System.Text.Json.Serialization;
 
 namespace MTConnect.Devices.DataItems
 {
@@ -22,22 +20,16 @@ namespace MTConnect.Devices.DataItems
         /// <summary>
         /// If data reported for a DataItem is a range of numeric values, then the value reported MAY be bounded with an upper limit defined by this constraint.
         /// </summary>
-        [XmlElement("Maximum")]
-        [JsonPropertyName("maximum")]
         public string Maximum { get; set; }
 
         /// <summary>
         /// If the data reported for a DataItem is a range of numeric values, the value reported MAY be bounded with a lower limit defined by this constraint.
         /// </summary>
-        [XmlElement("Minimum")]
-        [JsonPropertyName("minimum")]
         public string Minimum { get; set; }
 
         /// <summary>
         /// The target or expected value for this data item.
         /// </summary>
-        [XmlElement("Nominal")]
-        [JsonPropertyName("nominal")]
         public string Nominal { get; set; }
 
         /// <summary>
@@ -47,9 +39,7 @@ namespace MTConnect.Devices.DataItems
         /// If there is only one Value Data Element defined for a DataItem, the value will be constant and cannot change. 
         /// In the case of a constant value, the value is not required to be supplied in the XML document provided by an MTConnect Agent in response to a Current or Sample request.
         /// </summary>
-        [XmlElement("Value")]
-        [JsonPropertyName("value")]
-        public List<string> Values { get; set; }
+        public IEnumerable<string> Values { get; set; }
 
         /// <summary>
         /// DEPRECATED in Version 1.4 – Moved to the Filters element of a DataItem.
@@ -59,8 +49,6 @@ namespace MTConnect.Devices.DataItems
         /// The Value MUST be an absolute value using the same Units as the reported data.
         /// Additional filter type MAY be supported in the future.
         /// </summary>
-        [XmlElement("Filter")]
-        [JsonPropertyName("filter")]
-        public Filter Filter { get; set; }
+        public IFilter Filter { get; set; }
     }
 }

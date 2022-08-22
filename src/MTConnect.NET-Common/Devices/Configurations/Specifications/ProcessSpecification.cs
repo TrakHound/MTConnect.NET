@@ -15,19 +15,16 @@ namespace MTConnect.Devices.Configurations.Specifications
         /// <summary>
         /// A set of limits used to indicate whether a process variable is stable and in control.
         /// </summary>
-        [JsonPropertyName("controlLimits")]
-        public ControlLimits ControlLimits { get; set; }
+        public IControlLimits ControlLimits { get; set; }
 
         /// <summary>
         /// A set of limits defining a range of values designating acceptable performance for a variable.
         /// </summary>
-        [JsonPropertyName("specificationLimits")]
-        public SpecificationLimits SpecificationLimits { get; set; }
+        public ISpecificationLimits SpecificationLimits { get; set; }
 
         /// <summary>
         /// A set of limits used to trigger warning or alarm indicators.
         /// </summary>
-        [JsonPropertyName("alarmLimits")]
-        public AlarmLimits AlarmLimits { get; set; }
+        public IAlarmLimits AlarmLimits { get; set; }
     }
 }

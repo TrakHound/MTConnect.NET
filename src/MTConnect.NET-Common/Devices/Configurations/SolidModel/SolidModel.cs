@@ -3,9 +3,6 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE', which is part of this source code package.
 
-using System.Text.Json.Serialization;
-using System.Xml.Serialization;
-
 namespace MTConnect.Devices.Configurations.SolidModel
 {
     /// <summary>
@@ -18,72 +15,51 @@ namespace MTConnect.Devices.Configurations.SolidModel
         /// <summary>
         /// The unique identifier for this entity within the MTConnectDevices document.     
         /// </summary>
-        [XmlAttribute("id")]
-        [JsonPropertyName("id")]
         public string Id { get; set; }
 
         /// <summary>
         /// The associated model file if an item reference is used.    
         /// </summary>
-        [XmlAttribute("solidModelIdRef")]
-        [JsonPropertyName("solidModelIdRef")]
         public string SolidModelIdRef { get; set; }
 
         /// <summary>
         /// The URL giving the location of the Solid Model.If not present, the model referenced in the solidModelIdRef is used.       
         /// </summary>
-        [XmlAttribute("href")]
-        [JsonPropertyName("href")]
         public string Href { get; set; }
 
         /// <summary>
         /// The reference to the item within the model within the related geometry.A solidModelIdRef MUST be given.
         /// </summary>
-        [XmlAttribute("itemRef")]
-        [JsonPropertyName("itemRef")]
         public string ItemRef { get; set; }
 
         /// <summary>
         /// The format of the referenced document.
         /// </summary>
-        [XmlAttribute("mediaType")]
-        [JsonPropertyName("mediaType")]
         public SolidModelMediaType MediaType { get; set; }
 
         /// <summary>
         /// A reference to the coordinate system for this SolidModel.
         /// </summary>
-        [XmlAttribute("coordinateSystemIdRef")]
-        [JsonPropertyName("coordinateSystemIdRef")]
         public string CoordinateSystemIdRef { get; set; }
 
         /// <summary>
         /// The translation of the origin to the position and orientation.
         /// </summary>
-        [XmlElement("Transformation")]
-        [JsonPropertyName("transformation")]
-        public Transformation Transformation { get; set; }
+        public ITransformation Transformation { get; set; }
 
         /// <summary>
         /// The SolidModel Scale is either a single multiplier applied to all three dimensions or a three space multiplier given in the X, Y, and Z dimensions in the coordinate system used for the SolidModel.
         /// </summary>
-        [XmlAttribute("scale")]
-        [JsonPropertyName("scale")]
         public string Scale { get; set; }
-
 
         /// <summary>
         /// Native units of measurement for the reported value of the data item.
         /// </summary>
-        [XmlAttribute("nativeUnits")]
-        [JsonPropertyName("nativeUnits")]
         public string NativeUnits { get; set; }
 
         /// <summary>
         /// Unit of measurement for the reported value of the data item.
         /// </summary>
-        [XmlAttribute("units")]
-        [JsonPropertyName("units")]
         public string Units { get; set; }
     }
 }

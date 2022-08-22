@@ -36,7 +36,7 @@ namespace MTConnect.Devices.DataItems
         /// If there is only one Value Data Element defined for a DataItem, the value will be constant and cannot change. 
         /// In the case of a constant value, the value is not required to be supplied in the XML document provided by an MTConnect Agent in response to a Current or Sample request.
         /// </summary>
-        List<string> Values { get; }
+        IEnumerable<string> Values { get; }
 
         /// <summary>
         /// DEPRECATED in Version 1.4 – Moved to the Filters element of a DataItem.
@@ -46,6 +46,6 @@ namespace MTConnect.Devices.DataItems
         /// The Value MUST be an absolute value using the same Units as the reported data.
         /// Additional filter type MAY be supported in the future.
         /// </summary>
-        Filter Filter { get; }
+        IFilter Filter { get; }
     }
 }

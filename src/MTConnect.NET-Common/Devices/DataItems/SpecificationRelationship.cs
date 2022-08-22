@@ -4,7 +4,6 @@
 // file 'LICENSE', which is part of this source code package.
 
 using MTConnect.Devices.Configurations.Relationships;
-using System.Text.Json.Serialization;
 
 namespace MTConnect.Devices.DataItems
 {
@@ -16,7 +15,6 @@ namespace MTConnect.Devices.DataItems
         /// <summary>
         /// Specifies how the Specification is related.
         /// </summary>
-        [JsonPropertyName("type")]
         public SpecificationRelationshipType Type { get; set; }
     }
 }

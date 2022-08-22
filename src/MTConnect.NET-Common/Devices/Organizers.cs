@@ -3,7 +3,9 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE', which is part of this source code package.
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using MTConnect.Devices.Components;
 using MTConnect.Interfaces;
 
@@ -160,5 +162,26 @@ namespace MTConnect.Devices
         /// Gets a list of Components that are used to Organize child Structure Components
         /// </summary>
         public static IEnumerable<string> Structures => _structures;
+
+
+        public static string GetOrganizerType(string componentType)
+        {
+            if (componentType != null)
+            {
+                if (_adapters.Contains(componentType)) return AdaptersComponent.TypeId;
+                else if (_auxiliaries.Contains(componentType)) return AuxiliariesComponent.TypeId;
+                else if (_axes.Contains(componentType)) return AxesComponent.TypeId;
+                else if (_controllers.Contains(componentType)) return ControllersComponent.TypeId;
+                else if (_interfaces.Contains(componentType)) return InterfacesComponent.TypeId;
+                else if (_materials.Contains(componentType)) return MaterialsComponent.TypeId;
+                else if (_parts.Contains(componentType)) return PartsComponent.TypeId;
+                else if (_processes.Contains(componentType)) return ProcessesComponent.TypeId;
+                else if (_resources.Contains(componentType)) return ResourcesComponent.TypeId;
+                else if (_systems.Contains(componentType)) return SystemsComponent.TypeId;
+                else if (_structures.Contains(componentType)) return StructuresComponent.TypeId;
+            }
+
+            return null;
+        }
     }
 }

@@ -13,16 +13,16 @@ namespace MTConnect.Devices.Configurations.Specifications
         /// <summary>
         /// A set of limits used to indicate whether a process variable is stable and in control.
         /// </summary>
-        ControlLimits ControlLimits { get; }
+        IControlLimits ControlLimits { get; }
 
         /// <summary>
         /// A set of limits defining a range of values designating acceptable performance for a variable.
         /// </summary>
-        SpecificationLimits SpecificationLimits { get; }
+        ISpecificationLimits SpecificationLimits { get; }
 
         /// <summary>
         /// A set of limits used to trigger warning or alarm indicators.
         /// </summary>
-        AlarmLimits AlarmLimits { get; }
+        IAlarmLimits AlarmLimits { get; }
     }
 }

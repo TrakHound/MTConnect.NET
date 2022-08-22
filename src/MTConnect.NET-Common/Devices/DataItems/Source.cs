@@ -3,9 +3,6 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE', which is part of this source code package.
 
-using System.Xml.Serialization;
-using System.Text.Json.Serialization;
-
 namespace MTConnect.Devices.DataItems
 {
     /// <summary>
@@ -16,29 +13,21 @@ namespace MTConnect.Devices.DataItems
         /// <summary>
         /// The id attribute of the Component that represents the physical part of a device where teh data represented by the DataItem is actually measured.
         /// </summary>
-        [XmlAttribute("componentId")]
-        [JsonPropertyName("componentId")]
         public string ComponentId { get; set; }
 
         /// <summary>
         /// The id attribute of the DataItem that represents the originally measured value of the data referenced by this DataItem.
         /// </summary>
-        [XmlAttribute("dataItemId")]
-        [JsonPropertyName("dataItemId")]
         public string DataItemId { get; set; }
 
         /// <summary>
         /// The identifier attribute of the Composition element that represents the physical part of a piece of equipment where the data represented by the DataItem element originated.
         /// </summary>
-        [XmlAttribute("compositionId")]
-        [JsonPropertyName("compositionId")]
         public string CompositionId { get; set; }
 
         /// <summary>
         /// Identifier of the source entity.
         /// </summary>
-        [XmlText]
-        [JsonPropertyName("value")]
         public string Value { get; set; }
     }
 }

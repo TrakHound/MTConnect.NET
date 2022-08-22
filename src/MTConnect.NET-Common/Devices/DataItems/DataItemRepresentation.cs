@@ -5,6 +5,9 @@
 
 namespace MTConnect.Devices.DataItems
 {
+    /// <summary>
+    /// Description of a means to interpret data consisting of multiple data points or samples reported as a single value.
+    /// </summary>
     public enum DataItemRepresentation
     {
         /// <summary>

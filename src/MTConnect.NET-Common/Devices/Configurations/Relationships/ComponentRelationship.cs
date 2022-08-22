@@ -3,9 +3,6 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE', which is part of this source code package.
 
-using System.Xml.Serialization;
-using System.Text.Json.Serialization;
-
 namespace MTConnect.Devices.Configurations.Relationships
 {
     /// <summary>
@@ -16,8 +13,6 @@ namespace MTConnect.Devices.Configurations.Relationships
         /// <summary>
         /// Defines the authority that this component element has relative to the associated component element.
         /// </summary>
-        [XmlAttribute("type")]
-        [JsonPropertyName("type")]
         public ComponentRelationshipType Type { get; set; }
     }
 }

@@ -45,7 +45,7 @@ namespace MTConnect.Devices.Configurations.SolidModel
         /// <summary>
         /// The translation of the origin to the position and orientation.
         /// </summary>
-        Transformation Transformation { get; }
+        ITransformation Transformation { get; }
 
         /// <summary>
         /// The SolidModel Scale is either a single multiplier applied to all three dimensions or a three space multiplier given in the X, Y, and Z dimensions in the coordinate system used for the SolidModel.

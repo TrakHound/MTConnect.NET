@@ -15,12 +15,6 @@ namespace MTConnect.Devices.DataItems
         /// <summary>
         /// The value associated with each Filter
         /// </summary>
-        //string CDATA { get; }
-
-
-        /// <summary>
-        /// The value associated with each Filter
-        /// </summary>
         double Value { get; }
     }
 }

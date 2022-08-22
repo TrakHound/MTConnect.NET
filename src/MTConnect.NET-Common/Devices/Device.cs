@@ -4,11 +4,11 @@
 // file 'LICENSE', which is part of this source code package.
 
 using MTConnect.Devices.Configurations;
+using MTConnect.Devices.DataItems;
 using MTConnect.Devices.References;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json.Serialization;
 
 namespace MTConnect.Devices
 {
@@ -128,41 +128,35 @@ namespace MTConnect.Devices
         /// <summary>
         /// The Parent of this Device
         /// </summary>
-        [JsonIgnore]
         public IContainer Parent { get; set; }
-
 
         /// <summary>
         /// A MD5 Hash of the Device that can be used to compare Device objects
         /// </summary>
-        [JsonIgnore]
         public string ChangeId => CreateChangeId();
 
         /// <summary>
         /// A description specific to the type of Device
         /// </summary>
-        [JsonIgnore]
         public virtual string TypeDescription => DescriptionText;
 
-        [JsonIgnore]
         public bool IsOrganizer => false;
 
 
-        [JsonIgnore]
         public string IdPath => Id;
 
-        [JsonIgnore]
         public string[] IdPaths => new string[] { Id };
 
-        [JsonIgnore]
         public string TypePath => Type;
 
-        [JsonIgnore]
         public string[] TypePaths => new string[] { Type };
 
 
         public Device()
         {
+            Id = StringFunctions.RandomString(10);
+            Name = "dev";
+            Uuid = Guid.NewGuid().ToString();
             Type = TypeId;
             DataItems = new List<IDataItem>();
             Components = new List<IComponent>();
@@ -230,23 +224,27 @@ namespace MTConnect.Devices
         /// </summary>
         public IEnumerable<IComponent> GetComponents()
         {
-            var l = new List<IComponent>();
-
-            if (!Components.IsNullOrEmpty())
-            {
-                foreach (var subComponent in Components)
-                {
-                    var components = GetComponents(subComponent);
-                    if (!components.IsNullOrEmpty()) l.AddRange(components);
-                }
-            }
-            return !l.IsNullOrEmpty() ? l : null;
+            return GetComponents(this);
         }
 
-        private IEnumerable<IComponent> GetComponents(IComponent component)
+        private static List<IComponent> GetComponents(IDevice device)
         {
             var l = new List<IComponent>();
 
+            if (device != null && !device.Components.IsNullOrEmpty())
+            {
+                foreach (var subComponent in device.Components)
+                {
+                    var components = GetComponents(subComponent);
+                    if (components != null && components.Count > 0) l.AddRange(components);
+                }
+            }
+            return l.Count > 0 ? l : null;
+        }
+
+        private static List<IComponent> GetComponents(IComponent component)
+        {
+            var l = new List<IComponent>();
             l.Add(component);
 
             if (!component.Components.IsNullOrEmpty())
@@ -254,11 +252,10 @@ namespace MTConnect.Devices
                 foreach (var subComponent in component.Components)
                 {
                     var components = GetComponents(subComponent);
-                    if (!components.IsNullOrEmpty()) l.AddRange(components);
+                    if (components != null && components.Count > 0) l.AddRange(components);
                 }
             }
-
-            return !l.IsNullOrEmpty() ? l : null;
+            return l.Count > 0 ? l : null;
         }
 
 
@@ -277,7 +274,24 @@ namespace MTConnect.Devices
                     components.AddRange(Components);
                 }
 
-                components.Add(component);
+                var organizerType = Organizers.GetOrganizerType(component.Type);
+                if (organizerType != null)
+                {
+                    if (!components.Any(o => o.Type == organizerType))
+                    {
+                        var organizer = Component.Create(organizerType);
+                        if (organizer != null)
+                        {
+                            organizer.AddComponent(component);
+                            components.Add(organizer);
+                        }
+                    }
+                }
+                else
+                {
+                    components.Add(component);
+                }
+
                 Components = components;
             }
         }
@@ -468,7 +482,7 @@ namespace MTConnect.Devices
             return !l.IsNullOrEmpty() ? l : null;
         }
 
-        private IEnumerable<IDataItem> GetDataItems(IComponent component)
+        private static IEnumerable<IDataItem> GetDataItems(IComponent component)
         {
             var l = new List<IDataItem>();
 
@@ -546,6 +560,14 @@ namespace MTConnect.Devices
 
                 dataItems.Add(dataItem);
                 DataItems = dataItems;
+            }
+        }
+
+        public void AddDataItem(DataItemCategory category, string type, string subType = null, string dataItemId = null)
+        {
+            if (!string.IsNullOrEmpty(type))
+            {
+                AddDataItem(new DataItem(category, type, subType, dataItemId));
             }
         }
 

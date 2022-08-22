@@ -36,6 +36,6 @@ namespace MTConnect.Devices.Configurations.Sensor
         /// <summary>
         /// When Sensor represents multiple sensing elements, each sensing element is represented by a Channel for the Sensor.
         /// </summary>
-        List<Channel> Channels { get; }
+        IEnumerable<IChannel> Channels { get; }
     }
 }

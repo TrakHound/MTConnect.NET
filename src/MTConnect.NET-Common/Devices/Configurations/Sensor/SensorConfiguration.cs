@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
 
 namespace MTConnect.Devices.Configurations.Sensor
 {
@@ -17,31 +16,26 @@ namespace MTConnect.Devices.Configurations.Sensor
         /// <summary>
         /// Version number for the sensor unit as specified by the manufacturer.
         /// </summary>
-        [JsonPropertyName("firmwareVersion")]
         public string FirmwareVersion { get; set; }
 
         /// <summary>
         /// Date upon which the sensor unit was last calibrated.
         /// </summary>
-        [JsonPropertyName("calibrationDate")]
         public DateTime CalibrationDate { get; set; }
 
         /// <summary>
         /// Date upon which the sensor unit is next scheduled to be calibrated.
         /// </summary>
-        [JsonPropertyName("nextCalibrationDate")]
         public DateTime NextCalibrationDate { get; set; }
 
         /// <summary>
         /// The initials of the person verifying the validity of the calibration data
         /// </summary>
-        [JsonPropertyName("calibrationInitials")]
         public string CalibrationInitials { get; set; }
 
         /// <summary>
         /// When Sensor represents multiple sensing elements, each sensing element is represented by a Channel for the Sensor.
         /// </summary>
-        [JsonPropertyName("channels")]
-        public List<Channel> Channels { get; set; }
+        public IEnumerable<IChannel> Channels { get; set; }
     }
 }

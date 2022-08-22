@@ -53,6 +53,6 @@ namespace MTConnect.Devices.Configurations.Motion
         /// <summary>
         /// The Transformation of the parent Origin or Transformation using Translation and Rotation.
         /// </summary>
-        Transformation Transformation { get; }
+        ITransformation Transformation { get; }
     }
 }

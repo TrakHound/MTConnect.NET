@@ -123,17 +123,17 @@ namespace MTConnect.Devices
         /// <summary>
         /// Source is an XML element that indentifies the Component, Subcomponent, or DataItem representing the part of the device from which a measured value originates.
         /// </summary>
-        Source Source { get; }
+        ISource Source { get; }
 
         /// <summary>
         /// The set of possible values that can be assigned to this DataItem.
         /// </summary>
-        Constraints Constraints { get; }
+        IConstraints Constraints { get; }
 
         /// <summary>
         /// The set of possible values that can be assigned to this DataItem.
         /// </summary>
-        List<Filter> Filters { get; }
+        IEnumerable<IFilter> Filters { get; }
 
         /// <summary>
         /// InitialValue is an optional XML element that defines the starting value for a data item as well as the value to be set for the data item after a reset event.
@@ -149,12 +149,12 @@ namespace MTConnect.Devices
         /// The Definition provides additional descriptive information for any DataItem representations.
         /// When the representation is either DATA_SET or TABLE, it gives the specific meaning of a key and MAY provide a Description, type, and units for semantic interpretation of data.
         /// </summary>
-        DataItemDefinition Definition { get; }
+        IDataItemDefinition Definition { get; }
 
         /// <summary>
         /// Relationships organizes DataItemRelationship and SpecificationRelationship.
         /// </summary>
-        List<Relationship> Relationships { get; }
+        IEnumerable<IRelationship> Relationships { get; }
 
 
         /// <summary>

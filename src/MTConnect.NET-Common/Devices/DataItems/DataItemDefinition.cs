@@ -4,8 +4,6 @@
 // file 'LICENSE', which is part of this source code package.
 
 using System.Collections.Generic;
-using System.Xml.Serialization;
-using System.Text.Json.Serialization;
 
 namespace MTConnect.Devices.DataItems
 {
@@ -18,32 +16,16 @@ namespace MTConnect.Devices.DataItems
         /// <summary>
         /// The Description of the Definition.
         /// </summary>
-        [XmlElement("Description")]
-        [JsonPropertyName("description")]
         public string Description { get; set; }
 
         /// <summary>
         /// The EntryDefinitions aggregates EntryDefinition.
         /// </summary>
-        [XmlArray("EntryDefinitions")]
-        [XmlArrayItem("EntryDefinition")]
-        [JsonPropertyName("entryDefinitions")]
-        public List<EntryDefinition> EntryDefinitions { get; set; }
-
-        [XmlIgnore]
-        [JsonIgnore]
-        public bool EntryDefinitionsSpecified => !EntryDefinitions.IsNullOrEmpty();
+        public IEnumerable<IEntryDefinition> EntryDefinitions { get; set; }
 
         /// <summary>
         /// The CellDefinitions aggregates CellDefinition.      
         /// </summary>
-        [XmlArray("CellDefinitions")]
-        [XmlArrayItem("CellDefinition")]
-        [JsonPropertyName("cellDefinitions")]
-        public List<CellDefinition> CellDefinitions { get; set; }
-
-        [XmlIgnore]
-        [JsonIgnore]
-        public bool CellDefinitionsSpecified => !CellDefinitions.IsNullOrEmpty();
+        public IEnumerable<ICellDefinition> CellDefinitions { get; set; }
     }
 }

@@ -4,14 +4,12 @@
 // file 'LICENSE', which is part of this source code package.
 
 using MTConnect.Devices.Configurations;
+using MTConnect.Devices.DataItems;
 using MTConnect.Devices.References;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
-using System.Xml;
-using System.Xml.Serialization;
 
 namespace MTConnect.Devices
 {
@@ -26,16 +24,14 @@ namespace MTConnect.Devices
 
         private static readonly Version DefaultMaximumVersion = MTConnectVersions.Max;
         private static readonly Version DefaultMinimumVersion = MTConnectVersions.Version10;
+        private static readonly Dictionary<string, string> _typeIds = new Dictionary<string, string>();
+        private static readonly object _lock = new object();
 
         private static Dictionary<string, Type> _types;
 
 
-        [XmlIgnore]
-        [JsonIgnore]
         public virtual Version MaximumVersion { get; set; }
 
-        [XmlIgnore]
-        [JsonIgnore]
         public virtual Version MinimumVersion { get; set; }
 
 
@@ -44,15 +40,11 @@ namespace MTConnect.Devices
         /// An id MUST be unique across all the id attributes in the document.
         /// An XML ID-type.
         /// </summary>
-        [XmlAttribute("id")]
-        [JsonPropertyName("id")]
         public string Id { get; set; }
 
         /// <summary>
         /// The type of component
         /// </summary>
-        [XmlAttribute("type")]
-        [JsonPropertyName("type")]
         public string Type { get; set; }
 
         /// <summary>
@@ -62,16 +54,12 @@ namespace MTConnect.Devices
         /// It is recommended that duplicate names SHOULD NOT occur within a Device.
         /// An NMTOKEN XML type.
         /// </summary>
-        [XmlAttribute("name")]
-        [JsonPropertyName("name")]
         public string Name { get; set; }
 
         /// <summary>
         /// The name the device manufacturer assigned to the Component.
         /// If the native name is not provided it MUST be the Name.
         /// </summary>
-        [XmlAttribute("nativeName")]
-        [JsonPropertyName("nativeName")]
         public string NativeName { get; set; }
 
         /// <summary>
@@ -80,15 +68,11 @@ namespace MTConnect.Devices
         /// If the sample interval is smaller than one millisecond, the number can be represented as a floating point number.
         /// For example, an interval of 100 microseconds would be 0.1.
         /// </summary>
-        [XmlAttribute("sampleInterval")]
-        [JsonPropertyName("sampleInterval")]
         public double SampleInterval { get; set; }
 
         /// <summary>
         /// DEPRECATED IN REL. 1.2 (REPLACED BY sampleInterval)
         /// </summary>
-        [XmlAttribute("sampleRate")]
-        [JsonPropertyName("sampleRate")]
         public double SampleRate { get; set; }
 
         /// <summary>
@@ -97,101 +81,67 @@ namespace MTConnect.Devices
         /// The uuid should be alphanumeric and not exceeding 255 characters.
         /// An NMTOKEN XML type.
         /// </summary>
-        [XmlAttribute("uuid")]
-        [JsonPropertyName("uuid")]
         public string Uuid { get; set; }
 
         /// <summary>
         /// Specifies the CoordinateSystem for this Component and its children.
         /// </summary>
-        [XmlAttribute("coordinateSystemIdRef")]
-        [JsonPropertyName("coordinateSystemIdRef")]
         public string CoordinateSystemIdRef { get; set; }
 
         /// <summary>
         /// An element that can contain any descriptive content. 
         /// This can contain information about the Component and manufacturer specific details.
         /// </summary>
-        [XmlElement("Description")]
-        [JsonPropertyName("description")]
         public virtual IDescription Description { get; set; }
 
         /// <summary>
         /// An XML element that contains technical information about a piece of equipment describing its physical layout or functional characteristics.
         /// </summary>
-        [XmlElement("Configuration")]
-        [JsonPropertyName("configuration")]
         public IConfiguration Configuration { get; set; }
 
-        [XmlIgnore]
-        [JsonPropertyName("dataItems")]
         public virtual IEnumerable<IDataItem> DataItems { get; set; }
 
-        [XmlIgnore]
-        [JsonPropertyName("components")]
         public virtual IEnumerable<IComponent> Components { get; set; }
 
         /// <summary>
         /// A container for the Composition elements associated with this Component element.
         /// </summary>
-        [XmlArray("Compositions")]
-        [XmlArrayItem("Composition", typeof(Composition))]
-        [JsonPropertyName("compositions")]
         public virtual IEnumerable<IComposition> Compositions { get; set; }
 
         /// <summary>
         /// An XML container consisting of one or more types of Reference XML elements.
         /// </summary>
-        [XmlArray("References")]
-        [XmlArrayItem("ComponentReference", typeof(ComponentReference))]
-        [XmlArrayItem("DataItemReference", typeof(DataItemReference))]
-        [JsonPropertyName("references")]
         public IEnumerable<IReference> References { get; set; }
 
 
         /// <summary>
         /// The Parent of this Component
         /// </summary>
-        [XmlIgnore]
-        [JsonIgnore]
         public IContainer Parent { get; set; }
-
 
         /// <summary>
         /// A MD5 Hash of the Component that can be used to compare Component objects
         /// </summary>
-        [JsonIgnore]
         public string ChangeId => CreateChangeId();
 
-        [XmlIgnore]
-        [JsonIgnore]
         public virtual string TypeDescription => DescriptionText;
 
-        [XmlIgnore]
-        [JsonIgnore]
         public bool IsOrganizer => Organizers.Components.Contains(Type);
 
 
-        [XmlIgnore]
-        [JsonIgnore]
         public string IdPath => GenerateIdPath(this);
 
-        [XmlIgnore]
-        [JsonIgnore]
         public string[] IdPaths => GenerateIdPaths(this);
 
-        [XmlIgnore]
-        [JsonIgnore]
         public string TypePath => GenerateTypePath(this);
 
-        [XmlIgnore]
-        [JsonIgnore]
         public string[] TypePaths => GenerateTypePaths(this);
 
 
 
         public Component()
         {
+            Id = StringFunctions.RandomString(10);
             Components = new List<IComponent>();
             Compositions = new List<IComposition>();
             DataItems = new List<IDataItem>();
@@ -633,6 +583,14 @@ namespace MTConnect.Devices
             }
         }
 
+        public void AddDataItem(DataItemCategory category, string type, string subType = null, string dataItemId = null)
+        {
+            if (!string.IsNullOrEmpty(type))
+            {
+                AddDataItem(new DataItem(category, type, subType, dataItemId));
+            }
+        }
+
         /// <summary>
         /// Add DataItems to the Component
         /// </summary>
@@ -678,7 +636,7 @@ namespace MTConnect.Devices
 
         #endregion
 
-
+        #region "ID"
 
         public static string CreateId(string parentId, string name)
         {
@@ -697,9 +655,74 @@ namespace MTConnect.Devices
             }
         }
 
+        #endregion
 
+
+        public static Component Create(IComponent component)
+        {
+            var type = GetComponentType(component.Type);
+            if (type != component.GetType())
+            {
+                var obj = Create(type);
+                obj.Id = component.Id;
+                obj.Uuid = component.Uuid;
+                obj.Name = component.Name;
+                obj.NativeName = component.NativeName;
+                obj.Type = component.Type;
+
+                // Set Component Description
+                if (component.Description != null)
+                {
+                    var description = new Description();
+                    description.Manufacturer = component.Description.Manufacturer;
+                    description.Model = component.Description.Model;
+                    description.SerialNumber = component.Description.SerialNumber;
+                    description.Station = component.Description.Station;
+                    description.Value = component.Description.Value;
+                    obj.Description = description;
+                }
+
+                obj.SampleRate = component.SampleRate;
+                obj.SampleInterval = component.SampleInterval;
+                obj.References = component.References;
+                obj.Configuration = component.Configuration;
+                obj.CoordinateSystemIdRef = component.CoordinateSystemIdRef;
+
+                obj.Components = component.Components;
+                obj.Compositions = component.Compositions;
+                obj.DataItems = component.DataItems;
+
+                return obj;
+            }
+
+            return (Component)component;
+        }
 
         public static Component Create(string type)
+        {
+            var t = GetComponentType(type);
+            return Create(t);
+        }
+
+        public static Component Create(Type type)
+        {
+            if (type != null)
+            {
+                var constructor = type.GetConstructor(System.Type.EmptyTypes);
+                if (constructor != null)
+                {
+                    try
+                    {
+                        return (Component)Activator.CreateInstance(type);
+                    }
+                    catch { }
+                }
+            }
+
+            return new Component();
+        }
+
+        private static Type GetComponentType(string type)
         {
             if (!string.IsNullOrEmpty(type))
             {
@@ -707,25 +730,24 @@ namespace MTConnect.Devices
 
                 if (!_types.IsNullOrEmpty())
                 {
-                    var titleType = type.ToPascalCase();
-
-                    if (_types.TryGetValue(titleType, out Type t))
+                    string typeId;
+                    lock (_lock) _typeIds.TryGetValue(type, out typeId);
+                    if (typeId == null)
                     {
-                        var constructor = t.GetConstructor(System.Type.EmptyTypes);
-                        if (constructor != null)
-                        {
-                            try
-                            {
-                                return (Component)Activator.CreateInstance(t);
-                            }
-                            catch { }
-                        }
+                        typeId = type.ToPascalCase();
+                        lock (_lock) _typeIds.Add(type, typeId);
+                    }
+
+                    if (_types.TryGetValue(typeId, out Type t))
+                    {
+                        return t;
                     }
                 }
             }
 
-            return new Component();
+            return typeof(Component);
         }
+
 
         private static Dictionary<string, Type> GetAllTypes()
         {
@@ -760,11 +782,21 @@ namespace MTConnect.Devices
         }
 
 
+        public static bool IsCompatible(IComponent component, Version mtconnectVersion)
+        {
+            if (component != null)
+            {
+                return mtconnectVersion >= component.MinimumVersion && mtconnectVersion <= component.MaximumVersion;
+            }
+
+            return false;
+        }
+
         public static IComponent Process(IComponent component, Version mtconnectVersion)
         {
             if (component != null)
             {
-                var obj = Create(component.Type);
+                var obj = Create(component);
                 obj.Id = component.Id;
                 obj.Uuid = component.Uuid;
                 obj.Name = component.Name;

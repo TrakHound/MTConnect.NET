@@ -43,7 +43,7 @@ namespace MTConnect.Devices.Configurations.CoordinateSystems
         /// <summary>
         /// The process of transforming to the origin position of the coordinate system from a parent coordinate system using Translation and Rotation.
         /// </summary>
-        Transformation Transformation { get; }
+        ITransformation Transformation { get; }
 
         /// <summary>
         /// The natural language description of the CoordinateSystem.

@@ -21,11 +21,11 @@ namespace MTConnect.Devices.DataItems
         /// <summary>
         /// The EntryDefinitions aggregates EntryDefinition.
         /// </summary>
-        List<EntryDefinition> EntryDefinitions { get; }
+        IEnumerable<IEntryDefinition> EntryDefinitions { get; }
 
         /// <summary>
         /// The CellDefinitions aggregates CellDefinition.      
         /// </summary>
-        List<CellDefinition> CellDefinitions { get; }
+        IEnumerable<ICellDefinition> CellDefinitions { get; }
     }
 }
