@@ -3,9 +3,6 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
-using System.Text.Json.Serialization;
-using System.Xml.Serialization;
-
 namespace MTConnect.Observations.Events
 {
     /// <summary>
@@ -16,8 +13,6 @@ namespace MTConnect.Observations.Events
         /// <summary>
         /// Used to describe a value (text or data) published as part of an XML element.
         /// </summary>
-        [XmlAttribute("nativeCode")]
-        [JsonPropertyName("nativeCode")]
         public string NativeCode
         {
             get => GetValue(ValueKeys.NativeCode);

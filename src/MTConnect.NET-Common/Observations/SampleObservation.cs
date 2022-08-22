@@ -5,11 +5,7 @@
 
 using MTConnect.Devices;
 using MTConnect.Devices.DataItems;
-using MTConnect.Observations.Input;
 using System;
-using System.Text.Json.Serialization;
-using System.Xml;
-using System.Xml.Serialization;
 
 namespace MTConnect.Observations
 {
@@ -22,15 +18,17 @@ namespace MTConnect.Observations
         /// For those DataItem elements that report data that may be periodically reset to an initial value, 
         /// resetTriggered identifies when a reported value has been reset and what has caused that reset to occur.
         /// </summary>
-        [XmlAttribute("resetTriggered")]
-        [JsonPropertyName("resetTriggered")]
         public ResetTriggered ResetTriggered
         {
             get => GetValue(ValueKeys.ResetTriggered).ConvertEnum<ResetTriggered>();
-            set => AddValue(new ObservationValue(ValueKeys.ResetTriggered, value));
+            set
+            {
+                if (value != ResetTriggered.NOT_SPECIFIED)
+                {
+                    AddValue(new ObservationValue(ValueKeys.ResetTriggered, value));
+                }
+            }
         }
-
-        internal bool ResetTriggeredOutput => ResetTriggered != ResetTriggered.NOT_SPECIFIED;
 
         /// <summary>
         /// The rate at which successive samples of the value of a DataItem are recorded.
@@ -40,82 +38,52 @@ namespace MTConnect.Observations
         /// The SampleRate attribute MUST be provided when the representation attribute for the data item is TIME_SERIES.
         /// For data items where the representation attribute for the data item IS NOT TIME_SERIES, it may be assumed that the SampleRate is constant and SampleRate does not need to be reported in the MTConnectStreams document.
         /// </summary>
-        [XmlAttribute("sampleRate")]
-        [JsonPropertyName("sampleRate")]
         public double SampleRate
         {
             get => GetValue(ValueKeys.SampleRate).ToDouble();
-            set => AddValue(new ObservationValue(ValueKeys.SampleRate, value));
+            set
+            {
+                if (value > 0)
+                {
+                    AddValue(new ObservationValue(ValueKeys.SampleRate, value));
+                }
+            }
         }
-
-        internal bool SampleRateOutput => SampleRate > 0;
 
         /// <summary>
         /// The type of statistical calculation specified in the Device Information Model that this Sample element represents.
         /// </summary>
-        [XmlAttribute("statistic")]
-        [JsonPropertyName("statistic")]
         public DataItemStatistic Statistic
         {
             get => GetValue(ValueKeys.Statistic).ConvertEnum<DataItemStatistic>();
-            set => AddValue(new ObservationValue(ValueKeys.Statistic, value));
+            set
+            {
+                if (value != DataItemStatistic.NONE)
+                {
+                    AddValue(new ObservationValue(ValueKeys.Statistic, value));
+                }
+            }
         }
-
-        internal bool StatisticOutput => Statistic != DataItemStatistic.NONE;
 
         /// <summary>
         /// The time-period over which the data was collected.
         /// </summary>
-        [XmlAttribute("duration")]
-        [JsonPropertyName("duration")]
         public double Duration
         {
             get => GetValue(ValueKeys.Duration).ToDouble();
-            set => AddValue(new ObservationValue(ValueKeys.Duration, value));
+            set
+            {
+                if (value > 0)
+                {
+                    AddValue(new ObservationValue(ValueKeys.Duration, value));
+                }
+            }
         }
-
-        internal bool DurationOutput => Duration > 0;
 
 
         public SampleObservation()
         {
             SetProperty("Category", DataItemCategory.SAMPLE);
-        }
-
-
-        /// <summary>
-        /// Determine if the DataItem with the specified Observation is valid in the specified MTConnectVersion
-        /// </summary>
-        /// <param name="mtconnectVersion">The Version of the MTConnect Standard</param>
-        /// <param name="observation">The Observation to validate</param>
-        /// <returns>A DataItemValidationResult indicating if Validation was successful and a Message</returns>
-        protected ObservationValidationResult Validate<T>(Version mtconnectVersion, IObservationInput observation) where T : struct
-        {
-            if (observation != null && !observation.Values.IsNullOrEmpty())
-            {
-                // Get the Result Value for the Observation
-                var result = observation.GetValue(ValueKeys.Result);
-                if (result != null)
-                {
-                    // Check Valid values in Enum
-                    var validValues = Enum.GetValues(typeof(T));
-                    foreach (var validValue in validValues)
-                    {
-                        if (result == validValue.ToString())
-                        {
-                            return new ObservationValidationResult(true);
-                        }
-                    }
-
-                    return new ObservationValidationResult(false, "'" + result + "' is not a valid value");
-                }
-                else
-                {
-                    return new ObservationValidationResult(false, "No Result is specified for the Observation");
-                }
-            }
-
-            return new ObservationValidationResult(false, "No Observation is Specified");
         }
 
 
@@ -166,9 +134,17 @@ namespace MTConnect.Observations
 
                 if (!_types.IsNullOrEmpty())
                 {
-                    var key = $"{type.ToPascalCase()}{representation.ToString().ToPascalCase()}";
+                    var key = string.Intern(type + ":" + representation);
 
-                    if (_types.TryGetValue(key, out Type t))
+                    // Lookup Type ID (Type as PascalCase)
+                    _typeIds.TryGetValue(key, out var typeId);
+                    if (typeId == null)
+                    {
+                        typeId = $"{type.ToPascalCase()}{representation.ToString().ToPascalCase()}";
+                        _typeIds.Add(key, typeId);
+                    }
+
+                    if (_types.TryGetValue(typeId, out Type t))
                     {
                         var constructor = t.GetConstructor(System.Type.EmptyTypes);
                         if (constructor != null)

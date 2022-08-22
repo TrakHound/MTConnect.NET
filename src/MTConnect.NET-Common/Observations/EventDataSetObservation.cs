@@ -4,9 +4,6 @@
 // file 'LICENSE', which is part of this source code package.
 
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
-using System.Xml;
-using System.Xml.Serialization;
 
 namespace MTConnect.Observations
 {
@@ -18,19 +15,21 @@ namespace MTConnect.Observations
         /// <summary>
         /// The number of Entry elements for the observation.
         /// </summary>
-        [XmlAttribute("count")]
-        [JsonPropertyName("count")]
         public long Count => GetValue(ValueKeys.Count).ToLong();
-
-        internal bool CountOutput => Count > 0;
 
         /// <summary>
         /// The key-value pairs published as part of the Data Set observation.
         /// </summary>
-        [XmlElement("Entry")]
-        [JsonPropertyName("entries")]
-        public IEnumerable<IDataSetEntry> Entries => DataSetObservation.GetEntries(Values);
+        public IEnumerable<IDataSetEntry> Entries
+        {
+            get => DataSetObservation.GetEntries(Values);
+            set => AddValues(DataSetObservation.SetEntries(value));
+        }
 
-        internal bool EntriesOutput => false;
+
+        public EventDataSetObservation() : base()
+        {
+            SetProperty(nameof(Representation), Devices.DataItems.DataItemRepresentation.DATA_SET);
+        }
     }
 }

@@ -3,6 +3,7 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
+using System.Collections.Concurrent;
 using System.Text.RegularExpressions;
 
 namespace MTConnect.Observations
@@ -28,6 +29,11 @@ namespace MTConnect.Observations
         public const string DataSetPrefix = "DataSet";
         public const string TablePrefix = "Table";
 
+        private static readonly ConcurrentDictionary<string, string> _pascalKeys = new ConcurrentDictionary<string, string>();
+        private static readonly ConcurrentDictionary<string, string> _camelKeys = new ConcurrentDictionary<string, string>();
+
+
+        #region "TimeSeries"
 
         public static string CreateTimeSeriesValueKey(int index) => $"{TimeSeriesPrefix}[{index}]";
 
@@ -45,6 +51,20 @@ namespace MTConnect.Observations
             return -1;
         }
 
+        public static bool IsTimeSeriesKey(string valueKey)
+        {
+            if (!string.IsNullOrEmpty(valueKey))
+            {
+                return valueKey.StartsWith(TimeSeriesPrefix);
+            }
+
+            return false;
+        }
+
+        #endregion
+
+        #region "DataSet"
+
         public static string CreateDataSetValueKey(string key) => $"{DataSetPrefix}[{key}]";
 
         public static string GetDataSetKey(string valueKey)
@@ -61,6 +81,20 @@ namespace MTConnect.Observations
             return null;
         }
 
+        public static bool IsDataSetKey(string valueKey)
+        {
+            if (!string.IsNullOrEmpty(valueKey))
+            {
+                return valueKey.StartsWith(DataSetPrefix);
+            }
+
+            return false;
+        }
+
+        #endregion
+
+        #region "Table"
+
         public static string CreateTableValueKey(string key, string cellKey = null)
         {
             if (!string.IsNullOrEmpty(cellKey))
@@ -71,6 +105,16 @@ namespace MTConnect.Observations
             {
                 return $"{TablePrefix}[{key}]";
             }
+        }
+
+        public static bool IsTableKey(string valueKey)
+        {
+            if (!string.IsNullOrEmpty(valueKey))
+            {
+                return valueKey.StartsWith(TablePrefix);
+            }
+
+            return false;
         }
 
         public static string GetTableKey(string valueKey)
@@ -87,6 +131,20 @@ namespace MTConnect.Observations
             return null;
         }
 
+        public static string GetTableCellKey(string valueKey)
+        {
+            if (!string.IsNullOrEmpty(valueKey))
+            {
+                var match = new Regex($@"{TablePrefix}\[([^\[\]]*)\]\[([^\[\]]*)\]").Match(valueKey);
+                if (match.Success && match.Groups.Count > 1)
+                {
+                    return match.Groups[2].Value;
+                }
+            }
+
+            return null;
+        }
+
         public static string GetTableValue(string valueKey, string cellKey)
         {
             if (!string.IsNullOrEmpty(valueKey) && !string.IsNullOrEmpty(cellKey))
@@ -96,6 +154,43 @@ namespace MTConnect.Observations
                 {
                     return match.Groups[1].Value;
                 }
+            }
+
+            return null;
+        }
+
+        #endregion
+
+
+        public static string GetPascalCaseKey(string key)
+        {
+            if (!string.IsNullOrEmpty(key))
+            {
+                string camelKey;
+                _pascalKeys.TryGetValue(key, out camelKey);
+                if (camelKey == null)
+                {
+                    camelKey = key.ToPascalCase();
+                    _pascalKeys.TryAdd(key, camelKey);
+                }
+                return camelKey;
+            }
+
+            return null;
+        }
+
+        public static string GetCamelCaseKey(string key)
+        {
+            if (!string.IsNullOrEmpty(key))
+            {
+                string camelKey;
+                _camelKeys.TryGetValue(key, out camelKey);
+                if (camelKey == null)
+                {
+                    camelKey = key.ToCamelCase();
+                    _camelKeys.TryAdd(key, camelKey);
+                }
+                return camelKey;
             }
 
             return null;

@@ -5,9 +5,6 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json.Serialization;
-using System.Xml;
-using System.Xml.Serialization;
 
 namespace MTConnect.Observations
 {
@@ -20,21 +17,19 @@ namespace MTConnect.Observations
         /// The number of readings of the value of a data item provided in the data returned when the representation attribute for teh data item is TIME_SERIES.
         /// SampleCount is not provided for data items unless the representation attribute is TIME_SERIES and it MUST be specified when the attribute is TIME_SERIES.
         /// </summary>
-        [XmlAttribute("sampleCount")]
-        [JsonPropertyName("sampleCount")]
         public long SampleCount => Samples.Count();
-
-        internal bool SampleCountOutput => SampleCount > 0;
 
         /// <summary>
         /// Time Series observation MUST report multiple values at fixed intervals in a single observation. 
         /// At minimum, one of DataItem or observation MUST specify the sampleRate in hertz (values/second); fractional rates are permitted.
         /// When the observation and the DataItem specify the sampleRate, the observation sampleRate supersedes the DataItem.
         /// </summary>
-        [XmlIgnore]
-        [JsonPropertyName("samples")]
         public IEnumerable<double> Samples => TimeSeriesObservation.GetSamples(Values);
 
-        internal bool SamplesOutput => false;
+
+        public SampleTimeSeriesObservation() : base()
+        {
+            SetProperty(nameof(Representation), Devices.DataItems.DataItemRepresentation.TIME_SERIES);
+        }
     }
 }

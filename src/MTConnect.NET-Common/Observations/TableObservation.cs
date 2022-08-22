@@ -11,7 +11,7 @@ namespace MTConnect.Observations
     /// <summary>
     /// A Table represents two-dimensional sets of key-value pairs where the Entry represents rows containing sets of key-value pairs given by Cell elements.
     /// </summary>
-    internal static class TableObservation
+    public static class TableObservation
     {
         public const string EntryRemovedValue = "[!ENTRY_REMOVED!]";
 
@@ -55,6 +55,26 @@ namespace MTConnect.Observations
             }
 
             return entries;
+        }
+
+        public static IEnumerable<ObservationValue> SetEntries(IEnumerable<ITableEntry> entries)
+        {
+            if (!entries.IsNullOrEmpty())
+            {
+                var values = new List<ObservationValue>();
+
+                foreach (var entry in entries)
+                {
+                    foreach (var cell in entry.Cells)
+                    {
+                        values.Add(new ObservationValue(ValueKeys.CreateTableValueKey(entry.Key, cell.Key), cell.Value));
+                    }
+                }
+
+                return values;
+            }
+
+            return null;
         }
     }
 }

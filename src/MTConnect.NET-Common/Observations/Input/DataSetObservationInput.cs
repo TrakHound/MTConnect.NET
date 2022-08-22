@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MTConnect.Observations.Input
 {
@@ -34,6 +35,13 @@ namespace MTConnect.Observations.Input
                             AddValue(new ObservationValue(ValueKeys.CreateDataSetValueKey(entry.Key), entry.Value));
                         }
                     }
+
+                    AddValue(new ObservationValue(ValueKeys.Count, value.Count()));
+
+                }
+                else
+                {
+                    AddValue(new ObservationValue(ValueKeys.Count, 0));
                 }
             }
         }

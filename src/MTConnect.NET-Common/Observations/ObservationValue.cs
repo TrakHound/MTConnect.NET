@@ -10,21 +10,25 @@ namespace MTConnect.Observations
     /// </summary>
     public struct ObservationValue
     {
+        internal readonly string _key;
+        internal readonly string _value;
+
+
         /// <summary>
         /// The unique Key of the Value that is recorded
         /// </summary>
-        public string Key { get; }
+        public string Key => _key;
 
         /// <summary>
         /// The recorded value of the Observation's Property
         /// </summary>
-        public string Value { get; }
+        public string Value => _value;
 
 
         public ObservationValue(string key, object value)
         {
-            Value = value != null ? value.ToString() : string.Empty;
-            Key = key;
+            _key = key;
+            _value = value != null ? value.ToString() : string.Empty;
         }
 
 

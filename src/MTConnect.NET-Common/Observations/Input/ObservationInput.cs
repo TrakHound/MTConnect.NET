@@ -14,7 +14,7 @@ namespace MTConnect.Observations.Input
     /// </summary>
     public class ObservationInput : IObservationInput
     {
-        private string _changeId;
+        private byte[] _changeId;
 
 
         /// <summary>
@@ -43,7 +43,10 @@ namespace MTConnect.Observations.Input
         public double Duration
         {
             get => GetValue(ValueKeys.Duration).ToDouble();
-            set => AddValue(new ObservationValue(ValueKeys.Duration, value));
+            set
+            {
+                if (value > 0) AddValue(new ObservationValue(ValueKeys.Duration, value));
+            }
         }
 
         /// <summary>
@@ -53,7 +56,10 @@ namespace MTConnect.Observations.Input
         public ResetTriggered ResetTriggered
         {
             get => GetValue(ValueKeys.ResetTriggered).ConvertEnum<ResetTriggered>();
-            set => AddValue(new ObservationValue(ValueKeys.ResetTriggered, value));
+            set
+            {
+                if (value != ResetTriggered.NOT_SPECIFIED) AddValue(new ObservationValue(ValueKeys.ResetTriggered, value));
+            }
         }
 
         /// <summary>
@@ -62,9 +68,9 @@ namespace MTConnect.Observations.Input
         public bool IsUnavailable { get; set; }
 
         /// <summary>
-        /// A MD5 Hash of the Observation that can be used for comparison
+        /// An MD5 Hash of the Observation that can be used for comparison
         /// </summary>
-        public string ChangeId
+        public byte[] ChangeId
         {
             get
             {
@@ -180,17 +186,17 @@ namespace MTConnect.Observations.Input
         }
 
 
-        private static string CreateChangeId(IObservationInput observationInput)
+        private static byte[] CreateChangeId(IObservationInput observationInput)
         {
             if (observationInput != null)
             {
-                if (observationInput.IsUnavailable) return Observation.Unavailable.ToMD5Hash();
+                if (observationInput.IsUnavailable) return Observation.Unavailable.ToMD5HashBytes();
 
                 if (!observationInput.Values.IsNullOrEmpty())
                 {
                     var valueString = "";
                     foreach (var value in observationInput.Values) valueString += $"{value.Key}={value.Value}:";
-                    return valueString.ToMD5Hash();
+                    return valueString.ToMD5HashBytes();
                 }
             }
 

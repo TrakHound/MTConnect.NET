@@ -49,9 +49,9 @@ namespace MTConnect.Observations.Input
         bool IsUnavailable { get; set; }
 
         /// <summary>
-        /// A MD5 Hash of the Observation that can be used for comparison
+        /// An MD5 Hash of the Observation that can be used for comparison
         /// </summary>
-        string ChangeId { get; }
+        byte[] ChangeId { get; }
 
 
         void AddValue(string valueKey, object value);

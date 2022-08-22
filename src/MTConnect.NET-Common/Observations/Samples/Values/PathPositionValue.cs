@@ -19,9 +19,9 @@ namespace MTConnect.Observations.Samples.Values
                 var position = Position3D.FromString(Result);
                 if (position != null)
                 {
-                    position.X = ConvertUnits(position.X, Units, NativeUnits);
-                    position.Y = ConvertUnits(position.Y, Units, NativeUnits);
-                    position.Z = ConvertUnits(position.Z, Units, NativeUnits);
+                    position.X = Devices.Units.Convert(position.X, Units, NativeUnits);
+                    position.Y = Devices.Units.Convert(position.Y, Units, NativeUnits);
+                    position.Z = Devices.Units.Convert(position.Z, Units, NativeUnits);
 
                     return position;
                 }

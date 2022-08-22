@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace MTConnect.Observations
 {
-    internal static class TimeSeriesObservation
+    public static class TimeSeriesObservation
     {
         public static IEnumerable<double> GetSamples(IEnumerable<ObservationValue> values)
         {

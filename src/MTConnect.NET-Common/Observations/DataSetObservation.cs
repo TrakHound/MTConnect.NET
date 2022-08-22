@@ -11,7 +11,7 @@ namespace MTConnect.Observations
     /// <summary>
     /// 5 Data Set observation reports multiple values as a set of key-value pairs where each key MUST be unique.
     /// </summary>
-    internal static class DataSetObservation
+    public static class DataSetObservation
     {
         public const string EntryRemovedValue = "[!ENTRY_REMOVED!]";
 
@@ -38,6 +38,23 @@ namespace MTConnect.Observations
             }
 
             return entries;
+        }
+
+        public static IEnumerable<ObservationValue> SetEntries(IEnumerable<IDataSetEntry> entries)
+        {
+            if (!entries.IsNullOrEmpty())
+            {
+                var values = new List<ObservationValue>();
+
+                foreach (var entry in entries)
+                {
+                    values.Add(new ObservationValue(ValueKeys.CreateDataSetValueKey(entry.Key), entry.Value));
+                }
+
+                return values;
+            }
+
+            return null;
         }
     }
 }

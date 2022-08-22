@@ -47,7 +47,13 @@ namespace MTConnect.Observations.Input
         public ConditionQualifier Qualifier
         {
             get => GetValue(ValueKeys.Qualifier).ConvertEnum<ConditionQualifier>();
-            set => AddValue(new ObservationValue(ValueKeys.Qualifier, value));
+            set
+            {
+                if (value != ConditionQualifier.NOT_SPECIFIED)
+                {
+                    AddValue(new ObservationValue(ValueKeys.Qualifier, value));
+                }
+            }
         }
 
         /// <summary>
