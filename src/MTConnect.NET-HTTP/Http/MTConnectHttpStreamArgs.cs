@@ -9,12 +9,12 @@ namespace MTConnect.Http
     {
         public string StreamId { get; set; }
 
-        public string Message { get; set; }
+        public byte[] Message { get; set; }
 
         public double ResponseDuration { get; set; }
 
 
-        public MTConnectHttpStreamArgs(string streamId, string message, double responseDuration)
+        public MTConnectHttpStreamArgs(string streamId, byte[] message, double responseDuration)
         {
             StreamId = streamId;
             Message = message;

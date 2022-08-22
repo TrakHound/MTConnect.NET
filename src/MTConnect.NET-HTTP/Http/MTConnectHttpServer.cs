@@ -23,30 +23,18 @@ namespace MTConnect.Http
     /// </summary>
     public class MTConnectHttpServer : HttpServer
     {
+        private const int _minimumHeartbeat = 500; // 500 ms
+        private const int _defaultHeartbeat = 10000; // 10 Seconds
+
         private static readonly Dictionary<string, string> _devicesSchemas = new Dictionary<string, string>();
         private static readonly Dictionary<string, string> _streamsSchemas = new Dictionary<string, string>();
         private static readonly Dictionary<string, string> _assetsSchemas = new Dictionary<string, string>();
         private static readonly Dictionary<string, string> _commonSchemas = new Dictionary<string, string>();
         private static readonly object _lock = new object();
 
-        private readonly IMTConnectAgent _mtconnectAgent;
-        private readonly HttpAgentConfiguration _configuration;
+        protected readonly IMTConnectAgent _mtconnectAgent;
+        protected readonly IHttpAgentConfiguration _configuration;
 
-
-        /// <summary>
-        /// Event Handler for when a client makes a request to the server
-        /// </summary>
-        public EventHandler<HttpListenerRequest> ClientConnected { get; set; }
-
-        /// <summary>
-        /// Event Handler for when a client completes a request or disconnects from the server
-        /// </summary>
-        public EventHandler<string> ClientDisconnected { get; set; }
-
-        /// <summary>
-        /// Event Handler for when an error occurs with the HttpListenerRequest
-        /// </summary>
-        public EventHandler<Exception> ClientException { get; set; }
 
         /// <summary>
         /// Event Handler for when an error occurs with a MTConnectHttpResponse is written to the HTTP Client
@@ -54,7 +42,12 @@ namespace MTConnect.Http
         public EventHandler<MTConnectHttpResponse> ResponseSent { get; set; }
 
 
-        public MTConnectHttpServer(HttpAgentConfiguration configuration, IMTConnectAgent mtconnectAgent, IEnumerable<string> prefixes = null, int port = 0) : base(configuration, prefixes, port)
+        public MTConnectHttpServer(
+            IHttpAgentConfiguration configuration,
+            IMTConnectAgent mtconnectAgent,
+            IEnumerable<string> prefixes = null,
+            int port = 0
+            ) : base(configuration, prefixes, port)
         {
             _mtconnectAgent = mtconnectAgent;
             _configuration = configuration;
@@ -65,7 +58,7 @@ namespace MTConnect.Http
         /// Method run when an Observation is attempted to be added to the MTConnect Agent from an HTTP PUT request
         /// </summary>
         /// <returns>Returns False if a Device cannot be found from the specified DeviceKey</returns>
-        protected virtual async Task<bool> OnObservationInput(string deviceKey, string dataItemKey, string input)
+        protected virtual bool OnObservationInput(string deviceKey, string dataItemKey, string input)
         {
             return false;
         }
@@ -74,17 +67,18 @@ namespace MTConnect.Http
         /// Method run when an Asset is attempted to be added to the MTConnect Agent from an HTTP PUT request
         /// </summary>
         /// <returns>Returns False if a Device cannot be found from the specified DeviceKey</returns>
-        protected virtual async Task<bool> OnAssetInput(string assetId, string deviceKey, string assetType, byte[] requestBody)
+        protected virtual bool OnAssetInput(string assetId, string deviceKey, string assetType, byte[] requestBody)
         {
             return false;
         }
+
 
         protected override async Task OnRequestReceived(HttpListenerContext context)
         {
             var request = context.Request;
             var response = context.Response;
 
-            if (ClientConnected != null) ClientConnected.Invoke(this, request);
+            //if (ClientConnected != null) ClientConnected.Invoke(this, request);
 
             response.Headers.Add("Access-Control-Allow-Origin", "*");
             response.Headers.Add("Access-Control-Allow-Methods", "POST, PUT, GET, DELETE");
@@ -144,6 +138,23 @@ namespace MTConnect.Http
                 }
             }
         }
+
+        protected override bool IsStreamRequest(HttpListenerContext context)
+        {
+            if (context != null && context.Request != null)
+            {
+                var method = context.Request.HttpMethod;
+
+                if (method == "GET")
+                {
+                    // Read "interval" parameter from Query string
+                    return context.Request.QueryString["interval"].ToInt() >= 0;
+                }
+            }
+
+            return false;
+        }
+
 
         private static string GetRequestType(Uri uri)
         {
@@ -232,110 +243,7 @@ namespace MTConnect.Http
             return null;
         }
 
-
-        /// <summary>
-        /// Write a MTConnectHttpResponse to the HttpListenerResponse Output Stream
-        /// </summary>
-        private async Task WriteResponse(MTConnectHttpResponse mtconnectResponse, HttpListenerResponse httpResponse)
-        {
-            if (httpResponse != null)
-            {
-                try
-                {
-                    httpResponse.ContentType = mtconnectResponse.ContentType;
-                    httpResponse.StatusCode = mtconnectResponse.StatusCode;
-
-                    var bytes = Encoding.UTF8.GetBytes(mtconnectResponse.Content);
-                    await WriteToStream(bytes, httpResponse);
-                }
-                catch { }
-            }
-        }
-
-        /// <summary>
-        /// Write a string to the HttpListenerResponse Output Stream
-        /// </summary>
-        private async Task WriteResponse(string content, HttpListenerResponse httpResponse, HttpStatusCode statusCode, string contentType = MimeTypes.XML)
-        {
-            if (httpResponse != null)
-            {
-                try
-                {
-                    httpResponse.ContentType = contentType;
-                    httpResponse.StatusCode = (int)statusCode;
-
-                    var bytes = Encoding.UTF8.GetBytes(content);
-                    await WriteToStream(bytes, httpResponse);
-                }
-                catch { }
-            }
-        }
-
-        private async Task WriteToStream(byte[] bytes, HttpListenerResponse httpResponse)
-        {
-            if (httpResponse != null && !bytes.IsNullOrEmpty())
-            {
-                try
-                {
-                    using (var stream = httpResponse.OutputStream)
-                    {
-                        switch (_configuration.ResponseCompression)                      
-                        {
-                            case HttpResponseCompression.Gzip:
-
-                                httpResponse.AddHeader("Content-Encoding", "gzip");
-
-                                using (var ms = new MemoryStream())
-                                {
-                                    using (var zip = new GZipStream(ms, CompressionMode.Compress, true))
-                                    {
-                                        zip.Write(bytes, 0, bytes.Length);
-                                    }
-                                    bytes = ms.ToArray();
-                                }
-
-                                break;
-
-#if NET5_0_OR_GREATER
-                            case HttpResponseCompression.Br:
-
-                                httpResponse.AddHeader("Content-Encoding", "br");
-
-                                using (var ms = new MemoryStream())
-                                {
-                                    using (var zip = new BrotliStream(ms, CompressionMode.Compress, true))
-                                    {
-                                        zip.Write(bytes, 0, bytes.Length);
-                                    }
-                                    bytes = ms.ToArray();
-                                }
-
-                                break;
-#endif
-
-                            case HttpResponseCompression.Deflate:
-
-                                httpResponse.AddHeader("Content-Encoding", "deflate");
-
-                                using (var ms = new MemoryStream())
-                                {
-                                    using (var zip = new DeflateStream(ms, CompressionMode.Compress, true))
-                                    {
-                                        zip.Write(bytes, 0, bytes.Length);
-                                    }
-                                    bytes = ms.ToArray();
-                                }
-
-                                break;
-                        }
-
-                        await stream.WriteAsync(bytes, 0, bytes.Length);
-                    }
-                }
-                catch { }
-            }
-        }
-
+        #region "Process Requests"
 
         /// <summary>
         /// An Agent responds to a Probe Request with an MTConnectDevices Response Document that contains the 
@@ -364,13 +272,16 @@ namespace MTConnect.Http
                     documentFormat = DocumentFormat.JSON;
                 }
 
-                // Set Format Options
-                var formatOptions = CreateFormatOptions(MTConnectRequestType.Probe, documentFormat, version);
-
                 // Read ValidationLevel from Query string
+                int validationLevel = (int)_configuration.OutputValidationLevel;
                 var validationLevelString = httpRequest.QueryString["validationLevel"];
-                if (!string.IsNullOrEmpty(validationLevelString)) formatOptions.Add(new KeyValuePair<string, string>("validationLevel", validationLevelString));
-                else formatOptions.Add(new KeyValuePair<string, string>("validationLevel", ((int)_configuration.OutputValidationLevel).ToString()));
+                if (!string.IsNullOrEmpty(validationLevelString)) validationLevel = validationLevelString.ToInt();
+
+
+                // Set Format Options
+                var formatOptions = CreateFormatOptions(MTConnectRequestType.Probe, documentFormat, version, validationLevel);
+                formatOptions.Add(new KeyValuePair<string, string>("validationLevel", validationLevel.ToString()));
+
 
                 // Read IndentOutput from Query string
                 var indentOutputString = httpRequest.QueryString["indentOutput"];
@@ -386,15 +297,15 @@ namespace MTConnect.Http
                 if (!string.IsNullOrEmpty(deviceKey))
                 {
                     // Get MTConnectDevices document from the MTConnectAgent
-                    var response = await MTConnectHttpRequests.GetDeviceProbeRequest(_mtconnectAgent, deviceKey, version, documentFormat, formatOptions);
-                    await WriteResponse(response, httpResponse);
+                    var response = MTConnectHttpRequests.GetDeviceProbeRequest(_mtconnectAgent, deviceKey, version, documentFormat, formatOptions);
+                    response.WriteDuration = await WriteResponse(response, httpResponse);
                     ResponseSent?.Invoke(this, response);
                 }
                 else
                 {
                     // Get MTConnectDevices document from the MTConnectAgent
-                    var response = await MTConnectHttpRequests.GetProbeRequest(_mtconnectAgent, deviceType, version, documentFormat, formatOptions);
-                    await WriteResponse(response, httpResponse);
+                    var response = MTConnectHttpRequests.GetProbeRequest(_mtconnectAgent, deviceType, version, documentFormat, formatOptions);
+                    response.WriteDuration = await WriteResponse(response, httpResponse);
                     ResponseSent?.Invoke(this, response);
                 }
             }
@@ -419,12 +330,15 @@ namespace MTConnect.Http
 
                 // Read "at" parameter from Query string
                 var at = httpRequest.QueryString["at"].ToLong();
+                if (at < 1) at = 0;
 
                 // Read "interval" parameter from Query string
                 var interval = httpRequest.QueryString["interval"].ToInt();
 
                 // Read "heartbeat" parameter from Query string
                 var heartbeat = httpRequest.QueryString["heartbeat"].ToInt();
+                if (heartbeat < 1) heartbeat = _defaultHeartbeat;
+                if (heartbeat < _minimumHeartbeat) heartbeat = _minimumHeartbeat;
 
                 // Read MTConnectVersion from Query string
                 var versionString = httpRequest.QueryString["version"];
@@ -439,13 +353,15 @@ namespace MTConnect.Http
                     documentFormat = DocumentFormat.JSON;
                 }
 
-                // Set Format Options
-                var formatOptions = CreateFormatOptions(MTConnectRequestType.Current, documentFormat, version);
-
                 // Read ValidationLevel from Query string
+                int validationLevel = (int)_configuration.OutputValidationLevel;
                 var validationLevelString = httpRequest.QueryString["validationLevel"];
-                if (!string.IsNullOrEmpty(validationLevelString)) formatOptions.Add(new KeyValuePair<string, string>("validationLevel", validationLevelString));
-                else formatOptions.Add(new KeyValuePair<string, string>("validationLevel", ((int)_configuration.OutputValidationLevel).ToString()));
+                if (!string.IsNullOrEmpty(validationLevelString)) validationLevel = validationLevelString.ToInt();
+
+
+                // Set Format Options
+                var formatOptions = CreateFormatOptions(MTConnectRequestType.Current, documentFormat, version, validationLevel);
+                formatOptions.Add(new KeyValuePair<string, string>("validationLevel", validationLevel.ToString()));
 
                 // Read IndentOutput from Query string
                 var indentOutputString = httpRequest.QueryString["indentOutput"];
@@ -458,8 +374,11 @@ namespace MTConnect.Http
                 else formatOptions.Add(new KeyValuePair<string, string>("outputComments", _configuration.OutputComments.ToString()));
 
 
-                if (interval > 0)
+                if (interval > -1)
                 {
+                    // Remove Indent for streaming
+                    formatOptions.RemoveAll(o => o.Key == "indentOutput");
+
                     var currentStream = new MTConnectHttpCurrentStream(_mtconnectAgent, deviceKey, path, interval, heartbeat, documentFormat, formatOptions);
 
                     try
@@ -494,15 +413,15 @@ namespace MTConnect.Http
                     if (!string.IsNullOrEmpty(deviceKey))
                     {
                         // Get MTConnectStreams document from the MTConnectAgent
-                        var response = await MTConnectHttpRequests.GetDeviceCurrentRequest(_mtconnectAgent, deviceKey, path, at, interval, version, documentFormat, formatOptions);
-                        await WriteResponse(response, httpResponse);
+                        var response = MTConnectHttpRequests.GetDeviceCurrentRequest(_mtconnectAgent, deviceKey, path, at, interval, version, documentFormat, formatOptions);
+                        response.WriteDuration = await WriteResponse(response, httpResponse);
                         ResponseSent?.Invoke(this, response);
                     }
                     else
                     {
                         // Get MTConnectStreams document from the MTConnectAgent
-                        var response = await MTConnectHttpRequests.GetCurrentRequest(_mtconnectAgent, deviceType, path, at, interval, version, documentFormat, formatOptions);
-                        await WriteResponse(response, httpResponse);
+                        var response = MTConnectHttpRequests.GetCurrentRequest(_mtconnectAgent, deviceType, path, at, interval, version, documentFormat, formatOptions);
+                        response.WriteDuration = await WriteResponse(response, httpResponse);
                         ResponseSent?.Invoke(this, response);
                     }
                 }
@@ -529,10 +448,11 @@ namespace MTConnect.Http
 
                 // Read "from" parameter from Query string
                 var from = httpRequest.QueryString["from"].ToLong();
+                if (from < 1) from = 0;
 
                 // Read "to" parameter from Query string
                 var to = httpRequest.QueryString["to"].ToLong();
-                to = Math.Max(0, to);
+                if (to < 1) to = 0;
 
                 // Read "count" parameter from Query string
                 var count = httpRequest.QueryString["count"].ToInt();
@@ -543,6 +463,8 @@ namespace MTConnect.Http
 
                 // Read "heartbeat" parameter from Query string
                 var heartbeat = httpRequest.QueryString["heartbeat"].ToInt();
+                if (heartbeat < 1) heartbeat = _defaultHeartbeat;
+                if (heartbeat < _minimumHeartbeat) heartbeat = _minimumHeartbeat;
 
                 // Read MTConnectVersion from Query string
                 var versionString = httpRequest.QueryString["version"];
@@ -557,13 +479,15 @@ namespace MTConnect.Http
                     documentFormat = DocumentFormat.JSON;
                 }
 
-                // Set Format Options
-                var formatOptions = CreateFormatOptions(MTConnectRequestType.Sample, documentFormat, version);
-
                 // Read ValidationLevel from Query string
+                int validationLevel = (int)_configuration.OutputValidationLevel;
                 var validationLevelString = httpRequest.QueryString["validationLevel"];
-                if (!string.IsNullOrEmpty(validationLevelString)) formatOptions.Add(new KeyValuePair<string, string>("validationLevel", validationLevelString));
-                else formatOptions.Add(new KeyValuePair<string, string>("validationLevel", ((int)_configuration.OutputValidationLevel).ToString()));
+                if (!string.IsNullOrEmpty(validationLevelString)) validationLevel = validationLevelString.ToInt();
+
+
+                // Set Format Options
+                var formatOptions = CreateFormatOptions(MTConnectRequestType.Sample, documentFormat, version, validationLevel);
+                formatOptions.Add(new KeyValuePair<string, string>("validationLevel", validationLevel.ToString()));
 
                 // Read IndentOutput from Query string
                 var indentOutputString = httpRequest.QueryString["indentOutput"];
@@ -576,8 +500,11 @@ namespace MTConnect.Http
                 else formatOptions.Add(new KeyValuePair<string, string>("outputComments", _configuration.OutputComments.ToString()));
 
 
-                if (interval > 0)
+                if (interval > -1)
                 {
+                    // Remove Indent for streaming
+                    formatOptions.RemoveAll(o => o.Key == "indentOutput");
+
                     var sampleStream = new MTConnectHttpSampleStream(_mtconnectAgent, deviceKey, path, from, count, interval, heartbeat, documentFormat, formatOptions);
 
                     try
@@ -588,6 +515,11 @@ namespace MTConnect.Http
                             sampleStream.HeartbeatReceived += async (s, args) => await WriteFromStream(sampleStream, responseStream, args);
                             sampleStream.DocumentReceived += async (s, args) => await WriteFromStream(sampleStream, responseStream, args);
 
+                            // Set HTTP Status Code
+                            httpResponse.StatusCode = 200;
+                            httpResponse.KeepAlive = true;
+                            httpResponse.SendChunked = true;
+
                             // Set HTTP Response Headers
                             httpResponse.Headers.Add("Server", "MTConnectAgent");
                             httpResponse.Headers.Add("Expires", "-1");
@@ -595,10 +527,11 @@ namespace MTConnect.Http
                             httpResponse.Headers.Add("Cache-Control", "no-cache, private, max-age=0");
                             httpResponse.Headers.Add("Content-Type", $"multipart/x-mixed-replace;boundary={sampleStream.Boundary}");
 
-                            // Start the MTConnectHttpStream
-                            sampleStream.Start(CancellationToken.None);
+                            // Run the MTConnectHttpStream
+                            await sampleStream.Run();
+                            //sampleStream.StartAsync(CancellationToken.None);
 
-                            while (true) { await Task.Delay(100); }
+                            //while (sampleStream.IsConnected) { await Task.Delay(100); }
                         }
                     }
                     catch { }
@@ -612,15 +545,15 @@ namespace MTConnect.Http
                     if (!string.IsNullOrEmpty(deviceKey))
                     {
                         // Get MTConnectStreams document from the MTConnectAgent
-                        var response = await MTConnectHttpRequests.GetDeviceSampleRequest(_mtconnectAgent, deviceKey, path, from, to, count, version, documentFormat, formatOptions);
-                        await WriteResponse(response, httpResponse);
+                        var response = MTConnectHttpRequests.GetDeviceSampleRequest(_mtconnectAgent, deviceKey, path, from, to, count, version, documentFormat, formatOptions);
+                        response.WriteDuration = await WriteResponse(response, httpResponse);
                         ResponseSent?.Invoke(this, response);
                     }
                     else
                     {
                         // Get MTConnectStreams document from the MTConnectAgent
-                        var response = await MTConnectHttpRequests.GetSampleRequest(_mtconnectAgent, deviceType, path, from, to, count, version, documentFormat, formatOptions);
-                        await WriteResponse(response, httpResponse);
+                        var response = MTConnectHttpRequests.GetSampleRequest(_mtconnectAgent, deviceType, path, from, to, count, version, documentFormat, formatOptions);
+                        response.WriteDuration = await WriteResponse(response, httpResponse);
                         ResponseSent?.Invoke(this, response);
                     }
                 }
@@ -661,13 +594,15 @@ namespace MTConnect.Http
                     documentFormat = DocumentFormat.JSON;
                 }
 
-                // Set Format Options
-                var formatOptions = CreateFormatOptions(MTConnectRequestType.Assets, documentFormat, version);
-
                 // Read ValidationLevel from Query string
+                int validationLevel = (int)_configuration.OutputValidationLevel;
                 var validationLevelString = httpRequest.QueryString["validationLevel"];
-                if (!string.IsNullOrEmpty(validationLevelString)) formatOptions.Add(new KeyValuePair<string, string>("validationLevel", validationLevelString));
-                else formatOptions.Add(new KeyValuePair<string, string>("validationLevel", ((int)_configuration.OutputValidationLevel).ToString()));
+                if (!string.IsNullOrEmpty(validationLevelString)) validationLevel = validationLevelString.ToInt();
+
+
+                // Set Format Options
+                var formatOptions = CreateFormatOptions(MTConnectRequestType.Assets, documentFormat, version, validationLevel);
+                formatOptions.Add(new KeyValuePair<string, string>("validationLevel", validationLevel.ToString()));
 
                 // Read IndentOutput from Query string
                 var indentOutputString = httpRequest.QueryString["indentOutput"];
@@ -681,8 +616,8 @@ namespace MTConnect.Http
 
 
                 // Get MTConnectAssets document from the MTConnectAgent
-                var response = await MTConnectHttpRequests.GetAssetsRequest(_mtconnectAgent, deviceKey, type, removed, count, version, documentFormat, formatOptions);
-                await WriteResponse(response, httpResponse);
+                var response = MTConnectHttpRequests.GetAssetsRequest(_mtconnectAgent, deviceKey, type, removed, count, version, documentFormat, formatOptions);
+                response.WriteDuration = await WriteResponse(response, httpResponse);
                 ResponseSent?.Invoke(this, response);
             }
         }
@@ -725,13 +660,15 @@ namespace MTConnect.Http
                     documentFormat = DocumentFormat.JSON;
                 }
 
-                // Set Format Options
-                var formatOptions = CreateFormatOptions(MTConnectRequestType.Asset, documentFormat, version);
-
                 // Read ValidationLevel from Query string
+                int validationLevel = (int)_configuration.OutputValidationLevel;
                 var validationLevelString = httpRequest.QueryString["validationLevel"];
-                if (!string.IsNullOrEmpty(validationLevelString)) formatOptions.Add(new KeyValuePair<string, string>("validationLevel", validationLevelString));
-                else formatOptions.Add(new KeyValuePair<string, string>("validationLevel", ((int)_configuration.OutputValidationLevel).ToString()));
+                if (!string.IsNullOrEmpty(validationLevelString)) validationLevel = validationLevelString.ToInt();
+
+
+                // Set Format Options
+                var formatOptions = CreateFormatOptions(MTConnectRequestType.Asset, documentFormat, version, validationLevel);
+                formatOptions.Add(new KeyValuePair<string, string>("validationLevel", validationLevel.ToString()));
 
                 // Read IndentOutput from Query string
                 var indentOutputString = httpRequest.QueryString["indentOutput"];
@@ -745,8 +682,8 @@ namespace MTConnect.Http
 
 
                 // Get MTConnectAssets document from the MTConnectAgent
-                var response = await MTConnectHttpRequests.GetAssetRequest(_mtconnectAgent, assetIds, version, documentFormat, formatOptions);
-                await WriteResponse(response, httpResponse);
+                var response = MTConnectHttpRequests.GetAssetRequest(_mtconnectAgent, assetIds, version, documentFormat, formatOptions);
+                response.WriteDuration = await WriteResponse(response, httpResponse);
                 ResponseSent?.Invoke(this, response);
             }
         }
@@ -786,7 +723,7 @@ namespace MTConnect.Http
                         foreach (var item in items)
                         {
                             // Call the OnObservationInput method that is intended to be overridden by a derived class
-                            success = await OnObservationInput(deviceKey, item.Key, item.Value);
+                            success = OnObservationInput(deviceKey, item.Key, item.Value);
                             if (!success) break;
                         }
 
@@ -799,7 +736,7 @@ namespace MTConnect.Http
                         else
                         {
                             // Return MTConnectError Response Document along with a 404 Http Status Code
-                            var errorDocument = await _mtconnectAgent.GetErrorAsync(ErrorCode.UNSUPPORTED, $"Cannot find device: {deviceKey}");
+                            var errorDocument = _mtconnectAgent.GetError(ErrorCode.UNSUPPORTED, $"Cannot find device: {deviceKey}");
                             var mtconnectResponse = new MTConnectHttpResponse(errorDocument, 404, DocumentFormat.XML, 0, null);
                             await WriteResponse(mtconnectResponse, httpResponse);
                         }
@@ -830,7 +767,7 @@ namespace MTConnect.Http
                         var assetType = httpRequest.QueryString["type"];
 
                         // Call the OnAssetInput method that is intended to be overridden by a derived class
-                        var success = await OnAssetInput(assetId, deviceKey, assetType, requestBytes);
+                        var success = OnAssetInput(assetId, deviceKey, assetType, requestBytes);
 
                         if (success)
                         {
@@ -841,7 +778,7 @@ namespace MTConnect.Http
                         else
                         {
                             // Return MTConnectError Response Document along with a 404 Http Status Code
-                            var errorDocument = await _mtconnectAgent.GetErrorAsync(ErrorCode.UNSUPPORTED, $"Cannot find device: {deviceKey}");
+                            var errorDocument = _mtconnectAgent.GetError(ErrorCode.UNSUPPORTED, $"Cannot find device: {deviceKey}");
                             var mtconnectResponse = new MTConnectHttpResponse(errorDocument, 404, DocumentFormat.XML, 0, null);
                             await WriteResponse(mtconnectResponse, httpResponse);
                         }
@@ -897,15 +834,11 @@ namespace MTConnect.Http
                     var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, relativePath);
                     if (File.Exists(filePath))
                     {
-                        if (_configuration.DevicesStyle != null && relativePath == _configuration.DevicesStyle.Location)
-                        {
-                            fileContents = ReadDevicesStylesheet(filePath, version);
-                        }
-                        else if (_configuration.StreamsStyle != null && relativePath == _configuration.StreamsStyle.Location)
-                        {
-                            fileContents = ReadStreamsStylesheet(filePath, version);
-                        }
-                        else
+                        // Check Overridden method
+                        fileContents = OnProcessStatic(httpRequest, filePath, relativePath, version);
+                        
+                        // If nothing found in the overridden method, then read directly from filePath
+                        if (fileContents == null)
                         {
                             fileContents = File.ReadAllBytes(filePath);
                         }
@@ -928,254 +861,114 @@ namespace MTConnect.Http
             }
         }
 
-        private byte[] ReadDevicesStylesheet(string filePath, Version mtconnectVersion)
+        protected virtual byte[] OnProcessStatic(HttpListenerRequest httpRequest, string absolutePath, string relativePath, Version version = null) { return null; }
+
+        #endregion
+
+        #region "Write Response"
+
+        /// <summary>
+        /// Write a MTConnectHttpResponse to the HttpListenerResponse Output Stream
+        /// </summary>
+        private async Task<double> WriteResponse(MTConnectHttpResponse mtconnectResponse, HttpListenerResponse httpResponse)
         {
-            if (filePath != null)
+            var stpw = System.Diagnostics.Stopwatch.StartNew();
+
+            if (httpResponse != null)
             {
                 try
                 {
-                    var fileContents = File.ReadAllText(filePath);
-                    if (!string.IsNullOrEmpty(fileContents))
-                    {
-                        string s = fileContents;
-                        string pattern = null;
-                        string replace = null;
+                    httpResponse.ContentType = mtconnectResponse.ContentType;
+                    httpResponse.StatusCode = mtconnectResponse.StatusCode;
 
-                        try
-                        {
-                            // Replace Devices Namespace
-                            pattern = @"urn:mtconnect\.org:MTConnectDevices:(\d\.\d)";
-                            replace = $@"urn:mtconnect.org:MTConnectDevices:{mtconnectVersion}";
-                            s = Regex.Replace(fileContents, pattern, replace);
-                        }
-                        catch { }
-
-                        try
-                        {
-                            // Replace Streams Namespace
-                            pattern = @"urn:mtconnect\.org:MTConnectStreams:(\d\.\d)";
-                            replace = $@"urn:mtconnect.org:MTConnectStreams:{mtconnectVersion}";
-                            s = Regex.Replace(s, pattern, replace);
-                        }
-                        catch { }
-
-                        return Encoding.UTF8.GetBytes(s);
-                    }
+                    await WriteToStream(mtconnectResponse.Content, httpResponse);
                 }
                 catch { }
             }
 
-            return null;
+            stpw.Stop();
+            return (double)stpw.ElapsedTicks / 10000;
         }
 
-        private byte[] ReadStreamsStylesheet(string filePath, Version mtconnectVersion)
+        /// <summary>
+        /// Write a string to the HttpListenerResponse Output Stream
+        /// </summary>
+        private async Task WriteResponse(string content, HttpListenerResponse httpResponse, HttpStatusCode statusCode, string contentType = MimeTypes.XML)
         {
-            if (filePath != null)
+            if (httpResponse != null)
             {
                 try
                 {
-                    var fileContents = File.ReadAllText(filePath);
-                    if (!string.IsNullOrEmpty(fileContents))
-                    {
-                        if (mtconnectVersion != null)
-                        {
-                            // Replace Streams Namespace
-                            var pattern = @"urn:mtconnect\.org:MTConnectStreams:(\d\.\d)";
-                            var replace = $@"urn:mtconnect.org:MTConnectStreams:{mtconnectVersion.Major}.{mtconnectVersion.Minor}";
-                            fileContents = Regex.Replace(fileContents, pattern, replace);
-                        }
+                    httpResponse.ContentType = contentType;
+                    httpResponse.StatusCode = (int)statusCode;
 
-                        return Encoding.UTF8.GetBytes(fileContents);
-                    }
+                    var bytes = Encoding.UTF8.GetBytes(content);
+                    await WriteToStream(bytes, httpResponse);
                 }
                 catch { }
             }
-
-            return null;
         }
 
-
-        private string ReadDevicesSchema(Version mtconnectVersion)
+        private async Task WriteToStream(byte[] bytes, HttpListenerResponse httpResponse)
         {
-            if (mtconnectVersion != null)
+            if (httpResponse != null && !bytes.IsNullOrEmpty())
             {
-                var versionKey = mtconnectVersion.ToString();
-                string schema = null;
-                lock (_lock) if (_devicesSchemas.TryGetValue(versionKey, out var x)) schema = x;
-
-                if (string.IsNullOrEmpty(schema))
+                try
                 {
-                    var dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "schemas");
-                    var filename = $"MTConnectDevices_{mtconnectVersion.Major}.{mtconnectVersion.Minor}.xsd";
-                    var path = Path.Combine(dir, filename);
-
-                    try
+                    switch (_configuration.ResponseCompression)
                     {
-                        schema = File.ReadAllText(path);
-                        if (!string.IsNullOrEmpty(schema))
-                        {
-                            lock (_lock) _devicesSchemas.Add(versionKey, schema);
-                        }
+                        case HttpResponseCompression.Gzip:
+
+                            httpResponse.AddHeader("Content-Encoding", "gzip");
+
+                            using (var ms = new MemoryStream())
+                            {
+                                using (var zip = new GZipStream(ms, CompressionMode.Compress, true))
+                                {
+                                    zip.Write(bytes, 0, bytes.Length);
+                                }
+                                bytes = ms.ToArray();
+                            }
+
+                            break;
+
+#if NET5_0_OR_GREATER
+                        case HttpResponseCompression.Br:
+
+                            httpResponse.AddHeader("Content-Encoding", "br");
+
+                            using (var ms = new MemoryStream())
+                            {
+                                using (var zip = new BrotliStream(ms, CompressionMode.Compress, true))
+                                {
+                                    zip.Write(bytes, 0, bytes.Length);
+                                }
+                                bytes = ms.ToArray();
+                            }
+
+                            break;
+#endif
+
+                        case HttpResponseCompression.Deflate:
+
+                            httpResponse.AddHeader("Content-Encoding", "deflate");
+
+                            using (var ms = new MemoryStream())
+                            {
+                                using (var zip = new DeflateStream(ms, CompressionMode.Compress, true))
+                                {
+                                    zip.Write(bytes, 0, bytes.Length);
+                                }
+                                bytes = ms.ToArray();
+                            }
+
+                            break;
                     }
-                    catch { }
+
+                    await httpResponse.OutputStream.WriteAsync(bytes, 0, bytes.Length);
                 }
-
-                return schema;
+                catch { }
             }
-
-            return null;
-        }
-
-        private string ReadStreamsSchema(Version mtconnectVersion)
-        {
-            if (mtconnectVersion != null)
-            {
-                var versionKey = mtconnectVersion.ToString();
-                string schema = null;
-                lock (_lock) if (_streamsSchemas.TryGetValue(versionKey, out var x)) schema = x;
-
-                if (string.IsNullOrEmpty(schema))
-                {
-                    var dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "schemas");
-                    var filename = $"MTConnectStreams_{mtconnectVersion.Major}.{mtconnectVersion.Minor}.xsd";
-                    var path = Path.Combine(dir, filename);
-
-                    try
-                    {
-                        schema = File.ReadAllText(path);
-                        if (!string.IsNullOrEmpty(schema))
-                        {
-                            lock (_lock) _streamsSchemas.Add(versionKey, schema);
-                        }
-                    }
-                    catch { }
-                }
-
-                return schema;
-            }
-
-            return null;
-        }
-
-        private string ReadAssetsSchema(Version mtconnectVersion)
-        {
-            if (mtconnectVersion != null)
-            {
-                var versionKey = mtconnectVersion.ToString();
-                string schema = null;
-                lock (_lock) if (_assetsSchemas.TryGetValue(versionKey, out var x)) schema = x;
-
-                if (string.IsNullOrEmpty(schema))
-                {
-                    var dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "schemas");
-                    var filename = $"MTConnectAssets_{mtconnectVersion.Major}.{mtconnectVersion.Minor}.xsd";
-                    var path = Path.Combine(dir, filename);
-
-                    try
-                    {
-                        schema = File.ReadAllText(path);
-                        if (!string.IsNullOrEmpty(schema))
-                        {
-                            lock (_lock) _assetsSchemas.Add(versionKey, schema);
-                        }
-                    }
-                    catch { }
-                }
-
-                return schema;
-            }
-
-            return null;
-        }
-
-        private string ReadCommonSchema(Version mtconnectVersion)
-        {
-            if (mtconnectVersion != null)
-            {
-                var key = "xlink";
-                string schema = null;
-                lock (_lock) if (_commonSchemas.TryGetValue(key, out var x)) schema = x;
-
-                if (string.IsNullOrEmpty(schema))
-                {
-                    var dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "schemas");
-                    var filename = "xlink.xsd";
-                    var path = Path.Combine(dir, filename);
-
-                    try
-                    {
-                        schema = File.ReadAllText(path);
-                        if (!string.IsNullOrEmpty(schema))
-                        {
-                            lock (_lock) _commonSchemas.Add(key, schema);
-                        }
-                    }
-                    catch { }
-                }
-
-                return schema;
-            }
-
-            return null;
-        }
-
-
-        private List<KeyValuePair<string, string>> CreateFormatOptions(string requestType, string documentFormat, Version mtconnectVersion)
-        {
-            var x = new List<KeyValuePair<string, string>>();
-
-            switch (documentFormat)
-            {
-                case DocumentFormat.XML:
-
-                    if (_configuration != null)
-                    {
-                        // Add XSD Schema (xlink)
-                        x.Add(new KeyValuePair<string, string>("schema", ReadCommonSchema(mtconnectVersion)));
-
-                        // Add XSD Schema
-                        switch (requestType)
-                        {
-                            case MTConnectRequestType.Probe: x.Add(new KeyValuePair<string, string>("schema", ReadDevicesSchema(mtconnectVersion))); break;
-                            case MTConnectRequestType.Current: x.Add(new KeyValuePair<string, string>("schema", ReadStreamsSchema(mtconnectVersion))); break;
-                            case MTConnectRequestType.Sample: x.Add(new KeyValuePair<string, string>("schema", ReadStreamsSchema(mtconnectVersion))); break;
-                            case MTConnectRequestType.Asset: x.Add(new KeyValuePair<string, string>("schema", ReadAssetsSchema(mtconnectVersion))); break;
-                            case MTConnectRequestType.Assets: x.Add(new KeyValuePair<string, string>("schema", ReadAssetsSchema(mtconnectVersion))); break;
-                        }                   
-
-                        // Add Devices Stylesheet
-                        if (_configuration.DevicesStyle != null)
-                        {
-                            x.Add(new KeyValuePair<string, string>("devicesStyle.location", _configuration.DevicesStyle.Location));
-                            x.Add(new KeyValuePair<string, string>("devicesStyle.path", _configuration.DevicesStyle.Path));
-                        }
-
-                        // Add Streams Stylesheet
-                        if (_configuration.StreamsStyle != null)
-                        {
-                            x.Add(new KeyValuePair<string, string>("streamsStyle.location", _configuration.StreamsStyle.Location));
-                            x.Add(new KeyValuePair<string, string>("streamsStyle.path", _configuration.StreamsStyle.Path));
-                        }
-
-                        // Add Assets Stylesheet
-                        if (_configuration.AssetsStyle != null)
-                        {
-                            x.Add(new KeyValuePair<string, string>("assetsStyle.location", _configuration.AssetsStyle.Location));
-                            x.Add(new KeyValuePair<string, string>("assetsStyle.path", _configuration.AssetsStyle.Path));
-                        }
-
-                        // Add Error Stylesheet
-                        if (_configuration.ErrorStyle != null)
-                        {
-                            x.Add(new KeyValuePair<string, string>("errorStyle.location", _configuration.ErrorStyle.Location));
-                            x.Add(new KeyValuePair<string, string>("errorStyle.path", _configuration.ErrorStyle.Path));
-                        }
-                    }
-
-                    break;
-            }
-
-            return x;
         }
 
 
@@ -1183,8 +976,7 @@ namespace MTConnect.Http
         {
             if (responseStream != null)
             {
-                var bytes = Encoding.ASCII.GetBytes(args.Message);
-                await responseStream.WriteAsync(bytes, 0, bytes.Length);
+                await responseStream.WriteAsync(args.Message, 0, args.Message.Length);
             }
         }
 
@@ -1218,6 +1010,18 @@ namespace MTConnect.Http
                     sampleStream.Stop();
                 }
             }
+        }
+
+        #endregion
+
+
+        protected virtual List<KeyValuePair<string, string>> OnCreateFormatOptions(string requestType, string documentFormat, Version mtconnectVersion, int validationLevel = 0) { return null; }
+
+        private List<KeyValuePair<string, string>> CreateFormatOptions(string requestType, string documentFormat, Version mtconnectVersion, int validationLevel = 0)
+        {
+            var x = OnCreateFormatOptions(requestType, documentFormat, mtconnectVersion, validationLevel);
+
+            return !x.IsNullOrEmpty() ? x : new List<KeyValuePair<string, string>>();
         }
     }
 }

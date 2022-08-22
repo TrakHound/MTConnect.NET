@@ -17,16 +17,17 @@ namespace MTConnect.Http
         private const string DefaultServer = "127.0.0.1";
         private const int DefaultPort = 5000;
         private const string EmptyServer = "0.0.0.0";
-        private const int DefaultMaxThreads = 5;
+        private const int DefaultMaxStreamThreads = 10;
 
         private static readonly string DefaultPrefix = "http://" + DefaultServer + ":" + DefaultPort + "/";
 
-        private readonly Thread _listenerThread;
-        private readonly Thread[] _workers;
-        private readonly ManualResetEvent _stop, _ready;
-        private readonly Queue<HttpListenerContext> _queue;
+        private readonly Dictionary<string, Thread> _threads = new Dictionary<string, Thread>();
         private readonly IEnumerable<string> _prefixes;
+        private readonly object _lock = new object();
         private HttpListener _listener;
+        private CancellationTokenSource _stop;
+        private int _maxStreamThreads = DefaultMaxStreamThreads;
+        private int _streamThreadCount = 0;
 
 
         /// <summary>
@@ -47,54 +48,43 @@ namespace MTConnect.Http
         public EventHandler<Exception> ListenerException { get; set; }
 
 
-        public HttpServer(HttpAgentConfiguration configuration, IEnumerable<string> prefixes = null, int port = 0)
+        /// <summary>
+        /// Event Handler for when a client makes a request to the server
+        /// </summary>
+        public EventHandler<HttpListenerRequest> ClientConnected { get; set; }
+
+        /// <summary>
+        /// Event Handler for when a client completes a request or disconnects from the server
+        /// </summary>
+        public EventHandler<string> ClientDisconnected { get; set; }
+
+        /// <summary>
+        /// Event Handler for when an error occurs with the HttpListenerRequest
+        /// </summary>
+        public EventHandler<Exception> ClientException { get; set; }
+
+
+        public HttpServer(IHttpAgentConfiguration configuration, IEnumerable<string> prefixes = null, int port = 0)
         {
-            var maxThreads = DefaultMaxThreads;
             if (configuration != null)
             {
-                maxThreads = Math.Max(configuration.MaxListenerThreads, 1);                
+                _maxStreamThreads = Math.Max(configuration.MaxListenerThreads, 1);                
             }
 
             _prefixes = CreatePrefixes(configuration, prefixes, port);
-            _workers = new Thread[maxThreads];
-            _queue = new Queue<HttpListenerContext>();
-            _stop = new ManualResetEvent(false);
-            _ready = new ManualResetEvent(false);
-            //_listener = new HttpListener();
-            _listenerThread = new Thread(HandleRequests);
         }
 
 
         public void Start()
         {
-            //// Set the Prefixes
-            //if (!_prefixes.IsNullOrEmpty())
-            //{
-            //    foreach (var prefix in _prefixes)
-            //    {
-            //        _listener.Prefixes.Add(prefix);
-            //    }
-            //}
-            
-            //// Start the HttpListener
-            //_listener.Start();
+            _stop = new CancellationTokenSource();
 
-            // Start the listening thread
-            _listenerThread.Start();
-
-            // Start all of the worker threads
-            for (int i = 0; i < _workers.Length; i++)
-            {
-                _workers[i] = new Thread(Worker);
-                _workers[i].Start();
-            }
+            _ = Task.Run(() => Worker(_stop.Token));
         }
 
         public void Stop()
         {
-            _stop.Set();
-            _listenerThread.Join();
-            foreach (Thread worker in _workers) worker.Join();
+            if (_stop != null) _stop.Cancel();
 
             if (_listener != null)
             {
@@ -109,106 +99,206 @@ namespace MTConnect.Http
         public void Dispose() { Stop(); }
 
 
-        private void HandleRequests()
+
+        private async Task Worker(CancellationToken cancellationToken)
         {
-            if (!_prefixes.IsNullOrEmpty())
+            do
             {
-                do
+                bool errorOccurred = false;
+
+                try
                 {
-                    var errorOccurred = false;
+                    // (Access Denied - Exception)
+                    // Must grant permissions to use URL (for each Prefix) in Windows using the command below
+                    // CMD: netsh http add urlacl url = "http://localhost/" user = everyone
 
-                    try
+                    // (Service Unavailable - HTTP Status)
+                    // Multiple urls are configured using netsh that point to the same place
+
+                    _listener = new HttpListener();
+                    _listener.TimeoutManager.IdleConnection = TimeSpan.FromSeconds(10000);
+
+                    // Add Prefixes
+                    foreach (var prefix in _prefixes)
                     {
-                        // Intinialize as new HttpListener
-                        _listener = new HttpListener();
-
-                        // Add Prefixes
-                        foreach (var prefix in _prefixes) _listener.Prefixes.Add(prefix);
-
-                        // Start the HttpListener
-                        _listener.Start();
-
-                        foreach (var prefix in _prefixes) ListenerStarted?.Invoke(this, prefix);
-
-                        while (_listener.IsListening)
-                        {
-                            var context = _listener.BeginGetContext(ContextReady, null);
-
-                            if (WaitHandle.WaitAny(new[] { _stop, context.AsyncWaitHandle }) == 0) return;
-                        }
-
-                        foreach (var prefix in _prefixes) ListenerStopped?.Invoke(this, prefix);
-                    }
-                    catch (Exception ex)
-                    {
-                        errorOccurred = true;
-                        if (ListenerException != null) ListenerException.Invoke(this, ex);
-                    }
-                    finally
-                    {
-                        _listener.Abort();
-
-                        // Raise Events to notify when a prefix is stopped being listened on
-                        if (ListenerStopped != null)
-                        {
-                            foreach (var prefix in _prefixes) ListenerStopped.Invoke(this, prefix);
-                        }
+                        _listener.Prefixes.Add(prefix);
                     }
 
-                    // Delay 1 second when listener errors (to prevent a reoccurring error from overloading)
-                    if (errorOccurred) Thread.Sleep(1000);
+                    // Start Listener
+                    _listener.Start();
 
-                } while (!_stop.WaitOne(100, false));
-            }
+                    // Raise Events to notify when a prefix is being listened on
+                    if (ListenerStarted != null)
+                    {
+                        foreach (var prefix in _prefixes) ListenerStarted.Invoke(this, prefix);
+                    }
+
+                    // Listen for Requests
+                    while (_listener.IsListening && !cancellationToken.IsCancellationRequested)
+                    {
+                        var context = await _listener.GetContextAsync();
+                        if (context != null) ProcessContext(context);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    errorOccurred = true;
+
+                    // Ignore Aborted Exception
+                    if (ListenerException != null && ex.HResult != -2147467259)
+                    {
+                        ListenerException.Invoke(this, ex);
+                    }
+                }
+                finally
+                {
+                    _listener.Abort();
+
+                    // Raise Events to notify when a prefix is stopped being listened on
+                    if (ListenerStopped != null)
+                    {
+                        foreach (var prefix in _prefixes) ListenerStopped.Invoke(this, prefix);
+                    }
+                }
+
+                // Delay 1 second when listener errors (to prevent a reoccurring error from overloading)
+                if (errorOccurred) await Task.Delay(1000);
+
+            } while (!cancellationToken.IsCancellationRequested);
         }
 
-        private void ContextReady(IAsyncResult ar)
+        private void ProcessContext(HttpListenerContext context)
         {
             try
             {
-                lock (_queue)
+                // Determine if the request is for a stream
+                // -- IsStreamRequest() = true   :  Create new Thread (custom Thread pool)
+                // -- IsStreamRequest() = false  :  Run as Task (uses .NET ThreadPool)
+                if (IsStreamRequest(context))
                 {
-                    _queue.Enqueue(_listener.EndGetContext(ar));
-                    _ready.Set();
+                    StartStreamThread(context);
+                }
+                else
+                {
+                    StartRequestThread(context);
                 }
             }
-            catch { return; }
+            catch (HttpListenerException ex)
+            {
+                // Ignore Disposed Object Exception (happens when the listener is stopped)
+                if (ex.ErrorCode != 995)
+                {
+                    if (ClientException != null) ClientException.Invoke(this, ex);
+                }
+            }
+            catch (ObjectDisposedException) { }
+            catch (Exception ex)
+            {
+                if (ClientException != null) ClientException.Invoke(this, ex);
+            }
         }
 
-        private void Worker()
+        private void StartStreamThread(HttpListenerContext context)
         {
-            WaitHandle[] wait = new[] { _ready, _stop };
-            while (WaitHandle.WaitAny(wait) == 0)
+            var contextId = Guid.NewGuid().ToString();
+
+            try
             {
-                HttpListenerContext context;
-                lock (_queue)
+                int threadCount;
+                lock (_lock) threadCount = _streamThreadCount;
+
+                if (threadCount < _maxStreamThreads)
                 {
-                    if (_queue.Count > 0)
-                        context = _queue.Dequeue();
-                    else
+                    // Create a unique ID for the Thread
+                    var threadId = Guid.NewGuid().ToString();
+
+                    // Create new Thread
+                    var thread = new Thread(async () =>
                     {
-                        _ready.Reset();
-                        continue;
+                        // Run the Overridable method
+                        await OnRequestReceived(context);
+
+                        // Close the Response Stream
+                        context.Response.Close();
+                        lock (_lock) _streamThreadCount--;
+                    });
+
+                    // Add Thread to Dictionary
+                    lock (_lock)
+                    {
+                        _threads.Add(threadId, thread);
+                        _streamThreadCount++;
+                    }
+
+                    // Start the Thread
+                    thread.Start();
+                }
+                else
+                {
+                    // Return Service Unavailable (503) Http Status Code
+                    context.Response.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
+
+                    // Close the Response Stream
+                    context.Response.Close();
+                }
+            }
+            catch (HttpListenerException ex)
+            {
+                // Ignore Disposed Object Exception (happens when the listener is stopped)
+                if (ex.ErrorCode != 995)
+                {
+                    if (ClientException != null) ClientException.Invoke(this, ex);
+                }
+            }
+            catch (ObjectDisposedException) { }
+            catch (Exception ex)
+            {
+                if (ClientException != null) ClientException.Invoke(this, ex);
+            }
+        }
+
+        private void StartRequestThread(HttpListenerContext context)
+        {
+            // Create new Task to run Request on
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    // Run the Overridable method
+                    await OnRequestReceived(context);
+
+                    // Close the Response Stream
+                    if (context != null) context.Response.Close();
+                }
+                catch (TaskCanceledException) { }
+                catch (HttpListenerException ex)
+                {
+                    // Ignore Disposed Object Exception (happens when the listener is stopped)
+                    if (ex.ErrorCode != 995)
+                    {
+                        if (ClientException != null) ClientException.Invoke(this, ex);
                     }
                 }
-
-                try 
+                catch (ObjectDisposedException) { }
+                catch (Exception ex)
                 {
-                    OnRequestReceived(context); 
+                    if (ClientException != null) ClientException.Invoke(this, ex);
                 }
-                catch (Exception e) 
-                { 
-                    Console.Error.WriteLine(e);
-                }
-            }
+            });
         }
+
 
         protected virtual async Task OnRequestReceived(HttpListenerContext context) 
         {
             await Task.Delay(1); // Placeholder as this method is meant to be overridden
         }
 
-        private static IEnumerable<string> CreatePrefixes(HttpAgentConfiguration configuration, IEnumerable<string> prefixes = null, int port = 0)
+        protected virtual bool IsStreamRequest(HttpListenerContext context)
+        {
+            return false;
+        }
+
+        private static IEnumerable<string> CreatePrefixes(IHttpAgentConfiguration configuration, IEnumerable<string> prefixes = null, int port = 0)
         {
             var x = new List<string>();
 

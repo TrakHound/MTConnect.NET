@@ -5,7 +5,7 @@
 
 namespace MTConnect.Http
 {
-    static class MTConnectRequestType
+    public static class MTConnectRequestType
     {
         public const string Probe = "probe";
         public const string Current = "current";
