@@ -7,7 +7,6 @@ using MTConnect.Assets;
 using MTConnect.Devices;
 using MTConnect.Devices.DataItems;
 using MTConnect.Errors;
-using MTConnect.Streams;
 using System;
 using System.Collections.Generic;
 
@@ -16,7 +15,7 @@ namespace MTConnect
     public delegate void MTConnectDevicesHandler(IDevicesResponseDocument document);
     public delegate void MTConnectDevicesRequestedHandler(string deviceUuid);
 
-    public delegate void MTConnectStreamsHandler(IStreamsResponseDocument document);
+    public delegate void MTConnectStreamsHandler(string documentId);
     public delegate void MTConnectStreamsRequestedHandler(string deviceUuid);
 
     public delegate void MTConnectAssetsHandler(IAssetsResponseDocument document);
