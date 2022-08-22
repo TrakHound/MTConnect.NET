@@ -7,6 +7,7 @@ using MTConnect.Assets;
 using MTConnect.Devices;
 using MTConnect.Errors;
 using MTConnect.Streams;
+using MTConnect.Streams.Output;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -49,12 +50,12 @@ namespace MTConnect.Formatters
             }
 
             stpw.Stop();
-            result.ResponseDuration = stpw.ElapsedMilliseconds;
+            result.ResponseDuration = (double)stpw.ElapsedTicks / 10000;
 
             return result;
         }
 
-        public static FormattedDocumentWriteResult Format(string documentFormatterId, IStreamsResponseDocument document, IEnumerable<KeyValuePair<string, string>> formatOptions = null)
+        public static FormattedDocumentWriteResult Format(string documentFormatterId, ref IStreamsResponseOutputDocument document, IEnumerable<KeyValuePair<string, string>> formatOptions = null)
         {
             var stpw = Stopwatch.StartNew();
 
@@ -65,11 +66,11 @@ namespace MTConnect.Formatters
             if (formatter != null)
             {
                 // Format the Response Document using the Formatter
-                result = formatter.Format(document, formatOptions);
+                result = formatter.Format(ref document, formatOptions);
             }
 
             stpw.Stop();
-            result.ResponseDuration = stpw.ElapsedMilliseconds;
+            result.ResponseDuration = (double)stpw.ElapsedTicks / 10000;
 
             return result;
         }
@@ -89,7 +90,7 @@ namespace MTConnect.Formatters
             }
 
             stpw.Stop();
-            result.ResponseDuration = stpw.ElapsedMilliseconds;
+            result.ResponseDuration = (double)stpw.ElapsedTicks / 10000;
 
             return result;
         }
@@ -109,13 +110,13 @@ namespace MTConnect.Formatters
             }
 
             stpw.Stop();
-            result.ResponseDuration = stpw.ElapsedMilliseconds;
+            result.ResponseDuration = (double)stpw.ElapsedTicks / 10000;
 
             return result;
         }
 
 
-        public static FormattedDocumentReadResult<IDevicesResponseDocument> CreateDevicesResponseDocument(string documentFormatterId, string content)
+        public static FormattedDocumentReadResult<IDevicesResponseDocument> CreateDevicesResponseDocument(string documentFormatterId, byte[] content)
         {
             // Get the Formatter with the specified ID
             var formatter = GetFormatter(documentFormatterId);
@@ -128,7 +129,7 @@ namespace MTConnect.Formatters
             return FormattedDocumentReadResult<IDevicesResponseDocument>.Error(null, $"Document Formatter Not found for \"{documentFormatterId}\"");
         }
 
-        public static FormattedDocumentReadResult<IStreamsResponseDocument> CreateStreamsResponseDocument(string documentFormatterId, string content)
+        public static FormattedDocumentReadResult<IStreamsResponseDocument> CreateStreamsResponseDocument(string documentFormatterId, byte[] content)
         {
             // Get the Formatter with the specified ID
             var formatter = GetFormatter(documentFormatterId);
@@ -141,7 +142,7 @@ namespace MTConnect.Formatters
             return FormattedDocumentReadResult<IStreamsResponseDocument>.Error(null, $"Document Formatter Not found for \"{documentFormatterId}\"");
         }
 
-        public static FormattedDocumentReadResult<IAssetsResponseDocument> CreateAssetsResponseDocument(string documentFormatterId, string content)
+        public static FormattedDocumentReadResult<IAssetsResponseDocument> CreateAssetsResponseDocument(string documentFormatterId, byte[] content)
         {
             // Get the Formatter with the specified ID
             var formatter = GetFormatter(documentFormatterId);
@@ -154,7 +155,7 @@ namespace MTConnect.Formatters
             return FormattedDocumentReadResult<IAssetsResponseDocument>.Error(null, $"Document Formatter Not found for \"{documentFormatterId}\"");
         }
 
-        public static FormattedDocumentReadResult<IErrorResponseDocument> CreateErrorResponseDocument(string documentFormatterId, string content)
+        public static FormattedDocumentReadResult<IErrorResponseDocument> CreateErrorResponseDocument(string documentFormatterId, byte[] content)
         {
             // Get the Formatter with the specified ID
             var formatter = GetFormatter(documentFormatterId);

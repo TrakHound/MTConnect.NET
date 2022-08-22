@@ -7,10 +7,7 @@ using MTConnect.Devices;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Reflection;
-
 
 namespace MTConnect.Formatters
 {
@@ -52,7 +49,7 @@ namespace MTConnect.Formatters
 
         private static void AddFormatters()
         {
-            var assemblies = GetAssemblies();
+            var assemblies = Assemblies.Get();
             if (!assemblies.IsNullOrEmpty())
             {
                 var allTypes = assemblies.SelectMany(x => x.GetTypes());
@@ -73,34 +70,6 @@ namespace MTConnect.Formatters
                     }
                 }
             }
-        }
-
-        private static IEnumerable<Assembly> GetAssemblies()
-        {
-            try
-            {
-                // Load Assemblies located in Base Directoy
-                var assemblyDir = AppDomain.CurrentDomain.BaseDirectory;
-                var dllFiles = Directory.GetFiles(assemblyDir, "*.dll");
-                if (!dllFiles.IsNullOrEmpty())
-                {
-                    foreach (var dllFile in dllFiles)
-                    {
-                        try
-                        {
-                            // Load Assembly form DLL file
-                            Assembly.LoadFrom(dllFile);
-                        }
-                        catch { }
-
-                    }
-                }
-
-                return AppDomain.CurrentDomain.GetAssemblies();
-            }
-            catch { }
-
-            return null;
         }
     }
 }

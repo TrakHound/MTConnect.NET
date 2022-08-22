@@ -110,7 +110,7 @@ namespace MTConnect.Formatters
         }
 
 
-        public static FormattedEntityReadResult<IDevice> CreateDevice(string documentFormatterId, string content)
+        public static FormattedEntityReadResult<IDevice> CreateDevice(string documentFormatterId, byte[] content)
         {
             // Get the Formatter with the specified ID
             var formatter = GetFormatter(documentFormatterId);
@@ -123,7 +123,7 @@ namespace MTConnect.Formatters
             return FormattedEntityReadResult<IDevice>.Error(null, $"Entity Formatter Not found for \"{documentFormatterId}\"");
         }
 
-        public static FormattedEntityReadResult<IAsset> CreateAsset(string documentFormatterId, string assetType, string content)
+        public static FormattedEntityReadResult<IAsset> CreateAsset(string documentFormatterId, string assetType, byte[] content)
         {
             // Get the Formatter with the specified ID
             var formatter = GetFormatter(documentFormatterId);

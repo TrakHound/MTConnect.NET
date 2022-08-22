@@ -19,7 +19,7 @@ namespace MTConnect.Formatters
 
         public IEnumerable<string> Errors { get; set; }
 
-        public long ResponseDuration { get; set; }
+        public double ResponseDuration { get; set; }
 
 
         public FormattedDocumentReadResult(T document, bool success = true, IEnumerable<string> messages = null, IEnumerable<string> warnings = null, IEnumerable<string> errors = null)
