@@ -5,7 +5,7 @@
 
 namespace MTConnect.Headers
 {
-    public static class MTConnectDevicesAttributeDescriptions
+    public static class MTConnectHeaderAttributeDescriptions
     {
         /// <summary>
         /// A number indicating a specific instantiation of the buffer associated with the Agent that published the Response Document.   
@@ -27,6 +27,24 @@ namespace MTConnect.Headers
         /// A value representing the maximum number of Data Entities that MAY be retained in the Agent that published the Response Document at any point in time.
         /// </summary>
         public const string BufferSize = "A value representing the maximum number of Data Entities that MAY be retained in the Agent that published the Response Document at any point in time.";
+
+        /// <summary>
+        /// A number representing the sequence number assigned to the oldest piece of Streaming Data stored
+        /// in the buffer of the Agent immediately prior to the time that the Agent published the Response Document.
+        /// </summary>
+        public const string FirstSequence = "A number representing the sequence number assigned to the oldest piece of Streaming Data stored in the buffer of the Agent immediately prior to the time that the Agent published the Response Document.";
+
+        /// <summary>
+        /// A number representing the sequence number assigned to the last piece of Streaming Data that was added
+        /// in the buffer of the Agent immediately prior to the time that the Agent published the Response Document.
+        /// </summary>
+        public const string LastSequence = "A number representing the sequence number assigned to the last piece of Streaming Data that was added in the buffer of the Agent immediately prior to the time that the Agent published the Response Document.";
+
+        /// <summary>
+        /// A number representing the sequence number of the piece of Streaming Data that is the next piece of data to be retrieved
+        /// from the buffer of the Agent that was not included in the Response Document published by the Agent.
+        /// </summary>
+        public const string NextSequence = "A number representing the sequence number of the piece of Streaming Data that is the next piece of data to be retrieved from the buffer of the Agent that was not included in the Response Document published by the Agent.";
 
         /// <summary>
         /// A value representing the maximum number of Asset Documents that can be stored in the Agent that published the Response Document.   
