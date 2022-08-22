@@ -3,6 +3,7 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -24,6 +25,7 @@ namespace MTConnect
             {
                 return true;
             }
+
             /* If this is a list, use the Count property for efficiency. 
              * The Count property is O(1) while IEnumerable.Count() is O(N). */
             var collection = enumerable as ICollection<T>;
@@ -31,6 +33,13 @@ namespace MTConnect
             {
                 return collection.Count < 1;
             }
+
+            var a = enumerable as Array;
+            if (a != null)
+            {
+                return a.Length < 1;
+            }
+
             return !enumerable.Any();
         }
     }

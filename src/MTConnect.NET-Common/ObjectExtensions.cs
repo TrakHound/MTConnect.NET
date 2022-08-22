@@ -21,8 +21,19 @@ namespace MTConnect
             return value % 2 != 0;
         }
 
+        public static bool ToBoolean(this object o)
+        {
+            if (o is bool) return (bool)o;
+
+            var s = o?.ToString();
+            if (!string.IsNullOrEmpty(s) && bool.TryParse(s, out var x)) return x;
+            else return false;
+        }
+
         public static int ToInt(this object o)
         {
+            if (o is int) return (int)o;
+
             var s = o?.ToString();
             if (!string.IsNullOrEmpty(s) && int.TryParse(s, out var x)) return x;
             else return -1;
@@ -30,6 +41,8 @@ namespace MTConnect
 
         public static long ToLong(this object o)
         {
+            if (o is long) return (long)o;
+
             var s = o?.ToString();
             if (!string.IsNullOrEmpty(s) && long.TryParse(s, out var x)) return x;
             else return -1;
@@ -37,6 +50,8 @@ namespace MTConnect
 
         public static double ToDouble(this object o)
         {
+            if (o is double) return (double)o;
+
             var s = o?.ToString();
             if (!string.IsNullOrEmpty(s) && double.TryParse(s, out var x)) return x;
             else return -1;
@@ -108,19 +123,6 @@ namespace MTConnect
             return 0;
         }
 
-        //public static T ConvertEnum<T>(object value)
-        //{
-        //    if (value != null)
-        //    {
-        //        if (Enum.TryParse(typeof(T), value.ToString(), true, out var result))
-        //        {
-        //            return (T)result;
-        //        }
-        //    }
-
-        //    return default;
-        //}
-
         public static string[] GetChangeIdPropertyList(object obj)
         {
             if (obj != null)
@@ -167,6 +169,18 @@ namespace MTConnect
             }
 
             return s.TrimEnd('|');
+        }
+
+        public static bool ByteArraysEqual(byte[] b1, byte[] b2)
+        {
+            if (b1 == b2) return true;
+            if (b1 == null || b2 == null) return false;
+            if (b1.Length != b2.Length) return false;
+            for (int i = 0; i < b1.Length; i++)
+            {
+                if (b1[i] != b2[i]) return false;
+            }
+            return true;
         }
     }
 }

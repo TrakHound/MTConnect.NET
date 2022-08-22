@@ -25,6 +25,7 @@ namespace MTConnect
     public static class UnixTimeExtensions
     {
         public static readonly DateTime EpochTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        public const long EpochTicks = 621355968000000000;
 
 
         public static long ToUnixTime(this DateTime d)
@@ -51,30 +52,4 @@ namespace MTConnect
             return EpochTime.AddTicks(unixTicks);
         }
     }
-
-    //public static class UnixTimeExtensions
-    //{
-    //    public static readonly DateTime EpochTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-
-
-    //    public static long ToUnixTime(this DateTime d)
-    //    {
-    //        return Convert.ToInt64(Math.Round((d - EpochTime).TotalMilliseconds, 0));
-    //    }
-
-    //    public static DateTime ToDateTime(this long ts)
-    //    {
-    //        return FromUnixTime(ts);
-    //    }
-
-    //    public static DateTime ToLocalDateTime(this long ts)
-    //    {
-    //        return FromUnixTime(ts).ToLocalTime();
-    //    }
-
-    //    public static DateTime FromUnixTime(long unixMilliseconds)
-    //    {
-    //        return EpochTime.AddMilliseconds(unixMilliseconds);
-    //    }
-    //}
 }

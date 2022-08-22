@@ -15,39 +15,9 @@ namespace MTConnect
     public static class StringFunctions
     {
         private static readonly Random _random = new Random();
+        private static readonly MD5 _md5 = MD5.Create();
+        private static readonly Encoding _utf8 = Encoding.UTF8;
 
-        public static bool ToBoolean(this string s)
-        {
-            if (!string.IsNullOrEmpty(s) && bool.TryParse(s, out var x)) return x;
-            else return false;
-        }
-
-        public static int ToInt(this string s)
-        {
-            if (!string.IsNullOrEmpty(s) && int.TryParse(s, out var x)) return x;
-            else return 0;
-        }
-
-        public static long ToLong(this string s)
-        {
-            if (!string.IsNullOrEmpty(s) && long.TryParse(s, out var x)) return x;
-            else return 0;
-        }
-
-        public static double ToDouble(this string s)
-        {
-            if (!string.IsNullOrEmpty(s) && double.TryParse(s, out var x)) return x;
-            else return 0;
-        }
-
-        public static double ToDouble(this string s, int decimalPlaces = int.MaxValue)
-        {
-            if (!string.IsNullOrEmpty(s) && double.TryParse(s, out var x))
-            {
-                return Math.Round(x, decimalPlaces);
-            }
-            else return 0;
-        }
 
         public static string ToPascalCase(this string s)
         {
@@ -170,13 +140,13 @@ namespace MTConnect
 
             if (s.Length > 1)
             {
-                var sb = new StringBuilder(s.Length);
-                for (var i = 0; i <= s.Length - 1; i++)
-                {
-                    if (i == 0) sb.Append(char.ToUpper(s[i]));
-                    else sb.Append(char.ToLower(s[i]));
-                }
-                return sb.ToString();
+                var l = s.ToLower().ToCharArray();
+                var a = new char[l.Length];
+
+                a[0] = char.ToUpper(l[0]);
+                Array.Copy(l, 1, a, 1, a.Length - 1);
+
+                return new string(a);
             }
 
             return s.ToUpper();
@@ -188,17 +158,18 @@ namespace MTConnect
 
             if (s.Length > 1)
             {
-                var sb = new StringBuilder(s.Length);
-                for (var i = 0; i <= s.Length - 1; i++)
-                {
-                    if (i == 0) sb.Append(char.ToLower(s[i]));
-                    else sb.Append(s[i]);
-                }
-                return sb.ToString();
+                var l = s.ToCharArray();
+                var a = new char[l.Length];
+
+                a[0] = char.ToLower(l[0]);
+                Array.Copy(l, 1, a, 1, a.Length - 1);
+
+                return new string(a);
             }
 
-            return s.ToUpper();
+            return s.ToLower();
         }
+
 
         public static string ToUnderscore(this string s, bool splitOnUppercase = true)
         {
@@ -283,9 +254,30 @@ namespace MTConnect
 
         public static string ToMD5Hash(this string s)
         {
-            var md5 = MD5.Create();
-            var hash = md5.ComputeHash(Encoding.UTF8.GetBytes(s));
+            var hash = _md5.ComputeHash(_utf8.GetBytes(s));
             return string.Concat(hash.Select(b => b.ToString("x2")));
+        }
+
+        public static string ToMD5Hash(this byte[] bytes)
+        {
+            if (bytes != null)
+            {
+                var hash = _md5.ComputeHash(bytes);
+                return string.Concat(hash.Select(b => b.ToString("x2")));
+            }
+
+            return null;
+        }
+
+        public static byte[] ToMD5HashBytes(this string s)
+        {
+            return _md5.ComputeHash(_utf8.GetBytes(s));
+        }
+
+        public static byte[] ToMD5HashBytes(this byte[] bytes)
+        {
+            if (bytes != null) return _md5.ComputeHash(bytes);
+            return null;
         }
 
         public static string ToMD5Hash(string[] lines)
@@ -303,6 +295,33 @@ namespace MTConnect
                 }
 
                 return h;
+            }
+
+            return null;
+        }
+
+        public static byte[] ToMD5HashBytes(byte[][] hashBytes)
+        {
+            if (hashBytes != null && hashBytes.Length > 0)
+            {
+                var x1 = hashBytes[0];
+                var x2 = x1;
+                byte[] a1;
+
+                for (int i = 1; i < hashBytes.Length; i++)
+                {
+                    x2 = hashBytes[i];
+                    if (x2 != null)
+                    {
+                        a1 = new byte[x1.Length + x2.Length];
+                        Array.Copy(x1, 0, a1, 0, x1.Length);
+                        Array.Copy(x2, 0, a1, x1.Length, x2.Length);
+
+                        x1 = a1.ToMD5HashBytes();
+                    }
+                }
+
+                return x2;
             }
 
             return null;
@@ -348,6 +367,18 @@ namespace MTConnect
             }
 
             return default;
+        }
+
+        public static ulong GetUInt64Hash(this string text)
+        {
+            using (var md5 = MD5.Create())
+            {
+                var bytes = md5.ComputeHash(Encoding.Default.GetBytes(text));
+                Array.Resize(ref bytes, bytes.Length + bytes.Length % 8); //make multiple of 8 if hash is not, for exampel SHA1 creates 20 bytes. 
+                return Enumerable.Range(0, bytes.Length / 8) // create a counter for de number of 8 bytes in the bytearray
+                    .Select(i => BitConverter.ToUInt64(bytes, i * 8)) // combine 8 bytes at a time into a integer
+                    .Aggregate((x, y) => x ^ y); //xor the bytes together so you end up with a ulong (64-bit int)
+            }
         }
     }
 }
