@@ -4,6 +4,7 @@
 // file 'LICENSE.txt', which is part of this source code package.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -26,6 +27,12 @@ namespace MTConnect.Agents
 
         [JsonPropertyName("deviceModelChangeTime")]
         public long DeviceModelChangeTime { get; set; }
+
+        [JsonPropertyName("devices")]
+        public Dictionary<string, int> DeviceIndexes { get; set; }
+
+        [JsonPropertyName("dataItems")]
+        public Dictionary<string, int> DataItemIndexes { get; set; }
 
 
         public MTConnectAgentInformation()

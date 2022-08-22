@@ -11,9 +11,9 @@ using MTConnect.Errors;
 using MTConnect.Observations;
 using MTConnect.Observations.Input;
 using MTConnect.Streams;
+using MTConnect.Streams.Output;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace MTConnect.Agents
 {
@@ -33,7 +33,7 @@ namespace MTConnect.Agents
         /// <summary>
         /// Gets the Configuration associated with the Agent
         /// </summary>
-        AgentConfiguration Configuration { get; }
+        IAgentConfiguration Configuration { get; }
 
         /// <summary>
         /// Gets the Metrics associated with the Agent
@@ -86,6 +86,11 @@ namespace MTConnect.Agents
         long NextSequence { get; }
 
 
+        IDictionary<string, int> DeviceIndexes { get; }
+
+        IDictionary<string, int> DataItemIndexes { get; }
+
+
         #region "Event Handlers"
 
         /// <summary>
@@ -132,7 +137,8 @@ namespace MTConnect.Agents
         /// <summary>
         /// Raised when an MTConnectStreams response Document is sent successfully from the Agent
         /// </summary>
-        MTConnectStreamsHandler StreamsResponseSent { get; set; }
+        EventHandler StreamsResponseSent { get; set; }
+        //MTConnectStreamsHandler StreamsResponseSent { get; set; }
 
         /// <summary>
         /// Raised when an MTConnectAssets response Document is requested from the Agent
@@ -191,24 +197,11 @@ namespace MTConnect.Agents
         IDevicesResponseDocument GetDevices(Version mtconnectVersion = null, string deviceType = null);
 
         /// <summary>
-        /// Get a MTConnectDevices Response Document containing all devices.
-        /// </summary>
-        /// <returns>MTConnectDevices Response Document</returns>
-        Task<IDevicesResponseDocument> GetDevicesAsync(Version mtconnectVersion = null, string deviceType = null);
-
-        /// <summary>
         /// Get a MTConnectDevices Response Document containing the specified device.
         /// </summary>
         /// <param name="deviceKey">The (name or uuid) of the requested Device</param>
         /// <returns>MTConnectDevices Response Document</returns>
         IDevicesResponseDocument GetDevices(string deviceKey, Version mtconnectVersion = null);
-
-        /// <summary>
-        /// Get a MTConnectDevices Response Document containing the specified device.
-        /// </summary>
-        /// <param name="deviceKey">The (name or uuid) of the requested Device</param>
-        /// <returns>MTConnectDevices Response Document</returns>
-        Task<IDevicesResponseDocument> GetDevicesAsync(string deviceKey, Version mtconnectVersion = null);
 
         #endregion
 
@@ -219,14 +212,7 @@ namespace MTConnect.Agents
         /// </summary>
         /// <param name="count">The Maximum Number of DataItems to return</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        IStreamsResponseDocument GetDeviceStreams(int count = 0, Version mtconnectVersion = null, string deviceType = null);
-
-        /// <summary>
-        /// Get a MTConnectStreams Document containing all devices.
-        /// </summary>
-        /// <param name="count">The Maximum Number of DataItems to return</param>
-        /// <returns>MTConnectStreams Response Document</returns>
-        Task<IStreamsResponseDocument> GetDeviceStreamsAsync(int count = 0, Version mtconnectVersion = null, string deviceType = null);
+        IStreamsResponseOutputDocument GetDeviceStreams(int count = 0, Version mtconnectVersion = null, string deviceType = null);
 
         /// <summary>
         /// Get a MTConnectStreams Document containing all devices.
@@ -234,15 +220,7 @@ namespace MTConnect.Agents
         /// <param name="at">The sequence number to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        IStreamsResponseDocument GetDeviceStreams(long at, int count = 0, Version mtconnectVersion = null, string deviceType = null);
-
-        /// <summary>
-        /// Get a MTConnectStreams Document containing all devices.
-        /// </summary>
-        /// <param name="at">The sequence number to include in the response</param>
-        /// <param name="count">The maximum number of observations to include in the response</param>
-        /// <returns>MTConnectStreams Response Document</returns>
-        Task<IStreamsResponseDocument> GetDeviceStreamsAsync(long at, int count = 0, Version mtconnectVersion = null, string deviceType = null);
+        IStreamsResponseOutputDocument GetDeviceStreams(long at, int count = 0, Version mtconnectVersion = null, string deviceType = null);
 
         /// <summary>
         /// Get a MTConnectStreams Document containing all devices.
@@ -251,16 +229,7 @@ namespace MTConnect.Agents
         /// <param name="at">The sequence number to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        IStreamsResponseDocument GetDeviceStreams(IEnumerable<string> dataItemIds, long at, int count = 0, Version mtconnectVersion = null, string deviceType = null);
-
-        /// <summary>
-        /// Get a MTConnectStreams Document containing all devices.
-        /// </summary>
-        /// <param name="dataItemIds">A list of DataItemId's to specify what observations to include in the response</param>
-        /// <param name="at">The sequence number to include in the response</param>
-        /// <param name="count">The maximum number of observations to include in the response</param>
-        /// <returns>MTConnectStreams Response Document</returns>
-        Task<IStreamsResponseDocument> GetDeviceStreamsAsync(IEnumerable<string> dataItemIds, long at, int count = 0, Version mtconnectVersion = null, string deviceType = null);
+        IStreamsResponseOutputDocument GetDeviceStreams(IEnumerable<string> dataItemIds, long at, int count = 0, Version mtconnectVersion = null, string deviceType = null);
 
         /// <summary>
         /// Get a MTConnectStreams Document containing all devices.
@@ -269,16 +238,7 @@ namespace MTConnect.Agents
         /// <param name="to">The sequence number of the last observation to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        IStreamsResponseDocument GetDeviceStreams(long from, long to, int count = 0, Version mtconnectVersion = null, string deviceType = null);
-
-        /// <summary>
-        /// Get a MTConnectStreams Document containing all devices.
-        /// </summary>
-        /// <param name="from">The sequence number of the first observation to include in the response</param>
-        /// <param name="to">The sequence number of the last observation to include in the response</param>
-        /// <param name="count">The maximum number of observations to include in the response</param>
-        /// <returns>MTConnectStreams Response Document</returns>
-        Task<IStreamsResponseDocument> GetDeviceStreamsAsync(long from, long to, int count = 0, Version mtconnectVersion = null, string deviceType = null);
+        IStreamsResponseOutputDocument GetDeviceStreams(long from, long to, int count = 0, Version mtconnectVersion = null, string deviceType = null);
 
         /// <summary>
         /// Get a MTConnectStreams Document containing all devices.
@@ -288,17 +248,7 @@ namespace MTConnect.Agents
         /// <param name="to">The sequence number of the last observation to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        IStreamsResponseDocument GetDeviceStreams(IEnumerable<string> dataItemIds, long from, long to, int count = 0, Version mtconnectVersion = null, string deviceType = null);
-
-        /// <summary>
-        /// Get a MTConnectStreams Document containing all devices.
-        /// </summary>
-        /// <param name="dataItemIds">A list of DataItemId's to specify what observations to include in the response</param>
-        /// <param name="from">The sequence number of the first observation to include in the response</param>
-        /// <param name="to">The sequence number of the last observation to include in the response</param>
-        /// <param name="count">The maximum number of observations to include in the response</param>
-        /// <returns>MTConnectStreams Response Document</returns>
-        Task<IStreamsResponseDocument> GetDeviceStreamsAsync(IEnumerable<string> dataItemIds, long from, long to, int count = 0, Version mtconnectVersion = null, string deviceType = null);
+        IStreamsResponseOutputDocument GetDeviceStreams(IEnumerable<string> dataItemIds, long from, long to, int count = 0, Version mtconnectVersion = null, string deviceType = null);
 
 
         /// <summary>
@@ -307,15 +257,7 @@ namespace MTConnect.Agents
         /// <param name="deviceKey">The (name or uuid) of the requested Device</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        IStreamsResponseDocument GetDeviceStream(string deviceKey, int count = 0, Version mtconnectVersion = null);
-
-        /// <summary>
-        /// Get a MTConnectStreams Document containing the specified Device.
-        /// </summary>
-        /// <param name="deviceKey">The (name or uuid) of the requested Device</param>
-        /// <param name="count">The maximum number of observations to include in the response</param>
-        /// <returns>MTConnectStreams Response Document</returns>
-        Task<IStreamsResponseDocument> GetDeviceStreamAsync(string deviceKey, int count = 0, Version mtconnectVersion = null);
+        IStreamsResponseOutputDocument GetDeviceStream(string deviceKey, int count = 0, Version mtconnectVersion = null);
 
         /// <summary>
         /// Get a MTConnectStreams Document containing the specified Device.
@@ -324,16 +266,7 @@ namespace MTConnect.Agents
         /// <param name="dataItemIds">A list of DataItemId's to specify what observations to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        IStreamsResponseDocument GetDeviceStream(string deviceKey, IEnumerable<string> dataItemIds, int count = 0, Version mtconnectVersion = null);
-
-        /// <summary>
-        /// Get a MTConnectStreams Document containing the specified Device.
-        /// </summary>
-        /// <param name="deviceKey">The (name or uuid) of the requested Device</param>
-        /// <param name="dataItemIds">A list of DataItemId's to specify what observations to include in the response</param>
-        /// <param name="count">The maximum number of observations to include in the response</param>
-        /// <returns>MTConnectStreams Response Document</returns>
-        Task<IStreamsResponseDocument> GetDeviceStreamAsync(string deviceKey, IEnumerable<string> dataItemIds, int count = 0, Version mtconnectVersion = null);
+        IStreamsResponseOutputDocument GetDeviceStream(string deviceKey, IEnumerable<string> dataItemIds, int count = 0, Version mtconnectVersion = null);
 
         /// <summary>
         /// Get a MTConnectStreams Document containing the specified Device.
@@ -342,16 +275,7 @@ namespace MTConnect.Agents
         /// <param name="at">The sequence number to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        IStreamsResponseDocument GetDeviceStream(string deviceKey, long at, int count = 0, Version mtconnectVersion = null);
-
-        /// <summary>
-        /// Get a MTConnectStreams Document containing the specified Device.
-        /// </summary>
-        /// <param name="deviceKey">The (name or uuid) of the requested Device</param>
-        /// <param name="at">The sequence number to include in the response</param>
-        /// <param name="count">The maximum number of observations to include in the response</param>
-        /// <returns>MTConnectStreams Response Document</returns>
-        Task<IStreamsResponseDocument> GetDeviceStreamAsync(string deviceKey, long at, int count = 0, Version mtconnectVersion = null);
+        IStreamsResponseOutputDocument GetDeviceStream(string deviceKey, long at, int count = 0, Version mtconnectVersion = null);
 
         /// <summary>
         /// Get a MTConnectStreams Document containing the specified Device.
@@ -361,17 +285,7 @@ namespace MTConnect.Agents
         /// <param name="at">The sequence number to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        IStreamsResponseDocument GetDeviceStream(string deviceKey, IEnumerable<string> dataItemIds, long at, int count = 0, Version mtconnectVersion = null);
-
-        /// <summary>
-        /// Get a MTConnectStreams Document containing the specified Device.
-        /// </summary>
-        /// <param name="deviceKey">The (name or uuid) of the requested Device</param>
-        /// <param name="dataItemIds">A list of DataItemId's to specify what observations to include in the response</param>
-        /// <param name="at">The sequence number to include in the response</param>
-        /// <param name="count">The maximum number of observations to include in the response</param>
-        /// <returns>MTConnectStreams Response Document</returns>
-        Task<IStreamsResponseDocument> GetDeviceStreamAsync(string deviceKey, IEnumerable<string> dataItemIds, long at, int count = 0, Version mtconnectVersion = null);
+        IStreamsResponseOutputDocument GetDeviceStream(string deviceKey, IEnumerable<string> dataItemIds, long at, int count = 0, Version mtconnectVersion = null);
 
         /// <summary>
         /// Get a MTConnectStreams Document containing the specified Device.
@@ -381,17 +295,7 @@ namespace MTConnect.Agents
         /// <param name="to">The sequence number of the last observation to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        IStreamsResponseDocument GetDeviceStream(string deviceKey, long from, long to, int count = 0, Version mtconnectVersion = null);
-
-        /// <summary>
-        /// Get a MTConnectStreams Document containing the specified Device.
-        /// </summary>
-        /// <param name="deviceKey">The (name or uuid) of the requested Device</param>
-        /// <param name="from">The sequence number of the first observation to include in the response</param>
-        /// <param name="to">The sequence number of the last observation to include in the response</param>
-        /// <param name="count">The maximum number of observations to include in the response</param>
-        /// <returns>MTConnectStreams Response Document</returns>
-        Task<IStreamsResponseDocument> GetDeviceStreamAsync(string deviceKey, long from, long to, int count = 0, Version mtconnectVersion = null);
+        IStreamsResponseOutputDocument GetDeviceStream(string deviceKey, long from, long to, int count = 0, Version mtconnectVersion = null);
 
         /// <summary>
         /// Get a MTConnectStreams Document containing the specified Device.
@@ -402,18 +306,7 @@ namespace MTConnect.Agents
         /// <param name="to">The sequence number of the last observation to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        IStreamsResponseDocument GetDeviceStream(string deviceKey, IEnumerable<string> dataItemIds, long from, long to, int count = 0, Version mtconnectVersion = null);
-
-        /// <summary>
-        /// Get a MTConnectStreams Document containing the specified Device.
-        /// </summary>
-        /// <param name="deviceKey">The (name or uuid) of the requested Device</param>
-        /// <param name="dataItemIds">A list of DataItemId's to specify what observations to include in the response</param>
-        /// <param name="from">The sequence number of the first observation to include in the response</param>
-        /// <param name="to">The sequence number of the last observation to include in the response</param>
-        /// <param name="count">The maximum number of observations to include in the response</param>
-        /// <returns>MTConnectStreams Response Document</returns>
-        Task<IStreamsResponseDocument> GetDeviceStreamAsync(string deviceKey, IEnumerable<string> dataItemIds, long from, long to, int count = 0, Version mtconnectVersion = null);
+        IStreamsResponseOutputDocument GetDeviceStream(string deviceKey, IEnumerable<string> dataItemIds, long from, long to, int count = 0, Version mtconnectVersion = null);
 
         #endregion
 
@@ -434,33 +327,11 @@ namespace MTConnect.Agents
         IAssetsResponseDocument GetAssets(string deviceKey = null, string type = null, bool removed = false, int count = 100, Version mtconnectVersion = null);
 
         /// <summary>
-        /// Get an MTConnectAssets Document containing all Assets.
-        /// </summary>
-        /// <param name="deviceKey">Optional  Device name or uuid. If not given, all devices are returned.</param>
-        /// <param name="type">Defines the type of MTConnect Asset to be returned in the MTConnectAssets Response Document.</param>
-        /// <param name="removed">
-        /// An attribute that indicates whether the Asset has been removed from a piece of equipment.
-        /// If the value of the removed parameter in the query is true, then Asset Documents for Assets that have been marked as removed from a piece of equipment will be included in the Response Document.
-        /// If the value of the removed parameter in the query is false, then Asset Documents for Assets that have been marked as removed from a piece of equipment will not be included in the Response Document.
-        /// </param>
-        /// <param name="count">Defines the maximum number of Asset Documents to return in an MTConnectAssets Response Document.</param>
-        /// <returns>MTConnectAssets Response Document</returns>
-        Task<IAssetsResponseDocument> GetAssetsAsync(string deviceKey = null, string type = null, bool removed = false, int count = 100, Version mtconnectVersion = null);
-
-
-        /// <summary>
         /// Get a MTConnectAssets Document containing the specified Asset
         /// </summary>
         /// <param name="assetIds">The IDs of the Assets to include in the response</param>
         /// <returns>MTConnectAssets Response Document</returns>
         IAssetsResponseDocument GetAssets(IEnumerable<string> assetIds, Version mtconnectVersion = null);
-
-        /// <summary>
-        /// Get a MTConnectAssets Document containing the specified Asset
-        /// </summary>
-        /// <param name="assetIds">The IDs of the Assets to include in the response</param>
-        /// <returns>MTConnectAssets Response Document</returns>
-        Task<IAssetsResponseDocument> GetAssetsAsync(IEnumerable<string> assetIds, Version mtconnectVersion = null);
 
 
         /// <summary>
@@ -475,25 +346,9 @@ namespace MTConnect.Agents
         /// Remove the Asset with the specified Asset ID
         /// </summary>
         /// <param name="assetId">The ID of the Asset to remove</param>
-        /// <param name="timestamp">The Timestamp of when the Asset was removed in Unix Ticks (1/10,000 of a millisecond)</param>
-        /// <returns>Returns True if the Asset was successfully removed</returns>
-        Task<bool> RemoveAssetAsync(string assetId, long timestamp = 0);
-
-        /// <summary>
-        /// Remove the Asset with the specified Asset ID
-        /// </summary>
-        /// <param name="assetId">The ID of the Asset to remove</param>
         /// <param name="timestamp">The Timestamp of when the Asset was removed</param>
         /// <returns>Returns True if the Asset was successfully removed</returns>
         bool RemoveAsset(string assetId, DateTime timestamp);
-
-        /// <summary>
-        /// Remove the Asset with the specified Asset ID
-        /// </summary>
-        /// <param name="assetId">The ID of the Asset to remove</param>
-        /// <param name="timestamp">The Timestamp of when the Asset was removed</param>
-        /// <returns>Returns True if the Asset was successfully removed</returns>
-        Task<bool> RemoveAssetAsync(string assetId, DateTime timestamp);
 
 
         /// <summary>
@@ -508,25 +363,9 @@ namespace MTConnect.Agents
         /// Remove all Assets with the specified Type
         /// </summary>
         /// <param name="assetType">The Type of the Assets to remove</param>
-        /// <param name="timestamp">The Timestamp of when the Assets were removed in Unix Ticks (1/10,000 of a millisecond)</param>
-        /// <returns>Returns True if the Assets were successfully removed</returns>
-        Task<bool> RemoveAllAssetsAsync(string assetType, long timestamp = 0);
-
-        /// <summary>
-        /// Remove all Assets with the specified Type
-        /// </summary>
-        /// <param name="assetType">The Type of the Assets to remove</param>
         /// <param name="timestamp">The Timestamp of when the Assets were removed</param>
         /// <returns>Returns True if the Assets were successfully removed</returns>
         bool RemoveAllAssets(string assetType, DateTime timestamp);
-
-        /// <summary>
-        /// Remove all Assets with the specified Type
-        /// </summary>
-        /// <param name="assetType">The Type of the Assets to remove</param>
-        /// <param name="timestamp">The Timestamp of when the Assets were removed</param>
-        /// <returns>Returns True if the Assets were successfully removed</returns>
-        Task<bool> RemoveAllAssetsAsync(string assetType, DateTime timestamp);
 
         #endregion
 
@@ -541,26 +380,17 @@ namespace MTConnect.Agents
         IErrorResponseDocument GetError(ErrorCode errorCode, string value = null, Version mtconnectVersion = null);
 
         /// <summary>
-        /// Get an MTConnectErrors Document containing the specified ErrorCode
-        /// </summary>
-        /// <param name="errorCode">Provides a descriptive code that indicates the type of error that was encountered by an Agent when attempting to respond to a Request for information.</param>
-        /// <param name="value">A textual description of the error and any additional information an Agent is capable of providing regarding a specific error.</param>
-        /// <returns>MTConnectError Response Document</returns>
-        Task<IErrorResponseDocument> GetErrorAsync(ErrorCode errorCode, string value = null, Version mtconnectVersion = null);
-
-        /// <summary>
         /// Get an MTConnectErrors Document containing the specified Errors
         /// </summary>
         /// <param name="errors">A list of Errors to include in the response Document</param>
         /// <returns>MTConnectError Response Document</returns>
         IErrorResponseDocument GetError(IEnumerable<IError> errors, Version mtconnectVersion = null);
 
-        /// <summary>
-        /// Get an MTConnectErrors Document containing the specified Errors
-        /// </summary>
-        /// <param name="errors">A list of Errors to include in the response Document</param>
-        /// <returns>MTConnectError Response Document</returns>
-        Task<IErrorResponseDocument> GetErrorAsync(IEnumerable<IError> errors, Version mtconnectVersion = null);
+        #endregion
+
+        #region "DataItems"
+
+        IDataItem GetDataItem(string deviceKey, string dataItemKey);
 
         #endregion
 
@@ -573,19 +403,9 @@ namespace MTConnect.Agents
         bool AddDevice(IDevice device, bool intializeDataItems = true);
 
         /// <summary>
-        /// Add a new MTConnectDevice to the Agent's Buffer
-        /// </summary>
-        Task<bool> AddDeviceAsync(IDevice device, bool intializeDataItems = true);
-
-        /// <summary>
         /// Add new MTConnectDevices to the Agent's Buffer
         /// </summary>
         bool AddDevices(IEnumerable<IDevice> devices, bool intializeDataItems = true);
-
-        /// <summary>
-        /// Add new MTConnectDevices to the Agent's Buffer
-        /// </summary>
-        Task<bool> AddDevicesAsync(IEnumerable<IDevice> devices, bool intializeDataItems = true);
 
 
         /// <summary>
@@ -605,35 +425,11 @@ namespace MTConnect.Agents
         /// <param name="deviceKey">The (Name or Uuid) of the Device</param>
         /// <param name="dataItemKey">The (Name, ID, or Source) of the DataItem</param>
         /// <param name="value">The Value of the Observation (equivalent to ValueKey = Value)</param>
-        /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
-        /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
-        /// <returns>True if the Observation was added successfully</returns>
-        Task<bool> AddObservationAsync(string deviceKey, string dataItemKey, object value, bool? convertUnits = null, bool? ignoreCase = null);
-
-
-        /// <summary>
-        /// Add a new Observation to the Agent for the specified Device and DataItem
-        /// </summary>
-        /// <param name="deviceKey">The (Name or Uuid) of the Device</param>
-        /// <param name="dataItemKey">The (Name, ID, or Source) of the DataItem</param>
-        /// <param name="value">The Value of the Observation (equivalent to ValueKey = Value)</param>
         /// <param name="timestamp">The Timestamp of the Observation in Unix Ticks (1/10,000 of a millisecond)</param>
         /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
         /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
         /// <returns>True if the Observation was added successfully</returns>
         bool AddObservation(string deviceKey, string dataItemKey, object value, long timestamp, bool? convertUnits = null, bool? ignoreCase = null);
-
-        /// <summary>
-        /// Add a new Observation to the Agent for the specified Device and DataItem
-        /// </summary>
-        /// <param name="deviceKey">The (Name or Uuid) of the Device</param>
-        /// <param name="dataItemKey">The (Name, ID, or Source) of the DataItem</param>
-        /// <param name="value">The Value of the Observation (equivalent to ValueKey = Value)</param>
-        /// <param name="timestamp">The Timestamp of the Observation in Unix Ticks (1/10,000 of a millisecond)</param>
-        /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
-        /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
-        /// <returns>True if the Observation was added successfully</returns>
-        Task<bool> AddObservationAsync(string deviceKey, string dataItemKey, object value, long timestamp, bool? convertUnits = null, bool? ignoreCase = null);
 
         /// <summary>
         /// Add a new Observation to the Agent for the specified Device and DataItem
@@ -652,36 +448,12 @@ namespace MTConnect.Agents
         /// </summary>
         /// <param name="deviceKey">The (Name or Uuid) of the Device</param>
         /// <param name="dataItemKey">The (Name, ID, or Source) of the DataItem</param>
-        /// <param name="value">The Value of the Observation (equivalent to ValueKey = Value)</param>
-        /// <param name="timestamp">The Timestamp of the Observation</param>
-        /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
-        /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
-        /// <returns>True if the Observation was added successfully</returns>
-        Task<bool> AddObservationAsync(string deviceKey, string dataItemKey, object value, DateTime timestamp, bool? convertUnits = null, bool? ignoreCase = null);
-
-        /// <summary>
-        /// Add a new Observation to the Agent for the specified Device and DataItem
-        /// </summary>
-        /// <param name="deviceKey">The (Name or Uuid) of the Device</param>
-        /// <param name="dataItemKey">The (Name, ID, or Source) of the DataItem</param>
         /// <param name="valueKey">The ValueKey to use for the Value parameter</param>
         /// <param name="value">The Value of the Observation</param>
         /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
         /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
         /// <returns>True if the Observation was added successfully</returns>
         bool AddObservation(string deviceKey, string dataItemKey, string valueKey, object value, bool? convertUnits = null, bool? ignoreCase = null);
-
-        /// <summary>
-        /// Add a new Observation to the Agent for the specified Device and DataItem
-        /// </summary>
-        /// <param name="deviceKey">The (Name or Uuid) of the Device</param>
-        /// <param name="dataItemKey">The (Name, ID, or Source) of the DataItem</param>
-        /// <param name="valueKey">The ValueKey to use for the Value parameter</param>
-        /// <param name="value">The Value of the Observation</param>
-        /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
-        /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
-        /// <returns>True if the Observation was added successfully</returns>
-        Task<bool> AddObservationAsync(string deviceKey, string dataItemKey, string valueKey, object value, bool? convertUnits = null, bool? ignoreCase = null);
 
         /// <summary>
         /// Add a new Observation to the Agent for the specified Device and DataItem
@@ -703,37 +475,11 @@ namespace MTConnect.Agents
         /// <param name="dataItemKey">The (Name, ID, or Source) of the DataItem</param>
         /// <param name="valueKey">The ValueKey to use for the Value parameter</param>
         /// <param name="value">The Value of the Observation</param>
-        /// <param name="timestamp">The Timestamp of the Observation in Unix Ticks (1/10,000 of a millisecond)</param>
-        /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
-        /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
-        /// <returns>True if the Observation was added successfully</returns>
-        Task<bool> AddObservationAsync(string deviceKey, string dataItemKey, string valueKey, object value, long timestamp, bool? convertUnits = null, bool? ignoreCase = null);
-
-        /// <summary>
-        /// Add a new Observation to the Agent for the specified Device and DataItem
-        /// </summary>
-        /// <param name="deviceKey">The (Name or Uuid) of the Device</param>
-        /// <param name="dataItemKey">The (Name, ID, or Source) of the DataItem</param>
-        /// <param name="valueKey">The ValueKey to use for the Value parameter</param>
-        /// <param name="value">The Value of the Observation</param>
         /// <param name="timestamp">The Timestamp of the Observation</param>
         /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
         /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
         /// <returns>True if the Observation was added successfully</returns>
         bool AddObservation(string deviceKey, string dataItemKey, string valueKey, object value, DateTime timestamp, bool? convertUnits = null, bool? ignoreCase = null);
-
-        /// <summary>
-        /// Add a new Observation to the Agent for the specified Device and DataItem
-        /// </summary>
-        /// <param name="deviceKey">The (Name or Uuid) of the Device</param>
-        /// <param name="dataItemKey">The (Name, ID, or Source) of the DataItem</param>
-        /// <param name="valueKey">The ValueKey to use for the Value parameter</param>
-        /// <param name="value">The Value of the Observation</param>
-        /// <param name="timestamp">The Timestamp of the Observation</param>
-        /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
-        /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
-        /// <returns>True if the Observation was added successfully</returns>
-        Task<bool> AddObservationAsync(string deviceKey, string dataItemKey, string valueKey, object value, DateTime timestamp, bool? convertUnits = null, bool? ignoreCase = null);
 
         /// <summary>
         /// Add a new Observation to the Agent for the specified Device and DataItem
@@ -747,25 +493,9 @@ namespace MTConnect.Agents
         bool AddObservation(string deviceKey, IObservationInput observationInput, bool? ignoreTimestamp = null, bool? convertUnits = null, bool? ignoreCase = null);
 
         /// <summary>
-        /// Add a new Observation to the Agent for the specified Device and DataItem
-        /// </summary>
-        /// <param name="deviceKey">The (Name or Uuid) of the Device</param>
-        /// <param name="observationInput">The Observation to add</param>
-        /// <param name="ignoreTimestamp">Used to override the default configuration for the Agent to IgnoreTimestamp</param>
-        /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
-        /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
-        /// <returns>True if the Observation was added successfully</returns>
-        Task<bool> AddObservationAsync(string deviceKey, IObservationInput observationInput, bool? ignoreTimestamp = null, bool? convertUnits = null, bool? ignoreCase = null);
-
-        /// <summary>
         /// Add new Observations to the Agent for the specified Device
         /// </summary>
         bool AddObservations(string deviceKey, IEnumerable<IObservationInput> observationInputs);
-
-        /// <summary>
-        /// Add new Observations to the Agent for the specified Device
-        /// </summary>
-        Task<bool> AddObservationsAsync(string deviceKey, IEnumerable<IObservationInput> observationInputs);
 
 
         /// <summary>
@@ -778,29 +508,12 @@ namespace MTConnect.Agents
         bool AddAsset(string deviceKey, IAsset asset, bool? ignoreTimestamp = null);
 
         /// <summary>
-        /// Add a new Asset to the Agent for the specified Device and DataItem
-        /// </summary>
-        /// <param name="deviceKey">The (Name or Uuid) of the Device</param>
-        /// <param name="asset">The Asset to add</param>
-        /// <param name="ignoreTimestamp">Used to override the default configuration for the Agent to IgnoreTimestamp</param>
-        /// <returns>True if the Asset was added successfully</returns>
-        Task<bool> AddAssetAsync(string deviceKey, IAsset asset, bool? ignoreTimestamp = null);
-
-        /// <summary>
         /// Add new Assets to the Agent
         /// </summary>
         /// <param name="deviceKey">The (Name or Uuid) of the Device</param>
         /// <param name="assets">The Assets to add</param>
         /// <returns>True if the Assets was added successfully</returns>
         bool AddAssets(string deviceKey, IEnumerable<IAsset> assets);
-
-        /// <summary>
-        /// Add new Assets to the Agent
-        /// </summary>
-        /// <param name="deviceKey">The (Name or Uuid) of the Device</param>
-        /// <param name="assets">The Assets to add</param>
-        /// <returns>True if the Assets was added successfully</returns>
-        Task<bool> AddAssetsAsync(string deviceKey, IEnumerable<IAsset> assets);
 
         #endregion
 
