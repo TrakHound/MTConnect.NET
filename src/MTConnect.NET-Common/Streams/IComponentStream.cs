@@ -47,12 +47,12 @@ namespace MTConnect.Streams
         /// <summary>
         /// Gets All Observations (Samples, Events, & Conditions)
         /// </summary>
-        IEnumerable<Observation> Observations { get; }
+        IEnumerable<IObservation> Observations { get; }
 
         /// <summary>
         /// Gets only the Observations associated with DataItems with a Category of SAMPLE
         /// </summary>
-        IEnumerable<SampleObservation> Samples { get; }
+        IEnumerable<IObservation> Samples { get; }
 
         /// <summary>
         /// Gets only the Observations associated with DataItems with a Category of SAMPLE and a Representation of VALUE
@@ -77,7 +77,7 @@ namespace MTConnect.Streams
         /// <summary>
         /// Gets only the Observations associated with DataItems with a Category of EVENT
         /// </summary>
-        IEnumerable<EventObservation> Events { get; }
+        IEnumerable<IObservation> Events { get; }
 
         /// <summary>
         /// Gets only the Observations associated with DataItems with a Category of EVENT and a Representation of VALUE
@@ -97,6 +97,6 @@ namespace MTConnect.Streams
         /// <summary>
         /// Condition organizes the Data Entities returned in the MTConnectStreams XML document for those DataItem elements defined with a category attribute of CONDITION in the MTConnectDevices document.
         /// </summary>
-        IEnumerable<ConditionObservation> Conditions { get; }
+        IEnumerable<IObservation> Conditions { get; }
     }  
 }

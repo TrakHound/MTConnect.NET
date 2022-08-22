@@ -5,48 +5,37 @@
 
 using MTConnect.Observations;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
-using System.Xml.Serialization;
 
 namespace MTConnect.Streams
 {
     /// <summary>
     /// DeviceStream is a XML container that organizes data reported from a single piece of equipment.A DeviceStream element MUST be provided for each piece of equipment reporting data in an MTConnectStreams document.
     /// </summary>
-    [XmlRoot("DeviceStream")]
     public class DeviceStream : IDeviceStream
     {
         /// <summary>
         /// The name of an element or a piece of equipment. The name associated with the piece of equipment reporting the data contained in this DeviceStream container.
         /// </summary>
-        [XmlAttribute("name")]
-        [JsonPropertyName("name")]
         public string Name { get; set; }
 
         /// <summary>
         /// The uuid associated with the piece of equipment reporting the data contained in this DeviceStream container.
         /// </summary>
-        [XmlAttribute("uuid")]
-        [JsonPropertyName("uuid")]
         public string Uuid { get; set; }
 
         /// <summary>
         /// An XML container type element that organizes data returned from an Agent in response to a current or sample HTTP request.
         /// </summary>
-        [XmlElement("ComponentStream")]
-        [JsonPropertyName("componentStreams")]
         public IEnumerable<IComponentStream> ComponentStreams { get; set; }
 
         /// <summary>
         /// Gets All Observations (Samples, Events, & Conditions)
         /// </summary>
-        [XmlIgnore]
-        [JsonIgnore]
-        public IEnumerable<Observation> Observations
+        public IEnumerable<IObservation> Observations
         {
             get
             {
-                var l = new List<Observation>();
+                var l = new List<IObservation>();
 
                 if (!ComponentStreams.IsNullOrEmpty())
                 {
@@ -66,13 +55,11 @@ namespace MTConnect.Streams
         /// <summary>
         /// Returns only the Observations associated with DataItems with a Category of SAMPLE
         /// </summary>
-        [XmlIgnore]
-        [JsonIgnore]
-        public IEnumerable<SampleObservation> Samples
+        public IEnumerable<IObservation> Samples
         {
             get
             {
-                var l = new List<SampleObservation>();
+                var l = new List<IObservation>();
 
                 if (!ComponentStreams.IsNullOrEmpty())
                 {
@@ -92,8 +79,6 @@ namespace MTConnect.Streams
         /// <summary>
         /// Returns only the Observations associated with DataItems with a Category of SAMPLE and a Representation of VALUE
         /// </summary>
-        [XmlIgnore]
-        [JsonIgnore]
         public IEnumerable<SampleValueObservation> SampleValues
         {
             get
@@ -118,8 +103,6 @@ namespace MTConnect.Streams
         /// <summary>
         /// Returns only the Observations associated with DataItems with a Category of SAMPLE and a Representation of TIME_SERIES
         /// </summary>
-        [XmlIgnore]
-        [JsonIgnore]
         public IEnumerable<SampleTimeSeriesObservation> SampleTimeSeries
         {
             get
@@ -144,8 +127,6 @@ namespace MTConnect.Streams
         /// <summary>
         /// Returns only the Observations associated with DataItems with a Category of SAMPLE and a Representation of DATA_SET
         /// </summary>
-        [XmlIgnore]
-        [JsonIgnore]
         public IEnumerable<SampleDataSetObservation> SampleDataSets
         {
             get
@@ -170,8 +151,6 @@ namespace MTConnect.Streams
         /// <summary>
         /// Returns only the Observations associated with DataItems with a Category of SAMPLE and a Representation of TABLE
         /// </summary>
-        [XmlIgnore]
-        [JsonIgnore]
         public IEnumerable<SampleTableObservation> SampleTables
         {
             get
@@ -197,13 +176,11 @@ namespace MTConnect.Streams
         /// <summary>
         /// Returns only the Observations associated with DataItems with a Category of EVENT
         /// </summary>
-        [XmlIgnore]
-        [JsonIgnore]
-        public IEnumerable<EventObservation> Events
+        public IEnumerable<IObservation> Events
         {
             get
             {
-                var l = new List<EventObservation>();
+                var l = new List<IObservation>();
 
                 if (!ComponentStreams.IsNullOrEmpty())
                 {
@@ -223,8 +200,6 @@ namespace MTConnect.Streams
         /// <summary>
         /// Returns only the Observations associated with DataItems with a Category of EVENT and a Representation of VALUE
         /// </summary>
-        [XmlIgnore]
-        [JsonIgnore]
         public IEnumerable<EventValueObservation> EventValues
         {
             get
@@ -249,8 +224,6 @@ namespace MTConnect.Streams
         /// <summary>
         /// Returns only the Observations associated with DataItems with a Category of EVENT and a Representation of DATA_SET
         /// </summary>
-        [XmlIgnore]
-        [JsonIgnore]
         public IEnumerable<EventDataSetObservation> EventDataSets
         {
             get
@@ -275,8 +248,6 @@ namespace MTConnect.Streams
         /// <summary>
         /// Returns only the Observations associated with DataItems with a Category of EVENT and a Representation of TABLE
         /// </summary>
-        [XmlIgnore]
-        [JsonIgnore]
         public IEnumerable<EventTableObservation> EventTables
         {
             get
@@ -302,13 +273,11 @@ namespace MTConnect.Streams
         /// <summary>
         /// Condition organizes the Data Entities returned in the MTConnectStreams XML document for those DataItem elements defined with a category attribute of CONDITION in the MTConnectDevices document.
         /// </summary>
-        [XmlIgnore]
-        [JsonIgnore]
-        public IEnumerable<ConditionObservation> Conditions
+        public IEnumerable<IObservation> Conditions
         {
             get
             {
-                var l = new List<ConditionObservation>();
+                var l = new List<IObservation>();
 
                 if (!ComponentStreams.IsNullOrEmpty())
                 {
