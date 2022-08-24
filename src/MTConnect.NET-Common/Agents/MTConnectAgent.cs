@@ -417,6 +417,15 @@ namespace MTConnect.Agents
             }
         }
 
+        internal void UpdateAgentDevice()
+        {
+            // Update Cached DataItems
+            _deviceDataItems.TryRemove(_agent.Uuid, out _);
+            _deviceDataItems.TryAdd(_agent.Uuid, _agent.GetDataItems());
+            _deviceDataItemIds.TryRemove(_agent.Uuid, out _);
+            _deviceDataItemIds.TryAdd(_agent.Uuid, _agent.GetDataItems().Select(o => o.Id));
+        }
+
         public void InitializeCurrentObservations(IEnumerable<BufferObservation> observations)
         {
             if (!observations.IsNullOrEmpty())
@@ -2002,7 +2011,7 @@ namespace MTConnect.Agents
         {
             if (dataItem != null)
             {
-                if (newObservation.ChangeId != existingObservation.ChangeId)
+                if (!ObjectExtensions.ByteArraysEqual(newObservation.ChangeId, existingObservation.ChangeId))
                 {
                     if (!dataItem.Filters.IsNullOrEmpty() && dataItem.Representation == DataItemRepresentation.VALUE)
                     {
@@ -2650,10 +2659,13 @@ namespace MTConnect.Agents
 
         private string Remove3dSuffix(string s)
         {
-            var i = s.IndexOf("_3D");
-            if (i >= 0)
+            if (!string.IsNullOrEmpty(s))
             {
-                s = s.Substring(0, i);
+                var i = s.IndexOf("_3D");
+                if (i >= 0)
+                {
+                    s = s.Substring(0, i);
+                }
             }
             return s;
         }
