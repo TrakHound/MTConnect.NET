@@ -4,8 +4,10 @@
 // file 'LICENSE', which is part of this source code package.
 
 using MTConnect.Errors;
+using MTConnect.Http;
 using MTConnect.Streams;
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -39,6 +41,10 @@ namespace MTConnect.Clients.Rest
         /// If present, specifies that only the Equipment Metadata for the piece of equipment represented by the name or uuid will be published.
         /// If not present, Metadata for all pieces of equipment associated with the Agent will be published.
         /// </param>
+        /// <param name="path">The XPath expression specifying the components and/or data items to include</param>
+        /// <param name="from">The sequence to retrieve the sample data from</param>
+        /// <param name="to">The sequence to retrieve the sample data to</param>
+        /// <param name="count">The number of sequences to include in the sample data</param>
         /// <param name="documentFormat">Gets or Sets the Document Format to return</param>
         public MTConnectSampleClient(string authority, string device = null, string path = null, long from = -1, long to = -1, long count = -1, string documentFormat = MTConnect.DocumentFormat.XML)
         {
@@ -50,6 +56,8 @@ namespace MTConnect.Clients.Rest
             Count = count;
             DocumentFormat = documentFormat;
             Timeout = DefaultTimeout;
+            ContentEncodings = HttpContentEncodings.DefaultAccept;
+            ContentType = MimeTypes.Get(documentFormat);
         }
 
 
@@ -58,7 +66,7 @@ namespace MTConnect.Clients.Rest
         /// TCP port number[:port] that the Agent is listening to for incoming Requests from client software applications.
         /// If the port number is the default Port 80, port is not required.
         /// </summary>
-        public string Authority { get; set; }
+        public string Authority { get; }
 
         /// <summary>
         /// If present, specifies that only the Equipment Metadata for the piece of equipment represented by the name or uuid will be published.
@@ -97,6 +105,16 @@ namespace MTConnect.Clients.Rest
         public int Timeout { get; set; }
 
         /// <summary>
+        /// Gets or Sets the List of Encodings (ex. gzip, br, deflate) to pass to the Accept-Encoding HTTP Header
+        /// </summary>
+        public IEnumerable<HttpContentEncoding> ContentEncodings { get; set; }
+
+        /// <summary>
+        /// Gets or Sets the Content-type (or MIME-type) to pass to the Accept HTTP Header
+        /// </summary>
+        public string ContentType { get; set; }
+
+        /// <summary>
         /// Raised when an MTConnectError Document is received
         /// </summary>
         public EventHandler<IErrorResponseDocument> OnMTConnectError { get; set; }
@@ -129,7 +147,16 @@ namespace MTConnect.Clients.Rest
                     var contentType = Formatters.ResponseDocumentFormatter.GetContentType(DocumentFormat);
                     if (!string.IsNullOrEmpty(contentType))
                     {
-                        request.Headers.Add("Accept", contentType);
+                        request.Headers.Add(HttpHeaders.Accept, contentType);
+                    }
+
+                    // Add 'Accept-Encoding' HTTP Header 
+                    if (!ContentEncodings.IsNullOrEmpty())
+                    {
+                        foreach (var contentEncoding in ContentEncodings)
+                        {
+                            request.Headers.Add(HttpHeaders.AcceptEncoding, contentEncoding.ToString().ToLower());
+                        }
                     }
 
                     // Create Uri and Send Request
@@ -178,7 +205,16 @@ namespace MTConnect.Clients.Rest
                     var contentType = Formatters.ResponseDocumentFormatter.GetContentType(DocumentFormat);
                     if (!string.IsNullOrEmpty(contentType))
                     {
-                        request.Headers.Add("Accept", contentType);
+                        request.Headers.Add(HttpHeaders.Accept, contentType);
+                    }
+
+                    // Add 'Accept-Encoding' HTTP Header 
+                    if (!ContentEncodings.IsNullOrEmpty())
+                    {
+                        foreach (var contentEncoding in ContentEncodings)
+                        {
+                            request.Headers.Add(HttpHeaders.AcceptEncoding, contentEncoding.ToString().ToLower());
+                        }
                     }
 
                     // Create Uri and Send Request
@@ -208,8 +244,8 @@ namespace MTConnect.Clients.Rest
 
         private Uri CreateUri()
         {
-            var baseUrl = Authority;
-            var builder = new UriBuilder(baseUrl);
+            var url = Authority;
+            var builder = new UriBuilder(url);
             var query = HttpUtility.ParseQueryString(builder.Query);
             if (query.HasKeys())
             {
@@ -226,54 +262,49 @@ namespace MTConnect.Clients.Rest
                 if (Count <= 0 && s != null && long.TryParse(s, out l)) Count = l;
 
                 builder.Query = null;
-                baseUrl = builder.Uri.ToString();
+                url = builder.Uri.ToString();
             }
 
             // Remove Sample command from URL
             var cmd = "sample";
-            if (baseUrl.EndsWith(cmd) && baseUrl.Length > cmd.Length)
-                baseUrl = baseUrl.Substring(0, baseUrl.Length - cmd.Length);
+            if (url.EndsWith(cmd) && url.Length > cmd.Length)
+                url = url.Substring(0, url.Length - cmd.Length);
 
             // Check for Trailing Forward Slash
-            if (!baseUrl.EndsWith("/")) baseUrl += "/";
-            if (!string.IsNullOrEmpty(Device)) baseUrl += Device + "/";
+            if (!url.EndsWith("/")) url += "/";
+            if (!string.IsNullOrEmpty(Device)) url += Device + "/";
+
+            // Add Command
+            url += cmd;
 
             // Replace 'localhost' with '127.0.0.1' (This is due to a performance issue with .NET Core's System.Net.Http.HttpClient)
-            if (baseUrl.Contains("localhost")) baseUrl = baseUrl.Replace("localhost", "127.0.0.1");
+            if (url.Contains("localhost")) url = url.Replace("localhost", "127.0.0.1");
 
             // Check for http
-            if (!baseUrl.StartsWith("http://") && !baseUrl.StartsWith("https://")) baseUrl = "http://" + baseUrl;
+            if (!url.StartsWith("http://") && !url.StartsWith("https://")) url = "http://" + url;
 
-            // Create Uri
-            var uri = new Uri(baseUrl);
-            uri = new Uri(uri, cmd);
-            builder = new UriBuilder(uri);
-
-            // Add Query Parameters
-            query = HttpUtility.ParseQueryString(builder.Query);
 
             // Add 'From' parameter
-            if (From > 0) query["from"] = From.ToString();
+            if (From > 0) url = Url.AddQueryParameter(url, "from", From);
 
             // Add 'To' parameter
-            if (To > 0) query["to"] = To.ToString();
+            if (To > 0) url = Url.AddQueryParameter(url, "to", To);
 
             // Add 'Count' parameter
-            if (Count > 0) query["count"] = Count.ToString();
+            if (Count > 0) url = Url.AddQueryParameter(url, "count", Count);
 
             // Add 'Path' parameter
-            if (!string.IsNullOrEmpty(Path)) query["path"] = Path;
+            if (!string.IsNullOrEmpty(Path)) url = Url.AddQueryParameter(url, "path", Path);
 
             // Add 'DocumentFormat' parameter
             if (!string.IsNullOrEmpty(DocumentFormat) && DocumentFormat != MTConnect.DocumentFormat.XML)
             {
-                query["documentFormat"] = DocumentFormat.ToString().ToLower();
+                url = Url.AddQueryParameter(url, "documentFormat", DocumentFormat.ToLower());
             }
 
-            builder.Query = query.ToString();
-
-            return builder.Uri;
+            return new Uri(url);
         }
+
 
         private IStreamsResponseDocument HandleResponse(HttpResponseMessage response)
         {
@@ -285,7 +316,7 @@ namespace MTConnect.Clients.Rest
                 }
                 else if (response.Content != null)
                 {
-                    var xml = response.Content.ReadAsStringAsync().Result;
+                    var xml = response.Content.ReadAsByteArrayAsync().Result;
                     return ReadDocument(response, xml);
                 }
             }
@@ -304,9 +335,9 @@ namespace MTConnect.Clients.Rest
                 else if (response.Content != null)
                 {
 #if NET5_0_OR_GREATER
-                    var documentString = await response.Content.ReadAsStringAsync(cancel);
+                    var documentString = await response.Content.ReadAsByteArrayAsync(cancel);
 #else
-                    var documentString = await response.Content.ReadAsStringAsync();
+                    var documentString = await response.Content.ReadAsByteArrayAsync();
 #endif
 
                     return ReadDocument(response, documentString);
@@ -316,12 +347,16 @@ namespace MTConnect.Clients.Rest
             return null;
         }
 
-        private IStreamsResponseDocument ReadDocument(HttpResponseMessage response, string documentString)
+        private IStreamsResponseDocument ReadDocument(HttpResponseMessage response, byte[] documentBytes)
         {
-            if (!string.IsNullOrEmpty(documentString))
+            if (documentBytes != null && documentBytes.Length > 0)
             {
+                // Handle Compression Encoding
+                var contentEncoding = MTConnectHttpResponse.GetContentHeaderValue(response, HttpHeaders.ContentEncoding);
+                var bytes = MTConnectHttpResponse.HandleContentEncoding(contentEncoding, documentBytes);
+
                 // Process MTConnectDevices Document
-                var document = Formatters.ResponseDocumentFormatter.CreateStreamsResponseDocument(DocumentFormat.ToString(), documentString).Document;
+                var document = Formatters.ResponseDocumentFormatter.CreateStreamsResponseDocument(DocumentFormat.ToString(), bytes).Document;
                 if (document != null)
                 {
                     return document;
@@ -329,7 +364,7 @@ namespace MTConnect.Clients.Rest
                 else
                 {
                     // Process MTConnectError Document (if MTConnectDevices fails)
-                    var errorDocument = Formatters.ResponseDocumentFormatter.CreateErrorResponseDocument(DocumentFormat.ToString(), documentString).Document;
+                    var errorDocument = Formatters.ResponseDocumentFormatter.CreateErrorResponseDocument(DocumentFormat.ToString(), bytes).Document;
                     if (errorDocument != null)
                     {
                         OnMTConnectError?.Invoke(this, errorDocument);

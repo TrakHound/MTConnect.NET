@@ -5,11 +5,12 @@
 
 using MTConnect.Devices;
 using MTConnect.Errors;
+using MTConnect.Http;
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web;
 
 namespace MTConnect.Clients.Rest
 {
@@ -46,6 +47,8 @@ namespace MTConnect.Clients.Rest
             Device = device;
             DocumentFormat = documentFormat;
             Timeout = DefaultTimeout;
+            ContentEncodings = HttpContentEncodings.DefaultAccept;
+            ContentType = MimeTypes.Get(documentFormat);
         }
 
 
@@ -60,7 +63,7 @@ namespace MTConnect.Clients.Rest
         /// If present, specifies that only the Equipment Metadata for the piece of equipment represented by the name or uuid will be published.
         /// If not present, Metadata for all pieces of equipment associated with the Agent will be published.
         /// </summary>
-        public string Device { get; }
+        public string Device { get; set; }
 
         /// <summary>
         /// Gets or Sets the Document Format to return
@@ -71,6 +74,16 @@ namespace MTConnect.Clients.Rest
         /// Gets of Sets the connection timeout for the request
         /// </summary>
         public int Timeout { get; set; }
+
+        /// <summary>
+        /// Gets or Sets the List of Encodings (ex. gzip, br, deflate) to pass to the Accept-Encoding HTTP Header
+        /// </summary>
+        public IEnumerable<HttpContentEncoding> ContentEncodings { get; set; }
+
+        /// <summary>
+        /// Gets or Sets the Content-type (or MIME-type) to pass to the Accept HTTP Header
+        /// </summary>
+        public string ContentType { get; set; }
 
         /// <summary>
         /// Raised when an MTConnectError Document is received
@@ -105,7 +118,16 @@ namespace MTConnect.Clients.Rest
                     var contentType = Formatters.ResponseDocumentFormatter.GetContentType(DocumentFormat);
                     if (!string.IsNullOrEmpty(contentType))
                     {
-                        request.Headers.Add("Accept", contentType);
+                        request.Headers.Add(HttpHeaders.Accept, contentType);
+                    }
+
+                    // Add 'Accept-Encoding' HTTP Header 
+                    if (!ContentEncodings.IsNullOrEmpty())
+                    {
+                        foreach (var contentEncoding in ContentEncodings)
+                        {
+                            request.Headers.Add(HttpHeaders.AcceptEncoding, contentEncoding.ToString().ToLower());
+                        }
                     }
 
                     // Create Uri and Send Request
@@ -154,7 +176,16 @@ namespace MTConnect.Clients.Rest
                     var contentType = Formatters.ResponseDocumentFormatter.GetContentType(DocumentFormat);
                     if (!string.IsNullOrEmpty(contentType))
                     {
-                        request.Headers.Add("Accept", contentType);
+                        request.Headers.Add(HttpHeaders.Accept, contentType);
+                    }
+
+                    // Add 'Accept-Encoding' HTTP Header 
+                    if (!ContentEncodings.IsNullOrEmpty())
+                    {
+                        foreach (var contentEncoding in ContentEncodings)
+                        {
+                            request.Headers.Add(HttpHeaders.AcceptEncoding, contentEncoding.ToString().ToLower());
+                        }
                     }
 
                     // Create Uri and Send Request
@@ -182,47 +213,39 @@ namespace MTConnect.Clients.Rest
             return null;
         }
 
-        private Uri CreateUri()
-        {
-            return CreateUri(Authority, Device, DocumentFormat);
-        }
 
-        public static Uri CreateUri(string url, string deviceKey, string documentFormat)
+        public Uri CreateUri()
         {
-            var baseUrl = url;
+            var url = Authority;
 
             // Remove Probe command from URL
             var cmd = "probe";
-            if (baseUrl.EndsWith(cmd) && baseUrl.Length > cmd.Length)
-                baseUrl = baseUrl.Substring(0, baseUrl.Length - cmd.Length);
+            if (url.EndsWith(cmd) && url.Length > cmd.Length)
+                url = url.Substring(0, url.Length - cmd.Length);
 
             // Check for Trailing Forward Slash
-            if (!baseUrl.EndsWith("/")) baseUrl += "/";
-            if (!string.IsNullOrEmpty(deviceKey)) baseUrl += deviceKey + "/";
+            if (!url.EndsWith("/")) url += "/";
+            if (!string.IsNullOrEmpty(Device)) url += Device + "/";
+
+            // Add Command
+            url += cmd;
 
             // Replace 'localhost' with '127.0.0.1' (This is due to a performance issue with .NET Core's System.Net.Http.HttpClient)
-            if (baseUrl.Contains("localhost")) baseUrl = baseUrl.Replace("localhost", "127.0.0.1");
+            if (url.Contains("localhost")) url = url.Replace("localhost", "127.0.0.1");
 
             // Check for http
-            if (!baseUrl.StartsWith("http://") && !baseUrl.StartsWith("https://")) baseUrl = "http://" + baseUrl;
+            if (!url.StartsWith("http://") && !url.StartsWith("https://")) url = "http://" + url;
 
-            // Create UriBuilder
-            var builder = new UriBuilder(Url.Combine(baseUrl, cmd));
-
-            // Add Query Parameters
-            var query = HttpUtility.ParseQueryString(builder.Query);
 
             // Add 'DocumentFormat' parameter
-            if (!string.IsNullOrEmpty(documentFormat) && documentFormat != MTConnect.DocumentFormat.XML)
+            if (!string.IsNullOrEmpty(DocumentFormat) && DocumentFormat != MTConnect.DocumentFormat.XML)
             {
-                query["documentFormat"] = documentFormat.ToString().ToLower();
+                url = Url.AddQueryParameter(url, "documentFormat", DocumentFormat.ToLower());
             }
 
-            builder.Query = query.ToString();
-
-            // Create and Return Url
-            return builder.Uri;
+            return new Uri(url);
         }
+
 
         private IDevicesResponseDocument HandleResponse(HttpResponseMessage response)
         {
@@ -234,8 +257,8 @@ namespace MTConnect.Clients.Rest
                 }
                 else if (response.Content != null)
                 {
-                    var documentString = response.Content.ReadAsStringAsync().Result;
-                    return ReadDocument(response, documentString);
+                    var documentBytes = response.Content.ReadAsByteArrayAsync().Result;
+                    return ReadDocument(response, documentBytes);
                 }
             }
 
@@ -253,24 +276,28 @@ namespace MTConnect.Clients.Rest
                 else if (response.Content != null)
                 {
 #if NET5_0_OR_GREATER
-                    var documentString = await response.Content.ReadAsStringAsync(cancel);
+                    var documentBytes = await response.Content.ReadAsByteArrayAsync(cancel);
 #else
-                    var documentString = await response.Content.ReadAsStringAsync();
+                    var documentBytes = await response.Content.ReadAsByteArrayAsync();
 #endif
 
-                    return ReadDocument(response, documentString);
+                    return ReadDocument(response, documentBytes);
                 }
             }
 
             return null;
         }
 
-        private IDevicesResponseDocument ReadDocument(HttpResponseMessage response, string documentString)
+        private IDevicesResponseDocument ReadDocument(HttpResponseMessage response, byte[] documentBytes)
         {
-            if (!string.IsNullOrEmpty(documentString))
+            if (documentBytes != null && documentBytes.Length > 0)
             {
+                // Handle Compression Encoding
+                var contentEncoding = MTConnectHttpResponse.GetContentHeaderValue(response, HttpHeaders.ContentEncoding);
+                var bytes = MTConnectHttpResponse.HandleContentEncoding(contentEncoding, documentBytes);
+
                 // Process MTConnectDevices Document
-                var document = Formatters.ResponseDocumentFormatter.CreateDevicesResponseDocument(DocumentFormat.ToString(), documentString).Document;
+                var document = Formatters.ResponseDocumentFormatter.CreateDevicesResponseDocument(DocumentFormat.ToString(), bytes).Document;
                 if (document != null)
                 {
                     return document;
@@ -278,7 +305,7 @@ namespace MTConnect.Clients.Rest
                 else
                 {
                     // Process MTConnectError Document (if MTConnectDevices fails)
-                    var errorDocument = Formatters.ResponseDocumentFormatter.CreateErrorResponseDocument(DocumentFormat.ToString(), documentString).Document;
+                    var errorDocument = Formatters.ResponseDocumentFormatter.CreateErrorResponseDocument(DocumentFormat.ToString(), bytes).Document;
                     if (errorDocument != null)
                     {
                         OnMTConnectError?.Invoke(this, errorDocument);
