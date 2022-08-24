@@ -19,11 +19,24 @@ namespace MTConnect.Applications.Agents
     /// </summary>
     public class MTConnectHttpAgentApplication : MTConnectAgentApplication
     {
+        private const string DefaultServiceName = "MTConnect-Agent-HTTP";
+        private const string DefaultServiceDisplayName = "MTConnect HTTP Agent";
+        private const string DefaultServiceDescription = "MTConnect Agent using HTTP to provide access to device information using the MTConnect Standard";
+
+
         private readonly Logger _httpLogger = LogManager.GetLogger("http-logger");
 
         private MTConnectHttpServer _httpServer;
         private IHttpAgentApplicationConfiguration _configuration;
         private int _port = 0;
+
+
+        public MTConnectHttpAgentApplication()
+        {
+            ServiceName = DefaultServiceName;
+            ServiceDisplayName = DefaultServiceDisplayName;
+            ServiceDescription = DefaultServiceDescription;
+        }
 
 
         /// <summary>

@@ -3,6 +3,10 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
+using MTConnect.Agents;
+using MTConnect.Configurations;
+using System;
+
 namespace MTConnect.Applications.Agents
 {
     /// <summary>
@@ -10,6 +14,19 @@ namespace MTConnect.Applications.Agents
     /// </summary>
     public interface IMTConnectAgentApplication
     {
+        string ServiceName { get; }
+
+        string ServiceDisplayName { get; }
+
+        string ServiceDescription { get; }
+
+
+        IMTConnectAgent Agent { get; }
+
+        EventHandler<AgentConfiguration> OnRestart { get; set; }
+
+
+
         /// <summary>
         /// Start the Agent Application
         /// </summary>

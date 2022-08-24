@@ -26,9 +26,9 @@ namespace MTConnect.Applications.Agents
     /// </summary>
     public abstract class MTConnectAgentApplication : IMTConnectAgentApplication
     {
-        private const string DefaultServiceName = "MTConnect-Agent-HTTP";
-        private const string DefaultServiceDisplayName = "MTConnect HTTP Agent";
-        private const string DefaultServiceDescription = "MTConnect Agent using HTTP to provide access to device information";
+        private const string DefaultServiceName = "MTConnect-Agent";
+        private const string DefaultServiceDisplayName = "MTConnect Agent";
+        private const string DefaultServiceDescription = "MTConnect Agent to provide access to device information using the MTConnect Standard";
 
         protected readonly Logger _applicationLogger = LogManager.GetLogger("application-logger");
         protected readonly Logger _agentLogger = LogManager.GetLogger("agent-logger");
@@ -47,9 +47,24 @@ namespace MTConnect.Applications.Agents
         protected bool _verboseLogging = true;
 
 
+        public string ServiceName { get; set; }
+
+        public string ServiceDisplayName { get; set; }
+
+        public string ServiceDescription { get; set; }
+
+
         public IMTConnectAgent Agent => _mtconnectAgent;
 
         public EventHandler<AgentConfiguration> OnRestart { get; set; }
+
+
+        public MTConnectAgentApplication()
+        {
+            ServiceName = DefaultServiceName;
+            ServiceDisplayName = DefaultServiceDisplayName;
+            ServiceDescription = DefaultServiceDescription;
+        }
 
 
         /// <summary>
@@ -61,9 +76,9 @@ namespace MTConnect.Applications.Agents
             string configFile = null;
 
 
-            string serviceName = DefaultServiceName;
-            string serviceDisplayName = DefaultServiceDisplayName;
-            string serviceDescription = DefaultServiceDescription;
+            string serviceName = ServiceName;
+            string serviceDisplayName = ServiceDisplayName;
+            string serviceDescription = ServiceDescription;
             bool serviceStart = true;
 
             // Read Command Line Arguments
