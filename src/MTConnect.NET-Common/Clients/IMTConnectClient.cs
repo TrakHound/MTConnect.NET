@@ -12,6 +12,9 @@ using System.Threading;
 
 namespace MTConnect.Clients
 {
+    /// <summary>
+    /// Client that implements the full MTConnect Api Protocol (Probe, Current, Sample Stream, and Assets)
+    /// </summary>
     public interface IMTConnectClient
     {
         /// <summary>

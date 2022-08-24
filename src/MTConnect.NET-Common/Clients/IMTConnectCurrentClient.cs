@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace MTConnect.Clients
 {
     /// <summary>
-    /// Client that is used to perform a Current request from an MTConnect Agent using the MTConnect REST Api protocol
+    /// Client that is used to perform a Current request from an MTConnect Agent
     /// </summary>
     public interface IMTConnectCurrentClient
     {
