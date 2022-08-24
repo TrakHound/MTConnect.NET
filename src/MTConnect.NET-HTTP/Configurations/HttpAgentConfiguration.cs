@@ -3,6 +3,7 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
+using MTConnect.Agents;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
@@ -11,7 +12,7 @@ namespace MTConnect.Configurations
     /// <summary>
     /// Configuration for an MTConnect Http Agent
     /// </summary>
-    public class HttpAgentConfiguration : AgentConfiguration
+    public class HttpAgentConfiguration : AgentConfiguration, IHttpAgentConfiguration
     {
         /// <summary>
         /// The port number the agent binds to for requests.
@@ -26,21 +27,31 @@ namespace MTConnect.Configurations
         public string ServerIp { get; set; }
 
         /// <summary>
-        /// 
+        /// Gets or Sets the List of Encodings (ex. gzip, br, deflate) to pass to the Accept-Encoding HTTP Header
         /// </summary>
         [JsonIgnore]
-        public Http.HttpResponseCompression ResponseCompression 
+        public IEnumerable<Http.HttpResponseCompression> ResponseCompression
         {
             get
             {
-                var s = ResponseCompressionString;
-                if (!string.IsNullOrEmpty(s)) s = s.ToTitleCase();
-                return s.ConvertEnum<Http.HttpResponseCompression>();
-            }          
+                if (!ResponseCompressionString.IsNullOrEmpty())
+                {
+                    var responseCompression = new List<Http.HttpResponseCompression>();
+                    foreach (var str in ResponseCompressionString)
+                    {
+                        var s = str;
+                        if (!string.IsNullOrEmpty(s)) s = s.ToTitleCase();
+                        var rc = s.ConvertEnum<Http.HttpResponseCompression>();
+                        if (rc != Http.HttpResponseCompression.None) responseCompression.Add(rc);
+                    }
+                    return responseCompression;
+                }
+                return null;
+            }
         }
 
         [JsonPropertyName("responseCompression")]
-        public string ResponseCompressionString { get; set; }
+        public IEnumerable<string> ResponseCompressionString { get; set; }
 
         /// <summary>
         /// Allow HTTP PUT or POST of data item values or assets.
@@ -53,7 +64,7 @@ namespace MTConnect.Configurations
         /// Lists are comma (,) separated and the host names will be validated by translating them into IP addresses.
         /// </summary>
         [JsonPropertyName("allowPutFrom")]
-        public List<string> AllowPutFrom { get; set; }
+        public IEnumerable<string> AllowPutFrom { get; set; }
 
         /// <summary>
         /// The maximum number of Threads to use for the Http Requests
@@ -62,31 +73,24 @@ namespace MTConnect.Configurations
         public int MaxListenerThreads { get; set; }
 
 
+        /// <summary>
+        /// Gets or Sets the default response document indendation
+        /// </summary>
+        [JsonPropertyName("indentOutput")]
+        public bool IndentOutput { get; set; }
 
-        [JsonPropertyName("devicesNamespaces")]
-        public List<NamespaceConfiguration> DevicesNamespaces { get; set; }
-
-        [JsonPropertyName("streamsNamespaces")]
-        public List<NamespaceConfiguration> StreamsNamespaces { get; set; }
-
-        [JsonPropertyName("assetsNamespaces")]
-        public List<NamespaceConfiguration> AssetsNamespaces { get; set; }
-
-        [JsonPropertyName("errorNamespaces")]
-        public List<NamespaceConfiguration> ErrorNamespaces { get; set; }
+        /// <summary>
+        /// Gets or Sets the default response document comments output. Comments contain descriptions from the MTConnect standard
+        /// </summary>
+        [JsonPropertyName("outputComments")]
+        public bool OutputComments { get; set; }
 
 
-        [JsonPropertyName("devicesStyle")]
-        public StyleConfiguration DevicesStyle { get; set; }
-
-        [JsonPropertyName("streamsStyle")]
-        public StyleConfiguration StreamsStyle { get; set; }
-
-        [JsonPropertyName("assetsStyle")]
-        public StyleConfiguration AssetsStyle { get; set; }
-
-        [JsonPropertyName("errorStyle")]
-        public StyleConfiguration ErrorStyle { get; set; }
+        /// <summary>
+        /// Gets or Sets the default response document validation level. 0 = Ignore, 1 = Warning, 2 = Strict
+        /// </summary>
+        [JsonPropertyName("outputValidationLevel")]
+        public ValidationLevel OutputValidationLevel { get; set; }
 
 
         public HttpAgentConfiguration()
@@ -96,6 +100,9 @@ namespace MTConnect.Configurations
             AllowPut = false;
             AllowPutFrom = null;
             MaxListenerThreads = 5;
+            IndentOutput = true;
+            OutputComments = false;
+            OutputValidationLevel = ValidationLevel.Ignore;
         }
     }
 }

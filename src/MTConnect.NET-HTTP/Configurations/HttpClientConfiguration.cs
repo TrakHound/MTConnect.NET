@@ -10,7 +10,7 @@ namespace MTConnect.Configurations
     /// <summary>
     /// Configuration for a MTConnect Http Client
     /// </summary>
-    public class HttpClientConfiguration
+    public class HttpClientConfiguration : IHttpClientConfiguration
     {
         /// <summary>
         /// The unique identifier for the Adapter
