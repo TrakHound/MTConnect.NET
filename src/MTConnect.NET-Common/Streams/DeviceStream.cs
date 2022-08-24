@@ -55,11 +55,11 @@ namespace MTConnect.Streams
         /// <summary>
         /// Returns only the Observations associated with DataItems with a Category of SAMPLE
         /// </summary>
-        public IEnumerable<IObservation> Samples
+        public IEnumerable<ISampleObservation> Samples
         {
             get
             {
-                var l = new List<IObservation>();
+                var l = new List<ISampleObservation>();
 
                 if (!ComponentStreams.IsNullOrEmpty())
                 {
@@ -67,7 +67,7 @@ namespace MTConnect.Streams
                     {
                         if (!componentStream.Samples.IsNullOrEmpty())
                         {
-                            foreach (var dataItem in componentStream.Samples) l.Add(dataItem);
+                            foreach (var observation in componentStream.Samples) l.Add(observation);
                         }
                     }
                 }
@@ -79,11 +79,11 @@ namespace MTConnect.Streams
         /// <summary>
         /// Returns only the Observations associated with DataItems with a Category of SAMPLE and a Representation of VALUE
         /// </summary>
-        public IEnumerable<SampleValueObservation> SampleValues
+        public IEnumerable<ISampleValueObservation> SampleValues
         {
             get
             {
-                var l = new List<SampleValueObservation>();
+                var l = new List<ISampleValueObservation>();
 
                 if (!ComponentStreams.IsNullOrEmpty())
                 {
@@ -91,7 +91,7 @@ namespace MTConnect.Streams
                     {
                         if (!componentStream.SampleValues.IsNullOrEmpty())
                         {
-                            foreach (var dataItem in componentStream.SampleValues) l.Add(dataItem);
+                            foreach (var observation in componentStream.SampleValues) l.Add(observation);
                         }
                     }
                 }
@@ -103,11 +103,11 @@ namespace MTConnect.Streams
         /// <summary>
         /// Returns only the Observations associated with DataItems with a Category of SAMPLE and a Representation of TIME_SERIES
         /// </summary>
-        public IEnumerable<SampleTimeSeriesObservation> SampleTimeSeries
+        public IEnumerable<ISampleTimeSeriesObservation> SampleTimeSeries
         {
             get
             {
-                var l = new List<SampleTimeSeriesObservation>();
+                var l = new List<ISampleTimeSeriesObservation>();
 
                 if (!ComponentStreams.IsNullOrEmpty())
                 {
@@ -115,7 +115,7 @@ namespace MTConnect.Streams
                     {
                         if (!componentStream.SampleTimeSeries.IsNullOrEmpty())
                         {
-                            foreach (var dataItem in componentStream.SampleTimeSeries) l.Add(dataItem);
+                            foreach (var observation in componentStream.SampleTimeSeries) l.Add(observation);
                         }
                     }
                 }
@@ -127,11 +127,11 @@ namespace MTConnect.Streams
         /// <summary>
         /// Returns only the Observations associated with DataItems with a Category of SAMPLE and a Representation of DATA_SET
         /// </summary>
-        public IEnumerable<SampleDataSetObservation> SampleDataSets
+        public IEnumerable<ISampleDataSetObservation> SampleDataSets
         {
             get
             {
-                var l = new List<SampleDataSetObservation>();
+                var l = new List<ISampleDataSetObservation>();
 
                 if (!ComponentStreams.IsNullOrEmpty())
                 {
@@ -139,7 +139,7 @@ namespace MTConnect.Streams
                     {
                         if (!componentStream.SampleDataSets.IsNullOrEmpty())
                         {
-                            foreach (var dataItem in componentStream.SampleDataSets) l.Add(dataItem);
+                            foreach (var observation in componentStream.SampleDataSets) l.Add(observation);
                         }
                     }
                 }
@@ -151,11 +151,11 @@ namespace MTConnect.Streams
         /// <summary>
         /// Returns only the Observations associated with DataItems with a Category of SAMPLE and a Representation of TABLE
         /// </summary>
-        public IEnumerable<SampleTableObservation> SampleTables
+        public IEnumerable<ISampleTableObservation> SampleTables
         {
             get
             {
-                var l = new List<SampleTableObservation>();
+                var l = new List<ISampleTableObservation>();
 
                 if (!ComponentStreams.IsNullOrEmpty())
                 {
@@ -163,7 +163,7 @@ namespace MTConnect.Streams
                     {
                         if (!componentStream.SampleTables.IsNullOrEmpty())
                         {
-                            foreach (var dataItem in componentStream.SampleTables) l.Add(dataItem);
+                            foreach (var observation in componentStream.SampleTables) l.Add(observation);
                         }
                     }
                 }
@@ -176,11 +176,11 @@ namespace MTConnect.Streams
         /// <summary>
         /// Returns only the Observations associated with DataItems with a Category of EVENT
         /// </summary>
-        public IEnumerable<IObservation> Events
+        public IEnumerable<IEventObservation> Events
         {
             get
             {
-                var l = new List<IObservation>();
+                var l = new List<IEventObservation>();
 
                 if (!ComponentStreams.IsNullOrEmpty())
                 {
@@ -188,7 +188,7 @@ namespace MTConnect.Streams
                     {
                         if (!componentStream.Events.IsNullOrEmpty())
                         {
-                            foreach (var dataItem in componentStream.Events) l.Add(dataItem);
+                            foreach (var observation in componentStream.Events) l.Add(observation);
                         }
                     }
                 }
@@ -200,11 +200,11 @@ namespace MTConnect.Streams
         /// <summary>
         /// Returns only the Observations associated with DataItems with a Category of EVENT and a Representation of VALUE
         /// </summary>
-        public IEnumerable<EventValueObservation> EventValues
+        public IEnumerable<IEventValueObservation> EventValues
         {
             get
             {
-                var l = new List<EventValueObservation>();
+                var l = new List<IEventValueObservation>();
 
                 if (!ComponentStreams.IsNullOrEmpty())
                 {
@@ -212,7 +212,7 @@ namespace MTConnect.Streams
                     {
                         if (!componentStream.EventValues.IsNullOrEmpty())
                         {
-                            foreach (var dataItem in componentStream.EventValues) l.Add(dataItem);
+                            foreach (var observation in componentStream.EventValues) l.Add(observation);
                         }
                     }
                 }
@@ -224,11 +224,11 @@ namespace MTConnect.Streams
         /// <summary>
         /// Returns only the Observations associated with DataItems with a Category of EVENT and a Representation of DATA_SET
         /// </summary>
-        public IEnumerable<EventDataSetObservation> EventDataSets
+        public IEnumerable<IEventDataSetObservation> EventDataSets
         {
             get
             {
-                var l = new List<EventDataSetObservation>();
+                var l = new List<IEventDataSetObservation>();
 
                 if (!ComponentStreams.IsNullOrEmpty())
                 {
@@ -236,7 +236,7 @@ namespace MTConnect.Streams
                     {
                         if (!componentStream.EventDataSets.IsNullOrEmpty())
                         {
-                            foreach (var dataItem in componentStream.EventDataSets) l.Add(dataItem);
+                            foreach (var observation in componentStream.EventDataSets) l.Add(observation);
                         }
                     }
                 }
@@ -248,11 +248,11 @@ namespace MTConnect.Streams
         /// <summary>
         /// Returns only the Observations associated with DataItems with a Category of EVENT and a Representation of TABLE
         /// </summary>
-        public IEnumerable<EventTableObservation> EventTables
+        public IEnumerable<IEventTableObservation> EventTables
         {
             get
             {
-                var l = new List<EventTableObservation>();
+                var l = new List<IEventTableObservation>();
 
                 if (!ComponentStreams.IsNullOrEmpty())
                 {
@@ -260,7 +260,7 @@ namespace MTConnect.Streams
                     {
                         if (!componentStream.EventTables.IsNullOrEmpty())
                         {
-                            foreach (var dataItem in componentStream.EventTables) l.Add(dataItem);
+                            foreach (var observation in componentStream.EventTables) l.Add(observation);
                         }
                     }
                 }
@@ -273,11 +273,11 @@ namespace MTConnect.Streams
         /// <summary>
         /// Condition organizes the Data Entities returned in the MTConnectStreams XML document for those DataItem elements defined with a category attribute of CONDITION in the MTConnectDevices document.
         /// </summary>
-        public IEnumerable<IObservation> Conditions
+        public IEnumerable<IConditionObservation> Conditions
         {
             get
             {
-                var l = new List<IObservation>();
+                var l = new List<IConditionObservation>();
 
                 if (!ComponentStreams.IsNullOrEmpty())
                 {
@@ -285,7 +285,7 @@ namespace MTConnect.Streams
                     {
                         if (!componentStream.Conditions.IsNullOrEmpty())
                         {
-                            foreach (var dataItem in componentStream.Conditions) l.Add(dataItem);
+                            foreach (var observation in componentStream.Conditions) l.Add(observation);
                         }
                     }
                 }

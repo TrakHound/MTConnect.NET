@@ -21,6 +21,9 @@ namespace MTConnect.Streams.Output
         /// </summary>
         public IComponent Component { get; set; }
 
+        /// <summary>
+        /// The type of the Component that the ComponentStream is associated with
+        /// </summary>
         public string ComponentType { get; set; }
 
         /// <summary>

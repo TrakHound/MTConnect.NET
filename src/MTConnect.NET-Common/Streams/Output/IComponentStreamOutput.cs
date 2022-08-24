@@ -19,7 +19,7 @@ namespace MTConnect.Streams.Output
         IComponent Component { get; }
 
         /// <summary>
-        /// Component identifies the Structural Element associated with the ComponentStream element.
+        /// The type of the Component that the ComponentStream is associated with
         /// </summary>
         string ComponentType { get; }
 

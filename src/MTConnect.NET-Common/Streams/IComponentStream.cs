@@ -20,7 +20,7 @@ namespace MTConnect.Streams
         IComponent Component { get; }
 
         /// <summary>
-        /// Component identifies the Structural Element associated with the ComponentStream element.
+        /// The type of the Component that the ComponentStream is associated with
         /// </summary>
         string ComponentType { get; }
 
@@ -52,51 +52,51 @@ namespace MTConnect.Streams
         /// <summary>
         /// Gets only the Observations associated with DataItems with a Category of SAMPLE
         /// </summary>
-        IEnumerable<IObservation> Samples { get; }
+        IEnumerable<ISampleObservation> Samples { get; }
 
         /// <summary>
         /// Gets only the Observations associated with DataItems with a Category of SAMPLE and a Representation of VALUE
         /// </summary>
-        IEnumerable<SampleValueObservation> SampleValues { get; }
+        IEnumerable<ISampleValueObservation> SampleValues { get; }
 
         /// <summary>
         /// Gets only the Observations associated with DataItems with a Category of SAMPLE and a Representation of TIME_SERIES
         /// </summary>
-        IEnumerable<SampleTimeSeriesObservation> SampleTimeSeries { get; }
+        IEnumerable<ISampleTimeSeriesObservation> SampleTimeSeries { get; }
 
         /// <summary>
         /// Gets only the Observations associated with DataItems with a Category of SAMPLE and a Representation of DATA_SET
         /// </summary>
-        IEnumerable<SampleDataSetObservation> SampleDataSets { get; }
+        IEnumerable<ISampleDataSetObservation> SampleDataSets { get; }
 
         /// <summary>
         /// Gets only the Observations associated with DataItems with a Category of SAMPLE and a Representation of TABLE
         /// </summary>
-        IEnumerable<SampleTableObservation> SampleTables { get; }
+        IEnumerable<ISampleTableObservation> SampleTables { get; }
 
         /// <summary>
         /// Gets only the Observations associated with DataItems with a Category of EVENT
         /// </summary>
-        IEnumerable<IObservation> Events { get; }
+        IEnumerable<IEventObservation> Events { get; }
 
         /// <summary>
         /// Gets only the Observations associated with DataItems with a Category of EVENT and a Representation of VALUE
         /// </summary>
-        IEnumerable<EventValueObservation> EventValues { get; }
+        IEnumerable<IEventValueObservation> EventValues { get; }
 
         /// <summary>
         /// Gets only the Observations associated with DataItems with a Category of EVENT and a Representation of DATA_SET
         /// </summary>
-        IEnumerable<EventDataSetObservation> EventDataSets { get; }
+        IEnumerable<IEventDataSetObservation> EventDataSets { get; }
 
         /// <summary>
         /// Gets only the Observations associated with DataItems with a Category of EVENT and a Representation of TABLE
         /// </summary>
-        IEnumerable<EventTableObservation> EventTables { get; }
+        IEnumerable<IEventTableObservation> EventTables { get; }
 
         /// <summary>
         /// Condition organizes the Data Entities returned in the MTConnectStreams XML document for those DataItem elements defined with a category attribute of CONDITION in the MTConnectDevices document.
         /// </summary>
-        IEnumerable<IObservation> Conditions { get; }
+        IEnumerable<IConditionObservation> Conditions { get; }
     }  
 }

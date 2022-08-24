@@ -23,6 +23,9 @@ namespace MTConnect.Streams
         /// </summary>
         public IComponent Component { get; set; }
 
+        /// <summary>
+        /// The type of the Component that the ComponentStream is associated with
+        /// </summary>
         public string ComponentType { get; set; }
 
         /// <summary>
@@ -57,60 +60,60 @@ namespace MTConnect.Streams
         /// <summary>
         /// Returns only the Observations associated with DataItems with a Category of SAMPLE
         /// </summary>
-        public IEnumerable<IObservation> Samples => _observations != null ? _observations.Where(o => o.Category == Devices.DataItems.DataItemCategory.SAMPLE) : null;
+        public IEnumerable<ISampleObservation> Samples => GetObservations<ISampleObservation>(_observations);
 
         /// <summary>
         /// Returns only the Observations associated with DataItems with a Category of SAMPLE and a Representation of VALUE
         /// </summary>
-        public IEnumerable<SampleValueObservation> SampleValues => GetObservations<SampleValueObservation>(Samples);
+        public IEnumerable<ISampleValueObservation> SampleValues => GetObservations<ISampleValueObservation>(_observations);
 
         /// <summary>
         /// Returns only the Observations associated with DataItems with a Category of SAMPLE and a Representation of TIME_SERIES
         /// </summary>
-        public IEnumerable<SampleTimeSeriesObservation> SampleTimeSeries => GetObservations<SampleTimeSeriesObservation>(Samples);
+        public IEnumerable<ISampleTimeSeriesObservation> SampleTimeSeries => GetObservations<ISampleTimeSeriesObservation>(_observations);
 
         /// <summary>
         /// Returns only the Observations associated with DataItems with a Category of SAMPLE and a Representation of DATA_SET
         /// </summary>
-        public IEnumerable<SampleDataSetObservation> SampleDataSets => GetObservations<SampleDataSetObservation>(Samples);
+        public IEnumerable<ISampleDataSetObservation> SampleDataSets => GetObservations<ISampleDataSetObservation>(_observations);
 
         /// <summary>
         /// Returns only the Observations associated with DataItems with a Category of SAMPLE and a Representation of TABLE
         /// </summary>
-        public IEnumerable<SampleTableObservation> SampleTables => GetObservations<SampleTableObservation>(Samples);
+        public IEnumerable<ISampleTableObservation> SampleTables => GetObservations<ISampleTableObservation>(_observations);
 
         /// <summary>
         /// Returns only the Observations associated with DataItems with a Category of EVENT
         /// </summary>
-        public IEnumerable<IObservation> Events => _observations != null ? _observations.Where(o => o.Category == Devices.DataItems.DataItemCategory.EVENT) : null;
+        public IEnumerable<IEventObservation> Events => GetObservations<IEventObservation>(_observations);
 
         /// <summary>
         /// Returns only the Observations associated with DataItems with a Category of EVENT and a Representation of VALUE
         /// </summary>
-        public IEnumerable<EventValueObservation> EventValues => GetObservations<EventValueObservation>(Events);
+        public IEnumerable<IEventValueObservation> EventValues => GetObservations<IEventValueObservation>(_observations);
 
         /// <summary>
         /// Returns only the Observations associated with DataItems with a Category of EVENT and a Representation of DATA_SET
         /// </summary>
-        public IEnumerable<EventDataSetObservation> EventDataSets => GetObservations<EventDataSetObservation>(Events);
+        public IEnumerable<IEventDataSetObservation> EventDataSets => GetObservations<IEventDataSetObservation>(_observations);
 
         /// <summary>
         /// Returns only the Observations associated with DataItems with a Category of EVENT and a Representation of TABLE
         /// </summary>
-        public IEnumerable<EventTableObservation> EventTables => GetObservations<EventTableObservation>(Events);
+        public IEnumerable<IEventTableObservation> EventTables => GetObservations<IEventTableObservation>(_observations);
 
         /// <summary>
         /// Returns only the Observations associated with DataItems with a Category of CONDITION
         /// </summary>
-        public IEnumerable<IObservation> Conditions => _observations != null ? _observations.Where(o => o.Category == Devices.DataItems.DataItemCategory.CONDITION) : null;
+        public IEnumerable<IConditionObservation> Conditions => GetObservations<IConditionObservation>(_observations);
 
 
-        private IEnumerable<T> GetObservations<T>(IEnumerable<IObservation> observations) where T : Observation
+        private IEnumerable<T> GetObservations<T>(IEnumerable<IObservation> observations) where T : IObservation
         {
             var l = new List<T>();
             if (!observations.IsNullOrEmpty())
             {
-                var x = observations.Where(o => o.GetType().IsAssignableFrom(typeof(T)));
+                var x = observations.Where(o => typeof(T).IsAssignableFrom(o.GetType()));
                 if (!x.IsNullOrEmpty())
                 {
                     foreach (var y in x) l.Add((T)y);
