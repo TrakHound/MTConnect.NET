@@ -9,11 +9,12 @@ using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 
-namespace MTConnect.Devices
+namespace MTConnect.Devices.Xml
 {
     public class XmlComponentCollection : IXmlSerializable
     {
         private static readonly XmlSerializer _serializer = new XmlSerializer(typeof(XmlComponent));
+        private readonly bool _outputComments = false;
 
 
         private List<XmlComponent> _components;
@@ -29,6 +30,14 @@ namespace MTConnect.Devices
             {
                 _components = value;
             }
+        }
+
+
+        public XmlComponentCollection() { }
+
+        public XmlComponentCollection(bool outputComments = false)
+        {
+            _outputComments = outputComments;
         }
 
 
@@ -75,9 +84,12 @@ namespace MTConnect.Devices
                                     xml = xml + $"</{component.Type}>";
                                 }
 
-                                // Write Component Type Description as Comment
-                                writer.WriteComment($"Type = {component.Type} : {component.TypeDescription}");
-                                writer.WriteWhitespace("\r\n");
+                                if (_outputComments)
+                                {
+                                    // Write Component Type Description as Comment
+                                    writer.WriteComment($"Type = {component.Type} : {component.TypeDescription}");
+                                    writer.WriteWhitespace("\r\n");
+                                }
 
                                 writer.WriteRaw(xml);
                             }

@@ -8,9 +8,9 @@ using System;
 using System.Xml;
 using System.Xml.Serialization;
 
-namespace MTConnect.Devices.Xml
+namespace MTConnect.Errors.Xml
 {
-    public class XmlDevicesHeader
+    public class XmlErrorHeader
     {
         [XmlAttribute("instanceId")]
         public long InstanceId { get; set; }
@@ -40,9 +40,9 @@ namespace MTConnect.Devices.Xml
         public DateTime CreationTime { get; set; }
 
 
-        public virtual IMTConnectDevicesHeader ToDevicesHeader()
+        public virtual IMTConnectErrorHeader ToErrorHeader()
         {
-            var header = new MTConnectDevicesHeader();
+            var header = new MTConnectErrorHeader();
             header.InstanceId = InstanceId;
             header.Version = Version;
             header.Sender = Sender;
@@ -55,7 +55,7 @@ namespace MTConnect.Devices.Xml
             return header;
         }
 
-        public static void WriteXml(XmlWriter writer, IMTConnectDevicesHeader header)
+        public static void WriteXml(XmlWriter writer, IMTConnectErrorHeader header)
         {
             if (header != null)
             {

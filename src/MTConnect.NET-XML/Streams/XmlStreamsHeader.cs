@@ -8,9 +8,9 @@ using System;
 using System.Xml;
 using System.Xml.Serialization;
 
-namespace MTConnect.Devices.Xml
+namespace MTConnect.Streams.Xml
 {
-    public class XmlDevicesHeader
+    internal class XmlStreamsHeader
     {
         [XmlAttribute("instanceId")]
         public long InstanceId { get; set; }
@@ -24,11 +24,14 @@ namespace MTConnect.Devices.Xml
         [XmlAttribute("bufferSize")]
         public long BufferSize { get; set; }
 
-        [XmlAttribute("assetBufferSize")]
-        public long AssetBufferSize { get; set; }
+        [XmlAttribute("firstSequence")]
+        public long FirstSequence { get; set; }
 
-        [XmlAttribute("assetCount")]
-        public long AssetCount { get; set; }
+        [XmlAttribute("lastSequence")]
+        public long LastSequence { get; set; }
+
+        [XmlAttribute("nextSequence")]
+        public long NextSequence { get; set; }
 
         [XmlAttribute("deviceModelChangeTime")]
         public string DeviceModelChangeTime { get; set; }
@@ -40,22 +43,40 @@ namespace MTConnect.Devices.Xml
         public DateTime CreationTime { get; set; }
 
 
-        public virtual IMTConnectDevicesHeader ToDevicesHeader()
+        public virtual IMTConnectStreamsHeader ToDevicesHeader()
         {
-            var header = new MTConnectDevicesHeader();
+            var header = new MTConnectStreamsHeader();
             header.InstanceId = InstanceId;
             header.Version = Version;
             header.Sender = Sender;
             header.BufferSize = BufferSize;
-            header.AssetBufferSize = AssetBufferSize;
-            header.AssetCount = AssetCount;
+            header.FirstSequence = FirstSequence;
+            header.LastSequence = LastSequence;
+            header.NextSequence = NextSequence;
             header.DeviceModelChangeTime = DeviceModelChangeTime;
             header.TestIndicator = TestIndicator;
             header.CreationTime = CreationTime;
             return header;
         }
 
-        public static void WriteXml(XmlWriter writer, IMTConnectDevicesHeader header)
+
+        public static IMTConnectStreamsHeader ReadXml(XmlReader reader)
+        {
+            var header = new MTConnectStreamsHeader();
+            header.InstanceId = reader.GetAttribute("instanceId").ToLong();
+            header.Version = reader.GetAttribute("version");
+            header.Sender = reader.GetAttribute("sender");
+            header.BufferSize = reader.GetAttribute("bufferSize").ToLong();
+            header.FirstSequence = reader.GetAttribute("firstSequence").ToLong();
+            header.LastSequence = reader.GetAttribute("lastSequence").ToLong();
+            header.NextSequence = reader.GetAttribute("nextSequence").ToLong();
+            header.DeviceModelChangeTime = reader.GetAttribute("deviceModelChangeTime");
+            header.TestIndicator = reader.GetAttribute("testIndicator");
+            header.CreationTime = reader.GetAttribute("creationTime").ToDateTime();
+            return header;
+        }
+
+        public static void WriteXml(XmlWriter writer, IMTConnectStreamsHeader header)
         {
             if (header != null)
             {
@@ -64,8 +85,9 @@ namespace MTConnect.Devices.Xml
                 writer.WriteAttributeString("version", header.Version.ToString());
                 writer.WriteAttributeString("sender", header.Sender);
                 writer.WriteAttributeString("bufferSize", header.BufferSize.ToString());
-                writer.WriteAttributeString("assetBufferSize", header.AssetBufferSize.ToString());
-                writer.WriteAttributeString("assetCount", header.AssetCount.ToString());
+                writer.WriteAttributeString("firstSequence", header.FirstSequence.ToString());
+                writer.WriteAttributeString("lastSequence", header.LastSequence.ToString());
+                writer.WriteAttributeString("nextSequence", header.NextSequence.ToString());
                 writer.WriteAttributeString("deviceModelChangeTime", header.DeviceModelChangeTime);
                 if (!string.IsNullOrEmpty(header.TestIndicator)) writer.WriteAttributeString("testIndicator", header.TestIndicator);
                 writer.WriteAttributeString("creationTime", header.CreationTime.ToString("o"));

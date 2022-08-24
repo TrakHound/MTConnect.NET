@@ -7,65 +7,25 @@ using MTConnect.Devices.Configurations.Specifications;
 using System.Xml;
 using System.Xml.Serialization;
 
-namespace MTConnect.Devices
+namespace MTConnect.Devices.Xml
 {
-    /// <summary>
-    /// A set of limits used to trigger warning or alarm indicators.
-    /// </summary>
     [XmlRoot("AlarmLimits")]
     public class XmlAlarmLimits
     {
-        /// <summary>
-        /// The upper conformance boundary for a variable.
-        /// </summary>
         [XmlElement("UpperLimit")]
         public double? UpperLimit { get; set; }
 
-        [XmlIgnore]
-        public bool UpperLimitSpecified => UpperLimit.HasValue;
-
-        /// <summary>
-        /// The upper boundary indicating increased concern and supervision may be required.
-        /// </summary>
         [XmlElement("UpperWarning")]
         public double? UpperWarning { get; set; }
 
-        [XmlIgnore]
-        public bool UpperWarningSpecified => UpperWarning.HasValue;
-
-        /// <summary>
-        /// The lower conformance boundary for a variable.
-        /// </summary>
         [XmlElement("LowerLimit")]
         public double? LowerLimit { get; set; }
 
-        [XmlIgnore]
-        public bool LowerLimitSpecified => LowerLimit.HasValue;
-
-        /// <summary>
-        /// The lower boundary indicating increased concern and supervision may be required.
-        /// </summary>
         [XmlElement("LowerWarning")]
         public double? LowerWarning { get; set; }
 
-        [XmlIgnore]
-        public bool LowerWarningSpecified => LowerWarning.HasValue;
 
-
-        public XmlAlarmLimits() { }
-
-        public XmlAlarmLimits(AlarmLimits alarmLimits)
-        {
-            if (alarmLimits != null)
-            {
-                UpperLimit = alarmLimits.UpperLimit;
-                UpperWarning = alarmLimits.UpperWarning;
-                LowerLimit = alarmLimits.LowerLimit;
-                LowerWarning = alarmLimits.LowerWarning;
-            }
-        }
-
-        public AlarmLimits ToAlarmLimits()
+        public IAlarmLimits ToAlarmLimits()
         {
             var alarmLimits = new AlarmLimits();
             alarmLimits.UpperLimit = UpperLimit;
@@ -73,6 +33,48 @@ namespace MTConnect.Devices
             alarmLimits.LowerLimit = LowerLimit;
             alarmLimits.LowerWarning = LowerWarning;
             return alarmLimits;
+        }
+
+        public static void WriteXml(XmlWriter writer, IAlarmLimits alarmLimits)
+        {
+            if (alarmLimits != null)
+            {
+                writer.WriteStartElement("ControlLimits");
+
+                // Write Upper Limit
+                if (alarmLimits.UpperLimit != null)
+                {
+                    writer.WriteStartElement("UpperLimit");
+                    writer.WriteString(alarmLimits.UpperLimit.ToString());
+                    writer.WriteEndElement();
+                }
+
+                // Write Upper Warning
+                if (alarmLimits.UpperWarning != null)
+                {
+                    writer.WriteStartElement("UpperWarning");
+                    writer.WriteString(alarmLimits.UpperWarning.ToString());
+                    writer.WriteEndElement();
+                }
+
+                // Write Lower Limit
+                if (alarmLimits.LowerLimit != null)
+                {
+                    writer.WriteStartElement("LowerLimit");
+                    writer.WriteString(alarmLimits.LowerLimit.ToString());
+                    writer.WriteEndElement();
+                }
+
+                // Write Lower Warning
+                if (alarmLimits.LowerWarning != null)
+                {
+                    writer.WriteStartElement("LowerWarning");
+                    writer.WriteString(alarmLimits.LowerWarning.ToString());
+                    writer.WriteEndElement();
+                }
+
+                writer.WriteEndElement();
+            }
         }
     }
 }

@@ -4,14 +4,20 @@
 // file 'LICENSE', which is part of this source code package.
 
 using MTConnect.Assets;
+using MTConnect.Assets.Xml;
 using MTConnect.Devices;
+using MTConnect.Devices.Xml;
 using MTConnect.Errors;
+using MTConnect.Errors.Xml;
 using MTConnect.Streams;
+using MTConnect.Streams.Output;
+using MTConnect.Streams.Xml;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 
-namespace MTConnect.Formatters
+namespace MTConnect.Formatters.Xml
 {
     public class XmlResponseDocumentFormatter : IResponseDocumentFormatter
     {
@@ -37,8 +43,8 @@ namespace MTConnect.Formatters
             // Read Validation Level Option passed to Formatter (0 = Ignore, 1 = Warning, 2 = Strict)
             var validationLevel = GetFormatterOption<int>(options, "validationLevel");
 
-            var xml = XmlDevicesResponseDocument.ToXml(document, null, stylesheet, indentOutput, outputComments);
-            if (!string.IsNullOrEmpty(xml))
+            var xml = XmlDevicesResponseDocument.ToXmlBytes(document, null, stylesheet, indentOutput, outputComments);
+            if (xml != null && xml.Length > 0)
             {
                 if (validationLevel > 0)
                 {
@@ -52,7 +58,7 @@ namespace MTConnect.Formatters
                     {
                         // Return Successful if ValidationLevel set to Warning
                         if (validationLevel < 2) return FormattedDocumentWriteResult.Warning(xml, ContentType, validationResponse.Errors);
-                        else return FormattedDocumentWriteResult.Error(validationResponse.Errors);                   
+                        else return FormattedDocumentWriteResult.Error(validationResponse.Errors);
                     }
                 }
                 else
@@ -64,10 +70,13 @@ namespace MTConnect.Formatters
             return FormattedDocumentWriteResult.Error();
         }
 
-        public FormattedDocumentWriteResult Format(IStreamsResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormattedDocumentWriteResult Format(ref IStreamsResponseOutputDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read XSD Schema
             var schemas = GetFormatterOptions<string>(options, "schema");
+
+            // Read Extended Namespaces
+            var extendedNamespaces = GetFormatterOptionsJson<Configurations.NamespaceConfiguration>(options, "namespace");
 
             // Read Devices Stylesheet
             var stylesheet = GetFormatterOption<string>(options, "streamsStyle.location");
@@ -81,8 +90,8 @@ namespace MTConnect.Formatters
             // Read Validation Level Option passed to Formatter (0 = Ignore, 1 = Warning, 2 = Strict)
             var validationLevel = GetFormatterOption<int>(options, "validationLevel");
 
-            var xml = XmlStreamsResponseDocument.ToXml(document, null, stylesheet, indentOutput, outputComments);
-            if (!string.IsNullOrEmpty(xml))
+            var xml = XmlStreamsResponseDocument.ToXmlBytes(ref document, extendedNamespaces, stylesheet, indentOutput, outputComments);
+            if (xml != null && xml.Length > 0)
             {
                 if (validationLevel > 0)
                 {
@@ -125,8 +134,8 @@ namespace MTConnect.Formatters
             // Read Validation Level Option passed to Formatter (0 = Ignore, 1 = Warning, 2 = Strict)
             var validationLevel = GetFormatterOption<int>(options, "validationLevel");
 
-            var xml = XmlAssetsResponseDocument.ToXml(document, stylesheet, indentOutput, outputComments);
-            if (!string.IsNullOrEmpty(xml))
+            var xml = XmlAssetsResponseDocument.ToXmlBytes(document, indentOutput, outputComments, stylesheet);
+            if (xml != null && xml.Length > 0)
             {
                 if (validationLevel > 0)
                 {
@@ -169,8 +178,8 @@ namespace MTConnect.Formatters
             // Read Validation Level Option passed to Formatter (0 = Ignore, 1 = Warning, 2 = Strict)
             var validationLevel = GetFormatterOption<int>(options, "validationLevel");
 
-            var xml = XmlErrorResponseDocument.ToXml(document, stylesheet, indentOutput, outputComments);
-            if (!string.IsNullOrEmpty(xml))
+            var xml = XmlErrorResponseDocument.ToXmlBytes(document, indentOutput, outputComments, stylesheet);
+            if (xml != null)
             {
                 if (validationLevel > 0)
                 {
@@ -196,7 +205,7 @@ namespace MTConnect.Formatters
         }
 
 
-        public FormattedDocumentReadResult<IDevicesResponseDocument> CreateDevicesResponseDocument(string content, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormattedDocumentReadResult<IDevicesResponseDocument> CreateDevicesResponseDocument(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var messages = new List<string>();
             var warnings = new List<string>();
@@ -236,7 +245,7 @@ namespace MTConnect.Formatters
             return new FormattedDocumentReadResult<IDevicesResponseDocument>(document, success, messages, warnings, errors);
         }
 
-        public FormattedDocumentReadResult<IStreamsResponseDocument> CreateStreamsResponseDocument(string content, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormattedDocumentReadResult<IStreamsResponseDocument> CreateStreamsResponseDocument(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var messages = new List<string>();
             var warnings = new List<string>();
@@ -276,7 +285,7 @@ namespace MTConnect.Formatters
             return new FormattedDocumentReadResult<IStreamsResponseDocument>(document, success, messages, warnings, errors);
         }
 
-        public FormattedDocumentReadResult<IAssetsResponseDocument> CreateAssetsResponseDocument(string content, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormattedDocumentReadResult<IAssetsResponseDocument> CreateAssetsResponseDocument(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var messages = new List<string>();
             var warnings = new List<string>();
@@ -316,7 +325,7 @@ namespace MTConnect.Formatters
             return new FormattedDocumentReadResult<IAssetsResponseDocument>(document, success, messages, warnings, errors);
         }
 
-        public FormattedDocumentReadResult<IErrorResponseDocument> CreateErrorResponseDocument(string content, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormattedDocumentReadResult<IErrorResponseDocument> CreateErrorResponseDocument(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var messages = new List<string>();
             var warnings = new List<string>();
@@ -375,6 +384,25 @@ namespace MTConnect.Formatters
             return default;
         }
 
+        private static T GetFormatterOptionJson<T>(IEnumerable<KeyValuePair<string, string>> options, string key)
+        {
+            if (!options.IsNullOrEmpty())
+            {
+                var x = options.FirstOrDefault(o => o.Key == key).Value;
+                if (!string.IsNullOrEmpty(x))
+                {
+                    try
+                    {
+                        return JsonSerializer.Deserialize<T>(x);
+                    }
+                    catch { }
+                }
+            }
+
+            return default;
+        }
+
+
         private static IEnumerable<T> GetFormatterOptions<T>(IEnumerable<KeyValuePair<string, string>> options, string key)
         {
             var l = new List<T>();
@@ -392,6 +420,33 @@ namespace MTConnect.Formatters
                             {
                                 var obj = (T)Convert.ChangeType(y.Value, typeof(T));
                                 l.Add(obj);
+                            }
+                            catch { }
+                        }
+                    }
+                }
+            }
+
+            return l;
+        }
+
+        private static IEnumerable<T> GetFormatterOptionsJson<T>(IEnumerable<KeyValuePair<string, string>> options, string key)
+        {
+            var l = new List<T>();
+
+            if (!options.IsNullOrEmpty())
+            {
+                var x = options.Where(o => o.Key == key);
+                if (!x.IsNullOrEmpty())
+                {
+                    foreach (var y in x)
+                    {
+                        if (!string.IsNullOrEmpty(y.Value))
+                        {
+                            try
+                            {
+                                var obj = JsonSerializer.Deserialize<T>(y.Value);
+                                if (obj != null) l.Add(obj);
                             }
                             catch { }
                         }

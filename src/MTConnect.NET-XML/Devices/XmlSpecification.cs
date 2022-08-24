@@ -7,104 +7,34 @@ using MTConnect.Devices.Configurations.Specifications;
 using System.Xml;
 using System.Xml.Serialization;
 
-namespace MTConnect.Devices
+namespace MTConnect.Devices.Xml
 {
-    /// <summary>
-    /// Specification elements define information describing the design characteristics for a piece of equipment.
-    /// </summary>
     [XmlRoot("Specification")]
     public class XmlSpecification : XmlAbstractSpecification
     {
-        /// <summary>
-        /// A numeric upper constraint. 
-        /// </summary>
         [XmlElement("Maximum")]
         public double? Maximum { get; set; }
 
-        [XmlIgnore]
-        public bool MaximumSpecified => Maximum.HasValue;
-
-        /// <summary>
-        /// The upper conformance boundary for a variable.
-        /// </summary>
         [XmlElement("UpperLimit")]
         public double? UpperLimit { get; set; }
 
-        [XmlIgnore]
-        public bool UpperLimitSpecified => UpperLimit.HasValue;
-
-        /// <summary>
-        /// The upper boundary indicating increased concern and supervision may be required.
-        /// </summary>
         [XmlElement("UpperWarning")]
         public double? UpperWarning { get; set; }
 
-        [XmlIgnore]
-        public bool UpperWarningSpecified => UpperWarning.HasValue;
-
-        /// <summary>
-        /// The ideal or desired value for a variable.
-        /// </summary>
         [XmlElement("Nominal")]
         public double? Nominal { get; set; }
 
-        [XmlIgnore]
-        public bool NominalSpecified => Nominal.HasValue;
-
-        /// <summary>
-        /// The lower conformance boundary for a variable.
-        /// </summary>
         [XmlElement("LowerLimit")]
         public double? LowerLimit { get; set; }
 
-        [XmlIgnore]
-        public bool LowerLimitSpecified => LowerLimit.HasValue;
-
-        /// <summary>
-        /// The lower boundary indicating increased concern and supervision may be required.
-        /// </summary>
         [XmlElement("LowerWarning")]
         public double? LowerWarning { get; set; }
 
-        [XmlIgnore]
-        public bool LowerWarningSpecified => LowerWarning.HasValue;
-
-        /// <summary>
-        /// A numeric lower constraint. 
-        /// </summary>
         [XmlElement("Minimum")]
          public double? Minimum { get; set; }
 
-        [XmlIgnore]
-        public bool MinimumSpecified => Minimum.HasValue;
 
-
-        public XmlSpecification() { }
-
-        public XmlSpecification(Specification specification)
-        {
-            if (specification != null)
-            {
-                Id = specification.Id;
-                Name = specification.Name;
-                Type = specification.Type;
-                SubType = specification.SubType;
-                DataItemIdRef = specification.DataItemIdRef;
-                Units = specification.Units;
-                CompositionIdRef = specification.CompositionIdRef;
-                CoordinateIdRef = specification.CoordinateIdRef;
-                Originator = specification.Originator;
-                Maximum = specification.Maximum;
-                UpperLimit = specification.UpperLimit;
-                UpperWarning = specification.UpperWarning;
-                Nominal = specification.Nominal;
-                LowerLimit = specification.LowerLimit;
-                LowerWarning = specification.LowerWarning;
-                Minimum = specification.Minimum;
-            }
-        }
-
-        public override AbstractSpecification ToSpecification()
+        public override IAbstractSpecification ToSpecification()
         {
             var specification = new Specification();
             specification.Id = Id;
@@ -124,6 +54,136 @@ namespace MTConnect.Devices
             specification.LowerWarning = LowerWarning;
             specification.Minimum = Minimum;
             return specification;
+        }
+
+        public static void WriteXml(XmlWriter writer, IAbstractSpecification specification)
+        {
+            if (specification != null)
+            {
+                writer.WriteStartElement(specification.GetType().Name);
+
+                WriteAbstractXml(writer, specification);
+
+                if (typeof(IProcessSpecification).IsAssignableFrom(specification.GetType()))
+                {
+                    WriteProcessSpecificationXml(writer, specification as IProcessSpecification);
+                }
+                else if (typeof(ISpecification).IsAssignableFrom(specification.GetType()))
+                {
+                    WriteSpecificationXml(writer, specification as ISpecification);
+                }
+
+                writer.WriteEndElement();
+            }
+        }
+
+        public static void WriteAbstractXml(XmlWriter writer, IAbstractSpecification specification)
+        {
+            if (specification != null)
+            {
+                // Write Properties
+                writer.WriteAttributeString("id", specification.Id);
+                if (!string.IsNullOrEmpty(specification.Name)) writer.WriteAttributeString("name", specification.Name);
+                if (!string.IsNullOrEmpty(specification.Type)) writer.WriteAttributeString("type", specification.Type);
+                if (!string.IsNullOrEmpty(specification.SubType)) writer.WriteAttributeString("subType", specification.SubType);
+                if (!string.IsNullOrEmpty(specification.DataItemIdRef)) writer.WriteAttributeString("dataItemRef", specification.DataItemIdRef);
+                if (!string.IsNullOrEmpty(specification.Units)) writer.WriteAttributeString("units", specification.Units);
+                if (!string.IsNullOrEmpty(specification.CompositionIdRef)) writer.WriteAttributeString("compositionIdRef", specification.CompositionIdRef);
+                if (!string.IsNullOrEmpty(specification.CoordinateIdRef)) writer.WriteAttributeString("coordinateIdRef", specification.CoordinateIdRef);
+                if (specification.Originator != Originator.MANUFACTURER) writer.WriteAttributeString("originator", specification.Originator.ToString());
+            }
+        }
+
+        public static void WriteSpecificationXml(XmlWriter writer, ISpecification specification)
+        {
+            if (specification != null)
+            {
+                // Write Maximum
+                if (specification.Maximum != null)
+                {
+                    writer.WriteStartElement("Maximum");
+                    writer.WriteString(specification.Maximum.ToString());
+                    writer.WriteEndElement();
+                }
+
+                // Write Upper Limit
+                if (specification.UpperLimit != null)
+                {
+                    writer.WriteStartElement("UpperLimit");
+                    writer.WriteString(specification.UpperLimit.ToString());
+                    writer.WriteEndElement();
+                }
+
+                // Write Upper Warning
+                if (specification.UpperWarning != null)
+                {
+                    writer.WriteStartElement("UpperWarning");
+                    writer.WriteString(specification.UpperWarning.ToString());
+                    writer.WriteEndElement();
+                }
+
+                // Write Nominal
+                if (specification.Nominal != null)
+                {
+                    writer.WriteStartElement("Nominal");
+                    writer.WriteString(specification.Nominal.ToString());
+                    writer.WriteEndElement();
+                }
+
+                // Write Lower Limit
+                if (specification.LowerLimit != null)
+                {
+                    writer.WriteStartElement("LowerLimit");
+                    writer.WriteString(specification.LowerLimit.ToString());
+                    writer.WriteEndElement();
+                }
+
+                // Write Lower Warning
+                if (specification.LowerWarning != null)
+                {
+                    writer.WriteStartElement("LowerWarning");
+                    writer.WriteString(specification.LowerWarning.ToString());
+                    writer.WriteEndElement();
+                }
+
+                // Write Minimum
+                if (specification.Minimum != null)
+                {
+                    writer.WriteStartElement("Minimum");
+                    writer.WriteString(specification.Minimum.ToString());
+                    writer.WriteEndElement();
+                }
+            }
+        }
+
+        public static void WriteProcessSpecificationXml(XmlWriter writer, IProcessSpecification specification)
+        {
+            if (specification != null)
+            {
+                // Write Control Limits
+                if (specification.ControlLimits != null)
+                {
+                    writer.WriteStartElement("ControlLimits");
+                    XmlControlLimits.WriteXml(writer, specification.ControlLimits);
+                    writer.WriteEndElement();
+                }
+
+                // Write Specification Limits
+                if (specification.SpecificationLimits != null)
+                {
+                    writer.WriteStartElement("SpecificationLimits");
+                    XmlSpecificationLimits.WriteXml(writer, specification.SpecificationLimits);
+                    writer.WriteEndElement();
+                }
+
+                // Write Alarm Limits
+                if (specification.AlarmLimits != null)
+                {
+                    writer.WriteStartElement("AlarmLimits");
+                    XmlAlarmLimits.WriteXml(writer, specification.AlarmLimits);
+                    writer.WriteEndElement();
+                }
+            }
         }
     }
 }

@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace MTConnect
 {
-    public struct XmlValidationResponse
+    internal struct XmlValidationResponse
     {
         public bool Success { get; }
 

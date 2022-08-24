@@ -4,14 +4,14 @@
 // file 'LICENSE', which is part of this source code package.
 
 using MTConnect.Configurations;
-using MTConnect.Writers;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text.RegularExpressions;
+using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
 
-namespace MTConnect.Devices
+namespace MTConnect.Devices.Xml
 {
     [XmlRoot("MTConnectDevices")]
     public class XmlDevicesResponseDocument
@@ -30,38 +30,15 @@ namespace MTConnect.Devices
         //[XmlArray("Interfaces")]
         //public List<Interface> Interfaces { get; set; }
 
-
-        public XmlDevicesResponseDocument() { }
-
-        public XmlDevicesResponseDocument(IDevicesResponseDocument document)
-        {
-            if (document != null)
-            {
-                Header = new XmlDevicesHeader(document.Header);
-
-                if (!document.Devices.IsNullOrEmpty())
-                {
-                    var devices = new List<XmlDevice>();
-
-                    foreach (var device in document.Devices)
-                    {
-                        if (device.Type == Device.TypeId) devices.Add(new XmlDevice(device));
-                        else if (device.Type == Agent.TypeId) devices.Add(new XmlAgent(device));
-                    }
-
-                    Devices = devices;
-                }
-
-                //Interfaces = document.Interfaces;
-            }
-        }
+        [XmlIgnore]
+        public Version Version { get; set; }
 
 
-        public DevicesResponseDocument ToDocument()
+        public IDevicesResponseDocument ToDocument()
         {
             var document = new DevicesResponseDocument();
-
             if (Header != null) document.Header = Header.ToDevicesHeader();
+            document.Version = Version;
 
             if (!Devices.IsNullOrEmpty())
             {
@@ -77,13 +54,13 @@ namespace MTConnect.Devices
             return document;
         }
 
-
-        public static IDevicesResponseDocument FromXml(string xml)
+        public static IDevicesResponseDocument FromXml(byte[] xmlBytes)
         {
-            if (!string.IsNullOrEmpty(xml))
+            if (xmlBytes != null && xmlBytes.Length > 0)
             {
                 try
                 {
+                    var xml = Encoding.UTF8.GetString(xmlBytes);
                     xml = xml.Trim();
 
                     var version = MTConnectVersion.Get(xml);
@@ -95,8 +72,8 @@ namespace MTConnect.Devices
                             var xmlDocument = (XmlDevicesResponseDocument)_serializer.Deserialize(xmlReader);
                             if (xmlDocument != null)
                             {
+                                xmlDocument.Version = version;
                                 var document = xmlDocument.ToDocument();
-                                document.Version = version;
                                 return document;
                             }
                         }
@@ -108,11 +85,11 @@ namespace MTConnect.Devices
             return null;
         }
 
-        public static string ToXml(
-            IDevicesResponseDocument document, 
+        public static byte[] ToXmlBytes(
+            IDevicesResponseDocument document,
             IEnumerable<NamespaceConfiguration> extendedSchemas = null,
             string styleSheet = null,
-            bool indent = false,
+            bool indent = true,
             bool outputComments = false
             )
         {
@@ -120,67 +97,85 @@ namespace MTConnect.Devices
             {
                 try
                 {
-                    var ns = Namespaces.GetDevices(document.Version.Major, document.Version.Minor);
-                    var schemaLocation = Schemas.GetDevices(document.Version.Major, document.Version.Minor);
-                    var extendedNamespaces = "";
-
-                    using (var writer = new Utf8Writer())
+                    using (var stream = new MemoryStream())
                     {
-                        _serializer.Serialize(writer, new XmlDevicesResponseDocument(document));
+                        // Set the XmlWriterSettings to use
+                        var xmlWriterSettings = indent ? XmlFunctions.XmlWriterSettingsIndent : XmlFunctions.XmlWriterSettings;
 
-                        var xml = writer.ToString();
-
-                        // Remove the XSD namespace
-                        string regex = @"\s{1}xmlns:xsi=\""http:\/\/www\.w3\.org\/2001\/XMLSchema-instance\""\s{1}xmlns:xsd=\""http:\/\/www\.w3\.org\/2001\/XMLSchema\""";
-                        xml = Regex.Replace(xml, regex, "");
-                        regex = @"\s{1}xmlns:xsd=\""http:\/\/www\.w3\.org\/2001\/XMLSchema\""\s{1}xmlns:xsi=\""http:\/\/www\.w3\.org\/2001\/XMLSchema-instance\""";
-                        xml = Regex.Replace(xml, regex, "");
-
-                        // Add the default namespace, "m" namespace, xsi, and schemaLocation
-                        regex = @"<MTConnectDevices";
-
-                        // Add Extended Schemas
-                        if (!extendedSchemas.IsNullOrEmpty())
+                        // Use XmlWriter to write XML to stream
+                        using (var xmlWriter = XmlWriter.Create(stream, xmlWriterSettings))
                         {
-                            schemaLocation = "";
-
-                            foreach (var extendedSchema in extendedSchemas)
-                            {
-                                extendedNamespaces += $@" xmlns:{extendedSchema.Alias}=""{extendedSchema.Location}""";
-                                schemaLocation += $"{extendedSchema.Location} {extendedSchema.Path}";
-                            }
+                            WriteXml(xmlWriter, document, indent, outputComments, styleSheet, extendedSchemas);
+                            return stream.ToArray();
                         }
-
-                        string replace = "<MTConnectDevices xmlns:m=\"" + ns + "\" xmlns=\"" + ns + "\" xmlns:xsi=\"" + Namespaces.DefaultXmlSchemaInstance + "\"" + extendedNamespaces + " xsi:schemaLocation=\"" + schemaLocation + "\"";
-                        xml = Regex.Replace(xml, regex, replace);
-
-                        // Specify Xml Delcaration
-                        var xmlDeclaration = "<?xml version=\"1.0\" encoding=\"utf-8\"?>";
-
-                        // Remove Xml Declaration (in order to add Header Comment)
-                        xml = xml.Replace(xmlDeclaration, "");
-
-                        // Add Header Comments
-                        if (outputComments)
-                        {
-                            xml = XmlFunctions.CreateHeaderComment() + xml;
-                        }
-
-                        // Add Stylesheet
-                        if (!string.IsNullOrEmpty(styleSheet))
-                        {
-                            xml = $"<?xml-stylesheet type=\"text/xsl\" href=\"{styleSheet}?version={document.Version}\"?>" + xml;
-                        }
-
-                        xml = xmlDeclaration + xml;
-
-                        return XmlFunctions.FormatXml(xml, indent, outputComments);
                     }
                 }
                 catch { }
             }
 
             return null;
+        }
+
+        public static void WriteXml(
+            XmlWriter writer,
+            IDevicesResponseDocument document,
+            bool indentOutput = true,
+            bool outputComments = false,
+            string styleSheet = null,
+            IEnumerable<NamespaceConfiguration> extendedSchemas = null
+            )
+        {
+            if (document != null && !document.Devices.IsNullOrEmpty())
+            {
+                var ns = Namespaces.GetDevices(document.Version.Major, document.Version.Minor);
+
+                writer.WriteStartDocument();
+                if (indentOutput) writer.WriteWhitespace(XmlFunctions.NewLine);
+
+                // Add Stylesheet
+                if (!string.IsNullOrEmpty(styleSheet))
+                {
+                    writer.WriteRaw($"<?xml-stylesheet type=\"text/xsl\" href=\"{styleSheet}?version={document.Version}\"?>");
+                    if (indentOutput) writer.WriteWhitespace(XmlFunctions.NewLine);
+                }
+
+                // Add Header Comment
+                if (outputComments) XmlFunctions.WriteHeaderComment(writer, indentOutput);
+
+                // Write Root Document Element
+                writer.WriteStartElement("MTConnectDevices", ns);
+
+                // Write Namespace Declarations
+                writer.WriteAttributeString("xmlns", null, null, ns);
+                writer.WriteAttributeString("xmlns", "m", null, ns);
+                writer.WriteAttributeString("xmlns", "xsi", null, Namespaces.DefaultXmlSchemaInstance);
+
+                if (!extendedSchemas.IsNullOrEmpty())
+                {
+                    foreach (var schema in extendedSchemas)
+                    {
+                        writer.WriteAttributeString("xmlns", schema.Alias, null, schema.Urn);
+                    }
+                }
+
+                // Write Schema Location
+                writer.WriteAttributeString("xsi", "schemaLocation", null, Schemas.GetStreams(document.Version.Major, document.Version.Minor));
+
+                // Write Header
+                XmlDevicesHeader.WriteXml(writer, document.Header);
+
+                // Write Devices
+                writer.WriteStartElement("Devices");
+                foreach (var device in document.Devices)
+                {
+                    XmlDevice.WriteXml(writer, device, outputComments);
+                }
+                writer.WriteEndElement(); // Devices
+
+                writer.WriteEndElement(); // MTConnectDevices
+                writer.WriteEndDocument();
+                writer.Flush();
+            }
         }
     }
 }

@@ -3,79 +3,37 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE', which is part of this source code package.
 
-using MTConnect.Headers;
-using MTConnect.Writers;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
+using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
 
-namespace MTConnect.Assets
+namespace MTConnect.Assets.Xml
 {
-    /// <summary>
-    /// The Asset Information Model associates each electronic MTConnectAssets document with a unique
-    /// identifier and allows for some predefined mechanisms to find, create, request, updated, and delete these
-    /// electronic documents in a way that provides for consistency across multiple pieces of equipment.
-    /// </summary>
     [XmlRoot("MTConnectAssets")]
     public class XmlAssetsResponseDocument
     {
         private static readonly XmlSerializer _serializer = new XmlSerializer(typeof(XmlAssetsResponseDocument));
 
 
-        /// <summary>
-        /// Contains the Header information in an MTConnect Assets XML document
-        /// </summary>
         [XmlElement("Header")]
-        public MTConnectAssetsHeader Header { get; set; }
+        public XmlAssetsHeader Header { get; set; }
 
-        /// <summary>
-        /// An XML container that consists of one or more types of Asset XML elements.
-        /// </summary>
         [XmlElement("Assets")]
         public XmlAssetCollection AssetCollection { get; set; }
 
-
-        public XmlAssetsResponseDocument() { }
-
-        public XmlAssetsResponseDocument(IAssetsResponseDocument document)
-        {
-            if (document != null)
-            {
-                if (document.Header != null)
-                {
-                    var header = new MTConnectAssetsHeader();
-                    header.AssetBufferSize = document.Header.AssetBufferSize;
-                    header.Sender = document.Header.Sender;
-                    header.Version = document.Header.Version;
-                    header.AssetCount = document.Header.AssetCount;
-                    header.CreationTime = document.Header.CreationTime;
-                    header.DeviceModelChangeTime = document.Header.DeviceModelChangeTime;
-                    header.InstanceId = document.Header.InstanceId;
-                    header.TestIndicator = document.Header.TestIndicator;
-                    Header = header;
-                }
-
-                // Add Assets
-                if (!document.Assets.IsNullOrEmpty())
-                {
-                    AssetCollection = new XmlAssetCollection
-                    {
-                        Assets = document.Assets.ToList()
-                    };
-                }
-                else AssetCollection = new XmlAssetCollection();
-            }
-        }
+        [XmlIgnore]
+        public Version Version { get; set; }
 
 
         public AssetsResponseDocument ToAssetsDocument()
         {
             var assetsDocument = new AssetsResponseDocument();
-
-            assetsDocument.Header = Header;
+            assetsDocument.Header = Header.ToErrorHeader();
+            assetsDocument.Version = Version;
 
             // Add Assets
             if (AssetCollection != null && !AssetCollection.Assets.IsNullOrEmpty())
@@ -88,12 +46,13 @@ namespace MTConnect.Assets
         }
 
 
-        public static AssetsResponseDocument FromXml(string xml)
+        public static AssetsResponseDocument FromXml(byte[] xmlBytes)
         {
-            if (!string.IsNullOrEmpty(xml))
+            if (xmlBytes != null && xmlBytes.Length > 0)
             {
                 try
                 {
+                    var xml = Encoding.UTF8.GetString(xmlBytes);
                     xml = xml.Trim();
 
                     var version = MTConnectVersion.Get(xml);
@@ -116,64 +75,90 @@ namespace MTConnect.Assets
             return null;
         }
 
-        public static string ToXml(
+        public static byte[] ToXmlBytes(
             IAssetsResponseDocument document,
-            string styleSheet = null,
-            bool indent = false, 
-            bool outputComments = false
+            bool indentOutput = false,
+            bool outputComments = false,
+            string stylesheet = null
             )
         {
             if (document != null && document.Header != null)
             {
                 try
                 {
-                    var ns = Namespaces.GetAssets(document.Version.Major, document.Version.Minor);
-                    var schemaLocation = Schemas.GetAssets(document.Version.Major, document.Version.Minor);
+                    var mtconnectStreamsNamespace = Namespaces.GetStreams(document.Version.Major, document.Version.Minor);
 
-                    using (var writer = new Utf8Writer())
+                    using (var stream = new MemoryStream())
                     {
-                        _serializer.Serialize(writer, new XmlAssetsResponseDocument(document));
+                        // Set the XmlWriterSettings to use
+                        var xmlWriterSettings = indentOutput ? XmlFunctions.XmlWriterSettingsIndent : XmlFunctions.XmlWriterSettings;
 
-                        var xml = writer.ToString();
-
-                        // Remove the XSD namespace
-                        string regex = @"\s{1}xmlns:xsi=\""http:\/\/www\.w3\.org\/2001\/XMLSchema-instance\""\s{1}xmlns:xsd=\""http:\/\/www\.w3\.org\/2001\/XMLSchema\""";
-                        xml = Regex.Replace(xml, regex, "");
-                        regex = @"\s{1}xmlns:xsd=\""http:\/\/www\.w3\.org\/2001\/XMLSchema\""\s{1}xmlns:xsi=\""http:\/\/www\.w3\.org\/2001\/XMLSchema-instance\""";
-                        xml = Regex.Replace(xml, regex, "");
-
-                        // Add the default namespace, "m" namespace, xsi, and schemaLocation
-                        regex = @"<MTConnectAssets";
-                        string replace = "<MTConnectAssets xmlns:m=\"" + ns + "\" xmlns=\"" + ns + "\" xmlns:xsi=\"" + Namespaces.DefaultXmlSchemaInstance + "\" xsi:schemaLocation=\"" + schemaLocation + "\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"";
-                        xml = Regex.Replace(xml, regex, replace);
-
-                        // Specify Xml Delcaration
-                        var xmlDeclaration = "<?xml version=\"1.0\" encoding=\"utf-8\"?>";
-
-                        // Remove Xml Declaration (in order to add Header Comment)
-                        xml = xml.Replace(xmlDeclaration, "");
-
-                        // Add Header Comments
-                        if (outputComments)
+                        // Use XmlWriter to write XML to stream
+                        using (var xmlWriter = XmlWriter.Create(stream, xmlWriterSettings))
                         {
-                            xml = XmlFunctions.CreateHeaderComment() + xml;
+                            WriteXml(xmlWriter, document, indentOutput, outputComments, stylesheet);
+                            return stream.ToArray();
                         }
-
-                        // Add Stylesheet
-                        if (!string.IsNullOrEmpty(styleSheet))
-                        {
-                            xml = $"<?xml-stylesheet type=\"text/xsl\" href=\"{styleSheet}?version={document.Version}\"?>" + xml;
-                        }
-
-                        xml = xmlDeclaration + xml;
-
-                        return XmlFunctions.FormatXml(xml, indent, outputComments);
                     }
                 }
                 catch { }
             }
 
             return null;
+        }
+
+        public static void WriteXml(
+            XmlWriter writer,
+            IAssetsResponseDocument document,
+            bool indentOutput = true,
+            bool outputComments = false,
+            string stylesheet = null
+            )
+        {
+            if (document != null)
+            {
+                var ns = Namespaces.GetAssets(document.Version.Major, document.Version.Minor);
+
+                writer.WriteStartDocument();
+                if (indentOutput) writer.WriteWhitespace(XmlFunctions.NewLine);
+
+                // Add Stylesheet
+                if (!string.IsNullOrEmpty(stylesheet))
+                {
+                    writer.WriteRaw($"<?xml-stylesheet type=\"text/xsl\" href=\"{stylesheet}?version={document.Version}\"?>");
+                    if (indentOutput) writer.WriteWhitespace(XmlFunctions.NewLine);
+                }
+
+                // Add Header Comment
+                if (outputComments) XmlFunctions.WriteHeaderComment(writer, indentOutput);
+
+                // Write Root Document Element
+                writer.WriteStartElement("MTConnectAssets", ns);
+
+                // Write Namespace Declarations
+                writer.WriteAttributeString("xmlns", null, null, ns);
+                writer.WriteAttributeString("xmlns", "m", null, ns);
+                writer.WriteAttributeString("xmlns", "xsi", null, Namespaces.DefaultXmlSchemaInstance);
+
+                // Write Schema Location
+                writer.WriteAttributeString("xsi", "schemaLocation", null, Schemas.GetStreams(document.Version.Major, document.Version.Minor));
+
+                // Write Header
+                XmlAssetsHeader.WriteXml(writer, document.Header);
+
+                writer.WriteStartElement("Assets");
+
+                if (!document.Assets.IsNullOrEmpty())
+                {
+                    // Write Assets
+                    new XmlAssetCollection(document.Assets, indentOutput).WriteXml(writer);
+                }
+
+                writer.WriteEndElement(); // Assets
+                writer.WriteEndElement(); // MTConnectAssets
+                writer.WriteEndDocument();
+                writer.Flush();
+            }
         }
     }
 }

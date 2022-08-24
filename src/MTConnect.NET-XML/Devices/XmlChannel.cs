@@ -8,73 +8,31 @@ using System;
 using System.Xml;
 using System.Xml.Serialization;
 
-namespace MTConnect.Devices
+namespace MTConnect.Devices.Xml
 {
-    /// <summary>
-    /// Channel represents each sensing element connected to a sensor unit.
-    /// </summary>
     [XmlRoot("Channel")]
     public class XmlChannel
     {
-        /// <summary>
-        /// A unique identifier that will only refer to a specific sensing element.      
-        /// </summary>
         [XmlAttribute("number")]
         public string Number { get; set; }
 
-        /// <summary>
-        /// The name of the sensing element.
-        /// </summary>
         [XmlAttribute("name")]
         public string Name { get; set; }
 
-        /// <summary>
-        /// Description MAY include any additional descriptive information the implementer chooses to include regarding a sensor element.
-        /// </summary>
         [XmlElement("Description")]
         public string Description { get; set; }
 
-        /// <summary>
-        /// Date upon which the sensor unit was last calibrated.
-        /// </summary>
         [XmlElement("CalibrationDate")]
         public DateTime CalibrationDate { get; set; }
 
-        [XmlIgnore]
-        public bool CalibrationDateSpecified => CalibrationDate > DateTime.MinValue;
-
-        /// <summary>
-        /// Date upon which the sensor unit is next scheduled to be calibrated.
-        /// </summary>
         [XmlElement("NextCalibrationDate")]
         public DateTime NextCalibrationDate { get; set; }
 
-        [XmlIgnore]
-        public bool NextCalibrationDateSpecified => NextCalibrationDate > DateTime.MinValue;
-
-        /// <summary>
-        /// The initials of the person verifying the validity of the calibration data
-        /// </summary>
         [XmlElement("CalibrationInitials")]
         public string CalibrationInitials { get; set; }
 
 
-        public XmlChannel() { }
-
-        public XmlChannel(Channel channel)
-        {
-            if (channel != null)
-            {
-                Number = channel.Number;
-                Name = channel.Name;
-                Description = channel.Description;
-                CalibrationDate = channel.CalibrationDate;
-                NextCalibrationDate = channel.NextCalibrationDate;
-                CalibrationInitials = channel.CalibrationInitials;
-            }
-        }
-
-        public Channel ToChannel()
+        public IChannel ToChannel()
         {
             var channel = new Channel();
             channel.Number = Number;
@@ -84,6 +42,52 @@ namespace MTConnect.Devices
             channel.NextCalibrationDate = NextCalibrationDate;
             channel.CalibrationInitials = CalibrationInitials;
             return channel;
+        }
+
+        public static void WriteXml(XmlWriter writer, IChannel channel)
+        {
+            if (channel != null)
+            {
+                writer.WriteStartElement("Channel");
+
+                // Write Properties
+                if (!string.IsNullOrEmpty(channel.Number)) writer.WriteAttributeString("number", channel.Number);
+                if (!string.IsNullOrEmpty(channel.Name)) writer.WriteAttributeString("name", channel.Name);
+
+                // Write Description
+                if (!string.IsNullOrEmpty(channel.Description))
+                {
+                    writer.WriteStartElement("Description");
+                    writer.WriteString(channel.Description);
+                    writer.WriteEndElement();
+                }
+
+                // Write CalibrationDate
+                if (channel.CalibrationDate > DateTime.MinValue)
+                {
+                    writer.WriteStartElement("CalibrationDate");
+                    writer.WriteString(channel.CalibrationDate.ToString("o"));
+                    writer.WriteEndElement();
+                }
+
+                // Write NextCalibrationDate
+                if (channel.NextCalibrationDate > DateTime.MinValue)
+                {
+                    writer.WriteStartElement("NextCalibrationDate");
+                    writer.WriteString(channel.NextCalibrationDate.ToString("o"));
+                    writer.WriteEndElement();
+                }
+
+                // Write Calibration Initials
+                if (!string.IsNullOrEmpty(channel.CalibrationInitials))
+                {
+                    writer.WriteStartElement("CalibrationInitials");
+                    writer.WriteString(channel.CalibrationInitials);
+                    writer.WriteEndElement();
+                }
+
+                writer.WriteEndElement();
+            }
         }
     }
 }

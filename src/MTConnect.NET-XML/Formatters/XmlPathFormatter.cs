@@ -4,90 +4,129 @@
 // file 'LICENSE', which is part of this source code package.
 
 using MTConnect.Devices;
+using MTConnect.Devices.Xml;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml;
 using System.Xml.XPath;
 
-namespace MTConnect.Formatters
+namespace MTConnect.Formatters.Xml
 {
     public class XmlPathFormatter : IPathFormatter
     {
+        private readonly Dictionary<string, byte[]> _documents = new Dictionary<string, byte[]>();
+        private readonly object _lock = new object();
+
         public string Id => "XML";
 
+
+        private byte[] GetDocumentBytes(IDevice device)
+        {
+            if (device != null)
+            {
+                byte[] bytes;
+                lock (_lock) _documents.TryGetValue(device.Id, out bytes);
+                if (bytes == null)
+                {
+                    try
+                    {
+                        using (var stream = new MemoryStream())
+                        {
+                            // Use XmlWriter to write XML to stream
+                            var xmlWriter = XmlWriter.Create(stream, XmlFunctions.XmlWriterSettings);
+
+                            xmlWriter.WriteStartDocument();
+                            XmlDevice.WriteXml(xmlWriter, device);
+                            xmlWriter.WriteEndDocument();
+                            xmlWriter.Flush();
+
+                            // Return byte[]
+                            bytes = stream.ToArray();
+                            if (bytes != null && bytes.Length > 0)
+                            {
+                                lock (_lock) _documents.Add(device.Id, bytes);
+                            }
+                        }
+                    }
+                    catch { }
+                }
+
+                return bytes;
+            }
+
+            return null;
+        }
 
         public IEnumerable<string> GetDataItemIds(IDevicesResponseDocument devicesDocument, string path)
         {
             var dataItemIds = new List<string>();
 
-            if (devicesDocument != null)
+            if (devicesDocument != null && !devicesDocument.Devices.IsNullOrEmpty())
             {
-                // Get List of all Components
-                var components = devicesDocument.GetComponents();
-
-                // Get List of all DataItems
-                var dataItems = devicesDocument.GetDataItems();
-
-                if (!dataItems.IsNullOrEmpty())
+                foreach (var device in devicesDocument.Devices)
                 {
-                    // Convert Document to XML
-                    var xml = XmlDevicesResponseDocument.ToXml(devicesDocument);
-                    if (!string.IsNullOrEmpty(xml))
+                    // Get List of all Components
+                    var components = device.GetComponents();
+
+                    // Get List of all DataItems
+                    var dataItems = device.GetDataItems();
+
+                    if (!dataItems.IsNullOrEmpty())
                     {
-                        // Clear the namespaces from the document (this may be needed but a better implementation of namespaces will be needed)
-                        xml = Namespaces.Clear(xml);
-
-                        try
+                        var bytes = GetDocumentBytes(device);
+                        if (bytes != null)
                         {
-                            var bytes = System.Text.Encoding.UTF8.GetBytes(xml);
-                            using (var stream = new MemoryStream(bytes))
+                            try
                             {
-                                using (var xmlReader = new XmlTextReader(stream))
+                                using (var stream = new MemoryStream(bytes))
                                 {
-                                    // Create an XPathDocument using the DevicesDocument XML
-                                    var xPathDocument = new XPathDocument(xmlReader);
-
-                                    // Create an XPathNavigator
-                                    var xPathNavigator = xPathDocument.CreateNavigator();
-
-                                    // Select the nodes matching the XPath string
-                                    var nodes = xPathNavigator.Select(path);
-                                    if (nodes != null)
+                                    using (var xmlReader = new XmlTextReader(stream))
                                     {
-                                        foreach (XPathNavigator node in nodes)
-                                        {
-                                            // Get the ID attribute from the Node
-                                            var idAttribute = node.GetAttribute("id", "");
+                                        // Create an XPathDocument using the DevicesDocument XML
+                                        var xPathDocument = new XPathDocument(xmlReader);
 
-                                            if (node.Name == "DataItem")
+                                        // Create an XPathNavigator
+                                        var xPathNavigator = xPathDocument.CreateNavigator();
+
+                                        // Select the nodes matching the XPath string
+                                        var nodes = xPathNavigator.Select(path);
+                                        if (nodes != null)
+                                        {
+                                            foreach (XPathNavigator node in nodes)
                                             {
-                                                // Get ID attribute
-                                                if (idAttribute != null)
+                                                // Get the ID attribute from the Node
+                                                var idAttribute = node.GetAttribute("id", "");
+
+                                                if (node.Name == "DataItem")
                                                 {
-                                                    // Get DataItem based on ID
-                                                    var dataItem = dataItems.FirstOrDefault(o => o.Id == idAttribute);
-                                                    if (dataItem != null)
+                                                    // Get ID attribute
+                                                    if (idAttribute != null)
                                                     {
-                                                        dataItemIds.Add(dataItem.Id);
+                                                        // Get DataItem based on ID
+                                                        var dataItem = dataItems.FirstOrDefault(o => o.Id == idAttribute);
+                                                        if (dataItem != null)
+                                                        {
+                                                            dataItemIds.Add(dataItem.Id);
+                                                        }
                                                     }
                                                 }
-                                            }
-                                            else
-                                            {
-                                                // Get ID attribute
-                                                if (idAttribute != null)
+                                                else
                                                 {
-                                                    // Get DataItem based on ID
-                                                    var component = components.FirstOrDefault(o => o.Id == idAttribute);
-                                                    if (component != null)
+                                                    // Get ID attribute
+                                                    if (idAttribute != null)
                                                     {
-                                                        var componentDataItems = component.GetDataItems();
-                                                        if (!componentDataItems.IsNullOrEmpty())
+                                                        // Get DataItem based on ID
+                                                        var component = components.FirstOrDefault(o => o.Id == idAttribute);
+                                                        if (component != null)
                                                         {
-                                                            foreach (var dataItem in componentDataItems)
+                                                            var componentDataItems = component.GetDataItems();
+                                                            if (!componentDataItems.IsNullOrEmpty())
                                                             {
-                                                                dataItemIds.Add(dataItem.Id);
+                                                                foreach (var dataItem in componentDataItems)
+                                                                {
+                                                                    dataItemIds.Add(dataItem.Id);
+                                                                }
                                                             }
                                                         }
                                                     }
@@ -97,8 +136,8 @@ namespace MTConnect.Formatters
                                     }
                                 }
                             }
+                            catch { }
                         }
-                        catch { }
                     }
                 }
             }

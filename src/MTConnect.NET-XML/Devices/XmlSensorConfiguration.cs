@@ -9,81 +9,29 @@ using System.Collections.Generic;
 using System.Xml;
 using System.Xml.Serialization;
 
-namespace MTConnect.Devices
+namespace MTConnect.Devices.Xml
 {
-    /// <summary>
-    /// Configuration contains technical information about a component describing its physical layout,
-    /// functional characteristics, and relationships with other components within a piece of equipment.
-    /// </summary>
     [XmlRoot("SensorConfiguration")]
     public class XmlSensorConfiguration
     {
-        /// <summary>
-        /// Version number for the sensor unit as specified by the manufacturer.
-        /// </summary>
         [XmlElement("FirmwareVersion")]
         public string FirmwareVersion { get; set; }
 
-        /// <summary>
-        /// Date upon which the sensor unit was last calibrated.
-        /// </summary>
         [XmlElement("CalibrationDate")]
         public DateTime CalibrationDate { get; set; }
 
-        [XmlIgnore]
-        public bool CalibrationDateSpecified => CalibrationDate > DateTime.MinValue;
-
-        /// <summary>
-        /// Date upon which the sensor unit is next scheduled to be calibrated.
-        /// </summary>
         [XmlElement("NextCalibrationDate")]
         public DateTime NextCalibrationDate { get; set; }
 
-        [XmlIgnore]
-        public bool NextCalibrationDateSpecified => NextCalibrationDate > DateTime.MinValue;
-
-        /// <summary>
-        /// The initials of the person verifying the validity of the calibration data
-        /// </summary>
         [XmlElement("CalibrationInitials")]
         public string CalibrationInitials { get; set; }
 
-        /// <summary>
-        /// When Sensor represents multiple sensing elements, each sensing element is represented by a Channel for the Sensor.
-        /// </summary>
         [XmlArray("Channels")]
         [XmlArrayItem("Channel", typeof(XmlChannel))]
         public List<XmlChannel> Channels { get; set; }
 
-        [XmlIgnore]
-        public bool ChannelsSpecified => !Channels.IsNullOrEmpty();
 
-
-        public XmlSensorConfiguration() { }
-
-        public XmlSensorConfiguration(SensorConfiguration sensorConfiguration)
-        {
-            if (sensorConfiguration != null)
-            {
-                FirmwareVersion = sensorConfiguration.FirmwareVersion;
-                CalibrationDate = sensorConfiguration.CalibrationDate;
-                NextCalibrationDate = sensorConfiguration.NextCalibrationDate;
-                CalibrationInitials = sensorConfiguration.CalibrationInitials;
-
-                // Channels
-                if (!sensorConfiguration.Channels.IsNullOrEmpty())
-                {
-                    var channels = new List<XmlChannel>();
-                    foreach (var channel in sensorConfiguration.Channels)
-                    {
-                        channels.Add(new XmlChannel(channel));
-                    }
-                    Channels = channels;
-                }
-            }
-        }
-
-        public SensorConfiguration ToSensorConfiguration()
+        public ISensorConfiguration ToSensorConfiguration()
         {
             var sensorConfiguration = new SensorConfiguration();
             sensorConfiguration.FirmwareVersion = FirmwareVersion;
@@ -94,7 +42,7 @@ namespace MTConnect.Devices
             // Channels
             if (!Channels.IsNullOrEmpty())
             {
-                var channels = new List<Channel>();
+                var channels = new List<IChannel>();
                 foreach (var channel in Channels)
                 {
                     channels.Add(channel.ToChannel());
@@ -103,6 +51,57 @@ namespace MTConnect.Devices
             }
 
             return sensorConfiguration;
+        }
+
+        public static void WriteXml(XmlWriter writer, ISensorConfiguration sensorConfiguration)
+        {
+            if (sensorConfiguration != null)
+            {
+                writer.WriteStartElement("SensorConfiguration");
+
+                // Write Firmware Version
+                if (!string.IsNullOrEmpty(sensorConfiguration.FirmwareVersion))
+                {
+                    writer.WriteStartElement("FirmwareVersion");
+                    writer.WriteString(sensorConfiguration.FirmwareVersion);
+                    writer.WriteEndElement();
+                }
+
+                // Write CalibrationDate
+                if (sensorConfiguration.CalibrationDate > DateTime.MinValue)
+                {
+                    writer.WriteStartElement("CalibrationDate");
+                    writer.WriteString(sensorConfiguration.CalibrationDate.ToString("o"));
+                    writer.WriteEndElement();
+                }
+
+                // Write NextCalibrationDate
+                if (sensorConfiguration.NextCalibrationDate > DateTime.MinValue)
+                {
+                    writer.WriteStartElement("NextCalibrationDate");
+                    writer.WriteString(sensorConfiguration.NextCalibrationDate.ToString("o"));
+                    writer.WriteEndElement();
+                }
+
+                // Write Calibration Initials
+                if (!string.IsNullOrEmpty(sensorConfiguration.CalibrationInitials))
+                {
+                    writer.WriteStartElement("CalibrationInitials");
+                    writer.WriteString(sensorConfiguration.CalibrationInitials);
+                    writer.WriteEndElement();
+                }
+
+                // Write Channels
+                if (!sensorConfiguration.Channels.IsNullOrEmpty())
+                {
+                    foreach (var channel in sensorConfiguration.Channels)
+                    {
+                        XmlChannel.WriteXml(writer, channel);
+                    }
+                }
+
+                writer.WriteEndElement();
+            }
         }
     }
 }

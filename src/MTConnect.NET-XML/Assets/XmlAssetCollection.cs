@@ -8,24 +8,29 @@ using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 
-namespace MTConnect.Assets
+namespace MTConnect.Assets.Xml
 {
     public class XmlAssetCollection : IXmlSerializable
     {
+        private readonly bool _indentOutput = false;
+
+
         [XmlIgnore]
         public List<IAsset> Assets { get; set; }
 
 
         public XmlAssetCollection() { Assets = new List<IAsset>(); }
 
-        public XmlAssetCollection(IAsset asset)
+        public XmlAssetCollection(IAsset asset, bool indentOutput = false)
         {
+            _indentOutput = indentOutput;
             Assets = new List<IAsset>();
             if (asset != null) Assets.Add(asset);
         }
 
-        public XmlAssetCollection(IEnumerable<IAsset> assets)
+        public XmlAssetCollection(IEnumerable<IAsset> assets, bool indentOutput = false)
         {
+            _indentOutput = indentOutput;
             Assets = new List<IAsset>();
             if (!assets.IsNullOrEmpty()) Assets.AddRange(assets);
         }
@@ -37,12 +42,29 @@ namespace MTConnect.Assets
         {
             if (!Assets.IsNullOrEmpty())
             {
-                foreach (var asset in Assets)
+                for (var i = 0; i < Assets.Count; i++)
                 {
-                    var xml = XmlAsset.ToXml(asset);
+                    var asset = Assets[i];
+                    var xml = XmlAsset.ToXml(asset, _indentOutput);
                     if (!string.IsNullOrEmpty(xml))
                     {
-                        writer.WriteRaw(xml);
+                        if (_indentOutput)
+                        {
+                            writer.WriteWhitespace(XmlFunctions.NewLine);
+
+                            // Manually Indent
+                            var lines = xml.Split(XmlFunctions.NewLine);
+                            foreach (var line in lines)
+                            {
+                                writer.WriteWhitespace(XmlFunctions.Tab);
+                                writer.WriteWhitespace(XmlFunctions.Tab);
+                                writer.WriteRaw(line);
+                            }
+                        }
+                        else
+                        {
+                            writer.WriteRaw(xml);
+                        }
                     }
                 }
             }

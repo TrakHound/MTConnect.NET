@@ -5,12 +5,25 @@
 
 using System.Text.RegularExpressions;
 using System.Xml;
+using MTConnect.Configurations;
+using MTConnect.Headers;
+using MTConnect.Writers;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text.RegularExpressions;
+using System.Xml;
+using System.Xml.Serialization;
+using System.Text;
 
 namespace MTConnect
 {
     internal static class Namespaces
-    {
+    {      
         internal const string DefaultXmlSchemaInstance = "http://www.w3.org/2001/XMLSchema-instance";
+        
+        private static Regex _streamRemoveNamespaceRegex = new Regex(@"\s{1}xmlns:xsi=\""http:\/\/www\.w3\.org\/2001\/XMLSchema-instance\""\s{1}xmlns:xsd=\""http:\/\/www\.w3\.org\/2001\/XMLSchema\""", RegexOptions.Compiled);
+        private static Regex _streamNamespaceRegex = new Regex("<MTConnectStreams", RegexOptions.Compiled);
 
 
         public static string Get(string xml)
@@ -59,6 +72,7 @@ namespace MTConnect
             return null;
         }
 
+
         public static string GetStreams(int majorVerion, int minorVersion)
         {
             switch (majorVerion)
@@ -92,6 +106,122 @@ namespace MTConnect
 
             return null;
         }
+
+        public static string SetStreams(string xml, Version version, IEnumerable<NamespaceConfiguration> extendedSchemas = null)
+        {
+            if (!string.IsNullOrEmpty(xml))
+            {
+                var ns = GetStreams(version.Major, version.Minor);
+
+                // Remove the XSD namespace
+                xml = _streamRemoveNamespaceRegex.Replace(xml, "");
+
+                var replace = new StringBuilder();
+                var extendedNamespaces = new StringBuilder();
+
+                var schemaLocation = new StringBuilder();
+                schemaLocation.Append(Schemas.GetStreams(version.Major, version.Minor));
+
+                // Add Extended Schemas
+                if (!extendedSchemas.IsNullOrEmpty())
+                {
+                    schemaLocation.Clear();
+
+                    foreach (var extendedSchema in extendedSchemas)
+                    {
+                        extendedNamespaces.Append(" xmlns:");
+                        extendedNamespaces.Append(extendedSchema.Alias);
+                        extendedNamespaces.Append("=\"");
+                        extendedNamespaces.Append(extendedSchema.Location);
+                        extendedNamespaces.Append('\"');
+
+                        schemaLocation.Append(extendedSchema.Location);
+                        schemaLocation.Append(' ');
+                        schemaLocation.Append(extendedSchema.Path);
+                    }
+                }
+
+                // Add Namespaces
+                replace.Append("<MTConnectStreams xmlns:m=\"");
+                replace.Append(ns);
+                replace.Append("\" xmlns=\"");
+                replace.Append(ns);
+                replace.Append("\" xmlns:xsi=\"");
+                replace.Append(DefaultXmlSchemaInstance);
+                replace.Append('\"');
+                if (extendedNamespaces.Length > 0) replace.Append(extendedNamespaces);
+                replace.Append(" xsi:schemaLocation=\"");
+                replace.Append(schemaLocation);
+                replace.Append('\"');
+
+                xml = _streamNamespaceRegex.Replace(xml, replace.ToString());
+            }
+
+            return xml;
+        }
+
+        //public static string SetStreams(string xml, Version version, IEnumerable<NamespaceConfiguration> extendedSchemas = null)
+        //{
+        //    if (!string.IsNullOrEmpty(xml))
+        //    {
+        //        var ns = GetStreams(version.Major, version.Minor);
+        //        //var schemaLocation = Schemas.GetStreams(version.Major, version.Minor);
+        //        //var extendedNamespaces = "";
+
+        //        // Remove the XSD namespace
+        //        xml = _streamRemoveNamespaceRegex.Replace(xml, "");
+
+
+        //        var replace = new StringBuilder();
+        //        var extendedNamespaces = new StringBuilder();
+
+        //        var schemaLocation = new StringBuilder();
+        //        schemaLocation.Append(Schemas.GetStreams(version.Major, version.Minor));
+
+        //        // Add Extended Schemas
+        //        if (!extendedSchemas.IsNullOrEmpty())
+        //        {
+        //            schemaLocation.Clear();
+        //            //schemaLocation = "";
+
+        //            foreach (var extendedSchema in extendedSchemas)
+        //            {
+        //                extendedNamespaces.Append(" xmlns:");
+        //                extendedNamespaces.Append(extendedSchema.Alias);
+        //                extendedNamespaces.Append("=\"");
+        //                extendedNamespaces.Append(extendedSchema.Location);
+        //                extendedNamespaces.Append('\"');
+
+        //                //extendedNamespaces += @" xmlns:" + extendedSchema.Alias=""{extendedSchema.Location}""";
+        //                //extendedNamespaces += $@" xmlns:{extendedSchema.Alias}=""{extendedSchema.Location}""";
+        //                schemaLocation.Append(extendedSchema.Location);
+        //                schemaLocation.Append(' ');
+        //                schemaLocation.Append(extendedSchema.Path);
+
+        //                //schemaLocation += $"{extendedSchema.Location} {extendedSchema.Path}";
+        //            }
+        //        }
+
+        //        // Add Namespaces
+        //        replace.Append("<MTConnectStreams xmlns:m=\"");
+        //        replace.Append(ns);
+        //        replace.Append("\" xmlns=\"");
+        //        replace.Append(ns);
+        //        replace.Append("\" xmlns:xsi=\"");
+        //        replace.Append(DefaultXmlSchemaInstance);
+        //        replace.Append('\"');
+        //        replace.Append(extendedNamespaces);
+        //        replace.Append(" xsi:schemaLocation=\"");
+        //        replace.Append(schemaLocation);
+        //        replace.Append('\"');
+
+        //        //string replace = "<MTConnectStreams xmlns:m=\"" + ns + "\" xmlns=\"" + ns + "\" xmlns:xsi=\"" + DefaultXmlSchemaInstance + "\"" + extendedNamespaces + " xsi:schemaLocation=\"" + schemaLocation + "\"";
+        //        xml = _streamNamespaceRegex.Replace(xml, replace.ToString());
+        //    }
+
+        //    return xml;
+        //}
+
 
         public static string GetAssets(int majorVerion, int minorVersion)
         {

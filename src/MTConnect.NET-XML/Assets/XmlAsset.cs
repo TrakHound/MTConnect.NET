@@ -5,11 +5,12 @@
 
 using System;
 using System.IO;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Serialization;
 
-namespace MTConnect.Assets
+namespace MTConnect.Assets.Xml
 {
     /// <summary>
     /// An Asset XML element is a container type XML element used to organize
@@ -58,26 +59,27 @@ namespace MTConnect.Assets
         public string Xml { get; set; }
 
 
-        public static IAsset FromXml(string type, string xml)
+        public static IAsset FromXml(string type, byte[] xmlBytes)
         {
             var asset = Asset.Create(type);
             if (asset != null)
             {
-                return FromXml(asset.GetType(), xml);
+                return FromXml(asset.GetType(), xmlBytes);
             }
 
             return default;
         }
 
-        public static IAsset FromXml(Type type, string xml)
+        public static IAsset FromXml(Type type, byte[] xmlBytes)
         {
-            if (type != null && !string.IsNullOrEmpty(xml))
+            if (type != null && xmlBytes != null && xmlBytes.Length > 0)
             {
                 // Check if IAsset
                 if (typeof(IAsset).IsAssignableFrom(type))
                 {
                     try
                     {
+                        var xml = Encoding.UTF8.GetString(xmlBytes);
                         xml = xml.Trim();
 
                         // Create an XmlSerializer using the specified Type

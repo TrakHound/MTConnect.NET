@@ -8,9 +8,9 @@ using System;
 using System.Xml;
 using System.Xml.Serialization;
 
-namespace MTConnect.Devices.Xml
+namespace MTConnect.Assets.Xml
 {
-    public class XmlDevicesHeader
+    public class XmlAssetsHeader
     {
         [XmlAttribute("instanceId")]
         public long InstanceId { get; set; }
@@ -20,9 +20,6 @@ namespace MTConnect.Devices.Xml
 
         [XmlAttribute("sender")]
         public string Sender { get; set; }
-
-        [XmlAttribute("bufferSize")]
-        public long BufferSize { get; set; }
 
         [XmlAttribute("assetBufferSize")]
         public long AssetBufferSize { get; set; }
@@ -40,13 +37,12 @@ namespace MTConnect.Devices.Xml
         public DateTime CreationTime { get; set; }
 
 
-        public virtual IMTConnectDevicesHeader ToDevicesHeader()
+        public virtual IMTConnectAssetsHeader ToErrorHeader()
         {
-            var header = new MTConnectDevicesHeader();
+            var header = new MTConnectAssetsHeader();
             header.InstanceId = InstanceId;
             header.Version = Version;
             header.Sender = Sender;
-            header.BufferSize = BufferSize;
             header.AssetBufferSize = AssetBufferSize;
             header.AssetCount = AssetCount;
             header.DeviceModelChangeTime = DeviceModelChangeTime;
@@ -55,7 +51,7 @@ namespace MTConnect.Devices.Xml
             return header;
         }
 
-        public static void WriteXml(XmlWriter writer, IMTConnectDevicesHeader header)
+        public static void WriteXml(XmlWriter writer, IMTConnectAssetsHeader header)
         {
             if (header != null)
             {
@@ -63,7 +59,6 @@ namespace MTConnect.Devices.Xml
                 writer.WriteAttributeString("instanceId", header.InstanceId.ToString());
                 writer.WriteAttributeString("version", header.Version.ToString());
                 writer.WriteAttributeString("sender", header.Sender);
-                writer.WriteAttributeString("bufferSize", header.BufferSize.ToString());
                 writer.WriteAttributeString("assetBufferSize", header.AssetBufferSize.ToString());
                 writer.WriteAttributeString("assetCount", header.AssetCount.ToString());
                 writer.WriteAttributeString("deviceModelChangeTime", header.DeviceModelChangeTime);

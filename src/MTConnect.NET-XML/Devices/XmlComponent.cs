@@ -4,227 +4,68 @@
 // file 'LICENSE', which is part of this source code package.
 
 using MTConnect.Devices.References;
-using MTConnect.Writers;
 using System.Collections.Generic;
 using System.IO;
-using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Serialization;
 
-namespace MTConnect.Devices
+namespace MTConnect.Devices.Xml
 {
-    /// <summary>
-    /// An abstract XML Element.
-    /// Replaced in the XML document by types of Component elements representing physical and logical parts of the Device.
-    /// There can be multiple types of Component XML Elements in the document.
-    /// </summary>
     [XmlRoot("Component")]
     public class XmlComponent
     {
         private static readonly XmlSerializer _serializer = new XmlSerializer(typeof(XmlComponent));
 
 
-        /// <summary>
-        /// The unique identifier for this Component in the document.
-        /// An id MUST be unique across all the id attributes in the document.
-        /// An XML ID-type.
-        /// </summary>
         [XmlAttribute("id")]
         public string Id { get; set; }
 
-        /// <summary>
-        /// The type of component
-        /// </summary>
         [XmlIgnore]
         public string Type { get; set; }
 
-        /// <summary>
-        /// The name of the Component.
-        /// Name is an optional attribute.
-        /// If provided, Name MUST be unique within a type of Component or subComponent.
-        /// It is recommended that duplicate names SHOULD NOT occur within a Device.
-        /// An NMTOKEN XML type.
-        /// </summary>
         [XmlAttribute("name")]
         public string Name { get; set; }
 
-        /// <summary>
-        /// The name the device manufacturer assigned to the Component.
-        /// If the native name is not provided it MUST be the Name.
-        /// </summary>
         [XmlAttribute("nativeName")]
         public string NativeName { get; set; }
 
-        /// <summary>
-        /// The interval in milliseconds between the completion of the reading of one sample of data from a component until the beginning of the next sampling of that data.
-        /// This is the number of milliseconds between data captures. 
-        /// If the sample interval is smaller than one millisecond, the number can be represented as a floating point number.
-        /// For example, an interval of 100 microseconds would be 0.1.
-        /// </summary>
         [XmlAttribute("sampleInterval")]
         public double SampleInterval { get; set; }
 
-        [XmlIgnore]
-        public bool SampleIntervalSpecified => SampleInterval > 0;
-
-        /// <summary>
-        /// DEPRECATED IN REL. 1.2 (REPLACED BY sampleInterval)
-        /// </summary>
         [XmlAttribute("sampleRate")]
         public double SampleRate { get; set; }
 
-        [XmlIgnore]
-        public bool SampleRateSpecified => SampleRate > 0;
-
-        /// <summary>
-        /// A unique identifier that will only refer to this Component.
-        /// For example, this can be the manufacturer's code or the serial number.
-        /// The uuid should be alphanumeric and not exceeding 255 characters.
-        /// An NMTOKEN XML type.
-        /// </summary>
         [XmlAttribute("uuid")]
         public string Uuid { get; set; }
 
-        /// <summary>
-        /// Specifies the CoordinateSystem for this Component and its children.
-        /// </summary>
         [XmlAttribute("coordinateSystemIdRef")]
         public string CoordinateSystemIdRef { get; set; }
 
-        /// <summary>
-        /// An element that can contain any descriptive content. 
-        /// This can contain information about the Component and manufacturer specific details.
-        /// </summary>
         [XmlElement("Description")]
         public XmlDescription Description { get; set; }
 
-        /// <summary>
-        /// An XML element that contains technical information about a piece of equipment describing its physical layout or functional characteristics.
-        /// </summary>
         [XmlElement("Configuration")]
         public XmlConfiguration Configuration { get; set; }
 
-        /// <summary>
-        /// A container for the Data Entities associated with this Component element.
-        /// </summary>
-        [XmlElement("DataItems")]
-        public XmlDataItemCollection DataItemCollection { get; set; }
+        [XmlArray("DataItems")]
+        [XmlArrayItem("DataItem")]
+        public List<XmlDataItem> DataItems { get; set; }
 
-        [XmlIgnore]
-        public bool DataItemCollectionSpecified => DataItemCollection != null && !DataItemCollection.DataItems.IsNullOrEmpty();
-
-        /// <summary>
-        /// A container for Lower Level Component XML elements associated with this parent Component.
-        /// </summary>
         [XmlElement("Components")]
         public XmlComponentCollection ComponentCollection { get; set; }
 
-        [XmlIgnore]
-        public bool ComponentCollectionSpecified => ComponentCollection != null && !ComponentCollection.Components.IsNullOrEmpty();
-
-        /// <summary>
-        /// A container for the Composition elements associated with this Component element.
-        /// </summary>
         [XmlArray("Compositions")]
         [XmlArrayItem("Composition")]
         public List<XmlComposition> Compositions { get; set; }
 
-        [XmlIgnore]
-        public bool CompositionsSpecified => !Compositions.IsNullOrEmpty();
-
-        /// <summary>
-        /// An XML container consisting of one or more types of Reference XML elements.
-        /// </summary>
         [XmlArray("References")]
         [XmlArrayItem("ComponentRef", typeof(XmlComponentReference))]
         [XmlArrayItem("DataItemRef", typeof(XmlDataItemReference))]
         public List<XmlReference> References { get; set; }
 
         [XmlIgnore]
-        public bool ReferencesSpecified => !References.IsNullOrEmpty();
-
-        [XmlIgnore]
         public string TypeDescription { get; set; }
 
-
-
-        public XmlComponent() 
-        {
-            DataItemCollection = new XmlDataItemCollection();
-            Compositions = new List<XmlComposition>();
-        }
-
-        public XmlComponent(IComponent component)
-        {
-            DataItemCollection = new XmlDataItemCollection();
-            Compositions = new List<XmlComposition>();
-
-            if (component != null)
-            {
-                Id = component.Id;
-                Uuid = component.Uuid;
-                Name = component.Name;
-                NativeName = component.NativeName;
-                Type = component.Type;
-                SampleRate = component.SampleRate;
-                SampleInterval = component.SampleInterval;
-                TypeDescription = component.TypeDescription;
-
-                if (component.Description != null) Description = new XmlDescription(component.Description);
-                if (component.Configuration != null) Configuration = new XmlConfiguration(component.Configuration);
-
-                // References
-                if (!component.References.IsNullOrEmpty())
-                {
-                    var references = new List<XmlReference>();
-                    foreach (var reference in component.References)
-                    {
-                        if (reference.GetType() == typeof(ComponentReference))
-                        {
-                            references.Add(new XmlComponentReference((ComponentReference)reference));
-                        }
-
-                        if (reference.GetType() == typeof(DataItemReference))
-                        {
-                            references.Add(new XmlDataItemReference((DataItemReference)reference));
-                        }
-                    }
-                    References = references;
-                }
-
-                // DataItems
-                if (!component.DataItems.IsNullOrEmpty())
-                {
-                    foreach (var dataItem in component.DataItems)
-                    {
-                        DataItemCollection.DataItems.Add(DataItem.Create(dataItem));
-                    }
-                }
-
-                // Compositions
-                if (!component.Compositions.IsNullOrEmpty())
-                {
-                    foreach (var composition in component.Compositions)
-                    {
-                        Compositions.Add(new XmlComposition(composition));
-                    }
-                }
-
-                // Components
-                if (!component.Components.IsNullOrEmpty())
-                {
-                    var componentCollection = new XmlComponentCollection();
-                    foreach (var subcomponent in component.Components)
-                    {
-                        componentCollection.Components.Add(new XmlComponent(subcomponent));
-                    }
-                    ComponentCollection = componentCollection;
-                }
-            }
-        }
-
-
-        public override string ToString() => ToXml(ToComponent(), true);
 
         public Component ToComponent(IDevice device = null)
         {
@@ -245,7 +86,7 @@ namespace MTConnect.Devices
             // References
             if (!References.IsNullOrEmpty())
             {
-                var references = new List<Reference>();
+                var references = new List<IReference>();
                 foreach (var reference in References)
                 {
                     references.Add(reference.ToReference());
@@ -254,11 +95,12 @@ namespace MTConnect.Devices
             }
 
             // DataItems
-            if (DataItemCollection != null && !DataItemCollection.DataItems.IsNullOrEmpty())
+            if (!DataItems.IsNullOrEmpty())
             {
                 var dataItems = new List<IDataItem>();
-                foreach (var dataItem in DataItemCollection.DataItems)
+                foreach (var xmlDataItem in DataItems)
                 {
+                    var dataItem = xmlDataItem.ToDataItem();
                     dataItem.Container = component;
                     dataItem.Device = device;
                     dataItems.Add(dataItem);
@@ -269,7 +111,7 @@ namespace MTConnect.Devices
             // Compositions
             if (!Compositions.IsNullOrEmpty())
             {
-                var compositions = new List<Composition>();
+                var compositions = new List<IComposition>();
                 foreach (var xmlComposition in Compositions)
                 {
                     var composition = xmlComposition.ToComposition(device);
@@ -282,7 +124,7 @@ namespace MTConnect.Devices
             // Components
             if (ComponentCollection != null && !ComponentCollection.Components.IsNullOrEmpty())
             {
-                var components = new List<Component>();
+                var components = new List<IComponent>();
                 foreach (var xmlSubcomponent in ComponentCollection.Components)
                 {
                     var subcomponent = xmlSubcomponent.ToComponent(device);
@@ -295,16 +137,13 @@ namespace MTConnect.Devices
             return component;
         }
 
-
-        public static IComponent FromXml(string xml)
+        public static IComponent FromXml(byte[] xmlBytes)
         {
-            if (!string.IsNullOrEmpty(xml))
+            if (xmlBytes != null && xmlBytes.Length > 0)
             {
                 try
                 {
-                    xml = xml.Trim();
-
-                    using (var textReader = new StringReader(Namespaces.Clear(xml)))
+                    using (var textReader = new MemoryStream(xmlBytes))
                     {
                         using (var xmlReader = XmlReader.Create(textReader))
                         {
@@ -322,30 +161,110 @@ namespace MTConnect.Devices
             return null;
         }
 
-        public static string ToXml(IComponent component, bool indent = false)
+        //public static IComponent FromXml(string xml)
+        //{
+        //    if (!string.IsNullOrEmpty(xml))
+        //    {
+        //        try
+        //        {
+        //            xml = xml.Trim();
+
+        //            using (var textReader = new StringReader(Namespaces.Clear(xml)))
+        //            {
+        //                using (var xmlReader = XmlReader.Create(textReader))
+        //                {
+        //                    var xmlObj = (XmlComponent)_serializer.Deserialize(xmlReader);
+        //                    if (xmlObj != null)
+        //                    {
+        //                        return xmlObj.ToComponent();
+        //                    }
+        //                }
+        //            }
+        //        }
+        //        catch { }
+        //    }
+
+        //    return null;
+        //}
+
+        public static void WriteXml(XmlWriter writer, IComponent component, bool outputComments = false)
         {
             if (component != null)
             {
-                try
+                // Add Comments
+                if (outputComments && component != null)
                 {
-                    using (var writer = new Utf8Writer())
+                    // Write Component Type Description as Comment
+                    if (!string.IsNullOrEmpty(component.TypeDescription))
                     {
-                        _serializer.Serialize(writer, new XmlComponent(component));
-                        var xml = writer.ToString();
-
-                        // Remove the XSD namespace
-                        string regex = @"\s{1}xmlns:xsi=\""http:\/\/www\.w3\.org\/2001\/XMLSchema-instance\""\s{1}xmlns:xsd=\""http:\/\/www\.w3\.org\/2001\/XMLSchema\""";
-                        xml = Regex.Replace(xml, regex, "");
-                        regex = @"\s{1}xmlns:xsd=\""http:\/\/www\.w3\.org\/2001\/XMLSchema\""\s{1}xmlns:xsi=\""http:\/\/www\.w3\.org\/2001\/XMLSchema-instance\""";
-                        xml = Regex.Replace(xml, regex, "");
-
-                        return XmlFunctions.FormatXml(xml, indent, false, true);
+                        writer.WriteComment($"Type = {component.Type} : {component.TypeDescription}");
                     }
                 }
-                catch { }
-            }
 
-            return null;
+
+                writer.WriteStartElement(component.Type);
+
+                // Write Properties
+                writer.WriteAttributeString("id", component.Id);
+                if (!string.IsNullOrEmpty(component.Name)) writer.WriteAttributeString("name", component.Name);
+                if (!string.IsNullOrEmpty(component.Uuid)) writer.WriteAttributeString("uuid", component.Uuid);
+                if (!string.IsNullOrEmpty(component.NativeName)) writer.WriteAttributeString("nativeName", component.NativeName);
+                if (component.SampleInterval > 0) writer.WriteAttributeString("sampleInterval", component.SampleInterval.ToString());
+                if (component.SampleRate > 0) writer.WriteAttributeString("sampleRate", component.SampleRate.ToString());
+                if (!string.IsNullOrEmpty(component.CoordinateSystemIdRef)) writer.WriteAttributeString("coordinateSystemIdRef", component.CoordinateSystemIdRef);
+
+                // Write Description
+                XmlDescription.WriteXml(writer, component.Description);
+
+                // Write Configuration
+                XmlConfiguration.WriteXml(writer, component.Configuration, outputComments);
+
+                // Write References
+                if (!component.References.IsNullOrEmpty())
+                {
+                    writer.WriteStartElement("References");
+                    foreach (var reference in component.References)
+                    {
+                        XmlReference.WriteXml(writer, reference);
+                    }
+                    writer.WriteEndElement();
+                }
+
+                // Write DataItems
+                if (!component.DataItems.IsNullOrEmpty())
+                {
+                    writer.WriteStartElement("DataItems");
+                    foreach (var dataItem in component.DataItems)
+                    {
+                        XmlDataItem.WriteXml(writer, dataItem, outputComments);
+                    }
+                    writer.WriteEndElement();
+                }
+
+                // Write Compositions
+                if (!component.Compositions.IsNullOrEmpty())
+                {
+                    writer.WriteStartElement("Compositions");
+                    foreach (var composition in component.Compositions)
+                    {
+                        XmlComposition.WriteXml(writer, composition, outputComments);
+                    }
+                    writer.WriteEndElement();
+                }
+
+                // Write Components
+                if (!component.Components.IsNullOrEmpty())
+                {
+                    writer.WriteStartElement("Components");
+                    foreach (var subComponent in component.Components)
+                    {
+                        WriteXml(writer, subComponent, outputComments);
+                    }
+                    writer.WriteEndElement();
+                }
+
+                writer.WriteEndElement();
+            }
         }
     }
 }

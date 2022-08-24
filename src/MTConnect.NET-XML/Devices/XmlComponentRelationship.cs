@@ -7,36 +7,16 @@ using MTConnect.Devices.Configurations.Relationships;
 using System.Xml;
 using System.Xml.Serialization;
 
-namespace MTConnect.Devices
+namespace MTConnect.Devices.Xml
 {
-    /// <summary>
-    /// ComponentRelationship describes the association between two components within a piece of equipment that function independently but together perform a capability or service within a piece of equipment.
-    /// </summary>
     [XmlRoot("ComponentRelationship")]
     public class XmlComponentRelationship : XmlRelationship
     {
-        /// <summary>
-        /// Defines the authority that this component element has relative to the associated component element.
-        /// </summary>
         [XmlAttribute("type")]
         public ComponentRelationshipType Type { get; set; }
 
 
-        public XmlComponentRelationship() { }
-
-        public XmlComponentRelationship(ComponentRelationship relationship)
-        {
-            if (relationship != null)
-            {
-                Id = relationship.Id;
-                Name = relationship.Name;
-                Criticality = relationship.Criticality;
-                IdRef = relationship.IdRef;
-                Type = relationship.Type;
-            }
-        }
-
-        public override Relationship ToRelationship()
+        public override IRelationship ToRelationship()
         {
             var relationship = new ComponentRelationship();
             relationship.Id = Id;

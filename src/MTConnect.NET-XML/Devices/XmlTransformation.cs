@@ -7,45 +7,50 @@ using MTConnect.Devices.Configurations;
 using System.Xml;
 using System.Xml.Serialization;
 
-namespace MTConnect.Devices
+namespace MTConnect.Devices.Xml
 {
-    /// <summary>
-    /// Configuration contains technical information about a component describing its physical layout,
-    /// functional characteristics, and relationships with other components within a piece of equipment.
-    /// </summary>
     [XmlRoot("Transformation")]
     public class XmlTransformation
     {
-        /// <summary>
-        /// Translations along X, Y, and Z axes are expressed as x,y, and z respectively within a 3-dimensional vector.      
-        /// </summary>
         [XmlElement("Translation")]
         public string Translation { get; set; }
 
-        /// <summary>
-        /// Rotations about X, Y, and Z axes are expressed in A, B, and C respectively within a 3-dimensional vector.
-        /// </summary>
         [XmlElement("Rotation")]
         public string Rotation { get; set; }
 
 
-        public XmlTransformation() { }
-
-        public XmlTransformation(Transformation transformation)
-        {
-            if (transformation != null)
-            {
-                Translation = transformation.Translation;
-                Rotation = transformation.Rotation;
-            }
-        }
-
-        public Transformation ToTransformation()
+        public ITransformation ToTransformation()
         {
             var transformation = new Transformation();
             transformation.Translation = Translation;
             transformation.Rotation = Rotation;
             return transformation;
+        }
+
+        public static void WriteXml(XmlWriter writer, ITransformation transformation)
+        {
+            if (transformation != null)
+            {
+                writer.WriteStartElement("Transformation");
+
+                // Write Translation
+                if (transformation.Translation != null)
+                {
+                    writer.WriteStartElement("Translation");
+                    writer.WriteString(transformation.Translation);
+                    writer.WriteEndElement();
+                }
+
+                // Write Rotation
+                if (transformation.Rotation != null)
+                {
+                    writer.WriteStartElement("Rotation");
+                    writer.WriteString(transformation.Rotation);
+                    writer.WriteEndElement();
+                }
+
+                writer.WriteEndElement();
+            }
         }
     }
 }

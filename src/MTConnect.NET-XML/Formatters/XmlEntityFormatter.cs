@@ -4,14 +4,17 @@
 // file 'LICENSE', which is part of this source code package.
 
 using MTConnect.Assets;
+using MTConnect.Assets.Xml;
 using MTConnect.Devices;
+using MTConnect.Devices.Xml;
 using MTConnect.Observations;
-using MTConnect.Streams;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Xml;
 
-namespace MTConnect.Formatters
+namespace MTConnect.Formatters.Xml
 {
     public class XmlEntityFormatter : IEntityFormatter
     {
@@ -24,7 +27,17 @@ namespace MTConnect.Formatters
         {
             if (device != null)
             {
-                return new XmlDevice(device).ToString();
+                try
+                {
+                    using (var writer = new StringWriter())
+                    {
+                        // Use XmlWriter to write XML to stream
+                        var xmlWriter = XmlWriter.Create(writer, XmlFunctions.XmlWriterSettings);
+                        XmlDevice.WriteXml(xmlWriter, device);
+                        return writer.ToString();
+                    }
+                }
+                catch { }
             }
 
             return null;
@@ -34,7 +47,17 @@ namespace MTConnect.Formatters
         {
             if (component != null)
             {
-                return new XmlComponent(component).ToString();
+                try
+                {
+                    using (var writer = new StringWriter())
+                    {
+                        // Use XmlWriter to write XML to stream
+                        var xmlWriter = XmlWriter.Create(writer, XmlFunctions.XmlWriterSettings);
+                        XmlComponent.WriteXml(xmlWriter, component);
+                        return writer.ToString();
+                    }
+                }
+                catch { }
             }
 
             return null;
@@ -44,7 +67,17 @@ namespace MTConnect.Formatters
         {
             if (composition != null)
             {
-                return new XmlComposition(composition).ToString();
+                try
+                {
+                    using (var writer = new StringWriter())
+                    {
+                        // Use XmlWriter to write XML to stream
+                        var xmlWriter = XmlWriter.Create(writer, XmlFunctions.XmlWriterSettings);
+                        XmlComposition.WriteXml(xmlWriter, composition);
+                        return writer.ToString();
+                    }
+                }
+                catch { }
             }
 
             return null;
@@ -54,7 +87,17 @@ namespace MTConnect.Formatters
         {
             if (dataItem != null)
             {
-                return new XmlDataItem(dataItem).ToString();
+                try
+                {
+                    using (var writer = new StringWriter())
+                    {
+                        // Use XmlWriter to write XML to stream
+                        var xmlWriter = XmlWriter.Create(writer, XmlFunctions.XmlWriterSettings);
+                        XmlDataItem.WriteXml(xmlWriter, dataItem);
+                        return writer.ToString();
+                    }
+                }
+                catch { }
             }
 
             return null;
@@ -64,7 +107,7 @@ namespace MTConnect.Formatters
         {
             if (observation != null)
             {
-                return XmlObservation.ToXml(observation, true);
+                //return XmlObservation.ToXml(observation, true);
             }
 
             return null;
@@ -81,7 +124,7 @@ namespace MTConnect.Formatters
         }
 
 
-        public FormattedEntityReadResult<IDevice> CreateDevice(string content, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormattedEntityReadResult<IDevice> CreateDevice(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var messages = new List<string>();
             var warnings = new List<string>();
@@ -94,7 +137,7 @@ namespace MTConnect.Formatters
             return new FormattedEntityReadResult<IDevice>(entity, success, messages, warnings, errors);
         }
 
-        public FormattedEntityReadResult<IAsset> CreateAsset(string assetType, string content, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormattedEntityReadResult<IAsset> CreateAsset(string assetType, byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var messages = new List<string>();
             var warnings = new List<string>();

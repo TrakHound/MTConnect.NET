@@ -3,65 +3,28 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE', which is part of this source code package.
 
+using System.Xml;
 using System.Xml.Serialization;
-using System.Text.Json.Serialization;
 
-namespace MTConnect.Devices
+namespace MTConnect.Devices.Xml
 {
-    /// <summary>
-    /// An element that can contain any description content.
-    /// </summary>
     public class XmlDescription
     {
-        /// <summary>
-        /// The name of the manufacturer of the Component
-        /// </summary>
         [XmlAttribute("manufacturer")]
-        [JsonPropertyName("manufacturer")]
         public string Manufacturer { get; set; }
 
-        /// <summary>
-        /// The model description of the Component
-        /// </summary>
         [XmlAttribute("model")]
-        [JsonPropertyName("model")]
         public string Model { get; set; }
 
-        /// <summary>
-        /// The component's serial number
-        /// </summary>
         [XmlAttribute("serialNumber")]
-        [JsonPropertyName("serialNumber")]
         public string SerialNumber { get; set; }
 
-        /// <summary>
-        /// The station where the Component is located when a component is part of a manufacturing unit or cell with multiple stations that share the same physical controller.
-        /// </summary>
         [XmlAttribute("station")]
-        [JsonPropertyName("station")]
         public string Station { get; set; }
 
-        /// <summary>
-        /// Any additional descriptive information the implementer chooses to include regarding the Component.
-        /// </summary>
         [XmlText]
-        [JsonPropertyName("cdata")]
         public string CDATA { get; set; }
 
-
-        public XmlDescription() { }
-
-        public XmlDescription(IDescription desription)
-        {
-            if (desription != null)
-            {
-                Manufacturer = desription.Manufacturer;
-                Model = desription.Model;
-                SerialNumber = desription.SerialNumber;
-                Station = desription.Station;
-                CDATA = desription.Value;
-            }
-        }
 
         public IDescription ToDescription()
         {
@@ -72,6 +35,27 @@ namespace MTConnect.Devices
             description.Station = Station;
             description.Value = CDATA;
             return description;
+        }
+
+        public static void WriteXml(XmlWriter writer, IDescription description)
+        {
+            if (description != null &&
+                (!string.IsNullOrEmpty(description.Manufacturer) ||
+                !string.IsNullOrEmpty(description.Model) ||
+                !string.IsNullOrEmpty(description.SerialNumber) ||
+                !string.IsNullOrEmpty(description.Value)
+                ))
+            {
+                writer.WriteStartElement("Description");
+
+                // Write Description Properties
+                if (!string.IsNullOrEmpty(description.Manufacturer)) writer.WriteAttributeString("manufacturer", description.Manufacturer);
+                if (!string.IsNullOrEmpty(description.Model)) writer.WriteAttributeString("model", description.Model);
+                if (!string.IsNullOrEmpty(description.SerialNumber)) writer.WriteAttributeString("serialNumber", description.SerialNumber);
+                if (!string.IsNullOrEmpty(description.Value)) writer.WriteString(description.Value);
+
+                writer.WriteEndElement();
+            }
         }
     }
 }

@@ -4,59 +4,28 @@
 // file 'LICENSE', which is part of this source code package.
 
 using MTConnect.Devices.Configurations.Relationships;
+using MTConnect.Devices.DataItems;
 using System.Xml;
 using System.Xml.Serialization;
 
-namespace MTConnect.Devices
+namespace MTConnect.Devices.Xml
 {
-    /// <summary>
-    /// Relationship is an XML element that describes the association between two pieces of equipment that function independently but together perform a manufacturing operation. 
-    /// Relationship may also be used to define the association between two components within a piece of equipment.
-    /// </summary>
     public class XmlRelationship
     {
-        /// <summary>
-        /// The unique identifier for this Relationship.
-        /// </summary>
         [XmlAttribute("id")]
         public string Id { get; set; }
 
-        /// <summary>
-        /// A descriptive name associated with this Relationship.
-        /// </summary>
         [XmlAttribute("name")]
         public string Name { get; set; }
 
-        /// <summary>
-        /// A reference to the related DataItem id.
-        /// </summary>
         [XmlAttribute("criticality")]
         public Criticality Criticality { get; set; }
 
-        [XmlIgnore]
-        public bool CriticalitySpecified => Criticality != Criticality.NOT_SPECIFIED;
-
-        /// <summary>
-        /// A reference to the associated component element.
-        /// </summary>
         [XmlAttribute("idRef")]
         public string IdRef { get; set; }
 
 
-        public XmlRelationship() { }
-
-        public XmlRelationship(Relationship relationship)
-        {
-            if (relationship != null)
-            {
-                Id = relationship.Id;
-                Name = relationship.Name;
-                Criticality = relationship.Criticality;
-                IdRef = relationship.IdRef;
-            }
-        }
-
-        public virtual Relationship ToRelationship()
+        public virtual IRelationship ToRelationship()
         {
             var relationship = new Relationship();
             relationship.Id = Id;
@@ -64,6 +33,59 @@ namespace MTConnect.Devices
             relationship.Criticality = Criticality;
             relationship.IdRef = IdRef;
             return relationship;
+        }
+
+        public static void WriteXml(XmlWriter writer, IRelationship relationship)
+        {
+            if (relationship != null)
+            {
+                writer.WriteStartElement(relationship.GetType().Name);
+                WriteCommonXml(writer, relationship);
+
+                switch (relationship.GetType().Name)
+                {
+                    case "ComponentRelationship": WriteXml(writer, relationship as IComponentRelationship); break;
+                    case "DataItemRelationship": WriteXml(writer, relationship as IDataItemRelationship); break;
+                    case "DeviceRelationship": WriteXml(writer, relationship as IDeviceRelationship); break;
+                    case "SpecificationRelationship": WriteXml(writer, relationship as ISpecificationRelationship); break;
+                }
+
+                writer.WriteEndElement();
+            }
+        }
+
+        public static void WriteCommonXml(XmlWriter writer, IRelationship relationship)
+        {
+            // Write Properties
+            if (!string.IsNullOrEmpty(relationship.Id)) writer.WriteAttributeString("id", relationship.Id);
+            if (!string.IsNullOrEmpty(relationship.Name)) writer.WriteAttributeString("name", relationship.Name);
+            if (relationship.Criticality != Criticality.NOT_SPECIFIED) writer.WriteAttributeString("criticality", relationship.Criticality.ToString());
+            if (!string.IsNullOrEmpty(relationship.IdRef)) writer.WriteAttributeString("idRef", relationship.IdRef);
+        }
+
+
+        public static void WriteXml(XmlWriter writer, IComponentRelationship relationship)
+        {
+            writer.WriteAttributeString("type", relationship.Type.ToString());
+        }
+
+        public static void WriteXml(XmlWriter writer, IDataItemRelationship relationship)
+        {
+            writer.WriteAttributeString("type", relationship.Type.ToString());
+        }
+
+        public static void WriteXml(XmlWriter writer, IDeviceRelationship relationship)
+        {
+            writer.WriteAttributeString("type", relationship.Type.ToString());
+            if (!string.IsNullOrEmpty(relationship.DeviceUuidRef)) writer.WriteAttributeString("deviceUuidRef", relationship.DeviceUuidRef);
+            writer.WriteAttributeString("role", relationship.Role.ToString());
+            if (!string.IsNullOrEmpty(relationship.Href)) writer.WriteAttributeString("href", relationship.Href);
+            if (!string.IsNullOrEmpty(relationship.XLinkType)) writer.WriteAttributeString("xLinkType", relationship.XLinkType);
+        }
+
+        public static void WriteXml(XmlWriter writer, ISpecificationRelationship relationship)
+        {
+            writer.WriteAttributeString("type", relationship.Type.ToString());
         }
     }
 }

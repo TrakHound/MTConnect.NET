@@ -11,14 +11,14 @@ using System.Xml.Schema;
 
 namespace MTConnect
 {
-    public static class XmlValidator
+    internal static class XmlValidator
     {
-        public static XmlValidationResponse Validate(string documentXml, IEnumerable<string> schemaXmls = null)
+        public static XmlValidationResponse Validate(byte[] documentXml, IEnumerable<string> schemaXmls = null)
         {
             var success = false;
             var errors = new List<string>();
 
-            if (!string.IsNullOrEmpty(documentXml))
+            if (documentXml != null)
             {
                 if (schemaXmls.IsNullOrEmpty())
                 {
@@ -65,8 +65,8 @@ namespace MTConnect
                         };
 
                         // Set XML Reader Settings
-                        using (var stringReader = new StringReader(documentXml))
-                        using (var xmlReader = XmlReader.Create(stringReader, readerSettings))
+                        using (var reader = new MemoryStream(documentXml))
+                        using (var xmlReader = XmlReader.Create(reader, readerSettings))
                         {
                             var document = new XmlDocument();
                             document.Load(xmlReader);

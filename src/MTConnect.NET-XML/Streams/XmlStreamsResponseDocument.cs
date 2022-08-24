@@ -4,109 +4,34 @@
 // file 'LICENSE', which is part of this source code package.
 
 using MTConnect.Configurations;
-using MTConnect.Headers;
-using MTConnect.Writers;
-using System;
+using MTConnect.Devices.DataItems;
+using MTConnect.Observations;
+using MTConnect.Streams.Output;
 using System.Collections.Generic;
 using System.IO;
-using System.Text.RegularExpressions;
 using System.Xml;
-using System.Xml.Serialization;
 
-namespace MTConnect.Streams
+namespace MTConnect.Streams.Xml
 {
     /// <summary>
     /// The Streams Information Model provides a representation of the data reported by a piece of equipment used for a manufacturing process, or used for any other purpose.
     /// </summary>
-    [XmlRoot("MTConnectStreams")]
-    public class XmlStreamsResponseDocument
+    public static class XmlStreamsResponseDocument
     {
-        private static readonly XmlSerializer _serializer = new XmlSerializer(typeof(XmlStreamsResponseDocument));
 
+        #region "Read"
 
-        /// <summary>
-        /// Contains the Header information in an MTConnect Streams XML document
-        /// </summary>
-        [XmlElement("Header")]
-        public MTConnectStreamsHeader Header { get; set; }
-
-        /// <summary>
-        /// Streams is a container type XML element used to group the data reported from one or more pieces of equipment into a single XML document.
-        /// </summary>
-        [XmlElement("Streams")]
-        public XmlStreamsContainer Streams { get; set; }
-
-        [XmlIgnore]
-        public Version Version { get; set; }
-
-
-        public XmlStreamsResponseDocument() { }
-
-        public XmlStreamsResponseDocument(IStreamsResponseDocument streamsDocument)
+        public static IStreamsResponseDocument FromXml(byte[] xmlBytes)
         {
-            if (streamsDocument != null)
-            {
-                Header = streamsDocument.Header as MTConnectStreamsHeader;
-                Version = streamsDocument.Version;
-
-                var xmlStreams = new List<XmlDeviceStream>();
-                if (!streamsDocument.Streams.IsNullOrEmpty())
-                {
-                    foreach (var stream in streamsDocument.Streams)
-                    {
-                        var xmlStream = new XmlDeviceStream(stream);
-                        if (xmlStream != null) xmlStreams.Add(xmlStream);
-                    }
-                }
-
-                Streams = new XmlStreamsContainer { DeviceStreams = xmlStreams };
-            }
-        }
-
-
-        public IStreamsResponseDocument ToStreamsResponseDocument()
-        {
-            var streamsDocument = new StreamsResponseDocument();
-
-            streamsDocument.Header = Header;
-            streamsDocument.Version = Version;
-            
-            if (Streams != null && !Streams.DeviceStreams.IsNullOrEmpty())
-            {
-                var deviceStreams = new List<IDeviceStream>();
-
-                foreach (var xmlStream in Streams.DeviceStreams)
-                {
-                    deviceStreams.Add(xmlStream.ToDeviceStream());
-                }
-
-                streamsDocument.Streams = deviceStreams;
-            }
-
-            return streamsDocument;
-        }
-
-
-        public static IStreamsResponseDocument FromXml(string xml)
-        {
-            if (!string.IsNullOrEmpty(xml))
+            if (xmlBytes != null && xmlBytes.Length > 0)
             {
                 try
                 {
-                    xml = xml.Trim();
-
-                    var version = MTConnectVersion.Get(xml);
-
-                    using (var textReader = new StringReader(Namespaces.Clear(xml)))
+                    using (var memoryReader = new MemoryStream(xmlBytes))
                     {
-                        using (var xmlReader = XmlReader.Create(textReader))
+                        using (var xmlReader = XmlReader.Create(memoryReader))
                         {
-                            var doc = (XmlStreamsResponseDocument)_serializer.Deserialize(xmlReader);
-                            if (doc != null)
-                            {
-                                doc.Version = version;
-                                return doc.ToStreamsResponseDocument();
-                            }
+                            return ReadXml(xmlReader);
                         }
                     }
                 }
@@ -116,13 +41,394 @@ namespace MTConnect.Streams
             return null;
         }
 
-        //public static string ToXml(IStreamsResponseDocument streamsDocument, bool indent = false)
-        //{
-        //    return ToXml(streamsDocument, null, indent);
-        //}
+        public static IStreamsResponseDocument ReadXml(XmlReader reader)
+        {
+            try
+            {
+                var document = new StreamsResponseDocument();
 
-        public static string ToXml(
-            IStreamsResponseDocument document,
+                reader.ReadStartElement("MTConnectStreams");
+                reader.MoveToContent();
+                document.Version = MTConnectVersion.GetByNamespace(reader.NamespaceURI);
+
+                // Read Header
+                document.Header = XmlStreamsHeader.ReadXml(reader);
+
+                // Read to Streams Node
+                reader.ReadToNextSibling("Streams");
+
+                // Read to DeviceStream node
+                reader.ReadToDescendant("DeviceStream");
+
+                var deviceStreams = new List<IDeviceStream>();
+                do
+                {
+                    var deviceStreamReader = reader.ReadSubtree();
+                    deviceStreams.Add(ReadDeviceStreamXml(deviceStreamReader));
+                }
+                while (reader.ReadToNextSibling("DeviceStream"));
+                document.Streams = deviceStreams;
+
+                return document;
+            }
+            catch { }
+
+            return null;
+        }
+
+        public static IDeviceStream ReadDeviceStreamXml(XmlReader reader)
+        {
+            reader.ReadToDescendant("DeviceStream");
+
+            var deviceStream = new DeviceStream();
+            deviceStream.Name = reader.GetAttribute("name");
+            deviceStream.Uuid = reader.GetAttribute("uuid");
+
+            // Read to DeviceStream node
+            reader.ReadToDescendant("ComponentStream");
+
+            var componentStreams = new List<IComponentStream>();
+            do
+            {
+                var componentStreamReader = reader.ReadSubtree();
+                componentStreams.Add(ReadComponentStreamXml(componentStreamReader));
+            }
+            while (reader.ReadToNextSibling("ComponentStream"));
+            deviceStream.ComponentStreams = componentStreams;
+
+            return deviceStream;
+        }
+
+        public static IComponentStream ReadComponentStreamXml(XmlReader reader)
+        {
+            reader.ReadToDescendant("ComponentStream");
+
+            var componentStream = new ComponentStream();
+            componentStream.ComponentType = reader.GetAttribute("component");
+            componentStream.ComponentId = reader.GetAttribute("componentId");
+            componentStream.Name = reader.GetAttribute("name");
+            componentStream.Uuid = reader.GetAttribute("uuid");
+
+            reader.MoveToContent();
+            reader.Read();
+            while (reader.NodeType == XmlNodeType.Whitespace) reader.Read();
+
+            var observations = new List<IObservation>();
+
+            do
+            {
+                switch (reader.LocalName)
+                {
+                    case "Samples":
+                        var samplesReader = reader.ReadSubtree();
+                        observations.AddRange(ReadObservationsXml(samplesReader, DataItemCategory.SAMPLE));
+                        reader.Skip();
+                        break;
+
+                    case "Events":
+                        var eventsReader = reader.ReadSubtree();
+                        observations.AddRange(ReadObservationsXml(eventsReader, DataItemCategory.EVENT));
+                        reader.Skip();
+                        break;
+
+                    case "Condition":
+                        var conditionReader = reader.ReadSubtree();
+                        observations.AddRange(ReadObservationsXml(conditionReader, DataItemCategory.CONDITION));
+                        reader.Skip();
+                        break;
+                }
+            }
+            while (reader.Read());
+
+            componentStream.Observations = observations;
+
+            return componentStream;
+        }
+
+        public static IEnumerable<IObservation> ReadObservationsXml(XmlReader reader, DataItemCategory category)
+        {
+            var observations = new List<IObservation>();
+
+            // Set Container Name
+            string container;
+            switch (category)
+            {
+                case DataItemCategory.SAMPLE: container = "Samples"; break;
+                case DataItemCategory.EVENT: container = "Events"; break;
+                default: container = "Condition"; break;
+            }
+
+            reader.ReadToDescendant(container);
+            reader.MoveToContent();
+            reader.Read();
+
+            do
+            {
+                while (reader.NodeType == XmlNodeType.Whitespace) reader.Read();
+
+                var elementName = reader.LocalName;
+                var dataItemType = XmlObservation.GetDataItemType(elementName);
+                var representation = XmlObservation.GetRepresentation(elementName);
+
+                if (reader.LocalName != container && reader.NodeType == XmlNodeType.Element)
+                {
+                    // Read Observation Properties
+                    var observation = ReadObservationProperties(reader, category, dataItemType, representation);
+
+                    // Set Condition Level
+                    if (category == DataItemCategory.CONDITION)
+                    {
+                        observation.AddValue(ValueKeys.Level, elementName);
+                    }
+
+                    // Read Content
+                    if (reader.NodeType != XmlNodeType.None)
+                    {
+                        while (reader.NodeType != XmlNodeType.EndElement &&
+                            ((category == DataItemCategory.CONDITION && reader.NodeType == XmlNodeType.Whitespace) ||
+                            (category == DataItemCategory.CONDITION && reader.NodeType == XmlNodeType.Attribute) ||
+                            (category != DataItemCategory.CONDITION && reader.NodeType != XmlNodeType.Element)))
+                        {
+                            reader.Read();
+                            if (reader.NodeType == XmlNodeType.Text)
+                            {
+                                var text = reader.ReadContentAsString();
+                                if (!string.IsNullOrEmpty(text))
+                                {
+                                    if (representation == DataItemRepresentation.TIME_SERIES)
+                                    {
+                                        observation.AddValues(ReadTimeSeries(text));
+                                    }
+                                    else if (category == DataItemCategory.CONDITION)
+                                    {
+                                        observation.AddValue(ValueKeys.Message, text);
+                                    }
+                                    else
+                                    {
+                                        observation.AddValue(ValueKeys.Result, text);
+                                    }
+                                }
+                            }
+                            else if (reader.NodeType == XmlNodeType.Element)
+                            {
+                                switch (representation)
+                                {
+                                    case DataItemRepresentation.DATA_SET:
+                                        observation.AddValues(ReadDataSetEntries(reader));
+                                        break;
+
+                                    case DataItemRepresentation.TABLE:
+                                        observation.AddValues(ReadTableEntries(reader));
+                                        break;
+                                }
+                            }
+                        }
+                    }
+
+                    observations.Add(observation);
+                }
+            }
+            while (reader.Read());
+
+            return observations;
+        }
+
+        private static Observation ReadObservationProperties(
+            XmlReader reader,
+            DataItemCategory category,
+            string type,
+            DataItemRepresentation representation
+            )
+        {
+            Observation observation;
+
+            switch (category)
+            {
+                case DataItemCategory.SAMPLE:
+                    observation = SampleObservation.Create(type, representation);
+                    observation.SetProperty(nameof(Observation.Type), type);
+                    break;
+
+                case DataItemCategory.EVENT:
+                    observation = EventObservation.Create(type, representation);
+                    observation.SetProperty(nameof(Observation.Type), type);
+                    break;
+
+                default:
+                    type = reader.GetAttribute("type");
+                    observation = ConditionObservation.Create(type, representation);
+                    break;
+            }
+
+            if (reader.HasAttributes)
+            {
+                for (var i = 0; i < reader.AttributeCount; i++)
+                {
+                    reader.MoveToAttribute(i);
+
+                    switch (reader.Name)
+                    {
+                        case "dataItemId":
+                            observation.SetProperty(nameof(Observation.DataItemId), reader.Value);
+                            break;
+
+                        case "name":
+                            observation.SetProperty(nameof(Observation.Name), reader.Value);
+                            break;
+
+                        case "type":
+                            observation.SetProperty(nameof(Observation.Type), reader.Value);
+                            break;
+
+                        case "subType":
+                            observation.SetProperty(nameof(Observation.SubType), reader.Value);
+                            break;
+
+                        case "sequence":
+                            observation.SetProperty(nameof(Observation.Sequence), reader.Value);
+                            break;
+
+                        case "timestamp":
+                            observation.SetProperty(nameof(Observation.Timestamp), reader.Value);
+                            break;
+
+                        case "compositionId":
+                            observation.SetProperty(nameof(Observation.CompositionId), reader.Value);
+                            break;
+
+                        default:
+                            // Add as Value
+                            var valueKey = ValueKeys.GetPascalCaseKey(reader.Name);
+                            observation.AddValue(new ObservationValue(valueKey, reader.Value));
+                            break;
+                    }
+                }
+            }
+
+            return observation;
+        }
+
+
+        private static IEnumerable<ObservationValue> ReadDataSetEntries(XmlReader reader)
+        {
+            var values = new List<ObservationValue>();
+
+            do
+            {
+                var entryKey = reader.GetAttribute("key");
+                var valueKey = ValueKeys.CreateDataSetValueKey(entryKey);
+                var removed = reader.GetAttribute("removed").ToBoolean();
+                if (!removed)
+                {
+                    string value = null;
+
+                    // Read Content
+                    if (reader.NodeType != XmlNodeType.None)
+                    {
+                        while (reader.NodeType != XmlNodeType.EndElement)
+                        {
+                            reader.Read();
+                            if (reader.NodeType == XmlNodeType.Text)
+                            {
+                                value = reader.ReadContentAsString();
+                            }
+                        }
+                    }
+
+                    values.Add(new ObservationValue(valueKey, value));
+                }
+                else
+                {
+                    values.Add(new ObservationValue(valueKey, DataSetObservation.EntryRemovedValue));
+                }
+            }
+            while (reader.ReadToNextSibling("Entry"));
+
+            return values;
+        }
+
+        private static IEnumerable<ObservationValue> ReadTableEntries(XmlReader reader)
+        {
+            var values = new List<ObservationValue>();
+
+            do
+            {
+                var entryKey = reader.GetAttribute("key");
+                var valueKey = ValueKeys.CreateTableValueKey(entryKey);
+                var removed = reader.GetAttribute("removed").ToBoolean();
+                if (!removed)
+                {
+                    var cellReader = reader.ReadSubtree();
+                    values.AddRange(ReadTableCells(cellReader, entryKey));
+                    reader.Skip();
+                }
+                else
+                {
+                    values.Add(new ObservationValue(valueKey, TableObservation.EntryRemovedValue));
+                }
+            }
+            while (reader.ReadToNextSibling("Entry"));
+
+            return values;
+        }
+
+        private static IEnumerable<ObservationValue> ReadTableCells(XmlReader reader, string entryKey)
+        {
+            var values = new List<ObservationValue>();
+
+            reader.ReadToDescendant("Cell");
+
+            do
+            {
+                var cellKey = reader.GetAttribute("key");
+                var valueKey = ValueKeys.CreateTableValueKey(entryKey, cellKey);
+                string value = null;
+
+                // Read Content
+                if (reader.NodeType != XmlNodeType.None)
+                {
+                    while (reader.NodeType != XmlNodeType.EndElement)
+                    {
+                        reader.Read();
+                        if (reader.NodeType == XmlNodeType.Text)
+                        {
+                            value = reader.ReadContentAsString();
+                        }
+                    }
+                }
+
+                values.Add(new ObservationValue(valueKey, value));
+            }
+            while (reader.ReadToNextSibling("Cell"));
+
+            return values;
+        }
+
+        private static IEnumerable<ObservationValue> ReadTimeSeries(string text)
+        {
+            var values = new List<ObservationValue>();
+
+            if (!string.IsNullOrEmpty(text))
+            {
+                var samples = text.Split(' ');
+                if (samples != null && samples.Length > 0)
+                {
+                    for (var i = 0; i < samples.Length; i++)
+                    {
+                        values.Add(new ObservationValue(ValueKeys.CreateTimeSeriesValueKey(i), samples[i]));
+                    }
+                }
+            }
+
+            return values;
+        }
+
+        #endregion
+
+        #region "Write"
+
+        public static byte[] ToXmlBytes(
+            ref IStreamsResponseOutputDocument document,
             IEnumerable<NamespaceConfiguration> extendedSchemas = null,
             string styleSheet = null,
             bool indent = true,
@@ -133,63 +439,19 @@ namespace MTConnect.Streams
             {
                 try
                 {
-                    var ns = Namespaces.GetStreams(document.Version.Major, document.Version.Minor);
-                    var schemaLocation = Schemas.GetStreams(document.Version.Major, document.Version.Minor);
-                    var extendedNamespaces = "";
+                    var mtconnectStreamsNamespace = Namespaces.GetStreams(document.Version.Major, document.Version.Minor);
 
-                    using (var textWriter = new Utf8Writer())
+                    using (var stream = new MemoryStream())
                     {
-                        textWriter.NewLine = "\r\n";
+                        // Set the XmlWriterSettings to use
+                        var xmlWriterSettings = indent ? XmlFunctions.XmlWriterSettingsIndent : XmlFunctions.XmlWriterSettings;
 
-                        _serializer.Serialize(textWriter, new XmlStreamsResponseDocument(document));
-
-                        var xml = textWriter.ToString();
-
-                        // Remove the XSD namespace
-                        string regex = @"\s{1}xmlns:xsi=\""http:\/\/www\.w3\.org\/2001\/XMLSchema-instance\""\s{1}xmlns:xsd=\""http:\/\/www\.w3\.org\/2001\/XMLSchema\""";
-                        xml = Regex.Replace(xml, regex, "");
-                        regex = @"\s{1}xmlns:xsd=\""http:\/\/www\.w3\.org\/2001\/XMLSchema\""\s{1}xmlns:xsi=\""http:\/\/www\.w3\.org\/2001\/XMLSchema-instance\""";
-                        xml = Regex.Replace(xml, regex, "");
-
-                        // Add the default namespace, "m" namespace, xsi, and schemaLocation
-                        regex = @"<MTConnectStreams";
-
-                        // Add Extended Schemas
-                        if (!extendedSchemas.IsNullOrEmpty())
+                        // Use XmlWriter to write XML to stream
+                        using (var xmlWriter = XmlWriter.Create(stream, xmlWriterSettings))
                         {
-                            schemaLocation = "";
-
-                            foreach (var extendedSchema in extendedSchemas)
-                            {
-                                extendedNamespaces += $@" xmlns:{extendedSchema.Alias}=""{extendedSchema.Location}""";
-                                schemaLocation += $"{extendedSchema.Location} {extendedSchema.Path}";
-                            }
+                            WriteXml(xmlWriter, ref document, extendedSchemas, styleSheet, indent, outputComments);
+                            return stream.ToArray();
                         }
-
-                        string replace = "<MTConnectStreams xmlns:m=\"" + ns + "\" xmlns=\"" + ns + "\" xmlns:xsi=\"" + Namespaces.DefaultXmlSchemaInstance + "\"" + extendedNamespaces + " xsi:schemaLocation=\"" + schemaLocation + "\"";
-                        xml = Regex.Replace(xml, regex, replace);
-
-                        // Specify Xml Delcaration
-                        var xmlDeclaration = "<?xml version=\"1.0\" encoding=\"utf-8\"?>";
-
-                        // Remove Xml Declaration (in order to add Header Comment)
-                        xml = xml.Replace(xmlDeclaration, "");
-
-                        // Add Header Comments
-                        if (outputComments)
-                        {
-                            xml = XmlFunctions.CreateHeaderComment() + xml;
-                        }
-
-                        // Add Stylesheet
-                        if (!string.IsNullOrEmpty(styleSheet))
-                        {
-                            xml = $"<?xml-stylesheet type=\"text/xsl\" href=\"{styleSheet}?version={document.Version}\"?>" + xml;
-                        }
-
-                        xml = xmlDeclaration + xml;
-
-                        return XmlFunctions.FormatXml(xml, indent, outputComments);
                     }
                 }
                 catch { }
@@ -197,5 +459,71 @@ namespace MTConnect.Streams
 
             return null;
         }
+
+        public static void WriteXml(
+            XmlWriter writer,
+            ref IStreamsResponseOutputDocument document,
+            IEnumerable<NamespaceConfiguration> extendedSchemas = null,
+            string styleSheet = null,
+            bool indent = true,
+            bool outputComments = false
+            )
+        {
+            if (document != null && document.Streams != null && !document.Streams.IsNullOrEmpty())
+            {
+                var ns = Namespaces.GetStreams(document.Version.Major, document.Version.Minor);
+
+                writer.WriteStartDocument();
+                if (indent) writer.WriteWhitespace(XmlFunctions.NewLine);
+
+                // Add Stylesheet
+                if (!string.IsNullOrEmpty(styleSheet))
+                {
+                    writer.WriteRaw($"<?xml-stylesheet type=\"text/xsl\" href=\"{styleSheet}?version={document.Version}\"?>");
+                    if (indent) writer.WriteWhitespace(XmlFunctions.NewLine);
+                }
+
+                // Add Header Comment
+                if (outputComments) XmlFunctions.WriteHeaderComment(writer, indent);
+
+                // Write Root Document Element
+                writer.WriteStartElement("MTConnectStreams", ns);
+
+                // Write Namespace Declarations
+                writer.WriteAttributeString("xmlns", null, null, ns);
+                writer.WriteAttributeString("xmlns", "m", null, ns);
+                writer.WriteAttributeString("xmlns", "xsi", null, Namespaces.DefaultXmlSchemaInstance);
+
+                if (!extendedSchemas.IsNullOrEmpty())
+                {
+                    foreach (var schema in extendedSchemas)
+                    {
+                        writer.WriteAttributeString("xmlns", schema.Alias, null, schema.Urn);
+                    }
+                }
+
+                // Write Schema Location
+                writer.WriteAttributeString("xsi", "schemaLocation", null, Schemas.GetStreams(document.Version.Major, document.Version.Minor));
+
+                // Write Header
+                XmlStreamsHeader.WriteXml(writer, document.Header);
+
+                writer.WriteStartElement("Streams");
+
+                // Write Device Streams
+                for (var i = 0; i < document.Streams.Length; i++)
+                {
+                    XmlDeviceStream.WriteXml(writer, ref document.Streams[i], extendedSchemas, outputComments);
+                }
+
+                writer.WriteEndElement(); // Streams
+                writer.WriteEndElement(); // MTConnectStreams
+                writer.WriteEndDocument();
+                writer.Flush();
+            }
+        }
+
+        #endregion
+
     }
 }

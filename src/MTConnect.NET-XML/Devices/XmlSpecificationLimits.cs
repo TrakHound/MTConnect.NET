@@ -7,61 +7,62 @@ using MTConnect.Devices.Configurations.Specifications;
 using System.Xml;
 using System.Xml.Serialization;
 
-namespace MTConnect.Devices
+namespace MTConnect.Devices.Xml
 {
-    /// <summary>
-    /// A set of limits defining a range of values designating acceptable performance for a variable.
-    /// </summary>
     [XmlRoot("SpecificationLimits")]
     public class XmlSpecificationLimits
     {
-        /// <summary>
-        /// The upper conformance boundary for a variable.
-        /// </summary>
         [XmlElement("UpperLimit")]
         public double? UpperLimit { get; set; }
 
-        [XmlIgnore]
-        public bool UpperLimitSpecified => UpperLimit.HasValue;
-
-        /// <summary>
-        /// The ideal or desired value for a variable.
-        /// </summary>
         [XmlElement("Nominal")]
         public double? Nominal { get; set; }
 
-        [XmlIgnore]
-        public bool NominalSpecified => Nominal.HasValue;
-
-        /// <summary>
-        /// The lower conformance boundary for a variable.
-        /// </summary>
         [XmlElement("LowerLimit")]
         public double? LowerLimit { get; set; }
 
-        [XmlIgnore]
-        public bool LowerLimitSpecified => LowerLimit.HasValue;
 
-
-        public XmlSpecificationLimits() { }
-
-        public XmlSpecificationLimits(SpecificationLimits specificationLimits)
-        {
-            if (specificationLimits != null)
-            {
-                UpperLimit = specificationLimits.UpperLimit;
-                Nominal = specificationLimits.Nominal;
-                LowerLimit = specificationLimits.LowerLimit;
-            }
-        }
-
-        public SpecificationLimits ToSpecificationLimits()
+        public ISpecificationLimits ToSpecificationLimits()
         {
             var specificationLimits = new SpecificationLimits();
             specificationLimits.UpperLimit = UpperLimit;
             specificationLimits.Nominal = Nominal;
             specificationLimits.LowerLimit = LowerLimit;
             return specificationLimits;
+        }
+
+        public static void WriteXml(XmlWriter writer, ISpecificationLimits specificationLimits)
+        {
+            if (specificationLimits != null)
+            {
+                writer.WriteStartElement("ControlLimits");
+
+                // Write Upper Limit
+                if (specificationLimits.UpperLimit != null)
+                {
+                    writer.WriteStartElement("UpperLimit");
+                    writer.WriteString(specificationLimits.UpperLimit.ToString());
+                    writer.WriteEndElement();
+                }
+
+                // Write Nominal
+                if (specificationLimits.Nominal != null)
+                {
+                    writer.WriteStartElement("Nominal");
+                    writer.WriteString(specificationLimits.Nominal.ToString());
+                    writer.WriteEndElement();
+                }
+
+                // Write Lower Limit
+                if (specificationLimits.LowerLimit != null)
+                {
+                    writer.WriteStartElement("LowerLimit");
+                    writer.WriteString(specificationLimits.LowerLimit.ToString());
+                    writer.WriteEndElement();
+                }
+
+                writer.WriteEndElement();
+            }
         }
     }
 }
