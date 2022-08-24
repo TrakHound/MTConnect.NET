@@ -4,6 +4,7 @@
 // file 'LICENSE.txt', which is part of this source code package.
 
 using MTConnect.Agents;
+using MTConnect.Http;
 using MTConnect.Observations.Output;
 using MTConnect.Streams.Output;
 using System;
@@ -12,9 +13,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace MTConnect.Http
+namespace MTConnect.Servers.Http
 {
-    public class MTConnectHttpCurrentStream
+    internal class MTConnectHttpCurrentStream
     {
         private readonly string _id = StringFunctions.RandomString(10);
         private readonly string _boundary = UnixDateTime.Now.ToString().ToMD5Hash();

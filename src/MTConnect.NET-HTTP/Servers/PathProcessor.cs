@@ -6,7 +6,7 @@
 using MTConnect.Agents;
 using System.Collections.Generic;
 
-namespace MTConnect.Http
+namespace MTConnect.Servers.Http
 {
     internal class PathProcessor
     {

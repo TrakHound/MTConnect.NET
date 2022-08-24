@@ -10,7 +10,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace MTConnect.Http
+namespace MTConnect.Servers.Http
 {
     public abstract class HttpServer : IDisposable
     {
@@ -296,6 +296,20 @@ namespace MTConnect.Http
         protected virtual bool IsStreamRequest(HttpListenerContext context)
         {
             return false;
+        }
+
+        protected static IEnumerable<string> GetRequestHeaderValues(HttpListenerRequest request, string name)
+        {
+            if (request != null && request.Headers != null && !string.IsNullOrEmpty(name))
+            {
+                var values = request.Headers.Get(name);
+                if (values != null)
+                {
+                    return values.Split(',', StringSplitOptions.TrimEntries);
+                }
+            }
+
+            return null;
         }
 
         private static IEnumerable<string> CreatePrefixes(IHttpAgentConfiguration configuration, IEnumerable<string> prefixes = null, int port = 0)

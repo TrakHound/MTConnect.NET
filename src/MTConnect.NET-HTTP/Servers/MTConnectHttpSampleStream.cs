@@ -4,16 +4,20 @@
 // file 'LICENSE.txt', which is part of this source code package.
 
 using MTConnect.Agents;
+using MTConnect.Http;
 using MTConnect.Streams.Output;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.IO.Compression;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace MTConnect.Http
+namespace MTConnect.Servers.Http
 {
-    public class MTConnectHttpSampleStream
+    internal class MTConnectHttpSampleStream
     {
         private const int _minInterval = 1; // 1 millisecond minimum interval
 
@@ -22,12 +26,13 @@ namespace MTConnect.Http
         private readonly string _boundary = UnixDateTime.Now.ToString().ToMD5Hash();
         private readonly IMTConnectAgent _mtconnectAgent;
         private readonly string _deviceKey;
-        private readonly string _path;
+        private readonly IEnumerable<string> _dataItemIds;
         private readonly long _from;
         private readonly int _count;
         private readonly int _interval;
         private readonly int _heartbeat;
         private readonly string _documentFormat;
+        private readonly IEnumerable<string> _acceptEncodings;
         private readonly IEnumerable<KeyValuePair<string, string>> _formatOptions;
         private readonly StringBuilder _multipartBuilder = new StringBuilder();
 
@@ -38,6 +43,8 @@ namespace MTConnect.Http
         public string Id => _id;
 
         public string Boundary => _boundary;
+
+        public IEnumerable<string> AcceptEncodings => _acceptEncodings;
 
         public bool IsConnected => _isConnected;
 
@@ -58,23 +65,25 @@ namespace MTConnect.Http
         public MTConnectHttpSampleStream(
             IMTConnectAgent mtconnectAgent,
             string deviceKey,
-            string path = null,
+            IEnumerable<string> dataItemIds = null,
             long from = -1,
             int count = 0,
             int interval = 500,
             int heartbeat = 10000,
             string documentFormat = DocumentFormat.XML,
+            IEnumerable<string> acceptEncodings = null,
             IEnumerable<KeyValuePair<string, string>> formatOptions = null
             )
         {
             _mtconnectAgent = mtconnectAgent;
             _deviceKey = deviceKey;
-            _path = path;
+            _dataItemIds = dataItemIds;
             _from = from;
             _count = count;
             _interval = Math.Max(_minInterval, interval);
             _heartbeat = heartbeat * 10000; // Convert from ms to Ticks
             _documentFormat = documentFormat;
+            _acceptEncodings = acceptEncodings;
             _formatOptions = formatOptions;
         }
 
@@ -111,9 +120,11 @@ namespace MTConnect.Http
             {
                 StreamStarted?.Invoke(this, _id);
 
-                // Set Mime Type based documentFormat specified
-                var mimeType = MimeTypes.XML;
-                if (_documentFormat == DocumentFormat.JSON) mimeType = MimeTypes.JSON;
+                // Set Content Type based documentFormat specified
+                var contentType = MimeTypes.Get(_documentFormat);
+
+                // Set Content Encoding
+                var contentEncoding = GetContentEncoding();
 
                 try
                 {
@@ -135,23 +146,22 @@ namespace MTConnect.Http
                         // Read the MTConnectStreams document from the IMTConnectAgent
                         if (!string.IsNullOrEmpty(_deviceKey))
                         {
-                            document = _mtconnectAgent.GetDeviceStream(_deviceKey, nextSequence, long.MaxValue, _count);
+                            if (!_dataItemIds.IsNullOrEmpty()) document = _mtconnectAgent.GetDeviceStream(_deviceKey, _dataItemIds, nextSequence, long.MaxValue, _count);
+                            else document = _mtconnectAgent.GetDeviceStream(_deviceKey, nextSequence, long.MaxValue, _count);
                         }
                         else
                         {
-                            document = _mtconnectAgent.GetDeviceStreams(nextSequence, long.MaxValue, _count);
+                            if (!_dataItemIds.IsNullOrEmpty()) document = _mtconnectAgent.GetDeviceStreams(_dataItemIds, nextSequence, long.MaxValue, _count);
+                            else document = _mtconnectAgent.GetDeviceStreams(nextSequence, long.MaxValue, _count);
                         }
 
                         if (document != null)
                         {
-                            // Get List of all DataItems in MTConnectStreams Document
-                            //dataItems = document.GetObservations();
-
                             now = UnixDateTime.Now;
-                            chunk = CreateChunk(document, _documentFormat, _formatOptions);
+                            chunk = CreateChunk(document, _documentFormat, contentEncoding, _formatOptions);
 
                             // Create the HTTP Multipart Chunk (with boundary)
-                            multipartChunk = CreateMultipartChunk(chunk, mimeType, _boundary);
+                            multipartChunk = CreateMultipartChunk(chunk, _boundary, contentType, contentEncoding);
 
                             if (document.Streams.IsNullOrEmpty() || document.ObservationCount < 1)
                             {
@@ -203,8 +213,32 @@ namespace MTConnect.Http
             }
         }
 
+        private string GetContentEncoding()
+        {
+            // Gzip
+            if (!_acceptEncodings.IsNullOrEmpty() && _acceptEncodings.Contains(HttpContentEncodings.Gzip))
+            {
+                return HttpContentEncodings.Gzip;
+            }
 
-        private static byte[] CreateChunk(IStreamsResponseOutputDocument document, string documentFormat, IEnumerable<KeyValuePair<string, string>> formatOptions)
+#if NET5_0_OR_GREATER
+            // Brotli
+            else if (!_acceptEncodings.IsNullOrEmpty() && _acceptEncodings.Contains(HttpContentEncodings.Brotli))
+            {
+                return HttpContentEncodings.Brotli;
+            }
+#endif
+
+            // Deflate
+            else if (!_acceptEncodings.IsNullOrEmpty() && _acceptEncodings.Contains(HttpContentEncodings.Deflate))
+            {
+                return HttpContentEncodings.Deflate;
+            }
+
+            return null;
+        }
+
+        private static byte[] CreateChunk(IStreamsResponseOutputDocument document, string documentFormat, string contentEncoding, IEnumerable<KeyValuePair<string, string>> formatOptions)
         {
             if (document != null)
             {
@@ -212,32 +246,88 @@ namespace MTConnect.Http
                 var result = Formatters.ResponseDocumentFormatter.Format(documentFormat, ref document, formatOptions);
                 if (result.Success)
                 {
-                    // If successful then return the bytes
-                    return result.Content;
+                    var bytes = result.Content;
+
+                    try
+                    {
+                        switch (contentEncoding)
+                        {
+                            case HttpContentEncodings.Gzip:
+
+                                using (var ms = new MemoryStream())
+                                {
+                                    using (var zip = new GZipStream(ms, CompressionMode.Compress, true))
+                                    {
+                                        zip.Write(bytes, 0, bytes.Length);
+                                    }
+                                    bytes = ms.ToArray();
+                                }
+                                break;
+
+#if NET5_0_OR_GREATER
+                            case HttpContentEncodings.Brotli:
+
+                                using (var ms = new MemoryStream())
+                                {
+                                    using (var zip = new BrotliStream(ms, CompressionMode.Compress, true))
+                                    {
+                                        zip.Write(bytes, 0, bytes.Length);
+                                    }
+                                    bytes = ms.ToArray();
+                                }
+                                break;
+#endif
+
+                            case HttpContentEncodings.Deflate:
+
+                                using (var ms = new MemoryStream())
+                                {
+                                    using (var zip = new DeflateStream(ms, CompressionMode.Compress, true))
+                                    {
+                                        zip.Write(bytes, 0, bytes.Length);
+                                    }
+                                    bytes = ms.ToArray();
+                                }
+                                break;
+                        }
+                    }
+                    catch { }
+
+                    return bytes;
                 }
             }
 
             return null;
         }
 
-        private byte[] CreateMultipartChunk(byte[] body, string mimeType, string boundary)
+        private byte[] CreateMultipartChunk(byte[] body, string boundary, string contentType, string contentEncoding)
         {
             _multipartBuilder.Clear();
+            var newLine = Encoding.UTF8.GetString(new byte[] { 13, 10 });
 
             // Add Boundary Line
             _multipartBuilder.Append("--");
             _multipartBuilder.Append(boundary);
-            _multipartBuilder.Append("\r\n");
+            _multipartBuilder.Append(newLine);
 
             // Add Content Type Line
             _multipartBuilder.Append("Content-type: ");
-            _multipartBuilder.Append(mimeType);
-            _multipartBuilder.Append("\r\n");
+            _multipartBuilder.Append(contentType);
+            _multipartBuilder.Append(newLine);
+
+            if (!string.IsNullOrEmpty(contentEncoding))
+            {
+                // Add Content Encoding Line
+                _multipartBuilder.Append("Content-encoding: ");
+                _multipartBuilder.Append(contentEncoding);
+                _multipartBuilder.Append(newLine);
+            }
 
             // Add Content Length Line
             _multipartBuilder.Append("Content-length: ");
             _multipartBuilder.Append(body.Length);
-            _multipartBuilder.Append("\r\n\r\n");
+            _multipartBuilder.Append(newLine);
+            _multipartBuilder.Append(newLine);
 
             // Get Bytes from StringBuilder
             char[] a = new char[_multipartBuilder.Length];
@@ -246,14 +336,18 @@ namespace MTConnect.Http
             // Convert StringBuilder result to UTF8 Bytes
             var headerBytes = Encoding.UTF8.GetBytes(a);
 
-            // Create Array to return that is the size of the Header + body
-            byte[] bytes = new byte[headerBytes.Length + body.Length];
+            // Create Array to return that is the size of the Header + body + newline
+            byte[] bytes = new byte[headerBytes.Length + body.Length + 2];
 
             // Add Header Bytes
             Array.Copy(headerBytes, 0, bytes, 0, headerBytes.Length);
 
             // Add Body bytes
             Array.Copy(body, 0, bytes, headerBytes.Length, body.Length);
+
+            // Add NewLine
+            bytes[bytes.Length - 2] = 13;
+            bytes[bytes.Length - 1] = 10;
 
             return bytes;
         }

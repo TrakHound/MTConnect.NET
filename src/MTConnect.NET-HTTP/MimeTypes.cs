@@ -20,6 +20,17 @@ namespace MTConnect.Http
         public const string XML = "application/xml";
         public const string JSON = "application/json";
 
+
+        public static string Get(string documentFormat)
+        {
+            switch (documentFormat)
+            {
+                case DocumentFormat.JSON: return JSON;
+                default: return XML;
+            }
+        }
+
+
         private static IDictionary<string, string> BuildMappings()
         {
             var mappings = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) {

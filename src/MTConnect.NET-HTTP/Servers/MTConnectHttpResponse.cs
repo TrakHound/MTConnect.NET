@@ -10,7 +10,7 @@ using MTConnect.Formatters;
 using MTConnect.Streams.Output;
 using System.Collections.Generic;
 
-namespace MTConnect.Http
+namespace MTConnect.Servers.Http
 {
     public struct MTConnectHttpResponse
     {

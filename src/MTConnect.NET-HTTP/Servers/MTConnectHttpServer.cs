@@ -6,17 +6,18 @@
 using MTConnect.Agents;
 using MTConnect.Configurations;
 using MTConnect.Errors;
+using MTConnect.Http;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Net;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace MTConnect.Http
+namespace MTConnect.Servers.Http
 {
     /// <summary>
     /// An Http Web Server for processing MTConnect REST Api Requests
@@ -25,12 +26,6 @@ namespace MTConnect.Http
     {
         private const int _minimumHeartbeat = 500; // 500 ms
         private const int _defaultHeartbeat = 10000; // 10 Seconds
-
-        private static readonly Dictionary<string, string> _devicesSchemas = new Dictionary<string, string>();
-        private static readonly Dictionary<string, string> _streamsSchemas = new Dictionary<string, string>();
-        private static readonly Dictionary<string, string> _assetsSchemas = new Dictionary<string, string>();
-        private static readonly Dictionary<string, string> _commonSchemas = new Dictionary<string, string>();
-        private static readonly object _lock = new object();
 
         protected readonly IMTConnectAgent _mtconnectAgent;
         protected readonly IHttpAgentConfiguration _configuration;
@@ -253,6 +248,10 @@ namespace MTConnect.Http
         {
             if (httpRequest != null && httpRequest.Url != null && httpResponse != null)
             {
+                // Get Accept-Encoding Header (ex. gzip, br)
+                var acceptEncodings = GetRequestHeaderValues(httpRequest, "Accept-Encoding");
+                acceptEncodings = ProcessAcceptEncodings(acceptEncodings);
+
                 // Read DeviceKey from URL Path
                 var deviceKey = GetDeviceKey(httpRequest.Url, MTConnectRequestType.Probe);
 
@@ -298,14 +297,14 @@ namespace MTConnect.Http
                 {
                     // Get MTConnectDevices document from the MTConnectAgent
                     var response = MTConnectHttpRequests.GetDeviceProbeRequest(_mtconnectAgent, deviceKey, version, documentFormat, formatOptions);
-                    response.WriteDuration = await WriteResponse(response, httpResponse);
+                    response.WriteDuration = await WriteResponse(response, httpResponse, acceptEncodings);
                     ResponseSent?.Invoke(this, response);
                 }
                 else
                 {
                     // Get MTConnectDevices document from the MTConnectAgent
                     var response = MTConnectHttpRequests.GetProbeRequest(_mtconnectAgent, deviceType, version, documentFormat, formatOptions);
-                    response.WriteDuration = await WriteResponse(response, httpResponse);
+                    response.WriteDuration = await WriteResponse(response, httpResponse, acceptEncodings);
                     ResponseSent?.Invoke(this, response);
                 }
             }
@@ -319,6 +318,10 @@ namespace MTConnect.Http
         {
             if (httpRequest != null && httpRequest.Url != null && httpResponse != null)
             {
+                // Get Accept-Encoding Header (ex. gzip, br)
+                var acceptEncodings = GetRequestHeaderValues(httpRequest, "Accept-Encoding");
+                acceptEncodings = ProcessAcceptEncodings(acceptEncodings);
+
                 // Read DeviceKey from URL Path
                 var deviceKey = GetDeviceKey(httpRequest.Url, MTConnectRequestType.Current);
 
@@ -414,14 +417,14 @@ namespace MTConnect.Http
                     {
                         // Get MTConnectStreams document from the MTConnectAgent
                         var response = MTConnectHttpRequests.GetDeviceCurrentRequest(_mtconnectAgent, deviceKey, path, at, interval, version, documentFormat, formatOptions);
-                        response.WriteDuration = await WriteResponse(response, httpResponse);
+                        response.WriteDuration = await WriteResponse(response, httpResponse, acceptEncodings);
                         ResponseSent?.Invoke(this, response);
                     }
                     else
                     {
                         // Get MTConnectStreams document from the MTConnectAgent
                         var response = MTConnectHttpRequests.GetCurrentRequest(_mtconnectAgent, deviceType, path, at, interval, version, documentFormat, formatOptions);
-                        response.WriteDuration = await WriteResponse(response, httpResponse);
+                        response.WriteDuration = await WriteResponse(response, httpResponse, acceptEncodings);
                         ResponseSent?.Invoke(this, response);
                     }
                 }
@@ -437,6 +440,10 @@ namespace MTConnect.Http
         {
             if (httpRequest != null && httpRequest.Url != null && httpResponse != null)
             {
+                // Get Accept-Encoding Header (ex. gzip, br)
+                var acceptEncodings = GetRequestHeaderValues(httpRequest, "Accept-Encoding");
+                acceptEncodings = ProcessAcceptEncodings(acceptEncodings);
+
                 // Read DeviceKey from URL Path
                 var deviceKey = GetDeviceKey(httpRequest.Url, MTConnectRequestType.Sample);
 
@@ -503,9 +510,12 @@ namespace MTConnect.Http
                 if (interval > -1)
                 {
                     // Remove Indent for streaming
-                    formatOptions.RemoveAll(o => o.Key == "indentOutput");
+                    //formatOptions.RemoveAll(o => o.Key == "indentOutput");
 
-                    var sampleStream = new MTConnectHttpSampleStream(_mtconnectAgent, deviceKey, path, from, count, interval, heartbeat, documentFormat, formatOptions);
+                    // Get list of DataItem ID's based on Path (XPath) parameter
+                    var dataItemIds = PathProcessor.GetDataItemIds(_mtconnectAgent, path, documentFormat);
+
+                    var sampleStream = new MTConnectHttpSampleStream(_mtconnectAgent, deviceKey, dataItemIds, from, count, interval, heartbeat, documentFormat, acceptEncodings, formatOptions);
 
                     try
                     {
@@ -529,9 +539,6 @@ namespace MTConnect.Http
 
                             // Run the MTConnectHttpStream
                             await sampleStream.Run();
-                            //sampleStream.StartAsync(CancellationToken.None);
-
-                            //while (sampleStream.IsConnected) { await Task.Delay(100); }
                         }
                     }
                     catch { }
@@ -546,14 +553,14 @@ namespace MTConnect.Http
                     {
                         // Get MTConnectStreams document from the MTConnectAgent
                         var response = MTConnectHttpRequests.GetDeviceSampleRequest(_mtconnectAgent, deviceKey, path, from, to, count, version, documentFormat, formatOptions);
-                        response.WriteDuration = await WriteResponse(response, httpResponse);
+                        response.WriteDuration = await WriteResponse(response, httpResponse, acceptEncodings);
                         ResponseSent?.Invoke(this, response);
                     }
                     else
                     {
                         // Get MTConnectStreams document from the MTConnectAgent
                         var response = MTConnectHttpRequests.GetSampleRequest(_mtconnectAgent, deviceType, path, from, to, count, version, documentFormat, formatOptions);
-                        response.WriteDuration = await WriteResponse(response, httpResponse);
+                        response.WriteDuration = await WriteResponse(response, httpResponse, acceptEncodings);
                         ResponseSent?.Invoke(this, response);
                     }
                 }
@@ -568,6 +575,10 @@ namespace MTConnect.Http
         {
             if (httpRequest != null && httpRequest.Url != null && httpResponse != null)
             {
+                // Get Accept-Encoding Header (ex. gzip, br)
+                var acceptEncodings = GetRequestHeaderValues(httpRequest, "Accept-Encoding");
+                acceptEncodings = ProcessAcceptEncodings(acceptEncodings);
+
                 // Read DeviceKey from URL Path
                 var deviceKey = GetDeviceKey(httpRequest.Url, MTConnectRequestType.Assets);
 
@@ -617,7 +628,7 @@ namespace MTConnect.Http
 
                 // Get MTConnectAssets document from the MTConnectAgent
                 var response = MTConnectHttpRequests.GetAssetsRequest(_mtconnectAgent, deviceKey, type, removed, count, version, documentFormat, formatOptions);
-                response.WriteDuration = await WriteResponse(response, httpResponse);
+                response.WriteDuration = await WriteResponse(response, httpResponse, acceptEncodings);
                 ResponseSent?.Invoke(this, response);
             }
         }
@@ -631,6 +642,10 @@ namespace MTConnect.Http
             if (httpRequest != null && httpRequest.Url != null && httpResponse != null)
             {
                 var urlSegments = GetUriSegments(httpRequest.Url);
+
+                // Get Accept-Encoding Header (ex. gzip, br)
+                var acceptEncodings = GetRequestHeaderValues(httpRequest, "Accept-Encoding");
+                acceptEncodings = ProcessAcceptEncodings(acceptEncodings);
 
                 // Read AssetIds from URL Path
                 var assetIdsString = httpRequest.Url.LocalPath?.Trim('/');
@@ -683,7 +698,7 @@ namespace MTConnect.Http
 
                 // Get MTConnectAssets document from the MTConnectAgent
                 var response = MTConnectHttpRequests.GetAssetRequest(_mtconnectAgent, assetIds, version, documentFormat, formatOptions);
-                response.WriteDuration = await WriteResponse(response, httpResponse);
+                response.WriteDuration = await WriteResponse(response, httpResponse, acceptEncodings);
                 ResponseSent?.Invoke(this, response);
             }
         }
@@ -865,12 +880,49 @@ namespace MTConnect.Http
 
         #endregion
 
+
+        private IEnumerable<string> ProcessAcceptEncodings(IEnumerable<string> acceptEncodings)
+        {
+            if (!acceptEncodings.IsNullOrEmpty() && !_configuration.ResponseCompression.IsNullOrEmpty())
+            {
+                var output = new List<string>();
+
+                // Gzip
+                if (!_configuration.ResponseCompression.IsNullOrEmpty() &&
+                    _configuration.ResponseCompression.Contains(HttpResponseCompression.Gzip) &&
+                    !acceptEncodings.IsNullOrEmpty() && acceptEncodings.Contains(HttpContentEncodings.Gzip))
+                {
+                    output.Add(HttpContentEncodings.Gzip);
+                }
+
+#if NET5_0_OR_GREATER
+                else if (!_configuration.ResponseCompression.IsNullOrEmpty() &&
+                    _configuration.ResponseCompression.Contains(HttpResponseCompression.Br) &&
+                    !acceptEncodings.IsNullOrEmpty() && acceptEncodings.Contains(HttpContentEncodings.Brotli))
+                {
+                    output.Add(HttpContentEncodings.Brotli);
+                }
+#endif
+
+                else if (!_configuration.ResponseCompression.IsNullOrEmpty() &&
+                    _configuration.ResponseCompression.Contains(HttpResponseCompression.Deflate) &&
+                    !acceptEncodings.IsNullOrEmpty() && acceptEncodings.Contains(HttpContentEncodings.Deflate))
+                {
+                    output.Add(HttpContentEncodings.Deflate);
+                }
+
+                return output;
+            }
+
+            return null;
+        }
+
         #region "Write Response"
 
         /// <summary>
         /// Write a MTConnectHttpResponse to the HttpListenerResponse Output Stream
         /// </summary>
-        private async Task<double> WriteResponse(MTConnectHttpResponse mtconnectResponse, HttpListenerResponse httpResponse)
+        private async Task<double> WriteResponse(MTConnectHttpResponse mtconnectResponse, HttpListenerResponse httpResponse, IEnumerable<string> acceptEncodings = null)
         {
             var stpw = System.Diagnostics.Stopwatch.StartNew();
 
@@ -881,7 +933,7 @@ namespace MTConnect.Http
                     httpResponse.ContentType = mtconnectResponse.ContentType;
                     httpResponse.StatusCode = mtconnectResponse.StatusCode;
 
-                    await WriteToStream(mtconnectResponse.Content, httpResponse);
+                    await WriteToStream(mtconnectResponse.Content, httpResponse, acceptEncodings);
                 }
                 catch { }
             }
@@ -893,7 +945,7 @@ namespace MTConnect.Http
         /// <summary>
         /// Write a string to the HttpListenerResponse Output Stream
         /// </summary>
-        private async Task WriteResponse(string content, HttpListenerResponse httpResponse, HttpStatusCode statusCode, string contentType = MimeTypes.XML)
+        private async Task WriteResponse(string content, HttpListenerResponse httpResponse, HttpStatusCode statusCode, string contentType = MimeTypes.XML, IEnumerable<string> acceptEncodings = null)
         {
             if (httpResponse != null)
             {
@@ -903,67 +955,69 @@ namespace MTConnect.Http
                     httpResponse.StatusCode = (int)statusCode;
 
                     var bytes = Encoding.UTF8.GetBytes(content);
-                    await WriteToStream(bytes, httpResponse);
+                    await WriteToStream(bytes, httpResponse, acceptEncodings);
                 }
                 catch { }
             }
         }
 
-        private async Task WriteToStream(byte[] bytes, HttpListenerResponse httpResponse)
+        private async Task WriteToStream(byte[] bytes, HttpListenerResponse httpResponse, IEnumerable<string> acceptEncodings = null)
         {
             if (httpResponse != null && !bytes.IsNullOrEmpty())
             {
                 try
                 {
-                    switch (_configuration.ResponseCompression)
+                    // Gzip
+                    if (!_configuration.ResponseCompression.IsNullOrEmpty() && 
+                        _configuration.ResponseCompression.Contains(HttpResponseCompression.Gzip) && 
+                        !acceptEncodings.IsNullOrEmpty() && acceptEncodings.Contains("gzip"))
                     {
-                        case HttpResponseCompression.Gzip:
+                        httpResponse.AddHeader("Content-Encoding", "gzip");
 
-                            httpResponse.AddHeader("Content-Encoding", "gzip");
-
-                            using (var ms = new MemoryStream())
+                        using (var ms = new MemoryStream())
+                        {
+                            using (var zip = new GZipStream(ms, CompressionMode.Compress, true))
                             {
-                                using (var zip = new GZipStream(ms, CompressionMode.Compress, true))
-                                {
-                                    zip.Write(bytes, 0, bytes.Length);
-                                }
-                                bytes = ms.ToArray();
+                                zip.Write(bytes, 0, bytes.Length);
                             }
-
-                            break;
+                            bytes = ms.ToArray();
+                        }
+                    }
 
 #if NET5_0_OR_GREATER
-                        case HttpResponseCompression.Br:
+                    else if (!_configuration.ResponseCompression.IsNullOrEmpty() &&
+                        _configuration.ResponseCompression.Contains(HttpResponseCompression.Br) &&
+                        !acceptEncodings.IsNullOrEmpty() && acceptEncodings.Contains("br"))
+                    {
+                        httpResponse.AddHeader("Content-Encoding", "br");
 
-                            httpResponse.AddHeader("Content-Encoding", "br");
-
-                            using (var ms = new MemoryStream())
+                        using (var ms = new MemoryStream())
+                        {
+                            using (var zip = new BrotliStream(ms, CompressionMode.Compress, true))
                             {
-                                using (var zip = new BrotliStream(ms, CompressionMode.Compress, true))
-                                {
-                                    zip.Write(bytes, 0, bytes.Length);
-                                }
-                                bytes = ms.ToArray();
+                                zip.Write(bytes, 0, bytes.Length);
                             }
-
-                            break;
+                            bytes = ms.ToArray();
+                        }
+                    }
 #endif
 
-                        case HttpResponseCompression.Deflate:
+                    else if (!_configuration.ResponseCompression.IsNullOrEmpty() &&
+                        _configuration.ResponseCompression.Contains(HttpResponseCompression.Deflate) &&
+                        !acceptEncodings.IsNullOrEmpty() && acceptEncodings.Contains("deflate"))
+                    {
+                        httpResponse.AddHeader("Content-Encoding", "deflate");
 
-                            httpResponse.AddHeader("Content-Encoding", "deflate");
-
-                            using (var ms = new MemoryStream())
+                        using (var ms = new MemoryStream())
+                        {
+                            using (var zip = new DeflateStream(ms, CompressionMode.Compress, true))
                             {
-                                using (var zip = new DeflateStream(ms, CompressionMode.Compress, true))
-                                {
-                                    zip.Write(bytes, 0, bytes.Length);
-                                }
-                                bytes = ms.ToArray();
+                                zip.Write(bytes, 0, bytes.Length);
                             }
-
-                            break;
+                            bytes = ms.ToArray();
+                        }
                     }
+                  
 
                     await httpResponse.OutputStream.WriteAsync(bytes, 0, bytes.Length);
                 }
