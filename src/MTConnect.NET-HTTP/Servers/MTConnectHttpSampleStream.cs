@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace MTConnect.Servers.Http
 {
-    internal class MTConnectHttpSampleStream
+    public class MTConnectHttpSampleStream
     {
         private const int _minInterval = 1; // 1 millisecond minimum interval
 

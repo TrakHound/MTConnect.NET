@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace MTConnect.Servers.Http
 {
-    internal class MTConnectHttpCurrentStream
+    public class MTConnectHttpCurrentStream
     {
         private readonly string _id = StringFunctions.RandomString(10);
         private readonly string _boundary = UnixDateTime.Now.ToString().ToMD5Hash();

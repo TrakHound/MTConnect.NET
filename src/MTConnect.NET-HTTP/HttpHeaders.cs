@@ -5,7 +5,7 @@
 
 namespace MTConnect
 {
-    internal static class HttpHeaders
+    public static class HttpHeaders
     {
         public const string Accept = "Accept";
         public const string AcceptEncoding = "Accept-Encoding";

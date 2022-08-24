@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace MTConnect.Servers.Http
 {
-    internal class PathProcessor
+    public static class PathProcessor
     {
         public static IEnumerable<string> GetDataItemIds(IMTConnectAgent mtconnectAgent, string path, string documentFormat)
         {
