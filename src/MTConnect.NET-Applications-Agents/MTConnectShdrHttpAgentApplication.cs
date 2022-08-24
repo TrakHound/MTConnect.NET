@@ -52,7 +52,7 @@ namespace MTConnect.Applications.Agents
             return new MTConnectShdrHttpAgentServer(_configuration, Agent, null, port);
         }
 
-        protected override void OnStartAgent(IEnumerable<DeviceConfiguration> devices, bool initializeDataItems = false)
+        protected override void OnStartAgentBeforeLoad(IEnumerable<DeviceConfiguration> devices, bool initializeDataItems = false)
         {
             // Add Adapter Clients
             if (_configuration != null && !_configuration.Adapters.IsNullOrEmpty())
@@ -93,7 +93,7 @@ namespace MTConnect.Applications.Agents
                 }
             }
 
-            base.OnStartAgent(devices, initializeDataItems);
+            base.OnStartAgentBeforeLoad(devices, initializeDataItems);
         }
 
         protected override void OnStopAgent()

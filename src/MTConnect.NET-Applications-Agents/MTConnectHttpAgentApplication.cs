@@ -87,7 +87,7 @@ namespace MTConnect.Applications.Agents
             return new MTConnectHttpAgentServer(_configuration, Agent, null, port);
         }
 
-        protected override void OnStartAgent(IEnumerable<DeviceConfiguration> devices, bool initializeDataItems = false) 
+        protected override void OnStartAgentBeforeLoad(IEnumerable<DeviceConfiguration> devices, bool initializeDataItems = false) 
         {
             // Intialize the Http Server
             _httpServer = OnHttpServerInitialize(_port);

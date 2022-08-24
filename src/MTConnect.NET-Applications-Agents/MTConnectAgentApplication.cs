@@ -368,7 +368,7 @@ namespace MTConnect.Applications.Agents
                     _agentLogger.Warn($"No Devices Found : Reading from : {configuration.Devices}");
                 }
 
-                OnStartAgent(devices, initializeDataItems);
+                OnStartAgentBeforeLoad(devices, initializeDataItems);
 
                 // Initialize Agent Current Observations/Conditions
                 // This updates the MTConnectAgent's cache used to determine duplicate observations
@@ -377,6 +377,8 @@ namespace MTConnect.Applications.Agents
                     _mtconnectAgent.InitializeCurrentObservations(_observationBuffer.CurrentObservations.Values);
                     _mtconnectAgent.InitializeCurrentObservations(_observationBuffer.CurrentConditions.SelectMany(o => o.Value));
                 }
+
+                OnStartAgentAfterLoad(devices, initializeDataItems);
 
                 // Save Indexes for Buffer
                 if (configuration.Durable)
@@ -432,7 +434,8 @@ namespace MTConnect.Applications.Agents
         }
 
 
-        protected virtual void OnStartAgent(IEnumerable<DeviceConfiguration> devices, bool initializeDataItems = false) { }
+        protected virtual void OnStartAgentBeforeLoad(IEnumerable<DeviceConfiguration> devices, bool initializeDataItems = false) { }
+        protected virtual void OnStartAgentAfterLoad(IEnumerable<DeviceConfiguration> devices, bool initializeDataItems = false) { }
 
         protected virtual void OnStopAgent() { }
 
