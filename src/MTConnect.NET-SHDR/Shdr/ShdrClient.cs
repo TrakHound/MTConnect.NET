@@ -259,10 +259,10 @@ namespace MTConnect.Shdr
                                 // Send PING Heartbeat if needed
                                 if ((now - lastResponse) > heartbeat * 10000 && (now - _lastHeartbeat) > heartbeat * 10000)
                                 {
-                                    Console.WriteLine(PingMessage);
                                     messageBytes = Encoding.ASCII.GetBytes(PingMessage);
-                                   stream.Write(messageBytes, 0, messageBytes.Length);
+                                    stream.Write(messageBytes, 0, messageBytes.Length);
                                     PingSent?.Invoke(this, $"PING sent to : {Hostname} on Port {Port}");
+                                    _lastHeartbeat = now;
                                 }
 
                                 // Read Next Chunk if new Data is Available
@@ -272,7 +272,7 @@ namespace MTConnect.Shdr
                                 }
                                 else
                                 {
-                                    stream.ReadByte();
+                                    bufferIndex = 0;
                                 }
 
                                 Thread.Sleep(1);
@@ -358,7 +358,6 @@ namespace MTConnect.Shdr
                     do
                     {
                         var line = lines[j];
-
                         if (!string.IsNullOrEmpty(line))
                         {
                             // Detect if message is a Command (Ping or Agent Command)
