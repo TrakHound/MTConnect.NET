@@ -7,6 +7,7 @@ using MTConnect.Configurations;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
@@ -60,12 +61,23 @@ namespace MTConnect.Devices.Xml
             {
                 try
                 {
-                    var xml = Encoding.UTF8.GetString(xmlBytes);
+                    var bytes = xmlBytes;
+
+                    // Detect Encoding Byte Mark (if found then remove)
+                    var preamble = Encoding.UTF8.GetPreamble();
+                    if (xmlBytes.Length >= preamble.Length && preamble.SequenceEqual(xmlBytes.Take(preamble.Length)))
+                    {
+                        bytes = new byte[xmlBytes.Length - preamble.Length];
+                        Array.Copy(xmlBytes, preamble.Length, bytes, 0, xmlBytes.Length - preamble.Length);
+                    }
+
+                    var xml = Encoding.UTF8.GetString(bytes);
                     xml = xml.Trim();
+                    xml = Namespaces.Clear(xml);
 
                     var version = MTConnectVersion.Get(xml);
 
-                    using (var textReader = new StringReader(Namespaces.Clear(xml)))
+                    using (var textReader = new StringReader(xml))
                     {
                         using (var xmlReader = XmlReader.Create(textReader))
                         {
