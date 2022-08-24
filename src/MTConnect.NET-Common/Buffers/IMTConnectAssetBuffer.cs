@@ -4,6 +4,7 @@
 // file 'LICENSE.txt', which is part of this source code package.
 
 using MTConnect.Assets;
+using System;
 using System.Collections.Generic;
 
 namespace MTConnect.Buffers
@@ -32,6 +33,9 @@ namespace MTConnect.Buffers
         /// Get a list of AssetId's that are currently in the Buffer
         /// </summary>
         IEnumerable<string> AssetIds { get; }
+
+
+        EventHandler<IAsset> AssetRemoved { get; set; }
 
 
         /// <summary>

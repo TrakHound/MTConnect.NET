@@ -49,6 +49,8 @@ namespace MTConnect.Buffers
             get { return _assetIds.Keys.ToList(); }
         }
 
+        public EventHandler<IAsset> AssetRemoved { get; set; }
+
 
         public MTConnectAssetBuffer() 
         {
@@ -173,6 +175,9 @@ namespace MTConnect.Buffers
                         {
                             if (_bufferIndex >= BufferSize)
                             {
+                                // Raise event to notify that first Asset is being removed
+                                if (AssetRemoved != null) AssetRemoved(this, _storedAssets[0]);
+
                                 // Add to end of Buffer (push first item out)
                                 var a = _storedAssets;
                                 Array.Copy(a, 1, _storedAssets, 0, a.Length - 1);

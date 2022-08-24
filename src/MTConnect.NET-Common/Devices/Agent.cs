@@ -88,6 +88,9 @@ namespace MTConnect.Devices
             // Add Asset Removed DataItem to Agent
             dataItems.Add(new AssetRemovedDataItem(Id) { Device = this, Container = this });
 
+            // Add Asset Count DataItem to Agent
+            dataItems.Add(new AssetCountDataItem(Id) { Device = this, Container = this });
+
             DataItems = dataItems;
         }
 

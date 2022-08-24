@@ -53,6 +53,8 @@ namespace MTConnect.Agents
         protected readonly ConcurrentDictionary<string, string> _deviceKeys = new ConcurrentDictionary<string, string>(); // Resolves either the Device Name or UUID to the Device UUID
         protected readonly ConcurrentDictionary<string, IEnumerable<IDataItem>> _deviceDataItems = new ConcurrentDictionary<string, IEnumerable<IDataItem>>();
         protected readonly ConcurrentDictionary<string, IEnumerable<string>> _deviceDataItemIds = new ConcurrentDictionary<string, IEnumerable<string>>();
+        private readonly List<AssetCount> _deviceAssetCounts = new List<AssetCount>();
+        //private readonly ConcurrentDictionary<string, IEnumerable<AssetCount>> _deviceAssetCounts = new ConcurrentDictionary<string, IEnumerable<AssetCount>>();
 
         protected readonly ConcurrentDictionary<string, string> _dataItemKeys = new ConcurrentDictionary<string, string>(); // Caches DeviceUuid:DataItemKey to DeviceUuid:DataItemId
         protected readonly ConcurrentDictionary<string, IDataItem> _dataItems = new ConcurrentDictionary<string, IDataItem>(); // Key = DeviceUuid:DataItemId
@@ -301,6 +303,7 @@ namespace MTConnect.Agents
             _deviceBuffer = new MTConnectDeviceBuffer();
             _observationBuffer = new MTConnectObservationBuffer();
             _assetBuffer = new MTConnectAssetBuffer();
+            _assetBuffer.AssetRemoved += AssetRemovedFromBuffer;
             InitializeAgentDevice(initializeAgentDevice);
         }
 
@@ -322,6 +325,7 @@ namespace MTConnect.Agents
             _deviceBuffer = new MTConnectDeviceBuffer();
             _observationBuffer = new MTConnectObservationBuffer(_configuration);
             _assetBuffer = new MTConnectAssetBuffer(_configuration);
+            _assetBuffer.AssetRemoved += AssetRemovedFromBuffer;
             InitializeAgentDevice(initializeAgentDevice);
         }
 
@@ -345,6 +349,7 @@ namespace MTConnect.Agents
             _deviceBuffer = deviceBuffer != null ? deviceBuffer : new MTConnectDeviceBuffer();
             _observationBuffer = observationBuffer != null ? observationBuffer : new MTConnectObservationBuffer(_configuration);
             _assetBuffer = assetBuffer != null ? assetBuffer : new MTConnectAssetBuffer(_configuration);
+            _assetBuffer.AssetRemoved += AssetRemovedFromBuffer;
             InitializeAgentDevice(initializeAgentDevice);
         }
 
@@ -369,6 +374,7 @@ namespace MTConnect.Agents
             _deviceBuffer = deviceBuffer != null ? deviceBuffer : new MTConnectDeviceBuffer();
             _observationBuffer = observationBuffer != null ? observationBuffer : new MTConnectObservationBuffer(_configuration);
             _assetBuffer = assetBuffer != null ? assetBuffer : new MTConnectAssetBuffer(_configuration);
+            _assetBuffer.AssetRemoved += AssetRemovedFromBuffer;
             InitializeAgentDevice(initializeAgentDevice);
         }
 
@@ -1693,6 +1699,9 @@ namespace MTConnect.Agents
                             }
                         }
 
+                        // Update Asset Count
+                        DecrementAssetCount(deviceUuid, asset.Type);
+
                         return true;
                     }
                 }
@@ -1754,6 +1763,9 @@ namespace MTConnect.Agents
                                                 AddObservation(deviceUuid, assetRemoved.Id, ValueKeys.Result, asset.AssetId, ts);
                                             }
                                         }
+
+                                        // Update Asset Count
+                                        DecrementAssetCount(deviceUuid, asset.Type);
                                     }
                                 }
                             }
@@ -1868,8 +1880,7 @@ namespace MTConnect.Agents
                     {
                         bool exists = false;
 
-                        //// Lookup DataItem Index
-                        //var dataItemIndex = GetDataItemIndex(device.Uuid, dataItem.Id);
+                        // Lookup Buffer Key
                         var bufferKey = GenerateBufferKey(device.Uuid, dataItem.Id);
 
                         // Check if the DataItem has an observation
@@ -2179,6 +2190,17 @@ namespace MTConnect.Agents
                         assetRemoved.Name = AssetRemovedDataItem.NameId;
                         var x = obj.DataItems.ToList();
                         x.Add(assetRemoved);
+                        obj.DataItems = x;
+                    }
+
+                    // Add Required AssetCount DataItem
+                    if (obj.DataItems.IsNullOrEmpty() || !obj.DataItems.Any(o => o.Type == AssetCountDataItem.TypeId))
+                    {
+                        var assetcount = new AssetCountDataItem(obj.Id);
+                        assetcount.Container = obj;
+                        assetcount.Name = AssetCountDataItem.NameId;
+                        var x = obj.DataItems.ToList();
+                        x.Add(assetcount);
                         obj.DataItems = x;
                     }
 
@@ -2990,6 +3012,9 @@ namespace MTConnect.Agents
                             // Update Agent Metrics
                             _metrics.UpdateAsset(deviceUuid, asset.AssetId);
 
+                            // Update Asset Count
+                            IncrementAssetCount(deviceUuid, asset.Type);
+
                             if (!validationResults.IsValid && _configuration.InputValidationLevel > InputValidationLevel.Ignore)
                             {
                                 if (InvalidAssetAdded != null) InvalidAssetAdded.Invoke(asset, validationResults);
@@ -3033,6 +3058,16 @@ namespace MTConnect.Agents
             return false;
         }
 
+
+        private void AssetRemovedFromBuffer(object sender, IAsset asset)
+        {
+            if (asset != null)
+            {
+                // Update Asset Count
+                DecrementAssetCount(asset.DeviceUuid, asset.Type);
+            }
+        }
+
         #endregion
 
         #endregion
@@ -3061,6 +3096,87 @@ namespace MTConnect.Agents
                         if (assetUpdateRate != null)
                         {
                             AddObservation(device.Name, assetUpdateRate.Id, ValueKeys.Result, deviceMetrics.AssetAverage);
+                        }
+                    }
+                }
+            }
+        }
+
+
+        private void IncrementAssetCount(string deviceUuid, string assetType)
+        {
+            if (!string.IsNullOrEmpty(deviceUuid) && !string.IsNullOrEmpty(assetType))
+            {
+                var typeCount = 0;
+
+                lock (_lock)
+                {
+                    var assetCount = _deviceAssetCounts.FirstOrDefault(o => o.DeviceUuid == deviceUuid && o.AssetType == assetType);
+                    if (assetCount.IsValid)
+                    {
+                        _deviceAssetCounts.RemoveAll(o => o.DeviceUuid == deviceUuid && o.AssetType == assetType);
+                        typeCount = assetCount.Count;
+                    }
+                    typeCount += 1;
+                    _deviceAssetCounts.Add(new AssetCount(deviceUuid, assetType, typeCount));
+                }
+
+                // Update AssetCount DataItem
+                if (_deviceDataItems.TryGetValue(deviceUuid, out var dataItems))
+                {
+                    if (!dataItems.IsNullOrEmpty())
+                    {
+                        var assetCountDataItem = dataItems.FirstOrDefault(o => o.Type == AssetCountDataItem.TypeId);
+                        if (assetCountDataItem != null)
+                        {
+                            var entries = new List<IDataSetEntry>();
+                            entries.Add(new DataSetEntry(assetType, typeCount));
+                            var dataSet = new DataSetObservationInput(assetCountDataItem.Id, entries);
+
+                            // Add Observation with updated DataSet Key for AssetType
+                            AddObservation(deviceUuid, dataSet);
+                        }
+                    }
+                }
+            }
+        }
+
+        private void DecrementAssetCount(string deviceUuid, string assetType)
+        {
+            if (!string.IsNullOrEmpty(deviceUuid) && !string.IsNullOrEmpty(assetType))
+            {
+                var typeCount = 0;
+
+                lock (_lock)
+                {
+                    var assetCount = _deviceAssetCounts.FirstOrDefault(o => o.DeviceUuid == deviceUuid && o.AssetType == assetType);
+                    if (assetCount.IsValid)
+                    {
+                        _deviceAssetCounts.RemoveAll(o => o.DeviceUuid == deviceUuid && o.AssetType == assetType);
+                        typeCount = assetCount.Count;
+                        typeCount -= 1;
+
+                        if (typeCount > 1)
+                        {
+                            _deviceAssetCounts.Add(new AssetCount(deviceUuid, assetType, typeCount));
+                        }
+                    }
+                }
+
+                // Update AssetCount DataItem
+                if (_deviceDataItems.TryGetValue(deviceUuid, out var dataItems))
+                {
+                    if (!dataItems.IsNullOrEmpty())
+                    {
+                        var assetCountDataItem = dataItems.FirstOrDefault(o => o.Type == AssetCountDataItem.TypeId);
+                        if (assetCountDataItem != null)
+                        {
+                            var entries = new List<IDataSetEntry>();
+                            entries.Add(new DataSetEntry(assetType, typeCount));
+                            var dataSet = new DataSetObservationInput(assetCountDataItem.Id, entries);
+
+                            // Add Observation with updated DataSet Key for AssetType
+                            AddObservation(deviceUuid, dataSet);
                         }
                     }
                 }
