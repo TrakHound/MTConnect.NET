@@ -4,13 +4,12 @@
 // file 'LICENSE', which is part of this source code package.
 
 using MTConnect.Configurations;
-using MTConnect.Devices.Components;
 using MTConnect.Devices.DataItems;
 using MTConnect.Devices.DataItems.Events;
 using MTConnect.Devices.DataItems.Samples;
 using System.Collections.Generic;
 
-namespace MTConnect.Devices
+namespace MTConnect.Devices.Components
 {
     /// <summary>
     /// An MTConnect Component that represents an Http Adapter
