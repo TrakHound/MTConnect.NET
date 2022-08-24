@@ -14,7 +14,7 @@ using MTConnect.Configurations;
 using MTConnect.Clients.Rest;
 using MTConnect.Devices;
 using MTConnect.Errors;
-using MTConnect.Http;
+using MTConnect.Servers.Http;
 using MTConnect.Observations.Samples.Values;
 using MTConnect.Shdr;
 using MTConnect.Streams;
@@ -38,6 +38,7 @@ namespace IntegrationTests
     {
         #region Fields
 
+        //private const int c_maxWaitTimeout = 100000; // Debug
         private const int c_maxWaitTimeout = 10000;
 
         private readonly ShdrAdapter _adapter;
@@ -293,7 +294,7 @@ namespace IntegrationTests
             var current = document.Streams
                 .First()
                 .Observations
-                .Select(o => o.GetValue("CDATA"))
+                .Select(o => o.GetValue("Result"))
                 .FirstOrDefault();
 
             Assert.Equal("UNAVAILABLE", current);
@@ -303,7 +304,7 @@ namespace IntegrationTests
                 sender,
                 observation) =>
             {
-                _logger.LogTrace($"to {observation.DataItemId} {observation.GetValue("CDATA")}");
+                _logger.LogTrace($"to {observation.DataItemId} {observation.GetValue("Result")}");
                 observationEvt.Set();
             };
 
@@ -321,7 +322,7 @@ namespace IntegrationTests
             current = document.Streams
                 .First()
                 .Observations
-                .Select(o => o.GetValue("CDATA"))
+                .Select(o => o.GetValue("Result"))
                 .FirstOrDefault();
 
             Assert.Equal("SuperProg42", current);
@@ -347,7 +348,7 @@ namespace IntegrationTests
 
                 foreach (var observation in document.GetObservations())
                 {
-                    if (observation.DataItemId == "servotemp1" && observation.GetValue("CDATA") == "120")
+                    if (observation.DataItemId == "servotemp1" && observation.GetValue("Result") == "120")
                     {
                         observationEvt.Set();
                     }
