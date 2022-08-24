@@ -34,14 +34,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Compile Remove="MTConnectHttpAgentGatewayApplication - Copy.cs" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <None Include="MTConnectHttpAgentGatewayApplication - Copy.cs" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<PackageReference Include="NLog" Version="5.0.1" />
 	</ItemGroup>
 
