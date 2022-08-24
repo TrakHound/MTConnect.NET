@@ -301,7 +301,7 @@ namespace MTConnect.Streams.Xml
 
         private static void WriteCommonValuesXml(XmlWriter writer, ref IObservationOutput observation, ref ObservationValue observationValue)
         {
-            if (!ValueKeys.IsDataSetKey(observationValue.Key) && !ValueKeys.IsTableKey(observationValue.Key) && !ValueKeys.IsTimeSeriesKey(observationValue.Key))
+            if (!string.IsNullOrEmpty(observationValue.Key) && !ValueKeys.IsDataSetKey(observationValue.Key) && !ValueKeys.IsTableKey(observationValue.Key) && !ValueKeys.IsTimeSeriesKey(observationValue.Key))
             {
                 switch (observationValue.Key)
                 {
@@ -351,6 +351,10 @@ namespace MTConnect.Streams.Xml
                         break;
 
                     default:
+
+                        // Check for namespace (skip for now, may be able to implement this better at some point)
+                        if (observationValue.Key.StartsWith("Xmlns")) break;
+                        if (observationValue.Key.StartsWith("xmlns")) break;
 
                         if (!string.IsNullOrEmpty(observationValue.Value))
                         {
