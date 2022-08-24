@@ -1,8 +1,13 @@
 ﻿{
+	"devices": "devices",
 	"port": 5000,
-	"durable": true,
+	"responseCompression": [ "gzip", "deflate", "br" ],
+	"durable": false,
 	"allowPut": true,
-	"inputValidationLevel": 2,
+	"observationBufferSize": 150000,
+	"assetBufferSize": 1000,
+	"inputValidationLevel": 0,
+	"outputValidationLevel": 0,
 	"adapters": [
 		{
 			"hostname": "localhost",
