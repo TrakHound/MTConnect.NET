@@ -9,7 +9,7 @@ using System.Text.Json;
 
 namespace MTConnect.Buffers
 {
-    public class MTConnectConditionObservationQueue
+    class MTConnectConditionObservationQueue
     {
         private readonly int _limit;
         private readonly Dictionary<string, IEnumerable<BufferObservation>> _items = new Dictionary<string, IEnumerable<BufferObservation>>();

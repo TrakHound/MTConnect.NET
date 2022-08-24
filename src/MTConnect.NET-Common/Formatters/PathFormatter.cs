@@ -4,6 +4,7 @@
 // file 'LICENSE', which is part of this source code package.
 
 using MTConnect.Devices;
+using MTConnect.Extensions;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;

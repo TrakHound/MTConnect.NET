@@ -11,7 +11,7 @@ using System.Text.Json;
 
 namespace MTConnect.Buffers
 {
-    public struct FileCurrentObservation
+    struct FileCurrentObservation
     {
         public int Key { get; set; }
 

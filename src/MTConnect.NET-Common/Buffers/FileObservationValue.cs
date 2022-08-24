@@ -8,7 +8,7 @@ using System.Text.Json.Serialization;
 
 namespace MTConnect.Buffers
 {
-    public struct FileObservationValue
+    struct FileObservationValue
     {
         [JsonPropertyName("key")]
         public string Key { get; set; }

@@ -6,6 +6,7 @@
 using MTConnect.Devices.Configurations;
 using MTConnect.Devices.DataItems;
 using MTConnect.Devices.References;
+using MTConnect.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;

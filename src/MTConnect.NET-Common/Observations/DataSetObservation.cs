@@ -9,7 +9,7 @@ using System.Linq;
 namespace MTConnect.Observations
 {
     /// <summary>
-    /// 5 Data Set observation reports multiple values as a set of key-value pairs where each key MUST be unique.
+    /// A Data Set observation reports multiple values as a set of key-value pairs where each key MUST be unique.
     /// </summary>
     public static class DataSetObservation
     {

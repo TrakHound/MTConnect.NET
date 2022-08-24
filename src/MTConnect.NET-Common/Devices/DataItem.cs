@@ -5,6 +5,7 @@
 
 using MTConnect.Devices.Configurations.Relationships;
 using MTConnect.Devices.DataItems;
+using MTConnect.Extensions;
 using MTConnect.Observations;
 using MTConnect.Observations.Input;
 using System;

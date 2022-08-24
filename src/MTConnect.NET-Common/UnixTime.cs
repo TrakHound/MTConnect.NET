@@ -8,7 +8,7 @@ using System;
 namespace MTConnect
 {
     /// <summary>
-    /// DateTime represented in Unix Ticks (The time in Ticks (1 / 10,000 of a Millisecond) since the Unix Epoch)
+    /// DateTime represented in Unix Ticks. The time in Ticks (1 / 10,000 of a Millisecond) since the Unix Epoch
     /// </summary>
     public static class UnixDateTime
     {

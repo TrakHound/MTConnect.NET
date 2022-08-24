@@ -6,6 +6,7 @@
 using MTConnect.Assets;
 using MTConnect.Devices;
 using MTConnect.Errors;
+using MTConnect.Extensions;
 using MTConnect.Streams;
 using MTConnect.Streams.Output;
 using System;

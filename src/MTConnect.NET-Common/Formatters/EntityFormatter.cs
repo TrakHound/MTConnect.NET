@@ -5,6 +5,7 @@
 
 using MTConnect.Assets;
 using MTConnect.Devices;
+using MTConnect.Extensions;
 using MTConnect.Observations;
 using System;
 using System.Collections.Concurrent;

@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace MTConnect.Buffers
 {
-    public class MTConnectObservationQueue
+    internal class MTConnectObservationQueue
     {
         private readonly Dictionary<long, BufferObservation> _items = new Dictionary<long, BufferObservation>();
         private readonly object _lock = new object();

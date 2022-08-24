@@ -10,7 +10,7 @@ using System.Text.Json;
 
 namespace MTConnect.Buffers
 {
-    public struct FileObservation
+    struct FileObservation
     {
         public int Key { get; set; }
 

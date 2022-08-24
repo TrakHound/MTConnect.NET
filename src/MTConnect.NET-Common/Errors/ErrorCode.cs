@@ -5,6 +5,10 @@
 
 namespace MTConnect.Errors
 {
+    /// <summary>
+    /// Provides a descriptive code that indicates the type of error that was encountered
+    /// by an Agent when attempting to respond to a Request for information.
+    /// </summary>
     public enum ErrorCode
     {
         /// <summary>
