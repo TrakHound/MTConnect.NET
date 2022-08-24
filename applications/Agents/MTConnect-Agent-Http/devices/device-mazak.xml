@@ -202,7 +202,7 @@
 					<Configuration>
 						<Relationships>
 							<ComponentRelationship id="ref1" name="Power" type="PEER" criticality="CRITICAL" idRef="power"/>
-							<DeviceRelationship id="ref2" name="coffee" type="PARENT" criticality="NON_CRITICAL" role="AUXILIARY" href="http://127.0.0.1:2000/coffee" deviceUuidRef="bfccbfb0-5111-0138-6cd5-0c85909298d9"/>
+							<DeviceRelationship id="ref2" name="coffee" type="PARENT" criticality="NONCRITICAL" role="AUXILIARY" href="http://127.0.0.1:2000/coffee" deviceUuidRef="bfccbfb0-5111-0138-6cd5-0c85909298d9"/>
 						</Relationships>
 						<Motion id="spin" parentIdRef="zax" coordinateSystemIdRef="machine" type="CONTINUOUS" actuation="DIRECT">
 							<Description>The spindle kinematics</Description>
@@ -311,6 +311,7 @@
 						<DataItem category="SAMPLE" id="orientation" nativeUnits="DEGREE_3D" type="ORIENTATION" units="DEGREE_3D"/>
 						<DataItem category="EVENT" id="partnumber" subType="PART_NUMBER" type="PART_UNIQUE_ID"/>
 						<DataItem category="EVENT" id="partserialnumber" subType="SERIAL_NUMBER" type="PART_UNIQUE_ID"/>
+						<DataItem category="SAMPLE" id="testTimeSeries" type="VARIABLE" representation="TIME_SERIES"/>
 						<DataItem category="EVENT" id="testDataSet" type="TOOL_OFFSET" representation="DATA_SET"/>
 						<DataItem category="EVENT" id="testTable" type="WORK_OFFSET" representation="TABLE"/>
 						<DataItem type="WORKPIECE_OFFSET" category="EVENT" id="wp1" name="wpo" representation="TABLE">
