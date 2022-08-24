@@ -168,6 +168,9 @@ namespace MTConnect.Devices
                     components.Add(adapters);
                     Components = components;
                 }
+
+                // Update MTConnectAgent cache
+                _agent.UpdateAgentDevice();
             }
         }
     }
