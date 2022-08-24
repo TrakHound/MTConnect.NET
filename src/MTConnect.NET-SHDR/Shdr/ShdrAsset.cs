@@ -211,9 +211,9 @@ namespace MTConnect.Shdr
 
                 // Check for Timestamp
                 var i = input.IndexOf('|');
-                if (i > 0)
+                if (i > 0 && i + 1 < input.Length - 1)
                 {
-                    var x = input.Substring(i);
+                    var x = input.Substring(i + 1);
                     return x[0] == '@' && x.StartsWith(AssetDesignator);
                 }
             }
@@ -277,9 +277,9 @@ namespace MTConnect.Shdr
 
                 // Check for Timestamp
                 var i = input.IndexOf('|');
-                if (i > 0)
+                if (i > 0 && i + 1 < input.Length - 1)
                 {
-                    var x = input.Substring(i);
+                    var x = input.Substring(i + 1);
                     return x[0] == '@' && x.StartsWith(AssetRemoveDesignator);
                 }
             }
@@ -302,9 +302,9 @@ namespace MTConnect.Shdr
 
                 // Check for Timestamp
                 var i = input.IndexOf('|');
-                if (i > 0)
+                if (i > 0 && i + 1 < input.Length - 1)
                 {
-                    var x = input.Substring(i);
+                    var x = input.Substring(i + 1);
                     return x[0] == '@' && x.StartsWith(AssetRemoveAllDesignator);
                 }
             }
@@ -327,9 +327,9 @@ namespace MTConnect.Shdr
 
                 // Check for Timestamp
                 var i = input.IndexOf('|');
-                if (i > 0)
+                if (i > 0 && i + 1 < input.Length - 1)
                 {
-                    var x = input.Substring(i);
+                    var x = input.Substring(i + 1);
                     return x[0] == '@' && x.StartsWith(AssetUpdateDesignator);
                 }
             }
