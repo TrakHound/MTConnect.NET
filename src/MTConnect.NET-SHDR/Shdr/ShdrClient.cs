@@ -4,9 +4,11 @@
 // file 'LICENSE.txt', which is part of this source code package.
 
 using MTConnect.Assets;
+using MTConnect.Assets.Xml;
 using MTConnect.Configurations;
 using MTConnect.Devices;
 using MTConnect.Devices.DataItems;
+using MTConnect.Devices.Xml;
 using System;
 using System.Net;
 using System.Net.Sockets;
@@ -27,8 +29,6 @@ namespace MTConnect.Shdr
         public const int DefaultPongHeartbeat = 10000; // 10 seconds
         public const int DefaultConnectionTimeout = 30000; // 30 seconds
         public const int DefaultReconnectInterval = 10000; // 10 seconds
-
-        private static readonly Regex _deviceKeyRegex = new Regex("(.*):(.*)");
 
         private TcpClient _client;
         private long _lastHeartbeat = 0;

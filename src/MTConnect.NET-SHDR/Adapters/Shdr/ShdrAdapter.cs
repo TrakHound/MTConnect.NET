@@ -2207,9 +2207,6 @@ namespace MTConnect.Adapters.Shdr
         {
             if (device != null)
             {
-                //// Set Timestamp (if not already set)
-                //if (device.Timestamp > 0) device.Timestamp = UnixDateTime.Now;
-
                 // Update Device
                 UpdateDevice(device);
             }
@@ -2222,9 +2219,6 @@ namespace MTConnect.Adapters.Shdr
                 // Get List of Devices that need to be Updated
                 foreach (var item in devices)
                 {
-                    //// Set Timestamp (if not already set)
-                    //if (item.Timestamp > 0) item.Timestamp = UnixDateTime.Now;
-
                     // Update Device
                     UpdateDevice(item);
                 }

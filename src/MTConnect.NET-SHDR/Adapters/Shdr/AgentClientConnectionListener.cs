@@ -28,7 +28,7 @@ namespace MTConnect.Adapters.Shdr
     /// <summary>
     /// Listens for new Agent TCP Connections and handles the Adapter to Agent Heartbeat
     /// </summary>
-    public class AgentClientConnectionListener
+    class AgentClientConnectionListener
     {
         private CancellationTokenSource _stop;
         private TcpListener _listener;

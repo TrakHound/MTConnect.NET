@@ -4,6 +4,7 @@
 // file 'LICENSE.txt', which is part of this source code package.
 
 using MTConnect.Assets;
+using MTConnect.Assets.Xml;
 using System;
 using System.Text;
 using System.Text.RegularExpressions;
