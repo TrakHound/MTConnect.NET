@@ -101,7 +101,21 @@ namespace MTConnect.Applications.Agents
             // Stop Adapter Clients
             if (!_adapters.IsNullOrEmpty())
             {
-                foreach (var adapter in _adapters) adapter.Stop();
+                foreach (var adapter in _adapters)
+                {
+                    if (_verboseLogging)
+                    {
+                        adapter.Connected -= AdapterConnected;
+                        adapter.Disconnected -= AdapterDisconnected;
+                        adapter.ConnectionError -= AdapterConnectionError;
+                        adapter.Listening -= AdapterListening;
+                        adapter.PingSent -= AdapterPingSent;
+                        adapter.PongReceived -= AdapterPongReceived;
+                        adapter.ProtocolReceived -= AdapterProtocolReceived;
+                    }
+
+                    adapter.Stop();
+                }
             }
 
             _adapters.Clear();
@@ -194,13 +208,13 @@ namespace MTConnect.Applications.Agents
         private void AdapterPingSent(object sender, string message)
         {
             var adapterClient = (ShdrAdapterClient)sender;
-            _adapterLogger.Debug($"[Adapter] : ID = " + adapterClient.Id + " : " + message);
+            _adapterLogger.Info($"[Adapter] : ID = " + adapterClient.Id + " : " + message);
         }
 
         private void AdapterPongReceived(object sender, string message)
         {
             var adapterClient = (ShdrAdapterClient)sender;
-            _adapterLogger.Debug($"[Adapter] : ID = " + adapterClient.Id + " : " + message);
+            _adapterLogger.Info($"[Adapter] : ID = " + adapterClient.Id + " : " + message);
         }
 
         private void AdapterProtocolReceived(object sender, string message)
