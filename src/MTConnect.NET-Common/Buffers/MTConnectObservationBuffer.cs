@@ -227,7 +227,6 @@ namespace MTConnect.Buffers
                     {
                         // Match BufferKey
                         if (observations[oi]._key == keys[bki])
-                        //if (observations[oi].Key == keys[bki])
                         {
                             // Get the Key position (last position in keyIndexes that was written)
                             var p = keyPositions[bki, 0];
