@@ -5,6 +5,9 @@
 
 namespace MTConnect.Devices
 {
+    /// <summary>
+    /// Defines the services or capabilities that the referenced piece of equipment provides relative to this piece of equipment.
+    /// </summary>
     public enum Role
     {
         /// <summary>

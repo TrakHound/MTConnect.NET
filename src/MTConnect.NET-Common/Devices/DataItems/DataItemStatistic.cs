@@ -5,6 +5,10 @@
 
 namespace MTConnect.Devices.DataItems
 {
+    /// <summary>
+    /// Data calculated specific to a DataItem.
+    /// Examples of statistic are AVERAGE, MINIMUM, MAXIMUM, ROOT_MEAN_SQUARE, RANGE, MEDIAN, MODE and STANDARD_DEVIATION.
+    /// </summary>
     public enum DataItemStatistic
     {
         /// <summary>

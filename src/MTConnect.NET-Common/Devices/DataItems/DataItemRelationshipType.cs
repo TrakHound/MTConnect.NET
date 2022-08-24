@@ -5,6 +5,9 @@
 
 namespace MTConnect.Devices.DataItems
 {
+    /// <summary>
+    /// Specifies how the DataItem is related.
+    /// </summary>
     public enum DataItemRelationshipType
     {
         /// <summary>

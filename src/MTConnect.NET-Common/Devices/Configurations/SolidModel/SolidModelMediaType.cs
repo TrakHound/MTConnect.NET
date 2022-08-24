@@ -5,6 +5,9 @@
 
 namespace MTConnect.Devices.Configurations.SolidModel
 {
+    /// <summary>
+    /// The format of the referenced document.
+    /// </summary>
     public enum SolidModelMediaType
     {
         /// <summary>

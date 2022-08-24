@@ -5,6 +5,9 @@
 
 namespace MTConnect.Devices.Configurations.Motion
 {
+    /// <summary>
+    /// Describes the type of motion.    
+    /// </summary>
     public enum MotionType
     {
         /// <summary>

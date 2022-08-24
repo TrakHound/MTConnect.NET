@@ -76,6 +76,9 @@ namespace MTConnect.Devices
         /// </summary>
         IConfiguration Configuration { get; }
 
+        /// <summary>
+        /// A container for the DataItem elements associated with this Component element.
+        /// </summary>
         IEnumerable<IDataItem> DataItems { get; set; }
 
         /// <summary>
@@ -85,7 +88,7 @@ namespace MTConnect.Devices
 
 
         /// <summary>
-        /// The Parent of this Container
+        /// The Container (Component or Device) that this DataItem is directly associated with
         /// </summary>
         IContainer Parent { get; set; }
 
@@ -95,20 +98,43 @@ namespace MTConnect.Devices
         /// </summary>
         string ChangeId { get; }
 
+
+        /// <summary>
+        /// The text description that describes what the Component Type represents
+        /// </summary>
         string TypeDescription { get; }
 
 
-        Version MaximumVersion { get; }
-
-        Version MinimumVersion { get; }
-
-
+        /// <summary>
+        /// The full path of IDs that describes the location of the Component in the Device
+        /// </summary>
         string IdPath { get; }
 
+        /// <summary>
+        /// The list of IDs (in order) that describes the location of the Component in the Device
+        /// </summary>
         string[] IdPaths { get; }
 
+        /// <summary>
+        /// The full path of Types that describes the location of the Component in the Device
+        /// </summary>
         string TypePath { get; }
 
+        /// <summary>
+        /// The list of Types (in order) that describes the location of the Component in the Device
+        /// </summary>
         string[] TypePaths { get; }
+
+
+        /// <summary>
+        /// The maximum MTConnect Version that this Component Type is valid 
+        /// (if set, this indicates that the Type has been Deprecated in the MTConnect Standard version specified)
+        /// </summary>
+        Version MaximumVersion { get; }
+
+        /// <summary>
+        /// The minimum MTConnect Version that this Component Type is valid 
+        /// </summary>
+        Version MinimumVersion { get; }
     }
 }

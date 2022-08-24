@@ -19,6 +19,9 @@ namespace MTConnect.Devices.Configurations
     /// </summary>
     public class Configuration : IConfiguration
     {
+        public const string DescriptionText = "Configuration contains technical information about a component describing its physical layout, functional characteristics, and relationships with other components within a piece of equipment.";
+
+
         /// <summary>
         /// CoordinateSystems organizes CoordinateSystem elements for a Component and its children.
         /// </summary>

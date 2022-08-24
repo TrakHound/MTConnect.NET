@@ -22,7 +22,7 @@ namespace MTConnect.Devices.Configurations.Relationships
         string Name { get; }
 
         /// <summary>
-        /// A reference to the related DataItem id.
+        /// Defines whether the services or functions provided by the associated piece of equipment is required for the operation of this piece of equipment.
         /// </summary>
         Criticality Criticality { get; }
 

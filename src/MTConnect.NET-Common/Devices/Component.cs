@@ -22,17 +22,12 @@ namespace MTConnect.Devices
     {
         public const string DescriptionText = "An abstract XML Element. Replaced in the XML document by types of Component elements representing physical and logical parts of the Device. There can be multiple types of Component XML Elements in the document.";
 
-        private static readonly Version DefaultMaximumVersion = MTConnectVersions.Max;
+        private static readonly Version DefaultMaximumVersion = null;
         private static readonly Version DefaultMinimumVersion = MTConnectVersions.Version10;
         private static readonly Dictionary<string, string> _typeIds = new Dictionary<string, string>();
         private static readonly object _lock = new object();
 
         private static Dictionary<string, Type> _types;
-
-
-        public virtual Version MaximumVersion { get; set; }
-
-        public virtual Version MinimumVersion { get; set; }
 
 
         /// <summary>
@@ -99,14 +94,20 @@ namespace MTConnect.Devices
         /// </summary>
         public IConfiguration Configuration { get; set; }
 
+        /// <summary>
+        /// A container for the DataItem elements associated with this Component element.
+        /// </summary>
         public virtual IEnumerable<IDataItem> DataItems { get; set; }
-
-        public virtual IEnumerable<IComponent> Components { get; set; }
 
         /// <summary>
         /// A container for the Composition elements associated with this Component element.
         /// </summary>
         public virtual IEnumerable<IComposition> Compositions { get; set; }
+
+        /// <summary>
+        /// A container for the SubComponent elements associated with this Component element.
+        /// </summary>
+        public virtual IEnumerable<IComponent> Components { get; set; }
 
         /// <summary>
         /// An XML container consisting of one or more types of Reference XML elements.
@@ -115,28 +116,59 @@ namespace MTConnect.Devices
 
 
         /// <summary>
-        /// The Parent of this Component
+        /// The Container (Component or Device) that this Component is directly associated with
         /// </summary>
         public IContainer Parent { get; set; }
+
 
         /// <summary>
         /// A MD5 Hash of the Component that can be used to compare Component objects
         /// </summary>
         public string ChangeId => CreateChangeId();
 
+
+        /// <summary>
+        /// The text description that describes what the Component Type represents
+        /// </summary>
         public virtual string TypeDescription => DescriptionText;
 
+        /// <summary>
+        /// Gets whether the Component is an Organizer Type
+        /// </summary>
         public bool IsOrganizer => Organizers.Components.Contains(Type);
 
 
+        /// <summary>
+        /// The full path of IDs that describes the location of the Component in the Device
+        /// </summary>
         public string IdPath => GenerateIdPath(this);
 
+        /// <summary>
+        /// The list of IDs (in order) that describes the location of the Component in the Device
+        /// </summary>
         public string[] IdPaths => GenerateIdPaths(this);
 
+        /// <summary>
+        /// The full path of Types that describes the location of the Component in the Device
+        /// </summary>
         public string TypePath => GenerateTypePath(this);
 
+        /// <summary>
+        /// The list of Types (in order) that describes the location of the Component in the Device
+        /// </summary>
         public string[] TypePaths => GenerateTypePaths(this);
 
+
+        /// <summary>
+        /// The maximum MTConnect Version that this Component Type is valid 
+        /// (if set, this indicates that the Type has been Deprecated in the MTConnect Standard version specified)
+        /// </summary>
+        public virtual Version MaximumVersion => DefaultMaximumVersion;
+
+        /// <summary>
+        /// The minimum MTConnect Version that this Component Type is valid 
+        /// </summary>
+        public virtual Version MinimumVersion => DefaultMinimumVersion;
 
 
         public Component()
@@ -145,8 +177,6 @@ namespace MTConnect.Devices
             Components = new List<IComponent>();
             Compositions = new List<IComposition>();
             DataItems = new List<IDataItem>();
-            MaximumVersion = DefaultMaximumVersion;
-            MinimumVersion = DefaultMinimumVersion;
         }
 
 
@@ -748,7 +778,6 @@ namespace MTConnect.Devices
             return typeof(Component);
         }
 
-
         private static Dictionary<string, Type> GetAllTypes()
         {
             var assemblies = Assemblies.Get();
@@ -786,7 +815,7 @@ namespace MTConnect.Devices
         {
             if (component != null)
             {
-                return mtconnectVersion >= component.MinimumVersion && mtconnectVersion <= component.MaximumVersion;
+                return component.MinimumVersion != null && mtconnectVersion >= component.MinimumVersion;
             }
 
             return false;
@@ -796,7 +825,11 @@ namespace MTConnect.Devices
         {
             if (component != null)
             {
-                var obj = Create(component);
+                // Check Version Compatibilty
+                if (component.MinimumVersion != null && mtconnectVersion < component.MinimumVersion) return null;
+
+                // Create a new Instance of the Component that will instantiate a new Derived class (if found)
+                var obj = Create(component.Type);
                 obj.Id = component.Id;
                 obj.Uuid = component.Uuid;
                 obj.Name = component.Name;
@@ -863,17 +896,7 @@ namespace MTConnect.Devices
                     obj.Components = subcomponents;
                 }
 
-                // Don't return an Empty Component
-                if (obj.Components.IsNullOrEmpty() && obj.Compositions.IsNullOrEmpty() && obj.DataItems.IsNullOrEmpty())
-                {
-                    return null;
-                }
-
-                // Check Version Compatibilty
-                if (mtconnectVersion >= obj.MinimumVersion && mtconnectVersion <= obj.MaximumVersion)
-                {
-                    return obj;
-                }
+                return obj;
             }
 
             return null;

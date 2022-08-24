@@ -22,7 +22,7 @@ namespace MTConnect.Devices
     {
         public const string DescriptionText = "An abstract XML Element. Replaced in the XML document by Elements representing various types of DataItem XML Elements. There can be mulitple types of DataItem XML Elements in the document.";
 
-        private static readonly Version DefaultMaximumVersion = MTConnectVersions.Max;
+        private static readonly Version DefaultMaximumVersion = null;
         private static readonly Version DefaultMinimumVersion = MTConnectVersions.Version10;
         private static readonly Dictionary<string, string> _typeIds = new Dictionary<string, string>();
         private static readonly object _lock = new object();
@@ -169,21 +169,6 @@ namespace MTConnect.Devices
         /// </summary>
         public IEnumerable<IRelationship> Relationships { get; set; }
 
-        /// <summary>
-        /// A MD5 Hash of the DataItem that can be used to compare DataItem objects
-        /// </summary>
-        public string ChangeId => CreateChangeId();
-
-        /// <summary>
-        /// The Description of the DataItem based on the Type from the MTConnect Standard
-        /// </summary>
-        public virtual string TypeDescription => DescriptionText;
-
-        /// <summary>
-        /// The Description of the DataItem based on the SubType from the MTConnect Standard
-        /// </summary>
-        public virtual string SubTypeDescription => null;
-
 
         /// <summary>
         /// The Device that this DataItem is associated with
@@ -191,39 +176,56 @@ namespace MTConnect.Devices
         public IDevice Device { get; set; }
 
         /// <summary>
-        /// The Container that this DataItem is directly associated with
+        /// The Container (Component or Device) that this DataItem is directly associated with
         /// </summary>
         public IContainer Container { get; set; }
 
 
         /// <summary>
-        /// The path of the DataItem by Id
+        /// A MD5 Hash of the DataItem that can be used to compare DataItem objects
+        /// </summary>
+        public string ChangeId => CreateChangeId();
+
+        /// <summary>
+        /// The text description that describes what the DataItem Type represents
+        /// </summary>
+        public virtual string TypeDescription => DescriptionText;
+
+        /// <summary>
+        /// The text description that describes what the DataItem SubType represents
+        /// </summary>
+        public virtual string SubTypeDescription => null;
+
+
+        /// <summary>
+        /// The full path of IDs that describes the location of the DataItem in the Device
         /// </summary>
         public string IdPath => GenerateIdPath(this);
 
         /// <summary>
-        /// The paths of the DataItem by Id
+        /// The list of IDs (in order) that describes the location of the DataItem in the Device
         /// </summary>
         public string[] IdPaths => GenerateIdPaths(this);
 
         /// <summary>
-        /// The path of the DataItem by Type
+        /// The full path of Types that describes the location of the DataItem in the Device
         /// </summary>
         public string TypePath => GenerateTypePath(this);
 
         /// <summary>
-        /// The paths of the DataItem by Type
+        /// The list of Types (in order) that describes the location of the DataItem in the Device
         /// </summary>
         public string[] TypePaths => GenerateTypePaths(this);
 
 
         /// <summary>
-        /// The Maximum version of the MTConnect Standard that this DataItem is valid for
+        /// The maximum MTConnect Version that this DataItem Type is valid 
+        /// (if set, this indicates that the Type has been Deprecated in the MTConnect Standard version specified)
         /// </summary>
         public virtual Version MaximumVersion => DefaultMaximumVersion;
 
         /// <summary>
-        /// The Minimum version of the MTConnect Standard that this DataItem is valid for
+        /// The minimum MTConnect Version that this DataItem Type is valid 
         /// </summary>
         public virtual Version MinimumVersion => DefaultMinimumVersion;
 
@@ -647,7 +649,7 @@ namespace MTConnect.Devices
         {
             if (dataItem != null)
             {
-                return mtconnectVersion >= dataItem.MinimumVersion && mtconnectVersion <= dataItem.MaximumVersion;
+                return dataItem.MinimumVersion != null && mtconnectVersion >= dataItem.MinimumVersion;
             }
 
             return false;
@@ -658,7 +660,7 @@ namespace MTConnect.Devices
             if (dataItem != null)
             {
                 // Check Version Compatibilty
-                if (mtconnectVersion < dataItem.MinimumVersion || mtconnectVersion > dataItem.MaximumVersion) return null;
+                if (dataItem.MinimumVersion != null && mtconnectVersion < dataItem.MinimumVersion) return null;
 
                 // Don't return if Condition and Version < 1.1
                 if (dataItem.Category == DataItemCategory.CONDITION && mtconnectVersion < MTConnectVersions.Version11) return null;
@@ -676,7 +678,7 @@ namespace MTConnect.Devices
                 if (dataItem.Representation == DataItemRepresentation.TABLE && mtconnectVersion < MTConnectVersions.Version16) return null;
 
                 // Create a new Instance of the DataItem that will instantiate a new Derived class (if found)
-                var obj = Create(dataItem);
+                var obj = Create(dataItem.Type);
                 if (obj != null)
                 {
                     obj.Category = dataItem.Category;

@@ -163,7 +163,7 @@ namespace MTConnect.Devices
         IDevice Device { get; }
 
         /// <summary>
-        /// The Container that this DataItem is directly associated with
+        /// The Container (Component or Device) that this DataItem is directly associated with
         /// </summary>
         IContainer Container { get; }
 
@@ -173,23 +173,49 @@ namespace MTConnect.Devices
         /// </summary>
         string ChangeId { get; }
 
+
+        /// <summary>
+        /// The text description that describes what the DataItem Type represents
+        /// </summary>
         string TypeDescription { get; }
 
+        /// <summary>
+        /// The text description that describes what the DataItem SubType represents
+        /// </summary>
         string SubTypeDescription { get; }
 
 
-        Version MaximumVersion { get; }
-
-        Version MinimumVersion { get; }
-
-
+        /// <summary>
+        /// The full path of IDs that describes the location of the DataItem in the Device
+        /// </summary>
         string IdPath { get; }
 
+        /// <summary>
+        /// The list of IDs (in order) that describes the location of the DataItem in the Device
+        /// </summary>
         string[] IdPaths { get; }
 
+        /// <summary>
+        /// The full path of Types that describes the location of the DataItem in the Device
+        /// </summary>
         string TypePath { get; }
 
+        /// <summary>
+        /// The list of Types (in order) that describes the location of the DataItem in the Device
+        /// </summary>
         string[] TypePaths { get; }
+
+
+        /// <summary>
+        /// The maximum MTConnect Version that this DataItem Type is valid 
+        /// (if set, this indicates that the Type has been Deprecated in the MTConnect Standard version specified)
+        /// </summary>
+        Version MaximumVersion { get; }
+
+        /// <summary>
+        /// The minimum MTConnect Version that this DataItem Type is valid 
+        /// </summary>
+        Version MinimumVersion { get; }
 
 
         /// <summary>

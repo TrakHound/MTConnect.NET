@@ -22,12 +22,8 @@ namespace MTConnect.Devices
         public const string TypeId = "Device";
         public const string DescriptionText = "The primary container element of each device. Device is contained within the top level Devices container. There MAY be multiple Device elements in an XML document.";
 
-        private static readonly Version DefaultMaximumVersion = MTConnectVersions.Max;
+        private static readonly Version DefaultMaximumVersion = null;
         private static readonly Version DefaultMinimumVersion = MTConnectVersions.Version10;
-
-        public virtual Version MaximumVersion => DefaultMaximumVersion;
-
-        public virtual Version MinimumVersion => DefaultMinimumVersion;
 
 
         /// <summary>
@@ -126,30 +122,59 @@ namespace MTConnect.Devices
 
 
         /// <summary>
-        /// The Parent of this Device
+        /// The Container that this Device is directly associated with
         /// </summary>
         public IContainer Parent { get; set; }
+
 
         /// <summary>
         /// A MD5 Hash of the Device that can be used to compare Device objects
         /// </summary>
         public string ChangeId => CreateChangeId();
 
+
         /// <summary>
-        /// A description specific to the type of Device
+        /// The text description that describes what the Device Type represents
         /// </summary>
         public virtual string TypeDescription => DescriptionText;
 
+        /// <summary>
+        /// Gets whether the Device is an Organizer Type
+        /// </summary>
         public bool IsOrganizer => false;
 
 
+        /// <summary>
+        /// The full path of IDs that describes the location of the Device in the Device
+        /// </summary>
         public string IdPath => Id;
 
+        /// <summary>
+        /// The list of IDs (in order) that describes the location of the Device in the Device
+        /// </summary>
         public string[] IdPaths => new string[] { Id };
 
+        /// <summary>
+        /// The full path of Types that describes the location of the Device in the Device
+        /// </summary>
         public string TypePath => Type;
 
+        /// <summary>
+        /// The list of Types (in order) that describes the location of the Device in the Device
+        /// </summary>
         public string[] TypePaths => new string[] { Type };
+
+
+        /// <summary>
+        /// The maximum MTConnect Version that this Device Type is valid 
+        /// (if set, this indicates that the Type has been Deprecated in the MTConnect Standard version specified)
+        /// </summary>
+        public virtual Version MaximumVersion => DefaultMaximumVersion;
+
+        /// <summary>
+        /// The minimum MTConnect Version that this Device Type is valid 
+        /// </summary>
+        public virtual Version MinimumVersion => DefaultMinimumVersion;
 
 
         public Device()

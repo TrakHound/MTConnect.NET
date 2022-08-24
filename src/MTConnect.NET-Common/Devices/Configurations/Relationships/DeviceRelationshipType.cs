@@ -5,6 +5,9 @@
 
 namespace MTConnect.Devices.Configurations.Relationships
 {
+    /// <summary>
+    /// Defines the authority that this piece of equipment has relative to the associated piece of equipment.
+    /// </summary>
     public enum DeviceRelationshipType
     {
         /// <summary>

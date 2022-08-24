@@ -5,6 +5,9 @@
 
 namespace MTConnect.Devices
 {
+    /// <summary>
+    /// Reference to the creator of the Specification.
+    /// </summary>
     public enum Originator
     {
         /// <summary>

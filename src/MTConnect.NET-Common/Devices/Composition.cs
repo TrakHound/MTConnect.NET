@@ -21,17 +21,12 @@ namespace MTConnect.Devices
         public const string DescriptionText = "Composition XML elements are used to describe the lowest level physical building blocks of a piece of equipment contained within a Component.";
 
 
-        private static readonly Version DefaultMaximumVersion = MTConnectVersions.Max;
+        private static readonly Version DefaultMaximumVersion = null;
         private static readonly Version DefaultMinimumVersion = MTConnectVersions.Version14;
         private static readonly Dictionary<string, string> _typeIds = new Dictionary<string, string>();
         private static readonly object _lock = new object();
 
         private static Dictionary<string, Type> _types;
-
-
-        public virtual Version MaximumVersion { get; set; }
-
-        public virtual Version MinimumVersion { get; set; }
 
 
         /// <summary>
@@ -107,32 +102,60 @@ namespace MTConnect.Devices
 
 
         /// <summary>
+        /// The Container (Component or Device) that this Composition is directly associated with
+        /// </summary>
+        public IContainer Parent { get; set; }
+
+
+        /// <summary>
         /// A MD5 Hash of the Composition that can be used to compare Composition objects
         /// </summary>
         public string ChangeId => CreateChangeId();
 
-        /// <summary>
-        /// The Container that this Composition is directly associated with
-        /// </summary>
-        public IContainer Parent { get; set; }
 
+        /// <summary>
+        /// The text description that describes what the Composition Type represents
+        /// </summary>
         public virtual string TypeDescription => DescriptionText;
 
+
+        /// <summary>
+        /// The full path of IDs that describes the location of the Composition in the Device
+        /// </summary>
         public string IdPath => GenerateIdPath(this);
 
+        /// <summary>
+        /// The list of IDs (in order) that describes the location of the Composition in the Device
+        /// </summary>
         public string[] IdPaths => GenerateIdPaths(this);
 
+        /// <summary>
+        /// The full path of Types that describes the location of the Composition in the Device
+        /// </summary>
         public string TypePath => GenerateTypePath(this);
 
+        /// <summary>
+        /// The list of Types (in order) that describes the location of the Composition in the Device
+        /// </summary>
         public string[] TypePaths => GenerateTypePaths(this);
 
+
+        /// <summary>
+        /// The maximum MTConnect Version that this Composition Type is valid 
+        /// (if set, this indicates that the Type has been Deprecated in the MTConnect Standard version specified)
+        /// </summary>
+        public virtual Version MaximumVersion => DefaultMaximumVersion;
+
+        /// <summary>
+        /// The minimum MTConnect Version that this Composition Type is valid 
+        /// </summary>
+        public virtual Version MinimumVersion => DefaultMinimumVersion;
 
 
         public Composition()
         {
+            Id = StringFunctions.RandomString(10);
             DataItems = new List<IDataItem>();
-            MaximumVersion = DefaultMaximumVersion;
-            MinimumVersion = DefaultMinimumVersion;
         }
 
 
@@ -330,7 +353,6 @@ namespace MTConnect.Devices
             return typeof(Composition);
         }
 
-
         private static Dictionary<string, Type> GetAllTypes()
         {
             var assemblies = Assemblies.Get();
@@ -368,7 +390,11 @@ namespace MTConnect.Devices
         {
             if (composition != null)
             {
-                var obj = Create(composition);
+                // Check Version Compatibilty
+                if (composition.MinimumVersion != null && mtconnectVersion < composition.MinimumVersion) return null;
+
+                // Create a new Instance of the Composition that will instantiate a new Derived class (if found)
+                var obj = Create(composition.Type);
                 obj.Id = composition.Id;
                 obj.Uuid = composition.Uuid;
                 obj.Name = composition.Name;
@@ -387,10 +413,11 @@ namespace MTConnect.Devices
                     obj.Description = description;
                 }
 
-                obj.SampleRate = composition.SampleRate;
-                obj.SampleInterval = composition.SampleInterval;
-                obj.References = composition.References;
+                if (mtconnectVersion < MTConnectVersions.Version12) obj.SampleRate = composition.SampleRate;
+                if (mtconnectVersion >= MTConnectVersions.Version12) obj.SampleInterval = composition.SampleInterval;
+                if (mtconnectVersion >= MTConnectVersions.Version13) obj.References = composition.References;
                 if (mtconnectVersion >= MTConnectVersions.Version17) obj.Configuration = composition.Configuration;
+                if (mtconnectVersion >= MTConnectVersions.Version18) obj.CoordinateSystemIdRef = composition.CoordinateSystemIdRef;
 
                 // Add DataItems
                 if (!composition.DataItems.IsNullOrEmpty())
@@ -406,11 +433,7 @@ namespace MTConnect.Devices
                     obj.DataItems = dataItems;
                 }
 
-                // Check Version Compatibilty
-                if (mtconnectVersion >= obj.MinimumVersion && mtconnectVersion <= obj.MaximumVersion)
-                {
-                    return obj;
-                }
+                return obj;
             }
 
             return null;

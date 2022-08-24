@@ -5,6 +5,9 @@
 
 namespace MTConnect.Devices.Configurations.Motion
 {
+    /// <summary>
+    /// Describes if this Component is actuated directly or indirectly as a result of other motion.
+    /// </summary>
     public enum MotionActuationType
     {
         /// <summary>
