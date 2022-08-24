@@ -67,6 +67,15 @@ namespace MTConnect.Adapters.Shdr
         }
 
 
+        protected override void OnConnect()
+        {
+            if (_device != null)
+            {
+                // Set DataItems to Unavailable if disconnected from Adapter
+                SetDeviceUnavailable(UnixDateTime.Now);
+            }
+        }
+
         protected override void OnDisconnect()
         {
             if (_device != null)
