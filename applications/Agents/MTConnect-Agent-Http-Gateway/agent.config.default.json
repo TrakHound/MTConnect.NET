@@ -1,6 +1,11 @@
 ﻿{
 	"port": 5000,
-	"durable": true,
+	"responseCompression": [ "gzip", "deflate", "br" ],
+	"durable": false,
+	"observationBufferSize": 150000,
+	"assetBufferSize": 1000,
+	"inputValidationLevel": 0,
+	"outputValidationLevel": 0,
 	"clients": [
 		{
 			"address": "https://smstestbed.nist.gov/vds/",
