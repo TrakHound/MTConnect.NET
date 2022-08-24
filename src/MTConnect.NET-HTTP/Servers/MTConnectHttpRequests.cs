@@ -15,7 +15,7 @@ namespace MTConnect.Servers.Http
     /// <summary>
     /// Methods to handle requesting Response Documents from an IMTConnectAgent. Reponses are returned as an MTConnectHttpResponse.
     /// </summary>
-    internal static class MTConnectHttpRequests
+    public static class MTConnectHttpRequests
     {
         /// <summary>
         /// An Agent responds to a Probe Request with an MTConnectDevices Response Document that contains the 
