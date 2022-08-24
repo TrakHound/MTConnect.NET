@@ -216,6 +216,19 @@ namespace MTConnect.Streams.Xml
                             WriteCommonValuesXml(writer, ref observation, ref observation.Values[i]);
                         }
 
+                        if (observation.Category == DataItemCategory.CONDITION)
+                        {
+                            // Set InnerText to the Message (Condition)
+                            var message = observation.GetValue(ValueKeys.Message);
+                            if (!string.IsNullOrEmpty(message)) writer.WriteString(message);
+                        }
+                        else
+                        {
+                            // Set InnerText to the Result
+                            var result = observation.GetValue(ValueKeys.Result);
+                            if (!string.IsNullOrEmpty(result)) writer.WriteString(result);
+                        }
+
                         // Write Representation specific Values
                         switch (observation.Representation)
                         {
@@ -326,14 +339,6 @@ namespace MTConnect.Streams.Xml
                         }
                         break;
 
-                    // Result
-                    case ValueKeys.Result:
-
-                        // Set InnerText to the Result
-                        var result = observation.GetValue(ValueKeys.Result);
-                        if (result != null) writer.WriteString(result);
-                        break;
-
                     // SampleRate
                     case ValueKeys.SampleRate:
                         if (observationValue.Value.ToDouble() > 0)
@@ -350,6 +355,15 @@ namespace MTConnect.Streams.Xml
                         }
                         break;
 
+                    // Level (Ignore)
+                    case ValueKeys.Level: break;
+
+                    // Result (Ignore)
+                    case ValueKeys.Result: break;
+
+                    // Message (Ignore)
+                    case ValueKeys.Message: break;
+
                     default:
 
                         // Check for namespace (skip for now, may be able to implement this better at some point)
@@ -360,6 +374,7 @@ namespace MTConnect.Streams.Xml
                         {
                             writer.WriteAttributeString(ValueKeys.GetCamelCaseKey(observationValue.Key), observationValue.Value);
                         }
+
                         break;
                 }
             }
