@@ -5,10 +5,19 @@
 
 namespace MTConnect.Applications.Agents
 {
+    /// <summary>
+    /// An interface for an MTConnect Agent Application
+    /// </summary>
     public interface IMTConnectAgentApplication
     {
-        void StartAgent(string configurationPath, bool verboseLogging = false, int port = 0);
+        /// <summary>
+        /// Start the Agent Application
+        /// </summary>
+        void StartAgent(string configurationPath, bool verboseLogging = false);
 
+        /// <summary>
+        /// Stop the Agent Application
+        /// </summary>
         void StopAgent();
     }
 }

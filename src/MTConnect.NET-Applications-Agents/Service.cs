@@ -9,6 +9,9 @@ using NLog;
 
 namespace MTConnect.Applications
 {
+    /// <summary>
+    /// Class used to implement a Windows Service for an MTConnect Agent Application
+    /// </summary>
     public class Service : MTConnectAgentService
     {
         private static readonly Logger _serviceLogger = LogManager.GetLogger("service-logger");

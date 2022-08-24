@@ -3,7 +3,6 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
-using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace MTConnect.Configurations
@@ -11,7 +10,7 @@ namespace MTConnect.Configurations
     /// <summary>
     /// Configuration for an MTConnect Http Agent Application
     /// </summary>
-    public class HttpAgentApplicationConfiguration : HttpAgentConfiguration, IHttpAgentApplicationConfiguration
+    public class AgentApplicationConfiguration : AgentConfiguration, IAgentApplicationConfiguration
     {
         /// <summary>
         /// The Path to look for the file(s) that represent the Device Information Models to load into the Agent.
@@ -60,33 +59,7 @@ namespace MTConnect.Configurations
         public int ConfigurationFileRestartInterval { get; set; }
 
 
-        [JsonPropertyName("devicesNamespaces")]
-        public IEnumerable<NamespaceConfiguration> DevicesNamespaces { get; set; }
-
-        [JsonPropertyName("streamsNamespaces")]
-        public IEnumerable<NamespaceConfiguration> StreamsNamespaces { get; set; }
-
-        [JsonPropertyName("assetsNamespaces")]
-        public IEnumerable<NamespaceConfiguration> AssetsNamespaces { get; set; }
-
-        [JsonPropertyName("errorNamespaces")]
-        public IEnumerable<NamespaceConfiguration> ErrorNamespaces { get; set; }
-
-
-        [JsonPropertyName("devicesStyle")]
-        public StyleConfiguration DevicesStyle { get; set; }
-
-        [JsonPropertyName("streamsStyle")]
-        public StyleConfiguration StreamsStyle { get; set; }
-
-        [JsonPropertyName("assetsStyle")]
-        public StyleConfiguration AssetsStyle { get; set; }
-
-        [JsonPropertyName("errorStyle")]
-        public StyleConfiguration ErrorStyle { get; set; }
-
-
-        public HttpAgentApplicationConfiguration() : base()
+        public AgentApplicationConfiguration() : base()
         {
             Devices = null;
             ServiceName = null;

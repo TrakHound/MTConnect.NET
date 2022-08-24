@@ -3,67 +3,59 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace MTConnect.Configurations
 {
     /// <summary>
-    /// Configuration for an MTConnect Shdr > Http Agent
+    /// Configuration for an MTConnect Shdr > Http Agent Application
     /// </summary>
-    public class ShdrHttpAgentConfiguration : ShdrAgentConfiguration
+    public class ShdrHttpAgentApplicationConfiguration : HttpAgentApplicationConfiguration, IShdrHttpAgentApplicationConfiguration
     {
-        /// <summary>
-        /// The Path to look for the file(s) that represent the Device Information Models to load into the Agent.
-        /// The path can either be a single file or a directory. The path can be absolute or relative to the executable's directory
-        /// </summary>
-        [JsonPropertyName("devices")]
-        public string Devices { get; set; }
-
-
-        /// <summary>
-        /// Changes the service name when installing or removing the service. This allows multiple agents to run as services on the same machine.
-        /// </summary>
-        [JsonPropertyName("serviceName")]
-        public string ServiceName { get; set; }
-
-        /// <summary>
-        /// Sets the Service Start Type. True = Auto | False = Manual
-        /// </summary>
-        [JsonPropertyName("serviceAutoStart")]
-        public bool ServiceAutoStart { get; set; }
-
-
-        /// <summary>
-        /// Gets or Sets whether the Agent buffers are durable and retain state after restart
-        /// </summary>
-        [JsonPropertyName("durable")]
-        public bool Durable { get; set; }
-
-
         /// <summary>
         /// Gets or Sets whether a Device Model can be sent from an SHDR Adapter
         /// </summary>
         [JsonPropertyName("allowShdrDevice")]
         public bool AllowShdrDevice { get; set; }
 
+        /// <summary>
+        /// Do not overwrite the UUID with the UUID from the adapter, preserve the UUID for the Device. 
+        /// This can be overridden on a per adapter basis.
+        /// </summary>
+        [JsonPropertyName("preserveUuid")]
+        public bool PreserveUuid { get; set; }
 
         /// <summary>
-        /// Gets or Sets whether Configuration files are monitored. If enabled and a configuration file is changed, the Agent will restart
+        /// Suppress the Adapter IP Address and port when creating the Agent Device ids and names for 1.7. This applies to all adapters.
         /// </summary>
-        [JsonPropertyName("monitorConfigurationFiles")]
-        public bool MonitorConfigurationFiles { get; set; }
+        [JsonPropertyName("suppressIpAddress")]
+        public bool SuppressIpAddress { get; set; }
 
         /// <summary>
-        /// Gets or Sets the minimum time (in seconds) between Agent restarts when MonitorConfigurationFiles is enabled
+        /// The amount of time (in milliseconds) an adapter can be silent before it is disconnected. 
         /// </summary>
-        [JsonPropertyName("configurationFileRestartInterval")]
-        public int ConfigurationFileRestartInterval { get; set; }
+        [JsonPropertyName("timeout")]
+        public int Timeout { get; set; }
+
+        /// <summary>
+        /// The amount of time (in milliseconds) between adapter reconnection attempts. 
+        /// </summary>
+        [JsonPropertyName("reconnectInterval")]
+        public int ReconnectInterval { get; set; }
+
+        /// <summary>
+        /// List of SHDR Adapter connection configurations
+        /// </summary>
+        [JsonPropertyName("adapters")]
+        public IEnumerable<ShdrAdapterConfiguration> Adapters { get; set; }
 
 
-        public ShdrHttpAgentConfiguration() : base()
+        public ShdrHttpAgentApplicationConfiguration() : base()
         {
             Devices = null;
             ServiceName = null;
+            UseBufferCompression = true;
             ServiceAutoStart = true;
             MonitorConfigurationFiles = true;
             ConfigurationFileRestartInterval = 2;
