@@ -335,6 +335,7 @@ namespace MTConnect.Shdr
         private bool ProcessResponse(ref char[] chars, int length)
         {
             var response = new string(chars, 0, length);
+            
             if (response.Contains("\n"))
             {
                 var lines = response.Split('\n');
@@ -354,6 +355,8 @@ namespace MTConnect.Shdr
 
                     string multilineId = null;
                     var multilineContent = new StringBuilder();
+
+                    var found = false;
 
                     do
                     {
@@ -378,7 +381,8 @@ namespace MTConnect.Shdr
                                     // Raise CommandReceived Event passing the Line that was read as a parameter
                                     //CommandReceived?.Invoke(this, line);
 
-                                    return true;
+                                    found = true;
+                                    //return true;
                                 }
                             }
                             else if (ShdrAsset.IsAssetMultilineBegin(line))
@@ -393,7 +397,7 @@ namespace MTConnect.Shdr
                                 // Raise ProtocolReceived Event passing the Line that was read as a parameter
                                 ProtocolReceived?.Invoke(this, line);
 
-                                return true;
+                                found = true;
                             }
                             else if (multilineAsset && ShdrAsset.IsAssetMultilineEnd(multilineId, line))
                             {
@@ -413,7 +417,7 @@ namespace MTConnect.Shdr
                                 // Raise ProtocolReceived Event passing the Line that was read as a parameter
                                 ProtocolReceived?.Invoke(this, line);
 
-                                return true;
+                                found = true;
                             }
                             else if (multilineAsset)
                             {
@@ -422,7 +426,7 @@ namespace MTConnect.Shdr
                                 // Raise ProtocolReceived Event passing the Line that was read as a parameter
                                 ProtocolReceived?.Invoke(this, line);
 
-                                return true;
+                                found = true;
                             }
                             else if (ShdrAsset.IsAssetLine(line))
                             {
@@ -443,7 +447,7 @@ namespace MTConnect.Shdr
                                 // Raise ProtocolReceived Event passing the Line that was read as a parameter
                                 ProtocolReceived?.Invoke(this, line);
 
-                                return true;
+                                found = true;
                             }
                             else if (ShdrAsset.IsAssetRemove(line))
                             {
@@ -457,7 +461,7 @@ namespace MTConnect.Shdr
                                 // Raise ProtocolReceived Event passing the Line that was read as a parameter
                                 ProtocolReceived?.Invoke(this, line);
 
-                                return true;
+                                found = true;
                             }
                             else if (ShdrAsset.IsAssetRemoveAll(line))
                             {
@@ -471,7 +475,7 @@ namespace MTConnect.Shdr
                                 // Raise ProtocolReceived Event passing the Line that was read as a parameter
                                 ProtocolReceived?.Invoke(this, line);
 
-                                return true;
+                                found = true;
                             }
                             else if (ShdrDevice.IsDeviceMultilineBegin(line))
                             {
@@ -484,7 +488,7 @@ namespace MTConnect.Shdr
                                 // Raise ProtocolReceived Event passing the Line that was read as a parameter
                                 ProtocolReceived?.Invoke(this, line);
 
-                                return true;
+                                found = true;
                             }
                             else if (multilineDevice && ShdrDevice.IsDeviceMultilineEnd(multilineId, line))
                             {
@@ -500,7 +504,7 @@ namespace MTConnect.Shdr
                                 // Raise ProtocolReceived Event passing the Line that was read as a parameter
                                 ProtocolReceived?.Invoke(this, line);
 
-                                return true;
+                                found = true;
                             }
                             else if (multilineDevice)
                             {
@@ -509,7 +513,7 @@ namespace MTConnect.Shdr
                                 // Raise ProtocolReceived Event passing the Line that was read as a parameter
                                 ProtocolReceived?.Invoke(this, line);
 
-                                return true;
+                                found = true;
                             }
                             else if (ShdrDevice.IsDeviceLine(line))
                             {
@@ -522,7 +526,7 @@ namespace MTConnect.Shdr
                                 // Raise ProtocolReceived Event passing the Line that was read as a parameter
                                 ProtocolReceived?.Invoke(this, line);
 
-                                return true;
+                                found = true;
                             }
                             else
                             {
@@ -531,13 +535,15 @@ namespace MTConnect.Shdr
                                 // Raise ProtocolReceived Event passing the Line that was read as a parameter
                                 ProtocolReceived?.Invoke(this, line);
 
-                                return true;
+                                found = true;
                             }
                         }
 
                         j++;
                     }
                     while (j < lines.Length);
+
+                    return found;
                 }
             }
 
