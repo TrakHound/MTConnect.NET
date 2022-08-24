@@ -400,7 +400,7 @@ namespace MTConnect.Models
         }
 
 
-        public void AddCondition(Devices.DataItem dataItem, ConditionObservation condition)
+        public void AddCondition(IDataItem dataItem, ConditionObservation condition)
         {
             if (dataItem != null && !string.IsNullOrEmpty(dataItem.Id) && condition != null)
             {

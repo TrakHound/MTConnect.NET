@@ -15,6 +15,5 @@ client.Disconnected += (s, e) =>
 };
 client.Start();
 
-Console.ReadLine();
 
 client.Stop();

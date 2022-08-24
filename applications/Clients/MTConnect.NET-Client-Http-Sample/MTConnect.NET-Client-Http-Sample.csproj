@@ -1,14 +1,14 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
-    <RootNamespace>MTConnect.Client.Shdr</RootNamespace>
+    <RootNamespace>MTConnect.Client.Http.Sample</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\MTConnect.NET-SHDR\MTConnect.NET-SHDR.csproj" />
+    <ProjectReference Include="..\..\..\src\MTConnect.NET-HTTP\MTConnect.NET-HTTP.csproj" />
   </ItemGroup>
 
 </Project>

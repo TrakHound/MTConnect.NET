@@ -5,6 +5,7 @@
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)'=='Release'">
 		<TargetFrameworks>net461;net462;net47;net471;net472;net48;netstandard2.0;netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
+		<Optimize>true</Optimize>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)'=='Docker'">
 		<TargetFrameworks>net461;net462;net47;net471;net472;net48;netstandard2.0;netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
@@ -27,10 +28,6 @@
 		<Authors>TrakHound Inc.</Authors>
 		<Product>TrakHound MTConnect Http Agent</Product>
 	</PropertyGroup>
-
-	<!--<ItemGroup Condition="'$(Configuration)'=='Release'">
-		<ProjectReference Include="..\..\..\src\MTConnect.NET\MTConnect.NET.csproj" />
-	</ItemGroup>-->
 
 	<ItemGroup Condition="'$(Configuration)'=='Docker'">
 		<PackageReference Include="MTConnect.NET" Version="3.4.2" />

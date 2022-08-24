@@ -43,7 +43,7 @@ namespace MTConnect.Applications.Adapters.Shdr.Adapters
             _adapter.AgentDisconnected += (sender, connectionId) => Console.WriteLine($"Agent Connection (ID = {connectionId}) : Agent Disconnected");
             _adapter.PingReceived += (sender, connectionId) => Console.WriteLine($"Agent Connection (ID = {connectionId}) : Agent Ping Received");
             _adapter.PongSent += (sender, connectionId) => Console.WriteLine($"Agent Connection (ID = {connectionId}) : Pong Sent to Agent");
-            _adapter.LineSent += (sender, args) => Console.WriteLine($"Agent Connection (ID = {args.ClientId}) : Line Sent : {args.Message}");
+            //_adapter.LineSent += (sender, args) => Console.WriteLine($"Agent Connection (ID = {args.ClientId}) : Line Sent : {args.Message}");
         }
 
         //private void Demo()
@@ -168,6 +168,9 @@ namespace MTConnect.Applications.Adapters.Shdr.Adapters
             var now = UnixDateTime.Now;
             var axisXDataItem = new ShdrDataItem("Xload", j++, now);
             var axisYDataItem = new ShdrDataItem("Yload", j++, now);
+
+            //var axisXDataItem = new ShdrDataItem("X1load", j++, now);
+            //var axisYDataItem = new ShdrDataItem("X2load", j++, now);
             //axisXDataItem.ResetTriggered = ResetTriggered.DAY;
             //var axisYDataItem = new ShdrDataItem("Ypos", k++);
             //var axisZDataItem = new ShdrDataItem("Zpos", l++);
