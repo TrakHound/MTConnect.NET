@@ -8,7 +8,7 @@ using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace MTConnect.Agents
+namespace MTConnect.Clients
 {
     /// <summary>
     /// Contains information about a client connection such as the Agent Instance ID and the Last Sequence read
