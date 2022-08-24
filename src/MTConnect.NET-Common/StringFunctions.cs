@@ -15,8 +15,8 @@ namespace MTConnect
     public static class StringFunctions
     {
         private static readonly Random _random = new Random();
-        private static readonly MD5 _md5 = MD5.Create();
         private static readonly Encoding _utf8 = Encoding.UTF8;
+        private static MD5 _md5 = MD5.Create();
 
 
         public static string ToPascalCase(this string s)
@@ -254,16 +254,27 @@ namespace MTConnect
 
         public static string ToMD5Hash(this string s)
         {
-            var hash = _md5.ComputeHash(_utf8.GetBytes(s));
-            return string.Concat(hash.Select(b => b.ToString("x2")));
+            try
+            {
+                if (_md5 == null) _md5 = MD5.Create();
+                var hash = _md5.ComputeHash(_utf8.GetBytes(s));
+                return string.Concat(hash.Select(b => b.ToString("x2")));
+            }
+            catch { }
+
+            return null;
         }
 
         public static string ToMD5Hash(this byte[] bytes)
         {
             if (bytes != null)
             {
-                var hash = _md5.ComputeHash(bytes);
-                return string.Concat(hash.Select(b => b.ToString("x2")));
+                try
+                {
+                    var hash = _md5.ComputeHash(bytes);
+                    return string.Concat(hash.Select(b => b.ToString("x2")));
+                }
+                catch { }
             }
 
             return null;
@@ -271,12 +282,25 @@ namespace MTConnect
 
         public static byte[] ToMD5HashBytes(this string s)
         {
-            return _md5.ComputeHash(_utf8.GetBytes(s));
+            try
+            {
+                return _md5.ComputeHash(_utf8.GetBytes(s));
+            }
+            catch { }
+
+            return null;
         }
 
         public static byte[] ToMD5HashBytes(this byte[] bytes)
         {
-            if (bytes != null) return _md5.ComputeHash(bytes);
+            if (bytes != null)
+            {
+                try
+                {
+                    return _md5.ComputeHash(bytes);
+                }
+                catch { }
+            }
             return null;
         }
 
