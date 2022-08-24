@@ -3,7 +3,7 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
-using MTConnect.Agents;
+using MTConnect.Http;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
@@ -30,19 +30,19 @@ namespace MTConnect.Configurations
         /// Gets or Sets the List of Encodings (ex. gzip, br, deflate) to pass to the Accept-Encoding HTTP Header
         /// </summary>
         [JsonIgnore]
-        public IEnumerable<Http.HttpResponseCompression> ResponseCompression
+        public IEnumerable<HttpResponseCompression> ResponseCompression
         {
             get
             {
                 if (!ResponseCompressionString.IsNullOrEmpty())
                 {
-                    var responseCompression = new List<Http.HttpResponseCompression>();
+                    var responseCompression = new List<HttpResponseCompression>();
                     foreach (var str in ResponseCompressionString)
                     {
                         var s = str;
                         if (!string.IsNullOrEmpty(s)) s = s.ToTitleCase();
-                        var rc = s.ConvertEnum<Http.HttpResponseCompression>();
-                        if (rc != Http.HttpResponseCompression.None) responseCompression.Add(rc);
+                        var rc = s.ConvertEnum<HttpResponseCompression>();
+                        if (rc != HttpResponseCompression.None) responseCompression.Add(rc);
                     }
                     return responseCompression;
                 }
@@ -90,7 +90,7 @@ namespace MTConnect.Configurations
         /// Gets or Sets the default response document validation level. 0 = Ignore, 1 = Warning, 2 = Strict
         /// </summary>
         [JsonPropertyName("outputValidationLevel")]
-        public ValidationLevel OutputValidationLevel { get; set; }
+        public OutputValidationLevel OutputValidationLevel { get; set; }
 
 
         public HttpAgentConfiguration()
@@ -102,7 +102,7 @@ namespace MTConnect.Configurations
             MaxListenerThreads = 5;
             IndentOutput = true;
             OutputComments = false;
-            OutputValidationLevel = ValidationLevel.Ignore;
+            OutputValidationLevel = OutputValidationLevel.Ignore;
         }
     }
 }

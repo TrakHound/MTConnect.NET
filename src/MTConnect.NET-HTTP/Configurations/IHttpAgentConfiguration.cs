@@ -3,7 +3,7 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
-using MTConnect.Agents;
+using MTConnect.Http;
 using System.Collections.Generic;
 
 namespace MTConnect.Configurations
@@ -27,7 +27,7 @@ namespace MTConnect.Configurations
         /// <summary>
         /// Gets or Sets the List of Encodings (ex. gzip, br, deflate) to pass to the Accept-Encoding HTTP Header
         /// </summary>
-        IEnumerable<Http.HttpResponseCompression> ResponseCompression { get; }
+        IEnumerable<HttpResponseCompression> ResponseCompression { get; }
 
         /// <summary>
         /// Allow HTTP PUT or POST of data item values or assets.
@@ -59,6 +59,6 @@ namespace MTConnect.Configurations
         /// <summary>
         /// Gets or Sets the default response document validation level. 0 = Ignore, 1 = Warning, 2 = Strict
         /// </summary>
-        ValidationLevel OutputValidationLevel { get; }
+        OutputValidationLevel OutputValidationLevel { get; }
     }
 }
