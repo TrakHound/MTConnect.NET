@@ -2972,7 +2972,7 @@ namespace MTConnect.Agents
 
                     // Validate Asset based on Device's MTConnectVersion
                     var validationResults = asset.IsValid(device.MTConnectVersion);
-                    if (validationResults.IsValid)
+                    if (validationResults.IsValid || _configuration.InputValidationLevel < InputValidationLevel.Strict)
                     {
                         // Add Asset to AssetBuffer
                         if (_assetBuffer.AddAsset(asset))
@@ -2989,6 +2989,11 @@ namespace MTConnect.Agents
 
                             // Update Agent Metrics
                             _metrics.UpdateAsset(deviceUuid, asset.AssetId);
+
+                            if (!validationResults.IsValid && _configuration.InputValidationLevel > InputValidationLevel.Ignore)
+                            {
+                                if (InvalidAssetAdded != null) InvalidAssetAdded.Invoke(asset, validationResults);
+                            }
 
                             AssetAdded?.Invoke(this, asset);
                             return true;
