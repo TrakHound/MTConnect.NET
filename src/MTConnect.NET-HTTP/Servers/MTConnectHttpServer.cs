@@ -104,11 +104,21 @@ namespace MTConnect.Servers.Http
 
                         if (_configuration != null && _configuration.AllowPut)
                         {
-                            await ProcessPut(request, response);
+                            bool allow;
+                            if (!_configuration.AllowPutFrom.IsNullOrEmpty())
+                            {
+                                // Check that the remote address of the request is in the AllowPutFrom configuration parameter
+                                var address = request.RemoteEndPoint.Address.ToString();
+                                allow = _configuration.AllowPutFrom.Contains(address);
+                            }
+                            else allow = true;
+
+                            if (allow) await ProcessPut(request, response);
+                            else response.StatusCode = 403; // Return 403 - Forbidden
                         }
                         else
                         {
-                            response.StatusCode = 405;
+                            response.StatusCode = 405; // Return 405 - Method Not Supported
                         }
 
                         break;
@@ -117,17 +127,27 @@ namespace MTConnect.Servers.Http
 
                         if (_configuration != null && _configuration.AllowPut)
                         {
-                            await ProcessPost(request, response);
+                            bool allow;
+                            if (!_configuration.AllowPutFrom.IsNullOrEmpty())
+                            {
+                                // Check that the remote address of the request is in the AllowPutFrom configuration parameter
+                                var address = request.RemoteEndPoint.Address.ToString();
+                                allow = _configuration.AllowPutFrom.Contains(address);
+                            }
+                            else allow = true;
+
+                            if (allow) await ProcessPost(request, response);
+                            else response.StatusCode = 403; // Return 403 - Forbidden
                         }
                         else
                         {
-                            response.StatusCode = 405;
+                            response.StatusCode = 405; // Return 405 - Method Not Supported
                         }
                         break;
 
                     case "DELETE":
 
-                        response.StatusCode = 405;
+                        response.StatusCode = 405; // Return 405 - Method Not Supported
 
                         break;
                 }
