@@ -74,11 +74,26 @@ namespace MTConnect.Buffers
 
 
         /// <summary>
+        /// Get whether the Asset exists in the Buffer or not
+        /// </summary>
+        /// <param name="assetId">The ID of the Asset to return</param>
+        /// <returns>True if the Asset exists</returns>
+        public bool AssetExists(string assetId)
+        {
+            lock (_lock)
+            {
+                return _assetIds.ContainsKey(assetId);
+            }
+        }
+
+
+        /// <summary>
         /// Get a list of all Assets from the Buffer
         /// </summary>
         public IEnumerable<IAsset> GetAssets(string deviceUuid = null, string type = null, bool removed = false, int count = 100)
         {
-            var assets = _storedAssets.ToList();
+            IEnumerable<IAsset> assets;
+            lock (_lock) assets = _storedAssets.ToList();
 
             // Filter by Device
             if (!string.IsNullOrEmpty(deviceUuid))
@@ -113,9 +128,12 @@ namespace MTConnect.Buffers
 
                 foreach (var assetId in assetIds)
                 {
-                    if (_assetIds.TryGetValue(assetId, out int index))
+                    lock (_lock)
                     {
-                        assets.Add(_storedAssets[index]);
+                        if (_assetIds.TryGetValue(assetId, out int index))
+                        {
+                            assets.Add(_storedAssets[index]);
+                        }
                     }
                 }
 
@@ -131,9 +149,12 @@ namespace MTConnect.Buffers
         /// <param name="assetId">The ID of the Asset to return</param>
         public IAsset GetAsset(string assetId)
         {
-            if (_assetIds.TryGetValue(assetId, out int index))
+            lock (_lock)
             {
-                return _storedAssets[index];
+                if (_assetIds.TryGetValue(assetId, out int index))
+                {
+                    return _storedAssets[index];
+                }
             }
 
             return null;

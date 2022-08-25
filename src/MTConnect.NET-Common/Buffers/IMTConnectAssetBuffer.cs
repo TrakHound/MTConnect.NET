@@ -34,8 +34,18 @@ namespace MTConnect.Buffers
         /// </summary>
         IEnumerable<string> AssetIds { get; }
 
-
+        /// <summary>
+        /// Raised when an Asset is pushed out of the Buffer
+        /// </summary>
         EventHandler<IAsset> AssetRemoved { get; set; }
+
+
+        /// <summary>
+        /// Get whether the Asset exists in the Buffer or not
+        /// </summary>
+        /// <param name="assetId">The ID of the Asset to return</param>
+        /// <returns>True if the Asset exists</returns>
+        bool AssetExists(string assetId);
 
 
         /// <summary>
