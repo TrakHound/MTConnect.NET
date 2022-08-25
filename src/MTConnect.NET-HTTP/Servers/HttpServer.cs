@@ -305,7 +305,15 @@ namespace MTConnect.Servers.Http
                 var values = request.Headers.Get(name);
                 if (values != null)
                 {
-                    return values.Split(',', StringSplitOptions.TrimEntries);
+                    // Trim Values (StringSplitOptions.TrimEntities is not compatible with older .NET versions)
+                    var x = values.Split(',');
+                    var y = new string[x.Length];
+                    for (var i = 0; i < x.Length; i++)
+                    {
+                        if (x[i] != null) y[i] = x[i].Trim();
+                    }
+                    return y;
+                    //return values.Split(',', StringSplitOptions.TrimEntries);
                 }
             }
 
