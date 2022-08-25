@@ -259,17 +259,17 @@ namespace MTConnect.Models
 
         #region "Conditions"
 
-        public ConditionObservation GetCondition(string type, string subType = null) => DataItemManager.GetCondition(type, subType);
+        public IConditionObservation GetCondition(string type, string subType = null) => DataItemManager.GetCondition(type, subType);
 
         public bool ConditionValueExists(string type, string subType = null) => DataItemManager.ConditionValueExists(type, subType);
 
 
-        public void UpdateCondition(ConditionObservation condition, string type, string subType = null) => DataItemManager.UpdateCondition(condition, type, subType);
+        public void UpdateCondition(IConditionObservation condition, string type, string subType = null) => DataItemManager.UpdateCondition(condition, type, subType);
 
 
-        public void AddCondition(DataItem dataItem, ConditionObservation condition) => DataItemManager.AddCondition(dataItem, condition);
+        public void AddCondition(IDataItem dataItem, IConditionObservation condition) => DataItemManager.AddCondition(dataItem, condition);
 
-        public void AddCondition(IDataItemModel dataItem, ConditionObservation condition) => DataItemManager.AddCondition(dataItem, condition);
+        public void AddCondition(IDataItemModel dataItem, IConditionObservation condition) => DataItemManager.AddCondition(dataItem, condition);
 
         #endregion
 

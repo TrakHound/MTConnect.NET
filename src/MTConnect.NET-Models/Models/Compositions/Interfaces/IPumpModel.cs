@@ -39,19 +39,19 @@ namespace MTConnect.Models.Compositions
         /// <summary>
         /// An indication of a fault associated with a piece of equipment or component that cannot be classified as a specific type.
         /// </summary>
-        Observations.ConditionObservation SystemCondition { get; set; }
+        Observations.IConditionObservation SystemCondition { get; set; }
         IDataItemModel SystemConditionDataItem { get; }
 
         /// <summary>
         /// An indication of a fault associated with the hardware subsystem of the Structural Element.
         /// </summary>
-        Observations.ConditionObservation HardwareCondition { get; set; }
+        Observations.IConditionObservation HardwareCondition { get; set; }
         IDataItemModel HardwareConditionDataItem { get; }
 
         /// <summary>
         /// An indication that the piece of equipment has experienced a communications failure.
         /// </summary>
-        Observations.ConditionObservation CommunicationsCondition { get; set; }
+        Observations.IConditionObservation CommunicationsCondition { get; set; }
         IDataItemModel CommunicationsConditionDataItem { get; }
     }
 }

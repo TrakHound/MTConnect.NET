@@ -81,7 +81,7 @@ namespace MTConnect.Models.Compositions
         /// <summary>
         /// An indication of a fault associated with a piece of equipment or component that cannot be classified as a specific type.
         /// </summary>
-        public ConditionObservation SystemCondition
+        public IConditionObservation SystemCondition
         {
             get => GetCondition(Devices.DataItems.Conditions.SystemCondition.NameId);
             set => AddCondition(new SystemCondition(Id), value);
@@ -91,7 +91,7 @@ namespace MTConnect.Models.Compositions
         /// <summary>
         /// An indication of a fault associated with the hardware subsystem of the Structural Element.
         /// </summary>
-        public ConditionObservation HardwareCondition
+        public IConditionObservation HardwareCondition
         {
             get => GetCondition(Devices.DataItems.Conditions.HardwareCondition.NameId);
             set => AddCondition(new HardwareCondition(Id), value);
@@ -101,7 +101,7 @@ namespace MTConnect.Models.Compositions
         /// <summary>
         /// An indication that the piece of equipment has experienced a communications failure.
         /// </summary>
-        public ConditionObservation CommunicationsCondition
+        public IConditionObservation CommunicationsCondition
         {
             get => GetCondition(Devices.DataItems.Conditions.CommunicationsCondition.NameId);
             set => AddCondition(new CommunicationsCondition(Id), value);

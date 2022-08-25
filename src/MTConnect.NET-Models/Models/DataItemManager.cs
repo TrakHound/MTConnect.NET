@@ -20,7 +20,7 @@ namespace MTConnect.Models
     {
         private readonly object _lock = new object();
         private readonly Dictionary<string, object> _dataItemValues = new Dictionary<string, object>();
-        private readonly Dictionary<string, ConditionObservation> _conditions = new Dictionary<string, ConditionObservation>();
+        private readonly Dictionary<string, IConditionObservation> _conditions = new Dictionary<string, IConditionObservation>();
 
 
         public string Id { get; set; }
@@ -35,7 +35,7 @@ namespace MTConnect.Models
             }
         } 
 
-        public Dictionary<string, ConditionObservation> Conditions
+        public Dictionary<string, IConditionObservation> Conditions
         {
             get
             {
@@ -353,7 +353,7 @@ namespace MTConnect.Models
 
         #region "Conditions"
 
-        public ConditionObservation GetCondition(string type, string subType = null)
+        public IConditionObservation GetCondition(string type, string subType = null)
         {
             if (ConditionValueExists(type, subType))
             {
@@ -386,7 +386,7 @@ namespace MTConnect.Models
         }
 
 
-        public void UpdateCondition(ConditionObservation condition, string type, string subType = null)
+        public void UpdateCondition(IConditionObservation condition, string type, string subType = null)
         {
             var key = CreateKey(type, subType);
             if (key != null && condition != null)
@@ -400,7 +400,7 @@ namespace MTConnect.Models
         }
 
 
-        public void AddCondition(IDataItem dataItem, ConditionObservation condition)
+        public void AddCondition(IDataItem dataItem, IConditionObservation condition)
         {
             if (dataItem != null && !string.IsNullOrEmpty(dataItem.Id) && condition != null)
             {
@@ -413,7 +413,7 @@ namespace MTConnect.Models
             }
         }
 
-        public void AddCondition(IDataItemModel dataItem, ConditionObservation condition)
+        public void AddCondition(IDataItemModel dataItem, IConditionObservation condition)
         {
             if (dataItem != null && !string.IsNullOrEmpty(dataItem.DataItemId) && condition != null)
             {

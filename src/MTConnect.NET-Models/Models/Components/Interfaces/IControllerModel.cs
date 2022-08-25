@@ -35,22 +35,22 @@ namespace MTConnect.Models.Components
         /// <summary>
         /// An indication of a fault associated with a piece of equipment or component that cannot be classified as a specific type.
         /// </summary>
-        Observations.ConditionObservation SystemCondition { get; set; }
+        Observations.IConditionObservation SystemCondition { get; set; }
 
         /// <summary>
         /// An indication that an error occurred in the logic program or programmable logic controller(PLC) associated with a piece of equipment.
         /// </summary>
-        Observations.ConditionObservation LogicCondition { get; set; }
+        Observations.IConditionObservation LogicCondition { get; set; }
 
         /// <summary>
         /// An indication that an error occurred in the motion program associated with a piece of equipment.
         /// </summary>
-        Observations.ConditionObservation MotionCondition { get; set; }
+        Observations.IConditionObservation MotionCondition { get; set; }
 
         /// <summary>
         /// An indication that the piece of equipment has experienced a communications failure.
         /// </summary>
-        Observations.ConditionObservation CommunicationsCondition { get; set; }
+        Observations.IConditionObservation CommunicationsCondition { get; set; }
 
 
         IEnumerable<IPathModel> Paths { get; }

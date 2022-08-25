@@ -65,7 +65,7 @@ namespace MTConnect.Models.Components
         /// <summary>
         /// An indication of a fault associated with a piece of equipment or component that cannot be classified as a specific type.
         /// </summary>
-        public Observations.ConditionObservation SystemCondition
+        public Observations.IConditionObservation SystemCondition
         {
             get => DataItemManager.GetCondition(Devices.DataItems.Conditions.SystemCondition.NameId);
             set => DataItemManager.AddCondition(new SystemCondition(Id), value);
@@ -74,7 +74,7 @@ namespace MTConnect.Models.Components
         /// <summary>
         /// An indication that an error occurred in the logic program or programmable logic controller(PLC) associated with a piece of equipment.
         /// </summary>
-        public Observations.ConditionObservation LogicCondition
+        public Observations.IConditionObservation LogicCondition
         {
             get => DataItemManager.GetCondition(LogicProgramCondition.NameId);
             set => DataItemManager.AddCondition(new LogicProgramCondition(Id), value);
@@ -83,7 +83,7 @@ namespace MTConnect.Models.Components
         /// <summary>
         /// An indication that an error occurred in the motion program associated with a piece of equipment.
         /// </summary>
-        public Observations.ConditionObservation MotionCondition
+        public Observations.IConditionObservation MotionCondition
         {
             get => DataItemManager.GetCondition(MotionProgramCondition.NameId);
             set => DataItemManager.AddCondition(new MotionProgramCondition(Id), value);
@@ -92,7 +92,7 @@ namespace MTConnect.Models.Components
         /// <summary>
         /// An indication that the piece of equipment has experienced a communications failure.
         /// </summary>
-        public Observations.ConditionObservation CommunicationsCondition
+        public Observations.IConditionObservation CommunicationsCondition
         {
             get => DataItemManager.GetCondition(Devices.DataItems.Conditions.CommunicationsCondition.NameId);
             set => DataItemManager.AddCondition(new CommunicationsCondition(Id), value);
