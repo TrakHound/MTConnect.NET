@@ -20,6 +20,6 @@ namespace MTConnect
         public static readonly Version Version16 = new Version(1, 6);
         public static readonly Version Version17 = new Version(1, 7);
         public static readonly Version Version18 = new Version(1, 8);
-        public static readonly Version Version20 = new Version(2, 0, 0);
+        public static readonly Version Version20 = new Version(2, 0);
     }
 }
