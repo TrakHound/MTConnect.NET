@@ -574,10 +574,13 @@ namespace MTConnect.Buffers
                 // Get Reset Triggered Value from Observation
                 var resetTriggered = observation.GetValue(ValueKeys.ResetTriggered).ConvertEnum<ResetTriggered>();
 
+                // Check for UNAVAILABLE
+                var isUnavailable = observation.GetValue(ValueKeys.Result) == Observation.Unavailable;
+
                 BufferObservation existingObservation;
                 lock (_lock) _currentObservations.Remove(observation._key, out existingObservation);
 
-                if (existingObservation.IsValid)
+                if (existingObservation.IsValid && !isUnavailable)
                 {
                     if (resetTriggered == ResetTriggered.NOT_SPECIFIED)
                     {

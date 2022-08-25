@@ -17,7 +17,7 @@ namespace MTConnect.Observations
         /// The number of readings of the value of a data item provided in the data returned when the representation attribute for teh data item is TIME_SERIES.
         /// SampleCount is not provided for data items unless the representation attribute is TIME_SERIES and it MUST be specified when the attribute is TIME_SERIES.
         /// </summary>
-        public long SampleCount => Samples.Count();
+        public int SampleCount => Samples.Count();
 
         /// <summary>
         /// Time Series observation MUST report multiple values at fixed intervals in a single observation. 

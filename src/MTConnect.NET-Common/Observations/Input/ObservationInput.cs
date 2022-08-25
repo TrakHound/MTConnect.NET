@@ -149,6 +149,7 @@ namespace MTConnect.Observations.Input
         public void Unavailable()
         {
             AddValue(ValueKeys.Result, Observation.Unavailable);
+            IsUnavailable = true;
         }
 
 

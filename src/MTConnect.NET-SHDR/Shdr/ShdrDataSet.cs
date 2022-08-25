@@ -164,32 +164,40 @@ namespace MTConnect.Shdr
                         x = ShdrLine.GetNextValue(y);
                         if (!string.IsNullOrEmpty(x))
                         {
-                            dataSet.ResetTriggered = ResetTriggered.NOT_SPECIFIED;
-                            var entriesString = x;
-
-                            // Parse the ResetTriggered (if exists)
-                            var resetMatch = _resetTriggeredRegex.Match(x);
-                            if (resetMatch.Success && resetMatch.Groups.Count > 2)
+                            x = ShdrLine.GetNextValue(y);
+                            if (x.ToLower() != Observation.Unavailable.ToLower())
                             {
-                                dataSet.ResetTriggered = resetMatch.Groups[1].Value.ConvertEnum<ResetTriggered>();
-                                entriesString = resetMatch.Groups[2].Value;
-                            }
+                                dataSet.ResetTriggered = ResetTriggered.NOT_SPECIFIED;
+                                var entriesString = x;
 
-                            var dataSetEntries = new List<ShdrDataSetEntry>();
-
-                            // Get a List of Entries representing DataSetEntry objects
-                            var entries = ShdrLine.GetEntries(entriesString);
-                            if (!entries.IsNullOrEmpty())
-                            {
-                                foreach (var entry in entries)
+                                // Parse the ResetTriggered (if exists)
+                                var resetMatch = _resetTriggeredRegex.Match(x);
+                                if (resetMatch.Success && resetMatch.Groups.Count > 2)
                                 {
-                                    // Create new ShdrDataSetEntry and add to return list
-                                    var dataSetEntry = new ShdrDataSetEntry(entry.Key, entry.Value, entry.Removed);
-                                    dataSetEntries.Add(dataSetEntry);
+                                    dataSet.ResetTriggered = resetMatch.Groups[1].Value.ConvertEnum<ResetTriggered>();
+                                    entriesString = resetMatch.Groups[2].Value;
                                 }
-                            }
 
-                            dataSet.Entries = dataSetEntries;
+                                var dataSetEntries = new List<ShdrDataSetEntry>();
+
+                                // Get a List of Entries representing DataSetEntry objects
+                                var entries = ShdrLine.GetEntries(entriesString);
+                                if (!entries.IsNullOrEmpty())
+                                {
+                                    foreach (var entry in entries)
+                                    {
+                                        // Create new ShdrDataSetEntry and add to return list
+                                        var dataSetEntry = new ShdrDataSetEntry(entry.Key, entry.Value, entry.Removed);
+                                        dataSetEntries.Add(dataSetEntry);
+                                    }
+                                }
+
+                                dataSet.Entries = dataSetEntries;
+                            }
+                            else
+                            {
+                                dataSet.Unavailable();
+                            }
                         }
                     }
 

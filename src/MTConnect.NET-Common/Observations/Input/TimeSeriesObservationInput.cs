@@ -25,6 +25,15 @@ namespace MTConnect.Observations.Input
         }
 
         /// <summary>
+        /// Number of values given for the Observation
+        /// </summary>
+        public int SampleCount
+        {
+            get => GetValue(ValueKeys.SampleCount).ToInt();
+            set => AddValue(new ObservationValue(ValueKeys.SampleCount, value));
+        }
+
+        /// <summary>
         /// The values that were reported during the Observation
         /// </summary>
         public IEnumerable<double> Samples
@@ -39,6 +48,10 @@ namespace MTConnect.Observations.Input
                     {
                         AddValue(new ObservationValue(ValueKeys.CreateTimeSeriesValueKey(i), x[i]));
                     }
+                }
+                else
+                {
+                    AddValue(ValueKeys.SampleCount, 0);
                 }
             }
         }

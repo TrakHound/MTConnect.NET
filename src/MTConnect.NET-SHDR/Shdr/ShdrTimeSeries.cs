@@ -151,34 +151,45 @@ namespace MTConnect.Shdr
                     var y = ShdrLine.GetNextSegment(input);
                     timeSeries.DataItemKey = x;
 
-                    // Samples Count
                     x = ShdrLine.GetNextValue(y);
-                    y = ShdrLine.GetNextSegment(y);
-                    var samplesCount = x;
-
-                    // Set Sample Rate
-                    x = ShdrLine.GetNextValue(y);
-                    y = ShdrLine.GetNextSegment(y);
-                    timeSeries.SampleRate = x.ToDouble();
-
-                    if (y != null)
+                    if (!string.IsNullOrEmpty(x) && x.ToLower() != Observation.Unavailable.ToLower())
                     {
+                        // Samples Count
                         x = ShdrLine.GetNextValue(y);
-                        if (!string.IsNullOrEmpty(x))
+                        y = ShdrLine.GetNextSegment(y);
+                        timeSeries.SampleCount = x.ToInt();
+
+                        // Set Sample Rate
+                        x = ShdrLine.GetNextValue(y);
+                        y = ShdrLine.GetNextSegment(y);
+                        timeSeries.SampleRate = x.ToDouble();
+
+                        if (y != null)
                         {
-                            var samples = new List<double>();
-                            var sampleSegments = x.Split(' ');
-
-                            foreach (var sampleSegment in sampleSegments)
+                            x = ShdrLine.GetNextValue(y);
+                            if (!string.IsNullOrEmpty(x))
                             {
-                                samples.Add(sampleSegment.ToDouble());
+                                var samples = new List<double>();
+                                var sampleSegments = x.Split(' ');
+
+                                foreach (var sampleSegment in sampleSegments)
+                                {
+                                    samples.Add(sampleSegment.ToDouble());
+                                }
+
+                                timeSeries.Samples = samples;
+                                timeSeries.SampleCount = samples.Count();
                             }
-
-                            timeSeries.Samples = samples;
-
-                            return timeSeries;
                         }
                     }
+                    else
+                    {
+                        timeSeries.SampleCount = 0;
+                        timeSeries.SampleRate = 0;
+                        timeSeries.Unavailable();
+                    }
+
+                    return timeSeries;
                 }
                 catch { }
             }

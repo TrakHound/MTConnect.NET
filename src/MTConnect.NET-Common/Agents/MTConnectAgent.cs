@@ -54,7 +54,6 @@ namespace MTConnect.Agents
         protected readonly ConcurrentDictionary<string, IEnumerable<IDataItem>> _deviceDataItems = new ConcurrentDictionary<string, IEnumerable<IDataItem>>();
         protected readonly ConcurrentDictionary<string, IEnumerable<string>> _deviceDataItemIds = new ConcurrentDictionary<string, IEnumerable<string>>();
         private readonly List<AssetCount> _deviceAssetCounts = new List<AssetCount>();
-        //private readonly ConcurrentDictionary<string, IEnumerable<AssetCount>> _deviceAssetCounts = new ConcurrentDictionary<string, IEnumerable<AssetCount>>();
 
         protected readonly ConcurrentDictionary<string, string> _dataItemKeys = new ConcurrentDictionary<string, string>(); // Caches DeviceUuid:DataItemKey to DeviceUuid:DataItemId
         protected readonly ConcurrentDictionary<string, IDataItem> _dataItems = new ConcurrentDictionary<string, IDataItem>(); // Key = DeviceUuid:DataItemId
@@ -1904,6 +1903,14 @@ namespace MTConnect.Agents
                                 new ObservationValue(valueType, value)
                             });
 
+                            // Add Required Values
+                            switch (dataItem.Representation)
+                            {
+                                case DataItemRepresentation.DATA_SET: observation.AddValue(ValueKeys.Count, 0); break;
+                                case DataItemRepresentation.TABLE: observation.AddValue(ValueKeys.Count, 0); break;
+                                case DataItemRepresentation.TIME_SERIES: observation.AddValue(ValueKeys.SampleCount, 0); break;
+                            }
+
                             _observationBuffer.AddObservation(bufferKey, observation);
                             ObservationAdded?.Invoke(this, observation);
                         }
@@ -2841,6 +2848,7 @@ namespace MTConnect.Agents
                 var input = new ObservationInput();
                 input.DeviceKey = deviceKey;
                 input.DataItemKey = observationInput.DataItemKey;
+                input.IsUnavailable = observationInput.IsUnavailable;
 
                 // Convert Case (if Ignored)
                 if ((!ignoreCase.HasValue && _configuration.IgnoreObservationCase) || (ignoreCase.HasValue && ignoreCase.Value))
@@ -2863,6 +2871,14 @@ namespace MTConnect.Agents
                 var dataItem = GetDataItem(deviceUuid, input.DataItemKey);
                 if (dataItem != null)
                 {
+                    // Add required properties
+                    switch (dataItem.Representation)
+                    {
+                        case DataItemRepresentation.DATA_SET: if (input.IsUnavailable) input.AddValue(ValueKeys.Count, 0); break;
+                        case DataItemRepresentation.TABLE: if (input.IsUnavailable) input.AddValue(ValueKeys.Count, 0); break;
+                        case DataItemRepresentation.TIME_SERIES: if (input.IsUnavailable) input.AddValue(ValueKeys.SampleCount, 0); break;
+                    }
+
                     var success = false;
                     var validationResult = new ValidationResult(true);
 

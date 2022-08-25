@@ -21,6 +21,7 @@ namespace MTConnect.Observations
         public const string Message = "Message";
         public const string Statistic = "Statistic";
         public const string SampleRate = "SampleRate";
+        public const string SampleCount = "SampleCount";
         public const string Count = "Count";
         public const string Duration = "Duration";
         public const string AssetType = "AssetType";
@@ -35,7 +36,7 @@ namespace MTConnect.Observations
 
         #region "TimeSeries"
 
-        public static string CreateTimeSeriesValueKey(int index) => $"{TimeSeriesPrefix}[{index}]";
+        public static string CreateTimeSeriesValueKey(int index) => $"{TimeSeriesPrefix}[{index.ToString("00000")}]";
 
         public static int GetTimeSeriesIndex(string valueKey)
         {

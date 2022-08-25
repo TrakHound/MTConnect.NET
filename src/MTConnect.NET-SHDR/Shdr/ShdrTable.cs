@@ -160,56 +160,64 @@ namespace MTConnect.Shdr
                         x = ShdrLine.GetNextValue(y);
                         if (!string.IsNullOrEmpty(x))
                         {
-                            table.ResetTriggered = ResetTriggered.NOT_SPECIFIED;
-                            var entriesString = x;
-
-                            // Parse the ResetTriggered (if exists)
-                            var resetMatch = _resetTriggeredRegex.Match(x);
-                            if (resetMatch.Success && resetMatch.Groups.Count > 2)
+                            x = ShdrLine.GetNextValue(y);
+                            if (x.ToLower() != Observation.Unavailable.ToLower())
                             {
-                                table.ResetTriggered = resetMatch.Groups[1].Value.ConvertEnum<ResetTriggered>();
-                                entriesString = resetMatch.Groups[2].Value;
-                            }
+                                table.ResetTriggered = ResetTriggered.NOT_SPECIFIED;
+                                var entriesString = x;
 
-                            var tableEntries = new List<ShdrTableEntry>();
-
-                            // Get a List of Entries representing TableEntry objects
-                            var entries = ShdrLine.GetEntries(entriesString);
-                            if (!entries.IsNullOrEmpty())
-                            {
-                                foreach (var entry in entries)
+                                // Parse the ResetTriggered (if exists)
+                                var resetMatch = _resetTriggeredRegex.Match(x);
+                                if (resetMatch.Success && resetMatch.Groups.Count > 2)
                                 {
-                                    var tableCells = new List<ShdrTableCell>();
+                                    table.ResetTriggered = resetMatch.Groups[1].Value.ConvertEnum<ResetTriggered>();
+                                    entriesString = resetMatch.Groups[2].Value;
+                                }
 
-                                    if (!string.IsNullOrEmpty(entry.Value))
+                                var tableEntries = new List<ShdrTableEntry>();
+
+                                // Get a List of Entries representing TableEntry objects
+                                var entries = ShdrLine.GetEntries(entriesString);
+                                if (!entries.IsNullOrEmpty())
+                                {
+                                    foreach (var entry in entries)
                                     {
-                                        // Trim the quote values
-                                        var entryValue = entry.Value.Trim('\'');
-                                        entryValue = entryValue.Trim('\"');
-                                        entryValue = entryValue.Trim('{');
-                                        entryValue = entryValue.Trim('}');
+                                        var tableCells = new List<ShdrTableCell>();
 
-                                        // Get a list of Entries representing Table Cells
-                                        var cells = ShdrLine.GetEntries(entryValue);
-                                        if (!cells.IsNullOrEmpty())
+                                        if (!string.IsNullOrEmpty(entry.Value))
                                         {
-                                            foreach (var cell in cells)
+                                            // Trim the quote values
+                                            var entryValue = entry.Value.Trim('\'');
+                                            entryValue = entryValue.Trim('\"');
+                                            entryValue = entryValue.Trim('{');
+                                            entryValue = entryValue.Trim('}');
+
+                                            // Get a list of Entries representing Table Cells
+                                            var cells = ShdrLine.GetEntries(entryValue);
+                                            if (!cells.IsNullOrEmpty())
                                             {
-                                                // Create new ShdrTableCell and add to cells list
-                                                var tableCell = new ShdrTableCell(cell.Key, cell.Value);
-                                                tableCells.Add(tableCell);
+                                                foreach (var cell in cells)
+                                                {
+                                                    // Create new ShdrTableCell and add to cells list
+                                                    var tableCell = new ShdrTableCell(cell.Key, cell.Value);
+                                                    tableCells.Add(tableCell);
+                                                }
                                             }
                                         }
+
+                                        // Create new ShdrTableEntry and add to return list
+                                        var tableEntry = new ShdrTableEntry(entry.Key, tableCells);
+                                        tableEntry.Removed = entry.Removed;
+                                        tableEntries.Add(tableEntry);
                                     }
-
-                                    // Create new ShdrTableEntry and add to return list
-                                    var tableEntry = new ShdrTableEntry(entry.Key, tableCells);
-                                    tableEntry.Removed = entry.Removed;
-                                    tableEntries.Add(tableEntry);
                                 }
-                            }
 
-                            table.Entries = tableEntries;
+                                table.Entries = tableEntries;
+                            }
+                            else
+                            {
+                                table.Unavailable();
+                            }
                         }
                     }
 
