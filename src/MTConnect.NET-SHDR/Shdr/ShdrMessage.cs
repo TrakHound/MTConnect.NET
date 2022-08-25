@@ -32,7 +32,7 @@ namespace MTConnect.Shdr
             Timestamp = 0;
         }
 
-        public ShdrMessage(string dataItemKey, object value)
+        public ShdrMessage(string dataItemKey, string value)
         {
             DataItemKey = dataItemKey;
             Values = new List<ObservationValue>
@@ -42,7 +42,7 @@ namespace MTConnect.Shdr
             Timestamp = 0;
         }
 
-        public ShdrMessage(string dataItemKey, object value, string nativeCode)
+        public ShdrMessage(string dataItemKey, string value, string nativeCode)
         {
             DataItemKey = dataItemKey;
             var values = new List<ObservationValue>();
@@ -52,7 +52,7 @@ namespace MTConnect.Shdr
             Timestamp = 0;
         }
 
-        public ShdrMessage(string dataItemKey, object value, long timestamp)
+        public ShdrMessage(string dataItemKey, string value, long timestamp)
         {
             DataItemKey = dataItemKey;
             Values = new List<ObservationValue>
@@ -62,7 +62,7 @@ namespace MTConnect.Shdr
             Timestamp = timestamp;
         }
 
-        public ShdrMessage(string dataItemKey, object value, string nativeCode, long timestamp)
+        public ShdrMessage(string dataItemKey, string value, string nativeCode, long timestamp)
         {
             DataItemKey = dataItemKey;
             var values = new List<ObservationValue>();
@@ -72,7 +72,7 @@ namespace MTConnect.Shdr
             Timestamp = timestamp;
         }
 
-        public ShdrMessage(string dataItemKey, object value, DateTime timestamp)
+        public ShdrMessage(string dataItemKey, string value, DateTime timestamp)
         {
             DataItemKey = dataItemKey;
             Values = new List<ObservationValue>
@@ -82,7 +82,7 @@ namespace MTConnect.Shdr
             Timestamp = timestamp.ToUnixTime();
         }
 
-        public ShdrMessage(string dataItemKey, object value, string nativeCode, DateTime timestamp)
+        public ShdrMessage(string dataItemKey, string value, string nativeCode, DateTime timestamp)
         {
             DataItemKey = dataItemKey;
             var values = new List<ObservationValue>();

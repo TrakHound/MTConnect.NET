@@ -14,7 +14,7 @@ namespace MTConnect.Shdr
     /// </summary>
     public class ShdrCondition
     {
-        private string _changeId;
+        private byte[] _changeId;
 
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace MTConnect.Shdr
         /// <summary>
         /// A MD5 Hash of the Condition that can be used for comparison
         /// </summary>
-        public string ChangeId
+        public byte[] ChangeId
         {
             get
             {
@@ -48,6 +48,11 @@ namespace MTConnect.Shdr
                 return _changeId;
             }
         }
+
+        /// <summary>
+        /// Gets or Sets whether the Observation is Unavailable
+        /// </summary>
+        public bool IsUnavailable { get; set; }
 
 
         private ShdrCondition() { }
@@ -72,6 +77,7 @@ namespace MTConnect.Shdr
         {
             ClearFaultStates();
             AddFaultState(new ShdrFaultState(ConditionLevel.UNAVAILABLE, timestamp: timestamp));
+            IsUnavailable = true;
         }
 
         /// <summary>
@@ -188,15 +194,15 @@ namespace MTConnect.Shdr
         }
 
 
-        private static string CreateChangeId(ShdrCondition condition)
+        private static byte[] CreateChangeId(ShdrCondition condition)
         {
             if (condition != null)
             {
                 if (!condition.FaultStates.IsNullOrEmpty())
                 {
-                    var valueString = "";
-                    foreach (var faultState in condition.FaultStates) valueString += faultState.ChangeId;
-                    return valueString.ToMD5Hash();
+                    var values = new List<byte[]>();
+                    foreach (var faultState in condition.FaultStates) values.Add(faultState.ChangeId);
+                    return StringFunctions.ToMD5HashBytes(values.ToArray());
                 }
             }
 
