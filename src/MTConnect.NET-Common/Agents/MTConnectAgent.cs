@@ -1486,13 +1486,15 @@ namespace MTConnect.Agents
         {
             if (dataItemResults != null && !dataItemResults.Observations.IsNullOrEmpty() && !dataItems.IsNullOrEmpty())
             {
+                var dDataItems = dataItems.ToDictionary(o => o.Id);
+
                 var objs = new List<IObservationOutput>();
                 var objIndex = 0;
                 var previousIndex = 0;
                 var found = false;
 
                 // Create a sorted list of BufferKeys
-                var bufferKeys = GenerateBufferKeys(deviceUuid, dataItems.Select(o => o.Id));
+                var bufferKeys = GenerateBufferKeys(deviceUuid, dDataItems.Keys);
                 bufferKeys = bufferKeys.OrderBy(o => o);
 
                 foreach (var bufferKey in bufferKeys)
@@ -1500,7 +1502,7 @@ namespace MTConnect.Agents
                     var dataItemId = GetDataItemIdFromBufferKey(bufferKey);
                     found = false;
 
-                    var dataItem = dataItems.FirstOrDefault(o => o.Id == dataItemId);
+                    dDataItems.TryGetValue(dataItemId, out var dataItem);
                     if (dataItem != null)
                     {
                         // Check Version Compatibility and Create Derived Class (if found)
