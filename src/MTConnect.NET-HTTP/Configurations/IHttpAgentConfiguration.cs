@@ -41,9 +41,9 @@ namespace MTConnect.Configurations
         IEnumerable<string> AllowPutFrom { get; }
 
         /// <summary>
-        /// The maximum number of Threads to use for the Http Requests
+        /// The maximum number of Threads to use for the Http Stream Requests
         /// </summary>
-        int MaxListenerThreads { get; }
+        int MaxStreamingThreads { get; }
 
 
         /// <summary>

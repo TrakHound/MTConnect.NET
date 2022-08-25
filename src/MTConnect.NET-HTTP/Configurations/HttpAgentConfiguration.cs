@@ -67,10 +67,10 @@ namespace MTConnect.Configurations
         public IEnumerable<string> AllowPutFrom { get; set; }
 
         /// <summary>
-        /// The maximum number of Threads to use for the Http Requests
+        /// The maximum number of Threads to use for the Http Stream Requests
         /// </summary>
-        [JsonPropertyName("maxListenerThreads")]
-        public int MaxListenerThreads { get; set; }
+        [JsonPropertyName("maxStreamingThreads")]
+        public int MaxStreamingThreads { get; set; }
 
 
         /// <summary>
@@ -106,7 +106,7 @@ namespace MTConnect.Configurations
             Port = 5000;
             AllowPut = false;
             AllowPutFrom = null;
-            MaxListenerThreads = 5;
+            MaxStreamingThreads = 5;
             IndentOutput = true;
             OutputComments = false;
             OutputValidationLevel = OutputValidationLevel.Ignore;

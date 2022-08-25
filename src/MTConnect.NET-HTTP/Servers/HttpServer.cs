@@ -68,7 +68,7 @@ namespace MTConnect.Servers.Http
         {
             if (configuration != null)
             {
-                _maxStreamThreads = Math.Max(configuration.MaxListenerThreads, 1);                
+                _maxStreamThreads = Math.Max(configuration.MaxStreamingThreads, 1);                
             }
 
             _prefixes = CreatePrefixes(configuration, prefixes, port);
