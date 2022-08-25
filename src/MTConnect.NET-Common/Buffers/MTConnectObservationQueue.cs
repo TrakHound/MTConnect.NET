@@ -83,10 +83,6 @@ namespace MTConnect.Buffers
                     }
                 }
             }
-            else
-            {
-
-            }
 
             return false;
         }   
