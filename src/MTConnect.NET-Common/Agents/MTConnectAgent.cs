@@ -3012,6 +3012,9 @@ namespace MTConnect.Agents
                     var validationResults = asset.IsValid(device.MTConnectVersion);
                     if (validationResults.IsValid || _configuration.InputValidationLevel < InputValidationLevel.Strict)
                     {
+                        // Set flag whether the Asset already exists in the Buffer
+                        var exists = _assetBuffer.AssetExists(asset.AssetId);
+
                         // Add Asset to AssetBuffer
                         if (_assetBuffer.AddAsset(asset))
                         {
@@ -3028,8 +3031,11 @@ namespace MTConnect.Agents
                             // Update Agent Metrics
                             _metrics.UpdateAsset(deviceUuid, asset.AssetId);
 
-                            // Update Asset Count
-                            IncrementAssetCount(deviceUuid, asset.Type);
+                            if (!exists)
+                            {                            
+                                // Update Asset Count
+                                IncrementAssetCount(deviceUuid, asset.Type);
+                            }
 
                             if (!validationResults.IsValid && _configuration.InputValidationLevel > InputValidationLevel.Ignore)
                             {
