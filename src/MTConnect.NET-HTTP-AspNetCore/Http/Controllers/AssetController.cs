@@ -7,11 +7,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using MTConnect.Agents;
+using MTConnect.Servers.Http;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using MTConnect.Configurations;
 
 namespace MTConnect.Http.Controllers
 {
@@ -20,11 +22,13 @@ namespace MTConnect.Http.Controllers
     public class AssetController : ControllerBase
     {
         private readonly IMTConnectAgent _agent;
+        private readonly IHttpAgentConfiguration _configuration;
         private readonly ILogger<AssetController> _logger;
 
-        public AssetController(IMTConnectAgent agent, ILogger<AssetController> logger)
+        public AssetController(IMTConnectAgent agent, IHttpAgentConfiguration configuration, ILogger<AssetController> logger)
         {
             _agent = agent;
+            _configuration = configuration;
             _logger = logger;
         }
 
@@ -63,12 +67,12 @@ namespace MTConnect.Http.Controllers
             var formatOptions = new List<KeyValuePair<string, string>>();
 
             if (indentOutput.HasValue) formatOptions.Add(new KeyValuePair<string, string>("indentOutput", indentOutput.Value.ToString()));
-            else formatOptions.Add(new KeyValuePair<string, string>("indentOutput", _agent.Configuration.IndentOutput.ToString()));
+            else formatOptions.Add(new KeyValuePair<string, string>("indentOutput", _configuration.IndentOutput.ToString()));
 
             if (outputComments.HasValue) formatOptions.Add(new KeyValuePair<string, string>("outputComments", outputComments.Value.ToString()));
-            else formatOptions.Add(new KeyValuePair<string, string>("outputComments", _agent.Configuration.OutputComments.ToString()));
+            else formatOptions.Add(new KeyValuePair<string, string>("outputComments", _configuration.OutputComments.ToString()));
 
-            var response = await MTConnectHttpRequests.GetAssetRequest(_agent, ids, version, documentFormat, formatOptions);
+            var response = MTConnectHttpRequests.GetAssetRequest(_agent, ids, version, documentFormat, formatOptions);
 
             _logger.LogInformation($"[Api-Interface] : {Request.Host} : [{Request.Method}] : {Request.Path} : Response ({response.StatusCode}) in {response.ResponseDuration}ms");
 
@@ -97,7 +101,7 @@ namespace MTConnect.Http.Controllers
                     asset.Type = type;
 
                     // Store the Asset in the Agent
-                    if (await _agent.AddAssetAsync(device, asset))
+                    if (_agent.AddAsset(device, asset))
                     {
                         _logger?.LogInformation($"Asset Added via HTTP POST : {device} : {assetId} : {type}");
 
@@ -120,12 +124,14 @@ namespace MTConnect.Http.Controllers
 
         private IActionResult CreateResult(MTConnectHttpResponse response)
         {
-            return new ContentResult
-            {
-                Content = response.Content,
-                ContentType = response.ContentType,
-                StatusCode = response.StatusCode
-            };
+            return new FileContentResult(response.Content, response.ContentType);
+
+            //return new ContentResult
+            //{
+            //    Content = response.Content,
+            //    ContentType = response.ContentType,
+            //    StatusCode = response.StatusCode
+            //};
         }
     }
 }

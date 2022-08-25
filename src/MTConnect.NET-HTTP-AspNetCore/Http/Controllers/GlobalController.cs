@@ -11,6 +11,8 @@ using MTConnect.Agents;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using MTConnect.Configurations;
+using MTConnect.Servers.Http;
 
 namespace MTConnect.Http.Controllers
 {
@@ -19,12 +21,14 @@ namespace MTConnect.Http.Controllers
     public class GlobalController : ControllerBase
     {
         private readonly IMTConnectAgent _agent;
+        private readonly IHttpAgentConfiguration _configuration;
         private readonly ILogger<DeviceController> _logger;
 
 
-        public GlobalController(IMTConnectAgent agent, ILogger<DeviceController> logger)
+        public GlobalController(IMTConnectAgent agent, IHttpAgentConfiguration configuration, ILogger<DeviceController> logger)
         {
             _agent = agent;
+            _configuration = configuration;
             _logger = logger;
         }
 
@@ -60,12 +64,12 @@ namespace MTConnect.Http.Controllers
             var formatOptions = new List<KeyValuePair<string, string>>();
 
             if (indentOutput.HasValue) formatOptions.Add(new KeyValuePair<string, string>("indentOutput", indentOutput.Value.ToString()));
-            else formatOptions.Add(new KeyValuePair<string, string>("indentOutput", _agent.Configuration.IndentOutput.ToString()));
+            else formatOptions.Add(new KeyValuePair<string, string>("indentOutput", _configuration.IndentOutput.ToString()));
 
             if (outputComments.HasValue) formatOptions.Add(new KeyValuePair<string, string>("outputComments", outputComments.Value.ToString()));
-            else formatOptions.Add(new KeyValuePair<string, string>("outputComments", _agent.Configuration.OutputComments.ToString()));
+            else formatOptions.Add(new KeyValuePair<string, string>("outputComments", _configuration.OutputComments.ToString()));
 
-            var response = await MTConnectHttpRequests.GetProbeRequest(_agent, deviceType, version, documentFormat, formatOptions);
+            var response = MTConnectHttpRequests.GetProbeRequest(_agent, deviceType, version, documentFormat, formatOptions);
 
             _logger.LogInformation($"[Api-Interface] : {Request.Host} : [{Request.Method}] : {Request.Path} : {Request.QueryString} : Response ({response.StatusCode}) in {response.ResponseDuration}ms");
 
@@ -107,10 +111,10 @@ namespace MTConnect.Http.Controllers
             var formatOptions = new List<KeyValuePair<string, string>>();
 
             if (indentOutput.HasValue) formatOptions.Add(new KeyValuePair<string, string>("indentOutput", indentOutput.Value.ToString()));
-            else formatOptions.Add(new KeyValuePair<string, string>("indentOutput", _agent.Configuration.IndentOutput.ToString()));
+            else formatOptions.Add(new KeyValuePair<string, string>("indentOutput", _configuration.IndentOutput.ToString()));
 
             if (outputComments.HasValue) formatOptions.Add(new KeyValuePair<string, string>("outputComments", outputComments.Value.ToString()));
-            else formatOptions.Add(new KeyValuePair<string, string>("outputComments", _agent.Configuration.OutputComments.ToString()));
+            else formatOptions.Add(new KeyValuePair<string, string>("outputComments", _configuration.OutputComments.ToString()));
 
             if (interval > 0)
             {
@@ -137,8 +141,10 @@ namespace MTConnect.Http.Controllers
                     {
                         try
                         {
+                            var message = System.Text.Encoding.UTF8.GetString(args.Message);
+
                             // Write the Multipart Chunk to the Response Stream
-                            await Response.WriteAsync(args.Message, HttpContext.RequestAborted);
+                            await Response.WriteAsync(message, HttpContext.RequestAborted);
 
                             _logger.LogInformation($"[Api-Interface] : {Request.Host} : Current Stream [{args.StreamId}] : {Request.Host} : {Request.Path} : {Request.QueryString} : Heartbeat Sent : {args.ResponseDuration}ms");
                         }
@@ -148,8 +154,10 @@ namespace MTConnect.Http.Controllers
                     {
                         try
                         {
+                            var message = System.Text.Encoding.UTF8.GetString(args.Message);
+
                             // Write the Multipart Chunk to the Response Stream
-                            await Response.WriteAsync(args.Message, HttpContext.RequestAborted);
+                            await Response.WriteAsync(message, HttpContext.RequestAborted);
 
                             _logger.LogInformation($"[Api-Interface] : {Request.Host} : Current Stream [{args.StreamId}] : {Request.Host} : {Request.Path} : {Request.QueryString} : MTConnectStreams Document Sent : {args.ResponseDuration}ms");
                         }
@@ -179,7 +187,7 @@ namespace MTConnect.Http.Controllers
             {
                 _logger.LogInformation($"[Api-Interface] : {Request.Host} : Current Requested a MTConnectStreams Document : [{Request.Method}] : {Request.Path} : {Request.QueryString}");
 
-                var response = await MTConnectHttpRequests.GetCurrentRequest(_agent, deviceType, path, at, interval, version, documentFormat, formatOptions);
+                var response = MTConnectHttpRequests.GetCurrentRequest(_agent, deviceType, path, at, interval, version, documentFormat, formatOptions);
 
                 _logger.LogInformation($"[Api-Interface] : {Request.Host} : [{Request.Method}] : {Request.Path} : {Request.QueryString} : Current Response ({response.StatusCode}) in {response.ResponseDuration}ms");
 
@@ -226,20 +234,22 @@ namespace MTConnect.Http.Controllers
             var formatOptions = new List<KeyValuePair<string, string>>();
 
             if (indentOutput.HasValue) formatOptions.Add(new KeyValuePair<string, string>("indentOutput", indentOutput.Value.ToString()));
-            else formatOptions.Add(new KeyValuePair<string, string>("indentOutput", _agent.Configuration.IndentOutput.ToString()));
+            else formatOptions.Add(new KeyValuePair<string, string>("indentOutput", _configuration.IndentOutput.ToString()));
 
             if (outputComments.HasValue) formatOptions.Add(new KeyValuePair<string, string>("outputComments", outputComments.Value.ToString()));
-            else formatOptions.Add(new KeyValuePair<string, string>("outputComments", _agent.Configuration.OutputComments.ToString()));
+            else formatOptions.Add(new KeyValuePair<string, string>("outputComments", _configuration.OutputComments.ToString()));
 
             if (interval > 0)
             {
                 try
                 {
-
                     _logger.LogInformation($"[Api-Interface] : {Request.Host} : Samples Stream Requested at {interval}ms Interval (Heartbeat = {heartbeat}ms) : [{Request.Method}] : {Request.Path} : {Request.QueryString}");
 
+                    // Get list of DataItem ID's based on Path (XPath) parameter
+                    var dataItemIds = PathProcessor.GetDataItemIds(_agent, path, documentFormat);
+
                     // Create Sample Stream
-                    var stream = new MTConnectHttpSampleStream(_agent, null, path, from, count, interval, heartbeat, documentFormat, formatOptions);
+                    var stream = new MTConnectHttpSampleStream(_agent, null, dataItemIds, from, count, interval, heartbeat, documentFormat, null, formatOptions);
                     stream.StreamStarted += (s, id) =>
                     {
                         _logger.LogInformation($"[Api-Interface] : {Request.Host} : Samples Stream [{id}] Started at {interval}ms Interval (Heartbeat = {heartbeat}ms) : [{Request.Method}] : {Request.Path} : {Request.QueryString}");
@@ -256,8 +266,10 @@ namespace MTConnect.Http.Controllers
                     {
                         try
                         {
+                            var message = System.Text.Encoding.UTF8.GetString(args.Message);
+
                             // Write the Multipart Chunk to the Response Stream
-                            await Response.WriteAsync(args.Message, HttpContext.RequestAborted);
+                            await Response.WriteAsync(message, HttpContext.RequestAborted);
 
                             _logger.LogInformation($"[Api-Interface] : {Request.Host} : Sample Stream [{args.StreamId}] : {Request.Host} : {Request.Path} : {Request.QueryString} : Heartbeat Sent : {args.ResponseDuration}ms");
                         }
@@ -267,8 +279,10 @@ namespace MTConnect.Http.Controllers
                     {
                         try
                         {
+                            var message = System.Text.Encoding.UTF8.GetString(args.Message);
+
                             // Write the Multipart Chunk to the Response Stream
-                            await Response.WriteAsync(args.Message, HttpContext.RequestAborted);
+                            await Response.WriteAsync(message, HttpContext.RequestAborted);
 
                             _logger.LogInformation($"[Api-Interface] : {Request.Host} : Sample Stream [{args.StreamId}] : {Request.Host} : {Request.Path} : {Request.QueryString} : MTConnectStreams Document Sent : {args.ResponseDuration}ms");
                         }
@@ -298,7 +312,7 @@ namespace MTConnect.Http.Controllers
             {
                 _logger.LogInformation($"[Api-Interface] : {Request.Host} : Samples Requested a MTConnectStreams Document : [{Request.Method}] : {Request.Path} : {Request.QueryString}");
 
-                var response = await MTConnectHttpRequests.GetSampleRequest(_agent, deviceType, path, from, to, count, version, documentFormat, formatOptions);
+                var response = MTConnectHttpRequests.GetSampleRequest(_agent, deviceType, path, from, to, count, version, documentFormat, formatOptions);
 
                 _logger.LogInformation($"[Api-Interface] : {Request.Host} : [{Request.Method}] : {Request.Path} : {Request.QueryString} : Samples Response ({response.StatusCode}) in {response.ResponseDuration}ms");
 
@@ -467,12 +481,14 @@ namespace MTConnect.Http.Controllers
 
         private IActionResult CreateResult(MTConnectHttpResponse response)
         {
-            return new ContentResult
-            {
-                Content = response.Content,
-                ContentType = response.ContentType,
-                StatusCode = response.StatusCode
-            };
+            return new FileContentResult(response.Content, response.ContentType);
+
+            //return new ContentResult
+            //{
+            //    Content = response.Content,
+            //    ContentType = response.ContentType,
+            //    StatusCode = response.StatusCode
+            //};
         }
     }
 }

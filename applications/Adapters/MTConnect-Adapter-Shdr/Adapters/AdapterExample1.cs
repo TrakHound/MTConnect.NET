@@ -43,7 +43,7 @@ namespace MTConnect.Applications.Adapters.Shdr.Adapters
             _adapter.AgentDisconnected += (sender, connectionId) => Console.WriteLine($"Agent Connection (ID = {connectionId}) : Agent Disconnected");
             _adapter.PingReceived += (sender, connectionId) => Console.WriteLine($"Agent Connection (ID = {connectionId}) : Agent Ping Received");
             _adapter.PongSent += (sender, connectionId) => Console.WriteLine($"Agent Connection (ID = {connectionId}) : Pong Sent to Agent");
-            //_adapter.LineSent += (sender, args) => Console.WriteLine($"Agent Connection (ID = {args.ClientId}) : Line Sent : {args.Message}");
+            _adapter.LineSent += (sender, args) => Console.WriteLine($"Agent Connection (ID = {args.ClientId}) : Line Sent : {args.Message}");
         }
 
         //private void Demo()
@@ -150,6 +150,24 @@ namespace MTConnect.Applications.Adapters.Shdr.Adapters
             //_adapter.AddDevice(device);
         }
 
+
+        public void AddFileAsset(int i)
+        {
+            var asset = new Assets.Files.FileAsset();
+            asset.DateTime = DateTime.UtcNow;
+            asset.AssetId = "file.patrick" + i;
+            asset.Size = 12346;
+            asset.VersionId = "test-v1";
+            asset.State = Assets.Files.FileState.PRODUCTION;
+            asset.Name = "file-123.txt";
+            asset.MediaType = "text/plain";
+            asset.ApplicationCategory = Assets.Files.ApplicationCategory.DEVICE;
+            asset.ApplicationType = Assets.Files.ApplicationType.DATA;
+            asset.FileLocation = new Assets.Files.FileLocation(@"C:\temp\file-123.txt");
+            asset.CreationTime = DateTime.Now;
+
+            _adapter.AddAsset(asset);
+        }
 
         public void RemoveAsset()
         {

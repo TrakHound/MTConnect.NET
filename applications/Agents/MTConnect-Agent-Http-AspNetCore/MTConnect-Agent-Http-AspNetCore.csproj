@@ -54,7 +54,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\MTConnect.NET-HTTP-AspNetCore\MTConnect.NET-HTTP-AspNetCore.csproj" />
-    <ProjectReference Include="..\..\..\src\MTConnect.NET-JSON\MTConnect.NET-JSON.csproj" />
     <ProjectReference Include="..\..\..\src\MTConnect.NET-SHDR\MTConnect.NET-SHDR.csproj" />
   </ItemGroup>
 
@@ -63,6 +62,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="devices-okuma.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="devices\device-mazak.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="devices\device-okuma.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

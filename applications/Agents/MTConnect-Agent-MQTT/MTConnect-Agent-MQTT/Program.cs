@@ -10,13 +10,14 @@ using MTConnect.Agents;
 using MTConnect.Configurations;
 using MTConnect.Assets;
 using MTConnect.Devices;
+using MTConnect.Devices.Components;
 using MTConnect.Devices.DataItems;
 using MTConnect.Observations;
 using MTConnect.Streams;
 using NLog;
 using System.Net;
 using System.Reflection;
-using MTConnect.Http;
+using MTConnect.Servers.Http;
 
 namespace MTConnect.Applications
 {
@@ -155,7 +156,7 @@ namespace MTConnect.Applications
                 StartMetrics();
 
                 // Intialize the Http Server
-                var httpServer = new ShdrMTConnectHttpServer(configuration, _agent, null);
+                var httpServer = new MTConnectHttpServer(configuration, _agent, null);
 
                 // Setup Http Server Logging
                 if (verboseLogging)
@@ -245,13 +246,18 @@ namespace MTConnect.Applications
             _agentLogger.Info($"[Agent] : MTConnectDevices Requested : " + deviceName);
         }
 
-        private static void StreamsSent(IStreamsResponseDocument document)
+        private static void StreamsSent(object sender, EventArgs args)
         {
-            if (document != null && document.Header != null)
-            {
-                _agentLogger.Info($"[Agent] : MTConnectDevices Sent : " + document.Header.CreationTime);
-            }
+            _agentLogger.Info($"[Agent] : MTConnectDevices Sent");
         }
+
+        //private static void StreamsSent(IStreamsResponseDocument document)
+        //{
+        //    if (document != null && document.Header != null)
+        //    {
+        //        _agentLogger.Info($"[Agent] : MTConnectDevices Sent : " + document.Header.CreationTime);
+        //    }
+        //}
 
         private static void AssetsRequested(IEnumerable<string> assetIds)
         {

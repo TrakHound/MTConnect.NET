@@ -87,10 +87,9 @@ namespace IntegrationTests
                 devicesFile,
                 _logger);
 
-            _adapter = new ShdrAdapter(_machineName, _fixture.CurrentAdapterPort, 2000)
+            _adapter = new ShdrIntervalAdapter(_machineName, _fixture.CurrentAdapterPort, 2000)
             {
-                Interval = 100
-                
+                Interval = 100           
             };
             _adapter.Start();
 
@@ -170,7 +169,7 @@ namespace IntegrationTests
             tool.CuttingToolLifeCycle.CutterStatus.Add(MTConnect.Assets.CuttingTools.CutterStatus.MEASURED);
             tool.Timestamp = UnixDateTime.Now;
 
-            _adapter.AddAsset(tool);
+            _adapter.SendAsset(tool);
         }
 
         private Task<MTConnectClient?> Connect(

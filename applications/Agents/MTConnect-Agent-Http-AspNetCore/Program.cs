@@ -93,6 +93,7 @@ namespace MTConnect.Applications
 
                 // Individual Logger Classes
                 builder.Services.AddSingleton<HttpShdrAgentConfiguration>(_configuration);
+                builder.Services.AddSingleton<IHttpAgentConfiguration>(_configuration);
                 builder.Services.AddSingleton<AgentLogger>();
                 builder.Services.AddSingleton<AgentMetricLogger>();
                 builder.Services.AddSingleton<AgentValidationLogger>();
@@ -102,30 +103,30 @@ namespace MTConnect.Applications
                 // Add the AgentService that handles the MTConnect Agent
                 builder.Services.AddHostedService<AgentService>();
 
-                if (_configuration.ResponseCompression != Http.HttpResponseCompression.None)
-                {
-                    // Add Compression Services
-                    builder.Services.AddResponseCompression(options =>
-                    {
-                        options.EnableForHttps = true;
+                //if (!_configuration.ResponseCompression.IsNullOrEmpty())
+                //{
+                //    // Add Compression Services
+                //    builder.Services.AddResponseCompression(options =>
+                //    {
+                //        options.EnableForHttps = true;
 
-                        switch (_configuration.ResponseCompression)
-                        {
-                            case Http.HttpResponseCompression.Gzip: options.Providers.Add<GzipCompressionProvider>(); break;
-                            case Http.HttpResponseCompression.Br: options.Providers.Add<BrotliCompressionProvider>(); break;
-                        }
-                    });
+                //        switch (_configuration.ResponseCompression)
+                //        {
+                //            case Http.HttpResponseCompression.Gzip: options.Providers.Add<GzipCompressionProvider>(); break;
+                //            case Http.HttpResponseCompression.Br: options.Providers.Add<BrotliCompressionProvider>(); break;
+                //        }
+                //    });
 
-                    switch (_configuration.ResponseCompression)
-                    {
-                        case Http.HttpResponseCompression.Gzip:
-                            builder.Services.Configure<GzipCompressionProviderOptions>(options => { options.Level = CompressionLevel.Optimal; });
-                            break;
-                        case Http.HttpResponseCompression.Br: 
-                            builder.Services.Configure<BrotliCompressionProviderOptions>(options => { options.Level = CompressionLevel.Optimal; }); 
-                            break;
-                    }             
-                }             
+                //    switch (_configuration.ResponseCompression)
+                //    {
+                //        case Http.HttpResponseCompression.Gzip:
+                //            builder.Services.Configure<GzipCompressionProviderOptions>(options => { options.Level = CompressionLevel.Optimal; });
+                //            break;
+                //        case Http.HttpResponseCompression.Br: 
+                //            builder.Services.Configure<BrotliCompressionProviderOptions>(options => { options.Level = CompressionLevel.Optimal; }); 
+                //            break;
+                //    }             
+                //}             
 
                 builder.WebHost.UseKestrel(o =>
                     {
@@ -151,13 +152,13 @@ namespace MTConnect.Applications
             app.UseStaticFiles();
             app.UseRouting();
 
-            if (_configuration != null)
-            {
-                if (_configuration.ResponseCompression != Http.HttpResponseCompression.None)
-                {
-                    app.UseResponseCompression();
-                }
-            }
+            //if (_configuration != null)
+            //{
+            //    if (_configuration.ResponseCompression != Http.HttpResponseCompression.None)
+            //    {
+            //        app.UseResponseCompression();
+            //    }
+            //}
 
             app.UseEndpoints(endpoints =>
             {

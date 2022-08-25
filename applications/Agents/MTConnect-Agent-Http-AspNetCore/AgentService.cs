@@ -10,6 +10,7 @@ using MTConnect.Agents;
 using MTConnect.Applications.Loggers;
 using MTConnect.Configurations;
 using MTConnect.Devices;
+using MTConnect.Devices.Components;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -77,7 +78,7 @@ namespace MTConnect.Applications
                         // Add Device(s) to Agent
                         foreach (var device in devices)
                         {
-                            await _mtconnectAgent.AddDeviceAsync(device);
+                            _mtconnectAgent.AddDevice(device);
                         }
 
                         foreach (var adapterConfiguration in _configuration.Adapters)

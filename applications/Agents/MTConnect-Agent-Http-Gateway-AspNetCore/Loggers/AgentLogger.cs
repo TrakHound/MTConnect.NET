@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using MTConnect.Assets;
 using MTConnect.Devices;
 using MTConnect.Streams;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -45,9 +46,9 @@ namespace MTConnect.Applications.Loggers
             _logger.LogInformation($"[Agent] : MTConnectStreams Requested : {deviceName}");
         }
 
-        public void StreamsResponseSent(IStreamsResponseDocument document)
+        public void StreamsResponseSent(object sender, EventArgs args)
         {
-            _logger.LogInformation($"[Agent] : MTConnectStreams Response Document Returned : {document.Header.CreationTime}");
+            _logger.LogInformation($"[Agent] : MTConnectStreams Response Document Returned");
         }
 
 

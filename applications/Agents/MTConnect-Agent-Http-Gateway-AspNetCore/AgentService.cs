@@ -11,6 +11,7 @@ using MTConnect.Assets;
 using MTConnect.Clients.Rest;
 using MTConnect.Configurations;
 using MTConnect.Devices;
+using MTConnect.Devices.Components;
 using MTConnect.Devices.DataItems.Events;
 using MTConnect.Errors;
 using MTConnect.Observations.Input;

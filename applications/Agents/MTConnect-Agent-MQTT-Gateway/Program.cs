@@ -305,13 +305,18 @@ namespace MTConnect.Applications
             _agentLogger.Info($"[Agent] : MTConnectDevices Requested : " + deviceName);
         }
 
-        private static void StreamsSent(IStreamsResponseDocument document)
+        private static void StreamsSent(object sender, EventArgs args)
         {
-            if (document != null && document.Header != null)
-            {
-                _agentLogger.Info($"[Agent] : MTConnectDevices Sent : " + document.Header.CreationTime);
-            }
+            _agentLogger.Info($"[Agent] : MTConnectDevices Sent");
         }
+
+        //private static void StreamsSent(IStreamsResponseDocument document)
+        //{
+        //    if (document != null && document.Header != null)
+        //    {
+        //        _agentLogger.Info($"[Agent] : MTConnectDevices Sent : " + document.Header.CreationTime);
+        //    }
+        //}
 
         public static void AssetsRequested(IEnumerable<string> assetIds)
         {

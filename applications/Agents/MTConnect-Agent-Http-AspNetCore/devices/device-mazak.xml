@@ -55,9 +55,9 @@
 						</DataItem>
 						<DataItem category="CONDITION" id="Xtravel" type="POSITION"/>
 						<DataItem category="SAMPLE" id="Xload" nativeUnits="PERCENT" type="LOAD" units="PERCENT">
-							<!--<Filters>
+							<Filters>
 								<Filter type="MINIMUM_DELTA">3</Filter>
-							</Filters>-->
+							</Filters>
 							<Relationships>
 								<DataItemRelationship name="archie" type="LIMIT" idRef="xlcpl"/>
 								<SpecificationRelationship type="LIMIT" idRef="spec1"/>
@@ -90,9 +90,9 @@
 						<DataItem category="SAMPLE" id="Ypos" nativeUnits="MILLIMETER" subType="ACTUAL" type="POSITION" units="MILLIMETER"/>
 						<DataItem category="CONDITION" id="Ytravel" type="POSITION"/>
 						<DataItem category="SAMPLE" id="Yload" nativeUnits="PERCENT" type="LOAD" units="PERCENT">
-							<!--<Filters>
+							<Filters>
 								<Filter type="MINIMUM_DELTA">3</Filter>
-							</Filters>-->
+							</Filters>
 						</DataItem>
 						<DataItem category="SAMPLE" id="Yfrt" nativeUnits="MILLIMETER/SECOND" type="AXIS_FEEDRATE" units="MILLIMETER/SECOND"/>
 						<DataItem category="SAMPLE" compositionId="Ymotor" id="servotemp2" nativeUnits="CELSIUS" type="TEMPERATURE" units="CELSIUS">

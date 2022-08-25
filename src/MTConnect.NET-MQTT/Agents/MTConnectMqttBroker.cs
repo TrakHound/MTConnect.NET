@@ -16,7 +16,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
-using MTConnect.Devices.Json;
+//using MTConnect.Devices.Json;
 
 namespace MTConnect.Agents
 {
