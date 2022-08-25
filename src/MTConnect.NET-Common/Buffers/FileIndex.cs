@@ -73,7 +73,7 @@ namespace MTConnect.Buffers
             {
                 foreach (var fileIndex in fileIndexes)
                 {
-                    indexes.TryAdd(fileIndex.Id, fileIndex.Index);
+                    indexes.Add(fileIndex.Id, fileIndex.Index);
                 }
             }
 
