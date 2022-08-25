@@ -93,6 +93,13 @@ namespace MTConnect.Configurations
         public OutputValidationLevel OutputValidationLevel { get; set; }
 
 
+        /// <summary>
+        /// Gets or Sets the configuration for Static Files that can be served from the Http Server
+        /// </summary>
+        [JsonPropertyName("files")]
+        public IEnumerable<FileConfiguration> Files { get; set; }
+
+
         public HttpAgentConfiguration()
         {
             ServerIp = "127.0.0.1";

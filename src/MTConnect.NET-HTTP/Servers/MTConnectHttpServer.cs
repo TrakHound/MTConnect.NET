@@ -859,42 +859,82 @@ namespace MTConnect.Servers.Http
                     var statusCode = 404;
                     var contentType = "text/plain";
                     byte[] fileContents = null;
-                    var relativePath = httpRequest.Url.LocalPath.Trim('/');
+                    var requestedPath = httpRequest.Url.LocalPath.Trim('/');
+                    var localPath = requestedPath;
 
-                    // Read MTConnectVersion from Query string
-                    var versionString = httpRequest.QueryString["version"];
-                    Version.TryParse(versionString, out var version);
-                    if (version == null) version = _mtconnectAgent.Configuration.DefaultVersion;
+                    // Get File extension to prevent certain files (.exe, .dll, etc) from being accessed
+                    // that could cause security concerns
+                    var pathExtension = Path.GetExtension(requestedPath);
+                    var valid = pathExtension != ".exe" && pathExtension != ".dll";
 
-                    var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, relativePath);
-                    if (File.Exists(filePath))
+                    if (valid)
                     {
-                        // Check Overridden method
-                        fileContents = OnProcessStatic(httpRequest, filePath, relativePath, version);
-                        
-                        // If nothing found in the overridden method, then read directly from filePath
-                        if (fileContents == null)
-                        {
-                            fileContents = File.ReadAllBytes(filePath);
-                        }
+                        valid = false;
 
-                        statusCode = fileContents != null ? 200 : 500;
-                        contentType = MimeTypes.GetMimeType(Path.GetExtension(filePath));
+                        // Check to see if the path matches one that is configured
+                        if (!_configuration.Files.IsNullOrEmpty())
+                        {
+                            var resource = Path.GetFileName(requestedPath);
+                            var relativePath = Path.GetDirectoryName(Path.GetRelativePath(AppDomain.CurrentDomain.BaseDirectory, requestedPath));
+                            relativePath = relativePath.Replace('\\', '/');
+
+                            if (!string.IsNullOrEmpty(relativePath))
+                            {
+                                // Find a FileConfiguration that matches the Path
+                                var fileConfiguration = _configuration.Files.FirstOrDefault(o => o.Path == relativePath);
+                                if (fileConfiguration != null)
+                                {
+                                    // Rewrite the localPath to the one that is configured that matches the 'Path' property
+                                    localPath = Path.Combine(fileConfiguration.Location, resource);
+                                    localPath = localPath.Replace('\\', '/');
+                                    valid = true;
+                                }
+                            }
+                        }
                     }
 
-                    // Set HTTP Response Status Code
-                    httpResponse.StatusCode = statusCode;
-                    httpResponse.ContentType = contentType;
-
-                    // Write File Contents to Response Stream
-                    if (fileContents != null)
+                    if (valid)
                     {
-                        await WriteToStream(fileContents, httpResponse);
+                        // Read MTConnectVersion from Query string
+                        var versionString = httpRequest.QueryString["version"];
+                        Version.TryParse(versionString, out var version);
+                        if (version == null) version = _mtconnectAgent.Configuration.DefaultVersion;
+
+                        var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, localPath);
+                        if (File.Exists(filePath))
+                        {
+                            // Check Overridden method
+                            fileContents = OnProcessStatic(httpRequest, filePath, localPath, version);
+
+                            // If nothing found in the overridden method, then read directly from filePath
+                            if (fileContents == null)
+                            {
+                                fileContents = File.ReadAllBytes(filePath);
+                            }
+
+                            statusCode = fileContents != null ? 200 : 500;
+                            contentType = MimeTypes.GetMimeType(Path.GetExtension(filePath));
+                        }
+
+                        // Set HTTP Response Status Code
+                        httpResponse.StatusCode = statusCode;
+                        httpResponse.ContentType = contentType;
+
+                        // Write File Contents to Response Stream
+                        if (fileContents != null)
+                        {
+                            await WriteToStream(fileContents, httpResponse);
+                        }
+                    }
+                    else
+                    {
+                        httpResponse.StatusCode = 404; // Not Found
                     }
                 }
                 catch { }
             }
         }
+
 
         protected virtual byte[] OnProcessStatic(HttpListenerRequest httpRequest, string absolutePath, string relativePath, Version version = null) { return null; }
 

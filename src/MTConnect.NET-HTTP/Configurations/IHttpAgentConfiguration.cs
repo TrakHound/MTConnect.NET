@@ -60,5 +60,11 @@ namespace MTConnect.Configurations
         /// Gets or Sets the default response document validation level. 0 = Ignore, 1 = Warning, 2 = Strict
         /// </summary>
         OutputValidationLevel OutputValidationLevel { get; }
+
+
+        /// <summary>
+        /// Gets or Sets the configuration for Static Files that can be served from the Http Server
+        /// </summary>
+        IEnumerable<FileConfiguration> Files { get; }
     }
 }
