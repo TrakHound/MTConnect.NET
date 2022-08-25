@@ -39,11 +39,11 @@ namespace MTConnect.Applications.Agents
 
         protected override byte[] OnProcessStatic(HttpListenerRequest httpRequest, string absolutePath, string relativePath, Version version = null)
         {
-            if (_configuration.DevicesStyle != null && relativePath == _configuration.DevicesStyle.Location)
+            if (_configuration.DevicesStyle != null && (relativePath == _configuration.DevicesStyle.Location || relativePath.Replace('\\', '/') == _configuration.StreamsStyle.Location))
             {
                 return ReadDevicesStylesheet(absolutePath, version);
             }
-            else if (_configuration.StreamsStyle != null && relativePath == _configuration.StreamsStyle.Location)
+            else if (_configuration.StreamsStyle != null && (relativePath == _configuration.StreamsStyle.Location || relativePath.Replace('\\', '/') == _configuration.StreamsStyle.Location))
             {
                 return ReadStreamsStylesheet(absolutePath, version);
             }

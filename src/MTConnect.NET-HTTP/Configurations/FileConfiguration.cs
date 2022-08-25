@@ -13,13 +13,13 @@ namespace MTConnect.Configurations
     public class FileConfiguration : IFileConfiguration
     {
         /// <summary>
-        /// The path to match in the requested URL
+        /// The location of the files on the server (where the Agent is running)
         /// </summary>
         [JsonPropertyName("path")]
         public string Path { get; set; }
 
         /// <summary>
-        /// The location of the files on the server (where the Agent is running)
+        /// The path to match in the requested URL
         /// </summary>
         [JsonPropertyName("location")]
         public string Location { get; set; }

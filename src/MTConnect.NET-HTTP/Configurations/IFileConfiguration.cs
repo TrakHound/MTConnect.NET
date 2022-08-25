@@ -11,12 +11,12 @@ namespace MTConnect.Configurations
     public interface IFileConfiguration
     {
         /// <summary>
-        /// The path to match in the requested URL
+        /// The location of the files on the server (where the Agent is running)
         /// </summary>
         string Path { get; set; }
 
         /// <summary>
-        /// The location of the files on the server (where the Agent is running)
+        /// The path to match in the requested URL
         /// </summary>
         string Location { get; set; }
     }

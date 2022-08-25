@@ -875,19 +875,33 @@ namespace MTConnect.Servers.Http
                         if (!_configuration.Files.IsNullOrEmpty())
                         {
                             var resource = Path.GetFileName(requestedPath);
-                            var relativePath = Path.GetDirectoryName(Path.GetRelativePath(AppDomain.CurrentDomain.BaseDirectory, requestedPath));
-                            relativePath = relativePath.Replace('\\', '/');
+                            contentType = MimeTypes.GetMimeType(resource);
+                           
+                            var relativePath = Path.GetDirectoryName(requestedPath);
+                            if (!string.IsNullOrEmpty(relativePath)) relativePath = relativePath.Replace('\\', '/');
+                            else relativePath = resource;
 
                             if (!string.IsNullOrEmpty(relativePath))
                             {
-                                // Find a FileConfiguration that matches the Path
-                                var fileConfiguration = _configuration.Files.FirstOrDefault(o => o.Path == relativePath);
+                                // Find a FileConfiguration whose Location matches the requested Resource
+                                var fileConfiguration = _configuration.Files.FirstOrDefault(o => o.Location == resource);
                                 if (fileConfiguration != null)
                                 {
-                                    // Rewrite the localPath to the one that is configured that matches the 'Path' property
-                                    localPath = Path.Combine(fileConfiguration.Location, resource);
-                                    localPath = localPath.Replace('\\', '/');
+                                    // Rewrite the localPath to the one that is configured that matches the 'Location' property
+                                    localPath = fileConfiguration.Path;
                                     valid = true;
+                                }
+                                else
+                                {
+                                    // Find a FileConfiguration whose Location matches the requested Resource
+                                    fileConfiguration = _configuration.Files.FirstOrDefault(o => o.Location == relativePath);
+                                    if (fileConfiguration != null)
+                                    {
+                                        // Rewrite the localPath to the one that is configured that matches the 'Location' property
+                                        localPath = Path.Combine(fileConfiguration.Path, resource);
+                                        localPath = localPath.Replace('/', '\\');
+                                        valid = true;
+                                    }
                                 }
                             }
                         }
@@ -901,6 +915,7 @@ namespace MTConnect.Servers.Http
                         if (version == null) version = _mtconnectAgent.Configuration.DefaultVersion;
 
                         var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, localPath);
+
                         if (File.Exists(filePath))
                         {
                             // Check Overridden method
@@ -925,10 +940,6 @@ namespace MTConnect.Servers.Http
                         {
                             await WriteToStream(fileContents, httpResponse);
                         }
-                    }
-                    else
-                    {
-                        httpResponse.StatusCode = 404; // Not Found
                     }
                 }
                 catch { }
