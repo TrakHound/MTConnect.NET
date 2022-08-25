@@ -13,8 +13,8 @@ namespace MTConnect.Configurations
     /// </summary>
     public interface IAgentConfigurationFileWatcher : IDisposable
     {
-        public EventHandler<AgentConfiguration> ConfigurationUpdated { get; set; }
+        EventHandler<AgentConfiguration> ConfigurationUpdated { get; set; }
 
-        public EventHandler<string> ErrorReceived { get; set; }
+        EventHandler<string> ErrorReceived { get; set; }
     }
 }
