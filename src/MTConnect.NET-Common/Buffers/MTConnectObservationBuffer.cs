@@ -578,7 +578,11 @@ namespace MTConnect.Buffers
                 var isUnavailable = observation.GetValue(ValueKeys.Result) == Observation.Unavailable;
 
                 BufferObservation existingObservation;
-                lock (_lock) _currentObservations.Remove(observation._key, out existingObservation);
+                lock (_lock)
+                {
+                    _currentObservations.TryGetValue(observation._key, out existingObservation);
+                    _currentObservations.Remove(observation._key);
+                }
 
                 if (existingObservation.IsValid && !isUnavailable)
                 {
@@ -611,7 +615,7 @@ namespace MTConnect.Buffers
                     }
                 }
 
-                lock (_lock) _currentObservations.TryAdd(observation._key, observation);
+                lock (_lock) _currentObservations.Add(observation._key, observation);
 
                 // Call Overridable Methods
                 OnCurrentChange(GetCurrentObservations());
@@ -632,7 +636,11 @@ namespace MTConnect.Buffers
                 var bufferObservations = new List<BufferObservation>();
 
                 IEnumerable<BufferObservation> existingObservations;
-                lock (_lock) _currentConditions.Remove(observation._key, out existingObservations);
+                lock (_lock)
+                {
+                    _currentConditions.TryGetValue(observation._key, out existingObservations);
+                    _currentConditions.Remove(observation._key);
+                }          
 
                 if (!existingObservations.IsNullOrEmpty())
                 {
@@ -662,7 +670,7 @@ namespace MTConnect.Buffers
                 IEnumerable<BufferObservation> iBufferObservations = bufferObservations;
 
                 // Add to stored List
-                lock (_lock) _currentConditions.TryAdd(observation._key, iBufferObservations);
+                lock (_lock) _currentConditions.Add(observation._key, iBufferObservations);
 
                 // Call Overridable Method
                 OnCurrentConditionChange(GetCurrentConditions());
