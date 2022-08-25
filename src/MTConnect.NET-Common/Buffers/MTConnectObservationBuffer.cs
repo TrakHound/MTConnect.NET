@@ -595,6 +595,7 @@ namespace MTConnect.Buffers
                                 {
                                     observation.Values = CombineDataSetValues(observation.Values, ref existingDataSetValues);
                                 }
+
                                 break;
 
                             case DataItemRepresentation.TABLE:
@@ -677,11 +678,23 @@ namespace MTConnect.Buffers
                 var returnValues = new List<ObservationValue>();
                 returnValues.AddRange(existingValues);
 
+                // Add Existing Values (if not in new values)
                 foreach (var value in values)
                 {
                     returnValues.RemoveAll(o => o._key == value._key);
                     returnValues.Add(value);
                 }
+
+                // Set Count
+                var count = 0;
+                foreach (var value in returnValues)
+                {
+                    if (ValueKeys.IsDataSetKey(value._key)) count++;
+                }
+
+                // Add Count Value
+                returnValues.RemoveAll(o => o._key == ValueKeys.Count);
+                returnValues.Add(new ObservationValue(ValueKeys.Count, count));
 
                 // Sort by Key Asc (needed for processing later on, and maybe better performance when searching)
                 return returnValues.OrderBy(o => o._key).ToArray();
@@ -697,6 +710,7 @@ namespace MTConnect.Buffers
                 var returnValues = new List<ObservationValue>();
                 returnValues.AddRange(existingValues);
 
+                // Remove duplicate Values
                 var tableValues = values.Where(o => o._key.StartsWith(ValueKeys.TablePrefix));
                 if (!tableValues.IsNullOrEmpty())
                 {
@@ -707,11 +721,28 @@ namespace MTConnect.Buffers
                     }
                 }
 
+                // Add new Values
                 foreach (var value in values)
                 {
                     returnValues.RemoveAll(o => o._key == value._key);
                     returnValues.Add(value);
                 }
+
+                // Set Count
+                var count = 0;
+                tableValues = returnValues.Where(o => o._key.StartsWith(ValueKeys.TablePrefix));
+                if (!tableValues.IsNullOrEmpty())
+                {
+                    var entryKeys = tableValues.Select(o => ValueKeys.GetTableKey(o._key)).Distinct();
+                    foreach (var entryKey in entryKeys)
+                    {
+                        count++;
+                    }
+                }
+
+                // Add Count Value
+                returnValues.RemoveAll(o => o._key == ValueKeys.Count);
+                returnValues.Add(new ObservationValue(ValueKeys.Count, count));
 
                 // Sort by Key Asc (needed for processing later on, and maybe better performance when searching)
                 return returnValues.OrderBy(o => o._key).ToArray();
