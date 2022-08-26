@@ -10,6 +10,7 @@ using MTConnect.Devices;
 using MTConnect.Devices.DataItems;
 using MTConnect.Devices.Xml;
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -338,7 +339,7 @@ namespace MTConnect.Shdr
             
             if (response.Contains("\n"))
             {
-                var lines = response.Split("\n");
+                var lines = response.Split('\n');
                 if (lines != null && lines.Length > 0)
                 {
                     var j = 0;
@@ -644,7 +645,7 @@ namespace MTConnect.Shdr
                 {
                     x = ShdrLine.GetNextValue(y);
 
-                    if (x.Contains(':'))
+                    if (x.Contains(":"))
                     {
                         var i = x.IndexOf(':');
                         x = x.Substring(i + 1);

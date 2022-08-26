@@ -409,60 +409,6 @@ namespace MTConnect.Adapters.Shdr
         }
 
 
-        // Split Lines by \r\n
-        // Can't use string.Split(string, StringSplitOptions.TrimEntries since
-        // it isn't fully compatible with all of the target runtimes
-        private static IEnumerable<string> SplitLines(string line)
-        {
-            if (!string.IsNullOrEmpty(line))
-            {
-                var lines = new List<string>();
-                char cr = '\r';
-                char lf = '\n';
-                char prev = '$';
-                var s = 0;
-                var e = 0;
-                string l;
-
-                while (e < line.Length - 1)
-                {
-                    // Look for \r\n
-                    if (line[e] == lf && prev == cr)
-                    {
-                        // Add trimmed line to return list
-                        l = line.Substring(s, (e - s) + 1).Trim();
-                        if (!string.IsNullOrEmpty(l))
-                        {
-                            if (l.Length > 1 || (l.Length == 1 && l[0] != cr))
-                            {
-                                lines.Add(l);
-                            }
-                        }
-                        s = e;
-                    }
-
-                    prev = line[e];
-                    e++;
-                }
-
-                // Get Last Line
-                l = line.Substring(s, (e - s) + 1).Trim('\n');
-                if (!string.IsNullOrEmpty(l))
-                {
-                    if (l.Length > 1 || (l.Length == 1 && l[0] != cr))
-                    {
-                        lines.Add(l);
-                    }
-                }
-
-                return lines;
-            }
-
-            return null;
-        }
-
-
-
         private bool WriteLineToClient(AgentClient client, string line)
         {
             if (client != null && !string.IsNullOrEmpty(line))
@@ -529,6 +475,59 @@ namespace MTConnect.Adapters.Shdr
             }
 
             return false;
+        }
+
+
+        // Split Lines by \r\n
+        // Can't use string.Split(string, StringSplitOptions.TrimEntries since
+        // it isn't fully compatible with all of the target runtimes
+        private static IEnumerable<string> SplitLines(string line)
+        {
+            if (!string.IsNullOrEmpty(line))
+            {
+                var lines = new List<string>();
+                char cr = '\r';
+                char lf = '\n';
+                char prev = '$';
+                var s = 0;
+                var e = 0;
+                string l;
+
+                while (e < line.Length - 1)
+                {
+                    // Look for \r\n
+                    if (line[e] == lf && prev == cr)
+                    {
+                        // Add trimmed line to return list
+                        l = line.Substring(s, (e - s) + 1).Trim();
+                        if (!string.IsNullOrEmpty(l))
+                        {
+                            if (l.Length > 1 || (l.Length == 1 && l[0] != cr))
+                            {
+                                lines.Add(l);
+                            }
+                        }
+                        s = e;
+                    }
+
+                    prev = line[e];
+                    e++;
+                }
+
+                // Get Last Line
+                l = line.Substring(s, (e - s) + 1).Trim('\n');
+                if (!string.IsNullOrEmpty(l))
+                {
+                    if (l.Length > 1 || (l.Length == 1 && l[0] != cr))
+                    {
+                        lines.Add(l);
+                    }
+                }
+
+                return lines;
+            }
+
+            return null;
         }
 
         #endregion
