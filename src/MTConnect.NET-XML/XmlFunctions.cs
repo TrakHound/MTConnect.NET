@@ -17,6 +17,7 @@ namespace MTConnect
     {
         public const string XmlDeclaration = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
         public const string NewLine = "\n";
+        public const char NewLineCharacter = '\n';
         public const string Tab = "  ";
 
 

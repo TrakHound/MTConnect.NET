@@ -482,7 +482,7 @@ namespace MTConnect.Streams.Xml
                 if (!samples.IsNullOrEmpty())
                 {
                     // Write space delimited samples
-                    writer.WriteString(string.Join(' ', samples));
+                    writer.WriteString(string.Join(" ", samples));
                 }
             }
         }

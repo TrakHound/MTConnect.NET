@@ -53,7 +53,7 @@ namespace MTConnect.Assets.Xml
                             writer.WriteWhitespace(XmlFunctions.NewLine);
 
                             // Manually Indent
-                            var lines = xml.Split(XmlFunctions.NewLine);
+                            var lines = xml.Split(XmlFunctions.NewLineCharacter);
                             foreach (var line in lines)
                             {
                                 writer.WriteWhitespace(XmlFunctions.Tab);

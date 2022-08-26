@@ -313,7 +313,6 @@ namespace MTConnect.Servers.Http
                         if (x[i] != null) y[i] = x[i].Trim();
                     }
                     return y;
-                    //return values.Split(',', StringSplitOptions.TrimEntries);
                 }
             }
 
