@@ -14,11 +14,11 @@ The Agent, Buffers, and Adapter are separated into individual classes in order t
 
 - A traditional Agent that uses a REST Api, in-memory buffer, and Adapters that communicate using the SHDR protocol
 - An agent imbedded with the Adapter (which elminates the need for the Adapter TCP communication)
+- Supports SHDR Apdaters
 - Interfaces other than Http REST such as MQTT
 - Integration with cloud services such as AWS and Azure
 
 Other features of MTConnect.NET :
-- (In-Progress) [Models](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-Common/Models) framework for setting and accessing data using an object model as opposed to DataItem ID's and Types
 - Extensible through plugin libraries to extend Types
 - Presistent Buffers that are backed up on the File System. Retains state after Agent is restarted
 - Supports multiple MTConnect Version output. Automatically removes data that is not compatible with the requested version
@@ -32,11 +32,10 @@ Other features of MTConnect.NET :
 - Full list of Asset types. See [Devices](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-Common/Assets) for more information.
 - Fully supports Unit conversion. Default Units and UnitConversion is done automatically when sending Streams and when reading Streams.
 - Full client support for requesting data from any MTConnect Agent (Probe, Current, Sample Stream, Assets, etc.). See [Clients](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-HTTP/Clients/Rest) for more information.
+- (In-Progress) [Models](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-Common/Models) framework for setting and accessing data using an object model as opposed to DataItem ID's and Types
 
 ## Applications
-- [MTConnect HTTP Agent](https://github.com/TrakHound/MTConnect.NET/tree/master/applications/Agents/MTConnect-Agent-Http) : A traditional MTConnect Agent using a REST Api, in-memory buffer, and SHDR for Adapters. Uses the MTConnectHttpServer as the web server.
-
-- (NEW) [MTConnect HTTP Persistent Agent](https://github.com/TrakHound/MTConnect.NET/tree/master/applications/Agents/MTConnect-Agent-Http-Persistent) : A traditional MTConnect Agent using a REST Api, in-memory buffer as well as backed up on the File System (retains state after restart), and SHDR for Adapters. Uses the MTConnectHttpServer as the web server.
+- [MTConnect HTTP Agent](https://github.com/TrakHound/MTConnect.NET/tree/master/applications/Agents/MTConnect-Agent-Http) : A traditional MTConnect Agent using a REST Api, in-memory buffer as well as backed up on the File System (retains state after restart), and SHDR for Adapters. Uses the MTConnectHttpServer as the web server.
 
 - [MTConnect HTTP Agent - AspNetCore](https://github.com/TrakHound/MTConnect.NET/tree/master/applications/Agents/MTConnect-Agent-Http-AspNetCore) : Similar to the MTConnect Agent application but uses either the built-in Kestrel server or can be setup through IIS (Internet Information Services). This allows the agent to be used with all of the features available through ASP.NET and IIS such as security, permissions, monitoring, etc.
 
@@ -70,6 +69,7 @@ The Nuget packages for the libraries in this repo are listed below:
 - [MTConnect.NET-XML](https://www.nuget.org/packages/MTConnect.NET-XML/)
 - [MTConnect.NET-SHDR](https://www.nuget.org/packages/MTConnect.NET-SHDR/)
 - [MTConnect.NET-MQTT](https://www.nuget.org/packages/MTConnect.NET-MQTT/)
+- [MTConnect.NET-Applications-Agents](https://www.nuget.org/packages/MTConnect.NET-Applications-Agents/)
 
 ## Supported Frameworks
 - .NET 6.0
