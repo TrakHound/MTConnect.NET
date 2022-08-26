@@ -23,6 +23,9 @@ namespace MTConnect.Applications.Agents
     /// </summary>
     public class MTConnectHttpAgentGatewayApplication : MTConnectHttpAgentApplication
     {
+        private const string DefaultServiceName = "MTConnect-Agent-HTTP-Gateway";
+        private const string DefaultServiceDisplayName = "MTConnect HTTP Gateway Agent";
+        private const string DefaultServiceDescription = "MTConnect Agent using HTTP to provide access to device information using the MTConnect Standard";
         private const int ClientInformationUpdateInterval = 5000;
 
         private readonly List<MTConnectClient> _clients = new List<MTConnectClient>();
@@ -32,6 +35,14 @@ namespace MTConnect.Applications.Agents
 
         private System.Timers.Timer _clientInformationTimer;
         private HttpAgentGatewayApplicationConfiguration _configuration;
+
+
+        public MTConnectHttpAgentGatewayApplication()
+        {
+            ServiceName = DefaultServiceName;
+            ServiceDisplayName = DefaultServiceDisplayName;
+            ServiceDescription = DefaultServiceDescription;
+        }
 
 
         protected override IAgentApplicationConfiguration OnConfigurationFileRead(string configurationPath)
