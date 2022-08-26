@@ -57,7 +57,7 @@ namespace MTConnect.Shdr
             string x = s;
 
             // Check for duration (faster than running Regex every time)
-            if (x.Contains('@'))
+            if (x.Contains("@"))
             {
                 // Expected Format
                 // Without Duration : 2014-09-29T23:59:33.460470Z
@@ -84,7 +84,7 @@ namespace MTConnect.Shdr
 
         internal static double? GetDuration(string s)
         {
-            if (s != null && s.Contains('@'))
+            if (s != null && s.Contains("@"))
             {
                 // Expected Format
                 // Without Duration : 2014-09-29T23:59:33.460470Z

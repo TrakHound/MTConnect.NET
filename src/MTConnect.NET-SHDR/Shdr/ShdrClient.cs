@@ -338,7 +338,7 @@ namespace MTConnect.Shdr
             
             if (response.Contains("\n"))
             {
-                var lines = response.Split('\n');
+                var lines = response.Split("\n");
                 if (lines != null && lines.Length > 0)
                 {
                     var j = 0;
@@ -382,7 +382,6 @@ namespace MTConnect.Shdr
                                     //CommandReceived?.Invoke(this, line);
 
                                     found = true;
-                                    //return true;
                                 }
                             }
                             else if (ShdrAsset.IsAssetMultilineBegin(line))
