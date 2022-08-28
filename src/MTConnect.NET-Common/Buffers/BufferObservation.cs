@@ -5,6 +5,7 @@
 
 using MTConnect.Devices.DataItems;
 using MTConnect.Observations;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace MTConnect.Buffers
@@ -15,6 +16,7 @@ namespace MTConnect.Buffers
         internal ObservationValue[] _values;
         internal long _sequence;
         internal long _timestamp;
+        internal byte _category;
         internal byte _representation;
 
         public int Key
@@ -45,6 +47,23 @@ namespace MTConnect.Buffers
             set => _timestamp = value;
         }
 
+        public DataItemCategory Category
+        {
+            get
+            {
+                switch (_category)
+                {
+                    case 1: return DataItemCategory.EVENT;
+                    case 2: return DataItemCategory.SAMPLE;
+                    default: return DataItemCategory.CONDITION;
+                }
+            }
+            set
+            {
+                _category = (byte)value;
+            }
+        }
+
         public DataItemRepresentation Representation
         {
             get
@@ -67,23 +86,63 @@ namespace MTConnect.Buffers
 
         public bool IsValid =>
             Key >= 0 &&
-            !Values.IsNullOrEmpty() &&
-            Sequence > 0 &&
+            Values != null && Values.Length > 0 &&
+            Sequence > 0 && 
             Timestamp > 0;
 
 
 
-        public BufferObservation(int bufferKey, long sequence, IObservation observation)
+        public BufferObservation(int bufferKey, IObservation observation)
         {
             _key = bufferKey;
-            _sequence = sequence;
+            _sequence = 0;
             _timestamp = observation.Timestamp.ToUnixTime();
+            _category = (byte)observation.Category;
             _representation = (byte)observation.Representation;
 
             // Sort by Key Asc (needed for processing later on, and maybe better performance when searching)
             if (observation.Values != null)
             {
                 _values = observation.Values.OrderBy(o => o._key).ToArray();
+            }
+            else _values = null;
+        }
+
+        public BufferObservation(int bufferKey, long sequence, IObservation observation)
+        {
+            _key = bufferKey;
+            _sequence = sequence;
+            _timestamp = observation.Timestamp.ToUnixTime();
+            _category = (byte)observation.Category;
+            _representation = (byte)observation.Representation;
+
+            // Sort by Key Asc (needed for processing later on, and maybe better performance when searching)
+            if (observation.Values != null)
+            {
+                _values = observation.Values.OrderBy(o => o._key).ToArray();
+            }
+            else _values = null;
+        }
+
+        public BufferObservation(
+            int bufferKey,
+            DataItemCategory category,
+            DataItemRepresentation representation, 
+            IEnumerable<ObservationValue> values,
+            long sequence,
+            long timestamp
+            )
+        {
+            _key = bufferKey;
+            _category = (byte)category;
+            _representation = (byte)representation;
+            _sequence = sequence;
+            _timestamp = timestamp;
+
+            // Sort by Key Asc (needed for processing later on, and maybe better performance when searching)
+            if (values != null)
+            {
+                _values = values.OrderBy(o => o._key).ToArray();
             }
             else _values = null;
         }

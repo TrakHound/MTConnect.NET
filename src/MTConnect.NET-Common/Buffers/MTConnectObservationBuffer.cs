@@ -23,11 +23,10 @@ namespace MTConnect.Buffers
         private readonly string _id = Guid.NewGuid().ToString();
         private readonly object _lock = new object();
         private long _sequence = 1;
-        private long _bufferPosition = 0;
 
         private IDictionary<int, BufferObservation> _currentObservations = new Dictionary<int, BufferObservation>();
         private IDictionary<int, IEnumerable<BufferObservation>> _currentConditions = new Dictionary<int, IEnumerable<BufferObservation>>();
-        private BufferObservation[] _archiveObservations;
+        private CircularBuffer _archiveObservations;
 
         /// <summary>
         /// Get a unique identifier for the Buffer
@@ -92,7 +91,7 @@ namespace MTConnect.Buffers
 
         public MTConnectObservationBuffer()
         {
-            _archiveObservations = new BufferObservation[BufferSize];
+            _archiveObservations = new CircularBuffer(BufferSize);
         }
 
         public MTConnectObservationBuffer(IAgentConfiguration configuration)
@@ -102,7 +101,7 @@ namespace MTConnect.Buffers
                 BufferSize = configuration.ObservationBufferSize;
             }
 
-            _archiveObservations = new BufferObservation[BufferSize];
+            _archiveObservations = new CircularBuffer(BufferSize);
         }
 
         public void Dispose()
@@ -112,8 +111,6 @@ namespace MTConnect.Buffers
             _currentConditions.Clear();
         }
 
-
-        protected virtual void OnCurrentChange(IEnumerable<BufferObservation> observations) { }
 
         protected virtual void OnCurrentConditionChange(IEnumerable<BufferObservation> observations) { }
 
@@ -166,7 +163,7 @@ namespace MTConnect.Buffers
 
         #region "Internal"
 
-        private IEnumerable<BufferObservation> GetCurrentObservations()
+        protected IEnumerable<BufferObservation> GetCurrentObservations()
         {
             var x = new List<BufferObservation>();
 
@@ -179,7 +176,7 @@ namespace MTConnect.Buffers
             return x;
         }
 
-        private IEnumerable<BufferObservation> GetCurrentConditions()
+        protected IEnumerable<BufferObservation> GetCurrentConditions()
         {
             var x = new List<BufferObservation>();
 
@@ -195,15 +192,15 @@ namespace MTConnect.Buffers
             return x;
         }
 
-        private static int[] GetIndexes(ref BufferObservation[] observations, int[] keys, int fromIndex, int toIndex, int count = 0)
+        private static int[] GetIndexes(ref CircularBuffer observations, int[] keys, int fromIndex, int toIndex, int count = 0)
         {
-            if (observations != null && observations.Length > 0 && keys != null && keys.Length > 0)
+            if (observations != null && observations.Capacity > 0 && keys != null && keys.Length > 0)
             {
                 int totalCount = 0; // Total number of Observations that were matched
                 int oi = fromIndex; // Observations Iterator
-                var oil = Math.Min(toIndex, observations.Length - 1);
+                var oil = Math.Min(toIndex, observations.Capacity - 1);
 
-                int max = observations.Length; // Max Observations length
+                int max = observations.Capacity; // Max Observations length
                 if (count > 0) max = Math.Min(count, max); // Ensure max length doesn't exceed array length
 
                 int bki; // BufferKey Iterator
@@ -288,11 +285,11 @@ namespace MTConnect.Buffers
             return null;
         }
 
-        private static int GetLatestIndex(ref BufferObservation[] observations, int key, int atIndex)
+        private static int GetLatestIndex(ref CircularBuffer observations, int key, int atIndex)
         {
             var index = -1;
 
-            if (observations != null && observations.Length > 0 && atIndex <= observations.Length - 1)
+            if (observations != null && observations.Capacity > 0 && atIndex <= observations.Capacity - 1)
             {
                 // Loop through the observations in reverse order (sequence desc)
                 // This find the most recent observation in the buffer
@@ -390,7 +387,7 @@ namespace MTConnect.Buffers
                 long lastSequence = 0;
                 long nextSequence = 0;
                 var observations = new BufferObservation[bufferKeys.Count()];
-                BufferObservation[] bufferObservations = null;
+                CircularBuffer bufferObservations = null;
 
                 lock (_lock)
                 {
@@ -401,7 +398,7 @@ namespace MTConnect.Buffers
                     // Determine Indexes
                     var atIndex = (int)(at - firstSequence);
 
-                    if (_archiveObservations.Length > 0)
+                    if (_archiveObservations.Size > 0)
                     {
                         bufferObservations = _archiveObservations;
 
@@ -474,7 +471,7 @@ namespace MTConnect.Buffers
                 long nextSequence = 0;
                 int observationCount = 0;
                 BufferObservation[] observations = null;
-                BufferObservation[] bufferObservations = null;
+                CircularBuffer bufferObservations = null;
                 long firstObservationSequence = 0;
                 long lastObservationSequence = 0;
                 int lowestIndex = int.MaxValue;
@@ -499,7 +496,7 @@ namespace MTConnect.Buffers
                         }
                     }
 
-                    if (_archiveObservations.Length > 0 && toIndex >= fromIndex)
+                    if (_archiveObservations.Size > 0 && toIndex >= fromIndex)
                     {
                         bufferObservations = _archiveObservations;
 
@@ -564,10 +561,10 @@ namespace MTConnect.Buffers
         protected void AddCurrentObservation(int bufferKey, long sequence, IObservation observation)
         {
             var bufferObservation = new BufferObservation(bufferKey, sequence, observation);
-            AddCurrentObservation(ref bufferObservation);
+            AddCurrentObservation(bufferObservation);
         }
 
-        protected void AddCurrentObservation(ref BufferObservation observation)
+        protected void AddCurrentObservation(BufferObservation observation)
         {
             if (!observation.Values.IsNullOrEmpty())
             {
@@ -618,7 +615,6 @@ namespace MTConnect.Buffers
                 lock (_lock) _currentObservations.Add(observation._key, observation);
 
                 // Call Overridable Methods
-                OnCurrentChange(GetCurrentObservations());
                 OnCurrentObservationAdd(ref observation);
             }
         }
@@ -626,10 +622,10 @@ namespace MTConnect.Buffers
         protected void AddCurrentCondition(int bufferKey, long sequence, IObservation observation)
         {
             var bufferObservation = new BufferObservation(bufferKey, sequence, observation);
-            AddCurrentCondition(ref bufferObservation);
+            AddCurrentCondition(bufferObservation);
         }
 
-        protected void AddCurrentCondition(ref BufferObservation observation)
+        protected void AddCurrentCondition(BufferObservation observation)
         {
             if (!observation.Values.IsNullOrEmpty())
             {
@@ -800,69 +796,19 @@ namespace MTConnect.Buffers
         {
             if (observations != null && observations.Length > 0)
             {
-                WriteObservations(ref observations);
-
                 for (var i = 0; i < observations.Length; i++)
                 {
+                    WriteObservation(ref observations[i]);
+
                     // Call Overridable Method
                     OnBufferObservationAdd(ref observations[i]);
                 }
             }
         }
 
-        private void WriteObservations(ref BufferObservation[] observations)
-        {
-            if (observations != null && observations.Length > 0)
-            {
-                lock (_lock)
-                {
-
-                    // Get the number of Observations that will overflow the buffer
-                    var overflowCount = observations.Length - (BufferSize - _bufferPosition);
-                    if (overflowCount > 0)
-                    {
-                        // Shift Observations over
-                        Array.Copy(_archiveObservations, overflowCount, _archiveObservations, 0, _archiveObservations.Length - overflowCount);
-
-                        // Set the new Buffer Position to begin adding new observations at
-                        _bufferPosition = _bufferPosition - overflowCount;
-                        if (_bufferPosition < 0) _bufferPosition = 0;
-                    }
-                    else overflowCount = 0;
-
-                    // Add Observations
-                    for (var i = overflowCount; i < observations.Length; i++)
-                    {
-                        // Set Buffer Observation
-                        _archiveObservations[_bufferPosition] = observations[i];
-                        _bufferPosition++; // Increment Buffer Position (where the next observation will be written to the Archive Buffer)
-                    }
-                }
-            }
-        }
-
         private void WriteObservation(ref BufferObservation observation)
         {
-            lock (_lock)
-            {
-                // Get the number of Observations that will overflow the buffer
-                var overflow = BufferSize - _bufferPosition < 1;
-                if (overflow)
-                {
-                    // Shift Observations over
-                    Array.Copy(_archiveObservations, 1, _archiveObservations, 0, _archiveObservations.Length - 1);
-
-                    // Set the new Buffer Position to begin adding new observations at
-                    _bufferPosition = _bufferPosition - 1;
-                    if (_bufferPosition < 0) _bufferPosition = 0;
-                }
-
-                // Set Buffer Observation
-                _archiveObservations[_bufferPosition] = observation;
-
-                // Increment Buffer Position (where the next observation will be written to the Archive Buffer)
-                _bufferPosition++;
-            }
+            _archiveObservations.Add(ref observation);
         }
 
         #endregion
@@ -871,30 +817,31 @@ namespace MTConnect.Buffers
         /// <summary>
         /// Add a new Observation to the Buffer
         /// </summary>
-        /// <param name="bufferKey">The Key (DeviceUuid and DataItemId) to reference observations in the buffer</param>
         /// <param name="observation">The Observation to Add</param>
         /// <returns>A boolean value indicating whether the Observation was added to the Buffer successfully (true) or not (false)</returns>
-        public virtual bool AddObservation(int bufferKey, IObservation observation)
+        public virtual bool AddObservation(ref BufferObservation observation)
         {
-            if (bufferKey > 0 && observation != null)
+            if (observation._key >= 0 && !observation._values.IsNullOrEmpty() && observation._timestamp > 0)
             {
                 // Get the Sequence to Add Observation at
                 long sequence;
                 lock (_lock) sequence = _sequence++;
 
+                observation._sequence = sequence;
+
                 if (observation.Category == DataItemCategory.CONDITION)
                 {
                     // Add to Current Conditions
-                    AddCurrentCondition(bufferKey, sequence, observation);
+                    AddCurrentCondition(observation);
                 }
                 else
                 {
                     // Add to Current Observations
-                    AddCurrentObservation(bufferKey, sequence, observation);
+                    AddCurrentObservation(observation);
                 }
 
                 // Add to Buffer                   
-                AddBufferObservation(bufferKey, sequence, observation);
+                AddBufferObservation(ref observation);
 
                 return true;
             }

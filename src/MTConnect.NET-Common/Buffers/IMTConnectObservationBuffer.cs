@@ -3,7 +3,6 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
-using MTConnect.Observations;
 using System;
 using System.Collections.Generic;
 
@@ -85,9 +84,8 @@ namespace MTConnect.Buffers
         /// <summary>
         /// Add a new Observation to the Buffer
         /// </summary>
-        /// <param name="bufferKey">The Key (DeviceUuid and DataItemId) to reference observations in the buffer</param>
         /// <param name="observation">The Observation to Add</param>
         /// <returns>A boolean value indicating whether the Observation was added to the Buffer successfully (true) or not (false)</returns>
-        bool AddObservation(int bufferKey, IObservation observation);
+        bool AddObservation(ref BufferObservation observation);
     }
 }

@@ -27,12 +27,13 @@ namespace MTConnect.Buffers
         private const string DirectoryObservations = "observations";
         private const string DirectoryCurrent = "current";
 
+        private readonly object _lock = new object();
         private readonly MTConnectObservationQueue _items;
-        private readonly MTConnectObservationQueue _currentItems;
-        private readonly MTConnectConditionObservationQueue _currentConditionItems;
         private CancellationTokenSource stop;
         private bool _isStarted;
         private bool _isLoading;
+        private bool _currentUpdated;
+        private bool _currentConditionUpdated;
 
 
         public int WriteInterval { get; set; } = 5000;
@@ -57,35 +58,29 @@ namespace MTConnect.Buffers
         public MTConnectObservationFileBuffer()
         {
             _items = new MTConnectObservationQueue();
-            _currentItems = new MTConnectObservationQueue();
-            _currentConditionItems = new MTConnectConditionObservationQueue();
-
             Start();
         }
 
         public MTConnectObservationFileBuffer(IAgentConfiguration configuration) : base(configuration)
         {
             _items = new MTConnectObservationQueue();
-            _currentItems = new MTConnectObservationQueue();
-            _currentConditionItems = new MTConnectConditionObservationQueue();
-
             Start();
         }
 
 
-        protected override void OnCurrentChange(IEnumerable<BufferObservation> observations)
+        protected override void OnCurrentObservationAdd(ref BufferObservation observation)
         {
             if (!_isLoading)
             {
-                AddCurrent(observations);
+                lock (_lock) _currentUpdated = true;
             }
         }
 
-        protected override void OnCurrentConditionChange(IEnumerable<BufferObservation> observations)
+        protected override void OnCurrentConditionAdd(ref IEnumerable<BufferObservation> observations)
         {
             if (!_isLoading)
             {
-                AddCurrentConditions(observations);
+                lock (_lock) _currentConditionUpdated = true;
             }
         }
 
@@ -178,57 +173,6 @@ namespace MTConnect.Buffers
             return false;
         }
 
-
-        public bool AddCurrent(BufferObservation observation)
-        {
-            return _currentItems.Add(observation);
-        }
-
-        public bool AddCurrent(IEnumerable<BufferObservation> observations)
-        {
-            if (!observations.IsNullOrEmpty())
-            {
-                var success = true;
-
-                foreach (var observation in observations)
-                {
-                    success = AddCurrent(observation);
-                    if (!success) break;
-                }
-
-                return success;
-            }
-
-            return false;
-        }
-
-
-        public bool AddCurrentConditions(IEnumerable<BufferObservation> observations)
-        {
-            if (!observations.IsNullOrEmpty())
-            {
-                var success = true;
-
-                var deviceIndexes = observations.Select(o => o.DeviceIndex).Distinct();
-                foreach (var deviceIndex in deviceIndexes)
-                {
-                    var deviceObservations = observations.Where(o => o.DeviceIndex == deviceIndex);
-                    var dataItemIndexes = deviceObservations.Select(o => o.DataItemIndex).Distinct();
-                    foreach (var dataItemIndex in dataItemIndexes)
-                    {
-                        var dataItemObservations = deviceObservations.Where(o => o.DataItemIndex == dataItemIndex);
-
-                        success = _currentConditionItems.Add(dataItemObservations);
-                        if (!success) break;
-                    }
-                }
-
-                return success;
-            }
-
-            return false;
-        }
-
         #endregion
 
         #region "Load"
@@ -265,7 +209,7 @@ namespace MTConnect.Buffers
                 for (var i = 0; i < currentObservations.Length; i++)
                 {
                     // Add to Current Observations
-                    AddCurrentObservation(ref currentObservations[i]);
+                    AddCurrentObservation(currentObservations[i]);
                 }
             }
 
@@ -276,7 +220,7 @@ namespace MTConnect.Buffers
                 for (var i = 0; i < currentConditions.Length; i++)
                 {
                     // Add to Current Conditions
-                    AddCurrentObservation(ref currentConditions[i]);
+                    AddCurrentObservation(currentConditions[i]);
                 }
             }
 
@@ -640,8 +584,8 @@ namespace MTConnect.Buffers
                     await Task.Delay(WriteInterval, stop.Token);
 
                     await WriteItems(MaxItemsPerWrite);
-                    await WriteCurrentItems(MaxItemsPerWrite);
-                    await WriteCurrentConditionItems(MaxItemsPerWrite);
+                    await WriteCurrentItems();
+                    await WriteCurrentConditionItems();
                 }
                 catch (TaskCanceledException) { }
                 catch { }
@@ -665,21 +609,41 @@ namespace MTConnect.Buffers
             }
         }
 
-        private async Task WriteCurrentItems(int maxItems)
+        private async Task WriteCurrentItems()
         {
-            var queueItems = _currentItems.Take(maxItems);
-            if (!queueItems.IsNullOrEmpty())
+            bool update;
+            lock (_lock)
             {
-                await WriteToCurrentFiles(queueItems);
+                update = _currentUpdated;
+                _currentUpdated = false;
+            }
+
+            if (update)
+            {
+                var writeItems = GetCurrentObservations();
+                if (!writeItems.IsNullOrEmpty())
+                {
+                    await WriteToCurrentFiles(writeItems);
+                }
             }
         }
 
-        private async Task WriteCurrentConditionItems(int maxItems)
+        private async Task WriteCurrentConditionItems()
         {
-            var queueItems = _currentConditionItems.Take(maxItems);
-            if (!queueItems.IsNullOrEmpty())
+            bool update;
+            lock (_lock)
             {
-                await WriteToCurrentConditionFiles(queueItems);
+                update = _currentConditionUpdated;
+                _currentConditionUpdated = false;
+            }
+            
+            if (update)
+            {
+                var writeItems = GetCurrentConditions();
+                if (!writeItems.IsNullOrEmpty())
+                {
+                    await WriteToCurrentConditionFiles(writeItems);
+                }
             }
         }
 
