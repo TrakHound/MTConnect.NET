@@ -37,24 +37,30 @@ namespace MTConnect.Configurations
         bool IgnoreTimestamps { get; }
 
         /// <summary>
-        /// Gets or Sets the default MTConnect version to output response documents for.
+        /// Gets the default MTConnect version to output response documents for.
         /// </summary>
         Version DefaultVersion { get; }
 
         /// <summary>
-        /// Gets or Sets the default for Converting Units when adding Observations
+        /// Gets the default for Converting Units when adding Observations
         /// </summary>
         bool ConvertUnits { get; }
 
         /// <summary>
-        /// Gets or Sets the default for Ignoring the case of Observation values
+        /// Gets the default for Ignoring the case of Observation values
         /// </summary>
         bool IgnoreObservationCase { get; }
 
         /// <summary>
-        /// Gets or Sets the default Input (Observation or Asset) validation level. 0 = Ignore, 1 = Warning, 2 = Remove, 3 = Strict
+        /// Gets the default Input (Observation or Asset) validation level. 0 = Ignore, 1 = Warning, 2 = Remove, 3 = Strict
         /// </summary>
         InputValidationLevel InputValidationLevel { get; }
+
+
+        /// <summary>
+        /// Gets whether Metrics are captured (ex. ObserationUpdateRate, AssetUpdateRate)
+        /// </summary>
+        bool EnableMetrics { get; }
 
 
         void Save(string path = null, bool createBackup = true);

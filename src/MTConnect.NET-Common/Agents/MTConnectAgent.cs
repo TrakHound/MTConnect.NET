@@ -60,7 +60,7 @@ namespace MTConnect.Agents
 
         private readonly ConcurrentDictionary<string, IObservationInput> _currentObservations = new ConcurrentDictionary<string, IObservationInput>();
         private readonly ConcurrentDictionary<string, IEnumerable<IObservationInput>> _currentConditions = new ConcurrentDictionary<string, IEnumerable<IObservationInput>>();
-        private readonly MTConnectAgentMetrics _metrics = new MTConnectAgentMetrics(TimeSpan.FromSeconds(10), TimeSpan.FromMinutes(1));
+        private MTConnectAgentMetrics _metrics;
         private readonly long _instanceId;
         private readonly string _uuid;
         private long _deviceModelChangeTime;
@@ -380,7 +380,12 @@ namespace MTConnect.Agents
 
         public void Start()
         {
-            _metrics.DeviceMetricsUpdated += DeviceMetricsUpdated;
+            if (_configuration.EnableMetrics)
+            {
+                _metrics = new MTConnectAgentMetrics(TimeSpan.FromSeconds(10), TimeSpan.FromMinutes(1));
+                _metrics.DeviceMetricsUpdated += DeviceMetricsUpdated;
+            }
+
             StartAgentInformationUpdateTimer();
             GarbageCollector.Initialize();
         }
@@ -1898,8 +1903,8 @@ namespace MTConnect.Agents
 
                             // Add Unavailable Observation to ObservationBuffer
                             var observation = Observation.Create(dataItem);
-                            observation.SetProperty(nameof(Observation.DeviceUuid), device.Uuid);
-                            observation.SetProperty(nameof(Observation.Timestamp), ts.ToDateTime());
+                            observation.DeviceUuid = device.Uuid;
+                            observation.Timestamp = ts.ToDateTime();
                             observation.AddValues(new List<ObservationValue>
                             {
                                 new ObservationValue(valueType, value)
@@ -1913,7 +1918,9 @@ namespace MTConnect.Agents
                                 case DataItemRepresentation.TIME_SERIES: observation.AddValue(ValueKeys.SampleCount, 0); break;
                             }
 
-                            _observationBuffer.AddObservation(bufferKey, observation);
+                            var bufferObservation = new BufferObservation(bufferKey, observation);
+
+                            _observationBuffer.AddObservation(ref bufferObservation);
                             ObservationAdded?.Invoke(this, observation);
                         }
                     }
@@ -2420,8 +2427,8 @@ namespace MTConnect.Agents
                     {
                         // Create new Observation
                         var observation = Observation.Create(dataItem);
-                        observation.SetProperty(nameof(Observation.DeviceUuid), _agent.Uuid);
-                        observation.SetProperty(nameof(Observation.Timestamp), timestamp.ToDateTime());
+                        observation.DeviceUuid = _agent.Uuid;
+                        observation.Timestamp = timestamp.ToDateTime();
                         observation.AddValues(new List<ObservationValue>
                         {
                             new ObservationValue(ValueKeys.Result, device.Uuid)
@@ -2431,9 +2438,10 @@ namespace MTConnect.Agents
 
                         // Get the BufferKey to use for the ObservationBuffer
                         var bufferKey = GenerateBufferKey(_agent.Uuid, dataItem.Id);
+                        var bufferObservation = new BufferObservation(bufferKey, observation);
 
                         // Add to Observation Buffer
-                        return _observationBuffer.AddObservation(bufferKey, observation);
+                        return _observationBuffer.AddObservation(ref bufferObservation);
                     }
                 }
             }
@@ -2454,8 +2462,8 @@ namespace MTConnect.Agents
                     {
                         // Create new Observation
                         var observation = Observation.Create(dataItem);
-                        observation.SetProperty(nameof(Observation.DeviceUuid), _agent.Uuid);
-                        observation.SetProperty(nameof(Observation.Timestamp), timestamp.ToDateTime());
+                        observation.DeviceUuid = _agent.Uuid;
+                        observation.Timestamp = timestamp.ToDateTime();
                         observation.AddValues(new List<ObservationValue>
                         {
                             new ObservationValue(ValueKeys.Result, device.Uuid)
@@ -2465,9 +2473,10 @@ namespace MTConnect.Agents
 
                         // Get the BufferKey to use for the ObservationBuffer
                         var bufferKey = GenerateBufferKey(_agent.Uuid, dataItem.Id);
+                        var bufferObservation = new BufferObservation(bufferKey, observation);
 
                         // Add to Observation Buffer
-                        return _observationBuffer.AddObservation(bufferKey, observation);
+                        return _observationBuffer.AddObservation(ref bufferObservation);
                     }
                 }
             }
@@ -2487,8 +2496,8 @@ namespace MTConnect.Agents
                     {
                         // Create new Observation
                         var observation = Observation.Create(dataItem);
-                        observation.SetProperty(nameof(Observation.DeviceUuid), _agent.Uuid);
-                          observation.SetProperty(nameof(Observation.Timestamp), timestamp.ToDateTime());
+                        observation.DeviceUuid = _agent.Uuid;
+                        observation.Timestamp = timestamp.ToDateTime();
                         observation.AddValues(new List<ObservationValue>
                         {
                             new ObservationValue(ValueKeys.Result, device.Uuid)
@@ -2498,9 +2507,10 @@ namespace MTConnect.Agents
 
                         // Get the BufferKey to use for the ObservationBuffer
                         var bufferKey = GenerateBufferKey(_agent.Uuid, dataItem.Id);
+                        var bufferObservation = new BufferObservation(bufferKey, observation);
 
                         // Add to Observation Buffer
-                        return _observationBuffer.AddObservation(bufferKey, observation);
+                        return _observationBuffer.AddObservation(ref bufferObservation);
                     }
                 }
             }
@@ -2614,57 +2624,60 @@ namespace MTConnect.Agents
                         var units = dataItem.Units;
                         var nativeUnits = dataItem.NativeUnits;
 
-                        // Get the SampleValue for the DataItem Type
-                        if (dataItem.Units == Units.DEGREE_3D)
+                        if (!result.IsNumeric())
                         {
-                            // Remove the "_3D" suffix from the Units and NativeUnits
-                            units = Remove3dSuffix(units);
-                            nativeUnits = Remove3dSuffix(nativeUnits);
-
-                            // Create a new Degree3D object to parse the Result
-                            var degree3d = Degree3D.FromString(result);
-                            if (degree3d != null)
+                            // Get the SampleValue for the DataItem Type
+                            if (dataItem.Units == Units.DEGREE_3D)
                             {
-                                degree3d.A = Units.Convert(degree3d.A, units, nativeUnits);
-                                degree3d.B = Units.Convert(degree3d.B, units, nativeUnits);
-                                degree3d.C = Units.Convert(degree3d.C, units, nativeUnits);
+                                // Remove the "_3D" suffix from the Units and NativeUnits
+                                units = Remove3dSuffix(units);
+                                nativeUnits = Remove3dSuffix(nativeUnits);
 
-                                // Apply the NativeScale
-                                if (dataItem.NativeScale > 0)
+                                // Create a new Degree3D object to parse the Result
+                                var degree3d = Degree3D.FromString(result);
+                                if (degree3d != null)
                                 {
-                                    degree3d.A = degree3d.A / dataItem.NativeScale;
-                                    degree3d.B = degree3d.B / dataItem.NativeScale;
-                                    degree3d.C = degree3d.C / dataItem.NativeScale;
-                                }
+                                    degree3d.A = Units.Convert(degree3d.A, units, nativeUnits);
+                                    degree3d.B = Units.Convert(degree3d.B, units, nativeUnits);
+                                    degree3d.C = Units.Convert(degree3d.C, units, nativeUnits);
 
-                                // Convert _3D back to string using the appropriate format and set to Result
-                                result = degree3d.ToString();
+                                    // Apply the NativeScale
+                                    if (dataItem.NativeScale > 0)
+                                    {
+                                        degree3d.A = degree3d.A / dataItem.NativeScale;
+                                        degree3d.B = degree3d.B / dataItem.NativeScale;
+                                        degree3d.C = degree3d.C / dataItem.NativeScale;
+                                    }
+
+                                    // Convert _3D back to string using the appropriate format and set to Result
+                                    result = degree3d.ToString();
+                                }
                             }
-                        }
-                        else if (dataItem.Units == Units.MILLIMETER_3D || dataItem.Units == Units.UNIT_VECTOR_3D)
-                        {
-                            // Remove the "_3D" suffix from the Units and NativeUnits
-                            units = Remove3dSuffix(units);
-                            nativeUnits = Remove3dSuffix(nativeUnits);
-
-                            // Create a new Position3D object to parse the Result
-                            var position3d = Position3D.FromString(result);
-                            if (position3d != null)
+                            else if (dataItem.Units == Units.MILLIMETER_3D || dataItem.Units == Units.UNIT_VECTOR_3D)
                             {
-                                position3d.X = Units.Convert(position3d.X, units, nativeUnits);
-                                position3d.Y = Units.Convert(position3d.Y, units, nativeUnits);
-                                position3d.Z = Units.Convert(position3d.Z, units, nativeUnits);
+                                // Remove the "_3D" suffix from the Units and NativeUnits
+                                units = Remove3dSuffix(units);
+                                nativeUnits = Remove3dSuffix(nativeUnits);
 
-                                // Apply the NativeScale
-                                if (dataItem.NativeScale > 0)
+                                // Create a new Position3D object to parse the Result
+                                var position3d = Position3D.FromString(result);
+                                if (position3d != null)
                                 {
-                                    position3d.X = position3d.X / dataItem.NativeScale;
-                                    position3d.Y = position3d.Y / dataItem.NativeScale;
-                                    position3d.Z = position3d.Z / dataItem.NativeScale;
-                                }
+                                    position3d.X = Units.Convert(position3d.X, units, nativeUnits);
+                                    position3d.Y = Units.Convert(position3d.Y, units, nativeUnits);
+                                    position3d.Z = Units.Convert(position3d.Z, units, nativeUnits);
 
-                                // Convert _3D back to string using the appropriate format and set Result
-                                result = position3d.ToString();
+                                    // Apply the NativeScale
+                                    if (dataItem.NativeScale > 0)
+                                    {
+                                        position3d.X = position3d.X / dataItem.NativeScale;
+                                        position3d.Y = position3d.Y / dataItem.NativeScale;
+                                        position3d.Z = position3d.Z / dataItem.NativeScale;
+                                    }
+
+                                    // Convert _3D back to string using the appropriate format and set Result
+                                    result = position3d.ToString();
+                                }
                             }
                         }
                         else
@@ -2914,25 +2927,37 @@ namespace MTConnect.Agents
                         // Check if Observation Needs to be Updated
                         if (update)
                         {
-                            var observation = Observation.Create(dataItem);
-                            observation.SetProperty(nameof(Observation.DeviceUuid), deviceUuid);
-                            observation.SetProperty(nameof(Observation.Timestamp), input.Timestamp.ToDateTime());
-                            observation.AddValues(observationInput.Values);
-
                             // Get the BufferKey to use for the ObservationBuffer
                             var bufferKey = GenerateBufferKey(deviceUuid, dataItem.Id);
+                            var bufferObservation = new BufferObservation(
+                                bufferKey,
+                                dataItem.Category,
+                                dataItem.Representation,
+                                observationInput.Values,
+                                0,
+                                input.Timestamp
+                                );
 
                             // Add Observation to Streaming Buffer
-                            if (_observationBuffer.AddObservation(bufferKey, observation))
+                            if (_observationBuffer.AddObservation(ref bufferObservation))
                             {
-                                if (dataItem.Type != ObservationUpdateRateDataItem.TypeId &&
-                                    dataItem.Type != AssetUpdateRateDataItem.TypeId)
+                                if (_metrics != null)
                                 {
-                                    // Update Agent Metrics
-                                    _metrics.UpdateObservation(deviceUuid, dataItem.Id);
+                                    if (dataItem.Type != ObservationUpdateRateDataItem.TypeId && dataItem.Type != AssetUpdateRateDataItem.TypeId)
+                                    {
+                                        // Update Agent Metrics
+                                        _metrics.UpdateObservation(deviceUuid, dataItem.Id);
+                                    }
                                 }
 
-                                ObservationAdded?.Invoke(this, observation);
+                                if (ObservationAdded != null)
+                                {
+                                    var observation = Observation.Create(dataItem);
+                                    observation.DeviceUuid = deviceUuid;
+                                    observation.Timestamp = input.Timestamp.ToDateTime();
+                                    observation.AddValues(observationInput.Values);
+                                    ObservationAdded?.Invoke(this, observation);
+                                }
 
                                 success = true;
                             }
@@ -3031,7 +3056,7 @@ namespace MTConnect.Agents
                             }
 
                             // Update Agent Metrics
-                            _metrics.UpdateAsset(deviceUuid, asset.AssetId);
+                            if (_metrics != null) _metrics.UpdateAsset(deviceUuid, asset.AssetId);
 
                             if (!exists)
                             {                            

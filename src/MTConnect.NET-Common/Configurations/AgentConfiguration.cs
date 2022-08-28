@@ -77,6 +77,13 @@ namespace MTConnect.Configurations
         public InputValidationLevel InputValidationLevel { get; set; }
 
 
+        /// <summary>
+        /// Gets or Sets whether Metrics are captured (ex. ObserationUpdateRate, AssetUpdateRate)
+        /// </summary>
+        [JsonPropertyName("enableMetrics")]
+        public bool EnableMetrics { get; set; }
+
+
         public AgentConfiguration()
         {
             ObservationBufferSize = 131072;
@@ -85,6 +92,7 @@ namespace MTConnect.Configurations
             InputValidationLevel = InputValidationLevel.Warning;
             ConvertUnits = true;
             IgnoreObservationCase = true;
+            EnableMetrics = true;
         }
 
 
