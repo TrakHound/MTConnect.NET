@@ -29,7 +29,7 @@ namespace MTConnect.Observations
 
         public SampleDataSetObservation() : base()
         {
-            SetProperty(nameof(Representation), Devices.DataItems.DataItemRepresentation.DATA_SET);
+            _representation = Devices.DataItems.DataItemRepresentation.DATA_SET;
         }
     }
 }

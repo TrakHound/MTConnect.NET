@@ -90,7 +90,7 @@ namespace MTConnect.Observations
         bool IsUnavailable { get; }
 
         /// <summary>
-        /// Gets the Value with the specified ValueTy
+        /// Gets the Value with the specified ValueKey
         /// </summary>
         string GetValue(string valueKey);
     }

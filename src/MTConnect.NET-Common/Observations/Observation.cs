@@ -31,60 +31,115 @@ namespace MTConnect.Observations
         protected static Dictionary<string, Type> _types;
 
         private readonly object _lock = new object();
-        protected readonly Dictionary<string, object> _properties = new Dictionary<string, object>();
         protected readonly Dictionary<string, ObservationValue> _values = new Dictionary<string, ObservationValue>();
 
 
-        public string DeviceUuid => GetProperty<string>(nameof(DeviceUuid));
+        internal string _deviceUuid;
+        /// <summary>
+        /// The UUID of the Device that this Observation is associated with
+        /// </summary>
+        public string DeviceUuid
+        {
+            get => _deviceUuid;
+            set => _deviceUuid = value;
+        }
 
-        public IDataItem DataItem { get; set; }
-
+        internal IDataItem _dataItem;
+        /// <summary>
+        /// The DataItem that this Observation is associated with
+        /// </summary>
+        public IDataItem DataItem
+        {
+            get => _dataItem;
+            set => _dataItem = value;
+        }
 
         /// <summary>
         /// The unique identifier for the DataItem. 
         /// The DataItemID MUST match the id attribute of the data item defined in the Device Information Model that this DataItem element represents.
         /// </summary>
-        public string DataItemId => GetProperty<string>(nameof(DataItemId));
+        internal string _dataItemId;
+        public string DataItemId
+        {
+            get => _dataItemId;
+            set => _dataItemId = value;
+        }
 
         /// <summary>
         /// The time the data for the DataItem was reported or the statistics for the DataItem was computed.
         /// The timestamp MUST always represent the end of the collection interval when a duration or a TIME_SERIES is provided.
         /// The most accurate time available to the device MUST be used for the timestamp.
         /// </summary>
-        public DateTime Timestamp => GetProperty<DateTime>(nameof(Timestamp));
+        internal DateTime _timestamp;
+        public DateTime Timestamp
+        {
+            get => _timestamp;
+            set => _timestamp = value;
+        }
 
+        internal string _name;
         /// <summary>
         /// The name of the DataItem.
         /// The name MUST match the name of the data item defined in the Device Information Model that this DataItem represents.
         /// </summary>
-        public string Name => GetProperty<string>(nameof(Name));
+        public string Name
+        {
+            get => _name;
+            set => _name = value;
+        }
 
+        internal long _sequence;
         /// <summary>
         /// A number representing the sequential position of an occurence of the DataItem in the data buffer of the Agent.
         /// The value MUST be represented as an unsigned 64 bit with valid values from 1 to 2^64-1.
         /// </summary>
-        public long Sequence => GetProperty<long>(nameof(Sequence));
+        public long Sequence
+        {
+            get => _sequence;
+            set => _sequence = value;
+        }
 
+        internal DataItemCategory _category;
         /// <summary>
         /// Category of DataItem (Condition, Event, or Sample)
         /// </summary>
-        public DataItemCategory Category => GetProperty<DataItemCategory>(nameof(Category));
+        public DataItemCategory Category
+        {
+            get => _category;
+            set => _category = value;
+        }
 
+        internal string _type;
         /// <summary>
         /// Type associated with the DataItem
         /// </summary>
-        public virtual string Type => GetProperty<string>(nameof(Type));
+        public virtual string Type
+        {
+            get => _type;
+            set => _type = value;
+        }
 
+        internal string _subType;
         /// <summary>
         /// The subtype of the DataItem defined in the Device Information Model that this DataItem element represents
         /// </summary>
-        public string SubType => GetProperty<string>(nameof(SubType));
+        public string SubType
+        {
+            get => _subType;
+            set => _subType = value;
+        }
 
+        internal string _compositionId;
         /// <summary>
         /// The identifier of the Composition element defined in the MTConnectDevices document associated with the data reported for the DataItem.
         /// </summary>
-        public string CompositionId => GetProperty<string>(nameof(CompositionId));
+        public string CompositionId
+        {
+            get => _compositionId;
+            set => _compositionId = value;
+        }
 
+        internal DataItemRepresentation _representation;
         /// <summary>
         /// Data consisting of multiple data points or samples or a file presented as a single DataItem.
         /// Each representation will have a unique format defined for each representation. 
@@ -92,12 +147,11 @@ namespace MTConnect.Observations
         /// Initially, the represenation for TIME_SERIES, DISCRETE, and VALUE are defined.
         /// If a representation is not specified, it MUST be determined to be a VALUE.
         /// </summary>
-        public DataItemRepresentation Representation => GetProperty<DataItemRepresentation>(nameof(Representation));
-
-        /// <summary>
-        /// Gets the Properties associated with this Observation
-        /// </summary>
-        public Dictionary<string, object> Properties => _properties;
+        public DataItemRepresentation Representation
+        {
+            get => _representation;
+            set => _representation = value;
+        }
 
         /// <summary>
         /// Gets the Values associated with this Observation. These values represent data recorded during an Observation.
@@ -123,42 +177,6 @@ namespace MTConnect.Observations
             }
 
             return new Observation();
-        }
-
-
-        public T GetProperty<T>(string propertyName)
-        {
-            if (!string.IsNullOrEmpty(propertyName))
-            {
-                object value = null;
-                lock (_lock) _properties.TryGetValue(propertyName, out value);
-                if (value != null)
-                {
-                    try
-                    {
-                        return (T)Convert.ChangeType(value, typeof(T));
-                    }
-                    catch { }
-                }
-            }
-
-            return default;
-        }
-
-        public void SetProperty(string propertyName, object value)
-        {
-            if (!string.IsNullOrEmpty(propertyName))
-            {
-                try
-                {
-                    lock (_lock)
-                    {
-                        _properties.Remove(propertyName);
-                        _properties[propertyName] = value;
-                    }
-                }
-                catch { }
-            }
         }
 
 
@@ -250,7 +268,7 @@ namespace MTConnect.Observations
                 {
                     if (value.Value != null)
                     {
-                        if (_uppercaseValueRegex.IsMatch(value.Value))
+                        if (!value.Value.IsNumeric() && _uppercaseValueRegex.IsMatch(value.Value))
                         {
                             var v = value.Value.ToUpper();
                             x.Add(new ObservationValue(value.Key, v));

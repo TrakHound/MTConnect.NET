@@ -28,7 +28,11 @@ namespace MTConnect.Observations.Input
         public string NativeCode
         {
             get => GetValue(ValueKeys.NativeCode);
-            set => AddValue(new ObservationValue(ValueKeys.NativeCode, value));
+            set
+            {
+                var val = !string.IsNullOrEmpty(value) ? value : null;
+                AddValue(new ObservationValue(ValueKeys.NativeCode, val));
+            }
         }
 
         /// <summary>
@@ -37,7 +41,11 @@ namespace MTConnect.Observations.Input
         public string NativeSeverity
         {
             get => GetValue(ValueKeys.NativeSeverity);
-            set => AddValue(new ObservationValue(ValueKeys.NativeSeverity, value));
+            set
+            {
+                var val = !string.IsNullOrEmpty(value) ? value : null;
+                AddValue(new ObservationValue(ValueKeys.NativeSeverity, val));
+            }
         }
 
         /// <summary>
@@ -62,7 +70,11 @@ namespace MTConnect.Observations.Input
         public string Message
         {
             get => GetValue(ValueKeys.Message);
-            set => AddValue(new ObservationValue(ValueKeys.Message, value));
+            set
+            {
+                var val = !string.IsNullOrEmpty(value) ? value : null;
+                AddValue(new ObservationValue(ValueKeys.Message, val));
+            }
         }
 
 

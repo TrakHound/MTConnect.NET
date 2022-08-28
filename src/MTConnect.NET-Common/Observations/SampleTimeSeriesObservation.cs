@@ -29,7 +29,7 @@ namespace MTConnect.Observations
 
         public SampleTimeSeriesObservation() : base()
         {
-            SetProperty(nameof(Representation), Devices.DataItems.DataItemRepresentation.TIME_SERIES);
+            _representation = Devices.DataItems.DataItemRepresentation.TIME_SERIES;
         }
     }
 }

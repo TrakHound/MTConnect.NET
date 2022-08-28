@@ -33,7 +33,7 @@ namespace MTConnect.Observations
 
         public EventObservation()
         {
-            SetProperty("Category", DataItemCategory.EVENT);
+            _category = DataItemCategory.EVENT;
         }
 
 
@@ -42,13 +42,13 @@ namespace MTConnect.Observations
             if (dataItem != null)
             {
                 var observation = Create(dataItem.Type, dataItem.Representation);
-                observation.DataItem = dataItem;
-                observation.SetProperty(nameof(DataItemId), dataItem.Id);
-                observation.SetProperty(nameof(Representation), dataItem.Representation);
-                observation.SetProperty(nameof(Type), dataItem.Type);
-                observation.SetProperty(nameof(SubType), dataItem.SubType);
-                observation.SetProperty(nameof(Name), dataItem.Name);
-                observation.SetProperty(nameof(CompositionId), dataItem.CompositionId);
+                observation._dataItem = dataItem;
+                observation._dataItemId = dataItem.Id;
+                observation._representation = dataItem.Representation;
+                observation._type = dataItem.Type;
+                observation._subType = dataItem.SubType;
+                observation._name = dataItem.Name;
+                observation._compositionId = dataItem.CompositionId;
                 return observation;
             }
 
@@ -60,15 +60,15 @@ namespace MTConnect.Observations
             if (observation != null && observation.DataItem != null)
             {
                 var result = Create(observation.DataItem.Type, observation.DataItem.Representation);
-                result.DataItem = observation.DataItem;
-                result.SetProperty(nameof(DataItemId), observation.DataItem.Id);
-                result.SetProperty(nameof(Representation), observation.DataItem.Representation);
-                result.SetProperty(nameof(Type), observation.DataItem.Type);
-                result.SetProperty(nameof(SubType), observation.DataItem.SubType);
-                result.SetProperty(nameof(Name), observation.DataItem.Name);
-                result.SetProperty(nameof(CompositionId), observation.DataItem.CompositionId);
-                result.SetProperty(nameof(Sequence), observation.Sequence);
-                result.SetProperty(nameof(Timestamp), observation.Timestamp);
+                result._dataItem = observation.DataItem;
+                result._dataItemId = observation.DataItem.Id;
+                result._representation = observation.DataItem.Representation;
+                result._type = observation.DataItem.Type;
+                result._subType = observation.DataItem.SubType;
+                result._name = observation.DataItem.Name;
+                result._compositionId = observation.DataItem.CompositionId;
+                result._sequence = observation.Sequence;
+                result._timestamp = observation.Timestamp;
                 result.AddValues(observation.Values);
                 return result;
             }
@@ -84,7 +84,7 @@ namespace MTConnect.Observations
 
                 if (!_types.IsNullOrEmpty())
                 {
-                    var key = string.Intern(type + ":" + representation);
+                    var key = string.Intern(type + ":" + (int)representation);
 
                     // Lookup Type ID (Type as PascalCase)
                     _typeIds.TryGetValue(key, out var typeId);

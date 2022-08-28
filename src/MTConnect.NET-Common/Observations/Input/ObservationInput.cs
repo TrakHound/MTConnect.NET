@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace MTConnect.Observations.Input
 {
@@ -14,6 +15,8 @@ namespace MTConnect.Observations.Input
     /// </summary>
     public class ObservationInput : IObservationInput
     {
+        private static Encoding _utf8 = new UTF8Encoding();
+
         private byte[] _changeId;
 
 
@@ -160,11 +163,20 @@ namespace MTConnect.Observations.Input
 
         public void AddValue(ObservationValue observationValue)
         {
-            List<ObservationValue> x = null;
-            if (!Values.IsNullOrEmpty()) x = Values.ToList();
-            if (x == null) x = new List<ObservationValue>();
-            x.RemoveAll(o => o.Key == observationValue.Key);
-            x.Add(observationValue);
+            var x = new List<ObservationValue>();
+            if (!Values.IsNullOrEmpty())
+            {
+                foreach (var value in Values)
+                {
+                    // Add existing values (except if matching the new observationValue.Key)
+                    if (value._key != observationValue._key)
+                    {
+                        x.Add(value);
+                    }
+                }
+            }
+            if (observationValue.HasValue()) x.Add(observationValue);
+
             Values = x;
             _changeId = null;
         }
@@ -195,9 +207,17 @@ namespace MTConnect.Observations.Input
 
                 if (!observationInput.Values.IsNullOrEmpty())
                 {
-                    var valueString = "";
-                    foreach (var value in observationInput.Values) valueString += $"{value.Key}={value.Value}:";
-                    return valueString.ToMD5HashBytes();
+                    var sb = new StringBuilder();
+
+                    // Create String with ValueKey=Value segments
+                    foreach (var value in observationInput.Values) sb.Append($"{value.Key}={value.Value}:");
+
+                    // Get Bytes from StringBuilder
+                    char[] a = new char[sb.Length];
+                    sb.CopyTo(0, a, 0, sb.Length);
+
+                    // Convert StringBuilder result to UTF8 Bytes
+                    return _utf8.GetBytes(a);
                 }
             }
 
