@@ -60,7 +60,7 @@ namespace MTConnect.Clients.Rest
         /// <param name="device">The Device to retrieve Assets for</param>
         /// <param name="count">Specifies the maximum number of MTConnectAssets Response Documents returned in an MTConnectAssets Response Document</param>
         /// <param name="documentFormat">Gets or Sets the Document Format to return</param>
-        public MTConnectAssetClient(string authority, string type = null, string device = null, long count = -1, string documentFormat = MTConnect.DocumentFormat.XML)
+        public MTConnectAssetClient(string authority, long count = -1, string type = null, string device = null, string documentFormat = MTConnect.DocumentFormat.XML)
         {
             Init();
             Authority = authority;
