@@ -104,7 +104,7 @@ namespace MTConnect.Applications.Agents
                 File.Copy(defaultPath, configPath);
             }
 
-            // Read the Http Agent Configuation File
+            // Read the Agent Configuation File
             var configuration = OnConfigurationFileRead(configFile);
             if (configuration != null)
             {
@@ -249,7 +249,7 @@ namespace MTConnect.Applications.Agents
         {
             var configuration = OnConfigurationFileRead(configurationPath);
 
-            // Start the Agent
+            // Start the Agent with new Configuration
             StartAgent(configuration, verboseLogging);
         }
 
@@ -327,7 +327,7 @@ namespace MTConnect.Applications.Agents
                     _mtconnectAgent.AssetsRequestReceived += AssetsRequested;
                     _mtconnectAgent.DeviceAssetsRequestReceived += DeviceAssetsRequested;
                     _mtconnectAgent.AssetsResponseSent += AssetsSent;
-                    _mtconnectAgent.ObservationAdded += ObservationAdded;
+                    //_mtconnectAgent.ObservationAdded += ObservationAdded;
                     _mtconnectAgent.InvalidComponentAdded += InvalidComponent;
                     _mtconnectAgent.InvalidCompositionAdded += InvalidComposition;
                     _mtconnectAgent.InvalidDataItemAdded += InvalidDataItem;
@@ -497,37 +497,40 @@ namespace MTConnect.Applications.Agents
 
         private void StartMetrics()
         {
-            int observationLastCount = 0;
-            int observationDelta = 0;
-            int assetLastCount = 0;
-            int assetDelta = 0;
-            var updateInterval = _mtconnectAgent.Metrics.UpdateInterval.TotalSeconds;
-            var windowInterval = _mtconnectAgent.Metrics.WindowInterval.TotalMinutes;
-
-            _metricsTimer = new System.Timers.Timer();
-            _metricsTimer.Interval = updateInterval * 1000;
-            _metricsTimer.Elapsed += (s, e) =>
+            if (_mtconnectAgent.Metrics != null)
             {
-                // Observations
-                var observationCount = _mtconnectAgent.Metrics.GetObservationCount();
-                var observationAverage = _mtconnectAgent.Metrics.ObservationAverage;
-                observationDelta = observationCount - observationLastCount;
+                int observationLastCount = 0;
+                int observationDelta = 0;
+                int assetLastCount = 0;
+                int assetDelta = 0;
+                var updateInterval = _mtconnectAgent.Metrics.UpdateInterval.TotalSeconds;
+                var windowInterval = _mtconnectAgent.Metrics.WindowInterval.TotalMinutes;
 
-                _agentMetricLogger.Info("[Agent] : Observations - Delta for last " + updateInterval + " seconds: " + observationDelta);
-                _agentMetricLogger.Info("[Agent] : Observations - Average for last " + windowInterval + " minutes: " + Math.Round(observationAverage, 5));
+                _metricsTimer = new System.Timers.Timer();
+                _metricsTimer.Interval = updateInterval * 1000;
+                _metricsTimer.Elapsed += (s, e) =>
+                {
+                    // Observations
+                    var observationCount = _mtconnectAgent.Metrics.GetObservationCount();
+                    var observationAverage = _mtconnectAgent.Metrics.ObservationAverage;
+                    observationDelta = observationCount - observationLastCount;
 
-                // Assets
-                var assetCount = _mtconnectAgent.Metrics.GetAssetCount();
-                var assetAverage = _mtconnectAgent.Metrics.AssetAverage;
-                assetDelta = assetCount - assetLastCount;
+                    _agentMetricLogger.Info("[Agent] : Observations - Delta for last " + updateInterval + " seconds: " + observationDelta);
+                    _agentMetricLogger.Info("[Agent] : Observations - Average for last " + windowInterval + " minutes: " + Math.Round(observationAverage, 5));
 
-                _agentMetricLogger.Info("[Agent] : Assets - Delta for last " + updateInterval + " seconds: " + assetDelta);
-                _agentMetricLogger.Info("[Agent] : Assets - Average for last " + windowInterval + " minutes: " + Math.Round(assetAverage, 5));
+                    // Assets
+                    var assetCount = _mtconnectAgent.Metrics.GetAssetCount();
+                    var assetAverage = _mtconnectAgent.Metrics.AssetAverage;
+                    assetDelta = assetCount - assetLastCount;
 
-                observationLastCount = observationCount;
-                assetLastCount = assetCount;
-            };
-            _metricsTimer.Start();
+                    _agentMetricLogger.Info("[Agent] : Assets - Delta for last " + updateInterval + " seconds: " + assetDelta);
+                    _agentMetricLogger.Info("[Agent] : Assets - Average for last " + windowInterval + " minutes: " + Math.Round(assetAverage, 5));
+
+                    observationLastCount = observationCount;
+                    assetLastCount = assetCount;
+                };
+                _metricsTimer.Start();
+            }           
         }
 
         #endregion
