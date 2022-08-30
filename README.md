@@ -32,7 +32,7 @@ Other features of MTConnect.NET :
 - Full list of Asset types. See [Devices](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-Common/Assets) for more information.
 - Fully supports Unit conversion. Default Units and UnitConversion is done automatically when sending Streams and when reading Streams.
 - Full client support for requesting data from any MTConnect Agent (Probe, Current, Sample Stream, Assets, etc.). See [Clients](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-HTTP/Clients/Rest) for more information.
-- (In-Progress) [Models](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-Common/Models) framework for setting and accessing data using an object model as opposed to DataItem ID's and Types
+- (In-Progress) [Models](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-Models/Models) framework for setting and accessing data using an object model as opposed to DataItem ID's and Types
 
 ## Applications
 - [MTConnect HTTP Agent](https://github.com/TrakHound/MTConnect.NET/tree/master/applications/Agents/MTConnect-Agent-Http) : A traditional MTConnect Agent using a REST Api, in-memory buffer as well as backed up on the File System (retains state after restart), and SHDR for Adapters. Uses the MTConnectHttpServer as the web server.
@@ -105,7 +105,7 @@ Agents are implemented using the MTConnectAgent class and IMTConnectAgent interf
 
 ## Adapters
 ### SHDR Adapter
-The only adapter currently available is one using the SHDR protocol. More information can be found at [Adapters](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET/Adapters/Shdr).
+The only adapter currently available is one using the SHDR protocol. More information can be found at [Adapters-SHDR](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-SHDR/Adapters/Shdr).
 
 ## Developer Notes
 This repo along with the libraries and applications are free to use and hopefully will help those that are looking at either getting started using MTConnect or those that are looking to use MTConnect for more advanced use cases. The [Models](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-Common/Models) framework will hopefully make using MTConnect much easier and straight forward and promote better usage of the standard's lesser used features.
