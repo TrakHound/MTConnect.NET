@@ -354,7 +354,7 @@ namespace MTConnect.Adapters.Shdr
                 {
                     foreach (var client in clients)
                     {
-                        return WriteLineToClient(client, line);
+                        WriteLineToClient(client, line);
                     }
                 }              
             }
@@ -386,7 +386,7 @@ namespace MTConnect.Adapters.Shdr
                 {
                     foreach (var client in clients)
                     {
-                        return await WriteLineToClientAsync(client, line);
+                        await WriteLineToClientAsync(client, line);
                     }
                 }
             }
