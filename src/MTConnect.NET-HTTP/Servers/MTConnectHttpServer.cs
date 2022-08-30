@@ -14,7 +14,6 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace MTConnect.Servers.Http
@@ -269,7 +268,7 @@ namespace MTConnect.Servers.Http
             if (httpRequest != null && httpRequest.Url != null && httpResponse != null)
             {
                 // Get Accept-Encoding Header (ex. gzip, br)
-                var acceptEncodings = GetRequestHeaderValues(httpRequest, "Accept-Encoding");
+                var acceptEncodings = GetRequestHeaderValues(httpRequest, HttpHeaders.AcceptEncoding);
                 acceptEncodings = ProcessAcceptEncodings(acceptEncodings);
 
                 // Read DeviceKey from URL Path
@@ -339,7 +338,7 @@ namespace MTConnect.Servers.Http
             if (httpRequest != null && httpRequest.Url != null && httpResponse != null)
             {
                 // Get Accept-Encoding Header (ex. gzip, br)
-                var acceptEncodings = GetRequestHeaderValues(httpRequest, "Accept-Encoding");
+                var acceptEncodings = GetRequestHeaderValues(httpRequest, HttpHeaders.AcceptEncoding);
                 acceptEncodings = ProcessAcceptEncodings(acceptEncodings);
 
                 // Read DeviceKey from URL Path
@@ -399,36 +398,42 @@ namespace MTConnect.Servers.Http
 
                 if (interval > -1)
                 {
-                    // Remove Indent for streaming
-                    formatOptions.RemoveAll(o => o.Key == "indentOutput");
+                    // Get list of DataItem ID's based on Path (XPath) parameter
+                    var dataItemIds = PathProcessor.GetDataItemIds(_mtconnectAgent, path, documentFormat);
 
-                    var currentStream = new MTConnectHttpCurrentStream(_mtconnectAgent, deviceKey, path, interval, heartbeat, documentFormat, formatOptions);
+                    var sampleStream = new MTConnectHttpServerStream(
+                        _configuration,
+                        _mtconnectAgent,
+                        deviceKey,
+                        dataItemIds,
+                        0,
+                        0,
+                        interval,
+                        heartbeat,
+                        documentFormat,
+                        acceptEncodings,
+                        formatOptions
+                        );
 
                     try
                     {
                         using (var responseStream = httpResponse.OutputStream)
                         {
                             // Create Sample Stream
-                            currentStream.HeartbeatReceived += async (s, args) => await WriteFromStream(currentStream, responseStream, args);
-                            currentStream.DocumentReceived += async (s, args) => await WriteFromStream(currentStream, responseStream, args);
+                            sampleStream.HeartbeatReceived += async (s, args) => await WriteFromStream(sampleStream, responseStream, args);
+                            sampleStream.DocumentReceived += async (s, args) => await WriteFromStream(sampleStream, responseStream, args);
 
-                            // Set HTTP Response Headers
-                            httpResponse.Headers.Add("Server", "MTConnectAgent");
-                            httpResponse.Headers.Add("Expires", "-1");
-                            httpResponse.Headers.Add("Connection", "close");
-                            httpResponse.Headers.Add("Cache-Control", "no-cache, private, max-age=0");
-                            httpResponse.Headers.Add("Content-Type", $"multipart/x-mixed-replace;boundary={currentStream.Boundary}");
+                            // Set HTTP Headers and Settings for Streaming
+                            SetupStreamResponse(ref httpResponse, sampleStream.Boundary);
 
-                            // Start the MTConnectHttpStream
-                            currentStream.Start(CancellationToken.None);
-
-                            while (true) { await Task.Delay(100); }
+                            // Run the MTConnectHttpStream
+                            sampleStream.RunCurrent();
                         }
                     }
                     catch { }
                     finally
                     {
-                        if (currentStream != null) currentStream.Stop();
+                        if (sampleStream != null) sampleStream.Stop();
                     }
                 }
                 else
@@ -451,7 +456,6 @@ namespace MTConnect.Servers.Http
             }
         }
 
-
         /// <summary>
         /// An Agent responds to a Sample Request with an MTConnectStreams Response Document that contains a set of values for Data Entities
         /// currently available for Streaming Data from the Agent, subject to any filtering defined in the Request.
@@ -461,7 +465,7 @@ namespace MTConnect.Servers.Http
             if (httpRequest != null && httpRequest.Url != null && httpResponse != null)
             {
                 // Get Accept-Encoding Header (ex. gzip, br)
-                var acceptEncodings = GetRequestHeaderValues(httpRequest, "Accept-Encoding");
+                var acceptEncodings = GetRequestHeaderValues(httpRequest, HttpHeaders.AcceptEncoding);
                 acceptEncodings = ProcessAcceptEncodings(acceptEncodings);
 
                 // Read DeviceKey from URL Path
@@ -529,13 +533,22 @@ namespace MTConnect.Servers.Http
 
                 if (interval > -1)
                 {
-                    // Remove Indent for streaming
-                    //formatOptions.RemoveAll(o => o.Key == "indentOutput");
-
                     // Get list of DataItem ID's based on Path (XPath) parameter
                     var dataItemIds = PathProcessor.GetDataItemIds(_mtconnectAgent, path, documentFormat);
 
-                    var sampleStream = new MTConnectHttpSampleStream(_mtconnectAgent, deviceKey, dataItemIds, from, count, interval, heartbeat, documentFormat, acceptEncodings, formatOptions);
+                    var sampleStream = new MTConnectHttpServerStream(
+                        _configuration, 
+                        _mtconnectAgent, 
+                        deviceKey, 
+                        dataItemIds, 
+                        from,
+                        count, 
+                        interval, 
+                        heartbeat, 
+                        documentFormat, 
+                        acceptEncodings, 
+                        formatOptions
+                        );
 
                     try
                     {
@@ -545,20 +558,11 @@ namespace MTConnect.Servers.Http
                             sampleStream.HeartbeatReceived += async (s, args) => await WriteFromStream(sampleStream, responseStream, args);
                             sampleStream.DocumentReceived += async (s, args) => await WriteFromStream(sampleStream, responseStream, args);
 
-                            // Set HTTP Status Code
-                            httpResponse.StatusCode = 200;
-                            httpResponse.KeepAlive = true;
-                            httpResponse.SendChunked = true;
-
-                            // Set HTTP Response Headers
-                            httpResponse.Headers.Add("Server", "MTConnectAgent");
-                            httpResponse.Headers.Add("Expires", "-1");
-                            httpResponse.Headers.Add("Connection", "close");
-                            httpResponse.Headers.Add("Cache-Control", "no-cache, private, max-age=0");
-                            httpResponse.Headers.Add("Content-Type", $"multipart/x-mixed-replace;boundary={sampleStream.Boundary}");
+                            // Set HTTP Headers and Settings for Streaming
+                            SetupStreamResponse(ref httpResponse, sampleStream.Boundary);
 
                             // Run the MTConnectHttpStream
-                            await sampleStream.Run();
+                            sampleStream.RunSample();
                         }
                     }
                     catch { }
@@ -596,7 +600,7 @@ namespace MTConnect.Servers.Http
             if (httpRequest != null && httpRequest.Url != null && httpResponse != null)
             {
                 // Get Accept-Encoding Header (ex. gzip, br)
-                var acceptEncodings = GetRequestHeaderValues(httpRequest, "Accept-Encoding");
+                var acceptEncodings = GetRequestHeaderValues(httpRequest, HttpHeaders.AcceptEncoding);
                 acceptEncodings = ProcessAcceptEncodings(acceptEncodings);
 
                 // Read DeviceKey from URL Path
@@ -664,7 +668,7 @@ namespace MTConnect.Servers.Http
                 var urlSegments = GetUriSegments(httpRequest.Url);
 
                 // Get Accept-Encoding Header (ex. gzip, br)
-                var acceptEncodings = GetRequestHeaderValues(httpRequest, "Accept-Encoding");
+                var acceptEncodings = GetRequestHeaderValues(httpRequest, HttpHeaders.AcceptEncoding);
                 acceptEncodings = ProcessAcceptEncodings(acceptEncodings);
 
                 // Read AssetIds from URL Path
@@ -822,34 +826,6 @@ namespace MTConnect.Servers.Http
             }
         }
 
-        private async Task<byte[]> ReadRequestBytes(Stream inputStream)
-        {
-            if (inputStream != null)
-            {
-                try
-                {
-                    var bufferSize = 1048576 * 2; // 2 MB
-                    var bytes = new byte[bufferSize];
-                    await inputStream.ReadAsync(bytes, 0, bytes.Length);
-
-                    return TrimEnd(bytes);
-                }
-                catch { }
-            }
-
-            return null;
-        }
-
-        public static byte[] TrimEnd(byte[] array)
-        {
-            int lastIndex = Array.FindLastIndex(array, b => b != 0);
-
-            Array.Resize(ref array, lastIndex + 1);
-
-            return array;
-        }
-
-
         private async Task ProcessStatic(HttpListenerRequest httpRequest, HttpListenerResponse httpResponse)
         {
             if (httpRequest != null && httpResponse != null)
@@ -951,44 +927,38 @@ namespace MTConnect.Servers.Http
 
         #endregion
 
+        #region "Requests"
 
-        private IEnumerable<string> ProcessAcceptEncodings(IEnumerable<string> acceptEncodings)
+        private async Task<byte[]> ReadRequestBytes(Stream inputStream)
         {
-            if (!acceptEncodings.IsNullOrEmpty() && !_configuration.ResponseCompression.IsNullOrEmpty())
+            if (inputStream != null)
             {
-                var output = new List<string>();
-
-                // Gzip
-                if (!_configuration.ResponseCompression.IsNullOrEmpty() &&
-                    _configuration.ResponseCompression.Contains(HttpResponseCompression.Gzip) &&
-                    !acceptEncodings.IsNullOrEmpty() && acceptEncodings.Contains(HttpContentEncodings.Gzip))
+                try
                 {
-                    output.Add(HttpContentEncodings.Gzip);
-                }
+                    var bufferSize = 1048576 * 2; // 2 MB
+                    var bytes = new byte[bufferSize];
+                    await inputStream.ReadAsync(bytes, 0, bytes.Length);
 
-#if NET5_0_OR_GREATER
-                else if (!_configuration.ResponseCompression.IsNullOrEmpty() &&
-                    _configuration.ResponseCompression.Contains(HttpResponseCompression.Br) &&
-                    !acceptEncodings.IsNullOrEmpty() && acceptEncodings.Contains(HttpContentEncodings.Brotli))
-                {
-                    output.Add(HttpContentEncodings.Brotli);
+                    return TrimEnd(bytes);
                 }
-#endif
-
-                else if (!_configuration.ResponseCompression.IsNullOrEmpty() &&
-                    _configuration.ResponseCompression.Contains(HttpResponseCompression.Deflate) &&
-                    !acceptEncodings.IsNullOrEmpty() && acceptEncodings.Contains(HttpContentEncodings.Deflate))
-                {
-                    output.Add(HttpContentEncodings.Deflate);
-                }
-
-                return output;
+                catch { }
             }
 
             return null;
         }
 
-        #region "Write Response"
+        public static byte[] TrimEnd(byte[] array)
+        {
+            int lastIndex = Array.FindLastIndex(array, b => b != 0);
+
+            Array.Resize(ref array, lastIndex + 1);
+
+            return array;
+        }
+
+        #endregion
+
+        #region "Responses"
 
         /// <summary>
         /// Write a MTConnectHttpResponse to the HttpListenerResponse Output Stream
@@ -1105,23 +1075,7 @@ namespace MTConnect.Servers.Http
             }
         }
 
-        private async Task WriteFromStream(MTConnectHttpCurrentStream currentStream, Stream responseStream, MTConnectHttpStreamArgs args)
-        {
-            if (currentStream != null && responseStream != null)
-            {
-                try
-                {
-                    await WriteToResponseStream(responseStream, args);
-                }
-                catch (Exception ex)
-                {
-                    if (ClientDisconnected != null) ClientDisconnected.Invoke(this, currentStream.Id);
-                    currentStream.Stop();
-                }
-            }
-        }
-
-        private async Task WriteFromStream(MTConnectHttpSampleStream sampleStream, Stream responseStream, MTConnectHttpStreamArgs args)
+        private async Task WriteFromStream(MTConnectHttpServerStream sampleStream, Stream responseStream, MTConnectHttpStreamArgs args)
         {
             if (sampleStream != null && responseStream != null)
             {
@@ -1135,6 +1089,55 @@ namespace MTConnect.Servers.Http
                     sampleStream.Stop();
                 }
             }
+        }
+
+
+        private IEnumerable<string> ProcessAcceptEncodings(IEnumerable<string> acceptEncodings)
+        {
+            if (!acceptEncodings.IsNullOrEmpty() && !_configuration.ResponseCompression.IsNullOrEmpty())
+            {
+                var output = new List<string>();
+
+                // Gzip
+                if (_configuration.ResponseCompression.Contains(HttpResponseCompression.Gzip) &&
+                    !acceptEncodings.IsNullOrEmpty() && acceptEncodings.Contains(HttpContentEncodings.Gzip))
+                {
+                    output.Add(HttpContentEncodings.Gzip);
+                }
+
+#if NET5_0_OR_GREATER
+                else if (_configuration.ResponseCompression.Contains(HttpResponseCompression.Br) &&
+                    !acceptEncodings.IsNullOrEmpty() && acceptEncodings.Contains(HttpContentEncodings.Brotli))
+                {
+                    output.Add(HttpContentEncodings.Brotli);
+                }
+#endif
+
+                else if (_configuration.ResponseCompression.Contains(HttpResponseCompression.Deflate) &&
+                    !acceptEncodings.IsNullOrEmpty() && acceptEncodings.Contains(HttpContentEncodings.Deflate))
+                {
+                    output.Add(HttpContentEncodings.Deflate);
+                }
+
+                return output;
+            }
+
+            return null;
+        }
+
+        private static void SetupStreamResponse(ref HttpListenerResponse response, string boundary)
+        {
+            // Set HTTP Status Code
+            response.StatusCode = 200;
+            response.KeepAlive = true;
+            response.SendChunked = true;
+
+            // Set HTTP Response Headers
+            response.Headers.Add("Server", "MTConnectAgent");
+            response.Headers.Add("Expires", "-1");
+            response.Headers.Add("Connection", "close");
+            response.Headers.Add("Cache-Control", "no-cache, private, max-age=0");
+            response.Headers.Add(HttpHeaders.ContentType, $"multipart/x-mixed-replace;boundary={boundary}");
         }
 
         #endregion

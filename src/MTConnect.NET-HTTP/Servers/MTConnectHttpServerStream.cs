@@ -4,6 +4,7 @@
 // file 'LICENSE.txt', which is part of this source code package.
 
 using MTConnect.Agents;
+using MTConnect.Configurations;
 using MTConnect.Http;
 using MTConnect.Streams.Output;
 using System;
@@ -17,13 +18,14 @@ using System.Threading.Tasks;
 
 namespace MTConnect.Servers.Http
 {
-    public class MTConnectHttpSampleStream
+    public class MTConnectHttpServerStream
     {
         private const int _minInterval = 1; // 1 millisecond minimum interval
 
 
         private readonly string _id = StringFunctions.RandomString(10);
         private readonly string _boundary = UnixDateTime.Now.ToString().ToMD5Hash();
+        private readonly IHttpAgentConfiguration _configuration;
         private readonly IMTConnectAgent _mtconnectAgent;
         private readonly string _deviceKey;
         private readonly IEnumerable<string> _dataItemIds;
@@ -38,6 +40,7 @@ namespace MTConnect.Servers.Http
 
         private CancellationTokenSource _stop;
         private bool _isConnected;
+        private bool _currentOnly;
 
 
         public string Id => _id;
@@ -62,7 +65,8 @@ namespace MTConnect.Servers.Http
 
 
 
-        public MTConnectHttpSampleStream(
+        public MTConnectHttpServerStream(
+            IHttpAgentConfiguration configuration,
             IMTConnectAgent mtconnectAgent,
             string deviceKey,
             IEnumerable<string> dataItemIds = null,
@@ -75,6 +79,7 @@ namespace MTConnect.Servers.Http
             IEnumerable<KeyValuePair<string, string>> formatOptions = null
             )
         {
+            _configuration = configuration;
             _mtconnectAgent = mtconnectAgent;
             _deviceKey = deviceKey;
             _dataItemIds = dataItemIds;
@@ -88,12 +93,26 @@ namespace MTConnect.Servers.Http
         }
 
 
-        public void Start(CancellationToken cancellationToken)
+        public void StartSample(CancellationToken cancellationToken)
         {
             _stop = new CancellationTokenSource();
             cancellationToken.Register(() => { Stop(); });
 
-            _= Task.Run(async () => await Worker(_stop.Token));
+            _currentOnly = false;
+
+            _= Task.Run(Worker, _stop.Token);
+
+            _isConnected = true;
+        }
+
+        public void StartCurrent(CancellationToken cancellationToken)
+        {
+            _stop = new CancellationTokenSource();
+            cancellationToken.Register(() => { Stop(); });
+
+            _currentOnly = true;
+
+            _ = Task.Run(Worker, _stop.Token);
 
             _isConnected = true;
         }
@@ -104,17 +123,28 @@ namespace MTConnect.Servers.Http
             _isConnected = false;
         }
 
-        public async Task Run()
+        public void RunSample()
         {
             _stop = new CancellationTokenSource();
+            _currentOnly = false;
 
-            await Worker(_stop.Token);
+            Worker();
+
+            _isConnected = true;
+        }
+
+        public void RunCurrent()
+        {
+            _stop = new CancellationTokenSource();
+            _currentOnly = true;
+
+            Worker();
 
             _isConnected = true;
         }
 
 
-        private async Task Worker(CancellationToken cancellationToken)
+        private void Worker()
         {
             if (_mtconnectAgent != null)
             {
@@ -139,19 +169,27 @@ namespace MTConnect.Servers.Http
                     byte[] chunk = null;
                     byte[] multipartChunk = null;
 
-                    while (!cancellationToken.IsCancellationRequested)
+                    while (!_stop.IsCancellationRequested)
                     {
                         stpw.Restart();
 
                         // Read the MTConnectStreams document from the IMTConnectAgent
                         if (!string.IsNullOrEmpty(_deviceKey))
                         {
-                            if (!_dataItemIds.IsNullOrEmpty()) document = _mtconnectAgent.GetDeviceStream(_deviceKey, _dataItemIds, nextSequence, long.MaxValue, _count);
-                            else document = _mtconnectAgent.GetDeviceStream(_deviceKey, nextSequence, long.MaxValue, _count);
+                            if (_currentOnly)
+                            {
+                                if (!_dataItemIds.IsNullOrEmpty()) document = _mtconnectAgent.GetDeviceStream(_deviceKey, _dataItemIds);
+                                else document = _mtconnectAgent.GetDeviceStream(_deviceKey);
+                            }
+                            else
+                            {
+                                if (!_dataItemIds.IsNullOrEmpty()) document = _mtconnectAgent.GetDeviceStream(_deviceKey, _dataItemIds, nextSequence, long.MaxValue, _count);
+                                else document = _mtconnectAgent.GetDeviceStream(_deviceKey, nextSequence, long.MaxValue, _count);
+                            }
                         }
                         else
                         {
-                            if (!_dataItemIds.IsNullOrEmpty()) document = _mtconnectAgent.GetDeviceStreams(_dataItemIds, nextSequence, long.MaxValue, _count);
+                            if (_currentOnly) document = _mtconnectAgent.GetDeviceStreams();
                             else document = _mtconnectAgent.GetDeviceStreams(nextSequence, long.MaxValue, _count);
                         }
 
@@ -199,8 +237,9 @@ namespace MTConnect.Servers.Http
                         chunk = null;
                         multipartChunk = null;
 
+
                         // Pause the stream for the specified Interval
-                        await Task.Delay(_interval, cancellationToken);
+                        Thread.Sleep(_interval);
                     }
                 }
                 catch (Exception ex)
@@ -215,24 +254,30 @@ namespace MTConnect.Servers.Http
 
         private string GetContentEncoding()
         {
-            // Gzip
-            if (!_acceptEncodings.IsNullOrEmpty() && _acceptEncodings.Contains(HttpContentEncodings.Gzip))
+            if (_configuration != null && !_configuration.ResponseCompression.IsNullOrEmpty())
             {
-                return HttpContentEncodings.Gzip;
-            }
+                // Gzip
+                if (_configuration.ResponseCompression.Contains(HttpResponseCompression.Gzip) && 
+                    !_acceptEncodings.IsNullOrEmpty() && _acceptEncodings.Contains(HttpContentEncodings.Gzip))
+                {
+                    return HttpContentEncodings.Gzip;
+                }
 
 #if NET5_0_OR_GREATER
-            // Brotli
-            else if (!_acceptEncodings.IsNullOrEmpty() && _acceptEncodings.Contains(HttpContentEncodings.Brotli))
-            {
-                return HttpContentEncodings.Brotli;
-            }
+                // Brotli
+                else if (_configuration.ResponseCompression.Contains(HttpResponseCompression.Br) &&
+                    !_acceptEncodings.IsNullOrEmpty() && _acceptEncodings.Contains(HttpContentEncodings.Brotli))
+                {
+                    return HttpContentEncodings.Brotli;
+                }
 #endif
 
-            // Deflate
-            else if (!_acceptEncodings.IsNullOrEmpty() && _acceptEncodings.Contains(HttpContentEncodings.Deflate))
-            {
-                return HttpContentEncodings.Deflate;
+                // Deflate
+                else if (_configuration.ResponseCompression.Contains(HttpResponseCompression.Deflate) &&
+                    !_acceptEncodings.IsNullOrEmpty() && _acceptEncodings.Contains(HttpContentEncodings.Deflate))
+                {
+                    return HttpContentEncodings.Deflate;
+                }
             }
 
             return null;
@@ -325,7 +370,7 @@ namespace MTConnect.Servers.Http
 
             // Add Content Length Line
             _multipartBuilder.Append("Content-length: ");
-            _multipartBuilder.Append(body.Length);
+            _multipartBuilder.Append(body.Length + 3); // Set Content-length to body.Length + 3 (newline)
             _multipartBuilder.Append(newLine);
             _multipartBuilder.Append(newLine);
 
@@ -337,7 +382,7 @@ namespace MTConnect.Servers.Http
             var headerBytes = Encoding.UTF8.GetBytes(a);
 
             // Create Array to return that is the size of the Header + body + newline
-            byte[] bytes = new byte[headerBytes.Length + body.Length + 2];
+            byte[] bytes = new byte[headerBytes.Length + body.Length + 3];
 
             // Add Header Bytes
             Array.Copy(headerBytes, 0, bytes, 0, headerBytes.Length);
@@ -346,6 +391,7 @@ namespace MTConnect.Servers.Http
             Array.Copy(body, 0, bytes, headerBytes.Length, body.Length);
 
             // Add NewLine
+            bytes[bytes.Length - 3] = 10;
             bytes[bytes.Length - 2] = 13;
             bytes[bytes.Length - 1] = 10;
 
