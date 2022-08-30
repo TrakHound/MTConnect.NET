@@ -5,6 +5,7 @@
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)'=='Release'">
 		<TargetFrameworks>net461;net462;net47;net471;net472;net48;netstandard2.0;netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
+		<Optimize>true</Optimize>
 	</PropertyGroup>
 
 	<PropertyGroup>
@@ -15,12 +16,12 @@
 		<Copyright>Copyright (c) 2022 TrakHound Inc., All Rights Reserved.</Copyright>
 		<RepositoryUrl>https://github.com/TrakHound/MTConnect.NET</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
-		<Description>MTConnect.NET-Common contains common classes for MTConnect® Agents, Adapters, and Clients. Supports MTConnect Versions up to 2.0. Supports .NET Framework 4.6.1 up to .NET 6</Description>
+		<Description>MTConnect.NET-Applications-Agents contains classes to fully implement an MTConnect Agent application.  Supports MTConnect Versions up to 2.0. Supports .NET Framework 4.6.1 up to .NET 6</Description>
 		<PackageProjectUrl>https://www.TrakHound.com</PackageProjectUrl>
 		<PackageTags>mtconnect;iiot;</PackageTags>
 		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
 		<PackageIconUrl>https://static.trakhound.com/mtconnect-net.png</PackageIconUrl>
-		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<!--<PackageReadmeFile>README.md</PackageReadmeFile>-->
 
 		<!-- Optional: Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
@@ -33,12 +34,23 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 	</PropertyGroup>
 
+	<PropertyGroup Condition="'$(Configuration)'=='Release'">
+		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+	</PropertyGroup>
+
 	<ItemGroup>
 		<PackageReference Include="NLog" Version="5.0.1" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\MTConnect.NET\MTConnect.NET.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
 	</ItemGroup>
 
 	<ItemGroup>
