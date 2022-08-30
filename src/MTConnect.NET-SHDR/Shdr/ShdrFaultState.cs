@@ -26,10 +26,10 @@ namespace MTConnect.Shdr
             )
         {
             Level = level;
-            NativeCode = nativeCode;
-            NativeSeverity = nativeSeverity;
+            if (!string.IsNullOrEmpty(nativeCode)) NativeCode = nativeCode;
+            if (!string.IsNullOrEmpty(nativeSeverity)) NativeSeverity = nativeSeverity;
             Qualifier = qualifier;
-            Message = message;
+            if (!string.IsNullOrEmpty(message)) Message = message;
             Timestamp = timestamp;
         }
 
@@ -40,10 +40,10 @@ namespace MTConnect.Shdr
                 DeviceKey = conditionObservation.DeviceKey;
                 DataItemKey = conditionObservation.DataItemKey;
                 Level = conditionObservation.Level;
-                NativeCode = conditionObservation.NativeCode;
-                NativeSeverity = conditionObservation.NativeSeverity;
+                if (!string.IsNullOrEmpty(conditionObservation.NativeCode)) NativeCode = conditionObservation.NativeCode;
+                if (!string.IsNullOrEmpty(conditionObservation.NativeSeverity)) NativeSeverity = conditionObservation.NativeSeverity;
                 Qualifier = conditionObservation.Qualifier;
-                Message = conditionObservation.Message;
+                if (!string.IsNullOrEmpty(conditionObservation.Message)) Message = conditionObservation.Message;
                 Timestamp = conditionObservation.Timestamp;
             }
         }
@@ -144,14 +144,14 @@ namespace MTConnect.Shdr
                         // Set NativeCode
                         x = ShdrLine.GetNextValue(y);
                         y = ShdrLine.GetNextSegment(y);
-                        condition.NativeCode = x;
+                        if (!string.IsNullOrEmpty(x)) condition.NativeCode = x;
 
                         if (y != null)
                         {
                             // Set NativeSeverity
                             x = ShdrLine.GetNextValue(y);
                             y = ShdrLine.GetNextSegment(y);
-                            condition.NativeSeverity = x;
+                            if (!string.IsNullOrEmpty(x)) condition.NativeSeverity = x;
 
                             if (y != null)
                             {
@@ -168,7 +168,7 @@ namespace MTConnect.Shdr
 
                         // Set Message
                         x = ShdrLine.GetNextValue(y);
-                        condition.Message = x;
+                        if (!string.IsNullOrEmpty(x)) condition.Message = x;
                     }
 
                     return condition;
