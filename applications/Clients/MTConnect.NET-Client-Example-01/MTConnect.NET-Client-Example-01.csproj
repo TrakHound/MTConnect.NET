@@ -9,15 +9,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Program - Copy %282%29.cs" />
-    <Compile Remove="Program - Copy.cs" />
-    <Compile Remove="Program.cs" />
+    <Compile Remove="Assets.cs" />
+    <Compile Remove="ClientRequests.cs" />
+    <Compile Remove="CurrentStream.cs" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="Program - Copy (2).cs" />
-    <None Include="Program - Copy.cs" />
-    <None Include="Program.cs" />
+    <None Include="Assets.cs" />
+    <None Include="ClientRequests.cs" />
+    <None Include="CurrentStream.cs" />
   </ItemGroup>
 
   <ItemGroup>

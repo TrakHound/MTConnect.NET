@@ -2,33 +2,28 @@ using MTConnect.Clients.Rest;
 
 //var deviceName = "OKUMA-Lathe";
 //var deviceName = "M12346";
-var baseUrl = "127.0.0.1:5005";
-//var baseUrl = "127.0.0.1:5005";
-//var baseUrl = "localhost:5000";
-//var baseUrl = "mtconnect.mazakcorp.com:5719";
 
-//var probe = new MTConnectProbeClient(baseUrl, deviceName);
-//var doc = probe.Get();
-//if (doc != null)
-//{
+//var agentUrl = "localhost:5006";
+//var agentUrl = "localhost:5005";
+//var agentUrl = "localhost:5000";
+var agentUrl = "192.168.1.136:5000";
+//var agentUrl = "mtconnect.mazakcorp.com:5719";
 
-//}
 
 for (int i = 0; i < 1; i++)
 {
-    var client = new MTConnectClient(baseUrl);
-    //var client = new MTConnectClient(baseUrl, deviceName);
-    client.Interval = 100;
-    //client.Interval = 1000;
+    var client = new MTConnectClient(agentUrl);
+    //var client = new MTConnectClient(agentUrl, deviceName);
+    client.Interval = 1000;
+    client.Heartbeat = 10000;
+    //client.ContentEncodings = null;
+    //client.ContentType = null;
     client.OnProbeReceived += (sender, document) =>
     {
         Console.WriteLine("Probe Received");
 
         foreach (var device in document.Devices)
         {
-            // Device
-            Console.WriteLine(device.Id);
-
             //// DataItems
             //foreach (var dataItem in device.DataItems)
             //{
@@ -48,14 +43,6 @@ for (int i = 0; i < 1; i++)
     client.OnCurrentReceived += (sender, document) =>
     {
         Console.WriteLine($"MTConnectStreams : Current : {document.GetObservations().Count()} Observations");
-
-        foreach (var deviceStream in document.Streams)
-        {
-            foreach (var dataSet in deviceStream.EventDataSets)
-            {
-
-            }
-        }
 
         //foreach (var deviceStream in document.Streams)
         //{
@@ -107,72 +94,8 @@ for (int i = 0; i < 1; i++)
         }
     };
     client.Start();
+    //client.StartFromBuffer();
     //client.Start("//*[@type=\"PATH_POSITION\"]");
 }
 
 Console.ReadLine();
-
-
-//var client = new MTConnectCurrentClient(agentUrl, deviceName, MTConnect.DocumentFormat.XML);
-//var agentUrl = "localhost:5000";
-
-//var client = new MTConnectProbeClient(agentUrl, deviceName);
-
-//while (true)
-//{
-//    var doc = await client.GetAsync(CancellationToken.None);
-//    if (doc != null)
-//    {
-//        foreach (MTConnect.Devices.Device device in doc.Devices)
-//        {
-//            Console.WriteLine(device.Id);
-//        }
-//    }
-
-//    Console.ReadLine();
-//}
-
-//var client = new MTConnectAssetClient(agentUrl, MTConnect.DocumentFormat.XML);
-////var client = new MTConnectAssetClient(agentUrl, MTConnect.DocumentFormat.JSON);
-
-
-
-//while (true)
-//{
-//    var doc = await client.GetAsync(CancellationToken.None);
-//    if (doc != null)
-//    {
-//        foreach (var asset in doc.Assets.Assets)
-//        {
-//            Console.WriteLine(asset.AssetId);
-//        }
-//    }
-
-//    Console.ReadLine();
-//}
-
-
-
-////var client = new MTConnectCurrentClient(agentUrl, deviceName, MTConnect.DocumentFormat.XML);
-//var client = new MTConnectCurrentClient(agentUrl, deviceName, MTConnect.DocumentFormat.JSON);
-
-//while (true)
-//{
-//    var doc = await client.GetAsync(CancellationToken.None);
-//    if (doc != null)
-//    {
-//        var deviceStream = doc.Streams.FirstOrDefault(d => d.Name == deviceName);
-//        if (deviceStream != null)
-//        {
-//            foreach (var componentStream in deviceStream.ComponentStreams)
-//            {
-//                foreach (var dataItem in componentStream.DataItems)
-//                {
-//                    Console.WriteLine($"{dataItem.DataItemId} = {dataItem.CDATA}");
-//                }
-//            }
-//        }
-//    }
-
-//    Console.ReadLine();
-//}

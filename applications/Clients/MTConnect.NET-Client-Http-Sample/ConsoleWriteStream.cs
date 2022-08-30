@@ -7,7 +7,7 @@ using MTConnect.Clients.Rest;
 
 namespace MTConnect.Client.Http.Sample
 {
-    class ConsoleWriteStream : MTConnectHttpStream
+    class ConsoleWriteStream : MTConnectHttpClientStream
     {
         public ConsoleWriteStream(string url) : base (url) { }
 
