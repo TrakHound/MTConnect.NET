@@ -14,16 +14,15 @@ namespace MTConnect.Servers.Http
 {
     public abstract class HttpServer : IDisposable
     {
-        private const string DefaultServer = "127.0.0.1";
-        private const int DefaultPort = 5000;
+        private const string Loopback = "127.0.0.1";
+        private const string Localhost = "localhost";
         private const string EmptyServer = "0.0.0.0";
+        private const int DefaultPort = 5000;
         private const int DefaultMaxStreamThreads = 10;
 
-        private static readonly string DefaultPrefix = "http://" + DefaultServer + ":" + DefaultPort + "/";
-
+        private readonly object _lock = new object();
         private readonly Dictionary<string, Thread> _threads = new Dictionary<string, Thread>();
         private readonly IEnumerable<string> _prefixes;
-        private readonly object _lock = new object();
         private HttpListener _listener;
         private CancellationTokenSource _stop;
         private int _maxStreamThreads = DefaultMaxStreamThreads;
@@ -321,23 +320,27 @@ namespace MTConnect.Servers.Http
 
         private static IEnumerable<string> CreatePrefixes(IHttpAgentConfiguration configuration, IEnumerable<string> prefixes = null, int port = 0)
         {
-            var x = new List<string>();
+            var serverPort = DefaultPort;
+            var hostnames = new List<string>();
+            hostnames.Add(Localhost);
+            hostnames.Add(Loopback);
 
             if (!prefixes.IsNullOrEmpty())
             {
-                x.AddRange(prefixes);
+                // Add custom Prefixes
+                hostnames.AddRange(prefixes);
             }
             else if (configuration != null)
             {
-                var serverIp = DefaultServer;
-                var serverPort = DefaultPort;
-
                 // Configuration Server IP
                 if (!string.IsNullOrEmpty(configuration.ServerIp))
                 {
-                    if (configuration.ServerIp != EmptyServer)
+                    if (configuration.ServerIp != EmptyServer && 
+                        configuration.ServerIp != Loopback &&
+                        configuration.ServerIp != Localhost
+                        )
                     {
-                        serverIp = configuration.ServerIp;
+                        hostnames.Add(configuration.ServerIp);
                     }
                 }
 
@@ -350,15 +353,15 @@ namespace MTConnect.Servers.Http
                 {
                     serverPort = configuration.Port;
                 }
-
-                // Construct Prefix URL
-                x.Add("http://" + serverIp + ":" + serverPort + "/");
-
             }
-            else x.Add(DefaultPrefix);
 
+            // Construct Prefix URLs
+            var x = new List<string>();
+            foreach (var hostname in hostnames)
+            {
+                x.Add("http://" + hostname + ":" + serverPort + "/");
+            }
             return x;
         }
-
     }
 }
