@@ -38,7 +38,7 @@ namespace MTConnect.Clients.Rest
 
                             using (var inputStream = new MemoryStream(bytes))
                             using (var outputStream = new MemoryStream())
-                            using (var encodingStream = new GZipStream(inputStream, CompressionMode.Decompress))
+                            using (var encodingStream = new GZipStream(inputStream, CompressionMode.Decompress, true))
                             {
                                 encodingStream.CopyTo(outputStream);
                                 return outputStream.ToArray();
@@ -49,7 +49,7 @@ namespace MTConnect.Clients.Rest
 
                             using (var inputStream = new MemoryStream(bytes))
                             using (var outputStream = new MemoryStream())
-                            using (var encodingStream = new BrotliStream(inputStream, CompressionMode.Decompress))
+                            using (var encodingStream = new BrotliStream(inputStream, CompressionMode.Decompress, true))
                             {
                                 encodingStream.CopyTo(outputStream);
                                 return outputStream.ToArray();
@@ -60,7 +60,7 @@ namespace MTConnect.Clients.Rest
 
                             using (var inputStream = new MemoryStream(bytes))
                             using (var outputStream = new MemoryStream())
-                            using (var encodingStream = new DeflateStream(inputStream, CompressionMode.Decompress))
+                            using (var encodingStream = new DeflateStream(inputStream, CompressionMode.Decompress, true))
                             {
                                 encodingStream.CopyTo(outputStream);
                                 return outputStream.ToArray();

@@ -19,7 +19,7 @@ namespace MTConnect.Clients.Rest
     /// <summary>
     /// An Http Stream for reading MTConnect Sample or Current streams and returns MTConnectStreamsResponse documents
     /// </summary>
-    public class MTConnectHttpStream
+    public class MTConnectHttpClientStream
     {
         private const int DefaultTimeout = 300000;
         private const byte LineFeed = 10;
@@ -35,7 +35,7 @@ namespace MTConnect.Clients.Rest
         private string _documentFormat = DocumentFormat.XML;
 
 
-        public MTConnectHttpStream(string url, string documentFormat = DocumentFormat.XML)
+        public MTConnectHttpClientStream(string url, string documentFormat = DocumentFormat.XML)
         {
             Id = Guid.NewGuid().ToString();
             Url = url;
@@ -137,7 +137,7 @@ namespace MTConnect.Clients.Rest
                     Started?.Invoke(this, new EventArgs());
 
 
-                    // Add 'Accept' HTTP Header 
+                    // Add 'Accept' HTTP Header
                     _httpClient.DefaultRequestHeaders.Add(HttpHeaders.Accept, ContentType);
 
                     // Add 'Accept-Encoding' HTTP Header 
@@ -200,11 +200,11 @@ namespace MTConnect.Clients.Rest
                                 }
 
                                 // Read Content Length
-                                var headerValue = GetHeaderValue(lineStr, HttpHeaders.ContentLength);
+                                var headerValue = GetHeaderValue(lineStr, HttpHeaders.ContentLength.ToLower());
                                 if (headerValue != null) contentLength = headerValue.ToInt();
 
                                 // Read Content Encoding
-                                headerValue = GetHeaderValue(lineStr, HttpHeaders.ContentEncoding);
+                                headerValue = GetHeaderValue(lineStr, HttpHeaders.ContentEncoding.ToLower());
                                 if (headerValue != null) contentEncoding = headerValue;
 
                                 if (!headerActive && contentLength > 0)
@@ -263,7 +263,7 @@ namespace MTConnect.Clients.Rest
         {
             if (!string.IsNullOrEmpty(s))
             {
-                var x = s.TrimStart();
+                var x = s.ToLower().TrimStart();
                 if (x.StartsWith(name + ":"))
                 {
                     var i = x.IndexOf(':');

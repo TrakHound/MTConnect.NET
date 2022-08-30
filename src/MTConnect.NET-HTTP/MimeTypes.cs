@@ -17,7 +17,7 @@ namespace MTConnect.Http
         private static readonly Lazy<IDictionary<string, string>> _mappings = new Lazy<IDictionary<string, string>>(BuildMappings);
 
 
-        public const string XML = "application/xml";
+        public const string XML = "text/xml";
         public const string JSON = "application/json";
 
 

@@ -23,7 +23,7 @@ namespace MTConnect.Clients.Rest
     public class MTConnectClient : IMTConnectClient
     {
         private CancellationTokenSource _stop;
-        private MTConnectHttpStream _stream;
+        private MTConnectHttpClientStream _stream;
         private long _lastInstanceId;
         private long _lastSequence;
         private long _lastResponse;
@@ -463,7 +463,7 @@ namespace MTConnect.Clients.Rest
         /// </summary>
         public IAssetsResponseDocument GetAssets(long count = 100)
         {
-            var client = new MTConnectAssetClient(Authority, null, null, count, DocumentFormat);
+            var client = new MTConnectAssetClient(Authority, count, null, null, DocumentFormat);
             client.Timeout = Timeout;
             client.ContentEncodings = ContentEncodings;
             client.ContentType = ContentType;
@@ -486,7 +486,7 @@ namespace MTConnect.Clients.Rest
         /// </summary>
         public async Task<IAssetsResponseDocument> GetAssetsAsync(CancellationToken cancellationToken, long count = 100)
         {
-            var client = new MTConnectAssetClient(Authority, null, null, count, DocumentFormat);
+            var client = new MTConnectAssetClient(Authority, count, null, null, DocumentFormat);
             client.Timeout = Timeout;
             client.ContentEncodings = ContentEncodings;
             client.ContentType = ContentType;
@@ -618,7 +618,7 @@ namespace MTConnect.Clients.Rest
                             if (CurrentOnly) url = CreateCurrentUrl(Authority, Device, Interval, _streamPath);
 
                             // Create and Start the Stream
-                            _stream = new MTConnectHttpStream(url, DocumentFormat);
+                            _stream = new MTConnectHttpClientStream(url, DocumentFormat);
                             _stream.Timeout = Heartbeat * 3;
                             _stream.ContentEncodings = ContentEncodings;
                             _stream.ContentType = ContentType;
@@ -635,6 +635,11 @@ namespace MTConnect.Clients.Rest
                             await _stream.Run(_stop.Token);
 
                             initialRequest = false;
+
+                            if (!_stop.Token.IsCancellationRequested)
+                            {
+                                await Task.Delay(RetryInterval, _stop.Token);
+                            }
                         }
                         else
                         {
