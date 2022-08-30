@@ -27,7 +27,10 @@ namespace MTConnect.Streams.Xml
             {
                 try
                 {
-                    using (var memoryReader = new MemoryStream(xmlBytes))
+                    // Clean whitespace and Encoding Marks (BOM)
+                    var bytes = XmlFunctions.SanitizeBytes(xmlBytes);
+
+                    using (var memoryReader = new MemoryStream(bytes))
                     {
                         using (var xmlReader = XmlReader.Create(memoryReader))
                         {
@@ -43,20 +46,19 @@ namespace MTConnect.Streams.Xml
 
         public static IStreamsResponseDocument ReadXml(XmlReader reader)
         {
-            try
+            var document = new StreamsResponseDocument();
+
+            reader.ReadStartElement("MTConnectStreams");
+            reader.MoveToContent();
+            document.Version = MTConnectVersion.GetByNamespace(reader.NamespaceURI);
+
+            // Read Header
+            document.Header = XmlStreamsHeader.ReadXml(reader);
+
+            // Read to Streams Node
+            reader.ReadToNextSibling("Streams");
+            if (!reader.IsEmptyElement)
             {
-                var document = new StreamsResponseDocument();
-
-                reader.ReadStartElement("MTConnectStreams");
-                reader.MoveToContent();
-                document.Version = MTConnectVersion.GetByNamespace(reader.NamespaceURI);
-
-                // Read Header
-                document.Header = XmlStreamsHeader.ReadXml(reader);
-
-                // Read to Streams Node
-                reader.ReadToNextSibling("Streams");
-
                 // Read to DeviceStream node
                 reader.ReadToDescendant("DeviceStream");
 
@@ -68,12 +70,9 @@ namespace MTConnect.Streams.Xml
                 }
                 while (reader.ReadToNextSibling("DeviceStream"));
                 document.Streams = deviceStreams;
-
-                return document;
             }
-            catch { }
 
-            return null;
+            return document;
         }
 
         public static IDeviceStream ReadDeviceStreamXml(XmlReader reader)
@@ -246,12 +245,12 @@ namespace MTConnect.Streams.Xml
             {
                 case DataItemCategory.SAMPLE:
                     observation = SampleObservation.Create(type, representation);
-                    observation.SetProperty(nameof(Observation.Type), type);
+                    observation.Type = type;
                     break;
 
                 case DataItemCategory.EVENT:
                     observation = EventObservation.Create(type, representation);
-                    observation.SetProperty(nameof(Observation.Type), type);
+                    observation.Type = type;
                     break;
 
                 default:
@@ -269,31 +268,31 @@ namespace MTConnect.Streams.Xml
                     switch (reader.Name)
                     {
                         case "dataItemId":
-                            observation.SetProperty(nameof(Observation.DataItemId), reader.Value);
+                            observation.DataItemId = reader.Value;
                             break;
 
                         case "name":
-                            observation.SetProperty(nameof(Observation.Name), reader.Value);
+                            observation.Name = reader.Value;
                             break;
 
                         case "type":
-                            observation.SetProperty(nameof(Observation.Type), reader.Value);
+                            observation.Type = reader.Value;
                             break;
 
                         case "subType":
-                            observation.SetProperty(nameof(Observation.SubType), reader.Value);
+                            observation.SubType = reader.Value;
                             break;
 
                         case "sequence":
-                            observation.SetProperty(nameof(Observation.Sequence), reader.Value);
+                            observation.Sequence = reader.Value.ToLong();
                             break;
 
                         case "timestamp":
-                            observation.SetProperty(nameof(Observation.Timestamp), reader.Value);
+                            observation.Timestamp = reader.Value.ToDateTime();
                             break;
 
                         case "compositionId":
-                            observation.SetProperty(nameof(Observation.CompositionId), reader.Value);
+                            observation.CompositionId = reader.Value;
                             break;
 
                         default:

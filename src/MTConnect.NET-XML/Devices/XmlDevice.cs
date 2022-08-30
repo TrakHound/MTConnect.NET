@@ -152,9 +152,17 @@ namespace MTConnect.Devices.Xml
             {
                 try
                 {
-                    using (var memoryReader = new MemoryStream(xmlBytes))
+                    // Clean whitespace and Encoding Marks (BOM)
+                    var bytes = XmlFunctions.SanitizeBytes(xmlBytes);
+
+                    using (var memoryReader = new MemoryStream(bytes))
                     {
-                        using (var xmlReader = XmlReader.Create(memoryReader))
+                        var readerSettings = new XmlReaderSettings();
+                        readerSettings.IgnoreComments = true;
+                        readerSettings.IgnoreProcessingInstructions = true;
+                        readerSettings.IgnoreWhitespace = true;
+
+                        using (var xmlReader = XmlReader.Create(memoryReader, readerSettings))
                         {
                             var xmlObj = (XmlDevice)_serializer.Deserialize(xmlReader);
                             if (xmlObj != null)

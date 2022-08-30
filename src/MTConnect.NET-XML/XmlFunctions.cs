@@ -4,6 +4,7 @@
 // file 'LICENSE', which is part of this source code package.
 
 using MTConnect.Writers;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -42,6 +43,63 @@ namespace MTConnect
         public static XmlWriterSettings XmlWriterSettings => _xmlWriterSettings;
         public static XmlWriterSettings XmlWriterSettingsIndent => _xmlWriterSettingsIndent;
 
+
+        public static byte[] SanitizeBytes(byte[] inputBytes)
+        {
+            if (inputBytes != null)
+            {
+                var bytes = new byte[inputBytes.Length];
+                inputBytes.CopyTo(bytes, 0);
+
+                // Look for Whitespace bytes
+                // For some reason the XmlReaderSettings.IgnoreWhitespace doesn't cover prefix whitespace
+                var i = 0;
+                var j = 0;
+                while (i < bytes.Length)
+                {
+                    if (bytes[i] != 13 && bytes[i] != 10) break;
+                    i++;
+                    j++;
+                }
+
+                if (j > 0)
+                {
+                    // Shift Array over past the initial Whitespace bytes
+                    var s = bytes.Length - j;
+                    Array.Copy(bytes, j, bytes, 0, bytes.Length - j);
+                    Array.Resize(ref bytes, s);
+                }
+
+                // Detect Encoding Byte Mark (if found then remove)
+                var preamble = Encoding.UTF8.GetPreamble();
+                if (bytes.Length >= preamble.Length && preamble.SequenceEqual(bytes.Take(preamble.Length)))
+                {
+                    var s = bytes.Length - preamble.Length;
+                    Array.Copy(bytes, preamble.Length, bytes, 0, s);
+                    Array.Resize(ref bytes, s);
+                }
+
+                // Look for trailing Whitespace bytes
+                i = bytes.Length - 1;
+                j = 0;
+                while (i > 0)
+                {
+                    if (bytes[i] > 20) break;
+                    i--;
+                    j++;
+                }
+
+                if (j > 0)
+                {
+                    // Shift Array over past the trailing Whitespace bytes
+                    Array.Resize(ref bytes, bytes.Length - j);
+                }
+
+                return bytes;
+            }
+
+            return null;
+        }
 
         public static string FormatXml(string xml, bool indent = true, bool outputComments = false, bool omitXmlDeclaration = false)
         {

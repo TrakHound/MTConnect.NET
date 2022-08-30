@@ -52,7 +52,10 @@ namespace MTConnect.Assets.Xml
             {
                 try
                 {
-                    var xml = Encoding.UTF8.GetString(xmlBytes);
+                    // Clean whitespace and Encoding Marks (BOM)
+                    var bytes = XmlFunctions.SanitizeBytes(xmlBytes);
+
+                    var xml = Encoding.UTF8.GetString(bytes);
                     xml = xml.Trim();
 
                     var version = MTConnectVersion.Get(xml);
