@@ -24,8 +24,8 @@ namespace MTConnect.Buffers
         private readonly object _lock = new object();
         private long _sequence = 1;
 
-        private IDictionary<int, BufferObservation> _currentObservations = new Dictionary<int, BufferObservation>();
-        private IDictionary<int, IEnumerable<BufferObservation>> _currentConditions = new Dictionary<int, IEnumerable<BufferObservation>>();
+        private readonly IDictionary<int, BufferObservation> _currentObservations = new Dictionary<int, BufferObservation>();
+        private readonly IDictionary<int, IEnumerable<BufferObservation>> _currentConditions = new Dictionary<int, IEnumerable<BufferObservation>>();
         private CircularBuffer _archiveObservations;
 
         /// <summary>
@@ -492,11 +492,11 @@ namespace MTConnect.Buffers
                         else
                         {
                             toIndex = (int)(to - firstSequence);
-                            if (toIndex < 0) toIndex = (int)(lastSequence - firstSequence);
+                            if (toIndex < 0) toIndex = _archiveObservations.Size - 1;
                         }
                     }
 
-                    if (_archiveObservations.Size > 0 && toIndex >= fromIndex)
+                    if (_archiveObservations.Size > 0 && toIndex < _archiveObservations.Size && toIndex >= fromIndex)
                     {
                         bufferObservations = _archiveObservations;
 

@@ -9,6 +9,7 @@ namespace MTConnect.Buffers
 {
     class CircularBuffer
     {
+        private readonly object _lock = new object();
         private readonly BufferObservation[] _buffer;
         private int _start;
         private int _end;
@@ -16,9 +17,21 @@ namespace MTConnect.Buffers
         private bool _full;
 
 
-        public int Capacity => _buffer.Length;
+        public int Capacity
+        {
+            get 
+            {
+                lock (_lock) return _buffer.Length;
+            }
+        }
 
-        public int Size => _size;
+        public int Size
+        {
+            get
+            {
+                lock (_lock) return _size;
+            }
+        }
 
 
         public CircularBuffer(int capacity)
@@ -33,61 +46,56 @@ namespace MTConnect.Buffers
         {
             get
             {
-                if (_size == 0)
+                lock (_lock)
                 {
-                    throw new IndexOutOfRangeException(string.Format("Cannot access index {0}. Buffer is empty", index));
+                    if (_size == 0)
+                    {
+                        throw new IndexOutOfRangeException(string.Format("Cannot access index {0}. Buffer is empty", index));
+                    }
+                    if (index >= _size)
+                    {
+                        throw new IndexOutOfRangeException(string.Format("Cannot access index {0}. Buffer size is {1}", index, _size));
+                    }
+                    int actualIndex = _start + (index < (_buffer.Length - _start) ? index : index - _buffer.Length);
+                    return _buffer[actualIndex];
                 }
-                if (index >= _size)
-                {
-                    throw new IndexOutOfRangeException(string.Format("Cannot access index {0}. Buffer size is {1}", index, _size));
-                }
-                int actualIndex = InternalIndex(index);
-                return _buffer[actualIndex];
             }
             set
             {
-                if (_size == 0)
+                lock (_lock)
                 {
-                    throw new IndexOutOfRangeException(string.Format("Cannot access index {0}. Buffer is empty", index));
+                    if (_size == 0)
+                    {
+                        throw new IndexOutOfRangeException(string.Format("Cannot access index {0}. Buffer is empty", index));
+                    }
+                    if (index >= _size)
+                    {
+                        throw new IndexOutOfRangeException(string.Format("Cannot access index {0}. Buffer size is {1}", index, _size));
+                    }
+                    int actualIndex = _start + (index < (_buffer.Length - _start) ? index : index - _buffer.Length);
+                    _buffer[actualIndex] = value;
                 }
-                if (index >= _size)
-                {
-                    throw new IndexOutOfRangeException(string.Format("Cannot access index {0}. Buffer size is {1}", index, _size));
-                }
-                int actualIndex = InternalIndex(index);
-                _buffer[actualIndex] = value;
             }
         }
 
         public void Add(ref BufferObservation observation)
         {
-            if (_full)
+            lock (_lock)
             {
-                _buffer[_end] = observation;
-                Increment(ref _end);
-                _start = _end;
-            }
-            else
-            {
-                _buffer[_end] = observation;
-                Increment(ref _end);
-                ++_size;
-                _full = _size == _buffer.Length;
-            }
-        
-        }
-
-        private void Increment(ref int index)
-        {
-            if (++index == _buffer.Length)
-            {
-                index = 0;
-            }
-        }
-
-        private int InternalIndex(int index)
-        {
-            return _start + (index < (_buffer.Length - _start) ? index : index - _buffer.Length);
+                if (_full)
+                {
+                    _buffer[_end] = observation;
+                    if (++_end == _buffer.Length) _end = 0;
+                    _start = _end;
+                }
+                else
+                {
+                    _buffer[_end] = observation;
+                    if (++_end == _buffer.Length) _end = 0;
+                    ++_size;
+                    _full = _size == _buffer.Length;
+                }
+            }     
         }
     }
 }
