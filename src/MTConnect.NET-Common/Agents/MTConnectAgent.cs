@@ -45,8 +45,8 @@ namespace MTConnect.Agents
 
         protected readonly Dictionary<int, string> _deviceUuids = new Dictionary<int, string>();
         protected readonly Dictionary<int, string> _dataItemIds = new Dictionary<int, string>();
-        protected IDictionary<string, int> _deviceIndexes = new Dictionary<string, int>();
-        protected IDictionary<string, int> _dataItemIndexes = new Dictionary<string, int>();
+        protected Dictionary<string, int> _deviceIndexes = new Dictionary<string, int>();
+        protected Dictionary<string, int> _dataItemIndexes = new Dictionary<string, int>();
         protected int _lastDeviceIndex = 0;
         protected int _lastDataItemIndex = 0;
 
@@ -160,7 +160,7 @@ namespace MTConnect.Agents
         public long NextSequence => _observationBuffer != null ? _observationBuffer.NextSequence : 0;
 
 
-        public IDictionary<string, int> DeviceIndexes
+        public Dictionary<string, int> DeviceIndexes
         {
             get
             {
@@ -175,7 +175,7 @@ namespace MTConnect.Agents
             }
         }
 
-        public IDictionary<string, int> DataItemIndexes
+        public Dictionary<string, int> DataItemIndexes
         {
             get
             {
@@ -553,11 +553,12 @@ namespace MTConnect.Agents
         {
             if (!string.IsNullOrEmpty(deviceUuid) && !dataItemIds.IsNullOrEmpty())
             {
-                var keys = new List<int>(dataItemIds.Count());
-                foreach (var dataItemId in dataItemIds)
+                var a = dataItemIds.ToArray();
+                var keys = new int[a.Length];
+                for (var i = 0; i < a.Length; i++)
                 {
-                    var key = GenerateBufferKey(deviceUuid, dataItemId);
-                    if (key > 0) keys.Add(key);
+                    var key = GenerateBufferKey(deviceUuid, a[i]);
+                    keys[i] = key;
                 }
                 return keys;
             }
@@ -570,12 +571,7 @@ namespace MTConnect.Agents
             var deviceIndex = GetDeviceIndex(deviceUuid);
             var dataItemIndex = GetDataItemIndex(deviceUuid, dataItemId);
 
-            if (deviceIndex > 0 && dataItemIndex > 0)
-            {
-                return GenerateBufferKey(deviceIndex, dataItemIndex);
-            }
-
-            return 0;
+            return GenerateBufferKey(deviceIndex, dataItemIndex);
         }
 
         private static int GenerateBufferKey(int deviceIndex, int dataItemIndex)
@@ -618,7 +614,7 @@ namespace MTConnect.Agents
         {
             var index = 0;
 
-            if (!string.IsNullOrEmpty(deviceUuid))
+            if (deviceUuid != null)
             {
                 lock (_lock)
                 {
@@ -677,11 +673,11 @@ namespace MTConnect.Agents
         {
             var index = 0;
 
-            if (!string.IsNullOrEmpty(deviceUuid) && !string.IsNullOrEmpty(dataItemId))
+            if (dataItemId != null)
             {
+                var key = string.Concat(deviceUuid, ":", dataItemId);
                 lock (_lock)
                 {
-                    var key = deviceUuid + ":" + dataItemId;
                     _dataItemIndexes.TryGetValue(key, out index);
                     if (index < 1)
                     {
@@ -694,21 +690,6 @@ namespace MTConnect.Agents
             }
 
             return index;
-        }
-
-        public IEnumerable<int> GetDataItemIndexes(string deviceUuid, IEnumerable<string> dataItemIds)
-        {
-            var indexes = new List<int>();
-
-            if (!string.IsNullOrEmpty(deviceUuid) && !dataItemIds.IsNullOrEmpty())
-            {
-                foreach (var dataItemId in dataItemIds)
-                {
-                    indexes.Add(GetDataItemIndex(deviceUuid, dataItemId));
-                }
-            }
-
-            return indexes;
         }
 
         #endregion

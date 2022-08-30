@@ -10,7 +10,6 @@ using MTConnect.Devices;
 using MTConnect.Errors;
 using MTConnect.Observations;
 using MTConnect.Observations.Input;
-using MTConnect.Streams;
 using MTConnect.Streams.Output;
 using System;
 using System.Collections.Generic;
@@ -86,9 +85,9 @@ namespace MTConnect.Agents
         long NextSequence { get; }
 
 
-        IDictionary<string, int> DeviceIndexes { get; }
+        Dictionary<string, int> DeviceIndexes { get; }
 
-        IDictionary<string, int> DataItemIndexes { get; }
+        Dictionary<string, int> DataItemIndexes { get; }
 
 
         #region "Event Handlers"
@@ -138,7 +137,6 @@ namespace MTConnect.Agents
         /// Raised when an MTConnectStreams response Document is sent successfully from the Agent
         /// </summary>
         EventHandler StreamsResponseSent { get; set; }
-        //MTConnectStreamsHandler StreamsResponseSent { get; set; }
 
         /// <summary>
         /// Raised when an MTConnectAssets response Document is requested from the Agent
