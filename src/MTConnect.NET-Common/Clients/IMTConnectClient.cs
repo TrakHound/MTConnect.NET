@@ -46,7 +46,7 @@ namespace MTConnect.Clients
         /// <summary>
         /// Gets or Sets the Maximum Number of Samples returned per interval from the Sample Stream
         /// </summary>
-        long MaximumSampleCount { get; set; }
+        int MaximumSampleCount { get; set; }
 
         /// <summary>
         /// Gets the Last Instance ID read from the MTConnect Agent

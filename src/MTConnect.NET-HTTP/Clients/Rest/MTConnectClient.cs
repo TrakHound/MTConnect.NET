@@ -107,7 +107,7 @@ namespace MTConnect.Clients.Rest
         /// <summary>
         /// Gets or Sets the Maximum Number of Samples returned per interval from the Sample Stream
         /// </summary>
-        public long MaximumSampleCount { get; set; }
+        public int MaximumSampleCount { get; set; }
 
         /// <summary>
         /// Gets or Sets the List of Encodings (ex. gzip, br, deflate) to pass to the Accept-Encoding HTTP Header

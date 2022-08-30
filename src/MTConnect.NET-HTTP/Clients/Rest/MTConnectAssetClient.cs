@@ -257,6 +257,12 @@ namespace MTConnect.Clients.Rest
 
         private Uri CreateUri()
         {
+            if (!string.IsNullOrEmpty(AssetId)) return CreateUriSingle();
+            else return CreateUriMultiple();
+        }
+
+        private Uri CreateUriMultiple()
+        {
             var url = Authority;
 
             // Remove Assets command from URL
@@ -266,7 +272,6 @@ namespace MTConnect.Clients.Rest
 
             // Check for Trailing Forward Slash
             if (!url.EndsWith("/")) url += "/";
-            if (!string.IsNullOrEmpty(AssetId)) url += AssetId + "/";
             else if (!string.IsNullOrEmpty(Device)) url += Device + "/";
 
             // Add Command
@@ -284,6 +289,39 @@ namespace MTConnect.Clients.Rest
 
             // Add 'Count' parameter
             if (Count > 0) url = Url.AddQueryParameter(url, "count", Count);
+
+            // Add 'DocumentFormat' parameter
+            if (!string.IsNullOrEmpty(DocumentFormat) && DocumentFormat != MTConnect.DocumentFormat.XML)
+            {
+                url = Url.AddQueryParameter(url, "documentFormat", DocumentFormat.ToLower());
+            }
+
+            return new Uri(url);
+        }
+
+        private Uri CreateUriSingle()
+        {
+            var url = Authority;
+
+            // Remove Assets command from URL
+            var cmd = "asset";
+            if (url.EndsWith(cmd) && url.Length > cmd.Length)
+                url = url.Substring(0, url.Length - cmd.Length);
+
+            // Check for Trailing Forward Slash
+            if (!url.EndsWith("/")) url += "/";
+
+            // Add Command
+            url += cmd + "/";
+
+            // Add AssetId
+            url += AssetId;
+
+            // Replace 'localhost' with '127.0.0.1' (This is due to a performance issue with .NET Core's System.Net.Http.HttpClient)
+            if (url.Contains("localhost")) url = url.Replace("localhost", "127.0.0.1");
+
+            // Check for http
+            if (!url.StartsWith("http://") && !url.StartsWith("https://")) url = "http://" + url;
 
             // Add 'DocumentFormat' parameter
             if (!string.IsNullOrEmpty(DocumentFormat) && DocumentFormat != MTConnect.DocumentFormat.XML)
