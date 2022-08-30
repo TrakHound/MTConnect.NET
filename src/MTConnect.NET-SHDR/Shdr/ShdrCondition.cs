@@ -200,9 +200,14 @@ namespace MTConnect.Shdr
             {
                 if (!condition.FaultStates.IsNullOrEmpty())
                 {
-                    var values = new List<byte[]>();
-                    foreach (var faultState in condition.FaultStates) values.Add(faultState.ChangeId);
-                    return StringFunctions.ToMD5HashBytes(values.ToArray());
+                    var values = new byte[condition.FaultStates.Count()][];
+                    var i = 0;
+                    foreach (var faultState in condition.FaultStates)
+                    {
+                        values[i] = faultState.ChangeId;
+                        i++;
+                    }
+                    return StringFunctions.ToMD5HashBytes(values);
                 }
             }
 
