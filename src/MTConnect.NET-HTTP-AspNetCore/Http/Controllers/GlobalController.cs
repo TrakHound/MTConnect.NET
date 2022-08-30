@@ -123,8 +123,11 @@ namespace MTConnect.Http.Controllers
 
                     _logger.LogInformation($"[Api-Interface] : {Request.Host} : Current Stream Requested at {interval}ms Interval (Heartbeat = {heartbeat}ms) : [{Request.Method}] : {Request.Path} : {Request.QueryString}");
 
-                    // Create Sample Stream
-                    var stream = new MTConnectHttpCurrentStream(_agent, null, path, interval, heartbeat, documentFormat, formatOptions);
+                    // Get list of DataItem ID's based on Path (XPath) parameter
+                    var dataItemIds = PathProcessor.GetDataItemIds(_agent, path, documentFormat);
+
+                    // Create Current Stream
+                    var stream = new MTConnectHttpServerStream(_configuration, _agent, null, dataItemIds, 0, 0, interval, heartbeat, documentFormat, null, formatOptions);
                     stream.StreamStarted += (s, id) =>
                     {
                         _logger.LogInformation($"[Api-Interface] : {Request.Host} : Current Stream [{id}] Started at {interval}ms Interval (Heartbeat = {heartbeat}ms) : [{Request.Method}] : {Request.Path} : {Request.QueryString}");
@@ -172,7 +175,7 @@ namespace MTConnect.Http.Controllers
                     Response.Headers.Add("Content-Type", $"multipart/x-mixed-replace;boundary={stream.Boundary}");
 
                     // Start the MTConnectHttpStream
-                    stream.Start(HttpContext.RequestAborted);
+                    stream.StartCurrent(HttpContext.RequestAborted);
 
                     while (!HttpContext.RequestAborted.IsCancellationRequested) { await Task.Delay(100); }
 
@@ -249,7 +252,7 @@ namespace MTConnect.Http.Controllers
                     var dataItemIds = PathProcessor.GetDataItemIds(_agent, path, documentFormat);
 
                     // Create Sample Stream
-                    var stream = new MTConnectHttpSampleStream(_agent, null, dataItemIds, from, count, interval, heartbeat, documentFormat, null, formatOptions);
+                    var stream = new MTConnectHttpServerStream(_configuration, _agent, null, dataItemIds, from, count, interval, heartbeat, documentFormat, null, formatOptions);
                     stream.StreamStarted += (s, id) =>
                     {
                         _logger.LogInformation($"[Api-Interface] : {Request.Host} : Samples Stream [{id}] Started at {interval}ms Interval (Heartbeat = {heartbeat}ms) : [{Request.Method}] : {Request.Path} : {Request.QueryString}");
@@ -297,7 +300,7 @@ namespace MTConnect.Http.Controllers
                     Response.Headers.Add("Content-Type", $"multipart/x-mixed-replace;boundary={stream.Boundary}");
 
                     // Start the MTConnectHttpStream
-                    stream.Start(HttpContext.RequestAborted);
+                    stream.StartSample(HttpContext.RequestAborted);
 
                     while (!HttpContext.RequestAborted.IsCancellationRequested) { await Task.Delay(100); }
 
