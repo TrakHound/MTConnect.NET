@@ -22,10 +22,10 @@ namespace MTConnect.Http.Controllers
     {
         private readonly IMTConnectAgent _agent;
         private readonly IHttpAgentConfiguration _configuration;
-        private readonly ILogger<DeviceController> _logger;
+        private readonly ILogger<GlobalController> _logger;
 
 
-        public GlobalController(IMTConnectAgent agent, IHttpAgentConfiguration configuration, ILogger<DeviceController> logger)
+        public GlobalController(IMTConnectAgent agent, IHttpAgentConfiguration configuration, ILogger<GlobalController> logger)
         {
             _agent = agent;
             _configuration = configuration;

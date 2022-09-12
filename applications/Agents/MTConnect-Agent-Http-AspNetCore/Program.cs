@@ -13,10 +13,12 @@ using Microsoft.Extensions.Logging;
 using MTConnect.Agents;
 using MTConnect.Applications.Loggers;
 using MTConnect.Configurations;
+using MTConnect.Devices.Configurations;
 using NLog.Web;
 using System;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 
 namespace MTConnect.Applications
 {
@@ -89,6 +91,7 @@ namespace MTConnect.Applications
                 // Create MTConnectAgent
                 var agent = new MTConnectAgent(_configuration);
                 agent.MTConnectVersion = MTConnectVersions.Max;
+                agent.Start();
                 builder.Services.AddSingleton<IMTConnectAgent>(agent);
 
                 // Individual Logger Classes
@@ -103,30 +106,38 @@ namespace MTConnect.Applications
                 // Add the AgentService that handles the MTConnect Agent
                 builder.Services.AddHostedService<AgentService>();
 
-                //if (!_configuration.ResponseCompression.IsNullOrEmpty())
-                //{
-                //    // Add Compression Services
-                //    builder.Services.AddResponseCompression(options =>
-                //    {
-                //        options.EnableForHttps = true;
+                if (!_configuration.ResponseCompression.IsNullOrEmpty())
+                {
+                    // Add Compression Services
+                    builder.Services.AddResponseCompression(options =>
+                    {
+                        options.EnableForHttps = true;
 
-                //        switch (_configuration.ResponseCompression)
-                //        {
-                //            case Http.HttpResponseCompression.Gzip: options.Providers.Add<GzipCompressionProvider>(); break;
-                //            case Http.HttpResponseCompression.Br: options.Providers.Add<BrotliCompressionProvider>(); break;
-                //        }
-                //    });
+                        // Gzip
+                        if (_configuration.ResponseCompression.Any(o => o == Http.HttpResponseCompression.Gzip))
+                        {
+                            options.Providers.Add<GzipCompressionProvider>();
+                        }
 
-                //    switch (_configuration.ResponseCompression)
-                //    {
-                //        case Http.HttpResponseCompression.Gzip:
-                //            builder.Services.Configure<GzipCompressionProviderOptions>(options => { options.Level = CompressionLevel.Optimal; });
-                //            break;
-                //        case Http.HttpResponseCompression.Br: 
-                //            builder.Services.Configure<BrotliCompressionProviderOptions>(options => { options.Level = CompressionLevel.Optimal; }); 
-                //            break;
-                //    }             
-                //}             
+                        // Brotli
+                        if (_configuration.ResponseCompression.Any(o => o == Http.HttpResponseCompression.Br))
+                        {
+                            options.Providers.Add<BrotliCompressionProvider>();
+                        }
+                    });
+
+                    // Gzip
+                    if (_configuration.ResponseCompression.Any(o => o == Http.HttpResponseCompression.Gzip))
+                    {
+                        builder.Services.Configure<GzipCompressionProviderOptions>(options => { options.Level = CompressionLevel.Optimal; });
+                    }
+
+                    // Brotli
+                    if (_configuration.ResponseCompression.Any(o => o == Http.HttpResponseCompression.Br))
+                    {
+                        builder.Services.Configure<BrotliCompressionProviderOptions>(options => { options.Level = CompressionLevel.Optimal; });
+                    }
+                }
 
                 builder.WebHost.UseKestrel(o =>
                     {
@@ -152,13 +163,10 @@ namespace MTConnect.Applications
             app.UseStaticFiles();
             app.UseRouting();
 
-            //if (_configuration != null)
-            //{
-            //    if (_configuration.ResponseCompression != Http.HttpResponseCompression.None)
-            //    {
-            //        app.UseResponseCompression();
-            //    }
-            //}
+            if (_configuration != null && !_configuration.ResponseCompression.IsNullOrEmpty())
+            {
+                app.UseResponseCompression();
+            }
 
             app.UseEndpoints(endpoints =>
             {

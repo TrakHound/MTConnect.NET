@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Hosting.WindowsServices;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using MTConnect.Agents;
 using MTConnect.Applications.Loggers;
 using MTConnect.Configurations;
@@ -17,6 +18,7 @@ using NLog.Web;
 using System;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 
 namespace MTConnect.Applications
 {
@@ -83,8 +85,8 @@ namespace MTConnect.Applications
                 File.Copy(defaultPath, configPath);
             }
 
-            var configuration = AgentConfiguration.Read<AgentGatewayConfiguration>();
-            if (configuration != null)
+            _configuration = AgentConfiguration.Read<AgentGatewayConfiguration>();
+            if (_configuration != null)
             {
                 // Read Agent Information File
                 var agentInformation = MTConnectAgentInformation.Read();
@@ -95,11 +97,14 @@ namespace MTConnect.Applications
                 }
 
                 // Create MTConnectAgent
-                var agent = new MTConnectAgent(configuration, agentInformation.Uuid);
+                var agent = new MTConnectAgent(_configuration, agentInformation.Uuid);
+                agent.MTConnectVersion = MTConnectVersions.Max;
+                agent.Start();
                 builder.Services.AddSingleton<IMTConnectAgent>(agent);
 
                 // Individual Logger Classes
-                builder.Services.AddSingleton<AgentGatewayConfiguration>(configuration);
+                builder.Services.AddSingleton<AgentGatewayConfiguration>(_configuration);
+                builder.Services.AddSingleton<IHttpAgentConfiguration>(_configuration);
                 builder.Services.AddSingleton<AgentLogger>();
                 builder.Services.AddSingleton<AgentMetricLogger>();
                 builder.Services.AddSingleton<AgentValidationLogger>();
@@ -107,36 +112,44 @@ namespace MTConnect.Applications
                 // Add the AgentService that handles the MTConnect Agent
                 builder.Services.AddHostedService<AgentService>();
 
-                //if (_configuration.ResponseCompression != Http.HttpResponseCompression.None)
-                //{
-                //    // Add Compression Services
-                //    builder.Services.AddResponseCompression(options =>
-                //    {
-                //        options.EnableForHttps = true;
+                if (!_configuration.ResponseCompression.IsNullOrEmpty())
+                {
+                    // Add Compression Services
+                    builder.Services.AddResponseCompression(options =>
+                    {
+                        options.EnableForHttps = true;
 
-                //        switch (_configuration.ResponseCompression)
-                //        {
-                //            case Http.HttpResponseCompression.Gzip: options.Providers.Add<GzipCompressionProvider>(); break;
-                //            case Http.HttpResponseCompression.Br: options.Providers.Add<BrotliCompressionProvider>(); break;
-                //        }
-                //    });
+                        // Gzip
+                        if (_configuration.ResponseCompression.Any(o => o == Http.HttpResponseCompression.Gzip))
+                        {
+                            options.Providers.Add<GzipCompressionProvider>();
+                        }
 
-                //    switch (_configuration.ResponseCompression)
-                //    {
-                //        case Http.HttpResponseCompression.Gzip:
-                //            builder.Services.Configure<GzipCompressionProviderOptions>(options => { options.Level = CompressionLevel.Optimal; });
-                //            break;
-                //        case Http.HttpResponseCompression.Br:
-                //            builder.Services.Configure<BrotliCompressionProviderOptions>(options => { options.Level = CompressionLevel.Optimal; });
-                //            break;
-                //    }
-                //}
+                        // Brotli
+                        if (_configuration.ResponseCompression.Any(o => o == Http.HttpResponseCompression.Br))
+                        {
+                            options.Providers.Add<BrotliCompressionProvider>();
+                        }
+                    });
 
-                if (configuration.Port > 0)
+                    // Gzip
+                    if (_configuration.ResponseCompression.Any(o => o == Http.HttpResponseCompression.Gzip))
+                    {
+                        builder.Services.Configure<GzipCompressionProviderOptions>(options => { options.Level = CompressionLevel.Optimal; });
+                    }
+
+                    // Brotli
+                    if (_configuration.ResponseCompression.Any(o => o == Http.HttpResponseCompression.Br))
+                    {
+                        builder.Services.Configure<BrotliCompressionProviderOptions>(options => { options.Level = CompressionLevel.Optimal; });
+                    }
+                }
+
+                if (_configuration.Port > 0)
                 {
                     builder.WebHost.UseKestrel(o =>
                     {
-                        o.ListenAnyIP(configuration.Port);
+                        o.ListenAnyIP(_configuration.Port);
                     });
                 }
             }
@@ -159,13 +172,10 @@ namespace MTConnect.Applications
             app.UseStaticFiles();
             app.UseRouting();
 
-            //if (_configuration != null)
-            //{
-            //    if (_configuration.ResponseCompression != Http.HttpResponseCompression.None)
-            //    {
-            //        app.UseResponseCompression();
-            //    }
-            //}
+            if (_configuration != null && !_configuration.ResponseCompression.IsNullOrEmpty())
+            {
+                app.UseResponseCompression();
+            }
 
             app.UseEndpoints(endpoints =>
             {
