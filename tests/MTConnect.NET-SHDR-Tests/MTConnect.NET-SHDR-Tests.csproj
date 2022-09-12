@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\MTConnect.NET-SHDR\MTConnect.NET-SHDR.csproj" />
+    <ProjectReference Include="..\..\src\MTConnect.NET-SHDR\MTConnect.NET-SHDR.csproj" />
   </ItemGroup>
 
 </Project>
