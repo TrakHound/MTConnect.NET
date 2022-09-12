@@ -356,6 +356,8 @@ namespace MTConnect.Adapters.Shdr
                     {
                         WriteLineToClient(client, line);
                     }
+
+                    return true;
                 }              
             }
 
@@ -388,6 +390,8 @@ namespace MTConnect.Adapters.Shdr
                     {
                         await WriteLineToClientAsync(client, line);
                     }
+
+                    return true;
                 }
             }
 
