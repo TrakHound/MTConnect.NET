@@ -203,7 +203,7 @@ Logging is done using [NLog](https://github.com/NLog/NLog) which allows for cust
 - **(adapter-logger)** MTConnect Adapters
 - **(adapter-shdr-logger)** Raw SHDR lines read by the Adapter (used for debugging adapters)
 
-The default [NLog Configuration File](NLog.config) is shown below:
+The default [NLog Configuration File](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-Applications-Agents/NLog.config) is shown below:
 
 ```xml
 <?xml version="1.0" encoding="utf-8" ?>
