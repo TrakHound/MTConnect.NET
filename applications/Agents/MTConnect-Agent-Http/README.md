@@ -1,7 +1,20 @@
+![MTConnect.NET Logo](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/mtconnect-net-02-md.png) 
+
 # MTConnect Http Agent
 
 ## Overview
-This implementation is designed to mimic the functionality of the traditional [c++ MTConnect Agent](https://github.com/mtconnect/cppagent) that has been in the industry since the introduction of the MTConnect standard. It uses the SHDR protocol to receive data from Adapters, an in-memory buffer, and a Http REST interface for retrieving data.
+This project is a full implementation of an MTConnect Agent used to read data from industrial machine tools and devices. This MTConnect Agent application is fully compatible with the latest **Version 2.0 of the MTConnect Standard**. It uses the SHDR protocol to receive data from Adapters, an in-memory buffer with an optional durable file system based buffer, and an Http REST interface for retrieving data.
+
+#### Features
+- Easy setup with Windows Installers availble in the latest [Releases](https://github.com/TrakHound/MTConnect.NET/releases)
+- Options to run as Windows Service or as a console application (typically for testing/debugging)
+- Optional 'Durable' buffer used to retain the Agent data between application/machine restarts
+- High performance / Low resource usage
+- Flexible Device configurations (traditional 'devices.xml' file or 'devices' directory with individual Device files)
+- SHDR protocol compatibility for easy implementation with existing MTConnect Adapters
+- On-Demand MTConnect Versioning allowing for older clients to request the version of MTConnect they are compatible with using HTTP Url parameters
+- Configuration File monitoring to automatically restart the Agent upon configuration file changes
+- Flexible Logging using NLog which can be used to output log information to separate files for easier analysis
 
 ### Beta Notes
 > We are nearing the end of our Beta and are getting close to a first official release! 
@@ -13,7 +26,7 @@ Please feel free to use and debug this application and it's source code. There a
 
 ## Releases
 Releases for this application are located under the Releases tab. The current release is listed below:
-- [MTConnect Agent Current Release](https://github.com/TrakHound/MTConnect.NET/releases/tag/v0.5.1-beta-agents)
+- [MTConnect Agent Current Release](https://github.com/TrakHound/MTConnect.NET/releases)
 
 ## Usage
 The Agent can be run from a command line prompt or as a Windows Service using the format below:
@@ -91,6 +104,100 @@ More information about [Configurations](https://github.com/TrakHound/MTConnect.N
     ]
 }
 ```
+
+#### HTTP Configuration
+
+* `port` - The port number the agent binds to for requests.
+
+* `serverIp` - The server IP Address to bind to. Can be used to select the interface in IPV4 or IPV6.
+
+* `responseCompression` - Sets the List of Encodings (ex. gzip, br, deflate) to pass to the Accept-Encoding HTTP Header
+
+* `maxStreamingThreads` - The maximum number of Threads to use for the Http Stream Requests
+
+* `allowPut` - Allow HTTP PUT or POST of data item values or assets.
+
+* `allowPutFrom` - Allow HTTP PUT or POST from a specific host or list of hosts. 
+
+* `indentOutput` - Sets the default response document indendation
+
+* `outputComments` - Sets the default response document comments output. Comments contain descriptions from the MTConnect standard
+
+* `outputValidationLevel` - Sets the default response document validation level. 0 = Ignore, 1 = Warning, 2 = Strict
+
+* `files` - Sets the configuration for Static Files that can be served from the Http Server. For more information see ()
+
+
+#### Agent Configuration
+
+* `observationBufferSize` - The maximum number of Observations the agent can hold in its buffer
+
+* `assetBufferSize` - The maximum number of assets the agent can hold in its buffer
+
+* `durable` - Sets whether the Agent buffers are durable and retain state after restart
+
+* `useBufferCompression` - Sets whether the durable Agent buffers use Compression
+
+* `ignoreTimestamps` - Overwrite timestamps with the agent time. This will correct clock drift but will not give as accurate relative time since it will not take into consideration network latencies. This can be overridden on a per adapter basis.
+
+* `defaultVersion` - Sets the default MTConnect version to output response documents for.
+
+* `convertUnits` - Sets the default for Converting Units when adding Observations
+
+* `ignoreObservationCase` - Sets the default for Ignoring the case of Observation values. Applicable values will be converted to uppercase
+
+* `inputValidationLevel` - Sets the default input validation level when new Observations are added to the Agent. 0 = Ignore, 1 = Warning, 2 = Strict
+
+* `monitorConfigurationFiles` - Sets whether Configuration files are monitored. If enabled and a configuration file is changed, the Agent will restart
+
+* `configurationFileRestartInterval` - Sets the minimum time (in seconds) between Agent restarts when MonitorConfigurationFiles is enabled
+
+* `enableMetrics` - Sets whether Agent Metrics are captured (ex. ObserationUpdateRate, AssetUpdateRate)
+
+
+#### Device Configuration
+
+* `devices` - The Path to look for the file(s) that represent the Device Information Models to load into the Agent. The path can either be a single file or a directory. The path can be absolute or relative to the executable's directory
+
+#### Adapter Configuration
+
+* `adapters` - List of SHDR Adapter connection configurations. For more information see()
+
+* `allowShdrDevice` - Sets whether a Device Model can be sent from an SHDR Adapter
+
+* `preserveUuid` - Do not overwrite the UUID with the UUID from the adapter, preserve the UUID for the Device. This can be overridden on a per adapter basis.
+
+* `suppressIpAddress` - Suppress the Adapter IP Address and port when creating the Agent Device ids and names for 1.7. This applies to all adapters.
+
+* `timeout` - The amount of time (in milliseconds) an adapter can be silent before it is disconnected.
+
+* `reconnectInterval` - The amount of time (in milliseconds) between adapter reconnection attempts.
+
+#### XML Configuration
+
+* `devicesNamespaces` - List of extended XML namespaces to use with MTConnectDevicesResponse documents
+
+* `streamsNamespaces` - List of extended XML namespaces to use with MTConnectStreamsResponse documents
+
+* `assetsNamespaces` - List of extended XML namespaces to use with MTConnectAssetsResponse documents
+
+* `errorNamespaces` - List of extended XML namespaces to use with MTConnectErrorResponse documents
+
+
+* `devicesStyle` - List of XSLT Stylesheets to use with MTConnectDevicesResponse documents
+
+* `streamsStyle` - List of XSLT Stylesheets to use with MTConnectStreamsResponse documents
+
+* `assetsStyle` - List of XSLT Stylesheets to use with MTConnectAssetsResponse documents
+
+* `errorStyle` - List of XSLT Stylesheets to use with MTConnectErrorResponse documents
+
+#### Windows Service Configuration
+
+* `serviceName` - Changes the service name when installing or removing the service. This allows multiple agents to run as services on the same machine.
+
+* `serviceAutoStart` - Sets the Service Start Type. True = Auto | False = Manual
+
 
 ## Logging
 Logging is done using [NLog](https://github.com/NLog/NLog) which allows for customized logging through the NLog.config file located in the application's install directory. The loggers are setup so that there is a separate logger for:
