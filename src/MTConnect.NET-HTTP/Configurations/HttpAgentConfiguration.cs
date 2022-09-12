@@ -61,7 +61,6 @@ namespace MTConnect.Configurations
 
         /// <summary>
         /// Allow HTTP PUT or POST from a specific host or list of hosts. 
-        /// Lists are comma (,) separated and the host names will be validated by translating them into IP addresses.
         /// </summary>
         [JsonPropertyName("allowPutFrom")]
         public IEnumerable<string> AllowPutFrom { get; set; }
