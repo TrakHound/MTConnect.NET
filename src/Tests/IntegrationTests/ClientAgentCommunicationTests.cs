@@ -89,7 +89,7 @@ namespace IntegrationTests
 
             _adapter = new ShdrIntervalAdapter(_machineName, _fixture.CurrentAdapterPort, 2000)
             {
-                Interval = 100           
+                Interval = 100
             };
             _adapter.Start();
 
@@ -97,6 +97,7 @@ namespace IntegrationTests
 
             _agent = new MTConnectAgent(configuration);
             //_agent.Version = new Version(1, 8);
+            _agent.Start();
 
             // Add Adapter Clients
             var devices = DeviceConfiguration.FromFile(devicesFile, DocumentFormat.XML).ToList();
@@ -127,6 +128,7 @@ namespace IntegrationTests
         public void Dispose()
         {
             // Stop are not awaitable, so we cannot guarantee that it finishes before next test start
+            _agent.Stop();
             _server.Stop();
             _adapter.Stop();
 
@@ -364,6 +366,10 @@ namespace IntegrationTests
             {
                 throw new XunitException("Client is null.");
             }
+
+            // Delay 1 second to let client connect
+            // Otherwise the added dataitem will be contained in the Current response instead of the Sample response
+            await Task.Delay(1000);
 
             _adapter.AddDataItem(new ShdrDataItem("servotemp1", new TemperatureValue(120)));
             
