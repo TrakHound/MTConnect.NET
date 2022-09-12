@@ -186,6 +186,20 @@ namespace MTConnect.Agents
 
         #endregion
 
+        #region "Start / Stop"
+
+        /// <summary>
+        /// Start the MTConnect Agent
+        /// </summary>
+        void Start();
+
+        /// <summary>
+        /// Stop the MTConnect Agent
+        /// </summary>
+        void Stop();
+
+        #endregion
+
         #region "Devices"
 
         /// <summary>

@@ -378,6 +378,9 @@ namespace MTConnect.Agents
         }
 
 
+        /// <summary>
+        /// Start the MTConnect Agent
+        /// </summary>
         public void Start()
         {
             if (_configuration.EnableMetrics)
@@ -390,6 +393,9 @@ namespace MTConnect.Agents
             GarbageCollector.Initialize();
         }
 
+        /// <summary>
+        /// Stop the MTConnect Agent
+        /// </summary>
         public void Stop()
         {
             if (_metrics != null) _metrics.Dispose();
