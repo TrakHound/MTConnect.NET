@@ -22,12 +22,13 @@ This project is a full implementation of an MTConnect Agent used to read data fr
 To download the latest release as a Windows Installer, use the link below:
 - [Download Latest Release Windows Installer](https://github.com/TrakHound/MTConnect.NET/releases/download/v0.6.1-beta-agents/TrakHound-MTConnect-Http-Agent-Install-v0.6.1-beta.exe)
 
-## Releases
-Releases for this application are located under the Releases tab. The current release is listed below:
-- [MTConnect Agent Current Release](https://github.com/TrakHound/MTConnect.NET/releases)
+## Installation
 
-## Source Code
-This project uses the MTConnect.NET-Applications-Agents library (available on [Nuget](https://www.nuget.org/packages/MTConnect.NET-Applications-Agents)) to create an MTConnect Agent application. More information about this library can be found [Here](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-Applications-Agents). The MTConnect.NET-Applications-Agents library makes creating an MTConnect Agent application simple as well as makes it easy to keep updated using Nuget. A fully functionaly MTConnect Application can be created in just a few lines of code.
+#### Step #1
+Read through the license agreement (Apache 2.0 License) and click **"I accept the agreement"** if you agree with the terms.
+Then click **"Next"** to proceed to the next page.
+*For more information about the Apache 2.0 license click [Here](https://www.apache.org/licenses/LICENSE-2.0.html)*
+![screenshot](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/MTConnect-Agent-HTTP/Installation/installer-license.png) 
 
 ## Usage
 The Agent can be run from a command line prompt or as a Windows Service using the format below:
@@ -270,6 +271,13 @@ The default [NLog Configuration File](https://github.com/TrakHound/MTConnect.NET
     </rules>
 </nlog>
 ```
+
+## Releases
+Releases for this application are located under the Releases tab. The current release is listed below:
+- [MTConnect Agent Current Release](https://github.com/TrakHound/MTConnect.NET/releases)
+
+## Source Code
+This project uses the MTConnect.NET-Applications-Agents library (available on [Nuget](https://www.nuget.org/packages/MTConnect.NET-Applications-Agents)) to create an MTConnect Agent application. More information about this library can be found [Here](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-Applications-Agents). The MTConnect.NET-Applications-Agents library makes creating an MTConnect Agent application simple as well as makes it easy to keep updated using Nuget. A fully functionaly MTConnect Application can be created in just a few lines of code.
 
 ## Contribution / Feedback
 - Please use the [Issues](https://github.com/TrakHound/MTConnect.NET/issues) tab to create issues for specific problems that you may encounter 
