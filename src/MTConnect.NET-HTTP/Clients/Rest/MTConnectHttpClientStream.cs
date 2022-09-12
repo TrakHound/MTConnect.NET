@@ -167,6 +167,7 @@ namespace MTConnect.Clients.Rest
                         var line = new List<byte>();
                         var contentLength = 0;
                         string contentEncoding = null;
+                        var trimBytes = new byte[] { 10, 13 };
 
                         var b = stream.ReadByte();
 
@@ -190,13 +191,16 @@ namespace MTConnect.Clients.Rest
 
                             if (cr && lf)
                             {
+                                // Trim CR and LF bytes from beginning and end
+                                var lineBytes = ObjectExtensions.TrimBytes(line.ToArray(), trimBytes);
+
                                 // Get the current line as a UTF-8 string
-                                var lineStr = Encoding.UTF8.GetString(line.ToArray());
+                                var lineStr = Encoding.UTF8.GetString(lineBytes);
 
                                 if (headerActive)
                                 {
                                     // Add Header
-                                    header.AddRange(line);
+                                    header.AddRange(lineBytes);
 
                                     if (prevNewLine)
                                     {

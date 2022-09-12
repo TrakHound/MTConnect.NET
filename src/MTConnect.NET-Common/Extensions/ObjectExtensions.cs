@@ -4,7 +4,9 @@
 // file 'LICENSE.txt', which is part of this source code package.
 
 using System;
+using System.Linq;
 using System.Reflection;
+using System.Text;
 
 namespace MTConnect
 {
@@ -181,6 +183,93 @@ namespace MTConnect
                 if (b1[i] != b2[i]) return false;
             }
             return true;
+        }
+
+        public static byte[] TrimBytes(byte[] inputBytes, byte[] trimBytes)
+        {
+            if (inputBytes != null && inputBytes.Length > 0 && trimBytes != null && trimBytes.Length > 0)
+            {
+                var bytes = new byte[inputBytes.Length];
+                inputBytes.CopyTo(bytes, 0);
+
+                bytes = TrimStartBytes(bytes, trimBytes);
+
+                bytes = TrimEndBytes(bytes, trimBytes);
+
+                return bytes;
+            }
+
+            return null;
+        }
+
+        public static byte[] TrimStartBytes(byte[] inputBytes, byte[] trimBytes)
+        {
+            if (inputBytes != null && inputBytes.Length > 0 && trimBytes != null && trimBytes.Length > 0)
+            {
+                var bytes = new byte[inputBytes.Length];
+                inputBytes.CopyTo(bytes, 0);
+
+                // Look for Trim bytes
+                var i = 0;
+                var j = 0;
+                while (i < bytes.Length)
+                {
+                    var found = false;
+                    for (var k = 0; k < trimBytes.Length; k++)
+                    {
+                        if (bytes[i] == trimBytes[k]) found = true;
+                    }
+                    if (!found) break;
+                    i++;
+                    j++;
+                }
+
+                if (j > 0)
+                {
+                    // Shift Array over past the initial Whitespace bytes
+                    var s = bytes.Length - j;
+                    Array.Copy(bytes, j, bytes, 0, bytes.Length - j);
+                    Array.Resize(ref bytes, s);
+                }
+
+                return bytes;
+            }
+
+            return null;
+        }
+
+        public static byte[] TrimEndBytes(byte[] inputBytes, byte[] trimBytes)
+        {
+            if (inputBytes != null && inputBytes.Length > 0 && trimBytes != null && trimBytes.Length > 0)
+            {
+                var bytes = new byte[inputBytes.Length];
+                inputBytes.CopyTo(bytes, 0);
+
+                // Look for trailing Trim bytes
+                var i = bytes.Length - 1;
+                var j = 0;
+                while (i > 0)
+                {
+                    var found = false;
+                    for (var k = 0; k < trimBytes.Length; k++)
+                    {
+                        if (bytes[i] == trimBytes[k]) found = true;
+                    }
+                    if (!found) break;
+                    i--;
+                    j++;
+                }
+
+                if (j > 0)
+                {
+                    // Shift Array over past the trailing Whitespace bytes
+                    Array.Resize(ref bytes, bytes.Length - j);
+                }
+
+                return bytes;
+            }
+
+            return null;
         }
     }
 }
