@@ -16,13 +16,9 @@ This project is a full implementation of an MTConnect Agent used to read data fr
 - Configuration File monitoring to automatically restart the Agent upon configuration file changes
 - Flexible Logging using NLog which can be used to output log information to separate files for easier analysis
 
-### Beta Notes
-> We are nearing the end of our Beta and are getting close to a first official release! 
-
-Please feel free to use and debug this application and it's source code. There are a few features that are missing as of now and they will completed before the first official release.
-- Please use the [Issues](https://github.com/TrakHound/MTConnect.NET-Core/issues) tab to create issues for specific problems that you may encounter 
-- Please feel free to use the [Pull Requests](https://github.com/TrakHound/MTConnect.NET-Core/pulls) tab for any suggested improvements to the source code
-- For any other questions or feedback, please contact TrakHound directly at info@trakhound.com.
+## Download
+To download the latest release as a Windows Installer, use the link below:
+[Download Latest Release Windows Installer](https://github.com/TrakHound/MTConnect.NET/releases/download/v0.6.1-beta-agents/TrakHound-MTConnect-Http-Agent-Install-v0.6.1-beta.exe)
 
 ## Releases
 Releases for this application are located under the Releases tab. The current release is listed below:
@@ -269,6 +265,11 @@ The default [NLog Configuration File](NLog.config) is shown below:
     </rules>
 </nlog>
 ```
+
+## Contribution / Feedback
+- Please use the [Issues](https://github.com/TrakHound/MTConnect.NET-Core/issues) tab to create issues for specific problems that you may encounter 
+- Please feel free to use the [Pull Requests](https://github.com/TrakHound/MTConnect.NET-Core/pulls) tab for any suggested improvements to the source code
+- For any other questions or feedback, please contact TrakHound directly at info@trakhound.com.
 
 ## License
 This application and it's source code is licensed under the [Apache Version 2.0 License](https://www.apache.org/licenses/LICENSE-2.0) and is free to use.
