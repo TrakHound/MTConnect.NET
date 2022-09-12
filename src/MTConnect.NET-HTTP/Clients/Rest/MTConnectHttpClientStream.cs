@@ -169,6 +169,13 @@ namespace MTConnect.Clients.Rest
                         string contentEncoding = null;
 
                         var b = stream.ReadByte();
+
+                        if (Timeout > 0)
+                        {
+                            responseTimer.Stop();
+                            responseTimer.Start();
+                        }
+
                         while (b > -1)
                         {
                             // Look for Start of Http Multipart boundary
@@ -234,6 +241,12 @@ namespace MTConnect.Clients.Rest
 
                             // Read the next Byte
                             b = stream.ReadByte();
+
+                            if (Timeout > 0)
+                            {
+                                responseTimer.Stop();
+                                responseTimer.Start();
+                            }
                         }
                     }
                 }
