@@ -20,15 +20,61 @@ This project is a full implementation of an MTConnect Agent used to read data fr
 
 ## Download
 To download the latest release as a Windows Installer, use the link below:
+
 - [Download Latest Release Windows Installer](https://github.com/TrakHound/MTConnect.NET/releases/download/v0.6.1-beta-agents/TrakHound-MTConnect-Http-Agent-Install-v0.6.1-beta.exe)
 
 ## Installation
+Follow the steps below to install the MTConnect Agent HTTP application.
 
-#### Step #1
+*Note: Installer (Innosetup) source code is available and will be added to repo this in a future version*
+
+### Step #1
 Read through the license agreement (Apache 2.0 License) and click **"I accept the agreement"** if you agree with the terms.
 Then click **"Next"** to proceed to the next page.
 *For more information about the Apache 2.0 license click [Here](https://www.apache.org/licenses/LICENSE-2.0.html)*
+
+
 ![screenshot](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/MTConnect-Agent-HTTP/Installation/installer-license.png) 
+
+### Step #2
+Select the directory to install the application in using the **"Browse"** button or accept the default.
+Then click **"Next"** to proceed to the next page.
+
+
+![screenshot](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/MTConnect-Agent-HTTP/Installation/installer-directory.png) 
+
+### Step #3
+Select the .NET version and Architecture (x64 or x86) to install the application for
+Then click **"Next"** to proceed to the next page.
+
+
+![screenshot](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/MTConnect-Agent-HTTP/Installation/installer-components.png) 
+
+### Step #4
+Review the list of components that will be installed and if correct then click **"Install"** to begin 
+Then click **"Next"** to proceed to the next page.
+
+
+![screenshot](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/MTConnect-Agent-HTTP/Installation/installer-review.png) 
+
+### Step #5
+Select the **"Open Probe in Web Browser"** and/or **"Open Current in Web Browser"** to view the Agent output and verify access 
+Then click **"Next"** to proceed to the next page.
+
+
+![screenshot](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/MTConnect-Agent-HTTP/Installation/installer-finish.png) 
+
+### Step #6
+View the Probe and Current requests in a Web Browser
+- [Probe - http://localhost:5000](http://localhost:5000/)
+- [Current - http://localhost:5000/current](http://localhost:5000/current)
+
+#### Probe Request
+![screenshot](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/MTConnect-Agent-HTTP/Browser/probe-request-web-browser.png) 
+
+#### Current Request
+![screenshot](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/MTConnect-Agent-HTTP/Browser/current-request-web-browser.png) 
+
 
 ## Usage
 The Agent can be run from a command line prompt or as a Windows Service using the format below:
