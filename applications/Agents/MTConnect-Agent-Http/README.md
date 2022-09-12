@@ -26,6 +26,9 @@ To download the latest release as a Windows Installer, use the link below:
 Releases for this application are located under the Releases tab. The current release is listed below:
 - [MTConnect Agent Current Release](https://github.com/TrakHound/MTConnect.NET/releases)
 
+## Source Code
+This project uses the MTConnect.NET-Applications-Agents library (available on [Nuget](https://www.nuget.org/packages/MTConnect.NET-Applications-Agents)) to create an MTConnect Agent application. More information about this library can be found [Here](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-Applications-Agents). The MTConnect.NET-Applications-Agents library makes creating an MTConnect Agent application simple as well as makes it easy to keep updated using Nuget. A fully functionaly MTConnect Application can be created in just a few lines of code.
+
 ## Usage
 The Agent can be run from a command line prompt or as a Windows Service using the format below:
 ```
