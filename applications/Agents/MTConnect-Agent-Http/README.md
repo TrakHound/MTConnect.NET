@@ -18,6 +18,10 @@ This project is a full implementation of an MTConnect Agent used to read data fr
 - Configuration File monitoring to automatically restart the Agent upon configuration file changes
 - Flexible Logging using NLog which can be used to output log information to separate files for easier analysis
 
+
+![Traditional Agent Architecture](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/mtconnect-agent-http-shdr-communication.png#gh-light-mode-only) 
+![Traditional Agent Architecture](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/mtconnect-agent-http-shdr-communication-dark.png#gh-dark-mode-only) 
+
 ## Download
 To download the latest release as a Windows Installer, use the link below:
 
