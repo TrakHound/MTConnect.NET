@@ -112,7 +112,8 @@ An HTTP to HTTP implementation reads from other MTConnect Agents and forwards th
 ![Traditional Agent Architecture](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/mtconnect-agent-http-http-communication.png) 
 
 ### Embedded Implementation
-![Embedded Agent Architecture](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/Embedded-Architecture-Diagram.png) 
+An embedded implementation uses the MTConnect.NET library to implement an MTConnect Agent in the same application that is reading from the machine PLC. This creates a simple and compact solution that can be deployed as a single application/product. When compared to a SHDR to HTTP implementation, this eliminates the need to use the SHDR protocol as well as eliminates the TCP communication between the Adapter and the Agent. Implementation is simplified using the [MTConnect.NET-Applications-Agents](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-Applications-Agents) Library that can be as simple as a few lines of code and can be kept up to date using Nuget.
+![Traditional Agent Architecture](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/mtconnect-agent-http-communication.png) 
 
 ## Adapters
 ### SHDR Adapter
