@@ -102,15 +102,21 @@ Agents are implemented using the MTConnectAgent class and IMTConnectAgent interf
 
 ### SHDR > HTTP Implementation
 A SHDR to HTTP implementation is the traditional MTConnect Agent configuration. The agent reads from one or more Adapter applications that implement the SHDR Protocol. Data is then read from the Agent using the HTTP REST protocol. The agent and adapter(s) are typically separate applications. The agent and adapter(s) can still be run on the same PC (or HMI) but there is still TCP communication between them.
-![Traditional Agent Architecture](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/mtconnect-agent-http-shdr-communication.png) 
+
+![Traditional Agent Architecture](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/mtconnect-agent-http-shdr-communication.png#gh-light-mode-only) 
+![Traditional Agent Architecture](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/mtconnect-agent-http-shdr-communication-dark.png#gh-dark-mode-only) 
 
 ### HTTP > HTTP Implementation
 An HTTP to HTTP implementation reads from other MTConnect Agents and forwards that data to a central MTConnect Agent. This implementation can be used to create a "Gateway" that multiple other MTConnect Agents can be forwarded to. This can be used to provide a single access point, implement stricter security policies, or upgrade an older agent without effecting other applications that may already be using the older version.
-![Traditional Agent Architecture](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/mtconnect-agent-http-http-communication.png) 
+
+![Traditional Agent Architecture](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/mtconnect-agent-http-http-communication.png#gh-light-mode-only) 
+![Traditional Agent Architecture](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/mtconnect-agent-http-http-communication-dark.png#gh-dark-mode-only) 
 
 ### Embedded Implementation
 An embedded implementation uses the MTConnect.NET library to implement an MTConnect Agent in the same application that is reading from the machine PLC. This creates a simple and compact solution that can be deployed as a single application/product. When compared to a SHDR to HTTP implementation, this eliminates the need to use the SHDR protocol as well as eliminates the TCP communication between the Adapter and the Agent. Implementation is simplified using the [MTConnect.NET-Applications-Agents](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-Applications-Agents) Library that can be as simple as a few lines of code and can be kept up to date using Nuget.
-![Traditional Agent Architecture](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/mtconnect-agent-http-communication.png) 
+
+![Traditional Agent Architecture](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/mtconnect-agent-http-communication.png#gh-light-mode-only) 
+![Traditional Agent Architecture](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/mtconnect-agent-http-communication-dark.png#gh-dark-mode-only) 
 
 ## Adapters
 ### SHDR Adapter
