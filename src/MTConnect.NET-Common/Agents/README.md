@@ -1,20 +1,20 @@
 # Agents
-The MTConnectAgent class implements the MTConnect® Standard for processing MTConnect Response Documents.
+The MTConnectAgent class implements the MTConnect Standard for processing MTConnect Response Documents.
 
 ### Example (Initialization)
 ```c#
 using MTConnect.Agents;
-using MTConnect.Agents.Configuration;
+using MTConnect.Configurations;
 using MTConnect.Buffers;
 
-var configuration = MTConnectAgentConfiguration.Read();
+var configuration = AgentConfiguration.Read();
 if (configuration != null)
 {
     // Create Device Buffer
-    var deviceBuffer = new MTConnectDeviceBuffer(configuration);
+    var deviceBuffer = new MTConnectDeviceBuffer();
 
     // Create Streaming Buffer
-    var streamingBuffer = new MTConnectStreamingBuffer(configuration);
+    var streamingBuffer = new MTConnectObservationBuffer(configuration);
 
     // Create Asset Buffer
     var assetBuffer = new MTConnectAssetBuffer(configuration);
@@ -28,17 +28,29 @@ if (configuration != null)
 ### Example (Get MTConnectDevices Response Document)
 ```c#
 using MTConnect.Agents;
-using MTConnect.Devices;
+using MTConnect.Configurations;
 
-IMTConnectAgent agent = new MTConnectAgent(configuration);
-DevicesDocument devicesDocument = agent.GetDevices();
+var configuration = AgentConfiguration.Read();
+var agent = new MTConnectAgent(configuration);
+var devicesDocument = agent.GetDevices();
 ```
 
 ### Example (Get MTConnectStreams Response Document)
 ```c#
 using MTConnect.Agents;
-using MTConnect.Streams;
+using MTConnect.Configurations;
 
-IMTConnectAgent agent = new MTConnectAgent(configuration);
-StreamsDocument streamsDocument = agent.GetDeviceStreams();
+var configuration = AgentConfiguration.Read();
+var agent = new MTConnectAgent(configuration);
+var streamsDocument = agent.GetDeviceStreams();
+```
+
+### Example (Get MTConnectAssets Response Document)
+```c#
+using MTConnect.Agents;
+using MTConnect.Configurations;
+
+var configuration = AgentConfiguration.Read();
+var agent = new MTConnectAgent(configuration);
+var assetsDocument = agent.GetAssets();
 ```
