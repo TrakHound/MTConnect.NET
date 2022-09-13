@@ -59,9 +59,6 @@ A live demo of the MTConnect Gateway HTTP Agent (AspNetCore) application is runn
 - [https://mtconnect.trakhound.com/sample](https://mtconnect.trakhound.com/sample?outputComments=true&indentOutput=true&version=1.8&count=500)
 - [https://mtconnect.trakhound.com/assets](https://mtconnect.trakhound.com/assets?outputComments=true&indentOutput=true)
 
-## Beta
-A [Discussion](https://github.com/TrakHound/MTConnect.NET/discussions/16) has been created to log the progress of the Beta. Feel free to use this discussion to request features or ask questions.
-
 ## Docker
 Docker images are located at : 
 - MTConnect HTTP Agent : [https://hub.docker.com/r/trakhound/mtconnect-agent-http](https://hub.docker.com/r/trakhound/mtconnect-agent-http)
