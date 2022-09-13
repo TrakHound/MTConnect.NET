@@ -120,7 +120,11 @@ An embedded implementation uses the MTConnect.NET library to implement an MTConn
 
 ## Adapters
 ### SHDR Adapter
-The only adapter currently available is one using the SHDR protocol. More information can be found at [Adapters-SHDR](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-SHDR/Adapters/Shdr).
+Adapters are used to convert data read from a machine or PLC to the SHDR Protocol that can then be sent over TCP to an MTConnect Agent. There are several adapter types available in the MTConnect.NET-SHDR library that are listed below:
+- [ShdrAdapter](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-SHDR/Adapters/Shdr/ShdrAdapter.cs) : Sends the most recent values On-Demand using the SendCurrent() method. This is used when full control of the communication is needed.
+- [ShdrIntervalAdapter](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-SHDR/Adapters/Shdr/ShdrIntervalAdapter.cs) : Sends the most recent values at the specified Interval. This is used when a set interval is adequate and the most recent value is all that is needed
+- [ShdrQueueAdapter](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-SHDR/Adapters/Shdr/ShdrQueueAdapter.cs) : Queues all values that are sent from the PLC and sends them all on demand using the SendBuffer() method. This is used when all values are needed and full control of the communication is needed.
+- [ShdrIntervalQueueAdapter](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-SHDR/Adapters/Shdr/ShdrIntervalQueueAdapter.cs) : Queues all values that are sent from the PLC and sends any queued values at the specified Interval. This is used when all values are needed but an interval is adequate.
 
 ## Developer Notes
 This repo along with the libraries and applications are free to use and hopefully will help those that are looking at either getting started using MTConnect or those that are looking to use MTConnect for more advanced use cases. The [Models](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-Common/Models) framework will hopefully make using MTConnect much easier and straight forward and promote better usage of the standard's lesser used features.
