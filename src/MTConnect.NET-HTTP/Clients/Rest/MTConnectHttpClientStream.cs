@@ -177,7 +177,7 @@ namespace MTConnect.Clients.Rest
                             responseTimer.Start();
                         }
 
-                        while (b > -1)
+                        while (b > -1 && !stop.Token.IsCancellationRequested)
                         {
                             // Look for Start of Http Multipart boundary
                             if (b == Dash && prevByte == Dash) // 45 = UTF-8 '-'
