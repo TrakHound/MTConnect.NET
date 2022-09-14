@@ -171,6 +171,8 @@ namespace MTConnect.Streams.Xml
 
                 if (reader.LocalName != container && reader.NodeType == XmlNodeType.Element)
                 {
+                    // Check if node is empty before moving position
+                    bool isEmptyElement = reader.IsEmptyElement;
                     // Read Observation Properties
                     var observation = ReadObservationProperties(reader, category, dataItemType, representation);
 
@@ -181,7 +183,7 @@ namespace MTConnect.Streams.Xml
                     }
 
                     // Read Content
-                    if (reader.NodeType != XmlNodeType.None)
+                    if (!isEmptyElement && reader.NodeType != XmlNodeType.None)
                     {
                         while (reader.NodeType != XmlNodeType.EndElement &&
                             ((category == DataItemCategory.CONDITION && reader.NodeType == XmlNodeType.Whitespace) ||

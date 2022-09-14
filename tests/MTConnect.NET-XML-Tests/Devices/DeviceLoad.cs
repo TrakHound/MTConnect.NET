@@ -1,7 +1,7 @@
-using MTConnect.Devices;
-using NUnit.Framework;
 using System;
 using System.IO;
+using MTConnect.Configurations;
+using NUnit.Framework;
 
 namespace MTConnect.Tests.XML.Devices
 {
@@ -21,7 +21,7 @@ namespace MTConnect.Tests.XML.Devices
             var path = Path.Combine(dir, DevicesFilename);
 
             // Read 'devices.xml' file
-            var devices = Device.FromFile(path, DocumentFormat.XML);
+            var devices = DeviceConfiguration.FromFile(path, DocumentFormat.XML);
             if (!devices.IsNullOrEmpty())
             {
                 foreach (var device in devices)
@@ -43,7 +43,7 @@ namespace MTConnect.Tests.XML.Devices
             var dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, DevicesDirectory);
 
             // Read 'devices.xml' file
-            var devices = Device.FromFiles(dir, DocumentFormat.XML);
+            var devices = DeviceConfiguration.FromFiles(dir, DocumentFormat.XML);
             if (!devices.IsNullOrEmpty())
             {
                 foreach (var device in devices)
