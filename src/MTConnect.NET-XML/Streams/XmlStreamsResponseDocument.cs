@@ -290,7 +290,7 @@ namespace MTConnect.Streams.Xml
                             break;
 
                         case "timestamp":
-                            observation.Timestamp = reader.Value.ToDateTime();
+                            observation.Timestamp = reader.Value.ToDateTime().ToUniversalTime();
                             break;
 
                         case "compositionId":
