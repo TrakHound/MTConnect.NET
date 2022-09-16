@@ -179,7 +179,7 @@ namespace MTConnect.Streams.Xml
                     // Set Condition Level
                     if (category == DataItemCategory.CONDITION)
                     {
-                        observation.AddValue(ValueKeys.Level, elementName);
+                        observation.AddValue(ValueKeys.Level, elementName.ToUpper());
                     }
 
                     // Read Content
