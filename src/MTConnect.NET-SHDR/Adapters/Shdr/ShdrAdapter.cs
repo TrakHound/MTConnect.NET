@@ -225,7 +225,7 @@ namespace MTConnect.Adapters.Shdr
 
             var timestamp = UnixDateTime.Now;
 
-            SendLast();
+            SendLast(timestamp);
 
             AgentConnected?.Invoke(this, clientId);
         }
@@ -320,14 +320,14 @@ namespace MTConnect.Adapters.Shdr
         /// <summary>
         /// Sends all of the last sent Items, Assets, and Devices to the Agent. This can be used upon reconnection to the Agent
         /// </summary>
-        public void SendLast() // Probably just for debugging
+        public void SendLast(long timestamp = 0)
         {
-            WriteLastDataItems();
-            WriteLastMessages();
-            WriteLastConditions();
-            WriteLastTimeSeries();
-            WriteLastDataSets();
-            WriteLastTables();
+            WriteLastDataItems(timestamp);
+            WriteLastMessages(timestamp);
+            WriteLastConditions(timestamp);
+            WriteLastTimeSeries(timestamp);
+            WriteLastDataSets(timestamp);
+            WriteLastTables(timestamp);
             WriteAllAssets();
             WriteAllDevices();
 
@@ -668,7 +668,7 @@ namespace MTConnect.Adapters.Shdr
             return false;
         }
 
-        protected bool WriteLastDataItems()
+        protected bool WriteLastDataItems(long timestamp = 0)
         {
             // Get a list of all Last DataItems
             IEnumerable<ShdrDataItem> dataItems;
@@ -676,9 +676,25 @@ namespace MTConnect.Adapters.Shdr
 
             if (!dataItems.IsNullOrEmpty())
             {
+                var ts = timestamp > 0 ? timestamp : UnixDateTime.Now;
+
+                var sendItems = new List<ShdrDataItem>();
+                foreach (var dataItem in dataItems)
+                {
+                    dataItem.Timestamp = ts;
+                    sendItems.Add(dataItem);
+                }
+
                 // Create SHDR string to send
-                var shdrLine = ShdrDataItem.ToString(dataItems);
-                return WriteLine(shdrLine);
+                var shdrLine = ShdrDataItem.ToString(sendItems);
+                var success = WriteLine(shdrLine);
+                if (success)
+                {
+                    // Update Last Sent DataItems
+                    UpdateLastDataItems(dataItems);
+                }
+
+                return success;
             }
 
             return false;
@@ -862,7 +878,7 @@ namespace MTConnect.Adapters.Shdr
             return false;
         }
 
-        protected bool WriteLastMessages()
+        protected bool WriteLastMessages(long timestamp = 0)
         {
             // Get a list of all Last Messages
             IEnumerable<ShdrMessage> messages;
@@ -870,14 +886,23 @@ namespace MTConnect.Adapters.Shdr
 
             if (!messages.IsNullOrEmpty())
             {
+                var ts = timestamp > 0 ? timestamp : UnixDateTime.Now;
                 var success = false;
 
                 foreach (var item in messages)
                 {
+                    item.Timestamp = ts;
+
                     // Create SHDR string to send
                     var shdrLine = item.ToString();
                     success = WriteLine(shdrLine);
                     if (!success) break;
+                }
+
+                if (success)
+                {
+                    // Update Last Sent Messages
+                    UpdateLastMessages(messages);
                 }
 
                 return success;
@@ -1041,7 +1066,7 @@ namespace MTConnect.Adapters.Shdr
             return false;
         }
 
-        protected bool WriteLastConditions()
+        protected bool WriteLastConditions(long timestamp = 0)
         {
             // Get a list of all Last Conditions
             IEnumerable<ShdrCondition> conditions;
@@ -1049,14 +1074,29 @@ namespace MTConnect.Adapters.Shdr
 
             if (!conditions.IsNullOrEmpty())
             {
+                var ts = timestamp > 0 ? timestamp : UnixDateTime.Now;
                 var success = false;
 
                 foreach (var item in conditions)
                 {
+                    if (!item.FaultStates.IsNullOrEmpty())
+                    {
+                        foreach (var faultState in item.FaultStates)
+                        {
+                            faultState.Timestamp = ts;
+                        }
+                    }
+
                     // Create SHDR string to send
                     var shdrLine = item.ToString();
                     success = WriteLine(shdrLine);
                     if (!success) break;
+                }
+
+                if (success)
+                {
+                    // Update Last Sent Conditions
+                    UpdateLastConditions(conditions);
                 }
 
                 return success;
@@ -1229,7 +1269,7 @@ namespace MTConnect.Adapters.Shdr
             return false;
         }
 
-        protected bool WriteLastTimeSeries()
+        protected bool WriteLastTimeSeries(long timestamp = 0)
         {
             // Get a list of all Last TimeSeries
             IEnumerable<ShdrTimeSeries> timeSeries;
@@ -1237,14 +1277,23 @@ namespace MTConnect.Adapters.Shdr
 
             if (!timeSeries.IsNullOrEmpty())
             {
+                var ts = timestamp > 0 ? timestamp : UnixDateTime.Now;
                 bool success = false;
 
                 foreach (var item in timeSeries)
                 {
+                    item.Timestamp = ts;
+
                     // Create SHDR string to send
                     var shdrLine = item.ToString();
                     success = WriteLine(shdrLine);
                     if (!success) break;
+                }
+
+                if (success)
+                {
+                    // Update Last Sent TimeSeries
+                    UpdateLastTimeSeries(timeSeries);
                 }
 
                 return success;
@@ -1420,7 +1469,7 @@ namespace MTConnect.Adapters.Shdr
             return false;
         }
 
-        protected bool WriteLastDataSets()
+        protected bool WriteLastDataSets(long timestamp = 0)
         {
             // Get a list of all Last DataSet
             IEnumerable<ShdrDataSet> dataSets;
@@ -1428,14 +1477,23 @@ namespace MTConnect.Adapters.Shdr
 
             if (!dataSets.IsNullOrEmpty())
             {
+                var ts = timestamp > 0 ? timestamp : UnixDateTime.Now;
                 bool success = false;
 
                 foreach (var item in dataSets)
                 {
+                    item.Timestamp = ts;
+
                     // Create SHDR string to send
                     var shdrLine = item.ToString();
                     success = WriteLine(shdrLine);
                     if (!success) break;
+                }
+
+                if (success)
+                {
+                    // Update Last Sent DataSet
+                    UpdateLastDataSet(dataSets);
                 }
 
                 return success;
@@ -1611,7 +1669,7 @@ namespace MTConnect.Adapters.Shdr
             return false;
         }
 
-        protected bool WriteLastTables()
+        protected bool WriteLastTables(long timestamp = 0)
         {
             // Get a list of all Last Table
             IEnumerable<ShdrTable> tables;
@@ -1619,14 +1677,23 @@ namespace MTConnect.Adapters.Shdr
 
             if (!tables.IsNullOrEmpty())
             {
+                var ts = timestamp > 0 ? timestamp : UnixDateTime.Now;
                 bool success = false;
 
                 foreach (var item in tables)
                 {
+                    item.Timestamp = ts;
+
                     // Create SHDR string to send
                     var shdrLine = item.ToString();
                     success = WriteLine(shdrLine);
                     if (!success) break;
+                }
+
+                if (success)
+                {
+                    // Update Last Sent Table
+                    UpdateLastTable(tables);
                 }
 
                 return success;
