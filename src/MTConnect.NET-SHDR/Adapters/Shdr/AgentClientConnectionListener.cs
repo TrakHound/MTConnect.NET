@@ -4,6 +4,7 @@
 // file 'LICENSE', which is part of this source code package.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
@@ -32,7 +33,7 @@ namespace MTConnect.Adapters.Shdr
     {
         private CancellationTokenSource _stop;
         private TcpListener _listener;
-        private Dictionary<string, TcpClient> _clientConnections = new Dictionary<string, TcpClient>();
+        private ConcurrentDictionary<string, TcpClient> _clientConnections = new ConcurrentDictionary<string, TcpClient>();
 
         /// <summary>
         /// The Port used to listen for connections
@@ -123,7 +124,7 @@ namespace MTConnect.Adapters.Shdr
                         var clientId = StringFunctions.RandomString(10);
 
                         // Add to internal list of connected clients
-                        _clientConnections.Add(clientId, client);
+                        _clientConnections.TryAdd(clientId, client);
 
                         if (ClientConnected != null) ClientConnected.Invoke(clientId, client);
 
@@ -212,7 +213,7 @@ namespace MTConnect.Adapters.Shdr
             finally
             {
                 if (client != null) client.Close();
-                _clientConnections.Remove(clientId);
+                _clientConnections.Remove(clientId, out _);
                 if (ClientDisconnected != null) ClientDisconnected.Invoke(clientId);
             }
         }
