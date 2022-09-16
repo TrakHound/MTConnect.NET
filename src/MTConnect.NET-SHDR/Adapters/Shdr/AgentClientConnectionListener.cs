@@ -213,7 +213,7 @@ namespace MTConnect.Adapters.Shdr
             finally
             {
                 if (client != null) client.Close();
-                _clientConnections.Remove(clientId, out _);
+                _clientConnections.TryRemove(clientId, out _);
                 if (ClientDisconnected != null) ClientDisconnected.Invoke(clientId);
             }
         }
