@@ -41,13 +41,13 @@ namespace MTConnect.Tests.XML
                 Type = "COMMUNICATIONS",
                 Level = ConditionLevel.FAULT,
                 Sequence = 221,
-                Timestamp = new DateTime(2022, 09, 13, 16, 7, 36, DateTimeKind.Local)
+                Timestamp = new DateTime(2022, 09, 13, 14, 7, 36, DateTimeKind.Utc)
                     .Add(TimeSpan.FromMilliseconds(444))
             };
 
             // Overriding default value to pass the test.
             // Is it a bug, that level not capitalized?
-            cond1.AddValue(ValueKeys.Level, "Fault");
+            //cond1.AddValue(ValueKeys.Level, "Fault");
 
             conditions[0].ShouldDeepEqual(cond1);
 
@@ -57,13 +57,13 @@ namespace MTConnect.Tests.XML
                 Type = "COMMUNICATIONS",
                 Level = ConditionLevel.NORMAL,
                 Sequence = 222,
-                Timestamp = new DateTime(2022, 09, 13, 16, 7, 36, DateTimeKind.Local)
+                Timestamp = new DateTime(2022, 09, 13, 14, 7, 36, DateTimeKind.Utc)
                     .Add(TimeSpan.FromMilliseconds(570))
             };
 
             // Overriding default value to pass the test.
             // Is it a bug, that level not capitalized?
-            cond2.AddValue(ValueKeys.Level, "Normal");
+            //cond2.AddValue(ValueKeys.Level, "Normal");
 
             conditions[1].ShouldDeepEqual(cond2);
         }
