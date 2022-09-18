@@ -214,36 +214,48 @@ namespace MTConnect.Clients.Rest
         }
 
 
-        public Uri CreateUri()
+        public Uri CreateUri() => CreateUri(Authority, Device, DocumentFormat);
+
+        public static Uri CreateUri(string hostname, string device = null, string documentFormat = null) => CreateUri(hostname, 0, device, documentFormat);
+
+        public static Uri CreateUri(string hostname, int port, string device = null, string documentFormat = null)
         {
-            var url = Authority;
-
-            // Remove Probe command from URL
-            var cmd = "probe";
-            if (url.EndsWith(cmd) && url.Length > cmd.Length)
-                url = url.Substring(0, url.Length - cmd.Length);
-
-            // Check for Trailing Forward Slash
-            if (!url.EndsWith("/")) url += "/";
-            if (!string.IsNullOrEmpty(Device)) url += Device + "/";
-
-            // Add Command
-            url += cmd;
-
-            // Replace 'localhost' with '127.0.0.1' (This is due to a performance issue with .NET Core's System.Net.Http.HttpClient)
-            if (url.Contains("localhost")) url = url.Replace("localhost", "127.0.0.1");
-
-            // Check for http
-            if (!url.StartsWith("http://") && !url.StartsWith("https://")) url = "http://" + url;
-
-
-            // Add 'DocumentFormat' parameter
-            if (!string.IsNullOrEmpty(DocumentFormat) && DocumentFormat != MTConnect.DocumentFormat.XML)
+            if (!string.IsNullOrEmpty(hostname))
             {
-                url = Url.AddQueryParameter(url, "documentFormat", DocumentFormat.ToLower());
+                var url = hostname;
+
+                // Add Port
+                url = Url.AddPort(url, port);
+
+                // Remove Probe command from URL
+                var cmd = "probe";
+                if (url.EndsWith(cmd) && url.Length > cmd.Length)
+                    url = url.Substring(0, url.Length - cmd.Length);
+
+                // Check for Trailing Forward Slash
+                if (!url.EndsWith("/")) url += "/";
+                if (!string.IsNullOrEmpty(device)) url += device + "/";
+
+                // Add Command
+                url += cmd;
+
+                // Replace 'localhost' with '127.0.0.1' (This is due to a performance issue with .NET Core's System.Net.Http.HttpClient)
+                if (url.Contains("localhost")) url = url.Replace("localhost", "127.0.0.1");
+
+                // Check for http
+                if (!url.StartsWith("http://") && !url.StartsWith("https://")) url = "http://" + url;
+
+
+                // Add 'DocumentFormat' parameter
+                if (!string.IsNullOrEmpty(documentFormat) && documentFormat != MTConnect.DocumentFormat.XML)
+                {
+                    url = Url.AddQueryParameter(url, "documentFormat", documentFormat.ToLower());
+                }
+
+                return new Uri(url);
             }
 
-            return new Uri(url);
+            return null;
         }
 
 
