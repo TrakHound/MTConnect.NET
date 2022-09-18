@@ -762,11 +762,14 @@ namespace MTConnect.Devices
                 if (!_types.IsNullOrEmpty())
                 {
                     string typeId;
-                    lock (_lock) _typeIds.TryGetValue(type, out typeId);
-                    if (typeId == null)
+                    lock (_lock)
                     {
-                        typeId = type.ToPascalCase();
-                        lock (_lock) _typeIds.Add(type, typeId);
+                        _typeIds.TryGetValue(type, out typeId);
+                        if (typeId == null)
+                        {
+                            typeId = type.ToPascalCase();
+                            _typeIds.Add(type, typeId);
+                        }
                     }
 
                     if (_types.TryGetValue(typeId, out Type t))
