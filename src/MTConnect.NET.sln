@@ -73,6 +73,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-SHDR-Tests", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-XML-Tests", "..\tests\MTConnect.NET-XML-Tests\MTConnect.NET-XML-Tests.csproj", "{E93A7C94-0959-4250-B58F-CD9742AA4B66}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-DeviceFinder", "MTConnect.NET-DeviceFinder\MTConnect.NET-DeviceFinder.csproj", "{AB826133-7BF4-4FAA-B232-8981238517CD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -242,6 +244,12 @@ Global
 		{E93A7C94-0959-4250-B58F-CD9742AA4B66}.Package|Any CPU.Build.0 = Debug|Any CPU
 		{E93A7C94-0959-4250-B58F-CD9742AA4B66}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E93A7C94-0959-4250-B58F-CD9742AA4B66}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AB826133-7BF4-4FAA-B232-8981238517CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AB826133-7BF4-4FAA-B232-8981238517CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AB826133-7BF4-4FAA-B232-8981238517CD}.Package|Any CPU.ActiveCfg = Debug|Any CPU
+		{AB826133-7BF4-4FAA-B232-8981238517CD}.Package|Any CPU.Build.0 = Debug|Any CPU
+		{AB826133-7BF4-4FAA-B232-8981238517CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AB826133-7BF4-4FAA-B232-8981238517CD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
