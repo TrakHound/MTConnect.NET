@@ -13,8 +13,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\src\MTConnect.NET-MQTT\MTConnect.NET-MQTT.csproj" />
-    <ProjectReference Include="..\..\..\..\src\MTConnect.NET-SHDR\MTConnect.NET-SHDR.csproj" />
+    <ProjectReference Include="..\..\..\src\MTConnect.NET-MQTT\MTConnect.NET-MQTT.csproj" />
+    <ProjectReference Include="..\..\..\src\MTConnect.NET-SHDR\MTConnect.NET-SHDR.csproj" />
   </ItemGroup>
 
   <ItemGroup>
