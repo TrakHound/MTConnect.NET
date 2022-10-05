@@ -168,8 +168,11 @@ namespace MTConnect.Clients.Rest
                         var contentLength = 0;
                         string contentEncoding = null;
                         var trimBytes = new byte[] { 10, 13 };
+                        string lineStr = null;
 
-                        var b = stream.ReadByte();
+                        var readBuffer = new byte[1];
+                        await stream.ReadAsync(readBuffer, 0, readBuffer.Length, stop.Token);
+                        int b = readBuffer[0];
 
                         if (Timeout > 0)
                         {
@@ -192,15 +195,15 @@ namespace MTConnect.Clients.Rest
                             if (cr && lf)
                             {
                                 // Trim CR and LF bytes from beginning and end
-                                var lineBytes = ObjectExtensions.TrimBytes(line.ToArray(), trimBytes);
+                                //var lineBytes = ObjectExtensions.TrimBytes(line.ToArray(), trimBytes);
 
                                 // Get the current line as a UTF-8 string
-                                var lineStr = Encoding.UTF8.GetString(lineBytes);
+                                lineStr = Encoding.UTF8.GetString(line.ToArray());
 
                                 if (headerActive)
                                 {
                                     // Add Header
-                                    header.AddRange(lineBytes);
+                                    header.AddRange(line.ToArray());
 
                                     if (prevNewLine)
                                     {
@@ -244,7 +247,8 @@ namespace MTConnect.Clients.Rest
                             prevByte = b;
 
                             // Read the next Byte
-                            b = stream.ReadByte();
+                            await stream.ReadAsync(readBuffer, 0, readBuffer.Length, stop.Token);
+                            b = readBuffer[0];
 
                             if (Timeout > 0)
                             {
