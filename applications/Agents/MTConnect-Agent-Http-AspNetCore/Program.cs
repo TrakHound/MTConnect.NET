@@ -13,7 +13,6 @@ using Microsoft.Extensions.Logging;
 using MTConnect.Agents;
 using MTConnect.Applications.Loggers;
 using MTConnect.Configurations;
-using MTConnect.Devices.Configurations;
 using NLog.Web;
 using System;
 using System.IO;

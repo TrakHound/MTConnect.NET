@@ -10,7 +10,6 @@ using MTConnect.Agents;
 using MTConnect.Applications.Loggers;
 using MTConnect.Configurations;
 using MTConnect.Devices.Components;
-using MTConnect.Devices.Configurations;
 using System;
 using System.Collections.Generic;
 using System.Linq;

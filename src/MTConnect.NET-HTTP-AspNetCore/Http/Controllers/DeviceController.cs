@@ -6,13 +6,13 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using MTConnect.Devices;
 using MTConnect.Agents;
+using MTConnect.Configurations;
+using MTConnect.Devices;
+using MTConnect.Servers.Http;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using MTConnect.Configurations;
-using MTConnect.Servers.Http;
 
 namespace MTConnect.Http.Controllers
 {
@@ -535,13 +535,6 @@ namespace MTConnect.Http.Controllers
         private IActionResult CreateResult(MTConnectHttpResponse response)
         {
             return new FileContentResult(response.Content, response.ContentType);
-
-            //return new ContentResult
-            //{
-            //    Content = response.Content,
-            //    ContentType = response.ContentType,
-            //    StatusCode = response.StatusCode
-            //};
         }
     }
 }
