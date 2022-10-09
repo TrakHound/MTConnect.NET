@@ -6,6 +6,8 @@
 using MTConnect.Observations;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
+using MTConnect.Streams.Output;
+using System.Linq;
 
 namespace MTConnect.Streams.Json
 {
@@ -82,7 +84,7 @@ namespace MTConnect.Streams.Json
 
         public JsonComponentStream() { }
 
-        public JsonComponentStream(IComponentStream componentStream)
+        public JsonComponentStream(IComponentStreamOutput componentStream)
         {
             if (componentStream != null)
             {
@@ -92,37 +94,43 @@ namespace MTConnect.Streams.Json
                 NativeName = componentStream.NativeName;
                 Uuid = componentStream.Uuid;
 
-                // Add Samples
-                if (!componentStream.Samples.IsNullOrEmpty())
+                if (!componentStream.Observations.IsNullOrEmpty())
                 {
-                    var samples = new List<JsonSample>();
-                    foreach (var sample in componentStream.Samples)
+                    // Add Samples
+                    var sampleObservations = componentStream.Observations.Where(o => o.Category == Devices.DataItems.DataItemCategory.SAMPLE);
+                    if (!sampleObservations.IsNullOrEmpty())
                     {
-                        samples.Add(new JsonSample(sample));
+                        var samples = new List<JsonSample>();
+                        foreach (var observation in sampleObservations)
+                        {
+                            samples.Add(new JsonSample(observation));
+                        }
+                        Samples = samples;
                     }
-                    Samples = samples;
-                }
 
-                // Add Events
-                if (!componentStream.Events.IsNullOrEmpty())
-                {
-                    var events = new List<JsonEvent>();
-                    foreach (var e in componentStream.Events)
+                    // Add Events
+                    var eventObservations = componentStream.Observations.Where(o => o.Category == Devices.DataItems.DataItemCategory.EVENT);
+                    if (!eventObservations.IsNullOrEmpty())
                     {
-                        events.Add(new JsonEvent(e));
+                        var events = new List<JsonEvent>();
+                        foreach (var observation in eventObservations)
+                        {
+                            events.Add(new JsonEvent(observation));
+                        }
+                        Events = events;
                     }
-                    Events = events;
-                }
 
-                // Add Conditions
-                if (!componentStream.Conditions.IsNullOrEmpty())
-                {
-                    var conditions = new List<JsonCondition>();
-                    foreach (var condition in componentStream.Conditions)
+                    // Add Conditions
+                    var confiditionObservations = componentStream.Observations.Where(o => o.Category == Devices.DataItems.DataItemCategory.CONDITION);
+                    if (!confiditionObservations.IsNullOrEmpty())
                     {
-                        conditions.Add(new JsonCondition(condition));
+                        var conditions = new List<JsonCondition>();
+                        foreach (var observation in confiditionObservations)
+                        {
+                            conditions.Add(new JsonCondition(observation));
+                        }
+                        Conditions = conditions;
                     }
-                    Conditions = conditions;
                 }
             }
         }
@@ -137,6 +145,8 @@ namespace MTConnect.Streams.Json
             componentStream.NativeName = NativeName;
             componentStream.Uuid = Uuid;
 
+            var observations = new List<IObservation>();
+
             // Add Samples
             if (!Samples.IsNullOrEmpty())
             {
@@ -145,7 +155,8 @@ namespace MTConnect.Streams.Json
                 {
                     samples.Add(sample.ToSample());
                 }
-                componentStream.Samples = samples;
+                observations.AddRange(samples);
+                //componentStream.Samples = samples;
             }
 
             // Add Events
@@ -156,7 +167,8 @@ namespace MTConnect.Streams.Json
                 {
                     events.Add(e.ToEvent());
                 }
-                componentStream.Events = events;
+                observations.AddRange(events);
+                //componentStream.Events = events;
             }
 
             // Add Conditions
@@ -167,7 +179,8 @@ namespace MTConnect.Streams.Json
                 {
                     conditions.Add(sample.ToCondition());
                 }
-                componentStream.Conditions = conditions;
+                observations.AddRange(conditions);
+                //componentStream.Conditions = conditions;
             }
 
             return componentStream;

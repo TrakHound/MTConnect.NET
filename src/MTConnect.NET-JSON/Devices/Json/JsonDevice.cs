@@ -90,18 +90,18 @@ namespace MTConnect.Devices.Json
         [JsonPropertyName("mtconnectVersion")]
         public string MTConnectVersion { get; set; }
 
-        /// <summary>
-        /// An element that can contain any descriptive content. 
-        /// This can contain information about the Component and manufacturer specific details.
-        /// </summary>
-        [JsonPropertyName("description")]
-        public IDescription Description { get; set; }
+        ///// <summary>
+        ///// An element that can contain any descriptive content. 
+        ///// This can contain information about the Component and manufacturer specific details.
+        ///// </summary>
+        //[JsonPropertyName("description")]
+        //public IDescription Description { get; set; }
 
-        /// <summary>
-        /// An XML element that contains technical information about a piece of equipment describing its physical layout or functional characteristics.
-        /// </summary>
-        [JsonPropertyName("configuration")]
-        public IConfiguration Configuration { get; set; }
+        ///// <summary>
+        ///// An XML element that contains technical information about a piece of equipment describing its physical layout or functional characteristics.
+        ///// </summary>
+        //[JsonPropertyName("configuration")]
+        //public IConfiguration Configuration { get; set; }
 
         /// <summary>
         /// A container for the Data Entities associated with this Component element.
@@ -121,11 +121,11 @@ namespace MTConnect.Devices.Json
         [JsonPropertyName("compositions")]
         public IEnumerable<JsonComposition> Compositions { get; set; }
 
-        /// <summary>
-        /// An XML container consisting of one or more types of Reference XML elements.
-        /// </summary>
-        [JsonPropertyName("references")]
-        public IEnumerable<IReference> References { get; set; }
+        ///// <summary>
+        ///// An XML container consisting of one or more types of Reference XML elements.
+        ///// </summary>
+        //[JsonPropertyName("references")]
+        //public IEnumerable<IReference> References { get; set; }
 
 
         public JsonDevice() { }
@@ -139,15 +139,14 @@ namespace MTConnect.Devices.Json
                 Name = device.Name;
                 NativeName = device.NativeName;
                 Uuid = device.Uuid;
-                Description = device.Description;
                 if (device.SampleRate > 0) SampleRate = device.SampleRate;
                 if (device.SampleInterval > 0) SampleInterval = device.SampleInterval;
                 Iso841Class = device.Iso841Class;
                 CoordinateSystemIdRef = device.CoordinateSystemIdRef;
                 if (device.MTConnectVersion != null) MTConnectVersion = device.MTConnectVersion.ToString();
-                Configuration = device.Configuration;
-                References = device.References;
-                Description = device.Description;
+                //Configuration = device.Configuration;
+                //References = device.References;
+                //Description = device.Description;
 
 
                 // DataItems
@@ -196,7 +195,6 @@ namespace MTConnect.Devices.Json
             device.Name = Name;
             device.NativeName = NativeName;
             device.Uuid = Uuid;
-            device.Description = Description;
             device.SampleRate = SampleRate.HasValue ? SampleRate.Value : 0;
             device.SampleInterval = SampleInterval.HasValue ? SampleInterval.Value : 0;
             device.Iso841Class = Iso841Class;
@@ -205,9 +203,9 @@ namespace MTConnect.Devices.Json
             {
                 device.MTConnectVersion = mtconnectVersion;
             }
-            device.Configuration = Configuration;
-            device.References = References;
-            device.Description = Description;
+            //device.Configuration = Configuration;
+            //device.References = References;
+            //device.Description = Description;
 
             // DataItems
             if (!DataItems.IsNullOrEmpty())

@@ -5,6 +5,7 @@
 
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
+using MTConnect.Streams.Output;
 
 namespace MTConnect.Streams.Json
 {
@@ -34,7 +35,7 @@ namespace MTConnect.Streams.Json
 
         public JsonDeviceStream() { }
 
-        public JsonDeviceStream(IDeviceStream deviceStream)
+        public JsonDeviceStream(IDeviceStreamOutput deviceStream)
         {
             if (deviceStream != null)
             {

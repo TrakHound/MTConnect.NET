@@ -8,13 +8,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="NLog" Version="4.7.14" />
-    <PackageReference Include="NLog.Web.AspNetCore" Version="4.14.0" />
+    <Compile Remove="Program - Copy.cs" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\MTConnect.NET-MQTT\MTConnect.NET-MQTT.csproj" />
-    <ProjectReference Include="..\..\..\src\MTConnect.NET-SHDR\MTConnect.NET-SHDR.csproj" />
+    <None Include="Program - Copy.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\MTConnect.NET-Applications-Agents\MTConnect.NET-Applications-Agents.csproj" />
+    <ProjectReference Include="..\..\..\src\MTConnect.NET-JSON\MTConnect.NET-JSON.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -28,6 +31,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="devices.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="devices\device-mazak.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="devices\device-okuma.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="NLog.config">

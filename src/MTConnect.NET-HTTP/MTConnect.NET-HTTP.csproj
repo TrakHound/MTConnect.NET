@@ -44,6 +44,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\MTConnect.NET-Common\MTConnect.NET-Common.csproj" />
+		<ProjectReference Include="..\MTConnect.NET-JSON\MTConnect.NET-JSON.csproj" />
 	</ItemGroup>
 
 	<!--Conditionally obtain references for the .NET Framework 4.6.1 target-->

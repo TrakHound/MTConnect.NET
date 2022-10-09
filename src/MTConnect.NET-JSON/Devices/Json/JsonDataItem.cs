@@ -181,17 +181,17 @@ namespace MTConnect.Devices.Json
                 NativeUnits = dataItem.NativeUnits;
                 if (dataItem.NativeScale > 0) NativeScale = dataItem.NativeScale;
                 if (dataItem.SampleRate > 0) SampleRate = dataItem.SampleRate;
-                Source = dataItem.Source;
-                if (!dataItem.Filters.IsNullOrEmpty()) Relationships = dataItem.Relationships;
+                //Source = dataItem.Source;
+                //if (!dataItem.Filters.IsNullOrEmpty()) Relationships = dataItem.Relationships;
                 if (dataItem.Representation != DataItemRepresentation.VALUE) Representation = dataItem.Representation.ToString();
                 if (dataItem.ResetTrigger != DataItemResetTrigger.NONE) ResetTrigger = dataItem.ResetTrigger.ToString();
                 if (dataItem.CoordinateSystem != DataItemCoordinateSystem.MACHINE) CoordinateSystem = dataItem.CoordinateSystem.ToString();
-                Constraints = dataItem.Constraints;
-                Definition = dataItem.Definition;
+                //Constraints = dataItem.Constraints;
+                //Definition = dataItem.Definition;
                 Units = dataItem.Units;
                 if (dataItem.Statistic != DataItemStatistic.NONE) Statistic = dataItem.Statistic.ToString();
                 if (dataItem.SignificantDigits > 0) SignificantDigits = dataItem.SignificantDigits;
-                if (!dataItem.Filters.IsNullOrEmpty()) Filters = dataItem.Filters;
+                //if (!dataItem.Filters.IsNullOrEmpty()) Filters = dataItem.Filters;
                 InitialValue = dataItem.InitialValue;
                 if (dataItem.Discrete != false) Discrete = dataItem.Discrete;
             }

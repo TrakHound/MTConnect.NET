@@ -9,6 +9,8 @@ using System.Linq;
 using System.Text.Json.Serialization;
 using System.Xml;
 using System.Xml.Serialization;
+using MTConnect.Streams.Output;
+using MTConnect.Observations.Output;
 
 namespace MTConnect.Streams.Json
 {
@@ -47,7 +49,49 @@ namespace MTConnect.Streams.Json
 
         public JsonSample() { }
 
-        public JsonSample(Observation observation)
+        public JsonSample(IObservation observation)
+        {
+            if (observation != null)
+            {
+                DataItemId = observation.DataItemId;
+                Timestamp = observation.Timestamp;
+                Name = observation.Name;
+                Sequence = observation.Sequence;
+                Type = observation.Type;
+                SubType = observation.SubType;
+                CompositionId = observation.CompositionId;
+
+                Result = observation.GetValue(ValueKeys.Result);
+                ResetTriggered = observation.GetValue(ValueKeys.ResetTriggered);
+                SampleRate = observation.GetValue(ValueKeys.SampleRate).ToDouble();
+                Duration = observation.GetValue(ValueKeys.Duration).ToDouble();
+
+                var statistic = observation.GetValue(ValueKeys.Statistic);
+                if (statistic != DataItemStatistic.NONE.ToString()) Statistic = statistic;
+
+                // DataSet Entries
+                if (observation is SampleDataSetObservation)
+                {
+                    Entries = CreateEntries(((SampleDataSetObservation)observation).Entries);
+                    Count = !Entries.IsNullOrEmpty() ? Entries.Count() : 0;
+                }
+
+                // Table Entries
+                if (observation is SampleTableObservation)
+                {
+                    Entries = CreateEntries(((SampleTableObservation)observation).Entries);
+                    Count = !Entries.IsNullOrEmpty() ? Entries.Count() : 0;
+                }
+
+                // TimeSeries
+                if (observation is SampleTimeSeriesObservation)
+                {
+
+                }
+            }
+        }
+
+        public JsonSample(IObservationOutput observation)
         {
             if (observation != null)
             {

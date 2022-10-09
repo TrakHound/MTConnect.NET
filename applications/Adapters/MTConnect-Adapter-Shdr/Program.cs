@@ -12,7 +12,7 @@ namespace MTConnect.Applications.Adapters.Shdr
             //var adapter = new ShdrQueueAdapter(7878);
             //var adapter = new ShdrIntervalAdapter(7878);
             var adapter = new ShdrIntervalQueueAdapter(7878);
-            adapter.Interval = 1000;
+            adapter.Interval = 10;
             adapter.MultilineAssets = true;
             adapter.MultilineDevices = true;
             adapter.AgentConnected += (sender, connectionId) => Console.WriteLine($"Agent Connection (ID = {connectionId}) : Agent Connected");
@@ -42,8 +42,13 @@ namespace MTConnect.Applications.Adapters.Shdr
 
                 if (key.Key == ConsoleKey.Spacebar)
                 {
-                    adapter.AddDataItem("L2X1load", i);
-                    i++;
+                    while (true)
+                    {
+                        adapter.AddDataItem("L2X1load", i);
+                        i++;
+
+                        await Task.Delay(5);
+                    }
                 }
                 else if (key.Key == ConsoleKey.M)
                 {

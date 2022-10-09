@@ -1,10 +1,10 @@
 ﻿{
-	"devices": "devices.xml",
+	"devices": "devices",
 	"port": 5005,
 	"allowPut": true,
 	"adapters": [
 		{
-			"deviceKey": "M12346",
+			"deviceKey": "OKUMA-Lathe",
 			"host": "localhost",
 			"port": 7878
 		}

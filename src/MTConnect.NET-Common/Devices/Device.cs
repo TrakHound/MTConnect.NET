@@ -662,6 +662,7 @@ namespace MTConnect.Devices
                     obj.NativeName = device.NativeName;
                     obj.Uuid = device.Uuid;
                     obj.Type = device.Type;
+                    obj.Parent = device;
 
                     // Set Device Description
                     if (device.Description != null)

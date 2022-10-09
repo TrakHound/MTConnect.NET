@@ -26,8 +26,7 @@ namespace MTConnect.Agents
         private readonly MqttServer _mqttServer;
         private CancellationTokenSource _stop;
         //private IEnumerable<string> _documentFormats = new List<string>() { "XML", "JSON" };
-        //private IEnumerable<string> _documentFormats = new List<string>() { "XML" };
-        private IEnumerable<string> _documentFormats = new List<string>() { "JSON" };
+        private IEnumerable<string> _documentFormats = new List<string>() { "XML" };
 
 
         public MTConnectMqttBroker(IMTConnectAgent mtconnectAgent, MqttServer mqttServer)
@@ -123,8 +122,8 @@ namespace MTConnect.Agents
         {
             foreach (var documentFormat in _documentFormats)
             {
-                var messages = CreateMessage(asset, documentFormat);
-                await Publish(messages);
+                var message = CreateMessage(asset, documentFormat);
+                if (message != null && message.Payload != null) await Publish(message);
             }
         }
 
@@ -179,38 +178,38 @@ namespace MTConnect.Agents
             {
                 var messages = new List<MqttApplicationMessage>();
 
-                var topic = $"MTConnect/Devices/{device.Uuid}/Device";
+                var topic = $"MTConnect/{documentFormatterId.ToUpper()}/Devices/{device.Type}/{device.Uuid}/Model";
                 messages.Add(CreateMessage(topic, Formatters.EntityFormatter.Format(documentFormatterId, device)));
 
-                //// DataItems
-                //if (!device.DataItems.IsNullOrEmpty())
-                //{
-                //    foreach (var dataItem in device.DataItems)
-                //    {
-                //        var dataItemTopic = $"{topic}/DataItems/{dataItem.Type}/{dataItem.Id}";
-                //        if (!string.IsNullOrEmpty(dataItem.SubType)) dataItemTopic = $"{topic}/DataItems/{dataItem.Type}/{dataItem.Id}";
+                // DataItems
+                if (!device.DataItems.IsNullOrEmpty())
+                {
+                    foreach (var dataItem in device.DataItems)
+                    {
+                        var dataItemTopic = $"{topic}/DataItems/{dataItem.Type}/{dataItem.Id}";
+                        if (!string.IsNullOrEmpty(dataItem.SubType)) dataItemTopic = $"{topic}/DataItems/{dataItem.Type}/{dataItem.Id}";
 
-                //        messages.Add(CreateMessage(dataItemTopic, Formatters.EntityFormatter.Format(documentFormatterId, dataItem)));
-                //    }
-                //}
+                        messages.Add(CreateMessage(dataItemTopic, Formatters.EntityFormatter.Format(documentFormatterId, dataItem)));
+                    }
+                }
 
-                //// Compositions
-                //if (!device.Compositions.IsNullOrEmpty())
-                //{
-                //    foreach (var composition in device.Compositions)
-                //    {
-                //        messages.AddRange(CreateMessages(topic, composition, documentFormatterId));
-                //    }
-                //}
+                // Compositions
+                if (!device.Compositions.IsNullOrEmpty())
+                {
+                    foreach (var composition in device.Compositions)
+                    {
+                        messages.AddRange(CreateMessages(topic, composition, documentFormatterId));
+                    }
+                }
 
-                //// Components
-                //if (!device.Components.IsNullOrEmpty())
-                //{
-                //    foreach (var component in device.Components)
-                //    {
-                //        messages.AddRange(CreateMessages(topic, component, documentFormatterId));
-                //    }
-                //}
+                // Components
+                if (!device.Components.IsNullOrEmpty())
+                {
+                    foreach (var component in device.Components)
+                    {
+                        messages.AddRange(CreateMessages(topic, component, documentFormatterId));
+                    }
+                }
 
                 return messages;
             }
@@ -218,105 +217,101 @@ namespace MTConnect.Agents
             return null;
         }
 
-        //private IEnumerable<MqttApplicationMessage> CreateMessages(string parentTopic, IComponent component, string documentFormatterId = DocumentFormat.XML)
-        //{
-        //    var messages = new List<MqttApplicationMessage>();
+        private IEnumerable<MqttApplicationMessage> CreateMessages(string parentTopic, IComponent component, string documentFormatterId = DocumentFormat.XML)
+        {
+            var messages = new List<MqttApplicationMessage>();
 
-        //    if (component != null)
-        //    {
-        //        var topic = $"{parentTopic}/Components/{component.Type}/{component.Id}";
-        //        messages.Add(CreateMessage(topic, Formatters.EntityFormatter.Format(documentFormatterId, component)));
+            if (component != null)
+            {
+                var topic = $"{parentTopic}/Components/{component.Type}/{component.Id}";
+                messages.Add(CreateMessage(topic, Formatters.EntityFormatter.Format(documentFormatterId, component)));
 
-        //        // DataItems
-        //        if (!component.DataItems.IsNullOrEmpty())
-        //        {
-        //            foreach (var dataItem in component.DataItems)
-        //            {
-        //                var dataItemTopic = $"{topic}/DataItems/{dataItem.Type}/{dataItem.Id}";
-        //                if (!string.IsNullOrEmpty(dataItem.SubType)) dataItemTopic = $"{topic}/DataItems/{dataItem.Type}/SubTypes/{dataItem.SubType}/{dataItem.Id}";
+                // DataItems
+                if (!component.DataItems.IsNullOrEmpty())
+                {
+                    foreach (var dataItem in component.DataItems)
+                    {
+                        var dataItemTopic = $"{topic}/DataItems/{dataItem.Type}/{dataItem.Id}";
+                        if (!string.IsNullOrEmpty(dataItem.SubType)) dataItemTopic = $"{topic}/DataItems/{dataItem.Type}/SubTypes/{dataItem.SubType}/{dataItem.Id}";
 
-        //                messages.Add(CreateMessage(dataItemTopic, Formatters.EntityFormatter.Format(documentFormatterId, dataItem)));
-        //            }
-        //        }
+                        messages.Add(CreateMessage(dataItemTopic, Formatters.EntityFormatter.Format(documentFormatterId, dataItem)));
+                    }
+                }
 
-        //        // Compositions
-        //        if (!component.Compositions.IsNullOrEmpty())
-        //        {
-        //            foreach (var composition in component.Compositions)
-        //            {
-        //                messages.AddRange(CreateMessages(topic, composition, documentFormatterId));
-        //            }
-        //        }
+                // Compositions
+                if (!component.Compositions.IsNullOrEmpty())
+                {
+                    foreach (var composition in component.Compositions)
+                    {
+                        messages.AddRange(CreateMessages(topic, composition, documentFormatterId));
+                    }
+                }
 
-        //        // Components
-        //        if (!component.Components.IsNullOrEmpty())
-        //        {
-        //            foreach (var subcomponent in component.Components)
-        //            {
-        //                messages.AddRange(CreateMessages(topic, subcomponent, documentFormatterId));
-        //            }
-        //        }
+                // Components
+                if (!component.Components.IsNullOrEmpty())
+                {
+                    foreach (var subcomponent in component.Components)
+                    {
+                        messages.AddRange(CreateMessages(topic, subcomponent, documentFormatterId));
+                    }
+                }
 
-        //        return messages;
-        //    }
+                return messages;
+            }
 
-        //    return messages;
-        //}
+            return messages;
+        }
 
-        //private IEnumerable<MqttApplicationMessage> CreateMessages(string parentTopic, IComposition composition, string documentFormatterId = DocumentFormat.XML)
-        //{
-        //    var messages = new List<MqttApplicationMessage>();
+        private IEnumerable<MqttApplicationMessage> CreateMessages(string parentTopic, IComposition composition, string documentFormatterId = DocumentFormat.XML)
+        {
+            var messages = new List<MqttApplicationMessage>();
 
-        //    if (composition != null)
-        //    {
-        //        var topic = $"{parentTopic}/Compositions/{composition.Type}/{composition.Id}";
-        //        messages.Add(CreateMessage(topic, Formatters.EntityFormatter.Format(documentFormatterId, composition)));
+            if (composition != null)
+            {
+                var topic = $"{parentTopic}/Compositions/{composition.Type}/{composition.Id}";
+                messages.Add(CreateMessage(topic, Formatters.EntityFormatter.Format(documentFormatterId, composition)));
 
-        //        // DataItems
-        //        if (!composition.DataItems.IsNullOrEmpty())
-        //        {
-        //            foreach (var dataItem in composition.DataItems)
-        //            {
-        //                var dataItemTopic = $"{topic}/DataItems/{dataItem.Type}/{dataItem.Id}";
-        //                if (!string.IsNullOrEmpty(dataItem.SubType)) dataItemTopic = $"{topic}/DataItems/{dataItem.Type}/SubTypes/{dataItem.SubType}/{dataItem.Id}";
+                // DataItems
+                if (!composition.DataItems.IsNullOrEmpty())
+                {
+                    foreach (var dataItem in composition.DataItems)
+                    {
+                        var dataItemTopic = $"{topic}/DataItems/{dataItem.Type}/{dataItem.Id}";
+                        if (!string.IsNullOrEmpty(dataItem.SubType)) dataItemTopic = $"{topic}/DataItems/{dataItem.Type}/SubTypes/{dataItem.SubType}/{dataItem.Id}";
 
-        //                messages.Add(CreateMessage(dataItemTopic, Formatters.EntityFormatter.Format(documentFormatterId, dataItem)));
-        //            }
-        //        }
+                        messages.Add(CreateMessage(dataItemTopic, Formatters.EntityFormatter.Format(documentFormatterId, dataItem)));
+                    }
+                }
 
-        //        return messages;
-        //    }
+                return messages;
+            }
 
-        //    return messages;
-        //}
+            return messages;
+        }
 
         private MqttApplicationMessage CreateMessage(IObservation observation, string documentFormatterId = DocumentFormat.XML)
         {
             if (observation != null && observation.DataItem != null && !observation.Values.IsNullOrEmpty())
             {
                 var category = observation.Category.ToString().ToTitleCase() + "s";
-                var topicPrefix = $"MTConnect/Devices/{observation.DeviceUuid}/Observations/{observation.DataItem.Container.Type}/{observation.DataItem.Container.Id}/{category}/{observation.Type}";
 
-                var topic = $"{topicPrefix}/{observation.DataItemId}";
-                if (!string.IsNullOrEmpty(observation.SubType)) topic = $"{topicPrefix}/SubTypes/{observation.SubType}/{observation.DataItemId}";
+                var topic = $"MTConnect/{observation.DeviceUuid}/Streams/{observation.DataItem.Container.Type}/{observation.DataItem.Container.Id}/{category}/{observation.Type}/{observation.DataItemId}";
+                if (!string.IsNullOrEmpty(observation.SubType)) topic = $"MTConnect/{observation.DeviceUuid}/Streams/{observation.DataItem.Container.Type}/{observation.DataItem.Container.Id}/{category}/{observation.Type}/SubTypes/{observation.SubType}/{observation.DataItemId}";
 
-                return CreateMessage(topic, Formatters.EntityFormatter.Format(documentFormatterId, observation));
+
+                return CreateMessage(topic, JsonSerializer.Serialize(observation));
+                //return CreateMessage(topic, Formatters.EntityFormatter.Format(documentFormatterId, observation));
             }
 
             return null;
         }
 
-        private IEnumerable<MqttApplicationMessage> CreateMessage(IAsset asset, string documentFormatterId = DocumentFormat.XML)
+        private MqttApplicationMessage CreateMessage(IAsset asset, string documentFormatterId = DocumentFormat.XML)
         {
             if (asset != null)
             {
-                var messages = new List<MqttApplicationMessage>();
-
-                var payload = Formatters.EntityFormatter.Format(documentFormatterId, asset);
-                messages.Add(CreateMessage($"MTConnect/Assets/{asset.Type}/{asset.AssetId}", payload));
-                messages.Add(CreateMessage($"MTConnect/Devices/{asset.DeviceUuid}/Assets/{asset.Type}/{asset.AssetId}", payload));
-
-                return messages;
+                var topic = $"MTConnect/{documentFormatterId.ToUpper()}/Assets/{asset.Type}/{asset.AssetId}";
+                return CreateMessage(topic, Formatters.EntityFormatter.Format(documentFormatterId, asset));
             }
 
             return null;

@@ -24,9 +24,15 @@
 	<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
 	<PackageIcon>mtconnect-net.png</PackageIcon>
   </PropertyGroup>
+	
+  <ItemGroup>
+    <Compile Remove="Agents\MTConnectMqttBroker - Copy %282%29.cs" />
+    <Compile Remove="Agents\MTConnectMqttBroker - Copy.cs" />
+  </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Clients\" />
+    <None Include="Agents\MTConnectMqttBroker - Copy (2).cs" />
+    <None Include="Agents\MTConnectMqttBroker - Copy.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -41,7 +47,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MTConnect.NET-Common\MTConnect.NET-Common.csproj" />
-    <ProjectReference Include="..\MTConnect.NET-XML\MTConnect.NET-XML.csproj" />
+    <ProjectReference Include="..\MTConnect.NET-JSON\MTConnect.NET-JSON.csproj" />
   </ItemGroup>
 
 </Project>

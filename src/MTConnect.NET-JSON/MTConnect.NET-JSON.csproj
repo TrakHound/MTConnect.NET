@@ -38,46 +38,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Compile Remove="Assets\JsonAssetsDocument.cs" />
-	  <Compile Remove="Devices\Json\JsonComponent.cs" />
-	  <Compile Remove="Devices\Json\JsonComposition.cs" />
-	  <Compile Remove="Devices\Json\JsonDataItem.cs" />
-	  <Compile Remove="Devices\Json\JsonDevice.cs" />
-	  <Compile Remove="Devices\Json\JsonDevicesDocument.cs" />
-	  <Compile Remove="Formatters\JsonEntityFormatter.cs" />
-	  <Compile Remove="Formatters\JsonResponseDocumentFormatter.cs" />
-	  <Compile Remove="Streams\Json\JsonCell.cs" />
-	  <Compile Remove="Streams\Json\JsonComponentStream.cs" />
-	  <Compile Remove="Streams\Json\JsonCondition.cs" />
-	  <Compile Remove="Streams\Json\JsonDeviceStream.cs" />
-	  <Compile Remove="Streams\Json\JsonEntry.cs" />
-	  <Compile Remove="Streams\Json\JsonEvent.cs" />
-	  <Compile Remove="Streams\Json\JsonObservation.cs" />
-	  <Compile Remove="Streams\Json\JsonSample.cs" />
-	  <Compile Remove="Streams\Json\JsonStreamsDocument.cs" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <None Include="Assets\JsonAssetsDocument.cs" />
-	  <None Include="Devices\Json\JsonComponent.cs" />
-	  <None Include="Devices\Json\JsonComposition.cs" />
-	  <None Include="Devices\Json\JsonDataItem.cs" />
-	  <None Include="Devices\Json\JsonDevice.cs" />
-	  <None Include="Devices\Json\JsonDevicesDocument.cs" />
-	  <None Include="Formatters\JsonEntityFormatter.cs" />
-	  <None Include="Formatters\JsonResponseDocumentFormatter.cs" />
-	  <None Include="Streams\Json\JsonCell.cs" />
-	  <None Include="Streams\Json\JsonComponentStream.cs" />
-	  <None Include="Streams\Json\JsonCondition.cs" />
-	  <None Include="Streams\Json\JsonDeviceStream.cs" />
-	  <None Include="Streams\Json\JsonEntry.cs" />
-	  <None Include="Streams\Json\JsonEvent.cs" />
-	  <None Include="Streams\Json\JsonObservation.cs" />
-	  <None Include="Streams\Json\JsonSample.cs" />
-	  <None Include="Streams\Json\JsonStreamsDocument.cs" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

@@ -104,7 +104,7 @@ namespace MTConnect.Formatters
         }
 
 
-        public FormattedEntityReadResult<IDevice> CreateDevice(string content, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormattedEntityReadResult<IDevice> CreateDevice(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             //var messages = new List<string>();
             //var warnings = new List<string>();
@@ -119,7 +119,7 @@ namespace MTConnect.Formatters
             return new FormattedEntityReadResult<IDevice>();
         }
 
-        public FormattedEntityReadResult<IAsset> CreateAsset(string assetType, string content, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormattedEntityReadResult<IAsset> CreateAsset(string assetType, byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             //var messages = new List<string>();
             //var warnings = new List<string>();

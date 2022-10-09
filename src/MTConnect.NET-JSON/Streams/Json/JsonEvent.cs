@@ -5,6 +5,8 @@
 
 using MTConnect.Observations;
 using System.Linq;
+using MTConnect.Streams.Output;
+using MTConnect.Observations.Output;
 
 namespace MTConnect.Streams.Json
 {
@@ -16,7 +18,37 @@ namespace MTConnect.Streams.Json
     {
         public JsonEvent() { }
 
-        public JsonEvent(Observation e)
+        public JsonEvent(IObservation e)
+        {
+            if (e != null)
+            {
+                DataItemId = e.DataItemId;
+                Timestamp = e.Timestamp;
+                Name = e.Name;
+                Sequence = e.Sequence;
+                Type = e.Type;
+                SubType = e.SubType;
+                CompositionId = e.CompositionId;
+                Result = e.GetValue(ValueKeys.Result);
+                ResetTriggered = e.GetValue(ValueKeys.ResetTriggered);
+
+                // DataSet Entries
+                if (e is EventDataSetObservation)
+                {
+                    Entries = CreateEntries(((EventDataSetObservation)e).Entries);
+                    Count = !Entries.IsNullOrEmpty() ? Entries.Count() : 0;
+                }
+
+                // Table Entries
+                if (e is EventTableObservation)
+                {
+                    Entries = CreateEntries(((EventTableObservation)e).Entries);
+                    Count = !Entries.IsNullOrEmpty() ? Entries.Count() : 0;
+                }
+            }
+        }
+
+        public JsonEvent(IObservationOutput e)
         {
             if (e != null)
             {

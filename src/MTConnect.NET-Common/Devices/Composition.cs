@@ -404,6 +404,7 @@ namespace MTConnect.Devices
                 obj.Name = composition.Name;
                 obj.NativeName = composition.NativeName;
                 obj.Type = composition.Type;
+                obj.Parent = composition.Parent;
 
                 // Set Composition Description
                 if (composition.Description != null)

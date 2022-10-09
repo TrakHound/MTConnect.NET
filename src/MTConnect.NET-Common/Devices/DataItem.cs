@@ -694,6 +694,8 @@ namespace MTConnect.Devices
                     obj.NativeScale = dataItem.NativeScale;
                     obj.Units = dataItem.Units;
                     obj.SignificantDigits = dataItem.SignificantDigits;
+                    obj.Container = dataItem.Container;
+                    obj.Device = dataItem.Device;
 
                     // Check SampleRate
                     if (mtconnectVersion >= MTConnectVersions.Version12) obj.SampleRate = dataItem.SampleRate;

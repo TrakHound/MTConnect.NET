@@ -10,6 +10,7 @@ using MTConnect.Devices.Json;
 using MTConnect.Errors;
 using MTConnect.Streams;
 using MTConnect.Streams.Json;
+using MTConnect.Streams.Output;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,8 +28,8 @@ namespace MTConnect.Formatters
 
         public FormattedDocumentWriteResult Format(IDevicesResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
-            var json = JsonSerializer.Serialize(new JsonDevicesDocument(document), JsonFunctions.DefaultOptions);
-            if (!string.IsNullOrEmpty(json))
+            var json = JsonSerializer.SerializeToUtf8Bytes(new JsonDevicesDocument(document), JsonFunctions.DefaultOptions);
+            if (json.IsNullOrEmpty())
             {
                 return FormattedDocumentWriteResult.Successful(json, ContentType);
             }
@@ -36,10 +37,10 @@ namespace MTConnect.Formatters
             return FormattedDocumentWriteResult.Error();
         }
 
-        public FormattedDocumentWriteResult Format(IStreamsResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormattedDocumentWriteResult Format(ref IStreamsResponseOutputDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
-            var json = JsonSerializer.Serialize(new JsonStreamsDocument(document), JsonFunctions.DefaultOptions);
-            if (!string.IsNullOrEmpty(json))
+            var json = JsonSerializer.SerializeToUtf8Bytes(new JsonStreamsDocument(document), JsonFunctions.DefaultOptions);
+            if (json.IsNullOrEmpty())
             {
                 return FormattedDocumentWriteResult.Successful(json, ContentType);
             }
@@ -49,8 +50,8 @@ namespace MTConnect.Formatters
 
         public FormattedDocumentWriteResult Format(IAssetsResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
-            var json = JsonSerializer.Serialize(new JsonAssetsDocument(document), JsonFunctions.DefaultOptions);
-            if (!string.IsNullOrEmpty(json))
+            var json = JsonSerializer.SerializeToUtf8Bytes(new JsonAssetsDocument(document), JsonFunctions.DefaultOptions);
+            if (json.IsNullOrEmpty())
             {
                 return FormattedDocumentWriteResult.Successful(json, ContentType);
             }
@@ -60,8 +61,8 @@ namespace MTConnect.Formatters
 
         public FormattedDocumentWriteResult Format(IErrorResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
-            var json = JsonSerializer.Serialize(document);
-            if (!string.IsNullOrEmpty(json))
+            var json = JsonSerializer.SerializeToUtf8Bytes(document);
+            if (json.IsNullOrEmpty())
             {
                 return FormattedDocumentWriteResult.Successful(json, ContentType);
             }
@@ -70,7 +71,7 @@ namespace MTConnect.Formatters
         }
 
 
-        public FormattedDocumentReadResult<IDevicesResponseDocument> CreateDevicesResponseDocument(string content, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormattedDocumentReadResult<IDevicesResponseDocument> CreateDevicesResponseDocument(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read Document
             var document = JsonSerializer.Deserialize<DevicesResponseDocument>(content);
@@ -79,7 +80,7 @@ namespace MTConnect.Formatters
             return new FormattedDocumentReadResult<IDevicesResponseDocument>(document, success);
         }
 
-        public FormattedDocumentReadResult<IStreamsResponseDocument> CreateStreamsResponseDocument(string content, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormattedDocumentReadResult<IStreamsResponseDocument> CreateStreamsResponseDocument(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read Document
             var document = JsonSerializer.Deserialize<StreamsResponseDocument>(content);
@@ -88,7 +89,7 @@ namespace MTConnect.Formatters
             return new FormattedDocumentReadResult<IStreamsResponseDocument>(document, success);
         }
 
-        public FormattedDocumentReadResult<IAssetsResponseDocument> CreateAssetsResponseDocument(string content, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormattedDocumentReadResult<IAssetsResponseDocument> CreateAssetsResponseDocument(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read Document
             var document = JsonSerializer.Deserialize<AssetsResponseDocument>(content);
@@ -97,7 +98,7 @@ namespace MTConnect.Formatters
             return new FormattedDocumentReadResult<IAssetsResponseDocument>(document, success);
         }
 
-        public FormattedDocumentReadResult<IErrorResponseDocument> CreateErrorResponseDocument(string content, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormattedDocumentReadResult<IErrorResponseDocument> CreateErrorResponseDocument(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read Document
             var document = JsonSerializer.Deserialize<ErrorResponseDocument>(content);

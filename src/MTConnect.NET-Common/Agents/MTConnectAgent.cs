@@ -2939,10 +2939,12 @@ namespace MTConnect.Agents
 
                                 if (ObservationAdded != null)
                                 {
-                                    var observation = Observation.Create(dataItem);
+                                    var observation = Observation.Create(dataItem);                                
                                     observation.DeviceUuid = deviceUuid;
+                                    observation.DataItem = dataItem;
                                     observation.Timestamp = input.Timestamp.ToDateTime();
                                     observation.AddValues(observationInput.Values);
+
                                     ObservationAdded?.Invoke(this, observation);
                                 }
 

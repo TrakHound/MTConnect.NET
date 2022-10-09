@@ -839,6 +839,7 @@ namespace MTConnect.Devices
                 obj.Name = component.Name;
                 obj.NativeName = component.NativeName;
                 obj.Type = component.Type;
+                obj.Parent = component.Parent;
 
                 // Set Component Description
                 if (component.Description != null)

@@ -5,9 +5,14 @@
 
 using MTConnect.Assets;
 using MTConnect.Assets.Xml;
+using MTConnect.Buffers;
 using MTConnect.Devices;
+using MTConnect.Devices.DataItems.Samples;
 using MTConnect.Devices.Xml;
 using MTConnect.Observations;
+using MTConnect.Observations.Output;
+using MTConnect.Streams;
+using MTConnect.Streams.Xml;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -107,7 +112,17 @@ namespace MTConnect.Formatters.Xml
         {
             if (observation != null)
             {
-                //return XmlObservation.ToXml(observation, true);
+                try
+                {
+                    using (var writer = new StringWriter())
+                    {
+                        // Use XmlWriter to write XML to stream
+                        var xmlWriter = XmlWriter.Create(writer, XmlFunctions.XmlWriterSettings);
+                        XmlObservation.WriteXml(xmlWriter, observation);
+                        return writer.ToString();
+                    }
+                }
+                catch { }
             }
 
             return null;

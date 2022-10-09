@@ -6,6 +6,7 @@
 using MTConnect.Headers;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
+using MTConnect.Streams.Output;
 
 namespace MTConnect.Streams.Json
 {
@@ -29,7 +30,7 @@ namespace MTConnect.Streams.Json
 
         public JsonStreamsDocument() { }
 
-        public JsonStreamsDocument(IStreamsResponseDocument streamsDocument)
+        public JsonStreamsDocument(IStreamsResponseOutputDocument streamsDocument)
         {
             if (streamsDocument != null)
             {

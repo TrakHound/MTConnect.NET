@@ -3,21 +3,21 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
-//using MTConnect.Adapters.Shdr;
 using MQTTnet;
 using MQTTnet.Server;
+using MTConnect.Adapters.Shdr;
 using MTConnect.Agents;
-using MTConnect.Assets;
-using MTConnect.Clients.Rest;
 using MTConnect.Configurations;
+using MTConnect.Assets;
 using MTConnect.Devices;
+using MTConnect.Devices.Components;
 using MTConnect.Devices.DataItems;
 using MTConnect.Observations;
-using MTConnect.Observations.Input;
 using MTConnect.Streams;
 using NLog;
 using System.Net;
 using System.Reflection;
+using MTConnect.Servers.Http;
 
 namespace MTConnect.Applications
 {
@@ -28,7 +28,7 @@ namespace MTConnect.Applications
         private static readonly Logger _httpLogger = LogManager.GetLogger("http-logger");
         private static readonly Logger _adapterLogger = LogManager.GetLogger("adapter-logger");
         private static readonly Logger _adapterShdrLogger = LogManager.GetLogger("adapter-shdr-logger");
-        private static IMTConnectAgent _agent;
+        private static MTConnectAgent _agent;
 
 
         /// <summary>
@@ -52,7 +52,7 @@ namespace MTConnect.Applications
             PrintHeader();
 
             // Read the Agent Configuation File
-            var configuration = AgentGatewayConfiguration.Read(configFile);
+            var configuration = AgentConfiguration.Read<MqttAgentConfiguration>(configFile);
 
             switch (command)
             {
@@ -64,7 +64,7 @@ namespace MTConnect.Applications
             Console.ReadLine();
         }
 
-        private static async void Init(AgentGatewayConfiguration configuration, bool verboseLogging = false)
+        private static void Init(MqttAgentConfiguration configuration, bool verboseLogging = false)
         {
             if (configuration != null)
             {
@@ -88,14 +88,7 @@ namespace MTConnect.Applications
 
                 _ = Task.Run(async () =>
                 {
-                    var serverAddress = IPAddress.Any;
-
-                    var mqttServerOptions = new MqttServerOptions();
-                    mqttServerOptions.DefaultEndpointOptions.BoundInterNetworkAddress = serverAddress;
-                    mqttServerOptions.DefaultEndpointOptions.Port = 1883;
-                    mqttServerOptions.DefaultEndpointOptions.IsEnabled = true;
-                    //var mqttServerOptions = new MqttServerOptionsBuilder().WithDefaultEndpointBoundIPAddress(IPAddress.Any).Build();
-                    //var mqttServerOptions = new MqttServerOptionsBuilder().WithDefaultEndpoint().Build();
+                    var mqttServerOptions = new MqttServerOptionsBuilder().WithDefaultEndpoint().Build();
 
                     var mqttFactory = new MqttFactory();
                     using (var mqttServer = mqttFactory.CreateMqttServer(mqttServerOptions))
@@ -116,122 +109,70 @@ namespace MTConnect.Applications
                     }
                 });
 
-                await Task.Delay(5000);
+                Thread.Sleep(5000);
 
-                // Add Agent Clients
-                if (!configuration.Clients.IsNullOrEmpty())
+                // Add Adapter Clients
+                if (!configuration.Adapters.IsNullOrEmpty())
                 {
-                    foreach (var clientConfiguration in configuration.Clients)
+                    var devices = DeviceConfiguration.FromFile(configuration.Devices, DocumentFormat.XML);
+                    if (!devices.IsNullOrEmpty())
                     {
-                        if (!string.IsNullOrEmpty(clientConfiguration.Address))
+                        // Add Device(s) to Agent
+                        foreach (var device in devices)
                         {
-                            string baseUrl = null;
-                            var address = clientConfiguration.Address;
-                            var port = clientConfiguration.Port;
+                            _agent.AddDevice(device);
+                        }
 
-                            if (clientConfiguration.UseSSL) address = address.Replace("https://", "");
-                            else address = address.Replace("http://", "");
+                        foreach (var adapterConfiguration in configuration.Adapters)
+                        {
+                            var device = devices.FirstOrDefault(o => o.Name == adapterConfiguration.DeviceKey);
+                            if (device != null)
+                            {
+                                var adapterComponent = new ShdrAdapterComponent(adapterConfiguration);
 
-                            // Create the MTConnect Agent Base URL
-                            if (clientConfiguration.UseSSL) baseUrl = string.Format("https://{0}", AddPort(address, port));
-                            else baseUrl = string.Format("http://{0}", AddPort(address, port));
+                                // Add Adapter Component to Agent Device
+                                _agent.Agent.AddAdapterComponent(adapterComponent);
 
-                            var agentClient = new MTConnectClient(baseUrl, clientConfiguration.DeviceKey);
-                            agentClient.Interval = clientConfiguration.Interval;
-                            agentClient.Heartbeat = clientConfiguration.Heartbeat;
+                                // Create new SHDR Adapter Client to read from SHDR stream
+                                var adapterClient = new ShdrAdapterClient(adapterConfiguration, _agent, device);
 
-                            // Subscribe to the Event handlers to receive the MTConnect documents
-                            agentClient.OnProbeReceived += (s, doc) => DevicesDocumentReceived(doc);
-                            agentClient.OnCurrentReceived += (s, doc) => StreamsDocumentReceived(doc);
-                            agentClient.OnSampleReceived += (s, doc) => StreamsDocumentReceived(doc);
-                            agentClient.OnAssetsReceived += (s, doc) => AssetsDocumentReceived(doc);
+                                if (verboseLogging)
+                                {
+                                    adapterClient.Connected += AdapterConnected;
+                                    adapterClient.Disconnected += AdapterDisconnected;
+                                    adapterClient.ConnectionError += AdapterConnectionError;
+                                    adapterClient.PingSent += AdapterPingSent;
+                                    adapterClient.PongReceived += AdapterPongReceived;
+                                    adapterClient.ProtocolReceived += AdapterProtocolReceived;
+                                }
 
-                            agentClient.Start();
+                                adapterClient.Start();
+                            }
                         }
                     }
                 }
-
-                //// Add Adapter Clients
-                //if (!configuration.Adapters.IsNullOrEmpty())
-                //{
-                //    var devices = Device.FromFile(configuration.Devices);
-                //    if (!devices.IsNullOrEmpty())
-                //    {
-                //        // Add Device(s) to Agent
-                //        foreach (var device in devices)
-                //        {
-                //            _agent.AddDevice(device);
-                //        }
-
-                //        foreach (var adapterConfiguration in configuration.Adapters)
-                //        {
-                //            var device = devices.FirstOrDefault(o => o.Name == adapterConfiguration.Device);
-                //            if (device != null)
-                //            {
-                //                var adapterClient = new ShdrAdapterClient(adapterConfiguration, _agent, device);
-
-                //                if (verboseLogging)
-                //                {
-                //                    adapterClient.AdapterConnected += AdapterConnected;
-                //                    adapterClient.AdapterDisconnected += AdapterDisconnected;
-                //                    adapterClient.AdapterConnectionError += AdapterConnectionError;
-                //                    adapterClient.PingSent += AdapterPingSent;
-                //                    adapterClient.PongReceived += AdapterPongReceived;
-                //                    adapterClient.ProtocolReceived += AdapterProtocolReceived;
-                //                }
-
-                //                adapterClient.Start();
-                //            }
-                //        }
-                //    }
-                //}
 
                 // Start Agent Metrics
-                if (configuration.EnableMetrics) StartMetrics();
-            }
-        }
+                StartMetrics();
 
+                // Intialize the Http Server
+                var httpServer = new MTConnectShdrHttpAgentServer(configuration, _agent, null);
 
-        private static void DevicesDocumentReceived(IDevicesResponseDocument document)
-        {
-            if (document != null && !document.Devices.IsNullOrEmpty())
-            {
-                foreach (var device in document.Devices)
+                // Setup Http Server Logging
+                if (verboseLogging)
                 {
-                    _httpLogger.Info($"Device Received : {device.Name} : {device.Uuid}");
-                    _agent.AddDevice(device);
+                    httpServer.ListenerStarted += HttpListenerStarted;
+                    httpServer.ListenerStopped += HttpListenerStopped;
+                    httpServer.ListenerException += HttpListenerException;
+                    httpServer.ClientConnected += HttpClientConnected;
+                    httpServer.ClientDisconnected += HttpClientDisconnected;
+                    httpServer.ClientException += HttpClientException;
+                    //httpServer.ResponseSent += HttpResponseSent;
                 }
+
+                // Start the Http Server
+                httpServer.Start();
             }
-        }
-
-        private static void StreamsDocumentReceived(IStreamsResponseDocument document)
-        {
-            if (document != null && !document.Streams.IsNullOrEmpty())
-            {
-                foreach (var stream in document.Streams)
-                {
-                    var observations = stream.Observations;
-                    if (!observations.IsNullOrEmpty())
-                    {
-                        foreach (var observation in observations)
-                        {
-                            var input = new ObservationInput();
-                            input.DataItemKey = observation.DataItemId;
-                            input.DeviceKey = stream.Name;
-                            input.Timestamp = observation.Timestamp.ToUnixTime();
-                            input.Values = observation.Values;
-
-                            _agent.AddObservation(stream.Name, input);
-                        }
-                    }
-                }
-            }
-        }
-
-        private static void AssetsDocumentReceived(IAssetsResponseDocument document)
-        {
-
-
         }
 
 
@@ -280,7 +221,7 @@ namespace MTConnect.Applications
 
             Console.WriteLine("--------------------");
             Console.WriteLine("Copyright 2022 TrakHound Inc., All Rights Reserved");
-            Console.WriteLine("MTConnect MQTT Agent Gateway : Version " + version.ToString());
+            Console.WriteLine("MTConnect MQTT Agent : Version " + version.ToString());
             Console.WriteLine("--------------------");
             Console.WriteLine("This application is licensed under the Apache Version 2.0 License (https://www.apache.org/licenses/LICENSE-2.0)");
             Console.WriteLine("Source code available at Github.com (https://github.com/TrakHound/MTConnect.NET)");
@@ -318,7 +259,7 @@ namespace MTConnect.Applications
         //    }
         //}
 
-        public static void AssetsRequested(IEnumerable<string> assetIds)
+        private static void AssetsRequested(IEnumerable<string> assetIds)
         {
             var ids = "";
             if (!assetIds.IsNullOrEmpty())
@@ -326,12 +267,12 @@ namespace MTConnect.Applications
                 string.Join(";", assetIds.ToArray());
             }
 
-            _agentLogger.Info($"[Agent] : MTConnectAssets Requested : AssetIds = " + ids);
+            _agentLogger.Debug($"[Agent] : MTConnectAssets Requested : AssetIds = " + ids);
         }
 
-        public static void DeviceAssetsRequested(string deviceUuid)
+        private static void DeviceAssetsRequested(string deviceUuid)
         {
-            _agentLogger.Info($"[Agent] : MTConnectAssets Requested : DeviceUuid = " + deviceUuid);
+            _agentLogger.Debug($"[Agent] : MTConnectAssets Requested : DeviceUuid = " + deviceUuid);
         }
 
         private static void AssetsSent(IAssetsResponseDocument document)
@@ -344,7 +285,7 @@ namespace MTConnect.Applications
 
 
         private static void ObservationAdded(object sender, IObservation observation)
-        {         
+        {
             if (!observation.Values.IsNullOrEmpty())
             {
                 foreach (var value in observation.Values)
@@ -370,41 +311,41 @@ namespace MTConnect.Applications
         //}
 
 
-        //private static void AdapterConnected(object sender, string message)
-        //{
-        //    var adapterClient = (ShdrAdapterClient)sender;
-        //    _adapterLogger.Info($"[Adapter] : ID = " + adapterClient.Id + " : " + message);
-        //}
+        private static void AdapterConnected(object sender, string message)
+        {
+            var adapterClient = (ShdrAdapterClient)sender;
+            _adapterLogger.Info($"[Adapter] : ID = " + adapterClient.Id + " : " + message);
+        }
 
-        //private static void AdapterDisconnected(object sender, string message)
-        //{
-        //    var adapterClient = (ShdrAdapterClient)sender;
-        //    _adapterLogger.Info($"[Adapter] : ID = " + adapterClient.Id + " : " + message);
-        //}
+        private static void AdapterDisconnected(object sender, string message)
+        {
+            var adapterClient = (ShdrAdapterClient)sender;
+            _adapterLogger.Info($"[Adapter] : ID = " + adapterClient.Id + " : " + message);
+        }
 
-        //private static void AdapterConnectionError(object sender, Exception exception)
-        //{
-        //    var adapterClient = (ShdrAdapterClient)sender;
-        //    _adapterLogger.Info($"[Adapter] : ID = " + adapterClient.Id + " : " + exception.Message);
-        //}
+        private static void AdapterConnectionError(object sender, Exception exception)
+        {
+            var adapterClient = (ShdrAdapterClient)sender;
+            _adapterLogger.Info($"[Adapter] : ID = " + adapterClient.Id + " : " + exception.Message);
+        }
 
-        //private static void AdapterPingSent(object sender, string message)
-        //{
-        //    var adapterClient = (ShdrAdapterClient)sender;
-        //    _adapterLogger.Info($"[Adapter] : ID = " + adapterClient.Id + " : " + message);
-        //}
+        private static void AdapterPingSent(object sender, string message)
+        {
+            var adapterClient = (ShdrAdapterClient)sender;
+            _adapterLogger.Info($"[Adapter] : ID = " + adapterClient.Id + " : " + message);
+        }
 
-        //private static void AdapterPongReceived(object sender, string message)
-        //{
-        //    var adapterClient = (ShdrAdapterClient)sender;
-        //    _adapterLogger.Info($"[Adapter] : ID = " + adapterClient.Id + " : " + message);
-        //}
+        private static void AdapterPongReceived(object sender, string message)
+        {
+            var adapterClient = (ShdrAdapterClient)sender;
+            _adapterLogger.Info($"[Adapter] : ID = " + adapterClient.Id + " : " + message);
+        }
 
-        //private static void AdapterProtocolReceived(object sender, string message)
-        //{
-        //    var adapterClient = (ShdrAdapterClient)sender;
-        //    _adapterShdrLogger.Debug($"[Adapter-SHDR] : ID = " + adapterClient.Id + " : " + message);
-        //}
+        private static void AdapterProtocolReceived(object sender, string message)
+        {
+            var adapterClient = (ShdrAdapterClient)sender;
+            _adapterShdrLogger.Debug($"[Adapter-SHDR] : ID = " + adapterClient.Id + " : " + message);
+        }
 
 
         private static void HttpListenerStarted(object sender, string prefix)
@@ -438,27 +379,5 @@ namespace MTConnect.Applications
         }
 
         #endregion
-
-
-        private static string AddPort(string url, int port)
-        {
-            if (!string.IsNullOrEmpty(url) && port > 0)
-            {
-                if (url.Contains('/'))
-                {
-                    var p = url.Split('/');
-                    if (p.Length > 1)
-                    {
-                        p[0] = $"{p[0]}:{port}";
-                    }
-
-                    return string.Join('/', p);
-                }
-
-                return $"{url}:{port}";
-            }
-
-            return url;
-        }
     }
 }

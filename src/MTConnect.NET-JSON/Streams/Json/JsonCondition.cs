@@ -5,6 +5,7 @@
 
 using MTConnect.Observations;
 using System.Text.Json.Serialization;
+using MTConnect.Observations.Output;
 
 namespace MTConnect.Streams.Json
 {
@@ -49,7 +50,7 @@ namespace MTConnect.Streams.Json
 
         public JsonCondition() { }
 
-        public JsonCondition(ConditionObservation condition)
+        public JsonCondition(IObservation condition)
         {
             if (condition != null)
             {
@@ -60,12 +61,32 @@ namespace MTConnect.Streams.Json
                 Type = condition.Type;
                 SubType = condition.SubType;
                 CompositionId = condition.CompositionId;
-                if (!string.IsNullOrEmpty(condition.Message)) Result = condition.Message;
+                //if (!string.IsNullOrEmpty(condition.Message)) Result = condition.Message;
 
-                Level = condition.Level.ToString();
-                NativeCode = condition.NativeCode;
-                NativeSeverity = condition.NativeSeverity;
-                if (condition.Qualifier != ConditionQualifier.NOT_SPECIFIED) Qualifier = condition.Qualifier.ToString();
+                //Level = condition.Level.ToString();
+                //NativeCode = condition.NativeCode;
+                //NativeSeverity = condition.NativeSeverity;
+                //if (condition.Qualifier != ConditionQualifier.NOT_SPECIFIED) Qualifier = condition.Qualifier.ToString();
+            }
+        }
+
+        public JsonCondition(IObservationOutput condition)
+        {
+            if (condition != null)
+            {
+                DataItemId = condition.DataItemId;
+                Timestamp = condition.Timestamp;
+                Name = condition.Name;
+                Sequence = condition.Sequence;
+                Type = condition.Type;
+                SubType = condition.SubType;
+                CompositionId = condition.CompositionId;
+                //if (!string.IsNullOrEmpty(condition.Message)) Result = condition.Message;
+
+                //Level = condition.Level.ToString();
+                //NativeCode = condition.NativeCode;
+                //NativeSeverity = condition.NativeSeverity;
+                //if (condition.Qualifier != ConditionQualifier.NOT_SPECIFIED) Qualifier = condition.Qualifier.ToString();
             }
         }
 
