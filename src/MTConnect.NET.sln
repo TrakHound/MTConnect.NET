@@ -75,7 +75,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-DeviceFinder"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect-Agent-MQTT", "..\applications\Agents\MTConnect-Agent-MQTT\MTConnect-Agent-MQTT.csproj", "{AFEE6F2F-E61E-4B3A-ABFC-004E03E58E7B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MTConnect.NET-Client-MQTT-Example", "..\applications\Clients\MTConnect.NET-Client-MQTT-Example\MTConnect.NET-Client-MQTT-Example.csproj", "{D9F269AD-C420-4BA5-929B-799F91BB97EE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-Client-MQTT-Example", "..\applications\Clients\MTConnect.NET-Client-MQTT-Example\MTConnect.NET-Client-MQTT-Example.csproj", "{D9F269AD-C420-4BA5-929B-799F91BB97EE}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect-Agent-MQTT-Relay", "..\applications\Agents\MTConnect-Agent-MQTT-Relay\MTConnect-Agent-MQTT-Relay.csproj", "{1091919F-7120-4931-81AB-5B9636C771D4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MTConnect.NET-Applications-Agents-MQTT", "MTConnect.NET-Applications-Agents-MQTT\MTConnect.NET-Applications-Agents-MQTT.csproj", "{306A4761-143F-4117-87DE-1D390AD25AB7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -258,6 +262,18 @@ Global
 		{D9F269AD-C420-4BA5-929B-799F91BB97EE}.Package|Any CPU.Build.0 = Debug|Any CPU
 		{D9F269AD-C420-4BA5-929B-799F91BB97EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D9F269AD-C420-4BA5-929B-799F91BB97EE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1091919F-7120-4931-81AB-5B9636C771D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1091919F-7120-4931-81AB-5B9636C771D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1091919F-7120-4931-81AB-5B9636C771D4}.Package|Any CPU.ActiveCfg = Debug|Any CPU
+		{1091919F-7120-4931-81AB-5B9636C771D4}.Package|Any CPU.Build.0 = Debug|Any CPU
+		{1091919F-7120-4931-81AB-5B9636C771D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1091919F-7120-4931-81AB-5B9636C771D4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{306A4761-143F-4117-87DE-1D390AD25AB7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{306A4761-143F-4117-87DE-1D390AD25AB7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{306A4761-143F-4117-87DE-1D390AD25AB7}.Package|Any CPU.ActiveCfg = Debug|Any CPU
+		{306A4761-143F-4117-87DE-1D390AD25AB7}.Package|Any CPU.Build.0 = Debug|Any CPU
+		{306A4761-143F-4117-87DE-1D390AD25AB7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{306A4761-143F-4117-87DE-1D390AD25AB7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -290,6 +306,8 @@ Global
 		{E93A7C94-0959-4250-B58F-CD9742AA4B66} = {14375E03-6BF8-45E6-B868-D2399368992B}
 		{AFEE6F2F-E61E-4B3A-ABFC-004E03E58E7B} = {6C3F47E0-BC95-48CB-93A4-C34A0D5CA43B}
 		{D9F269AD-C420-4BA5-929B-799F91BB97EE} = {F3BC3895-4155-4C8D-BAB2-437741AC9B5D}
+		{1091919F-7120-4931-81AB-5B9636C771D4} = {6C3F47E0-BC95-48CB-93A4-C34A0D5CA43B}
+		{306A4761-143F-4117-87DE-1D390AD25AB7} = {94845A24-EEE7-4FEF-B033-99C02DD39C30}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CC13D3AD-18BF-4695-AB2A-087EF0885B20}

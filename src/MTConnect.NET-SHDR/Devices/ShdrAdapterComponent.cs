@@ -22,7 +22,7 @@ namespace MTConnect.Devices.Components
         /// <summary>
         /// Add a new Adapter Component to the Agent Device
         /// </summary>
-        public ShdrAdapterComponent(IShdrAdapterConfiguration configuration, string idSuffix = null)
+        public ShdrAdapterComponent(IShdrAdapterConfiguration configuration, string idSuffix = null, IDevice device = null, IContainer container = null)
         {
             if (configuration != null && !string.IsNullOrEmpty(configuration.Hostname))
             {
@@ -36,13 +36,13 @@ namespace MTConnect.Devices.Components
                 var dataItems = new List<IDataItem>();
 
                 // Add Connection Status
-                var connectionStatusDataItem = new ConnectionStatusDataItem(Id);
+                var connectionStatusDataItem = new ConnectionStatusDataItem(Id) { Device = device, Container = container };
                 dataItems.Add(connectionStatusDataItem);
 
                 // Add Adapter URI DataItem
                 if (configuration.OutputConnectionInformation)
                 {
-                    var adapterUriDataItem = new AdapterUriDataItem(Id);
+                    var adapterUriDataItem = new AdapterUriDataItem(Id) { Device = device, Container = container };
                     var adapterUriConstraint = new Constraints();
                     adapterUriConstraint.Values = new List<string> { Uri };
                     adapterUriDataItem.Constraints = adapterUriConstraint;
@@ -50,10 +50,10 @@ namespace MTConnect.Devices.Components
                 }
 
                 // Add Observation Update Rate
-                dataItems.Add(new ObservationUpdateRateDataItem(Id));
+                dataItems.Add(new ObservationUpdateRateDataItem(Id) { Device = device, Container = container });
 
                 // Add Asset Update Rate
-                dataItems.Add(new AssetUpdateRateDataItem(Id));
+                dataItems.Add(new AssetUpdateRateDataItem(Id) { Device = device, Container = container });
 
                 DataItems = dataItems;
             }

@@ -12,7 +12,7 @@ namespace MTConnect.Applications
     {
         // This is the Application Name shown in the Console header information
         // If you are implementing this into your own application, you can change this to be more specific (ex. Fanuc MTConnect Agent, Mazak MTConnect Agent, etc.)
-        private const string ApplicationName = "MTConnect MQTT Broker Agent";
+        private const string ApplicationName = "MTConnect MQTT Relay Agent";
 
         // Copyright statement for the application. If you are implementing this into your own application, you can change this to your own copyright.
         // This is just what is shown in the console header. If you want to show support for the MTConnect.NET project, you can reference it using the links in the default header
@@ -26,7 +26,7 @@ namespace MTConnect.Applications
             // Create a new MTConnect Agent Application
             // This handles all MTConnect Agent functionality along with
             // an HTTP server, SHDR Adapters, Command line arguments, Device management, Buffer management, Logging, Windows Service, and Configuration File management
-            var agentApplication = new MTConnectShdrMqttBrokerAgentApplication();
+            var agentApplication = new MTConnectShdrMqttRelayAgentApplication();
 
             // Use the regular MTConnectHttpAgentApplication if you are not using SHDR Adapters
             ///var agentApplication = new MTConnectHttpAgentApplication();

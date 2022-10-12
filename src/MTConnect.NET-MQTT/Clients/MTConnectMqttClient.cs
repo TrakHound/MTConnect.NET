@@ -38,6 +38,9 @@ namespace MTConnect.Clients.Mqtt
         private readonly IMqttClient _mqttClient;
         private readonly string _server;
         private readonly int _port;
+        private readonly string _username;
+        private readonly string _password;
+        private readonly bool _useTls;
         private readonly IEnumerable<string> _topics;
         private readonly IEntityFormatter _formatter;
 
@@ -66,6 +69,78 @@ namespace MTConnect.Clients.Mqtt
             _mqttFactory = new MqttFactory();
             _mqttClient = _mqttFactory.CreateMqttClient();
             _mqttClient.ApplicationMessageReceivedAsync += MessageReceived;
+        }
+
+        public MTConnectMqttClient(MTConnectMqttClientConfiguration configuration, IEnumerable<string> topics = null)
+        {
+            if (configuration != null)
+            {
+                _server = configuration.Server;
+                _port = configuration.Port; ;
+                _username = configuration.Username;
+                _password = configuration.Password;
+                _useTls = configuration.UseTls;
+            }
+
+            _topics = !topics.IsNullOrEmpty() ? topics : new List<string> { _defaultTopic };
+
+            _mqttFactory = new MqttFactory();
+            _mqttClient = _mqttFactory.CreateMqttClient();
+            _mqttClient.ApplicationMessageReceivedAsync += MessageReceived;
+        }
+
+
+        public async Task Start()
+        {
+            MqttClientOptions mqttClientOptions;
+
+            if (!string.IsNullOrEmpty(_username) && !string.IsNullOrEmpty(_password))
+            {
+                if (_useTls)
+                {
+                    mqttClientOptions = new MqttClientOptionsBuilder()
+                    .WithTcpServer(_server, _port)
+                    .WithCredentials(_username, _password)
+                    .WithTls()
+                    .Build();
+                }
+                else
+                {
+                    mqttClientOptions = new MqttClientOptionsBuilder()
+                    .WithTcpServer(_server, _port)
+                    .WithCredentials(_username, _password)
+                    .Build();
+                }
+            }
+            else
+            {
+                mqttClientOptions = new MqttClientOptionsBuilder()
+                .WithTcpServer(_server, _port)
+                .Build();
+            }
+
+            await _mqttClient.ConnectAsync(mqttClientOptions, CancellationToken.None);
+
+            var mqttSubscribeOptionsBuilder = _mqttFactory.CreateSubscribeOptionsBuilder();
+            foreach (var topic in _topics)
+            {
+                mqttSubscribeOptionsBuilder.WithTopicFilter(topic);
+            }
+            var mqttSubscribeOptions = mqttSubscribeOptionsBuilder.Build();
+
+            await _mqttClient.SubscribeAsync(mqttSubscribeOptions, CancellationToken.None);
+
+            Console.WriteLine($"MQTT client subscribed..");
+        }
+
+        public async Task Stop()
+        {
+            if (_mqttClient != null) await _mqttClient.DisconnectAsync();
+        }
+
+        public void Dispose()
+        {
+            if (_mqttClient != null) _mqttClient.Dispose();
         }
 
 
@@ -116,7 +191,7 @@ namespace MTConnect.Clients.Mqtt
                     observation.Timestamp = jsonObservation.Timestamp;
                     observation.CompositionId = jsonObservation.CompositionId;
                     //observation.Representation = jsonObservation.Representation.ConvertEnum<DataItemRepresentation>();
-                    
+
                     // Set Result
                     if (jsonObservation.Result != null)
                     {
@@ -128,7 +203,7 @@ namespace MTConnect.Clients.Mqtt
                     {
                         ObservationReceived.Invoke(deviceUuid, observation);
                     }
-                }             
+                }
             }
             catch { }
         }
@@ -179,47 +254,6 @@ namespace MTConnect.Clients.Mqtt
                 }
             }
             catch { }
-        }
-
-
-        public async Task Start()
-        {
-            var mqttClientOptions = new MqttClientOptionsBuilder()
-                .WithTcpServer(_server, _port)
-                .Build();
-
-            await _mqttClient.ConnectAsync(mqttClientOptions, CancellationToken.None);
-
-            var mqttSubscribeOptionsBuilder = _mqttFactory.CreateSubscribeOptionsBuilder();
-            foreach (var topic in _topics)
-            {
-                mqttSubscribeOptionsBuilder.WithTopicFilter(topic);
-            }
-            var mqttSubscribeOptions = mqttSubscribeOptionsBuilder.Build();
-
-            //var mqttSubscribeOptions = mqttFactory.CreateSubscribeOptionsBuilder()
-            //    .WithTopicFilter(f => {
-            //        //f.WithAtLeastOnceQoS();
-            //        f.WithTopic(topic);
-            //    })
-            //    .Build();
-
-            await _mqttClient.SubscribeAsync(mqttSubscribeOptions, CancellationToken.None);
-
-            Console.WriteLine($"MQTT client subscribed..");
-
-            //Console.WriteLine("Press enter to exit.");
-            //Console.ReadLine();
-        }
-
-        public async Task Stop()
-        {
-            if (_mqttClient != null) await _mqttClient.DisconnectAsync();
-        }
-
-        public void Dispose()
-        {
-            if (_mqttClient != null) _mqttClient.Dispose();
         }
     }
 }

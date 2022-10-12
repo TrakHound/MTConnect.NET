@@ -42,7 +42,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\MTConnect.NET-MQTT\MTConnect.NET-MQTT.csproj" />
 		<ProjectReference Include="..\MTConnect.NET\MTConnect.NET.csproj" />
 	</ItemGroup>
 

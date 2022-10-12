@@ -5,7 +5,7 @@
 
 using MQTTnet;
 using MQTTnet.Server;
-using MTConnect.Agents;
+using MTConnect.Mqtt;
 using MTConnect.Configurations;
 using System;
 using System.Collections.Generic;

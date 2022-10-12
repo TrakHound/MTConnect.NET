@@ -6,27 +6,23 @@
 using Microsoft.Extensions.Hosting;
 using MQTTnet;
 using MQTTnet.Server;
+using MTConnect.Agents;
 using MTConnect.Assets;
 using MTConnect.Devices;
 using MTConnect.Observations;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
-//using MTConnect.Devices.Json;
 
-namespace MTConnect.Agents
+namespace MTConnect.Mqtt
 {
     public class MTConnectMqttBroker : IHostedService
     {
         private readonly IMTConnectAgent _mtconnectAgent;
         private readonly MqttServer _mqttServer;
         private CancellationTokenSource _stop;
-        //private IEnumerable<string> _documentFormats = new List<string>() { "XML", "JSON" };
-        //private IEnumerable<string> _documentFormats = new List<string>() { "XML" };
         private IEnumerable<string> _documentFormats = new List<string>() { "JSON" };
 
 
