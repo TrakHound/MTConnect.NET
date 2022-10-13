@@ -8,14 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Program - Copy.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="Program - Copy.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\..\..\src\MTConnect.NET-Applications-Agents-MQTT\MTConnect.NET-Applications-Agents-MQTT.csproj" />
     <ProjectReference Include="..\..\..\src\MTConnect.NET-JSON\MTConnect.NET-JSON.csproj" />
   </ItemGroup>
@@ -24,13 +16,7 @@
     <None Update="agent.config.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="devices-mazak.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="devices-okuma.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="devices.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="devices\device-mazak.xml">

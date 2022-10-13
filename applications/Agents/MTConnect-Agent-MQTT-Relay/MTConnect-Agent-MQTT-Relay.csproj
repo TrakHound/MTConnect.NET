@@ -19,12 +19,6 @@
     <None Update="devices-mazak.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="devices-okuma.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="devices.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="devices\device-mazak.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
