@@ -6,16 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="MTConnectShdrMqttAgentApplication - Copy.cs" />
-    <Compile Remove="MTConnectShdrMqttAgentRelayApplication.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="MTConnectShdrMqttAgentApplication - Copy.cs" />
-    <None Include="MTConnectShdrMqttAgentRelayApplication.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\MTConnect.NET-Applications-Agents\MTConnect.NET-Applications-Agents.csproj" />
     <ProjectReference Include="..\MTConnect.NET-MQTT\MTConnect.NET-MQTT.csproj" />
   </ItemGroup>

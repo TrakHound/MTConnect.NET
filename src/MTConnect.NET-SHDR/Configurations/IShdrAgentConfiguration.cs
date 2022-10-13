@@ -10,7 +10,7 @@ namespace MTConnect.Configurations
     /// <summary>
     /// Configuration for an MTConnect SHDR Agent
     /// </summary>
-    public interface IShdrAgentConfiguration : IHttpAgentConfiguration
+    public interface IShdrAgentConfiguration : IAgentConfiguration
     {
         /// <summary>
         /// Do not overwrite the UUID with the UUID from the adapter, preserve the UUID for the Device. 

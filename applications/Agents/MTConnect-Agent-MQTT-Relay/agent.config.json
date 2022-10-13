@@ -1,7 +1,6 @@
 ﻿{
 	"devices": "devices",
-	"port": 5005,
-	"allowPut": true,
+	"port": 1883,
 	"adapters": [
 		{
 			"deviceKey": "OKUMA-Lathe",

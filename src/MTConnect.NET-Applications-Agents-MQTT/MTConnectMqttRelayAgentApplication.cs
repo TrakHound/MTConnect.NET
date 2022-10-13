@@ -3,14 +3,11 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE.txt', which is part of this source code package.
 
-using MQTTnet;
-using MQTTnet.Server;
 using MTConnect.Configurations;
 using MTConnect.Mqtt;
 using NLog;
 using System;
 using System.Collections.Generic;
-using System.Threading;
 
 namespace MTConnect.Applications.Agents
 {
@@ -22,13 +19,13 @@ namespace MTConnect.Applications.Agents
     {
         private const string DefaultServiceName = "MTConnect-Agent-MQTT-Relay";
         private const string DefaultServiceDisplayName = "MTConnect MQTT Relay Agent";
-        private const string DefaultServiceDescription = "MTConnect Agent using MQTT to provide access to device information using the MTConnect Standard";
+        private const string DefaultServiceDescription = "MTConnect Agent using MQTT to publish to a MQTT Broker";
 
 
         private readonly Logger _mqttLogger = LogManager.GetLogger("mqtt-logger");
 
         private MTConnectMqttRelay _relay;
-        private IHttpAgentApplicationConfiguration _configuration;
+        private IMqttAgentApplicationConfiguration _configuration;
         private int _port = 0;
 
 
@@ -64,35 +61,45 @@ namespace MTConnect.Applications.Agents
             _port = port;
         }
 
-        //protected override IAgentApplicationConfiguration OnConfigurationFileRead(string configurationPath)
-        //{
-        //    // Read the Configuration File
-        //    var configuration = AgentConfiguration.Read<HttpAgentApplicationConfiguration>(configurationPath);
-        //    base.OnAgentConfigurationUpdated(configuration);
-        //    _configuration = configuration;
-        //    return _configuration;
-        //}
+        protected override IAgentApplicationConfiguration OnConfigurationFileRead(string configurationPath)
+        {
+            // Read the Configuration File
+            var configuration = AgentConfiguration.Read<MqttAgentApplicationConfiguration>(configurationPath);
+            base.OnAgentConfigurationUpdated(configuration);
+            _configuration = configuration;
+            return _configuration;
+        }
 
-        //protected override void OnAgentConfigurationWatcherInitialize(IAgentApplicationConfiguration configuration)
-        //{
-        //    _agentConfigurationWatcher = new AgentConfigurationFileWatcher<HttpAgentApplicationConfiguration>(configuration.Path, configuration.ConfigurationFileRestartInterval * 1000);
-        //}
+        protected override void OnAgentConfigurationWatcherInitialize(IAgentApplicationConfiguration configuration)
+        {
+            _agentConfigurationWatcher = new AgentConfigurationFileWatcher<MqttAgentApplicationConfiguration>(configuration.Path, configuration.ConfigurationFileRestartInterval * 1000);
+        }
 
-        //protected override void OnAgentConfigurationUpdated(AgentConfiguration configuration)
-        //{
-        //    _configuration = configuration as IHttpAgentApplicationConfiguration;
-        //}
+        protected override void OnAgentConfigurationUpdated(AgentConfiguration configuration)
+        {
+            _configuration = configuration as IMqttAgentApplicationConfiguration;
+        }
 
-        //protected virtual MTConnectHttpAgentServer OnHttpServerInitialize(int port)
-        //{
-        //    return new MTConnectHttpAgentServer(_configuration, Agent, null, port);
-        //}
 
         protected override async void OnStartAgentBeforeLoad(IEnumerable<DeviceConfiguration> devices, bool initializeDataItems = false)
         {
-            //_relay = new MTConnectMqttRelay(Agent, "5679887d308d402888f323be02124836.s1.eu.hivemq.cloud", 8883);
-            _relay = new MTConnectMqttRelay(Agent, "localhost", 1883);
-            await _relay.Connect();
+            if (_configuration != null)
+            {
+                var clientConfiguration = new MTConnectMqttClientConfiguration();
+                clientConfiguration.Server = _configuration.Server;
+                clientConfiguration.Port = _port > 0 ? _port : _configuration.Port;
+                clientConfiguration.Username = _configuration.Username;
+                clientConfiguration.Password = _configuration.Password;
+                clientConfiguration.UseTls = _configuration.UseTls;
+
+                _relay = new MTConnectMqttRelay(Agent, clientConfiguration);
+                _relay.Connected += MqttClientConnected;
+                _relay.Disconnected += MqttClientDisconnected;
+                _relay.MessageSent += MqttClientMessageSent;
+                _relay.PublishError += MqttClientPublishError;
+                _relay.ConnectionError += MqttClientConnectionError;
+                _relay.Start();
+            }
 
             base.OnStartAgentBeforeLoad(devices, initializeDataItems);
         }
@@ -114,6 +121,38 @@ namespace MTConnect.Applications.Agents
         {
             Console.WriteLine(string.Format("{0,20}  |  {1,5}", "mqtt_port", "Specifies the TCP Port to use for the MQTT Broker"));
             Console.WriteLine(string.Format("{0,20}     {1,5}", "", "Note : This overrides what is read from the Configuration file"));
+        }
+
+        #endregion
+
+        #region "Logging"
+
+        private void MqttClientConnected(object sender, EventArgs args)
+        {
+            var relay = (MTConnectMqttRelay)sender;
+            _mqttLogger.Info($"[MQTT Server] : MQTT Client Connected : " + relay.Server + " : " + relay.Port);
+        }
+
+        private void MqttClientDisconnected(object sender, EventArgs args)
+        {
+            var relay = (MTConnectMqttRelay)sender;
+            _mqttLogger.Debug($"[MQTT Server] : MQTT Client Disconnected : " + relay.Server + " : " + relay.Port);
+        }
+
+        private void MqttClientMessageSent(object sender, string message)
+        {
+            var relay = (MTConnectMqttRelay)sender;
+            _mqttLogger.Debug($"[MQTT Server] : MQTT Client Message Sent : " + relay.Server + " : " + relay.Port);
+        }
+
+        private void MqttClientPublishError(object sender, Exception exception)
+        {
+            _mqttLogger.Warn($"[MQTT Client] : MQTT Client Publish Error : " + exception.Message);
+        }
+
+        private void MqttClientConnectionError(object sender, Exception exception)
+        {
+            _mqttLogger.Warn($"[MQTT Client] : MQTT Client Connection Error : " + exception.Message);
         }
 
         #endregion

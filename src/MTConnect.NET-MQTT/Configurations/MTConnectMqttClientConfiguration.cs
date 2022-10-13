@@ -5,9 +5,9 @@
 
 using System.Text.Json.Serialization;
 
-namespace MTConnect.Clients.Mqtt
+namespace MTConnect.Configurations
 {
-    public class MTConnectMqttClientConfiguration
+    public class MTConnectMqttClientConfiguration : IMTConnectMqttClientConfiguration
     {
         [JsonPropertyName("server")]
         public string Server { get; set; }
@@ -23,5 +23,16 @@ namespace MTConnect.Clients.Mqtt
 
         [JsonPropertyName("useTls")]
         public bool UseTls { get; set; }
+
+        [JsonPropertyName("retryInterval")]
+        public int RetryInterval { get; set; }
+
+
+        public MTConnectMqttClientConfiguration()
+        {
+            Server = "localhost";
+            Port = 1883;
+            RetryInterval = 5000;
+        }
     }
 }

@@ -6,6 +6,7 @@
 using MQTTnet;
 using MQTTnet.Client;
 using MTConnect.Assets;
+using MTConnect.Configurations;
 using MTConnect.Devices;
 using MTConnect.Devices.DataItems;
 using MTConnect.Devices.Json;

@@ -7,6 +7,7 @@ using MQTTnet;
 using MQTTnet.Client;
 using MTConnect.Agents;
 using MTConnect.Assets;
+using MTConnect.Configurations;
 using MTConnect.Devices;
 using MTConnect.Observations;
 using System;
@@ -20,55 +21,145 @@ namespace MTConnect.Mqtt
     public class MTConnectMqttRelay : IDisposable
     {
         private readonly IMTConnectAgent _mtconnectAgent;
-        private readonly string _mqttServer;
-        private readonly int _mqttPort;
+        private readonly MTConnectMqttClientConfiguration _configuration;
         private readonly MqttFactory _mqttFactory;
         private readonly IMqttClient _mqttClient;
+        private readonly IEnumerable<string> _documentFormats = new List<string>() { "JSON" };
         private CancellationTokenSource _stop;
-        private IEnumerable<string> _documentFormats = new List<string>() { "JSON" };
 
 
-        public MTConnectMqttRelay(IMTConnectAgent mtconnectAgent, string mqttServer, int mqttPort = 1883)
+        public string Server => _configuration.Server;
+
+        public int Port => _configuration.Port;
+
+        /// <summary>
+        /// Gets or Sets the Interval in Milliseconds that the Client will attempt to reconnect if the connection fails
+        /// </summary>
+        public int RetryInterval => _configuration.RetryInterval;
+
+        public EventHandler Connected { get; set; }
+
+        public EventHandler Disconnected { get; set; }
+
+        public EventHandler<string> MessageSent { get; set; }
+
+        public EventHandler<Exception> ConnectionError { get; set; }
+
+        public EventHandler<Exception> PublishError { get; set; }
+
+
+        public MTConnectMqttRelay(IMTConnectAgent mtconnectAgent, MTConnectMqttClientConfiguration configuration)
         {
             _mtconnectAgent = mtconnectAgent;
             _mtconnectAgent.DeviceAdded += DeviceAdded;
             _mtconnectAgent.ObservationAdded += ObservationAdded;
             _mtconnectAgent.AssetAdded += AssetAdded;
 
-            _mqttServer = mqttServer;
-            _mqttPort = mqttPort;
+            _configuration = configuration;
+            if (_configuration == null) _configuration = new MTConnectMqttClientConfiguration();
 
             _mqttFactory = new MqttFactory();
             _mqttClient = _mqttFactory.CreateMqttClient();
         }
 
-        public async Task Connect()
+        public void Start()
         {
-            var mqttClientOptions = new MqttClientOptionsBuilder()
-                .WithTcpServer(_mqttServer, _mqttPort)
-                //.WithCredentials("trakhound", "ethan123")
-                //.WithTls()
-                .Build();
+            _stop = new CancellationTokenSource();
 
-            await _mqttClient.ConnectAsync(mqttClientOptions, CancellationToken.None);
+            _ = Task.Run(Worker, _stop.Token);
+        }
 
-            Console.WriteLine($"MQTT client connected..");
+        public void Stop()
+        {
+            if (_stop != null) _stop.Cancel();
 
-            // Add Agent Devices
-            var devices = _mtconnectAgent.GetDevices();
-            if (!devices.Devices.IsNullOrEmpty())
+            try
             {
-                foreach (var device in devices.Devices)
-                {
-                    await PublishDevice(device);
-                }
+                if (_mqttClient != null) _mqttClient.DisconnectAsync();
             }
+            catch { }
         }
 
-        public async Task Disconnect()
+
+        private async Task Worker()
         {
-            if (_mqttClient != null) await _mqttClient.DisconnectAsync();
+            do
+            {
+                try
+                {
+                    try
+                    {
+                        MqttClientOptions mqttClientOptions;
+
+                        if (!string.IsNullOrEmpty(_configuration.Username) && !string.IsNullOrEmpty(_configuration.Password))
+                        {
+                            if (_configuration.UseTls)
+                            {
+                                mqttClientOptions = new MqttClientOptionsBuilder()
+                                .WithTcpServer(_configuration.Server, _configuration.Port)
+                                .WithCredentials(_configuration.Username, _configuration.Password)
+                                .WithTls()
+                                .Build();
+                            }
+                            else
+                            {
+                                mqttClientOptions = new MqttClientOptionsBuilder()
+                                .WithTcpServer(_configuration.Server, _configuration.Port)
+                                .WithCredentials(_configuration.Username, _configuration.Password)
+                                .Build();
+                            }
+                        }
+                        else
+                        {
+                            mqttClientOptions = new MqttClientOptionsBuilder()
+                            .WithTcpServer(_configuration.Server, _configuration.Port)
+                            .Build();
+                        }
+
+                        await _mqttClient.ConnectAsync(mqttClientOptions, CancellationToken.None);
+
+                        if (Connected != null) Connected.Invoke(this, new EventArgs());
+
+                        // Add Agent Devices
+                        var devices = _mtconnectAgent.GetDevices();
+                        if (!devices.Devices.IsNullOrEmpty())
+                        {
+                            foreach (var device in devices.Devices)
+                            {
+                                await PublishDevice(device);
+                            }
+                        }
+
+                        while (!_stop.Token.IsCancellationRequested && _mqttClient.IsConnected)
+                        {
+                            await Task.Delay(100);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        if (ConnectionError != null) ConnectionError.Invoke(this, ex);
+                    }
+
+                    if (Disconnected != null) Disconnected.Invoke(this, new EventArgs());
+
+                    await Task.Delay(RetryInterval, _stop.Token);
+                }
+                catch (TaskCanceledException) { }
+                catch (Exception ex) { }
+
+            } while (!_stop.Token.IsCancellationRequested);
         }
+
+        //public async Task DisconnectAsync()
+        //{
+        //    try
+        //    {
+        //        if (_mqttClient != null) await _mqttClient.DisconnectAsync();
+
+        //        if (Disconnected != null) Disconnected.Invoke(this, new EventArgs());
+        //    }
+        //    catch { }
+        //}
 
         public void Dispose()
         {
@@ -131,20 +222,34 @@ namespace MTConnect.Mqtt
 
         private async Task Publish(MqttApplicationMessage message)
         {
-            if (_mqttClient != null && _mqttClient.IsConnected)
+            try
             {
-                await _mqttClient.PublishAsync(message);
+                if (_mqttClient != null && _mqttClient.IsConnected)
+                {
+                    await _mqttClient.PublishAsync(message);
+                }
+            }
+            catch (Exception ex)
+            {
+                if (PublishError != null) PublishError.Invoke(this, ex);
             }
         }
 
         private async Task Publish(IEnumerable<MqttApplicationMessage> messages)
         {
-            if (_mqttServer != null && !messages.IsNullOrEmpty())
+            try
             {
-                foreach (var message in messages)
+                if (_mqttClient != null && !messages.IsNullOrEmpty())
                 {
-                    await _mqttClient.PublishAsync(message);
+                    foreach (var message in messages)
+                    {
+                        await _mqttClient.PublishAsync(message);
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                if (PublishError != null) PublishError.Invoke(this, ex);
             }
         }
 
@@ -154,7 +259,7 @@ namespace MTConnect.Mqtt
         {
             try
             {
-                var bytes = Encoding.ASCII.GetBytes(payload);
+                var bytes = Encoding.UTF8.GetBytes(payload);
 
                 return new MqttApplicationMessage
                 {
@@ -178,113 +283,11 @@ namespace MTConnect.Mqtt
                 var topic = $"MTConnect/Devices/{device.Uuid}/Device";
                 messages.Add(CreateMessage(topic, Formatters.EntityFormatter.Format(documentFormatterId, device)));
 
-                //// DataItems
-                //if (!device.DataItems.IsNullOrEmpty())
-                //{
-                //    foreach (var dataItem in device.DataItems)
-                //    {
-                //        var dataItemTopic = $"{topic}/DataItems/{dataItem.Type}/{dataItem.Id}";
-                //        if (!string.IsNullOrEmpty(dataItem.SubType)) dataItemTopic = $"{topic}/DataItems/{dataItem.Type}/{dataItem.Id}";
-
-                //        messages.Add(CreateMessage(dataItemTopic, Formatters.EntityFormatter.Format(documentFormatterId, dataItem)));
-                //    }
-                //}
-
-                //// Compositions
-                //if (!device.Compositions.IsNullOrEmpty())
-                //{
-                //    foreach (var composition in device.Compositions)
-                //    {
-                //        messages.AddRange(CreateMessages(topic, composition, documentFormatterId));
-                //    }
-                //}
-
-                //// Components
-                //if (!device.Components.IsNullOrEmpty())
-                //{
-                //    foreach (var component in device.Components)
-                //    {
-                //        messages.AddRange(CreateMessages(topic, component, documentFormatterId));
-                //    }
-                //}
-
                 return messages;
             }
 
             return null;
         }
-
-        //private IEnumerable<MqttApplicationMessage> CreateMessages(string parentTopic, IComponent component, string documentFormatterId = DocumentFormat.XML)
-        //{
-        //    var messages = new List<MqttApplicationMessage>();
-
-        //    if (component != null)
-        //    {
-        //        var topic = $"{parentTopic}/Components/{component.Type}/{component.Id}";
-        //        messages.Add(CreateMessage(topic, Formatters.EntityFormatter.Format(documentFormatterId, component)));
-
-        //        // DataItems
-        //        if (!component.DataItems.IsNullOrEmpty())
-        //        {
-        //            foreach (var dataItem in component.DataItems)
-        //            {
-        //                var dataItemTopic = $"{topic}/DataItems/{dataItem.Type}/{dataItem.Id}";
-        //                if (!string.IsNullOrEmpty(dataItem.SubType)) dataItemTopic = $"{topic}/DataItems/{dataItem.Type}/SubTypes/{dataItem.SubType}/{dataItem.Id}";
-
-        //                messages.Add(CreateMessage(dataItemTopic, Formatters.EntityFormatter.Format(documentFormatterId, dataItem)));
-        //            }
-        //        }
-
-        //        // Compositions
-        //        if (!component.Compositions.IsNullOrEmpty())
-        //        {
-        //            foreach (var composition in component.Compositions)
-        //            {
-        //                messages.AddRange(CreateMessages(topic, composition, documentFormatterId));
-        //            }
-        //        }
-
-        //        // Components
-        //        if (!component.Components.IsNullOrEmpty())
-        //        {
-        //            foreach (var subcomponent in component.Components)
-        //            {
-        //                messages.AddRange(CreateMessages(topic, subcomponent, documentFormatterId));
-        //            }
-        //        }
-
-        //        return messages;
-        //    }
-
-        //    return messages;
-        //}
-
-        //private IEnumerable<MqttApplicationMessage> CreateMessages(string parentTopic, IComposition composition, string documentFormatterId = DocumentFormat.XML)
-        //{
-        //    var messages = new List<MqttApplicationMessage>();
-
-        //    if (composition != null)
-        //    {
-        //        var topic = $"{parentTopic}/Compositions/{composition.Type}/{composition.Id}";
-        //        messages.Add(CreateMessage(topic, Formatters.EntityFormatter.Format(documentFormatterId, composition)));
-
-        //        // DataItems
-        //        if (!composition.DataItems.IsNullOrEmpty())
-        //        {
-        //            foreach (var dataItem in composition.DataItems)
-        //            {
-        //                var dataItemTopic = $"{topic}/DataItems/{dataItem.Type}/{dataItem.Id}";
-        //                if (!string.IsNullOrEmpty(dataItem.SubType)) dataItemTopic = $"{topic}/DataItems/{dataItem.Type}/SubTypes/{dataItem.SubType}/{dataItem.Id}";
-
-        //                messages.Add(CreateMessage(dataItemTopic, Formatters.EntityFormatter.Format(documentFormatterId, dataItem)));
-        //            }
-        //        }
-
-        //        return messages;
-        //    }
-
-        //    return messages;
-        //}
 
         private MqttApplicationMessage CreateMessage(IObservation observation, string documentFormatterId = DocumentFormat.XML)
         {

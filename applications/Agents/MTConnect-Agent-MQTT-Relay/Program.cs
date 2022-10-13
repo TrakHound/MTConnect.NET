@@ -29,7 +29,7 @@ namespace MTConnect.Applications
             var agentApplication = new MTConnectShdrMqttRelayAgentApplication();
 
             // Use the regular MTConnectHttpAgentApplication if you are not using SHDR Adapters
-            ///var agentApplication = new MTConnectHttpAgentApplication();
+            ///var agentApplication = new MTConnectMqttAgentApplication();
 
             // Run the Agent ('true' parameter blocks the call so the application does not continue)
             agentApplication.Run(args, true);
