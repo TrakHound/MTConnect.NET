@@ -3,10 +3,8 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE', which is part of this source code package.
 
-using MTConnect.Devices.Configurations;
 using MTConnect.Devices.References;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json.Serialization;
 
 namespace MTConnect.Devices.Json
@@ -84,37 +82,37 @@ namespace MTConnect.Devices.Json
         /// This can contain information about the Component and manufacturer specific details.
         /// </summary>
         [JsonPropertyName("description")]
-        public IDescription Description { get; set; }
+        public JsonDescription Description { get; set; }
 
         /// <summary>
         /// An XML element that contains technical information about a piece of equipment describing its physical layout or functional characteristics.
         /// </summary>
         [JsonPropertyName("configuration")]
-        public IConfiguration Configuration { get; set; }
+        public JsonConfiguration Configuration { get; set; }
 
         /// <summary>
         /// A container for the Data Entities associated with this Component element.
         /// </summary>
         [JsonPropertyName("dataItems")]
-        public List<JsonDataItem> DataItems { get; set; }
+        public IEnumerable<JsonDataItem> DataItems { get; set; }
 
         /// <summary>
         /// A container for Lower Level Component XML elements associated with this parent Component.
         /// </summary>
         [JsonPropertyName("components")]
-        public List<JsonComponent> Components { get; set; }
+        public IEnumerable<JsonComponent> Components { get; set; }
 
         /// <summary>
         /// A container for the Composition elements associated with this Component element.
         /// </summary>
         [JsonPropertyName("compositions")]
-        public List<JsonComposition> Compositions { get; set; }
+        public IEnumerable<JsonComposition> Compositions { get; set; }
 
         /// <summary>
         /// An XML container consisting of one or more types of Reference XML elements.
         /// </summary>
         [JsonPropertyName("references")]
-        public List<IReference> References { get; set; }
+        public IEnumerable<JsonReference> References { get; set; }
 
 
         public JsonComponent() { }
@@ -128,43 +126,55 @@ namespace MTConnect.Devices.Json
                 Name = component.Name;
                 NativeName = component.NativeName;
                 Type = component.Type;
-                Description = component.Description;
+                if (component.Description != null) Description = new JsonDescription(component.Description);
                 if (component.SampleRate > 0) SampleRate = component.SampleRate;
                 if (component.SampleInterval > 0) SampleInterval = component.SampleInterval;
-                if (!component.References.IsNullOrEmpty()) References = component.References.ToList();
-                Configuration = component.Configuration;
+
+                // References
+                if (!component.References.IsNullOrEmpty())
+                {
+                    var references = new List<JsonReference>();
+                    foreach (var reference in component.References)
+                    {
+                        references.Add(new JsonReference(reference));
+                    }
+                    References = references;
+                }
+
+                // Configuration
+                if (component.Configuration != null) Configuration = new JsonConfiguration(component.Configuration);
 
                 // DataItems
                 if (!component.DataItems.IsNullOrEmpty())
                 {
-                    DataItems = new List<JsonDataItem>();
-
+                    var dataItems = new List<JsonDataItem>();
                     foreach (var dataItem in component.DataItems)
                     {
-                        DataItems.Add(new JsonDataItem(dataItem));
+                        dataItems.Add(new JsonDataItem(dataItem));
                     }
+                    DataItems = dataItems;
                 }
 
                 // Compositions
                 if (!component.Compositions.IsNullOrEmpty())
                 {
-                    Compositions = new List<JsonComposition>();
-
+                    var compositions = new List<JsonComposition>();
                     foreach (var composition in component.Compositions)
                     {
-                        Compositions.Add(new JsonComposition(composition));
+                        compositions.Add(new JsonComposition(composition));
                     }
+                    Compositions = compositions;
                 }
 
                 // Components
                 if (!component.Components.IsNullOrEmpty())
                 {
-                    Components = new List<JsonComponent>();
-
+                    var subcomponents = new List<JsonComponent>();
                     foreach (var subcomponent in component.Components)
                     {
-                        Components.Add(new JsonComponent(subcomponent));
+                        subcomponents.Add(new JsonComponent(subcomponent));
                     }
+                    Components = subcomponents;
                 }
             }
         }
@@ -181,11 +191,23 @@ namespace MTConnect.Devices.Json
             component.Name = Name;
             component.NativeName = NativeName;
             component.Type = Type;
-            component.Description = Description;
+            if (Description != null) component.Description = Description.ToDescription();
             component.SampleRate = SampleRate.HasValue ? SampleRate.Value : 0;
             component.SampleInterval = SampleInterval.HasValue ? SampleInterval.Value : 0;
-            component.References = References;
-            component.Configuration = Configuration;
+
+            // References
+            if (!References.IsNullOrEmpty())
+            {
+                var references = new List<IReference>();
+                foreach (var reference in References)
+                {
+                    references.Add(reference.ToReference());
+                }
+                component.References = references;
+            }
+
+            // Configuration
+            if (Configuration != null) component.Configuration = Configuration.ToConfiguration();
 
             // DataItems
             if (!DataItems.IsNullOrEmpty())

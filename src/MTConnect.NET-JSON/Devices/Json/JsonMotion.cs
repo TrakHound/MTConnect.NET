@@ -1,0 +1,75 @@
+// Copyright (c) 2022 TrakHound Inc., All Rights Reserved.
+
+// This file is subject to the terms and conditions defined in
+// file 'LICENSE', which is part of this source code package.
+
+using MTConnect.Devices.Configurations.Motion;
+using System.Text.Json.Serialization;
+
+namespace MTConnect.Devices.Json
+{
+    public class JsonMotion
+    {
+        [JsonPropertyName("id")]
+        public string Id { get; set; }
+
+        [JsonPropertyName("parentIdRef")]
+        public string ParentIdRef { get; set; }
+
+        [JsonPropertyName("coordinateSystemIdRef")]
+        public string CoordinateSystemIdRef { get; set; }
+
+        [JsonPropertyName("type")]
+        public MotionType Type { get; set; }
+
+        [JsonPropertyName("actuation")]
+        public MotionActuationType Actuation { get; set; }
+
+        [JsonPropertyName("description")]
+        public string Description { get; set; }
+
+        [JsonPropertyName("origin")]
+        public string Origin { get; set; }
+
+        [JsonPropertyName("transformation")]
+        public JsonTransformation Transformation { get; set; }
+
+        [JsonPropertyName("axis")]
+        public string Axis { get; set; }
+
+
+        public JsonMotion() { }
+
+        public JsonMotion(IMotion motion)
+        {
+            if (motion != null)
+            {
+                Id = motion.Id;
+                ParentIdRef = motion.ParentIdRef;
+                CoordinateSystemIdRef = motion.CoordinateSystemIdRef;
+                Type = motion.Type;
+                Actuation = motion.Actuation;
+                Description = motion.Description;
+                Origin = motion.Origin;
+                if (motion.Transformation != null) Transformation = new JsonTransformation(motion.Transformation);
+                Axis = motion.Axis;
+            }
+        }
+
+
+        public IMotion ToMotion()
+        {
+            var motion = new Motion();
+            motion.Id = Id;
+            motion.ParentIdRef = ParentIdRef;
+            motion.CoordinateSystemIdRef = CoordinateSystemIdRef;
+            motion.Type = Type;
+            motion.Actuation = Actuation;
+            motion.Axis = Axis;
+            motion.Origin = Origin;
+            if (Transformation != null) motion.Transformation = Transformation.ToTransformation();
+            motion.Description = Description;
+            return motion;
+        }
+    }
+}

@@ -3,11 +3,7 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE', which is part of this source code package.
 
-using MTConnect.Headers;
-using MTConnect.Interfaces;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json.Serialization;
 
 namespace MTConnect.Devices.Json
@@ -15,13 +11,13 @@ namespace MTConnect.Devices.Json
     public class JsonDevicesDocument
     {
         [JsonPropertyName("header")]
-        public MTConnectDevicesHeader Header { get; set; }
+        public JsonDevicesHeader Header { get; set; }
 
         [JsonPropertyName("devices")]
-        public List<JsonDevice> Devices { get; set; }
+        public IEnumerable<JsonDevice> Devices { get; set; }
 
-        [JsonPropertyName("interfaces")]
-        public IEnumerable<IInterface> Interfaces { get; set; }
+        //[JsonPropertyName("interfaces")]
+        //public IEnumerable<IInterface> Interfaces { get; set; }
 
 
         public JsonDevicesDocument() { }
@@ -30,17 +26,7 @@ namespace MTConnect.Devices.Json
         {
             if (document != null)
             {
-                var header = new MTConnectDevicesHeader();
-                header.InstanceId = document.Header.InstanceId;
-                header.Version = document.Header.Version;
-                header.Sender = document.Header.Sender;
-                header.BufferSize = document.Header.BufferSize;
-                header.AssetBufferSize = document.Header.AssetBufferSize;
-                header.AssetCount = document.Header.AssetCount;
-                header.DeviceModelChangeTime = document.Header.DeviceModelChangeTime;
-                header.TestIndicator = document.Header.TestIndicator;
-                header.CreationTime = document.Header.CreationTime;
-                Header = header;
+                Header = new JsonDevicesHeader(document.Header);
 
                 if (!document.Devices.IsNullOrEmpty())
                 {
@@ -51,7 +37,7 @@ namespace MTConnect.Devices.Json
                     Devices = devices;
                 }
 
-                Interfaces = document.Interfaces;
+                //Interfaces = document.Interfaces;
             }
         }
 
@@ -60,7 +46,7 @@ namespace MTConnect.Devices.Json
         {
             var document = new DevicesResponseDocument();
 
-            document.Header = Header;
+            document.Header = Header.ToDevicesHeader();
 
             if (!Devices.IsNullOrEmpty())
             {
@@ -71,7 +57,7 @@ namespace MTConnect.Devices.Json
                 document.Devices = devices;
             }
 
-            document.Interfaces = Interfaces;
+            //document.Interfaces = Interfaces;
 
             return document;
         }

@@ -3,10 +3,8 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE', which is part of this source code package.
 
-using MTConnect.Devices.Configurations;
 using MTConnect.Devices.References;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json.Serialization;
 
 namespace MTConnect.Devices.Json
@@ -84,25 +82,25 @@ namespace MTConnect.Devices.Json
         /// This can contain information about the Component and manufacturer specific details.
         /// </summary>
         [JsonPropertyName("description")]
-        public IDescription Description { get; set; }
+        public JsonDescription Description { get; set; }
 
         /// <summary>
         /// An XML element that contains technical information about a piece of equipment describing its physical layout or functional characteristics.
         /// </summary>
         [JsonPropertyName("configuration")]
-        public IConfiguration Configuration { get; set; }
+        public JsonConfiguration Configuration { get; set; }
 
         /// <summary>
         /// A container for the Data Entities associated with this Component element.
         /// </summary>
         [JsonPropertyName("dataItems")]
-        public List<JsonDataItem> DataItems { get; set; }
+        public IEnumerable<JsonDataItem> DataItems { get; set; }
 
         /// <summary>
         /// An XML container consisting of one or more types of Reference XML elements.
         /// </summary>
         [JsonPropertyName("references")]
-        public List<IReference> References { get; set; }
+        public IEnumerable<JsonReference> References { get; set; }
 
 
         public JsonComposition() { }
@@ -116,21 +114,33 @@ namespace MTConnect.Devices.Json
                 Name = composition.Name;
                 NativeName = composition.NativeName;
                 Type = composition.Type;
-                Description = composition.Description;
+                if (composition.Description != null) Description = new JsonDescription(composition.Description);
                 if (composition.SampleRate > 0) SampleRate = composition.SampleRate;
                 if (composition.SampleInterval > 0) SampleInterval = composition.SampleInterval;
-                if (!composition.References.IsNullOrEmpty()) References = composition.References.ToList();
-                Configuration = composition.Configuration;
+
+                // References
+                if (!composition.References.IsNullOrEmpty())
+                {
+                    var references = new List<JsonReference>();
+                    foreach (var reference in composition.References)
+                    {
+                        references.Add(new JsonReference(reference));
+                    }
+                    References = references;
+                }
+
+                // Configuration
+                if (composition.Configuration != null) Configuration = new JsonConfiguration(composition.Configuration);
 
                 // DataItems
                 if (!composition.DataItems.IsNullOrEmpty())
                 {
-                    DataItems = new List<JsonDataItem>();
-
+                    var dataItems = new List<JsonDataItem>();
                     foreach (var dataItem in composition.DataItems)
                     {
-                        DataItems.Add(new JsonDataItem(dataItem));
+                        dataItems.Add(new JsonDataItem(dataItem));
                     }
+                    DataItems = dataItems;
                 }
             }
         }
@@ -147,11 +157,23 @@ namespace MTConnect.Devices.Json
             composition.Name = Name;
             composition.NativeName = NativeName;
             composition.Type = Type;
-            composition.Description = Description;
+            if (Description != null) composition.Description = Description.ToDescription();
             composition.SampleRate = SampleRate.HasValue ? SampleRate.Value : 0;
             composition.SampleInterval = SampleInterval.HasValue ? SampleInterval.Value : 0;
-            composition.References = References;
-            composition.Configuration = Configuration;
+
+            // References
+            if (!References.IsNullOrEmpty())
+            {
+                var references = new List<IReference>();
+                foreach (var reference in References)
+                {
+                    references.Add(reference.ToReference());
+                }
+                composition.References = references;
+            }
+
+            // Configuration
+            if (Configuration != null) composition.Configuration = Configuration.ToConfiguration();
 
             // DataItems
             if (!DataItems.IsNullOrEmpty())

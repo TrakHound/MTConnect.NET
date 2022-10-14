@@ -130,6 +130,22 @@ namespace MTConnect.Mqtt
                             }
                         }
 
+                        //var current = _mtconnectAgent.GetDeviceStreams();
+                        //if (!current.Streams.IsNullOrEmpty())
+                        //{
+                        //    foreach (var stream in current.Streams)
+                        //    {
+                        //        var observations = stream.Observations;
+                        //        if (!observations.IsNullOrEmpty())
+                        //        {
+                        //            foreach (var observation in observations)
+                        //            {
+                        //                await PublishObservation(observation);
+                        //            }
+                        //        }
+                        //    }
+                        //}
+
                         while (!_stop.Token.IsCancellationRequested && _mqttClient.IsConnected)
                         {
                             await Task.Delay(100);

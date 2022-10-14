@@ -10,14 +10,12 @@ using MTConnect.Configurations;
 using MTConnect.Devices;
 using MTConnect.Devices.DataItems;
 using MTConnect.Devices.Json;
-using MTConnect.Formatters;
 using MTConnect.Observations;
 using MTConnect.Streams.Json;
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace MTConnect.Clients.Mqtt
@@ -43,7 +41,6 @@ namespace MTConnect.Clients.Mqtt
         private readonly string _password;
         private readonly bool _useTls;
         private readonly IEnumerable<string> _topics;
-        private readonly IEntityFormatter _formatter;
 
         public delegate void MTConnectMqttEventHandler<T>(string deviceUuid, T item);
 
@@ -53,6 +50,12 @@ namespace MTConnect.Clients.Mqtt
         public int Port => _port;
 
         public IEnumerable<string> Topics => _topics;
+
+        public EventHandler Connected { get; set; }
+
+        public EventHandler Disconnected { get; set; }
+
+        public EventHandler<Exception> ConnectionError { get; set; }
 
         public MTConnectMqttEventHandler<IDevice> DeviceReceived { get; set; }
 
@@ -91,52 +94,65 @@ namespace MTConnect.Clients.Mqtt
         }
 
 
-        public async Task Start()
+        public async Task StartAsync()
         {
-            MqttClientOptions mqttClientOptions;
-
-            if (!string.IsNullOrEmpty(_username) && !string.IsNullOrEmpty(_password))
+            try
             {
-                if (_useTls)
+                MqttClientOptions clientOptions;
+
+                if (!string.IsNullOrEmpty(_username) && !string.IsNullOrEmpty(_password))
                 {
-                    mqttClientOptions = new MqttClientOptionsBuilder()
-                    .WithTcpServer(_server, _port)
-                    .WithCredentials(_username, _password)
-                    .WithTls()
-                    .Build();
+                    if (_useTls)
+                    {
+                        clientOptions = new MqttClientOptionsBuilder()
+                        .WithTcpServer(_server, _port)
+                        .WithCredentials(_username, _password)
+                        .WithTls()
+                        .Build();
+                    }
+                    else
+                    {
+                        clientOptions = new MqttClientOptionsBuilder()
+                        .WithTcpServer(_server, _port)
+                        .WithCredentials(_username, _password)
+                        .Build();
+                    }
                 }
                 else
                 {
-                    mqttClientOptions = new MqttClientOptionsBuilder()
+                    clientOptions = new MqttClientOptionsBuilder()
                     .WithTcpServer(_server, _port)
-                    .WithCredentials(_username, _password)
                     .Build();
                 }
+
+                // Connect to the MQTT Client
+                await _mqttClient.ConnectAsync(clientOptions);
+
+                // Configure Topics to subscribe to
+                var subscribeEptionsBuilder = _mqttFactory.CreateSubscribeOptionsBuilder();
+                foreach (var topic in _topics)
+                {
+                    subscribeEptionsBuilder.WithTopicFilter(topic);
+                }
+                var subscribeOptions = subscribeEptionsBuilder.Build();
+
+                // Subscribe to Topics
+                await _mqttClient.SubscribeAsync(subscribeOptions);
             }
-            else
+            catch (Exception ex)
             {
-                mqttClientOptions = new MqttClientOptionsBuilder()
-                .WithTcpServer(_server, _port)
-                .Build();
+                if (ConnectionError != null) ConnectionError.Invoke(this, ex);
             }
-
-            await _mqttClient.ConnectAsync(mqttClientOptions, CancellationToken.None);
-
-            var mqttSubscribeOptionsBuilder = _mqttFactory.CreateSubscribeOptionsBuilder();
-            foreach (var topic in _topics)
-            {
-                mqttSubscribeOptionsBuilder.WithTopicFilter(topic);
-            }
-            var mqttSubscribeOptions = mqttSubscribeOptionsBuilder.Build();
-
-            await _mqttClient.SubscribeAsync(mqttSubscribeOptions, CancellationToken.None);
-
-            Console.WriteLine($"MQTT client subscribed..");
         }
 
-        public async Task Stop()
+        public async Task StopAsync()
         {
-            if (_mqttClient != null) await _mqttClient.DisconnectAsync();
+            try
+            {
+                // Disconnect from the MQTT Client
+                if (_mqttClient != null) await _mqttClient.DisconnectAsync();
+            }
+            catch { }      
         }
 
         public void Dispose()
@@ -147,10 +163,8 @@ namespace MTConnect.Clients.Mqtt
 
         private Task MessageReceived(MqttApplicationMessageReceivedEventArgs args)
         {
-            //Console.WriteLine("Received application message.");
             if (args.ApplicationMessage.Payload != null && args.ApplicationMessage.Payload.Length > 0)
             {
-                //Console.WriteLine(args.ApplicationMessage.Topic);
                 var topic = args.ApplicationMessage.Topic;
 
                 if (_observationRegex.IsMatch(topic))

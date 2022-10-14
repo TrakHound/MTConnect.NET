@@ -127,19 +127,19 @@ namespace MTConnect.Devices.Json
         /// Source is an XML element that indentifies the Component, Subcomponent, or DataItem representing the part of the device from which a measured value originates.
         /// </summary>
         [JsonPropertyName("source")]
-        public Source Source { get; set; }
+        public JsonSource Source { get; set; }
 
         /// <summary>
         /// The set of possible values that can be assigned to this DataItem.
         /// </summary>
         [JsonPropertyName("constraints")]
-        public Constraints Constraints { get; set; }
+        public JsonConstraints Constraints { get; set; }
 
         /// <summary>
         /// The set of possible values that can be assigned to this DataItem.
         /// </summary>
         [JsonPropertyName("filters")]
-        public List<Filter> Filters { get; set; }
+        public IEnumerable<JsonFilter> Filters { get; set; }
 
         /// <summary>
         /// InitialValue is an optional XML element that defines the starting value for a data item as well as the value to be set for the data item after a reset event.
@@ -158,13 +158,13 @@ namespace MTConnect.Devices.Json
         /// When the representation is either DATA_SET or TABLE, it gives the specific meaning of a key and MAY provide a Description, type, and units for semantic interpretation of data.
         /// </summary>
         [JsonPropertyName("definition")]
-        public DataItemDefinition Definition { get; set; }
+        public JsonDataItemDefinition Definition { get; set; }
 
         /// <summary>
         /// Relationships organizes DataItemRelationship and SpecificationRelationship.
         /// </summary>
         [JsonPropertyName("relationships")]
-        public List<Relationship> Relationships { get; set; }
+        public JsonRelationshipContainer Relationships { get; set; }
 
 
         public JsonDataItem() { }
@@ -181,17 +181,60 @@ namespace MTConnect.Devices.Json
                 NativeUnits = dataItem.NativeUnits;
                 if (dataItem.NativeScale > 0) NativeScale = dataItem.NativeScale;
                 if (dataItem.SampleRate > 0) SampleRate = dataItem.SampleRate;
-                //Source = dataItem.Source;
-                //if (!dataItem.Filters.IsNullOrEmpty()) Relationships = dataItem.Relationships;
+                if (dataItem.Source != null) Source = new JsonSource(dataItem.Source);
+
+                // Relationships
+                if (!dataItem.Relationships.IsNullOrEmpty())
+                {
+                    var relationships = new JsonRelationshipContainer();
+                    foreach (var relationship in dataItem.Relationships)
+                    {
+                        // ComponentRelationship
+                        if (relationship.GetType().IsAssignableTo(typeof(IComponentRelationship)))
+                        {
+                            relationships.ComponentRelationships.Add(new JsonRelationship((IComponentRelationship)relationship));
+                        }
+
+                        // DataItemRelationship
+                        if (relationship.GetType().IsAssignableTo(typeof(IDataItemRelationship)))
+                        {
+                            relationships.DataItemRelationships.Add(new JsonRelationship((IDataItemRelationship)relationship));
+                        }
+
+                        // DeviceRelationship
+                        if (relationship.GetType().IsAssignableTo(typeof(IDeviceRelationship)))
+                        {
+                            relationships.DeviceRelationships.Add(new JsonRelationship((IDeviceRelationship)relationship));
+                        }
+
+                        // SpecificationRelationship
+                        if (relationship.GetType().IsAssignableTo(typeof(ISpecificationRelationship)))
+                        {
+                            relationships.SpecificationRelationships.Add(new JsonRelationship((ISpecificationRelationship)relationship));
+                        }
+                    }
+                    Relationships = relationships;
+                }
+
                 if (dataItem.Representation != DataItemRepresentation.VALUE) Representation = dataItem.Representation.ToString();
                 if (dataItem.ResetTrigger != DataItemResetTrigger.NONE) ResetTrigger = dataItem.ResetTrigger.ToString();
                 if (dataItem.CoordinateSystem != DataItemCoordinateSystem.MACHINE) CoordinateSystem = dataItem.CoordinateSystem.ToString();
-                //Constraints = dataItem.Constraints;
-                //Definition = dataItem.Definition;
+                if (dataItem.Constraints != null) Constraints = new JsonConstraints(dataItem.Constraints);
+                if (dataItem.Definition != null) Definition = new JsonDataItemDefinition(dataItem.Definition);
                 Units = dataItem.Units;
                 if (dataItem.Statistic != DataItemStatistic.NONE) Statistic = dataItem.Statistic.ToString();
                 if (dataItem.SignificantDigits > 0) SignificantDigits = dataItem.SignificantDigits;
-                //if (!dataItem.Filters.IsNullOrEmpty()) Filters = dataItem.Filters;
+
+                if (!dataItem.Filters.IsNullOrEmpty())
+                {
+                    var filters = new List<JsonFilter>();
+                    foreach (var filter in dataItem.Filters)
+                    {
+                        filters.Add(new JsonFilter(filter));
+                    }
+                    Filters = filters;
+                }
+
                 InitialValue = dataItem.InitialValue;
                 if (dataItem.Discrete != false) Discrete = dataItem.Discrete;
             }
@@ -213,17 +256,72 @@ namespace MTConnect.Devices.Json
             dataItem.NativeUnits = NativeUnits;
             dataItem.NativeScale = NativeScale.HasValue ? NativeScale.Value : 0;
             dataItem.SampleRate = SampleRate.HasValue ? SampleRate.Value : 0;
-            dataItem.Source = Source;
-            dataItem.Relationships = Relationships;
+            if (Source != null) dataItem.Source = Source.ToSource();
+
+            // Relationships
+            if (Relationships != null)
+            {
+                var relationships = new List<IRelationship>();
+
+                // ComponentRelationship
+                if (!Relationships.ComponentRelationships.IsNullOrEmpty())
+                {
+                    foreach (var relationship in Relationships.ComponentRelationships)
+                    {
+                        relationships.Add(relationship.ToComponentRelationship());
+                    }
+                }
+
+                // DataItemRelationship
+                if (!Relationships.DataItemRelationships.IsNullOrEmpty())
+                {
+                    foreach (var relationship in Relationships.DataItemRelationships)
+                    {
+                        relationships.Add(relationship.ToDataItemRelationship());
+                    }
+                }
+
+                // DeviceRelationship
+                if (!Relationships.DeviceRelationships.IsNullOrEmpty())
+                {
+                    foreach (var relationship in Relationships.DeviceRelationships)
+                    {
+                        relationships.Add(relationship.ToDeviceRelationship());
+                    }
+                }
+
+                // SpecificationRelationship
+                if (!Relationships.SpecificationRelationships.IsNullOrEmpty())
+                {
+                    foreach (var relationship in Relationships.SpecificationRelationships)
+                    {
+                        relationships.Add(relationship.ToSpecificationRelationship());
+                    }
+                }
+
+                dataItem.Relationships = relationships;
+            }
+
             dataItem.Representation = Representation.ConvertEnum<DataItemRepresentation>();
             dataItem.ResetTrigger = ResetTrigger.ConvertEnum<DataItemResetTrigger>();
             dataItem.CoordinateSystem = CoordinateSystem.ConvertEnum<DataItemCoordinateSystem>();
-            dataItem.Constraints = Constraints;
-            dataItem.Definition = Definition;
+            if (Constraints != null) dataItem.Constraints = Constraints.ToConstraints();
+            if (Definition != null) dataItem.Definition = Definition.ToDefinition();
             dataItem.Units = Units;
             dataItem.Statistic = Statistic.ConvertEnum<DataItemStatistic>();
             dataItem.SignificantDigits = SignificantDigits.HasValue ? SignificantDigits.Value : 0;
-            dataItem.Filters = Filters;
+
+            // Filters
+            if (!Filters.IsNullOrEmpty())
+            {
+                var filters = new List<IFilter>();
+                foreach (var filter in Filters)
+                {
+                    filters.Add(filter.ToFilter());
+                }
+                dataItem.Filters = filters;
+            }
+
             dataItem.InitialValue = InitialValue;
             if (Discrete.HasValue) dataItem.Discrete = Discrete.Value;
 

@@ -15,7 +15,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace MTConnect.Formatters
 {
@@ -29,7 +28,7 @@ namespace MTConnect.Formatters
         public FormattedDocumentWriteResult Format(IDevicesResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var json = JsonSerializer.SerializeToUtf8Bytes(new JsonDevicesDocument(document), JsonFunctions.DefaultOptions);
-            if (json.IsNullOrEmpty())
+            if (!json.IsNullOrEmpty())
             {
                 return FormattedDocumentWriteResult.Successful(json, ContentType);
             }
@@ -40,7 +39,7 @@ namespace MTConnect.Formatters
         public FormattedDocumentWriteResult Format(ref IStreamsResponseOutputDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var json = JsonSerializer.SerializeToUtf8Bytes(new JsonStreamsDocument(document), JsonFunctions.DefaultOptions);
-            if (json.IsNullOrEmpty())
+            if (!json.IsNullOrEmpty())
             {
                 return FormattedDocumentWriteResult.Successful(json, ContentType);
             }
@@ -51,7 +50,7 @@ namespace MTConnect.Formatters
         public FormattedDocumentWriteResult Format(IAssetsResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var json = JsonSerializer.SerializeToUtf8Bytes(new JsonAssetsDocument(document), JsonFunctions.DefaultOptions);
-            if (json.IsNullOrEmpty())
+            if (!json.IsNullOrEmpty())
             {
                 return FormattedDocumentWriteResult.Successful(json, ContentType);
             }
@@ -62,7 +61,7 @@ namespace MTConnect.Formatters
         public FormattedDocumentWriteResult Format(IErrorResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var json = JsonSerializer.SerializeToUtf8Bytes(document);
-            if (json.IsNullOrEmpty())
+            if (!json.IsNullOrEmpty())
             {
                 return FormattedDocumentWriteResult.Successful(json, ContentType);
             }

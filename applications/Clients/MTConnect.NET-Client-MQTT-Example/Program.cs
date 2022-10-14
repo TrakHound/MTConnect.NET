@@ -3,6 +3,7 @@ using MQTTnet.Client;
 using MQTTnet.Formatter;
 using MQTTnet.Protocol;
 using System.Text;
+using MTConnect.Configurations;
 using MTConnect.Observations;
 using MTConnect.Clients.Mqtt;
 

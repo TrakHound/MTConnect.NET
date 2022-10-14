@@ -3,7 +3,6 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE', which is part of this source code package.
 
-using MTConnect.Devices.Configurations;
 using MTConnect.Devices.References;
 using System;
 using System.Collections.Generic;
@@ -90,18 +89,18 @@ namespace MTConnect.Devices.Json
         [JsonPropertyName("mtconnectVersion")]
         public string MTConnectVersion { get; set; }
 
-        ///// <summary>
-        ///// An element that can contain any descriptive content. 
-        ///// This can contain information about the Component and manufacturer specific details.
-        ///// </summary>
-        //[JsonPropertyName("description")]
-        //public IDescription Description { get; set; }
+        /// <summary>
+        /// An element that can contain any descriptive content. 
+        /// This can contain information about the Component and manufacturer specific details.
+        /// </summary>
+        [JsonPropertyName("description")]
+        public JsonDescription Description { get; set; }
 
-        ///// <summary>
-        ///// An XML element that contains technical information about a piece of equipment describing its physical layout or functional characteristics.
-        ///// </summary>
-        //[JsonPropertyName("configuration")]
-        //public IConfiguration Configuration { get; set; }
+        /// <summary>
+        /// An XML element that contains technical information about a piece of equipment describing its physical layout or functional characteristics.
+        /// </summary>
+        [JsonPropertyName("configuration")]
+        public JsonConfiguration Configuration { get; set; }
 
         /// <summary>
         /// A container for the Data Entities associated with this Component element.
@@ -121,11 +120,11 @@ namespace MTConnect.Devices.Json
         [JsonPropertyName("compositions")]
         public IEnumerable<JsonComposition> Compositions { get; set; }
 
-        ///// <summary>
-        ///// An XML container consisting of one or more types of Reference XML elements.
-        ///// </summary>
-        //[JsonPropertyName("references")]
-        //public IEnumerable<IReference> References { get; set; }
+        /// <summary>
+        /// An XML container consisting of one or more types of Reference XML elements.
+        /// </summary>
+        [JsonPropertyName("references")]
+        public IEnumerable<JsonReference> References { get; set; }
 
 
         public JsonDevice() { }
@@ -144,10 +143,21 @@ namespace MTConnect.Devices.Json
                 Iso841Class = device.Iso841Class;
                 CoordinateSystemIdRef = device.CoordinateSystemIdRef;
                 if (device.MTConnectVersion != null) MTConnectVersion = device.MTConnectVersion.ToString();
-                //Configuration = device.Configuration;
-                //References = device.References;
-                //Description = device.Description;
+                if (device.Description != null) Description = new JsonDescription(device.Description);
 
+                // References
+                if (!device.References.IsNullOrEmpty())
+                {
+                    var references = new List<JsonReference>();
+                    foreach (var reference in device.References)
+                    {
+                        references.Add(new JsonReference(reference));
+                    }
+                    References = references;
+                }
+
+                // Configuration
+                if (device.Configuration != null) Configuration = new JsonConfiguration(device.Configuration);
 
                 // DataItems
                 if (!device.DataItems.IsNullOrEmpty())
@@ -203,9 +213,21 @@ namespace MTConnect.Devices.Json
             {
                 device.MTConnectVersion = mtconnectVersion;
             }
-            //device.Configuration = Configuration;
-            //device.References = References;
-            //device.Description = Description;
+            if (Description != null) device.Description = Description.ToDescription();
+
+            // References
+            if (!References.IsNullOrEmpty())
+            {
+                var references = new List<IReference>();
+                foreach (var reference in References)
+                {
+                    references.Add(reference.ToReference());
+                }
+                device.References = references;
+            }
+
+            // Configuration
+            if (Configuration != null) device.Configuration = Configuration.ToConfiguration();
 
             // DataItems
             if (!DataItems.IsNullOrEmpty())

@@ -28,8 +28,8 @@ namespace MTConnect.Applications
             // an HTTP server, SHDR Adapters, Command line arguments, Device management, Buffer management, Logging, Windows Service, and Configuration File management
             var agentApplication = new MTConnectShdrMqttBrokerAgentApplication();
 
-            // Use the regular MTConnectHttpAgentApplication if you are not using SHDR Adapters
-            ///var agentApplication = new MTConnectHttpAgentApplication();
+            // Use the regular MTConnectMqttAgentApplication if you are not using SHDR Adapters
+            ///var agentApplication = new MTConnectMqttAgentApplication();
 
             // Run the Agent ('true' parameter blocks the call so the application does not continue)
             agentApplication.Run(args, true);
