@@ -14,7 +14,7 @@ namespace MTConnect.Servers.Http
         {
             if (mtconnectAgent != null && !string.IsNullOrEmpty(path))
             {
-                var deviceDocument = mtconnectAgent.GetDevices();
+                var deviceDocument = mtconnectAgent.GetDevicesResponseDocument();
                 if (deviceDocument != null)
                 {
                     return Formatters.PathFormatter.GetDataItemIds(documentFormat, deviceDocument, path);

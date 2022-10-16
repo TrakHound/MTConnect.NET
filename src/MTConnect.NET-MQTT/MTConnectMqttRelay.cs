@@ -121,7 +121,7 @@ namespace MTConnect.Mqtt
                         if (Connected != null) Connected.Invoke(this, new EventArgs());
 
                         // Add Agent Devices
-                        var devices = _mtconnectAgent.GetDevices();
+                        var devices = _mtconnectAgent.GetDevicesResponseDocument();
                         if (!devices.Devices.IsNullOrEmpty())
                         {
                             foreach (var device in devices.Devices)

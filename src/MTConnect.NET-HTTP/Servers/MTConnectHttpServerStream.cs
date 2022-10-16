@@ -178,19 +178,19 @@ namespace MTConnect.Servers.Http
                         {
                             if (_currentOnly)
                             {
-                                if (!_dataItemIds.IsNullOrEmpty()) document = _mtconnectAgent.GetDeviceStream(_deviceKey, _dataItemIds);
-                                else document = _mtconnectAgent.GetDeviceStream(_deviceKey);
+                                if (!_dataItemIds.IsNullOrEmpty()) document = _mtconnectAgent.GetDeviceStreamsResponseDocument(_deviceKey, _dataItemIds);
+                                else document = _mtconnectAgent.GetDeviceStreamsResponseDocument(_deviceKey);
                             }
                             else
                             {
-                                if (!_dataItemIds.IsNullOrEmpty()) document = _mtconnectAgent.GetDeviceStream(_deviceKey, _dataItemIds, nextSequence, long.MaxValue, _count);
-                                else document = _mtconnectAgent.GetDeviceStream(_deviceKey, nextSequence, long.MaxValue, _count);
+                                if (!_dataItemIds.IsNullOrEmpty()) document = _mtconnectAgent.GetDeviceStreamsResponseDocument(_deviceKey, _dataItemIds, nextSequence, long.MaxValue, _count);
+                                else document = _mtconnectAgent.GetDeviceStreamsResponseDocument(_deviceKey, nextSequence, long.MaxValue, _count);
                             }
                         }
                         else
                         {
-                            if (_currentOnly) document = _mtconnectAgent.GetDeviceStreams();
-                            else document = _mtconnectAgent.GetDeviceStreams(nextSequence, long.MaxValue, _count);
+                            if (_currentOnly) document = _mtconnectAgent.GetDeviceStreamsResponseDocument();
+                            else document = _mtconnectAgent.GetDeviceStreamsResponseDocument(nextSequence, long.MaxValue, _count);
                         }
 
                         if (document != null)

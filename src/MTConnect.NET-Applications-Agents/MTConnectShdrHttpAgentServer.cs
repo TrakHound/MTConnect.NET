@@ -30,7 +30,7 @@ namespace MTConnect.Applications.Agents
         protected override bool OnObservationInput(string deviceKey, string dataItemKey, string input)
         {
             // Get the Devices Document from the Agent
-            var devicesDocument = _mtconnectAgent.GetDevices(deviceKey);
+            var devicesDocument = _mtconnectAgent.GetDevicesResponseDocument(deviceKey);
             if (devicesDocument != null && !devicesDocument.Devices.IsNullOrEmpty())
             {
                 // Get the first Device (should only be one Device)

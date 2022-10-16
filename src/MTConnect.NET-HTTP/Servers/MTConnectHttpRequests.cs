@@ -37,7 +37,7 @@ namespace MTConnect.Servers.Http
             var stpw = Stopwatch.StartNew();
 
             // Get MTConnectDevices document from the MTConnectAgent
-            var document = mtconnectAgent.GetDevices(mtconnectVersion, deviceType);
+            var document = mtconnectAgent.GetDevicesResponseDocument(mtconnectVersion, deviceType);
 
             stpw.Stop();
             double duration = (double)stpw.ElapsedTicks / 10000;
@@ -55,7 +55,7 @@ namespace MTConnect.Servers.Http
                     }
 
                     // Return MTConnectError Response Document
-                    var error500Document = mtconnectAgent.GetError(errors, mtconnectVersion);
+                    var error500Document = mtconnectAgent.GetErrorResponseDocument(errors, mtconnectVersion);
                     var errorResponse = new MTConnectHttpResponse(error500Document, 500, documentFormat, duration, formatOptions);
                     errorResponse.FormatErrors = response.FormatErrors;
                     return errorResponse;
@@ -67,7 +67,7 @@ namespace MTConnect.Servers.Http
             else
             {
                 // Return MTConnectError Response Document
-                var error404Document = mtconnectAgent.GetError(ErrorCode.NO_DEVICE, "The Request could not be interpreted. No Devices were Found", mtconnectVersion);
+                var error404Document = mtconnectAgent.GetErrorResponseDocument(ErrorCode.NO_DEVICE, "The Request could not be interpreted. No Devices were Found", mtconnectVersion);
                 return new MTConnectHttpResponse(error404Document, 404, documentFormat, duration, formatOptions);
             }
         }
@@ -94,7 +94,7 @@ namespace MTConnect.Servers.Http
             if (!string.IsNullOrEmpty(deviceKey))
             {
                 // Get MTConnectDevices document from the MTConnectAgent
-                var document = mtconnectAgent.GetDevices(deviceKey, mtconnectVersion);
+                var document = mtconnectAgent.GetDevicesResponseDocument(deviceKey, mtconnectVersion);
 
                 stpw.Stop();
                 double duration = (double)stpw.ElapsedTicks / 10000;
@@ -112,7 +112,7 @@ namespace MTConnect.Servers.Http
                         }
 
                         // Return MTConnectError Response Document
-                        var error500Document = mtconnectAgent.GetError(errors, mtconnectVersion);
+                        var error500Document = mtconnectAgent.GetErrorResponseDocument(errors, mtconnectVersion);
                         var errorResponse = new MTConnectHttpResponse(error500Document, 500, documentFormat, duration, formatOptions);
                         errorResponse.FormatErrors = response.FormatErrors;
                         return errorResponse;
@@ -124,13 +124,13 @@ namespace MTConnect.Servers.Http
                 else
                 {
                     // Return MTConnectError Response Document
-                    var error404Document = mtconnectAgent.GetError(ErrorCode.NO_DEVICE, $"The Request could not be interpreted. The Device \"{deviceKey}\" was Not Found", mtconnectVersion);
+                    var error404Document = mtconnectAgent.GetErrorResponseDocument(ErrorCode.NO_DEVICE, $"The Request could not be interpreted. The Device \"{deviceKey}\" was Not Found", mtconnectVersion);
                     return new MTConnectHttpResponse(error404Document, 404, documentFormat, duration, formatOptions);
                 }
             }
 
             // Return MTConnectError Response Document
-            var errorDocument = mtconnectAgent.GetError(ErrorCode.INVALID_REQUEST, "An empty \"device\" was received and the request could not be processed", mtconnectVersion);
+            var errorDocument = mtconnectAgent.GetErrorResponseDocument(ErrorCode.INVALID_REQUEST, "An empty \"device\" was received and the request could not be processed", mtconnectVersion);
             return new MTConnectHttpResponse(errorDocument, 400, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
         }
 
@@ -166,36 +166,36 @@ namespace MTConnect.Servers.Http
             // Return MTConnectError Response Document : Invalid Request if "at" is less than zero
             if (at < 0)
             {
-                var errorDocument = mtconnectAgent.GetError(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestNegativeAt, mtconnectVersion);
+                var errorDocument = mtconnectAgent.GetErrorResponseDocument(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestNegativeAt, mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 400, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
 
             // Return MTConnectError Response Document : Invalid Request if "at" and "interval" are specified
             if (at > 0 && interval > 0)
             {
-                var errorDocument = mtconnectAgent.GetError(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestAtIntervalConjunction, mtconnectVersion);
+                var errorDocument = mtconnectAgent.GetErrorResponseDocument(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestAtIntervalConjunction, mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 400, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
 
             // Return MTConnectError Response Document : Out Of Range if "at" less than Agent FirstSequence
             if (at > 0 && at < mtconnectAgent.FirstSequence)
             {
-                var errorDocument = mtconnectAgent.GetError(ErrorCode.OUT_OF_RANGE, ErrorText.OutOfRangeAt, mtconnectVersion);
+                var errorDocument = mtconnectAgent.GetErrorResponseDocument(ErrorCode.OUT_OF_RANGE, ErrorText.OutOfRangeAt, mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 404, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
 
             // Return MTConnectError Response Document : Out Of Range if "at" greater than Agent LastSequence
             if (at > 0 && at > mtconnectAgent.LastSequence)
             {
-                var errorDocument = mtconnectAgent.GetError(ErrorCode.OUT_OF_RANGE, ErrorText.OutOfRangeAt, mtconnectVersion);
+                var errorDocument = mtconnectAgent.GetErrorResponseDocument(ErrorCode.OUT_OF_RANGE, ErrorText.OutOfRangeAt, mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 404, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
 
             IStreamsResponseOutputDocument document;
 
             // Get MTConnectStreams document from the MTConnectAgent
-            if (dataItemIds != null) document = mtconnectAgent.GetDeviceStreams(dataItemIds, at, mtconnectVersion: mtconnectVersion, deviceType: deviceType);
-            else document = mtconnectAgent.GetDeviceStreams(at, mtconnectVersion: mtconnectVersion, deviceType: deviceType);
+            if (dataItemIds != null) document = mtconnectAgent.GetDeviceStreamsResponseDocument(dataItemIds, at, mtconnectVersion: mtconnectVersion, deviceType: deviceType);
+            else document = mtconnectAgent.GetDeviceStreamsResponseDocument(at, mtconnectVersion: mtconnectVersion, deviceType: deviceType);
 
             stpw.Stop();
             double duration = (double)stpw.ElapsedTicks / 10000;
@@ -213,7 +213,7 @@ namespace MTConnect.Servers.Http
                     }
 
                     // Return MTConnectError Response Document
-                    var error500Document = mtconnectAgent.GetError(errors, mtconnectVersion);
+                    var error500Document = mtconnectAgent.GetErrorResponseDocument(errors, mtconnectVersion);
                     var errorResponse = new MTConnectHttpResponse(error500Document, 500, documentFormat, duration, formatOptions);
                     errorResponse.FormatErrors = response.FormatErrors;
                     return errorResponse;
@@ -225,7 +225,7 @@ namespace MTConnect.Servers.Http
             else
             {
                 // Return MTConnectError Response Document
-                var errorDocument = mtconnectAgent.GetError(ErrorCode.NO_DEVICE, "The Request could not be interpreted. No Devices were Found", mtconnectVersion);
+                var errorDocument = mtconnectAgent.GetErrorResponseDocument(ErrorCode.NO_DEVICE, "The Request could not be interpreted. No Devices were Found", mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 404, documentFormat, duration, formatOptions);
             }
         }
@@ -262,28 +262,28 @@ namespace MTConnect.Servers.Http
             // Return MTConnectError Response Document : Invalid Request if "at" is less than zero
             if (at < 0)
             {
-                var errorDocument = mtconnectAgent.GetError(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestNegativeAt, mtconnectVersion);
+                var errorDocument = mtconnectAgent.GetErrorResponseDocument(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestNegativeAt, mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 400, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
 
             // Return MTConnectError Response Document : Invalid Request if "at" and "interval" are specified
             if (at > 0 && interval > -1)
             {
-                var errorDocument = mtconnectAgent.GetError(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestAtIntervalConjunction, mtconnectVersion);
+                var errorDocument = mtconnectAgent.GetErrorResponseDocument(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestAtIntervalConjunction, mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 400, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
 
             // Return MTConnectError Response Document : Out Of Range if "at" less than Agent FirstSequence
             if (at > 0 && at < mtconnectAgent.FirstSequence)
             {
-                var errorDocument = mtconnectAgent.GetError(ErrorCode.OUT_OF_RANGE, ErrorText.OutOfRangeAt, mtconnectVersion);
+                var errorDocument = mtconnectAgent.GetErrorResponseDocument(ErrorCode.OUT_OF_RANGE, ErrorText.OutOfRangeAt, mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 404, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
 
             // Return MTConnectError Response Document : Out Of Range if "at" greater than Agent LastSequence
             if (at > 0 && at > mtconnectAgent.LastSequence)
             {
-                var errorDocument = mtconnectAgent.GetError(ErrorCode.OUT_OF_RANGE, ErrorText.OutOfRangeAt, mtconnectVersion);
+                var errorDocument = mtconnectAgent.GetErrorResponseDocument(ErrorCode.OUT_OF_RANGE, ErrorText.OutOfRangeAt, mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 404, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
 
@@ -292,8 +292,8 @@ namespace MTConnect.Servers.Http
                 IStreamsResponseOutputDocument document;
 
                 // Get MTConnectStreams document from the MTConnectAgent
-                if (dataItemIds != null) document = mtconnectAgent.GetDeviceStream(deviceKey, dataItemIds, at, mtconnectVersion: mtconnectVersion);
-                else document = mtconnectAgent.GetDeviceStream(deviceKey, at, mtconnectVersion: mtconnectVersion);
+                if (dataItemIds != null) document = mtconnectAgent.GetDeviceStreamsResponseDocument(deviceKey, dataItemIds, at, mtconnectVersion: mtconnectVersion);
+                else document = mtconnectAgent.GetDeviceStreamsResponseDocument(deviceKey, at, mtconnectVersion: mtconnectVersion);
 
                 stpw.Stop();
                 double duration = (double)stpw.ElapsedTicks / 10000;
@@ -311,7 +311,7 @@ namespace MTConnect.Servers.Http
                         }
 
                         // Return MTConnectError Response Document
-                        var error500Document = mtconnectAgent.GetError(errors, mtconnectVersion);
+                        var error500Document = mtconnectAgent.GetErrorResponseDocument(errors, mtconnectVersion);
                         var errorResponse = new MTConnectHttpResponse(error500Document, 500, documentFormat, duration, formatOptions);
                         errorResponse.FormatErrors = response.FormatErrors;
                         return errorResponse;
@@ -323,14 +323,14 @@ namespace MTConnect.Servers.Http
                 else
                 {
                     // Return MTConnectError Response Document
-                    var errorDocument = mtconnectAgent.GetError(ErrorCode.NO_DEVICE, $"The Request could not be interpreted. The Device \"{deviceKey}\" was Not Found", mtconnectVersion);
+                    var errorDocument = mtconnectAgent.GetErrorResponseDocument(ErrorCode.NO_DEVICE, $"The Request could not be interpreted. The Device \"{deviceKey}\" was Not Found", mtconnectVersion);
                     return new MTConnectHttpResponse(errorDocument, 404, documentFormat, duration, formatOptions);
                 }
             }
             else
             {
                 // Return MTConnectError Response Document
-                var errorDocument = mtconnectAgent.GetError(ErrorCode.INVALID_REQUEST, "An empty \"device\" was received and the request could not be processed", mtconnectVersion);
+                var errorDocument = mtconnectAgent.GetErrorResponseDocument(ErrorCode.INVALID_REQUEST, "An empty \"device\" was received and the request could not be processed", mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 400, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
         }
@@ -369,57 +369,57 @@ namespace MTConnect.Servers.Http
             // Return MTConnectError Response Document : Invalid Request if "from" is less than zero
             if (from < 0)
             {
-                var errorDocument = mtconnectAgent.GetError(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestNegativeFrom, mtconnectVersion);
+                var errorDocument = mtconnectAgent.GetErrorResponseDocument(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestNegativeFrom, mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 400, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
 
             // Return MTConnectError Response Document : Invalid Request if "to" is less than zero
             if (to < 0)
             {
-                var errorDocument = mtconnectAgent.GetError(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestNegativeTo, mtconnectVersion);
+                var errorDocument = mtconnectAgent.GetErrorResponseDocument(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestNegativeTo, mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 400, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
 
             // Return MTConnectError Response Document : Invalid Request if "to" is less than "from"
             if (to > 0 && to < from)
             {
-                var errorDocument = mtconnectAgent.GetError(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestToLessThanFrom, mtconnectVersion);
+                var errorDocument = mtconnectAgent.GetErrorResponseDocument(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestToLessThanFrom, mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 400, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
 
             // Return MTConnectError Response Document : Invalid Request if "to" is given and "count" is less than zero
             if (to > 0 && count < 0)
             {
-                var errorDocument = mtconnectAgent.GetError(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestNegativeCount, mtconnectVersion);
+                var errorDocument = mtconnectAgent.GetErrorResponseDocument(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestNegativeCount, mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 400, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
 
             // Return MTConnectError Response Document : Out Of Range if "from" less than Agent FirstSequence or greater than Agent LastSequence
             if (from > 0 && (from < mtconnectAgent.FirstSequence || from > mtconnectAgent.LastSequence))
             {
-                var errorDocument = mtconnectAgent.GetError(ErrorCode.OUT_OF_RANGE, ErrorText.OutOfRangeFrom, mtconnectVersion);
+                var errorDocument = mtconnectAgent.GetErrorResponseDocument(ErrorCode.OUT_OF_RANGE, ErrorText.OutOfRangeFrom, mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 404, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
 
             // Return MTConnectError Response Document : Out Of Range if "to" less than Agent FirstSequence or greater than Agent LastSequence
             if (to > 0 && (to < mtconnectAgent.FirstSequence || to > mtconnectAgent.LastSequence))
             {
-                var errorDocument = mtconnectAgent.GetError(ErrorCode.OUT_OF_RANGE, ErrorText.OutOfRangeTo, mtconnectVersion);
+                var errorDocument = mtconnectAgent.GetErrorResponseDocument(ErrorCode.OUT_OF_RANGE, ErrorText.OutOfRangeTo, mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 404, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
 
             // Return MTConnectError Response Document : Out Of Range if "count" is greater than the size of the buffer or equal to zero
             if (count == 0 && count > mtconnectAgent.BufferSize)
             {
-                var errorDocument = mtconnectAgent.GetError(ErrorCode.OUT_OF_RANGE, ErrorText.OutOfRangeCount, mtconnectVersion);
+                var errorDocument = mtconnectAgent.GetErrorResponseDocument(ErrorCode.OUT_OF_RANGE, ErrorText.OutOfRangeCount, mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 404, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
 
             IStreamsResponseOutputDocument document;
 
             // Get MTConnectStreams document from the MTConnectAgent
-            if (dataItemIds != null) document = mtconnectAgent.GetDeviceStreams(dataItemIds, from, to, count, mtconnectVersion, deviceType);
-            else document = mtconnectAgent.GetDeviceStreams(from, to, count, mtconnectVersion, deviceType);
+            if (dataItemIds != null) document = mtconnectAgent.GetDeviceStreamsResponseDocument(dataItemIds, from, to, count, mtconnectVersion, deviceType);
+            else document = mtconnectAgent.GetDeviceStreamsResponseDocument(from, to, count, mtconnectVersion, deviceType);
 
             stpw.Stop();
             double duration = (double)stpw.ElapsedTicks / 10000;
@@ -437,7 +437,7 @@ namespace MTConnect.Servers.Http
                     }
 
                     // Return MTConnectError Response Document
-                    var error500Document = mtconnectAgent.GetError(errors, mtconnectVersion);
+                    var error500Document = mtconnectAgent.GetErrorResponseDocument(errors, mtconnectVersion);
                     var errorResponse = new MTConnectHttpResponse(error500Document, 500, documentFormat, duration, formatOptions);
                     errorResponse.FormatErrors = response.FormatErrors;
                     return errorResponse;
@@ -448,7 +448,7 @@ namespace MTConnect.Servers.Http
             else
             {
                 // Return MTConnectError Response Document
-                var errorDocument = mtconnectAgent.GetError(ErrorCode.NO_DEVICE, "The Request could not be interpreted. No Devices were Not Found", mtconnectVersion);
+                var errorDocument = mtconnectAgent.GetErrorResponseDocument(ErrorCode.NO_DEVICE, "The Request could not be interpreted. No Devices were Not Found", mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 404, documentFormat, duration, formatOptions);
             }
         }
@@ -487,49 +487,49 @@ namespace MTConnect.Servers.Http
             // Return MTConnectError Response Document : Invalid Request if "from" is less than zero
             if (from < 0)
             {
-                var errorDocument = mtconnectAgent.GetError(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestNegativeFrom, mtconnectVersion);
+                var errorDocument = mtconnectAgent.GetErrorResponseDocument(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestNegativeFrom, mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 400, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
 
             // Return MTConnectError Response Document : Invalid Request if "to" is less than zero
             if (to < 0)
             {
-                var errorDocument = mtconnectAgent.GetError(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestNegativeTo, mtconnectVersion);
+                var errorDocument = mtconnectAgent.GetErrorResponseDocument(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestNegativeTo, mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 400, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
 
             // Return MTConnectError Response Document : Invalid Request if "to" is less than "from"
             if (to > 0 && to < from)
             {
-                var errorDocument = mtconnectAgent.GetError(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestToLessThanFrom, mtconnectVersion);
+                var errorDocument = mtconnectAgent.GetErrorResponseDocument(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestToLessThanFrom, mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 400, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
 
             // Return MTConnectError Response Document : Invalid Request if "to" is given and "count" is less than zero
             if (to > 0 && count < 0)
             {
-                var errorDocument = mtconnectAgent.GetError(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestNegativeCount, mtconnectVersion);
+                var errorDocument = mtconnectAgent.GetErrorResponseDocument(ErrorCode.INVALID_REQUEST, ErrorText.InvalidRequestNegativeCount, mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 400, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
 
             // Return MTConnectError Response Document : Out Of Range if "from" less than Agent FirstSequence or greater than Agent LastSequence
             if (from > 0 && (from < mtconnectAgent.FirstSequence || from > mtconnectAgent.LastSequence))
             {
-                var errorDocument = mtconnectAgent.GetError(ErrorCode.OUT_OF_RANGE, ErrorText.OutOfRangeFrom, mtconnectVersion);
+                var errorDocument = mtconnectAgent.GetErrorResponseDocument(ErrorCode.OUT_OF_RANGE, ErrorText.OutOfRangeFrom, mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 404, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
 
             // Return MTConnectError Response Document : Out Of Range if "to" less than Agent FirstSequence or greater than Agent LastSequence
             if (to > 0 && (to < mtconnectAgent.FirstSequence || to > mtconnectAgent.LastSequence))
             {
-                var errorDocument = mtconnectAgent.GetError(ErrorCode.OUT_OF_RANGE, ErrorText.OutOfRangeTo, mtconnectVersion);
+                var errorDocument = mtconnectAgent.GetErrorResponseDocument(ErrorCode.OUT_OF_RANGE, ErrorText.OutOfRangeTo, mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 404, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
 
             // Return MTConnectError Response Document : Out Of Range if "count" is greater than the size of the buffer or equal to zero
             if (count == 0 && count > mtconnectAgent.BufferSize)
             {
-                var errorDocument = mtconnectAgent.GetError(ErrorCode.OUT_OF_RANGE, ErrorText.OutOfRangeCount, mtconnectVersion);
+                var errorDocument = mtconnectAgent.GetErrorResponseDocument(ErrorCode.OUT_OF_RANGE, ErrorText.OutOfRangeCount, mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 404, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
 
@@ -538,8 +538,8 @@ namespace MTConnect.Servers.Http
                 IStreamsResponseOutputDocument document;
 
                 // Get MTConnectStreams document from the MTConnectAgent
-                if (dataItemIds != null) document = mtconnectAgent.GetDeviceStream(deviceKey, dataItemIds, from, to, count, mtconnectVersion);
-                else document = mtconnectAgent.GetDeviceStream(deviceKey, from, to, count, mtconnectVersion);
+                if (dataItemIds != null) document = mtconnectAgent.GetDeviceStreamsResponseDocument(deviceKey, dataItemIds, from, to, count, mtconnectVersion);
+                else document = mtconnectAgent.GetDeviceStreamsResponseDocument(deviceKey, from, to, count, mtconnectVersion);
 
                 stpw.Stop();
                 double duration = (double)stpw.ElapsedTicks / 10000;
@@ -557,7 +557,7 @@ namespace MTConnect.Servers.Http
                         }
 
                         // Return MTConnectError Response Document
-                        var error500Document = mtconnectAgent.GetError(errors, mtconnectVersion);
+                        var error500Document = mtconnectAgent.GetErrorResponseDocument(errors, mtconnectVersion);
                         var errorResponse = new MTConnectHttpResponse(error500Document, 500, documentFormat, duration, formatOptions);
                         errorResponse.FormatErrors = response.FormatErrors;
                         return errorResponse;
@@ -569,14 +569,14 @@ namespace MTConnect.Servers.Http
                 else
                 {
                     // Return MTConnectError Response Document
-                    var errorDocument = mtconnectAgent.GetError(ErrorCode.NO_DEVICE, $"The Request could not be interpreted. The Device \"{deviceKey}\" was Not Found", mtconnectVersion);
+                    var errorDocument = mtconnectAgent.GetErrorResponseDocument(ErrorCode.NO_DEVICE, $"The Request could not be interpreted. The Device \"{deviceKey}\" was Not Found", mtconnectVersion);
                     return new MTConnectHttpResponse(errorDocument, 404, documentFormat, duration, formatOptions);
                 }
             }
             else
             {
                 // Return MTConnectError Response Document
-                var errorDocument = mtconnectAgent.GetError(ErrorCode.INVALID_REQUEST, "An empty \"device\" was received and the request could not be processed", mtconnectVersion);
+                var errorDocument = mtconnectAgent.GetErrorResponseDocument(ErrorCode.INVALID_REQUEST, "An empty \"device\" was received and the request could not be processed", mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 400, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
         }
@@ -613,7 +613,7 @@ namespace MTConnect.Servers.Http
             var stpw = Stopwatch.StartNew();
 
             // Get MTConnectAssets document from the MTConnectAgent
-            var document = mtconnectAgent.GetAssets(deviceKey, type, removed, count, mtconnectVersion);
+            var document = mtconnectAgent.GetAssetsResponseDocument(deviceKey, type, removed, count, mtconnectVersion);
 
             stpw.Stop();
             double duration = (double)stpw.ElapsedTicks / 10000;
@@ -631,7 +631,7 @@ namespace MTConnect.Servers.Http
                     }
 
                     // Return MTConnectError Response Document
-                    var error500Document = mtconnectAgent.GetError(errors, mtconnectVersion);
+                    var error500Document = mtconnectAgent.GetErrorResponseDocument(errors, mtconnectVersion);
                     var errorResponse = new MTConnectHttpResponse(error500Document, 500, documentFormat, duration, formatOptions);
                     errorResponse.FormatErrors = response.FormatErrors;
                     return errorResponse;
@@ -642,7 +642,7 @@ namespace MTConnect.Servers.Http
             else
             {
                 // Return MTConnectError Response Document
-                var errorDocument = mtconnectAgent.GetError(ErrorCode.ASSET_NOT_FOUND, "The Request could not be interpreted.", mtconnectVersion);
+                var errorDocument = mtconnectAgent.GetErrorResponseDocument(ErrorCode.ASSET_NOT_FOUND, "The Request could not be interpreted.", mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 404, documentFormat, duration, formatOptions);
             }
         }
@@ -670,7 +670,7 @@ namespace MTConnect.Servers.Http
             if (!assetIds.IsNullOrEmpty())
             {
                 // Get MTConnectAssets document from the MTConnectAgent
-                var document = mtconnectAgent.GetAssets(assetIds, mtconnectVersion);
+                var document = mtconnectAgent.GetAssetsResponseDocument(assetIds, mtconnectVersion);
 
                 stpw.Stop();
                 double duration = (double)stpw.ElapsedTicks / 10000;
@@ -688,7 +688,7 @@ namespace MTConnect.Servers.Http
                         }
 
                         // Return MTConnectError Response Document
-                        var error500Document = mtconnectAgent.GetError(errors, mtconnectVersion);
+                        var error500Document = mtconnectAgent.GetErrorResponseDocument(errors, mtconnectVersion);
                         var errorResponse = new MTConnectHttpResponse(error500Document, 500, documentFormat, duration, formatOptions);
                         errorResponse.FormatErrors = response.FormatErrors;
                         return errorResponse;
@@ -699,14 +699,14 @@ namespace MTConnect.Servers.Http
                 else
                 {
                     // Return MTConnectError Response Document
-                    var errorDocument = mtconnectAgent.GetError(ErrorCode.ASSET_NOT_FOUND, "The Request could not be interpreted.", mtconnectVersion);
+                    var errorDocument = mtconnectAgent.GetErrorResponseDocument(ErrorCode.ASSET_NOT_FOUND, "The Request could not be interpreted.", mtconnectVersion);
                     return new MTConnectHttpResponse(errorDocument, 404, documentFormat, duration, formatOptions);
                 }
             }
             else
             {
                 // Return MTConnectError Response Document
-                var errorDocument = mtconnectAgent.GetError(ErrorCode.INVALID_REQUEST, "An empty \"assetId\" was received and the request could not be processed", mtconnectVersion);
+                var errorDocument = mtconnectAgent.GetErrorResponseDocument(ErrorCode.INVALID_REQUEST, "An empty \"assetId\" was received and the request could not be processed", mtconnectVersion);
                 return new MTConnectHttpResponse(errorDocument, 400, documentFormat, stpw.ElapsedMilliseconds, formatOptions);
             }
         }

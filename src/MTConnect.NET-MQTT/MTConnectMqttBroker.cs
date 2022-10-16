@@ -47,7 +47,7 @@ namespace MTConnect.Mqtt
             {
                 await _mqttServer.StartAsync();
 
-                var devices = _mtconnectAgent.GetDevices();
+                var devices = _mtconnectAgent.GetDevicesResponseDocument();
                 foreach (var device in devices.Devices)
                 {
                     // Publish the Device

@@ -775,7 +775,7 @@ namespace MTConnect.Servers.Http
                         else
                         {
                             // Return MTConnectError Response Document along with a 404 Http Status Code
-                            var errorDocument = _mtconnectAgent.GetError(ErrorCode.UNSUPPORTED, $"Cannot find device: {deviceKey}");
+                            var errorDocument = _mtconnectAgent.GetErrorResponseDocument(ErrorCode.UNSUPPORTED, $"Cannot find device: {deviceKey}");
                             var mtconnectResponse = new MTConnectHttpResponse(errorDocument, 404, DocumentFormat.XML, 0, null);
                             await WriteResponse(mtconnectResponse, httpResponse);
                         }
@@ -817,7 +817,7 @@ namespace MTConnect.Servers.Http
                         else
                         {
                             // Return MTConnectError Response Document along with a 404 Http Status Code
-                            var errorDocument = _mtconnectAgent.GetError(ErrorCode.UNSUPPORTED, $"Cannot find device: {deviceKey}");
+                            var errorDocument = _mtconnectAgent.GetErrorResponseDocument(ErrorCode.UNSUPPORTED, $"Cannot find device: {deviceKey}");
                             var mtconnectResponse = new MTConnectHttpResponse(errorDocument, 404, DocumentFormat.XML, 0, null);
                             await WriteResponse(mtconnectResponse, httpResponse);
                         }

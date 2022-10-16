@@ -812,7 +812,7 @@ namespace MTConnect.Agents
         /// Get an MTConnectDevices Response Document containing all devices.
         /// </summary>
         /// <returns>MTConnectDevices Response Document</returns>
-        public IDevicesResponseDocument GetDevices(Version mtconnectVersion = null, string deviceType = null)
+        public IDevicesResponseDocument GetDevicesResponseDocument(Version mtconnectVersion = null, string deviceType = null)
         {
             DevicesRequestReceived?.Invoke(null);
 
@@ -849,7 +849,7 @@ namespace MTConnect.Agents
         /// </summary>
         /// <param name="deviceKey">The (name or uuid) of the requested Device</param>
         /// <returns>MTConnectDevices Response Document</returns>
-        public IDevicesResponseDocument GetDevices(string deviceKey, Version mtconnectVersion = null)
+        public IDevicesResponseDocument GetDevicesResponseDocument(string deviceKey, Version mtconnectVersion = null)
         {
             DevicesRequestReceived?.Invoke(deviceKey);
 
@@ -919,7 +919,7 @@ namespace MTConnect.Agents
         /// </summary>
         /// <param name="count">The Maximum Number of DataItems to return</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        public IStreamsResponseOutputDocument GetDeviceStreams(int count = 0, Version mtconnectVersion = null, string deviceType = null)
+        public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(int count = 0, Version mtconnectVersion = null, string deviceType = null)
         {
             StreamsRequestReceived?.Invoke(null);
 
@@ -957,7 +957,7 @@ namespace MTConnect.Agents
         /// <param name="at">The sequence number to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        public IStreamsResponseOutputDocument GetDeviceStreams(long at, int count = 0, Version mtconnectVersion = null, string deviceType = null)
+        public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(long at, int count = 0, Version mtconnectVersion = null, string deviceType = null)
         {
             StreamsRequestReceived?.Invoke(null);
 
@@ -996,7 +996,7 @@ namespace MTConnect.Agents
         /// <param name="at">The sequence number to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        public IStreamsResponseOutputDocument GetDeviceStreams(IEnumerable<string> dataItemIds, long at, int count = 0, Version mtconnectVersion = null, string deviceType = null)
+        public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(IEnumerable<string> dataItemIds, long at, int count = 0, Version mtconnectVersion = null, string deviceType = null)
         {
             StreamsRequestReceived?.Invoke(null);
 
@@ -1040,7 +1040,7 @@ namespace MTConnect.Agents
         /// <param name="to">The sequence number of the last observation to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        public IStreamsResponseOutputDocument GetDeviceStreams(long from, long to, int count = 0, Version mtconnectVersion = null, string deviceType = null)
+        public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(long from, long to, int count = 0, Version mtconnectVersion = null, string deviceType = null)
         {
             StreamsRequestReceived?.Invoke(null);
 
@@ -1080,7 +1080,7 @@ namespace MTConnect.Agents
         /// <param name="to">The sequence number of the last observation to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        public IStreamsResponseOutputDocument GetDeviceStreams(IEnumerable<string> dataItemIds, long from, long to, int count = 0, Version mtconnectVersion = null, string deviceType = null)
+        public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(IEnumerable<string> dataItemIds, long from, long to, int count = 0, Version mtconnectVersion = null, string deviceType = null)
         {
             StreamsRequestReceived?.Invoke(null);
 
@@ -1119,7 +1119,7 @@ namespace MTConnect.Agents
         /// <param name="deviceKey">The (name or uuid) of the requested Device</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        public IStreamsResponseOutputDocument GetDeviceStream(string deviceKey, int count = 0, Version mtconnectVersion = null)
+        public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(string deviceKey, int count = 0, Version mtconnectVersion = null)
         {
             StreamsRequestReceived?.Invoke(deviceKey);
 
@@ -1160,7 +1160,7 @@ namespace MTConnect.Agents
         /// <param name="at">The sequence number to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        public IStreamsResponseOutputDocument GetDeviceStream(string deviceKey, long at, int count = 0, Version mtconnectVersion = null)
+        public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(string deviceKey, long at, int count = 0, Version mtconnectVersion = null)
         {
             StreamsRequestReceived?.Invoke(deviceKey);
 
@@ -1201,7 +1201,7 @@ namespace MTConnect.Agents
         /// <param name="dataItemIds">A list of DataItemId's to specify what observations to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        public IStreamsResponseOutputDocument GetDeviceStream(string deviceKey, IEnumerable<string> dataItemIds, int count = 0, Version mtconnectVersion = null)
+        public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(string deviceKey, IEnumerable<string> dataItemIds, int count = 0, Version mtconnectVersion = null)
         {
             StreamsRequestReceived?.Invoke(deviceKey);
 
@@ -1243,7 +1243,7 @@ namespace MTConnect.Agents
         /// <param name="at">The sequence number to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        public IStreamsResponseOutputDocument GetDeviceStream(string deviceKey, IEnumerable<string> dataItemIds, long at, int count = 0, Version mtconnectVersion = null)
+        public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(string deviceKey, IEnumerable<string> dataItemIds, long at, int count = 0, Version mtconnectVersion = null)
         {
             StreamsRequestReceived?.Invoke(deviceKey);
 
@@ -1285,7 +1285,7 @@ namespace MTConnect.Agents
         /// <param name="to">The sequence number of the last observation to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        public IStreamsResponseOutputDocument GetDeviceStream(string deviceKey, long from, long to, int count = 0, Version mtconnectVersion = null)
+        public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(string deviceKey, long from, long to, int count = 0, Version mtconnectVersion = null)
         {
             StreamsRequestReceived?.Invoke(deviceKey);
 
@@ -1328,7 +1328,7 @@ namespace MTConnect.Agents
         /// <param name="to">The sequence number of the last observation to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        public IStreamsResponseOutputDocument GetDeviceStream(string deviceKey, IEnumerable<string> dataItemIds, long from, long to, int count = 0, Version mtconnectVersion = null)
+        public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(string deviceKey, IEnumerable<string> dataItemIds, long from, long to, int count = 0, Version mtconnectVersion = null)
         {
             StreamsRequestReceived?.Invoke(deviceKey);
 
@@ -1563,7 +1563,7 @@ namespace MTConnect.Agents
         /// </param>
         /// <param name="count">Defines the maximum number of Asset Documents to return in an MTConnectAssets Response Document.</param>
         /// <returns>MTConnectAssets Response Document</returns>
-        public IAssetsResponseDocument GetAssets(string deviceKey = null, string type = null, bool removed = false, int count = 0, Version mtconnectVersion = null)
+        public IAssetsResponseDocument GetAssetsResponseDocument(string deviceKey = null, string type = null, bool removed = false, int count = 0, Version mtconnectVersion = null)
         {
             DeviceAssetsRequestReceived?.Invoke(deviceKey);
 
@@ -1613,7 +1613,7 @@ namespace MTConnect.Agents
         /// </summary>
         /// <param name="assetIds">The IDs of the Assets to include in the response</param>
         /// <returns>MTConnectAssets Response Document</returns>
-        public IAssetsResponseDocument GetAssets(IEnumerable<string> assetIds, Version mtconnectVersion = null)
+        public IAssetsResponseDocument GetAssetsResponseDocument(IEnumerable<string> assetIds, Version mtconnectVersion = null)
         {
             AssetsRequestReceived?.Invoke(assetIds);
 
@@ -1793,7 +1793,7 @@ namespace MTConnect.Agents
         /// <param name="errorCode">Provides a descriptive code that indicates the type of error that was encountered by an Agent when attempting to respond to a Request for information.</param>
         /// <param name="value">A textual description of the error and any additional information an Agent is capable of providing regarding a specific error.</param>
         /// <returns>MTConnectError Response Document</returns>
-        public IErrorResponseDocument GetError(ErrorCode errorCode, string value = null, Version mtconnectVersion = null)
+        public IErrorResponseDocument GetErrorResponseDocument(ErrorCode errorCode, string value = null, Version mtconnectVersion = null)
         {
             var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersion;
 
@@ -1819,7 +1819,7 @@ namespace MTConnect.Agents
         /// </summary>
         /// <param name="errors">A list of Errors to include in the response Document</param>
         /// <returns>MTConnectError Response Document</returns>
-        public IErrorResponseDocument GetError(IEnumerable<IError> errors, Version mtconnectVersion = null)
+        public IErrorResponseDocument GetErrorResponseDocument(IEnumerable<IError> errors, Version mtconnectVersion = null)
         {
             var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersion;
 
