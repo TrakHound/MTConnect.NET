@@ -50,8 +50,9 @@ namespace MTConnect.Streams.Json
 
         public JsonCondition() { }
 
-        public JsonCondition(IObservation condition)
+        public JsonCondition(IObservation observation)
         {
+            var condition = observation as ConditionObservation;
             if (condition != null)
             {
                 DataItemId = condition.DataItemId;
@@ -61,12 +62,12 @@ namespace MTConnect.Streams.Json
                 Type = condition.Type;
                 SubType = condition.SubType;
                 CompositionId = condition.CompositionId;
-                //if (!string.IsNullOrEmpty(condition.Message)) Result = condition.Message;
+                if (!string.IsNullOrEmpty(condition.Message)) Result = condition.Message;
 
-                //Level = condition.Level.ToString();
-                //NativeCode = condition.NativeCode;
-                //NativeSeverity = condition.NativeSeverity;
-                //if (condition.Qualifier != ConditionQualifier.NOT_SPECIFIED) Qualifier = condition.Qualifier.ToString();
+                Level = condition.Level.ToString();
+                NativeCode = condition.NativeCode;
+                NativeSeverity = condition.NativeSeverity;
+                if (condition.Qualifier != ConditionQualifier.NOT_SPECIFIED) Qualifier = condition.Qualifier.ToString();
             }
         }
 
@@ -81,12 +82,26 @@ namespace MTConnect.Streams.Json
                 Type = condition.Type;
                 SubType = condition.SubType;
                 CompositionId = condition.CompositionId;
-                //if (!string.IsNullOrEmpty(condition.Message)) Result = condition.Message;
 
-                //Level = condition.Level.ToString();
-                //NativeCode = condition.NativeCode;
-                //NativeSeverity = condition.NativeSeverity;
-                //if (condition.Qualifier != ConditionQualifier.NOT_SPECIFIED) Qualifier = condition.Qualifier.ToString();
+                // Message
+                var message = condition.GetValue(ValueKeys.Message);
+                if (!string.IsNullOrEmpty(message)) Result = message;
+
+                // Level
+                var level = condition.GetValue(ValueKeys.Level);
+                if (!string.IsNullOrEmpty(level)) Level = level;
+
+                // NativeCode
+                var nativeCode = condition.GetValue(ValueKeys.NativeCode);
+                if (!string.IsNullOrEmpty(nativeCode)) NativeCode = nativeCode;
+
+                // NativeSeverity
+                var nativeSeverity = condition.GetValue(ValueKeys.NativeSeverity);
+                if (!string.IsNullOrEmpty(nativeSeverity)) NativeSeverity = nativeSeverity;
+
+                // Qualifier
+                var qualifier = condition.GetValue(ValueKeys.Qualifier);
+                if (!string.IsNullOrEmpty(qualifier)) Qualifier = qualifier;
             }
         }
 

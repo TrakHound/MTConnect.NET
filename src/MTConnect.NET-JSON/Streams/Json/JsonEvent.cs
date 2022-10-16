@@ -7,6 +7,7 @@ using MTConnect.Observations;
 using System.Linq;
 using MTConnect.Streams.Output;
 using MTConnect.Observations.Output;
+using MTConnect.Devices.DataItems;
 
 namespace MTConnect.Streams.Json
 {
@@ -63,18 +64,36 @@ namespace MTConnect.Streams.Json
                 ResetTriggered = e.GetValue(ValueKeys.ResetTriggered);
 
                 // DataSet Entries
-                if (e is EventDataSetObservation)
+                if (e.Representation == DataItemRepresentation.DATA_SET)
                 {
-                    Entries = CreateEntries(((EventDataSetObservation)e).Entries);
+                    var dataSetObservation = new EventDataSetObservation();
+                    dataSetObservation.AddValues(e.Values);
+                    Entries = CreateEntries(dataSetObservation.Entries);
                     Count = !Entries.IsNullOrEmpty() ? Entries.Count() : 0;
                 }
 
                 // Table Entries
-                if (e is EventTableObservation)
+                if (e.Representation == DataItemRepresentation.TABLE)
                 {
-                    Entries = CreateEntries(((EventTableObservation)e).Entries);
+                    var tableObservation = new EventTableObservation();
+                    tableObservation.AddValues(e.Values);
+                    Entries = CreateEntries(tableObservation.Entries);
                     Count = !Entries.IsNullOrEmpty() ? Entries.Count() : 0;
                 }
+
+                //// DataSet Entries
+                //if (e is EventDataSetObservation)
+                //{
+                //    Entries = CreateEntries(((EventDataSetObservation)e).Entries);
+                //    Count = !Entries.IsNullOrEmpty() ? Entries.Count() : 0;
+                //}
+
+                //// Table Entries
+                //if (e is EventTableObservation)
+                //{
+                //    Entries = CreateEntries(((EventTableObservation)e).Entries);
+                //    Count = !Entries.IsNullOrEmpty() ? Entries.Count() : 0;
+                //}
             }
         }
 

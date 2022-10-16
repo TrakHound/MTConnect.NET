@@ -68,6 +68,7 @@ namespace MTConnect.Formatters
             {
                 switch (observation.Category)
                 {
+                    // Sample
                     case Devices.DataItems.DataItemCategory.SAMPLE:
                         var sampleObservation = SampleObservation.Create(observation);
                         if (sampleObservation != null)
@@ -76,6 +77,7 @@ namespace MTConnect.Formatters
                         }
                         break;
 
+                    // Event
                     case Devices.DataItems.DataItemCategory.EVENT:
                         var eventObservation = EventObservation.Create(observation);
                         if (eventObservation != null)
@@ -83,11 +85,16 @@ namespace MTConnect.Formatters
                             return JsonFunctions.Convert(new JsonEvent(eventObservation));
                         }
                         break;
+
+                    // Condition
+                    case Devices.DataItems.DataItemCategory.CONDITION:
+                        var conditionObservation = ConditionObservation.Create(observation);
+                        if (conditionObservation != null)
+                        {
+                            return JsonFunctions.Convert(new JsonCondition(conditionObservation));
+                        }
+                        break;
                 }
-
-
-
-                //return new JsonObservation(observation).ToString();
             }
 
             return null;

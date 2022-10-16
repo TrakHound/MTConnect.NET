@@ -27,7 +27,11 @@ namespace MTConnect.Formatters
 
         public FormattedDocumentWriteResult Format(IDevicesResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
-            var json = JsonSerializer.SerializeToUtf8Bytes(new JsonDevicesDocument(document), JsonFunctions.DefaultOptions);
+            // Read Indent Option passed to Formatter
+            var indentOutput = GetFormatterOption<bool>(options, "indentOutput");
+            var jsonOptions = indentOutput ? JsonFunctions.IndentOptions : JsonFunctions.DefaultOptions;
+
+            var json = JsonSerializer.SerializeToUtf8Bytes(new JsonDevicesDocument(document), jsonOptions);
             if (!json.IsNullOrEmpty())
             {
                 return FormattedDocumentWriteResult.Successful(json, ContentType);
@@ -38,7 +42,11 @@ namespace MTConnect.Formatters
 
         public FormattedDocumentWriteResult Format(ref IStreamsResponseOutputDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
-            var json = JsonSerializer.SerializeToUtf8Bytes(new JsonStreamsDocument(document), JsonFunctions.DefaultOptions);
+            // Read Indent Option passed to Formatter
+            var indentOutput = GetFormatterOption<bool>(options, "indentOutput");
+            var jsonOptions = indentOutput ? JsonFunctions.IndentOptions : JsonFunctions.DefaultOptions;
+
+            var json = JsonSerializer.SerializeToUtf8Bytes(new JsonStreamsDocument(document), jsonOptions);
             if (!json.IsNullOrEmpty())
             {
                 return FormattedDocumentWriteResult.Successful(json, ContentType);
@@ -49,7 +57,11 @@ namespace MTConnect.Formatters
 
         public FormattedDocumentWriteResult Format(IAssetsResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
-            var json = JsonSerializer.SerializeToUtf8Bytes(new JsonAssetsDocument(document), JsonFunctions.DefaultOptions);
+            // Read Indent Option passed to Formatter
+            var indentOutput = GetFormatterOption<bool>(options, "indentOutput");
+            var jsonOptions = indentOutput ? JsonFunctions.IndentOptions : JsonFunctions.DefaultOptions;
+
+            var json = JsonSerializer.SerializeToUtf8Bytes(new JsonAssetsDocument(document), jsonOptions);
             if (!json.IsNullOrEmpty())
             {
                 return FormattedDocumentWriteResult.Successful(json, ContentType);
@@ -60,7 +72,11 @@ namespace MTConnect.Formatters
 
         public FormattedDocumentWriteResult Format(IErrorResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
-            var json = JsonSerializer.SerializeToUtf8Bytes(document);
+            // Read Indent Option passed to Formatter
+            var indentOutput = GetFormatterOption<bool>(options, "indentOutput");
+            var jsonOptions = indentOutput ? JsonFunctions.IndentOptions : JsonFunctions.DefaultOptions;
+
+            var json = JsonSerializer.SerializeToUtf8Bytes(document, jsonOptions);
             if (!json.IsNullOrEmpty())
             {
                 return FormattedDocumentWriteResult.Successful(json, ContentType);

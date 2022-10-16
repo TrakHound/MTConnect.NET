@@ -75,6 +75,9 @@ namespace MTConnect.Streams.Json
         [JsonPropertyName("result")]
         public string Result { get; set; }
 
+        [JsonPropertyName("samples")]
+        public IEnumerable<string> Samples { get; set; }
+
         [JsonPropertyName("entries")]
         public IEnumerable<JsonEntry> Entries { get; set; }
 
@@ -110,6 +113,21 @@ namespace MTConnect.Streams.Json
                     jsonEntries.Add(new JsonEntry(entry));
                 }
                 return jsonEntries;
+            }
+
+            return null;
+        }
+
+        public static IEnumerable<string> CreateTimeSeriesSamples(IEnumerable<double> samples)
+        {
+            if (!samples.IsNullOrEmpty())
+            {
+                var jsonResults = new List<string>();
+                foreach (var sample in samples)
+                {
+                    jsonResults.Add(sample.ToString());
+                }
+                return jsonResults;
             }
 
             return null;

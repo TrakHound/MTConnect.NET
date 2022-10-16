@@ -4,10 +4,10 @@
 // file 'LICENSE', which is part of this source code package.
 
 using MTConnect.Observations;
-using System.Collections.Generic;
-using System.Text.Json.Serialization;
 using MTConnect.Streams.Output;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 
 namespace MTConnect.Streams.Json
 {
@@ -88,7 +88,7 @@ namespace MTConnect.Streams.Json
         {
             if (componentStream != null)
             {
-                //Component = componentStream.Component;
+                Component = componentStream.ComponentType;
                 ComponentId = componentStream.ComponentId;
                 Name = componentStream.Name;
                 NativeName = componentStream.NativeName;
@@ -156,7 +156,6 @@ namespace MTConnect.Streams.Json
                     samples.Add(sample.ToSample());
                 }
                 observations.AddRange(samples);
-                //componentStream.Samples = samples;
             }
 
             // Add Events
@@ -168,7 +167,6 @@ namespace MTConnect.Streams.Json
                     events.Add(e.ToEvent());
                 }
                 observations.AddRange(events);
-                //componentStream.Events = events;
             }
 
             // Add Conditions
@@ -180,7 +178,6 @@ namespace MTConnect.Streams.Json
                     conditions.Add(sample.ToCondition());
                 }
                 observations.AddRange(conditions);
-                //componentStream.Conditions = conditions;
             }
 
             return componentStream;

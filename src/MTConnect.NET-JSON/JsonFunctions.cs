@@ -27,6 +27,24 @@ namespace MTConnect
             }
         }
 
+        public static JsonSerializerOptions IndentOptions
+        {
+            get
+            {
+                return new JsonSerializerOptions
+                {
+                    WriteIndented = true,
+#if NET5_0_OR_GREATER
+                    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
+                    NumberHandling = JsonNumberHandling.AllowReadingFromString,
+#endif
+                    PropertyNameCaseInsensitive = true,
+                    MaxDepth = 1000
+                };
+            }
+        }
+
+
         public static string Convert(object obj, JsonConverter converter = null, bool indented = false)
         {
             if (obj != null)

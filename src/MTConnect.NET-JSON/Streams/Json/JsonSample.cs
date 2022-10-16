@@ -11,6 +11,7 @@ using System.Xml;
 using System.Xml.Serialization;
 using MTConnect.Streams.Output;
 using MTConnect.Observations.Output;
+using System;
 
 namespace MTConnect.Streams.Json
 {
@@ -86,7 +87,7 @@ namespace MTConnect.Streams.Json
                 // TimeSeries
                 if (observation is SampleTimeSeriesObservation)
                 {
-
+                    Samples = CreateTimeSeriesSamples(((SampleTimeSeriesObservation)observation).Samples);
                 }
             }
         }
@@ -112,23 +113,29 @@ namespace MTConnect.Streams.Json
                 if (statistic != DataItemStatistic.NONE.ToString()) Statistic = statistic;
 
                 // DataSet Entries
-                if (observation is SampleDataSetObservation)
+                if (observation.Representation == DataItemRepresentation.DATA_SET)
                 {
-                    Entries = CreateEntries(((SampleDataSetObservation)observation).Entries);
+                    var dataSetObservation = new SampleDataSetObservation();
+                    dataSetObservation.AddValues(observation.Values);
+                    Entries = CreateEntries(dataSetObservation.Entries);
                     Count = !Entries.IsNullOrEmpty() ? Entries.Count() : 0;
                 }
 
                 // Table Entries
-                if (observation is SampleTableObservation)
+                if (observation.Representation == DataItemRepresentation.TABLE)
                 {
-                    Entries = CreateEntries(((SampleTableObservation)observation).Entries);
+                    var tableObservation = new SampleTableObservation();
+                    tableObservation.AddValues(observation.Values);
+                    Entries = CreateEntries(tableObservation.Entries);
                     Count = !Entries.IsNullOrEmpty() ? Entries.Count() : 0;
                 }
 
                 // TimeSeries
-                if (observation is SampleTimeSeriesObservation)
+                if (observation.Representation == DataItemRepresentation.TIME_SERIES)
                 {
-
+                    var timeSeriesObservation = new SampleTimeSeriesObservation();
+                    timeSeriesObservation.AddValues(observation.Values);
+                    Samples = CreateTimeSeriesSamples(timeSeriesObservation.Samples);
                 }
             }
         }
