@@ -42,9 +42,9 @@ client.AssetReceived += (s, o) =>
     Console.WriteLine("Asset Received");
 };
 
-client.Start();
+await client.StartAsync();
 
 Console.WriteLine("Press enter to exit.");
 Console.ReadLine();
 
-client.Stop();
+await client.StopAsync();

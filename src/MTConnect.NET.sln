@@ -79,10 +79,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-Applications-
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect-Agent-MQTT-Broker", "..\applications\Agents\MTConnect-Agent-MQTT-Broker\MTConnect-Agent-MQTT-Broker.csproj", "{5BC9D961-C755-4B9B-981F-B721277B543E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect-Agent-MQTT-Broker-Gateway", "..\applications\Agents\MTConnect-Agent-MQTT-Broker-Gateway\MTConnect-Agent-MQTT-Broker-Gateway.csproj", "{9845C9F0-3CCC-41A4-AEE9-0314E5CFDAC5}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect-Agent-MQTT-Relay-Gateway", "..\applications\Agents\MTConnect-Agent-MQTT-Relay-Gateway\MTConnect-Agent-MQTT-Relay-Gateway.csproj", "{C42E4151-5752-4284-81A3-F42DEB44E842}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -270,18 +266,6 @@ Global
 		{5BC9D961-C755-4B9B-981F-B721277B543E}.Package|Any CPU.Build.0 = Debug|Any CPU
 		{5BC9D961-C755-4B9B-981F-B721277B543E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5BC9D961-C755-4B9B-981F-B721277B543E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9845C9F0-3CCC-41A4-AEE9-0314E5CFDAC5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9845C9F0-3CCC-41A4-AEE9-0314E5CFDAC5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9845C9F0-3CCC-41A4-AEE9-0314E5CFDAC5}.Package|Any CPU.ActiveCfg = Debug|Any CPU
-		{9845C9F0-3CCC-41A4-AEE9-0314E5CFDAC5}.Package|Any CPU.Build.0 = Debug|Any CPU
-		{9845C9F0-3CCC-41A4-AEE9-0314E5CFDAC5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9845C9F0-3CCC-41A4-AEE9-0314E5CFDAC5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C42E4151-5752-4284-81A3-F42DEB44E842}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C42E4151-5752-4284-81A3-F42DEB44E842}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C42E4151-5752-4284-81A3-F42DEB44E842}.Package|Any CPU.ActiveCfg = Debug|Any CPU
-		{C42E4151-5752-4284-81A3-F42DEB44E842}.Package|Any CPU.Build.0 = Debug|Any CPU
-		{C42E4151-5752-4284-81A3-F42DEB44E842}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C42E4151-5752-4284-81A3-F42DEB44E842}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -315,8 +299,6 @@ Global
 		{1091919F-7120-4931-81AB-5B9636C771D4} = {6C3F47E0-BC95-48CB-93A4-C34A0D5CA43B}
 		{306A4761-143F-4117-87DE-1D390AD25AB7} = {94845A24-EEE7-4FEF-B033-99C02DD39C30}
 		{5BC9D961-C755-4B9B-981F-B721277B543E} = {6C3F47E0-BC95-48CB-93A4-C34A0D5CA43B}
-		{9845C9F0-3CCC-41A4-AEE9-0314E5CFDAC5} = {6C3F47E0-BC95-48CB-93A4-C34A0D5CA43B}
-		{C42E4151-5752-4284-81A3-F42DEB44E842} = {6C3F47E0-BC95-48CB-93A4-C34A0D5CA43B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CC13D3AD-18BF-4695-AB2A-087EF0885B20}

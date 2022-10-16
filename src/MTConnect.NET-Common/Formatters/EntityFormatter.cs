@@ -9,6 +9,7 @@ using MTConnect.Extensions;
 using MTConnect.Observations;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace MTConnect.Formatters
@@ -92,6 +93,19 @@ namespace MTConnect.Formatters
             {
                 // Create the string representation of the Entity using the Formatter
                 return formatter.Format(observation);
+            }
+
+            return null;
+        }
+
+        public static string Format(string documentFormatterId, IEnumerable<IObservation> observations)
+        {
+            // Get the Formatter with the specified ID
+            var formatter = GetFormatter(documentFormatterId);
+            if (formatter != null)
+            {
+                // Create the string representation of the Entity using the Formatter
+                return formatter.Format(observations);
             }
 
             return null;

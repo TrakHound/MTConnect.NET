@@ -22,6 +22,8 @@ namespace MTConnect.Observations
         public string Value { get; set; }
 
 
+        public JsonCell() { }
+
         public JsonCell(ITableCell cell)
         {
             if (cell != null)

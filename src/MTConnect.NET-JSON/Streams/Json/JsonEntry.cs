@@ -32,6 +32,8 @@ namespace MTConnect.Observations
         public IEnumerable<JsonCell> Cells { get; set; }
 
 
+        public JsonEntry() { }
+
         public JsonEntry(IDataSetEntry entry)
         {
             if (entry != null)

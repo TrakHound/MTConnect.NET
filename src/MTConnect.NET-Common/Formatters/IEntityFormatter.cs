@@ -27,6 +27,8 @@ namespace MTConnect.Formatters
 
         string Format(IObservation observation);
 
+        string Format(IEnumerable<IObservation> observations);
+
         string Format(IAsset asset);
 
 

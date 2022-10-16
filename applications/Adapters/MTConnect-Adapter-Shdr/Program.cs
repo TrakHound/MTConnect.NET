@@ -59,6 +59,7 @@ namespace MTConnect.Applications.Adapters.Shdr
                 {
                     var condition = new ShdrCondition("L2p1system");
                     condition.AddWarning("This is a warning", c.ToString());
+                    condition.AddFault("This is a fault", "404", "404.1", ConditionQualifier.LOW);
                     adapter.AddCondition(condition);
                     c++;
                 }

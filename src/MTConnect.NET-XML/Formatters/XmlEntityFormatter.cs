@@ -128,6 +128,38 @@ namespace MTConnect.Formatters.Xml
             return null;
         }
 
+        public string Format(IEnumerable<IObservation> observations)
+        {
+            if (!observations.IsNullOrEmpty())
+            {
+                var s = "";
+
+                foreach (var observation in observations)
+                {
+                    try
+                    {
+                        using (var writer = new StringWriter())
+                        {
+                            // Use XmlWriter to write XML to stream
+                            var xmlWriter = XmlWriter.Create(writer, XmlFunctions.XmlWriterSettings);
+                            XmlObservation.WriteXml(xmlWriter, observation);
+                            var x = writer.ToString();
+                            if (!string.IsNullOrEmpty(x))
+                            {
+                                if (string.IsNullOrEmpty(x)) s += x;
+                                else s += "\r\n" + x;
+                            }
+                        }
+                    }
+                    catch { }
+                }
+
+                return !string.IsNullOrEmpty(s) ? s : null;
+            }
+
+            return null;
+        }
+
         public string Format(IAsset asset)
         {
             if (asset != null)

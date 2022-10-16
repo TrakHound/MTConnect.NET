@@ -14,6 +14,7 @@ using MTConnect.Devices.DataItems.Samples;
 using MTConnect.Errors;
 using MTConnect.Headers;
 using MTConnect.Observations;
+using MTConnect.Observations.Events.Values;
 using MTConnect.Observations.Input;
 using MTConnect.Observations.Output;
 using MTConnect.Streams.Output;
@@ -1476,6 +1477,8 @@ namespace MTConnect.Agents
 
         private IObservationOutput[] GetObservations(string deviceUuid, ref IObservationBufferResults dataItemResults, IEnumerable<IDataItem> dataItems, Version mtconnectVersion = null)
         {
+
+
             if (dataItemResults != null && !dataItemResults.Observations.IsNullOrEmpty() && !dataItems.IsNullOrEmpty())
             {
                 var dDataItems = dataItems.ToDictionary(o => o.Id);
@@ -1839,6 +1842,181 @@ namespace MTConnect.Agents
 
         #endregion
 
+        #region "Entities"
+
+        public IDevice GetDevice(string deviceKey, Version mtconnectVersion = null)
+        {
+            var device = _deviceBuffer.GetDevice(deviceKey);
+            if (device != null)
+            {
+                return Device.Process(device, mtconnectVersion != null ? mtconnectVersion : MTConnectVersion);
+            }
+
+            return null;
+        }
+
+        public IEnumerable<IDevice> GetDevices(Version mtconnectVersion = null)
+        {
+            var allDevices = new List<IDevice>();
+            allDevices.Add(_agent);
+            var devices = _deviceBuffer.GetDevices();
+            if (!devices.IsNullOrEmpty()) allDevices.AddRange(devices);
+
+            if (!allDevices.IsNullOrEmpty())
+            {
+                return ProcessDevices(allDevices, mtconnectVersion);
+            }
+
+            return null;
+        }
+
+
+        public IDataItem GetDataItem(string deviceKey, string dataItemKey)
+        {
+            if (!string.IsNullOrEmpty(deviceKey) && !string.IsNullOrEmpty(dataItemKey))
+            {
+                // Lookup DeviceUuid from deviceKey
+                var deviceUuid = GetDeviceUuid(deviceKey);
+                if (!string.IsNullOrEmpty(deviceUuid))
+                {
+                    var lookupKey = deviceUuid + ":" + dataItemKey;
+
+                    // Lookup DataItemId from DeviceUuid:DataItemKey
+                    if (_dataItemKeys.TryGetValue(lookupKey, out var dataItemId))
+                    {
+                        // Lookup DataItem from cached list
+                        if (_dataItems.TryGetValue(dataItemId, out var dataItem))
+                        {
+                            return dataItem;
+                        }
+                    }
+                    else
+                    {
+                        // Get Device From DeviceBuffer
+                        var device = _deviceBuffer.GetDevice(deviceUuid);
+                        if (device == null && deviceUuid == _uuid) device = _agent;
+
+                        // Get DataItem from Device DataItemKey
+                        var dataItem = GetDataItemFromKey(device, dataItemKey);
+                        if (dataItem != null)
+                        {
+                            // Update DataItem in cached list
+                            if (!_dataItems.ContainsKey(dataItem.Id))
+                            {
+                                _dataItems.TryAdd(dataItem.Id, dataItem);
+                            }
+
+                            // Update DataItemKey in cached list
+                            _dataItemKeys.TryAdd(lookupKey, dataItem.Id);
+
+                            return dataItem;
+                        }
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        private IDataItem GetDataItemFromKey(IDevice device, string key)
+        {
+            if (device != null)
+            {
+                // Get list of all DataItems for Device
+                var dataItems = device.GetDataItems();
+                if (!dataItems.IsNullOrEmpty())
+                {
+                    // Check DataItem ID
+                    var dataItem = dataItems.FirstOrDefault(o => o.Id == key);
+
+                    // Check DataItem Name
+                    if (dataItem == null) dataItem = dataItems.FirstOrDefault(o => o.Name == key);
+
+                    // Check DataItem Source DataItemId
+                    if (dataItem == null) dataItem = dataItems.FirstOrDefault(o => o.Source != null && o.Source.DataItemId == key);
+
+                    // Check DataItem Source Value
+                    if (dataItem == null) dataItem = dataItems.FirstOrDefault(o => o.Source != null && o.Source.Value == key);
+
+                    // Return DataItem
+                    return dataItem;
+                }
+            }
+
+            return null;
+        }
+
+
+        public IEnumerable<IObservationOutput> GetCurrentObservations(Version mtconnectVersion = null)
+        {
+            var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersion;
+
+            var allDevices = new List<IDevice>();
+            allDevices.Add(_agent);
+            var devices = _deviceBuffer.GetDevices();
+            if (!devices.IsNullOrEmpty()) allDevices.AddRange(devices);
+
+            if (!allDevices.IsNullOrEmpty())
+            {
+                // Create list of BufferKeys
+                var bufferKeys = GenerateBufferKeys(allDevices);
+
+                // Query the Observation Buffer 
+                var results = _observationBuffer.GetCurrentObservations(bufferKeys);
+                if (results.IsValid)
+                {
+                    var observations = new List<IObservationOutput>();
+                    foreach (var device in allDevices)
+                    {
+                        var dataItems = device.GetDataItems();
+
+                        var deviceObservations = GetObservations(device.Uuid, ref results, dataItems, version);
+                        if (!deviceObservations.IsNullOrEmpty()) observations.AddRange(deviceObservations);
+                    }
+                    return observations;
+                }
+            }
+
+            return null;
+        }
+
+        public IEnumerable<IObservationOutput> GetCurrentObservations(string deviceKey, Version mtconnectVersion = null)
+        {
+            var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersion;
+
+            var deviceUuid = GetDeviceUuid(deviceKey);
+
+            var device = _deviceBuffer.GetDevice(deviceKey);
+            if (device != null)
+            {
+                // Create list of BufferKeys
+                var bufferKeys = GenerateBufferKeys(device);
+
+                // Query the Observation Buffer 
+                var results = _observationBuffer.GetCurrentObservations(bufferKeys);
+                if (results.IsValid)
+                {
+                    var dataItems = device.GetDataItems();
+                    return GetObservations(deviceUuid, ref results, dataItems, version);
+                }
+            }
+
+            return null;
+        }
+
+
+        public IEnumerable<IAsset> GetAssets(Version mtconnectVersion = null)
+        {
+            return null;
+        }
+
+        public IEnumerable<IAsset> GetAssets(string deviceKey, Version mtconnectVersion = null)
+        {
+            return null;
+        }
+
+        #endregion
+
 
         #region "Add"
 
@@ -2052,82 +2230,6 @@ namespace MTConnect.Agents
             return false;
         }
 
-
-        public IDataItem GetDataItem(string deviceKey, string dataItemKey)
-        {
-            if (!string.IsNullOrEmpty(deviceKey) && !string.IsNullOrEmpty(dataItemKey))
-            {
-                // Lookup DeviceUuid from deviceKey
-                var deviceUuid = GetDeviceUuid(deviceKey);
-                if (!string.IsNullOrEmpty(deviceUuid))
-                {
-                    var lookupKey = deviceUuid + ":" + dataItemKey;
-
-                    // Lookup DataItemId from DeviceUuid:DataItemKey
-                    if (_dataItemKeys.TryGetValue(lookupKey, out var dataItemId))
-                    {
-                        // Lookup DataItem from cached list
-                        if (_dataItems.TryGetValue(dataItemId, out var dataItem))
-                        {
-                            return dataItem;
-                        }
-                    }
-                    else
-                    {
-                        // Get Device From DeviceBuffer
-                        var device = _deviceBuffer.GetDevice(deviceUuid);
-                        if (device == null && deviceUuid == _uuid) device = _agent;
-
-                        // Get DataItem from Device DataItemKey
-                        var dataItem = GetDataItemFromKey(device, dataItemKey);
-                        if (dataItem != null)
-                        {
-                            // Update DataItem in cached list
-                            if (!_dataItems.ContainsKey(dataItem.Id))
-                            {
-                                _dataItems.TryAdd(dataItem.Id, dataItem);
-                            }
-
-                            // Update DataItemKey in cached list
-                            _dataItemKeys.TryAdd(lookupKey, dataItem.Id);
-
-                            return dataItem;
-                        }
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        private IDataItem GetDataItemFromKey(IDevice device, string key)
-        {
-            if (device != null)
-            {
-                // Get list of all DataItems for Device
-                var dataItems = device.GetDataItems();
-                if (!dataItems.IsNullOrEmpty())
-                {
-                    // Check DataItem ID
-                    var dataItem = dataItems.FirstOrDefault(o => o.Id == key);
-
-                    // Check DataItem Name
-                    if (dataItem == null) dataItem = dataItems.FirstOrDefault(o => o.Name == key);
-
-                    // Check DataItem Source DataItemId
-                    if (dataItem == null) dataItem = dataItems.FirstOrDefault(o => o.Source != null && o.Source.DataItemId == key);
-
-                    // Check DataItem Source Value
-                    if (dataItem == null) dataItem = dataItems.FirstOrDefault(o => o.Source != null && o.Source.Value == key);
-
-                    // Return DataItem
-                    return dataItem;
-                }
-            }
-
-            return null;
-        }
-
         #endregion
 
 
@@ -2167,6 +2269,7 @@ namespace MTConnect.Agents
                     if (obj.DataItems.IsNullOrEmpty() || !obj.DataItems.Any(o => o.Type == AvailabilityDataItem.TypeId))
                     {
                         var availability = new AvailabilityDataItem(obj.Id);
+                        availability.Device = obj;
                         availability.Container = obj;
                         availability.Name = AvailabilityDataItem.NameId;
                         var x = obj.DataItems.ToList();
@@ -2178,6 +2281,7 @@ namespace MTConnect.Agents
                     if (obj.DataItems.IsNullOrEmpty() || !obj.DataItems.Any(o => o.Type == AssetChangedDataItem.TypeId))
                     {
                         var assetChanged = new AssetChangedDataItem(obj.Id);
+                        assetChanged.Device = obj;
                         assetChanged.Container = obj;
                         assetChanged.Name = AssetChangedDataItem.NameId;
                         var x = obj.DataItems.ToList();
@@ -2189,6 +2293,7 @@ namespace MTConnect.Agents
                     if (obj.DataItems.IsNullOrEmpty() || !obj.DataItems.Any(o => o.Type == AssetRemovedDataItem.TypeId))
                     {
                         var assetRemoved = new AssetRemovedDataItem(obj.Id);
+                        assetRemoved.Device = obj;
                         assetRemoved.Container = obj;
                         assetRemoved.Name = AssetRemovedDataItem.NameId;
                         var x = obj.DataItems.ToList();
@@ -2200,6 +2305,7 @@ namespace MTConnect.Agents
                     if (obj.DataItems.IsNullOrEmpty() || !obj.DataItems.Any(o => o.Type == AssetCountDataItem.TypeId))
                     {
                         var assetcount = new AssetCountDataItem(obj.Id);
+                        assetcount.Device = obj;
                         assetcount.Container = obj;
                         assetcount.Name = AssetCountDataItem.NameId;
                         var x = obj.DataItems.ToList();

@@ -10,6 +10,7 @@ using MTConnect.Devices;
 using MTConnect.Errors;
 using MTConnect.Observations;
 using MTConnect.Observations.Input;
+using MTConnect.Observations.Output;
 using MTConnect.Streams.Output;
 using System;
 using System.Collections.Generic;
@@ -200,7 +201,7 @@ namespace MTConnect.Agents
 
         #endregion
 
-        #region "Devices"
+        #region "DevicesResponseDocuments"
 
         /// <summary>
         /// Get a MTConnectDevices Response Document containing all devices.
@@ -217,7 +218,7 @@ namespace MTConnect.Agents
 
         #endregion
 
-        #region "Streams"
+        #region "StreamsResponseDocuments"
 
         /// <summary>
         /// Get a MTConnectStreams Document containing all devices.
@@ -322,7 +323,7 @@ namespace MTConnect.Agents
 
         #endregion
 
-        #region "Assets"
+        #region "AssetsResponseDocuments"
 
         /// <summary>
         /// Get an MTConnectAssets Document containing all Assets.
@@ -381,7 +382,7 @@ namespace MTConnect.Agents
 
         #endregion
 
-        #region "Errors"
+        #region "ErrorsResponseDocuments"
 
         /// <summary>
         /// Get an MTConnectErrors Document containing the specified ErrorCode
@@ -400,9 +401,24 @@ namespace MTConnect.Agents
 
         #endregion
 
-        #region "DataItems"
+        #region "Entities"
+
+        IDevice GetDevice(string deviceKey, Version mtconnectVersion = null);
+
+        IEnumerable<IDevice> GetDevices(Version mtconnectVersion = null);
+
 
         IDataItem GetDataItem(string deviceKey, string dataItemKey);
+
+
+        IEnumerable<IObservationOutput> GetCurrentObservations(Version mtconnectVersion = null);
+
+        IEnumerable<IObservationOutput> GetCurrentObservations(string deviceKey, Version mtconnectVersion = null);
+
+
+        IEnumerable<IAsset> GetAssets(Version mtconnectVersion = null);
+
+        IEnumerable<IAsset> GetAssets(string deviceKey, Version mtconnectVersion = null);
 
         #endregion
 

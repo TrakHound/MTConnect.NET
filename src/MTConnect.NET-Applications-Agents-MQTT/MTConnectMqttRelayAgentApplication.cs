@@ -81,7 +81,7 @@ namespace MTConnect.Applications.Agents
         }
 
 
-        protected override async void OnStartAgentBeforeLoad(IEnumerable<DeviceConfiguration> devices, bool initializeDataItems = false)
+        protected override async void OnStartAgentAfterLoad(IEnumerable<DeviceConfiguration> devices, bool initializeDataItems = false)
         {
             if (_configuration != null)
             {
@@ -101,7 +101,7 @@ namespace MTConnect.Applications.Agents
                 _relay.Start();
             }
 
-            base.OnStartAgentBeforeLoad(devices, initializeDataItems);
+            base.OnStartAgentAfterLoad(devices, initializeDataItems);
         }
 
         protected override void OnStopAgent()

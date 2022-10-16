@@ -363,7 +363,8 @@ namespace MTConnect.Buffers
                     Observations = aObservations,
                     FirstObservationSequence = firstObservationSequence,
                     LastObservationSequence = lastObservationSequence,
-                    ObservationCount = aObservations.Length
+                    ObservationCount = aObservations.Length,
+                    IsValid = true
                 };
             }
 

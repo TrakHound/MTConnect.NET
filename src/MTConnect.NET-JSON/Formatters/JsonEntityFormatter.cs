@@ -100,6 +100,52 @@ namespace MTConnect.Formatters
             return null;
         }
 
+        public string Format(IEnumerable<IObservation> observations)
+        {
+            if (!observations.IsNullOrEmpty())
+            {
+                var x = new List<object>();
+
+                foreach (var observation in observations)
+                {
+                    switch (observation.Category)
+                    {
+                        // Sample
+                        case Devices.DataItems.DataItemCategory.SAMPLE:
+                            var sampleObservation = SampleObservation.Create(observation);
+                            if (sampleObservation != null)
+                            {
+                                x.Add(new JsonSample(sampleObservation));
+                            }
+                            break;
+
+                        // Event
+                        case Devices.DataItems.DataItemCategory.EVENT:
+                            var eventObservation = EventObservation.Create(observation);
+                            if (eventObservation != null)
+                            {
+                                x.Add(new JsonEvent(eventObservation));
+                            }
+                            break;
+
+                        // Condition
+                        case Devices.DataItems.DataItemCategory.CONDITION:
+                            var conditionObservation = ConditionObservation.Create(observation);
+                            if (conditionObservation != null)
+                            {
+                                x.Add(new JsonCondition(conditionObservation));
+                            }
+                            break;
+                    }
+
+                }
+
+                return JsonFunctions.Convert(x);
+            }
+
+            return null;
+        }
+
         public string Format(IAsset asset)
         {
             if (asset != null)

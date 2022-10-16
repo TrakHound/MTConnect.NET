@@ -25,12 +25,15 @@ namespace MTConnect.Clients.Mqtt
         private const string _defaultTopic = "MTConnect/#";
         private const string _deviceUuidTopicPattern = "MTConnect\\/Devices\\/([^\\/]*)";
         private const string _deviceTopicPattern = "MTConnect\\/Devices\\/([^\\/]*)\\/Device";
-        private const string _observationTopicPattern = "MTConnect\\/Devices\\/([^\\/]*)\\/Observations";
+        private const string _observationsTopicPattern = "MTConnect\\/Devices\\/([^\\/]*)\\/Observations";
+        private const string _conditionsTopicPattern = "MTConnect\\/Devices\\/(.*)\\/Observations\\/.*\\/Conditions";
+        //private const string _conditionsTopicPattern = "MTConnect\\/Devices\\/([^\\/]*)\\/Observations\\/([^\\/]*)\\/Conditions";
         private const string _assetTopicPattern = "MTConnect\\/Devices\\/([^\\/]*)\\/Assets";
 
         private static readonly Regex _deviceUuidRegex = new Regex(_deviceUuidTopicPattern);
         private static readonly Regex _deviceRegex = new Regex(_deviceTopicPattern);
-        private static readonly Regex _observationRegex = new Regex(_observationTopicPattern);
+        private static readonly Regex _observationsRegex = new Regex(_observationsTopicPattern);
+        private static readonly Regex _conditionsRegex = new Regex(_conditionsTopicPattern);
         private static readonly Regex _assetRegex = new Regex(_assetTopicPattern);
 
         private readonly MqttFactory _mqttFactory;
@@ -167,7 +170,11 @@ namespace MTConnect.Clients.Mqtt
             {
                 var topic = args.ApplicationMessage.Topic;
 
-                if (_observationRegex.IsMatch(topic))
+                if (_conditionsRegex.IsMatch(topic))
+                {
+                    ProcessObservations(args.ApplicationMessage);
+                }
+                else if (_observationsRegex.IsMatch(topic))
                 {
                     ProcessObservation(args.ApplicationMessage);
                 }
@@ -217,6 +224,47 @@ namespace MTConnect.Clients.Mqtt
                     if (ObservationReceived != null)
                     {
                         ObservationReceived.Invoke(deviceUuid, observation);
+                    }
+                }
+            }
+            catch { }
+        }
+
+        private void ProcessObservations(MqttApplicationMessage message)
+        {
+            try
+            {
+                // Read Device UUID
+                var deviceUuid = _deviceUuidRegex.Match(message.Topic).Groups[0].Value;
+
+                // Deserialize JSON to Observation
+                var jsonObservations = JsonSerializer.Deserialize<IEnumerable<JsonObservation>>(message.Payload);
+                if (!jsonObservations.IsNullOrEmpty())
+                {
+                    foreach (var jsonObservation in jsonObservations)
+                    {
+                        var observation = new Observation();
+                        observation.DeviceUuid = deviceUuid;
+                        observation.DataItemId = jsonObservation.DataItemId;
+                        observation.Category = jsonObservation.Category.ConvertEnum<DataItemCategory>();
+                        observation.Name = jsonObservation.Name;
+                        observation.Type = jsonObservation.Type;
+                        observation.SubType = jsonObservation.SubType;
+                        observation.Sequence = jsonObservation.Sequence;
+                        observation.Timestamp = jsonObservation.Timestamp;
+                        observation.CompositionId = jsonObservation.CompositionId;
+                        //observation.Representation = jsonObservation.Representation.ConvertEnum<DataItemRepresentation>();
+
+                        // Set Result
+                        if (jsonObservation.Result != null)
+                        {
+                            observation.AddValue(ValueKeys.Result, jsonObservation.Result);
+                        }
+
+                        if (ObservationReceived != null)
+                        {
+                            ObservationReceived.Invoke(deviceUuid, observation);
+                        }
                     }
                 }
             }

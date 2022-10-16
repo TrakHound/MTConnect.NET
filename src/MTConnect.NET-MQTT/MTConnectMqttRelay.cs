@@ -10,8 +10,10 @@ using MTConnect.Assets;
 using MTConnect.Configurations;
 using MTConnect.Devices;
 using MTConnect.Observations;
+using MTConnect.Observations.Output;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -121,30 +123,30 @@ namespace MTConnect.Mqtt
                         if (Connected != null) Connected.Invoke(this, new EventArgs());
 
                         // Add Agent Devices
-                        var devices = _mtconnectAgent.GetDevicesResponseDocument();
-                        if (!devices.Devices.IsNullOrEmpty())
+                        var devices = _mtconnectAgent.GetDevices();
+                        if (!devices.IsNullOrEmpty())
                         {
-                            foreach (var device in devices.Devices)
+                            foreach (var device in devices)
                             {
                                 await PublishDevice(device);
                             }
                         }
 
-                        //var current = _mtconnectAgent.GetDeviceStreams();
-                        //if (!current.Streams.IsNullOrEmpty())
-                        //{
-                        //    foreach (var stream in current.Streams)
-                        //    {
-                        //        var observations = stream.Observations;
-                        //        if (!observations.IsNullOrEmpty())
-                        //        {
-                        //            foreach (var observation in observations)
-                        //            {
-                        //                await PublishObservation(observation);
-                        //            }
-                        //        }
-                        //    }
-                        //}
+                        // Add Current Observations (to Initialize each DataItem on the MQTT broker)
+                        var observations = _mtconnectAgent.GetCurrentObservations();
+                        if (!observations.IsNullOrEmpty())
+                        {
+                            foreach (var observationOutput in observations)
+                            {
+                                var observation = Observation.Create(observationOutput.DataItem);
+                                observation.DeviceUuid = observationOutput.DeviceUuid;
+                                observation.DataItem = observationOutput.DataItem;
+                                observation.Timestamp = observationOutput.Timestamp;
+                                observation.AddValues(observationOutput.Values);
+
+                                await PublishObservation(observation);
+                            }
+                        }
 
                         while (!_stop.Token.IsCancellationRequested && _mqttClient.IsConnected)
                         {
@@ -307,7 +309,7 @@ namespace MTConnect.Mqtt
 
         private MqttApplicationMessage CreateMessage(IObservation observation, string documentFormatterId = DocumentFormat.XML)
         {
-            if (observation != null && observation.DataItem != null && observation.DataItem.Container != null && !observation.Values.IsNullOrEmpty())
+            if (observation != null && !string.IsNullOrEmpty(observation.DeviceUuid) && observation.DataItem != null && observation.DataItem.Container != null && !observation.Values.IsNullOrEmpty())
             {
                 var category = observation.Category.ToString().ToTitleCase() + "s";
                 var topicPrefix = $"MTConnect/Devices/{observation.DeviceUuid}/Observations/{observation.DataItem.Container.Type}/{observation.DataItem.Container.Id}/{category}/{observation.Type}";
@@ -315,7 +317,32 @@ namespace MTConnect.Mqtt
                 var topic = $"{topicPrefix}/{observation.DataItemId}";
                 if (!string.IsNullOrEmpty(observation.SubType)) topic = $"{topicPrefix}/SubTypes/{observation.SubType}/{observation.DataItemId}";
 
-                return CreateMessage(topic, Formatters.EntityFormatter.Format(documentFormatterId, observation));
+                if (observation.Category != Devices.DataItems.DataItemCategory.CONDITION)
+                {
+                    return CreateMessage(topic, Formatters.EntityFormatter.Format(documentFormatterId, observation));
+                }
+                else
+                {
+                    var observations = _mtconnectAgent.GetCurrentObservations(observation.DeviceUuid);
+                    if (!observations.IsNullOrEmpty())
+                    {
+                        var dataItemObservations = observations.Where(o => o.DataItemId == observation.DataItemId);
+                        if (!dataItemObservations.IsNullOrEmpty())
+                        {
+                            var x = new List<IObservation>();
+                            foreach (var dataItemObservation in dataItemObservations)
+                            {
+                                var y = Observation.Create(dataItemObservation.DataItem);
+                                y.DeviceUuid = dataItemObservation.DeviceUuid;
+                                y.DataItem = dataItemObservation.DataItem;
+                                y.Timestamp = dataItemObservation.Timestamp;
+                                y.AddValues(dataItemObservation.Values);
+                                x.Add(y);
+                            }
+                            return CreateMessage(topic, Formatters.EntityFormatter.Format(documentFormatterId, x));
+                        }
+                    }
+                }
             }
 
             return null;
