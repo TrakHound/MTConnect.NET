@@ -72,6 +72,36 @@ Starts the Windows Service (Note: requires Administrator Privileges)
 Runs the Agent in the command line prompt using verbose logging and overrides the MQTT Port to 1884
 > agent debug "" 1884
 
+
+## MQTT Topic Structure
+
+#### Devices
+```
+MTConnect/Devices/[DEVICE_UUID]/Device
+```
+
+#### Observations
+```
+MTConnect/Devices/[DEVICE_UUID]/Observations/[COMPONENT_TYPE]/[COMPONENT_ID]/[DATA_ITEM_CATEGORY]/[DATA_ITEM_TYPE]/[DATA_ITEM_ID]
+MTConnect/Devices/[DEVICE_UUID]/Observations/[COMPONENT_TYPE]/[COMPONENT_ID]/[DATA_ITEM_CATEGORY]/[DATA_ITEM_TYPE]/SubTypes/[DATA_ITEM_SUBTYPE]/[DATA_ITEM_ID]
+```
+##### Conditions
+Condition messages are sent as an array of Observations since a Condition may have multiple Fault States. This is similar to how the Current request functions in an HTTP Agent.
+
+#### Assets
+```
+MTConnect/Devices/[DEVICE_UUID]/Assets/[ASSET_TYPE]/[ASSET_ID]
+MTConnect/Assets/[ASSET_TYPE]/[ASSET_ID]
+```
+> Note: Assets are sent to two topics. One for the "Global" assets and one for the Device that the Asset was added to
+
+#### Agent
+The Agent topic contains information that would normally be in the Header of a Response Document from an HTTP Agent.
+```
+MTConnect/Assets/[AGENT_UUID]
+```
+
+
 ## Configuration
 More information about [Configurations](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-Common/Configurations). The default configuration file is shown below :
 ```json
