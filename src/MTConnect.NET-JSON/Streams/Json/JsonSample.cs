@@ -5,45 +5,20 @@
 
 using MTConnect.Devices.DataItems;
 using MTConnect.Observations;
+using MTConnect.Observations.Output;
 using System.Linq;
 using System.Text.Json.Serialization;
-using System.Xml;
-using System.Xml.Serialization;
-using MTConnect.Streams.Output;
-using MTConnect.Observations.Output;
-using System;
 
 namespace MTConnect.Streams.Json
 {
-    /// <summary>
-    /// An abstract XML Element. Replaced in the XML document by type(s) of Sample XML elements representing SAMPLE category data items defined for a Device in the Device Information Model.
-    /// There can be multiple types of Sample XML Elements in a Samples container.
-    /// </summary>
     public class JsonSample : JsonObservation
     {
-        /// <summary>
-        /// The rate at which successive samples of the value of a DataItem are recorded.
-        /// SampleRate is expressed in terms of samples per second.
-        /// If the SampleRate is smaller than one, the number can be represented as a decimal type floating point number.
-        /// For example, a rate of 1 per 10 seconds would be 0.1.
-        /// The SampleRate attribute MUST be provided when the representation attribute for the data item is TIME_SERIES.
-        /// For data items where the representation attribute for the data item IS NOT TIME_SERIES, it may be assumed that the SampleRate is constant and SampleRate does not need to be reported in the MTConnectStreams document.
-        /// </summary>
-        [XmlAttribute("sampleRate")]
         [JsonPropertyName("sampleRate")]
         public double? SampleRate { get; set; }
 
-        /// <summary>
-        /// The type of statistical calculation specified in the Device Information Model that this Sample element represents.
-        /// </summary>
-        [XmlAttribute("statistic")]
         [JsonPropertyName("statistic")]
         public string Statistic { get; set; }
 
-        /// <summary>
-        /// The time-period over which the data was collected.
-        /// </summary>
-        [XmlAttribute("duration")]
         [JsonPropertyName("duration")]
         public double? Duration { get; set; }
 
@@ -64,8 +39,8 @@ namespace MTConnect.Streams.Json
 
                 Result = observation.GetValue(ValueKeys.Result);
                 ResetTriggered = observation.GetValue(ValueKeys.ResetTriggered);
-                SampleRate = observation.GetValue(ValueKeys.SampleRate).ToDouble();
-                Duration = observation.GetValue(ValueKeys.Duration).ToDouble();
+                SampleRate = observation.GetValue(ValueKeys.SampleRate)?.ToDouble();
+                Duration = observation.GetValue(ValueKeys.Duration)?.ToDouble();
 
                 var statistic = observation.GetValue(ValueKeys.Statistic);
                 if (statistic != DataItemStatistic.NONE.ToString()) Statistic = statistic;
@@ -106,8 +81,8 @@ namespace MTConnect.Streams.Json
 
                 Result = observation.GetValue(ValueKeys.Result);
                 ResetTriggered = observation.GetValue(ValueKeys.ResetTriggered);
-                SampleRate = observation.GetValue(ValueKeys.SampleRate).ToDouble();
-                Duration = observation.GetValue(ValueKeys.Duration).ToDouble();
+                SampleRate = observation.GetValue(ValueKeys.SampleRate)?.ToDouble();
+                Duration = observation.GetValue(ValueKeys.Duration)?.ToDouble();
 
                 var statistic = observation.GetValue(ValueKeys.Statistic);
                 if (statistic != DataItemStatistic.NONE.ToString()) Statistic = statistic;

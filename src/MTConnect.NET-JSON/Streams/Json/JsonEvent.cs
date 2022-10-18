@@ -3,18 +3,13 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE', which is part of this source code package.
 
-using MTConnect.Observations;
-using System.Linq;
-using MTConnect.Streams.Output;
-using MTConnect.Observations.Output;
 using MTConnect.Devices.DataItems;
+using MTConnect.Observations;
+using MTConnect.Observations.Output;
+using System.Linq;
 
 namespace MTConnect.Streams.Json
 {
-    /// <summary>
-    /// An abstract XML Element. Replaced in the XML document by type(s) of Sample XML elements representing SAMPLE category data items defined for a Device in the Device Information Model.
-    /// There can be multiple types of Sample XML Elements in a Samples container.
-    /// </summary>
     public class JsonEvent : JsonObservation
     {
         public JsonEvent() { }
@@ -32,6 +27,9 @@ namespace MTConnect.Streams.Json
                 CompositionId = e.CompositionId;
                 Result = e.GetValue(ValueKeys.Result);
                 ResetTriggered = e.GetValue(ValueKeys.ResetTriggered);
+                NativeCode = e.GetValue(ValueKeys.NativeCode);
+                AssetType = e.GetValue(ValueKeys.AssetType);
+
 
                 // DataSet Entries
                 if (e is EventDataSetObservation)
@@ -62,6 +60,8 @@ namespace MTConnect.Streams.Json
                 CompositionId = e.CompositionId;
                 Result = e.GetValue(ValueKeys.Result);
                 ResetTriggered = e.GetValue(ValueKeys.ResetTriggered);
+                NativeCode = e.GetValue(ValueKeys.NativeCode);
+                AssetType = e.GetValue(ValueKeys.AssetType);
 
                 // DataSet Entries
                 if (e.Representation == DataItemRepresentation.DATA_SET)
@@ -80,20 +80,6 @@ namespace MTConnect.Streams.Json
                     Entries = CreateEntries(tableObservation.Entries);
                     Count = !Entries.IsNullOrEmpty() ? Entries.Count() : 0;
                 }
-
-                //// DataSet Entries
-                //if (e is EventDataSetObservation)
-                //{
-                //    Entries = CreateEntries(((EventDataSetObservation)e).Entries);
-                //    Count = !Entries.IsNullOrEmpty() ? Entries.Count() : 0;
-                //}
-
-                //// Table Entries
-                //if (e is EventTableObservation)
-                //{
-                //    Entries = CreateEntries(((EventTableObservation)e).Entries);
-                //    Count = !Entries.IsNullOrEmpty() ? Entries.Count() : 0;
-                //}
             }
         }
 

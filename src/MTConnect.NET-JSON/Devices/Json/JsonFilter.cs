@@ -11,7 +11,7 @@ namespace MTConnect.Devices.Json
     public class JsonFilter
     {
         [JsonPropertyName("type")]
-        public DataItemFilterType Type { get; set; }
+        public string Type { get; set; }
 
         [JsonPropertyName("value")]
         public double Value { get; set; }
@@ -23,7 +23,7 @@ namespace MTConnect.Devices.Json
         {
             if (filter != null)
             {
-                Type = filter.Type;
+                Type = filter.Type.ToString();
                 Value = filter.Value;
             }
         }
@@ -32,7 +32,7 @@ namespace MTConnect.Devices.Json
         public IFilter ToFilter()
         {
             var filter = new Filter();
-            filter.Type = Type;
+            filter.Type = Type.ConvertEnum<DataItemFilterType>();
             filter.Value = Value;
             return filter;
         }

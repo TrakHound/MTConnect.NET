@@ -23,7 +23,7 @@ namespace MTConnect.Devices.Json
         public string ItemRef { get; set; }
 
         [JsonPropertyName("mediaType")]
-        public SolidModelMediaType MediaType { get; set; }
+        public string MediaType { get; set; }
 
         [JsonPropertyName("coordinateSystemIdRef")]
         public string CoordinateSystemIdRef { get; set; }
@@ -44,7 +44,7 @@ namespace MTConnect.Devices.Json
                 Id = solidModel.Id;
                 SolidModelIdRef = solidModel.SolidModelIdRef;
                 Href = solidModel.Href;
-                MediaType = solidModel.MediaType;
+                MediaType = solidModel.MediaType.ToString();
                 CoordinateSystemIdRef = solidModel.CoordinateSystemIdRef;
                 if (solidModel.Transformation != null) Transformation = new JsonTransformation(solidModel.Transformation);
                 Scale = solidModel.Scale;
@@ -59,7 +59,7 @@ namespace MTConnect.Devices.Json
             solidModel.SolidModelIdRef = Id;
             solidModel.Href = Href;
             solidModel.ItemRef = ItemRef;
-            solidModel.MediaType = MediaType;
+            solidModel.MediaType = MediaType.ConvertEnum<SolidModelMediaType>();
             solidModel.CoordinateSystemIdRef = CoordinateSystemIdRef;
             if (Transformation != null) solidModel.Transformation = Transformation.ToTransformation();
             solidModel.Scale = Scale;

@@ -9,15 +9,9 @@ namespace MTConnect.Observations
 {
     public class JsonCell
     {
-        /// <summary>
-        /// A unique identifier for each key-value pair.
-        /// </summary>
         [JsonPropertyName("key")]
         public string Key { get; set; }
 
-        /// <summary>
-        /// The Value for each key-value pair.
-        /// </summary>
         [JsonPropertyName("value")]
         public string Value { get; set; }
 

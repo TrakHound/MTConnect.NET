@@ -21,7 +21,7 @@ namespace MTConnect.Devices.Json
         [JsonPropertyName("nominal")]
         public string Nominal { get; set; }
 
-        [JsonPropertyName("value")]
+        [JsonPropertyName("values")]
         public List<string> Values { get; set; }
 
         [JsonPropertyName("filter")]

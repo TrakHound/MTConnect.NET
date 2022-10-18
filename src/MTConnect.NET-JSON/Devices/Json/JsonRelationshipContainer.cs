@@ -25,10 +25,10 @@ namespace MTConnect.Devices.Json
 
         public JsonRelationshipContainer()
         {
-            DataItemRelationships = new List<JsonRelationship>();
-            ComponentRelationships = new List<JsonRelationship>();
-            DeviceRelationships = new List<JsonRelationship>();
-            SpecificationRelationships = new List<JsonRelationship>();
+            //DataItemRelationships = new List<JsonRelationship>();
+            //ComponentRelationships = new List<JsonRelationship>();
+            //DeviceRelationships = new List<JsonRelationship>();
+            //SpecificationRelationships = new List<JsonRelationship>();
         }
     }
 }

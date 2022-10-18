@@ -10,21 +10,12 @@ namespace MTConnect.Observations
 {
     public class JsonEntry
     {
-        /// <summary>
-        /// A unique identifier for each key-value pair.
-        /// </summary>
         [JsonPropertyName("key")]
         public string Key { get; set; }
 
-        /// <summary>
-        /// Boolean removal indicator of a key-value pair that MUST be true or false.
-        /// </summary>
         [JsonPropertyName("removed")]
         public bool Removed { get; set; }
 
-        /// <summary>
-        /// The Value for each key-value pair.
-        /// </summary>
         [JsonPropertyName("value")]
         public string Value { get; set; }
 

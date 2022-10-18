@@ -23,7 +23,7 @@ namespace MTConnect.Devices.Json
         public string ParentIdRef { get; set; }
 
         [JsonPropertyName("type")]
-        public CoordinateSystemType Type { get; set; }
+        public string Type { get; set; }
 
         [JsonPropertyName("origin")]
         public string Origin { get; set; }
@@ -45,7 +45,7 @@ namespace MTConnect.Devices.Json
                 Name = coordinateSystem.Name;
                 NativeName = coordinateSystem.NativeName;
                 ParentIdRef = coordinateSystem.ParentIdRef;
-                Type = coordinateSystem.Type;
+                Type = coordinateSystem.Type.ToString();
                 Origin = coordinateSystem.Origin;
                 if (coordinateSystem.Transformation != null) Transformation = new JsonTransformation(coordinateSystem.Transformation);
                 Description = coordinateSystem.Description;
@@ -60,7 +60,7 @@ namespace MTConnect.Devices.Json
             coordinateSystem.Name = Name;
             coordinateSystem.NativeName = NativeName;
             coordinateSystem.ParentIdRef = ParentIdRef;
-            coordinateSystem.Type = Type;
+            coordinateSystem.Type = Type.ConvertEnum<CoordinateSystemType>();
             coordinateSystem.Origin = Origin;
             if (Transformation != null) coordinateSystem.Transformation = Transformation.ToTransformation();
             coordinateSystem.Description = Description;

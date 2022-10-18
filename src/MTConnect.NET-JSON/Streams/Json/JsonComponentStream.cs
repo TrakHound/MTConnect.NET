@@ -11,38 +11,20 @@ using System.Text.Json.Serialization;
 
 namespace MTConnect.Streams.Json
 {
-    /// <summary>
-    /// ComponentStream is a XML container that organizes the data associated with each Structural Element defined for that piece of equipment in the associated MTConnectDevices XML document
-    /// </summary>
     public class JsonComponentStream
     {
-        /// <summary>
-        /// Component identifies the Structural Element associated with the ComponentStream element.
-        /// </summary>
         [JsonPropertyName("component")]
         public string Component { get; set; }
 
-        /// <summary>
-        /// The identifier of the Structural Element as defined by the id attribute of the corresponding Structural Element in the MTConnectDevices XML document.
-        /// </summary>
         [JsonPropertyName("componentId")]
         public string ComponentId { get; set; }
 
-        /// <summary>
-        /// The name of the ComponentStream element.
-        /// </summary>
         [JsonPropertyName("name")]
         public string Name { get; set; }
 
-        /// <summary>
-        /// NativeName identifies the common name normally associated with the ComponentStream element.
-        /// </summary>
         [JsonPropertyName("nativeName")]
         public string NativeName { get; set; }
 
-        /// <summary>
-        /// Uuid of the ComponentStream element.
-        /// </summary>
         [JsonPropertyName("uuid")]
         public string Uuid { get; set; }
 

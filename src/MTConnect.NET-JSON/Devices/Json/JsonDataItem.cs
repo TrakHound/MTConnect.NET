@@ -192,24 +192,28 @@ namespace MTConnect.Devices.Json
                         // ComponentRelationship
                         if (relationship.GetType().IsAssignableTo(typeof(IComponentRelationship)))
                         {
+                            if (relationships.ComponentRelationships == null) relationships.ComponentRelationships = new List<JsonRelationship>();
                             relationships.ComponentRelationships.Add(new JsonRelationship((IComponentRelationship)relationship));
                         }
 
                         // DataItemRelationship
                         if (relationship.GetType().IsAssignableTo(typeof(IDataItemRelationship)))
                         {
+                            if (relationships.DataItemRelationships == null) relationships.DataItemRelationships = new List<JsonRelationship>();
                             relationships.DataItemRelationships.Add(new JsonRelationship((IDataItemRelationship)relationship));
                         }
 
                         // DeviceRelationship
                         if (relationship.GetType().IsAssignableTo(typeof(IDeviceRelationship)))
                         {
+                            if (relationships.DeviceRelationships == null) relationships.DeviceRelationships = new List<JsonRelationship>();
                             relationships.DeviceRelationships.Add(new JsonRelationship((IDeviceRelationship)relationship));
                         }
 
                         // SpecificationRelationship
                         if (relationship.GetType().IsAssignableTo(typeof(ISpecificationRelationship)))
                         {
+                            if (relationships.SpecificationRelationships == null) relationships.SpecificationRelationships = new List<JsonRelationship>();
                             relationships.SpecificationRelationships.Add(new JsonRelationship((ISpecificationRelationship)relationship));
                         }
                     }

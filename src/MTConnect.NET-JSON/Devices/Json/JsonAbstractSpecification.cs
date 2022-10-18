@@ -35,7 +35,7 @@ namespace MTConnect.Devices.Json
         public string CoordinateIdRef { get; set; }
 
         [JsonPropertyName("originator")]
-        public Originator Originator { get; set; }
+        public string Originator { get; set; }
 
 
         public JsonAbstractSpecification() { }
@@ -52,7 +52,7 @@ namespace MTConnect.Devices.Json
                 Units = specification.Units;
                 CompositionIdRef = specification.CompositionIdRef;
                 CoordinateIdRef = specification.CoordinateIdRef;
-                Originator = specification.Originator;
+                Originator = specification.Originator.ToString();
             }
         }
 
@@ -68,7 +68,7 @@ namespace MTConnect.Devices.Json
             specification.Units = Units;
             specification.CompositionIdRef = CompositionIdRef;
             specification.CoordinateIdRef = CoordinateIdRef;
-            specification.Originator = Originator;
+            specification.Originator = Originator.ConvertEnum<Originator>();
             return specification;
         }
     }

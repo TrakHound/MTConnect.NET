@@ -60,7 +60,7 @@ namespace MTConnect.Devices.Json
             specification.Units = Units;
             specification.CompositionIdRef = CompositionIdRef;
             specification.CoordinateIdRef = CoordinateIdRef;
-            specification.Originator = Originator;
+            specification.Originator = Originator.ConvertEnum<Originator>();
             specification.Maximum = Maximum;
             specification.UpperLimit = UpperLimit;
             specification.UpperWarning = UpperWarning;

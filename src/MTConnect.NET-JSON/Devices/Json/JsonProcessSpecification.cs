@@ -44,7 +44,7 @@ namespace MTConnect.Devices.Json
             specification.Units = Units;
             specification.CompositionIdRef = CompositionIdRef;
             specification.CoordinateIdRef = CoordinateIdRef;
-            specification.Originator = Originator;
+            specification.Originator = Originator.ConvertEnum<Originator>();
 
             if (ControlLimits != null) specification.ControlLimits = ControlLimits.ToControlLimits();
             if (SpecificationLimits != null) specification.SpecificationLimits = SpecificationLimits.ToSpecificationLimits();

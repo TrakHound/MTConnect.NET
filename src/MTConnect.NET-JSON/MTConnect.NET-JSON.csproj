@@ -38,24 +38,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Compile Remove="Devices\Json\XmlComponentReference.cs" />
-	  <Compile Remove="Devices\Json\XmlComponentRelationship.cs" />
-	  <Compile Remove="Devices\Json\XmlDataItemReference.cs" />
-	  <Compile Remove="Devices\Json\XmlDataItemRelationship.cs" />
-	  <Compile Remove="Devices\Json\XmlDeviceRelationship.cs" />
-	  <Compile Remove="Devices\Json\XmlSpecificationRelationship.cs" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <None Include="Devices\Json\XmlComponentReference.cs" />
-	  <None Include="Devices\Json\XmlComponentRelationship.cs" />
-	  <None Include="Devices\Json\XmlDataItemReference.cs" />
-	  <None Include="Devices\Json\XmlDataItemRelationship.cs" />
-	  <None Include="Devices\Json\XmlDeviceRelationship.cs" />
-	  <None Include="Devices\Json\XmlSpecificationRelationship.cs" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

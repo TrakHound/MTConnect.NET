@@ -20,10 +20,10 @@ namespace MTConnect.Devices.Json
         public string CoordinateSystemIdRef { get; set; }
 
         [JsonPropertyName("type")]
-        public MotionType Type { get; set; }
+        public string Type { get; set; }
 
         [JsonPropertyName("actuation")]
-        public MotionActuationType Actuation { get; set; }
+        public string Actuation { get; set; }
 
         [JsonPropertyName("description")]
         public string Description { get; set; }
@@ -47,8 +47,8 @@ namespace MTConnect.Devices.Json
                 Id = motion.Id;
                 ParentIdRef = motion.ParentIdRef;
                 CoordinateSystemIdRef = motion.CoordinateSystemIdRef;
-                Type = motion.Type;
-                Actuation = motion.Actuation;
+                Type = motion.Type.ToString();
+                Actuation = motion.Actuation.ToString();
                 Description = motion.Description;
                 Origin = motion.Origin;
                 if (motion.Transformation != null) Transformation = new JsonTransformation(motion.Transformation);
@@ -63,8 +63,8 @@ namespace MTConnect.Devices.Json
             motion.Id = Id;
             motion.ParentIdRef = ParentIdRef;
             motion.CoordinateSystemIdRef = CoordinateSystemIdRef;
-            motion.Type = Type;
-            motion.Actuation = Actuation;
+            motion.Type = Type.ConvertEnum<MotionType>();
+            motion.Actuation = Actuation.ConvertEnum<MotionActuationType>();
             motion.Axis = Axis;
             motion.Origin = Origin;
             if (Transformation != null) motion.Transformation = Transformation.ToTransformation();
