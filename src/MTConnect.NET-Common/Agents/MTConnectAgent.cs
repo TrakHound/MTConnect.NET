@@ -136,6 +136,11 @@ namespace MTConnect.Agents
         }
 
         /// <summary>
+        /// A timestamp in 8601 format of the last update of the Device information for any device.
+        /// </summary>
+        public DateTime DeviceModelChangeTime => _deviceModelChangeTime.ToDateTime();
+
+        /// <summary>
         /// Get the configured size of the Buffer in the number of maximum number of Observations the buffer can hold at one time.
         /// </summary>
         public long BufferSize => _observationBuffer != null ? _observationBuffer.BufferSize : 0;
@@ -144,6 +149,11 @@ namespace MTConnect.Agents
         /// Get the configured size of the Asset Buffer in the number of maximum number of Assets the buffer can hold at one time.
         /// </summary>
         public long AssetBufferSize => _assetBuffer != null ? _assetBuffer.BufferSize : 0;
+
+        /// <summary>
+        /// A number representing the current number of Asset Documents that are currently stored in the Agent.
+        /// </summary>
+        public long AssetCount => _assetBuffer != null ? _assetBuffer.AssetCount : 0;
 
         /// <summary>
         /// A number representing the sequence number assigned to the oldest Observation stored in the buffer
@@ -3146,7 +3156,12 @@ namespace MTConnect.Agents
                                 var assetChanged = device.DataItems.FirstOrDefault(o => o.Type == AssetChangedDataItem.TypeId);
                                 if (assetChanged != null)
                                 {
-                                    AddObservation(deviceUuid, assetChanged.Id, ValueKeys.Result, asset.AssetId, asset.Timestamp);
+                                    var assetChangedObservation = new ObservationInput();
+                                    assetChangedObservation.DataItemKey = assetChanged.Id;
+                                    assetChangedObservation.AddValue(ValueKeys.Result, asset.AssetId);
+                                    assetChangedObservation.AddValue(ValueKeys.AssetType, asset.Type);
+                                    assetChangedObservation.Timestamp = asset.Timestamp;
+                                    AddObservation(deviceUuid, assetChangedObservation);
                                 }
                             }
 
@@ -3207,8 +3222,27 @@ namespace MTConnect.Agents
         {
             if (asset != null)
             {
-                // Update Asset Count
-                DecrementAssetCount(asset.DeviceUuid, asset.Type);
+                var device = GetDevice(asset.DeviceUuid);
+                if (device != null)
+                {
+                    // Update AssetRemoved DataItem
+                    if (!device.DataItems.IsNullOrEmpty())
+                    {
+                        var assetRemoved = device.DataItems.FirstOrDefault(o => o.Type == AssetRemovedDataItem.TypeId);
+                        if (assetRemoved != null)
+                        {
+                            var assetChangedObservation = new ObservationInput();
+                            assetChangedObservation.DataItemKey = assetRemoved.Id;
+                            assetChangedObservation.AddValue(ValueKeys.Result, asset.AssetId);
+                            assetChangedObservation.AddValue(ValueKeys.AssetType, asset.Type);
+                            assetChangedObservation.Timestamp = asset.Timestamp;
+                            AddObservation(asset.DeviceUuid, assetChangedObservation);
+                        }
+                    }
+
+                    // Update Asset Count
+                    DecrementAssetCount(asset.DeviceUuid, asset.Type);
+                }
             }
         }
 
@@ -3316,7 +3350,10 @@ namespace MTConnect.Agents
                         if (assetCountDataItem != null)
                         {
                             var entries = new List<IDataSetEntry>();
-                            entries.Add(new DataSetEntry(assetType, typeCount));
+                            
+                            if (typeCount > 0) entries.Add(new DataSetEntry(assetType, typeCount));
+                            else entries.Add(new DataSetEntry(assetType, true));
+
                             var dataSet = new DataSetObservationInput(assetCountDataItem.Id, entries);
 
                             // Add Observation with updated DataSet Key for AssetType

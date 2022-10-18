@@ -61,6 +61,16 @@ namespace MTConnect.Agents
         Version MTConnectVersion { get; set; }
 
         /// <summary>
+        /// Gets the Sender that is hosting the Agent
+        /// </summary>
+        string Sender { get; }
+
+        /// <summary>
+        /// A timestamp in 8601 format of the last update of the Device information for any device.
+        /// </summary>
+        DateTime DeviceModelChangeTime { get; }
+
+        /// <summary>
         /// Get the configured size of the Buffer in the number of maximum number of DataItems the buffer can hold at one time.
         /// </summary>
         long BufferSize { get; }
@@ -69,6 +79,11 @@ namespace MTConnect.Agents
         /// Get the configured size of the Asset Buffer in the number of maximum number of Assets the buffer can hold at one time.
         /// </summary>
         long AssetBufferSize { get; }
+
+        /// <summary>
+        /// A number representing the current number of Asset Documents that are currently stored in the Agent.
+        /// </summary>
+        long AssetCount { get; }
 
         /// <summary>
         /// A number representing the sequence number assigned to the oldest piece of Streaming Data stored in the buffer

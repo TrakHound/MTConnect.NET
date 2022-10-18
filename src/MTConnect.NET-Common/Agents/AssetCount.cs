@@ -13,7 +13,7 @@ namespace MTConnect.Agents
 
         public int Count { get; set; }
 
-        public bool IsValid => !string.IsNullOrEmpty(DeviceUuid) && !string.IsNullOrEmpty(AssetType);
+        public bool IsValid => !string.IsNullOrEmpty(DeviceUuid) && !string.IsNullOrEmpty(AssetType) && Count > 0;
 
 
         public AssetCount(string deviceUuid, string assetType, int count)
