@@ -10,7 +10,6 @@ using MTConnect.Assets;
 using MTConnect.Configurations;
 using MTConnect.Devices;
 using MTConnect.Observations;
-using MTConnect.Observations.Output;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -122,6 +121,9 @@ namespace MTConnect.Mqtt
 
                         if (Connected != null) Connected.Invoke(this, new EventArgs());
 
+                        // Publish MTConnect Agent Information
+                        await PublishAgent(_mtconnectAgent);
+
                         // Add Agent Devices
                         var devices = _mtconnectAgent.GetDevices();
                         if (!devices.IsNullOrEmpty())
@@ -168,17 +170,6 @@ namespace MTConnect.Mqtt
             } while (!_stop.Token.IsCancellationRequested);
         }
 
-        //public async Task DisconnectAsync()
-        //{
-        //    try
-        //    {
-        //        if (_mqttClient != null) await _mqttClient.DisconnectAsync();
-
-        //        if (Disconnected != null) Disconnected.Invoke(this, new EventArgs());
-        //    }
-        //    catch { }
-        //}
-
         public void Dispose()
         {
             if (_mqttClient != null) _mqttClient.Dispose();
@@ -188,6 +179,7 @@ namespace MTConnect.Mqtt
         private async void DeviceAdded(object sender, IDevice device)
         {
             await PublishDevice(device);
+            await PublishAgent(_mtconnectAgent);
         }
 
         private async void ObservationAdded(object sender, IObservation observation)
@@ -198,8 +190,27 @@ namespace MTConnect.Mqtt
         private async void AssetAdded(object sender, IAsset asset)
         {
             await PublishAsset(asset);
+            await PublishAgent(_mtconnectAgent);
         }
 
+
+        private async Task PublishAgent(IMTConnectAgent agent)
+        {
+            foreach (var documentFormat in _documentFormats)
+            {
+                var messages = CreateMessages(agent);
+                if (!messages.IsNullOrEmpty())
+                {
+                    foreach (var message in messages)
+                    {
+                        if (message != null && message.Payload != null)
+                        {
+                            await Publish(message);
+                        }
+                    }
+                }
+            }
+        }
 
         private async Task PublishDevice(IDevice device)
         {
@@ -271,6 +282,7 @@ namespace MTConnect.Mqtt
             }
         }
 
+
         #region "Messages"
 
         private MqttApplicationMessage CreateMessage(string topic, string payload)
@@ -291,6 +303,50 @@ namespace MTConnect.Mqtt
             return null;
         }
 
+
+        private IEnumerable<MqttApplicationMessage> CreateMessages(IMTConnectAgent agent)
+        {
+            if (agent != null)
+            {
+                var messages = new List<MqttApplicationMessage>();
+
+                // UUID
+                var topic = $"MTConnect/Agents/{agent.Uuid}/UUID";
+                messages.Add(CreateMessage(topic, agent.Uuid));
+
+                // InstanceId
+                topic = $"MTConnect/Agents/{agent.Uuid}/InstanceId";
+                messages.Add(CreateMessage(topic, agent.InstanceId.ToString()));
+
+                // Agent Application Version
+                topic = $"MTConnect/Agents/{agent.Uuid}/Version";
+                messages.Add(CreateMessage(topic, agent.Version.ToString()));
+
+                // Observation Buffer Size
+                topic = $"MTConnect/Agents/{agent.Uuid}/BufferSize";
+                messages.Add(CreateMessage(topic, agent.BufferSize.ToString()));
+
+                // Asset Buffer Size
+                topic = $"MTConnect/Agents/{agent.Uuid}/AssetBufferSize";
+                messages.Add(CreateMessage(topic, agent.AssetBufferSize.ToString()));
+
+                // Asset Count
+                topic = $"MTConnect/Agents/{agent.Uuid}/AssetCount";
+                messages.Add(CreateMessage(topic, agent.AssetCount.ToString()));
+
+                // Sender
+                topic = $"MTConnect/Agents/{agent.Uuid}/Sender";
+                messages.Add(CreateMessage(topic, agent.Sender));
+
+                // DeviceModelChangeTime
+                topic = $"MTConnect/Agents/{agent.Uuid}/DeviceModelChangeTime";
+                messages.Add(CreateMessage(topic, agent.DeviceModelChangeTime.ToString("o")));
+
+                return messages;
+            }
+
+            return null;
+        }
 
         private IEnumerable<MqttApplicationMessage> CreateMessages(IDevice device, string documentFormatterId = DocumentFormat.XML)
         {

@@ -12,6 +12,7 @@ using MTConnect.Devices;
 using MTConnect.Observations;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,6 +27,17 @@ namespace MTConnect.Mqtt
         private IEnumerable<string> _documentFormats = new List<string>() { "JSON" };
 
 
+        public EventHandler ClientConnected { get; set; }
+
+        public EventHandler ClientDisconnected { get; set; }
+
+        public EventHandler<string> MessageSent { get; set; }
+
+        public EventHandler<Exception> ConnectionError { get; set; }
+
+        public EventHandler<Exception> PublishError { get; set; }
+
+
         public MTConnectMqttBroker(IMTConnectAgent mtconnectAgent, MqttServer mqttServer)
         {
             _mtconnectAgent = mtconnectAgent;
@@ -35,7 +47,11 @@ namespace MTConnect.Mqtt
             _mqttServer = mqttServer;
             _mqttServer.ClientConnectedAsync += async (args) =>
             {
-                Console.WriteLine("MQTT Client Connected");
+                if (ClientConnected != null) ClientConnected.Invoke(this, new EventArgs());
+            };
+            _mqttServer.ClientDisconnectedAsync += async (args) =>
+            {
+                if (ClientDisconnected != null) ClientDisconnected.Invoke(this, new EventArgs());
             };
         }
 
@@ -47,6 +63,9 @@ namespace MTConnect.Mqtt
             {
                 await _mqttServer.StartAsync();
 
+                // Publish MTConnect Agent Information
+                await PublishAgent(_mtconnectAgent);
+
                 var devices = _mtconnectAgent.GetDevicesResponseDocument();
                 foreach (var device in devices.Devices)
                 {
@@ -54,13 +73,21 @@ namespace MTConnect.Mqtt
                     await PublishDevice(device);
                 }
 
-                //// Publish the Agent Device
-                //await PublishDevice(_mtconnectAgent.Agent);
+                // Add Current Observations (to Initialize each DataItem on the MQTT broker)
+                var observations = _mtconnectAgent.GetCurrentObservations();
+                if (!observations.IsNullOrEmpty())
+                {
+                    foreach (var observationOutput in observations)
+                    {
+                        var observation = Observation.Create(observationOutput.DataItem);
+                        observation.DeviceUuid = observationOutput.DeviceUuid;
+                        observation.DataItem = observationOutput.DataItem;
+                        observation.Timestamp = observationOutput.Timestamp;
+                        observation.AddValues(observationOutput.Values);
 
-                //foreach (var device in )
-                //{
-
-                //}
+                        await PublishObservation(observation);
+                    }
+                }
             }
         }
 
@@ -75,6 +102,7 @@ namespace MTConnect.Mqtt
         private async void DeviceAdded(object sender, IDevice device)
         {
             await PublishDevice(device);
+            await PublishAgent(_mtconnectAgent);
         }
 
         private async void ObservationAdded(object sender, IObservation observation)
@@ -85,8 +113,27 @@ namespace MTConnect.Mqtt
         private async void AssetAdded(object sender, IAsset asset)
         {
             await PublishAsset(asset);
+            await PublishAgent(_mtconnectAgent);
         }
 
+
+        private async Task PublishAgent(IMTConnectAgent agent)
+        {
+            foreach (var documentFormat in _documentFormats)
+            {
+                var messages = CreateMessages(agent);
+                if (!messages.IsNullOrEmpty())
+                {
+                    foreach (var message in messages)
+                    {
+                        if (message != null && message.Payload != null)
+                        {
+                            await Publish(message);
+                        }
+                    }
+                }
+            }
+        }
 
         private async Task PublishDevice(IDevice device)
         {
@@ -129,9 +176,7 @@ namespace MTConnect.Mqtt
         {
             if (_mqttServer != null && _mqttServer.IsStarted)
             {
-                //await _mqttServer.UpdateRetainedMessageAsync(message);
                 await _mqttServer.InjectApplicationMessage(new InjectedMqttApplicationMessage(message));
-                //await _mqttServer.PublishAsync(message, _stop.Token);
             }
         }
 
@@ -141,12 +186,11 @@ namespace MTConnect.Mqtt
             {
                 foreach (var message in messages)
                 {
-                    //await _mqttServer.UpdateRetainedMessageAsync(message);
                     await _mqttServer.InjectApplicationMessage(new InjectedMqttApplicationMessage(message));
-                    //await _mqttServer.PublishAsync(message, _stop.Token);
                 }
             }
         }
+
 
         #region "Messages"
 
@@ -154,7 +198,7 @@ namespace MTConnect.Mqtt
         {
             try
             {
-                var bytes = Encoding.ASCII.GetBytes(payload);
+                var bytes = Encoding.UTF8.GetBytes(payload);
 
                 return new MqttApplicationMessage
                 {
@@ -169,6 +213,50 @@ namespace MTConnect.Mqtt
         }
 
 
+        private IEnumerable<MqttApplicationMessage> CreateMessages(IMTConnectAgent agent)
+        {
+            if (agent != null)
+            {
+                var messages = new List<MqttApplicationMessage>();
+
+                // UUID
+                var topic = $"MTConnect/Agents/{agent.Uuid}/UUID";
+                messages.Add(CreateMessage(topic, agent.Uuid));
+
+                // InstanceId
+                topic = $"MTConnect/Agents/{agent.Uuid}/InstanceId";
+                messages.Add(CreateMessage(topic, agent.InstanceId.ToString()));
+
+                // Agent Application Version
+                topic = $"MTConnect/Agents/{agent.Uuid}/Version";
+                messages.Add(CreateMessage(topic, agent.Version.ToString()));
+
+                // Observation Buffer Size
+                topic = $"MTConnect/Agents/{agent.Uuid}/BufferSize";
+                messages.Add(CreateMessage(topic, agent.BufferSize.ToString()));
+
+                // Asset Buffer Size
+                topic = $"MTConnect/Agents/{agent.Uuid}/AssetBufferSize";
+                messages.Add(CreateMessage(topic, agent.AssetBufferSize.ToString()));
+
+                // Asset Count
+                topic = $"MTConnect/Agents/{agent.Uuid}/AssetCount";
+                messages.Add(CreateMessage(topic, agent.AssetCount.ToString()));
+
+                // Sender
+                topic = $"MTConnect/Agents/{agent.Uuid}/Sender";
+                messages.Add(CreateMessage(topic, agent.Sender));
+
+                // DeviceModelChangeTime
+                topic = $"MTConnect/Agents/{agent.Uuid}/DeviceModelChangeTime";
+                messages.Add(CreateMessage(topic, agent.DeviceModelChangeTime.ToString("o")));
+
+                return messages;
+            }
+
+            return null;
+        }
+
         private IEnumerable<MqttApplicationMessage> CreateMessages(IDevice device, string documentFormatterId = DocumentFormat.XML)
         {
             if (device != null && !string.IsNullOrEmpty(documentFormatterId))
@@ -178,113 +266,11 @@ namespace MTConnect.Mqtt
                 var topic = $"MTConnect/Devices/{device.Uuid}/Device";
                 messages.Add(CreateMessage(topic, Formatters.EntityFormatter.Format(documentFormatterId, device)));
 
-                //// DataItems
-                //if (!device.DataItems.IsNullOrEmpty())
-                //{
-                //    foreach (var dataItem in device.DataItems)
-                //    {
-                //        var dataItemTopic = $"{topic}/DataItems/{dataItem.Type}/{dataItem.Id}";
-                //        if (!string.IsNullOrEmpty(dataItem.SubType)) dataItemTopic = $"{topic}/DataItems/{dataItem.Type}/{dataItem.Id}";
-
-                //        messages.Add(CreateMessage(dataItemTopic, Formatters.EntityFormatter.Format(documentFormatterId, dataItem)));
-                //    }
-                //}
-
-                //// Compositions
-                //if (!device.Compositions.IsNullOrEmpty())
-                //{
-                //    foreach (var composition in device.Compositions)
-                //    {
-                //        messages.AddRange(CreateMessages(topic, composition, documentFormatterId));
-                //    }
-                //}
-
-                //// Components
-                //if (!device.Components.IsNullOrEmpty())
-                //{
-                //    foreach (var component in device.Components)
-                //    {
-                //        messages.AddRange(CreateMessages(topic, component, documentFormatterId));
-                //    }
-                //}
-
                 return messages;
             }
 
             return null;
         }
-
-        //private IEnumerable<MqttApplicationMessage> CreateMessages(string parentTopic, IComponent component, string documentFormatterId = DocumentFormat.XML)
-        //{
-        //    var messages = new List<MqttApplicationMessage>();
-
-        //    if (component != null)
-        //    {
-        //        var topic = $"{parentTopic}/Components/{component.Type}/{component.Id}";
-        //        messages.Add(CreateMessage(topic, Formatters.EntityFormatter.Format(documentFormatterId, component)));
-
-        //        // DataItems
-        //        if (!component.DataItems.IsNullOrEmpty())
-        //        {
-        //            foreach (var dataItem in component.DataItems)
-        //            {
-        //                var dataItemTopic = $"{topic}/DataItems/{dataItem.Type}/{dataItem.Id}";
-        //                if (!string.IsNullOrEmpty(dataItem.SubType)) dataItemTopic = $"{topic}/DataItems/{dataItem.Type}/SubTypes/{dataItem.SubType}/{dataItem.Id}";
-
-        //                messages.Add(CreateMessage(dataItemTopic, Formatters.EntityFormatter.Format(documentFormatterId, dataItem)));
-        //            }
-        //        }
-
-        //        // Compositions
-        //        if (!component.Compositions.IsNullOrEmpty())
-        //        {
-        //            foreach (var composition in component.Compositions)
-        //            {
-        //                messages.AddRange(CreateMessages(topic, composition, documentFormatterId));
-        //            }
-        //        }
-
-        //        // Components
-        //        if (!component.Components.IsNullOrEmpty())
-        //        {
-        //            foreach (var subcomponent in component.Components)
-        //            {
-        //                messages.AddRange(CreateMessages(topic, subcomponent, documentFormatterId));
-        //            }
-        //        }
-
-        //        return messages;
-        //    }
-
-        //    return messages;
-        //}
-
-        //private IEnumerable<MqttApplicationMessage> CreateMessages(string parentTopic, IComposition composition, string documentFormatterId = DocumentFormat.XML)
-        //{
-        //    var messages = new List<MqttApplicationMessage>();
-
-        //    if (composition != null)
-        //    {
-        //        var topic = $"{parentTopic}/Compositions/{composition.Type}/{composition.Id}";
-        //        messages.Add(CreateMessage(topic, Formatters.EntityFormatter.Format(documentFormatterId, composition)));
-
-        //        // DataItems
-        //        if (!composition.DataItems.IsNullOrEmpty())
-        //        {
-        //            foreach (var dataItem in composition.DataItems)
-        //            {
-        //                var dataItemTopic = $"{topic}/DataItems/{dataItem.Type}/{dataItem.Id}";
-        //                if (!string.IsNullOrEmpty(dataItem.SubType)) dataItemTopic = $"{topic}/DataItems/{dataItem.Type}/SubTypes/{dataItem.SubType}/{dataItem.Id}";
-
-        //                messages.Add(CreateMessage(dataItemTopic, Formatters.EntityFormatter.Format(documentFormatterId, dataItem)));
-        //            }
-        //        }
-
-        //        return messages;
-        //    }
-
-        //    return messages;
-        //}
 
         private MqttApplicationMessage CreateMessage(IObservation observation, string documentFormatterId = DocumentFormat.XML)
         {
@@ -296,7 +282,32 @@ namespace MTConnect.Mqtt
                 var topic = $"{topicPrefix}/{observation.DataItemId}";
                 if (!string.IsNullOrEmpty(observation.SubType)) topic = $"{topicPrefix}/SubTypes/{observation.SubType}/{observation.DataItemId}";
 
-                return CreateMessage(topic, Formatters.EntityFormatter.Format(documentFormatterId, observation));
+                if (observation.Category != Devices.DataItems.DataItemCategory.CONDITION)
+                {
+                    return CreateMessage(topic, Formatters.EntityFormatter.Format(documentFormatterId, observation));
+                }
+                else
+                {
+                    var observations = _mtconnectAgent.GetCurrentObservations(observation.DeviceUuid);
+                    if (!observations.IsNullOrEmpty())
+                    {
+                        var dataItemObservations = observations.Where(o => o.DataItemId == observation.DataItemId);
+                        if (!dataItemObservations.IsNullOrEmpty())
+                        {
+                            var x = new List<IObservation>();
+                            foreach (var dataItemObservation in dataItemObservations)
+                            {
+                                var y = Observation.Create(dataItemObservation.DataItem);
+                                y.DeviceUuid = dataItemObservation.DeviceUuid;
+                                y.DataItem = dataItemObservation.DataItem;
+                                y.Timestamp = dataItemObservation.Timestamp;
+                                y.AddValues(dataItemObservation.Values);
+                                x.Add(y);
+                            }
+                            return CreateMessage(topic, Formatters.EntityFormatter.Format(documentFormatterId, x));
+                        }
+                    }
+                }
             }
 
             return null;

@@ -4,6 +4,7 @@
 // file 'LICENSE.txt', which is part of this source code package.
 
 using MTConnect.Applications.Agents;
+using System;
 using System.Reflection;
 
 namespace MTConnect.Applications

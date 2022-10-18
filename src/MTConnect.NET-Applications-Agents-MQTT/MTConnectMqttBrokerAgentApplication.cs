@@ -123,19 +123,19 @@ namespace MTConnect.Applications.Agents
         private void MqttClientConnected(object sender, EventArgs args)
         {
             var relay = (MTConnectMqttRelay)sender;
-            _mqttLogger.Info($"[MQTT Server] : MQTT Client Connected : " + relay.Server + " : " + relay.Port);
+            _mqttLogger.Info($"[MQTT Broker] : MQTT Client Connected : " + relay.Server + " : " + relay.Port);
         }
 
         private void MqttClientDisconnected(object sender, EventArgs args)
         {
             var relay = (MTConnectMqttRelay)sender;
-            _mqttLogger.Debug($"[MQTT Server] : MQTT Client Disconnected : " + relay.Server + " : " + relay.Port);
+            _mqttLogger.Debug($"[MQTT Broker] : MQTT Client Disconnected : " + relay.Server + " : " + relay.Port);
         }
 
         private void MqttClientMessageSent(object sender, string message)
         {
             var relay = (MTConnectMqttRelay)sender;
-            _mqttLogger.Debug($"[MQTT Server] : MQTT Client Message Sent : " + relay.Server + " : " + relay.Port);
+            _mqttLogger.Debug($"[MQTT Broker] : MQTT Client Message Sent : " + relay.Server + " : " + relay.Port);
         }
 
         #endregion
