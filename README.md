@@ -72,11 +72,11 @@ The Nuget packages for the libraries in this repo are listed below:
 - [MTConnect.NET-HTTP](https://www.nuget.org/packages/MTConnect.NET-HTTP/)
 - [MTConnect.NET-HTTP-AspNetCore](https://www.nuget.org/packages/MTConnect.NET-HTTP-AspNetCore/)
 - [MTConnect.NET-XML](https://www.nuget.org/packages/MTConnect.NET-XML/)
-- [MTConnect.NET-XML](https://www.nuget.org/packages/MTConnect.NET-JSON/)
+- [MTConnect.NET-JSON](https://www.nuget.org/packages/MTConnect.NET-JSON/)
 - [MTConnect.NET-SHDR](https://www.nuget.org/packages/MTConnect.NET-SHDR/)
 - [MTConnect.NET-MQTT](https://www.nuget.org/packages/MTConnect.NET-MQTT/)
 - [MTConnect.NET-Applications-Agents](https://www.nuget.org/packages/MTConnect.NET-Applications-Agents/)
-- [MTConnect.NET-Applications-Agents](https://www.nuget.org/packages/MTConnect.NET-Applications-Agents-MQTT/)
+- [MTConnect.NET-Applications-Agents-MQTT](https://www.nuget.org/packages/MTConnect.NET-Applications-Agents-MQTT/)
 
 ## Supported Frameworks
 - .NET 6.0
