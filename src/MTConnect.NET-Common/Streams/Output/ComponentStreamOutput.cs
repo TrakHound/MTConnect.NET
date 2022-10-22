@@ -5,6 +5,7 @@
 
 using MTConnect.Devices;
 using MTConnect.Observations.Output;
+using System.Collections.Generic;
 
 namespace MTConnect.Streams.Output
 {
@@ -53,6 +54,32 @@ namespace MTConnect.Streams.Output
         {
             get => _observations;
             set => _observations = value;
+        }
+
+
+        public ComponentStreamOutput() { }
+
+        public ComponentStreamOutput(IComponentStream componentStream)
+        {
+            if (componentStream != null)
+            {
+                Component = componentStream.Component;
+                ComponentType = componentStream.ComponentType;
+                ComponentId = componentStream.ComponentId;
+                Name = componentStream.Name;
+                NativeName = componentStream.NativeName;
+                Uuid = componentStream.Uuid;
+
+                if (componentStream.Observations != null)
+                {
+                    var observations = new List<IObservationOutput>();
+                    foreach (var observation in componentStream.Observations)
+                    {
+                        observations.Add(new ObservationOutput(observation));
+                    }
+                    Observations = observations.ToArray();
+                }
+            }
         }
     }  
 }

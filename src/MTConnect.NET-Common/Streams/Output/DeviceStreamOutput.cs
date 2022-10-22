@@ -51,5 +51,27 @@ namespace MTConnect.Streams.Output
                 return l;
             }
         }
+
+
+        public DeviceStreamOutput() { }
+
+        public DeviceStreamOutput(IDeviceStream deviceStream)
+        {
+            if (deviceStream != null)
+            {
+                Name = deviceStream.Name;
+                Uuid = deviceStream.Uuid;
+
+                if (deviceStream.ComponentStreams != null)
+                {
+                    var componentStreams = new List<IComponentStreamOutput>();
+                    foreach (var componentStream in deviceStream.ComponentStreams)
+                    {
+                        componentStreams.Add(new ComponentStreamOutput(componentStream));
+                    }
+                    ComponentStreams = componentStreams.ToArray();
+                }
+            }
+        }
     }
 }

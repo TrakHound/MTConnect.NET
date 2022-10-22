@@ -6,6 +6,7 @@
 using MTConnect.Devices;
 using MTConnect.Devices.DataItems;
 using System;
+using System.Linq;
 
 namespace MTConnect.Observations.Output
 {
@@ -135,6 +136,59 @@ namespace MTConnect.Observations.Output
         {
             get => _values;
             set => _values = value;
+        }
+
+
+        public ObservationOutput() 
+        {
+            _deviceUuid = null;
+            _dataItem = null;
+            _dataItemId = null;
+            _timestamp = DateTime.MinValue;
+            _name = null;
+            _sequence = 0;
+            _category = DataItemCategory.CONDITION;
+            _type = null;
+            _subType = null;
+            _compositionId = null;
+            _representation = DataItemRepresentation.VALUE;
+            _values = null;
+        }
+
+        public ObservationOutput(IObservation observation)
+        {
+            _deviceUuid = null;
+            _dataItem = null;
+            _dataItemId = null;
+            _timestamp = DateTime.MinValue;
+            _name = null;
+            _sequence = 0;
+            _category = DataItemCategory.CONDITION;
+            _type = null;
+            _subType = null;
+            _compositionId = null;
+            _representation = DataItemRepresentation.VALUE;
+            _values = null;
+
+            if (observation != null)
+            {
+                _deviceUuid = observation.DeviceUuid;
+                _dataItem = observation.DataItem;
+                _dataItemId = observation.DataItemId;
+                _timestamp = observation.Timestamp;
+                _name = observation.Name;
+                _sequence = observation.Sequence;
+                _category = observation.Category;
+                _type = observation.Type;
+                _subType = observation.SubType;
+                _compositionId = observation.CompositionId;
+                _representation = observation.Representation;
+
+                if (observation.Values != null)
+                {
+                    _values = observation.Values.ToArray();
+                }
+            }
         }
 
 

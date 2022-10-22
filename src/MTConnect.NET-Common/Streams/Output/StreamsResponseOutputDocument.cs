@@ -37,6 +37,27 @@ namespace MTConnect.Streams.Output
         public int ObservationCount { get; set; }
 
 
+        public StreamsResponseOutputDocument() { }
+
+        public StreamsResponseOutputDocument(IStreamsResponseDocument document)  
+        {
+            if (document != null)
+            {
+                Header = document.Header;
+                Version = document.Version;
+
+                if (document.Streams != null)
+                {
+                    var streams = new List<IDeviceStreamOutput>();
+                    foreach (var stream in document.Streams)
+                    {
+                        streams.Add(new DeviceStreamOutput(stream));
+                    }
+                    Streams = streams.ToArray();
+                }
+            }
+        }
+
 
         public IEnumerable<IObservationOutput> GetObservations()
         {
