@@ -5,6 +5,7 @@
 
 using MTConnect.Agents.Metrics;
 using MTConnect.Assets;
+using MTConnect.Buffers;
 using MTConnect.Configurations;
 using MTConnect.Devices;
 using MTConnect.Devices.DataItems;
@@ -329,10 +330,14 @@ namespace MTConnect.Agents
 
         public IDevice GetDevice(string deviceKey, Version mtconnectVersion = null)
         {
-            _devices.TryGetValue(deviceKey, out var device);
-            if (device != null)
+            var deviceUuid = GetDeviceUuid(deviceKey);
+            if (deviceUuid != null)
             {
-                return Device.Process(device, mtconnectVersion != null ? mtconnectVersion : MTConnectVersion);
+                _devices.TryGetValue(deviceUuid, out var device);
+                if (device != null)
+                {
+                    return Device.Process(device, mtconnectVersion != null ? mtconnectVersion : MTConnectVersion);
+                }
             }
 
             return null;
@@ -342,6 +347,21 @@ namespace MTConnect.Agents
         {
             var allDevices = new List<IDevice>();
             allDevices.Add(_agent);
+            var devices = _devices.Select(o => o.Value).ToList();
+            if (!devices.IsNullOrEmpty()) allDevices.AddRange(devices);
+
+            if (!allDevices.IsNullOrEmpty())
+            {
+                return ProcessDevices(allDevices, mtconnectVersion);
+            }
+
+            return null;
+        }
+
+        public IEnumerable<IDevice> GetDevices(string deviceType, Version mtconnectVersion = null)
+        {
+            var allDevices = new List<IDevice>();
+            if (string.IsNullOrEmpty(deviceType) || deviceType.ToLower() == "agent") allDevices.Add(Agent);
             var devices = _devices.Select(o => o.Value).ToList();
             if (!devices.IsNullOrEmpty()) allDevices.AddRange(devices);
 
@@ -429,6 +449,24 @@ namespace MTConnect.Agents
             return null;
         }
 
+        public IEnumerable<IDataItem> GetDataItems(string deviceKey)
+        {
+            if (!string.IsNullOrEmpty(deviceKey))
+            {
+                // Lookup DeviceUuid from deviceKey
+                var deviceUuid = GetDeviceUuid(deviceKey);
+                if (!string.IsNullOrEmpty(deviceUuid))
+                {
+                    if (_deviceDataItems.TryGetValue(deviceUuid, out var dataItems))
+                    {
+                        return dataItems;
+                    }
+                }
+            }
+
+            return null;
+        }
+
 
         public IEnumerable<IObservationOutput> GetCurrentObservations(Version mtconnectVersion = null)
         {
@@ -436,28 +474,19 @@ namespace MTConnect.Agents
 
             var allDevices = new List<IDevice>();
             allDevices.Add(_agent);
-            var devices = _deviceBuffer.GetDevices();
+            var devices = GetDevices(version);
             if (!devices.IsNullOrEmpty()) allDevices.AddRange(devices);
 
             if (!allDevices.IsNullOrEmpty())
             {
-                // Create list of BufferKeys
-                var bufferKeys = GenerateBufferKeys(allDevices);
+                var observations = new List<IObservationOutput>();
 
-                // Query the Observation Buffer 
-                var results = _observationBuffer.GetCurrentObservations(bufferKeys);
-                if (results.IsValid)
+                foreach (var device in allDevices)
                 {
-                    var observations = new List<IObservationOutput>();
-                    foreach (var device in allDevices)
-                    {
-                        var dataItems = device.GetDataItems();
-
-                        var deviceObservations = GetObservations(device.Uuid, ref results, dataItems, version);
-                        if (!deviceObservations.IsNullOrEmpty()) observations.AddRange(deviceObservations);
-                    }
-                    return observations;
+                    observations.AddRange(GetCurrentObservations(device.Uuid, version));
                 }
+
+                return observations;
             }
 
             return null;
@@ -467,24 +496,63 @@ namespace MTConnect.Agents
         {
             var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersion;
 
-            var deviceUuid = GetDeviceUuid(deviceKey);
-
-            var device = _deviceBuffer.GetDevice(deviceKey);
+            var device = GetDevice(deviceKey, version);
             if (device != null)
             {
-                // Create list of BufferKeys
-                var bufferKeys = GenerateBufferKeys(device);
+                var observations = new List<IObservationOutput>();
 
-                // Query the Observation Buffer 
-                var results = _observationBuffer.GetCurrentObservations(bufferKeys);
-                if (results.IsValid)
+                var dataItems = GetDataItems(device.Uuid);
+                if (!dataItems.IsNullOrEmpty())
                 {
-                    var dataItems = device.GetDataItems();
-                    return GetObservations(deviceUuid, ref results, dataItems, version);
+                    foreach (var dataItem in dataItems)
+                    {
+                        var hash = $"{device.Uuid}:{dataItem.Id}";
+
+                        if (dataItem.Category == DataItemCategory.CONDITION)
+                        {
+                            if (_currentConditions.TryGetValue(hash, out var observationInputs))
+                            {
+                                if (!observationInputs.IsNullOrEmpty())
+                                {
+                                    foreach (var observationInput in observationInputs)
+                                    {
+                                        observations.Add(CreateObservation(dataItem, observationInput));
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (_currentObservations.TryGetValue(hash, out var observationInput))
+                            {
+                                observations.Add(CreateObservation(dataItem, observationInput));
+                            }
+                        }
+                    }
                 }
+
+                return observations;
             }
 
             return null;
+        }
+
+        private static IObservationOutput CreateObservation(IDataItem dataItem, IObservationInput observationInput)
+        {
+            var observation = new ObservationOutput();
+            observation._dataItem = dataItem;
+            if (dataItem.Device != null) observation._deviceUuid = dataItem.Device.Uuid;
+            observation._dataItemId = dataItem.Id;
+            observation._category = dataItem.Category;
+            observation._representation = dataItem.Representation;
+            observation._type = dataItem.Type;
+            observation._subType = dataItem.SubType;
+            observation._name = dataItem.Name;
+            observation._compositionId = dataItem.CompositionId;
+            //observation._sequence = observationInput.Sequence; // No Sequence in IObservationInput
+            observation._timestamp = observationInput.Timestamp.ToDateTime();
+            observation._values = observationInput.Values?.ToArray();
+            return observation;
         }
 
 
@@ -512,17 +580,17 @@ namespace MTConnect.Agents
                 var dataItems = device.GetDataItems();
                 if (!dataItems.IsNullOrEmpty())
                 {
-                    var deviceIndex = GetDeviceIndex(device.Uuid);
-                    var dataItemIndexes = new List<int>();
+                    //var deviceIndex = GetDeviceIndex(device.Uuid);
+                    //var dataItemIndexes = new List<int>();
 
-                    // Create list of DataItemIndexes
-                    foreach (var dataItem in dataItems)
-                    {
-                        dataItemIndexes.Add(GetDataItemIndex(device.Uuid, dataItem.Id));
-                    }
+                    //// Create list of DataItemIndexes
+                    //foreach (var dataItem in dataItems)
+                    //{
+                    //    dataItemIndexes.Add(GetDataItemIndex(device.Uuid, dataItem.Id));
+                    //}
 
                     // Get the BufferKeys to use for the ObservationBuffer
-                    var bufferKeys = GenerateBufferKeys(device);
+                    //var bufferKeys = GenerateBufferKeys(device);
 
                     var ts = timestamp > 0 ? timestamp : UnixDateTime.Now;
 
@@ -1467,7 +1535,29 @@ namespace MTConnect.Agents
                         if (update)
                         {
                             // Call Update to Observation Buffer - HERE
-                            success = true;
+                            success = OnAddObservation(deviceUuid, dataItem, observationInput);
+                            if (success)
+                            {
+                                if (_metrics != null)
+                                {
+                                    if (dataItem.Type != ObservationUpdateRateDataItem.TypeId && dataItem.Type != AssetUpdateRateDataItem.TypeId)
+                                    {
+                                        // Update Agent Metrics
+                                        _metrics.UpdateObservation(deviceUuid, dataItem.Id);
+                                    }
+                                }
+
+                                if (ObservationAdded != null)
+                                {
+                                    var observation = Observation.Create(dataItem);
+                                    observation.DeviceUuid = deviceUuid;
+                                    observation.DataItem = dataItem;
+                                    observation.Timestamp = observationInput.Timestamp.ToDateTime();
+                                    observation.AddValues(observationInput.Values);
+
+                                    ObservationAdded?.Invoke(this, observation);
+                                }
+                            }
                         }
                         else success = true; // Return true if no update needed
                     }
@@ -1508,6 +1598,11 @@ namespace MTConnect.Agents
             }
 
             return false;
+        }
+
+        protected virtual bool OnAddObservation(string deviceUuid, IDataItem dataItem, IObservationInput observationInput)
+        {
+            return true;
         }
 
         #endregion

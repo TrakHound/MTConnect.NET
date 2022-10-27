@@ -88,10 +88,10 @@ namespace MTConnect.Applications
             if (_configuration != null)
             {
                 // Create MTConnectAgent
-                var agent = new MTConnectAgent(_configuration);
+                var agent = new MTConnectAgentBroker(_configuration);
                 agent.MTConnectVersion = MTConnectVersions.Max;
                 agent.Start();
-                builder.Services.AddSingleton<IMTConnectAgent>(agent);
+                builder.Services.AddSingleton<IMTConnectAgentBroker>(agent);
 
                 // Individual Logger Classes
                 builder.Services.AddSingleton<HttpShdrAgentConfiguration>(_configuration);

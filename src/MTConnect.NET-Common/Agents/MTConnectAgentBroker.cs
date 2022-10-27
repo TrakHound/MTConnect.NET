@@ -9,6 +9,7 @@ using MTConnect.Configurations;
 using MTConnect.Devices;
 using MTConnect.Devices.DataItems;
 using MTConnect.Devices.DataItems.Events;
+using MTConnect.Devices.DataItems.Samples;
 using MTConnect.Errors;
 using MTConnect.Headers;
 using MTConnect.Observations;
@@ -27,7 +28,7 @@ namespace MTConnect.Agents
     public class MTConnectAgentBroker : MTConnectAgent, IMTConnectAgentBroker, IDisposable
     {
         private readonly object _lock = new object();
-        private readonly IMTConnectDeviceBuffer _deviceBuffer;
+        //private readonly IMTConnectDeviceBuffer _deviceBuffer;
         private readonly IMTConnectObservationBuffer _observationBuffer;
         private readonly IMTConnectAssetBuffer _assetBuffer;
         private readonly List<AssetCount> _deviceAssetCounts = new List<AssetCount>();
@@ -151,7 +152,7 @@ namespace MTConnect.Agents
             ) : base(uuid, instanceId, deviceModelChangeTime, initializeAgentDevice)
         {
             var config = new AgentConfiguration();
-            _deviceBuffer = new MTConnectDeviceBuffer();
+            //_deviceBuffer = new MTConnectDeviceBuffer();
             _observationBuffer = new MTConnectObservationBuffer();
             _assetBuffer = new MTConnectAssetBuffer();
             _assetBuffer.AssetRemoved += AssetRemovedFromBuffer;
@@ -166,14 +167,13 @@ namespace MTConnect.Agents
             ) : base(uuid, instanceId, deviceModelChangeTime, initializeAgentDevice)
         {
             var config = configuration != null ? configuration : new AgentConfiguration();
-            _deviceBuffer = new MTConnectDeviceBuffer();
+            //_deviceBuffer = new MTConnectDeviceBuffer();
             _observationBuffer = new MTConnectObservationBuffer(config);
             _assetBuffer = new MTConnectAssetBuffer(config);
             _assetBuffer.AssetRemoved += AssetRemovedFromBuffer;
         }
 
         public MTConnectAgentBroker(
-            IMTConnectDeviceBuffer deviceBuffer,
             IMTConnectObservationBuffer observationBuffer,
             IMTConnectAssetBuffer assetBuffer,
             string uuid = null,
@@ -183,7 +183,6 @@ namespace MTConnect.Agents
             ) : base(uuid, instanceId, deviceModelChangeTime, initializeAgentDevice)
         {
             var config = new AgentConfiguration();
-            _deviceBuffer = deviceBuffer != null ? deviceBuffer : new MTConnectDeviceBuffer();
             _observationBuffer = observationBuffer != null ? observationBuffer : new MTConnectObservationBuffer(config);
             _assetBuffer = assetBuffer != null ? assetBuffer : new MTConnectAssetBuffer(config);
             _assetBuffer.AssetRemoved += AssetRemovedFromBuffer;
@@ -191,7 +190,6 @@ namespace MTConnect.Agents
 
         public MTConnectAgentBroker(
             IAgentConfiguration configuration,
-            IMTConnectDeviceBuffer deviceBuffer,
             IMTConnectObservationBuffer observationBuffer,
             IMTConnectAssetBuffer assetBuffer,
             string uuid = null,
@@ -201,7 +199,6 @@ namespace MTConnect.Agents
             ) : base(uuid, instanceId, deviceModelChangeTime, initializeAgentDevice)
         {
             var config = configuration != null ? configuration : new AgentConfiguration();
-            _deviceBuffer = deviceBuffer != null ? deviceBuffer : new MTConnectDeviceBuffer();
             _observationBuffer = observationBuffer != null ? observationBuffer : new MTConnectObservationBuffer(config);
             _assetBuffer = assetBuffer != null ? assetBuffer : new MTConnectAssetBuffer(config);
             _assetBuffer.AssetRemoved += AssetRemovedFromBuffer;
@@ -544,29 +541,23 @@ namespace MTConnect.Agents
         {
             DevicesRequestReceived?.Invoke(null);
 
-            if (_deviceBuffer != null)
+            var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersion;
+
+            var devices = GetDevices(deviceType, version);
+            if (devices != null && devices.Count() > 0)
             {
-                var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersion;
+                var doc = new DevicesResponseDocument();
+                doc.Version = version;
 
-                var devices = new List<IDevice>();
-                if (string.IsNullOrEmpty(deviceType) || deviceType.ToLower() == "agent") devices.Add(Agent);
-                devices.AddRange(_deviceBuffer.GetDevices(deviceType));
+                var header = GetDevicesHeader(version);
+                header.Version = Version.ToString();
 
-                if (devices != null && devices.Count() > 0)
-                {
-                    var doc = new DevicesResponseDocument();
-                    doc.Version = version;
+                doc.Header = header;
+                doc.Devices = ProcessDevices(devices, version);
 
-                    var header = GetDevicesHeader(version);
-                    header.Version = Version.ToString();
+                DevicesResponseSent?.Invoke(doc);
 
-                    doc.Header = header;
-                    doc.Devices = ProcessDevices(devices, version);
-
-                    DevicesResponseSent?.Invoke(doc);
-
-                    return doc;
-                }
+                return doc;
             }
 
             return null;
@@ -581,15 +572,11 @@ namespace MTConnect.Agents
         {
             DevicesRequestReceived?.Invoke(deviceKey);
 
-            if (_deviceBuffer != null && !string.IsNullOrEmpty(deviceKey))
+            if (!string.IsNullOrEmpty(deviceKey))
             {
-                var deviceUuid = GetDeviceUuid(deviceKey);
                 var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersion;
 
-                IDevice device;
-                if (deviceUuid == Agent.Uuid) device = Agent;
-                else device = _deviceBuffer.GetDevice(deviceUuid);
-
+                var device = GetDevice(deviceKey, version);
                 if (device != null)
                 {
                     var doc = new DevicesResponseDocument();
@@ -651,13 +638,9 @@ namespace MTConnect.Agents
         {
             StreamsRequestReceived?.Invoke(null);
 
-            if (_deviceBuffer != null && _observationBuffer != null)
+            if (_observationBuffer != null)
             {
-                // Get list of Devices from the MTConnectDeviceBuffer
-                var devices = new List<IDevice>();
-                if (string.IsNullOrEmpty(deviceType) || deviceType.ToLower() == "agent") devices.Add(Agent);
-                devices.AddRange(_deviceBuffer.GetDevices(deviceType));
-
+                var devices = GetDevices(deviceType);
                 if (!devices.IsNullOrEmpty())
                 {
                     // Create list of BufferKeys
@@ -689,13 +672,9 @@ namespace MTConnect.Agents
         {
             StreamsRequestReceived?.Invoke(null);
 
-            if (_deviceBuffer != null && _observationBuffer != null)
+            if (_observationBuffer != null)
             {
-                // Get list of Devices from the MTConnectDeviceBuffer
-                var devices = new List<IDevice>();
-                if (string.IsNullOrEmpty(deviceType) || deviceType.ToLower() == "agent") devices.Add(Agent);
-                devices.AddRange(_deviceBuffer.GetDevices(deviceType));
-
+                var devices = GetDevices(deviceType);
                 if (!devices.IsNullOrEmpty())
                 {
                     // Create list of BufferKeys
@@ -728,13 +707,9 @@ namespace MTConnect.Agents
         {
             StreamsRequestReceived?.Invoke(null);
 
-            if (_deviceBuffer != null && _observationBuffer != null)
+            if (_observationBuffer != null)
             {
-                // Get list of Devices from the MTConnectDeviceBuffer
-                var devices = new List<IDevice>();
-                if (string.IsNullOrEmpty(deviceType) || deviceType.ToLower() == "agent") devices.Add(Agent);
-                devices.AddRange(_deviceBuffer.GetDevices(deviceType));
-
+                var devices = GetDevices(deviceType);
                 if (!devices.IsNullOrEmpty())
                 {
                     // Create list of BufferKeys
@@ -772,13 +747,9 @@ namespace MTConnect.Agents
         {
             StreamsRequestReceived?.Invoke(null);
 
-            if (_deviceBuffer != null && _observationBuffer != null)
+            if (_observationBuffer != null)
             {
-                // Get list of Devices from the MTConnectDeviceBuffer
-                var devices = new List<IDevice>();
-                if (string.IsNullOrEmpty(deviceType) || deviceType.ToLower() == "agent") devices.Add(Agent);
-                devices.AddRange(_deviceBuffer.GetDevices(deviceType));
-
+                var devices = GetDevices(deviceType);
                 if (!devices.IsNullOrEmpty())
                 {
                     // Create list of BufferKeys
@@ -812,13 +783,9 @@ namespace MTConnect.Agents
         {
             StreamsRequestReceived?.Invoke(null);
 
-            if (_deviceBuffer != null && _observationBuffer != null)
+            if (_observationBuffer != null)
             {
-                // Get list of Devices from the MTConnectDeviceBuffer
-                var devices = new List<IDevice>();
-                if (string.IsNullOrEmpty(deviceType) || deviceType.ToLower() == "agent") devices.Add(Agent);
-                devices.AddRange(_deviceBuffer.GetDevices(deviceType));
-
+                var devices = GetDevices(deviceType);
                 if (!devices.IsNullOrEmpty())
                 {
                     // Create list of BufferKeys
@@ -851,15 +818,9 @@ namespace MTConnect.Agents
         {
             StreamsRequestReceived?.Invoke(deviceKey);
 
-            if (_deviceBuffer != null && _observationBuffer != null)
+            if (_observationBuffer != null)
             {
-                var deviceUuid = GetDeviceUuid(deviceKey);
-
-                // Get Device from the MTConnectDeviceBuffer
-                IDevice device;
-                if (deviceUuid == Agent.Uuid) device = Agent;
-                else device = _deviceBuffer.GetDevice(deviceUuid);
-
+                var device = GetDevice(deviceKey);
                 if (device != null)
                 {
                     // Create list of BufferKeys
@@ -892,15 +853,9 @@ namespace MTConnect.Agents
         {
             StreamsRequestReceived?.Invoke(deviceKey);
 
-            if (_deviceBuffer != null && _observationBuffer != null)
+            if (_observationBuffer != null)
             {
-                var deviceUuid = GetDeviceUuid(deviceKey);
-
-                // Get Device from the MTConnectDeviceBuffer
-                IDevice device;
-                if (deviceUuid == Agent.Uuid) device = Agent;
-                else device = _deviceBuffer.GetDevice(deviceUuid);
-
+                var device = GetDevice(deviceKey);
                 if (device != null)
                 {
                     // Create list of BufferKeys
@@ -933,15 +888,9 @@ namespace MTConnect.Agents
         {
             StreamsRequestReceived?.Invoke(deviceKey);
 
-            if (_deviceBuffer != null && _observationBuffer != null)
+            if (_observationBuffer != null)
             {
-                var deviceUuid = GetDeviceUuid(deviceKey);
-
-                // Get Device from the MTConnectDeviceBuffer
-                IDevice device;
-                if (deviceUuid == Agent.Uuid) device = Agent;
-                else device = _deviceBuffer.GetDevice(deviceUuid);
-
+                var device = GetDevice(deviceKey);
                 if (device != null)
                 {
                     // Create list of BufferKeys
@@ -975,15 +924,9 @@ namespace MTConnect.Agents
         {
             StreamsRequestReceived?.Invoke(deviceKey);
 
-            if (_deviceBuffer != null && _observationBuffer != null)
+            if (_observationBuffer != null)
             {
-                var deviceUuid = GetDeviceUuid(deviceKey);
-
-                // Get Device from the MTConnectDeviceBuffer
-                IDevice device;
-                if (deviceUuid == Agent.Uuid) device = Agent;
-                else device = _deviceBuffer.GetDevice(deviceUuid);
-
+                var device = GetDevice(deviceKey);
                 if (device != null)
                 {
                     // Create list of BufferKeys
@@ -1017,15 +960,9 @@ namespace MTConnect.Agents
         {
             StreamsRequestReceived?.Invoke(deviceKey);
 
-            if (_deviceBuffer != null && _observationBuffer != null)
+            if (_observationBuffer != null)
             {
-                var deviceUuid = GetDeviceUuid(deviceKey);
-
-                // Get Device from the MTConnectDeviceBuffer
-                IDevice device;
-                if (deviceUuid == Agent.Uuid) device = Agent;
-                else device = _deviceBuffer.GetDevice(deviceUuid);
-
+                var device = GetDevice(deviceKey);
                 if (device != null)
                 {
                     // Create list of BufferKeys
@@ -1060,15 +997,9 @@ namespace MTConnect.Agents
         {
             StreamsRequestReceived?.Invoke(deviceKey);
 
-            if (_deviceBuffer != null && _observationBuffer != null)
+            if (_observationBuffer != null)
             {
-                var deviceUuid = GetDeviceUuid(deviceKey);
-
-                // Get Device from the MTConnectDeviceBuffer
-                IDevice device;
-                if (deviceUuid == Agent.Uuid) device = Agent;
-                else device = _deviceBuffer.GetDevice(deviceUuid);
-
+                var device = GetDevice(deviceKey);
                 if (device != null)
                 {
                     // Create list of BufferKeys
@@ -1204,8 +1135,6 @@ namespace MTConnect.Agents
 
         private IObservationOutput[] GetObservations(string deviceUuid, ref IObservationBufferResults dataItemResults, IEnumerable<IDataItem> dataItems, Version mtconnectVersion = null)
         {
-
-
             if (dataItemResults != null && !dataItemResults.Observations.IsNullOrEmpty() && !dataItems.IsNullOrEmpty())
             {
                 var dDataItems = dataItems.ToDictionary(o => o.Id);
@@ -1408,7 +1337,7 @@ namespace MTConnect.Agents
                     if (_assetBuffer.RemoveAsset(assetId))
                     {
                         // Get the Device from the Buffer (to set the AssetRemoved DataItem)
-                        var device = _deviceBuffer.GetDevice(deviceUuid);
+                        var device = GetDevice(deviceUuid);
                         if (device != null)
                         {
                             // Update AssetRemoved DataItem
@@ -1469,7 +1398,7 @@ namespace MTConnect.Agents
                         foreach (var deviceUuid in deviceUuids)
                         {
                             // Get the Device from the Buffer (to set the AssetRemoved DataItem)
-                            var device = _deviceBuffer.GetDevice(deviceUuid);
+                            var device = GetDevice(deviceUuid);
                             if (device != null)
                             {
                                 var deviceAssets = assets.Where(o => o.DeviceUuid == deviceUuid);
@@ -1681,5 +1610,33 @@ namespace MTConnect.Agents
 
         #endregion
 
+        #region "Add"
+
+        protected override bool OnAddObservation(string deviceUuid, IDataItem dataItem, IObservationInput observationInput)
+        {
+            if (_observationBuffer != null && dataItem != null && observationInput != null)
+            {
+                // Get the BufferKey to use for the ObservationBuffer
+                var bufferKey = GenerateBufferKey(deviceUuid, dataItem.Id);
+                var bufferObservation = new BufferObservation(
+                    bufferKey,
+                    dataItem.Category,
+                    dataItem.Representation,
+                    observationInput.Values,
+                    0,
+                    observationInput.Timestamp
+                    );
+
+                // Add Observation to Streaming Buffer
+                if (_observationBuffer.AddObservation(ref bufferObservation))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        #endregion
     }
 }

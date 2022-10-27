@@ -19,11 +19,11 @@ namespace MTConnect.Http.Controllers
     [Route("/assets")]
     public class AssetsController : ControllerBase
     {
-        private readonly IMTConnectAgent _agent;
+        private readonly IMTConnectAgentBroker _agent;
         private readonly IHttpAgentConfiguration _configuration;
         private readonly ILogger<AssetsController> _logger;
 
-        public AssetsController(IMTConnectAgent agent, IHttpAgentConfiguration configuration, ILogger<AssetsController> logger)
+        public AssetsController(IMTConnectAgentBroker agent, IHttpAgentConfiguration configuration, ILogger<AssetsController> logger)
         {
             _agent = agent;
             _configuration = configuration;

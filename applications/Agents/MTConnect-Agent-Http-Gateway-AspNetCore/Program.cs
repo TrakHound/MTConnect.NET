@@ -96,10 +96,10 @@ namespace MTConnect.Applications
                 }
 
                 // Create MTConnectAgent
-                var agent = new MTConnectAgent(_configuration, agentInformation.Uuid);
+                var agent = new MTConnectAgentBroker(_configuration, agentInformation.Uuid);
                 agent.MTConnectVersion = MTConnectVersions.Max;
                 agent.Start();
-                builder.Services.AddSingleton<IMTConnectAgent>(agent);
+                builder.Services.AddSingleton<IMTConnectAgentBroker>(agent);
 
                 // Individual Logger Classes
                 builder.Services.AddSingleton<AgentGatewayConfiguration>(_configuration);

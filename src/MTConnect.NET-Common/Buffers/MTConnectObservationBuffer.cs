@@ -352,8 +352,8 @@ namespace MTConnect.Buffers
                 }
 
                 var aObservations = observations.ToArray();
-                var firstObservationSequence = observations.Min(o => o.Sequence);
-                var lastObservationSequence = observations.Max(o => o.Sequence);
+                var firstObservationSequence = aObservations.Length > 0 ? observations.Min(o => o.Sequence) : 1;
+                var lastObservationSequence = aObservations.Length > 0 ? observations.Max(o => o.Sequence) : 1;
 
                 return new ObservationBufferResults
                 {

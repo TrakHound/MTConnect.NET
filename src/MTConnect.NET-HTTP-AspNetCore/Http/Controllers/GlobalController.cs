@@ -20,12 +20,12 @@ namespace MTConnect.Http.Controllers
     [Route("")]
     public class GlobalController : ControllerBase
     {
-        private readonly IMTConnectAgent _agent;
+        private readonly IMTConnectAgentBroker _agent;
         private readonly IHttpAgentConfiguration _configuration;
         private readonly ILogger<GlobalController> _logger;
 
 
-        public GlobalController(IMTConnectAgent agent, IHttpAgentConfiguration configuration, ILogger<GlobalController> logger)
+        public GlobalController(IMTConnectAgentBroker agent, IHttpAgentConfiguration configuration, ILogger<GlobalController> logger)
         {
             _agent = agent;
             _configuration = configuration;

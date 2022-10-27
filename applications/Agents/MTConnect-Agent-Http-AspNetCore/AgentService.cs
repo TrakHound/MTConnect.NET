@@ -21,7 +21,7 @@ namespace MTConnect.Applications
     public class AgentService : IHostedService
     {
         private readonly HttpShdrAgentConfiguration _configuration;
-        private readonly IMTConnectAgent _mtconnectAgent;
+        private readonly IMTConnectAgentBroker _mtconnectAgent;
         private IAgentConfigurationFileWatcher _agentConfigurationWatcher;
         private readonly ILogger<AgentService> _logger;
         private readonly AgentLogger _agentLogger;
@@ -34,7 +34,7 @@ namespace MTConnect.Applications
 
         public AgentService(
             HttpShdrAgentConfiguration configuration,
-            IMTConnectAgent mtconnectAgent, 
+            IMTConnectAgentBroker mtconnectAgent, 
             AgentLogger agentLogger,
             AgentMetricLogger agentMetricLogger,
             AgentValidationLogger agentValidationLogger,

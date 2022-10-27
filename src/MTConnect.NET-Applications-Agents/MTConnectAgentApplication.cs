@@ -38,7 +38,7 @@ namespace MTConnect.Applications.Agents
         private readonly List<DeviceConfigurationFileWatcher> _deviceConfigurationWatchers = new List<DeviceConfigurationFileWatcher>();
 
         protected LogLevel _logLevel = LogLevel.Debug;
-        private MTConnectAgent _mtconnectAgent;
+        private MTConnectAgentBroker _mtconnectAgent;
         private IMTConnectObservationBuffer _observationBuffer;
         private MTConnectAssetFileBuffer _assetBuffer;
         protected IAgentConfigurationFileWatcher _agentConfigurationWatcher;
@@ -54,7 +54,7 @@ namespace MTConnect.Applications.Agents
         public string ServiceDescription { get; set; }
 
 
-        public IMTConnectAgent Agent => _mtconnectAgent;
+        public IMTConnectAgentBroker Agent => _mtconnectAgent;
 
         public EventHandler<AgentConfiguration> OnRestart { get; set; }
 
@@ -304,8 +304,8 @@ namespace MTConnect.Applications.Agents
                 agentInformation.Save();
 
 
-                // Create MTConnectAgent
-                _mtconnectAgent = new MTConnectAgent(configuration, null, _observationBuffer, _assetBuffer, agentInformation.Uuid, agentInformation.InstanceId, agentInformation.DeviceModelChangeTime, initializeDataItems);
+                // Create MTConnectAgentBroker
+                _mtconnectAgent = new MTConnectAgentBroker(configuration, _observationBuffer, _assetBuffer, agentInformation.Uuid, agentInformation.InstanceId, agentInformation.DeviceModelChangeTime, initializeDataItems);
 
 
                 // Read Indexes for Buffer

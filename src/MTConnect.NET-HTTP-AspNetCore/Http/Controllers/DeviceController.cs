@@ -20,12 +20,12 @@ namespace MTConnect.Http.Controllers
     [Route("/{deviceKey}")]
     public class DeviceController : ControllerBase
     {
-        private readonly IMTConnectAgent _agent;
+        private readonly IMTConnectAgentBroker _agent;
         private readonly IHttpAgentConfiguration _configuration;
         private readonly ILogger<DeviceController> _logger;
 
 
-        public DeviceController(IMTConnectAgent agent, IHttpAgentConfiguration configuration, ILogger<DeviceController> logger)
+        public DeviceController(IMTConnectAgentBroker agent, IHttpAgentConfiguration configuration, ILogger<DeviceController> logger)
         {
             _agent = agent;
             _configuration = configuration;

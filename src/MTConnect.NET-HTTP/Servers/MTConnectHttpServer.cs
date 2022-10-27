@@ -26,7 +26,7 @@ namespace MTConnect.Servers.Http
         private const int _minimumHeartbeat = 500; // 500 ms
         private const int _defaultHeartbeat = 10000; // 10 Seconds
 
-        protected readonly IMTConnectAgent _mtconnectAgent;
+        protected readonly IMTConnectAgentBroker _mtconnectAgent;
         protected readonly IHttpAgentConfiguration _configuration;
 
 
@@ -38,7 +38,7 @@ namespace MTConnect.Servers.Http
 
         public MTConnectHttpServer(
             IHttpAgentConfiguration configuration,
-            IMTConnectAgent mtconnectAgent,
+            IMTConnectAgentBroker mtconnectAgent,
             IEnumerable<string> prefixes = null,
             int port = 0
             ) : base(configuration, prefixes, port)

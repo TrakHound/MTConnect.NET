@@ -43,7 +43,7 @@ namespace IntegrationTests
 
         private readonly ShdrAdapter _adapter;
 
-        private readonly IMTConnectAgent _agent;
+        private readonly IMTConnectAgentBroker _agent;
         private readonly MTConnectHttpServer _server;
 
         private readonly MTAgentFixture _fixture;
@@ -95,7 +95,7 @@ namespace IntegrationTests
 
             AddCuttingTools();
 
-            _agent = new MTConnectAgent(configuration);
+            _agent = new MTConnectAgentBroker(configuration);
             //_agent.Version = new Version(1, 8);
             _agent.Start();
 

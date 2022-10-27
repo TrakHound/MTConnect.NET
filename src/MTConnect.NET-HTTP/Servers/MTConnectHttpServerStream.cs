@@ -26,7 +26,7 @@ namespace MTConnect.Servers.Http
         private readonly string _id = StringFunctions.RandomString(10);
         private readonly string _boundary = UnixDateTime.Now.ToString().ToMD5Hash();
         private readonly IHttpAgentConfiguration _configuration;
-        private readonly IMTConnectAgent _mtconnectAgent;
+        private readonly IMTConnectAgentBroker _mtconnectAgent;
         private readonly string _deviceKey;
         private readonly IEnumerable<string> _dataItemIds;
         private readonly long _from;
@@ -67,7 +67,7 @@ namespace MTConnect.Servers.Http
 
         public MTConnectHttpServerStream(
             IHttpAgentConfiguration configuration,
-            IMTConnectAgent mtconnectAgent,
+            IMTConnectAgentBroker mtconnectAgent,
             string deviceKey,
             IEnumerable<string> dataItemIds = null,
             long from = -1,

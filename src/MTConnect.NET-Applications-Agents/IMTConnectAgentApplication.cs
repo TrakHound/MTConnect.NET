@@ -21,7 +21,7 @@ namespace MTConnect.Applications.Agents
         string ServiceDescription { get; }
 
 
-        IMTConnectAgent Agent { get; }
+        IMTConnectAgentBroker Agent { get; }
 
         EventHandler<AgentConfiguration> OnRestart { get; set; }
 

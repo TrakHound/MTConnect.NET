@@ -10,7 +10,7 @@ namespace MTConnect.Servers.Http
 {
     public static class PathProcessor
     {
-        public static IEnumerable<string> GetDataItemIds(IMTConnectAgent mtconnectAgent, string path, string documentFormat)
+        public static IEnumerable<string> GetDataItemIds(IMTConnectAgentBroker mtconnectAgent, string path, string documentFormat)
         {
             if (mtconnectAgent != null && !string.IsNullOrEmpty(path))
             {
