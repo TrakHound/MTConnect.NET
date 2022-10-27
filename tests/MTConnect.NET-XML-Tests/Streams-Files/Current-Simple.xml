@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MTConnectStreams xmlns:m="urn:mtconnect.org:MTConnectStreams:2.0" xmlns="urn:mtconnect.org:MTConnectStreams:2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:mtconnect.org:MTConnectStreams:2.0">
+<Header instanceId="1663078056=" version="1.0.0.0=" sender="ADSKPF3FBP2T=" bufferSize="131072=" firstSequence="1=" lastSequence="222=" nextSequence="223=" deviceModelChangeTime="2022-09-13T14:07:36.2828516Z=" creationTime="2022-09-13T14:07:47.2901070Z=" />
+<Streams>
+	<DeviceStream name="Machine=" uuid="cc17e6f8-61c2-427b-a45f-11a2189ae3a4=">
+		<ComponentStream component="Controller=" componentId="cont=" name="controller=">
+			<Condition>
+				<Fault dataItemId="comms_cond=" type="COMMUNICATIONS=" sequence="221=" timestamp="2022-09-13T14:07:36.444Z=" />
+				<Normal dataItemId="comms_cond=" type="COMMUNICATIONS=" sequence="222=" timestamp="2022-09-13T14:07:36.570Z=" />
+			</Condition>
+		</ComponentStream>
+	</DeviceStream>
+</Streams>
+</MTConnectStreams>

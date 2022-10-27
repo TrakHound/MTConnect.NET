@@ -7,9 +7,11 @@ using MTConnect.Configurations;
 using MTConnect.Devices.DataItems;
 using MTConnect.Observations;
 using MTConnect.Streams.Output;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
+using System.Diagnostics;
 
 namespace MTConnect.Streams.Xml
 {
@@ -121,19 +123,16 @@ namespace MTConnect.Streams.Xml
                     case "Samples":
                         var samplesReader = reader.ReadSubtree();
                         observations.AddRange(ReadObservationsXml(samplesReader, DataItemCategory.SAMPLE));
-                        reader.Skip();
                         break;
 
                     case "Events":
                         var eventsReader = reader.ReadSubtree();
                         observations.AddRange(ReadObservationsXml(eventsReader, DataItemCategory.EVENT));
-                        reader.Skip();
                         break;
 
                     case "Condition":
                         var conditionReader = reader.ReadSubtree();
                         observations.AddRange(ReadObservationsXml(conditionReader, DataItemCategory.CONDITION));
-                        reader.Skip();
                         break;
                 }
             }
