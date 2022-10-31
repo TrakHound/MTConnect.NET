@@ -470,6 +470,8 @@ namespace MTConnect.Agents
 
         public IEnumerable<IObservationOutput> GetCurrentObservations(Version mtconnectVersion = null)
         {
+            var observations = new List<IObservationOutput>();
+
             var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersion;
 
             var allDevices = new List<IDevice>();
@@ -479,28 +481,24 @@ namespace MTConnect.Agents
 
             if (!allDevices.IsNullOrEmpty())
             {
-                var observations = new List<IObservationOutput>();
-
                 foreach (var device in allDevices)
                 {
                     observations.AddRange(GetCurrentObservations(device.Uuid, version));
                 }
-
-                return observations;
             }
 
-            return null;
+            return observations;
         }
 
         public IEnumerable<IObservationOutput> GetCurrentObservations(string deviceKey, Version mtconnectVersion = null)
         {
+            var observations = new List<IObservationOutput>();
+
             var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersion;
 
             var device = GetDevice(deviceKey, version);
             if (device != null)
             {
-                var observations = new List<IObservationOutput>();
-
                 var dataItems = GetDataItems(device.Uuid);
                 if (!dataItems.IsNullOrEmpty())
                 {
@@ -530,11 +528,9 @@ namespace MTConnect.Agents
                         }
                     }
                 }
-
-                return observations;
             }
 
-            return null;
+            return observations;
         }
 
         private static IObservationOutput CreateObservation(IDataItem dataItem, IObservationInput observationInput)
@@ -556,14 +552,59 @@ namespace MTConnect.Agents
         }
 
 
-        public IEnumerable<IAsset> GetAssets(Version mtconnectVersion = null)
+        public virtual IEnumerable<IAsset> GetAssets(Version mtconnectVersion = null)
         {
             return null;
         }
 
-        public IEnumerable<IAsset> GetAssets(string deviceKey, Version mtconnectVersion = null)
+        public virtual IEnumerable<IAsset> GetAssets(string deviceKey, Version mtconnectVersion = null)
         {
             return null;
+        }
+
+        /// <summary>
+        /// Remove the Asset with the specified Asset ID
+        /// </summary>
+        /// <param name="assetId">The ID of the Asset to remove</param>
+        /// <param name="timestamp">The Timestamp of when the Asset was removed in Unix Ticks (1/10,000 of a millisecond)</param>
+        /// <returns>Returns True if the Asset was successfully removed</returns>
+        public virtual bool RemoveAsset(string assetId, long timestamp = 0)
+        {
+            return false;
+        }
+
+        /// <summary>
+        /// Remove the Asset with the specified Asset ID
+        /// </summary>
+        /// <param name="assetId">The ID of the Asset to remove</param>
+        /// <param name="timestamp">The Timestamp of when the Asset was removed</param>
+        /// <returns>Returns True if the Asset was successfully removed</returns>
+        public virtual bool RemoveAsset(string assetId, DateTime timestamp)
+        {
+            return false;
+        }
+
+
+        /// <summary>
+        /// Remove all Assets with the specified Type
+        /// </summary>
+        /// <param name="assetType">The Type of the Assets to remove</param>
+        /// <param name="timestamp">The Timestamp of when the Assets were removed in Unix Ticks (1/10,000 of a millisecond)</param>
+        /// <returns>Returns True if the Assets were successfully removed</returns>
+        public virtual bool RemoveAllAssets(string assetType, long timestamp = 0)
+        {
+            return false;
+        }
+
+        /// <summary>
+        /// Remove all Assets with the specified Type
+        /// </summary>
+        /// <param name="assetType">The Type of the Assets to remove</param>
+        /// <param name="timestamp">The Timestamp of when the Assets were removed</param>
+        /// <returns>Returns True if the Assets were successfully removed</returns>
+        public virtual bool RemoveAllAssets(string assetType, DateTime timestamp)
+        {
+            return false;
         }
 
         #endregion

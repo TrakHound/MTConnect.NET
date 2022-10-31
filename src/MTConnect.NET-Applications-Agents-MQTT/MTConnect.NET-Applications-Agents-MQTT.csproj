@@ -38,8 +38,9 @@
 	</PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MTConnect.NET-Applications-Agents\MTConnect.NET-Applications-Agents.csproj" />
     <ProjectReference Include="..\MTConnect.NET-MQTT\MTConnect.NET-MQTT.csproj" />
+    <ProjectReference Include="..\MTConnect.NET-Services\MTConnect.NET-Services.csproj" />
+    <ProjectReference Include="..\MTConnect.NET-SHDR\MTConnect.NET-SHDR.csproj" />
   </ItemGroup>
 
 	<ItemGroup>
@@ -47,6 +48,19 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
+		<PackageReference Include="NLog" Version="5.0.5" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Update="Service.cs">
+	    <SubType>Component</SubType>
+	  </Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Update="NLog.config">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
 	</ItemGroup>
 
 </Project>

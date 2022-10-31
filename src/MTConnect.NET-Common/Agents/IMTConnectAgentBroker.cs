@@ -243,38 +243,38 @@ namespace MTConnect.Agents
         IAssetsResponseDocument GetAssetsResponseDocument(IEnumerable<string> assetIds, Version mtconnectVersion = null);
 
 
-        /// <summary>
-        /// Remove the Asset with the specified Asset ID
-        /// </summary>
-        /// <param name="assetId">The ID of the Asset to remove</param>
-        /// <param name="timestamp">The Timestamp of when the Asset was removed in Unix Ticks (1/10,000 of a millisecond)</param>
-        /// <returns>Returns True if the Asset was successfully removed</returns>
-        bool RemoveAsset(string assetId, long timestamp = 0);
+        ///// <summary>
+        ///// Remove the Asset with the specified Asset ID
+        ///// </summary>
+        ///// <param name="assetId">The ID of the Asset to remove</param>
+        ///// <param name="timestamp">The Timestamp of when the Asset was removed in Unix Ticks (1/10,000 of a millisecond)</param>
+        ///// <returns>Returns True if the Asset was successfully removed</returns>
+        //bool RemoveAsset(string assetId, long timestamp = 0);
 
-        /// <summary>
-        /// Remove the Asset with the specified Asset ID
-        /// </summary>
-        /// <param name="assetId">The ID of the Asset to remove</param>
-        /// <param name="timestamp">The Timestamp of when the Asset was removed</param>
-        /// <returns>Returns True if the Asset was successfully removed</returns>
-        bool RemoveAsset(string assetId, DateTime timestamp);
+        ///// <summary>
+        ///// Remove the Asset with the specified Asset ID
+        ///// </summary>
+        ///// <param name="assetId">The ID of the Asset to remove</param>
+        ///// <param name="timestamp">The Timestamp of when the Asset was removed</param>
+        ///// <returns>Returns True if the Asset was successfully removed</returns>
+        //bool RemoveAsset(string assetId, DateTime timestamp);
 
 
-        /// <summary>
-        /// Remove all Assets with the specified Type
-        /// </summary>
-        /// <param name="assetType">The Type of the Assets to remove</param>
-        /// <param name="timestamp">The Timestamp of when the Assets were removed in Unix Ticks (1/10,000 of a millisecond)</param>
-        /// <returns>Returns True if the Assets were successfully removed</returns>
-        bool RemoveAllAssets(string assetType, long timestamp = 0);
+        ///// <summary>
+        ///// Remove all Assets with the specified Type
+        ///// </summary>
+        ///// <param name="assetType">The Type of the Assets to remove</param>
+        ///// <param name="timestamp">The Timestamp of when the Assets were removed in Unix Ticks (1/10,000 of a millisecond)</param>
+        ///// <returns>Returns True if the Assets were successfully removed</returns>
+        //bool RemoveAllAssets(string assetType, long timestamp = 0);
 
-        /// <summary>
-        /// Remove all Assets with the specified Type
-        /// </summary>
-        /// <param name="assetType">The Type of the Assets to remove</param>
-        /// <param name="timestamp">The Timestamp of when the Assets were removed</param>
-        /// <returns>Returns True if the Assets were successfully removed</returns>
-        bool RemoveAllAssets(string assetType, DateTime timestamp);
+        ///// <summary>
+        ///// Remove all Assets with the specified Type
+        ///// </summary>
+        ///// <param name="assetType">The Type of the Assets to remove</param>
+        ///// <param name="timestamp">The Timestamp of when the Assets were removed</param>
+        ///// <returns>Returns True if the Assets were successfully removed</returns>
+        //bool RemoveAllAssets(string assetType, DateTime timestamp);
 
         #endregion
 

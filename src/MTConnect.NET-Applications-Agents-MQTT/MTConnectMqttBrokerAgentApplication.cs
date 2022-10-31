@@ -18,7 +18,7 @@ namespace MTConnect.Applications.Agents
     /// An MTConnect Agent application with a built in MQTT broker.
     /// Supports Command line arguments, Device management, Buffer management, Logging, Windows Service, and Configuration File management
     /// </summary>
-    public class MTConnectMqttBrokerAgentApplication : MTConnectAgentApplication
+    public class MTConnectMqttBrokerAgentApplication : MTConnectMqttAgentApplication
     {
         private const string DefaultServiceName = "MTConnect-Agent-MQTT-Broker";
         private const string DefaultServiceDisplayName = "MTConnect MQTT Broker Agent";

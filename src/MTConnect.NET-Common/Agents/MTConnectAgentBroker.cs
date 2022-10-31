@@ -1321,7 +1321,7 @@ namespace MTConnect.Agents
         /// <param name="assetId">The ID of the Asset to remove</param>
         /// <param name="timestamp">The Timestamp of when the Asset was removed in Unix Ticks (1/10,000 of a millisecond)</param>
         /// <returns>Returns True if the Asset was successfully removed</returns>
-        public bool RemoveAsset(string assetId, long timestamp = 0)
+        public override bool RemoveAsset(string assetId, long timestamp = 0)
         {
             if (!string.IsNullOrEmpty(assetId) && _assetBuffer != null)
             {
@@ -1368,7 +1368,7 @@ namespace MTConnect.Agents
         /// <param name="assetId">The ID of the Asset to remove</param>
         /// <param name="timestamp">The Timestamp of when the Asset was removed</param>
         /// <returns>Returns True if the Asset was successfully removed</returns>
-        public bool RemoveAsset(string assetId, DateTime timestamp)
+        public override bool RemoveAsset(string assetId, DateTime timestamp)
         {
             return RemoveAsset(assetId, timestamp.ToUnixTime());
         }
@@ -1380,7 +1380,7 @@ namespace MTConnect.Agents
         /// <param name="assetType">The Type of the Assets to remove</param>
         /// <param name="timestamp">The Timestamp of when the Assets were removed in Unix Ticks (1/10,000 of a millisecond)</param>
         /// <returns>Returns True if the Assets were successfully removed</returns>
-        public bool RemoveAllAssets(string assetType, long timestamp = 0)
+        public override bool RemoveAllAssets(string assetType, long timestamp = 0)
         {
             if (!string.IsNullOrEmpty(assetType) && _assetBuffer != null)
             {
@@ -1437,7 +1437,7 @@ namespace MTConnect.Agents
         /// <param name="assetType">The Type of the Assets to remove</param>
         /// <param name="timestamp">The Timestamp of when the Assets were removed</param>
         /// <returns>Returns True if the Assets were successfully removed</returns>
-        public bool RemoveAllAssets(string assetType, DateTime timestamp)
+        public override bool RemoveAllAssets(string assetType, DateTime timestamp)
         {
             return RemoveAllAssets(assetType, timestamp.ToUnixTime());
         }

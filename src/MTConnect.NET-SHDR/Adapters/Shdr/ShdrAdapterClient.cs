@@ -21,13 +21,13 @@ namespace MTConnect.Adapters.Shdr
     public class ShdrAdapterClient : ShdrClient
     {
         private readonly IShdrAdapterConfiguration _configuration;
-        private readonly IMTConnectAgentBroker _agent;
+        private readonly IMTConnectAgent _agent;
         private IDevice _device;
 
 
         public ShdrAdapterClient(
             IShdrAdapterConfiguration configuration,
-            IMTConnectAgentBroker agent,
+            IMTConnectAgent agent,
             IDevice device,
             string idSuffix = null
             )
@@ -48,7 +48,7 @@ namespace MTConnect.Adapters.Shdr
 
         public ShdrAdapterClient(
             IShdrAdapterConfiguration configuration,
-            IMTConnectAgentBroker agent,
+            IMTConnectAgent agent,
             IDevice device,
             string hostname,
             int port
