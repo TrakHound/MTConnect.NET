@@ -89,7 +89,14 @@ namespace MTConnect.Configurations
         {
             try
             {
-                var configuration = AgentConfiguration.Read<TConfiguration>(_path);
+                TConfiguration configuration = null;
+
+                switch (Path.GetExtension(_path))
+                {
+                    case ".yaml": configuration = AgentConfiguration.ReadYaml<TConfiguration>(_path); break;
+                    case ".json": configuration = AgentConfiguration.ReadJson<TConfiguration>(_path); break;
+                }
+
                 if (configuration != null)
                 {
                     configuration.Path = _path;

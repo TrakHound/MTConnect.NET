@@ -63,6 +63,6 @@ namespace MTConnect.Configurations
         bool EnableMetrics { get; }
 
 
-        void Save(string path = null, bool createBackup = true);
+        void SaveJson(string path = null, bool createBackup = true);
     }
 }

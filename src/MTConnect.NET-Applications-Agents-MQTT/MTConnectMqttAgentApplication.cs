@@ -95,8 +95,8 @@ namespace MTConnect.Applications.Agents
             OnCommandLineArgumentsRead(args);
 
             // Copy Default Configuration File
-            string configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AgentConfiguration.Filename);
-            string defaultPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AgentConfiguration.DefaultFilename);
+            string configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AgentConfiguration.JsonFilename);
+            string defaultPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AgentConfiguration.DefaultJsonFilename);
             if (!File.Exists(configPath) && File.Exists(defaultPath))
             {
                 File.Copy(defaultPath, configPath);

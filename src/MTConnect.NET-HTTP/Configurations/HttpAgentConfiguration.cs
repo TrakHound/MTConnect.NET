@@ -6,6 +6,7 @@
 using MTConnect.Http;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
+using YamlDotNet.Serialization;
 
 namespace MTConnect.Configurations
 {
@@ -30,6 +31,7 @@ namespace MTConnect.Configurations
         /// Gets or Sets the List of Encodings (ex. gzip, br, deflate) to pass to the Accept-Encoding HTTP Header
         /// </summary>
         [JsonIgnore]
+        [YamlIgnore]
         public IEnumerable<HttpResponseCompression> ResponseCompression
         {
             get
@@ -51,6 +53,7 @@ namespace MTConnect.Configurations
         }
 
         [JsonPropertyName("responseCompression")]
+        [YamlMember(Alias = "responseCompression")]
         public IEnumerable<string> ResponseCompressionString { get; set; }
 
         /// <summary>

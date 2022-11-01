@@ -22,7 +22,7 @@ namespace MTConnect.Configurations
 
         public new static AgentGatewayConfiguration Read(string path = null)
         {
-            var configurationPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Filename);
+            var configurationPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, JsonFilename);
             if (path != null) configurationPath = path;
 
             if (!string.IsNullOrEmpty(configurationPath))

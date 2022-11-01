@@ -164,7 +164,7 @@ namespace MTConnect.Agents
             long instanceId = 0,
             long deviceModelChangeTime = 0,
             bool initializeAgentDevice = true
-            ) : base(uuid, instanceId, deviceModelChangeTime, initializeAgentDevice)
+            ) : base(configuration, uuid, instanceId, deviceModelChangeTime, initializeAgentDevice)
         {
             var config = configuration != null ? configuration : new AgentConfiguration();
             //_deviceBuffer = new MTConnectDeviceBuffer();
@@ -196,7 +196,7 @@ namespace MTConnect.Agents
             long instanceId = 0,
             long deviceModelChangeTime = 0,
             bool initializeAgentDevice = true
-            ) : base(uuid, instanceId, deviceModelChangeTime, initializeAgentDevice)
+            ) : base(configuration, uuid, instanceId, deviceModelChangeTime, initializeAgentDevice)
         {
             var config = configuration != null ? configuration : new AgentConfiguration();
             _observationBuffer = observationBuffer != null ? observationBuffer : new MTConnectObservationBuffer(config);

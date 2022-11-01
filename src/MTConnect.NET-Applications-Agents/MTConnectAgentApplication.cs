@@ -53,6 +53,8 @@ namespace MTConnect.Applications.Agents
 
         public string ServiceDescription { get; set; }
 
+        protected Type ConfigurationType { get; set; }
+
 
         public IMTConnectAgentBroker Agent => _mtconnectAgent;
 
@@ -64,6 +66,8 @@ namespace MTConnect.Applications.Agents
             ServiceName = DefaultServiceName;
             ServiceDisplayName = DefaultServiceDisplayName;
             ServiceDescription = DefaultServiceDescription;
+
+            if (ConfigurationType == null) ConfigurationType = typeof(AgentApplicationConfiguration);
         }
 
 
@@ -96,13 +100,24 @@ namespace MTConnect.Applications.Agents
 
             OnCommandLineArgumentsRead(args);
 
-            // Copy Default Configuration File
-            string configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AgentConfiguration.Filename);
-            string defaultPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AgentConfiguration.DefaultFilename);
-            if (!File.Exists(configPath) && File.Exists(defaultPath))
+
+            //// Convert Json Configuration File to YAML
+            string jsonConfigPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AgentConfiguration.JsonFilename);
+            if (File.Exists(jsonConfigPath))
             {
-                File.Copy(defaultPath, configPath);
+                var dummyConfiguration = AgentConfiguration.ReadJson(ConfigurationType, jsonConfigPath);
+                if (dummyConfiguration != null) dummyConfiguration.SaveYaml();
             }
+
+            // Copy Default Configuration File
+            string yamlConfigPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AgentConfiguration.YamlFilename);
+            string defaultPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AgentConfiguration.DefaultYamlFilename);
+            if (!File.Exists(yamlConfigPath) && !File.Exists(jsonConfigPath) && File.Exists(defaultPath))
+            {
+                File.Copy(defaultPath, yamlConfigPath);
+            }
+
+
 
             // Read the Agent Configuation File
             var configuration = OnConfigurationFileRead(configFile);
