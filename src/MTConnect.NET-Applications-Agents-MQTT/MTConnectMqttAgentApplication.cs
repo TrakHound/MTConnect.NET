@@ -51,6 +51,8 @@ namespace MTConnect.Applications.Agents
 
         public string ServiceDescription { get; set; }
 
+        protected Type ConfigurationType { get; set; }
+
 
         public IMTConnectAgent Agent => _mtconnectAgent;
 
@@ -62,6 +64,8 @@ namespace MTConnect.Applications.Agents
             ServiceName = DefaultServiceName;
             ServiceDisplayName = DefaultServiceDisplayName;
             ServiceDescription = DefaultServiceDescription;
+
+            if (ConfigurationType == null) ConfigurationType = typeof(AgentApplicationConfiguration);
         }
 
 
@@ -94,12 +98,20 @@ namespace MTConnect.Applications.Agents
 
             OnCommandLineArgumentsRead(args);
 
-            // Copy Default Configuration File
-            string configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AgentConfiguration.JsonFilename);
-            string defaultPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AgentConfiguration.DefaultJsonFilename);
-            if (!File.Exists(configPath) && File.Exists(defaultPath))
+            // Convert Json Configuration File to YAML
+            string jsonConfigPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AgentConfiguration.JsonFilename);
+            if (File.Exists(jsonConfigPath))
             {
-                File.Copy(defaultPath, configPath);
+                var dummyConfiguration = AgentConfiguration.ReadJson(ConfigurationType, jsonConfigPath);
+                if (dummyConfiguration != null) dummyConfiguration.SaveYaml();
+            }
+
+            // Copy Default Configuration File
+            string yamlConfigPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AgentConfiguration.YamlFilename);
+            string defaultPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AgentConfiguration.DefaultYamlFilename);
+            if (!File.Exists(yamlConfigPath) && !File.Exists(jsonConfigPath) && File.Exists(defaultPath))
+            {
+                File.Copy(defaultPath, yamlConfigPath);
             }
 
             // Read the Agent Configuation File
@@ -204,25 +216,6 @@ namespace MTConnect.Applications.Agents
 
                     break;
 
-
-                case "reset":
-
-                    _applicationLogger.Info("Reset Buffer requested..");
-
-                    // Clear the Observation Buffer
-                    MTConnectObservationFileBuffer.Reset();
-                    _applicationLogger.Info("Observation Buffer Reset Successfully");
-
-                    // Clear the Asset Buffer
-                    MTConnectAssetFileBuffer.Reset();
-                    _applicationLogger.Info("Asset Buffer Reset Successfully");
-
-                    // Clear the Index
-                    FileIndex.Reset();
-                    _applicationLogger.Info("Indexes Reset Successfully");
-
-                    break;
-
                 case "help":
                     PrintHelp();
                     break;
@@ -319,25 +312,8 @@ namespace MTConnect.Applications.Agents
 
                 OnStartAgentBeforeLoad(devices, initializeDataItems);
 
-                //// Initialize Agent Current Observations/Conditions
-                //// This updates the MTConnectAgent's cache used to determine duplicate observations
-                //if (_observationBuffer != null)
-                //{
-                //    _mtconnectAgent.InitializeCurrentObservations(_observationBuffer.CurrentObservations.Values);
-                //    _mtconnectAgent.InitializeCurrentObservations(_observationBuffer.CurrentConditions.SelectMany(o => o.Value));
-                //}
-
                 OnStartAgentAfterLoad(devices, initializeDataItems);
 
-                //// Save Indexes for Buffer
-                //if (configuration.Durable)
-                //{
-                //    // Save Device Indexes
-                //    FileIndex.ToFile(FileIndex.DevicesFileName, FileIndex.Create(_mtconnectAgent.DeviceIndexes));
-
-                //    // Save DataItem Indexes
-                //    FileIndex.ToFile(FileIndex.DataItemsFileName, FileIndex.Create(_mtconnectAgent.DataItemIndexes));
-                //}
 
                 // Start Agent
                 _mtconnectAgent.Start();

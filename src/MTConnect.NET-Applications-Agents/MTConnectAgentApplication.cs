@@ -101,7 +101,7 @@ namespace MTConnect.Applications.Agents
             OnCommandLineArgumentsRead(args);
 
 
-            //// Convert Json Configuration File to YAML
+            // Convert Json Configuration File to YAML
             string jsonConfigPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AgentConfiguration.JsonFilename);
             if (File.Exists(jsonConfigPath))
             {
@@ -116,8 +116,6 @@ namespace MTConnect.Applications.Agents
             {
                 File.Copy(defaultPath, yamlConfigPath);
             }
-
-
 
             // Read the Agent Configuation File
             var configuration = OnConfigurationFileRead(configFile);

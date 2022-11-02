@@ -5,7 +5,6 @@
 
 using MTConnect.Agents.Metrics;
 using MTConnect.Assets;
-using MTConnect.Buffers;
 using MTConnect.Configurations;
 using MTConnect.Devices;
 using MTConnect.Devices.DataItems;
@@ -621,43 +620,33 @@ namespace MTConnect.Agents
                 var dataItems = device.GetDataItems();
                 if (!dataItems.IsNullOrEmpty())
                 {
-                    //var deviceIndex = GetDeviceIndex(device.Uuid);
-                    //var dataItemIndexes = new List<int>();
-
-                    //// Create list of DataItemIndexes
-                    //foreach (var dataItem in dataItems)
-                    //{
-                    //    dataItemIndexes.Add(GetDataItemIndex(device.Uuid, dataItem.Id));
-                    //}
-
-                    // Get the BufferKeys to use for the ObservationBuffer
-                    //var bufferKeys = GenerateBufferKeys(device);
-
                     var ts = timestamp > 0 ? timestamp : UnixDateTime.Now;
 
                     foreach (var dataItem in dataItems)
                     {
+                        // Add Unavailable Observation to ObservationBuffer
+                        var observation = new ObservationInput();
+                        observation.DeviceKey = device.Uuid;
+                        observation.DataItemKey = dataItem.Id;
+                        observation.Timestamp = ts;
+
+                        var values = new List<ObservationValue>();
+
                         var valueType = dataItem.Category == DataItemCategory.CONDITION ? ValueKeys.Level : ValueKeys.Result;
                         var value = !string.IsNullOrEmpty(dataItem.InitialValue) ? dataItem.InitialValue : Observation.Unavailable;
-
-                        // Add Unavailable Observation to ObservationBuffer
-                        var observation = Observation.Create(dataItem);
-                        observation.DeviceUuid = device.Uuid;
-                        observation.Timestamp = ts.ToDateTime();
-                        observation.AddValues(new List<ObservationValue>
-                            {
-                                new ObservationValue(valueType, value)
-                            });
+                        values.Add(new ObservationValue(valueType, value));
 
                         // Add Required Values
                         switch (dataItem.Representation)
                         {
-                            case DataItemRepresentation.DATA_SET: observation.AddValue(ValueKeys.Count, 0); break;
-                            case DataItemRepresentation.TABLE: observation.AddValue(ValueKeys.Count, 0); break;
-                            case DataItemRepresentation.TIME_SERIES: observation.AddValue(ValueKeys.SampleCount, 0); break;
+                            case DataItemRepresentation.DATA_SET: values.Add(new ObservationValue(ValueKeys.Count, 0)); break;
+                            case DataItemRepresentation.TABLE: values.Add(new ObservationValue(ValueKeys.Count, 0)); break;
+                            case DataItemRepresentation.TIME_SERIES: values.Add(new ObservationValue(ValueKeys.SampleCount, 0)); break;
                         }
 
-                        ObservationAdded?.Invoke(this, observation);
+                        observation.Values = values;
+
+                        AddObservation(device.Uuid, observation);
                     }
                 }
             }

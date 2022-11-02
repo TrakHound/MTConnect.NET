@@ -28,6 +28,12 @@ namespace MTConnect.Applications.Agents
         private IShdrMqttAgentApplicationConfiguration _configuration;
 
 
+        public MTConnectShdrMqttBrokerAgentApplication()
+        {
+            if (ConfigurationType == null) ConfigurationType = typeof(ShdrMqttAgentApplicationConfiguration);
+        }
+
+
         protected override IAgentApplicationConfiguration OnConfigurationFileRead(string configurationPath)
         {
             // Read the Configuration File

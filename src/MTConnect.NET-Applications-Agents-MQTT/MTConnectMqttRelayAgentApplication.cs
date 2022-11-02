@@ -34,6 +34,8 @@ namespace MTConnect.Applications.Agents
             ServiceName = DefaultServiceName;
             ServiceDisplayName = DefaultServiceDisplayName;
             ServiceDescription = DefaultServiceDescription;
+
+            if (ConfigurationType == null) ConfigurationType = typeof(MqttAgentApplicationConfiguration);
         }
 
 

@@ -1612,6 +1612,77 @@ namespace MTConnect.Agents
 
         #region "Add"
 
+        public override void InitializeDataItems(IDevice device, long timestamp = 0)
+        {
+            if (device != null && _observationBuffer != null)
+            {
+                // Get All DataItems for the Device
+                var dataItems = device.GetDataItems();
+                if (!dataItems.IsNullOrEmpty())
+                {
+                    var deviceIndex = GetDeviceIndex(device.Uuid);
+                    var dataItemIndexes = new List<int>();
+
+                    // Create list of DataItemIndexes
+                    foreach (var dataItem in dataItems)
+                    {
+                        dataItemIndexes.Add(GetDataItemIndex(device.Uuid, dataItem.Id));
+                    }
+
+                    // Get the BufferKeys to use for the ObservationBuffer
+                    var bufferKeys = GenerateBufferKeys(device);
+
+                    // Get all Current Observations for the Device
+                    var results = _observationBuffer.GetObservations(bufferKeys);
+
+                    var ts = timestamp > 0 ? timestamp : UnixDateTime.Now;
+
+                    foreach (var dataItem in dataItems)
+                    {
+                        bool exists = false;
+
+                        // Lookup Buffer Key
+                        var bufferKey = GenerateBufferKey(device.Uuid, dataItem.Id);
+
+                        // Check if the DataItem has an observation
+                        if (results != null && !results.Observations.IsNullOrEmpty())
+                        {
+                            exists = results.Observations.Any(o => o.Key == bufferKey);
+                        }
+
+                        // If no observation exists, then add an Unavailable observation
+                        if (!exists)
+                        {
+                            var valueType = dataItem.Category == DataItemCategory.CONDITION ? ValueKeys.Level : ValueKeys.Result;
+                            var value = !string.IsNullOrEmpty(dataItem.InitialValue) ? dataItem.InitialValue : Observation.Unavailable;
+
+                            // Add Unavailable Observation to ObservationBuffer
+                            var observation = Observation.Create(dataItem);
+                            observation.DeviceUuid = device.Uuid;
+                            observation.Timestamp = ts.ToDateTime();
+                            observation.AddValues(new List<ObservationValue>
+                            {
+                                new ObservationValue(valueType, value)
+                            });
+
+                            // Add Required Values
+                            switch (dataItem.Representation)
+                            {
+                                case DataItemRepresentation.DATA_SET: observation.AddValue(ValueKeys.Count, 0); break;
+                                case DataItemRepresentation.TABLE: observation.AddValue(ValueKeys.Count, 0); break;
+                                case DataItemRepresentation.TIME_SERIES: observation.AddValue(ValueKeys.SampleCount, 0); break;
+                            }
+
+                            var bufferObservation = new BufferObservation(bufferKey, observation);
+
+                            _observationBuffer.AddObservation(ref bufferObservation);
+                            ObservationAdded?.Invoke(this, observation);
+                        }
+                    }
+                }
+            }
+        }
+
         protected override bool OnAddObservation(string deviceUuid, IDataItem dataItem, IObservationInput observationInput)
         {
             if (_observationBuffer != null && dataItem != null && observationInput != null)
