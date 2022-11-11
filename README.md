@@ -3,7 +3,8 @@
 # MTConnect.NET
 
 [![MTConnect.NET](https://github.com/TrakHound/MTConnect.NET/actions/workflows/dotnet.yml/badge.svg)](https://github.com/TrakHound/MTConnect.NET/actions/workflows/dotnet.yml)
-
+![GitHub all releases](https://img.shields.io/github/downloads/TrakHound/MTConnect.NET/total?label=Release%20Downloads)
+[![Nuget](https://img.shields.io/nuget/dt/MTConnect.NET?label=Nuget%20Downloads)](https://www.nuget.org/packages/MTConnect.NET)
 
 > 10/18/2022 Updated to add new MQTT Agents
 
