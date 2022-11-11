@@ -139,21 +139,21 @@ namespace MTConnect.Observations.Output
         }
 
 
-        public ObservationOutput() 
-        {
-            _deviceUuid = null;
-            _dataItem = null;
-            _dataItemId = null;
-            _timestamp = DateTime.MinValue;
-            _name = null;
-            _sequence = 0;
-            _category = DataItemCategory.CONDITION;
-            _type = null;
-            _subType = null;
-            _compositionId = null;
-            _representation = DataItemRepresentation.VALUE;
-            _values = null;
-        }
+        //public ObservationOutput()
+        //{
+        //    _deviceUuid = null;
+        //    _dataItem = null;
+        //    _dataItemId = null;
+        //    _timestamp = DateTime.MinValue;
+        //    _name = null;
+        //    _sequence = 0;
+        //    _category = DataItemCategory.CONDITION;
+        //    _type = null;
+        //    _subType = null;
+        //    _compositionId = null;
+        //    _representation = DataItemRepresentation.VALUE;
+        //    _values = null;
+        //}
 
         public ObservationOutput(IObservation observation)
         {
