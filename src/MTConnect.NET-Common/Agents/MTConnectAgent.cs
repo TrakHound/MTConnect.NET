@@ -5,19 +5,14 @@
 
 using MTConnect.Agents.Metrics;
 using MTConnect.Assets;
-using MTConnect.Buffers;
 using MTConnect.Configurations;
 using MTConnect.Devices;
 using MTConnect.Devices.DataItems;
 using MTConnect.Devices.DataItems.Events;
 using MTConnect.Devices.DataItems.Samples;
-using MTConnect.Errors;
-using MTConnect.Headers;
 using MTConnect.Observations;
-using MTConnect.Observations.Events.Values;
 using MTConnect.Observations.Input;
 using MTConnect.Observations.Output;
-using MTConnect.Streams.Output;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -28,9 +23,7 @@ namespace MTConnect.Agents
 {
     /// <summary>
     /// An Agent is the centerpiece of an MTConnect implementation. 
-    /// It provides two primary functions:
-    /// Organizes and manages individual pieces of information published by one or more pieces of equipment.
-    /// Publishes that information in the form of a Response Document to client software applications.
+    /// It organizes and manages individual pieces of information published by one or more pieces of equipment.
     /// </summary>
     public class MTConnectAgent : IMTConnectAgent, IDisposable
     {
@@ -40,18 +33,14 @@ namespace MTConnect.Agents
         private readonly object _lock = new object();
         private readonly IAgentConfiguration _configuration;
         private readonly MTConnectAgentInformation _information;
-        private readonly IMTConnectDeviceBuffer _deviceBuffer;
-        private readonly IMTConnectObservationBuffer _observationBuffer;
-        private readonly IMTConnectAssetBuffer _assetBuffer;
 
         protected readonly Dictionary<int, string> _deviceUuids = new Dictionary<int, string>();
         protected readonly Dictionary<int, string> _dataItemIds = new Dictionary<int, string>();
-        protected Dictionary<string, int> _deviceIndexes = new Dictionary<string, int>();
-        protected Dictionary<string, int> _dataItemIndexes = new Dictionary<string, int>();
         protected int _lastDeviceIndex = 0;
         protected int _lastDataItemIndex = 0;
 
         protected readonly ConcurrentDictionary<string, string> _deviceKeys = new ConcurrentDictionary<string, string>(); // Resolves either the Device Name or UUID to the Device UUID
+        protected readonly ConcurrentDictionary<string, IDevice> _devices = new ConcurrentDictionary<string, IDevice>(); // Resolves either the Device Name or UUID to the Device
         protected readonly ConcurrentDictionary<string, IEnumerable<IDataItem>> _deviceDataItems = new ConcurrentDictionary<string, IEnumerable<IDataItem>>();
         protected readonly ConcurrentDictionary<string, IEnumerable<string>> _deviceDataItemIds = new ConcurrentDictionary<string, IEnumerable<string>>();
         private readonly List<AssetCount> _deviceAssetCounts = new List<AssetCount>();
@@ -61,9 +50,10 @@ namespace MTConnect.Agents
 
         private readonly ConcurrentDictionary<string, IObservationInput> _currentObservations = new ConcurrentDictionary<string, IObservationInput>();
         private readonly ConcurrentDictionary<string, IEnumerable<IObservationInput>> _currentConditions = new ConcurrentDictionary<string, IEnumerable<IObservationInput>>();
+        private readonly List<string> _assetIds = new List<string>();
         private MTConnectAgentMetrics _metrics;
-        private readonly long _instanceId;
         private readonly string _uuid;
+        private readonly long _instanceId;
         private long _deviceModelChangeTime;
         private Version _version;
         private Version _mtconnectVersion;
@@ -74,6 +64,11 @@ namespace MTConnect.Agents
 
 
         #region "Properties"
+
+        /// <summary>
+        /// Gets a representation of the specific instance of the Agent.
+        /// </summary>
+        public long InstanceId => _instanceId;
 
         /// <summary>
         /// Gets the Configuration associated with the Agent
@@ -99,11 +94,6 @@ namespace MTConnect.Agents
         /// Gets the UUID that uniquely identifies the Agent
         /// </summary>
         public string Uuid => _uuid;
-
-        /// <summary>
-        /// Gets a representation of the specific instance of the Agent.
-        /// </summary>
-        public long InstanceId => _instanceId;
 
         /// <summary>
         /// Gets the Agent Version
@@ -140,67 +130,6 @@ namespace MTConnect.Agents
         /// </summary>
         public DateTime DeviceModelChangeTime => _deviceModelChangeTime.ToDateTime();
 
-        /// <summary>
-        /// Get the configured size of the Buffer in the number of maximum number of Observations the buffer can hold at one time.
-        /// </summary>
-        public long BufferSize => _observationBuffer != null ? _observationBuffer.BufferSize : 0;
-
-        /// <summary>
-        /// Get the configured size of the Asset Buffer in the number of maximum number of Assets the buffer can hold at one time.
-        /// </summary>
-        public long AssetBufferSize => _assetBuffer != null ? _assetBuffer.BufferSize : 0;
-
-        /// <summary>
-        /// A number representing the current number of Asset Documents that are currently stored in the Agent.
-        /// </summary>
-        public long AssetCount => _assetBuffer != null ? _assetBuffer.AssetCount : 0;
-
-        /// <summary>
-        /// A number representing the sequence number assigned to the oldest Observation stored in the buffer
-        /// </summary>
-        public long FirstSequence => _observationBuffer != null ? _observationBuffer.FirstSequence : 0;
-
-        /// <summary>
-        /// A number representing the sequence number assigned to the last Observation that was added to the buffer
-        /// </summary>
-        public long LastSequence => _observationBuffer != null ? _observationBuffer.LastSequence : 0;
-
-        /// <summary>
-        /// A number representing the sequence number of the next Observation that will be added to the buffer
-        /// </summary>
-        public long NextSequence => _observationBuffer != null ? _observationBuffer.NextSequence : 0;
-
-
-        public Dictionary<string, int> DeviceIndexes
-        {
-            get
-            {
-                lock (_lock) return _deviceIndexes;
-            }
-            set
-            {
-                if (value != null)
-                {
-                    lock (_lock) _deviceIndexes = value;
-                }
-            }
-        }
-
-        public Dictionary<string, int> DataItemIndexes
-        {
-            get
-            {
-                lock (_lock) return _dataItemIndexes;
-            }
-            set
-            {
-                if (value != null)
-                {
-                    lock (_lock) _dataItemIndexes = value;
-                }
-            }
-        }
-
 
         /// <summary>
         /// Raised when a new Device is added to the Agent
@@ -227,45 +156,6 @@ namespace MTConnect.Agents
         /// </summary>
         public EventHandler<IAsset> AssetAdded { get; set; }
 
-        /// <summary>
-        /// Raised when an MTConnectDevices response Document is requested from the Agent
-        /// </summary>
-        public MTConnectDevicesRequestedHandler DevicesRequestReceived { get; set; }
-
-        /// <summary>
-        /// Raised when an MTConnectDevices response Document is sent successfully from the Agent
-        /// </summary>
-        public MTConnectDevicesHandler DevicesResponseSent { get; set; }
-
-        /// <summary>
-        /// Raised when an MTConnectStreams response Document is requested from the Agent
-        /// </summary>
-        public MTConnectStreamsRequestedHandler StreamsRequestReceived { get; set; }
-
-        /// <summary>
-        /// Raised when an MTConnectStreams response Document is sent successfully from the Agent
-        /// </summary>
-        public EventHandler StreamsResponseSent { get; set; }
-
-        /// <summary>
-        /// Raised when an MTConnectAssets response Document is requested from the Agent
-        /// </summary>
-        public MTConnectAssetsRequestedHandler AssetsRequestReceived { get; set; }
-
-        /// <summary>
-        /// Raised when an MTConnectAssets response Document is requested from the Agent for a specific Device
-        /// </summary>
-        public MTConnectDeviceAssetsRequestedHandler DeviceAssetsRequestReceived { get; set; }
-
-        /// <summary>
-        /// Raised when an MTConnectAssets response Document is sent successfully from the Agent
-        /// </summary>
-        public MTConnectAssetsHandler AssetsResponseSent { get; set; }
-
-        /// <summary>
-        /// Raised when an MTConnectError response Document is sent successfully from the Agent
-        /// </summary>
-        public MTConnectErrorHandler ErrorResponseSent { get; set; }
 
         /// <summary>
         /// Raised when an Invalid Component is Added
@@ -304,16 +194,12 @@ namespace MTConnect.Agents
             )
         {
             _uuid = !string.IsNullOrEmpty(uuid) ? uuid : Guid.NewGuid().ToString();
+            _instanceId = instanceId > 0 ? instanceId : CreateInstanceId();
             _configuration = new AgentConfiguration();
             _information = new MTConnectAgentInformation(_uuid, _instanceId, _deviceModelChangeTime);
-            _instanceId = instanceId > 0 ? instanceId : CreateInstanceId();
             _deviceModelChangeTime = deviceModelChangeTime;
             _mtconnectVersion = MTConnectVersions.Max;
             _version = GetAgentVersion();
-            _deviceBuffer = new MTConnectDeviceBuffer();
-            _observationBuffer = new MTConnectObservationBuffer();
-            _assetBuffer = new MTConnectAssetBuffer();
-            _assetBuffer.AssetRemoved += AssetRemovedFromBuffer;
             InitializeAgentDevice(initializeAgentDevice);
         }
 
@@ -326,65 +212,12 @@ namespace MTConnect.Agents
             )
         {
             _uuid = !string.IsNullOrEmpty(uuid) ? uuid : Guid.NewGuid().ToString();
+            _instanceId = instanceId > 0 ? instanceId : CreateInstanceId();
             _configuration = configuration != null ? configuration : new AgentConfiguration();
             _information = new MTConnectAgentInformation(_uuid, _instanceId, _deviceModelChangeTime);
             _deviceModelChangeTime = deviceModelChangeTime;
             _mtconnectVersion = _configuration != null ? _configuration.DefaultVersion : MTConnectVersions.Max;
             _version = GetAgentVersion();
-            _instanceId = instanceId > 0 ? instanceId : CreateInstanceId();
-            _deviceBuffer = new MTConnectDeviceBuffer();
-            _observationBuffer = new MTConnectObservationBuffer(_configuration);
-            _assetBuffer = new MTConnectAssetBuffer(_configuration);
-            _assetBuffer.AssetRemoved += AssetRemovedFromBuffer;
-            InitializeAgentDevice(initializeAgentDevice);
-        }
-
-        public MTConnectAgent(
-            IMTConnectDeviceBuffer deviceBuffer,
-            IMTConnectObservationBuffer observationBuffer,
-            IMTConnectAssetBuffer assetBuffer,
-            string uuid = null,
-            long instanceId = 0,
-            long deviceModelChangeTime = 0,
-            bool initializeAgentDevice = true
-            )
-        {
-            _uuid = !string.IsNullOrEmpty(uuid) ? uuid : Guid.NewGuid().ToString();
-            _configuration = new AgentConfiguration();
-            _information = new MTConnectAgentInformation(_uuid, _instanceId, _deviceModelChangeTime);
-            _instanceId = instanceId > 0 ? instanceId : CreateInstanceId();
-            _deviceModelChangeTime = deviceModelChangeTime;
-            _mtconnectVersion = MTConnectVersions.Max;
-            _version = GetAgentVersion();
-            _deviceBuffer = deviceBuffer != null ? deviceBuffer : new MTConnectDeviceBuffer();
-            _observationBuffer = observationBuffer != null ? observationBuffer : new MTConnectObservationBuffer(_configuration);
-            _assetBuffer = assetBuffer != null ? assetBuffer : new MTConnectAssetBuffer(_configuration);
-            _assetBuffer.AssetRemoved += AssetRemovedFromBuffer;
-            InitializeAgentDevice(initializeAgentDevice);
-        }
-
-        public MTConnectAgent(
-            IAgentConfiguration configuration,
-            IMTConnectDeviceBuffer deviceBuffer,
-            IMTConnectObservationBuffer observationBuffer,
-            IMTConnectAssetBuffer assetBuffer,
-            string uuid = null,
-            long instanceId = 0,
-            long deviceModelChangeTime = 0,
-            bool initializeAgentDevice = true
-            )
-        {
-            _uuid = !string.IsNullOrEmpty(uuid) ? uuid : Guid.NewGuid().ToString();
-            _configuration = configuration != null ? configuration : new AgentConfiguration();
-            _instanceId = instanceId > 0 ? instanceId : CreateInstanceId();
-            _deviceModelChangeTime = deviceModelChangeTime;
-            _information = new MTConnectAgentInformation(_uuid, _instanceId, _deviceModelChangeTime);
-            _mtconnectVersion = _configuration != null ? _configuration.DefaultVersion : MTConnectVersions.Max;
-            _version = GetAgentVersion();
-            _deviceBuffer = deviceBuffer != null ? deviceBuffer : new MTConnectDeviceBuffer();
-            _observationBuffer = observationBuffer != null ? observationBuffer : new MTConnectObservationBuffer(_configuration);
-            _assetBuffer = assetBuffer != null ? assetBuffer : new MTConnectAssetBuffer(_configuration);
-            _assetBuffer.AssetRemoved += AssetRemovedFromBuffer;
             InitializeAgentDevice(initializeAgentDevice);
         }
 
@@ -453,149 +286,9 @@ namespace MTConnect.Agents
             _deviceDataItemIds.TryAdd(_agent.Uuid, _agent.GetDataItems().Select(o => o.Id));
         }
 
-        public void InitializeCurrentObservations(IEnumerable<BufferObservation> observations)
-        {
-            if (!observations.IsNullOrEmpty())
-            {
-                var lObservations = observations.ToList();
-                foreach (var observation in lObservations)
-                {
-                    var deviceUuid = GetDeviceUuid(observation.DeviceIndex);
-                    var dataItemId = GetDataItemId(observation.DataItemIndex);
-
-                    var dataItem = GetDataItem(deviceUuid, dataItemId);
-                    if (dataItem != null)
-                    {
-                        var input = new ObservationInput();
-                        input.DeviceKey = deviceUuid;
-                        input.DataItemKey = dataItemId;
-                        input.Timestamp = observation.Timestamp;
-                        input.Values = observation.Values;
-
-                        if (dataItem.Category == DataItemCategory.CONDITION)
-                        {
-                            UpdateCurrentCondition(deviceUuid, dataItem, input);
-                        }
-                        else
-                        {
-                            UpdateCurrentObservation(deviceUuid, dataItem, input);
-                        }
-                    }
-                }
-            }
-        }
-
-
-        public void InitializeDeviceIndex(IDictionary<string, int> indexes)
-        {
-            if (!indexes.IsNullOrEmpty())
-            {
-                lock (_lock)
-                {
-                    foreach (var index in indexes)
-                    {
-                        _deviceUuids.Remove(index.Value);
-                        _deviceUuids.Add(index.Value, index.Key);
-
-                        _deviceIndexes.Remove(index.Key);
-                        _deviceIndexes.Add(index.Key, index.Value);
-
-                        if (index.Value > _lastDeviceIndex) _lastDeviceIndex = index.Value;
-                    }
-                }
-            }
-        }
-
-        public void InitializeDataItemIndex(IDictionary<string, int> indexes)
-        {
-            if (!indexes.IsNullOrEmpty())
-            {
-                lock (_lock)
-                {
-                    foreach (var index in indexes)
-                    {
-                        // Needs to be optimized
-                        var dataItemId = new System.Text.RegularExpressions.Regex(".*:(.*)").Match(index.Key).Groups[1].Value;
-
-                        _dataItemIds.Remove(index.Value);
-                        _dataItemIds.Add(index.Value, dataItemId);
-
-                        _dataItemIndexes.Remove(index.Key);
-                        _dataItemIndexes.Add(index.Key, index.Value);
-
-                        if (index.Value > _lastDataItemIndex) _lastDataItemIndex = index.Value;
-                    }
-                }
-            }
-        }
-
         #endregion
 
-        #region "Cache Lookup"
-
-        private IEnumerable<int> GenerateBufferKeys(IEnumerable<IDevice> devices)
-        {
-            if (!devices.IsNullOrEmpty())
-            {
-                var bufferKeys = new List<int>();
-                foreach (var device in devices)
-                {
-                    bufferKeys.AddRange(GenerateBufferKeys(device));
-                }
-                return bufferKeys;
-            }
-
-            return Enumerable.Empty<int>();
-        }
-
-        private IEnumerable<int> GenerateBufferKeys(IDevice device)
-        {
-            if (device != null)
-            {
-                // Read Cached DataItemIds for the Device
-                _deviceDataItemIds.TryGetValue(device.Uuid, out var dataItemIds);
-                
-                var bufferKeys = new List<int>();
-                if (!dataItemIds.IsNullOrEmpty())
-                {
-                    bufferKeys.AddRange(GenerateBufferKeys(device.Uuid, dataItemIds));
-                }
-                return bufferKeys;
-            }
-
-            return Enumerable.Empty<int>();
-        }
-
-        private IEnumerable<int> GenerateBufferKeys(string deviceUuid, IEnumerable<string> dataItemIds)
-        {
-            if (!string.IsNullOrEmpty(deviceUuid) && !dataItemIds.IsNullOrEmpty())
-            {
-                var a = dataItemIds.ToArray();
-                var keys = new int[a.Length];
-                for (var i = 0; i < a.Length; i++)
-                {
-                    var key = GenerateBufferKey(deviceUuid, a[i]);
-                    keys[i] = key;
-                }
-                return keys;
-            }
-
-            return Enumerable.Empty<int>();
-        }
-
-        private int GenerateBufferKey(string deviceUuid, string dataItemId)
-        {
-            var deviceIndex = GetDeviceIndex(deviceUuid);
-            var dataItemIndex = GetDataItemIndex(deviceUuid, dataItemId);
-
-            return GenerateBufferKey(deviceIndex, dataItemIndex);
-        }
-
-        private static int GenerateBufferKey(int deviceIndex, int dataItemIndex)
-        {
-            return (deviceIndex * 10000) + dataItemIndex;
-        }
-
+        #region "Entities"
 
         public string GetDeviceUuid(string deviceKey)
         {
@@ -617,190 +310,7 @@ namespace MTConnect.Agents
             return null;
         }
 
-        public string GetDeviceUuid(int deviceIndex)
-        {
-            if (_deviceUuids.TryGetValue(deviceIndex, out var deviceUuid))
-            {
-                return deviceUuid;
-            }
-
-            return null;
-        }
-
-        public int GetDeviceIndex(string deviceUuid)
-        {
-            var index = 0;
-
-            if (deviceUuid != null)
-            {
-                lock (_lock)
-                {
-                    _deviceIndexes.TryGetValue(deviceUuid, out index);
-                    if (index < 1)
-                    {
-                        _lastDeviceIndex++;
-                        _deviceUuids.Add(_lastDeviceIndex, deviceUuid);
-                        _deviceIndexes.Add(deviceUuid, _lastDeviceIndex);
-                        index = _lastDeviceIndex;
-                    }
-                }
-            }
-
-            return index;
-        }
-
-        public IEnumerable<int> GetDeviceIndexes(IEnumerable<string> deviceUuids)
-        {
-            var indexes = new List<int>();
-
-            if (!deviceUuids.IsNullOrEmpty())
-            {
-                foreach (var deviceUuid in deviceUuids)
-                {
-                    indexes.Add(GetDeviceIndex(deviceUuid));
-                }
-            }
-
-            return indexes;
-        }
-
-
-        public string GetDataItemId(int dataItemIndex)
-        {
-            if (_dataItemIds.TryGetValue(dataItemIndex, out var dataItemId))
-            {
-                return dataItemId;
-            }
-
-            return null;
-        }
-
-        public string GetDataItemIdFromBufferKey(int bufferKey)
-        {
-            var dataItemIndex = BufferObservation.GetDataItemIndexFromBufferKey(bufferKey);
-            if (_dataItemIds.TryGetValue(dataItemIndex, out var dataItemId))
-            {
-                return dataItemId;
-            }
-
-            return null;
-        }
-
-        public int GetDataItemIndex(string deviceUuid, string dataItemId)
-        {
-            var index = 0;
-
-            if (dataItemId != null)
-            {
-                var key = string.Concat(deviceUuid, ":", dataItemId);
-                lock (_lock)
-                {
-                    _dataItemIndexes.TryGetValue(key, out index);
-                    if (index < 1)
-                    {
-                        _lastDataItemIndex++;
-                        _dataItemIds.Add(_lastDataItemIndex, dataItemId);
-                        _dataItemIndexes.Add(key, _lastDataItemIndex);
-                        index = _lastDataItemIndex;
-                    }
-                }
-            }
-
-            return index;
-        }
-
-        #endregion
-
-        #region "Headers"
-
-        private MTConnectDevicesHeader GetDevicesHeader(Version mtconnectVersion = null)
-        {
-            var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersion;
-
-            var header = new MTConnectDevicesHeader
-            {
-                BufferSize = _observationBuffer.BufferSize,
-                AssetBufferSize = _assetBuffer.BufferSize,
-                AssetCount = _assetBuffer.AssetCount,
-                CreationTime = DateTime.UtcNow,
-                DeviceModelChangeTime = _deviceModelChangeTime.ToDateTime().ToString("o"),
-                InstanceId = InstanceId,
-                Sender = Sender,
-                Version = _version.ToString(),
-                TestIndicator = null
-            };
-
-            if (version < MTConnectVersions.Version17) header.DeviceModelChangeTime = null;
-            if (version < MTConnectVersions.Version12) header.AssetBufferSize = -1;
-            if (version < MTConnectVersions.Version12) header.AssetCount = -1;
-
-            return header;
-        }
-
-        private MTConnectStreamsHeader GetStreamsHeader(IObservationBufferResults results, Version mtconnectVersion = null)
-        {
-            var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersion;
-
-            var header = new MTConnectStreamsHeader
-            {
-                BufferSize = _observationBuffer.BufferSize,
-                CreationTime = DateTime.UtcNow,
-                DeviceModelChangeTime = _deviceModelChangeTime.ToDateTime().ToString("o"),
-                InstanceId = InstanceId,
-                Sender = Sender,
-                Version = _version.ToString(),
-                FirstSequence = results.FirstSequence,
-                LastSequence = results.LastSequence,
-                NextSequence = results.NextSequence,
-                TestIndicator = null
-            };
-
-            if (version < MTConnectVersions.Version17) header.DeviceModelChangeTime = null;
-
-            return header;
-        }
-
-        private MTConnectAssetsHeader GetAssetsHeader(Version mtconnectVersion = null)
-        {
-            var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersion;
-
-            var header = new MTConnectAssetsHeader
-            {
-                AssetBufferSize = _assetBuffer.BufferSize,
-                AssetCount = _assetBuffer.AssetCount,
-                CreationTime = DateTime.UtcNow,
-                DeviceModelChangeTime = _deviceModelChangeTime.ToDateTime().ToString("o"),
-                InstanceId = InstanceId,
-                Sender = Sender,
-                Version = _version.ToString(),
-                TestIndicator = null
-            };
-
-            if (version < MTConnectVersions.Version17) header.DeviceModelChangeTime = null;
-
-            return header;
-        }
-
-        private MTConnectErrorHeader GetErrorHeader()
-        {
-            return new MTConnectErrorHeader
-            {
-                AssetBufferSize = _assetBuffer.BufferSize,
-                CreationTime = DateTime.UtcNow,
-                InstanceId = InstanceId,
-                Sender = Sender,
-                Version = _version.ToString(),
-                TestIndicator = null
-            };
-        }
-
-        #endregion
-
-        #region "Devices"
-
-        #region "Internal"
-
-        private List<IDevice> ProcessDevices(IEnumerable<IDevice> devices, Version mtconnectVersion = null)
+        protected List<IDevice> ProcessDevices(IEnumerable<IDevice> devices, Version mtconnectVersion = null)
         {
             var objs = new List<IDevice>();
 
@@ -816,1050 +326,17 @@ namespace MTConnect.Agents
             return objs;
         }
 
-        #endregion
-
-
-        /// <summary>
-        /// Get an MTConnectDevices Response Document containing all devices.
-        /// </summary>
-        /// <returns>MTConnectDevices Response Document</returns>
-        public IDevicesResponseDocument GetDevicesResponseDocument(Version mtconnectVersion = null, string deviceType = null)
-        {
-            DevicesRequestReceived?.Invoke(null);
-
-            if (_deviceBuffer != null)
-            {
-                var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersion;
-
-                var devices = new List<IDevice>();
-                if (string.IsNullOrEmpty(deviceType) || deviceType.ToLower() == "agent") devices.Add(_agent);
-                devices.AddRange(_deviceBuffer.GetDevices(deviceType));
-
-                if (devices != null && devices.Count() > 0)
-                {
-                    var doc = new DevicesResponseDocument();
-                    doc.Version = version;
-
-                    var header = GetDevicesHeader(version);
-                    header.Version = _version.ToString();
-
-                    doc.Header = header;
-                    doc.Devices = ProcessDevices(devices, version);
-
-                    DevicesResponseSent?.Invoke(doc);
-
-                    return doc;
-                }
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Get an MTConnectDevices Response Document containing the specified device.
-        /// </summary>
-        /// <param name="deviceKey">The (name or uuid) of the requested Device</param>
-        /// <returns>MTConnectDevices Response Document</returns>
-        public IDevicesResponseDocument GetDevicesResponseDocument(string deviceKey, Version mtconnectVersion = null)
-        {
-            DevicesRequestReceived?.Invoke(deviceKey);
-
-            if (_deviceBuffer != null && !string.IsNullOrEmpty(deviceKey))
-            {
-                var deviceUuid = GetDeviceUuid(deviceKey);
-                var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersion;
-
-                IDevice device;
-                if (deviceUuid == _agent.Uuid) device = _agent;
-                else device = _deviceBuffer.GetDevice(deviceUuid);
-
-                if (device != null)
-                {
-                    var doc = new DevicesResponseDocument();
-                    doc.Version = version;
-
-                    var header = GetDevicesHeader(version);
-                    header.Version = _version.ToString();
-
-                    doc.Header = header;
-                    doc.Devices = ProcessDevices(new List<IDevice> { device }, version);
-
-                    DevicesResponseSent?.Invoke(doc);
-
-                    return doc;
-                }
-            }
-
-            return null;
-        }
-
-        #endregion
-
-        #region "Streams"
-
-        #region "Internal"
-
-        private IObservationBufferResults GetObservations(IEnumerable<int> bufferKeys, long from = -1, long to = -1, long at = -1, int count = 0)
-        {
-            IObservationBufferResults results;
-            if (from > 0 || to > 0)
-            {
-                results = _observationBuffer.GetObservations(bufferKeys, from, to, count);
-            }
-            else if (count > 0)
-            {
-                results = _observationBuffer.GetObservations(bufferKeys, count: count);
-            }
-            else if (at > 0)
-            {
-                results = _observationBuffer.GetCurrentObservations(bufferKeys, at);
-            }
-            else
-            {
-                results = _observationBuffer.GetCurrentObservations(bufferKeys);
-            }
-
-            return results;
-        }
-
-        #endregion
-
-
-        /// <summary>
-        /// Get a MTConnectStreams Document containing all devices.
-        /// </summary>
-        /// <param name="count">The Maximum Number of DataItems to return</param>
-        /// <returns>MTConnectStreams Response Document</returns>
-        public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(int count = 0, Version mtconnectVersion = null, string deviceType = null)
-        {
-            StreamsRequestReceived?.Invoke(null);
-
-            if (_deviceBuffer != null && _observationBuffer != null)
-            {
-                // Get list of Devices from the MTConnectDeviceBuffer
-                var devices = new List<IDevice>();
-                if (string.IsNullOrEmpty(deviceType) || deviceType.ToLower() == "agent") devices.Add(_agent);
-                devices.AddRange(_deviceBuffer.GetDevices(deviceType));
-
-                if (!devices.IsNullOrEmpty())
-                {
-                    // Create list of BufferKeys
-                    var bufferKeys = GenerateBufferKeys(devices);
-
-                    // Query the Observation Buffer 
-                    var results = GetObservations(bufferKeys, count: count);
-
-                    // Create Response Document
-                    var document = CreateDeviceStreamsDocument(devices, ref results, mtconnectVersion);
-                    if (document != null)
-                    {
-                        StreamsResponseSent?.Invoke(this, new EventArgs());
-                        return document;
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Get a MTConnectStreams Document containing all devices.
-        /// </summary>
-        /// <param name="at">The sequence number to include in the response</param>
-        /// <param name="count">The maximum number of observations to include in the response</param>
-        /// <returns>MTConnectStreams Response Document</returns>
-        public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(long at, int count = 0, Version mtconnectVersion = null, string deviceType = null)
-        {
-            StreamsRequestReceived?.Invoke(null);
-
-            if (_deviceBuffer != null && _observationBuffer != null)
-            {
-                // Get list of Devices from the MTConnectDeviceBuffer
-                var devices = new List<IDevice>();
-                if (string.IsNullOrEmpty(deviceType) || deviceType.ToLower() == "agent") devices.Add(_agent);
-                devices.AddRange(_deviceBuffer.GetDevices(deviceType));
-
-                if (!devices.IsNullOrEmpty())
-                {
-                    // Create list of BufferKeys
-                    var bufferKeys = GenerateBufferKeys(devices);
-
-                    // Query the Observation Buffer 
-                    var results = GetObservations(bufferKeys, at: at, count: count);
-
-                    // Create Response Document
-                    var document = CreateDeviceStreamsDocument(devices, ref results, mtconnectVersion);
-                    if (document != null)
-                    {
-                        StreamsResponseSent?.Invoke(this, new EventArgs());
-                        return document;
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Get a MTConnectStreams Document containing all devices.
-        /// </summary>
-        /// <param name="dataItemIds">A list of DataItemId's to specify what observations to include in the response</param>
-        /// <param name="at">The sequence number to include in the response</param>
-        /// <param name="count">The maximum number of observations to include in the response</param>
-        /// <returns>MTConnectStreams Response Document</returns>
-        public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(IEnumerable<string> dataItemIds, long at, int count = 0, Version mtconnectVersion = null, string deviceType = null)
-        {
-            StreamsRequestReceived?.Invoke(null);
-
-            if (_deviceBuffer != null && _observationBuffer != null)
-            {
-                // Get list of Devices from the MTConnectDeviceBuffer
-                var devices = new List<IDevice>();
-                if (string.IsNullOrEmpty(deviceType) || deviceType.ToLower() == "agent") devices.Add(_agent);
-                devices.AddRange(_deviceBuffer.GetDevices(deviceType));
-
-                if (!devices.IsNullOrEmpty())
-                {
-                    // Create list of BufferKeys
-                    var bufferKeys = new List<int>();
-                    foreach (var device in devices)
-                    {
-                        var deviceBufferKeys = GenerateBufferKeys(device.Uuid, dataItemIds);
-                        if (!deviceBufferKeys.IsNullOrEmpty()) bufferKeys.AddRange(deviceBufferKeys);
-                    }
-
-                    // Query the Observation Buffer 
-                    var results = GetObservations(bufferKeys, at: at, count: count);
-
-                    // Create Response Document
-                    var document = CreateDeviceStreamsDocument(devices, ref results, mtconnectVersion);
-                    if (document != null)
-                    {
-                        StreamsResponseSent?.Invoke(this, new EventArgs());
-                        return document;
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Get a MTConnectStreams Document containing all devices.
-        /// </summary>
-        /// <param name="from">The sequence number of the first observation to include in the response</param>
-        /// <param name="to">The sequence number of the last observation to include in the response</param>
-        /// <param name="count">The maximum number of observations to include in the response</param>
-        /// <returns>MTConnectStreams Response Document</returns>
-        public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(long from, long to, int count = 0, Version mtconnectVersion = null, string deviceType = null)
-        {
-            StreamsRequestReceived?.Invoke(null);
-
-            if (_deviceBuffer != null && _observationBuffer != null)
-            {
-                // Get list of Devices from the MTConnectDeviceBuffer
-                var devices = new List<IDevice>();
-                if (string.IsNullOrEmpty(deviceType) || deviceType.ToLower() == "agent") devices.Add(_agent);
-                devices.AddRange(_deviceBuffer.GetDevices(deviceType));
-
-                if (!devices.IsNullOrEmpty())
-                {
-                    // Create list of BufferKeys
-                    var bufferKeys = GenerateBufferKeys(devices);
-
-                    // Query the Observation Buffer 
-                    var results = GetObservations(bufferKeys, from: from, to: to, count: count);
-
-                    // Create Response Document
-                    var document = CreateDeviceStreamsDocument(devices, ref results, mtconnectVersion);
-                    if (document != null)
-                    {
-                        StreamsResponseSent?.Invoke(this, new EventArgs());
-                        return document;
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Get a MTConnectStreams Document containing all devices.
-        /// </summary>
-        /// <param name="dataItemIds">A list of DataItemId's to specify what observations to include in the response</param>
-        /// <param name="from">The sequence number of the first observation to include in the response</param>
-        /// <param name="to">The sequence number of the last observation to include in the response</param>
-        /// <param name="count">The maximum number of observations to include in the response</param>
-        /// <returns>MTConnectStreams Response Document</returns>
-        public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(IEnumerable<string> dataItemIds, long from, long to, int count = 0, Version mtconnectVersion = null, string deviceType = null)
-        {
-            StreamsRequestReceived?.Invoke(null);
-
-            if (_deviceBuffer != null && _observationBuffer != null)
-            {
-                // Get list of Devices from the MTConnectDeviceBuffer
-                var devices = new List<IDevice>();
-                if (string.IsNullOrEmpty(deviceType) || deviceType.ToLower() == "agent") devices.Add(_agent);
-                devices.AddRange(_deviceBuffer.GetDevices(deviceType));
-
-                if (!devices.IsNullOrEmpty())
-                {
-                    // Create list of BufferKeys
-                    var bufferKeys = GenerateBufferKeys(devices);
-
-                    // Query the Observation Buffer 
-                    var results = GetObservations(bufferKeys, from, to, count: count);
-
-                    // Create Response Document
-                    var document = CreateDeviceStreamsDocument(devices, ref results, mtconnectVersion);
-                    if (document != null)
-                    {
-                        StreamsResponseSent?.Invoke(this, new EventArgs());
-                        return document;
-                    }
-                }
-            }
-
-            return null;
-        }
-
-
-        /// <summary>
-        /// Get a MTConnectStreams Document containing the specified Device.
-        /// </summary>
-        /// <param name="deviceKey">The (name or uuid) of the requested Device</param>
-        /// <param name="count">The maximum number of observations to include in the response</param>
-        /// <returns>MTConnectStreams Response Document</returns>
-        public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(string deviceKey, int count = 0, Version mtconnectVersion = null)
-        {
-            StreamsRequestReceived?.Invoke(deviceKey);
-
-            if (_deviceBuffer != null && _observationBuffer != null)
-            {
-                var deviceUuid = GetDeviceUuid(deviceKey);
-
-                // Get Device from the MTConnectDeviceBuffer
-                IDevice device;
-                if (deviceUuid == _agent.Uuid) device = _agent;
-                else device = _deviceBuffer.GetDevice(deviceUuid);
-
-                if (device != null)
-                {
-                    // Create list of BufferKeys
-                    var bufferKeys = GenerateBufferKeys(device);
-
-                    // Query the Observation Buffer
-                    var results = GetObservations(bufferKeys, count: count);
-
-                    // Create Response Document
-                    var document = CreateDeviceStreamsDocument(device, ref results, mtconnectVersion);
-                    if (document != null)
-                    {
-                        StreamsResponseSent?.Invoke(this, new EventArgs());
-                        return document;
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Get a MTConnectStreams Document containing the specified Device.
-        /// </summary>
-        /// <param name="deviceKey">The (name or uuid) of the requested Device</param>
-        /// <param name="at">The sequence number to include in the response</param>
-        /// <param name="count">The maximum number of observations to include in the response</param>
-        /// <returns>MTConnectStreams Response Document</returns>
-        public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(string deviceKey, long at, int count = 0, Version mtconnectVersion = null)
-        {
-            StreamsRequestReceived?.Invoke(deviceKey);
-
-            if (_deviceBuffer != null && _observationBuffer != null)
-            {
-                var deviceUuid = GetDeviceUuid(deviceKey);
-
-                // Get Device from the MTConnectDeviceBuffer
-                IDevice device;
-                if (deviceUuid == _agent.Uuid) device = _agent;
-                else device = _deviceBuffer.GetDevice(deviceUuid);
-
-                if (device != null)
-                {
-                    // Create list of BufferKeys
-                    var bufferKeys = GenerateBufferKeys(device);
-
-                    // Query the Observation Buffer 
-                    var results = GetObservations(bufferKeys, at: at, count: count);
-
-                    // Create Response Document
-                    var document = CreateDeviceStreamsDocument(device, ref results, mtconnectVersion);
-                    if (document != null)
-                    {
-                        StreamsResponseSent?.Invoke(this, new EventArgs());
-                        return document;
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Get a MTConnectStreams Document containing the specified Device.
-        /// </summary>
-        /// <param name="deviceKey">The (name or uuid) of the requested Device</param>
-        /// <param name="dataItemIds">A list of DataItemId's to specify what observations to include in the response</param>
-        /// <param name="count">The maximum number of observations to include in the response</param>
-        /// <returns>MTConnectStreams Response Document</returns>
-        public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(string deviceKey, IEnumerable<string> dataItemIds, int count = 0, Version mtconnectVersion = null)
-        {
-            StreamsRequestReceived?.Invoke(deviceKey);
-
-            if (_deviceBuffer != null && _observationBuffer != null)
-            {
-                var deviceUuid = GetDeviceUuid(deviceKey);
-
-                // Get Device from the MTConnectDeviceBuffer
-                IDevice device;
-                if (deviceUuid == _agent.Uuid) device = _agent;
-                else device = _deviceBuffer.GetDevice(deviceUuid);
-
-                if (device != null)
-                {
-                    // Create list of BufferKeys
-                    var bufferKeys = GenerateBufferKeys(device.Uuid, dataItemIds);
-
-                    // Query the Observation Buffer 
-                    var results = GetObservations(bufferKeys, count: count);
-
-                    // Create Response Document
-                    var document = CreateDeviceStreamsDocument(device, ref results, mtconnectVersion);
-                    if (document != null)
-                    {
-                        StreamsResponseSent?.Invoke(this, new EventArgs());
-                        return document;
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Get a MTConnectStreams Document containing the specified Device.
-        /// </summary>
-        /// <param name="deviceKey">The (name or uuid) of the requested Device</param>
-        /// <param name="dataItemIds">A list of DataItemId's to specify what observations to include in the response</param>
-        /// <param name="at">The sequence number to include in the response</param>
-        /// <param name="count">The maximum number of observations to include in the response</param>
-        /// <returns>MTConnectStreams Response Document</returns>
-        public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(string deviceKey, IEnumerable<string> dataItemIds, long at, int count = 0, Version mtconnectVersion = null)
-        {
-            StreamsRequestReceived?.Invoke(deviceKey);
-
-            if (_deviceBuffer != null && _observationBuffer != null)
-            {
-                var deviceUuid = GetDeviceUuid(deviceKey);
-
-                // Get Device from the MTConnectDeviceBuffer
-                IDevice device;
-                if (deviceUuid == _agent.Uuid) device = _agent;
-                else device = _deviceBuffer.GetDevice(deviceUuid);
-
-                if (device != null)
-                {
-                    // Create list of BufferKeys
-                    var bufferKeys = GenerateBufferKeys(device.Uuid, dataItemIds);
-
-                    // Query the Observation Buffer 
-                    var results = GetObservations(bufferKeys, at: at, count: count);
-
-                    // Create Response Document
-                    var document = CreateDeviceStreamsDocument(device, ref results, mtconnectVersion);
-                    if (document != null)
-                    {
-                        StreamsResponseSent?.Invoke(this, new EventArgs());
-                        return document;
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Get a MTConnectStreams Document containing the specified Device.
-        /// </summary>
-        /// <param name="deviceKey">The (name or uuid) of the requested Device</param>
-        /// <param name="from">The sequence number of the first observation to include in the response</param>
-        /// <param name="to">The sequence number of the last observation to include in the response</param>
-        /// <param name="count">The maximum number of observations to include in the response</param>
-        /// <returns>MTConnectStreams Response Document</returns>
-        public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(string deviceKey, long from, long to, int count = 0, Version mtconnectVersion = null)
-        {
-            StreamsRequestReceived?.Invoke(deviceKey);
-
-            if (_deviceBuffer != null && _observationBuffer != null)
-            {
-                var deviceUuid = GetDeviceUuid(deviceKey);
-
-                // Get Device from the MTConnectDeviceBuffer
-                IDevice device;
-                if (deviceUuid == _agent.Uuid) device = _agent;
-                else device = _deviceBuffer.GetDevice(deviceUuid);
-
-                if (device != null)
-                {
-                    // Create list of BufferKeys
-                    var bufferKeys = GenerateBufferKeys(device);
-
-                    // Query the Observation Buffer 
-                    var results = GetObservations(bufferKeys, from, to: to, count: count);
-
-                    // Create Response Document
-                    var document = CreateDeviceStreamsDocument(device, ref results, mtconnectVersion);
-                    if (document != null)
-                    {
-                        StreamsResponseSent?.Invoke(this, new EventArgs());
-                        return document;
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Get a MTConnectStreams Document containing the specified Device.
-        /// </summary>
-        /// <param name="deviceKey">The (name or uuid) of the requested Device</param>
-        /// <param name="dataItemIds">A list of DataItemId's to specify what observations to include in the response</param>
-        /// <param name="from">The sequence number of the first observation to include in the response</param>
-        /// <param name="to">The sequence number of the last observation to include in the response</param>
-        /// <param name="count">The maximum number of observations to include in the response</param>
-        /// <returns>MTConnectStreams Response Document</returns>
-        public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(string deviceKey, IEnumerable<string> dataItemIds, long from, long to, int count = 0, Version mtconnectVersion = null)
-        {
-            StreamsRequestReceived?.Invoke(deviceKey);
-
-            if (_deviceBuffer != null && _observationBuffer != null)
-            {
-                var deviceUuid = GetDeviceUuid(deviceKey);
-
-                // Get Device from the MTConnectDeviceBuffer
-                IDevice device;
-                if (deviceUuid == _agent.Uuid) device = _agent;
-                else device = _deviceBuffer.GetDevice(deviceUuid);
-
-                if (device != null)
-                {
-                    // Create list of BufferKeys
-                    var bufferKeys = GenerateBufferKeys(device.Uuid, dataItemIds);
-
-                    // Query the Observation Buffer 
-                    var results = GetObservations(bufferKeys, from, to: to, count: count);
-
-                    // Create Response Document
-                    var document = CreateDeviceStreamsDocument(device, ref results, mtconnectVersion);
-                    if (document != null)
-                    {
-                        StreamsResponseSent?.Invoke(this, new EventArgs());
-                        return document;
-                    }
-                }
-            }
-
-            return null;
-        }
-
-
-        #region "Create"
-
-        private IStreamsResponseOutputDocument CreateDeviceStreamsDocument(IDevice device, ref IObservationBufferResults results, Version mtconnectVersion)
-        {
-            if (device != null)
-            {
-                return CreateDeviceStreamsDocument(new List<IDevice> { device }, ref results, mtconnectVersion);
-            }
-
-            return null;
-        }
-
-        private IStreamsResponseOutputDocument CreateDeviceStreamsDocument(IEnumerable<IDevice> devices, ref IObservationBufferResults results, Version mtconnectVersion)
-        {
-            if (results != null)
-            {
-                var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersion;
-                var lDevices = devices.ToArray();
-
-                // Create list of DeviceStreams to return
-                var deviceStreams = new IDeviceStreamOutput[lDevices.Length];
-                for (var i = 0; i < lDevices.Length; i++)
-                {
-                    // Create a DeviceStream based on the query results from the buffer
-                    deviceStreams[i] = CreateDeviceStream(lDevices[i], ref results, version);
-                }
-
-                if (!deviceStreams.IsNullOrEmpty())
-                {
-                    // Create MTConnectStreams Document
-                    var doc = new StreamsResponseOutputDocument();
-                    doc.Version = version;
-                    doc.Header = GetStreamsHeader(results, version);
-                    doc.Streams = deviceStreams;
-                    doc.FirstObservationSequence = results.FirstObservationSequence;
-                    doc.LastObservationSequence = results.LastObservationSequence;
-                    doc.ObservationCount = results.ObservationCount;
-
-                    return doc;
-                }
-            }
-
-            return null;
-        }
-
-        private IDeviceStreamOutput CreateDeviceStream(IDevice device, ref IObservationBufferResults dataItemResults, Version mtconnectVersion)
-        {
-            // Create DeviceStream
-            var deviceStream = new DeviceStreamOutput();
-            deviceStream.Name = device.Name;
-            deviceStream.Uuid = device.Uuid;
-
-            // Get a list of All Components for the Device
-            var components = device.GetComponents();
-            var componentStreams = new List<IComponentStreamOutput>();
-
-            if (!components.IsNullOrEmpty())
-            {
-                foreach (var component in components)
-                {
-                    // Process Component (to check MTConnect Version compatibility
-                    if (Component.IsCompatible(component, mtconnectVersion))
-                    {
-                        // Get All DataItems (Component Root DataItems and Composition DataItems)
-                        var dataItems = new List<IDataItem>();
-                        if (!component.DataItems.IsNullOrEmpty()) dataItems.AddRange(component.DataItems);
-                        if (!component.Compositions.IsNullOrEmpty())
-                        {
-                            foreach (var composition in component.Compositions)
-                            {
-                                if (!composition.DataItems.IsNullOrEmpty()) dataItems.AddRange(composition.DataItems);
-                            }
-                        }
-
-                        // Create a ComponentStream for the Component
-                        var componentStream = new ComponentStreamOutput();
-                        componentStream.ComponentId = component.Id;
-                        componentStream.ComponentType = component.Type;
-                        componentStream.Component = component;
-                        componentStream.Name = component.Name;
-                        componentStream.Uuid = component.Uuid;
-                        componentStream.Observations = GetObservations(device.Uuid, ref dataItemResults, dataItems, mtconnectVersion);
-                        if (componentStream.Observations != null && componentStream.Observations.Length > 0)
-                        {
-                            componentStreams.Add(componentStream);
-                        }
-                    }
-                }
-            }
-
-            // Add ComponentStream for Device
-            var deviceComponentStream = new ComponentStreamOutput();
-            deviceComponentStream.ComponentId = device.Id;
-            deviceComponentStream.ComponentType = device.Type;
-            deviceComponentStream.Component = device;
-            deviceComponentStream.Name = device.Name;
-            deviceComponentStream.Uuid = device.Uuid;
-            deviceComponentStream.Observations = GetObservations(device.Uuid, ref dataItemResults, device.DataItems, mtconnectVersion);
-            if (deviceComponentStream.Observations != null && deviceComponentStream.Observations.Length > 0)
-            {
-                componentStreams.Add(deviceComponentStream);
-            }
-
-            if (componentStreams.Count > 0)
-            {
-                deviceStream.ComponentStreams = componentStreams.ToArray();
-            }
-
-            return deviceStream;
-        }
-
-        private IObservationOutput[] GetObservations(string deviceUuid, ref IObservationBufferResults dataItemResults, IEnumerable<IDataItem> dataItems, Version mtconnectVersion = null)
-        {
-
-
-            if (dataItemResults != null && !dataItemResults.Observations.IsNullOrEmpty() && !dataItems.IsNullOrEmpty())
-            {
-                var dDataItems = dataItems.ToDictionary(o => o.Id);
-
-                var objs = new List<IObservationOutput>();
-                var objIndex = 0;
-                var previousIndex = 0;
-                var found = false;
-
-                // Create a sorted list of BufferKeys
-                var bufferKeys = GenerateBufferKeys(deviceUuid, dDataItems.Keys);
-                bufferKeys = bufferKeys.OrderBy(o => o);
-
-                foreach (var bufferKey in bufferKeys)
-                {
-                    var dataItemId = GetDataItemIdFromBufferKey(bufferKey);
-                    found = false;
-
-                    dDataItems.TryGetValue(dataItemId, out var dataItem);
-                    if (dataItem != null)
-                    {
-                        // Check Version Compatibility and Create Derived Class (if found)
-                        if (DataItem.IsCompatible(dataItem, mtconnectVersion))
-                        {
-                            // Loop through StoredObservations
-                            // List is already sorted and uses the sorted BufferKeys to set the last start index
-                            for (var i = previousIndex; i < dataItemResults.Observations.Length; i++)
-                            {
-                                if (dataItemResults.Observations[i].Key == bufferKey)
-                                {
-                                    objs.Add(CreateObservation(dataItem, ref dataItemResults.Observations[i]));
-                                    objIndex++;
-
-                                    previousIndex = i;
-                                    found = true;
-                                }
-                                else if (found) break;
-                            }
-                        }
-                    }
-                }
-
-                if (objIndex > 0)
-                {
-                    return objs.ToArray();
-                }
-            }
-
-            return null;
-        }
-
-        private static IObservationOutput CreateObservation(IDataItem dataItem, ref BufferObservation bufferObservation)
-        {
-            var observation = new ObservationOutput();
-            observation._dataItem = dataItem;
-            if (dataItem.Device != null) observation._deviceUuid = dataItem.Device.Uuid;
-            observation._dataItemId = dataItem.Id;
-            observation._category = dataItem.Category;
-            observation._representation = dataItem.Representation;
-            observation._type = dataItem.Type;
-            observation._subType = dataItem.SubType;
-            observation._name = dataItem.Name;
-            observation._compositionId = dataItem.CompositionId;
-            observation._sequence = bufferObservation.Sequence;
-            observation._timestamp = bufferObservation.Timestamp.ToDateTime();
-            observation._values = bufferObservation.Values;
-            return observation;
-        }
-
-        #endregion
-
-        #endregion
-
-        #region "Assets"
-
-        /// <summary>
-        /// Get an MTConnectAssets Document containing all Assets.
-        /// </summary>
-        /// <param name="deviceKey">Optional  Device name or uuid. If not given, all devices are returned.</param>
-        /// <param name="type">Defines the type of MTConnect Asset to be returned in the MTConnectAssets Response Document.</param>
-        /// <param name="removed">
-        /// An attribute that indicates whether the Asset has been removed from a piece of equipment.
-        /// If the value of the removed parameter in the query is true, then Asset Documents for Assets that have been marked as removed from a piece of equipment will be included in the Response Document.
-        /// If the value of the removed parameter in the query is false, then Asset Documents for Assets that have been marked as removed from a piece of equipment will not be included in the Response Document.
-        /// </param>
-        /// <param name="count">Defines the maximum number of Asset Documents to return in an MTConnectAssets Response Document.</param>
-        /// <returns>MTConnectAssets Response Document</returns>
-        public IAssetsResponseDocument GetAssetsResponseDocument(string deviceKey = null, string type = null, bool removed = false, int count = 0, Version mtconnectVersion = null)
-        {
-            DeviceAssetsRequestReceived?.Invoke(deviceKey);
-
-            if (_assetBuffer != null)
-            {
-                // Set MTConnect Version
-                var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersion;
-
-                var processedAssets = new List<IAsset>();
-
-                // Get Device UUID from deviceKey
-                string deviceUuid = GetDeviceUuid(deviceKey);
-
-                // Get Assets from AssetsBuffer
-                var assets = _assetBuffer.GetAssets(deviceUuid, type, removed, count);
-                if (!assets.IsNullOrEmpty())
-                {
-                    // Process Assets
-                    foreach (var asset in assets)
-                    {
-                        var processedAsset = asset.Process(version);
-                        if (processedAsset != null) processedAssets.Add(processedAsset);
-                    }
-                }
-
-                // Create AssetsHeader
-                var header = GetAssetsHeader(version);
-                header.Version = _version.ToString();
-                header.InstanceId = InstanceId;
-
-                // Create MTConnectAssets Response Document
-                var document = new AssetsResponseDocument();
-                document.Version = version;
-                document.Header = header;
-                document.Assets = processedAssets;
-
-                AssetsResponseSent?.Invoke(document);
-
-                return document;
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Get an MTConnectAssets Document containing the specified Asset
-        /// </summary>
-        /// <param name="assetIds">The IDs of the Assets to include in the response</param>
-        /// <returns>MTConnectAssets Response Document</returns>
-        public IAssetsResponseDocument GetAssetsResponseDocument(IEnumerable<string> assetIds, Version mtconnectVersion = null)
-        {
-            AssetsRequestReceived?.Invoke(assetIds);
-
-            if (_assetBuffer != null)
-            {
-                // Set MTConnect Version
-                var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersion;
-
-                var processedAssets = new List<IAsset>();
-
-                // Get Assets from AssetsBuffer
-                var assets = _assetBuffer.GetAssets(assetIds);
-                if (!assets.IsNullOrEmpty())
-                {
-                    // Process Assets
-                    foreach (var asset in assets)
-                    {
-                        var processedAsset = asset.Process(version);
-                        if (processedAsset != null) processedAssets.Add(processedAsset);
-                    }
-                }
-
-                // Create AssetsHeader
-                var header = GetAssetsHeader(version);
-                header.Version = _version.ToString();
-                header.InstanceId = InstanceId;
-
-                // Create MTConnectAssets Response Document
-                var document = new AssetsResponseDocument();
-                document.Version = version;
-                document.Header = header;
-                document.Assets = processedAssets;
-
-                AssetsResponseSent?.Invoke(document);
-
-                return document;
-            }
-
-            return null;
-        }
-
-
-        /// <summary>
-        /// Remove the Asset with the specified Asset ID
-        /// </summary>
-        /// <param name="assetId">The ID of the Asset to remove</param>
-        /// <param name="timestamp">The Timestamp of when the Asset was removed in Unix Ticks (1/10,000 of a millisecond)</param>
-        /// <returns>Returns True if the Asset was successfully removed</returns>
-        public bool RemoveAsset(string assetId, long timestamp = 0)
-        {
-            if (!string.IsNullOrEmpty(assetId) && _assetBuffer != null)
-            {
-                var ts = timestamp > 0 ? timestamp : UnixDateTime.Now;
-
-                // Get the Asset from the Buffer
-                var asset = _assetBuffer.GetAsset(assetId);
-                if (asset != null)
-                {
-                    var deviceUuid = asset.DeviceUuid;
-
-                    // Remove the Asset from the Buffer
-                    if (_assetBuffer.RemoveAsset(assetId))
-                    {
-                        // Get the Device from the Buffer (to set the AssetRemoved DataItem)
-                        var device = _deviceBuffer.GetDevice(deviceUuid);
-                        if (device != null)
-                        {
-                            // Update AssetRemoved DataItem
-                            if (!device.DataItems.IsNullOrEmpty())
-                            {
-                                var assetRemoved = device.DataItems.FirstOrDefault(o => o.Type == AssetRemovedDataItem.TypeId);
-                                if (assetRemoved != null)
-                                {
-                                    AddObservation(deviceUuid, assetRemoved.Id, ValueKeys.Result, asset.AssetId, ts);
-                                }
-                            }
-                        }
-
-                        // Update Asset Count
-                        DecrementAssetCount(deviceUuid, asset.Type);
-
-                        return true;
-                    }
-                }
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// Remove the Asset with the specified Asset ID
-        /// </summary>
-        /// <param name="assetId">The ID of the Asset to remove</param>
-        /// <param name="timestamp">The Timestamp of when the Asset was removed</param>
-        /// <returns>Returns True if the Asset was successfully removed</returns>
-        public bool RemoveAsset(string assetId, DateTime timestamp)
-        {
-            return RemoveAsset(assetId, timestamp.ToUnixTime());
-        }
-
-
-        /// <summary>
-        /// Remove all Assets with the specified Type
-        /// </summary>
-        /// <param name="assetType">The Type of the Assets to remove</param>
-        /// <param name="timestamp">The Timestamp of when the Assets were removed in Unix Ticks (1/10,000 of a millisecond)</param>
-        /// <returns>Returns True if the Assets were successfully removed</returns>
-        public bool RemoveAllAssets(string assetType, long timestamp = 0)
-        {
-            if (!string.IsNullOrEmpty(assetType) && _assetBuffer != null)
-            {
-                var ts = timestamp > 0 ? timestamp : UnixDateTime.Now;
-
-                // Get the Assets from the Buffer
-                var assets = _assetBuffer.GetAssets(assetType);
-                if (!assets.IsNullOrEmpty())
-                {
-                    var deviceUuids = assets.Select(o => o.DeviceUuid).Distinct();
-
-                    // Remove the Assets from the Buffer
-                    if (_assetBuffer.RemoveAllAssets(assetType))
-                    {
-                        foreach (var deviceUuid in deviceUuids)
-                        {
-                            // Get the Device from the Buffer (to set the AssetRemoved DataItem)
-                            var device = _deviceBuffer.GetDevice(deviceUuid);
-                            if (device != null)
-                            {
-                                var deviceAssets = assets.Where(o => o.DeviceUuid == deviceUuid);
-                                if (!deviceAssets.IsNullOrEmpty())
-                                {
-                                    foreach (var asset in deviceAssets)
-                                    {
-                                        // Update AssetRemoved DataItem
-                                        if (!device.DataItems.IsNullOrEmpty())
-                                        {
-                                            var assetRemoved = device.DataItems.FirstOrDefault(o => o.Type == AssetRemovedDataItem.TypeId);
-                                            if (assetRemoved != null)
-                                            {
-                                                AddObservation(deviceUuid, assetRemoved.Id, ValueKeys.Result, asset.AssetId, ts);
-                                            }
-                                        }
-
-                                        // Update Asset Count
-                                        DecrementAssetCount(deviceUuid, asset.Type);
-                                    }
-                                }
-                            }
-                        }
-
-                        return true;
-                    }
-                }
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// Remove all Assets with the specified Type
-        /// </summary>
-        /// <param name="assetType">The Type of the Assets to remove</param>
-        /// <param name="timestamp">The Timestamp of when the Assets were removed</param>
-        /// <returns>Returns True if the Assets were successfully removed</returns>
-        public bool RemoveAllAssets(string assetType, DateTime timestamp)
-        {
-            return RemoveAllAssets(assetType, timestamp.ToUnixTime());
-        }
-
-        #endregion
-
-        #region "Errors"
-
-        /// <summary>
-        /// Get an MTConnectErrors Document containing the specified ErrorCode
-        /// </summary>
-        /// <param name="errorCode">Provides a descriptive code that indicates the type of error that was encountered by an Agent when attempting to respond to a Request for information.</param>
-        /// <param name="value">A textual description of the error and any additional information an Agent is capable of providing regarding a specific error.</param>
-        /// <returns>MTConnectError Response Document</returns>
-        public IErrorResponseDocument GetErrorResponseDocument(ErrorCode errorCode, string value = null, Version mtconnectVersion = null)
-        {
-            var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersion;
-
-            var doc = new ErrorResponseDocument();
-            doc.Version = version;
-
-            var header = GetErrorHeader();
-            header.Version = _version.ToString();
-
-            doc.Header = header;
-            doc.Errors = new List<Error>
-            {
-                new Error(errorCode, value)
-            };
-
-            ErrorResponseSent?.Invoke(doc);
-
-            return doc;
-        }
-
-        /// <summary>
-        /// Get an MTConnectErrors Document containing the specified Errors
-        /// </summary>
-        /// <param name="errors">A list of Errors to include in the response Document</param>
-        /// <returns>MTConnectError Response Document</returns>
-        public IErrorResponseDocument GetErrorResponseDocument(IEnumerable<IError> errors, Version mtconnectVersion = null)
-        {
-            var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersion;
-
-            var doc = new ErrorResponseDocument();
-            doc.Version = version;
-
-            var header = GetErrorHeader();
-            header.Version = _version.ToString();
-
-            doc.Header = header;
-            doc.Errors = errors != null ? errors.ToList() : null;
-
-            ErrorResponseSent?.Invoke(doc);
-
-            return doc;
-        }
-
-        #endregion
-
-        #region "Entities"
 
         public IDevice GetDevice(string deviceKey, Version mtconnectVersion = null)
         {
-            var device = _deviceBuffer.GetDevice(deviceKey);
-            if (device != null)
+            var deviceUuid = GetDeviceUuid(deviceKey);
+            if (deviceUuid != null)
             {
-                return Device.Process(device, mtconnectVersion != null ? mtconnectVersion : MTConnectVersion);
+                _devices.TryGetValue(deviceUuid, out var device);
+                if (device != null)
+                {
+                    return Device.Process(device, mtconnectVersion != null ? mtconnectVersion : MTConnectVersion);
+                }
             }
 
             return null;
@@ -1869,7 +346,22 @@ namespace MTConnect.Agents
         {
             var allDevices = new List<IDevice>();
             allDevices.Add(_agent);
-            var devices = _deviceBuffer.GetDevices();
+            var devices = _devices.Select(o => o.Value).ToList();
+            if (!devices.IsNullOrEmpty()) allDevices.AddRange(devices);
+
+            if (!allDevices.IsNullOrEmpty())
+            {
+                return ProcessDevices(allDevices, mtconnectVersion);
+            }
+
+            return null;
+        }
+
+        public IEnumerable<IDevice> GetDevices(string deviceType, Version mtconnectVersion = null)
+        {
+            var allDevices = new List<IDevice>();
+            if (string.IsNullOrEmpty(deviceType) || deviceType.ToLower() == "agent") allDevices.Add(Agent);
+            var devices = _devices.Select(o => o.Value).ToList();
             if (!devices.IsNullOrEmpty()) allDevices.AddRange(devices);
 
             if (!allDevices.IsNullOrEmpty())
@@ -1903,7 +395,7 @@ namespace MTConnect.Agents
                     else
                     {
                         // Get Device From DeviceBuffer
-                        var device = _deviceBuffer.GetDevice(deviceUuid);
+                        _devices.TryGetValue(deviceKey, out var device);
                         if (device == null && deviceUuid == _uuid) device = _agent;
 
                         // Get DataItem from Device DataItemKey
@@ -1956,154 +448,211 @@ namespace MTConnect.Agents
             return null;
         }
 
+        public IEnumerable<IDataItem> GetDataItems(string deviceKey)
+        {
+            if (!string.IsNullOrEmpty(deviceKey))
+            {
+                // Lookup DeviceUuid from deviceKey
+                var deviceUuid = GetDeviceUuid(deviceKey);
+                if (!string.IsNullOrEmpty(deviceUuid))
+                {
+                    if (_deviceDataItems.TryGetValue(deviceUuid, out var dataItems))
+                    {
+                        return dataItems;
+                    }
+                }
+            }
+
+            return null;
+        }
+
 
         public IEnumerable<IObservationOutput> GetCurrentObservations(Version mtconnectVersion = null)
         {
+            var observations = new List<IObservationOutput>();
+
             var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersion;
 
             var allDevices = new List<IDevice>();
             allDevices.Add(_agent);
-            var devices = _deviceBuffer.GetDevices();
+            var devices = GetDevices(version);
             if (!devices.IsNullOrEmpty()) allDevices.AddRange(devices);
 
             if (!allDevices.IsNullOrEmpty())
             {
-                // Create list of BufferKeys
-                var bufferKeys = GenerateBufferKeys(allDevices);
-
-                // Query the Observation Buffer 
-                var results = _observationBuffer.GetCurrentObservations(bufferKeys);
-                if (results.IsValid)
+                foreach (var device in allDevices)
                 {
-                    var observations = new List<IObservationOutput>();
-                    foreach (var device in allDevices)
-                    {
-                        var dataItems = device.GetDataItems();
-
-                        var deviceObservations = GetObservations(device.Uuid, ref results, dataItems, version);
-                        if (!deviceObservations.IsNullOrEmpty()) observations.AddRange(deviceObservations);
-                    }
-                    return observations;
+                    observations.AddRange(GetCurrentObservations(device.Uuid, version));
                 }
             }
 
-            return null;
+            return observations;
         }
 
         public IEnumerable<IObservationOutput> GetCurrentObservations(string deviceKey, Version mtconnectVersion = null)
         {
+            var observations = new List<IObservationOutput>();
+
             var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersion;
 
-            var deviceUuid = GetDeviceUuid(deviceKey);
-
-            var device = _deviceBuffer.GetDevice(deviceKey);
+            var device = GetDevice(deviceKey, version);
             if (device != null)
             {
-                // Create list of BufferKeys
-                var bufferKeys = GenerateBufferKeys(device);
-
-                // Query the Observation Buffer 
-                var results = _observationBuffer.GetCurrentObservations(bufferKeys);
-                if (results.IsValid)
+                var dataItems = GetDataItems(device.Uuid);
+                if (!dataItems.IsNullOrEmpty())
                 {
-                    var dataItems = device.GetDataItems();
-                    return GetObservations(deviceUuid, ref results, dataItems, version);
+                    foreach (var dataItem in dataItems)
+                    {
+                        var hash = $"{device.Uuid}:{dataItem.Id}";
+
+                        if (dataItem.Category == DataItemCategory.CONDITION)
+                        {
+                            if (_currentConditions.TryGetValue(hash, out var observationInputs))
+                            {
+                                if (!observationInputs.IsNullOrEmpty())
+                                {
+                                    foreach (var observationInput in observationInputs)
+                                    {
+                                        observations.Add(CreateObservation(dataItem, observationInput));
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (_currentObservations.TryGetValue(hash, out var observationInput))
+                            {
+                                observations.Add(CreateObservation(dataItem, observationInput));
+                            }
+                        }
+                    }
                 }
             }
 
-            return null;
+            return observations;
+        }
+
+        private static IObservationOutput CreateObservation(IDataItem dataItem, IObservationInput observationInput)
+        {
+            var observation = new ObservationOutput();
+            observation._dataItem = dataItem;
+            if (dataItem.Device != null) observation._deviceUuid = dataItem.Device.Uuid;
+            observation._dataItemId = dataItem.Id;
+            observation._category = dataItem.Category;
+            observation._representation = dataItem.Representation;
+            observation._type = dataItem.Type;
+            observation._subType = dataItem.SubType;
+            observation._name = dataItem.Name;
+            observation._compositionId = dataItem.CompositionId;
+            //observation._sequence = observationInput.Sequence; // No Sequence in IObservationInput
+            observation._timestamp = observationInput.Timestamp.ToDateTime();
+            observation._values = observationInput.Values?.ToArray();
+            return observation;
         }
 
 
-        public IEnumerable<IAsset> GetAssets(Version mtconnectVersion = null)
+        public virtual IEnumerable<IAsset> GetAssets(Version mtconnectVersion = null)
         {
             return null;
         }
 
-        public IEnumerable<IAsset> GetAssets(string deviceKey, Version mtconnectVersion = null)
+        public virtual IEnumerable<IAsset> GetAssets(string deviceKey, Version mtconnectVersion = null)
         {
             return null;
+        }
+
+        /// <summary>
+        /// Remove the Asset with the specified Asset ID
+        /// </summary>
+        /// <param name="assetId">The ID of the Asset to remove</param>
+        /// <param name="timestamp">The Timestamp of when the Asset was removed in Unix Ticks (1/10,000 of a millisecond)</param>
+        /// <returns>Returns True if the Asset was successfully removed</returns>
+        public virtual bool RemoveAsset(string assetId, long timestamp = 0)
+        {
+            return false;
+        }
+
+        /// <summary>
+        /// Remove the Asset with the specified Asset ID
+        /// </summary>
+        /// <param name="assetId">The ID of the Asset to remove</param>
+        /// <param name="timestamp">The Timestamp of when the Asset was removed</param>
+        /// <returns>Returns True if the Asset was successfully removed</returns>
+        public virtual bool RemoveAsset(string assetId, DateTime timestamp)
+        {
+            return false;
+        }
+
+
+        /// <summary>
+        /// Remove all Assets with the specified Type
+        /// </summary>
+        /// <param name="assetType">The Type of the Assets to remove</param>
+        /// <param name="timestamp">The Timestamp of when the Assets were removed in Unix Ticks (1/10,000 of a millisecond)</param>
+        /// <returns>Returns True if the Assets were successfully removed</returns>
+        public virtual bool RemoveAllAssets(string assetType, long timestamp = 0)
+        {
+            return false;
+        }
+
+        /// <summary>
+        /// Remove all Assets with the specified Type
+        /// </summary>
+        /// <param name="assetType">The Type of the Assets to remove</param>
+        /// <param name="timestamp">The Timestamp of when the Assets were removed</param>
+        /// <returns>Returns True if the Assets were successfully removed</returns>
+        public virtual bool RemoveAllAssets(string assetType, DateTime timestamp)
+        {
+            return false;
         }
 
         #endregion
-
 
         #region "Add"
 
         #region "Internal"
 
-        public void InitializeDataItems(IDevice device, long timestamp = 0)
+        public virtual void InitializeDataItems(IDevice device, long timestamp = 0)
         {
-            if (device != null && _observationBuffer != null)
+            if (device != null)
             {
                 // Get All DataItems for the Device
                 var dataItems = device.GetDataItems();
                 if (!dataItems.IsNullOrEmpty())
                 {
-                    var deviceIndex = GetDeviceIndex(device.Uuid);
-                    var dataItemIndexes = new List<int>();
-
-                    // Create list of DataItemIndexes
-                    foreach (var dataItem in dataItems)
-                    {
-                        dataItemIndexes.Add(GetDataItemIndex(device.Uuid, dataItem.Id));
-                    }
-
-                    // Get the BufferKeys to use for the ObservationBuffer
-                    var bufferKeys = GenerateBufferKeys(device);
-
-                    // Get all Current Observations for the Device
-                    var results = _observationBuffer.GetObservations(bufferKeys);
-
                     var ts = timestamp > 0 ? timestamp : UnixDateTime.Now;
 
                     foreach (var dataItem in dataItems)
                     {
-                        bool exists = false;
+                        // Add Unavailable Observation to ObservationBuffer
+                        var observation = new ObservationInput();
+                        observation.DeviceKey = device.Uuid;
+                        observation.DataItemKey = dataItem.Id;
+                        observation.Timestamp = ts;
 
-                        // Lookup Buffer Key
-                        var bufferKey = GenerateBufferKey(device.Uuid, dataItem.Id);
+                        var values = new List<ObservationValue>();
 
-                        // Check if the DataItem has an observation
-                        if (results != null && !results.Observations.IsNullOrEmpty())
+                        var valueType = dataItem.Category == DataItemCategory.CONDITION ? ValueKeys.Level : ValueKeys.Result;
+                        var value = !string.IsNullOrEmpty(dataItem.InitialValue) ? dataItem.InitialValue : Observation.Unavailable;
+                        values.Add(new ObservationValue(valueType, value));
+
+                        // Add Required Values
+                        switch (dataItem.Representation)
                         {
-                            exists = results.Observations.Any(o => o.Key == bufferKey);
+                            case DataItemRepresentation.DATA_SET: values.Add(new ObservationValue(ValueKeys.Count, 0)); break;
+                            case DataItemRepresentation.TABLE: values.Add(new ObservationValue(ValueKeys.Count, 0)); break;
+                            case DataItemRepresentation.TIME_SERIES: values.Add(new ObservationValue(ValueKeys.SampleCount, 0)); break;
                         }
 
-                        // If no observation exists, then add an Unavailable observation
-                        if (!exists)
-                        {
-                            var valueType = dataItem.Category == DataItemCategory.CONDITION ? ValueKeys.Level : ValueKeys.Result;
-                            var value = !string.IsNullOrEmpty(dataItem.InitialValue) ? dataItem.InitialValue : Observation.Unavailable;
+                        observation.Values = values;
 
-                            // Add Unavailable Observation to ObservationBuffer
-                            var observation = Observation.Create(dataItem);
-                            observation.DeviceUuid = device.Uuid;
-                            observation.Timestamp = ts.ToDateTime();
-                            observation.AddValues(new List<ObservationValue>
-                            {
-                                new ObservationValue(valueType, value)
-                            });
-
-                            // Add Required Values
-                            switch (dataItem.Representation)
-                            {
-                                case DataItemRepresentation.DATA_SET: observation.AddValue(ValueKeys.Count, 0); break;
-                                case DataItemRepresentation.TABLE: observation.AddValue(ValueKeys.Count, 0); break;
-                                case DataItemRepresentation.TIME_SERIES: observation.AddValue(ValueKeys.SampleCount, 0); break;
-                            }
-
-                            var bufferObservation = new BufferObservation(bufferKey, observation);
-
-                            _observationBuffer.AddObservation(ref bufferObservation);
-                            ObservationAdded?.Invoke(this, observation);
-                        }
+                        AddObservation(device.Uuid, observation);
                     }
                 }
             }
         }
 
-        private bool UpdateCurrentObservation(string deviceUuid, IDataItem dataItem, IObservationInput observation)
+        protected bool UpdateCurrentObservation(string deviceUuid, IDataItem dataItem, IObservationInput observation)
         {
             if (_currentObservations != null && observation != null && !string.IsNullOrEmpty(deviceUuid) && dataItem != null)
             {
@@ -2133,7 +682,7 @@ namespace MTConnect.Agents
             return false;
         }
 
-        private bool UpdateCurrentCondition(string deviceUuid, IDataItem dataItem, IObservationInput observation)
+        protected bool UpdateCurrentCondition(string deviceUuid, IDataItem dataItem, IObservationInput observation)
         {
             if (_currentConditions != null && observation != null && !string.IsNullOrEmpty(deviceUuid) && dataItem != null)
             {
@@ -2520,7 +1069,7 @@ namespace MTConnect.Agents
 
         private bool AddDeviceAddedObservation(IDevice device, long timestamp = 0)
         {
-            if (_agent != null && device != null && _observationBuffer != null)
+            if (_agent != null && device != null)
             {
                 var dataItems = _agent.GetDataItems();
                 if (!dataItems.IsNullOrEmpty())
@@ -2539,12 +1088,7 @@ namespace MTConnect.Agents
 
                         ObservationAdded?.Invoke(this, observation);
 
-                        // Get the BufferKey to use for the ObservationBuffer
-                        var bufferKey = GenerateBufferKey(_agent.Uuid, dataItem.Id);
-                        var bufferObservation = new BufferObservation(bufferKey, observation);
-
-                        // Add to Observation Buffer
-                        return _observationBuffer.AddObservation(ref bufferObservation);
+                        return true;
                     }
                 }
             }
@@ -2555,7 +1099,7 @@ namespace MTConnect.Agents
 
         private bool AddDeviceChangedObservation(IDevice device, long timestamp = 0)
         {
-            if (_agent != null && device != null && _observationBuffer != null)
+            if (_agent != null && device != null)
             {
                 var dataItems = _agent.GetDataItems();
                 if (!dataItems.IsNullOrEmpty())
@@ -2574,12 +1118,7 @@ namespace MTConnect.Agents
 
                         ObservationAdded?.Invoke(this, observation);
 
-                        // Get the BufferKey to use for the ObservationBuffer
-                        var bufferKey = GenerateBufferKey(_agent.Uuid, dataItem.Id);
-                        var bufferObservation = new BufferObservation(bufferKey, observation);
-
-                        // Add to Observation Buffer
-                        return _observationBuffer.AddObservation(ref bufferObservation);
+                        return true;
                     }
                 }
             }
@@ -2589,7 +1128,7 @@ namespace MTConnect.Agents
 
         private bool AddDeviceRemovedObservation(IDevice device, long timestamp = 0)
         {
-            if (_agent != null && device != null && _observationBuffer != null)
+            if (_agent != null && device != null)
             {
                 var dataItems = _agent.GetDataItems();
                 if (!dataItems.IsNullOrEmpty())
@@ -2608,12 +1147,7 @@ namespace MTConnect.Agents
 
                         ObservationAdded?.Invoke(this, observation);
 
-                        // Get the BufferKey to use for the ObservationBuffer
-                        var bufferKey = GenerateBufferKey(_agent.Uuid, dataItem.Id);
-                        var bufferObservation = new BufferObservation(bufferKey, observation);
-
-                        // Add to Observation Buffer
-                        return _observationBuffer.AddObservation(ref bufferObservation);
+                        return true;
                     }
                 }
             }
@@ -2629,14 +1163,14 @@ namespace MTConnect.Agents
         /// </summary>
         public bool AddDevice(IDevice device, bool initializeDataItems = true)
         {
-            if (device != null && _deviceBuffer != null)
+            if (device != null)
             {
                 // Create new object (to validate and prevent derived classes that won't serialize right with XML)
                 var obj = NormalizeDevice(device);
                 if (obj != null)
                 {
                     // Get Existing Device (if exists)
-                    var existingDevice = _deviceBuffer.GetDevice(obj.Uuid);
+                    _devices.TryGetValue(obj.Uuid, out var existingDevice);
 
                     // Check if Device Already Exists in the Device Buffer and is changed
                     if (existingDevice != null && obj.ChangeId == existingDevice.ChangeId)
@@ -2645,7 +1179,7 @@ namespace MTConnect.Agents
                     }
 
                     // Add the Device to the Buffer
-                    var success = _deviceBuffer.AddDevice(obj);
+                    var success = _devices.TryAdd(obj.Uuid, obj);
                     if (success)
                     {
                         // Add Name and UUID to DeviceKey dictionary
@@ -2692,7 +1226,7 @@ namespace MTConnect.Agents
         /// </summary>
         public bool AddDevices(IEnumerable<IDevice> devices, bool initializeDataItems = true)
         {
-            if (!devices.IsNullOrEmpty() && _deviceBuffer != null)
+            if (!devices.IsNullOrEmpty())
             {
                 bool success = false;
 
@@ -3030,19 +1564,9 @@ namespace MTConnect.Agents
                         // Check if Observation Needs to be Updated
                         if (update)
                         {
-                            // Get the BufferKey to use for the ObservationBuffer
-                            var bufferKey = GenerateBufferKey(deviceUuid, dataItem.Id);
-                            var bufferObservation = new BufferObservation(
-                                bufferKey,
-                                dataItem.Category,
-                                dataItem.Representation,
-                                observationInput.Values,
-                                0,
-                                input.Timestamp
-                                );
-
-                            // Add Observation to Streaming Buffer
-                            if (_observationBuffer.AddObservation(ref bufferObservation))
+                            // Call Update to Observation Buffer - HERE
+                            success = OnAddObservation(deviceUuid, dataItem, observationInput);
+                            if (success)
                             {
                                 if (_metrics != null)
                                 {
@@ -3055,16 +1579,14 @@ namespace MTConnect.Agents
 
                                 if (ObservationAdded != null)
                                 {
-                                    var observation = Observation.Create(dataItem);                                
+                                    var observation = Observation.Create(dataItem);
                                     observation.DeviceUuid = deviceUuid;
                                     observation.DataItem = dataItem;
-                                    observation.Timestamp = input.Timestamp.ToDateTime();
+                                    observation.Timestamp = observationInput.Timestamp.ToDateTime();
                                     observation.AddValues(observationInput.Values);
 
                                     ObservationAdded?.Invoke(this, observation);
                                 }
-
-                                success = true;
                             }
                         }
                         else success = true; // Return true if no update needed
@@ -3108,9 +1630,25 @@ namespace MTConnect.Agents
             return false;
         }
 
+        protected virtual bool OnAddObservation(string deviceUuid, IDataItem dataItem, IObservationInput observationInput)
+        {
+            return true;
+        }
+
         #endregion
 
         #region "Assets"
+
+        protected virtual bool OnAssetUpdate(IAsset asset)
+        {
+            return true;
+        }
+
+        protected virtual bool OnNewAssetAdded(IAsset asset)
+        {
+            return true;
+        }
+
 
         /// <summary>
         /// Add a new Asset to the Agent for the specified Device and DataItem
@@ -3121,72 +1659,71 @@ namespace MTConnect.Agents
         /// <returns>True if the Asset was added successfully</returns>
         public bool AddAsset(string deviceKey, IAsset asset, bool? ignoreTimestamp = null)
         {
-            if (_deviceBuffer != null && _assetBuffer != null)
+            // Get Device UUID from deviceKey
+            var deviceUuid = GetDeviceUuid(deviceKey);
+
+            // Get Device from DeviceBuffer
+            _devices.TryGetValue(deviceUuid, out var device);
+            if (device != null)
             {
-                // Get Device UUID from deviceKey
-                var deviceUuid = GetDeviceUuid(deviceKey);
+                // Set Device UUID Property
+                asset.DeviceUuid = device.Uuid;
 
-                // Get Device from DeviceBuffer
-                var device = _deviceBuffer.GetDevice(deviceUuid);
-                if (device != null)
+                // Set Timestamp
+                if ((!ignoreTimestamp.HasValue && _configuration.IgnoreTimestamps) || (ignoreTimestamp.HasValue && ignoreTimestamp.Value))
                 {
-                    // Set Device UUID Property
-                    asset.DeviceUuid = device.Uuid;
+                    asset.Timestamp = UnixDateTime.Now;
+                }
+                else asset.Timestamp = asset.Timestamp > 0 ? asset.Timestamp : UnixDateTime.Now;
 
-                    // Set Timestamp
-                    if ((!ignoreTimestamp.HasValue && _configuration.IgnoreTimestamps) || (ignoreTimestamp.HasValue && ignoreTimestamp.Value))
+                // Validate Asset based on Device's MTConnectVersion
+                var validationResults = asset.IsValid(device.MTConnectVersion);
+                if (validationResults.IsValid || _configuration.InputValidationLevel < InputValidationLevel.Strict)
+                {
+                    // Set flag whether the Asset already exists in the Buffer
+                    var exists = _assetIds.Contains(asset.AssetId);
+
+                    // Add Asset to AssetBuffer
+                    if (OnAssetUpdate(asset))
                     {
-                        asset.Timestamp = UnixDateTime.Now;
-                    }
-                    else asset.Timestamp = asset.Timestamp > 0 ? asset.Timestamp : UnixDateTime.Now;
-
-                    // Validate Asset based on Device's MTConnectVersion
-                    var validationResults = asset.IsValid(device.MTConnectVersion);
-                    if (validationResults.IsValid || _configuration.InputValidationLevel < InputValidationLevel.Strict)
-                    {
-                        // Set flag whether the Asset already exists in the Buffer
-                        var exists = _assetBuffer.AssetExists(asset.AssetId);
-
-                        // Add Asset to AssetBuffer
-                        if (_assetBuffer.AddAsset(asset))
+                        // Update AssetChanged DataItem
+                        if (!device.DataItems.IsNullOrEmpty())
                         {
-                            // Update AssetChanged DataItem
-                            if (!device.DataItems.IsNullOrEmpty())
+                            var assetChanged = device.DataItems.FirstOrDefault(o => o.Type == AssetChangedDataItem.TypeId);
+                            if (assetChanged != null)
                             {
-                                var assetChanged = device.DataItems.FirstOrDefault(o => o.Type == AssetChangedDataItem.TypeId);
-                                if (assetChanged != null)
-                                {
-                                    var assetChangedObservation = new ObservationInput();
-                                    assetChangedObservation.DataItemKey = assetChanged.Id;
-                                    assetChangedObservation.AddValue(ValueKeys.Result, asset.AssetId);
-                                    assetChangedObservation.AddValue(ValueKeys.AssetType, asset.Type);
-                                    assetChangedObservation.Timestamp = asset.Timestamp;
-                                    AddObservation(deviceUuid, assetChangedObservation);
-                                }
+                                var assetChangedObservation = new ObservationInput();
+                                assetChangedObservation.DataItemKey = assetChanged.Id;
+                                assetChangedObservation.AddValue(ValueKeys.Result, asset.AssetId);
+                                assetChangedObservation.AddValue(ValueKeys.AssetType, asset.Type);
+                                assetChangedObservation.Timestamp = asset.Timestamp;
+                                AddObservation(deviceUuid, assetChangedObservation);
                             }
-
-                            // Update Agent Metrics
-                            if (_metrics != null) _metrics.UpdateAsset(deviceUuid, asset.AssetId);
-
-                            if (!exists)
-                            {                            
-                                // Update Asset Count
-                                IncrementAssetCount(deviceUuid, asset.Type);
-                            }
-
-                            if (!validationResults.IsValid && _configuration.InputValidationLevel > InputValidationLevel.Ignore)
-                            {
-                                if (InvalidAssetAdded != null) InvalidAssetAdded.Invoke(asset, validationResults);
-                            }
-
-                            AssetAdded?.Invoke(this, asset);
-                            return true;
                         }
+
+                        // Update Agent Metrics
+                        if (_metrics != null) _metrics.UpdateAsset(deviceUuid, asset.AssetId);
+
+                        if (!exists)
+                        {
+                            OnNewAssetAdded(asset);
+
+                            // Update Asset Count
+                            //IncrementAssetCount(deviceUuid, asset.Type);
+                        }
+
+                        if (!validationResults.IsValid && _configuration.InputValidationLevel > InputValidationLevel.Ignore)
+                        {
+                            if (InvalidAssetAdded != null) InvalidAssetAdded.Invoke(asset, validationResults);
+                        }
+
+                        AssetAdded?.Invoke(this, asset);
+                        return true;
                     }
-                    else
-                    {
-                        if (InvalidAssetAdded != null) InvalidAssetAdded.Invoke(asset, validationResults);
-                    }
+                }
+                else
+                {
+                    if (InvalidAssetAdded != null) InvalidAssetAdded.Invoke(asset, validationResults);
                 }
             }
 
@@ -3201,7 +1738,7 @@ namespace MTConnect.Agents
         /// <returns>True if the Assets was added successfully</returns>
         public bool AddAssets(string deviceKey, IEnumerable<IAsset> assets)
         {
-            if (_assetBuffer != null && !assets.IsNullOrEmpty())
+            if (!assets.IsNullOrEmpty())
             {
                 var success = false;
 
@@ -3217,35 +1754,6 @@ namespace MTConnect.Agents
             return false;
         }
 
-
-        private void AssetRemovedFromBuffer(object sender, IAsset asset)
-        {
-            if (asset != null)
-            {
-                var device = GetDevice(asset.DeviceUuid);
-                if (device != null)
-                {
-                    // Update AssetRemoved DataItem
-                    if (!device.DataItems.IsNullOrEmpty())
-                    {
-                        var assetRemoved = device.DataItems.FirstOrDefault(o => o.Type == AssetRemovedDataItem.TypeId);
-                        if (assetRemoved != null)
-                        {
-                            var assetChangedObservation = new ObservationInput();
-                            assetChangedObservation.DataItemKey = assetRemoved.Id;
-                            assetChangedObservation.AddValue(ValueKeys.Result, asset.AssetId);
-                            assetChangedObservation.AddValue(ValueKeys.AssetType, asset.Type);
-                            assetChangedObservation.Timestamp = asset.Timestamp;
-                            AddObservation(asset.DeviceUuid, assetChangedObservation);
-                        }
-                    }
-
-                    // Update Asset Count
-                    DecrementAssetCount(asset.DeviceUuid, asset.Type);
-                }
-            }
-        }
-
         #endregion
 
         #endregion
@@ -3254,9 +1762,9 @@ namespace MTConnect.Agents
 
         private void DeviceMetricsUpdated(object sender, DeviceMetrics deviceMetrics)
         {
-            if (deviceMetrics != null && _deviceBuffer != null)
+            if (deviceMetrics != null)
             {
-                var device = _deviceBuffer.GetDevice(deviceMetrics.DeviceUuid);
+                _devices.TryGetValue(deviceMetrics.DeviceUuid, out var device);
                 if (device != null)
                 {
                     var dataItems = device.GetDataItems();
@@ -3274,90 +1782,6 @@ namespace MTConnect.Agents
                         if (assetUpdateRate != null)
                         {
                             AddObservation(device.Name, assetUpdateRate.Id, ValueKeys.Result, deviceMetrics.AssetAverage);
-                        }
-                    }
-                }
-            }
-        }
-
-
-        private void IncrementAssetCount(string deviceUuid, string assetType)
-        {
-            if (!string.IsNullOrEmpty(deviceUuid) && !string.IsNullOrEmpty(assetType))
-            {
-                var typeCount = 0;
-
-                lock (_lock)
-                {
-                    var assetCount = _deviceAssetCounts.FirstOrDefault(o => o.DeviceUuid == deviceUuid && o.AssetType == assetType);
-                    if (assetCount.IsValid)
-                    {
-                        _deviceAssetCounts.RemoveAll(o => o.DeviceUuid == deviceUuid && o.AssetType == assetType);
-                        typeCount = assetCount.Count;
-                    }
-                    typeCount += 1;
-                    _deviceAssetCounts.Add(new AssetCount(deviceUuid, assetType, typeCount));
-                }
-
-                // Update AssetCount DataItem
-                if (_deviceDataItems.TryGetValue(deviceUuid, out var dataItems))
-                {
-                    if (!dataItems.IsNullOrEmpty())
-                    {
-                        var assetCountDataItem = dataItems.FirstOrDefault(o => o.Type == AssetCountDataItem.TypeId);
-                        if (assetCountDataItem != null)
-                        {
-                            var entries = new List<IDataSetEntry>();
-                            entries.Add(new DataSetEntry(assetType, typeCount));
-                            var dataSet = new DataSetObservationInput(assetCountDataItem.Id, entries);
-
-                            // Add Observation with updated DataSet Key for AssetType
-                            AddObservation(deviceUuid, dataSet);
-                        }
-                    }
-                }
-            }
-        }
-
-        private void DecrementAssetCount(string deviceUuid, string assetType)
-        {
-            if (!string.IsNullOrEmpty(deviceUuid) && !string.IsNullOrEmpty(assetType))
-            {
-                var typeCount = 0;
-
-                lock (_lock)
-                {
-                    var assetCount = _deviceAssetCounts.FirstOrDefault(o => o.DeviceUuid == deviceUuid && o.AssetType == assetType);
-                    if (assetCount.IsValid)
-                    {
-                        _deviceAssetCounts.RemoveAll(o => o.DeviceUuid == deviceUuid && o.AssetType == assetType);
-                        typeCount = assetCount.Count;
-                        typeCount -= 1;
-
-                        if (typeCount > 1)
-                        {
-                            _deviceAssetCounts.Add(new AssetCount(deviceUuid, assetType, typeCount));
-                        }
-                    }
-                }
-
-                // Update AssetCount DataItem
-                if (_deviceDataItems.TryGetValue(deviceUuid, out var dataItems))
-                {
-                    if (!dataItems.IsNullOrEmpty())
-                    {
-                        var assetCountDataItem = dataItems.FirstOrDefault(o => o.Type == AssetCountDataItem.TypeId);
-                        if (assetCountDataItem != null)
-                        {
-                            var entries = new List<IDataSetEntry>();
-                            
-                            if (typeCount > 0) entries.Add(new DataSetEntry(assetType, typeCount));
-                            else entries.Add(new DataSetEntry(assetType, true));
-
-                            var dataSet = new DataSetObservationInput(assetCountDataItem.Id, entries);
-
-                            // Add Observation with updated DataSet Key for AssetType
-                            AddObservation(deviceUuid, dataSet);
                         }
                     }
                 }

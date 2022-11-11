@@ -27,7 +27,7 @@ namespace MTConnect.Applications
     public class AgentService : IHostedService
     {
         private readonly AgentGatewayConfiguration _configuration;
-        private readonly IMTConnectAgent _mtconnectAgent;
+        private readonly IMTConnectAgentBroker _mtconnectAgent;
         private readonly ILogger<AgentService> _logger;
         private readonly AgentLogger _agentLogger;
         private readonly AgentMetricLogger _agentMetricLogger;
@@ -38,7 +38,7 @@ namespace MTConnect.Applications
 
         public AgentService(
             AgentGatewayConfiguration configuration,
-            IMTConnectAgent mtconnectAgent, 
+            IMTConnectAgentBroker mtconnectAgent, 
             AgentLogger agentLogger,
             AgentMetricLogger agentMetricLogger,
             AgentValidationLogger agentValidationLogger,

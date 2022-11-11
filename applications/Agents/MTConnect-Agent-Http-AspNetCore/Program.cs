@@ -77,21 +77,21 @@ namespace MTConnect.Applications
         private static void AddServices(WebApplicationBuilder builder)
         {
             // Copy Default Configuration File
-            string configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AgentConfiguration.Filename);
-            string defaultPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AgentConfiguration.DefaultFilename);
+            string configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AgentConfiguration.JsonFilename);
+            string defaultPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AgentConfiguration.DefaultJsonFilename);
             if (!File.Exists(configPath) && File.Exists(defaultPath))
             {
                 File.Copy(defaultPath, configPath);
             }
 
-            _configuration = AgentConfiguration.Read<HttpShdrAgentConfiguration>(configPath);
+            _configuration = AgentConfiguration.ReadJson<HttpShdrAgentConfiguration>(configPath);
             if (_configuration != null)
             {
                 // Create MTConnectAgent
-                var agent = new MTConnectAgent(_configuration);
+                var agent = new MTConnectAgentBroker(_configuration);
                 agent.MTConnectVersion = MTConnectVersions.Max;
                 agent.Start();
-                builder.Services.AddSingleton<IMTConnectAgent>(agent);
+                builder.Services.AddSingleton<IMTConnectAgentBroker>(agent);
 
                 // Individual Logger Classes
                 builder.Services.AddSingleton<HttpShdrAgentConfiguration>(_configuration);

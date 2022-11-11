@@ -27,7 +27,7 @@ namespace MTConnect.Servers.Http
         /// <param name="formatOptions">Flags used for Formatting the Response</param>
         /// <returns>An MTConnectHttpResponse</returns>
         public static MTConnectHttpResponse GetProbeRequest(
-            IMTConnectAgent mtconnectAgent, 
+            IMTConnectAgentBroker mtconnectAgent, 
             string deviceType = null,
             Version mtconnectVersion = null,
             string documentFormat = DocumentFormat.XML, 
@@ -82,7 +82,7 @@ namespace MTConnect.Servers.Http
         /// <param name="formatOptions">Flags used for Formatting the Response</param>
         /// <returns>An MTConnectHttpResponse</returns>
         public static MTConnectHttpResponse GetDeviceProbeRequest(
-            IMTConnectAgent mtconnectAgent, 
+            IMTConnectAgentBroker mtconnectAgent, 
             string deviceKey,
             Version mtconnectVersion = null,
             string documentFormat = DocumentFormat.XML,
@@ -148,7 +148,7 @@ namespace MTConnect.Servers.Http
         /// <param name="formatOptions">Flags used for Formatting the Response</param>
         /// <returns>An MTConnectHttpResponse</returns>
         public static MTConnectHttpResponse GetCurrentRequest(
-            IMTConnectAgent mtconnectAgent,
+            IMTConnectAgentBroker mtconnectAgent,
             string deviceType = null,
             string path = null,
             long at = 0,
@@ -244,7 +244,7 @@ namespace MTConnect.Servers.Http
         /// <param name="formatOptions">Flags used for Formatting the Response</param>
         /// <returns>An MTConnectHttpResponse</returns>
         public static MTConnectHttpResponse GetDeviceCurrentRequest(
-            IMTConnectAgent mtconnectAgent,
+            IMTConnectAgentBroker mtconnectAgent,
             string deviceKey,
             string path = null,
             long at = 0,
@@ -350,7 +350,7 @@ namespace MTConnect.Servers.Http
         /// <param name="formatOptions">Flags used for Formatting the Response</param>
         /// <returns>An MTConnectHttpResponse</returns>
         public static MTConnectHttpResponse GetSampleRequest(
-            IMTConnectAgent mtconnectAgent,
+            IMTConnectAgentBroker mtconnectAgent,
             string deviceType = null,
             string path = null,
             long from = 0,
@@ -468,7 +468,7 @@ namespace MTConnect.Servers.Http
         /// <param name="formatOptions">Flags used for Formatting the Response</param>
         /// <returns>An MTConnectHttpResponse</returns>
         public static MTConnectHttpResponse GetDeviceSampleRequest(
-            IMTConnectAgent mtconnectAgent,
+            IMTConnectAgentBroker mtconnectAgent,
             string deviceKey,
             string path = null,
             long from = 0,
@@ -600,7 +600,7 @@ namespace MTConnect.Servers.Http
         /// <param name="formatOptions">Flags used for Formatting the Response</param>
         /// <returns>An MTConnectHttpResponse</returns>
         public static MTConnectHttpResponse GetAssetsRequest(
-            IMTConnectAgent mtconnectAgent,
+            IMTConnectAgentBroker mtconnectAgent,
             string deviceKey = null,
             string type = null,
             bool removed = false,
@@ -658,7 +658,7 @@ namespace MTConnect.Servers.Http
         /// <param name="formatOptions">Flags used for Formatting the Response</param>
         /// <returns>An MTConnectHttpResponse</returns>
         public static MTConnectHttpResponse GetAssetRequest(
-            IMTConnectAgent mtconnectAgent,
+            IMTConnectAgentBroker mtconnectAgent,
             IEnumerable<string> assetIds,
             Version mtconnectVersion = null,
             string documentFormat = DocumentFormat.XML,

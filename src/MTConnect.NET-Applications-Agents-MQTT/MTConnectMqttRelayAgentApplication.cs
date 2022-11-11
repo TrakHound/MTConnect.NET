@@ -15,7 +15,7 @@ namespace MTConnect.Applications.Agents
     /// An MTConnect Agent application with a built in MQTT client to relay messages to a MQTT Broker.
     /// Supports Command line arguments, Device management, Buffer management, Logging, Windows Service, and Configuration File management
     /// </summary>
-    public class MTConnectMqttRelayAgentApplication : MTConnectAgentApplication
+    public class MTConnectMqttRelayAgentApplication : MTConnectMqttAgentApplication
     {
         private const string DefaultServiceName = "MTConnect-Agent-MQTT-Relay";
         private const string DefaultServiceDisplayName = "MTConnect MQTT Relay Agent";
@@ -34,6 +34,8 @@ namespace MTConnect.Applications.Agents
             ServiceName = DefaultServiceName;
             ServiceDisplayName = DefaultServiceDisplayName;
             ServiceDescription = DefaultServiceDescription;
+
+            if (ConfigurationType == null) ConfigurationType = typeof(MqttAgentApplicationConfiguration);
         }
 
 

@@ -66,8 +66,8 @@ namespace MTConnect.Mqtt
                 // Publish MTConnect Agent Information
                 await PublishAgent(_mtconnectAgent);
 
-                var devices = _mtconnectAgent.GetDevicesResponseDocument();
-                foreach (var device in devices.Devices)
+                var devices = _mtconnectAgent.GetDevices();
+                foreach (var device in devices)
                 {
                     // Publish the Device
                     await PublishDevice(device);
@@ -231,17 +231,17 @@ namespace MTConnect.Mqtt
                 topic = $"MTConnect/Agents/{agent.Uuid}/Version";
                 messages.Add(CreateMessage(topic, agent.Version.ToString()));
 
-                // Observation Buffer Size
-                topic = $"MTConnect/Agents/{agent.Uuid}/BufferSize";
-                messages.Add(CreateMessage(topic, agent.BufferSize.ToString()));
+                //// Observation Buffer Size
+                //topic = $"MTConnect/Agents/{agent.Uuid}/BufferSize";
+                //messages.Add(CreateMessage(topic, agent.BufferSize.ToString()));
 
-                // Asset Buffer Size
-                topic = $"MTConnect/Agents/{agent.Uuid}/AssetBufferSize";
-                messages.Add(CreateMessage(topic, agent.AssetBufferSize.ToString()));
+                //// Asset Buffer Size
+                //topic = $"MTConnect/Agents/{agent.Uuid}/AssetBufferSize";
+                //messages.Add(CreateMessage(topic, agent.AssetBufferSize.ToString()));
 
-                // Asset Count
-                topic = $"MTConnect/Agents/{agent.Uuid}/AssetCount";
-                messages.Add(CreateMessage(topic, agent.AssetCount.ToString()));
+                //// Asset Count
+                //topic = $"MTConnect/Agents/{agent.Uuid}/AssetCount";
+                //messages.Add(CreateMessage(topic, agent.AssetCount.ToString()));
 
                 // Sender
                 topic = $"MTConnect/Agents/{agent.Uuid}/Sender";

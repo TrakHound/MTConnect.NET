@@ -31,7 +31,7 @@ namespace MTConnect.Applications.Agents
         private readonly IHttpAgentApplicationConfiguration _configuration;
 
 
-        public MTConnectHttpAgentServer(IHttpAgentApplicationConfiguration configuration, IMTConnectAgent mtconnectAgent, IEnumerable<string> prefixes = null, int port = 0) : base(configuration, mtconnectAgent, prefixes, port)
+        public MTConnectHttpAgentServer(IHttpAgentApplicationConfiguration configuration, IMTConnectAgentBroker mtconnectAgent, IEnumerable<string> prefixes = null, int port = 0) : base(configuration, mtconnectAgent, prefixes, port)
         {
             _configuration = configuration;
         }

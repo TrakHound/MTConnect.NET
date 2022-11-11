@@ -22,9 +22,9 @@ using System.Threading;
 namespace MTConnect.Applications.Agents
 {
     /// <summary>
-    /// An MTConnect Agent Application base class supporting Command line arguments, Device management, Buffer management, Logging, Windows Service, and Configuration File management
+    /// An MTConnect MQTT Agent Application base class supporting Command line arguments, Device management, Buffer management, Logging, Windows Service, and Configuration File management
     /// </summary>
-    public abstract class MTConnectAgentApplication : IMTConnectAgentApplication
+    public abstract class MTConnectMqttAgentApplication : IMTConnectMqttAgentApplication
     {
         private const string DefaultServiceName = "MTConnect-Agent";
         private const string DefaultServiceDisplayName = "MTConnect Agent";
@@ -38,9 +38,7 @@ namespace MTConnect.Applications.Agents
         private readonly List<DeviceConfigurationFileWatcher> _deviceConfigurationWatchers = new List<DeviceConfigurationFileWatcher>();
 
         protected LogLevel _logLevel = LogLevel.Debug;
-        private MTConnectAgentBroker _mtconnectAgent;
-        private IMTConnectObservationBuffer _observationBuffer;
-        private MTConnectAssetFileBuffer _assetBuffer;
+        private MTConnectAgent _mtconnectAgent;
         protected IAgentConfigurationFileWatcher _agentConfigurationWatcher;
         private System.Timers.Timer _metricsTimer;
         private bool _started = false;
@@ -56,12 +54,12 @@ namespace MTConnect.Applications.Agents
         protected Type ConfigurationType { get; set; }
 
 
-        public IMTConnectAgentBroker Agent => _mtconnectAgent;
+        public IMTConnectAgent Agent => _mtconnectAgent;
 
         public EventHandler<AgentConfiguration> OnRestart { get; set; }
 
 
-        public MTConnectAgentApplication()
+        public MTConnectMqttAgentApplication()
         {
             ServiceName = DefaultServiceName;
             ServiceDisplayName = DefaultServiceDisplayName;
@@ -99,7 +97,6 @@ namespace MTConnect.Applications.Agents
             }
 
             OnCommandLineArgumentsRead(args);
-
 
             // Convert Json Configuration File to YAML
             string jsonConfigPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AgentConfiguration.JsonFilename);
@@ -219,25 +216,6 @@ namespace MTConnect.Applications.Agents
 
                     break;
 
-
-                case "reset":
-
-                    _applicationLogger.Info("Reset Buffer requested..");
-
-                    // Clear the Observation Buffer
-                    MTConnectObservationFileBuffer.Reset();
-                    _applicationLogger.Info("Observation Buffer Reset Successfully");
-
-                    // Clear the Asset Buffer
-                    MTConnectAssetFileBuffer.Reset();
-                    _applicationLogger.Info("Asset Buffer Reset Successfully");
-
-                    // Clear the Index
-                    FileIndex.Reset();
-                    _applicationLogger.Info("Indexes Reset Successfully");
-
-                    break;
-
                 case "help":
                     PrintHelp();
                     break;
@@ -282,64 +260,15 @@ namespace MTConnect.Applications.Agents
                     agentInformation = new MTConnectAgentInformation();
                 }
 
-                // Create Observation File Buffer
-                if (configuration.Durable)
-                {
-                    // Create Observation File Buffer
-                    var observationBuffer = new MTConnectObservationFileBuffer(configuration);
-                    observationBuffer.UseCompression = configuration.UseBufferCompression;
-                    observationBuffer.BufferLoadStarted += ObservationBufferStarted;
-                    observationBuffer.BufferLoadCompleted += ObservationBufferCompleted;
-                    observationBuffer.BufferRetentionCompleted += ObservationBufferRetentionCompleted;
-
-                    // Create Asset File Buffer
-                    _assetBuffer = new MTConnectAssetFileBuffer(configuration);
-                    _assetBuffer.UseCompression = configuration.UseBufferCompression;
-                    _assetBuffer.BufferLoadStarted += AssetBufferStarted;
-                    _assetBuffer.BufferLoadCompleted += AssetBufferCompleted;
-
-                    // Read Buffer Observations
-                    initializeDataItems = !observationBuffer.Load();
-
-                    // Read Buffer Assets
-                    _assetBuffer.Load();
-
-                    _observationBuffer = observationBuffer;
-                }
-
-                if (!configuration.Durable || initializeDataItems)
-                {
-                    // Reset InstanceId
-                    agentInformation.InstanceId = 0;
-                }
-
                 // Save the AgentInformation file
                 agentInformation.Save();
 
 
                 // Create MTConnectAgentBroker
-                _mtconnectAgent = new MTConnectAgentBroker(configuration, _observationBuffer, _assetBuffer, agentInformation.Uuid, agentInformation.InstanceId, agentInformation.DeviceModelChangeTime, initializeDataItems);
-
-
-                // Read Indexes for Buffer
-                if (configuration.Durable)
-                {
-                    // Read Device Indexes
-                    _mtconnectAgent.InitializeDeviceIndex(FileIndex.ToDictionary(FileIndex.FromFile(FileIndex.DevicesFileName)));
-
-                    // Read DataItem Indexes
-                    _mtconnectAgent.InitializeDataItemIndex(FileIndex.ToDictionary(FileIndex.FromFile(FileIndex.DataItemsFileName)));
-                }
+                _mtconnectAgent = new MTConnectAgent(configuration, agentInformation.Uuid, agentInformation.InstanceId, agentInformation.DeviceModelChangeTime, initializeDataItems);
 
                 if (verboseLogging)
                 {
-                    _mtconnectAgent.DevicesRequestReceived += DevicesRequested;
-                    _mtconnectAgent.DevicesResponseSent += DevicesSent;
-                    _mtconnectAgent.StreamsRequestReceived += StreamsRequested;
-                    _mtconnectAgent.StreamsResponseSent += StreamsSent;
-                    _mtconnectAgent.AssetsRequestReceived += AssetsRequested;
-                    _mtconnectAgent.DeviceAssetsRequestReceived += DeviceAssetsRequested;
-                    _mtconnectAgent.AssetsResponseSent += AssetsSent;
                     //_mtconnectAgent.ObservationAdded += ObservationAdded;
                     _mtconnectAgent.InvalidComponentAdded += InvalidComponent;
                     _mtconnectAgent.InvalidCompositionAdded += InvalidComposition;
@@ -383,25 +312,8 @@ namespace MTConnect.Applications.Agents
 
                 OnStartAgentBeforeLoad(devices, initializeDataItems);
 
-                // Initialize Agent Current Observations/Conditions
-                // This updates the MTConnectAgent's cache used to determine duplicate observations
-                if (_observationBuffer != null)
-                {
-                    _mtconnectAgent.InitializeCurrentObservations(_observationBuffer.CurrentObservations.Values);
-                    _mtconnectAgent.InitializeCurrentObservations(_observationBuffer.CurrentConditions.SelectMany(o => o.Value));
-                }
-
                 OnStartAgentAfterLoad(devices, initializeDataItems);
 
-                // Save Indexes for Buffer
-                if (configuration.Durable)
-                {
-                    // Save Device Indexes
-                    FileIndex.ToFile(FileIndex.DevicesFileName, FileIndex.Create(_mtconnectAgent.DeviceIndexes));
-
-                    // Save DataItem Indexes
-                    FileIndex.ToFile(FileIndex.DataItemsFileName, FileIndex.Create(_mtconnectAgent.DataItemIndexes));
-                }
 
                 // Start Agent
                 _mtconnectAgent.Start();
@@ -433,8 +345,6 @@ namespace MTConnect.Applications.Agents
                 }
 
                 if (_mtconnectAgent != null) _mtconnectAgent.Dispose();
-                if (_observationBuffer != null) _observationBuffer.Dispose();
-                if (_assetBuffer != null) _assetBuffer.Dispose();
                 if (_agentConfigurationWatcher != null) _agentConfigurationWatcher.Dispose();
                 if (_metricsTimer != null) _metricsTimer.Dispose();
 
@@ -598,66 +508,7 @@ namespace MTConnect.Applications.Agents
         #endregion
 
         #region "Logging"
-
-        private void DevicesRequested(string deviceName)
-        {
-            _agentLogger.Debug($"[Agent] : MTConnectDevices Requested : " + deviceName);
-        }
-
-        private void DevicesSent(IDevicesResponseDocument document)
-        {
-            if (document != null && document.Header != null)
-            {
-                _agentLogger.Log(_logLevel, $"[Agent] : MTConnectDevices Sent : " + document.Header.CreationTime);
-            }
-        }
-
-        private void StreamsRequested(string deviceName)
-        {
-            _agentLogger.Debug($"[Agent] : MTConnectStreams Requested : " + deviceName);
-        }
-
-        private void StreamsSent(object sender, EventArgs args)
-        {
-            _agentLogger.Log(_logLevel, "[Agent] : MTConnectStreams Sent");
-        }
-
-        private void AssetsRequested(IEnumerable<string> assetIds)
-        {
-            var ids = "";
-            if (!assetIds.IsNullOrEmpty())
-            {
-                string.Join(";", assetIds.ToArray());
-            }
-
-            _agentLogger.Debug($"[Agent] : MTConnectAssets Requested : AssetIds = " + ids);
-        }
-
-        private void DeviceAssetsRequested(string deviceUuid)
-        {
-            _agentLogger.Debug($"[Agent] : MTConnectAssets Requested : DeviceUuid = " + deviceUuid);
-        }
-
-
-        private void AssetsSent(IAssetsResponseDocument document)
-        {
-            if (document != null && document.Header != null)
-            {
-                _agentLogger.Log(_logLevel, $"[Agent] : MTConnectAssets Sent : " + document.Header.CreationTime);
-            }
-        }
-
-        private void AssetBufferStarted(object sender, EventArgs args)
-        {
-            _agentLogger.Info($"[Agent] : Loading Assets from File Buffer...");
-        }
-
-        private void AssetBufferCompleted(object sender, AssetBufferLoadArgs args)
-        {
-            _agentLogger.Info($"[Agent] : {args.Count} Assets Loaded from File Buffer in ({TimeSpan.FromMilliseconds(args.Duration).TotalSeconds}s)");
-        }
-
-
+   
         private void ObservationAdded(object sender, IObservation observation)
         {
             if (!observation.Values.IsNullOrEmpty())
@@ -666,26 +517,6 @@ namespace MTConnect.Applications.Agents
                 {
                     _agentLogger.Debug($"[Agent] : Observation Added Successfully : {observation.DeviceUuid} : {observation.DataItemId} : {value.Key} = {value.Value}");
                 }
-            }
-        }
-
-        private void ObservationBufferStarted(object sender, EventArgs args)
-        {
-            _agentLogger.Info($"[Agent] : Loading Observations from File Buffer...");
-        }
-
-        private void ObservationBufferCompleted(object sender, ObservationBufferLoadArgs args)
-        {
-            _agentLogger.Info($"[Agent] : {args.Count} Observations Loaded from File Buffer in ({TimeSpan.FromMilliseconds(args.Duration).TotalSeconds}s)");
-        }
-
-        private void ObservationBufferRetentionCompleted(object sender, ObservationBufferRetentionArgs args)
-        {
-            _agentLogger.Debug($"[Agent] : Observations File Buffer Retention : Removing ({args.From} - {args.To})");
-
-            if (args.Count > 0)
-            {
-                _agentLogger.Debug($"[Agent] : Observations File Buffer Retention : {args.Count} Buffer Files Removed in ({TimeSpan.FromMilliseconds(args.Duration).TotalSeconds}s)");
             }
         }
 

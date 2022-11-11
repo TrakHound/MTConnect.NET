@@ -77,14 +77,14 @@ namespace MTConnect.Applications
         private static void AddServices(WebApplicationBuilder builder)
         {
             // Copy Default Configuration File
-            string configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AgentConfiguration.Filename);
-            string defaultPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AgentConfiguration.DefaultFilename);
+            string configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AgentConfiguration.JsonFilename);
+            string defaultPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AgentConfiguration.DefaultJsonFilename);
             if (!File.Exists(configPath) && File.Exists(defaultPath))
             {
                 File.Copy(defaultPath, configPath);
             }
 
-            _configuration = AgentConfiguration.Read<AgentGatewayConfiguration>();
+            _configuration = AgentConfiguration.ReadJson<AgentGatewayConfiguration>();
             if (_configuration != null)
             {
                 // Read Agent Information File
@@ -96,10 +96,10 @@ namespace MTConnect.Applications
                 }
 
                 // Create MTConnectAgent
-                var agent = new MTConnectAgent(_configuration, agentInformation.Uuid);
+                var agent = new MTConnectAgentBroker(_configuration, agentInformation.Uuid);
                 agent.MTConnectVersion = MTConnectVersions.Max;
                 agent.Start();
-                builder.Services.AddSingleton<IMTConnectAgent>(agent);
+                builder.Services.AddSingleton<IMTConnectAgentBroker>(agent);
 
                 // Individual Logger Classes
                 builder.Services.AddSingleton<AgentGatewayConfiguration>(_configuration);

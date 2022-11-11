@@ -10,9 +10,9 @@ using System;
 namespace MTConnect.Applications.Agents
 {
     /// <summary>
-    /// An interface for an MTConnect Agent Application
+    /// An interface for an MTConnect MQTT Agent Application
     /// </summary>
-    public interface IMTConnectAgentApplication
+    public interface IMTConnectMqttAgentApplication
     {
         string ServiceName { get; }
 
@@ -21,7 +21,7 @@ namespace MTConnect.Applications.Agents
         string ServiceDescription { get; }
 
 
-        IMTConnectAgentBroker Agent { get; }
+        IMTConnectAgent Agent { get; }
 
         EventHandler<AgentConfiguration> OnRestart { get; set; }
 

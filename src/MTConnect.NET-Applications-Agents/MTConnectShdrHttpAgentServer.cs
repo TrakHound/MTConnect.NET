@@ -20,7 +20,7 @@ namespace MTConnect.Applications.Agents
     {
         public MTConnectShdrHttpAgentServer(
             IHttpAgentApplicationConfiguration configuration,
-            IMTConnectAgent mtconnectAgent,
+            IMTConnectAgentBroker mtconnectAgent,
             IEnumerable<string> prefixes = null,
             int port = 0
             )

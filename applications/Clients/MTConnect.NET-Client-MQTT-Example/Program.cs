@@ -1,11 +1,6 @@
-﻿using MQTTnet;
-using MQTTnet.Client;
-using MQTTnet.Formatter;
-using MQTTnet.Protocol;
-using System.Text;
+﻿using MTConnect.Clients.Mqtt;
 using MTConnect.Configurations;
 using MTConnect.Observations;
-using MTConnect.Clients.Mqtt;
 
 
 var topics = new List<string>();
@@ -16,13 +11,6 @@ var topics = new List<string>();
 //topics.Add("MTConnect/Devices/OKUMA.Lathe.123456/Observations/Linear/L2z1/#");
 //var topic = "MTConnect/Devices/Device/OKUMA.Lathe.123456/Observations/Path/L2p1/#";
 //var topic = "MTConnect/Devices/Device/OKUMA.Lathe.123456/Observations/Device/#";
-
-//var configuration = new MTConnectMqttClientConfiguration();
-//configuration.Server = "5679887d308d402888f323be02124836.s1.eu.hivemq.cloud";
-//configuration.Port = 8883;
-//configuration.Username = "trakhound";
-//configuration.Password = "ethan123";
-//configuration.UseTls = true;
 
 var configuration = new MTConnectMqttClientConfiguration();
 configuration.Server = "localhost";
