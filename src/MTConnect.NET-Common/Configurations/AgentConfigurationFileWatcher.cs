@@ -94,6 +94,7 @@ namespace MTConnect.Configurations
                 switch (Path.GetExtension(_path))
                 {
                     case ".yaml": configuration = AgentConfiguration.ReadYaml<TConfiguration>(_path); break;
+                    case ".yml": configuration = AgentConfiguration.ReadYaml<TConfiguration>(_path); break;
                     case ".json": configuration = AgentConfiguration.ReadJson<TConfiguration>(_path); break;
                 }
 

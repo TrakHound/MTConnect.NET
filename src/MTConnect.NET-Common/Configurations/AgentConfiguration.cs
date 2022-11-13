@@ -232,7 +232,7 @@ namespace MTConnect.Configurations
 
         public static T ReadYaml<T>(string path = null) where T : AgentConfiguration
         {
-            var configurationPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, JsonFilename);
+            var configurationPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, YamlFilename);
             if (!string.IsNullOrEmpty(path))
             {
                 configurationPath = path;
@@ -251,6 +251,7 @@ namespace MTConnect.Configurations
                     {
                         var deserializer = new DeserializerBuilder()
                             .WithNamingConvention(CamelCaseNamingConvention.Instance)
+                            .IgnoreUnmatchedProperties()
                             .Build();
 
                         var configuration = deserializer.Deserialize<T>(text);
@@ -266,7 +267,7 @@ namespace MTConnect.Configurations
 
         public static AgentConfiguration ReadYaml(Type type, string path = null)
         {
-            var configurationPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, JsonFilename);
+            var configurationPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, YamlFilename);
             if (!string.IsNullOrEmpty(path))
             {
                 configurationPath = path;
@@ -285,6 +286,7 @@ namespace MTConnect.Configurations
                     {
                         var deserializer = new DeserializerBuilder()
                             .WithNamingConvention(CamelCaseNamingConvention.Instance)
+                            .IgnoreUnmatchedProperties()
                             .Build();
 
                         var configuration = (AgentConfiguration)deserializer.Deserialize(text, type);
