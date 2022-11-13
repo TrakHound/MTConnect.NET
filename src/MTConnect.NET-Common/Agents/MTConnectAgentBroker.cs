@@ -1708,6 +1708,22 @@ namespace MTConnect.Agents
             return false;
         }
 
+        protected override bool OnAssetUpdate(IAsset asset)
+        {
+            return _assetBuffer.AddAsset(asset);
+        }
+
+        protected override bool OnNewAssetAdded(IAsset asset)
+        {
+            if (asset != null)
+            {
+                // Update Asset Count
+                IncrementAssetCount(asset.DeviceUuid, asset.Type);
+            }
+
+            return base.OnNewAssetAdded(asset);
+        }
+
         #endregion
     }
 }
