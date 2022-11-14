@@ -21,7 +21,7 @@ namespace MTConnect.Assets.CuttingTools
         /// </summary>
         [XmlAttribute("indices")]
         [JsonPropertyName("indices")]
-        public int Indices { get; set; }
+        public string Indices { get; set; }
 
         /// <summary>
         /// The manufacturer identifier of this cutting item
