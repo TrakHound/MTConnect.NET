@@ -4,14 +4,19 @@
 // file 'LICENSE', which is part of this source code package.
 
 using MTConnect.Assets;
+using MTConnect.Assets.CuttingTools;
+using MTConnect.Assets.Files;
+using MTConnect.Assets.QIF;
+using MTConnect.Assets.RawMaterials;
 using MTConnect.Devices;
+using MTConnect.Devices.Json;
 using MTConnect.Observations;
+using MTConnect.Streams.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MTConnect.Assets.Json;
-using MTConnect.Devices.Json;
-using MTConnect.Streams.Json;
+using System.Text;
+using System.Text.Json;
 
 namespace MTConnect.Formatters
 {
@@ -150,7 +155,15 @@ namespace MTConnect.Formatters
         {
             if (asset != null)
             {
-                return JsonFunctions.Convert(asset);
+                switch (asset.Type)
+                {
+                    case "CuttingTool": return JsonFunctions.Convert(new JsonCuttingToolAsset(asset as CuttingToolAsset));
+                    case "File": return JsonFunctions.Convert(new JsonFileAsset(asset as FileAsset));
+                    case "QIFDocumentWrapper": return JsonFunctions.Convert(new JsonQIFDocumentWrapperAsset(asset as QIFDocumentWrapperAsset));
+                    case "RawMaterial": return JsonFunctions.Convert(new JsonRawMaterialAsset(asset as RawMaterialAsset));
+
+                    default: return JsonFunctions.Convert(asset);
+                }
             }
 
             return null;
@@ -174,17 +187,50 @@ namespace MTConnect.Formatters
 
         public FormattedEntityReadResult<IAsset> CreateAsset(string assetType, byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
-            //var messages = new List<string>();
-            //var warnings = new List<string>();
-            //var errors = new List<string>();
+            var messages = new List<string>();
+            var warnings = new List<string>();
+            var errors = new List<string>();
 
-            //// Read Document
-            //var entity = JsonAsset.FromJson(assetType, content);
-            //var success = entity != null;
+            IAsset asset = null;
 
-            //return new FormattedEntityReadResult<IAsset>(entity, success, messages, warnings, errors);
+            // Read Document
+            if (!string.IsNullOrEmpty(assetType) && content != null)
+            {
+                try
+                {
+                    // Convert from UTF8 bytes
+                    var json = Encoding.UTF8.GetString(content);
+                    if (!string.IsNullOrEmpty(json))
+                    {
+                        switch (assetType)
+                        {
+                            case "CuttingTool": 
+                                asset = JsonSerializer.Deserialize<JsonCuttingToolAsset>(json).ToCuttingToolAsset();
+                                break;
 
-            return new FormattedEntityReadResult<IAsset>();
+                            case "File":
+                                asset = JsonSerializer.Deserialize<JsonFileAsset>(json).ToFileAsset();
+                                break;
+
+                            case "QIFDocumentWrapper":
+                                asset = JsonSerializer.Deserialize<JsonQIFDocumentWrapperAsset>(json).ToQIFDocumentWrapperAsset();
+                                break;
+
+                            case "RawMaterial":
+                                asset = JsonSerializer.Deserialize<JsonRawMaterialAsset>(json).ToRawMaterialAsset();
+                                break;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    errors.Add(ex.Message);
+                }
+            }
+
+            var success = asset != null;
+
+            return new FormattedEntityReadResult<IAsset>(asset, success, messages, warnings, errors);
         }
 
 

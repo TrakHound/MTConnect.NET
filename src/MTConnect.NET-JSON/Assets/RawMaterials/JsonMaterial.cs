@@ -1,0 +1,70 @@
+// Copyright (c) 2022 TrakHound Inc., All Rights Reserved.
+
+// This file is subject to the terms and conditions defined in
+// file 'LICENSE', which is part of this source code package.
+
+using System;
+using System.Text.Json.Serialization;
+
+namespace MTConnect.Assets.RawMaterials
+{
+    public class JsonMaterial
+    {
+        [JsonPropertyName("id")]
+        public string Id { get; set; }
+
+        [JsonPropertyName("name")]
+        public string Name { get; set; }
+
+        [JsonPropertyName("type")]
+        public string Type { get; set; }
+
+        [JsonPropertyName("lot")]
+        public string Lot { get; set; }
+
+        [JsonPropertyName("manufacturer")]
+        public string Manufacturer { get; set; }
+
+        [JsonPropertyName("manufacturingDate")]
+        public DateTime ManufacturingDate { get; set; }
+
+        [JsonPropertyName("manufacturingCode")]
+        public string ManufacturingCode { get; set; }
+
+        [JsonPropertyName("materialCode")]
+        public string MaterialCode { get; set; }
+
+
+        public JsonMaterial() { }
+
+        public JsonMaterial(Material material)
+        {
+            if (material != null)
+            {
+                Id = material.Id;
+                Name = material.Name;
+                Type = material.Type;
+                Lot = material.Lot;
+                Manufacturer = material.Manufacturer;
+                ManufacturingDate = material.ManufacturingDate;
+                ManufacturingCode = material.ManufacturingCode;
+                MaterialCode = material.MaterialCode;
+            }
+        }
+
+
+        public Material ToMaterial()
+        {
+            var material = new Material();
+            material.Id = Id;
+            material.Name = Name;
+            material.Type = Type;
+            material.Lot = Lot;
+            material.Manufacturer = Manufacturer;
+            material.ManufacturingDate = ManufacturingDate;
+            material.ManufacturingCode = ManufacturingCode;
+            material.MaterialCode = MaterialCode;
+            return material;
+        }
+    }
+}

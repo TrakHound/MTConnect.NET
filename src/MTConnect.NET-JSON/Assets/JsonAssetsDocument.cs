@@ -3,6 +3,10 @@
 // This file is subject to the terms and conditions defined in
 // file 'LICENSE', which is part of this source code package.
 
+using MTConnect.Assets.CuttingTools;
+using MTConnect.Assets.Files;
+using MTConnect.Assets.QIF;
+using MTConnect.Assets.RawMaterials;
 using MTConnect.Headers;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
@@ -45,7 +49,17 @@ namespace MTConnect.Assets.Json
                     var assets = new List<object>();
                     foreach (var asset in assetsDocument.Assets)
                     {
-                        assets.Add(asset);
+                        object jsonAsset = null;
+
+                        switch (asset.Type)
+                        {
+                            case "CuttingTool": jsonAsset = new JsonCuttingToolAsset(asset as CuttingToolAsset); break;
+                            case "File": jsonAsset = new JsonFileAsset(asset as FileAsset); break;
+                            case "QIFDocumentWrapper": jsonAsset = new JsonQIFDocumentWrapperAsset(asset as QIFDocumentWrapperAsset); break;
+                            case "RawMaterial": jsonAsset = new JsonRawMaterialAsset(asset as RawMaterialAsset); break;
+                        }
+
+                        if (jsonAsset != null) assets.Add(jsonAsset);
                     }
                     Assets = assets;
                 }
