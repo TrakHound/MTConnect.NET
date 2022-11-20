@@ -39,7 +39,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="agent.config.json">
+    <None Update="agent.config.default.yaml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="devices-mazak.xml">

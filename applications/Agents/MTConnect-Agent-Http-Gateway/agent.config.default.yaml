@@ -1,24 +1,32 @@
-﻿# - Device Configuration -
-# The Path to look for the file(s) that represent the Device Information Models to load into the Agent.
-# The path can either be a single file or a directory.
-# The path can be absolute or relative to the executable's directory
-devices: devices
-
-# - SHDR Adapter Configuration -
-# The Agent is able to receive data through a TCP port using the SHDR protocol
-adapters:
-- hostname: localhost
-  port: 7878
-  reconnectInterval: 1000
-
-# Sets whether a Device Model can be sent from an SHDR Adapter
-allowShdrDevice: false
+﻿# - HTTP Client Adapter Configuration -
+# The Agent is able to receive data by reading from other MTConnect HTTP Agents
+clients:
+- address: https://smstestbed.nist.gov/vds/
+  port: 443
+  deviceKey: GFAgie01
+  useSSL: true
+  heartbeat: 0
+- address: https://smstestbed.nist.gov/vds/
+  port: 443
+  deviceKey: Mazak01
+  useSSL: true
+  heartbeat: 0
+- address: https://smstestbed.nist.gov/vds/
+  port: 443
+  deviceKey: Mazak03
+  useSSL: true
+  heartbeat: 0
+- address: https://smstestbed.nist.gov/vds/
+  port: 443
+  deviceKey: Hurco01
+  useSSL: true
+  heartbeat: 0
 
 
 # - Windows Service Configuration
 
 # Changes the service name when installing or removing the service. This allows multiple agents to run as services on the same machine.
-serviceName: MTConnect-Agent-HTTP
+serviceName: MTConnect-Agent-HTTP-Gateway
 
 # Sets the Service Start Type. True = Auto | False = Manual
 serviceAutoStart: true

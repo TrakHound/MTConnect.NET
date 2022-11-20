@@ -4,6 +4,7 @@
 // file 'LICENSE.txt', which is part of this source code package.
 
 using System.Text.Json.Serialization;
+using YamlDotNet.Serialization;
 
 namespace MTConnect.Configurations
 {
@@ -16,6 +17,7 @@ namespace MTConnect.Configurations
         /// The unique identifier for the Adapter
         /// </summary>
         [JsonIgnore]
+        [YamlIgnore]
         public string Id
         {
             get
