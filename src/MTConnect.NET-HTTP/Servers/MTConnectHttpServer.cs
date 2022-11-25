@@ -9,10 +9,13 @@ using MTConnect.Errors;
 using MTConnect.Http;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net;
+using System.Net.WebSockets;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -61,7 +64,7 @@ namespace MTConnect.Servers.Http
         /// Method run when an Asset is attempted to be added to the MTConnect Agent from an HTTP PUT request
         /// </summary>
         /// <returns>Returns False if a Device cannot be found from the specified DeviceKey</returns>
-        protected virtual bool OnAssetInput(string assetId, string deviceKey, string assetType, byte[] requestBody)
+        protected virtual bool OnAssetInput(string assetId, string deviceKey, string assetType, byte[] requestBody, string documentFormat = DocumentFormat.XML)
         {
             return false;
         }
@@ -94,6 +97,7 @@ namespace MTConnect.Servers.Http
                             case MTConnectRequestType.Sample: await ProcessSample(request, response); break;
                             case MTConnectRequestType.Assets: await ProcessAssets(request, response); break;
                             case MTConnectRequestType.Asset: await ProcessAsset(request, response); break;
+                            case "Configuration": await ProcessConfiguration(request, response); break;
                             default: await ProcessStatic(request, response); break;
                         }
 
@@ -200,6 +204,7 @@ namespace MTConnect.Servers.Http
                     var path = segments[segments.Length - 1];
                     switch (path.ToLower())
                     {
+                        case "configuration": return "Configuration";
                         case MTConnectRequestType.Probe: return MTConnectRequestType.Probe;
                         case MTConnectRequestType.Current: return MTConnectRequestType.Current;
                         case MTConnectRequestType.Sample: return MTConnectRequestType.Sample;
@@ -805,8 +810,12 @@ namespace MTConnect.Servers.Http
                         // Get the Asset Type
                         var assetType = httpRequest.QueryString["type"];
 
+                        // Set Document Format
+                        var documentFormat = DocumentFormat.XML;
+                        if (httpRequest.ContentType == "application/json") documentFormat = DocumentFormat.JSON;
+
                         // Call the OnAssetInput method that is intended to be overridden by a derived class
-                        var success = OnAssetInput(assetId, deviceKey, assetType, requestBytes);
+                        var success = OnAssetInput(assetId, deviceKey, assetType, requestBytes, documentFormat);
 
                         if (success)
                         {
@@ -823,6 +832,37 @@ namespace MTConnect.Servers.Http
                         }
                     }
                 }
+            }
+        }
+
+        private async Task ProcessConfiguration(HttpListenerRequest httpRequest, HttpListenerResponse httpResponse)
+        {
+            if (httpRequest != null && httpResponse != null)
+            {
+                try
+                {
+                    var dir = "D:\\TrakHound\\Source-Code\\MTConnect.NET\\applications\\MTConnect.NET-Applications-Configuration\\bin\\Debug\\net6.0";
+                    var cmd = "MTConnect.NET-Applications-Configuration.exe";
+
+                    var startInfo = new ProcessStartInfo("cmd", "/k " + cmd);
+                    startInfo.RedirectStandardOutput = false;
+                    startInfo.UseShellExecute = true;
+                    startInfo.CreateNoWindow = false;
+                    startInfo.WorkingDirectory = dir;
+
+                    var stpw = Stopwatch.StartNew();
+
+                    using (var process = new Process())
+                    {
+                        process.StartInfo = startInfo;
+                        process.Start();
+                    }
+
+                    await Task.Delay(5000);
+
+                    httpResponse.Redirect("http://localhost:5500");
+                }
+                catch { }
             }
         }
 

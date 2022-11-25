@@ -75,12 +75,12 @@ namespace MTConnect.Assets.Json
             // Add Assets
             if (!Assets.IsNullOrEmpty())
             {
-                //var assets = new List<object>();
-                //foreach (var asset in Assets)
-                //{
-                //    assets.Add(asset);
-                //}
-                //assetsDocument.Assets = assets;
+                var assets = new List<IAsset>();
+                foreach (var asset in Assets)
+                {
+                    //assets.Add(asset);
+                }
+                assetsDocument.Assets = assets;
             }
             else assetsDocument.Assets = new List<IAsset>();
 

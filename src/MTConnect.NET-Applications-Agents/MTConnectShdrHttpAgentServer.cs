@@ -6,6 +6,7 @@
 using MTConnect.Agents;
 using MTConnect.Configurations;
 using MTConnect.Devices.DataItems;
+using MTConnect.Formatters;
 using MTConnect.Shdr;
 using System.Collections.Generic;
 using System.Linq;
@@ -97,13 +98,15 @@ namespace MTConnect.Applications.Agents
             return false;
         }
 
-        protected override bool OnAssetInput(string assetId, string deviceKey, string assetType, byte[] requestBytes)
+        protected override bool OnAssetInput(string assetId, string deviceKey, string assetType, byte[] requestBytes, string documentFormat = DocumentFormat.XML)
         {
             if (!string.IsNullOrEmpty(deviceKey) && !string.IsNullOrEmpty(assetType))
             {
-                var asset = Assets.Xml.XmlAsset.FromXml(assetType, ReadRequestBody(requestBytes));
-                if (asset != null)
+                //var asset = Assets.Xml.XmlAsset.FromXml(assetType, );
+                var result = EntityFormatter.CreateAsset(documentFormat, assetType, ReadRequestBody(requestBytes));
+                if (result.Success)
                 {
+                    var asset = result.Entity;
                     asset.AssetId = assetId;
                     asset.Timestamp = asset.Timestamp > 0 ? asset.Timestamp : UnixDateTime.Now;
                     return _mtconnectAgent.AddAsset(deviceKey, asset);
