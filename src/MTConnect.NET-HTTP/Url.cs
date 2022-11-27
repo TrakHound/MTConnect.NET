@@ -33,13 +33,25 @@ namespace MTConnect
             {
                 if (url.Contains("/"))
                 {
-                    var p = url.Split('/');
-                    if (p.Length > 1)
-                    {
-                        p[0] = $"{p[0]}:{port}";
-                    }
+                    // Get index of "://" (ex. http://, https://)
+                    var protocolIndex = url.IndexOf("://");
+                    if (protocolIndex < 0) protocolIndex = 0;
 
-                    return string.Join("/", p);
+                    // Check if URL contains a path after the hostname
+                    var pathIndex = url.IndexOf("/", protocolIndex + 3);
+                    if (pathIndex > 0)
+                    {
+                        var server = url.Substring(0, pathIndex);
+                        var path = url.Substring(pathIndex);
+
+                        var p = path.Split('/');
+                        if (p.Length > 1)
+                        {
+                            p[0] = $"{p[0]}:{port}";
+                        }
+
+                        return $"{server}{string.Join("/", p)}";
+                    }
                 }
 
                 return $"{url}:{port}";
