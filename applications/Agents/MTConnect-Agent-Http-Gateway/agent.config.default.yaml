@@ -84,7 +84,7 @@ streamsStyle:
 observationBufferSize: 150000
 
 # The maximum number of assets the agent can hold in its buffer
-assetBufferSize: 5
+assetBufferSize: 1000
 
 # Sets whether the Agent buffers are durable and retain state after restart
 durable: false

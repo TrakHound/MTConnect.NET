@@ -102,7 +102,7 @@ namespace MTConnect.Applications.Agents
             string jsonConfigPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AgentConfiguration.JsonFilename);
             if (File.Exists(jsonConfigPath))
             {
-                var dummyConfiguration = AgentConfiguration.ReadJson(ConfigurationType, jsonConfigPath);
+                var dummyConfiguration = OnConfigurationFileRead(jsonConfigPath);
                 if (dummyConfiguration != null) dummyConfiguration.SaveYaml();
             }
 
@@ -118,13 +118,21 @@ namespace MTConnect.Applications.Agents
             var configuration = OnConfigurationFileRead(configFile);
             if (configuration != null)
             {
+                _agentLogger.Info($"Configuration File Read Successfully from: {configuration.Path}");
+
                 // Set Service Name
                 if (!string.IsNullOrEmpty(configuration.ServiceName)) serviceDisplayName = configuration.ServiceName;
 
                 // Set Service Auto Start
                 serviceStart = configuration.ServiceAutoStart;
             }
-            else configuration = new AgentApplicationConfiguration();
+            else
+            {
+                _agentLogger.Warn("Error Reading Configuration File. Default Configuration is loaded.");
+
+                configuration = new AgentApplicationConfiguration();
+            }
+            
 
             // Declare a new Service (to use Service commands)
             Service service = null;

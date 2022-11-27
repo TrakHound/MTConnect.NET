@@ -15,8 +15,7 @@
 						<DataItem category="SAMPLE" id="L2S1speed" name="S1speed" nativeUnits="REVOLUTION/MINUTE" subType="ACTUAL" type="ROTARY_VELOCITY" units="REVOLUTION/MINUTE"/>
 						<DataItem category="SAMPLE" id="L2S1cmd" name="S1cmd" nativeUnits="REVOLUTION/MINUTE" subType="COMMANDED" type="ROTARY_VELOCITY" units="REVOLUTION/MINUTE"/>
 						<DataItem category="EVENT" id="L2S1ovr" name="S1ovr" nativeUnits="PERCENT" subType="PROGRAMMED" type="ROTARY_VELOCITY_OVERRIDE" units="PERCENT"/>
-						<DataItem category="SAMPLE" id="L2S1load" name="S1load" nativeUnits="PERCENT" type="LOAD3" units="PERCENT"/>
-						<!--<DataItem category="SAMPLE" id="L2S1load" name="S1load" nativeUnits="PERCENT" type="LOAD" units="PERCENT"/>-->
+						<DataItem category="SAMPLE" id="L2S1load" name="S1load" nativeUnits="PERCENT" type="LOAD" units="PERCENT"/>
 						<DataItem category="EVENT" id="L2S1Mode" name="S1Mode" type="ROTARY_MODE">
 							<Constraints>
 								<Value>SPINDLE</Value>

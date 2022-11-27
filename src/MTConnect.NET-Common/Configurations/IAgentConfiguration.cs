@@ -64,5 +64,7 @@ namespace MTConnect.Configurations
 
 
         void SaveJson(string path = null, bool createBackup = true);
+
+        void SaveYaml(string path = null, bool createBackup = true);
     }
 }
