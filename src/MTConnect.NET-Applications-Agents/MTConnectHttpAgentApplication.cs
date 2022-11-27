@@ -94,11 +94,12 @@ namespace MTConnect.Applications.Agents
             // Intialize the Http Server
             _httpServer = OnHttpServerInitialize(_port);
 
+            _httpServer.ListenerStarted += HttpListenerStarted;
+            _httpServer.ListenerStopped += HttpListenerStopped;
+
             // Setup Http Server Logging
             if (_verboseLogging)
             {
-                _httpServer.ListenerStarted += HttpListenerStarted;
-                _httpServer.ListenerStopped += HttpListenerStopped;
                 _httpServer.ListenerException += HttpListenerException;
                 _httpServer.ClientConnected += HttpClientConnected;
                 _httpServer.ClientDisconnected += HttpClientDisconnected;
