@@ -48,7 +48,7 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="NLog" Version="5.0.5" />
+		<PackageReference Include="NLog" Version="5.1.0" />
 	</ItemGroup>
 
 	<ItemGroup>

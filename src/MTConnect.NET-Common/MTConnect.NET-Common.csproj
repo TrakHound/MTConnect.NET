@@ -18,7 +18,7 @@
 		<RepositoryType>git</RepositoryType>
 		<Description>MTConnect.NET-Common contains common classes for MTConnect Agents, Adapters, and Clients. Supports MTConnect Versions up to 2.0. Supports .NET Framework 4.6.1 up to .NET 6</Description>
 		<PackageProjectUrl>https://www.TrakHound.com</PackageProjectUrl>
-		<PackageTags>mtconnect;iiot;</PackageTags>
+		<PackageTags>mtconnect;iiot;iot;cnc;</PackageTags>
 		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
 		<PackageIconUrl>https://static.trakhound.com/mtconnect-net.png</PackageIconUrl>
 
@@ -103,7 +103,7 @@
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
 		<PackageReference Include="System.Buffers" Version="4.5.1" />
 		<PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" Version="4.3.0" />
-		<PackageReference Include="YamlDotNet" Version="12.0.2" />
+		<PackageReference Include="YamlDotNet" Version="12.2.1" />
 	</ItemGroup>
 
 </Project>
