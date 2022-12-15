@@ -3,7 +3,6 @@
 	"port": 5005,
 	"adapters": [
 		{
-			"device": "M12346",
 			"host": "localhost",
 			"port": 7878
 		}

@@ -9,6 +9,7 @@ using MTConnect.Adapters.Shdr;
 using MTConnect.Agents;
 using MTConnect.Applications.Loggers;
 using MTConnect.Configurations;
+using MTConnect.Devices;
 using MTConnect.Devices.Components;
 using System;
 using System.Collections.Generic;
@@ -81,27 +82,36 @@ namespace MTConnect.Applications
                             _mtconnectAgent.AddDevice(device);
                         }
 
-                        foreach (var adapterConfiguration in _configuration.Adapters)
+                        // Device Specific Adapters (DeviceKey specified)
+                        var deviceAdapters = _configuration.Adapters.Where(o => o.DeviceKey != ShdrClientConfiguration.DeviceKeyWildcard);
+                        if (!deviceAdapters.IsNullOrEmpty())
                         {
-                            var device = devices.FirstOrDefault(o => o.Name == adapterConfiguration.DeviceKey);
-                            if (device != null)
+                            foreach (var adapter in deviceAdapters)
                             {
-                                var adapterComponent = new ShdrAdapterComponent(adapterConfiguration);
-
-                                // Add Adapter Component to Agent Device
-                                _mtconnectAgent.Agent.AddAdapterComponent(adapterComponent);
-
-                                // Create new SHDR Adapter Client to read from SHDR stream
-                                var adapterClient = new ShdrAdapterClient(adapterConfiguration, _mtconnectAgent, device);
-                                adapterClient.Connected += _adapterLogger.AdapterConnected;
-                                adapterClient.Disconnected += _adapterLogger.AdapterDisconnected;
-                                adapterClient.ConnectionError += _adapterLogger.AdapterConnectionError;
-                                adapterClient.PingSent += _adapterLogger.AdapterPingSent;
-                                adapterClient.PongReceived += _adapterLogger.AdapterPongReceived;
-                                adapterClient.ProtocolReceived += _adapterShdrLogger.AdapterProtocolReceived;
-                                adapterClient.Start();
-                                _adapterClients.Add(adapterClient);
+                                // Find Device matching DeviceKey
+                                var device = devices?.FirstOrDefault(o => o.Uuid == adapter.DeviceKey || o.Name == adapter.DeviceKey);
+                                if (device != null) AddAdapter(adapter, device);
                             }
+                        }
+
+                        // Wildcard Adapters (DeviceKey = '*')
+                        var wildCardAdapters = _configuration.Adapters.Where(o => o.DeviceKey == ShdrClientConfiguration.DeviceKeyWildcard);
+                        if (!wildCardAdapters.IsNullOrEmpty())
+                        {
+                            foreach (var adapter in wildCardAdapters)
+                            {
+                                // Add Adapter for each Device (every device reads from the same adapter)
+                                foreach (var device in devices) AddAdapter(adapter, device, true, device.Id);
+                            }
+                        }
+                    }
+                    else if (_configuration.AllowShdrDevice) // Prevent accidental generic Adapter creation
+                    {
+                        foreach (var adapter in _configuration.Adapters)
+                        {
+                            // Add a generic Adapter Client (no Device)
+                            // Typically used if the Device Model is sent using SHDR
+                            AddAdapter(adapter, null);
                         }
                     }
                 }
@@ -121,6 +131,29 @@ namespace MTConnect.Applications
             }
 
             if (_metricsTimer != null) _metricsTimer.Dispose();
+        }
+
+        private void AddAdapter(IShdrAdapterConfiguration configuration, IDevice device, bool initializeDataItems = true, string idSuffix = null)
+        {
+            if (configuration != null)
+            {
+                var adapterComponent = new ShdrAdapterComponent(configuration, idSuffix, device, device);
+
+                // Add Adapter Component to Agent Device
+                _mtconnectAgent.Agent.AddAdapterComponent(adapterComponent);
+
+                // Create new SHDR Adapter Client to read from SHDR stream
+                var adapterClient = new ShdrAdapterClient(configuration, _mtconnectAgent, device);
+                adapterClient.Connected += _adapterLogger.AdapterConnected;
+                adapterClient.Disconnected += _adapterLogger.AdapterDisconnected;
+                adapterClient.ConnectionError += _adapterLogger.AdapterConnectionError;
+                adapterClient.PingSent += _adapterLogger.AdapterPingSent;
+                adapterClient.PongReceived += _adapterLogger.AdapterPongReceived;
+                adapterClient.ProtocolReceived += _adapterShdrLogger.AdapterProtocolReceived;
+                _adapterClients.Add(adapterClient);
+
+                adapterClient.Start();
+            }
         }
 
         private void StartMetrics()
