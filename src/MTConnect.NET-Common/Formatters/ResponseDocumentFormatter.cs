@@ -6,14 +6,12 @@
 using MTConnect.Assets;
 using MTConnect.Devices;
 using MTConnect.Errors;
-using MTConnect.Extensions;
 using MTConnect.Streams;
 using MTConnect.Streams.Output;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 
 namespace MTConnect.Formatters
 {
@@ -196,11 +194,26 @@ namespace MTConnect.Formatters
             var assemblies = Assemblies.Get();
             if (!assemblies.IsNullOrEmpty())
             {
-                // Get IResponseDocumentFormatter Types
-                var types = assemblies
-                    .SelectMany(
-                        x => x.GetMatchingTypesInAssembly(
-                            t => typeof(IResponseDocumentFormatter).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract));
+                var types = new List<Type>();
+
+                foreach (var assembly in assemblies)
+                {
+                    try
+                    {
+                        var assemblyTypes = assembly.GetTypes();
+                        if (!assemblyTypes.IsNullOrEmpty())
+                        {
+                            foreach (var type in assemblyTypes)
+                            {
+                                if (typeof(IResponseDocumentFormatter).IsAssignableFrom(type) && !type.IsInterface && !type.IsAbstract)
+                                {
+                                    types.Add(type);
+                                }
+                            }
+                        }
+                    }
+                    catch { }
+                }
 
                 if (!types.IsNullOrEmpty())
                 {

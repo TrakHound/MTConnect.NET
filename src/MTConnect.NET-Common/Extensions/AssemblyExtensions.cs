@@ -25,7 +25,9 @@ namespace MTConnect.Extensions
             var types = new List<Type>();
             try
             {
-                types = assembly.GetTypes().Where(i => predicate(i) && i.Assembly == assembly).ToList();
+                var assemblyTypes = assembly.GetTypes();
+                types = assemblyTypes.Where(i => predicate(i)).ToList();
+                //types = assembly.GetTypes().Where(i => predicate(i) && i.Assembly == assembly).ToList();
             }
             catch (ReflectionTypeLoadException ex)
             {
