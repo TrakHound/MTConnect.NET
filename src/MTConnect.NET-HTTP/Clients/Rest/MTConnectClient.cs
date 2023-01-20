@@ -22,6 +22,9 @@ namespace MTConnect.Clients.Rest
     /// </summary>
     public class MTConnectClient : IMTConnectClient
     {
+        private readonly Dictionary<string, IDevice> _devices = new Dictionary<string, IDevice>();
+        private readonly object _lock = new object();
+
         private CancellationTokenSource _stop;
         private MTConnectHttpClientStream _stream;
         private long _lastInstanceId;
@@ -573,6 +576,19 @@ namespace MTConnect.Clients.Rest
                             }
                         }
 
+                        // Add to cached list
+                        if (!probe.Devices.IsNullOrEmpty())
+                        {
+                            foreach (var device in probe.Devices)
+                            {
+                                lock (_lock)
+                                {
+                                    _devices.Remove(device.Uuid);
+                                    _devices.Add(device.Uuid, device);
+                                }
+                            }
+                        }
+
                         // Run Current Request
                         var current = await GetCurrentAsync(_stop.Token, path: _streamPath);
                         if (current != null)
@@ -682,16 +698,81 @@ namespace MTConnect.Clients.Rest
 
                     if (deviceStream != null && deviceStream.Observations != null && deviceStream.Observations.Count() > 0)
                     {
+                        // Recreate Response Document (to set DataItem property for Observations)
+                        var response = new StreamsResponseDocument();
+                        response.Header = document.Header;
+
+                        var deviceStreams = new List<IDeviceStream>();
+                        foreach (var stream in document.Streams)
+                        {
+                            deviceStreams.Add(ProcessDeviceStream(stream));
+                        }
+                        response.Streams = deviceStreams;
+
                         CheckAssetChanged(deviceStream.Observations, cancel);
 
                         // Save the most recent Sequence that was read
                         _lastSequence = deviceStream.Observations.Max(o => o.Sequence);
 
-                        OnSampleReceived?.Invoke(this, document);
+                        OnSampleReceived?.Invoke(this, response);
                     }
                 }
             }
         }
+
+        private IDeviceStream ProcessDeviceStream(IDeviceStream inputDeviceStream)
+        {
+            var outputDeviceStream = new DeviceStream();
+            outputDeviceStream.Name = inputDeviceStream.Name;
+            outputDeviceStream.Uuid = inputDeviceStream.Uuid;
+
+            var componentStreams = new List<IComponentStream>();
+            if (!inputDeviceStream.ComponentStreams.IsNullOrEmpty())
+            {
+                foreach (var componentStream in inputDeviceStream.ComponentStreams)
+                {
+                    componentStreams.Add(ProcessComponentStream(outputDeviceStream.Uuid, componentStream));
+                }
+            }
+            outputDeviceStream.ComponentStreams = componentStreams;
+
+            return outputDeviceStream;
+        }
+
+        private IComponentStream ProcessComponentStream(string deviceUuid, IComponentStream inputComponentStream)
+        {
+            var outputComponentStream = new ComponentStream();
+            outputComponentStream.Name = inputComponentStream.Name;
+            outputComponentStream.NativeName = inputComponentStream.NativeName;
+            outputComponentStream.Uuid = inputComponentStream.Uuid;
+            outputComponentStream.Component = GetCachedComponent(deviceUuid, inputComponentStream.ComponentId);
+
+            var observations = new List<IObservation>();
+            if (!inputComponentStream.Observations.IsNullOrEmpty())
+            {
+                foreach (var inputObservation in inputComponentStream.Observations)
+                {
+                    var outputObservation = new Observation();
+                    outputObservation.DeviceUuid = inputObservation.DeviceUuid;
+                    outputObservation.DataItemId = inputObservation.DataItemId;
+                    outputObservation.DataItem = GetCachedDataItem(deviceUuid, inputObservation.DataItemId);
+                    outputObservation.CompositionId = inputObservation.CompositionId;
+                    outputObservation.Category = inputObservation.Category;
+                    outputObservation.Representation = inputObservation.Representation;
+                    outputObservation.Type = inputObservation.Type;
+                    outputObservation.SubType = inputObservation.SubType;
+                    outputObservation.Name = inputObservation.Name;
+                    outputObservation.Sequence = inputObservation.Sequence;
+                    outputObservation.Timestamp = inputObservation.Timestamp;
+                    outputObservation.AddValues(inputObservation.Values);
+                    observations.Add(outputObservation);
+                }
+            }
+            outputComponentStream.Observations = observations;
+
+            return outputComponentStream;
+        }
+
 
         private void ProcessSampleError(IErrorResponseDocument document)
         {
@@ -765,6 +846,58 @@ namespace MTConnect.Clients.Rest
             if (!string.IsNullOrEmpty(path)) url = Url.AddQueryParameter(url, "path", path);
 
             return url;
+        }
+
+        #endregion
+
+        #region "Cache"
+
+        private IDevice GetCachedDevice(string deviceUuid)
+        {
+            if (!string.IsNullOrEmpty(deviceUuid))
+            {
+                lock (_lock) return _devices.GetValueOrDefault(deviceUuid);
+            }
+
+            return null;
+        }
+
+        private IComponent GetCachedComponent(string deviceUuid, string componentId)
+        {
+            if (!string.IsNullOrEmpty(deviceUuid) && !string.IsNullOrEmpty(componentId))
+            {
+                lock (_lock)
+                {
+                    var device = _devices.GetValueOrDefault(deviceUuid);
+                    if (device != null && !device.Components.IsNullOrEmpty())
+                    {
+                        return device.Components.FirstOrDefault(o => o.Id == componentId);
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        private IDataItem GetCachedDataItem(string deviceUuid, string dataItemId)
+        {
+            if (!string.IsNullOrEmpty(deviceUuid) && !string.IsNullOrEmpty(dataItemId))
+            {
+                lock (_lock)
+                {
+                    var device = _devices.GetValueOrDefault(deviceUuid);
+                    if (device != null)
+                    {
+                        var dataItems = device.GetDataItems();
+                        if (!dataItems.IsNullOrEmpty())
+                        {
+                            return dataItems.FirstOrDefault(o => o.Id == dataItemId);
+                        }
+                    }
+                }
+            }
+
+            return null;
         }
 
         #endregion
