@@ -6,7 +6,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using System.Runtime.Loader;
+
+#if NET5_0_OR_GREATER
+    using System.Runtime.Loader;
+#endif
 
 namespace MTConnect
 {
