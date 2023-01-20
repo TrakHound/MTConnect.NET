@@ -856,7 +856,11 @@ namespace MTConnect.Clients.Rest
         {
             if (!string.IsNullOrEmpty(deviceUuid))
             {
-                lock (_lock) return _devices.GetValueOrDefault(deviceUuid);
+                lock (_lock)
+                {
+                    _devices.TryGetValue(deviceUuid, out var device);
+                    return device;
+                }
             }
 
             return null;
@@ -868,7 +872,7 @@ namespace MTConnect.Clients.Rest
             {
                 lock (_lock)
                 {
-                    var device = _devices.GetValueOrDefault(deviceUuid);
+                    _devices.TryGetValue(deviceUuid, out var device);
                     if (device != null && !device.Components.IsNullOrEmpty())
                     {
                         return device.Components.FirstOrDefault(o => o.Id == componentId);
@@ -885,7 +889,7 @@ namespace MTConnect.Clients.Rest
             {
                 lock (_lock)
                 {
-                    var device = _devices.GetValueOrDefault(deviceUuid);
+                    _devices.TryGetValue(deviceUuid, out var device);
                     if (device != null)
                     {
                         var dataItems = device.GetDataItems();
