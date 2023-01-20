@@ -1,7 +1,5 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
-
-// This file is subject to the terms and conditions defined in
-// file 'LICENSE', which is part of this source code package.
+// TrakHound Inc. licenses this file to you under the MIT license.
 
 namespace MTConnect.Devices.Configurations.CoordinateSystems
 {
@@ -18,9 +16,9 @@ namespace MTConnect.Devices.Configurations.CoordinateSystems
         public const string Name = "The name of the coordinate system.";
 
         /// <summary>
-        /// The manufacturer’s name or users name for the coordinate system.
+        /// The manufacturerï¿½s name or users name for the coordinate system.
         /// </summary>
-        public const string NativeName = "The manufacturer’s name or users name for the coordinate system.";
+        public const string NativeName = "The manufacturerï¿½s name or users name for the coordinate system.";
 
         /// <summary>
         /// A pointer to the id attribute of the parent CoordinateSystem.

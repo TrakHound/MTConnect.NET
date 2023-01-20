@@ -1,7 +1,5 @@
-﻿// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
-
-// This file is subject to the terms and conditions defined in
-// file 'LICENSE', which is part of this source code package.
+// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Devices;
 using MTConnect.Devices.DataItems;

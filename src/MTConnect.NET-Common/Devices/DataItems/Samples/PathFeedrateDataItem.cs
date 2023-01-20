@@ -1,7 +1,5 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
-
-// This file is subject to the terms and conditions defined in
-// file 'LICENSE.txt', which is part of this source code package.
+// TrakHound Inc. licenses this file to you under the MIT license.
 
 using System;
 
@@ -39,7 +37,7 @@ namespace MTConnect.Devices.DataItems.Samples
             JOG,
 
             /// <summary>
-            /// (DEPRECATED) Operator’s overridden value.
+            /// (DEPRECATED) Operatorï¿½s overridden value.
             /// </summary>
             OVERRIDE,
 

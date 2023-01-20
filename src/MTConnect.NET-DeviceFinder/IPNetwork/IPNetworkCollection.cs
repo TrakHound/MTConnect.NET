@@ -1,4 +1,7 @@
-﻿using System.Collections;
+// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// TrakHound Inc. licenses this file to you under the MIT license.
+
+using System.Collections;
 using System.Collections.Generic;
 using System.Numerics;
 
