@@ -4,7 +4,8 @@
 		<TargetFrameworks>net6.0</TargetFrameworks>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)'=='Release'">
-		<TargetFrameworks>netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
+		<TargetFrameworks>netcoreapp3.1;net5.0;net6.0;net7.0</TargetFrameworks>
+		<Optimize>true</Optimize>
 	</PropertyGroup>
 
 	<PropertyGroup>
@@ -15,11 +16,11 @@
 		<Copyright>Copyright (c) 2023 TrakHound Inc., All Rights Reserved.</Copyright>
 		<RepositoryUrl>https://github.com/TrakHound/MTConnect.NET</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
-		<Description>MTConnect.NET-HTTP-AspNetCore is an extension library to MTConnect.NET that uses ApiControllers and the built-in features for Asp.NET Core</Description>
+		<Description>MTConnect.NET-HTTP-AspNetCore is an extension library to MTConnect.NET that uses ApiControllers and the built-in features for Asp.NET Core up to .NET 7</Description>
 		<PackageProjectUrl>https://www.TrakHound.com</PackageProjectUrl>
-		<PackageTags>mtconnect;iiot;</PackageTags>
-		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-		<PackageIconUrl>https://static.trakhound.com/mtconnect-net.png</PackageIconUrl>
+		<PackageTags>mtconnect;iiot;iot;cnc;</PackageTags>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageIconUrl>https://static.trakhound.com/mtconnect-net-nuget.png</PackageIconUrl>
 
 		<!-- Optional: Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>

@@ -1,10 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup Condition="'$(Configuration)'=='Debug'">
 		<TargetFrameworks>net6.0</TargetFrameworks>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)'=='Release'">
-		<TargetFrameworks>net461;net462;net47;net471;net472;net48;netstandard2.0;netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
+		<TargetFrameworks>net461;net462;net47;net471;net472;net48;netstandard2.0;netcoreapp3.1;net5.0;net6.0;net7.0</TargetFrameworks>
 		<Optimize>true</Optimize>
 	</PropertyGroup>
 
@@ -16,10 +16,10 @@
 		<Copyright>Copyright (c) 2023 TrakHound Inc., All Rights Reserved.</Copyright>
 		<RepositoryUrl>https://github.com/TrakHound/MTConnect.NET</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
-		<Description>MTConnect.NET-DeviceFinder contains classes to find MTConnect Devices on a network. Supports MTConnect Versions up to 2.0. Supports .NET Framework 4.6.1 up to .NET 6</Description>
+		<Description>MTConnect.NET-DeviceFinder contains classes to find MTConnect Devices on a network. Supports MTConnect Versions up to 2.0. Supports .NET Framework 4.6.1 up to .NET 7</Description>
 		<PackageProjectUrl>https://www.TrakHound.com</PackageProjectUrl>
-		<PackageTags>mtconnect;iiot;</PackageTags>
-		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+		<PackageTags>mtconnect;iiot;iot;cnc;</PackageTags>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageIconUrl>https://static.trakhound.com/mtconnect-net.png</PackageIconUrl>
 
 		<!-- Optional: Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
