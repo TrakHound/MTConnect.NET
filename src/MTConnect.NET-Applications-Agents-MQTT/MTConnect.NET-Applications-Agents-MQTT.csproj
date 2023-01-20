@@ -13,7 +13,7 @@
 		<Configurations>Debug;Release;Package</Configurations>
 		<Authors>TrakHound</Authors>
 		<Company>TrakHound Inc.</Company>
-		<Copyright>Copyright (c) 2022 TrakHound Inc., All Rights Reserved.</Copyright>
+		<Copyright>Copyright (c) 2023 TrakHound Inc., All Rights Reserved.</Copyright>
 		<RepositoryUrl>https://github.com/TrakHound/MTConnect.NET</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<Description>MTConnect.NET-Applications-Agents-MQTT contains classes to implement the MQTT Protocol in an MTConnect Agent application.  Supports MTConnect Versions up to 2.0. Supports .NET Framework 4.6.1 up to .NET 6</Description>

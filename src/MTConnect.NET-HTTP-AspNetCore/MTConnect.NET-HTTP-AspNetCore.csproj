@@ -12,7 +12,7 @@
 		<Configurations>Debug;Release;Package</Configurations>
 		<Authors>TrakHound</Authors>
 		<Company>TrakHound Inc.</Company>
-		<Copyright>Copyright (c) 2022 TrakHound Inc., All Rights Reserved.</Copyright>
+		<Copyright>Copyright (c) 2023 TrakHound Inc., All Rights Reserved.</Copyright>
 		<RepositoryUrl>https://github.com/TrakHound/MTConnect.NET</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<Description>MTConnect.NET-HTTP-AspNetCore is an extension library to MTConnect.NET that uses ApiControllers and the built-in features for Asp.NET Core</Description>

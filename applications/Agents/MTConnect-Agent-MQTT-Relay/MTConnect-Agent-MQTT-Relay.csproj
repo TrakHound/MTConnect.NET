@@ -19,7 +19,7 @@
 		<StartupObject>MTConnect.Applications.Program</StartupObject>
 		<Nullable>disable</Nullable>
 		<Company>TrakHound Inc.</Company>
-		<Copyright>Copyright (c) 2022 TrakHound Inc., All Rights Reserved.</Copyright>
+		<Copyright>Copyright (c) 2023 TrakHound Inc., All Rights Reserved.</Copyright>
 		<PackageProjectUrl>http://trakhound.com</PackageProjectUrl>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<RepositoryUrl>https://github.com/TrakHound/MTConnect.NET</RepositoryUrl>

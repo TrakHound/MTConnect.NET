@@ -12,7 +12,7 @@
 		<Configurations>Debug;Release;Package</Configurations>
 		<Authors>TrakHound</Authors>
 		<Company>TrakHound Inc.</Company>
-		<Copyright>Copyright (c) 2022 TrakHound Inc., All Rights Reserved.</Copyright>
+		<Copyright>Copyright (c) 2023 TrakHound Inc., All Rights Reserved.</Copyright>
 		<RepositoryUrl>https://github.com/TrakHound/MTConnect.NET</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<Description>MTConnect.NET-Services contains classes used to implement Windows Services. Supports MTConnect Versions up to 2.0. Supports .NET Framework 4.6.1 up to .NET 6</Description>

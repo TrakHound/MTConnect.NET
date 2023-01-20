@@ -14,7 +14,7 @@
 	<AssemblyVersion>0.1.0</AssemblyVersion>
 	<FileVersion></FileVersion>
 	<Configurations>Debug;Release;Package</Configurations>
-	<Copyright>Copyright (c) 2022 TrakHound Inc., All Rights Reserved.</Copyright>
+	<Copyright>Copyright (c) 2023 TrakHound Inc., All Rights Reserved.</Copyright>
 	<PackageProjectUrl>https://www.TrakHound.com</PackageProjectUrl>
 	<RepositoryUrl>https://github.com/TrakHound/MTConnect.NET</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
