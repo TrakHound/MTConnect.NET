@@ -16,7 +16,7 @@ namespace MTConnect.Shdr
         public const char PipeDelimiter = '|';
         public const string LineTerminator = "\r\n";
 
-        private const string _emptySingleEntryPattern = @"^([^=\s]+)\={0,1}$";
+        private const string _emptySingleEntryPattern = @"([^=\s]+)\={0,1}$";
         private const string _emptyEntryPattern = @"([^=\s]+)\s+";
         private const string _emptyEntryWithEqualsPattern = @"([^=\s]+)\={1}\s+";
         private const string _entryPattern = @"([^=\s]+)\={1}([^\s\'\""\{\}]+)";

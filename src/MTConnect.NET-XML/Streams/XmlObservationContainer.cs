@@ -423,6 +423,7 @@ namespace MTConnect.Streams.Xml
                     if (!string.IsNullOrEmpty(entrykey))
                     {
                         found = true;
+                        var removed = observation.Values[i].Value == TableObservation.EntryRemovedValue;
 
                         firstEntryKey = previousEntryKey != entrykey;
                         if (firstEntryKey)
@@ -433,16 +434,24 @@ namespace MTConnect.Streams.Xml
                             // Create new Entry Element
                             writer.WriteStartElement("Entry");
                             writer.WriteAttributeString("key", entrykey);
+
+                            if (removed)
+                            {
+                                writer.WriteAttributeString("removed", "true");
+                            }
                         }
 
-                        // Get the CellKey
-                        cellKey = ValueKeys.GetTableCellKey(observation.Values[i].Key);
+                        if (!removed)
+                        {
+                            // Get the CellKey
+                            cellKey = ValueKeys.GetTableCellKey(observation.Values[i].Key);
 
-                        // Create new Cell Element
-                        writer.WriteStartElement("Cell");
-                        writer.WriteAttributeString("key", cellKey);
-                        writer.WriteString(observation.Values[i].Value);
-                        writer.WriteEndElement();
+                            // Create new Cell Element
+                            writer.WriteStartElement("Cell");
+                            writer.WriteAttributeString("key", cellKey);
+                            writer.WriteString(observation.Values[i].Value);
+                            writer.WriteEndElement();
+                        }
 
                         previousEntryKey = entrykey;
                         first = false;
