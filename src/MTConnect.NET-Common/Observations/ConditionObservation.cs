@@ -103,16 +103,16 @@ namespace MTConnect.Observations
 
         public static ConditionObservation Create(IObservation observation)
         {
-            if (observation != null && observation.DataItem != null)
+            if (observation != null)
             {
-                var result = Create(observation.DataItem.Type, observation.DataItem.Representation);
+                var result = Create(observation.Type, observation.Representation);
                 result._dataItem = observation.DataItem;
-                result._dataItemId = observation.DataItem.Id;
-                result._representation = observation.DataItem.Representation;
-                result._type = observation.DataItem.Type;
-                result._subType = observation.DataItem.SubType;
-                result._name = observation.DataItem.Name;
-                result._compositionId = observation.DataItem.CompositionId;
+                result._dataItemId = observation.DataItemId;
+                result._representation = observation.Representation;
+                result._type = observation.Type;
+                result._subType = observation.SubType;
+                result._name = observation.Name;
+                result._compositionId = observation.CompositionId;
                 result._sequence = observation.Sequence;
                 result._timestamp = observation.Timestamp;
                 result.AddValues(observation.Values);
@@ -121,6 +121,7 @@ namespace MTConnect.Observations
 
             return null;
         }
+
 
         public static ConditionObservation Create(string type, DataItemRepresentation representation)
         {
