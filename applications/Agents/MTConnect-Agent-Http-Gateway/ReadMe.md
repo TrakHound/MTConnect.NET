@@ -5,7 +5,7 @@
 [![MTConnect.NET](https://github.com/TrakHound/MTConnect.NET/actions/workflows/dotnet.yml/badge.svg)](https://github.com/TrakHound/MTConnect.NET/actions/workflows/dotnet.yml)
 
 ## Overview
-This project is a full implementation of an MTConnect Agent used to read data from industrial machine tools and devices. This MTConnect Agent application is fully compatible with the latest **Version 2.0 of the MTConnect Standard**. It receives data from other MTConnect Agents using HTTP, an in-memory buffer with an optional durable file system based buffer, and an Http REST interface for retrieving data.
+This project is a full implementation of an MTConnect Agent used to read data from industrial machine tools and devices. This MTConnect Agent application is fully compatible with the latest **Version 2.1 of the MTConnect Standard**. It receives data from other MTConnect Agents using HTTP, an in-memory buffer with an optional durable file system based buffer, and an Http REST interface for retrieving data.
 
 #### Features
 - Easy setup with Windows Installers availble in the latest [Releases](https://github.com/TrakHound/MTConnect.NET/releases)
