@@ -11,12 +11,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 
-namespace MTConnect.Clients.Rest
+namespace MTConnect.Clients
 {
     /// <summary>
-    /// Client that is used to perform a Current request from an MTConnect Agent using the MTConnect REST Api protocol
+    /// Client that is used to perform a Current request from an MTConnect Agent using the MTConnect HTTP REST Api protocol
     /// </summary>
-    public class MTConnectCurrentClient : IMTConnectCurrentClient
+    public class MTConnectHttpCurrentClient : IMTConnectCurrentClient
     {
         private const int DefaultTimeout = 5000;
 
@@ -28,7 +28,7 @@ namespace MTConnect.Clients.Rest
 
         /// <summary>
         /// Initializes a new instance of the MTConnectCurrentClient class that is used to perform
-        /// a Current request from an MTConnect Agent using the MTConnect REST Api protocol
+        /// a Current request from an MTConnect Agent using the MTConnect HTTP REST Api protocol
         /// </summary>
         /// <param name="authority">
         /// The authority portion consists of the DNS name or IP address associated with an Agent and an optional
@@ -42,9 +42,38 @@ namespace MTConnect.Clients.Rest
         /// <param name="path">The XPath expression specifying the components and/or data items to include</param>
         /// <param name="at">The sequence number to retrieve the current data for</param>
         /// <param name="documentFormat">Gets or Sets the Document Format to return</param>
-        public MTConnectCurrentClient(string authority, string device = null, string path = null, long at = -1, string documentFormat = MTConnect.DocumentFormat.XML)
+        public MTConnectHttpCurrentClient(string authority, string device = null, string path = null, long at = -1, string documentFormat = MTConnect.DocumentFormat.XML)
         {
             Authority = authority;
+            Device = device;
+            Path = path;
+            At = at;
+            DocumentFormat = documentFormat;
+            Timeout = DefaultTimeout;
+            ContentEncodings = HttpContentEncodings.DefaultAccept;
+            ContentType = MimeTypes.Get(documentFormat);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the MTConnectCurrentClient class that is used to perform
+        /// a Current request from an MTConnect Agent using the MTConnect HTTP REST Api protocol
+        /// </summary>
+        /// <param name="hostname">
+        /// The Hostname of the MTConnect Agent
+        /// </param>
+        /// <param name="port">
+        /// The Port of the MTConnect Agent
+        /// </param>
+        /// <param name="device">
+        /// If present, specifies that only the Equipment Metadata for the piece of equipment represented by the name or uuid will be published.
+        /// If not present, Metadata for all pieces of equipment associated with the Agent will be published.
+        /// </param>
+        /// <param name="path">The XPath expression specifying the components and/or data items to include</param>
+        /// <param name="at">The sequence number to retrieve the current data for</param>
+        /// <param name="documentFormat">Gets or Sets the Document Format to return</param>
+        public MTConnectHttpCurrentClient(string hostname, int port, string device = null, string path = null, long at = -1, string documentFormat = MTConnect.DocumentFormat.XML)
+        {
+            Authority = CreateUri(hostname, port).ToString();
             Device = device;
             Path = path;
             At = at;
@@ -227,54 +256,69 @@ namespace MTConnect.Clients.Rest
             return null;
         }
 
-        public Uri CreateUri()
+
+        public Uri CreateUri() => CreateUri(Authority, Device, Path, At, DocumentFormat);
+
+        public static Uri CreateUri(string hostname, string device = null, string path = null, long at = 0, string documentFormat = null) => CreateUri(hostname, 0, device, path, at, documentFormat);
+
+        public static Uri CreateUri(string hostname, int port, string device = null, string path = null, long at = 0, string documentFormat = null)
         {
-            var url = Authority;
-            var builder = new UriBuilder(url);
-            var query = HttpUtility.ParseQueryString(builder.Query);
-            if (query.HasKeys())
+            if (!string.IsNullOrEmpty(hostname))
             {
-                // At
-                var s = query.Get("at");
-                if (At < 0 && s != null && long.TryParse(s, out var l)) At = l;
+                var url = hostname;
 
-                builder.Query = null;
-                url = builder.Uri.ToString();
+                // Add Port
+                url = Url.AddPort(url, port);
+
+                var builder = new UriBuilder(url);
+                var query = HttpUtility.ParseQueryString(builder.Query);
+                if (query.HasKeys())
+                {
+                    // At
+                    var s = query.Get("at");
+                    if (at < 0 && s != null && long.TryParse(s, out var l)) at = l;
+
+                    builder.Query = null;
+                    url = builder.Uri.ToString();
+                }
+
+                // Remove Current command from URL
+                var cmd = "current";
+                if (url.EndsWith(cmd) && url.Length > cmd.Length)
+                    url = url.Substring(0, url.Length - cmd.Length);
+
+                // Check for Trailing Forward Slash
+                if (!url.EndsWith("/")) url += "/";
+                if (!string.IsNullOrEmpty(device)) url += device + "/";
+
+                // Add Command
+                url += cmd;
+
+                // Replace 'localhost' with '127.0.0.1' (This is due to a performance issue with .NET Core's System.Net.Http.HttpClient)
+                if (url.Contains("localhost")) url = url.Replace("localhost", "127.0.0.1");
+
+                // Check for http
+                if (!url.StartsWith("http://") && !url.StartsWith("https://")) url = "http://" + url;
+
+
+                // Add 'At' parameter
+                if (at > 0) url = Url.AddQueryParameter(url, "at", at);
+
+                // Add 'Path' parameter
+                if (!string.IsNullOrEmpty(path)) url = Url.AddQueryParameter(url, "path", path);
+
+                // Add 'DocumentFormat' parameter
+                if (!string.IsNullOrEmpty(documentFormat) && documentFormat != MTConnect.DocumentFormat.XML)
+                {
+                    url = Url.AddQueryParameter(url, "documentFormat", documentFormat.ToLower());
+                }
+
+                return new Uri(url);
             }
 
-            // Remove Current command from URL
-            var cmd = "current";
-            if (url.EndsWith(cmd) && url.Length > cmd.Length)
-                url = url.Substring(0, url.Length - cmd.Length);
-
-            // Check for Trailing Forward Slash
-            if (!url.EndsWith("/")) url += "/";
-            if (!string.IsNullOrEmpty(Device)) url += Device + "/";
-
-            // Add Command
-            url += cmd;
-
-            // Replace 'localhost' with '127.0.0.1' (This is due to a performance issue with .NET Core's System.Net.Http.HttpClient)
-            if (url.Contains("localhost")) url = url.Replace("localhost", "127.0.0.1");
-
-            // Check for http
-            if (!url.StartsWith("http://") && !url.StartsWith("https://")) url = "http://" + url;
-
-
-            // Add 'At' parameter
-            if (At > 0) url = Url.AddQueryParameter(url, "at", At);
-
-            // Add 'Path' parameter
-            if (!string.IsNullOrEmpty(Path)) url = Url.AddQueryParameter(url, "path", Path);
-
-            // Add 'DocumentFormat' parameter
-            if (!string.IsNullOrEmpty(DocumentFormat) && DocumentFormat != MTConnect.DocumentFormat.XML)
-            {
-                url = Url.AddQueryParameter(url, "documentFormat", DocumentFormat.ToLower());
-            }
-
-            return new Uri(url);
+            return null;
         }
+
 
         private IStreamsResponseDocument HandleResponse(HttpResponseMessage response)
         {

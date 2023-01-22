@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 using MTConnect.Agents;
 using MTConnect.Applications.Loggers;
 using MTConnect.Assets;
-using MTConnect.Clients.Rest;
+using MTConnect.Clients;
 using MTConnect.Configurations;
 using MTConnect.Devices;
 using MTConnect.Devices.Components;
@@ -32,7 +32,7 @@ namespace MTConnect.Applications
         private readonly AgentLogger _agentLogger;
         private readonly AgentMetricLogger _agentMetricLogger;
         private readonly AgentValidationLogger _agentValidationLogger;
-        private readonly List<MTConnectClient> _clients = new List<MTConnectClient>();
+        private readonly List<MTConnectHttpClient> _clients = new List<MTConnectHttpClient>();
         private System.Timers.Timer _metricsTimer;
 
 
@@ -93,16 +93,16 @@ namespace MTConnect.Applications
                             }
 
 
-                            var agentClient = new MTConnectClient(baseUri, clientConfiguration.DeviceKey);
+                            var agentClient = new MTConnectHttpClient(baseUri, clientConfiguration.DeviceKey);
                             agentClient.Interval = clientConfiguration.Interval;
                             agentClient.Heartbeat = clientConfiguration.Heartbeat;
                             _clients.Add(agentClient);
 
                             // Subscribe to the Event handlers to receive status events
-                            agentClient.OnClientStarting += (s, e) => ClientStarting(((MTConnectClient)s).Authority);
-                            agentClient.OnClientStarted += (s, e) => ClientStarted(((MTConnectClient)s).Authority);
-                            agentClient.OnClientStopping += (s, e) => ClientStopping(((MTConnectClient)s).Authority);
-                            agentClient.OnClientStopped += (s, e) => ClientStopped(((MTConnectClient)s).Authority);
+                            agentClient.OnClientStarting += (s, e) => ClientStarting(((MTConnectHttpClient)s).Authority);
+                            agentClient.OnClientStarted += (s, e) => ClientStarted(((MTConnectHttpClient)s).Authority);
+                            agentClient.OnClientStopping += (s, e) => ClientStopping(((MTConnectHttpClient)s).Authority);
+                            agentClient.OnClientStopped += (s, e) => ClientStopped(((MTConnectHttpClient)s).Authority);
                             agentClient.OnStreamStarting += (s, streamUrl) => StreamStarting(streamUrl);
                             agentClient.OnStreamStarted += (s, streamUrl) => StreamStarted(streamUrl);
                             agentClient.OnStreamStopping += (s, streamUrl) => StreamStopping(streamUrl);

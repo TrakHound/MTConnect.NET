@@ -10,12 +10,12 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace MTConnect.Clients.Rest
+namespace MTConnect.Clients
 {
     /// <summary>
-    /// Client that is used to perform a Assets request from an MTConnect Agent using the MTConnect REST Api protocol
+    /// Client that is used to perform a Assets request from an MTConnect Agent using the MTConnect HTTP REST Api protocol
     /// </summary>
-    public class MTConnectAssetClient : IMTConnectAssetClient
+    public class MTConnectHttpAssetClient : IMTConnectAssetClient
     {
         private const int DefaultTimeout = 5000;
 
@@ -27,7 +27,7 @@ namespace MTConnect.Clients.Rest
 
         /// <summary>
         /// Initializes a new instance of the MTConnectAssetClient class that is used to perform
-        /// an Assets request from an MTConnect Agent using the MTConnect REST Api protocol
+        /// an Assets request from an MTConnect Agent using the MTConnect HTTP REST Api protocol
         /// </summary>
         /// <param name="authority">
         /// The authority portion consists of the DNS name or IP address associated with an Agent and an optional
@@ -36,7 +36,7 @@ namespace MTConnect.Clients.Rest
         /// </param>
         /// <param name="assetId">The Id of the requested Asset</param>
         /// <param name="documentFormat">Gets or Sets the Document Format to return</param>
-        public MTConnectAssetClient(string authority, string assetId, string documentFormat = MTConnect.DocumentFormat.XML)
+        public MTConnectHttpAssetClient(string authority, string assetId, string documentFormat = MTConnect.DocumentFormat.XML)
         {
             Init();
             Authority = authority;
@@ -47,7 +47,7 @@ namespace MTConnect.Clients.Rest
 
         /// <summary>
         /// Initializes a new instance of the MTConnectAssetClient class that is used to perform
-        /// an Assets request from an MTConnect Agent using the MTConnect REST Api protocol
+        /// an Assets request from an MTConnect Agent using the MTConnect HTTP REST Api protocol
         /// </summary>
         /// <param name="authority">
         /// The authority portion consists of the DNS name or IP address associated with an Agent and an optional
@@ -58,7 +58,7 @@ namespace MTConnect.Clients.Rest
         /// <param name="device">The Device to retrieve Assets for</param>
         /// <param name="count">Specifies the maximum number of MTConnectAssets Response Documents returned in an MTConnectAssets Response Document</param>
         /// <param name="documentFormat">Gets or Sets the Document Format to return</param>
-        public MTConnectAssetClient(string authority, long count = -1, string type = null, string device = null, string documentFormat = MTConnect.DocumentFormat.XML)
+        public MTConnectHttpAssetClient(string authority, long count = -1, string type = null, string device = null, string documentFormat = MTConnect.DocumentFormat.XML)
         {
             Init();
             Authority = authority;

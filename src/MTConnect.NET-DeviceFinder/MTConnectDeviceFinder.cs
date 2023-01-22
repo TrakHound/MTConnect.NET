@@ -1,7 +1,7 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-using MTConnect.Clients.Rest;
+using MTConnect.Clients;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -305,8 +305,8 @@ namespace MTConnect.DeviceFinder
         {
             try
             {
-                var uri = MTConnectProbeClient.CreateUri(address.ToString(), port);
-                var probe = new MTConnectProbeClient(uri.ToString());
+                var uri = MTConnectHttpProbeClient.CreateUri(address.ToString(), port);
+                var probe = new MTConnectHttpProbeClient(uri.ToString());
                 probe.Timeout = Timeout;
                 probe.OnMTConnectError += ProbeMTConnectError;
                 probe.OnConnectionError += ProbeExceptionError;
@@ -338,7 +338,7 @@ namespace MTConnect.DeviceFinder
         {
             if (sender != null && errorDocument != null)
             {
-                var client = sender as MTConnectProbeClient;
+                var client = sender as MTConnectHttpProbeClient;
                 if (client != null)
                 {
                     var uri = new Uri(client.Authority);
@@ -353,7 +353,7 @@ namespace MTConnect.DeviceFinder
         {
             if (sender != null && ex != null)
             {
-                var client = sender as MTConnectProbeClient;
+                var client = sender as MTConnectHttpProbeClient;
                 if (client != null)
                 {
                     var uri = new Uri(client.Authority);

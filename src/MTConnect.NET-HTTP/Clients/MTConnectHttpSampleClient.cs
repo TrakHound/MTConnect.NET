@@ -11,12 +11,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 
-namespace MTConnect.Clients.Rest
+namespace MTConnect.Clients
 {
     /// <summary>
-    /// Client that is used to perform a Sample request from an MTConnect Agent using the MTConnect REST Api protocol
+    /// Client that is used to perform a Sample request from an MTConnect Agent using the MTConnect HTTP REST Api protocol
     /// </summary>
-    public class MTConnectSampleClient : IMTConnectSampleClient
+    public class MTConnectHttpSampleClient : IMTConnectSampleClient
     {
         private const int DefaultTimeout = 5000;
 
@@ -28,7 +28,7 @@ namespace MTConnect.Clients.Rest
 
         /// <summary>
         /// Initializes a new instance of the MTConnectSampleClient class that is used to perform
-        /// a Sample request from an MTConnect Agent using the MTConnect REST Api protocol
+        /// a Sample request from an MTConnect Agent using the MTConnect HTTP REST Api protocol
         /// </summary>
         /// <param name="authority">
         /// The authority portion consists of the DNS name or IP address associated with an Agent and an optional
@@ -44,9 +44,42 @@ namespace MTConnect.Clients.Rest
         /// <param name="to">The sequence to retrieve the sample data to</param>
         /// <param name="count">The number of sequences to include in the sample data</param>
         /// <param name="documentFormat">Gets or Sets the Document Format to return</param>
-        public MTConnectSampleClient(string authority, string device = null, string path = null, long from = -1, long to = -1, long count = -1, string documentFormat = MTConnect.DocumentFormat.XML)
+        public MTConnectHttpSampleClient(string authority, string device = null, string path = null, long from = -1, long to = -1, long count = -1, string documentFormat = MTConnect.DocumentFormat.XML)
         {
             Authority = authority;
+            Device = device;
+            Path = path;
+            From = from;
+            To = to;
+            Count = count;
+            DocumentFormat = documentFormat;
+            Timeout = DefaultTimeout;
+            ContentEncodings = HttpContentEncodings.DefaultAccept;
+            ContentType = MimeTypes.Get(documentFormat);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the MTConnectSampleClient class that is used to perform
+        /// a Sample request from an MTConnect Agent using the MTConnect HTTP REST Api protocol
+        /// </summary>
+        /// <param name="hostname">
+        /// The Hostname of the MTConnect Agent
+        /// </param>
+        /// <param name="port">
+        /// The Port of the MTConnect Agent
+        /// </param>
+        /// <param name="device">
+        /// If present, specifies that only the Equipment Metadata for the piece of equipment represented by the name or uuid will be published.
+        /// If not present, Metadata for all pieces of equipment associated with the Agent will be published.
+        /// </param>
+        /// <param name="path">The XPath expression specifying the components and/or data items to include</param>
+        /// <param name="from">The sequence to retrieve the sample data from</param>
+        /// <param name="to">The sequence to retrieve the sample data to</param>
+        /// <param name="count">The number of sequences to include in the sample data</param>
+        /// <param name="documentFormat">Gets or Sets the Document Format to return</param>
+        public MTConnectHttpSampleClient(string hostname, int port, string device = null, string path = null, long from = -1, long to = -1, long count = -1, string documentFormat = MTConnect.DocumentFormat.XML)
+        {
+            Authority = CreateUri(hostname, port).ToString();
             Device = device;
             Path = path;
             From = from;
@@ -240,67 +273,81 @@ namespace MTConnect.Clients.Rest
             return null;
         }
 
-        private Uri CreateUri()
+
+        public Uri CreateUri() => CreateUri(Authority, Device, Path, From, To, Count, DocumentFormat);
+
+        public static Uri CreateUri(string hostname, string device = null, string path = null, long from = 0, long to = 0, long count = 0, string documentFormat = null) => CreateUri(hostname, 0, device, path, from, to, count, documentFormat);
+
+        public static Uri CreateUri(string hostname, int port, string device = null, string path = null, long from = 0, long to = 0, long count = 0, string documentFormat = null)
         {
-            var url = Authority;
-            var builder = new UriBuilder(url);
-            var query = HttpUtility.ParseQueryString(builder.Query);
-            if (query.HasKeys())
+            if (!string.IsNullOrEmpty(hostname))
             {
-                // From
-                var s = query.Get("from");
-                if (From < 0 && s != null && long.TryParse(s, out var l)) From = l;
+                var url = hostname;
 
-                // To
-                s = query.Get("to"); ;
-                if (To < 0 && s != null && long.TryParse(s, out l)) To = l;
+                // Add Port
+                url = Url.AddPort(url, port);
 
-                // Count
-                s = query.Get("count"); ;
-                if (Count <= 0 && s != null && long.TryParse(s, out l)) Count = l;
+                var builder = new UriBuilder(url);
+                var query = HttpUtility.ParseQueryString(builder.Query);
+                if (query.HasKeys())
+                {
+                    // From
+                    var s = query.Get("from");
+                    if (from < 0 && s != null && long.TryParse(s, out var l)) from = l;
 
-                builder.Query = null;
-                url = builder.Uri.ToString();
+                    // To
+                    s = query.Get("to"); ;
+                    if (to < 0 && s != null && long.TryParse(s, out l)) to = l;
+
+                    // Count
+                    s = query.Get("count"); ;
+                    if (count <= 0 && s != null && long.TryParse(s, out l)) count = l;
+
+                    builder.Query = null;
+                    url = builder.Uri.ToString();
+                }
+
+                // Remove Sample command from URL
+                var cmd = "sample";
+                if (url.EndsWith(cmd) && url.Length > cmd.Length)
+                    url = url.Substring(0, url.Length - cmd.Length);
+
+                // Check for Trailing Forward Slash
+                if (!url.EndsWith("/")) url += "/";
+                if (!string.IsNullOrEmpty(device)) url += device + "/";
+
+                // Add Command
+                url += cmd;
+
+                // Replace 'localhost' with '127.0.0.1' (This is due to a performance issue with .NET Core's System.Net.Http.HttpClient)
+                if (url.Contains("localhost")) url = url.Replace("localhost", "127.0.0.1");
+
+                // Check for http
+                if (!url.StartsWith("http://") && !url.StartsWith("https://")) url = "http://" + url;
+
+
+                // Add 'From' parameter
+                if (from > 0) url = Url.AddQueryParameter(url, "from", from);
+
+                // Add 'To' parameter
+                if (to > 0) url = Url.AddQueryParameter(url, "to", to);
+
+                // Add 'Count' parameter
+                if (count > 0) url = Url.AddQueryParameter(url, "count", count);
+
+                // Add 'Path' parameter
+                if (!string.IsNullOrEmpty(path)) url = Url.AddQueryParameter(url, "path", path);
+
+                // Add 'DocumentFormat' parameter
+                if (!string.IsNullOrEmpty(documentFormat) && documentFormat != MTConnect.DocumentFormat.XML)
+                {
+                    url = Url.AddQueryParameter(url, "documentFormat", documentFormat.ToLower());
+                }
+
+                return new Uri(url);
             }
 
-            // Remove Sample command from URL
-            var cmd = "sample";
-            if (url.EndsWith(cmd) && url.Length > cmd.Length)
-                url = url.Substring(0, url.Length - cmd.Length);
-
-            // Check for Trailing Forward Slash
-            if (!url.EndsWith("/")) url += "/";
-            if (!string.IsNullOrEmpty(Device)) url += Device + "/";
-
-            // Add Command
-            url += cmd;
-
-            // Replace 'localhost' with '127.0.0.1' (This is due to a performance issue with .NET Core's System.Net.Http.HttpClient)
-            if (url.Contains("localhost")) url = url.Replace("localhost", "127.0.0.1");
-
-            // Check for http
-            if (!url.StartsWith("http://") && !url.StartsWith("https://")) url = "http://" + url;
-
-
-            // Add 'From' parameter
-            if (From > 0) url = Url.AddQueryParameter(url, "from", From);
-
-            // Add 'To' parameter
-            if (To > 0) url = Url.AddQueryParameter(url, "to", To);
-
-            // Add 'Count' parameter
-            if (Count > 0) url = Url.AddQueryParameter(url, "count", Count);
-
-            // Add 'Path' parameter
-            if (!string.IsNullOrEmpty(Path)) url = Url.AddQueryParameter(url, "path", Path);
-
-            // Add 'DocumentFormat' parameter
-            if (!string.IsNullOrEmpty(DocumentFormat) && DocumentFormat != MTConnect.DocumentFormat.XML)
-            {
-                url = Url.AddQueryParameter(url, "documentFormat", DocumentFormat.ToLower());
-            }
-
-            return new Uri(url);
+            return null;
         }
 
 

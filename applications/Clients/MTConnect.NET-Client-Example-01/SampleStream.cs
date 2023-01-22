@@ -1,4 +1,4 @@
-using MTConnect.Clients.Rest;
+using MTConnect.Clients;
 
 //var deviceName = "OKUMA-Lathe";
 //var deviceName = "M12346";
@@ -12,7 +12,7 @@ var agentUrl = "192.168.1.136:5000";
 
 for (int i = 0; i < 1; i++)
 {
-    var client = new MTConnectClient(agentUrl);
+    var client = new MTConnectHttpClient(agentUrl);
     //var client = new MTConnectClient(agentUrl, deviceName);
     client.Interval = 1000;
     client.Heartbeat = 10000;

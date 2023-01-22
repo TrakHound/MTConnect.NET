@@ -39,7 +39,12 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="Clients\MTConnectHttpClientStream - Copy.cs" />
 	  <Compile Remove="Servers\OutputValidationLevel.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Include="Clients\MTConnectHttpClientStream - Copy.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -100,16 +105,16 @@
 		<PackageReference Include="System.Text.Json" Version="6.0.1" />
 	</ItemGroup>
 	<ItemGroup>
-		<None Include="Clients\Rest\README.md">
-			<Pack>True</Pack>
-			<PackagePath>\</PackagePath>
-		</None>
-	</ItemGroup>
-	<ItemGroup>
 	  <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">
 	    <PrivateAssets>all</PrivateAssets>
 	    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 	  </PackageReference>
+	</ItemGroup>
+	<ItemGroup>
+	  <None Update="Clients\README.md">
+	    <Pack>True</Pack>
+	    <PackagePath>\</PackagePath>
+	  </None>
 	</ItemGroup>
 
 </Project>

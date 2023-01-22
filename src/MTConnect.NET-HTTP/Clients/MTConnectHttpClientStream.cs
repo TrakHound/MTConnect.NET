@@ -12,7 +12,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace MTConnect.Clients.Rest
+namespace MTConnect.Clients
 {
     /// <summary>
     /// An Http Stream for reading MTConnect Sample or Current streams and returns MTConnectStreamsResponse documents

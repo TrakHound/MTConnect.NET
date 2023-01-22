@@ -13,12 +13,12 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace MTConnect.Clients.Rest
+namespace MTConnect.Clients
 {
     /// <summary>
-    /// Client that implements the full MTConnect REST Api Protocol (Probe, Current, Sample Stream, and Assets)
+    /// Client that implements the full MTConnect HTTP REST Api Protocol (Probe, Current, Sample Stream, and Assets)
     /// </summary>
-    public class MTConnectClient : IMTConnectClient
+    public class MTConnectHttpClient : IMTConnectClient
     {
         private readonly Dictionary<string, IDevice> _devices = new Dictionary<string, IDevice>();
         private readonly object _lock = new object();
@@ -34,18 +34,47 @@ namespace MTConnect.Clients.Rest
 
         /// <summary>
         /// Initializes a new instance of the MTConnectClient class that is used to perform
-        /// the full request and stream protocol from an MTConnect Agent using the MTConnect REST Api protocol
+        /// the full request and stream protocol from an MTConnect Agent using the MTConnect HTTP REST Api protocol
         /// </summary>
         /// <param name="authority">
         /// The authority portion consists of the DNS name or IP address associated with an Agent and an optional
         /// TCP port number[:port] that the Agent is listening to for incoming Requests from client software applications.
         /// If the port number is the default Port 80, port is not required.
         /// </param>
-        public MTConnectClient(string authority, string device = null, string documentFormat = MTConnect.DocumentFormat.XML)
+        /// <param name="device">
+        /// If present, specifies that only the Equipment Metadata for the piece of equipment represented by the name or uuid will be published.
+        /// If not present, Metadata for all pieces of equipment associated with the Agent will be published.
+        /// </param>
+        /// <param name="documentFormat">Gets or Sets the Document Format to return</param>
+        public MTConnectHttpClient(string authority, string device = null, string documentFormat = MTConnect.DocumentFormat.XML)
         {
             Id = Guid.NewGuid().ToString();
             Init();
             Authority = authority;
+            Device = device;
+            DocumentFormat = documentFormat;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the MTConnectClient class that is used to perform
+        /// the full request and stream protocol from an MTConnect Agent using the MTConnect HTTP REST Api protocol
+        /// </summary>
+        /// <param name="hostname">
+        /// The Hostname of the MTConnect Agent
+        /// </param>
+        /// <param name="port">
+        /// The Port of the MTConnect Agent
+        /// </param>
+        /// <param name="device">
+        /// If present, specifies that only the Equipment Metadata for the piece of equipment represented by the name or uuid will be published.
+        /// If not present, Metadata for all pieces of equipment associated with the Agent will be published.
+        /// </param>
+        /// <param name="documentFormat">Gets or Sets the Document Format to return</param>
+        public MTConnectHttpClient(string hostname, int port, string device = null, string documentFormat = MTConnect.DocumentFormat.XML)
+        {
+            Id = Guid.NewGuid().ToString();
+            Init();
+            Authority = CreateUrl(hostname, port);
             Device = device;
             DocumentFormat = documentFormat;
         }
@@ -347,7 +376,7 @@ namespace MTConnect.Clients.Rest
         /// </summary>
         public IDevicesResponseDocument GetProbe()
         {
-            var client = new MTConnectProbeClient(Authority, Device, DocumentFormat);
+            var client = new MTConnectHttpProbeClient(Authority, Device, DocumentFormat);
             client.Timeout = Timeout;
             client.ContentEncodings = ContentEncodings;
             client.ContentType = ContentType;
@@ -370,7 +399,7 @@ namespace MTConnect.Clients.Rest
         /// </summary>
         public async Task<IDevicesResponseDocument> GetProbeAsync(CancellationToken cancellationToken)
         {
-            var client = new MTConnectProbeClient(Authority, Device, DocumentFormat);
+            var client = new MTConnectHttpProbeClient(Authority, Device, DocumentFormat);
             client.Timeout = Timeout;
             client.ContentEncodings = ContentEncodings;
             client.ContentType = ContentType;
@@ -386,7 +415,7 @@ namespace MTConnect.Clients.Rest
         /// </summary>
         public IStreamsResponseDocument GetCurrent(long at = 0, string path = null)
         {
-            var client = new MTConnectCurrentClient(Authority, Device, at: at, path: path, documentFormat: DocumentFormat);
+            var client = new MTConnectHttpCurrentClient(Authority, Device, at: at, path: path, documentFormat: DocumentFormat);
             client.Timeout = Timeout;
             client.ContentEncodings = ContentEncodings;
             client.ContentType = ContentType;
@@ -409,7 +438,7 @@ namespace MTConnect.Clients.Rest
         /// </summary>
         public async Task<IStreamsResponseDocument> GetCurrentAsync(CancellationToken cancellationToken, long at = 0, string path = null)
         {
-            var client = new MTConnectCurrentClient(Authority, Device, at: at, path: path, documentFormat: DocumentFormat);
+            var client = new MTConnectHttpCurrentClient(Authority, Device, at: at, path: path, documentFormat: DocumentFormat);
             client.Timeout = Timeout;
             client.ContentEncodings = ContentEncodings;
             client.ContentType = ContentType;
@@ -425,7 +454,7 @@ namespace MTConnect.Clients.Rest
         /// </summary>
         public IStreamsResponseDocument GetSample(long from = 0, long to = 0, int count = 0, string path = null)
         {
-            var client = new MTConnectSampleClient(Authority, Device, from: from, to: to, count: count, path: path, documentFormat: DocumentFormat);
+            var client = new MTConnectHttpSampleClient(Authority, Device, from: from, to: to, count: count, path: path, documentFormat: DocumentFormat);
             client.Timeout = Timeout;
             client.ContentEncodings = ContentEncodings;
             client.ContentType = ContentType;
@@ -448,7 +477,7 @@ namespace MTConnect.Clients.Rest
         /// </summary>
         public async Task<IStreamsResponseDocument> GetSampleAsync(CancellationToken cancellationToken, long from = 0, long to = 0, int count = 0, string path = null)
         {
-            var client = new MTConnectSampleClient(Authority, Device, from: from, to: to, count: count, path: path, documentFormat: DocumentFormat);
+            var client = new MTConnectHttpSampleClient(Authority, Device, from: from, to: to, count: count, path: path, documentFormat: DocumentFormat);
             client.Timeout = Timeout;
             client.ContentEncodings = ContentEncodings;
             client.ContentType = ContentType;
@@ -464,7 +493,7 @@ namespace MTConnect.Clients.Rest
         /// </summary>
         public IAssetsResponseDocument GetAssets(long count = 100)
         {
-            var client = new MTConnectAssetClient(Authority, count, null, null, DocumentFormat);
+            var client = new MTConnectHttpAssetClient(Authority, count, null, null, DocumentFormat);
             client.Timeout = Timeout;
             client.ContentEncodings = ContentEncodings;
             client.ContentType = ContentType;
@@ -487,7 +516,7 @@ namespace MTConnect.Clients.Rest
         /// </summary>
         public async Task<IAssetsResponseDocument> GetAssetsAsync(CancellationToken cancellationToken, long count = 100)
         {
-            var client = new MTConnectAssetClient(Authority, count, null, null, DocumentFormat);
+            var client = new MTConnectHttpAssetClient(Authority, count, null, null, DocumentFormat);
             client.Timeout = Timeout;
             client.ContentEncodings = ContentEncodings;
             client.ContentType = ContentType;
@@ -503,7 +532,7 @@ namespace MTConnect.Clients.Rest
         /// </summary>
         public IAssetsResponseDocument GetAsset(string assetId)
         {
-            var client = new MTConnectAssetClient(Authority, assetId, DocumentFormat);
+            var client = new MTConnectHttpAssetClient(Authority, assetId, DocumentFormat);
             client.Timeout = Timeout;
             client.ContentEncodings = ContentEncodings;
             client.ContentType = ContentType;
@@ -526,7 +555,7 @@ namespace MTConnect.Clients.Rest
         /// </summary>
         public async Task<IAssetsResponseDocument> GetAssetAsync(string assetId, CancellationToken cancellationToken)
         {
-            var client = new MTConnectAssetClient(Authority, assetId, DocumentFormat);
+            var client = new MTConnectHttpAssetClient(Authority, assetId, DocumentFormat);
             client.Timeout = Timeout;
             client.ContentEncodings = ContentEncodings;
             client.ContentType = ContentType;
@@ -595,7 +624,8 @@ namespace MTConnect.Clients.Rest
                             OnResponseReceived?.Invoke(this, new EventArgs());
 
                             // Raise CurrentReceived Event
-                            OnCurrentReceived?.Invoke(this, current);
+                            ProcessCurrentDocument(current, _stop.Token);
+                            //OnCurrentReceived?.Invoke(this, current);
 
                             // Check Assets
                             if (!current.Streams.IsNullOrEmpty())
@@ -676,6 +706,42 @@ namespace MTConnect.Clients.Rest
             OnClientStopped?.Invoke(this, new EventArgs());
         }
 
+        private void ProcessCurrentDocument(IStreamsResponseDocument document, CancellationToken cancel)
+        {
+            _lastResponse = UnixDateTime.Now;
+            OnResponseReceived?.Invoke(this, new EventArgs());
+
+            if (document != null)
+            {
+                if (!document.Streams.IsNullOrEmpty())
+                {
+                    IDeviceStream deviceStream = null;
+
+                    // Get the DeviceStream for the Device or default to the first
+                    if (!string.IsNullOrEmpty(Device)) deviceStream = document.Streams.FirstOrDefault(o => o.Uuid == Device || o.Name == Device);
+                    else deviceStream = document.Streams.FirstOrDefault();
+
+                    if (deviceStream != null && deviceStream.Observations != null && deviceStream.Observations.Count() > 0)
+                    {
+                        // Recreate Response Document (to set DataItem property for Observations)
+                        var response = new StreamsResponseDocument();
+                        response.Header = document.Header;
+
+                        var deviceStreams = new List<IDeviceStream>();
+                        foreach (var stream in document.Streams)
+                        {
+                            deviceStreams.Add(ProcessDeviceStream(stream));
+                        }
+                        response.Streams = deviceStreams;
+
+                        CheckAssetChanged(deviceStream.Observations, cancel);
+
+                        OnCurrentReceived?.Invoke(this, response);
+                    }
+                }
+            }
+        }
+
         private void ProcessSampleDocument(IStreamsResponseDocument document, CancellationToken cancel)
         {
             _lastResponse = UnixDateTime.Now;
@@ -750,20 +816,24 @@ namespace MTConnect.Clients.Rest
             {
                 foreach (var inputObservation in inputComponentStream.Observations)
                 {
-                    var outputObservation = new Observation();
-                    outputObservation.DeviceUuid = inputObservation.DeviceUuid;
-                    outputObservation.DataItemId = inputObservation.DataItemId;
-                    outputObservation.DataItem = GetCachedDataItem(deviceUuid, inputObservation.DataItemId);
-                    outputObservation.CompositionId = inputObservation.CompositionId;
-                    outputObservation.Category = inputObservation.Category;
-                    outputObservation.Representation = inputObservation.Representation;
-                    outputObservation.Type = inputObservation.Type;
-                    outputObservation.SubType = inputObservation.SubType;
-                    outputObservation.Name = inputObservation.Name;
-                    outputObservation.Sequence = inputObservation.Sequence;
-                    outputObservation.Timestamp = inputObservation.Timestamp;
-                    outputObservation.AddValues(inputObservation.Values);
-                    observations.Add(outputObservation);
+                    var dataItem = GetCachedDataItem(deviceUuid, inputObservation.DataItemId);
+                    if (dataItem != null)
+                    {
+                        var outputObservation = Observation.Create(dataItem);
+                        outputObservation.DeviceUuid = deviceUuid;
+                        outputObservation.DataItemId = inputObservation.DataItemId;
+                        outputObservation.DataItem = GetCachedDataItem(deviceUuid, inputObservation.DataItemId);
+                        outputObservation.CompositionId = inputObservation.CompositionId;
+                        outputObservation.Category = inputObservation.Category;
+                        outputObservation.Representation = inputObservation.Representation;
+                        outputObservation.Type = inputObservation.Type;
+                        outputObservation.SubType = inputObservation.SubType;
+                        outputObservation.Name = inputObservation.Name;
+                        outputObservation.Sequence = inputObservation.Sequence;
+                        outputObservation.Timestamp = inputObservation.Timestamp;
+                        outputObservation.AddValues(inputObservation.Values);
+                        observations.Add(outputObservation);
+                    }
                 }
             }
             outputComponentStream.Observations = observations;
@@ -806,6 +876,21 @@ namespace MTConnect.Clients.Rest
             }
         }
 
+
+        public static string CreateUrl(string hostname, int port)
+        {
+            if (!string.IsNullOrEmpty(hostname))
+            {
+                var url = hostname;
+
+                // Add Port
+                url = Url.AddPort(url, port);
+
+                return url;
+            }
+
+            return null;
+        }
 
         private static string CreateCurrentUrl(string baseUrl, string deviceKey, int interval, string path = null)
         {

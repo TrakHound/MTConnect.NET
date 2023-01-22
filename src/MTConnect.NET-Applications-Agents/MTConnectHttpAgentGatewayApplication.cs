@@ -3,7 +3,6 @@
 
 using MTConnect.Assets;
 using MTConnect.Clients;
-using MTConnect.Clients.Rest;
 using MTConnect.Configurations;
 using MTConnect.Devices;
 using MTConnect.Devices.Components;
@@ -26,7 +25,7 @@ namespace MTConnect.Applications.Agents
         private const string DefaultServiceDescription = "MTConnect Agent using HTTP to provide access to device information using the MTConnect Standard";
         private const int ClientInformationUpdateInterval = 5000;
 
-        private readonly List<MTConnectClient> _clients = new List<MTConnectClient>();
+        private readonly List<MTConnectHttpClient> _clients = new List<MTConnectHttpClient>();
         private readonly Logger _clientLogger = LogManager.GetLogger("client-logger");
         private readonly Dictionary<string, MTConnectClientInformation> _clientInformations = new Dictionary<string, MTConnectClientInformation>();
         private readonly object _lock = new object();
@@ -91,7 +90,7 @@ namespace MTConnect.Applications.Agents
                         }
 
 
-                        var agentClient = new MTConnectClient(baseUri, clientConfiguration.DeviceKey);
+                        var agentClient = new MTConnectHttpClient(baseUri, clientConfiguration.DeviceKey);
                         agentClient.Id = clientConfiguration.Id;
                         agentClient.Interval = clientConfiguration.Interval;
                         agentClient.Heartbeat = clientConfiguration.Heartbeat;
@@ -172,7 +171,7 @@ namespace MTConnect.Applications.Agents
 
         #region "Client Event Handlers"
 
-        private void AgentClientStarted(MTConnectClient client)
+        private void AgentClientStarted(MTConnectHttpClient client)
         {
             if (client != null)
             {
@@ -183,7 +182,7 @@ namespace MTConnect.Applications.Agents
             }
         }
 
-        private void AgentClientStopped(MTConnectClient client)
+        private void AgentClientStopped(MTConnectHttpClient client)
         {
             if (client != null)
             {
@@ -194,7 +193,7 @@ namespace MTConnect.Applications.Agents
             }
         }
 
-        private void AgentClientStreamStarted(MTConnectClient client, string query)
+        private void AgentClientStreamStarted(MTConnectHttpClient client, string query)
         {
             if (client != null)
             {
@@ -205,7 +204,7 @@ namespace MTConnect.Applications.Agents
             }
         }
 
-        private void AgentClientStreamStopped(MTConnectClient client)
+        private void AgentClientStreamStopped(MTConnectHttpClient client)
         {
             if (client != null)
             {
@@ -217,7 +216,7 @@ namespace MTConnect.Applications.Agents
             }
         }
 
-        private void DevicesDocumentReceived(MTConnectClient client, IDevicesResponseDocument document)
+        private void DevicesDocumentReceived(MTConnectHttpClient client, IDevicesResponseDocument document)
         {
             if (client != null && document != null && !document.Devices.IsNullOrEmpty())
             {
@@ -230,7 +229,7 @@ namespace MTConnect.Applications.Agents
             }
         }
 
-        private void StreamsDocumentReceived(MTConnectClient client, IStreamsResponseDocument document)
+        private void StreamsDocumentReceived(MTConnectHttpClient client, IStreamsResponseDocument document)
         {
             if (client != null && document != null && !document.Streams.IsNullOrEmpty())
             {
@@ -256,7 +255,7 @@ namespace MTConnect.Applications.Agents
             }
         }
 
-        private void AssetsDocumentReceived(MTConnectClient client, IAssetsResponseDocument document)
+        private void AssetsDocumentReceived(MTConnectHttpClient client, IAssetsResponseDocument document)
         {
             if (client != null && document != null && !document.Assets.IsNullOrEmpty())
             {

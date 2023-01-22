@@ -10,12 +10,12 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace MTConnect.Clients.Rest
+namespace MTConnect.Clients
 {
     /// <summary>
-    /// Client that is used to perform a Probe request from an MTConnect Agent using the MTConnect REST Api protocol
+    /// Client that is used to perform a Probe request from an MTConnect Agent using the MTConnect HTTP REST Api protocol
     /// </summary>
-    public class MTConnectProbeClient : IMTConnectProbeClient
+    public class MTConnectHttpProbeClient : IMTConnectProbeClient
     {
         private const int DefaultTimeout = 5000;
 
@@ -27,7 +27,7 @@ namespace MTConnect.Clients.Rest
 
         /// <summary>
         /// Initializes a new instance of the MTConnectProbeClient class that is used to perform
-        /// a Probe request from an MTConnect Agent using the MTConnect REST Api protocol
+        /// a Probe request from an MTConnect Agent using the MTConnect HTTP REST Api protocol
         /// </summary>
         /// <param name="authority">
         /// The authority portion consists of the DNS name or IP address associated with an Agent and an optional
@@ -39,9 +39,34 @@ namespace MTConnect.Clients.Rest
         /// If not present, Metadata for all pieces of equipment associated with the Agent will be published.
         /// </param>
         /// <param name="documentFormat">Gets or Sets the Document Format to return</param>
-        public MTConnectProbeClient(string authority, string device = null, string documentFormat = MTConnect.DocumentFormat.XML)
+        public MTConnectHttpProbeClient(string authority, string device = null, string documentFormat = MTConnect.DocumentFormat.XML)
         {
             Authority = authority;
+            Device = device;
+            DocumentFormat = documentFormat;
+            Timeout = DefaultTimeout;
+            ContentEncodings = HttpContentEncodings.DefaultAccept;
+            ContentType = MimeTypes.Get(documentFormat);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the MTConnectProbeClient class that is used to perform
+        /// a Probe request from an MTConnect Agent using the MTConnect HTTP REST Api protocol
+        /// </summary>
+        /// <param name="hostname">
+        /// The Hostname of the MTConnect Agent
+        /// </param>
+        /// <param name="port">
+        /// The Port of the MTConnect Agent
+        /// </param>
+        /// <param name="device">
+        /// If present, specifies that only the Equipment Metadata for the piece of equipment represented by the name or uuid will be published.
+        /// If not present, Metadata for all pieces of equipment associated with the Agent will be published.
+        /// </param>
+        /// <param name="documentFormat">Gets or Sets the Document Format to return</param>
+        public MTConnectHttpProbeClient(string hostname, int port, string device = null, string documentFormat = MTConnect.DocumentFormat.XML)
+        {
+            Authority = CreateUri(hostname, port).ToString();
             Device = device;
             DocumentFormat = documentFormat;
             Timeout = DefaultTimeout;

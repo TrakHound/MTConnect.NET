@@ -6,7 +6,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
 
-namespace MTConnect.Clients.Rest
+namespace MTConnect.Clients
 {
     internal class MTConnectHttpResponse
     {
