@@ -1,6 +1,7 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
+using MTConnect.Assets;
 using MTConnect.Devices.Configurations.Relationships;
 using MTConnect.Devices.DataItems;
 using System.Text.Json.Serialization;
@@ -27,6 +28,12 @@ namespace MTConnect.Devices.Json
         [JsonPropertyName("deviceUuidRef")]
         public string DeviceUuidRef { get; set; }
 
+        [JsonPropertyName("assetIdRef")]
+        public string AssetIdRef { get; set; }
+
+        [JsonPropertyName("assetType")]
+        public string AssetType { get; set; }
+
         [JsonPropertyName("role")]
         public string Role { get; set; }
 
@@ -38,6 +45,20 @@ namespace MTConnect.Devices.Json
 
 
         public JsonRelationship() { }
+
+        public JsonRelationship(IAssetRelationship relationship)
+        {
+            if (relationship != null)
+            {
+                Id = relationship.Id;
+                Name = relationship.Name;
+                AssetIdRef = relationship.AssetIdRef;
+                AssetType = relationship.AssetType;
+                Criticality = relationship.Criticality.ToString();
+                IdRef = relationship.IdRef;
+                Href = relationship.Href;
+            }
+        }
 
         public JsonRelationship(IComponentRelationship relationship)
         {
@@ -91,6 +112,19 @@ namespace MTConnect.Devices.Json
             }
         }
 
+
+        public virtual IAssetRelationship ToAssetRelationship()
+        {
+            var relationship = new AssetRelationship();
+            relationship.Id = Id;
+            relationship.Name = Name;
+            relationship.AssetIdRef = AssetIdRef;
+            relationship.AssetType = AssetType;
+            relationship.Criticality = Criticality.ConvertEnum<Criticality>();
+            relationship.IdRef = IdRef;
+            relationship.Href = Href;
+            return relationship;
+        }
 
         public virtual IComponentRelationship ToComponentRelationship()
         {

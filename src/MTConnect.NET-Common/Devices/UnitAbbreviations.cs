@@ -14,6 +14,7 @@ namespace MTConnect.Devices
             {
                 case Units.AMPERE: return "Amps";
                 case Units.CELSIUS: return "°C";
+                case Units.COULOMB: return "C";
                 case Units.COUNT: return "#";
                 case Units.COUNT_PER_SECOND: return "#/s";
                 case Units.CUBIC_MILLIMETER: return "mm^3";

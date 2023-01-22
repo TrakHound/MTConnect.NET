@@ -9,6 +9,11 @@ namespace MTConnect.Devices
     public static class NativeUnits
     {
         /// <summary>
+        /// Electric charge in ampere hour.
+        /// </summary>
+        public const string AMPERE_HOUR = "AMPERE_HOUR";
+
+        /// <summary>
         /// Pressure in Bar
         /// </summary>
         public const string BAR = "BAR";
@@ -57,6 +62,16 @@ namespace MTConnect.Devices
         /// Gallons per minute
         /// </summary>
         public const string GALLON_PER_MINUTE = "GALLON_PER_MINUTE";
+
+        /// <summary>
+        /// Acceleration relative to earth’s gravity given in METER/SECOND^2.
+        /// </summary>
+        public const string GRAVITATIONAL_ACCELERATION = "GRAVITATIONAL_ACCELERATION";
+
+        /// <summary>
+        /// Force relative to earth’s gravity.
+        /// </summary>
+        public const string GRAVITATIONAL_FORCE = "GRAVITATIONAL_FORCE";
 
         /// <summary>
         /// A measurement of time in hours

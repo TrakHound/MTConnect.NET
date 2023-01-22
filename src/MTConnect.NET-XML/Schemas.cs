@@ -30,6 +30,7 @@ namespace MTConnect
                     switch (minorVersion)
                     {
                         case 0: return Version20.Devices;
+                        case 1: return Version21.Devices;
                     }
 
                     break;
@@ -63,6 +64,7 @@ namespace MTConnect
                     switch (minorVersion)
                     {
                         case 0: return Version20.Streams;
+                        case 1: return Version21.Streams;
                     }
 
                     break;
@@ -95,6 +97,7 @@ namespace MTConnect
                     switch (minorVersion)
                     {
                         case 0: return Version20.Assets;
+                        case 1: return Version21.Assets;
                     }
 
                     break;
@@ -126,12 +129,27 @@ namespace MTConnect
                     switch (minorVersion)
                     {
                         case 0: return Version20.Error;
+                        case 1: return Version21.Error;
                     }
 
                     break;
             }
 
             return null;
+        }
+
+
+        static class Version21
+        {
+            public const string Assets = "urn:mtconnect.org:MTConnectAssets:2.1 /schemas/MTConnectAssets_2.1.xsd";
+            public const string Devices = "urn:mtconnect.org:MTConnectDevices:2.1 /schemas/MTConnectDevices_2.1.xsd";
+            public const string Error = "urn:mtconnect.org:MTConnectError:2.1 /schemas/MTConnectError_2.1.xsd";
+            public const string Streams = "urn:mtconnect.org:MTConnectStreams:2.1 /schemas/MTConnectStreams_2.1.xsd";
+
+            public static bool Match(string ns)
+            {
+                return ns == Assets || ns == Devices || ns == Error || ns == Streams;
+            }
         }
 
 
@@ -147,6 +165,8 @@ namespace MTConnect
                 return ns == Assets || ns == Devices || ns == Error || ns == Streams;
             }
         }
+
+
         static class Version18
         {
             public const string Assets = "urn:mtconnect.org:MTConnectAssets:1.8 /schemas/MTConnectAssets_1.8.xsd";

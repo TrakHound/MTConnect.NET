@@ -21,6 +21,7 @@ namespace MTConnect.Devices
                 case NativeUnits.FOOT_PER_SECOND_SQUARED: return "ft/s^2";
                 case NativeUnits.FOOT_3D: return "ft 3D";
                 case NativeUnits.GALLON_PER_MINUTE: return "GPM";
+                case NativeUnits.GRAVITATIONAL_FORCE: return "g";
                 case NativeUnits.HOUR: return "hr";
                 case NativeUnits.INCH: return "in";
                 case NativeUnits.INCH_PER_MINUTE: return "ipm";

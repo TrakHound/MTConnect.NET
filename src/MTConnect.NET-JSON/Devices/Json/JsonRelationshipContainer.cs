@@ -8,6 +8,9 @@ namespace MTConnect.Devices.Json
 {
     public class JsonRelationshipContainer
     {
+        [JsonPropertyName("assetRelationships")]
+        public List<JsonRelationship> AssetRelationships { get; set; }
+
         [JsonPropertyName("dataItemRelationships")]
         public List<JsonRelationship> DataItemRelationships { get; set; }
 

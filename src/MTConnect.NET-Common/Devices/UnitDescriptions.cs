@@ -19,9 +19,14 @@ namespace MTConnect.Devices
         public const string CELSIUS = "Degress Celsius";
 
         /// <summary>
+        /// Electrical charge in coulombs
+        /// </summary>
+        public const string COULUMB = "Electrical charge in coulombs";
+
+        /// <summary>
         /// A count of something
         /// </summary>
-        public const string COUNT = " A count of something";
+        public const string COUNT = "A count of something";
 
         /// <summary>
         /// Count per second

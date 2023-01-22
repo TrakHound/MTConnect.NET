@@ -88,7 +88,7 @@ useBufferCompression: false
 # - Agent Configuration -
 
 # Sets the default MTConnect version to output response documents for.
-defaultVersion: 2.0
+defaultVersion: 2.1
 
 # Overwrite timestamps with the agent time. This will correct clock drift but will not give as accurate relative time since it will not take into consideration network latencies. This can be overridden on a per adapter basis.
 ignoreTimestamps: false

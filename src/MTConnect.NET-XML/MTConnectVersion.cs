@@ -23,6 +23,7 @@ namespace MTConnect
         {
             if (ns != null)
             {
+                if (Namespaces.Version21.Match(ns)) return MTConnectVersions.Version21;
                 if (Namespaces.Version20.Match(ns)) return MTConnectVersions.Version20;
                 if (Namespaces.Version18.Match(ns)) return MTConnectVersions.Version18;
                 if (Namespaces.Version17.Match(ns)) return MTConnectVersions.Version17;
