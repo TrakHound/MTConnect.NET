@@ -147,13 +147,14 @@ namespace MTConnect.Agents
             long instanceId = 0,
             long deviceModelChangeTime = 0,
             bool initializeAgentDevice = true
-            ) : base(uuid, instanceId, deviceModelChangeTime, initializeAgentDevice)
+            ) : base(uuid, instanceId, deviceModelChangeTime, false)
         {
-            var config = new AgentConfiguration();
+            var config = new AgentConfiguration();       
             //_deviceBuffer = new MTConnectDeviceBuffer();
             _observationBuffer = new MTConnectObservationBuffer();
             _assetBuffer = new MTConnectAssetBuffer();
             _assetBuffer.AssetRemoved += AssetRemovedFromBuffer;
+            InitializeAgentDevice(initializeAgentDevice);
         }
 
         public MTConnectAgentBroker(
@@ -162,13 +163,14 @@ namespace MTConnect.Agents
             long instanceId = 0,
             long deviceModelChangeTime = 0,
             bool initializeAgentDevice = true
-            ) : base(configuration, uuid, instanceId, deviceModelChangeTime, initializeAgentDevice)
+            ) : base(configuration, uuid, instanceId, deviceModelChangeTime, false)
         {
             var config = configuration != null ? configuration : new AgentConfiguration();
             //_deviceBuffer = new MTConnectDeviceBuffer();
             _observationBuffer = new MTConnectObservationBuffer(config);
             _assetBuffer = new MTConnectAssetBuffer(config);
             _assetBuffer.AssetRemoved += AssetRemovedFromBuffer;
+            InitializeAgentDevice(initializeAgentDevice);
         }
 
         public MTConnectAgentBroker(
@@ -1671,8 +1673,16 @@ namespace MTConnect.Agents
                                 case DataItemRepresentation.TIME_SERIES: observation.AddValue(ValueKeys.SampleCount, 0); break;
                             }
 
-                            var bufferObservation = new BufferObservation(bufferKey, observation);
+                            if (dataItem.Category == DataItemCategory.CONDITION)
+                            {
+                                UpdateCurrentCondition(device.Uuid, dataItem, new ObservationInput(observation));
+                            }
+                            else
+                            {
+                                UpdateCurrentObservation(device.Uuid, dataItem, new ObservationInput(observation));
+                            }
 
+                            var bufferObservation = new BufferObservation(bufferKey, observation);
                             _observationBuffer.AddObservation(ref bufferObservation);
                             ObservationAdded?.Invoke(this, observation);
                         }

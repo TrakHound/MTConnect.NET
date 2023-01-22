@@ -106,7 +106,10 @@ namespace MTConnect.Agents
             get => _mtconnectVersion;
             set
             {
-                _mtconnectVersion = value;
+                var version = value;
+                if (version == null) version = MTConnectVersions.Max;
+
+                _mtconnectVersion = version;
                 if (_agent != null) _agent.MTConnectVersion = _mtconnectVersion;
             }
         }
@@ -214,7 +217,7 @@ namespace MTConnect.Agents
             _configuration = configuration != null ? configuration : new AgentConfiguration();
             _information = new MTConnectAgentInformation(_uuid, _instanceId, _deviceModelChangeTime);
             _deviceModelChangeTime = deviceModelChangeTime;
-            _mtconnectVersion = _configuration != null ? _configuration.DefaultVersion : MTConnectVersions.Max;
+            _mtconnectVersion = _configuration != null && _configuration.DefaultVersion != null ? _configuration.DefaultVersion : MTConnectVersions.Max;
             _version = GetAgentVersion();
             InitializeAgentDevice(initializeAgentDevice);
         }
@@ -254,13 +257,15 @@ namespace MTConnect.Agents
 
         #region "Initialization"
 
-        private void InitializeAgentDevice(bool initializeDataItems = true)
+        protected void InitializeAgentDevice(bool initializeDataItems = true)
         {
             _agent = new Agent(this);
             _agent.InitializeDataItems();
 
             // Add Name and UUID to DeviceKey dictionary
+            _deviceKeys.TryRemove(_agent.Name.ToLower(), out _);
             _deviceKeys.TryAdd(_agent.Name.ToLower(), _agent.Uuid);
+            _deviceKeys.TryRemove(_agent.Uuid, out _);
             _deviceKeys.TryAdd(_agent.Uuid, _agent.Uuid);
 
             // Update Cached DataItems
