@@ -6,7 +6,7 @@
 [![GitHub all releases](https://img.shields.io/github/downloads/TrakHound/MTConnect.NET/total?label=Release%20Downloads)](https://github.com/TrakHound/MTConnect.NET/releases/latest)
 [![Nuget](https://img.shields.io/nuget/dt/MTConnect.NET?label=Nuget%20Downloads)](https://www.nuget.org/packages/MTConnect.NET)
 
-> 10/18/2022 Updated to add new MQTT Agents
+> 1/22/2023 Updated to support MTConnect 2.1
 
 ## Overview
 MTConnect.NET is a fully featured .NET library for MTConnect to develop Agents, Adapters, and Clients. Supports MTConnect Versions up to 2.0.
