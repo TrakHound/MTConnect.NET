@@ -1,6 +1,7 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
+using MTConnect.Devices.DataItems;
 using MTConnect.Observations;
 using MTConnect.Observations.Output;
 using System.Text.Json.Serialization;
@@ -79,27 +80,22 @@ namespace MTConnect.Streams.Json
             }
         }
 
-        public ConditionObservation ToCondition()
+
+        public IConditionObservation ToCondition()
         {
             var condition = new ConditionObservation();
-            //condition.DataItemId = DataItemId;
-            //condition.Timestamp = Timestamp;
-            //condition.Name = Name;
-            //condition.Sequence = Sequence;
-            //condition.Category = Devices.DataItemCategory.CONDITION;
-            //condition.Type = Type;
-            //condition.SubType = SubType;
-            //condition.CompositionId = CompositionId;
-            //condition.ResetTriggered = ResetTriggered.ConvertEnum<ResetTriggered>();
-            //condition.CDATA = CDATA;
-            //condition.Entries = Entries;
-            //condition.Count = Count.HasValue ? Count.Value : 0; ;
-
-            //condition.Level = Level.ConvertEnum<ConditionLevel>();
-            //condition.NativeCode = NativeCode;
-            //condition.NativeSeverity = NativeSeverity;
-            //condition.Qualifier = Qualifier.ConvertEnum<ConditionQualifier>();
-
+            condition.DataItemId = DataItemId;
+            condition.Timestamp = Timestamp;
+            condition.Name = Name;
+            condition.Sequence = Sequence;
+            condition.Category = Category.ConvertEnum<DataItemCategory>();
+            condition.Type = Type;
+            condition.SubType = SubType;
+            condition.CompositionId = CompositionId;
+            condition.Level = Level.ConvertEnum<ConditionLevel>();
+            condition.NativeCode = NativeCode;
+            condition.NativeSeverity = NativeSeverity;
+            condition.Qualifier = Level.ConvertEnum<ConditionQualifier>();
             return condition;
         }
     }

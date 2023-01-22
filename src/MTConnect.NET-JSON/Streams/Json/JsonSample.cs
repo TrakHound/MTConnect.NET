@@ -113,24 +113,40 @@ namespace MTConnect.Streams.Json
             }
         }
 
-        public SampleObservation ToSample()
+        public ISampleObservation ToSample()
         {
-            var sample = new SampleObservation();
-            //sample.DataItemId = DataItemId;
-            //sample.Timestamp = Timestamp;
-            //sample.Name = Name;
-            //sample.Sequence = Sequence;
-            //sample.Category = Devices.DataItemCategory.SAMPLE;
-            //sample.Type = Type;
-            //sample.SubType = SubType;
-            //sample.CompositionId = CompositionId;
-            //sample.ResetTriggered = ResetTriggered.ConvertEnum<ResetTriggered>();
-            //sample.CDATA = CDATA;
-            //sample.Entries = Entries;
-            //sample.Count = Count.HasValue ? Count.Value : 0;
-            //sample.SampleRate = SampleRate.HasValue ? SampleRate.Value : 0;
-            //sample.Statistic = Statistic.ConvertEnum<Devices.DataItemStatistic>();
-            //sample.Duration = Duration.HasValue ? Duration.Value : 0;
+            if (Representation == DataItemRepresentation.DATA_SET.ToString())
+            {
+
+            }
+            else if (Representation == DataItemRepresentation.TABLE.ToString())
+            {
+
+            }
+            else if (Representation == DataItemRepresentation.TIME_SERIES.ToString())
+            {
+
+            }
+
+            return ToSampleValue();
+        }
+
+        public ISampleValueObservation ToSampleValue()
+        {
+            var sample = new SampleValueObservation();
+            sample.DataItemId = DataItemId;
+            sample.Timestamp = Timestamp;
+            sample.Name = Name;
+            sample.Sequence = Sequence;
+            sample.Category = Category.ConvertEnum<DataItemCategory>();
+            sample.Type = Type;
+            sample.SubType = SubType;
+            sample.CompositionId = CompositionId;
+            sample.ResetTriggered = ResetTriggered.ConvertEnum<ResetTriggered>();
+            sample.Result = Result;
+            sample.SampleRate = SampleRate.HasValue ? SampleRate.Value : 0;
+            sample.Statistic = Statistic.ConvertEnum<DataItemStatistic>();
+            sample.Duration = Duration.HasValue ? Duration.Value : 0;
             return sample;
         }
     }

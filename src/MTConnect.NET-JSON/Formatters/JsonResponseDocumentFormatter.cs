@@ -87,19 +87,19 @@ namespace MTConnect.Formatters
         public FormattedDocumentReadResult<IDevicesResponseDocument> CreateDevicesResponseDocument(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read Document
-            var document = JsonSerializer.Deserialize<DevicesResponseDocument>(content);
+            var document = JsonSerializer.Deserialize<JsonDevicesDocument>(content);
             var success = document != null;
 
-            return new FormattedDocumentReadResult<IDevicesResponseDocument>(document, success);
+            return new FormattedDocumentReadResult<IDevicesResponseDocument>(document.ToDocument(), success);
         }
 
         public FormattedDocumentReadResult<IStreamsResponseDocument> CreateStreamsResponseDocument(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read Document
-            var document = JsonSerializer.Deserialize<StreamsResponseDocument>(content);
+            var document = JsonSerializer.Deserialize<JsonStreamsDocument>(content);
             var success = document != null;
 
-            return new FormattedDocumentReadResult<IStreamsResponseDocument>(document, success);
+            return new FormattedDocumentReadResult<IStreamsResponseDocument>(document.ToStreamsDocument(), success);
         }
 
         public FormattedDocumentReadResult<IAssetsResponseDocument> CreateAssetsResponseDocument(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)

@@ -130,10 +130,11 @@ namespace MTConnect.Streams.Json
             // Add Samples
             if (!Samples.IsNullOrEmpty())
             {
-                var samples = new List<SampleObservation>();
-                foreach (var sample in Samples)
+                var samples = new List<ISampleObservation>();
+                foreach (var jsonSample in Samples)
                 {
-                    samples.Add(sample.ToSample());
+                    var sample = jsonSample.ToSample();
+                    if (sample != null) samples.Add(sample);
                 }
                 observations.AddRange(samples);
             }
@@ -141,7 +142,7 @@ namespace MTConnect.Streams.Json
             // Add Events
             if (!Events.IsNullOrEmpty())
             {
-                var events = new List<EventObservation>();
+                var events = new List<IEventObservation>();
                 foreach (var e in Events)
                 {
                     events.Add(e.ToEvent());
@@ -152,13 +153,15 @@ namespace MTConnect.Streams.Json
             // Add Conditions
             if (!Conditions.IsNullOrEmpty())
             {
-                var conditions = new List<ConditionObservation>();
+                var conditions = new List<IConditionObservation>();
                 foreach (var sample in Conditions)
                 {
                     conditions.Add(sample.ToCondition());
                 }
                 observations.AddRange(conditions);
             }
+
+            componentStream.Observations = observations;
 
             return componentStream;
         }

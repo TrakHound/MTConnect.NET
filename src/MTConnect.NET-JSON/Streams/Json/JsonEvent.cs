@@ -81,39 +81,38 @@ namespace MTConnect.Streams.Json
             }
         }
 
-        public EventObservation ToEvent()
+
+        public IEventObservation ToEvent()
         {
-            var e = new EventObservation();
-            //e.DataItemId = DataItemId;
-            //e.Timestamp = Timestamp;
-            //e.Name = Name;
-            //e.Sequence = Sequence;
-            //e.Category = Devices.DataItemCategory.EVENT;
-            //e.Type = Type;
-            //e.SubType = SubType;
-            //e.CompositionId = CompositionId;
-            //e.ResetTriggered = ResetTriggered.ConvertEnum<ResetTriggered>();
-            ////e.CDATA = CDATA;
-            ////e.Entries = Entries;
-            //e.Count = Count.HasValue ? Count.Value : 0; ;
-            return e;
+            if (Representation == DataItemRepresentation.DATA_SET.ToString())
+            {
+
+            }
+            else if (Representation == DataItemRepresentation.TABLE.ToString())
+            {
+
+            }
+            else if (Representation == DataItemRepresentation.TIME_SERIES.ToString())
+            {
+
+            }
+
+            return ToEventValue();
         }
 
-        public Observation ToObservation()
+        public IEventValueObservation ToEventValue()
         {
-            var e = new Observation();
-            //e.DataItemId = DataItemId;
-            //e.Timestamp = Timestamp;
-            //e.Name = Name;
-            //e.Sequence = Sequence;
-            //e.Category = Devices.DataItemCategory.EVENT;
-            //e.Type = Type;
-            //e.SubType = SubType;
-            //e.CompositionId = CompositionId;
-            //e.ResetTriggered = ResetTriggered.ConvertEnum<ResetTriggered>();
-            //e.CDATA = CDATA;
-            //e.Entries = Entries;
-            //e.Count = Count.HasValue ? Count.Value : 0; ;
+            var e = new EventValueObservation();
+            e.DataItemId = DataItemId;
+            e.Timestamp = Timestamp;
+            e.Name = Name;
+            e.Sequence = Sequence;
+            e.Category = Category.ConvertEnum<DataItemCategory>();
+            e.Type = Type;
+            e.SubType = SubType;
+            e.CompositionId = CompositionId;
+            e.ResetTriggered = ResetTriggered.ConvertEnum<ResetTriggered>();
+            e.Result = Result;
             return e;
         }
     }
