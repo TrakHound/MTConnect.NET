@@ -39,12 +39,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Compile Remove="Clients\MTConnectHttpClientStream - Copy.cs" />
 	  <Compile Remove="Servers\OutputValidationLevel.cs" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <None Include="Clients\MTConnectHttpClientStream - Copy.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
