@@ -169,8 +169,8 @@ namespace MTConnect.Clients
                         string lineStr = null;
 
                         var readBuffer = new byte[1];
-                        await stream.ReadAsync(readBuffer, 0, readBuffer.Length, stop.Token);
-                        int b = readBuffer[0];
+                        var read = await stream.ReadAsync(readBuffer, 0, readBuffer.Length, stop.Token);
+                        int b = read > 0 ? readBuffer[0] : -1;
 
                         if (Timeout > 0)
                         {
@@ -245,8 +245,8 @@ namespace MTConnect.Clients
                             prevByte = b;
 
                             // Read the next Byte
-                            await stream.ReadAsync(readBuffer, 0, readBuffer.Length, stop.Token);
-                            b = readBuffer[0];
+                            read = await stream.ReadAsync(readBuffer, 0, readBuffer.Length, stop.Token);
+                            b = read > 0 ? readBuffer[0] : -1;
 
                             if (Timeout > 0)
                             {
