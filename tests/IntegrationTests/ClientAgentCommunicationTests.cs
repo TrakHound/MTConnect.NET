@@ -11,7 +11,7 @@ using MTConnect;
 using MTConnect.Adapters.Shdr;
 using MTConnect.Agents;
 using MTConnect.Configurations;
-using MTConnect.Clients.Rest;
+using MTConnect.Clients;
 using MTConnect.Devices;
 using MTConnect.Errors;
 using MTConnect.Servers.Http;
@@ -174,16 +174,16 @@ namespace IntegrationTests
             _adapter.SendAsset(tool);
         }
 
-        private Task<MTConnectClient?> Connect(
+        private Task<MTConnectHttpClient?> Connect(
             string url, 
             string deviceName,
             ILogger logger,
             EventHandler<IStreamsResponseDocument> onCurrent,
             EventHandler<IStreamsResponseDocument> onSample)
         {
-            var tcs = new TaskCompletionSource<MTConnectClient?>();
+            var tcs = new TaskCompletionSource<MTConnectHttpClient?>();
 
-            var client = new MTConnectClient(url, deviceName)
+            var client = new MTConnectHttpClient(url, deviceName)
             {
                 Interval = 500
             };
@@ -281,7 +281,7 @@ namespace IntegrationTests
             var cts = new CancellationTokenSource();
             cts.CancelAfter(c_maxWaitTimeout);
 
-            var currentClient = new MTConnectCurrentClient(
+            var currentClient = new MTConnectHttpCurrentClient(
                 $"127.0.0.1:{_fixture.CurrentAgentPort}", 
                 _machineName, 
                 $"//*[@id='program']");

@@ -1,0 +1,450 @@
+﻿<Device id="d1" name="M12346" uuid="5fd88408-7811-3c6b-5400-11f4026b6890">
+	<Description manufacturer="Mazak_Corporation" serialNumber="304141">Mill w/SMooth-G</Description>
+	<Configuration>
+		<CoordinateSystems>
+			<CoordinateSystem id="basecoord" type="BASE">
+				<Transformation>
+					<Translation>0 0 0</Translation>
+					<Rotation>0 0 0</Rotation>
+				</Transformation>
+			</CoordinateSystem>
+			<CoordinateSystem id="machcoord" parentIdRef="basecoord" type="MACHINE">
+				<Transformation>
+					<Translation>0 0 0</Translation>
+					<Rotation>0 0 0</Rotation>
+				</Transformation>
+			</CoordinateSystem>
+			<CoordinateSystem id="workcoord" parentIdRef="machcoord" type="TASK"/>
+			<CoordinateSystem id="localcoord" parentIdRef="workcoord" type="OBJECT"/>
+		</CoordinateSystems>
+		<SolidModel id="dm" mediaType="STL" href="/models/foo.stl" coordinateSystemIdRef="machine" dummy="junk">
+			<Scale>2.0 3.0 4.0</Scale>
+		</SolidModel>
+	</Configuration>
+	<DataItems>
+		<DataItem category="EVENT" id="avail" type="AVAILABILITY"/>
+		<DataItem category="EVENT" id="functionalmode" type="FUNCTIONAL_MODE"/>
+		<DataItem category="EVENT" id="emloaded" subType="LOADED" type="EQUIPMENT_MODE"/>
+		<DataItem category="EVENT" id="emworking" subType="WORKING" type="EQUIPMENT_MODE"/>
+		<DataItem category="EVENT" id="emoperating" subType="OPERATING" type="EQUIPMENT_MODE"/>
+		<DataItem category="EVENT" id="empowered" subType="POWERED" type="EQUIPMENT_MODE"/>
+		<DataItem category="EVENT" id="emdelay" subType="DELAY" type="EQUIPMENT_MODE"/>
+		<DataItem category="EVENT" id="operatingsystem" type="OPERATING_SYSTEM"/>
+		<DataItem category="EVENT" id="osmfg" subType="MANUFACTURER" type="OPERATING_SYSTEM"/>
+		<DataItem category="EVENT" id="osversion" subType="VERSION" type="OPERATING_SYSTEM"/>
+		<DataItem category="EVENT" id="gui" type="APPLICATION"/>
+		<DataItem category="EVENT" id="guimfg" subType="MANUFACTURER" type="APPLICATION"/>
+		<DataItem category="EVENT" id="guiversion" subType="VERSION" type="APPLICATION"/>
+		<DataItem category="EVENT" discrete="true" id="d1_asset_chg" type="ASSET_CHANGED"/>
+		<DataItem category="EVENT" id="d1_asset_rem" type="ASSET_REMOVED"/>
+	</DataItems>
+	<Components>
+		<Axes id="a" name="base">
+			<DataItems>
+				<DataItem category="CONDITION" id="servo_cond" type="ACTUATOR"/>
+				<DataItem category="CONDITION" id="spindle_cond" type="SYSTEM"/>
+			</DataItems>
+			<Components>
+				<Linear id="x" name="X">
+					<DataItems>
+						<DataItem category="SAMPLE" id="Xabs" nativeScale="100" nativeUnits="MILLIMETER" subType="ACTUAL" type="POSITION" units="MILLIMETER">
+							<Source>spindle_speed</Source>
+						</DataItem>
+						<DataItem category="SAMPLE" id="Xpos" nativeUnits="INCH" subType="ACTUAL" type="POSITION" units="MILLIMETER">
+							<Source dataItemId="Xabs"></Source>
+						</DataItem>
+						<DataItem category="CONDITION" id="Xtravel" type="POSITION"/>
+						<DataItem category="SAMPLE" id="Xload" nativeUnits="PERCENT" type="LOAD" units="PERCENT">
+							<!--<Filters>
+								<Filter type="MINIMUM_DELTA">3</Filter>
+							</Filters>-->
+							<Relationships>
+								<DataItemRelationship name="archie" type="LIMIT" idRef="xlcpl"/>
+								<SpecificationRelationship type="LIMIT" idRef="spec1"/>
+							</Relationships>
+						</DataItem>
+						<DataItem category="SAMPLE" id="Xfrt" nativeUnits="MILLIMETER/SECOND" type="AXIS_FEEDRATE" units="MILLIMETER/SECOND"/>
+						<DataItem category="SAMPLE" compositionId="Xmotor" id="servotemp1" nativeUnits="FAHRENHEIT" type="TEMPERATURE" units="CELSIUS">
+							<Filters>
+								<Filter type="MINIMUM_DELTA">0.5</Filter>
+							</Filters>
+						</DataItem>
+						<DataItem category="EVENT" id="xaxisstate" type="AXIS_STATE"/>
+					</DataItems>
+					<Compositions>
+						<Composition id="Xballscrew" type="BALLSCREW"/>
+						<Composition id="Xmotor" type="MOTOR"/>
+					</Compositions>
+					<Configuration>
+						<Specifications>
+							<Specification id="spec1" type="LOAD">
+								<UpperLimit>200.0</UpperLimit>
+								<LowerLimit>0.0</LowerLimit>
+							</Specification>
+						</Specifications>
+					</Configuration>
+				</Linear>
+				<Linear id="y" name="Y">
+					<DataItems>
+						<DataItem category="SAMPLE" id="Yabs" nativeUnits="MILLIMETER" subType="ACTUAL" type="POSITION" units="MILLIMETER"/>
+						<DataItem category="SAMPLE" id="Ypos" nativeUnits="MILLIMETER" subType="ACTUAL" type="POSITION" units="MILLIMETER"/>
+						<DataItem category="CONDITION" id="Ytravel" type="POSITION"/>
+						<DataItem category="SAMPLE" id="Yload" nativeUnits="PERCENT" type="LOAD" units="PERCENT">
+							<!--<Filters>
+								<Filter type="MINIMUM_DELTA">3</Filter>
+							</Filters>-->
+						</DataItem>
+						<DataItem category="SAMPLE" id="Yfrt" nativeUnits="MILLIMETER/SECOND" type="AXIS_FEEDRATE" units="MILLIMETER/SECOND"/>
+						<DataItem category="SAMPLE" compositionId="Ymotor" id="servotemp2" nativeUnits="CELSIUS" type="TEMPERATURE" units="CELSIUS">
+							<Filters>
+								<Filter type="MINIMUM_DELTA">0.5</Filter>
+							</Filters>
+						</DataItem>
+						<DataItem category="EVENT" id="yaxisstate" type="AXIS_STATE"/>
+					</DataItems>
+					<Compositions>
+						<Composition id="Yballscrew" type="BALLSCREW"/>
+						<Composition id="Ymotor" type="MOTOR"/>
+					</Compositions>
+				</Linear>
+				<Linear id="z" name="Z">
+					<DataItems>
+						<DataItem category="SAMPLE" id="Zabs" nativeUnits="MILLIMETER" subType="ACTUAL" type="POSITION" units="MILLIMETER"/>
+						<DataItem category="SAMPLE" id="Zpos" nativeUnits="MILLIMETER" subType="ACTUAL" type="POSITION" units="MILLIMETER"/>
+						<DataItem category="CONDITION" id="Ztravel" type="POSITION"/>
+						<DataItem category="SAMPLE" id="Zload" nativeUnits="PERCENT" type="LOAD" units="PERCENT">
+							<Filters>
+								<Filter type="MINIMUM_DELTA">3</Filter>
+							</Filters>
+						</DataItem>
+						<DataItem category="SAMPLE" id="Zfrt" nativeUnits="MILLIMETER/SECOND" type="AXIS_FEEDRATE" units="MILLIMETER/SECOND"/>
+						<DataItem category="SAMPLE" compositionId="Zmotor" id="servotemp3" nativeUnits="CELSIUS" type="TEMPERATURE" units="CELSIUS">
+							<Filters>
+								<Filter type="MINIMUM_DELTA">0.5</Filter>
+							</Filters>
+						</DataItem>
+						<DataItem category="EVENT" id="zaxisstate" type="AXIS_STATE"/>
+					</DataItems>
+					<Compositions>
+						<Composition id="Zballscrew" type="BALLSCREW"/>
+						<Composition id="Zmotor" type="MOTOR"/>
+					</Compositions>
+					<Configuration>
+						<Motion id="zax" coordinateSystemIdRef="machine" type="PRISMATIC" actuation="DIRECT">
+							<Description>The linears Z kinematics</Description>
+							<Origin>100.0 101.0 102.0</Origin>
+							<Axis>0.0 0.1 1.0</Axis>
+						</Motion>
+					</Configuration>
+				</Linear>
+				<Rotary id="ar" name="B">
+					<DataItems>
+						<DataItem category="SAMPLE" id="Bload" nativeUnits="PERCENT" type="LOAD" units="PERCENT">
+							<Filters>
+								<Filter type="MINIMUM_DELTA">3</Filter>
+							</Filters>
+						</DataItem>
+						<DataItem category="SAMPLE" id="Bfrt" nativeUnits="DEGREE/MINUTE" type="ANGULAR_VELOCITY" units="DEGREE/SECOND"/>
+						<DataItem category="CONDITION" id="Btravel" type="ANGLE"/>
+						<DataItem category="SAMPLE" id="Babs" nativeUnits="DEGREE" subType="ACTUAL" type="ANGLE" units="DEGREE"/>
+						<DataItem category="SAMPLE" id="Bpos" nativeUnits="DEGREE" subType="ACTUAL" type="ANGLE" units="DEGREE"/>
+						<DataItem category="EVENT" id="arfunc" type="ROTARY_MODE">
+							<Constraints>
+								<Value>CONTOUR</Value>
+								<Value>INDEX</Value>
+							</Constraints>
+						</DataItem>
+						<DataItem category="EVENT" id="baxisstate" type="AXIS_STATE"/>
+					</DataItems>
+					<Compositions>
+						<Composition id="Bmotor" type="MOTOR"/>
+					</Compositions>
+				</Rotary>
+				<Rotary id="c" name="C">
+					<DataItems>
+						<DataItem category="SAMPLE" id="Cload" nativeUnits="PERCENT" type="LOAD" units="PERCENT">
+							<Filters>
+								<Filter type="MINIMUM_DELTA">3</Filter>
+							</Filters>
+						</DataItem>
+						<DataItem category="SAMPLE" id="Sload" nativeUnits="PERCENT" type="LOAD" units="PERCENT">
+							<Filters>
+								<Filter type="MINIMUM_DELTA">3</Filter>
+							</Filters>
+						</DataItem>
+						<DataItem category="CONDITION" id="Ctravel" type="ANGLE"/>
+						<DataItem category="SAMPLE" id="Cfrt" nativeUnits="DEGREE/MINUTE" type="ANGULAR_VELOCITY" units="DEGREE/SECOND"/>
+						<DataItem category="SAMPLE" id="Srpm" nativeUnits="REVOLUTION/MINUTE" subType="ACTUAL" type="ROTARY_VELOCITY" units="REVOLUTION/MINUTE">
+							<Filters>
+								<Filter type="MINIMUM_DELTA">5</Filter>
+							</Filters>
+						</DataItem>
+						<DataItem category="SAMPLE" compositionId="Cmotor" id="Stemp" nativeUnits="CELSIUS" type="TEMPERATURE" units="CELSIUS">
+							<Filters>
+								<Filter type="MINIMUM_DELTA">0.5</Filter>
+							</Filters>
+						</DataItem>
+						<DataItem category="SAMPLE" id="Cabs" nativeUnits="DEGREE" subType="ACTUAL" type="ANGLE" units="DEGREE"/>
+						<DataItem category="SAMPLE" id="Cpos" nativeUnits="DEGREE" subType="ACTUAL" type="ANGLE" units="DEGREE"/>
+						<DataItem category="EVENT" id="crfunc" type="ROTARY_MODE">
+							<Constraints>
+								<Value>SPINDLE</Value>
+								<Value>INDEX</Value>
+							</Constraints>
+						</DataItem>
+						<DataItem category="CONDITION" id="Sload_cond" type="LOAD"/>
+						<DataItem category="CONDITION" id="Stemp_cond" type="TEMPERATURE"/>
+						<DataItem category="EVENT" id="caxisstate" type="AXIS_STATE"/>
+					</DataItems>
+					<Compositions>
+						<Composition id="Cmotor" type="MOTOR"/>
+					</Compositions>
+					<Configuration>
+						<Relationships>
+							<ComponentRelationship id="ref1" name="Power" type="PEER" criticality="CRITICAL" idRef="power"/>
+							<DeviceRelationship id="ref2" name="coffee" type="PARENT" criticality="NONCRITICAL" role="AUXILIARY" href="http://127.0.0.1:2000/coffee" deviceUuidRef="bfccbfb0-5111-0138-6cd5-0c85909298d9"/>
+						</Relationships>
+						<Motion id="spin" parentIdRef="zax" coordinateSystemIdRef="machine" type="CONTINUOUS" actuation="DIRECT">
+							<Description>The spindle kinematics</Description>
+							<Transformation>
+								<Translation>10.0 20.0 30.0</Translation>
+								<Rotation>90.0 0.0 180</Rotation>
+							</Transformation>
+							<Axis>0.0 0.5 1.0</Axis>
+						</Motion>
+						<Specifications>
+							<Specification type="ROTARY_VELOCITY" subType="ACTUAL" dataItemIdRef="c1" units="REVOLUTION/MINUTE" compositionIdRef="cmotor" name="speed_limit" coordinateSystemIdRef="machine">
+								<Maximum>10000</Maximum>
+								<Minimum>100</Minimum>
+								<Nominal>1000</Nominal>
+							</Specification>
+							<Specification id="spec1" type="LOAD" units="PERCENT" name="loadspec" originator="MANUFACTURER">
+								<Maximum>1000</Maximum>
+								<Minimum>-1000</Minimum>
+								<Nominal>100</Nominal>
+								<UpperLimit>500</UpperLimit>
+								<LowerLimit>-500</LowerLimit>
+								<UpperWarning>200</UpperWarning>
+								<LowerWarning>-200</LowerWarning>
+							</Specification>
+							<ProcessSpecification id="pspec1" type="LOAD" units="PERCENT" name="procspec" originator="USER">
+								<SpecificationLimits>
+									<UpperLimit>500</UpperLimit>
+									<Nominal>50</Nominal>
+									<LowerLimit>-500</LowerLimit>
+								</SpecificationLimits>
+								<ControlLimits>
+									<UpperLimit>500</UpperLimit>
+									<LowerLimit>-500</LowerLimit>
+									<Nominal>10</Nominal>
+									<UpperWarning>200</UpperWarning>
+									<LowerWarning>-200</LowerWarning>
+								</ControlLimits>
+								<AlarmLimits>
+									<UpperLimit>500</UpperLimit>
+									<LowerLimit>-500</LowerLimit>
+									<UpperWarning>200</UpperWarning>
+									<LowerWarning>-200</LowerWarning>
+								</AlarmLimits>
+							</ProcessSpecification>
+						</Specifications>
+					</Configuration>
+				</Rotary>
+			</Components>
+		</Axes>
+		<Controller id="cont" name="controller">
+			<DataItems>
+				<DataItem category="CONDITION" id="comms_cond" type="COMMUNICATIONS"/>
+				<DataItem category="CONDITION" id="logic_cond" type="LOGIC_PROGRAM"/>
+				<DataItem category="CONDITION" id="system_cond" type="SYSTEM"/>
+				<DataItem category="EVENT" id="estop" type="EMERGENCY_STOP"/>
+				<DataItem category="EVENT" id="pallet_num" type="PALLET_ID"/>
+			</DataItems>
+			<Components>
+				<Path id="path1" name="path">
+					<Configuration>
+						<CoordinateSystems>
+							<CoordinateSystem id="world" type="WORLD" name="worldy">
+								<Origin>101 102 103</Origin>
+							</CoordinateSystem>
+							<CoordinateSystem id="machine" type="MACHINE" name="machiney" nativeName="xxx" parentIdRef="world">
+								<Transformation>
+									<Translation>10 10 10</Translation>
+									<Rotation>90 0 90</Rotation>
+								</Transformation>
+							</CoordinateSystem>
+						</CoordinateSystems>
+					</Configuration>
+					<DataItems>
+						<DataItem category="EVENT" id="peditmode" type="PROGRAM_EDIT"/>
+						<DataItem category="EVENT" id="peditname" type="PROGRAM_EDIT_NAME"/>
+						<DataItem category="EVENT" id="hd1chuckstate" type="CHUCK_STATE"/>
+						<DataItem category="EVENT" id="Frapidovr" subType="RAPID" type="PATH_FEEDRATE_OVERRIDE"/>
+						<DataItem category="EVENT" id="Fovr" subType="PROGRAMMED" type="PATH_FEEDRATE_OVERRIDE"/>
+						<DataItem category="EVENT" id="Sovr" type="ROTARY_VELOCITY_OVERRIDE"/>
+						<DataItem category="EVENT" id="program" subType="MAIN" type="PROGRAM"/>
+						<DataItem category="EVENT" id="activeprog" subType="ACTIVE" type="PROGRAM"/>
+						<DataItem category="EVENT" id="PartCountAct" subType="ALL" type="PART_COUNT"/>
+						<DataItem category="SAMPLE" id="Fact" nativeUnits="MILLIMETER/SECOND" subType="ACTUAL" type="PATH_FEEDRATE" units="MILLIMETER/SECOND"/>
+						<DataItem category="EVENT" id="Tool_number" type="TOOL_NUMBER"/>
+						<DataItem category="EVENT" id="Tool_group" type="TOOL_GROUP"/>
+						<DataItem category="EVENT" id="execution" type="EXECUTION"/>
+						<DataItem category="EVENT" id="message" type="MESSAGE"/>
+						<DataItem category="EVENT" id="waitstate" type="WAIT_STATE"/>
+						<DataItem category="EVENT" id="mode" type="CONTROLLER_MODE"/>
+						<DataItem category="EVENT" id="program_cmt" subType="MAIN" type="PROGRAM_COMMENT"/>
+						<DataItem category="EVENT" id="activeprogram_cmt" subType="ACTIVE" type="PROGRAM_COMMENT"/>
+						<DataItem category="CONDITION" id="motion_cond" type="MOTION_PROGRAM"/>
+						<DataItem category="CONDITION" id="path_system" type="SYSTEM"/>
+						<DataItem category="EVENT" id="cmomachineaxislock" subType="MACHINE_AXIS_LOCK" type="CONTROLLER_MODE_OVERRIDE"/>
+						<DataItem category="EVENT" id="cmosingleblock" subType="SINGLE_BLOCK" type="CONTROLLER_MODE_OVERRIDE"/>
+						<DataItem category="EVENT" id="cmodryrun" subType="DRY_RUN" type="CONTROLLER_MODE_OVERRIDE"/>
+						<DataItem category="EVENT" id="linelabel" type="LINE_LABEL"/>
+						<DataItem category="EVENT" id="linenumber" subType="INCREMENTAL" type="LINE_NUMBER"/>
+						<DataItem category="EVENT" id="cvars" representation="DATA_SET" type="VARIABLE"/>
+						<DataItem category="SAMPLE" id="cspeed" nativeUnits="MILLIMETER/SECOND" subType="ACTUAL" type="CUTTING_SPEED" units="MILLIMETER/SECOND"/>
+						<DataItem category="EVENT" id="workoffsettrans" nativeUnits="MILLIMETER_3D" type="TRANSLATION" units="MILLIMETER_3D"/>
+						<DataItem category="EVENT" id="workoffsetrot" nativeUnits="DEGREE_3D" type="ROTATION" units="DEGREE_3D"/>
+						<DataItem category="EVENT" id="woffset" type="WORK_OFFSET"/>
+						<DataItem category="EVENT" id="activeaxes" type="ACTIVE_AXES"/>
+						<DataItem category="SAMPLE" id="pathpos" nativeUnits="INCH_3D" type="PATH_POSITION" units="MILLIMETER_3D"/>
+						<DataItem category="SAMPLE" id="orientation" nativeUnits="DEGREE_3D" type="ORIENTATION" units="DEGREE_3D"/>
+						<DataItem category="EVENT" id="partnumber" subType="PART_NUMBER" type="PART_UNIQUE_ID"/>
+						<DataItem category="EVENT" id="partserialnumber" subType="SERIAL_NUMBER" type="PART_UNIQUE_ID"/>
+						<DataItem category="SAMPLE" id="testTimeSeries" type="VARIABLE" representation="TIME_SERIES"/>
+						<DataItem category="EVENT" id="testDataSet" type="TOOL_OFFSET" representation="DATA_SET"/>
+						<DataItem category="EVENT" id="testTable" type="WORK_OFFSET" representation="TABLE"/>
+						<DataItem type="WORKPIECE_OFFSET" category="EVENT" id="wp1" name="wpo" representation="TABLE">
+							<Definition>
+								<Description>A Complex Workpiece Offset Table</Description>
+								<EntryDefinitions>
+									<EntryDefinition key="G54">
+										<Description>Some Pressure thing</Description>
+										<CellDefinitions>
+											<CellDefinition key="P" units="PASCAL" type="PRESSURE">
+												<Description>Pressure of the P</Description>
+											</CellDefinition>
+										</CellDefinitions>
+									</EntryDefinition>
+									<EntryDefinition key="ADD" units="PERCENT" type="FILL_LEVEL"/>
+									<EntryDefinition keyType="FEATURE_ID" type="UUID" />
+								</EntryDefinitions>
+								<CellDefinitions>
+									<CellDefinition key="X" units="MILLIMETER" type="POSITION" />
+									<CellDefinition key="Y" units="MILLIMETER" type="POSITION" />
+									<CellDefinition key="Z" units="MILLIMETER" type="POSITION" />
+									<CellDefinition key="A" units="DEGREE" type="ANGLE" />
+									<CellDefinition key="B" units="DEGREE" type="ANGLE" />
+									<CellDefinition key="C" units="DEGREE" type="ANGLE">
+										<Description>Spindle Angle</Description>
+									</CellDefinition>
+									<CellDefinition keyType="FEATURE_ID" type="UUID" />
+								</CellDefinitions>
+							</Definition>
+						</DataItem>
+					</DataItems>
+				</Path>
+			</Components>
+		</Controller>
+		<Door id="door1" name="door">
+			<DataItems>
+				<DataItem category="EVENT" id="doorstate" type="DOOR_STATE"/>
+			</DataItems>
+		</Door>
+		<Systems id="systems" name="systems">
+			<Components>
+				<WorkEnvelope id="workenvelope" name="workenvelope">
+					<DataItems>
+						<DataItem category="CONDITION" id="envelope_cond" type="SYSTEM"/>
+					</DataItems>
+				</WorkEnvelope>
+				<Electric id="elec" name="electric">
+					<DataItems>
+						<DataItem category="CONDITION" id="electric_cond" type="SYSTEM"/>
+					</DataItems>
+				</Electric>
+				<Hydraulic id="hydraulic" name="hydraulic">
+					<DataItems>
+						<DataItem category="CONDITION" id="hydra_cond" type="SYSTEM"/>
+					</DataItems>
+					<References>
+						<DataItemRef name="chuck" idRef="c4" />
+						<DataItemRef name="door" idRef="d2" />
+						<ComponentRef name="electric" idRef="ele" />
+					</References>
+				</Hydraulic>
+				<Coolant id="coolant" name="coolant">
+					<DataItems>
+						<DataItem category="CONDITION" id="coolant_cond" type="SYSTEM"/>
+						<DataItem category="SAMPLE" id="cooltemp" nativeUnits="CELSIUS" type="TEMPERATURE" units="CELSIUS">
+							<Filters>
+								<Filter type="MINIMUM_DELTA">0.5</Filter>
+							</Filters>
+						</DataItem>
+						<DataItem category="SAMPLE" id="CONCENTRATION" nativeUnits="PERCENT" type="CONCENTRATION" units="PERCENT"/>
+					</DataItems>
+				</Coolant>
+				<Pneumatic id="pneumatic" name="pneumatic">
+					<DataItems>
+						<DataItem category="CONDITION" id="pneu_cond" type="SYSTEM"/>
+					</DataItems>
+				</Pneumatic>
+				<Lubrication id="lubrication" name="lubrication">
+					<DataItems>
+						<DataItem category="CONDITION" id="lubrication_cond" type="SYSTEM"/>
+					</DataItems>
+				</Lubrication>
+			</Components>
+		</Systems>
+		<Auxiliaries id="Aux" name="auxiliaries">
+			<Components>
+				<Environmental id="room" name="environmental">
+					<DataItems>
+						<DataItem category="SAMPLE" id="rmtmp1" nativeUnits="CELSIUS" type="TEMPERATURE" units="CELSIUS">
+							<Filters>
+								<Filter type="MINIMUM_DELTA">0.5</Filter>
+							</Filters>
+						</DataItem>
+					</DataItems>
+				</Environmental>
+				<Sensor id="sensor" name="sensor">
+					<Configuration>
+						<SensorConfiguration>
+							<FirmwareVersion>2.02</FirmwareVersion>
+							<CalibrationDate>2010-05-16</CalibrationDate>
+							<NextCalibrationDate>2010-05-16</NextCalibrationDate>
+							<CalibrationInitials>WS</CalibrationInitials>
+							<Channels>
+								<Channel number="1" name="A/D:1">
+									<Description>A/D With Thermister</Description>
+								</Channel>
+							</Channels>
+						</SensorConfiguration>
+					</Configuration>
+					<DataItems>
+						<DataItem category="CONDITION" id="senvc" type="VOLTAGE" />
+						<DataItem category="SAMPLE" id="senv" type="VOLTAGE" units="VOLT" subType="DIRECT" />
+					</DataItems>
+				</Sensor>
+			</Components>
+		</Auxiliaries>
+		<Resources id="resources" name="resources">
+			<Components>
+				<Personnel id="personnel" name="personnel">
+					<DataItems>
+						<DataItem category="EVENT" id="operator" type="USER"/>
+					</DataItems>
+				</Personnel>
+				<Materials id="materials" name="materials">
+					<Components>
+						<Stock id="procstock" name="stock">
+							<DataItems>
+								<DataItem category="EVENT" id="stock" type="MATERIAL"/>
+							</DataItems>
+						</Stock>
+					</Components>
+				</Materials>
+			</Components>
+		</Resources>
+	</Components>
+</Device>

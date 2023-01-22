@@ -15,4 +15,9 @@
     <PackageReference Include="coverlet.collector" Version="3.1.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\MTConnect.NET-HTTP\MTConnect.NET-HTTP.csproj" />
+    <ProjectReference Include="..\MTConnect.NET-Tests-Agents\MTConnect.NET-Tests-Agents.csproj" />
+  </ItemGroup>
+
 </Project>
