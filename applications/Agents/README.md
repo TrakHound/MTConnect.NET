@@ -2,13 +2,13 @@
 
 ### Recommended (General purpose Windows or Linux)
 
-- [MTConnect HTTP Agent](https://github.com/TrakHound/MTConnect.NET/tree/master/applications/Agents/MTConnect-Agent-Http) : This MTConnect Agent application is fully compatible with the latest Version 2.0 of the MTConnect Standard. It uses the SHDR protocol to receive data from Adapters, an in-memory buffer with an optional durable file system based buffer, and an Http REST interface for retrieving data.
+- [MTConnect HTTP Agent](https://github.com/TrakHound/MTConnect.NET/tree/master/applications/Agents/MTConnect-Agent-Http) : This MTConnect Agent application is fully compatible with the latest Version 2.1 of the MTConnect Standard. It uses the SHDR protocol to receive data from Adapters, an in-memory buffer with an optional durable file system based buffer, and an Http REST interface for retrieving data.
 
-- [MTConnect HTTP Gateway Agent](https://github.com/TrakHound/MTConnect.NET/tree/master/applications/Agents/MTConnect-Agent-Http-Gateway) : This MTConnect Agent application is fully compatible with the latest Version 2.0 of the MTConnect Standard. It receives data from other MTConnect Agents using HTTP, an in-memory buffer with an optional durable file system based buffer, and an Http REST interface for retrieving data.
+- [MTConnect HTTP Gateway Agent](https://github.com/TrakHound/MTConnect.NET/tree/master/applications/Agents/MTConnect-Agent-Http-Gateway) : This MTConnect Agent application is fully compatible with the latest Version 2.1 of the MTConnect Standard. It receives data from other MTConnect Agents using HTTP, an in-memory buffer with an optional durable file system based buffer, and an Http REST interface for retrieving data.
 
-- [MTConnect MQTT Relay Agent](https://github.com/TrakHound/MTConnect.NET/tree/master/applications/Agents/MTConnect-Agent-MQTT-Relay) : This MTConnect Agent application is fully compatible with the latest Version 2.0 of the MTConnect Standard. It uses the SHDR protocol to receive data from Adapters, an in-memory buffer with an optional durable file system based buffer, and an MQTT client to publish messages to an external MQTT Broker.
+- [MTConnect MQTT Relay Agent](https://github.com/TrakHound/MTConnect.NET/tree/master/applications/Agents/MTConnect-Agent-MQTT-Relay) : This MTConnect Agent application is fully compatible with the latest Version 2.1 of the MTConnect Standard. It uses the SHDR protocol to receive data from Adapters, an in-memory buffer with an optional durable file system based buffer, and an MQTT client to publish messages to an external MQTT Broker.
 
-- [MTConnect MQTT Broker Agent](https://github.com/TrakHound/MTConnect.NET/tree/master/applications/Agents/MTConnect-Agent-MQTT-Broker) : This MTConnect Agent application is fully compatible with the latest Version 2.0 of the MTConnect Standard. It uses the SHDR protocol to receive data from Adapters, an in-memory buffer with an optional durable file system based buffer, and a built-in MQTT broker.
+- [MTConnect MQTT Broker Agent](https://github.com/TrakHound/MTConnect.NET/tree/master/applications/Agents/MTConnect-Agent-MQTT-Broker) : This MTConnect Agent application is fully compatible with the latest Version 2.1 of the MTConnect Standard. It uses the SHDR protocol to receive data from Adapters, an in-memory buffer with an optional durable file system based buffer, and a built-in MQTT broker.
 
 ### Specialized (For use with IIS)
 
