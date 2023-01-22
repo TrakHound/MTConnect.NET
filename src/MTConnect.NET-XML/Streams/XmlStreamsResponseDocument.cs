@@ -223,7 +223,14 @@ namespace MTConnect.Streams.Xml
                         }
                     }
 
-                    observations.Add(observation);
+                    switch (observation.Category)
+                    {
+                        case DataItemCategory.CONDITION: observations.Add(ConditionObservation.Create(observation)); break;
+
+                        case DataItemCategory.EVENT: observations.Add(EventObservation.Create(observation)); break;
+
+                        case DataItemCategory.SAMPLE: observations.Add(SampleObservation.Create(observation)); break;
+                    }
                 }
             }
             while (reader.Read());
