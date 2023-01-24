@@ -66,14 +66,14 @@ outputComments: false
 files:
 - path: schemas
   location: schemas
-- path: styles
-  location: styles
-- path: styles/favicon.ico
-  location: favicon.ico
+#- path: styles
+#  location: styles
+#- path: styles/favicon.ico
+#  location: favicon.ico
 
 # Configuration for XML Stylesheets for MTConnectStreamsResponse documents (Current and Samples requests)
-streamsStyle:
-  location: styles/stylesheet-streams.xsl
+#streamsStyle:
+#  location: styles/stylesheet-streams.xsl
 
 
 # - Buffer Configuration -

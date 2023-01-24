@@ -5,12 +5,15 @@
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)'=='Release'">
 		<TargetFrameworks>net461;net462;net47;net471;net472;net48;netstandard2.0;netcoreapp3.1;net5.0;net6.0;net7.0</TargetFrameworks>
+		<DebugSymbols>false</DebugSymbols>
+		<DebugType>None</DebugType>
 		<Optimize>true</Optimize>
 	</PropertyGroup>
 
 	<PropertyGroup>
 		<RootNamespace>MTConnect.DeviceFinder</RootNamespace>
 		<Configurations>Debug;Release;Package</Configurations>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<Authors>TrakHound</Authors>
 		<Company>TrakHound Inc.</Company>
 		<Copyright>Copyright (c) 2023 TrakHound Inc., All Rights Reserved.</Copyright>
@@ -32,6 +35,10 @@
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 	</PropertyGroup>
+
+	<ItemGroup>
+		<Compile Include="..\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
+	</ItemGroup>
 
 	<PropertyGroup Condition="'$(Configuration)'=='Release'">
 		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>

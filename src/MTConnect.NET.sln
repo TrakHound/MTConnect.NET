@@ -81,9 +81,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect-Agent-MQTT-Broker
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-HTTP-Tests", "..\tests\MTConnect.NET-HTTP-Tests\MTConnect.NET-HTTP-Tests.csproj", "{32727D21-003E-407F-9EEC-682AB54B8C4B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MTConnect.NET-Tests-Agents", "..\tests\MTConnect.NET-Tests-Agents\MTConnect.NET-Tests-Agents.csproj", "{74C97CED-AB30-4092-962D-7B5929F58A9A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-Tests-Agents", "..\tests\MTConnect.NET-Tests-Agents\MTConnect.NET-Tests-Agents.csproj", "{74C97CED-AB30-4092-962D-7B5929F58A9A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp16", "C:\temp\ConsoleApp16\ConsoleApp16.csproj", "{A51FA002-2F8B-464B-8ED3-1D006B2D61A2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleApp16", "C:\temp\ConsoleApp16\ConsoleApp16.csproj", "{A51FA002-2F8B-464B-8ED3-1D006B2D61A2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{BBF53739-168D-4635-8595-083AC0C65E4C}"
+	ProjectSection(SolutionItems) = preProject
+		AssemblyInfo.cs = AssemblyInfo.cs
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -2,9 +2,12 @@
 
 	<PropertyGroup Condition="'$(Configuration)'=='Debug'">
 		<TargetFrameworks>net6.0</TargetFrameworks>
+		<DebugType>full</DebugType>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)'=='Release'">
-		<TargetFrameworks>net461;net462;net47;net471;net472;net48;netstandard2.0;netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
+		<TargetFrameworks>net461;net48;net6.0;net7.0</TargetFrameworks>
+		<DebugSymbols>false</DebugSymbols>
+		<DebugType>None</DebugType>
 		<Optimize>true</Optimize>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)'=='Docker'">
@@ -13,6 +16,7 @@
 
 	<PropertyGroup>
 		<Configurations>Debug;Release;Docker</Configurations>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<AssemblyName>agent</AssemblyName>
 		<OutputType>Exe</OutputType>
 		<RootNamespace>MTConnect</RootNamespace>
@@ -29,6 +33,10 @@
 		<Product>TrakHound MTConnect Http Agent</Product>
 	</PropertyGroup>
 
+	<ItemGroup>
+		<Compile Include="..\..\..\src\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
+	</ItemGroup>
+
 	<ItemGroup Condition="'$(Configuration)'=='Docker'">
 		<PackageReference Include="MTConnect.NET" Version="3.4.2" />
 	</ItemGroup>
@@ -41,6 +49,9 @@
 		<None Update="agent.config.default.yaml">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
+		<None Update="build.bat">
+		  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</None>
 		<None Update="devices-Copy.xml">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
@@ -49,6 +60,9 @@
 		</None>
 		<None Update="devices\device-mazak.xml">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="installer.iss">
+		  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
 		</None>
 		<None Update="README.md">
 			<Pack>True</Pack>

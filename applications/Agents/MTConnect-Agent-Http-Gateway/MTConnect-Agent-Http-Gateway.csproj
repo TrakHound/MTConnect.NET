@@ -4,11 +4,15 @@
 		<TargetFrameworks>net6.0</TargetFrameworks>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)'=='Release'">
-		<TargetFrameworks>net461;net462;net47;net471;net472;net48;netstandard2.0;netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
+		<TargetFrameworks>net461;net48;net6.0;net7.0</TargetFrameworks>
+		<DebugSymbols>false</DebugSymbols>
+		<DebugType>None</DebugType>
+		<Optimize>true</Optimize>
 	</PropertyGroup>
 
 	<PropertyGroup>
 		<AssemblyName>agent</AssemblyName>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<OutputType>Exe</OutputType>
 		<RootNamespace>MTConnect</RootNamespace>
 		<Company>TrakHound Inc.</Company>
@@ -21,6 +25,10 @@
 		<Authors>TrakHound Inc.</Authors>
 		<Product>TrakHound MTConnect Http Gateway Agent</Product>
 	  </PropertyGroup>
+
+	<ItemGroup>
+		<Compile Include="..\..\..\src\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
+	</ItemGroup>
 
 	<ItemGroup Condition="'$(Configuration)'=='Release'">
 		<ProjectReference Include="..\..\..\src\MTConnect.NET\MTConnect.NET.csproj" />
@@ -38,8 +46,14 @@
     <None Update="agent.config.default.yaml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="build.bat">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
     <None Update="devices-mazak.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="installer.iss">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

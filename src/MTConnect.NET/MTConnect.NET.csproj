@@ -11,6 +11,7 @@
 	<PropertyGroup>
 		<RootNamespace>MTConnect</RootNamespace>
 		<Configurations>Debug;Release;Package</Configurations>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<Authors>TrakHound</Authors>
 		<Company>TrakHound Inc.</Company>
 		<Copyright>Copyright (c) 2023 TrakHound Inc., All Rights Reserved.</Copyright>
@@ -33,6 +34,10 @@
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 	</PropertyGroup>
+
+	<ItemGroup>
+		<Compile Include="..\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
+	</ItemGroup>
 
 	<PropertyGroup Condition="'$(Configuration)'=='Release'">
 		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
