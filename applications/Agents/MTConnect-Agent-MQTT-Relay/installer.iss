@@ -97,8 +97,6 @@ Filename: {sys}\cmd.exe; Parameters: "/c agent.exe ""install""" ; WorkingDir: {a
 Filename: {sys}\cmd.exe; Parameters: "/c agent.exe ""start""" ; WorkingDir: {app}; Flags: runhidden; StatusMsg: "Starting Windows Service...";
 
 ; Start Browser
-Filename: {sys}\cmd.exe; Parameters: "/c explorer ""http://localhost:5000?outputComments=true&indentOutput=true""" ; Flags: runhidden postinstall unchecked; Description: Open Probe in Web Browser;
-Filename: {sys}\cmd.exe; Parameters: "/c explorer ""http://localhost:5000/current?outputComments=true&indentOutput=true""" ; Flags: runhidden postinstall unchecked; Description: Open Current in Web Browser;
 Filename: {sys}\cmd.exe; Parameters: "/c explorer ""agent.config.yaml""" ; WorkingDir: {app}; Flags: runhidden postinstall unchecked; Description: Open Agent Configuration File;
 Filename: {sys}\cmd.exe; Parameters: "/c explorer ""NLog.config""" ; WorkingDir: {app}; Flags: runhidden postinstall unchecked; Description: Open Log Configuration File;
 Filename: {sys}\cmd.exe; Parameters: "/c explorer ""{app}""" ; Flags: runhidden postinstall unchecked; Description: Open Install Directory;
