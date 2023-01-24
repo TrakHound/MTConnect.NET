@@ -285,4 +285,4 @@ This project uses the MTConnect.NET-Applications-Agents-MQTT library (available 
 - For any other questions or feedback, please contact TrakHound directly at **info@trakhound.com**.
 
 ## License
-This application and it's source code is licensed under the [Apache Version 2.0 License](https://www.apache.org/licenses/LICENSE-2.0) and is free to use.
+This application and it's source code is licensed under the [MIT License](https://choosealicense.com/licenses/mit/) and is free to use.
