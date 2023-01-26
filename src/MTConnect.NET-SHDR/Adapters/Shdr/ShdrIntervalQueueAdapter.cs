@@ -15,30 +15,28 @@ namespace MTConnect.Adapters.Shdr
     /// </summary>
     public class ShdrIntervalQueueAdapter : ShdrQueueAdapter
     {
+        private const int _defualtInterval = 100;
+
+
         /// <summary>
         /// The interval (in milliseconds) at which new data is sent to the Agent
         /// </summary>
         public int Interval { get; set; }
 
 
-        public ShdrIntervalQueueAdapter(int port = 7878, int heartbeat = 10000) : base(port, heartbeat)
+        public ShdrIntervalQueueAdapter(int port = 7878, int heartbeat = 10000, int interval = _defualtInterval) : base(port, heartbeat)
         {
-            Init();
+            Interval = interval;
         }
 
-        public ShdrIntervalQueueAdapter(string deviceKey, int port = 7878, int heartbeat = 10000) : base(deviceKey, port, heartbeat)
+        public ShdrIntervalQueueAdapter(string deviceKey, int port = 7878, int heartbeat = 10000, int interval = _defualtInterval) : base(deviceKey, port, heartbeat)
         {
-            Init();
+            Interval = interval;
         }
 
-        public ShdrIntervalQueueAdapter(ShdrAdapterConfiguration configuration) : base(configuration)
+        public ShdrIntervalQueueAdapter(ShdrAdapterConfiguration configuration, int interval = _defualtInterval) : base(configuration)
         {
-            Init();
-        }
-
-        private void Init()
-        {
-            Interval = 100;
+            Interval = interval;
         }
 
 

@@ -51,6 +51,11 @@ namespace MTConnect.Observations.Input
         /// </summary>
         byte[] ChangeId { get; }
 
+        /// <summary>
+        /// An MD5 Hash of the Observation including the Timestamp that can be used for comparison
+        /// </summary>
+        byte[] ChangeIdWithTimestamp { get; }
+
 
         void AddValue(string valueKey, object value);
 

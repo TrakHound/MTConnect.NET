@@ -23,11 +23,20 @@ namespace MTConnect.Adapters.Shdr
         private readonly ItemQueue<ShdrTable> _tablesBuffer = new ItemQueue<ShdrTable>();
 
 
-        public ShdrQueueAdapter(int port = 7878, int heartbeat = 10000) : base(port, heartbeat) { }
+        public ShdrQueueAdapter(int port = 7878, int heartbeat = 10000) : base(port, heartbeat) 
+        {
+            FilterDuplicates = false;
+        }
 
-        public ShdrQueueAdapter(string deviceKey, int port = 7878, int heartbeat = 10000) : base(deviceKey, port, heartbeat) { }
+        public ShdrQueueAdapter(string deviceKey, int port = 7878, int heartbeat = 10000) : base(deviceKey, port, heartbeat)
+        {
+            FilterDuplicates = false;
+        }
 
-        public ShdrQueueAdapter(ShdrAdapterConfiguration configuration) : base(configuration) { }
+        public ShdrQueueAdapter(ShdrAdapterConfiguration configuration) : base(configuration)
+        {
+            FilterDuplicates = false;
+        }
 
 
         /// <summary>
@@ -272,7 +281,7 @@ namespace MTConnect.Adapters.Shdr
         {
             if (observationInput != null)
             {
-                var hashBytes = observationInput.ChangeId;
+                var hashBytes = observationInput.ChangeIdWithTimestamp;
                 var hash = string.Concat(hashBytes.Select(b => b.ToString("x2")));
                 return hash.GetUInt64Hash();
             }
@@ -284,7 +293,7 @@ namespace MTConnect.Adapters.Shdr
         {
             if (condition != null)
             {
-                var hashBytes = condition.ChangeId;
+                var hashBytes = condition.ChangeIdWithTimestamp;
                 var hash = string.Concat(hashBytes.Select(b => b.ToString("x2")));
                 return hash.GetUInt64Hash();
             }

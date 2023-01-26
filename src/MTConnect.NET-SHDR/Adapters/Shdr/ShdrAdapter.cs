@@ -86,6 +86,11 @@ namespace MTConnect.Adapters.Shdr
         /// </summary>
         public bool MultilineDevices { get; set; }
 
+        /// <summary>
+        /// Determines whether to filter out duplicate data
+        /// </summary>
+        public bool FilterDuplicates { get; set; }
+
 
         /// <summary>
         /// Raised when a new Agent connection is established. Includes the AgentClient ID as an argument.
@@ -126,6 +131,7 @@ namespace MTConnect.Adapters.Shdr
 
         public ShdrAdapter(int port = 7878, int heartbeat = 10000)
         {
+            FilterDuplicates = true;
             Port = port;
             Heartbeat = heartbeat;
             Timeout = 5000;
@@ -139,6 +145,7 @@ namespace MTConnect.Adapters.Shdr
 
         public ShdrAdapter(string deviceKey, int port = 7878, int heartbeat = 10000)
         {
+            FilterDuplicates = true;
             DeviceKey = deviceKey;
             Port = port;
             Heartbeat = heartbeat;
@@ -153,6 +160,8 @@ namespace MTConnect.Adapters.Shdr
 
         public ShdrAdapter(ShdrAdapterConfiguration configuration)
         {
+            FilterDuplicates = true;
+
             if (configuration != null)
             {
                 DeviceKey = configuration.DeviceKey;
@@ -501,7 +510,7 @@ namespace MTConnect.Adapters.Shdr
                     if (line[e] == lf && prev == cr)
                     {
                         // Add trimmed line to return list
-                        l = line.Substring(s, (e - s) + 1).Trim();
+                        l = line.Substring(s, (e - s) + 1).Trim('\r').Trim('\n');
                         if (!string.IsNullOrEmpty(l))
                         {
                             if (l.Length > 1 || (l.Length == 1 && l[0] != cr))
@@ -576,7 +585,7 @@ namespace MTConnect.Adapters.Shdr
 
                 // Check to see if new Observation is the same as the Current
                 var add = true;
-                if (currentDataItem != null)
+                if (currentDataItem != null && FilterDuplicates)
                 {
                     add = !ObjectExtensions.ByteArraysEqual(dataItem.ChangeId, currentDataItem.ChangeId);
                 }
@@ -780,7 +789,7 @@ namespace MTConnect.Adapters.Shdr
 
                 // Check to see if new Observation is the same as the Current
                 var add = true;
-                if (currentMessage != null)
+                if (currentMessage != null && FilterDuplicates)
                 {
                     add = !ObjectExtensions.ByteArraysEqual(message.ChangeId, currentMessage.ChangeId);
                 }
@@ -968,7 +977,7 @@ namespace MTConnect.Adapters.Shdr
 
                 // Check to see if new Observation is the same as the Current
                 var add = true;
-                if (currentCondition != null)
+                if (currentCondition != null && FilterDuplicates)
                 {
                     add = !ObjectExtensions.ByteArraysEqual(condition.ChangeId, currentCondition.ChangeId);
                 }
@@ -1152,7 +1161,7 @@ namespace MTConnect.Adapters.Shdr
 
                 // Check to see if new Observation is the same as the Current
                 var add = true;
-                if (currentTimeSeries != null)
+                if (currentTimeSeries != null && FilterDuplicates)
                 {
                     add = !ObjectExtensions.ByteArraysEqual(timeSeries.ChangeId, currentTimeSeries.ChangeId);
                 }
@@ -1352,7 +1361,7 @@ namespace MTConnect.Adapters.Shdr
 
                 // Check to see if new Observation is the same as the Current
                 var add = true;
-                if (currentDataSet != null)
+                if (currentDataSet != null && FilterDuplicates)
                 {
                     add = !ObjectExtensions.ByteArraysEqual(dataSet.ChangeId, currentDataSet.ChangeId);
                 }
@@ -1552,7 +1561,7 @@ namespace MTConnect.Adapters.Shdr
 
                 // Check to see if new Observation is the same as the Current
                 var add = true;
-                if (currentTable != null)
+                if (currentTable != null && FilterDuplicates)
                 {
                     add = !ObjectExtensions.ByteArraysEqual(table.ChangeId, currentTable.ChangeId);
                 }
@@ -1772,7 +1781,7 @@ namespace MTConnect.Adapters.Shdr
                     }
                 }
 
-                var shdrLine = asset.ToString();
+                var shdrLine = asset.ToString(MultilineAssets);
                 WriteLine(shdrLine);
             }
         }
@@ -1823,7 +1832,7 @@ namespace MTConnect.Adapters.Shdr
                 foreach (var item in assets)
                 {
                     // Create SHDR string to send
-                    var shdrLine = item.ToString();
+                    var shdrLine = item.ToString(MultilineAssets);
                     success = WriteLine(shdrLine);
                     if (!success) break;
                 }

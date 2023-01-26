@@ -1,10 +1,12 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
+using MTConnect.Observations.Samples.Values;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using YamlDotNet.Core.Tokens;
 
 namespace MTConnect.Observations.Input
 {
@@ -13,9 +15,10 @@ namespace MTConnect.Observations.Input
     /// </summary>
     public class ObservationInput : IObservationInput
     {
-        private static Encoding _utf8 = new UTF8Encoding();
+        private static readonly Encoding _utf8 = new UTF8Encoding();
 
         private byte[] _changeId;
+        private byte[] _changeIdWithTimestamp;
 
 
         /// <summary>
@@ -75,8 +78,20 @@ namespace MTConnect.Observations.Input
         {
             get
             {
-                if (_changeId == null) _changeId = CreateChangeId(this);
+                if (_changeId == null) _changeId = CreateChangeId(this, false);
                 return _changeId;
+            }
+        }
+
+        /// <summary>
+        /// An MD5 Hash of the Observation including the Timestamp that can be used for comparison
+        /// </summary>
+        public byte[] ChangeIdWithTimestamp
+        {
+            get
+            {
+                if (_changeIdWithTimestamp == null) _changeIdWithTimestamp = CreateChangeId(this, true);
+                return _changeIdWithTimestamp;
             }
         }
 
@@ -177,6 +192,7 @@ namespace MTConnect.Observations.Input
 
             Values = x;
             _changeId = null;
+            _changeIdWithTimestamp = null;
         }
 
         public string GetValue(string valueKey)
@@ -194,10 +210,11 @@ namespace MTConnect.Observations.Input
         {
             Values = null;
             _changeId = null;
+            _changeIdWithTimestamp = null;
         }
 
 
-        private static byte[] CreateChangeId(IObservationInput observationInput)
+        private static byte[] CreateChangeId(IObservationInput observationInput, bool includeTimestamp)
         {
             if (observationInput != null)
             {
@@ -206,6 +223,7 @@ namespace MTConnect.Observations.Input
                 if (!observationInput.Values.IsNullOrEmpty())
                 {
                     var sb = new StringBuilder();
+                    if (includeTimestamp) sb.Append($"timestamp={observationInput.Timestamp}:");
 
                     // Create String with ValueKey=Value segments
                     foreach (var value in observationInput.Values) sb.Append($"{value.Key}={value.Value}:");

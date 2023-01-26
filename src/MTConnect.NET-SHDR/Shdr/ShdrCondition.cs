@@ -13,6 +13,7 @@ namespace MTConnect.Shdr
     public class ShdrCondition
     {
         private byte[] _changeId;
+        private byte[] _changeIdWithTimestamp;
 
 
         /// <summary>
@@ -42,8 +43,20 @@ namespace MTConnect.Shdr
         {
             get
             {
-                if (_changeId == null) _changeId = CreateChangeId(this);
+                if (_changeId == null) _changeId = CreateChangeId(this, false);
                 return _changeId;
+            }
+        }
+
+        /// <summary>
+        /// A MD5 Hash of the Condition including the Timestamp that can be used for comparison
+        /// </summary>
+        public byte[] ChangeIdWithTimestamp
+        {
+            get
+            {
+                if (_changeIdWithTimestamp == null) _changeIdWithTimestamp = CreateChangeId(this, true);
+                return _changeIdWithTimestamp;
             }
         }
 
@@ -160,6 +173,7 @@ namespace MTConnect.Shdr
                 x.Add(faultState);
                 FaultStates = x;
                 _changeId = null;
+                _changeIdWithTimestamp = null;
             }
         }
 
@@ -167,6 +181,7 @@ namespace MTConnect.Shdr
         {
             FaultStates = null;
             _changeId = null;
+            _changeIdWithTimestamp = null;
         }
 
         /// <summary>
@@ -192,7 +207,7 @@ namespace MTConnect.Shdr
         }
 
 
-        private static byte[] CreateChangeId(ShdrCondition condition)
+        private static byte[] CreateChangeId(ShdrCondition condition, bool includeTimestamp)
         {
             if (condition != null)
             {
@@ -202,7 +217,8 @@ namespace MTConnect.Shdr
                     var i = 0;
                     foreach (var faultState in condition.FaultStates)
                     {
-                        values[i] = faultState.ChangeId;
+                        if (includeTimestamp) values[i] = faultState.ChangeIdWithTimestamp;
+                        else values[i] = faultState.ChangeId;
                         i++;
                     }
                     return StringFunctions.ToMD5HashBytes(values);
