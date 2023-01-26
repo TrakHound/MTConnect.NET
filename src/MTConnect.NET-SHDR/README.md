@@ -303,7 +303,7 @@ tool.DateTime = DateTime.Now;
 
 adapter.SendAsset(tool);
 ```
-#### Output
+#### Output (with MultilineAssets = true)
 ```
 2023-01-26T17:56:59.9694353Z|@ASSET@|5.12|CuttingTool|--multiline--W5XZBJ2QZV
 <CuttingTool assetId="5.12" timestamp="2023-01-26T12:56:59.4778578-05:00" toolId="12">
@@ -349,7 +349,7 @@ file.CreationTime = DateTime.Now;
 
 adapter.SendAsset(file);
 ```
-### Output
+### Output (with MultilineAssets = true)
 ```
 2023-01-26T18:01:50.3085245Z|@ASSET@|file.test|File|--multiline--6UH71Y7IYW
 <File assetId="file.test" timestamp="2023-01-26T18:01:49.9929867Z" name="file-123.txt" mediaType="text/plain" applicationCategory="DEVICE" applicationType="DATA" size="12346" versionId="test-v1" state="PRODUCTION">
@@ -357,6 +357,24 @@ adapter.SendAsset(file);
   <CreationTime>2023-01-26T13:01:49.9939538-05:00</CreationTime>
 </File>
 --multiline--6UH71Y7IYW
+```
+
+### Remove Individual Asset by AssetId
+```c#
+adapter.RemoveAsset("file.test");
+```
+#### Output
+```
+2023-01-26T18:21:57.8208518Z|@REMOVE_ASSET@|file.test
+```
+
+### Remove All Assets of a specified Type
+```c#
+adapter.RemoveAllAssets("File");
+```
+#### Output
+```
+2023-01-26T18:31:23.6664032Z|@REMOVE_ALL_ASSETS@|File
 ```
 
 ## SHDR Conversion

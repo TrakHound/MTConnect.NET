@@ -16,16 +16,16 @@ namespace MTConnect.Shdr
     {
         public const string AssetDesignator = "@ASSET@";
         public const string AssetRemoveDesignator = "@REMOVE_ASSET@";
-        public const string AssetRemoveAllDesignator = "@REMOVE_ALL_ASSET@";
+        public const string AssetRemoveAllDesignator = "@REMOVE_ALL_ASSETS@";
         public const string AssetUpdateDesignator = "@UPDATE_ASSET@";
 
-        private static string AssetIdPattern = $"{AssetDesignator}\\|(.*)\\|.*\\|--multiline--";
-        private static string AssetTypePattern = $"{AssetDesignator}\\|.*\\|(.*)\\|--multiline--";
-        private static string AssetMutlilineBeginPattern = $"{AssetDesignator}.*--multiline--(.*)";
-        private static string AssetMutlilineEndPattern = "--multiline--(.*)";
-        private static string AssetRemovePattern = $"{AssetRemoveDesignator}\\|(.*)";
-        private static string AssetRemoveAllPattern = $"{AssetRemoveAllDesignator}\\|(.*)";
-        private static string AssetUpdatePattern = $"{AssetUpdateDesignator}\\|(.*)";
+        private const string AssetIdPattern = $"{AssetDesignator}\\|(.*)\\|.*\\|--multiline--";
+        private const string AssetTypePattern = $"{AssetDesignator}\\|.*\\|(.*)\\|--multiline--";
+        private const string AssetMutlilineBeginPattern = $"{AssetDesignator}.*--multiline--(.*)";
+        private const string AssetMutlilineEndPattern = "--multiline--(.*)";
+        private const string AssetRemovePattern = $"{AssetRemoveDesignator}\\|(.*)";
+        private const string AssetRemoveAllPattern = $"{AssetRemoveAllDesignator}\\|(.*)";
+        private const string AssetUpdatePattern = $"{AssetUpdateDesignator}\\|(.*)";
 
         private static readonly Regex _assetIdRegex = new Regex(AssetIdPattern);
         private static readonly Regex _assetTypeRegex = new Regex(AssetTypePattern);
@@ -290,7 +290,7 @@ namespace MTConnect.Shdr
         {
             if (!string.IsNullOrEmpty(input))
             {
-                // Expected format : @REMOVE_ASSET_ALL@|<AssetId>
+                // Expected format : @REMOVE_ALL_ASSETS@|<AssetId>
 
                 // Check if no Timestamp
                 if (input[0] == '@' && input.StartsWith(AssetRemoveAllDesignator))
