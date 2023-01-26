@@ -1,7 +1,5 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
-
-// This file is subject to the terms and conditions defined in
-// file 'LICENSE.txt', which is part of this source code package.
+// TrakHound Inc. licenses this file to you under the MIT license.
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -108,8 +106,8 @@ namespace MTConnect.Applications
                 builder.Services.AddSingleton<AgentMetricLogger>();
                 builder.Services.AddSingleton<AgentValidationLogger>();
 
-                // Add the AgentService that handles the MTConnect Agent
-                builder.Services.AddHostedService<AgentService>();
+                // Add the MTConnectAgentService that handles the MTConnect Agent
+                builder.Services.AddHostedService<MTConnectAgentService>();
 
                 if (!_configuration.ResponseCompression.IsNullOrEmpty())
                 {

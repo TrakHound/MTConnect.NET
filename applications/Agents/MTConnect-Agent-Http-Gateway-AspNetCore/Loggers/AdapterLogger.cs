@@ -1,10 +1,7 @@
 ﻿// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
-
-// This file is subject to the terms and conditions defined in
-// file 'LICENSE.txt', which is part of this source code package.
+// TrakHound Inc. licenses this file to you under the MIT license.
 
 using Microsoft.Extensions.Logging;
-//using MTConnect.Adapters.Shdr;
 using System;
 
 namespace MTConnect.Applications.Loggers

@@ -1,7 +1,5 @@
 ﻿// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
-
-// This file is subject to the terms and conditions defined in
-// file 'LICENSE.txt', which is part of this source code package.
+// TrakHound Inc. licenses this file to you under the MIT license.
 
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -24,11 +22,11 @@ using System.Threading.Tasks;
 
 namespace MTConnect.Applications
 {
-    public class AgentService : IHostedService
+    public class MTConnectAgentService : IHostedService
     {
         private readonly AgentGatewayConfiguration _configuration;
         private readonly IMTConnectAgentBroker _mtconnectAgent;
-        private readonly ILogger<AgentService> _logger;
+        private readonly ILogger<MTConnectAgentService> _logger;
         private readonly AgentLogger _agentLogger;
         private readonly AgentMetricLogger _agentMetricLogger;
         private readonly AgentValidationLogger _agentValidationLogger;
@@ -36,13 +34,13 @@ namespace MTConnect.Applications
         private System.Timers.Timer _metricsTimer;
 
 
-        public AgentService(
+        public MTConnectAgentService(
             AgentGatewayConfiguration configuration,
             IMTConnectAgentBroker mtconnectAgent, 
             AgentLogger agentLogger,
             AgentMetricLogger agentMetricLogger,
             AgentValidationLogger agentValidationLogger,
-            ILogger<AgentService> logger
+            ILogger<MTConnectAgentService> logger
             )
         {
             _configuration = configuration;

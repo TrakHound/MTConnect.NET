@@ -1,10 +1,7 @@
 ﻿// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
-
-// This file is subject to the terms and conditions defined in
-// file 'LICENSE.txt', which is part of this source code package.
+// TrakHound Inc. licenses this file to you under the MIT license.
 
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using MTConnect.Adapters.Shdr;
 using MTConnect.Agents;
 using MTConnect.Applications.Loggers;
@@ -19,12 +16,11 @@ using System.Threading.Tasks;
 
 namespace MTConnect.Applications
 {
-    public class AgentService : IHostedService
+    public class MTConnectAgentService : IHostedService
     {
         private readonly HttpShdrAgentConfiguration _configuration;
         private readonly IMTConnectAgentBroker _mtconnectAgent;
         private IAgentConfigurationFileWatcher _agentConfigurationWatcher;
-        private readonly ILogger<AgentService> _logger;
         private readonly AgentLogger _agentLogger;
         private readonly AgentMetricLogger _agentMetricLogger;
         private readonly AdapterLogger _adapterLogger;
@@ -33,20 +29,18 @@ namespace MTConnect.Applications
         private System.Timers.Timer _metricsTimer;
 
 
-        public AgentService(
+        public MTConnectAgentService(
             HttpShdrAgentConfiguration configuration,
             IMTConnectAgentBroker mtconnectAgent, 
             AgentLogger agentLogger,
             AgentMetricLogger agentMetricLogger,
             AgentValidationLogger agentValidationLogger,
             AdapterLogger adapterLogger,
-            AdapterShdrLogger adapterShdrLogger,
-            ILogger<AgentService> logger
+            AdapterShdrLogger adapterShdrLogger
             )
         {
             _configuration = configuration;
             _mtconnectAgent = mtconnectAgent;
-            _logger = logger;
             _agentLogger = agentLogger;
             _agentMetricLogger = agentMetricLogger;
             _adapterLogger = adapterLogger;
@@ -133,6 +127,7 @@ namespace MTConnect.Applications
             if (_metricsTimer != null) _metricsTimer.Dispose();
         }
 
+
         private void AddAdapter(IShdrAdapterConfiguration configuration, IDevice device, bool initializeDataItems = true, string idSuffix = null)
         {
             if (configuration != null)
@@ -155,6 +150,7 @@ namespace MTConnect.Applications
                 adapterClient.Start();
             }
         }
+
 
         private void StartMetrics()
         {
