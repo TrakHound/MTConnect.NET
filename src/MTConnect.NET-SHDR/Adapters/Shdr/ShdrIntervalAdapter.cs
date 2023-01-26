@@ -77,8 +77,8 @@ namespace MTConnect.Adapters.Shdr
 
         protected virtual void OnIntervalElapsed()
         {
-            // Send only the current items
-            SendCurrent();
+            // Send only the changed items
+            SendChanged();
         }
     }
 }

@@ -2,6 +2,9 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Configurations;
+using MTConnect.Devices;
+using MTConnect.Devices.DataItems.Samples;
+using MTConnect.Observations;
 using MTConnect.Observations.Input;
 using MTConnect.Shdr;
 using System;
@@ -43,7 +46,9 @@ namespace MTConnect.Adapters.Shdr
         private readonly Dictionary<string, ShdrTable> _currentTables = new Dictionary<string, ShdrTable>();
         private readonly Dictionary<string, ShdrTable> _lastTables = new Dictionary<string, ShdrTable>();
 
-        private readonly Dictionary<string, ShdrAsset> _assets = new Dictionary<string, ShdrAsset>();
+        private readonly Dictionary<string, ShdrAsset> _currentAssets = new Dictionary<string, ShdrAsset>();
+        private readonly Dictionary<string, ShdrAsset> _lastAssets = new Dictionary<string, ShdrAsset>();
+
         private readonly Dictionary<string, ShdrDevice> _devices = new Dictionary<string, ShdrDevice>();
 
 
@@ -309,19 +314,20 @@ namespace MTConnect.Adapters.Shdr
         #region "Send"
 
         /// <summary>
-        /// Sends the most recent Items to the Agent
+        /// Sends all Items that have changed since last sent to the Agent
         /// </summary>
-        public void SendCurrent()
+        public void SendChanged()
         {
-            WriteCurrentDataItems();
-            WriteCurrentMessages();
-            WriteCurrentConditions();
-            WriteCurrentTimeSeries();
-            WriteCurrentDataSets();
-            WriteCurrentTables();
+            WriteChangedDataItems();
+            WriteChangedMessages();
+            WriteChangedConditions();
+            WriteChangedTimeSeries();
+            WriteChangedDataSets();
+            WriteChangedTables();
+            WriteChangedAssets();
 
             // Call Overridable Method
-            OnCurrentSent();
+            OnChangedSent();
         }
 
         /// <summary>
@@ -343,7 +349,7 @@ namespace MTConnect.Adapters.Shdr
         }
 
 
-        protected virtual void OnCurrentSent() { }
+        protected virtual void OnChangedSent() { }
 
         protected virtual void OnLastSent() { }
 
@@ -617,6 +623,76 @@ namespace MTConnect.Adapters.Shdr
         }
 
 
+        public bool SendDataItem(string dataItemId, object value)
+        {
+            return SendDataItem(dataItemId, value, UnixDateTime.Now);
+        }
+
+        public bool SendDataItem(string dataItemId, object value, DateTime timestamp)
+        {
+            return SendDataItem(dataItemId, value, timestamp.ToUnixTime());
+        }
+
+        public bool SendDataItem(string dataItemId, object value, long timestamp)
+        {
+            return SendDataItem(new ShdrDataItem(dataItemId, value, timestamp));
+        }
+
+        public bool SendDataItem(ObservationInput observation)
+        {
+            return SendDataItem(new ShdrDataItem(observation));
+        }
+
+        public bool SendDataItem(ShdrDataItem dataItem)
+        {
+            if (dataItem != null)
+            {
+                // Set the DeviceKey
+                dataItem.DeviceKey = DeviceKey;
+
+                // Set Timestamp (if not already set)
+                if (dataItem.Timestamp <= 0) dataItem.Timestamp = UnixDateTime.Now;
+
+                // Remove from Current
+                lock (_lock) _currentDataItems.Remove(dataItem.DataItemKey);
+
+                // Call Overridable Method
+                OnDataItemAdd(dataItem);
+
+                // Create SHDR string to send
+                var shdrLine = dataItem.ToString();
+
+                var success = WriteLine(shdrLine);
+                if (success)
+                {
+                    // Update Last Sent DataItems
+                    UpdateLastDataItems(new List<ShdrDataItem> { dataItem });
+                }
+
+                return success;
+            }
+
+            return false;
+        }
+
+        public bool SendDataItems(IEnumerable<ShdrDataItem> dataItems)
+        {
+            var success = true;
+
+            if (!dataItems.IsNullOrEmpty())
+            {
+                foreach (var dataItem in dataItems)
+                {
+                    if (!SendDataItem(dataItem)) success = false;
+                }
+
+                return success;
+            }
+
+            return false;
+        }
+
+
         protected void UpdateLastDataItems(IEnumerable<ShdrDataItem> dataItems)
         {
             if (!dataItems.IsNullOrEmpty())
@@ -638,7 +714,7 @@ namespace MTConnect.Adapters.Shdr
         }
 
 
-        protected bool WriteCurrentDataItems()
+        protected bool WriteChangedDataItems()
         {
             // Get a list of all Current DataItems
             List<ShdrDataItem> dataItems;
@@ -821,6 +897,86 @@ namespace MTConnect.Adapters.Shdr
         }
 
 
+        public bool SendMessage(string dataItemId, string value)
+        {
+            return SendMessage(dataItemId, value, UnixDateTime.Now);
+        }
+
+        public bool SendMessage(string dataItemId, string value, DateTime timestamp)
+        {
+            return SendMessage(dataItemId, value, timestamp.ToUnixTime());
+        }
+
+        public bool SendMessage(string dataItemId, string value, long timestamp)
+        {
+            return SendMessage(new ShdrMessage(dataItemId, value, timestamp));
+        }
+
+        public bool SendMessage(string dataItemId, string value, string nativeCode)
+        {
+            return SendMessage(dataItemId, value, nativeCode, UnixDateTime.Now);
+        }
+
+        public bool SendMessage(string dataItemId, string value, string nativeCode, DateTime timestamp)
+        {
+            return SendMessage(dataItemId, value, nativeCode, timestamp.ToUnixTime());
+        }
+
+        public bool SendMessage(string dataItemId, string value, string nativeCode, long timestamp)
+        {
+            return SendMessage(new ShdrMessage(dataItemId, value, nativeCode, timestamp));
+        }
+
+        public bool SendMessage(ShdrMessage message)
+        {
+            if (message != null)
+            {
+                // Set the DeviceKey
+                message.DeviceKey = DeviceKey;
+
+                // Set Timestamp (if not already set)
+                if (message.Timestamp <= 0) message.Timestamp = UnixDateTime.Now;
+
+                // Remove from Current
+                lock (_lock) _currentMessages.Remove(message.DataItemKey);
+
+                // Call Overridable Method
+                OnMessageAdd(message);
+
+                // Create SHDR string to send
+                var shdrLine = message.ToString();
+
+                var success = WriteLine(shdrLine);
+                if (success)
+                {
+                    // Update Last Sent Messages
+                    UpdateLastMessages(new List<ShdrMessage> { message });
+                }
+
+                return success;
+            }
+
+            return false;
+        }
+
+        public bool SendMessages(IEnumerable<ShdrMessage> messages)
+        {
+            var success = true;
+
+            if (!messages.IsNullOrEmpty())
+            {
+                foreach (var message in messages)
+                {
+                    if (!SendMessage(message)) success = false;
+                }
+
+                return success;
+            }
+
+            return false;
+        }
+
+
         protected void UpdateLastMessages(IEnumerable<ShdrMessage> messages)
         {
             if (!messages.IsNullOrEmpty())
@@ -842,7 +998,7 @@ namespace MTConnect.Adapters.Shdr
         }
 
 
-        protected bool WriteCurrentMessages()
+        protected bool WriteChangedMessages()
         {
             // Get a list of all Current Messages
             List<ShdrMessage> messages;
@@ -1014,6 +1170,68 @@ namespace MTConnect.Adapters.Shdr
         }
 
 
+        public bool SendCondition(ShdrCondition condition)
+        {
+            if (condition != null)
+            {
+                // Set the DeviceKey
+                condition.DeviceKey = DeviceKey;
+
+                // Set Timestamp (if not already set)
+                if (!condition.FaultStates.IsNullOrEmpty())
+                {
+                    foreach (var faultState in condition.FaultStates)
+                    {
+                        // Set Timestamp (if not already set)
+                        if (faultState.Timestamp <= 0) faultState.Timestamp = UnixDateTime.Now;
+                    }
+                }
+
+                // Remove from Current
+                lock (_lock) _currentConditions.Remove(condition.DataItemKey);
+
+                // Call Overridable Method
+                OnConditionAdd(condition);
+
+                // Create SHDR string to send
+                var shdrLine = condition.ToString();
+
+                var success = WriteLine(shdrLine);
+                if (success)
+                {
+                    // Update Last Sent DataItems
+                    UpdateLastConditions(new List<ShdrCondition> { condition });
+                }
+
+                return success;
+            }
+
+            return false;
+        }
+
+        public bool SendCondition(ConditionObservationInput condition)
+        {
+            return SendCondition(new ShdrFaultState(condition));
+        }
+
+        public bool SendConditions(IEnumerable<ShdrCondition> conditions)
+        {
+            var success = true;
+
+            if (!conditions.IsNullOrEmpty())
+            {
+                foreach (var condition in conditions)
+                {
+                    if (!SendCondition(condition)) success = false;
+                }
+
+                return success;
+            }
+
+            return false;
+        }
+
+
         protected void UpdateLastConditions(IEnumerable<ShdrCondition> conditions)
         {
             if (!conditions.IsNullOrEmpty())
@@ -1030,7 +1248,7 @@ namespace MTConnect.Adapters.Shdr
         }
 
 
-        protected bool WriteCurrentConditions()
+        protected bool WriteChangedConditions()
         {
             // Get a list of all Current Conditions
             List<ShdrCondition> conditions;
@@ -1212,6 +1430,77 @@ namespace MTConnect.Adapters.Shdr
         }
 
 
+        public bool SendTimeSeries(ShdrTimeSeries timeSeries)
+        {
+            if (timeSeries != null)
+            {
+                // Set the DeviceKey
+                timeSeries.DeviceKey = DeviceKey;
+
+                // Set Timestamp (if not already set)
+                if (timeSeries.Timestamp <= 0) timeSeries.Timestamp = UnixDateTime.Now;
+
+                // Remove from Current
+                lock (_lock) _currentTimeSeries.Remove(timeSeries.DataItemKey);
+
+                // Call Overridable Method
+                OnTimeSeriesAdd(timeSeries);
+
+                // Create SHDR string to send
+                var shdrLine = timeSeries.ToString();
+
+                var success = WriteLine(shdrLine);
+                if (success)
+                {
+                    // Update Last Sent TimeSeries
+                    UpdateLastTimeSeries(new List<ShdrTimeSeries> { timeSeries });
+                }
+
+                return success;
+            }
+
+            return false;
+        }
+
+        public bool SendTimeSeries(TimeSeriesObservationInput observation)
+        {
+            return SendTimeSeries(new ShdrTimeSeries(observation));
+        }
+
+        public bool SendTimeSeries(IEnumerable<ShdrTimeSeries> timeSeries)
+        {
+            var success = true;
+
+            if (!timeSeries.IsNullOrEmpty())
+            {
+                foreach (var item in timeSeries)
+                {
+                    if (!SendTimeSeries(item)) success = false;
+                }
+
+                return success;
+            }
+
+            return false;
+        }
+
+        public bool SendTimeSeries(IEnumerable<TimeSeriesObservationInput> timeSeries)
+        {
+            if (!timeSeries.IsNullOrEmpty())
+            {
+                var items = new List<ShdrTimeSeries>();
+                foreach (var item in timeSeries)
+                {
+                    items.Add(new ShdrTimeSeries(item));
+                }
+
+                return SendTimeSeries(items);
+            }
+
+            return false;
+        }
+
+
         protected void UpdateLastTimeSeries(IEnumerable<ShdrTimeSeries> timeSeries)
         {
             if (!timeSeries.IsNullOrEmpty())
@@ -1233,7 +1522,7 @@ namespace MTConnect.Adapters.Shdr
         }
 
 
-        protected bool WriteCurrentTimeSeries()
+        protected bool WriteChangedTimeSeries()
         {
             // Get a list of all Current TimeSeriess
             List<ShdrTimeSeries> timeSeries;
@@ -1412,7 +1701,78 @@ namespace MTConnect.Adapters.Shdr
         }
 
 
-        protected void UpdateLastDataSet(IEnumerable<ShdrDataSet> dataSets)
+        public bool SendDataSet(ShdrDataSet dataSet)
+        {
+            if (dataSet != null)
+            {
+                // Set the DeviceKey
+                dataSet.DeviceKey = DeviceKey;
+
+                // Set Timestamp (if not already set)
+                if (dataSet.Timestamp <= 0) dataSet.Timestamp = UnixDateTime.Now;
+
+                // Remove from Current
+                lock (_lock) _currentDataSets.Remove(dataSet.DataItemKey);
+
+                // Call Overridable Method
+                OnDataSetAdd(dataSet);
+
+                // Create SHDR string to send
+                var shdrLine = dataSet.ToString();
+
+                var success = WriteLine(shdrLine);
+                if (success)
+                {
+                    // Update Last Sent TimeSeries
+                    UpdateLastDataSets(new List<ShdrDataSet> { dataSet });
+                }
+
+                return success;
+            }
+
+            return false;
+        }
+
+        public bool SendDataSet(DataSetObservationInput observation)
+        {
+            return SendDataSet(new ShdrDataSet(observation));
+        }
+
+        public bool SendDataSets(IEnumerable<ShdrDataSet> dataSets)
+        {
+            var success = true;
+
+            if (!dataSets.IsNullOrEmpty())
+            {
+                foreach (var item in dataSets)
+                {
+                    if (!SendDataSet(item)) success = false;
+                }
+
+                return success;
+            }
+
+            return false;
+        }
+
+        public bool SendDataSets(IEnumerable<DataSetObservationInput> dataSets)
+        {
+            if (!dataSets.IsNullOrEmpty())
+            {
+                var items = new List<ShdrDataSet>();
+                foreach (var item in dataSets)
+                {
+                    items.Add(new ShdrDataSet(item));
+                }
+
+                return SendDataSets(items);
+            }
+
+            return false;
+        }
+
+
+        protected void UpdateLastDataSets(IEnumerable<ShdrDataSet> dataSets)
         {
             if (!dataSets.IsNullOrEmpty())
             {
@@ -1433,7 +1793,7 @@ namespace MTConnect.Adapters.Shdr
         }
 
 
-        protected bool WriteCurrentDataSets()
+        protected bool WriteChangedDataSets()
         {
             // Get a list of all Current DataSets
             List<ShdrDataSet> dataSets;
@@ -1467,7 +1827,7 @@ namespace MTConnect.Adapters.Shdr
                 if (success)
                 {
                     // Update Last Sent DataSet
-                    UpdateLastDataSet(dataSets);
+                    UpdateLastDataSets(dataSets);
                 }
 
                 return success;
@@ -1500,7 +1860,7 @@ namespace MTConnect.Adapters.Shdr
                 if (success)
                 {
                     // Update Last Sent DataSet
-                    UpdateLastDataSet(dataSets);
+                    UpdateLastDataSets(dataSets);
                 }
 
                 return success;
@@ -1612,7 +1972,78 @@ namespace MTConnect.Adapters.Shdr
         }
 
 
-        protected void UpdateLastTable(IEnumerable<ShdrTable> tables)
+        public bool SendTable(ShdrTable table)
+        {
+            if (table != null)
+            {
+                // Set the DeviceKey
+                table.DeviceKey = DeviceKey;
+
+                // Set Timestamp (if not already set)
+                if (table.Timestamp <= 0) table.Timestamp = UnixDateTime.Now;
+
+                // Remove from Current
+                lock (_lock) _currentTables.Remove(table.DataItemKey);
+
+                // Call Overridable Method
+                OnTableAdd(table);
+
+                // Create SHDR string to send
+                var shdrLine = table.ToString();
+
+                var success = WriteLine(shdrLine);
+                if (success)
+                {
+                    // Update Last Sent
+                    UpdateLastTables(new List<ShdrTable> { table });
+                }
+
+                return success;
+            }
+
+            return false;
+        }
+
+        public bool SendTable(TableObservationInput observation)
+        {
+            return SendTable(new ShdrTable(observation));
+        }
+
+        public bool SendTables(IEnumerable<ShdrTable> tables)
+        {
+            var success = true;
+
+            if (!tables.IsNullOrEmpty())
+            {
+                foreach (var item in tables)
+                {
+                    if (!SendTable(item)) success = false;
+                }
+
+                return success;
+            }
+
+            return false;
+        }
+
+        public bool SendTables(IEnumerable<TableObservationInput> tables)
+        {
+            if (!tables.IsNullOrEmpty())
+            {
+                var items = new List<ShdrTable>();
+                foreach (var item in tables)
+                {
+                    items.Add(new ShdrTable(item));
+                }
+
+                return SendTables(items);
+            }
+
+            return false;
+        }
+
+
+        protected void UpdateLastTables(IEnumerable<ShdrTable> tables)
         {
             if (!tables.IsNullOrEmpty())
             {
@@ -1633,7 +2064,7 @@ namespace MTConnect.Adapters.Shdr
         }
 
 
-        protected bool WriteCurrentTables()
+        protected bool WriteChangedTables()
         {
             // Get a list of all Current Tables
             List<ShdrTable> tables;
@@ -1667,7 +2098,7 @@ namespace MTConnect.Adapters.Shdr
                 if (success)
                 {
                     // Update Last Sent Table
-                    UpdateLastTable(tables);
+                    UpdateLastTables(tables);
                 }
 
                 return success;
@@ -1700,7 +2131,7 @@ namespace MTConnect.Adapters.Shdr
                 if (success)
                 {
                     // Update Last Sent Table
-                    UpdateLastTable(tables);
+                    UpdateLastTables(tables);
                 }
 
                 return success;
@@ -1743,6 +2174,9 @@ namespace MTConnect.Adapters.Shdr
 
         #region "Assets"
 
+        protected virtual void OnAssetAdd(ShdrAsset asset) { }
+
+
         /// <summary>
         /// Add the specified MTConnect Asset and sends it to the Agent
         /// </summary>
@@ -1766,18 +2200,15 @@ namespace MTConnect.Adapters.Shdr
                 lock (_lock)
                 {
                     // Check to see if Asset already exists in list
-                    var existing = _assets.FirstOrDefault(o => o.Key == asset.AssetId).Value;
+                    var existing = _lastAssets.FirstOrDefault(o => o.Key == asset.AssetId).Value;
                     if (existing == null)
                     {
-                        _assets.Add(asset.AssetId, asset);
+                        _lastAssets.Add(asset.AssetId, asset);
                     }
                     else
                     {
-                        if (existing.ChangeId != asset.ChangeId)
-                        {
-                            _assets.Remove(asset.AssetId);
-                            _assets.Add(asset.AssetId, asset);
-                        }
+                        _lastAssets.Remove(asset.AssetId);
+                        _lastAssets.Add(asset.AssetId, asset);
                     }
                 }
 
@@ -1819,11 +2250,156 @@ namespace MTConnect.Adapters.Shdr
             }
         }
 
+
+        /// <summary>
+        /// Add the specified MTConnect Asset
+        /// </summary>
+        /// <param name="asset">The Asset to add</param>
+        public void AddAsset(Assets.IAsset asset)
+        {
+            AddAsset(new ShdrAsset(asset));
+        }
+
+        /// <summary>
+        /// Add the specified MTConnect Asset
+        /// </summary>
+        /// <param name="asset">The Asset to add</param>
+        private void AddAsset(ShdrAsset asset)
+        {
+            if (asset != null)
+            {
+                // Set Timestamp (if not already set)
+                if (asset.Timestamp <= 0) asset.Timestamp = UnixDateTime.Now;
+
+                // Get the Current Asset (if exists)
+                ShdrAsset currentAsset;
+                lock (_lock) _currentAssets.TryGetValue(asset.AssetId, out currentAsset);
+
+                // Check to see if new Asset is the same as the Current
+                var add = true;
+                if (currentAsset != null && FilterDuplicates)
+                {
+                    add = !ObjectExtensions.ByteArraysEqual(asset.ChangeId, currentAsset.ChangeId);
+                }
+
+                if (add)
+                {
+                    // Add to Current
+                    lock (_lock)
+                    {
+                        _currentAssets.Remove(asset.AssetId);
+                        _currentAssets.Add(asset.AssetId, asset);
+                    }
+
+                    // Call Overridable Method
+                    OnAssetAdd(asset);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Add the specified MTConnect Assets
+        /// </summary>
+        /// <param name="assets">The Assets to add</param>
+        public void AddAssets(IEnumerable<Assets.IAsset> assets)
+        {
+            if (!assets.IsNullOrEmpty())
+            {
+                var items = new List<ShdrAsset>();
+                foreach (var item in assets)
+                {
+                    items.Add(new ShdrAsset(item));
+                }
+
+                AddAssets(items);
+            }
+        }
+
+        /// <summary>
+        /// Add the specified MTConnect Assets
+        /// </summary>
+        /// <param name="assets">The Assets to send</param>
+        private void AddAssets(IEnumerable<ShdrAsset> assets)
+        {
+            if (!assets.IsNullOrEmpty())
+            {
+                foreach (var item in assets)
+                {
+                    AddAsset(item);
+                }
+            }
+        }
+
+
+        protected void UpdateLastAsset(IEnumerable<ShdrAsset> assets)
+        {
+            if (!assets.IsNullOrEmpty())
+            {
+                // Find the most recent Asset for each AssetId
+                var assetKeys = assets.Select(o => o.AssetId).Distinct();
+                foreach (var assetKey in assetKeys)
+                {
+                    var keyAssets = assets.Where(o => o.AssetId == assetKey);
+                    var mostRecent = keyAssets.OrderByDescending(o => o.Timestamp).FirstOrDefault();
+
+                    lock (_lock)
+                    {
+                        _lastAssets.Remove(mostRecent.AssetId);
+                        _lastAssets.Add(mostRecent.AssetId, mostRecent);
+                    }
+                }
+            }
+        }
+
+
+        protected bool WriteChangedAssets()
+        {
+            // Get a list of all Current Assets
+            List<ShdrAsset> assets;
+            lock (_lock)
+            {
+                // Get List of Table that need to be Updated
+                assets = new List<ShdrAsset>();
+                var items = _currentAssets.Values;
+                foreach (var item in items)
+                {
+                    if (!item.IsSent)
+                    {
+                        item.IsSent = true;
+                        assets.Add(item);
+                    }
+                }
+            }
+
+            if (!assets.IsNullOrEmpty())
+            {
+                bool success = false;
+
+                foreach (var item in assets)
+                {
+                    // Create SHDR string to send
+                    var shdrLine = item.ToString(MultilineAssets);
+                    success = WriteLine(shdrLine);
+                    if (!success) break;
+                }
+
+                if (success)
+                {
+                    // Update Last Sent Asset
+                    UpdateLastAsset(assets);
+                }
+
+                return success;
+            }
+
+            return false;
+        }
+
         protected bool WriteAllAssets()
         {
             // Get a list of all Assets
             IEnumerable<ShdrAsset> assets;
-            lock (_lock) assets = _assets.Values.ToList();
+            lock (_lock) assets = _lastAssets.Values.ToList();
 
             if (!assets.IsNullOrEmpty())
             {

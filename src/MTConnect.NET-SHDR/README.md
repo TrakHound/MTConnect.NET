@@ -4,7 +4,7 @@ Classes to handle the SHDR Agent Adapter Protocol associated with the MTConnect 
 ## Overview
 The ShdrAdapter classes handle the TCP connection to the Agent:
 
-- [ShdrAdapter](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-SHDR/Adapters/Shdr/ShdrAdapter.cs) : Sends the most recent values On-Demand using the SendCurrent() method. This is used when full control of the communication is needed.
+- [ShdrAdapter](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-SHDR/Adapters/Shdr/ShdrAdapter.cs) : Sends the most recent values On-Demand using the SendChanged() method. This is used when full control of the communication is needed.
 - [ShdrIntervalAdapter](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-SHDR/Adapters/Shdr/ShdrIntervalAdapter.cs) : Sends the most recent values at the specified Interval. This is used when a set interval is adequate and the most recent value is all that is needed
 - [ShdrQueueAdapter](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-SHDR/Adapters/Shdr/ShdrQueueAdapter.cs) : Queues all values that are sent from the PLC and sends them all on demand using the SendBuffer() method. This is used when all values are needed and full control of the communication is needed.
 - [ShdrIntervalQueueAdapter](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-SHDR/Adapters/Shdr/ShdrIntervalQueueAdapter.cs) : Queues all values that are sent from the PLC and sends any queued values at the specified Interval. This is used when all values are needed but an interval is adequate.
@@ -24,7 +24,7 @@ There are several different ways to setup and add data to the ShdrAdapter
 
 ### ShdrAdapter
 The example below creates a new ShdrAdapter for the Device "OKUMA.Lathe".
-The added DataItem will be sent using the "adapter.SendCurrent()" method
+The added DataItem will be sent using the "adapter.SendChanged()" method
 ```c#
 using MTConnect.Adapters.Shdr;
 
@@ -32,7 +32,7 @@ ShdrAdapter adapter = new ShdrAdapter("OKUMA.Lathe");
 adapter.Start();
 
 adapter.AddDataItem("L2estop", "ARMED");
-adapter.SendCurrent();
+adapter.SendChanged();
 ```
 #### SHDR Output
 ```
@@ -149,6 +149,12 @@ adapter.AddDataItem(partCountDataItem);
 adapter.AddDataItem(feedrateActualDataItem);
 ```
 
+### Send DataItem Manually
+DataItems can be added to the Adapter and immediately send to the Agent using the "SendDataItem()" method
+```c#
+adapter.SendDataItem("L2estop", "ARMED");
+```
+
 ## Conditions
 The ShdrCondition class is used to send MTConnect Condition data using the 5 primary values Level, NativeCode, NativeSeverity, Qualifier, and Message (referred to as Result in the MTConnect Standard). 
 A Condition is made up of 1 or more FaultStates. Each FaultState is represented by the ShdrFaultState class.
@@ -216,6 +222,13 @@ condition.AddFaultState(faultState);
 adapter.AddCondition(condition);
 ```
 
+### Send Condition Manually
+Conditions can be added to the Adapter and immediately send to the Agent using the "SendCondition()" method
+```c#
+ShdrCondition condition = new ShdrCondition("L2p1system", ConditionLevel.FAULT);
+adapter.SendCondition(condition);
+```
+
 ## TimeSeries
 ```c#
 List<double> samples = new List<double>();
@@ -230,6 +243,25 @@ ShdrTimeSeries timeSeries = new ShdrTimeSeries("L2p1Sensor", samples, 100);
 
 adapter.AddTimeSeries(timeSeries);
 ```
+### Output
+```
+2023-01-26T20:39:28.1540686Z|L2p1Sensor|6|100|12 15 14 18 25 30
+```
+
+### Send TimeSeries Manually
+TimeSeries can be added to the Adapter and immediately send to the Agent using the "SendTimeSeries()" method
+```c#
+List<double> samples = new List<double>();
+samples.Add(12);
+samples.Add(15);
+samples.Add(14);
+samples.Add(18);
+samples.Add(25);
+samples.Add(30);
+
+ShdrTimeSeries timeSeries = new ShdrTimeSeries("L2p1Sensor", samples, 100);
+adapter.SendTimeSeries(timeSeries);
+```
 
 ## DataSets
 ```c#
@@ -240,6 +272,21 @@ dataSetEntries.Add(new DataSetEntry("V2", 205));
 ShdrDataSet dataSet = new ShdrDataSet("L2p1Variables", dataSetEntries);
 
 adapter.AddDataSet(dataSet);
+```
+### Output
+```
+2023-01-26T20:40:30.6718334Z|L2p1Variables|V1=5 V2=205
+```
+
+### Send DataSets Manually
+DataSets can be added to the Adapter and immediately send to the Agent using the "SendDataSets()" method
+```c#
+List<DataSetEntry> dataSetEntries = new List<DataSetEntry>();
+dataSetEntries.Add(new DataSetEntry("V1", 5));
+dataSetEntries.Add(new DataSetEntry("V2", 205));
+
+ShdrDataSet dataSet = new ShdrDataSet("L2p1Variables", dataSetEntries);
+adapter.SendDataSets(dataSet);
 ```
 
 ## Tables
@@ -271,9 +318,43 @@ ShdrTable table = new ShdrTable("L2p1ToolTable", tableEntries);
 
 adapter.AddTable(table);
 ```
+### Output
+```
+2023-01-26T20:40:55.8702675Z|L2p1ToolTable|T1={LENGTH=7.123 DIAMETER=0.494 TOOL_LIFE=0.35} T2={LENGTH=10.456 DIAMETER=0.125 TOOL_LIFE=1} T3={LENGTH=6.251 DIAMETER=1.249 TOOL_LIFE=0.93}
+```
+
+### Send Tables Manually
+Tables can be added to the Adapter and immediately send to the Agent using the "SendTables()" method
+```c#
+List<TableEntry> tableEntries = new List<TableEntry>();
+
+// Tool 1
+List<TableCell> t1Cells = new List<TableCell>();
+t1Cells.Add(new TableCell("LENGTH", 7.123));
+t1Cells.Add(new TableCell("DIAMETER", 0.494));
+t1Cells.Add(new TableCell("TOOL_LIFE", 0.35));
+tableEntries.Add(new TableEntry("T1", t1Cells));
+
+// Tool 2
+List<TableCell> t2Cells = new List<TableCell>();
+t2Cells.Add(new TableCell("LENGTH", 10.456));
+t2Cells.Add(new TableCell("DIAMETER", 0.125));
+t2Cells.Add(new TableCell("TOOL_LIFE", 1));
+tableEntries.Add(new TableEntry("T2", t2Cells));
+
+// Tool 3
+List<TableCell> t3Cells = new List<TableCell>();
+t3Cells.Add(new TableCell("LENGTH", 6.251));
+t3Cells.Add(new TableCell("DIAMETER", 1.249));
+t3Cells.Add(new TableCell("TOOL_LIFE", 0.93));
+tableEntries.Add(new TableEntry("T3", t3Cells));
+
+ShdrTable table = new ShdrTable("L2p1ToolTable", tableEntries);
+adapter.SendTables(table);
+```
 
 ## Assets
-MTConnect Assets are sent by first defining the Asset using the appropriate class (CuttingToolAsset, FileAsset, etc.) then using the "adapter.SendAsset()".
+MTConnect Assets are sent by first defining the Asset using the appropriate class (CuttingToolAsset, FileAsset, etc.) then using the "adapter.AddAsset()".
 
 ### CuttingTool Asset
 ```c#
@@ -301,7 +382,7 @@ tool.CuttingToolLifeCycle.CutterStatus.Add(CutterStatus.NEW);
 tool.CuttingToolLifeCycle.CutterStatus.Add(CutterStatus.MEASURED);
 tool.DateTime = DateTime.Now;
 
-adapter.SendAsset(tool);
+adapter.AddAsset(tool);
 ```
 #### Output (with MultilineAssets = true)
 ```
@@ -347,9 +428,9 @@ file.ApplicationType = ApplicationType.DATA;
 file.FileLocation = new FileLocation(@"C:\temp\file-123.txt");
 file.CreationTime = DateTime.Now;
 
-adapter.SendAsset(file);
+adapter.AddAsset(file);
 ```
-### Output (with MultilineAssets = true)
+#### Output (with MultilineAssets = true)
 ```
 2023-01-26T18:01:50.3085245Z|@ASSET@|file.test|File|--multiline--6UH71Y7IYW
 <File assetId="file.test" timestamp="2023-01-26T18:01:49.9929867Z" name="file-123.txt" mediaType="text/plain" applicationCategory="DEVICE" applicationType="DATA" size="12346" versionId="test-v1" state="PRODUCTION">
@@ -357,6 +438,72 @@ adapter.SendAsset(file);
   <CreationTime>2023-01-26T13:01:49.9939538-05:00</CreationTime>
 </File>
 --multiline--6UH71Y7IYW
+```
+
+### Add Multiple Assets
+```c#
+using MTConnect.Assets.CuttingTools;
+using MTConnect.Assets.CuttingTools.Measurements;
+using MTConnect.Assets.Files;
+
+var assets = new List<IAsset>();
+
+
+// Add the Cutting Tool Asset to the "assets" list variable
+var tool = new CuttingToolAsset();
+tool.AssetId = "5.12";
+tool.ToolId = "12";
+tool.CuttingToolLifeCycle = new CuttingToolLifeCycle
+{
+    Location = new Location { Type = LocationType.SPINDLE },
+    ProgramToolNumber = "12",
+    ProgramToolGroup = "5"
+};
+tool.CuttingToolLifeCycle.Measurements.Add(new FunctionalLengthMeasurement(7.6543));
+tool.CuttingToolLifeCycle.Measurements.Add(new CuttingDiameterMaxMeasurement(0.375));
+tool.CuttingToolLifeCycle.CuttingItems.Add(new CuttingItem
+{
+    ItemId = "12.1",
+    Locus = CuttingItemLocas.FLUTE.ToString()
+});
+tool.CuttingToolLifeCycle.CutterStatus.Add(CutterStatus.AVAILABLE);
+tool.CuttingToolLifeCycle.CutterStatus.Add(CutterStatus.NEW);
+tool.CuttingToolLifeCycle.CutterStatus.Add(CutterStatus.MEASURED);
+tool.DateTime = DateTime.Now;
+
+assets.Add(tool);
+
+
+// Add the File Asset to the "assets" list variable
+var file = new FileAsset();
+file.DateTime = DateTime.UtcNow;
+file.AssetId = "file.test";
+file.Size = 12346;
+file.VersionId = "test-v1";
+file.State = FileState.PRODUCTION;
+file.Name = "file-123.txt";
+file.MediaType = "text/plain";
+file.ApplicationCategory = ApplicationCategory.DEVICE;
+file.ApplicationType = ApplicationType.DATA;
+file.FileLocation = new FileLocation(@"C:\temp\file-123.txt");
+file.CreationTime = DateTime.Now;
+
+assets.Add(file);
+
+adapter.AddAssets(assets);
+```
+
+### Send Asset Manually
+Assets can be added to the Adapter and immediately send to the Agent using the "SendAsset()" method
+```c#
+using MTConnect.Assets.Files;
+
+var file = new FileAsset();
+// ..
+// ..
+// ..
+
+adapter.SendAsset(file);
 ```
 
 ### Remove Individual Asset by AssetId

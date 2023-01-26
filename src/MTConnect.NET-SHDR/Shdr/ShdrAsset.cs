@@ -27,6 +27,8 @@ namespace MTConnect.Shdr
         private const string AssetRemoveAllPattern = $"{AssetRemoveAllDesignator}\\|(.*)";
         private const string AssetUpdatePattern = $"{AssetUpdateDesignator}\\|(.*)";
 
+        private static readonly Encoding _utf8 = new UTF8Encoding();
+
         private static readonly Regex _assetIdRegex = new Regex(AssetIdPattern);
         private static readonly Regex _assetTypeRegex = new Regex(AssetTypePattern);
         private static readonly Regex _multilineBeginRegex = new Regex(AssetMutlilineBeginPattern);
@@ -66,14 +68,25 @@ namespace MTConnect.Shdr
         public long Timestamp { get; set; }
 
         /// <summary>
-        /// A MD5 Hash of the Asset that can be used for comparison
+        /// An MD5 Hash of the Asset that can be used for comparison
         /// </summary>
-        public string ChangeId
+        public byte[] ChangeId
         {
             get
             {
                 // Normalize Timestamp in order to compare
-                return ToString(new ShdrAsset(AssetId, AssetType, Xml, 0));
+                return _utf8.GetBytes(ToString(new ShdrAsset(AssetId, AssetType, Xml, 0)));
+            }
+        }
+
+        /// <summary>
+        /// An MD5 Hash of the Asset including the Timestamp that can be used for comparison
+        /// </summary>
+        public byte[] ChangeIdWithTimestamp
+        {
+            get
+            {
+                return _utf8.GetBytes(ToString(new ShdrAsset(AssetId, AssetType, Xml, Timestamp)));
             }
         }
 

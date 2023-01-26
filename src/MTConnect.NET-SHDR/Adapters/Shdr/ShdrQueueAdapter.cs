@@ -53,7 +53,7 @@ namespace MTConnect.Adapters.Shdr
         }
 
 
-        protected override void OnCurrentSent()
+        protected override void OnChangedSent()
         {
             // Clear Buffer (to prevent duplicates)
             _dataItemsBuffer.Clear();
@@ -230,7 +230,7 @@ namespace MTConnect.Adapters.Shdr
                 if (success)
                 {
                     // Update Last Sent DataSet
-                    UpdateLastDataSet(dataSets);
+                    UpdateLastDataSets(dataSets);
                 }
             }
 
@@ -266,7 +266,7 @@ namespace MTConnect.Adapters.Shdr
                 if (success)
                 {
                     // Update Last Sent Table
-                    UpdateLastTable(tables);
+                    UpdateLastTables(tables);
                 }
             }
 
