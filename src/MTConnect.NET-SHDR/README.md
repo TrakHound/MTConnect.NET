@@ -164,7 +164,7 @@ A Condition can also be added by using the built-in functions:
 #### Set the Condition to Normal
 ```c#
 ShdrCondition condition = new ShdrCondition("L2p1system");
-ShdrCondition.Normal();
+condition.Normal();
 
 adapter.AddCondition(condition);
 ```
@@ -172,7 +172,7 @@ adapter.AddCondition(condition);
 #### Set the Condition to Warning
 ```c#
 ShdrCondition condition = new ShdrCondition("L2p1system");
-ShdrCondition.Warning("Not Found", "404", "100", ConditionQualifier.LOW);
+condition.Warning("Not Found", "404", "100", ConditionQualifier.LOW);
 
 adapter.AddCondition(condition);
 ```
@@ -180,7 +180,7 @@ adapter.AddCondition(condition);
 #### Set the Condition to Fault
 ```c#
 ShdrCondition condition = new ShdrCondition("L2p1system");
-ShdrCondition.Fault("Internal Error", "500", "10254", ConditionQualifier.HIGH);
+condition.Fault("Internal Error", "500", "10254", ConditionQualifier.HIGH);
 
 adapter.AddCondition(condition);
 ```
@@ -188,8 +188,8 @@ adapter.AddCondition(condition);
 #### Set multiple FaultStates
 ```c#
 ShdrCondition condition = new ShdrCondition("L2p1coolant");
-ShdrCondition.AddWarning("Coolant Level Low", "47321", qualifier: ConditionQualifier.LOW);
-ShdrCondition.AddWarning("Coolant Temperature High", "98712", qualifier: ConditionQualifier.HIGH);
+condition.AddWarning("Coolant Level Low", "47321", qualifier: ConditionQualifier.LOW);
+condition.AddWarning("Coolant Temperature High", "98712", qualifier: ConditionQualifier.HIGH);
 
 adapter.AddCondition(condition);
 ```
@@ -197,7 +197,7 @@ adapter.AddCondition(condition);
 #### Set the Condition to Unavailable
 ```c#
 ShdrCondition condition = new ShdrCondition("L2p1system");
-ShdrCondition.Unavailable();
+condition.Unavailable();
 
 adapter.AddCondition(condition);
 ```
