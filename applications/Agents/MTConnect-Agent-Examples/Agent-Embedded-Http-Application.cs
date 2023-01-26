@@ -4,13 +4,13 @@
 // file 'LICENSE.txt', which is part of this source code package.
 
 using MTConnect.Applications.Agents;
+using MTConnect.Configurations;
 using MTConnect.Devices;
 using MTConnect.Devices.Components;
 using MTConnect.Devices.DataItems.Events;
 using MTConnect.Devices.DataItems.Samples;
 using MTConnect.Observations.Events.Values;
 using MTConnect.Observations.Input;
-using MTConnect.Configurations;
 
 namespace MTConnect.Applications
 {

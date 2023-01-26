@@ -1,7 +1,5 @@
 ﻿// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
-
-// This file is subject to the terms and conditions defined in
-// file 'LICENSE.txt', which is part of this source code package.
+// TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Applications.Agents;
 using System;
@@ -17,7 +15,7 @@ namespace MTConnect.Applications
 
         // Copyright statement for the application. If you are implementing this into your own application, you can change this to your own copyright.
         // This is just what is shown in the console header. If you want to show support for the MTConnect.NET project, you can reference it using the links in the default header
-        private const string ApplicationCopyright = "Copyright 2022 TrakHound Inc., All Rights Reserved";
+        private const string ApplicationCopyright = "Copyright 2023 TrakHound Inc., All Rights Reserved";
 
         public static void Main(string[] args)
         {
@@ -52,7 +50,7 @@ namespace MTConnect.Applications
             Console.WriteLine(ApplicationCopyright);
             Console.WriteLine(ApplicationName + " : Version " + version.ToString());
             Console.WriteLine("--------------------");
-            Console.WriteLine("This application is licensed under the Apache Version 2.0 License (https://www.apache.org/licenses/LICENSE-2.0)");
+            Console.WriteLine("This application is licensed under the MIT License (https://choosealicense.com/licenses/mit/)");
             Console.WriteLine("Source code available at Github.com (https://github.com/TrakHound/MTConnect.NET)");
             Console.WriteLine("--------------------");
         }
