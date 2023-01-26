@@ -29,7 +29,7 @@ namespace MTConnect.Observations
             return $"{X} {Y} {Z}";
         }
 
-        public UnitVector3D FromString(string input)
+        public static UnitVector3D FromString(string input)
         {
             if (!string.IsNullOrEmpty(input))
             {

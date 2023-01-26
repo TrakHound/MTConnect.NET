@@ -106,7 +106,7 @@ namespace MTConnect.Streams
         public IEnumerable<IConditionObservation> Conditions => GetObservations<IConditionObservation>(_observations);
 
 
-        private IEnumerable<T> GetObservations<T>(IEnumerable<IObservation> observations) where T : IObservation
+        private static IEnumerable<T> GetObservations<T>(IEnumerable<IObservation> observations) where T : IObservation
         {
             var l = new List<T>();
             if (!observations.IsNullOrEmpty())

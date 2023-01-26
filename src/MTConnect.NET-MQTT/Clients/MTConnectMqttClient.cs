@@ -25,7 +25,6 @@ namespace MTConnect.Clients.Mqtt
         private const string _deviceTopicPattern = "MTConnect\\/Devices\\/([^\\/]*)\\/Device";
         private const string _observationsTopicPattern = "MTConnect\\/Devices\\/([^\\/]*)\\/Observations";
         private const string _conditionsTopicPattern = "MTConnect\\/Devices\\/(.*)\\/Observations\\/.*\\/Conditions";
-        //private const string _conditionsTopicPattern = "MTConnect\\/Devices\\/([^\\/]*)\\/Observations\\/([^\\/]*)\\/Conditions";
         private const string _assetTopicPattern = "MTConnect\\/Devices\\/([^\\/]*)\\/Assets";
 
         private static readonly Regex _deviceUuidRegex = new Regex(_deviceUuidTopicPattern);

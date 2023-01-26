@@ -3,7 +3,7 @@
 
 using System.Web;
 
-namespace MTConnect
+namespace MTConnect.Http
 {
     public static class Url
     {
