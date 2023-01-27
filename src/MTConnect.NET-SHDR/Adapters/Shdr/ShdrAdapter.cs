@@ -4,7 +4,6 @@
 using MTConnect.Configurations;
 using MTConnect.Devices;
 using MTConnect.Devices.DataItems.Samples;
-using MTConnect.Observations;
 using MTConnect.Observations.Input;
 using MTConnect.Shdr;
 using System;
@@ -96,6 +95,11 @@ namespace MTConnect.Adapters.Shdr
         /// </summary>
         public bool FilterDuplicates { get; set; }
 
+        /// <summary>
+        /// Determines whether to output Timestamps for each SHDR line
+        /// </summary>
+        public bool OutputTimestamps { get; set; }
+
 
         /// <summary>
         /// Raised when a new Agent connection is established. Includes the AgentClient ID as an argument.
@@ -137,6 +141,7 @@ namespace MTConnect.Adapters.Shdr
         public ShdrAdapter(int port = 7878, int heartbeat = 10000)
         {
             FilterDuplicates = true;
+            OutputTimestamps = true;
             Port = port;
             Heartbeat = heartbeat;
             Timeout = 5000;
@@ -151,6 +156,7 @@ namespace MTConnect.Adapters.Shdr
         public ShdrAdapter(string deviceKey, int port = 7878, int heartbeat = 10000)
         {
             FilterDuplicates = true;
+            OutputTimestamps = true;
             DeviceKey = deviceKey;
             Port = port;
             Heartbeat = heartbeat;
@@ -166,6 +172,7 @@ namespace MTConnect.Adapters.Shdr
         public ShdrAdapter(ShdrAdapterConfiguration configuration)
         {
             FilterDuplicates = true;
+            OutputTimestamps = true;
 
             if (configuration != null)
             {
@@ -583,7 +590,8 @@ namespace MTConnect.Adapters.Shdr
                 dataItem.DeviceKey = DeviceKey;
 
                 // Set Timestamp (if not already set)
-                if (dataItem.Timestamp <= 0) dataItem.Timestamp = UnixDateTime.Now;
+                if (!OutputTimestamps) dataItem.Timestamp = 0;
+                else if (dataItem.Timestamp <= 0) dataItem.Timestamp = UnixDateTime.Now;
 
                 // Get the Current Observation (if exists)
                 ShdrDataItem currentDataItem;
@@ -651,7 +659,8 @@ namespace MTConnect.Adapters.Shdr
                 dataItem.DeviceKey = DeviceKey;
 
                 // Set Timestamp (if not already set)
-                if (dataItem.Timestamp <= 0) dataItem.Timestamp = UnixDateTime.Now;
+                if (!OutputTimestamps) dataItem.Timestamp = 0;
+                else if (dataItem.Timestamp <= 0) dataItem.Timestamp = UnixDateTime.Now;
 
                 // Remove from Current
                 lock (_lock) _currentDataItems.Remove(dataItem.DataItemKey);
@@ -857,7 +866,8 @@ namespace MTConnect.Adapters.Shdr
                 message.DeviceKey = DeviceKey;
 
                 // Set Timestamp (if not already set)
-                if (message.Timestamp <= 0) message.Timestamp = UnixDateTime.Now;
+                if (!OutputTimestamps) message.Timestamp = 0;
+                else if (message.Timestamp <= 0) message.Timestamp = UnixDateTime.Now;
 
                 // Get the Current Observation (if exists)
                 ShdrMessage currentMessage;
@@ -935,7 +945,8 @@ namespace MTConnect.Adapters.Shdr
                 message.DeviceKey = DeviceKey;
 
                 // Set Timestamp (if not already set)
-                if (message.Timestamp <= 0) message.Timestamp = UnixDateTime.Now;
+                if (!OutputTimestamps) message.Timestamp = 0;
+                else if (message.Timestamp <= 0) message.Timestamp = UnixDateTime.Now;
 
                 // Remove from Current
                 lock (_lock) _currentMessages.Remove(message.DataItemKey);
@@ -1123,7 +1134,8 @@ namespace MTConnect.Adapters.Shdr
                     foreach (var faultState in condition.FaultStates)
                     {
                         // Set Timestamp (if not already set)
-                        if (faultState.Timestamp <= 0) faultState.Timestamp = UnixDateTime.Now;
+                        if (!OutputTimestamps) faultState.Timestamp = 0;
+                        else if (faultState.Timestamp <= 0) faultState.Timestamp = UnixDateTime.Now;
                     }
                 }
 
@@ -1183,7 +1195,8 @@ namespace MTConnect.Adapters.Shdr
                     foreach (var faultState in condition.FaultStates)
                     {
                         // Set Timestamp (if not already set)
-                        if (faultState.Timestamp <= 0) faultState.Timestamp = UnixDateTime.Now;
+                        if (!OutputTimestamps) faultState.Timestamp = 0;
+                        else if (faultState.Timestamp <= 0) faultState.Timestamp = UnixDateTime.Now;
                     }
                 }
 
@@ -1371,7 +1384,8 @@ namespace MTConnect.Adapters.Shdr
                 timeSeries.DeviceKey = DeviceKey;
 
                 // Set Timestamp (if not already set)
-                if (timeSeries.Timestamp <= 0) timeSeries.Timestamp = UnixDateTime.Now;
+                if (!OutputTimestamps) timeSeries.Timestamp = 0;
+                else if (timeSeries.Timestamp <= 0) timeSeries.Timestamp = UnixDateTime.Now;
 
                 // Get the Current Observation (if exists)
                 ShdrTimeSeries currentTimeSeries;
@@ -1438,7 +1452,8 @@ namespace MTConnect.Adapters.Shdr
                 timeSeries.DeviceKey = DeviceKey;
 
                 // Set Timestamp (if not already set)
-                if (timeSeries.Timestamp <= 0) timeSeries.Timestamp = UnixDateTime.Now;
+                if (!OutputTimestamps) timeSeries.Timestamp = 0;
+                else if (timeSeries.Timestamp <= 0) timeSeries.Timestamp = UnixDateTime.Now;
 
                 // Remove from Current
                 lock (_lock) _currentTimeSeries.Remove(timeSeries.DataItemKey);
@@ -1642,7 +1657,8 @@ namespace MTConnect.Adapters.Shdr
                 dataSet.DeviceKey = DeviceKey;
 
                 // Set Timestamp (if not already set)
-                if (dataSet.Timestamp <= 0) dataSet.Timestamp = UnixDateTime.Now;
+                if (!OutputTimestamps) dataSet.Timestamp = 0;
+                else if (dataSet.Timestamp <= 0) dataSet.Timestamp = UnixDateTime.Now;
 
                 // Get the Current Observation (if exists)
                 ShdrDataSet currentDataSet;
@@ -1709,7 +1725,8 @@ namespace MTConnect.Adapters.Shdr
                 dataSet.DeviceKey = DeviceKey;
 
                 // Set Timestamp (if not already set)
-                if (dataSet.Timestamp <= 0) dataSet.Timestamp = UnixDateTime.Now;
+                if (!OutputTimestamps) dataSet.Timestamp = 0;
+                else if (dataSet.Timestamp <= 0) dataSet.Timestamp = UnixDateTime.Now;
 
                 // Remove from Current
                 lock (_lock) _currentDataSets.Remove(dataSet.DataItemKey);
@@ -1913,7 +1930,8 @@ namespace MTConnect.Adapters.Shdr
                 table.DeviceKey = DeviceKey;
 
                 // Set Timestamp (if not already set)
-                if (table.Timestamp <= 0) table.Timestamp = UnixDateTime.Now;
+                if (!OutputTimestamps) table.Timestamp = 0;
+                else if (table.Timestamp <= 0) table.Timestamp = UnixDateTime.Now;
 
                 // Get the Current Observation (if exists)
                 ShdrTable currentTable;
@@ -1980,7 +1998,8 @@ namespace MTConnect.Adapters.Shdr
                 table.DeviceKey = DeviceKey;
 
                 // Set Timestamp (if not already set)
-                if (table.Timestamp <= 0) table.Timestamp = UnixDateTime.Now;
+                if (!OutputTimestamps) table.Timestamp = 0;
+                else if (table.Timestamp <= 0) table.Timestamp = UnixDateTime.Now;
 
                 // Remove from Current
                 lock (_lock) _currentTables.Remove(table.DataItemKey);

@@ -23,12 +23,12 @@ The [ShdrAdapterClient](ShdrAdapterClient.cs) class handles the TCP connection t
 There are several different ways to setup and add data to the ShdrAdapter
 
 ### ShdrAdapter
-The example below creates a new ShdrAdapter for the Device "OKUMA.Lathe".
+The example below creates a new ShdrAdapter.
 The added DataItem will be sent using the "adapter.SendChanged()" method
 ```c#
 using MTConnect.Adapters.Shdr;
 
-ShdrAdapter adapter = new ShdrAdapter("OKUMA.Lathe");
+ShdrAdapter adapter = new ShdrAdapter();
 adapter.Start();
 
 adapter.AddDataItem("L2estop", "ARMED");
@@ -39,13 +39,46 @@ adapter.SendChanged();
 2023-01-26T16:48:17.0206852Z|localhost:L2estop|ARMED
 ```
 
+### ShdrAdapter (specific Port)
+The example below creates a new ShdrAdapter on the 7980 TCP Port.
+```c#
+using MTConnect.Adapters.Shdr;
+
+ShdrAdapter adapter = new ShdrAdapter(7980);
+```
+
+### ShdrAdapter (specific Device)
+The example below creates a new ShdrAdapter for the "OKUMA-Lathe" device.
+The added DataItem will be sent using the "adapter.SendChanged()" method
+```c#
+using MTConnect.Adapters.Shdr;
+
+ShdrAdapter adapter = new ShdrAdapter("OKUMA-Lathe");
+adapter.Start();
+
+adapter.AddDataItem("L2estop", "ARMED");
+adapter.SendChanged();
+```
+#### SHDR Output
+```
+2023-01-26T20:54:34.1694626Z|OKUMA-Lathe:L2estop|ARMED
+```
+
+### ShdrAdapter (specific Device and Port)
+The example below creates a new ShdrAdapter for the "OKUMA-Lathe" device on the 7980 TCP Port.
+```c#
+using MTConnect.Adapters.Shdr;
+
+ShdrAdapter adapter = new ShdrAdapter("OKUMA-Lathe", 7980);
+```
+
 ### ShdrIntervalAdapter
-The example below creates a new ShdrIntervalAdapter for the Device "OKUMA.Lathe" and sets the Interval to 500ms.
+The example below creates a new ShdrIntervalAdapter and sets the Interval to 500ms.
 Only the most recent DataItem with the ID = "L2estop" will be sent after 500ms has elapsed.
 ```c#
 using MTConnect.Adapters.Shdr;
 
-ShdrIntervalAdapter adapter = new ShdrIntervalAdapter("OKUMA.Lathe", interval: 500);
+ShdrIntervalAdapter adapter = new ShdrIntervalAdapter(interval: 500);
 adapter.Start();
 
 adapter.AddDataItem("L2estop", "ARMED");
@@ -55,16 +88,16 @@ adapter.AddDataItem("L2estop", "TRIGGERED");
 ```
 #### SHDR Output
 ```
-2023-01-26T17:22:10.3128693Z|OKUMA-Lathe:L2estop|TRIGGERED
+2023-01-26T17:22:10.3128693Z|L2estop|TRIGGERED
 ```
 
 ### ShdrQueueAdapter
-The example below creates a new ShdrQueueAdapter for the Device "OKUMA.Lathe".
+The example below creates a new ShdrQueueAdapter.
 All of the added DataItems will be sent using the "adapter.SendBuffer()" method
 ```c#
 using MTConnect.Adapters.Shdr;
 
-ShdrQueueAdapter adapter = new ShdrQueueAdapter("OKUMA.Lathe");
+ShdrQueueAdapter adapter = new ShdrQueueAdapter();
 adapter.Start();
 
 adapter.AddDataItem("L2estop", "ARMED");
@@ -75,19 +108,19 @@ adapter.SendBuffer();
 ```
 #### SHDR Output
 ```
-2023-01-26T17:22:10.2882160Z|OKUMA-Lathe:L2estop|ARMED
-2023-01-26T17:22:10.3125127Z|OKUMA-Lathe:L2estop|TRIGGERED
-2023-01-26T17:22:10.3128389Z|OKUMA-Lathe:L2estop|ARMED
-2023-01-26T17:22:10.3128693Z|OKUMA-Lathe:L2estop|TRIGGERED
+2023-01-26T17:22:10.2882160Z|L2estop|ARMED
+2023-01-26T17:22:10.3125127Z|L2estop|TRIGGERED
+2023-01-26T17:22:10.3128389Z|L2estop|ARMED
+2023-01-26T17:22:10.3128693Z|L2estop|TRIGGERED
 ```
 
 ### ShdrIntervalQueueAdapter
-The example below creates a new ShdrIntervalQueueAdapter for the Device "OKUMA.Lathe" and sets the Interval to 500ms.
+The example below creates a new ShdrIntervalQueueAdapter and sets the Interval to 500ms.
 All of the added DataItems will be sent after 500ms has elapsed.
 ```c#
 using MTConnect.Adapters.Shdr;
 
-ShdrIntervalQueueAdapter adapter = new ShdrIntervalQueueAdapter("OKUMA.Lathe", interval: 500);
+ShdrIntervalQueueAdapter adapter = new ShdrIntervalQueueAdapter(interval: 500);
 adapter.Start();
 
 adapter.AddDataItem("L2estop", "ARMED");
@@ -97,11 +130,47 @@ adapter.AddDataItem("L2estop", "TRIGGERED");
 ```
 #### SHDR Output
 ```
-2023-01-26T17:22:10.2882160Z|OKUMA-Lathe:L2estop|ARMED
-2023-01-26T17:22:10.3125127Z|OKUMA-Lathe:L2estop|TRIGGERED
-2023-01-26T17:22:10.3128389Z|OKUMA-Lathe:L2estop|ARMED
-2023-01-26T17:22:10.3128693Z|OKUMA-Lathe:L2estop|TRIGGERED
+2023-01-26T17:22:10.2882160Z|L2estop|ARMED
+2023-01-26T17:22:10.3125127Z|L2estop|TRIGGERED
+2023-01-26T17:22:10.3128389Z|L2estop|ARMED
+2023-01-26T17:22:10.3128693Z|L2estop|TRIGGERED
 ```
+
+## Configuration
+
+* `Id` - Get a unique identifier for the Adapter
+
+* `DeviceKey` - The Name or UUID of the Device to create a connection for
+
+* `Port` - The TCP Port used for communication
+
+* `Heartbeat` - The heartbeat used to maintain a connection between the Adapter and the Agent
+
+* `ConnectionTimeout` - The amount of time (in milliseconds) to allow for a connection attempt to the Agent
+ 
+* `ReconnectInterval` - The amount of time (in milliseconds) between adapter reconnection attempts
+
+* `MultilineAssets` - Use multiline Assets
+
+* `MultilineDevices` - Sets the default for Converting Units when adding Observations
+
+* `FilterDuplicates` - Determines whether to filter out duplicate data
+
+* `OutputTimestamps` - Determines whether to output Timestamps for each SHDR line
+
+### OutputTimestamps
+Timestamps may be output in the SHDR protocol in order to pass the timestamp from the Adapter instead of allowing the Agent to apply a timestamp.
+
+**OutputTimestamp** = true
+```
+2023-01-27T03:47:53.4477372Z|L2estop|ARMED
+```
+**OutputTimestamp** = false
+```
+L2estop|ARMED
+```
+
+## Sending Data
 
 ### Add DataItems Individually
 ```c#
@@ -121,14 +190,19 @@ adapter.AddDataItem(new ShdrDataItem("L2estop", "ARMED", DateTime.UtcNow));
 
 ### Add List of DataItems
 ```c#
+var ts = DateTime.UtcNow;
 var dataItems = new List<ShdrDataItem>();
 
-dataItems.Add(new ShdrDataItem("L2p1execution", "READY"));
-dataItems.Add(new ShdrDataItem("L2p1Fovr", 100));
-dataItems.Add(new ShdrDataItem("L2p1partcount", 15));
-dataItems.Add(new ShdrDataItem("L2p1Fact", 250));
+dataItems.Add(new ShdrDataItem("L2p1execution", "READY", ts));
+dataItems.Add(new ShdrDataItem("L2p1Fovr", 100, ts));
+dataItems.Add(new ShdrDataItem("L2p1partcount", 15, ts));
+dataItems.Add(new ShdrDataItem("L2p1Fact", 250, ts));
 
 adapter.AddDataItems(dataItems);
+```
+#### Output
+```
+2023-01-26T20:50:53.6161001Z|L2p1execution|READY|L2p1Fovr|100|L2p1partcount|15|L2p1Fact|250
 ```
 
 ### Store DataItems in Variables
@@ -225,7 +299,6 @@ adapter.AddCondition(condition);
 ### Send Condition Manually
 Conditions can be added to the Adapter and immediately send to the Agent using the "SendCondition()" method
 ```c#
-ShdrCondition condition = new ShdrCondition("L2p1system", ConditionLevel.FAULT);
 adapter.SendCondition(condition);
 ```
 
@@ -251,15 +324,6 @@ adapter.AddTimeSeries(timeSeries);
 ### Send TimeSeries Manually
 TimeSeries can be added to the Adapter and immediately send to the Agent using the "SendTimeSeries()" method
 ```c#
-List<double> samples = new List<double>();
-samples.Add(12);
-samples.Add(15);
-samples.Add(14);
-samples.Add(18);
-samples.Add(25);
-samples.Add(30);
-
-ShdrTimeSeries timeSeries = new ShdrTimeSeries("L2p1Sensor", samples, 100);
 adapter.SendTimeSeries(timeSeries);
 ```
 
@@ -281,11 +345,6 @@ adapter.AddDataSet(dataSet);
 ### Send DataSets Manually
 DataSets can be added to the Adapter and immediately send to the Agent using the "SendDataSets()" method
 ```c#
-List<DataSetEntry> dataSetEntries = new List<DataSetEntry>();
-dataSetEntries.Add(new DataSetEntry("V1", 5));
-dataSetEntries.Add(new DataSetEntry("V2", 205));
-
-ShdrDataSet dataSet = new ShdrDataSet("L2p1Variables", dataSetEntries);
 adapter.SendDataSets(dataSet);
 ```
 
@@ -297,21 +356,21 @@ List<TableEntry> tableEntries = new List<TableEntry>();
 List<TableCell> t1Cells = new List<TableCell>();
 t1Cells.Add(new TableCell("LENGTH", 7.123));
 t1Cells.Add(new TableCell("DIAMETER", 0.494));
-t1Cells.Add(new TableCell("TOOL_LIFE", 0.35));
+t1Cells.Add(new TableCell("REMAINING_LIFE", 35));
 tableEntries.Add(new TableEntry("T1", t1Cells));
 
 // Tool 2
 List<TableCell> t2Cells = new List<TableCell>();
 t2Cells.Add(new TableCell("LENGTH", 10.456));
 t2Cells.Add(new TableCell("DIAMETER", 0.125));
-t2Cells.Add(new TableCell("TOOL_LIFE", 1));
+t2Cells.Add(new TableCell("REMAINING_LIFE", 100));
 tableEntries.Add(new TableEntry("T2", t2Cells));
 
 // Tool 3
 List<TableCell> t3Cells = new List<TableCell>();
 t3Cells.Add(new TableCell("LENGTH", 6.251));
 t3Cells.Add(new TableCell("DIAMETER", 1.249));
-t3Cells.Add(new TableCell("TOOL_LIFE", 0.93));
+t3Cells.Add(new TableCell("REMAINING_LIFE", 93));
 tableEntries.Add(new TableEntry("T3", t3Cells));
 
 ShdrTable table = new ShdrTable("L2p1ToolTable", tableEntries);
@@ -326,30 +385,6 @@ adapter.AddTable(table);
 ### Send Tables Manually
 Tables can be added to the Adapter and immediately send to the Agent using the "SendTables()" method
 ```c#
-List<TableEntry> tableEntries = new List<TableEntry>();
-
-// Tool 1
-List<TableCell> t1Cells = new List<TableCell>();
-t1Cells.Add(new TableCell("LENGTH", 7.123));
-t1Cells.Add(new TableCell("DIAMETER", 0.494));
-t1Cells.Add(new TableCell("TOOL_LIFE", 0.35));
-tableEntries.Add(new TableEntry("T1", t1Cells));
-
-// Tool 2
-List<TableCell> t2Cells = new List<TableCell>();
-t2Cells.Add(new TableCell("LENGTH", 10.456));
-t2Cells.Add(new TableCell("DIAMETER", 0.125));
-t2Cells.Add(new TableCell("TOOL_LIFE", 1));
-tableEntries.Add(new TableEntry("T2", t2Cells));
-
-// Tool 3
-List<TableCell> t3Cells = new List<TableCell>();
-t3Cells.Add(new TableCell("LENGTH", 6.251));
-t3Cells.Add(new TableCell("DIAMETER", 1.249));
-t3Cells.Add(new TableCell("TOOL_LIFE", 0.93));
-tableEntries.Add(new TableEntry("T3", t3Cells));
-
-ShdrTable table = new ShdrTable("L2p1ToolTable", tableEntries);
 adapter.SendTables(table);
 ```
 
