@@ -389,7 +389,7 @@ adapter.SendTables(table);
 ```
 
 ## Assets
-MTConnect Assets are sent by first defining the Asset using the appropriate class (CuttingToolAsset, FileAsset, etc.) then using the "adapter.AddAsset()".
+MTConnect Assets are sent by first defining the Asset using the appropriate class (CuttingToolAsset, FileAsset, etc.) then using the "AddAsset()".
 
 ### CuttingTool Asset
 ```c#

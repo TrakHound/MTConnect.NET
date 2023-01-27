@@ -4,12 +4,13 @@ using MTConnect.Observations.Events.Values;
 using MTConnect.Streams;
 using MTConnect.Tests.Agents;
 using NUnit.Framework;
+using System;
 using System.Linq;
 using System.Threading;
 
 namespace MTConnect.Tests.Http.Clients
 {
-    public class SampleClient
+    public class SampleClient : IDisposable
     {
         private const string _hostname = "localhost";
         private const int _port = 5012;
@@ -31,6 +32,15 @@ namespace MTConnect.Tests.Http.Clients
             _client.OnSampleReceived += SampleReceived;
             _client.Start();
         }
+
+        public void Dispose()
+        {
+            _client.Stop();
+
+            _agentRunner.Stop();
+            _agentRunner.Dispose();
+        }
+
 
         private void SampleReceived(object sender, IStreamsResponseDocument response)
         {

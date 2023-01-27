@@ -1,11 +1,12 @@
 using MTConnect.Clients;
 using MTConnect.Tests.Agents;
 using NUnit.Framework;
+using System;
 using System.Linq;
 
 namespace MTConnect.Tests.Http.Clients
 {
-    public class Sample
+    public class Sample : IDisposable
     {
         private const string _hostname = "localhost";
         private const int _port = 5012;
@@ -18,6 +19,12 @@ namespace MTConnect.Tests.Http.Clients
         {
             _agentRunner = new AgentRunner(_hostname, _port);
             _agentRunner.Start();
+        }
+
+        public void Dispose()
+        {
+            _agentRunner.Stop();
+            _agentRunner.Dispose();
         }
 
 
