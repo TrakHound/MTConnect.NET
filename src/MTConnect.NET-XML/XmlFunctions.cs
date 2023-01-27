@@ -179,7 +179,7 @@ namespace MTConnect
             headerComments.Add($"{copyright}");
             headerComments.Add($"For more information about this MTConnect Agent Application visit ({projectUrl})");
             headerComments.Add(" -  -  -  -  -  ");
-            headerComments.Add("This Document was produced using the MTConnect.NET library which is licensed under the Apache Version 2.0 License (https://www.apache.org/licenses/LICENSE-2.0)");
+            headerComments.Add("This Document was produced using the MTConnect.NET library which is licensed under the MIT License (https://choosealicense.com/licenses/mit/)");
             headerComments.Add("Source code for this Library is available at Github.com (https://github.com/TrakHound/MTConnect.NET)");
             headerComments.Add(" -  -  -  -  -  ");
             headerComments.Add("For more information about TrakHound visit (http://trakhound.com)");
@@ -245,7 +245,7 @@ namespace MTConnect
             if (indentOutput) writer.WriteWhitespace(NewLine);
             writer.WriteComment(" -  -  -  -  -  ");
             if (indentOutput) writer.WriteWhitespace(NewLine);
-            writer.WriteComment("This Document was produced using the MTConnect.NET library which is licensed under the Apache Version 2.0 License (https://www.apache.org/licenses/LICENSE-2.0)");
+            writer.WriteComment("This Document was produced using the MTConnect.NET library which is licensed under the MIT License (https://choosealicense.com/licenses/mit/)");
             if (indentOutput) writer.WriteWhitespace(NewLine);
             writer.WriteComment("Source code for this Library is available at Github.com (https://github.com/TrakHound/MTConnect.NET)");
             if (indentOutput) writer.WriteWhitespace(NewLine);
