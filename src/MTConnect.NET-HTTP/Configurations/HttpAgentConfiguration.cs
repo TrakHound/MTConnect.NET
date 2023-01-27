@@ -20,10 +20,10 @@ namespace MTConnect.Configurations
         public int Port { get; set; }
 
         /// <summary>
-        /// The server IP Address to bind to. Can be used to select the interface in IPV4 or IPV6.
+        /// The server Hostname to bind to. Change this to the server's IP Address or hostname
         /// </summary>
-        [JsonPropertyName("serverIp")]
-        public string ServerIp { get; set; }
+        [JsonPropertyName("server")]
+        public string Server { get; set; }
 
         /// <summary>
         /// Gets or Sets the List of Encodings (ex. gzip, br, deflate) to pass to the Accept-Encoding HTTP Header
@@ -102,7 +102,7 @@ namespace MTConnect.Configurations
 
         public HttpAgentConfiguration()
         {
-            ServerIp = "127.0.0.1";
+            Server = "127.0.0.1";
             Port = 5000;
             AllowPut = false;
             AllowPutFrom = null;

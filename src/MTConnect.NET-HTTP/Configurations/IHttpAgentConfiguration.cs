@@ -17,9 +17,9 @@ namespace MTConnect.Configurations
         int Port { get; }
 
         /// <summary>
-        /// The server IP Address to bind to. Can be used to select the interface in IPV4 or IPV6.
+        /// The server Hostname to bind to. Change this to the server's IP Address or hostname
         /// </summary>
-        string ServerIp { get; }
+        string Server { get; }
 
 
         /// <summary>

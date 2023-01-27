@@ -36,9 +36,9 @@ serviceAutoStart: true
 # The Agent is able to respond to requests using the Http REST protocol described in the MTConnect Standard.
 # The server supports response compression and serving of Static files (Files configuration)
 
-# The server IP Address to bind to. Can be used to select the interface in IPV4 or IPV6.
-# Change this to the server's IP hostname
-# serverIp: localhost
+# The server Hostname to bind to.
+# Change this to the server's IP Address or hostname
+#server: localhost
 
 # The port number the agent binds to for requests.
 port: 5000

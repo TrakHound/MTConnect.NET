@@ -331,14 +331,14 @@ namespace MTConnect.Servers.Http
             else if (configuration != null)
             {
                 // Configuration Server IP
-                if (!string.IsNullOrEmpty(configuration.ServerIp))
+                if (!string.IsNullOrEmpty(configuration.Server))
                 {
-                    if (configuration.ServerIp != EmptyServer && 
-                        configuration.ServerIp != Loopback &&
-                        configuration.ServerIp != Localhost
+                    if (configuration.Server != EmptyServer && 
+                        configuration.Server != Loopback &&
+                        configuration.Server != Localhost
                         )
                     {
-                        hostnames.Add(configuration.ServerIp);
+                        hostnames.Add(configuration.Server);
                     }
                 }
 
