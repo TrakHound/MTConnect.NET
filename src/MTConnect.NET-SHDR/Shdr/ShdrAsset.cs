@@ -19,13 +19,13 @@ namespace MTConnect.Shdr
         public const string AssetRemoveAllDesignator = "@REMOVE_ALL_ASSETS@";
         public const string AssetUpdateDesignator = "@UPDATE_ASSET@";
 
-        private const string AssetIdPattern = $"{AssetDesignator}\\|(.*)\\|.*\\|--multiline--";
-        private const string AssetTypePattern = $"{AssetDesignator}\\|.*\\|(.*)\\|--multiline--";
-        private const string AssetMutlilineBeginPattern = $"{AssetDesignator}.*--multiline--(.*)";
-        private const string AssetMutlilineEndPattern = "--multiline--(.*)";
-        private const string AssetRemovePattern = $"{AssetRemoveDesignator}\\|(.*)";
-        private const string AssetRemoveAllPattern = $"{AssetRemoveAllDesignator}\\|(.*)";
-        private const string AssetUpdatePattern = $"{AssetUpdateDesignator}\\|(.*)";
+        private static readonly string AssetIdPattern = $"{AssetDesignator}\\|(.*)\\|.*\\|--multiline--";
+        private static readonly string AssetTypePattern = $"{AssetDesignator}\\|.*\\|(.*)\\|--multiline--";
+        private static readonly string AssetMutlilineBeginPattern = $"{AssetDesignator}.*--multiline--(.*)";
+        private static readonly string AssetMutlilineEndPattern = "--multiline--(.*)";
+        private static readonly string AssetRemovePattern = $"{AssetRemoveDesignator}\\|(.*)";
+        private static readonly string AssetRemoveAllPattern = $"{AssetRemoveAllDesignator}\\|(.*)";
+        private static readonly string AssetUpdatePattern = $"{AssetUpdateDesignator}\\|(.*)";
 
         private static readonly Encoding _utf8 = new UTF8Encoding();
 
