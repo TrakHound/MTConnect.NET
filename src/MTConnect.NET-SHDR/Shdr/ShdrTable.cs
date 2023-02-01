@@ -5,6 +5,7 @@ using MTConnect.Observations;
 using MTConnect.Observations.Input;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Text.RegularExpressions;
 
 namespace MTConnect.Shdr
@@ -14,6 +15,7 @@ namespace MTConnect.Shdr
     /// </summary>
     public class ShdrTable : TableObservationInput
     {
+        private static readonly Regex _deviceKeyRegex = new Regex("(.*):(.*)");
         private static readonly Regex _resetTriggeredRegex = new Regex(@":([A-Z_]+)\s+(.*)");
 
 
@@ -70,26 +72,29 @@ namespace MTConnect.Shdr
         {
             if (!string.IsNullOrEmpty(DataItemKey))
             {
+                var target = DataItemKey;
+                if (!string.IsNullOrEmpty(DeviceKey)) target = $"{DeviceKey}:{target}";
+
                 if (Timestamp > 0)
                 {
                     if (!IsUnavailable)
                     {
-                        return $"{Timestamp.ToDateTime().ToString("o")}|{DataItemKey}|{PrintEntries(Entries)}";
+                        return $"{Timestamp.ToDateTime().ToString("o")}|{target}|{PrintEntries(Entries)}";
                     }
                     else
                     {
-                        return $"{Timestamp.ToDateTime().ToString("o")}|{DataItemKey}|{Observation.Unavailable}";
+                        return $"{Timestamp.ToDateTime().ToString("o")}|{target}|{Observation.Unavailable}";
                     }
                 }
                 else
                 {
                     if (!IsUnavailable)
                     {
-                        return $"{DataItemKey}|{PrintEntries(Entries)}";
+                        return $"{target}|{PrintEntries(Entries)}";
                     }
                     else
                     {
-                        return $"{DataItemKey}|{Observation.Unavailable}";
+                        return $"{target}|{Observation.Unavailable}";
                     }
                 }
             }
@@ -151,7 +156,18 @@ namespace MTConnect.Shdr
                     // Set DataItemKey
                     var x = ShdrLine.GetNextValue(input);
                     var y = ShdrLine.GetNextSegment(input);
-                    table.DataItemKey = x;
+
+                    // Get Device Key (if specified). Example : Device01:avail
+                    var match = _deviceKeyRegex.Match(x);
+                    if (match.Success && match.Groups.Count > 2)
+                    {
+                        table.DeviceKey = match.Groups[1].Value;
+                        table.DataItemKey = match.Groups[2].Value;
+                    }
+                    else
+                    {
+                        table.DataItemKey = x;
+                    }
 
                     if (y != null)
                     {

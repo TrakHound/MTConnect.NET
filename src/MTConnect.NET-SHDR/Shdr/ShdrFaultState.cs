@@ -1,9 +1,11 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
+using MTConnect.Devices;
 using MTConnect.Observations;
 using MTConnect.Observations.Input;
 using System;
+using System.Text.RegularExpressions;
 
 namespace MTConnect.Shdr
 {
@@ -12,6 +14,9 @@ namespace MTConnect.Shdr
     /// </summary>
     public class ShdrFaultState: ConditionObservationInput
     {
+        private static readonly Regex _deviceKeyRegex = new Regex("(.*):(.*)");
+
+
         public ShdrFaultState() { }
 
         public ShdrFaultState(
@@ -55,6 +60,9 @@ namespace MTConnect.Shdr
         {
             if (!string.IsNullOrEmpty(DataItemKey))
             {
+                var target = DataItemKey;
+                if (!string.IsNullOrEmpty(DeviceKey)) target = $"{DeviceKey}:{target}";
+
                 var message = !string.IsNullOrEmpty(Message) ? Message.Replace("|", @"\|") : "";
                 var qualifier = Qualifier != ConditionQualifier.NOT_SPECIFIED ? Qualifier.ToString() : "";
 
@@ -64,22 +72,22 @@ namespace MTConnect.Shdr
                 {
                     if (Level != ConditionLevel.UNAVAILABLE)
                     {
-                        line = $"{Timestamp.ToDateTime().ToString("o")}|{DataItemKey}|{Level}|{NativeCode}|{NativeSeverity}|{qualifier}|{message}";
+                        line = $"{Timestamp.ToDateTime().ToString("o")}|{target}|{Level}|{NativeCode}|{NativeSeverity}|{qualifier}|{message}";
                     }
                     else
                     {
-                        line = $"{Timestamp.ToDateTime().ToString("o")}|{DataItemKey}|{Level}||||";
+                        line = $"{Timestamp.ToDateTime().ToString("o")}|{target}|{Level}||||";
                     }
                 }
                 else
                 {
                     if (Level != ConditionLevel.UNAVAILABLE)
                     {
-                        line = $"{DataItemKey}|{Level}|{NativeCode}|{NativeSeverity}|{qualifier}|{message}";
+                        line = $"{target}|{Level}|{NativeCode}|{NativeSeverity}|{qualifier}|{message}";
                     }
                     else
                     {
-                        line = $"{DataItemKey}|{Level}||||";
+                        line = $"{target}|{Level}||||";
                     }
                 }
 
@@ -130,7 +138,18 @@ namespace MTConnect.Shdr
                     // Set DataItemKey
                     var x = ShdrLine.GetNextValue(input);
                     var y = ShdrLine.GetNextSegment(input);
-                    condition.DataItemKey = x;
+
+                    // Get Device Key (if specified). Example : Device01:avail
+                    var match = _deviceKeyRegex.Match(x);
+                    if (match.Success && match.Groups.Count > 2)
+                    {
+                        condition.DeviceKey = match.Groups[1].Value;
+                        condition.DataItemKey = match.Groups[2].Value;
+                    }
+                    else
+                    {
+                        condition.DataItemKey = x;
+                    }
 
                     // Set Condition Level
                     x = ShdrLine.GetNextValue(y);

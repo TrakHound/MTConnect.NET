@@ -12,6 +12,12 @@ namespace MTConnect.Shdr
     /// </summary>
     public class ShdrCondition
     {
+        private readonly object _lock = new object();
+
+        private string _deviceKey;
+        private string _dataItemKey;
+        private IEnumerable<ShdrFaultState> _faultStates;
+
         private byte[] _changeId;
         private byte[] _changeIdWithTimestamp;
 
@@ -24,17 +30,54 @@ namespace MTConnect.Shdr
         /// <summary>
         /// The UUID or Name of the Device that the Observation is associated with
         /// </summary>
-        public string DeviceKey { get; set; }
+        public string DeviceKey
+        {
+            get => _deviceKey;
+            set
+            {
+                _deviceKey = value;
+
+                lock (_lock)
+                {
+                    if (!_faultStates.IsNullOrEmpty())
+                    {
+                        foreach (var faultState in _faultStates) faultState.DeviceKey = _deviceKey;
+                    }
+                }
+            }
+        }
 
         /// <summary>
         /// The (ID, Name, or Source) of the DataItem that the Observation is associated with
         /// </summary>
-        public string DataItemKey { get; set; }
+        public string DataItemKey
+        {
+            get => _dataItemKey;
+            set
+            {
+                _dataItemKey = value;
+
+                lock (_lock)
+                {
+                    if (!_faultStates.IsNullOrEmpty())
+                    {
+                        foreach (var faultState in _faultStates) faultState.DataItemKey = _dataItemKey;
+                    }
+                }
+            }
+        }
 
         /// <summary>
         /// Gets or Sets the FaultStates associated with the Condition Observation
         /// </summary>
-        public IEnumerable<ShdrFaultState> FaultStates { get; set; }
+        public IEnumerable<ShdrFaultState> FaultStates
+        {
+            get => _faultStates;
+            set
+            {
+                lock (_lock) _faultStates = value;
+            }
+        }
 
         /// <summary>
         /// A MD5 Hash of the Condition that can be used for comparison
@@ -165,13 +208,18 @@ namespace MTConnect.Shdr
         {
             if (faultState != null)
             {
+                faultState.DeviceKey = DeviceKey;
                 faultState.DataItemKey = DataItemKey;
 
-                List<ShdrFaultState> x = null;
-                if (!FaultStates.IsNullOrEmpty()) x = FaultStates.ToList();
-                if (x == null) x = new List<ShdrFaultState>();
-                x.Add(faultState);
-                FaultStates = x;
+                lock (_lock)
+                {
+                    List<ShdrFaultState> x = null;
+                    if (!_faultStates.IsNullOrEmpty()) x = _faultStates.ToList();
+                    if (x == null) x = new List<ShdrFaultState>();
+                    x.Add(faultState);
+                    FaultStates = x;
+                }
+
                 _changeId = null;
                 _changeIdWithTimestamp = null;
             }
@@ -179,7 +227,7 @@ namespace MTConnect.Shdr
 
         public void ClearFaultStates()
         {
-            FaultStates = null;
+            lock (_lock) _faultStates = null;
             _changeId = null;
             _changeIdWithTimestamp = null;
         }
@@ -194,9 +242,12 @@ namespace MTConnect.Shdr
             {
                 var lines = new List<string>();
 
-                foreach (var faultState in FaultStates)
+                lock (_lock)
                 {
-                    lines.Add(faultState.ToString());
+                    foreach (var faultState in _faultStates)
+                    {
+                        lines.Add(faultState.ToString());
+                    }
                 }
 
                 // Convert list of lines to single string with new line terminator
