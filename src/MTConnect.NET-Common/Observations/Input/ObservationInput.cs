@@ -1,12 +1,10 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-using MTConnect.Observations.Samples.Values;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using YamlDotNet.Core.Tokens;
 
 namespace MTConnect.Observations.Input
 {
@@ -223,6 +221,14 @@ namespace MTConnect.Observations.Input
                 if (!observationInput.Values.IsNullOrEmpty())
                 {
                     var sb = new StringBuilder();
+
+                    // Add DeviceKey (if specified)
+                    if (!string.IsNullOrEmpty(observationInput.DeviceKey)) sb.Append($"{observationInput.DeviceKey}:::");
+
+                    // Add DataItemKey
+                    sb.Append($"{observationInput.DataItemKey}::");
+
+                    // Add Timestamp
                     if (includeTimestamp) sb.Append($"timestamp={observationInput.Timestamp}:");
 
                     // Create String with ValueKey=Value segments
@@ -232,8 +238,8 @@ namespace MTConnect.Observations.Input
                     char[] a = new char[sb.Length];
                     sb.CopyTo(0, a, 0, sb.Length);
 
-                    // Convert StringBuilder result to UTF8 Bytes
-                    return _utf8.GetBytes(a);
+                    // Convert StringBuilder result to UTF8 MD5 Bytes
+                    return _utf8.GetBytes(a).ToMD5HashBytes();
                 }
             }
 

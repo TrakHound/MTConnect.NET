@@ -278,6 +278,20 @@ namespace MTConnect
             return null;
         }
 
+        public static string ToMD5HashString(this byte[] hashBytes)
+        {
+            if (hashBytes != null)
+            {
+                try
+                {
+                    return string.Concat(hashBytes.Select(b => b.ToString("x2")));
+                }
+                catch { }
+            }
+
+            return null;
+        }
+
         public static byte[] ToMD5HashBytes(this string s)
         {
             try
