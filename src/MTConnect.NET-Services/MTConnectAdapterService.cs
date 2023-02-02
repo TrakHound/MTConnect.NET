@@ -44,8 +44,17 @@ namespace MTConnect.Services
 
         protected override void OnStart(string[] args)
         {
+            // Configuration File Path
+            string configFile = null;
+            if (args != null && args.Length > 0)
+            {
+                foreach (var arg in args) LogInformation($"MTConnectAdapterService : OnStart (Arguments) : {arg}");
+
+                if (args.Length > 1) configFile = args[1];
+            }
+
             LogInformation("MTConnectAdapterService : OnStart : Service Starting");
-            StartAdapter();
+            StartAdapter(configFile);
             LogInformation("MTConnectAdapterService : OnStart : Service Started");
 
             base.OnStart(args);
@@ -61,7 +70,7 @@ namespace MTConnect.Services
         }
 
 
-        protected virtual void StartAdapter() { }
+        protected virtual void StartAdapter(string configurationPath) { }
 
         protected virtual void StopAdapter() { }
 

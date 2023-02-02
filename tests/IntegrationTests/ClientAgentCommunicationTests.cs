@@ -70,7 +70,7 @@ namespace IntegrationTests
             var configuration = new ShdrAgentConfiguration
             {
                 Port = _fixture.CurrentAgentPort,
-                Adapters = new List<ShdrAdapterConfiguration>()
+                Adapters = new List<ShdrAdapterClientConfiguration>()
                 {
                     new()
                     {

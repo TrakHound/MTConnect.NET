@@ -126,7 +126,7 @@ namespace MTConnect.Applications.Agents
 
         #region "Adapters"
 
-        private void AddAdapter(IShdrAdapterConfiguration configuration, IDevice device, bool initializeDataItems = true, string idSuffix = null)
+        private void AddAdapter(IShdrAdapterClientConfiguration configuration, IDevice device, bool initializeDataItems = true, string idSuffix = null)
         {
             if (configuration != null)
             {
