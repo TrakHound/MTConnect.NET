@@ -34,7 +34,7 @@ namespace MTConnect.Adapters.Shdr
             Interval = interval;
         }
 
-        public ShdrIntervalQueueAdapter(ShdrAdapterConfiguration configuration, int interval = _defualtInterval) : base(configuration)
+        public ShdrIntervalQueueAdapter(ShdrAdapterClientConfiguration configuration, int interval = _defualtInterval) : base(configuration)
         {
             Interval = interval;
         }

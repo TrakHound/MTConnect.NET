@@ -46,6 +46,6 @@ namespace MTConnect.Configurations
         /// List of SHDR Adapter connection configurations
         /// </summary>
         [JsonPropertyName("adapters")]
-        public IEnumerable<ShdrAdapterConfiguration> Adapters { get; set; }
+        public IEnumerable<ShdrAdapterClientConfiguration> Adapters { get; set; }
     }
 }

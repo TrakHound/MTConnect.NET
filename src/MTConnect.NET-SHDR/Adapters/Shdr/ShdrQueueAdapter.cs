@@ -33,7 +33,7 @@ namespace MTConnect.Adapters.Shdr
             FilterDuplicates = false;
         }
 
-        public ShdrQueueAdapter(ShdrAdapterConfiguration configuration) : base(configuration)
+        public ShdrQueueAdapter(ShdrAdapterClientConfiguration configuration) : base(configuration)
         {
             FilterDuplicates = false;
         }

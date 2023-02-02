@@ -127,7 +127,7 @@ namespace MTConnect.Shdr
                 var valueString = dataItem.GetValue(ValueKeys.Result);
                 if (valueString != null)
                 {
-                    var target = dataItem.DataItemKey;
+                    var target = dataItem.DataItemKey;                  
                     if (!string.IsNullOrEmpty(dataItem.DeviceKey)) target = $"{dataItem.DeviceKey}:{target}";
 
                     var value = valueString.Replace("|", @"\|").Trim();

@@ -2,6 +2,7 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Observations;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -120,9 +121,36 @@ namespace MTConnect.Shdr
         {
             DataItemKey = dataItemKey;
 
-            AddFaultState(new ShdrFaultState(level, timestamp: timestamp));
+            AddFaultState(new ShdrFaultState(timestamp, level));
         }
 
+        public ShdrCondition(string dataItemKey, ConditionLevel level, DateTime timestamp)
+        {
+            DataItemKey = dataItemKey;
+
+            AddFaultState(new ShdrFaultState(timestamp, level));
+        }
+
+        public ShdrCondition(ShdrCondition condition)
+        {
+            if (condition != null)
+            {
+                DeviceKey = condition.DeviceKey;
+                DataItemKey = condition.DataItemKey;
+                FaultStates = condition.FaultStates?.ToList();
+            }
+        }
+
+
+        /// <summary>
+        /// Set the FaultState of the Condition to UNAVAILABLE and clear any other FaultStates
+        /// </summary>
+        public void Unavailable()
+        {
+            ClearFaultStates();
+            AddFaultState(new ShdrFaultState(ConditionLevel.UNAVAILABLE));
+            IsUnavailable = true;
+        }
 
         /// <summary>
         /// Set the FaultState of the Condition to UNAVAILABLE and clear any other FaultStates
@@ -130,8 +158,28 @@ namespace MTConnect.Shdr
         public void Unavailable(long timestamp = 0)
         {
             ClearFaultStates();
-            AddFaultState(new ShdrFaultState(ConditionLevel.UNAVAILABLE, timestamp: timestamp));
+            AddFaultState(new ShdrFaultState(timestamp, ConditionLevel.UNAVAILABLE));
             IsUnavailable = true;
+        }
+
+        /// <summary>
+        /// Set the FaultState of the Condition to UNAVAILABLE and clear any other FaultStates
+        /// </summary>
+        public void Unavailable(DateTime timestamp)
+        {
+            ClearFaultStates();
+            AddFaultState(new ShdrFaultState(timestamp, ConditionLevel.UNAVAILABLE));
+            IsUnavailable = true;
+        }
+
+
+        /// <summary>
+        /// Set the FaultState of the Condition to NORMAL and clear any other FaultStates
+        /// </summary>
+        public void Normal()
+        {
+            ClearFaultStates();
+            AddFaultState(new ShdrFaultState(ConditionLevel.NORMAL));
         }
 
         /// <summary>
@@ -140,8 +188,18 @@ namespace MTConnect.Shdr
         public void Normal(long timestamp = 0)
         {
             ClearFaultStates();
-            AddFaultState(new ShdrFaultState(ConditionLevel.NORMAL, timestamp: timestamp));
+            AddFaultState(new ShdrFaultState(timestamp, ConditionLevel.NORMAL));
         }
+
+        /// <summary>
+        /// Set the FaultState of the Condition to NORMAL and clear any other FaultStates
+        /// </summary>
+        public void Normal(DateTime timestamp)
+        {
+            ClearFaultStates();
+            AddFaultState(new ShdrFaultState(timestamp, ConditionLevel.NORMAL));
+        }
+
 
         /// <summary>
         /// Set the FaultState of the Condition to WARNING and clear any other FaultStates
@@ -150,13 +208,43 @@ namespace MTConnect.Shdr
             string text = null,
             string nativeCode = null,
             string nativeSeverity = null,
-            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED,
-            long timestamp = 0
+            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED
             )
         {
             ClearFaultStates();
-            AddFaultState(new ShdrFaultState(ConditionLevel.WARNING, text, nativeCode, nativeSeverity, qualifier, timestamp));
+            AddFaultState(new ShdrFaultState(ConditionLevel.WARNING, text, nativeCode, nativeSeverity, qualifier));
         }
+
+        /// <summary>
+        /// Set the FaultState of the Condition to WARNING and clear any other FaultStates
+        /// </summary>
+        public void Warning(
+            long timestamp,
+            string text = null,
+            string nativeCode = null,
+            string nativeSeverity = null,
+            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED
+            )
+        {
+            ClearFaultStates();
+            AddFaultState(new ShdrFaultState(timestamp, ConditionLevel.WARNING, text, nativeCode, nativeSeverity, qualifier));
+        }
+
+        /// <summary>
+        /// Set the FaultState of the Condition to WARNING and clear any other FaultStates
+        /// </summary>
+        public void Warning(
+            DateTime timestamp,
+            string text = null,
+            string nativeCode = null,
+            string nativeSeverity = null,
+            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED
+            )
+        {
+            ClearFaultStates();
+            AddFaultState(new ShdrFaultState(timestamp, ConditionLevel.WARNING, text, nativeCode, nativeSeverity, qualifier));
+        }
+
 
         /// <summary>
         /// Set the FaultState of the Condition to FAULT and clear any other FaultStates
@@ -165,44 +253,130 @@ namespace MTConnect.Shdr
             string text = null,
             string nativeCode = null,
             string nativeSeverity = null,
-            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED,
-            long timestamp = 0
+            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED
             )
         {
             ClearFaultStates();
-            AddFaultState(new ShdrFaultState(ConditionLevel.FAULT, text, nativeCode, nativeSeverity, qualifier, timestamp));
+            AddFaultState(new ShdrFaultState(ConditionLevel.FAULT, text, nativeCode, nativeSeverity, qualifier));
         }
 
         /// <summary>
-        /// Add a FaultState to the Condition of WARNING while retaning any other FaultStates
+        /// Set the FaultState of the Condition to FAULT and clear any other FaultStates
+        /// </summary>
+        public void Fault(
+            long timestamp,
+            string text = null,
+            string nativeCode = null,
+            string nativeSeverity = null,
+            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED
+            )
+        {
+            ClearFaultStates();
+            AddFaultState(new ShdrFaultState(timestamp, ConditionLevel.FAULT, text, nativeCode, nativeSeverity, qualifier));
+        }
+
+        /// <summary>
+        /// Set the FaultState of the Condition to FAULT and clear any other FaultStates
+        /// </summary>
+        public void Fault(
+            DateTime timestamp,
+            string text = null,
+            string nativeCode = null,
+            string nativeSeverity = null,
+            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED
+            )
+        {
+            ClearFaultStates();
+            AddFaultState(new ShdrFaultState(timestamp, ConditionLevel.FAULT, text, nativeCode, nativeSeverity, qualifier));
+        }
+
+
+        /// <summary>
+        /// Add a FaultState to the Condition of WARNING while retaining any other FaultStates
         /// </summary>
         public void AddWarning(
             string text = null,
             string nativeCode = null,
             string nativeSeverity = null,
-            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED,
-            long timestamp = 0
+            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED
             )
         {
-            AddFaultState(new ShdrFaultState(ConditionLevel.WARNING, text, nativeCode, nativeSeverity, qualifier, timestamp));
+            AddFaultState(new ShdrFaultState(ConditionLevel.WARNING, text, nativeCode, nativeSeverity, qualifier));
         }
 
         /// <summary>
-        /// Add a FaultState to the Condition of FAULT while retaning any other FaultStates
+        /// Add a FaultState to the Condition of WARNING while retaining any other FaultStates
+        /// </summary>
+        public void AddWarning(
+            long timestamp,
+            string text = null,
+            string nativeCode = null,
+            string nativeSeverity = null,
+            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED
+            )
+        {
+            AddFaultState(new ShdrFaultState(timestamp, ConditionLevel.WARNING, text, nativeCode, nativeSeverity, qualifier));
+        }
+
+        /// <summary>
+        /// Add a FaultState to the Condition of WARNING while retaining any other FaultStates
+        /// </summary>
+        public void AddWarning(
+            DateTime timestamp,
+            string text = null,
+            string nativeCode = null,
+            string nativeSeverity = null,
+            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED
+            )
+        {
+            AddFaultState(new ShdrFaultState(timestamp, ConditionLevel.WARNING, text, nativeCode, nativeSeverity, qualifier));
+        }
+
+
+        /// <summary>
+        /// Add a FaultState to the Condition of FAULT while retaining any other FaultStates
         /// </summary>
         public void AddFault(
             string text = null,
             string nativeCode = null,
             string nativeSeverity = null,
-            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED,
-            long timestamp = 0
+            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED
             )
         {
-            AddFaultState(new ShdrFaultState(ConditionLevel.FAULT, text, nativeCode, nativeSeverity, qualifier, timestamp));
+            AddFaultState(new ShdrFaultState(ConditionLevel.FAULT, text, nativeCode, nativeSeverity, qualifier));
         }
 
         /// <summary>
-        /// Add a FaultState to the Condition while retaning any other FaultStates
+        /// Add a FaultState to the Condition of FAULT while retaining any other FaultStates
+        /// </summary>
+        public void AddFault(
+            long timestamp,
+            string text = null,
+            string nativeCode = null,
+            string nativeSeverity = null,
+            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED
+            )
+        {
+            AddFaultState(new ShdrFaultState(timestamp, ConditionLevel.FAULT, text, nativeCode, nativeSeverity, qualifier));
+        }
+
+        /// <summary>
+        /// Add a FaultState to the Condition of FAULT while retaining any other FaultStates
+        /// </summary>
+        public void AddFault(
+            DateTime timestamp,
+            string text = null,
+            string nativeCode = null,
+            string nativeSeverity = null,
+            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED
+            )
+        {
+            AddFaultState(new ShdrFaultState(timestamp, ConditionLevel.FAULT, text, nativeCode, nativeSeverity, qualifier));
+        }
+
+
+        /// <summary>
+        /// Add a FaultState to the Condition while retaining any other FaultStates
         /// </summary>
         public void AddFaultState(ShdrFaultState faultState)
         {
@@ -225,12 +399,14 @@ namespace MTConnect.Shdr
             }
         }
 
+
         public void ClearFaultStates()
         {
             lock (_lock) _faultStates = null;
             _changeId = null;
             _changeIdWithTimestamp = null;
         }
+
 
         /// <summary>
         /// Convert ShdrCondition to an SHDR string

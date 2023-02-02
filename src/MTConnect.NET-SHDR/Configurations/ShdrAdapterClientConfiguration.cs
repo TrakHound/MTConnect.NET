@@ -8,7 +8,7 @@ namespace MTConnect.Configurations
     /// <summary>
     /// Configuration for an MTConnect SHDR Adapter
     /// </summary>
-    public class ShdrAdapterConfiguration : ShdrClientConfiguration, IShdrAdapterConfiguration
+    public class ShdrAdapterClientConfiguration : ShdrClientConfiguration, IShdrAdapterClientConfiguration
     {
         /// <summary>
         /// For devices that do not have the ability to provide available events, if yes, this sets the Availability to AVAILABLE upon connection.
@@ -42,7 +42,7 @@ namespace MTConnect.Configurations
         public bool OutputConnectionInformation { get; set; }
 
 
-        public ShdrAdapterConfiguration()
+        public ShdrAdapterClientConfiguration()
         {
             AvailableOnConnection = false;
             IgnoreTimestamps = false;

@@ -2,6 +2,7 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Observations;
+using MTConnect.Observations.Input;
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
@@ -92,6 +93,17 @@ namespace MTConnect.Shdr
             if (!string.IsNullOrEmpty(nativeCode)) values.Add(new ObservationValue(ValueKeys.NativeCode, nativeCode));
             Values = values;
             Timestamp = timestamp.ToUnixTime();
+        }
+
+        public ShdrMessage(ObservationInput observation)
+        {
+            if (observation != null)
+            {
+                DeviceKey = observation.DeviceKey;
+                DataItemKey = observation.DataItemKey;
+                Values = observation.Values;
+                Timestamp = observation.Timestamp;
+            }
         }
 
 

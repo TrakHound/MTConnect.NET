@@ -3,11 +3,11 @@
 
 using MTConnect.Configurations;
 using MTConnect.Devices;
-using MTConnect.Devices.DataItems.Samples;
 using MTConnect.Observations.Input;
 using MTConnect.Shdr;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
@@ -169,7 +169,7 @@ namespace MTConnect.Adapters.Shdr
             _connectionListener.ClientPongSent += ClientPongSent;
         }
 
-        public ShdrAdapter(ShdrAdapterConfiguration configuration)
+        public ShdrAdapter(ShdrAdapterClientConfiguration configuration)
         {
             FilterDuplicates = true;
             OutputTimestamps = true;
@@ -372,12 +372,14 @@ namespace MTConnect.Adapters.Shdr
                 var clients = GetAgentClients();
                 if (!clients.IsNullOrEmpty())
                 {
+                    var success = true;
+
                     foreach (var client in clients)
                     {
-                        WriteLineToClient(client, line);
+                        if (!WriteLineToClient(client, line)) success = false;
                     }
 
-                    return true;
+                    return success;
                 }              
             }
 
@@ -586,22 +588,24 @@ namespace MTConnect.Adapters.Shdr
         {
             if (dataItem != null)
             {
+                var newDataItem = new ShdrDataItem(dataItem);
+
                 // Set the DeviceKey
-                dataItem.DeviceKey = DeviceKey;
+                newDataItem.DeviceKey = DeviceKey;
 
                 // Set Timestamp (if not already set)
-                if (!OutputTimestamps) dataItem.Timestamp = 0;
-                else if (dataItem.Timestamp <= 0) dataItem.Timestamp = UnixDateTime.Now;
+                if (!OutputTimestamps) newDataItem.Timestamp = 0;
+                else if (newDataItem.Timestamp <= 0) newDataItem.Timestamp = UnixDateTime.Now;
 
                 // Get the Current Observation (if exists)
                 ShdrDataItem currentDataItem;
-                lock (_lock) _currentDataItems.TryGetValue(dataItem.DataItemKey, out currentDataItem);
+                lock (_lock) _currentDataItems.TryGetValue(newDataItem.DataItemKey, out currentDataItem);
 
                 // Check to see if new Observation is the same as the Current
                 var add = true;
                 if (currentDataItem != null && FilterDuplicates)
                 {
-                    add = !ObjectExtensions.ByteArraysEqual(dataItem.ChangeId, currentDataItem.ChangeId);
+                    add = !ObjectExtensions.ByteArraysEqual(newDataItem.ChangeId, currentDataItem.ChangeId);
                 }
 
                 if (add)
@@ -609,12 +613,12 @@ namespace MTConnect.Adapters.Shdr
                     // Add to Current
                     lock (_lock)
                     {
-                        _currentDataItems.Remove(dataItem.DataItemKey);
-                        _currentDataItems.Add(dataItem.DataItemKey, dataItem);
+                        _currentDataItems.Remove(newDataItem.DataItemKey);
+                        _currentDataItems.Add(newDataItem.DataItemKey, newDataItem);
                     }
 
                     // Call Overridable Method
-                    OnDataItemAdd(dataItem);
+                    OnDataItemAdd(newDataItem);
                 }
             }
         }
@@ -655,27 +659,29 @@ namespace MTConnect.Adapters.Shdr
         {
             if (dataItem != null)
             {
+                var newDataItem = new ShdrDataItem(dataItem);
+
                 // Set the DeviceKey
-                dataItem.DeviceKey = DeviceKey;
+                newDataItem.DeviceKey = DeviceKey;
 
                 // Set Timestamp (if not already set)
-                if (!OutputTimestamps) dataItem.Timestamp = 0;
-                else if (dataItem.Timestamp <= 0) dataItem.Timestamp = UnixDateTime.Now;
+                if (!OutputTimestamps) newDataItem.Timestamp = 0;
+                else if (newDataItem.Timestamp <= 0) newDataItem.Timestamp = UnixDateTime.Now;
 
                 // Remove from Current
-                lock (_lock) _currentDataItems.Remove(dataItem.DataItemKey);
+                lock (_lock) _currentDataItems.Remove(newDataItem.DataItemKey);
 
                 // Call Overridable Method
-                OnDataItemAdd(dataItem);
+                OnDataItemAdd(newDataItem);
 
                 // Create SHDR string to send
-                var shdrLine = dataItem.ToString();
+                var shdrLine = newDataItem.ToString();
 
                 var success = WriteLine(shdrLine);
                 if (success)
                 {
                     // Update Last Sent DataItems
-                    UpdateLastDataItems(new List<ShdrDataItem> { dataItem });
+                    UpdateLastDataItems(new List<ShdrDataItem> { newDataItem });
                 }
 
                 return success;
@@ -862,22 +868,24 @@ namespace MTConnect.Adapters.Shdr
         {
             if (message != null)
             {
+                var newMessage = new ShdrMessage(message);
+
                 // Set the DeviceKey
-                message.DeviceKey = DeviceKey;
+                newMessage.DeviceKey = DeviceKey;
 
                 // Set Timestamp (if not already set)
-                if (!OutputTimestamps) message.Timestamp = 0;
-                else if (message.Timestamp <= 0) message.Timestamp = UnixDateTime.Now;
+                if (!OutputTimestamps) newMessage.Timestamp = 0;
+                else if (newMessage.Timestamp <= 0) newMessage.Timestamp = UnixDateTime.Now;
 
                 // Get the Current Observation (if exists)
                 ShdrMessage currentMessage;
-                lock (_lock) _currentMessages.TryGetValue(message.DataItemKey, out currentMessage);
+                lock (_lock) _currentMessages.TryGetValue(newMessage.DataItemKey, out currentMessage);
 
                 // Check to see if new Observation is the same as the Current
                 var add = true;
                 if (currentMessage != null && FilterDuplicates)
                 {
-                    add = !ObjectExtensions.ByteArraysEqual(message.ChangeId, currentMessage.ChangeId);
+                    add = !ObjectExtensions.ByteArraysEqual(newMessage.ChangeId, currentMessage.ChangeId);
                 }
 
                 if (add)
@@ -885,12 +893,12 @@ namespace MTConnect.Adapters.Shdr
                     // Add to Current
                     lock (_lock)
                     {
-                        _currentMessages.Remove(message.DataItemKey);
-                        _currentMessages.Add(message.DataItemKey, message);
+                        _currentMessages.Remove(newMessage.DataItemKey);
+                        _currentMessages.Add(newMessage.DataItemKey, newMessage);
                     }
 
                     // Call Overridable Method
-                    OnMessageAdd(message);
+                    OnMessageAdd(newMessage);
                 }
             }
         }
@@ -941,27 +949,29 @@ namespace MTConnect.Adapters.Shdr
         {
             if (message != null)
             {
+                var newMessage = new ShdrMessage(message);
+
                 // Set the DeviceKey
-                message.DeviceKey = DeviceKey;
+                newMessage.DeviceKey = DeviceKey;
 
                 // Set Timestamp (if not already set)
-                if (!OutputTimestamps) message.Timestamp = 0;
-                else if (message.Timestamp <= 0) message.Timestamp = UnixDateTime.Now;
+                if (!OutputTimestamps) newMessage.Timestamp = 0;
+                else if (newMessage.Timestamp <= 0) newMessage.Timestamp = UnixDateTime.Now;
 
                 // Remove from Current
-                lock (_lock) _currentMessages.Remove(message.DataItemKey);
+                lock (_lock) _currentMessages.Remove(newMessage.DataItemKey);
 
                 // Call Overridable Method
-                OnMessageAdd(message);
+                OnMessageAdd(newMessage);
 
                 // Create SHDR string to send
-                var shdrLine = message.ToString();
+                var shdrLine = newMessage.ToString();
 
                 var success = WriteLine(shdrLine);
                 if (success)
                 {
                     // Update Last Sent Messages
-                    UpdateLastMessages(new List<ShdrMessage> { message });
+                    UpdateLastMessages(new List<ShdrMessage> { newMessage });
                 }
 
                 return success;
@@ -1125,13 +1135,15 @@ namespace MTConnect.Adapters.Shdr
         {
             if (condition != null)
             {
+                var newCondition = new ShdrCondition(condition);
+
                 // Set the DeviceKey
-                condition.DeviceKey = DeviceKey;
+                newCondition.DeviceKey = DeviceKey;
 
                 // Set Timestamp (if not already set)
-                if (!condition.FaultStates.IsNullOrEmpty())
+                if (!newCondition.FaultStates.IsNullOrEmpty())
                 {
-                    foreach (var faultState in condition.FaultStates)
+                    foreach (var faultState in newCondition.FaultStates)
                     {
                         // Set Timestamp (if not already set)
                         if (!OutputTimestamps) faultState.Timestamp = 0;
@@ -1141,13 +1153,13 @@ namespace MTConnect.Adapters.Shdr
 
                 // Get the Current Observation (if exists)
                 ShdrCondition currentCondition;
-                lock (_lock) _currentConditions.TryGetValue(condition.DataItemKey, out currentCondition);
+                lock (_lock) _currentConditions.TryGetValue(newCondition.DataItemKey, out currentCondition);
 
                 // Check to see if new Observation is the same as the Current
                 var add = true;
                 if (currentCondition != null && FilterDuplicates)
                 {
-                    add = !ObjectExtensions.ByteArraysEqual(condition.ChangeId, currentCondition.ChangeId);
+                    add = !ObjectExtensions.ByteArraysEqual(newCondition.ChangeId, currentCondition.ChangeId);
                 }
 
                 if (add)
@@ -1155,19 +1167,14 @@ namespace MTConnect.Adapters.Shdr
                     // Add to Current
                     lock (_lock)
                     {
-                        _currentConditions.Remove(condition.DataItemKey);
-                        _currentConditions.Add(condition.DataItemKey, condition);
+                        _currentConditions.Remove(newCondition.DataItemKey);
+                        _currentConditions.Add(newCondition.DataItemKey, newCondition);
                     }
 
                     // Call Overridable Method
-                    OnConditionAdd(condition);
+                    OnConditionAdd(newCondition);
                 }
             }
-        }
-
-        public void AddCondition(ConditionObservationInput condition)
-        {
-            AddCondition(new ShdrFaultState(condition));
         }
 
         public void AddConditions(IEnumerable<ShdrCondition> conditions)
@@ -1186,13 +1193,15 @@ namespace MTConnect.Adapters.Shdr
         {
             if (condition != null)
             {
+                var newCondition = new ShdrCondition(condition);
+
                 // Set the DeviceKey
-                condition.DeviceKey = DeviceKey;
+                newCondition.DeviceKey = DeviceKey;
 
                 // Set Timestamp (if not already set)
-                if (!condition.FaultStates.IsNullOrEmpty())
+                if (!newCondition.FaultStates.IsNullOrEmpty())
                 {
-                    foreach (var faultState in condition.FaultStates)
+                    foreach (var faultState in newCondition.FaultStates)
                     {
                         // Set Timestamp (if not already set)
                         if (!OutputTimestamps) faultState.Timestamp = 0;
@@ -1201,30 +1210,25 @@ namespace MTConnect.Adapters.Shdr
                 }
 
                 // Remove from Current
-                lock (_lock) _currentConditions.Remove(condition.DataItemKey);
+                lock (_lock) _currentConditions.Remove(newCondition.DataItemKey);
 
                 // Call Overridable Method
-                OnConditionAdd(condition);
+                OnConditionAdd(newCondition);
 
                 // Create SHDR string to send
-                var shdrLine = condition.ToString();
+                var shdrLine = newCondition.ToString();
 
                 var success = WriteLine(shdrLine);
                 if (success)
                 {
                     // Update Last Sent DataItems
-                    UpdateLastConditions(new List<ShdrCondition> { condition });
+                    UpdateLastConditions(new List<ShdrCondition> { newCondition });
                 }
 
                 return success;
             }
 
             return false;
-        }
-
-        public bool SendCondition(ConditionObservationInput condition)
-        {
-            return SendCondition(new ShdrFaultState(condition));
         }
 
         public bool SendConditions(IEnumerable<ShdrCondition> conditions)
@@ -1380,22 +1384,24 @@ namespace MTConnect.Adapters.Shdr
         {
             if (timeSeries != null)
             {
+                var newTimeSeries = new ShdrTimeSeries(timeSeries);
+
                 // Set the DeviceKey
-                timeSeries.DeviceKey = DeviceKey;
+                newTimeSeries.DeviceKey = DeviceKey;
 
                 // Set Timestamp (if not already set)
-                if (!OutputTimestamps) timeSeries.Timestamp = 0;
-                else if (timeSeries.Timestamp <= 0) timeSeries.Timestamp = UnixDateTime.Now;
+                if (!OutputTimestamps) newTimeSeries.Timestamp = 0;
+                else if (newTimeSeries.Timestamp <= 0) newTimeSeries.Timestamp = UnixDateTime.Now;
 
                 // Get the Current Observation (if exists)
                 ShdrTimeSeries currentTimeSeries;
-                lock (_lock) _currentTimeSeries.TryGetValue(timeSeries.DataItemKey, out currentTimeSeries);
+                lock (_lock) _currentTimeSeries.TryGetValue(newTimeSeries.DataItemKey, out currentTimeSeries);
 
                 // Check to see if new Observation is the same as the Current
                 var add = true;
                 if (currentTimeSeries != null && FilterDuplicates)
                 {
-                    add = !ObjectExtensions.ByteArraysEqual(timeSeries.ChangeId, currentTimeSeries.ChangeId);
+                    add = !ObjectExtensions.ByteArraysEqual(newTimeSeries.ChangeId, currentTimeSeries.ChangeId);
                 }
 
                 if (add)
@@ -1403,19 +1409,14 @@ namespace MTConnect.Adapters.Shdr
                     // Add to Current
                     lock (_lock)
                     {
-                        _currentTimeSeries.Remove(timeSeries.DataItemKey);
-                        _currentTimeSeries.Add(timeSeries.DataItemKey, timeSeries);
+                        _currentTimeSeries.Remove(newTimeSeries.DataItemKey);
+                        _currentTimeSeries.Add(newTimeSeries.DataItemKey, newTimeSeries);
                     }
 
                     // Call Overridable Method
-                    OnTimeSeriesAdd(timeSeries);
+                    OnTimeSeriesAdd(newTimeSeries);
                 }
             }
-        }
-
-        public void AddTimeSeries(TimeSeriesObservationInput observation)
-        {
-            AddTimeSeries(new ShdrTimeSeries(observation));
         }
 
         public void AddTimeSeries(IEnumerable<ShdrTimeSeries> timeSeries)
@@ -1429,57 +1430,40 @@ namespace MTConnect.Adapters.Shdr
             }
         }
 
-        public void AddTimeSeries(IEnumerable<TimeSeriesObservationInput> timeSeries)
-        {
-            if (!timeSeries.IsNullOrEmpty())
-            {
-                var items = new List<ShdrTimeSeries>();
-                foreach (var item in timeSeries)
-                {
-                    items.Add(new ShdrTimeSeries(item));
-                }
-
-                AddTimeSeries(items);
-            }
-        }
-
 
         public bool SendTimeSeries(ShdrTimeSeries timeSeries)
         {
             if (timeSeries != null)
             {
+                var newTimeSeries = new ShdrTimeSeries(timeSeries);
+
                 // Set the DeviceKey
-                timeSeries.DeviceKey = DeviceKey;
+                newTimeSeries.DeviceKey = DeviceKey;
 
                 // Set Timestamp (if not already set)
-                if (!OutputTimestamps) timeSeries.Timestamp = 0;
-                else if (timeSeries.Timestamp <= 0) timeSeries.Timestamp = UnixDateTime.Now;
+                if (!OutputTimestamps) newTimeSeries.Timestamp = 0;
+                else if (newTimeSeries.Timestamp <= 0) newTimeSeries.Timestamp = UnixDateTime.Now;
 
                 // Remove from Current
-                lock (_lock) _currentTimeSeries.Remove(timeSeries.DataItemKey);
+                lock (_lock) _currentTimeSeries.Remove(newTimeSeries.DataItemKey);
 
                 // Call Overridable Method
-                OnTimeSeriesAdd(timeSeries);
+                OnTimeSeriesAdd(newTimeSeries);
 
                 // Create SHDR string to send
-                var shdrLine = timeSeries.ToString();
+                var shdrLine = newTimeSeries.ToString();
 
                 var success = WriteLine(shdrLine);
                 if (success)
                 {
                     // Update Last Sent TimeSeries
-                    UpdateLastTimeSeries(new List<ShdrTimeSeries> { timeSeries });
+                    UpdateLastTimeSeries(new List<ShdrTimeSeries> { newTimeSeries });
                 }
 
                 return success;
             }
 
             return false;
-        }
-
-        public bool SendTimeSeries(TimeSeriesObservationInput observation)
-        {
-            return SendTimeSeries(new ShdrTimeSeries(observation));
         }
 
         public bool SendTimeSeries(IEnumerable<ShdrTimeSeries> timeSeries)
@@ -1494,22 +1478,6 @@ namespace MTConnect.Adapters.Shdr
                 }
 
                 return success;
-            }
-
-            return false;
-        }
-
-        public bool SendTimeSeries(IEnumerable<TimeSeriesObservationInput> timeSeries)
-        {
-            if (!timeSeries.IsNullOrEmpty())
-            {
-                var items = new List<ShdrTimeSeries>();
-                foreach (var item in timeSeries)
-                {
-                    items.Add(new ShdrTimeSeries(item));
-                }
-
-                return SendTimeSeries(items);
             }
 
             return false;
@@ -1653,22 +1621,24 @@ namespace MTConnect.Adapters.Shdr
         {
             if (dataSet != null)
             {
+                var newDataSet = new ShdrDataSet(dataSet);
+
                 // Set the DeviceKey
-                dataSet.DeviceKey = DeviceKey;
+                newDataSet.DeviceKey = DeviceKey;
 
                 // Set Timestamp (if not already set)
-                if (!OutputTimestamps) dataSet.Timestamp = 0;
-                else if (dataSet.Timestamp <= 0) dataSet.Timestamp = UnixDateTime.Now;
+                if (!OutputTimestamps) newDataSet.Timestamp = 0;
+                else if (newDataSet.Timestamp <= 0) newDataSet.Timestamp = UnixDateTime.Now;
 
                 // Get the Current Observation (if exists)
                 ShdrDataSet currentDataSet;
-                lock (_lock) _currentDataSets.TryGetValue(dataSet.DataItemKey, out currentDataSet);
+                lock (_lock) _currentDataSets.TryGetValue(newDataSet.DataItemKey, out currentDataSet);
 
                 // Check to see if new Observation is the same as the Current
                 var add = true;
                 if (currentDataSet != null && FilterDuplicates)
                 {
-                    add = !ObjectExtensions.ByteArraysEqual(dataSet.ChangeId, currentDataSet.ChangeId);
+                    add = !ObjectExtensions.ByteArraysEqual(newDataSet.ChangeId, currentDataSet.ChangeId);
                 }
 
                 if (add)
@@ -1676,19 +1646,14 @@ namespace MTConnect.Adapters.Shdr
                     // Add to Current
                     lock (_lock)
                     {
-                        _currentDataSets.Remove(dataSet.DataItemKey);
-                        _currentDataSets.Add(dataSet.DataItemKey, dataSet);
+                        _currentDataSets.Remove(newDataSet.DataItemKey);
+                        _currentDataSets.Add(newDataSet.DataItemKey, newDataSet);
                     }
 
                     // Call Overridable Method
-                    OnDataSetAdd(dataSet);
+                    OnDataSetAdd(newDataSet);
                 }
             }
-        }
-
-        public void AddDataSet(DataSetObservationInput observation)
-        {
-            AddDataSet(new ShdrDataSet(observation));
         }
 
         public void AddDataSets(IEnumerable<ShdrDataSet> dataSets)
@@ -1702,57 +1667,40 @@ namespace MTConnect.Adapters.Shdr
             }
         }
 
-        public void AddDataSets(IEnumerable<DataSetObservationInput> dataSets)
-        {
-            if (!dataSets.IsNullOrEmpty())
-            {
-                var items = new List<ShdrDataSet>();
-                foreach (var item in dataSets)
-                {
-                    items.Add(new ShdrDataSet(item));
-                }
-
-                AddDataSets(items);
-            }
-        }
-
 
         public bool SendDataSet(ShdrDataSet dataSet)
         {
             if (dataSet != null)
             {
+                var newDataSet = new ShdrDataSet(dataSet);
+
                 // Set the DeviceKey
-                dataSet.DeviceKey = DeviceKey;
+                newDataSet.DeviceKey = DeviceKey;
 
                 // Set Timestamp (if not already set)
-                if (!OutputTimestamps) dataSet.Timestamp = 0;
-                else if (dataSet.Timestamp <= 0) dataSet.Timestamp = UnixDateTime.Now;
+                if (!OutputTimestamps) newDataSet.Timestamp = 0;
+                else if (newDataSet.Timestamp <= 0) newDataSet.Timestamp = UnixDateTime.Now;
 
                 // Remove from Current
-                lock (_lock) _currentDataSets.Remove(dataSet.DataItemKey);
+                lock (_lock) _currentDataSets.Remove(newDataSet.DataItemKey);
 
                 // Call Overridable Method
-                OnDataSetAdd(dataSet);
+                OnDataSetAdd(newDataSet);
 
                 // Create SHDR string to send
-                var shdrLine = dataSet.ToString();
+                var shdrLine = newDataSet.ToString();
 
                 var success = WriteLine(shdrLine);
                 if (success)
                 {
                     // Update Last Sent TimeSeries
-                    UpdateLastDataSets(new List<ShdrDataSet> { dataSet });
+                    UpdateLastDataSets(new List<ShdrDataSet> { newDataSet });
                 }
 
                 return success;
             }
 
             return false;
-        }
-
-        public bool SendDataSet(DataSetObservationInput observation)
-        {
-            return SendDataSet(new ShdrDataSet(observation));
         }
 
         public bool SendDataSets(IEnumerable<ShdrDataSet> dataSets)
@@ -1767,22 +1715,6 @@ namespace MTConnect.Adapters.Shdr
                 }
 
                 return success;
-            }
-
-            return false;
-        }
-
-        public bool SendDataSets(IEnumerable<DataSetObservationInput> dataSets)
-        {
-            if (!dataSets.IsNullOrEmpty())
-            {
-                var items = new List<ShdrDataSet>();
-                foreach (var item in dataSets)
-                {
-                    items.Add(new ShdrDataSet(item));
-                }
-
-                return SendDataSets(items);
             }
 
             return false;
@@ -1926,22 +1858,24 @@ namespace MTConnect.Adapters.Shdr
         {
             if (table != null)
             {
+                var newTable = new ShdrTable(table);
+
                 // Set the DeviceKey
-                table.DeviceKey = DeviceKey;
+                newTable.DeviceKey = DeviceKey;
 
                 // Set Timestamp (if not already set)
-                if (!OutputTimestamps) table.Timestamp = 0;
-                else if (table.Timestamp <= 0) table.Timestamp = UnixDateTime.Now;
+                if (!OutputTimestamps) newTable.Timestamp = 0;
+                else if (newTable.Timestamp <= 0) newTable.Timestamp = UnixDateTime.Now;
 
                 // Get the Current Observation (if exists)
                 ShdrTable currentTable;
-                lock (_lock) _currentTables.TryGetValue(table.DataItemKey, out currentTable);
+                lock (_lock) _currentTables.TryGetValue(newTable.DataItemKey, out currentTable);
 
                 // Check to see if new Observation is the same as the Current
                 var add = true;
                 if (currentTable != null && FilterDuplicates)
                 {
-                    add = !ObjectExtensions.ByteArraysEqual(table.ChangeId, currentTable.ChangeId);
+                    add = !ObjectExtensions.ByteArraysEqual(newTable.ChangeId, currentTable.ChangeId);
                 }
 
                 if (add)
@@ -1949,19 +1883,14 @@ namespace MTConnect.Adapters.Shdr
                     // Add to Current
                     lock (_lock)
                     {
-                        _currentTables.Remove(table.DataItemKey);
-                        _currentTables.Add(table.DataItemKey, table);
+                        _currentTables.Remove(newTable.DataItemKey);
+                        _currentTables.Add(newTable.DataItemKey, newTable);
                     }
 
                     // Call Overridable Method
-                    OnTableAdd(table);
+                    OnTableAdd(newTable);
                 }
             }
-        }
-
-        public void AddTable(TableObservationInput observation)
-        {
-            AddTable(new ShdrTable(observation));
         }
 
         public void AddTables(IEnumerable<ShdrTable> tables)
@@ -1975,57 +1904,40 @@ namespace MTConnect.Adapters.Shdr
             }
         }
 
-        public void AddTables(IEnumerable<TableObservationInput> tables)
-        {
-            if (!tables.IsNullOrEmpty())
-            {
-                var items = new List<ShdrTable>();
-                foreach (var item in tables)
-                {
-                    items.Add(new ShdrTable(item));
-                }
-
-                AddTables(items);
-            }
-        }
-
 
         public bool SendTable(ShdrTable table)
         {
             if (table != null)
             {
+                var newTable = new ShdrTable(table);
+
                 // Set the DeviceKey
-                table.DeviceKey = DeviceKey;
+                newTable.DeviceKey = DeviceKey;
 
                 // Set Timestamp (if not already set)
-                if (!OutputTimestamps) table.Timestamp = 0;
-                else if (table.Timestamp <= 0) table.Timestamp = UnixDateTime.Now;
+                if (!OutputTimestamps) newTable.Timestamp = 0;
+                else if (newTable.Timestamp <= 0) newTable.Timestamp = UnixDateTime.Now;
 
                 // Remove from Current
-                lock (_lock) _currentTables.Remove(table.DataItemKey);
+                lock (_lock) _currentTables.Remove(newTable.DataItemKey);
 
                 // Call Overridable Method
-                OnTableAdd(table);
+                OnTableAdd(newTable);
 
                 // Create SHDR string to send
-                var shdrLine = table.ToString();
+                var shdrLine = newTable.ToString();
 
                 var success = WriteLine(shdrLine);
                 if (success)
                 {
                     // Update Last Sent
-                    UpdateLastTables(new List<ShdrTable> { table });
+                    UpdateLastTables(new List<ShdrTable> { newTable });
                 }
 
                 return success;
             }
 
             return false;
-        }
-
-        public bool SendTable(TableObservationInput observation)
-        {
-            return SendTable(new ShdrTable(observation));
         }
 
         public bool SendTables(IEnumerable<ShdrTable> tables)
@@ -2040,22 +1952,6 @@ namespace MTConnect.Adapters.Shdr
                 }
 
                 return success;
-            }
-
-            return false;
-        }
-
-        public bool SendTables(IEnumerable<TableObservationInput> tables)
-        {
-            if (!tables.IsNullOrEmpty())
-            {
-                var items = new List<ShdrTable>();
-                foreach (var item in tables)
-                {
-                    items.Add(new ShdrTable(item));
-                }
-
-                return SendTables(items);
             }
 
             return false;

@@ -39,6 +39,6 @@ namespace MTConnect.Configurations
         /// <summary>
         /// List of SHDR Adapter connection configurations
         /// </summary>
-        IEnumerable<ShdrAdapterConfiguration> Adapters { get; }
+        IEnumerable<ShdrAdapterClientConfiguration> Adapters { get; }
     }
 }

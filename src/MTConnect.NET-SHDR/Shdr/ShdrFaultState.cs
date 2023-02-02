@@ -1,7 +1,6 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-using MTConnect.Devices;
 using MTConnect.Observations;
 using MTConnect.Observations.Input;
 using System;
@@ -24,8 +23,23 @@ namespace MTConnect.Shdr
             string message = null,
             string nativeCode = null,
             string nativeSeverity = null,
-            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED,
-            long timestamp = 0
+            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED
+            )
+        {
+            Level = level;
+            if (!string.IsNullOrEmpty(nativeCode)) NativeCode = nativeCode;
+            if (!string.IsNullOrEmpty(nativeSeverity)) NativeSeverity = nativeSeverity;
+            Qualifier = qualifier;
+            if (!string.IsNullOrEmpty(message)) Message = message;
+        }
+
+        public ShdrFaultState(
+            long timestamp,
+            ConditionLevel level,
+            string message = null,
+            string nativeCode = null,
+            string nativeSeverity = null,
+            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED
             )
         {
             Level = level;
@@ -34,6 +48,23 @@ namespace MTConnect.Shdr
             Qualifier = qualifier;
             if (!string.IsNullOrEmpty(message)) Message = message;
             Timestamp = timestamp;
+        }
+
+        public ShdrFaultState(
+            DateTime timestamp,
+            ConditionLevel level,
+            string message = null,
+            string nativeCode = null,
+            string nativeSeverity = null,
+            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED
+            )
+        {
+            Level = level;
+            if (!string.IsNullOrEmpty(nativeCode)) NativeCode = nativeCode;
+            if (!string.IsNullOrEmpty(nativeSeverity)) NativeSeverity = nativeSeverity;
+            Qualifier = qualifier;
+            if (!string.IsNullOrEmpty(message)) Message = message;
+            Timestamp = timestamp.ToUnixTime();
         }
 
         public ShdrFaultState(ConditionObservationInput conditionObservation)

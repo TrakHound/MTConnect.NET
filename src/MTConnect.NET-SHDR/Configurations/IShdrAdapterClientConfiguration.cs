@@ -6,7 +6,7 @@ namespace MTConnect.Configurations
     /// <summary>
     /// Configuration for an MTConnect SHDR Adapter
     /// </summary>
-    public interface IShdrAdapterConfiguration : IShdrClientConfiguration
+    public interface IShdrAdapterClientConfiguration : IShdrClientConfiguration
     {
         /// <summary>
         /// For devices that do not have the ability to provide available events, if yes, this sets the Availability to AVAILABLE upon connection.
