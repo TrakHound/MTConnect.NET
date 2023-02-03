@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "MTConnect-Adapter-SHDR": {
+      "commandName": "Project",
+      "commandLineArgs": "debug"
+    }
+  }
+}

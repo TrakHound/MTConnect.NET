@@ -1,14 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Threading;
 using System.Threading.Tasks;
 
-namespace MTConnect.Applications.Adapters.Shdr
+namespace MTConnect.NET_Adapter_SHDR.Simulator
 {
     internal class PlcSimulator
     {
         private CancellationTokenSource cancellationTokenSource;
+        private readonly string _hostname;
+        private readonly int _port;
+        private readonly int _interval;
 
         public bool Connected;
         public bool EmergencyStop; // true = ARMED, false = TRIGGERED
@@ -49,8 +49,13 @@ namespace MTConnect.Applications.Adapters.Shdr
         }
 
 
-        public PlcSimulator(string hostName)
+        public PlcSimulator(string hostName, int port, int interval = 100)
         {
+            _hostname = hostName;
+            _port = port;
+            _interval = interval;
+
+
             SpindleDatas = new SpindleData[1];
             SpindleDatas[0] = new SpindleData();
 
@@ -116,17 +121,17 @@ namespace MTConnect.Applications.Adapters.Shdr
 
                 for (var i = 0; i < 1000; i++)
                 {
-                    EmergencyStop = true;
+                    //EmergencyStop = true;
 
-                    ProcessDatas[0].Program = "PRT_011.NC";
+                    //ProcessDatas[0].Program = "PRT_011.NC";
 
-                    SpindleDatas[0].ProgrammedSpeed = 5500;
-                    SpindleDatas[0].ActualSpeed = 5499;
+                    //SpindleDatas[0].ProgrammedSpeed = 5500;
+                    //SpindleDatas[0].ActualSpeed = 5499;
 
-                    AxisDatas[0].MachinePosition = 123.45678;
-                    AxisDatas[0].WorkPosition = 45.12345;
+                    AxisDatas[0].MachinePosition = 123.45678 + (double)i / 1000;
+                    AxisDatas[0].WorkPosition = 45.12345 + (double)i / 1000;
 
-                    await Task.Delay(5);
+                    await Task.Delay(_interval);
                 }
             }
         }
