@@ -16,15 +16,8 @@
 
   <PropertyGroup>
    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
-   <Company>TrakHound Inc.</Company>
-   <Copyright>Copyright (c) 2023 TrakHound Inc., All Rights Reserved.</Copyright>
-   <PackageProjectUrl>http://trakhound.com</PackageProjectUrl>
-   <PackageReadmeFile>README.md</PackageReadmeFile>
-   <RepositoryUrl>https://github.com/TrakHound/MTConnect.NET</RepositoryUrl>
-   <RepositoryType>git</RepositoryType>
-   <PackageTags>mtconnect;iiot;</PackageTags>
-   <Authors>TrakHound Inc.</Authors>
-   <Product>TrakHound MTConnect Http-AspNetCore Gateway Agent</Product>
+   <Company></Company>
+   <Copyright></Copyright>
   </PropertyGroup>
 
   <ItemGroup>
