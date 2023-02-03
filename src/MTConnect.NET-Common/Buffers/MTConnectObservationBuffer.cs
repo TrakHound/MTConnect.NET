@@ -639,19 +639,19 @@ namespace MTConnect.Buffers
 
                 if (!existingObservations.IsNullOrEmpty())
                 {
-                    // Only Add Existing Condition Observations if Not NORMAL or UNAVAILABLE
                     var conditionLevel = observation.GetValue(ValueKeys.Level);
-                    if (conditionLevel != ConditionLevel.NORMAL.ToString() &&
+                    var nativeCode = observation.GetValue(ValueKeys.NativeCode);
+
+                    if (!(conditionLevel == ConditionLevel.NORMAL.ToString() && string.IsNullOrEmpty(nativeCode)) &&
                         conditionLevel != ConditionLevel.UNAVAILABLE.ToString())
                     {
                         foreach (var existingObservation in existingObservations)
                         {
-                            // Get Condition Level Value
-                            conditionLevel = existingObservation.GetValue(ValueKeys.Level);
+                            var existingLevel = existingObservation.GetValue(ValueKeys.Level);
+                            var existingNativeCode = existingObservation.GetValue(ValueKeys.NativeCode);
 
-                            // Don't include existing NORMAL or UNAVAILABLE
-                            if (conditionLevel != ConditionLevel.NORMAL.ToString() &&
-                                conditionLevel != ConditionLevel.UNAVAILABLE.ToString() &&
+                            if (existingNativeCode != nativeCode && 
+                                existingLevel != ConditionLevel.UNAVAILABLE.ToString() &&
                                 existingObservation.Sequence != observation.Sequence)
                             {
                                 bufferObservations.Add(existingObservation);
@@ -662,6 +662,14 @@ namespace MTConnect.Buffers
 
                 // Add the new Observation
                 bufferObservations.Add(observation);
+
+                // If any WARNING or FAULT states present, then remove any NORMAL states
+                // Current should only show the active states
+                if (bufferObservations.Any(o => o.GetValue(ValueKeys.Level) == ConditionLevel.WARNING.ToString() || o.GetValue(ValueKeys.Level) == ConditionLevel.FAULT.ToString()))
+                {
+                    bufferObservations.RemoveAll(o => o.GetValue(ValueKeys.Level) == ConditionLevel.NORMAL.ToString());
+                }
+
                 IEnumerable<BufferObservation> iBufferObservations = bufferObservations;
 
                 // Add to stored List

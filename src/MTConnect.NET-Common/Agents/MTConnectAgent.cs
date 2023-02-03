@@ -708,10 +708,23 @@ namespace MTConnect.Agents
                     existingHash = StringFunctions.ToMD5HashBytes(existingObservations.Select(o => o.ChangeId).ToArray());
 
                     var conditionLevel = observation.GetValue(ValueKeys.Level);
-                    if (conditionLevel != ConditionLevel.NORMAL.ToString() &&
+                    var nativeCode = observation.GetValue(ValueKeys.NativeCode);
+
+                    if (!(conditionLevel == ConditionLevel.NORMAL.ToString() && string.IsNullOrEmpty(nativeCode)) &&
                         conditionLevel != ConditionLevel.UNAVAILABLE.ToString())
                     {
-                        observations.InsertRange(0, existingObservations);
+                        var i = 0;
+                        foreach (var existingObservation in existingObservations)
+                        {
+                            var existingLevel = existingObservation.GetValue(ValueKeys.Level);
+                            var existingNativeCode = existingObservation.GetValue(ValueKeys.NativeCode);
+
+                            if (existingNativeCode != nativeCode && existingLevel != ConditionLevel.UNAVAILABLE.ToString())
+                            {
+                                observations.Insert(i, existingObservation);
+                                i++;
+                            }
+                        }
                     }
                 }
 
