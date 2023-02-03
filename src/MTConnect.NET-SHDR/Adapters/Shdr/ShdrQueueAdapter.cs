@@ -4,6 +4,7 @@
 using MTConnect.Configurations;
 using MTConnect.Observations.Input;
 using MTConnect.Shdr;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace MTConnect.Adapters.Shdr
@@ -69,9 +70,10 @@ namespace MTConnect.Adapters.Shdr
 
         protected override void OnDataItemAdd(ShdrDataItem dataItem)
         {
-            // Add to Buffer
-            var key = CreateUniqueId(dataItem);
-            _dataItemsBuffer.Add(key, dataItem);
+            var newDataItem = new ShdrDataItem(dataItem);
+            var key = CreateUniqueId(newDataItem);
+            if (newDataItem.Timestamp <= 0) newDataItem.Timestamp = UnixDateTime.Now;
+            _dataItemsBuffer.Add(key, newDataItem);
         }
 
         private bool WriteBufferDataItems(int count = 1000)
@@ -79,8 +81,16 @@ namespace MTConnect.Adapters.Shdr
             var dataItems = _dataItemsBuffer.Take(count);
             if (!dataItems.IsNullOrEmpty())
             {
+                var sendDataItems = new List<ShdrDataItem>();
+                foreach (var dataItem in dataItems)
+                {
+                    var sendDataItem = new ShdrDataItem(dataItem);
+                    if (!OutputTimestamps) sendDataItem.Timestamp = 0;
+                    sendDataItems.Add(sendDataItem);
+                }
+
                 // Create SHDR string to send
-                var shdrLine = ShdrDataItem.ToString(dataItems);
+                var shdrLine = ShdrDataItem.ToString(sendDataItems);
 
                 var success = WriteLine(shdrLine);
                 if (success)

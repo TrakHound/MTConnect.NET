@@ -16,6 +16,12 @@ namespace MTConnect.Shdr
         private static readonly Regex _deviceKeyRegex = new Regex("(.*):(.*)");
 
 
+        /// <summary>
+        /// Flag to set whether the Observation has been sent by the adapter or not
+        /// </summary>
+        internal bool IsSent { get; set; }
+
+
         public ShdrFaultState() { }
 
         public ShdrFaultState(

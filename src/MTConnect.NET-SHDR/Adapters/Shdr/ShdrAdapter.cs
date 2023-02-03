@@ -2,7 +2,6 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Configurations;
-using MTConnect.Devices;
 using MTConnect.Observations.Input;
 using MTConnect.Shdr;
 using System;
@@ -241,12 +240,9 @@ namespace MTConnect.Adapters.Shdr
         private void ClientConnected(string clientId, TcpClient client)
         {
             AddAgentClient(clientId, client);
-
-            var timestamp = UnixDateTime.Now;
-
-            SendLast(timestamp);
-
             AgentConnected?.Invoke(this, clientId);
+
+            SendLast(UnixDateTime.Now);
         }
 
         private void ClientDisconnected(string clientId)
@@ -594,8 +590,7 @@ namespace MTConnect.Adapters.Shdr
                 newDataItem.DeviceKey = DeviceKey;
 
                 // Set Timestamp (if not already set)
-                if (!OutputTimestamps) newDataItem.Timestamp = 0;
-                else if (newDataItem.Timestamp <= 0) newDataItem.Timestamp = UnixDateTime.Now;
+                if (newDataItem.Timestamp <= 0) newDataItem.Timestamp = UnixDateTime.Now;
 
                 // Get the Current Observation (if exists)
                 ShdrDataItem currentDataItem;
@@ -665,8 +660,9 @@ namespace MTConnect.Adapters.Shdr
                 newDataItem.DeviceKey = DeviceKey;
 
                 // Set Timestamp (if not already set)
-                if (!OutputTimestamps) newDataItem.Timestamp = 0;
-                else if (newDataItem.Timestamp <= 0) newDataItem.Timestamp = UnixDateTime.Now;
+                if (newDataItem.Timestamp <= 0) newDataItem.Timestamp = UnixDateTime.Now;
+                //if (!OutputTimestamps) newDataItem.Timestamp = 0;
+                //else /*if (newDataItem.Timestamp <= 0) newDataItem.Timestamp = UnixDateTime.Now;*/
 
                 // Remove from Current
                 lock (_lock) _currentDataItems.Remove(newDataItem.DataItemKey);
@@ -675,7 +671,9 @@ namespace MTConnect.Adapters.Shdr
                 OnDataItemAdd(newDataItem);
 
                 // Create SHDR string to send
-                var shdrLine = newDataItem.ToString();
+                var sendItem = new ShdrDataItem(newDataItem);
+                if (!OutputTimestamps) sendItem.Timestamp = 0;
+                var shdrLine = sendItem.ToString();
 
                 var success = WriteLine(shdrLine);
                 if (success)
@@ -718,11 +716,15 @@ namespace MTConnect.Adapters.Shdr
                 {
                     var keyDataItems = dataItems.Where(o => o.DataItemKey == dataItemKey);
                     var mostRecent = keyDataItems.OrderByDescending(o => o.Timestamp).FirstOrDefault();
+                    if (mostRecent != null)
+                    {               
+                        var lastDataItem = new ShdrDataItem(mostRecent);
 
-                    lock (_lock)
-                    {
-                        _lastDataItems.Remove(mostRecent.DataItemKey);
-                        _lastDataItems.Add(mostRecent.DataItemKey, mostRecent);
+                        lock (_lock)
+                        {
+                            _lastDataItems.Remove(lastDataItem.DataItemKey);
+                            _lastDataItems.Add(lastDataItem.DataItemKey, lastDataItem);
+                        }
                     }
                 }
             }
@@ -743,7 +745,10 @@ namespace MTConnect.Adapters.Shdr
                     if (!item.IsSent)
                     {
                         item.IsSent = true;
-                        dataItems.Add(item);
+
+                        var sendItem = new ShdrDataItem(item);
+                        if (!OutputTimestamps) sendItem.Timestamp = 0;
+                        dataItems.Add(sendItem);
                     }
                 }
             }
@@ -774,13 +779,12 @@ namespace MTConnect.Adapters.Shdr
 
             if (!dataItems.IsNullOrEmpty())
             {
-                var ts = timestamp > 0 ? timestamp : UnixDateTime.Now;
-
                 var sendItems = new List<ShdrDataItem>();
                 foreach (var dataItem in dataItems)
                 {
-                    dataItem.Timestamp = ts;
-                    sendItems.Add(dataItem);
+                    var sendItem = new ShdrDataItem(dataItem);
+                    if (!OutputTimestamps) sendItem.Timestamp = 0;
+                    sendItems.Add(sendItem);
                 }
 
                 // Create SHDR string to send
@@ -1267,28 +1271,39 @@ namespace MTConnect.Adapters.Shdr
 
         protected bool WriteChangedConditions()
         {
-            // Get a list of all Current Conditions
-            List<ShdrCondition> conditions;
+            var conditions = new List<ShdrCondition>();
+            var faultStates = new List<ShdrFaultState>();
+
             lock (_lock)
             {
                 // Get List of Conditions that need to be Updated
-                conditions = new List<ShdrCondition>();
                 var items = _currentConditions.Values;
                 foreach (var item in items)
                 {
-                    if (!item.IsSent)
+                    var add = false;
+
+                    if (!item.FaultStates.IsNullOrEmpty())
                     {
-                        item.IsSent = true;
-                        conditions.Add(item);
+                        foreach (var faultState in item.FaultStates)
+                        {
+                            if (!faultState.IsSent)
+                            {
+                                add = true;
+                                faultState.IsSent = true;
+                                faultStates.Add(faultState);
+                            }
+                        }
                     }
+
+                    if (add) conditions.Add(item);
                 }
             }
 
-            if (!conditions.IsNullOrEmpty())
+            if (!conditions.IsNullOrEmpty() && !faultStates.IsNullOrEmpty())
             {
                 var success = false;
 
-                foreach (var item in conditions)
+                foreach (var item in faultStates)
                 {
                     // Create SHDR string to send
                     var shdrLine = item.ToString();
@@ -1307,6 +1322,7 @@ namespace MTConnect.Adapters.Shdr
 
             return false;
         }
+
 
         protected bool WriteLastConditions(long timestamp = 0)
         {

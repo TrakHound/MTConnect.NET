@@ -174,7 +174,7 @@ namespace MTConnect.Shdr
 
 
         /// <summary>
-        /// Set the FaultState of the Condition to NORMAL and clear any other FaultStates
+        /// Set the FaultState of the Condition to NORMAL and clear all other FaultStates
         /// </summary>
         public void Normal()
         {
@@ -183,16 +183,16 @@ namespace MTConnect.Shdr
         }
 
         /// <summary>
-        /// Set the FaultState of the Condition to NORMAL and clear any other FaultStates
+        /// Set the FaultState of the Condition to NORMAL and clear all other FaultStates
         /// </summary>
-        public void Normal(long timestamp = 0)
+        public void Normal(long timestamp)
         {
             ClearFaultStates();
             AddFaultState(new ShdrFaultState(timestamp, ConditionLevel.NORMAL));
         }
 
         /// <summary>
-        /// Set the FaultState of the Condition to NORMAL and clear any other FaultStates
+        /// Set the FaultState of the Condition to NORMAL and clear all other FaultStates
         /// </summary>
         public void Normal(DateTime timestamp)
         {
@@ -292,6 +292,31 @@ namespace MTConnect.Shdr
 
 
         /// <summary>
+        /// Add a FaultState to the Condition of NORMAL while retaining any other FaultStates that do not match the specified NativeCode
+        /// </summary>
+        public void AddNormal(string nativeCode, string text = null)
+        {
+            AddFaultState(new ShdrFaultState(ConditionLevel.NORMAL, text, nativeCode));
+        }
+
+        /// <summary>
+        /// Add a FaultState to the Condition of NORMAL while retaining any other FaultStates that do not match the specified NativeCode
+        /// </summary>
+        public void AddNormal(string nativeCode, long timestamp, string text = null)
+        {
+            AddFaultState(new ShdrFaultState(timestamp, ConditionLevel.NORMAL, text, nativeCode));
+        }
+
+        /// <summary>
+        /// Add a FaultState to the Condition of NORMAL while retaining any other FaultStates that do not match the specified NativeCode
+        /// </summary>
+        public void AddNormal(string nativeCode, DateTime timestamp, string text = null)
+        {
+            AddFaultState(new ShdrFaultState(timestamp, ConditionLevel.NORMAL, text, nativeCode));
+        }
+
+
+        /// <summary>
         /// Add a FaultState to the Condition of WARNING while retaining any other FaultStates
         /// </summary>
         public void AddWarning(
@@ -385,12 +410,21 @@ namespace MTConnect.Shdr
                 faultState.DeviceKey = DeviceKey;
                 faultState.DataItemKey = DataItemKey;
 
+                if (!string.IsNullOrEmpty(faultState.NativeCode))
+                {
+                    ClearFaultStates(faultState.NativeCode);
+                }
+                else if (faultState.Level == ConditionLevel.WARNING || faultState.Level == ConditionLevel.FAULT)
+                {
+                    ClearFaultStates();
+                }
+
                 lock (_lock)
                 {
                     List<ShdrFaultState> x = null;
                     if (!_faultStates.IsNullOrEmpty()) x = _faultStates.ToList();
                     if (x == null) x = new List<ShdrFaultState>();
-                    x.Add(faultState);
+                    if (!x.Any(o => o.ChangeId == faultState.ChangeId)) x.Add(faultState);
                     FaultStates = x;
                 }
 
@@ -399,6 +433,28 @@ namespace MTConnect.Shdr
             }
         }
 
+
+        public void ClearFaultStates(string nativeCode)
+        {
+            lock (_lock)
+            {
+                if (!_faultStates.IsNullOrEmpty())
+                {
+                    var x = new List<ShdrFaultState>();
+                    foreach (var faultState in _faultStates)
+                    {
+                        if (faultState.NativeCode != nativeCode)
+                        {
+                            x.Add(faultState);
+                        }
+                    }
+                    _faultStates = x;
+                }
+            }
+
+            _changeId = null;
+            _changeIdWithTimestamp = null;
+        }
 
         public void ClearFaultStates()
         {
