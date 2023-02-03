@@ -4,11 +4,10 @@
 using MTConnect.Configurations;
 using MTConnect.Devices;
 using MTConnect.Devices.DataItems;
-using MTConnect.Observations.Output;
 using MTConnect.Observations;
 using System.Collections.Generic;
-using System.Xml;
 using System.Linq;
+using System.Xml;
 
 namespace MTConnect.Streams.Xml
 {
