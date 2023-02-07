@@ -10,13 +10,18 @@ The **MTConnect/Devices** topics are used to send data that is in an MTConnectDe
 MTConnect/Devices/[DEVICE_UUID]/Device
 ```
 
-### Observations
+### Device Observations
 ```
 MTConnect/Devices/[DEVICE_UUID]/Observations/[COMPONENT_TYPE]/[COMPONENT_ID]/[DATA_ITEM_CATEGORY]/[DATA_ITEM_TYPE]/[DATA_ITEM_ID]
 MTConnect/Devices/[DEVICE_UUID]/Observations/[COMPONENT_TYPE]/[COMPONENT_ID]/[DATA_ITEM_CATEGORY]/[DATA_ITEM_TYPE]/SubTypes/[DATA_ITEM_SUBTYPE]/[DATA_ITEM_ID]
 ```
-#### Conditions
+#### Device Condition Observations
 Condition messages are sent as an array of Observations since a Condition may have multiple Fault States. This is similar to how the Current request functions in an HTTP Agent.
+
+### Device Assets
+```
+MTConnect/Devices/[DEVICE_UUID]/Assets/[ASSET_TYPE]/[ASSET_ID]
+```
 
 ### Topic Structure
 
@@ -86,12 +91,28 @@ Condition messages are sent as an array of Observations since a Condition may ha
 
 ## Assets
 ```
-MTConnect/Devices/[DEVICE_UUID]/Assets/[ASSET_TYPE]/[ASSET_ID]
 MTConnect/Assets/[ASSET_TYPE]/[ASSET_ID]
 ```
 > Note: Assets are sent to two topics. One for the "Global" assets and one for the Device that the Asset was added to
 
+### Topic Structure
 
+> [Node] = (Payload)
+
+```bash
+- MTConnect
+   ─ Assets
+      ─ [ASSET_TYPE]
+        - [ASSET_ID] = (JSON)
+```
+
+### Example
+```bash
+- MTConnect
+  - Assets
+      - CuttingTool
+      - 5.12 = {"assetId":"5.12","type":"CuttingTool","timestamp":"2023-02-07T13:36:04.7288143Z","deviceUuid":"OKUMA.Lathe.123456","serialNumber":"12345678946","toolId":"12","cuttingToolLifeCycle":{"cutterStatus":["AVAILABLE","NEW","MEASURED"],"location":{"type":"SPINDLE"},"programToolGroup":"5","programToolNumber":"12","measurements":[{"type":"FunctionalLength","value":7.6543,"units":"MILLIMETER","code":"LF"},{"type":"CuttingDiameterMax","value":0.375,"units":"MILLIMETER","code":"DC"}]}}
+```
 
 ## Agents
 The **MTConnect/Agents** topics are used to send data about the Agent. This is the data that is typically in the HTTP Response Document Header
