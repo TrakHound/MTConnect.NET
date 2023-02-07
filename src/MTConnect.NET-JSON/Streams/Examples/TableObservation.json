@@ -1,0 +1,35 @@
+﻿{
+  "dataItemId": "testTable",
+  "type": "WORK_OFFSET",
+  "timestamp": "2023-02-07T21:50:25.285171Z",
+  "sequence": 199,
+  "entries": [
+    {
+      "key": "T1",
+      "cells": [
+        {
+          "key": "DIAMETER",
+          "value": "6.502"
+        },
+        {
+          "key": "LENGTH",
+          "value": "130.756"
+        }
+      ]
+    },
+    {
+      "key": "T2",
+      "cells": [
+        {
+          "key": "DIAMETER",
+          "value": "12.048"
+        },
+        {
+          "key": "LENGTH",
+          "value": "168.321"
+        }
+      ]
+    }
+  ],
+  "count": 2
+}

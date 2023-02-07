@@ -1,0 +1,8 @@
+﻿{
+  "dataItemId": "L2estop",
+  "name": "estop",
+  "type": "EMERGENCY_STOP",
+  "timestamp": "2023-02-07T21:42:24.9604858Z",
+  "sequence": 202,
+  "result": "ARMED"
+}

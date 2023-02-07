@@ -1,7 +1,18 @@
 ﻿# MTConnect.NET-JSON
 MTConnect.NET-JSON is an extension library to MTConnect.NET that provides reading and writing as JSON formatted Response Documents
 
-## Devices (MTConnectDevices)
+## Devices
+MTConnectDevicesResponse documents are formatted as shown below.
+
+### Examples
+- [Devices](Devices/Examples/Devices.json)
+- [DataItem](Devices/Examples/DataItem.json)
+- [Configuration](Devices/Examples/Configuration.json)
+- [DataItemDefinition](Devices/Examples/DataItemDefinition.json)
+- [Filter](Devices/Examples/Filter.json)
+- [Constraints](Devices/Examples/Constraints.json)
+
+### Example
 ```json
 {
   "header": {
@@ -69,7 +80,18 @@ MTConnect.NET-JSON is an extension library to MTConnect.NET that provides readin
 }
 ```
 
-## Observations (MTConnectStreams)
+## Observations
+MTConnectStreamsResponse documents are formatted as shown below.
+
+### Examples
+- [Streams](Streams/Examples/Streams.json)
+- [ValueObservation](Streams/Examples/ValueObservation.json)
+- [ConditionObservation](Streams/Examples/ConditionObservation.json)
+- [DataSetObservation](Streams/Examples/DataSetObservation.json)
+- [TableObservation](Streams/Examples/TableObservation.json)
+- [TimeSeriesObservation](Streams/Examples/TimeSeriesObservation.json)
+
+### Example
 ```json
 {
   "header": {
@@ -140,4 +162,115 @@ MTConnect.NET-JSON is an extension library to MTConnect.NET that provides readin
     }
   ]
 {
+```
+
+## Assets
+MTConnectAssetsResponse documents are formatted as shown below.
+
+### Examples
+- [CuttingTool](Assets/Examples/CuttingTool.json)
+- [File](Assets/Examples/File.json)
+
+### Example
+```json
+{
+  "header": {
+    "InstanceId": 1675796631,
+    "Version": "5.0.0.0",
+    "Sender": "DESKTOP-HV74M4N",
+    "AssetBufferSize": 1000,
+    "AssetCount": 2,
+    "DeviceModelChangeTime": "2023-02-07T19:03:51.4276271Z",
+    "CreationTime": "2023-02-07T21:07:46.4658671Z"
+  },
+  "assets": [
+    {
+      "assetId": "tool.2",
+      "type": "CuttingTool",
+      "timestamp": "2023-02-07T19:04:19.8594137Z",
+      "deviceUuid": "OKUMA.Lathe.123456",
+      "serialNumber": "1",
+      "toolId": "KSSP300R4SD43L240",
+      "manufacturers": "KMT,Parlec",
+      "cuttingToolLifeCycle": {
+        "cutterStatus": [
+          "NEW"
+        ],
+        "toolLife": {
+          "type": "PART_COUNT",
+          "countDirection": "UP",
+          "limit": 10
+        },
+        "programToolNumber": "1",
+        "connectionCodeMachineSide": "CV50",
+        "measurements": [
+          {
+            "type": "BodyDiameterMax",
+            "value": 73.25,
+            "units": "MILLIMETER",
+            "code": "BDX"
+          },
+          {
+            "type": "OverallToolLength",
+            "value": 323.86,
+            "units": "MILLIMETER",
+            "code": "OAL",
+            "maximum": 324.104,
+            "minimum": 323.596,
+            "nominal": 323.85
+          },
+          {
+            "type": "UsableLengthMax",
+            "value": 82.55,
+            "units": "MILLIMETER",
+            "code": "LUX",
+            "nominal": 82.55
+          },
+          {
+            "type": "CuttingDiameterMax",
+            "value": 76.262,
+            "units": "MILLIMETER",
+            "code": "DC",
+            "maximum": 76.213,
+            "minimum": 76.187,
+            "nominal": 76.2
+          },
+          {
+            "type": "BodyLengthMax",
+            "value": 222.259,
+            "units": "MILLIMETER",
+            "code": "LBX",
+            "maximum": 222.504,
+            "minimum": 222.004,
+            "nominal": 222.25
+          },
+          {
+            "type": "DepthOfCutMax",
+            "value": 62.383,
+            "units": "MILLIMETER",
+            "code": "APMX",
+            "nominal": 60.96
+          }
+        ]
+      }
+    },
+    {
+      "assetId": "file.patrick2",
+      "type": "File",
+      "timestamp": "2023-02-07T21:11:21.3576018Z",
+      "deviceUuid": "OKUMA.Lathe.123456",
+      "name": "file-123.txt",
+      "mediaType": "text/plain",
+      "applicationCategory": "DEVICE",
+      "applicationType": "DATA",
+      "size": 123456,
+      "versionId": "test-v1",
+      "state": "PRODUCTION",
+      "fileLocation": {
+        "href": "C:\\temp\\file-123.txt"
+      },
+      "creationTime": "2022-06-16T14:23:46.4347597Z"
+    }
+  ]
+}
 ```

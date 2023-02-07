@@ -1,0 +1,43 @@
+﻿{
+  "category": "EVENT",
+  "id": "wp1",
+  "type": "WORK_OFFSET",
+  "name": "wpo",
+  "representation": "TABLE",
+  "definition": {
+    "description": "A Complex Workpiece Offset Table",
+    "cellDefinitions": [
+      {
+        "key": "X",
+        "units": "MILLIMETER",
+        "type": "POSITION"
+      },
+      {
+        "key": "Y",
+        "units": "MILLIMETER",
+        "type": "POSITION"
+      },
+      {
+        "key": "Z",
+        "units": "MILLIMETER",
+        "type": "POSITION"
+      },
+      {
+        "key": "A",
+        "units": "DEGREE",
+        "type": "ANGLE"
+      },
+      {
+        "key": "B",
+        "units": "DEGREE",
+        "type": "ANGLE"
+      },
+      {
+        "key": "C",
+        "units": "DEGREE",
+        "type": "ANGLE",
+        "description": "Spindle Angle"
+      }
+    ]
+  }
+}

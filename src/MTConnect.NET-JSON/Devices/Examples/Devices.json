@@ -1,0 +1,2063 @@
+﻿{
+  "header": {
+    "instanceId": 1675804787,
+    "version": "5.0.0.0",
+    "sender": "DESKTOP-HV74M4N",
+    "bufferSize": 150000,
+    "assetBufferSize": 5,
+    "deviceModelChangeTime": "2023-02-07T21:19:48.9784879Z",
+    "creationTime": "2023-02-07T21:19:55.100489Z"
+  },
+  "devices": [
+    {
+      "id": "agent_c06b57a381",
+      "type": "Agent",
+      "name": "agent",
+      "uuid": "7a28a067-0a90-445d-ba4d-cbd74fe21f6c",
+      "mtconnectVersion": "2.0",
+      "dataItems": [
+        {
+          "category": "EVENT",
+          "id": "agent_c06b57a381_avail",
+          "type": "AVAILABILITY",
+          "name": "avail"
+        },
+        {
+          "category": "EVENT",
+          "id": "agent_c06b57a381_application_manufacturer",
+          "type": "APPLICATION",
+          "name": "application",
+          "subType": "MANUFACTURER"
+        },
+        {
+          "category": "EVENT",
+          "id": "agent_c06b57a381_application_version",
+          "type": "APPLICATION",
+          "name": "application",
+          "subType": "VERSION"
+        },
+        {
+          "category": "EVENT",
+          "id": "agent_c06b57a381_operatingSystem_manufacturer",
+          "type": "OPERATING_SYSTEM",
+          "name": "operatingSystem",
+          "subType": "MANUFACTURER"
+        },
+        {
+          "category": "EVENT",
+          "id": "agent_c06b57a381_operatingSystem_version",
+          "type": "OPERATING_SYSTEM",
+          "name": "operatingSystem",
+          "subType": "VERSION"
+        },
+        {
+          "category": "EVENT",
+          "id": "agent_c06b57a381_deviceAdded",
+          "type": "DEVICE_ADDED",
+          "name": "deviceAdded"
+        },
+        {
+          "category": "EVENT",
+          "id": "agent_c06b57a381_deviceRemoved",
+          "type": "DEVICE_REMOVED",
+          "name": "deviceRemoved"
+        },
+        {
+          "category": "EVENT",
+          "id": "agent_c06b57a381_deviceChanged",
+          "type": "DEVICE_CHANGED",
+          "name": "deviceChanged"
+        },
+        {
+          "category": "EVENT",
+          "id": "agent_c06b57a381_assetChanged",
+          "type": "ASSET_CHANGED",
+          "name": "assetChanged"
+        },
+        {
+          "category": "EVENT",
+          "id": "agent_c06b57a381_assetRemoved",
+          "type": "ASSET_REMOVED",
+          "name": "assetRemoved"
+        },
+        {
+          "category": "EVENT",
+          "id": "agent_c06b57a381_assetCount",
+          "type": "ASSET_COUNT",
+          "name": "assetCount",
+          "representation": "DATA_SET"
+        }
+      ],
+      "components": [
+        {
+          "id": "__adapters__",
+          "type": "Adapters",
+          "components": [
+            {
+              "id": "adapter_shdr_56697b5624",
+              "type": "Adapter",
+              "name": "adapterShdr",
+              "dataItems": [
+                {
+                  "category": "EVENT",
+                  "id": "adapter_shdr_56697b5624_connStatus",
+                  "type": "CONNECTION_STATUS",
+                  "name": "connStatus"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "adapter_shdr_56697b5624_adapterUri",
+                  "type": "ADAPTER_URI",
+                  "name": "adapterUri",
+                  "constraints": {
+                    "values": [
+                      "shdr://localhost:7878"
+                    ]
+                  }
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "adapter_shdr_56697b5624_obsvrUpdateRate",
+                  "type": "OBSERVATION_UPDATE_RATE",
+                  "name": "obsvrUpdateRate",
+                  "statistic": "AVERAGE",
+                  "units": "COUNT/SECOND",
+                  "significantDigits": 1
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "adapter_shdr_56697b5624_assetUpdateRate",
+                  "type": "ASSET_UPDATE_RATE",
+                  "name": "assetUpdateRate",
+                  "statistic": "AVERAGE",
+                  "units": "COUNT/SECOND",
+                  "significantDigits": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "OKUMA.Lathe",
+      "type": "Device",
+      "name": "OKUMA-Lathe",
+      "uuid": "OKUMA.Lathe.123456",
+      "description": {
+        "manufacturer": "OKUMA",
+        "model": "LB3000",
+        "serialNumber": "3216549771",
+        "value": "Okuma MT Connect Adapter - Lathe"
+      },
+      "dataItems": [
+        {
+          "category": "EVENT",
+          "id": "L2avail",
+          "type": "AVAILABILITY",
+          "name": "avail"
+        },
+        {
+          "category": "EVENT",
+          "id": "dev1_asset_chg",
+          "type": "ASSET_CHANGED"
+        },
+        {
+          "category": "EVENT",
+          "id": "dev1_asset_rem",
+          "type": "ASSET_REMOVED"
+        },
+        {
+          "category": "EVENT",
+          "id": "OKUMA.Lathe_assetCount",
+          "type": "ASSET_COUNT",
+          "name": "assetCount",
+          "representation": "DATA_SET"
+        }
+      ],
+      "components": [
+        {
+          "id": "L2axes1",
+          "type": "Axes",
+          "name": "Axes",
+          "components": [
+            {
+              "id": "L2c1",
+              "type": "Rotary",
+              "name": "C",
+              "nativeName": "S",
+              "dataItems": [
+                {
+                  "category": "SAMPLE",
+                  "id": "L2S1speed",
+                  "type": "ROTARY_VELOCITY",
+                  "name": "S1speed",
+                  "nativeUnits": "REVOLUTION/MINUTE",
+                  "subType": "ACTUAL",
+                  "units": "REVOLUTION/MINUTE"
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "L2S1cmd",
+                  "type": "ROTARY_VELOCITY",
+                  "name": "S1cmd",
+                  "nativeUnits": "REVOLUTION/MINUTE",
+                  "subType": "COMMANDED",
+                  "units": "REVOLUTION/MINUTE"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "L2S1ovr",
+                  "type": "ROTARY_VELOCITY_OVERRIDE",
+                  "name": "S1ovr",
+                  "nativeUnits": "PERCENT",
+                  "subType": "PROGRAMMED",
+                  "units": "PERCENT"
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "L2S1load",
+                  "type": "LOAD",
+                  "name": "S1load",
+                  "nativeUnits": "PERCENT",
+                  "units": "PERCENT"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "L2S1Mode",
+                  "type": "ROTARY_MODE",
+                  "name": "S1Mode",
+                  "constraints": {
+                    "values": [
+                      "SPINDLE"
+                    ]
+                  }
+                },
+                {
+                  "category": "EVENT",
+                  "id": "L2S1ChuckState",
+                  "type": "CHUCK_STATE",
+                  "name": "S1ChuckState",
+                  "initialValue": "OPEN"
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "L2S1SurfaceSpeed",
+                  "type": "e:SURFACE_SPEED",
+                  "name": "S1SurfaceSpeed",
+                  "nativeUnits": "MILLIMETER/SECOND",
+                  "units": "MILLIMETER/SECOND"
+                }
+              ],
+              "compositions": [
+                {
+                  "id": "Xballscrew",
+                  "type": "ENGINE"
+                }
+              ]
+            },
+            {
+              "id": "L2c2",
+              "type": "Rotary",
+              "name": "C2",
+              "nativeName": "S",
+              "dataItems": [
+                {
+                  "category": "SAMPLE",
+                  "id": "L2S2speed",
+                  "type": "ROTARY_VELOCITY",
+                  "name": "S2speed",
+                  "nativeUnits": "REVOLUTION/MINUTE",
+                  "subType": "ACTUAL",
+                  "units": "REVOLUTION/MINUTE"
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "L2S2cmd",
+                  "type": "ROTARY_VELOCITY",
+                  "name": "S2cmd",
+                  "nativeUnits": "REVOLUTION/MINUTE",
+                  "subType": "PROGRAMMED",
+                  "units": "REVOLUTION/MINUTE"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "L2S2ovr",
+                  "type": "ROTARY_VELOCITY_OVERRIDE",
+                  "name": "S2ovr",
+                  "nativeUnits": "PERCENT",
+                  "subType": "PROGRAMMED",
+                  "units": "PERCENT"
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "L2S2load",
+                  "type": "LOAD",
+                  "name": "S2load",
+                  "nativeUnits": "PERCENT",
+                  "units": "PERCENT"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "L2S2Mode",
+                  "type": "ROTARY_MODE",
+                  "name": "S2Mode",
+                  "constraints": {
+                    "values": [
+                      "SPINDLE"
+                    ]
+                  }
+                },
+                {
+                  "category": "EVENT",
+                  "id": "L2S2ChuckState",
+                  "type": "CHUCK_STATE",
+                  "name": "S2ChuckState"
+                }
+              ]
+            },
+            {
+              "id": "L2x1",
+              "type": "Linear",
+              "name": "X",
+              "dataItems": [
+                {
+                  "category": "SAMPLE",
+                  "id": "L2X1actm",
+                  "type": "POSITION",
+                  "name": "X1actm",
+                  "nativeUnits": "MILLIMETER",
+                  "subType": "ACTUAL",
+                  "units": "MILLIMETER",
+                  "significantDigits": 5
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "L2X1actw",
+                  "type": "POSITION",
+                  "name": "X1actw",
+                  "nativeUnits": "MILLIMETER",
+                  "subType": "ACTUAL",
+                  "units": "MILLIMETER"
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "L2X1load",
+                  "type": "LOAD",
+                  "name": "X1load",
+                  "nativeUnits": "PERCENT",
+                  "units": "PERCENT"
+                }
+              ]
+            },
+            {
+              "id": "L2x2",
+              "type": "Linear",
+              "name": "X2",
+              "dataItems": [
+                {
+                  "category": "SAMPLE",
+                  "id": "L2X2actm",
+                  "type": "POSITION",
+                  "name": "X2actm",
+                  "nativeUnits": "MILLIMETER",
+                  "subType": "ACTUAL",
+                  "units": "MILLIMETER"
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "L2X2actw",
+                  "type": "POSITION",
+                  "name": "X2actw",
+                  "nativeUnits": "MILLIMETER",
+                  "subType": "ACTUAL",
+                  "units": "MILLIMETER"
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "L2X2load",
+                  "type": "LOAD",
+                  "name": "X2load",
+                  "nativeUnits": "PERCENT",
+                  "units": "PERCENT"
+                }
+              ]
+            },
+            {
+              "id": "L2z1",
+              "type": "Linear",
+              "name": "Z",
+              "dataItems": [
+                {
+                  "category": "SAMPLE",
+                  "id": "L2Z1actm",
+                  "type": "POSITION",
+                  "name": "Z1actm",
+                  "nativeUnits": "MILLIMETER",
+                  "subType": "ACTUAL",
+                  "units": "MILLIMETER"
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "L2Z1actw",
+                  "type": "POSITION",
+                  "name": "Z1actw",
+                  "nativeUnits": "MILLIMETER",
+                  "subType": "ACTUAL",
+                  "units": "MILLIMETER"
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "L2Z1load",
+                  "type": "LOAD",
+                  "name": "Z1load",
+                  "nativeUnits": "PERCENT",
+                  "units": "PERCENT"
+                }
+              ]
+            },
+            {
+              "id": "L2z2",
+              "type": "Linear",
+              "name": "Z2",
+              "dataItems": [
+                {
+                  "category": "SAMPLE",
+                  "id": "L2Z2actm",
+                  "type": "POSITION",
+                  "name": "Z2actm",
+                  "nativeUnits": "MILLIMETER",
+                  "subType": "ACTUAL",
+                  "units": "MILLIMETER"
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "L2Z2actw",
+                  "type": "POSITION",
+                  "name": "Z2actw",
+                  "nativeUnits": "MILLIMETER",
+                  "subType": "ACTUAL",
+                  "units": "MILLIMETER"
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "L2Z2load",
+                  "type": "LOAD",
+                  "name": "Z2load",
+                  "nativeUnits": "PERCENT",
+                  "units": "PERCENT"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "L2ct1",
+          "type": "Controller",
+          "name": "Controller",
+          "dataItems": [
+            {
+              "category": "EVENT",
+              "id": "L2estop",
+              "type": "EMERGENCY_STOP",
+              "name": "estop"
+            }
+          ],
+          "components": [
+            {
+              "id": "L2p1",
+              "type": "Path",
+              "name": "path",
+              "dataItems": [
+                {
+                  "category": "EVENT",
+                  "id": "L2f1mode",
+                  "type": "FUNCTIONAL_MODE",
+                  "name": "f1mode"
+                },
+                {
+                  "category": "CONDITION",
+                  "id": "L2p1system",
+                  "type": "SYSTEM",
+                  "name": "p1system"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "L2p1mode",
+                  "type": "CONTROLLER_MODE",
+                  "name": "p1mode"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "L2p1program",
+                  "type": "PROGRAM",
+                  "name": "p1program"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "L2p1execution",
+                  "type": "EXECUTION",
+                  "name": "p1execution"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "L2p1Fovr",
+                  "type": "PATH_FEEDRATE_OVERRIDE",
+                  "name": "p1Fovr",
+                  "nativeUnits": "PERCENT",
+                  "subType": "PROGRAMMED",
+                  "units": "PERCENT"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "L2p1partcount",
+                  "type": "PART_COUNT",
+                  "name": "p1partcount"
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "L2p1Fact",
+                  "type": "PATH_FEEDRATE",
+                  "name": "p1Fact",
+                  "nativeUnits": "MILLIMETER/MINUTE",
+                  "subType": "ACTUAL",
+                  "units": "MILLIMETER/SECOND"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "L2p1block",
+                  "type": "BLOCK",
+                  "name": "p1block"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "L2p1line",
+                  "type": "LINE",
+                  "name": "p1line"
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "L2p1Fcmd",
+                  "type": "PATH_FEEDRATE",
+                  "name": "p1Fcmd",
+                  "nativeUnits": "MILLIMETER/MINUTE",
+                  "subType": "PROGRAMMED",
+                  "units": "MILLIMETER/SECOND"
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "L2p1LPathPos",
+                  "type": "PATH_POSITION",
+                  "name": "p1LPathPos",
+                  "nativeUnits": "MILLIMETER_3D",
+                  "subType": "ACTUAL",
+                  "units": "MILLIMETER_3D"
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "L2p1TotalOperatingTime",
+                  "type": "ACCUMULATED_TIME",
+                  "name": "p1TotalOperatingTime",
+                  "subType": "x:TOTAL_OPERATING_TIME"
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "L2p1TotalRunningTime",
+                  "type": "ACCUMULATED_TIME",
+                  "name": "p1TotalRunningTime",
+                  "subType": "x:TOTAL_RUNNING_TIME"
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "L2p1TotalCuttingTime",
+                  "type": "ACCUMULATED_TIME",
+                  "name": "p1TotalCuttingTime",
+                  "subType": "x:TOTAL_CUTTING_TIME"
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "L2p1TotalSpindleRunTime",
+                  "type": "ACCUMULATED_TIME",
+                  "name": "p1TotalSpindleRunTime",
+                  "subType": "x:TOTAL_SPINDLE_RUN_TIME"
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "L2p1OperatingTime",
+                  "type": "ACCUMULATED_TIME",
+                  "name": "p1OperatingTime",
+                  "subType": "x:OPERATING_TIME"
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "L2p1RunningTime",
+                  "type": "ACCUMULATED_TIME",
+                  "name": "p1RunningTime",
+                  "subType": "x:RUNNING_TIME"
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "L2p1CuttingTime",
+                  "type": "ACCUMULATED_TIME",
+                  "name": "p1CuttingTime",
+                  "subType": "x:CUTTING_TIME"
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "L2p1SpindleRunTime",
+                  "type": "ACCUMULATED_TIME",
+                  "name": "p1SpindleRunTime",
+                  "subType": "x:SPINDLE_RUN_TIME"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "L2p1CurrentTool",
+                  "type": "TOOL_NUMBER",
+                  "name": "p1CurrentTool"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "L2p1ToolAssetId",
+                  "type": "TOOL_ASSET_ID",
+                  "name": "p1ToolAssetId"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "L2p1ProgramHeader",
+                  "type": "PROGRAM_HEADER",
+                  "name": "p1ProgramHeader"
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "L2p1Sensor",
+                  "type": "VARIABLE",
+                  "representation": "TIME_SERIES"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "L2p1Variables",
+                  "type": "TOOL_OFFSET",
+                  "representation": "DATA_SET"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "L2p1ToolTable",
+                  "type": "WORK_OFFSET",
+                  "representation": "TABLE"
+                }
+              ]
+            },
+            {
+              "id": "L2p2",
+              "type": "Path",
+              "name": "path2",
+              "dataItems": [
+                {
+                  "category": "EVENT",
+                  "id": "L2f2mode",
+                  "type": "FUNCTIONAL_MODE",
+                  "name": "f2mode"
+                },
+                {
+                  "category": "CONDITION",
+                  "id": "L2p2system",
+                  "type": "SYSTEM",
+                  "name": "p2system"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "L2p2mode",
+                  "type": "CONTROLLER_MODE",
+                  "name": "p2mode"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "L2p2program",
+                  "type": "PROGRAM",
+                  "name": "p2program"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "L2p2execution",
+                  "type": "EXECUTION",
+                  "name": "p2execution"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "L2p2Fovr",
+                  "type": "PATH_FEEDRATE_OVERRIDE",
+                  "name": "p2Fovr",
+                  "nativeUnits": "PERCENT",
+                  "subType": "PROGRAMMED",
+                  "units": "PERCENT"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "L2p2partcount",
+                  "type": "PART_COUNT",
+                  "name": "p2partcount"
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "L2p2Fact",
+                  "type": "PATH_FEEDRATE",
+                  "name": "p2Fact",
+                  "nativeUnits": "MILLIMETER/MINUTE",
+                  "subType": "ACTUAL",
+                  "units": "MILLIMETER/SECOND"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "L2p2block",
+                  "type": "BLOCK",
+                  "name": "p2block"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "L2p2line",
+                  "type": "LINE",
+                  "name": "p2line"
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "L2p2Fcmd",
+                  "type": "PATH_FEEDRATE",
+                  "name": "p2Fcmd",
+                  "nativeUnits": "MILLIMETER/MINUTE",
+                  "subType": "PROGRAMMED",
+                  "units": "MILLIMETER/SECOND"
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "L2p2LPathPos",
+                  "type": "PATH_POSITION",
+                  "name": "p2LPathPos",
+                  "nativeUnits": "MILLIMETER_3D",
+                  "subType": "ACTUAL",
+                  "units": "MILLIMETER_3D"
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "L2p2TotalOperatingTime",
+                  "type": "ACCUMULATED_TIME",
+                  "name": "p2TotalOperatingTime",
+                  "subType": "x:TOTAL_OPERATING_TIME"
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "L2p2TotalRunningTime",
+                  "type": "ACCUMULATED_TIME",
+                  "name": "p2TotalRunningTime",
+                  "subType": "x:TOTAL_RUNNING_TIME"
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "L2p2TotalCuttingTime",
+                  "type": "ACCUMULATED_TIME",
+                  "name": "p2TotalCuttingTime",
+                  "subType": "x:TOTAL_CUTTING_TIME"
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "L2p2TotalSpindleRunTime",
+                  "type": "ACCUMULATED_TIME",
+                  "name": "p2TotalSpindleRunTime",
+                  "subType": "x:TOTAL_SPINDLE_RUN_TIME"
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "L2p2OperatingTime",
+                  "type": "ACCUMULATED_TIME",
+                  "name": "p2OperatingTime",
+                  "subType": "x:OPERATING_TIME"
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "L2p2RunningTime",
+                  "type": "ACCUMULATED_TIME",
+                  "name": "p2RunningTime",
+                  "subType": "x:RUNNING_TIME"
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "L2p2CuttingTime",
+                  "type": "ACCUMULATED_TIME",
+                  "name": "p2CuttingTime",
+                  "subType": "x:CUTTING_TIME"
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "L2p2SpindleRunTime",
+                  "type": "ACCUMULATED_TIME",
+                  "name": "p2SpindleRunTime",
+                  "subType": "x:SPINDLE_RUN_TIME"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "L2p2CurrentTool",
+                  "type": "TOOL_NUMBER",
+                  "name": "p2CurrentTool"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "L2p2ToolAssetId",
+                  "type": "TOOL_ASSET_ID",
+                  "name": "p2ToolAssetId"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "L2p2ProgramHeader",
+                  "type": "PROGRAM_HEADER",
+                  "name": "p2ProgramHeader"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "d1",
+      "type": "Device",
+      "name": "M12346",
+      "uuid": "5fd88408-7811-3c6b-5400-11f4026b6890",
+      "description": {
+        "manufacturer": "Mazak_Corporation",
+        "serialNumber": "304141",
+        "value": "Mill w/SMooth-G"
+      },
+      "configuration": {
+        "coordinateSystems": [
+          {
+            "id": "basecoord",
+            "type": "BASE",
+            "transformation": {
+              "translation": "0 0 0",
+              "rotation": "0 0 0"
+            }
+          },
+          {
+            "id": "machcoord",
+            "parentIdRef": "basecoord",
+            "type": "MACHINE",
+            "transformation": {
+              "translation": "0 0 0",
+              "rotation": "0 0 0"
+            }
+          },
+          {
+            "id": "workcoord",
+            "parentIdRef": "machcoord",
+            "type": "TASK"
+          },
+          {
+            "id": "localcoord",
+            "parentIdRef": "workcoord",
+            "type": "OBJECT"
+          }
+        ],
+        "solidModel": {
+          "id": "dm",
+          "solidModelIdRef": "dm",
+          "href": "/models/foo.stl",
+          "mediaType": "STL",
+          "coordinateSystemIdRef": "machine",
+          "scale": "2.0 3.0 4.0"
+        }
+      },
+      "dataItems": [
+        {
+          "category": "EVENT",
+          "id": "avail",
+          "type": "AVAILABILITY"
+        },
+        {
+          "category": "EVENT",
+          "id": "functionalmode",
+          "type": "FUNCTIONAL_MODE"
+        },
+        {
+          "category": "EVENT",
+          "id": "emloaded",
+          "type": "EQUIPMENT_MODE",
+          "subType": "LOADED"
+        },
+        {
+          "category": "EVENT",
+          "id": "emworking",
+          "type": "EQUIPMENT_MODE",
+          "subType": "WORKING"
+        },
+        {
+          "category": "EVENT",
+          "id": "emoperating",
+          "type": "EQUIPMENT_MODE",
+          "subType": "OPERATING"
+        },
+        {
+          "category": "EVENT",
+          "id": "empowered",
+          "type": "EQUIPMENT_MODE",
+          "subType": "POWERED"
+        },
+        {
+          "category": "EVENT",
+          "id": "emdelay",
+          "type": "EQUIPMENT_MODE",
+          "subType": "DELAY"
+        },
+        {
+          "category": "EVENT",
+          "id": "operatingsystem",
+          "type": "OPERATING_SYSTEM"
+        },
+        {
+          "category": "EVENT",
+          "id": "osmfg",
+          "type": "OPERATING_SYSTEM",
+          "subType": "MANUFACTURER"
+        },
+        {
+          "category": "EVENT",
+          "id": "osversion",
+          "type": "OPERATING_SYSTEM",
+          "subType": "VERSION"
+        },
+        {
+          "category": "EVENT",
+          "id": "gui",
+          "type": "APPLICATION"
+        },
+        {
+          "category": "EVENT",
+          "id": "guimfg",
+          "type": "APPLICATION",
+          "subType": "MANUFACTURER"
+        },
+        {
+          "category": "EVENT",
+          "id": "guiversion",
+          "type": "APPLICATION",
+          "subType": "VERSION"
+        },
+        {
+          "category": "EVENT",
+          "id": "d1_asset_chg",
+          "type": "ASSET_CHANGED",
+          "discrete": true
+        },
+        {
+          "category": "EVENT",
+          "id": "d1_asset_rem",
+          "type": "ASSET_REMOVED"
+        },
+        {
+          "category": "EVENT",
+          "id": "d1_assetCount",
+          "type": "ASSET_COUNT",
+          "name": "assetCount",
+          "representation": "DATA_SET"
+        }
+      ],
+      "components": [
+        {
+          "id": "a",
+          "type": "Axes",
+          "name": "base",
+          "dataItems": [
+            {
+              "category": "CONDITION",
+              "id": "servo_cond",
+              "type": "ACTUATOR"
+            },
+            {
+              "category": "CONDITION",
+              "id": "spindle_cond",
+              "type": "SYSTEM"
+            }
+          ],
+          "components": [
+            {
+              "id": "x",
+              "type": "Linear",
+              "name": "X",
+              "configuration": {
+                "specifications": [
+                  {
+                    "id": "spec1",
+                    "type": "LOAD",
+                    "originator": "MANUFACTURER"
+                  }
+                ]
+              },
+              "dataItems": [
+                {
+                  "category": "SAMPLE",
+                  "id": "Xabs",
+                  "type": "POSITION",
+                  "nativeScale": 100,
+                  "nativeUnits": "MILLIMETER",
+                  "subType": "ACTUAL",
+                  "units": "MILLIMETER",
+                  "source": {}
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "Xpos",
+                  "type": "POSITION",
+                  "nativeUnits": "INCH",
+                  "subType": "ACTUAL",
+                  "units": "MILLIMETER",
+                  "source": {
+                    "dataItemId": "Xabs"
+                  }
+                },
+                {
+                  "category": "CONDITION",
+                  "id": "Xtravel",
+                  "type": "POSITION"
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "Xload",
+                  "type": "LOAD",
+                  "nativeUnits": "PERCENT",
+                  "units": "PERCENT",
+                  "relationships": {
+                    "dataItemRelationships": [
+                      {
+                        "name": "archie",
+                        "type": "LIMIT",
+                        "criticality": "NOT_SPECIFIED",
+                        "idRef": "xlcpl"
+                      }
+                    ],
+                    "specificationRelationships": [
+                      {
+                        "type": "LIMIT",
+                        "criticality": "NOT_SPECIFIED",
+                        "idRef": "spec1"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "Xfrt",
+                  "type": "AXIS_FEEDRATE",
+                  "nativeUnits": "MILLIMETER/SECOND",
+                  "units": "MILLIMETER/SECOND"
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "servotemp1",
+                  "type": "TEMPERATURE",
+                  "nativeUnits": "FAHRENHEIT",
+                  "units": "CELSIUS",
+                  "filters": [
+                    {
+                      "type": "MINIMUM_DELTA",
+                      "value": 0.5
+                    }
+                  ]
+                },
+                {
+                  "category": "EVENT",
+                  "id": "xaxisstate",
+                  "type": "AXIS_STATE"
+                }
+              ],
+              "compositions": [
+                {
+                  "id": "Xballscrew",
+                  "type": "BALLSCREW"
+                },
+                {
+                  "id": "Xmotor",
+                  "type": "MOTOR"
+                }
+              ]
+            },
+            {
+              "id": "y",
+              "type": "Linear",
+              "name": "Y",
+              "dataItems": [
+                {
+                  "category": "SAMPLE",
+                  "id": "Yabs",
+                  "type": "POSITION",
+                  "nativeUnits": "MILLIMETER",
+                  "subType": "ACTUAL",
+                  "units": "MILLIMETER"
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "Ypos",
+                  "type": "POSITION",
+                  "nativeUnits": "MILLIMETER",
+                  "subType": "ACTUAL",
+                  "units": "MILLIMETER"
+                },
+                {
+                  "category": "CONDITION",
+                  "id": "Ytravel",
+                  "type": "POSITION"
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "Yload",
+                  "type": "LOAD",
+                  "nativeUnits": "PERCENT",
+                  "units": "PERCENT"
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "Yfrt",
+                  "type": "AXIS_FEEDRATE",
+                  "nativeUnits": "MILLIMETER/SECOND",
+                  "units": "MILLIMETER/SECOND"
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "servotemp2",
+                  "type": "TEMPERATURE",
+                  "nativeUnits": "CELSIUS",
+                  "units": "CELSIUS",
+                  "filters": [
+                    {
+                      "type": "MINIMUM_DELTA",
+                      "value": 0.5
+                    }
+                  ]
+                },
+                {
+                  "category": "EVENT",
+                  "id": "yaxisstate",
+                  "type": "AXIS_STATE"
+                }
+              ],
+              "compositions": [
+                {
+                  "id": "Yballscrew",
+                  "type": "BALLSCREW"
+                },
+                {
+                  "id": "Ymotor",
+                  "type": "MOTOR"
+                }
+              ]
+            },
+            {
+              "id": "z",
+              "type": "Linear",
+              "name": "Z",
+              "configuration": {
+                "motion": {
+                  "id": "zax",
+                  "coordinateSystemIdRef": "machine",
+                  "type": "PRISMATIC",
+                  "actuation": "DIRECT",
+                  "description": "The linears Z kinematics",
+                  "origin": "100.0 101.0 102.0",
+                  "axis": "0.0 0.1 1.0"
+                }
+              },
+              "dataItems": [
+                {
+                  "category": "SAMPLE",
+                  "id": "Zabs",
+                  "type": "POSITION",
+                  "nativeUnits": "MILLIMETER",
+                  "subType": "ACTUAL",
+                  "units": "MILLIMETER"
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "Zpos",
+                  "type": "POSITION",
+                  "nativeUnits": "MILLIMETER",
+                  "subType": "ACTUAL",
+                  "units": "MILLIMETER"
+                },
+                {
+                  "category": "CONDITION",
+                  "id": "Ztravel",
+                  "type": "POSITION"
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "Zload",
+                  "type": "LOAD",
+                  "nativeUnits": "PERCENT",
+                  "units": "PERCENT",
+                  "filters": [
+                    {
+                      "type": "MINIMUM_DELTA",
+                      "value": 3
+                    }
+                  ]
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "Zfrt",
+                  "type": "AXIS_FEEDRATE",
+                  "nativeUnits": "MILLIMETER/SECOND",
+                  "units": "MILLIMETER/SECOND"
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "servotemp3",
+                  "type": "TEMPERATURE",
+                  "nativeUnits": "CELSIUS",
+                  "units": "CELSIUS",
+                  "filters": [
+                    {
+                      "type": "MINIMUM_DELTA",
+                      "value": 0.5
+                    }
+                  ]
+                },
+                {
+                  "category": "EVENT",
+                  "id": "zaxisstate",
+                  "type": "AXIS_STATE"
+                }
+              ],
+              "compositions": [
+                {
+                  "id": "Zballscrew",
+                  "type": "BALLSCREW"
+                },
+                {
+                  "id": "Zmotor",
+                  "type": "MOTOR"
+                }
+              ]
+            },
+            {
+              "id": "ar",
+              "type": "Rotary",
+              "name": "B",
+              "dataItems": [
+                {
+                  "category": "SAMPLE",
+                  "id": "Bload",
+                  "type": "LOAD",
+                  "nativeUnits": "PERCENT",
+                  "units": "PERCENT",
+                  "filters": [
+                    {
+                      "type": "MINIMUM_DELTA",
+                      "value": 3
+                    }
+                  ]
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "Bfrt",
+                  "type": "ANGULAR_VELOCITY",
+                  "nativeUnits": "DEGREE/MINUTE",
+                  "units": "DEGREE/SECOND"
+                },
+                {
+                  "category": "CONDITION",
+                  "id": "Btravel",
+                  "type": "ANGLE"
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "Babs",
+                  "type": "ANGLE",
+                  "nativeUnits": "DEGREE",
+                  "subType": "ACTUAL",
+                  "units": "DEGREE"
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "Bpos",
+                  "type": "ANGLE",
+                  "nativeUnits": "DEGREE",
+                  "subType": "ACTUAL",
+                  "units": "DEGREE"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "arfunc",
+                  "type": "ROTARY_MODE",
+                  "constraints": {
+                    "values": [
+                      "CONTOUR",
+                      "INDEX"
+                    ]
+                  }
+                },
+                {
+                  "category": "EVENT",
+                  "id": "baxisstate",
+                  "type": "AXIS_STATE"
+                }
+              ],
+              "compositions": [
+                {
+                  "id": "Bmotor",
+                  "type": "MOTOR"
+                }
+              ]
+            },
+            {
+              "id": "c",
+              "type": "Rotary",
+              "name": "C",
+              "configuration": {
+                "motion": {
+                  "id": "spin",
+                  "parentIdRef": "zax",
+                  "coordinateSystemIdRef": "machine",
+                  "type": "CONTINUOUS",
+                  "actuation": "DIRECT",
+                  "description": "The spindle kinematics",
+                  "transformation": {
+                    "translation": "10.0 20.0 30.0",
+                    "rotation": "90.0 0.0 180"
+                  },
+                  "axis": "0.0 0.5 1.0"
+                },
+                "relationships": {
+                  "deviceRelationships": [
+                    {
+                      "id": "ref2",
+                      "name": "coffee",
+                      "type": "PARENT",
+                      "criticality": "NONCRITICAL",
+                      "deviceUuidRef": "bfccbfb0-5111-0138-6cd5-0c85909298d9",
+                      "role": "AUXILIARY",
+                      "href": "http://127.0.0.1:2000/coffee"
+                    }
+                  ]
+                },
+                "specifications": [
+                  {
+                    "name": "speed_limit",
+                    "type": "ROTARY_VELOCITY",
+                    "subType": "ACTUAL",
+                    "dataItemIdRef": "c1",
+                    "units": "REVOLUTION/MINUTE",
+                    "compositionIdRef": "cmotor",
+                    "originator": "MANUFACTURER"
+                  },
+                  {
+                    "id": "spec1",
+                    "name": "loadspec",
+                    "type": "LOAD",
+                    "units": "PERCENT",
+                    "originator": "MANUFACTURER"
+                  },
+                  {
+                    "id": "pspec1",
+                    "name": "procspec",
+                    "type": "LOAD",
+                    "units": "PERCENT",
+                    "originator": "USER"
+                  }
+                ]
+              },
+              "dataItems": [
+                {
+                  "category": "SAMPLE",
+                  "id": "Cload",
+                  "type": "LOAD",
+                  "nativeUnits": "PERCENT",
+                  "units": "PERCENT",
+                  "filters": [
+                    {
+                      "type": "MINIMUM_DELTA",
+                      "value": 3
+                    }
+                  ]
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "Sload",
+                  "type": "LOAD",
+                  "nativeUnits": "PERCENT",
+                  "units": "PERCENT",
+                  "filters": [
+                    {
+                      "type": "MINIMUM_DELTA",
+                      "value": 3
+                    }
+                  ]
+                },
+                {
+                  "category": "CONDITION",
+                  "id": "Ctravel",
+                  "type": "ANGLE"
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "Cfrt",
+                  "type": "ANGULAR_VELOCITY",
+                  "nativeUnits": "DEGREE/MINUTE",
+                  "units": "DEGREE/SECOND"
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "Srpm",
+                  "type": "ROTARY_VELOCITY",
+                  "nativeUnits": "REVOLUTION/MINUTE",
+                  "subType": "ACTUAL",
+                  "units": "REVOLUTION/MINUTE",
+                  "filters": [
+                    {
+                      "type": "MINIMUM_DELTA",
+                      "value": 5
+                    }
+                  ]
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "Stemp",
+                  "type": "TEMPERATURE",
+                  "nativeUnits": "CELSIUS",
+                  "units": "CELSIUS",
+                  "filters": [
+                    {
+                      "type": "MINIMUM_DELTA",
+                      "value": 0.5
+                    }
+                  ]
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "Cabs",
+                  "type": "ANGLE",
+                  "nativeUnits": "DEGREE",
+                  "subType": "ACTUAL",
+                  "units": "DEGREE"
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "Cpos",
+                  "type": "ANGLE",
+                  "nativeUnits": "DEGREE",
+                  "subType": "ACTUAL",
+                  "units": "DEGREE"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "crfunc",
+                  "type": "ROTARY_MODE",
+                  "constraints": {
+                    "values": [
+                      "SPINDLE",
+                      "INDEX"
+                    ]
+                  }
+                },
+                {
+                  "category": "CONDITION",
+                  "id": "Sload_cond",
+                  "type": "LOAD"
+                },
+                {
+                  "category": "CONDITION",
+                  "id": "Stemp_cond",
+                  "type": "TEMPERATURE"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "caxisstate",
+                  "type": "AXIS_STATE"
+                }
+              ],
+              "compositions": [
+                {
+                  "id": "Cmotor",
+                  "type": "MOTOR"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "cont",
+          "type": "Controller",
+          "name": "controller",
+          "dataItems": [
+            {
+              "category": "CONDITION",
+              "id": "comms_cond",
+              "type": "COMMUNICATIONS"
+            },
+            {
+              "category": "CONDITION",
+              "id": "logic_cond",
+              "type": "LOGIC_PROGRAM"
+            },
+            {
+              "category": "CONDITION",
+              "id": "system_cond",
+              "type": "SYSTEM"
+            },
+            {
+              "category": "EVENT",
+              "id": "estop",
+              "type": "EMERGENCY_STOP"
+            },
+            {
+              "category": "EVENT",
+              "id": "pallet_num",
+              "type": "PALLET_ID"
+            }
+          ],
+          "components": [
+            {
+              "id": "path1",
+              "type": "Path",
+              "name": "path",
+              "configuration": {
+                "coordinateSystems": [
+                  {
+                    "id": "world",
+                    "name": "worldy",
+                    "type": "WORLD",
+                    "origin": "101 102 103"
+                  },
+                  {
+                    "id": "machine",
+                    "name": "machiney",
+                    "nativeName": "xxx",
+                    "parentIdRef": "world",
+                    "type": "MACHINE",
+                    "transformation": {
+                      "translation": "10 10 10",
+                      "rotation": "90 0 90"
+                    }
+                  }
+                ]
+              },
+              "dataItems": [
+                {
+                  "category": "EVENT",
+                  "id": "peditmode",
+                  "type": "PROGRAM_EDIT"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "peditname",
+                  "type": "PROGRAM_EDIT_NAME"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "hd1chuckstate",
+                  "type": "CHUCK_STATE"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "Frapidovr",
+                  "type": "PATH_FEEDRATE_OVERRIDE",
+                  "subType": "RAPID"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "Fovr",
+                  "type": "PATH_FEEDRATE_OVERRIDE",
+                  "subType": "PROGRAMMED"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "Sovr",
+                  "type": "ROTARY_VELOCITY_OVERRIDE"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "program",
+                  "type": "PROGRAM",
+                  "subType": "MAIN"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "activeprog",
+                  "type": "PROGRAM",
+                  "subType": "ACTIVE"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "PartCountAct",
+                  "type": "PART_COUNT",
+                  "subType": "ALL"
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "Fact",
+                  "type": "PATH_FEEDRATE",
+                  "nativeUnits": "MILLIMETER/SECOND",
+                  "subType": "ACTUAL",
+                  "units": "MILLIMETER/SECOND"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "Tool_number",
+                  "type": "TOOL_NUMBER"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "Tool_group",
+                  "type": "TOOL_GROUP"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "execution",
+                  "type": "EXECUTION"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "message",
+                  "type": "MESSAGE"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "waitstate",
+                  "type": "WAIT_STATE"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "mode",
+                  "type": "CONTROLLER_MODE"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "program_cmt",
+                  "type": "PROGRAM_COMMENT",
+                  "subType": "MAIN"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "activeprogram_cmt",
+                  "type": "PROGRAM_COMMENT",
+                  "subType": "ACTIVE"
+                },
+                {
+                  "category": "CONDITION",
+                  "id": "motion_cond",
+                  "type": "MOTION_PROGRAM"
+                },
+                {
+                  "category": "CONDITION",
+                  "id": "path_system",
+                  "type": "SYSTEM"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "cmomachineaxislock",
+                  "type": "CONTROLLER_MODE_OVERRIDE",
+                  "subType": "MACHINE_AXIS_LOCK"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "cmosingleblock",
+                  "type": "CONTROLLER_MODE_OVERRIDE",
+                  "subType": "SINGLE_BLOCK"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "cmodryrun",
+                  "type": "CONTROLLER_MODE_OVERRIDE",
+                  "subType": "DRY_RUN"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "linelabel",
+                  "type": "LINE_LABEL"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "linenumber",
+                  "type": "LINE_NUMBER",
+                  "subType": "INCREMENTAL"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "cvars",
+                  "type": "VARIABLE",
+                  "representation": "DATA_SET"
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "cspeed",
+                  "type": "CUTTING_SPEED",
+                  "nativeUnits": "MILLIMETER/SECOND",
+                  "subType": "ACTUAL",
+                  "units": "MILLIMETER/SECOND"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "workoffsettrans",
+                  "type": "TRANSLATION",
+                  "nativeUnits": "MILLIMETER_3D",
+                  "units": "MILLIMETER_3D"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "workoffsetrot",
+                  "type": "ROTATION",
+                  "nativeUnits": "DEGREE_3D",
+                  "units": "DEGREE_3D"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "woffset",
+                  "type": "WORK_OFFSET"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "activeaxes",
+                  "type": "ACTIVE_AXES"
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "pathpos",
+                  "type": "PATH_POSITION",
+                  "nativeUnits": "INCH_3D",
+                  "units": "MILLIMETER_3D"
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "orientation",
+                  "type": "ORIENTATION",
+                  "nativeUnits": "DEGREE_3D",
+                  "units": "DEGREE_3D"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "partnumber",
+                  "type": "PART_UNIQUE_ID",
+                  "subType": "PART_NUMBER"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "partserialnumber",
+                  "type": "PART_UNIQUE_ID",
+                  "subType": "SERIAL_NUMBER"
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "testTimeSeries",
+                  "type": "VARIABLE",
+                  "representation": "TIME_SERIES"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "testDataSet",
+                  "type": "TOOL_OFFSET",
+                  "representation": "DATA_SET"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "testTable",
+                  "type": "WORK_OFFSET",
+                  "representation": "TABLE"
+                },
+                {
+                  "category": "EVENT",
+                  "id": "wp1",
+                  "type": "WORKPIECE_OFFSET",
+                  "name": "wpo",
+                  "representation": "TABLE",
+                  "definition": {
+                    "description": "A Complex Workpiece Offset Table",
+                    "entryDefinitions": [
+                      {
+                        "key": "G54",
+                        "description": "Some Pressure thing",
+                        "cellDefinitions": [
+                          {
+                            "key": "P",
+                            "units": "PASCAL",
+                            "type": "PRESSURE",
+                            "description": "Pressure of the P"
+                          }
+                        ]
+                      },
+                      {
+                        "key": "ADD",
+                        "units": "PERCENT",
+                        "type": "FILL_LEVEL"
+                      },
+                      {
+                        "keyType": "FEATURE_ID",
+                        "type": "UUID"
+                      }
+                    ],
+                    "cellDefinitions": [
+                      {
+                        "key": "X",
+                        "units": "MILLIMETER",
+                        "type": "POSITION"
+                      },
+                      {
+                        "key": "Y",
+                        "units": "MILLIMETER",
+                        "type": "POSITION"
+                      },
+                      {
+                        "key": "Z",
+                        "units": "MILLIMETER",
+                        "type": "POSITION"
+                      },
+                      {
+                        "key": "A",
+                        "units": "DEGREE",
+                        "type": "ANGLE"
+                      },
+                      {
+                        "key": "B",
+                        "units": "DEGREE",
+                        "type": "ANGLE"
+                      },
+                      {
+                        "key": "C",
+                        "units": "DEGREE",
+                        "type": "ANGLE",
+                        "description": "Spindle Angle"
+                      },
+                      {
+                        "keyType": "FEATURE_ID",
+                        "type": "UUID"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "door1",
+          "type": "Door",
+          "name": "door",
+          "dataItems": [
+            {
+              "category": "EVENT",
+              "id": "doorstate",
+              "type": "DOOR_STATE"
+            }
+          ]
+        },
+        {
+          "id": "systems",
+          "type": "Systems",
+          "name": "systems",
+          "components": [
+            {
+              "id": "workenvelope",
+              "type": "WorkEnvelope",
+              "name": "workenvelope",
+              "dataItems": [
+                {
+                  "category": "CONDITION",
+                  "id": "envelope_cond",
+                  "type": "SYSTEM"
+                }
+              ]
+            },
+            {
+              "id": "elec",
+              "type": "Electric",
+              "name": "electric",
+              "dataItems": [
+                {
+                  "category": "CONDITION",
+                  "id": "electric_cond",
+                  "type": "SYSTEM"
+                }
+              ]
+            },
+            {
+              "id": "hydraulic",
+              "type": "Hydraulic",
+              "name": "hydraulic",
+              "dataItems": [
+                {
+                  "category": "CONDITION",
+                  "id": "hydra_cond",
+                  "type": "SYSTEM"
+                }
+              ],
+              "references": [
+                {
+                  "idRef": "c4",
+                  "name": "chuck"
+                },
+                {
+                  "idRef": "d2",
+                  "name": "door"
+                },
+                {
+                  "idRef": "ele",
+                  "name": "electric"
+                }
+              ]
+            },
+            {
+              "id": "coolant",
+              "type": "Coolant",
+              "name": "coolant",
+              "dataItems": [
+                {
+                  "category": "CONDITION",
+                  "id": "coolant_cond",
+                  "type": "SYSTEM"
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "cooltemp",
+                  "type": "TEMPERATURE",
+                  "nativeUnits": "CELSIUS",
+                  "units": "CELSIUS",
+                  "filters": [
+                    {
+                      "type": "MINIMUM_DELTA",
+                      "value": 0.5
+                    }
+                  ]
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "CONCENTRATION",
+                  "type": "CONCENTRATION",
+                  "nativeUnits": "PERCENT",
+                  "units": "PERCENT"
+                }
+              ]
+            },
+            {
+              "id": "pneumatic",
+              "type": "Pneumatic",
+              "name": "pneumatic",
+              "dataItems": [
+                {
+                  "category": "CONDITION",
+                  "id": "pneu_cond",
+                  "type": "SYSTEM"
+                }
+              ]
+            },
+            {
+              "id": "lubrication",
+              "type": "Lubrication",
+              "name": "lubrication",
+              "dataItems": [
+                {
+                  "category": "CONDITION",
+                  "id": "lubrication_cond",
+                  "type": "SYSTEM"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "Aux",
+          "type": "Auxiliaries",
+          "name": "auxiliaries",
+          "components": [
+            {
+              "id": "room",
+              "type": "Environmental",
+              "name": "environmental",
+              "dataItems": [
+                {
+                  "category": "SAMPLE",
+                  "id": "rmtmp1",
+                  "type": "TEMPERATURE",
+                  "nativeUnits": "CELSIUS",
+                  "units": "CELSIUS",
+                  "filters": [
+                    {
+                      "type": "MINIMUM_DELTA",
+                      "value": 0.5
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "sensor",
+              "type": "Sensor",
+              "name": "sensor",
+              "configuration": {
+                "sensorConfiguration": {
+                  "firmwareVersion": "2.02",
+                  "calibrationDate": "2010-05-16T00:00:00",
+                  "nextCalibrationDate": "2010-05-16T00:00:00",
+                  "calibrationInitials": "WS",
+                  "channels": [
+                    {
+                      "number": "1",
+                      "name": "A/D:1",
+                      "description": "A/D With Thermister"
+                    }
+                  ]
+                }
+              },
+              "dataItems": [
+                {
+                  "category": "CONDITION",
+                  "id": "senvc",
+                  "type": "VOLTAGE"
+                },
+                {
+                  "category": "SAMPLE",
+                  "id": "senv",
+                  "type": "VOLTAGE",
+                  "subType": "DIRECT",
+                  "units": "VOLT"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "resources",
+          "type": "Resources",
+          "name": "resources",
+          "components": [
+            {
+              "id": "personnel",
+              "type": "Personnel",
+              "name": "personnel",
+              "dataItems": [
+                {
+                  "category": "EVENT",
+                  "id": "operator",
+                  "type": "USER"
+                }
+              ]
+            },
+            {
+              "id": "materials",
+              "type": "Materials",
+              "name": "materials",
+              "components": [
+                {
+                  "id": "procstock",
+                  "type": "Stock",
+                  "name": "stock",
+                  "dataItems": [
+                    {
+                      "category": "EVENT",
+                      "id": "stock",
+                      "type": "MATERIAL"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

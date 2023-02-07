@@ -1,0 +1,14 @@
+﻿{
+  "category": "SAMPLE",
+  "id": "Srpm",
+  "type": "ROTARY_VELOCITY",
+  "nativeUnits": "REVOLUTION/MINUTE",
+  "subType": "ACTUAL",
+  "units": "REVOLUTION/MINUTE",
+  "filters": [
+    {
+      "type": "MINIMUM_DELTA",
+      "value": 5
+    }
+  ]
+}

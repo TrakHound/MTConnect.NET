@@ -1,0 +1,17 @@
+﻿{
+  "assetId": "file.patrick2",
+  "type": "File",
+  "timestamp": "2023-02-07T21:11:21.3576018Z",
+  "deviceUuid": "OKUMA.Lathe.123456",
+  "name": "file-123.txt",
+  "mediaType": "text/plain",
+  "applicationCategory": "DEVICE",
+  "applicationType": "DATA",
+  "size": 123456,
+  "versionId": "test-v1",
+  "state": "PRODUCTION",
+  "fileLocation": {
+    "href": "C:\\temp\\file-123.txt"
+  },
+  "creationTime": "2022-06-16T14:23:46.4347597Z"
+}

@@ -1,0 +1,25 @@
+﻿{
+  "dataItemId": "testDataSet",
+  "type": "TOOL_OFFSET",
+  "timestamp": "2023-02-07T21:51:52.2091345Z",
+  "sequence": 199,
+  "entries": [
+    {
+      "key": "V1",
+      "value": "987.132"
+    },
+    {
+      "key": "V2",
+      "value": "TESTING"
+    },
+    {
+      "key": "V3",
+      "value": "PROBE.TXT"
+    },
+    {
+      "key": "V4",
+      "value": "65"
+    }
+  ],
+  "count": 4
+}

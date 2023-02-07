@@ -1,0 +1,70 @@
+﻿{
+  "assetId": "tool.2",
+  "type": "CuttingTool",
+  "timestamp": "2023-02-07T19:04:19.8594137Z",
+  "deviceUuid": "OKUMA.Lathe.123456",
+  "serialNumber": "1",
+  "toolId": "KSSP300R4SD43L240",
+  "manufacturers": "KMT,Parlec",
+  "cuttingToolLifeCycle": {
+    "cutterStatus": [
+      "NEW"
+    ],
+    "toolLife": {
+      "type": "PART_COUNT",
+      "countDirection": "UP",
+      "limit": 10
+    },
+    "programToolNumber": "1",
+    "connectionCodeMachineSide": "CV50",
+    "measurements": [
+      {
+        "type": "BodyDiameterMax",
+        "value": 73.25,
+        "units": "MILLIMETER",
+        "code": "BDX"
+      },
+      {
+        "type": "OverallToolLength",
+        "value": 323.86,
+        "units": "MILLIMETER",
+        "code": "OAL",
+        "maximum": 324.104,
+        "minimum": 323.596,
+        "nominal": 323.85
+      },
+      {
+        "type": "UsableLengthMax",
+        "value": 82.55,
+        "units": "MILLIMETER",
+        "code": "LUX",
+        "nominal": 82.55
+      },
+      {
+        "type": "CuttingDiameterMax",
+        "value": 76.262,
+        "units": "MILLIMETER",
+        "code": "DC",
+        "maximum": 76.213,
+        "minimum": 76.187,
+        "nominal": 76.2
+      },
+      {
+        "type": "BodyLengthMax",
+        "value": 222.259,
+        "units": "MILLIMETER",
+        "code": "LBX",
+        "maximum": 222.504,
+        "minimum": 222.004,
+        "nominal": 222.25
+      },
+      {
+        "type": "DepthOfCutMax",
+        "value": 62.383,
+        "units": "MILLIMETER",
+        "code": "APMX",
+        "nominal": 60.96
+      }
+    ]
+  }
+}

@@ -1,0 +1,11 @@
+﻿{
+  "level": "WARNING",
+  "nativeSeverity": "404.001",
+  "qualifier": "LOW",
+  "dataItemId": "system_cond",
+  "type": "SYSTEM",
+  "timestamp": "2023-02-07T21:54:16.7881727Z",
+  "sequence": 201,
+  "result": "Not Found",
+  "nativeCode": "404"
+}

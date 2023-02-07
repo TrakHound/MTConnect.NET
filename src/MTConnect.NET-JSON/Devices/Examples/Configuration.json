@@ -86,5 +86,18 @@
       "units": "PERCENT",
       "originator": "USER"
     }
-  ]
+  ],
+  "sensorConfiguration": {
+    "firmwareVersion": "2.02",
+    "calibrationDate": "2010-05-16T00:00:00",
+    "nextCalibrationDate": "2010-05-16T00:00:00",
+    "calibrationInitials": "WS",
+    "channels": [
+      {
+        "number": "1",
+        "name": "A/D:1",
+        "description": "A/D With Thermister"
+      }
+    ]
+  }
 }

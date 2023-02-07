@@ -1,0 +1,16 @@
+﻿{
+  "sampleRate": 100,
+  "dataItemId": "testTimeSeries",
+  "type": "VARIABLE",
+  "timestamp": "2023-02-07T21:52:57.0461648Z",
+  "sequence": 200,
+  "samples": [
+    "2",
+    "4",
+    "8",
+    "16",
+    "32",
+    "64",
+    "128"
+  ]
+}

@@ -1,0 +1,8 @@
+﻿{
+  "category": "SAMPLE",
+  "id": "Fact",
+  "type": "PATH_FEEDRATE",
+  "nativeUnits": "MILLIMETER/SECOND",
+  "subType": "ACTUAL",
+  "units": "MILLIMETER/SECOND"
+}

@@ -1,0 +1,11 @@
+﻿{
+  "category": "EVENT",
+  "id": "crfunc",
+  "type": "ROTARY_MODE",
+  "constraints": {
+    "values": [
+      "SPINDLE",
+      "INDEX"
+    ]
+  }
+}
