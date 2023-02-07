@@ -1,0 +1,90 @@
+﻿{
+  "coordinateSystems": [
+    {
+      "id": "basecoord",
+      "type": "BASE",
+      "transformation": {
+        "translation": "0 0 0",
+        "rotation": "0 0 0"
+      }
+    },
+    {
+      "id": "machcoord",
+      "parentIdRef": "basecoord",
+      "type": "MACHINE",
+      "transformation": {
+        "translation": "0 0 0",
+        "rotation": "0 0 0"
+      }
+    },
+    {
+      "id": "workcoord",
+      "parentIdRef": "machcoord",
+      "type": "TASK"
+    },
+    {
+      "id": "localcoord",
+      "parentIdRef": "workcoord",
+      "type": "OBJECT"
+    }
+  ],
+  "solidModel": {
+    "id": "dm",
+    "solidModelIdRef": "dm",
+    "href": "/models/foo.stl",
+    "mediaType": "STL",
+    "coordinateSystemIdRef": "machine",
+    "scale": "2.0 3.0 4.0"
+  },
+  "motion": {
+    "id": "spin",
+    "parentIdRef": "zax",
+    "coordinateSystemIdRef": "machine",
+    "type": "CONTINUOUS",
+    "actuation": "DIRECT",
+    "description": "The spindle kinematics",
+    "transformation": {
+      "translation": "10.0 20.0 30.0",
+      "rotation": "90.0 0.0 180"
+    },
+    "axis": "0.0 0.5 1.0"
+  },
+  "relationships": {
+    "deviceRelationships": [
+      {
+        "id": "ref2",
+        "name": "coffee",
+        "type": "PARENT",
+        "criticality": "NONCRITICAL",
+        "deviceUuidRef": "bfccbfb0-5111-0138-6cd5-0c85909298d9",
+        "role": "AUXILIARY",
+        "href": "http://127.0.0.1:2000/coffee"
+      }
+    ]
+  },
+  "specifications": [
+    {
+      "name": "speed_limit",
+      "type": "ROTARY_VELOCITY",
+      "subType": "ACTUAL",
+      "dataItemIdRef": "c1",
+      "units": "REVOLUTION/MINUTE",
+      "compositionIdRef": "cmotor",
+      "originator": "MANUFACTURER"
+    },
+    {
+      "id": "spec1",
+      "name": "loadspec",
+      "type": "LOAD",
+      "units": "PERCENT",
+      "originator": "MANUFACTURER"
+    },
+    {
+      "id": "pspec1",
+      "name": "procspec",
+      "type": "LOAD",
+      "units": "PERCENT",
+      "originator": "USER"
+    }
+  ]
+}
