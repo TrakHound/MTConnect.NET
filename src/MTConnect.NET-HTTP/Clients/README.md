@@ -11,7 +11,7 @@ Class initialization is straightforward in that specifiying the BaseUrl (the URL
 ```c#
 using MTConnect.Clients;
 
-var baseUrl = "localhost:5006";
+var baseUrl = "localhost:5000";
 
 var client = new MTConnectHttpClient(baseUrl);
 client.Interval = 500;
@@ -22,8 +22,8 @@ client.Start();
 ```c#
 using MTConnect.Clients;
 
-var baseUrl = "localhost:5006";
-var deviceName = "OKUMA.Lathe";
+var baseUrl = "localhost:5000";
+var deviceName = "OKUMA-Lathe";
 
 var client = new MTConnectHttpClient(baseUrl, deviceName);
 client.Interval = 500;
@@ -35,7 +35,7 @@ client.Start();
 using MTConnect.Clients;
 
 var hostname = "localhost";
-var port = 5006;
+var port = 5000;
 
 var client = new MTConnectHttpClient(hostname, port);
 client.Interval = 500;
@@ -47,7 +47,7 @@ client.Start();
 using MTConnect.Clients;
 
 var hostname = "localhost";
-var port = 5006;
+var port = 5000;
 var deviceName = "OKUMA.Lathe";
 
 var client = new MTConnectHttpClient(hostname, port, deviceName);
@@ -90,6 +90,9 @@ client.Start();
 ### Handle Probe Received Event
 ###### (MTConnectDevices Response Document received from a Probe Request)
 ```c#
+var baseUrl = "localhost:5000";
+var deviceName = "OKUMA-Lathe";
+
 var client = new MTConnectHttpClient(baseUrl, deviceName);
 client.OnProbeReceived += (sender, document) =>
 {
@@ -98,16 +101,22 @@ client.OnProbeReceived += (sender, document) =>
         // Device
         Console.WriteLine(device.Id);
 
-        // DataItems
-        foreach (var dataItem in device.DataItems)
+        // All DataItems (traverse the entire Device model)
+        foreach (var dataItem in device.GetDataItems())
         {
-            Console.WriteLine(dataItem.Id);
+            Console.WriteLine(dataItem.IdPath);
         }
 
-        // Components
-        foreach (var component in device.Components)
+        // All Components (traverse the entire Device model)
+        foreach (var component in device.GetComponents())
         {
-            Console.WriteLine(component.Id);
+            Console.WriteLine(component.IdPath);
+        }
+
+        // All Compositions (traverse the entire Device model)
+        foreach (var composition in device.GetCompositions())
+        {
+            Console.WriteLine(composition.IdPath);
         }
     }
 };
@@ -117,6 +126,9 @@ client.Start();
 ### Handle Current Received Event
 ###### (MTConnectStreams Response Document received from a Current Request)
 ```c#
+var baseUrl = "localhost:5000";
+var deviceName = "OKUMA-Lathe";
+
 var client = new MTConnectHttpClient(baseUrl, deviceName);
 client.OnCurrentReceived += (sender, document) =>
 {
@@ -131,9 +143,9 @@ client.OnCurrentReceived += (sender, document) =>
             Console.WriteLine(componentStream.Name);
 
             // DataItems (Samples, Events, and Conditions)
-            foreach (var dataItem in componentStream.DataItems)
+            foreach (var observation in componentStream.Observations)
             {
-                Console.WriteLine(dataItem.DataItemId);
+                Console.WriteLine(observation.DataItemId);
             }
         }
     }
@@ -144,13 +156,16 @@ client.Start();
 ### Handle Samples Received Event
 ###### (MTConnectStreams Response Document received from a Sample Stream)
 ```c#
+var baseUrl = "localhost:5000";
+var deviceName = "OKUMA-Lathe";
+
 var client = new MTConnectHttpClient(baseUrl, deviceName);
 client.Interval = 500;
 client.OnSampleReceived += (sender, document) =>
 {
     foreach (var deviceStream in document.Streams)
     {
-        // Device
+        // DeviceStream
         Console.WriteLine(deviceStream.Name);
 
         // Component Streams
@@ -158,10 +173,10 @@ client.OnSampleReceived += (sender, document) =>
         {
             Console.WriteLine(componentStream.Name);
 
-            // DataItems
-            foreach (var dataItem in componentStream.DataItems)
+            // DataItems (Samples, Events, and Conditions)
+            foreach (var observation in componentStream.Observations)
             {
-                Console.WriteLine(dataItem.DataItemId);
+                Console.WriteLine(observation.DataItemId);
             }
         }
     }
@@ -172,6 +187,9 @@ client.Start();
 ### Handle Assets Received Event
 ###### (MTConnectAssets Response Document received from an Asset Request)
 ```c#
+var baseUrl = "localhost:5000";
+var deviceName = "OKUMA-Lathe";
+
 var client = new MTConnectHttpClient(baseUrl, deviceName);
 client.Interval = 500;
 client.OnAssetsReceived += (sender, document) =>
@@ -189,8 +207,6 @@ client.Start();
 ## MTConnectHttpProbeClient
 The [MTConnectHttpProbeClient](MTConnectHttpProbeClient.cs) class is used to send a Probe request and return an MTConnectDevices Response Document.
 ```c#
-using MTConnect.Clients;
-
 var deviceName = "OKUMA.Lathe";
 var baseUrl = "localhost:5000";
 
@@ -201,16 +217,22 @@ foreach (var device in document.Devices)
     // Device
     Console.WriteLine(device.Id);
 
-    // DataItems
-    foreach (var dataItem in device.DataItems)
+    // All DataItems (traverse the entire Device model)
+    foreach (var dataItem in device.GetDataItems())
     {
-        Console.WriteLine(dataItem.Id);
+        Console.WriteLine(dataItem.IdPath);
     }
 
-    // Components
-    foreach (var component in device.Components)
+    // All Components (traverse the entire Device model)
+    foreach (var component in device.GetComponents())
     {
-        Console.WriteLine(component.Id);
+        Console.WriteLine(component.IdPath);
+    }
+
+    // All Compositions (traverse the entire Device model)
+    foreach (var composition in device.GetCompositions())
+    {
+        Console.WriteLine(composition.IdPath);
     }
 }
 ```
@@ -218,10 +240,8 @@ foreach (var device in document.Devices)
 ## MTConnectHttpCurrentClient
 The [MTConnectHttpCurrentClient](MTConnectHttpCurrentClient.cs) class is used to send a Current request and return an MTConnectStreams Response Document.
 ```c#
-using MTConnect.Clients;
-
 var deviceName = "OKUMA.Lathe";
-var baseUrl = "localhost:5006";
+var baseUrl = "localhost:5000";
 
 var client = new MTConnectHttpCurrentClient(baseUrl, deviceName);
 var document = client.Get();
@@ -235,10 +255,10 @@ foreach (var deviceStream in document.Streams)
     {
         Console.WriteLine(componentStream.Name);
 
-        // DataItems
-        foreach (var dataItem in componentStream.DataItems)
+        // DataItems (Samples, Events, and Conditions)
+        foreach (var observation in componentStream.Observations)
         {
-            Console.WriteLine(dataItem.DataItemId);
+            Console.WriteLine(observation.DataItemId);
         }
     }
 }
@@ -247,10 +267,8 @@ foreach (var deviceStream in document.Streams)
 ## MTConnectHttpSampleClient
 The [MTConnectHttpSampleClient](MTConnectHttpSampleClient.cs) class is used to send a Sample request and return an MTConnectStreams Response Document.
 ```c#
-using MTConnect.Clients;
-
 var deviceName = "OKUMA.Lathe";
-var baseUrl = "localhost:5006";
+var baseUrl = "localhost:5000";
 var fromSequence = 150;
 var toSequence = 250;
 
@@ -266,10 +284,10 @@ foreach (var deviceStream in document.Streams)
     {
         Console.WriteLine(componentStream.Name);
 
-        // DataItems
-        foreach (var dataItem in componentStream.DataItems)
+        // DataItems (Samples, Events, and Conditions)
+        foreach (var observation in componentStream.Observations)
         {
-            Console.WriteLine(dataItem.DataItemId);
+            Console.WriteLine(observation.DataItemId);
         }
     }
 }
@@ -278,10 +296,8 @@ foreach (var deviceStream in document.Streams)
 ## MTConnectHttpAssetClient
 The [MTConnectHttpAssetClient](MTConnectHttpAssetClient.cs) class is used to send an Assets request and return an MTConnectAssets Response Document.
 ```c#
-using MTConnect.Clients;
-
 var deviceName = "OKUMA.Lathe";
-var baseUrl = "localhost:5006";
+var baseUrl = "localhost:5000";
 var count = 5
 
 var client = new MTConnectHttpAssetClient(baseUrl, deviceName, count);
