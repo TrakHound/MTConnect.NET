@@ -14,7 +14,7 @@ Contained in this project is the functionality to:
 - Tools to build as a Windows Installer exe
 
 ## Develop
-To develop an Adapter using this project, edit the [AdpaterEngine.cs](https://github.com/TrakHound/MTConnect.NET/tree/master/applications/Adapters/MTConnect-Adapter-SHDR/AdapterEngine.cs) file so that it follows the pattern below:
+To develop an Adapter using this project, edit the [AdapterEngine.cs](https://github.com/TrakHound/MTConnect.NET/tree/master/applications/Adapters/MTConnect-Adapter-Shdr/AdapterEngine.cs) file so that it follows the pattern below:
 
 ```c#
 class AdapterEngine : MTConnectShdrAdapterEngine<AdapterConfiguration>
