@@ -207,8 +207,8 @@ client.Start();
 ## MTConnectHttpProbeClient
 The [MTConnectHttpProbeClient](MTConnectHttpProbeClient.cs) class is used to send a Probe request and return an MTConnectDevices Response Document.
 ```c#
-var deviceName = "OKUMA.Lathe";
 var baseUrl = "localhost:5000";
+var deviceName = "OKUMA.Lathe";
 
 var client = new MTConnectHttpProbeClient(baseUrl, deviceName);
 var document = client.Get();
@@ -240,8 +240,8 @@ foreach (var device in document.Devices)
 ## MTConnectHttpCurrentClient
 The [MTConnectHttpCurrentClient](MTConnectHttpCurrentClient.cs) class is used to send a Current request and return an MTConnectStreams Response Document.
 ```c#
-var deviceName = "OKUMA.Lathe";
 var baseUrl = "localhost:5000";
+var deviceName = "OKUMA.Lathe";
 
 var client = new MTConnectHttpCurrentClient(baseUrl, deviceName);
 var document = client.Get();
@@ -267,8 +267,8 @@ foreach (var deviceStream in document.Streams)
 ## MTConnectHttpSampleClient
 The [MTConnectHttpSampleClient](MTConnectHttpSampleClient.cs) class is used to send a Sample request and return an MTConnectStreams Response Document.
 ```c#
-var deviceName = "OKUMA.Lathe";
 var baseUrl = "localhost:5000";
+var deviceName = "OKUMA.Lathe";
 var fromSequence = 150;
 var toSequence = 250;
 
@@ -296,8 +296,8 @@ foreach (var deviceStream in document.Streams)
 ## MTConnectHttpAssetClient
 The [MTConnectHttpAssetClient](MTConnectHttpAssetClient.cs) class is used to send an Assets request and return an MTConnectAssets Response Document.
 ```c#
-var deviceName = "OKUMA.Lathe";
 var baseUrl = "localhost:5000";
+var deviceName = "OKUMA.Lathe";
 var count = 5
 
 var client = new MTConnectHttpAssetClient(baseUrl, deviceName, count);

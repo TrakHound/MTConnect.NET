@@ -10,14 +10,14 @@ The ShdrAdapter classes handle the TCP connection to the Agent:
 - [ShdrIntervalQueueAdapter](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-SHDR/Adapters/Shdr/ShdrIntervalQueueAdapter.cs) : Queues all values that are sent from the PLC and sends any queued values at the specified Interval. This is used when all values are needed but an interval is adequate.
 
 SHDR conversion is handled in each individual class:
-- [ShdrDataItem](ShdrDataItem.cs) : Handles converting Events and/or Samples with a Representation of VALUE to the appropriate SHDR format.
-- [ShdrCondition](ShdrCondition.cs) : Handles converting Conditions to the appropriate SHDR format 
-- [ShdrTimeSeries](ShdrTimeSeries.cs) : Handles converting Samples with a Representation of TIME_SERIES to the appropriate SHDR format
-- [ShdrDataSet](ShdrDataSet.cs) : Handles converting Events and/or Samples with a Representation of DATA_SET to the appropriate SHDR format
-- [ShdrTable](ShdrTable.cs) : Handles converting Events and/or Samples with a Representation of TABLE to the appropriate SHDR format
-- [ShdrAsset](ShdrAsset.cs) : Handles converting Assets to the appropriate SHDR format
+- [ShdrDataItem](Shdr/ShdrDataItem.cs) : Handles converting Events and/or Samples with a Representation of VALUE to the appropriate SHDR format.
+- [ShdrCondition](Shdr/ShdrCondition.cs) : Handles converting Conditions to the appropriate SHDR format 
+- [ShdrTimeSeries](Shdr/ShdrTimeSeries.cs) : Handles converting Samples with a Representation of TIME_SERIES to the appropriate SHDR format
+- [ShdrDataSet](Shdr/ShdrDataSet.cs) : Handles converting Events and/or Samples with a Representation of DATA_SET to the appropriate SHDR format
+- [ShdrTable](Shdr/ShdrTable.cs) : Handles converting Events and/or Samples with a Representation of TABLE to the appropriate SHDR format
+- [ShdrAsset](Shdr/ShdrAsset.cs) : Handles converting Assets to the appropriate SHDR format
 
-The [ShdrAdapterClient](ShdrAdapterClient.cs) class handles the TCP connection to read from the Adapter and add data to an IMTConnectAgent class.
+The [ShdrAdapterClient](Adapters/Shdr/ShdrAdapterClient.cs) class handles the TCP connection to read from the Adapter and add data to an IMTConnectAgent class.
 
 ## Usage
 There are several different ways to setup and add data to the ShdrAdapter
@@ -36,7 +36,7 @@ adapter.SendChanged();
 ```
 #### SHDR Output
 ```
-2023-01-26T16:48:17.0206852Z|localhost:L2estop|ARMED
+2023-01-26T16:48:17.0206852Z|L2estop|ARMED
 ```
 
 ### ShdrAdapter (specific Port)
@@ -53,7 +53,7 @@ The added DataItem will be sent using the "adapter.SendChanged()" method
 ```c#
 using MTConnect.Adapters.Shdr;
 
-ShdrAdapter adapter = new ShdrAdapter("OKUMA-Lathe");
+ShdrAdapter adapter = new ShdrAdapter("OKUMA-Lathe", 7980);
 adapter.Start();
 
 adapter.AddDataItem("L2estop", "ARMED");
