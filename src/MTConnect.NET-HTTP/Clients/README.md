@@ -22,13 +22,70 @@ client.Start();
 ```c#
 using MTConnect.Clients;
 
+var baseUrl = "localhost:5006";
 var deviceName = "OKUMA.Lathe";
-var baseUrl = "localhost:5000";
 
 var client = new MTConnectHttpClient(baseUrl, deviceName);
 client.Interval = 500;
 client.Start();
 ```
+
+#### Specfiy Hostname and Port
+```c#
+using MTConnect.Clients;
+
+var hostname = "localhost";
+var port = 5006;
+
+var client = new MTConnectHttpClient(hostname, port);
+client.Interval = 500;
+client.Start();
+```
+
+#### Specfiy Hostname, Port, and Device
+```c#
+using MTConnect.Clients;
+
+var hostname = "localhost";
+var port = 5006;
+var deviceName = "OKUMA.Lathe";
+
+var client = new MTConnectHttpClient(hostname, port, deviceName);
+client.Interval = 500;
+client.Start();
+```
+
+### Properties
+
+* `Id` - A unique Identifier used to indentify this instance of the MTConnectClient class
+
+* `Authority` - The authority portion consists of the DNS name or IP address associated with an Agent
+
+* `Device` - If present, specifies that only the Equipment Metadata for the piece of equipment represented by the name or uuid will be published
+
+* `DocumentFormat` - Gets or Sets the Document Format to use (ex. XML, JSON, etc.)
+
+* `Interval` - Gets or Sets the Interval in Milliseconds for the Sample Stream
+
+* `Timeout` - Gets or Sets the connection timeout for the request
+
+* `Heartbeat` - Gets or Sets the MTConnect Agent Heartbeat for the request
+
+* `RetryInterval` - Gets or Sets the Interval in Milliseconds that the Client will attempt to reconnect if the connection fails
+
+* `MaximumSampleCount` - Gets or Sets the Maximum Number of Samples returned per interval from the Sample Stream
+
+* `ContentEncodings` - Gets or Sets the List of Encodings (ex. gzip, br, deflate) to pass to the Accept-Encoding HTTP Header
+
+* `ContentType` - Gets or Sets the Content-type (or MIME-type) to pass to the Accept HTTP Header
+
+* `LastInstanceId` - Gets the Last Instance ID read from the MTConnect Agent
+
+* `LastSequence` - Gets the Last Sequence read from the MTConnect Agent
+
+* `LastResponse` - Gets the Unix Timestamp (in Milliseconds) since the last response from the MTConnect Agent
+
+* `CurrentOnly` - Gets or Sets whether the stream requests a Current (true) or a Sample (false)
 
 ### Handle Probe Received Event
 ###### (MTConnectDevices Response Document received from a Probe Request)
@@ -111,6 +168,23 @@ client.OnSampleReceived += (sender, document) =>
 };
 client.Start();
 ```
+
+### Handle Assets Received Event
+###### (MTConnectAssets Response Document received from an Asset Request)
+```c#
+var client = new MTConnectHttpClient(baseUrl, deviceName);
+client.Interval = 500;
+client.OnAssetsReceived += (sender, document) =>
+{
+    foreach (var asset in document.Assets)
+    {
+        // Print AssetId to the Console
+        Console.WriteLine(asset.AssetId);
+    }
+};
+client.Start();
+```
+
 
 ## MTConnectHttpProbeClient
 The [MTConnectHttpProbeClient](MTConnectHttpProbeClient.cs) class is used to send a Probe request and return an MTConnectDevices Response Document.
@@ -198,5 +272,23 @@ foreach (var deviceStream in document.Streams)
             Console.WriteLine(dataItem.DataItemId);
         }
     }
+}
+```
+
+## MTConnectHttpAssetClient
+The [MTConnectHttpAssetClient](MTConnectHttpAssetClient.cs) class is used to send an Assets request and return an MTConnectAssets Response Document.
+```c#
+using MTConnect.Clients;
+
+var deviceName = "OKUMA.Lathe";
+var baseUrl = "localhost:5006";
+var count = 5
+
+var client = new MTConnectHttpAssetClient(baseUrl, deviceName, count);
+var document = client.Get();
+foreach (var asset in document.Assets)
+{
+    // Print AssetId to the Console
+    Console.WriteLine(asset.AssetId);
 }
 ```

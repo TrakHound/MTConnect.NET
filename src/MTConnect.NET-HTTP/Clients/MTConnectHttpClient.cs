@@ -110,7 +110,7 @@ namespace MTConnect.Clients
         public string Device { get; set; }
 
         /// <summary>
-        /// Gets or Sets the Document Format to use
+        /// Gets or Sets the Document Format to use (ex. XML, JSON, etc.)
         /// </summary>
         public string DocumentFormat { get; set; }
 
