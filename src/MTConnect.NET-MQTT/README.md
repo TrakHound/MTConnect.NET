@@ -3,27 +3,25 @@
 ## Overview
 MTConnect.NET-MQTT is an extension library to MTConnect.NET that provides an MQTT Broker & Client interface to an IMTConnectAgent interface.
 
-## MQTT Topic Structure
-
-### Agents
-The **MTConnect/Agents** topics are used to send data about the Agent. This is the data that is typically in the HTTP Response Document Header
-
-```bash
-- MTConnect
-   ─ Agents
-      ─ d7e169c5-14bb-48a3-bf9f-521152df2c84
-        - UUID
-        - InstanceId
-        - Version
-        - Sender
-        - DeviceModelChangeTime
-```
-
-### Devices
+## Devices
 The **MTConnect/Devices** topics are used to send data that is in an MTConnectDevicesResponse document.
 
-#### Topic Naming
+```
+MTConnect/Devices/[DEVICE_UUID]/Device
+```
+
+### Observations
+```
+MTConnect/Devices/[DEVICE_UUID]/Observations/[COMPONENT_TYPE]/[COMPONENT_ID]/[DATA_ITEM_CATEGORY]/[DATA_ITEM_TYPE]/[DATA_ITEM_ID]
+MTConnect/Devices/[DEVICE_UUID]/Observations/[COMPONENT_TYPE]/[COMPONENT_ID]/[DATA_ITEM_CATEGORY]/[DATA_ITEM_TYPE]/SubTypes/[DATA_ITEM_SUBTYPE]/[DATA_ITEM_ID]
+```
+#### Conditions
+Condition messages are sent as an array of Observations since a Condition may have multiple Fault States. This is similar to how the Current request functions in an HTTP Agent.
+
+### Topic Structure
+
 > [Node] = (Payload)
+
 ```bash
 - MTConnect
    ─ Devices
@@ -49,7 +47,7 @@ The **MTConnect/Devices** topics are used to send data that is in an MTConnectDe
             - [ASSET_ID] = (JSON)
 ```
 
-#### Example
+### Example
 ```bash
 - MTConnect
    ─ Devices
@@ -86,31 +84,45 @@ The **MTConnect/Devices** topics are used to send data that is in an MTConnectDe
             - 5.12 = {"assetId":"5.12","type":"CuttingTool","timestamp":"2023-02-07T13:36:04.7288143Z","deviceUuid":"OKUMA.Lathe.123456","serialNumber":"12345678946","toolId":"12","cuttingToolLifeCycle":{"cutterStatus":["AVAILABLE","NEW","MEASURED"],"location":{"type":"SPINDLE"},"programToolGroup":"5","programToolNumber":"12","measurements":[{"type":"FunctionalLength","value":7.6543,"units":"MILLIMETER","code":"LF"},{"type":"CuttingDiameterMax","value":0.375,"units":"MILLIMETER","code":"DC"}]}}
 ```
 
-
-### Assets
-
-#### Devices
-```
-MTConnect/Devices/[DEVICE_UUID]/Device
-```
-
-#### Observations
-```
-MTConnect/Devices/[DEVICE_UUID]/Observations/[COMPONENT_TYPE]/[COMPONENT_ID]/[DATA_ITEM_CATEGORY]/[DATA_ITEM_TYPE]/[DATA_ITEM_ID]
-MTConnect/Devices/[DEVICE_UUID]/Observations/[COMPONENT_TYPE]/[COMPONENT_ID]/[DATA_ITEM_CATEGORY]/[DATA_ITEM_TYPE]/SubTypes/[DATA_ITEM_SUBTYPE]/[DATA_ITEM_ID]
-```
-##### Conditions
-Condition messages are sent as an array of Observations since a Condition may have multiple Fault States. This is similar to how the Current request functions in an HTTP Agent.
-
-#### Assets
+## Assets
 ```
 MTConnect/Devices/[DEVICE_UUID]/Assets/[ASSET_TYPE]/[ASSET_ID]
 MTConnect/Assets/[ASSET_TYPE]/[ASSET_ID]
 ```
 > Note: Assets are sent to two topics. One for the "Global" assets and one for the Device that the Asset was added to
 
-#### Agent
-The Agent topic contains information that would normally be in the Header of a Response Document from an HTTP Agent.
+
+
+## Agents
+The **MTConnect/Agents** topics are used to send data about the Agent. This is the data that is typically in the HTTP Response Document Header
+
 ```
-MTConnect/Assets/[AGENT_UUID]
+MTConnect/Agents/[AGENT_UUID]
+```
+
+### Topic Structure
+
+> [Node] = (Payload)
+
+```bash
+- MTConnect
+   ─ Agents
+      ─ [AGENT_UUID]
+        - UUID
+        - InstanceId
+        - Version
+        - Sender
+        - DeviceModelChangeTime
+```
+
+### Example
+```bash
+- MTConnect
+   ─ Agents
+      ─ d7e169c5-14bb-48a3-bf9f-521152df2c84
+        - UUID = d7e169c5-14bb-48a3-bf9f-521152df2c84
+        - InstanceId = 1669400832
+        - Version = 5.0.0.0
+        - Sender = DESKTOP-HV74M4N
+        - DeviceModelChangeTime = 2023-02-07T20:02:26.7682252Z
 ```
