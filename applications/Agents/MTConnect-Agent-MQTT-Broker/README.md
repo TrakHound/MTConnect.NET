@@ -25,7 +25,7 @@ This project is a full implementation of an MTConnect Agent used to read data fr
 ## Download
 To download the latest release as a Windows Installer, use the link below:
 
-- [Download Latest Release Windows Installer](https://github.com/TrakHound/MTConnect.NET/releases/download/v1.3.0-agents/TrakHound-MTConnect-MQTT-Broker-Agent-Install-v1.3.0.exe)
+- [Download Latest Release Windows Installer](https://github.com/TrakHound/MTConnect.NET/releases/download/v5.0.0/TrakHound-MTConnect-MQTT-Broker-Agent-Install-v5.0.0.exe)
 
 
 ## Usage

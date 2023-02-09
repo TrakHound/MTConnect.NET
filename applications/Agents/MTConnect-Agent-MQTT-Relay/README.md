@@ -8,7 +8,7 @@
 This project is a full implementation of an MTConnect Agent used to read data from industrial machine tools and devices. This MTConnect Agent application is fully compatible with the latest **Version 2.1 of the MTConnect Standard**. It uses the SHDR protocol to receive data from Adapters, an in-memory buffer with an optional durable file system based buffer, and an MQTT client to publish messages to an external MQTT Broker.
 
 #### Features
-- MQTT support
+- MQTT support. [Learn More](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-MQTT)
 - Easy setup with Windows Installers availble in the latest [Releases](https://github.com/TrakHound/MTConnect.NET/releases)
 - Options to run as Windows Service or as a console application (typically for testing/debugging)
 - Optional 'Durable' buffer used to retain the Agent data between application/machine restarts
@@ -25,7 +25,7 @@ This project is a full implementation of an MTConnect Agent used to read data fr
 ## Download
 To download the latest release as a Windows Installer, use the link below:
 
-- [Download Latest Release Windows Installer](https://github.com/TrakHound/MTConnect.NET/releases/download/v1.3.0-agents/TrakHound-MTConnect-MQTT-Relay-Agent-Install-v1.3.0.exe)
+- [Download Latest Release Windows Installer](https://github.com/TrakHound/MTConnect.NET/releases/download/v5.0.0/TrakHound-MTConnect-MQTT-Relay-Agent-Install-v5.0.0.exe)
 
 
 ## Usage

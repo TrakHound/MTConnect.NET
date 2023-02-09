@@ -25,7 +25,7 @@ This project is a full implementation of an MTConnect Agent used to read data fr
 ## Download
 To download the latest release as a Windows Installer, use the link below:
 
-- [Download Latest Release Windows Installer](https://github.com/TrakHound/MTConnect.NET/releases/download/v0.6.1-beta-agents/TrakHound-MTConnect-Http-Agent-Install-v0.6.1-beta.exe)
+- [Download Latest Release Windows Installer](https://github.com/TrakHound/MTConnect.NET/releases/download/v5.0.0/TrakHound-MTConnect-Http-Agent-Install-v5.0.0.exe)
 
 ## Installation
 Follow the steps below to install the MTConnect Agent HTTP application.
@@ -33,9 +33,9 @@ Follow the steps below to install the MTConnect Agent HTTP application.
 *Note: Installer (Innosetup) source code is available and will be added to repo this in a future version*
 
 ### Step #1
-Read through the license agreement (Apache 2.0 License) and click **"I accept the agreement"** if you agree with the terms.
+Read through the license agreement (MIT License) and click **"I accept the agreement"** if you agree with the terms.
 Then click **"Next"** to proceed to the next page.
-*For more information about the Apache 2.0 license click [Here](https://www.apache.org/licenses/LICENSE-2.0.html)*
+*For more information about the MIT license click [Here](https://choosealicense.com/licenses/mit/)*
 
 
 ![screenshot](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/MTConnect-Agent-HTTP/Installation/installer-license.png) 

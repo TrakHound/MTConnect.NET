@@ -23,7 +23,7 @@ This project is a full implementation of an MTConnect Agent used to read data fr
 
 ## Download
 To download the latest release as a Windows Installer, use the link below:
-- [Download Latest Release Windows Installer](https://github.com/TrakHound/MTConnect.NET/releases/download/v0.6.1-beta-agents/TrakHound-MTConnect-Http-Gateway-Agent-Install-v0.6.1-beta.exe)
+- [Download Latest Release Windows Installer](https://github.com/TrakHound/MTConnect.NET/releases/download/v5.0.0/TrakHound-MTConnect-Http-Gateway-Agent-Install-v5.0.0.exe)
 
 ## Releases
 Releases for this application are located under the Releases tab. The current release is listed below:
