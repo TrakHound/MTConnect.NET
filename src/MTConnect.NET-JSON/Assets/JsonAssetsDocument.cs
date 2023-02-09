@@ -3,6 +3,10 @@
 
 using MTConnect.Assets.CuttingTools;
 using MTConnect.Assets.Files;
+using MTConnect.Assets.Json.CuttingTools;
+using MTConnect.Assets.Json.Files;
+using MTConnect.Assets.Json.QIF;
+using MTConnect.Assets.Json.RawMaterials;
 using MTConnect.Assets.QIF;
 using MTConnect.Assets.RawMaterials;
 using MTConnect.Headers;

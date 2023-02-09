@@ -1,11 +1,11 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-using MTConnect.Assets.RawMaterials;
+using MTConnect.Assets.QIF;
 using System;
 using System.Text.Json.Serialization;
 
-namespace MTConnect.Assets.QIF
+namespace MTConnect.Assets.Json.QIF
 {
     public class JsonQIFDocumentWrapperAsset
     {

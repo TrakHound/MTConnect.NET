@@ -4,7 +4,7 @@
 using System;
 using System.Text.Json.Serialization;
 
-namespace MTConnect.Assets
+namespace MTConnect.Assets.Json
 {
     public class JsonAsset
     {
