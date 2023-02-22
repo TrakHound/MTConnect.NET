@@ -8,6 +8,8 @@ namespace MTConnect.Configurations
     /// </summary>
     public interface IMqttAgentApplicationConfiguration : IAgentApplicationConfiguration, IMTConnectMqttClientConfiguration
     {
+        bool RetainMessages { get; set; }
 
+        MTConnectMqttFormat MqttFormat { get; set; }
     }
 }

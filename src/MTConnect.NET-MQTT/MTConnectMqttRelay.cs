@@ -10,8 +10,9 @@ using MTConnect.Devices;
 using MTConnect.Observations;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -35,6 +36,10 @@ namespace MTConnect.Mqtt
         /// Gets or Sets the Interval in Milliseconds that the Client will attempt to reconnect if the connection fails
         /// </summary>
         public int RetryInterval => _configuration.RetryInterval;
+
+        public MTConnectMqttFormat Format { get; set; }
+
+        public bool RetainMessages { get; set; }
 
         public EventHandler Connected { get; set; }
 
@@ -88,34 +93,51 @@ namespace MTConnect.Mqtt
                 {
                     try
                     {
-                        MqttClientOptions mqttClientOptions;
+                        // Declare new MQTT Client Options with Tcp Server
+                        var clientOptionsBuilder = new MqttClientOptionsBuilder().WithTcpServer(_configuration.Server, _configuration.Port);
 
+                        var certificates = new List<X509Certificate2>();
+
+                        // Add CA (Certificate Authority)
+                        if (!string.IsNullOrEmpty(_configuration.CertificateAuthority))
+                        {
+                            certificates.Add(new X509Certificate2(GetFilePath(_configuration.CertificateAuthority)));
+                        }
+
+                        // Add Client Certificate & Private Key
+                        if (!string.IsNullOrEmpty(_configuration.PemClientCertificate) && !string.IsNullOrEmpty(_configuration.PemPrivateKey))
+                        {
+                            certificates.Add(new X509Certificate2(X509Certificate2.CreateFromPemFile(GetFilePath(_configuration.PemClientCertificate), GetFilePath(_configuration.PemPrivateKey)).Export(X509ContentType.Pfx)));
+
+                            clientOptionsBuilder.WithCleanSession();
+                            clientOptionsBuilder.WithTls(new MqttClientOptionsBuilderTlsParameters()
+                            {
+                                UseTls = true,
+                                SslProtocol = System.Security.Authentication.SslProtocols.Tls12,
+                                IgnoreCertificateRevocationErrors = true,
+                                IgnoreCertificateChainErrors = true,
+                                AllowUntrustedCertificates = true,
+                                Certificates = certificates
+                            });
+                        }
+
+                        // Add Credentials
                         if (!string.IsNullOrEmpty(_configuration.Username) && !string.IsNullOrEmpty(_configuration.Password))
                         {
                             if (_configuration.UseTls)
                             {
-                                mqttClientOptions = new MqttClientOptionsBuilder()
-                                .WithTcpServer(_configuration.Server, _configuration.Port)
-                                .WithCredentials(_configuration.Username, _configuration.Password)
-                                .WithTls()
-                                .Build();
+                                clientOptionsBuilder.WithCredentials(_configuration.Username, _configuration.Password).WithTls();
                             }
                             else
                             {
-                                mqttClientOptions = new MqttClientOptionsBuilder()
-                                .WithTcpServer(_configuration.Server, _configuration.Port)
-                                .WithCredentials(_configuration.Username, _configuration.Password)
-                                .Build();
+                                clientOptionsBuilder.WithCredentials(_configuration.Username, _configuration.Password);
                             }
                         }
-                        else
-                        {
-                            mqttClientOptions = new MqttClientOptionsBuilder()
-                            .WithTcpServer(_configuration.Server, _configuration.Port)
-                            .Build();
-                        }
 
-                        await _mqttClient.ConnectAsync(mqttClientOptions, CancellationToken.None);
+                        // Build MQTT Client Options
+                        var clientOptions = clientOptionsBuilder.Build();
+
+                        await _mqttClient.ConnectAsync(clientOptions, CancellationToken.None);
 
                         if (Connected != null) Connected.Invoke(this, new EventArgs());
 
@@ -287,14 +309,11 @@ namespace MTConnect.Mqtt
         {
             try
             {
-                var bytes = Encoding.UTF8.GetBytes(payload);
-
-                return new MqttApplicationMessage
-                {
-                    Topic = topic,
-                    Payload = bytes,
-                    Retain = true
-                };
+                var messageBuilder = new MqttApplicationMessageBuilder();
+                messageBuilder.WithTopic(topic);
+                messageBuilder.WithPayload(payload);
+                messageBuilder.WithRetainFlag(RetainMessages);
+                return messageBuilder.Build();
             }
             catch { }
 
@@ -319,18 +338,6 @@ namespace MTConnect.Mqtt
                 // Agent Application Version
                 topic = $"MTConnect/Agents/{agent.Uuid}/Version";
                 messages.Add(CreateMessage(topic, agent.Version.ToString()));
-
-                //// Observation Buffer Size
-                //topic = $"MTConnect/Agents/{agent.Uuid}/BufferSize";
-                //messages.Add(CreateMessage(topic, agent.BufferSize.ToString()));
-
-                //// Asset Buffer Size
-                //topic = $"MTConnect/Agents/{agent.Uuid}/AssetBufferSize";
-                //messages.Add(CreateMessage(topic, agent.AssetBufferSize.ToString()));
-
-                //// Asset Count
-                //topic = $"MTConnect/Agents/{agent.Uuid}/AssetCount";
-                //messages.Add(CreateMessage(topic, agent.AssetCount.ToString()));
 
                 // Sender
                 topic = $"MTConnect/Agents/{agent.Uuid}/Sender";
@@ -365,11 +372,7 @@ namespace MTConnect.Mqtt
         {
             if (observation != null && !string.IsNullOrEmpty(observation.DeviceUuid) && observation.DataItem != null && observation.DataItem.Container != null && !observation.Values.IsNullOrEmpty())
             {
-                var category = observation.Category.ToString().ToTitleCase() + "s";
-                var topicPrefix = $"MTConnect/Devices/{observation.DeviceUuid}/Observations/{observation.DataItem.Container.Type}/{observation.DataItem.Container.Id}/{category}/{observation.Type}";
-
-                var topic = $"{topicPrefix}/{observation.DataItemId}";
-                if (!string.IsNullOrEmpty(observation.SubType)) topic = $"{topicPrefix}/SubTypes/{observation.SubType}/{observation.DataItemId}";
+                var topic = CreateTopic(observation);
 
                 if (observation.Category != Devices.DataItems.DataItemCategory.CONDITION)
                 {
@@ -402,6 +405,66 @@ namespace MTConnect.Mqtt
             return null;
         }
 
+        private string CreateTopic(IObservation observation)
+        {
+            if (observation != null)
+            {
+                var type = DataItem.GetPascalCaseType(observation.DataItem.Type);
+                var subtype = DataItem.GetPascalCaseType(observation.DataItem.SubType);
+
+                var category = observation.Category.ToString().ToTitleCase() + "s";
+
+                // Add Prefixes
+                var prefixes = new List<string>();
+                prefixes.Add("MTConnect");
+                prefixes.Add("Devices");
+                prefixes.Add(observation.DeviceUuid);
+                prefixes.Add("Observations");
+
+                var paths = new List<string>();
+
+                // Add Container
+                paths.Add(RemoveNamespacePrefix(observation.DataItem.Container.Type));
+                paths.Add(observation.DataItem.Container.Id);
+                paths.Add(category);
+
+                // Add Type
+                paths.Add(RemoveNamespacePrefix(type));
+
+                // Add SubType
+                if (!string.IsNullOrEmpty(subtype))
+                {
+                    paths.Add("SubTypes");
+                    paths.Add(RemoveNamespacePrefix(subtype));
+                }
+
+                // Add DataItemId
+                paths.Add(observation.DataItemId);
+
+
+                switch (Format)
+                {
+                    case MTConnectMqttFormat.Hierarchy:
+
+                        return string.Join("/", new string[]
+                        {
+                            string.Join("/", prefixes),
+                            string.Join("/", paths),
+                            observation.DataItemId
+                        });
+
+                    default:
+                        return string.Join("/", new string[]
+{
+                            string.Join("/", prefixes),
+                            observation.DataItemId
+});
+                }
+            }
+
+            return null;
+        }
+
         private IEnumerable<MqttApplicationMessage> CreateMessage(IAsset asset, string documentFormatterId = DocumentFormat.XML)
         {
             if (asset != null)
@@ -418,7 +481,33 @@ namespace MTConnect.Mqtt
             return null;
         }
 
-
         #endregion
+
+
+        private static string GetFilePath(string path)
+        {
+            var x = path;
+            if (!Path.IsPathRooted(x))
+            {              
+                x = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, x);
+            }
+
+            return x;
+        }
+
+        private static string RemoveNamespacePrefix(string type)
+        {
+            if (!string.IsNullOrEmpty(type))
+            {
+                if (type.Contains(':'))
+                {
+                    return type.Substring(type.IndexOf(':') + 1);
+                }
+
+                return type;
+            }
+
+            return null;
+        }
     }
 }

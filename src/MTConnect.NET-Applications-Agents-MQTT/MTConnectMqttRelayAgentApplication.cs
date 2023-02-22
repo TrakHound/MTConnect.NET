@@ -90,9 +90,14 @@ namespace MTConnect.Applications.Agents
                 clientConfiguration.Port = _port > 0 ? _port : _configuration.Port;
                 clientConfiguration.Username = _configuration.Username;
                 clientConfiguration.Password = _configuration.Password;
+                clientConfiguration.CertificateAuthority = _configuration.CertificateAuthority;
+                clientConfiguration.PemClientCertificate = _configuration.PemClientCertificate;
+                clientConfiguration.PemPrivateKey = _configuration.PemPrivateKey;
                 clientConfiguration.UseTls = _configuration.UseTls;
 
                 _relay = new MTConnectMqttRelay(Agent, clientConfiguration);
+                _relay.Format = _configuration.MqttFormat;
+                _relay.RetainMessages = _configuration.RetainMessages;
                 _relay.Connected += MqttClientConnected;
                 _relay.Disconnected += MqttClientDisconnected;
                 _relay.MessageSent += MqttClientMessageSent;

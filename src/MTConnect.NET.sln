@@ -86,6 +86,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{BBF53739
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-Applications-Adapters-SHDR", "MTConnect.NET-Applications-Adapters-SHDR\MTConnect.NET-Applications-Adapters-SHDR.csproj", "{A1FD60D5-631A-4300-8809-0758CBCBB504}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{0957974A-CA4D-45DD-A0CB-2C4A9CD03350}"
+	ProjectSection(SolutionItems) = preProject
+		..\docs\MQTT-AWS-IoT.md = ..\docs\MQTT-AWS-IoT.md
+		..\docs\MQTT-HiveMQ.md = ..\docs\MQTT-HiveMQ.md
+		..\README.md = ..\README.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

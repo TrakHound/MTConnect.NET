@@ -12,6 +12,8 @@ using MTConnect.Observations;
 using MTConnect.Streams.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -39,6 +41,9 @@ namespace MTConnect.Clients.Mqtt
         private readonly int _port;
         private readonly string _username;
         private readonly string _password;
+        private readonly string _caCertPath;
+        private readonly string _pemClientCertPath;
+        private readonly string _pemPrivateKeyPath;
         private readonly bool _useTls;
         private readonly IEnumerable<string> _topics;
 
@@ -83,6 +88,9 @@ namespace MTConnect.Clients.Mqtt
                 _port = configuration.Port; ;
                 _username = configuration.Username;
                 _password = configuration.Password;
+                _caCertPath = configuration.CertificateAuthority;
+                _pemClientCertPath = configuration.PemClientCertificate;
+                _pemPrivateKeyPath = configuration.PemPrivateKey;
                 _useTls = configuration.UseTls;
             }
 
@@ -98,32 +106,48 @@ namespace MTConnect.Clients.Mqtt
         {
             try
             {
-                MqttClientOptions clientOptions;
+                // Declare new MQTT Client Options with Tcp Server
+                var clientOptionsBuilder = new MqttClientOptionsBuilder().WithTcpServer(_server, _port);
 
+                var certificates = new List<X509Certificate2>();
+
+                // Add CA (Certificate Authority)
+                if (!string.IsNullOrEmpty(_caCertPath))
+                {
+                    certificates.Add(new X509Certificate2(GetFilePath(_caCertPath)));
+                }
+
+                // Add Client Certificate & Private Key
+                if (!string.IsNullOrEmpty(_pemClientCertPath) && !string.IsNullOrEmpty(_pemPrivateKeyPath))
+                {
+                    certificates.Add(new X509Certificate2(X509Certificate2.CreateFromPemFile(GetFilePath(_pemClientCertPath), GetFilePath(_pemPrivateKeyPath)).Export(X509ContentType.Pfx)));
+
+                    clientOptionsBuilder.WithTls(new MqttClientOptionsBuilderTlsParameters()
+                    {
+                        UseTls = true,
+                        SslProtocol = System.Security.Authentication.SslProtocols.Tls12,
+                        IgnoreCertificateRevocationErrors = true,
+                        IgnoreCertificateChainErrors = true,
+                        AllowUntrustedCertificates = true,
+                        Certificates = certificates
+                    });
+                }
+
+                // Add Credentials
                 if (!string.IsNullOrEmpty(_username) && !string.IsNullOrEmpty(_password))
                 {
                     if (_useTls)
                     {
-                        clientOptions = new MqttClientOptionsBuilder()
-                        .WithTcpServer(_server, _port)
-                        .WithCredentials(_username, _password)
-                        .WithTls()
-                        .Build();
+                        clientOptionsBuilder.WithCredentials(_username, _password).WithTls();
                     }
                     else
                     {
-                        clientOptions = new MqttClientOptionsBuilder()
-                        .WithTcpServer(_server, _port)
-                        .WithCredentials(_username, _password)
-                        .Build();
+                        clientOptionsBuilder.WithCredentials(_username, _password);
                     }
                 }
-                else
-                {
-                    clientOptions = new MqttClientOptionsBuilder()
-                    .WithTcpServer(_server, _port)
-                    .Build();
-                }
+
+                // Build MQTT Client Options
+                var clientOptions = clientOptionsBuilder.Build();
 
                 // Connect to the MQTT Client
                 await _mqttClient.ConnectAsync(clientOptions);
@@ -314,6 +338,18 @@ namespace MTConnect.Clients.Mqtt
                 }
             }
             catch { }
+        }
+
+
+        private string GetFilePath(string path)
+        {
+            var x = path;
+            if (!Path.IsPathRooted(x))
+            {
+                x = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, x);
+            }
+
+            return x;
         }
     }
 }
