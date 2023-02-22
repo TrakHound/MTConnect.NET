@@ -94,6 +94,7 @@ namespace MTConnect.Applications.Agents
                 clientConfiguration.PemClientCertificate = _configuration.PemClientCertificate;
                 clientConfiguration.PemPrivateKey = _configuration.PemPrivateKey;
                 clientConfiguration.UseTls = _configuration.UseTls;
+                clientConfiguration.AllowUntrustedCertificates = _configuration.AllowUntrustedCertificates;
 
                 _relay = new MTConnectMqttRelay(Agent, clientConfiguration);
                 _relay.Format = _configuration.MqttFormat;

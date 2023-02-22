@@ -31,6 +31,9 @@ namespace MTConnect.Configurations
         [JsonPropertyName("pemPrivateKey")]
         public string PemPrivateKey { get; set; }
 
+        [JsonPropertyName("allowUntrustedCertificates")]
+        public bool AllowUntrustedCertificates { get; set; }
+
         [JsonPropertyName("useTls")]
         public bool UseTls { get; set; }
 

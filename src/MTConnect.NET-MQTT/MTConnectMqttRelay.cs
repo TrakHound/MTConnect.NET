@@ -41,6 +41,8 @@ namespace MTConnect.Mqtt
 
         public bool RetainMessages { get; set; }
 
+        public bool AllowUntrustedCertificates { get; set; }
+
         public EventHandler Connected { get; set; }
 
         public EventHandler Disconnected { get; set; }
@@ -114,9 +116,9 @@ namespace MTConnect.Mqtt
                             {
                                 UseTls = true,
                                 SslProtocol = System.Security.Authentication.SslProtocols.Tls12,
-                                IgnoreCertificateRevocationErrors = true,
-                                IgnoreCertificateChainErrors = true,
-                                AllowUntrustedCertificates = true,
+                                IgnoreCertificateRevocationErrors = AllowUntrustedCertificates,
+                                IgnoreCertificateChainErrors = AllowUntrustedCertificates,
+                                AllowUntrustedCertificates = AllowUntrustedCertificates,
                                 Certificates = certificates
                             });
                         }

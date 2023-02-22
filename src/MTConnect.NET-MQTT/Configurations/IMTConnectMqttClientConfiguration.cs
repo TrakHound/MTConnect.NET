@@ -21,6 +21,8 @@ namespace MTConnect.Configurations
 
         bool UseTls { get; set; }
 
+        bool AllowUntrustedCertificates { get; set; }
+
         int RetryInterval { get; set; }
     }
 }
