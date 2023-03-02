@@ -41,7 +41,7 @@ namespace MTConnect.Mqtt
 
         public bool RetainMessages { get; set; }
 
-        public bool AllowUntrustedCertificates { get; set; }
+        public bool AllowUntrustedCertificates => _configuration.AllowUntrustedCertificates;
 
         public EventHandler Connected { get; set; }
 
@@ -112,11 +112,12 @@ namespace MTConnect.Mqtt
                         // Add Client Certificate & Private Key
                         if (!string.IsNullOrEmpty(_configuration.PemCertificate) && !string.IsNullOrEmpty(_configuration.PemPrivateKey))
                         {
-                            var certificate = Certificates.FromPemFile(GetFilePath(_configuration.PemCertificate), GetFilePath(_configuration.PemPrivateKey));
-                            if (certificate != null)
-                            {
-                                certificates.Add(new X509Certificate2(certificate.Export(X509ContentType.Pfx)));
-                            }
+
+#if NET5_0_OR_GREATER
+                            certificates.Add(new X509Certificate2(X509Certificate2.CreateFromPemFile(GetFilePath(_configuration.PemCertificate), GetFilePath(_configuration.PemPrivateKey)).Export(X509ContentType.Pfx)));
+#else
+                            throw new Exception("PEM Certificates Not Supported in .NET Framework 4.8 or older");
+#endif
 
                             clientOptionsBuilder.WithCleanSession();
                             clientOptionsBuilder.WithTls(new MqttClientOptionsBuilderTlsParameters()

@@ -120,11 +120,12 @@ namespace MTConnect.Clients.Mqtt
                 // Add Client Certificate & Private Key
                 if (!string.IsNullOrEmpty(_pemClientCertPath) && !string.IsNullOrEmpty(_pemPrivateKeyPath))
                 {
-                    var certificate = Certificates.FromPemFile(GetFilePath(_pemClientCertPath), GetFilePath(_pemPrivateKeyPath));
-                    if (certificate != null)
-                    {
-                        certificates.Add(new X509Certificate2(certificate.Export(X509ContentType.Pfx)));
-                    }
+
+#if NET5_0_OR_GREATER
+                    certificates.Add(new X509Certificate2(X509Certificate2.CreateFromPemFile(GetFilePath(_pemClientCertPath), GetFilePath(_pemPrivateKeyPath)).Export(X509ContentType.Pfx)));
+#else
+                    throw new Exception("PEM Certificates Not Supported in .NET Framework 4.8 or older");
+#endif
 
                     clientOptionsBuilder.WithTls(new MqttClientOptionsBuilderTlsParameters()
                     {

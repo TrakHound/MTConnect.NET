@@ -95,7 +95,12 @@ namespace MTConnect.Applications.Agents
             // Add Certificate & Private Key
             if (!string.IsNullOrEmpty(_configuration.PemCertificate) && !string.IsNullOrEmpty(_configuration.PemPrivateKey))
             {
-                var certificate = Certificates.FromPemFile(GetFilePath(_configuration.PemCertificate), GetFilePath(_configuration.PemPrivateKey));
+                X509Certificate2 certificate = null;
+
+#if NET5_0_OR_GREATER
+                certificate = new X509Certificate2(X509Certificate2.CreateFromPemFile(GetFilePath(_configuration.PemCertificate), GetFilePath(_configuration.PemPrivateKey)).Export(X509ContentType.Pfx));
+#endif
+
                 if (certificate != null)
                 {
                     mqttServerOptionsBuilder.WithoutDefaultEndpoint();
