@@ -91,7 +91,7 @@ namespace MTConnect.Applications.Agents
                 clientConfiguration.Username = _configuration.Username;
                 clientConfiguration.Password = _configuration.Password;
                 clientConfiguration.CertificateAuthority = _configuration.CertificateAuthority;
-                clientConfiguration.PemClientCertificate = _configuration.PemClientCertificate;
+                clientConfiguration.PemCertificate = _configuration.PemCertificate;
                 clientConfiguration.PemPrivateKey = _configuration.PemPrivateKey;
                 clientConfiguration.UseTls = _configuration.UseTls;
                 clientConfiguration.AllowUntrustedCertificates = _configuration.AllowUntrustedCertificates;

@@ -57,7 +57,10 @@ namespace MTConnect.Devices.Components
                 // Add Asset Update Rate
                 dataItems.Add(new AssetUpdateRateDataItem(Id));
 
-                DataItems = dataItems;
+                // Set Container
+                foreach (var dataItem in dataItems) ((DataItem)dataItem).Container = this;
+
+                AddDataItems(dataItems);
             }
         }
     }

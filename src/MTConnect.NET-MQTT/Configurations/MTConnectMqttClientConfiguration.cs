@@ -19,11 +19,11 @@ namespace MTConnect.Configurations
         [JsonPropertyName("password")]
         public string Password { get; set; }
 
-        [JsonPropertyName("certificateCertificate")]
+        [JsonPropertyName("certificateAuthority")]
         public string CertificateAuthority { get; set; }
 
-        [JsonPropertyName("pemClientCertificate")]
-        public string PemClientCertificate { get; set; }
+        [JsonPropertyName("pemCertificate")]
+        public string PemCertificate { get; set; }
 
         [JsonPropertyName("pemPrivateKey")]
         public string PemPrivateKey { get; set; }

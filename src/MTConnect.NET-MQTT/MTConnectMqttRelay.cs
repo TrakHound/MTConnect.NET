@@ -64,6 +64,9 @@ namespace MTConnect.Mqtt
             _configuration = configuration;
             if (_configuration == null) _configuration = new MTConnectMqttClientConfiguration();
 
+            Format = MTConnectMqttFormat.Hierarchy;
+            RetainMessages = true;
+
             _mqttFactory = new MqttFactory();
             _mqttClient = _mqttFactory.CreateMqttClient();
         }
@@ -107,9 +110,13 @@ namespace MTConnect.Mqtt
                         }
 
                         // Add Client Certificate & Private Key
-                        if (!string.IsNullOrEmpty(_configuration.PemClientCertificate) && !string.IsNullOrEmpty(_configuration.PemPrivateKey))
+                        if (!string.IsNullOrEmpty(_configuration.PemCertificate) && !string.IsNullOrEmpty(_configuration.PemPrivateKey))
                         {
-                            certificates.Add(new X509Certificate2(X509Certificate2.CreateFromPemFile(GetFilePath(_configuration.PemClientCertificate), GetFilePath(_configuration.PemPrivateKey)).Export(X509ContentType.Pfx)));
+                            var certificate = Certificates.FromPemFile(GetFilePath(_configuration.PemCertificate), GetFilePath(_configuration.PemPrivateKey));
+                            if (certificate != null)
+                            {
+                                certificates.Add(new X509Certificate2(certificate.Export(X509ContentType.Pfx)));
+                            }
 
                             clientOptionsBuilder.WithCleanSession();
                             clientOptionsBuilder.WithTls(new MqttClientOptionsBuilderTlsParameters()

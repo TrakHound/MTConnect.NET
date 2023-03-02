@@ -89,7 +89,7 @@ namespace MTConnect.Clients.Mqtt
                 _username = configuration.Username;
                 _password = configuration.Password;
                 _caCertPath = configuration.CertificateAuthority;
-                _pemClientCertPath = configuration.PemClientCertificate;
+                _pemClientCertPath = configuration.PemCertificate;
                 _pemPrivateKeyPath = configuration.PemPrivateKey;
                 _useTls = configuration.UseTls;
             }
@@ -120,7 +120,11 @@ namespace MTConnect.Clients.Mqtt
                 // Add Client Certificate & Private Key
                 if (!string.IsNullOrEmpty(_pemClientCertPath) && !string.IsNullOrEmpty(_pemPrivateKeyPath))
                 {
-                    certificates.Add(new X509Certificate2(X509Certificate2.CreateFromPemFile(GetFilePath(_pemClientCertPath), GetFilePath(_pemPrivateKeyPath)).Export(X509ContentType.Pfx)));
+                    var certificate = Certificates.FromPemFile(GetFilePath(_pemClientCertPath), GetFilePath(_pemPrivateKeyPath));
+                    if (certificate != null)
+                    {
+                        certificates.Add(new X509Certificate2(certificate.Export(X509ContentType.Pfx)));
+                    }
 
                     clientOptionsBuilder.WithTls(new MqttClientOptionsBuilderTlsParameters()
                     {

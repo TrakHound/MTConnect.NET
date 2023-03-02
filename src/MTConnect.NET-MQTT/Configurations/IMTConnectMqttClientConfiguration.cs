@@ -15,7 +15,7 @@ namespace MTConnect.Configurations
 
         string CertificateAuthority { get; set; }
 
-        string PemClientCertificate { get; set; }
+        string PemCertificate { get; set; }
 
         string PemPrivateKey { get; set; }
 

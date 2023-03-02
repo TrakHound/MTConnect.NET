@@ -64,15 +64,19 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\MTConnect.NET-Common\MTConnect.NET-Common.csproj" />
-		<ProjectReference Include="..\MTConnect.NET-JSON\MTConnect.NET-JSON.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<None Include="README.md">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
 		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="OpenSSL.X509Certificate2.Provider" Version="1.3.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\MTConnect.NET-Common\MTConnect.NET-Common.csproj" />
+	  <ProjectReference Include="..\MTConnect.NET-JSON\MTConnect.NET-JSON.csproj" />
 	</ItemGroup>
 
 </Project>
