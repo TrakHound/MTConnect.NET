@@ -93,6 +93,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{0957974A-C
 		..\README.md = ..\README.md
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect-Agent-MQTT-Broker-Gateway", "..\applications\Agents\MTConnect-Agent-MQTT-Broker-Gateway\MTConnect-Agent-MQTT-Broker-Gateway.csproj", "{44BAF649-0F9F-446A-B1A4-6F2DCF91C968}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect-Agent-MQTT-Relay-Gateway", "..\applications\Agents\MTConnect-Agent-MQTT-Relay-Gateway\MTConnect-Agent-MQTT-Relay-Gateway.csproj", "{61CB960E-761A-4F89-A365-E9394AD3FA30}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -286,6 +290,18 @@ Global
 		{A1FD60D5-631A-4300-8809-0758CBCBB504}.Package|Any CPU.Build.0 = Debug|Any CPU
 		{A1FD60D5-631A-4300-8809-0758CBCBB504}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A1FD60D5-631A-4300-8809-0758CBCBB504}.Release|Any CPU.Build.0 = Release|Any CPU
+		{44BAF649-0F9F-446A-B1A4-6F2DCF91C968}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{44BAF649-0F9F-446A-B1A4-6F2DCF91C968}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{44BAF649-0F9F-446A-B1A4-6F2DCF91C968}.Package|Any CPU.ActiveCfg = Debug|Any CPU
+		{44BAF649-0F9F-446A-B1A4-6F2DCF91C968}.Package|Any CPU.Build.0 = Debug|Any CPU
+		{44BAF649-0F9F-446A-B1A4-6F2DCF91C968}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{44BAF649-0F9F-446A-B1A4-6F2DCF91C968}.Release|Any CPU.Build.0 = Release|Any CPU
+		{61CB960E-761A-4F89-A365-E9394AD3FA30}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{61CB960E-761A-4F89-A365-E9394AD3FA30}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{61CB960E-761A-4F89-A365-E9394AD3FA30}.Package|Any CPU.ActiveCfg = Debug|Any CPU
+		{61CB960E-761A-4F89-A365-E9394AD3FA30}.Package|Any CPU.Build.0 = Debug|Any CPU
+		{61CB960E-761A-4F89-A365-E9394AD3FA30}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{61CB960E-761A-4F89-A365-E9394AD3FA30}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -321,6 +337,8 @@ Global
 		{32727D21-003E-407F-9EEC-682AB54B8C4B} = {14375E03-6BF8-45E6-B868-D2399368992B}
 		{74C97CED-AB30-4092-962D-7B5929F58A9A} = {14375E03-6BF8-45E6-B868-D2399368992B}
 		{A1FD60D5-631A-4300-8809-0758CBCBB504} = {94845A24-EEE7-4FEF-B033-99C02DD39C30}
+		{44BAF649-0F9F-446A-B1A4-6F2DCF91C968} = {6C3F47E0-BC95-48CB-93A4-C34A0D5CA43B}
+		{61CB960E-761A-4F89-A365-E9394AD3FA30} = {6C3F47E0-BC95-48CB-93A4-C34A0D5CA43B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CC13D3AD-18BF-4695-AB2A-087EF0885B20}
