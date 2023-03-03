@@ -5,7 +5,9 @@
 [![MTConnect.NET](https://github.com/TrakHound/MTConnect.NET/actions/workflows/dotnet.yml/badge.svg)](https://github.com/TrakHound/MTConnect.NET/actions/workflows/dotnet.yml)
 
 ## Overview
-This project is a full implementation of an MTConnect Agent used to read data from industrial machine tools and devices. This MTConnect Agent application is fully compatible with the latest **Version 2.1 of the MTConnect Standard**. It receives data from other MTConnect Agents using HTTP, an in-memory buffer with an optional durable file system based buffer, and an Http REST interface for retrieving data.
+This project is a full implementation of an MTConnect Agent used to read data from industrial machine tools and devices.
+This MTConnect Agent application is fully compatible with the latest **Version 2.1 of the MTConnect Standard**.
+It receives data from other MTConnect Agents using HTTP and a built-in MQTT broker.
 
 #### Features
 - MQTT support with built-in broker
@@ -17,11 +19,11 @@ This project is a full implementation of an MTConnect Agent used to read data fr
 - Flexible Logging using NLog which can be used to output log information to separate files for easier analysis
 
 
-![Traditional Agent Architecture](img/mtconnect-agent-http-http-communication-white.png) 
+![Traditional Agent Architecture](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/mtconnect-agent-http-mqtt-communication-white.png) 
 
 ## Download
 To download the latest release as a Windows Installer, use the link below:
-- [Download Latest Release Windows Installer](https://github.com/TrakHound/MTConnect.NET/releases/download/v5.0.0/TrakHound-MTConnect-Mqtt-Broker-Gateway-Agent-Install-v5.0.0.exe)
+- [Download Latest Release Windows Installer](https://github.com/TrakHound/MTConnect.NET/releases/download/v5.1.0/TrakHound-MTConnect-Mqtt-Broker-Gateway-Agent-Install-v5.1.0.exe)
 
 ## Releases
 Releases for this application are located under the Releases tab. The current release is listed below:
@@ -75,6 +77,7 @@ Runs the Agent in the command line prompt using verbose logging and overrides th
 > agent debug "" 1884
 
 ## MQTT Topic Structure
+For more information on MQTT Topics [Click Here](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-MQTT)
 
 #### Devices
 ```
@@ -100,40 +103,33 @@ MTConnect/Assets/[ASSET_TYPE]/[ASSET_ID]
 The Agent topic contains information that would normally be in the Header of a Response Document from an HTTP Agent.
 ```
 MTConnect/Assets/[AGENT_UUID]
+```
 
 ## Configuration
 More information about [Configurations](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-Common/Configurations). The default configuration file is shown below :
-```json
-{
-    "server": "devices.xml",
-    "port": 5000,
 
-    "clients": [
-        {
-          "address": "https://smstestbed.nist.gov/vds/",
-          "port": 443,
-          "deviceKey": "GFAgie01",
-          "useSSL": true,
-          "heartbeat": 0
-        }
-    ],
+```yaml
+# - HTTP Client Adapter Configuration -
+# The Agent is able to receive data by reading from other MTConnect HTTP Agents
+clients:
+- address: https://smstestbed.nist.gov/vds/
+  port: 443
+  deviceKey: GFAgie01
+  useSSL: true
+  heartbeat: 0
+- address: https://smstestbed.nist.gov/vds/
+  port: 443
+  deviceKey: Mazak01
+  useSSL: true
+  heartbeat: 0
 
-    "devicesNamespaces": [
-        {
-            "alias": "e",
-            "location": "urn:okuma.com:OkumaDevices:1.3",
-            "path": "/schemas/OkumaDevices_1.3.xsd"
-        }
-    ],
+# - MQTT Configuration -
 
-    "streamsNamespaces": [
-        {
-            "alias": "e",
-            "location": "urn:okuma.com:OkumaStreams:1.3",
-            "path": "/schemas/OkumaStreams_1.3.xsd"
-        }
-    ]
-}
+# The hostname of the MQTT broker to publish messages to
+server: localhost
+
+# The port number of the MQTT broker to publish messages to
+port: 1883
 ```
 
 #### MQTT Configuration
