@@ -5,7 +5,9 @@
 [![MTConnect.NET](https://github.com/TrakHound/MTConnect.NET/actions/workflows/dotnet.yml/badge.svg)](https://github.com/TrakHound/MTConnect.NET/actions/workflows/dotnet.yml)
 
 ## Overview
-This project is a full implementation of an MTConnect Agent used to read data from industrial machine tools and devices. This MTConnect Agent application is fully compatible with the latest **Version 2.1 of the MTConnect Standard**. It uses the SHDR protocol to receive data from Adapters, an in-memory buffer with an optional durable file system based buffer, and a built-in MQTT broker.
+This project is a full implementation of an MTConnect Agent used to read data from industrial machine tools and devices. 
+This MTConnect Agent application is fully compatible with the latest **Version 2.1 of the MTConnect Standard**.
+It uses the SHDR protocol to receive data from Adapters and a built-in MQTT broker.
 
 #### Features
 - MQTT support with built-in broker
@@ -19,13 +21,12 @@ This project is a full implementation of an MTConnect Agent used to read data fr
 - Flexible Logging using NLog which can be used to output log information to separate files for easier analysis
 
 
-![MQTT Agent Architecture](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/mtconnect-agent-mqtt-shdr-communication.png#gh-light-mode-only) 
-![MQTT Agent Architecture](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/mtconnect-agent-mqtt-shdr-communication-dark.png#gh-dark-mode-only) 
+![MQTT Agent Architecture](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/mtconnect-agent-shdr-mqtt-communication-white.png) 
 
 ## Download
 To download the latest release as a Windows Installer, use the link below:
 
-- [Download Latest Release Windows Installer](https://github.com/TrakHound/MTConnect.NET/releases/download/v5.0.0/TrakHound-MTConnect-MQTT-Broker-Agent-Install-v5.0.0.exe)
+- [Download Latest Release Windows Installer](https://github.com/TrakHound/MTConnect.NET/releases/download/v5.1.0/TrakHound-MTConnect-MQTT-Broker-Agent-Install-v5.1.0.exe)
 
 
 ## Usage
@@ -74,6 +75,7 @@ Runs the Agent in the command line prompt using verbose logging and overrides th
 
 
 ## MQTT Topic Structure
+For more information on MQTT Topics [Click Here](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-MQTT)
 
 #### Devices
 ```
@@ -104,36 +106,24 @@ MTConnect/Assets/[AGENT_UUID]
 
 ## Configuration
 More information about [Configurations](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-Common/Configurations). The default configuration file is shown below :
-```json
-{
-    "devices": "devices.xml",
-    "port": 1883,
-    "server": "192.168.1.50",
+```yaml
+# - Device Configuration -
+devices: devices
 
-    "adapters": [
-        {
-            "deviceKey": "OKUMA.Lathe",
-            "hostname": "localhost",
-            "port": 7878
-        }
-    ],
+# - SHDR Adapter Configuration -
+# The Agent is able to receive data through a TCP port using the SHDR protocol
+adapters:
+- hostname: localhost
+  port: 7878
+  reconnectInterval: 1000
 
-    "devicesNamespaces": [
-        {
-            "alias": "e",
-            "location": "urn:okuma.com:OkumaDevices:1.3",
-            "path": "/schemas/OkumaDevices_1.3.xsd"
-        }
-    ],
+# - MQTT Configuration -
 
-    "streamsNamespaces": [
-        {
-            "alias": "e",
-            "location": "urn:okuma.com:OkumaStreams:1.3",
-            "path": "/schemas/OkumaStreams_1.3.xsd"
-        }
-    ]
-}
+# The hostname of the MQTT broker to publish messages to
+server: localhost
+
+# The port number of the MQTT broker to publish messages to
+port: 1883
 ```
 
 #### MQTT Configuration

@@ -64,15 +64,14 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\MTConnect.NET-Common\MTConnect.NET-Common.csproj" />
-		<ProjectReference Include="..\MTConnect.NET-JSON\MTConnect.NET-JSON.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<None Include="README.md">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
 		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\MTConnect.NET-JSON\MTConnect.NET-JSON.csproj" />
 	</ItemGroup>
 
 </Project>

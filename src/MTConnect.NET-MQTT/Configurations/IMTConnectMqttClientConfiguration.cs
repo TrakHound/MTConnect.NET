@@ -13,7 +13,15 @@ namespace MTConnect.Configurations
 
         string Password { get; set; }
 
+        string CertificateAuthority { get; set; }
+
+        string PemCertificate { get; set; }
+
+        string PemPrivateKey { get; set; }
+
         bool UseTls { get; set; }
+
+        bool AllowUntrustedCertificates { get; set; }
 
         int RetryInterval { get; set; }
     }

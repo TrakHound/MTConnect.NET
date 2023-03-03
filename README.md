@@ -6,7 +6,7 @@
 [![GitHub all releases](https://img.shields.io/github/downloads/TrakHound/MTConnect.NET/total?label=Release%20Downloads)](https://github.com/TrakHound/MTConnect.NET/releases/latest)
 [![Nuget](https://img.shields.io/nuget/dt/MTConnect.NET?label=Nuget%20Downloads)](https://www.nuget.org/packages/MTConnect.NET)
 
-> 1/22/2023 Updated to support MTConnect 2.1
+> 3/2/2023 Added MQTT Gateway Agent Applications
 
 ## Overview
 MTConnect.NET is a fully featured .NET library for MTConnect to develop Agents, Adapters, and Clients. Supports MTConnect Versions up to 2.1.
@@ -46,15 +46,15 @@ Other features of MTConnect.NET :
 
 - [MTConnect MQTT Broker Agent](https://github.com/TrakHound/MTConnect.NET/tree/master/applications/Agents/MTConnect-Agent-MQTT-Broker) : This MTConnect Agent application is fully compatible with the latest Version 2.1 of the MTConnect Standard. It uses the SHDR protocol to receive data from Adapters, an in-memory buffer with an optional durable file system based buffer, and a built-in MQTT broker.
 
+- [MTConnect MQTT Relay Gateway Agent](https://github.com/TrakHound/MTConnect.NET/tree/master/applications/Agents/MTConnect-Agent-MQTT-Relay-Gateway) : This MTConnect Agent application is fully compatible with the latest Version 2.1 of the MTConnect Standard. It receives data from other MTConnect Agents using HTTP and an MQTT client to publish messages to an external MQTT Broker.
+
+- [MTConnect MQTT Broker Gateway Agent](https://github.com/TrakHound/MTConnect.NET/tree/master/applications/Agents/MTConnect-Agent-MQTT-Broker-Gateway) : This MTConnect Agent application is fully compatible with the latest Version 2.1 of the MTConnect Standard. It receives data from other MTConnect Agents using HTTP and a built-in MQTT broker.
+
 #### Specialized (IIS)
 
 - [MTConnect HTTP Agent - AspNetCore](https://github.com/TrakHound/MTConnect.NET/tree/master/applications/Agents/MTConnect-Agent-Http-AspNetCore) : Similar to the MTConnect Agent application but uses either the built-in Kestrel server or can be setup through IIS (Internet Information Services). This allows the agent to be used with all of the features available through ASP.NET and IIS such as security, permissions, monitoring, etc.
 
 - [MTConnect HTTP Gateway Agent - AspNetCore](https://github.com/TrakHound/MTConnect.NET/tree/master/applications/Agents/MTConnect-Agent-Http-Gateway-AspNetCore) : An Agent that runs mulitple MTConnectClients on the backend and passes that data to an MTConnectAgent. This can be used to access MTConnect data on a central server. Uses either the built-in Kestrel server or can be setup through IIS (Internet Information Services). This allows the agent to be used with all of the features available through ASP.NET and IIS such as security, permissions, monitoring, etc.
-
-#### In Progress
-
-- [MTConnect MQTT Gateway Agent](https://github.com/TrakHound/MTConnect.NET/tree/master/applications/Agents/MTConnect-Agent-MQTT-Gateway) : (In-Progress) An MTConnect Gateway Agent with an MQTT broker built-in.
 
 ### Live Demo
 A live demo of the MTConnect Gateway HTTP Agent (AspNetCore) application is running at [https://mtconnect.trakhound.com](https://mtconnect.trakhound.com?outputComments=true&indentOutput=true&version=2.1).
@@ -78,7 +78,7 @@ The Nuget packages for the libraries in this repo are listed below:
 - [MTConnect.NET-MQTT](https://www.nuget.org/packages/MTConnect.NET-MQTT/)
 - [MTConnect.NET-Services](https://www.nuget.org/packages/MTConnect.NET-Services/)
 - [MTConnect.NET-DeviceFinder](https://www.nuget.org/packages/MTConnect.NET-DeviceFinder/)
-- [MTConnect.NET-Applications-Adapters-SHDR](https://www.nuget.org/packages/MTConnect.NET-Applications-Adapters-SHDR/)
+- [MTConnect.NET-Applications-Adaters](https://www.nuget.org/packages/MTConnect.NET-Applications-Adapters/)
 - [MTConnect.NET-Applications-Agents](https://www.nuget.org/packages/MTConnect.NET-Applications-Agents/)
 - [MTConnect.NET-Applications-Agents-MQTT](https://www.nuget.org/packages/MTConnect.NET-Applications-Agents-MQTT/)
 
@@ -112,26 +112,22 @@ Agents are implemented using the MTConnectAgent class and IMTConnectAgent interf
 ### SHDR > HTTP Implementation
 A SHDR to HTTP implementation is the traditional MTConnect Agent configuration. The agent reads from one or more Adapter applications that implement the SHDR Protocol. Data is then read from the Agent using the HTTP REST protocol. The agent and adapter(s) are typically separate applications. The agent and adapter(s) can still be run on the same PC (or HMI) but there is still TCP communication between them.
 
-![Traditional Agent Architecture](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/mtconnect-agent-http-shdr-communication.png#gh-light-mode-only) 
-![Traditional Agent Architecture](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/mtconnect-agent-http-shdr-communication-dark.png#gh-dark-mode-only) 
+![Traditional Agent Architecture](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/dev/img/mtconnect-agent-http-shdr-communication-white.png)
 
 ### HTTP > HTTP Implementation
 An HTTP to HTTP implementation reads from other MTConnect Agents and forwards that data to a central MTConnect Agent. This implementation can be used to create a "Gateway" that multiple other MTConnect Agents can be forwarded to. This can be used to provide a single access point, implement stricter security policies, or upgrade an older agent without effecting other applications that may already be using the older version.
 
-![Traditional Agent Architecture](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/mtconnect-agent-http-http-communication.png#gh-light-mode-only) 
-![Traditional Agent Architecture](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/mtconnect-agent-http-http-communication-dark.png#gh-dark-mode-only) 
+![Traditional Agent Architecture](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/dev/img/mtconnect-agent-http-http-communication-white.png)
 
 ### SHDR > MQTT Implementation
 A SHDR to MQTT implementation uses MQTT to send and receive messages. The agent reads from one or more Adapter applications that implement the SHDR Protocol. Data is then read from the Agent using the MQTT protocol. The agent and adapter(s) are typically separate applications. The agent and adapter(s) can still be run on the same PC (or HMI) but there is still TCP communication between them.
 
-![Traditional Agent Architecture](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/mtconnect-agent-mqtt-shdr-communication.png#gh-light-mode-only) 
-![Traditional Agent Architecture](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/mtconnect-agent-mqtt-shdr-communication-dark.png#gh-dark-mode-only) 
+![Traditional Agent Architecture](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/dev/img/mtconnect-agent-shdr-mqtt-communication-white.png)
 
 ### Embedded Implementation
 An embedded implementation uses the MTConnect.NET library to implement an MTConnect Agent in the same application that is reading from the machine PLC. This creates a simple and compact solution that can be deployed as a single application/product. When compared to a SHDR to HTTP implementation, this eliminates the need to use the SHDR protocol as well as eliminates the TCP communication between the Adapter and the Agent. Implementation is simplified using the [MTConnect.NET-Applications-Agents](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-Applications-Agents) Library that can be as simple as a few lines of code and can be kept up to date using Nuget.
 
-![Traditional Agent Architecture](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/mtconnect-agent-http-communication.png#gh-light-mode-only) 
-![Traditional Agent Architecture](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/mtconnect-agent-http-communication-dark.png#gh-dark-mode-only) 
+![Traditional Agent Architecture](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/dev/img/mtconnect-agent-http-communication-white.png)
 
 ## Adapters
 ### SHDR Adapter

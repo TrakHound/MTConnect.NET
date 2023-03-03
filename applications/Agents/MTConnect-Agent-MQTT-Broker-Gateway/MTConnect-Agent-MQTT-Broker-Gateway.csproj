@@ -1,33 +1,47 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
-    <RootNamespace>MTConnect_Agent_MQTT_Relay</RootNamespace>
-    <ImplicitUsings>enable</ImplicitUsings>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)'=='Debug'">
+		<TargetFrameworks>net6.0</TargetFrameworks>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)'=='Release'">
+		<TargetFrameworks>net461;net48;net6.0;net7.0</TargetFrameworks>
+		<DebugSymbols>false</DebugSymbols>
+		<DebugType>None</DebugType>
+		<Optimize>true</Optimize>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="NLog" Version="4.7.14" />
-    <PackageReference Include="NLog.Web.AspNetCore" Version="4.14.0" />
-  </ItemGroup>
+	<PropertyGroup>
+		<AssemblyName>agent</AssemblyName>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<OutputType>Exe</OutputType>
+		<RootNamespace>MTConnect</RootNamespace>
+		<Company></Company>
+		<Copyright></Copyright>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\src\MTConnect.NET-HTTP\MTConnect.NET-HTTP.csproj" />
-    <ProjectReference Include="..\..\..\src\MTConnect.NET-MQTT\MTConnect.NET-MQTT.csproj" />
-    <ProjectReference Include="..\..\..\src\MTConnect.NET-XML\MTConnect.NET-XML.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<Compile Include="..\..\..\src\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Update="agent.config.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="devices-mazak.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="NLog.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
+	<ItemGroup Condition="'$(Configuration)'=='Release'">
+		<ProjectReference Include="..\..\..\src\MTConnect.NET\MTConnect.NET.csproj" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(Configuration)'=='Docker'">
+		<PackageReference Include="MTConnect.NET" Version="3.4.2" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\..\src\MTConnect.NET-Applications-Agents-MQTT\MTConnect.NET-Applications-Agents-MQTT.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Update="agent.config.default.yaml">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="devices-mazak.xml">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
 
 </Project>

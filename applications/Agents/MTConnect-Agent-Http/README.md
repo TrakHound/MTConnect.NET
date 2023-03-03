@@ -19,13 +19,12 @@ This project is a full implementation of an MTConnect Agent used to read data fr
 - Flexible Logging using NLog which can be used to output log information to separate files for easier analysis
 
 
-![Traditional Agent Architecture](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/mtconnect-agent-http-shdr-communication.png#gh-light-mode-only) 
-![Traditional Agent Architecture](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/mtconnect-agent-http-shdr-communication-dark.png#gh-dark-mode-only) 
+![Traditional Agent Architecture](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/mtconnect-agent-http-shdr-communication-white.png) 
 
 ## Download
 To download the latest release as a Windows Installer, use the link below:
 
-- [Download Latest Release Windows Installer](https://github.com/TrakHound/MTConnect.NET/releases/download/v5.0.0/TrakHound-MTConnect-Http-Agent-Install-v5.0.0.exe)
+- [Download Latest Release Windows Installer](https://github.com/TrakHound/MTConnect.NET/releases/download/v5.1.0/TrakHound-MTConnect-Http-Agent-Install-v5.1.0.exe)
 
 ## Installation
 Follow the steps below to install the MTConnect Agent HTTP application.
@@ -126,35 +125,40 @@ Runs the Agent in the command line prompt using verbose logging and overrides th
 
 ## Configuration
 More information about [Configurations](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-Common/Configurations). The default configuration file is shown below :
-```json
-{
-    "devices": "devices.xml",
-    "port": 5000,
+```yaml
+# - Device Configuration -
+devices: devices
 
-    "adapters": [
-        {
-            "deviceKey": "OKUMA.Lathe",
-            "hostname": "localhost",
-            "port": 7878
-        }
-    ],
+# - SHDR Adapter Configuration -
+# The Agent is able to receive data through a TCP port using the SHDR protocol
+adapters:
+- hostname: localhost
+  port: 7878
+  reconnectInterval: 1000
 
-    "devicesNamespaces": [
-        {
-            "alias": "e",
-            "location": "urn:okuma.com:OkumaDevices:1.3",
-            "path": "/schemas/OkumaDevices_1.3.xsd"
-        }
-    ],
+# The server Hostname to bind to.
+# Change this to the server's IP Address or hostname
+server: localhost
 
-    "streamsNamespaces": [
-        {
-            "alias": "e",
-            "location": "urn:okuma.com:OkumaStreams:1.3",
-            "path": "/schemas/OkumaStreams_1.3.xsd"
-        }
-    ]
-}
+# The port number the agent binds to for requests.
+port: 5000
+
+# Configuration for Static Files that can be served from the Http Server
+files:
+- path: schemas
+  location: schemas
+
+# The maximum number of Observations the agent can hold in its buffer
+observationBufferSize: 150000
+
+# The maximum number of assets the agent can hold in its buffer
+assetBufferSize: 1000
+
+# Sets whether the Agent buffers are durable and retain state after restart
+durable: false
+
+# Sets the default MTConnect version to output response documents for.
+defaultVersion: 2.1
 ```
 
 #### HTTP Configuration

@@ -2,12 +2,15 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MQTTnet;
+using MQTTnet.Client;
 using MQTTnet.Server;
 using MTConnect.Configurations;
 using MTConnect.Mqtt;
 using NLog;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 
 namespace MTConnect.Applications.Agents
@@ -87,7 +90,28 @@ namespace MTConnect.Applications.Agents
 
         protected override async void OnStartAgentBeforeLoad(IEnumerable<DeviceConfiguration> devices, bool initializeDataItems = false)
         {
-            var mqttServerOptions = new MqttServerOptionsBuilder().WithDefaultEndpoint().Build();
+            var mqttServerOptionsBuilder = new MqttServerOptionsBuilder().WithDefaultEndpoint();
+
+            // Add Certificate & Private Key
+            if (!string.IsNullOrEmpty(_configuration.PemCertificate) && !string.IsNullOrEmpty(_configuration.PemPrivateKey))
+            {
+                X509Certificate2 certificate = null;
+
+#if NET5_0_OR_GREATER
+                certificate = new X509Certificate2(X509Certificate2.CreateFromPemFile(GetFilePath(_configuration.PemCertificate), GetFilePath(_configuration.PemPrivateKey)).Export(X509ContentType.Pfx));
+#endif
+
+                if (certificate != null)
+                {
+                    mqttServerOptionsBuilder.WithoutDefaultEndpoint();
+                    mqttServerOptionsBuilder.WithEncryptedEndpoint();
+                    mqttServerOptionsBuilder.WithEncryptedEndpointPort(_configuration.Port);
+                    mqttServerOptionsBuilder.WithEncryptionCertificate(certificate);
+                    mqttServerOptionsBuilder.WithEncryptionSslProtocol(System.Security.Authentication.SslProtocols.Tls12);
+                }
+            }
+
+            var mqttServerOptions = mqttServerOptionsBuilder.Build();
 
             var mqttFactory = new MqttFactory();
             _mqttServer = mqttFactory.CreateMqttServer(mqttServerOptions);
@@ -140,5 +164,16 @@ namespace MTConnect.Applications.Agents
 
         #endregion
 
+
+        private static string GetFilePath(string path)
+        {
+            var x = path;
+            if (!Path.IsPathRooted(x))
+            {
+                x = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, x);
+            }
+
+            return x;
+        }
     }
 }

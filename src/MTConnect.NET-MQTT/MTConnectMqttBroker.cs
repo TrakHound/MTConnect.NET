@@ -11,7 +11,6 @@ using MTConnect.Observations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -24,6 +23,10 @@ namespace MTConnect.Mqtt
         private CancellationTokenSource _stop;
         private IEnumerable<string> _documentFormats = new List<string>() { "JSON" };
 
+
+        public MTConnectMqttFormat Format { get; set; }
+
+        public bool RetainMessages { get; set; }
 
         public EventHandler ClientConnected { get; set; }
 
@@ -42,6 +45,10 @@ namespace MTConnect.Mqtt
             _mtconnectAgent.DeviceAdded += DeviceAdded;
             _mtconnectAgent.ObservationAdded += ObservationAdded;
             _mtconnectAgent.AssetAdded += AssetAdded;
+
+            Format = MTConnectMqttFormat.Hierarchy;
+            RetainMessages = true;
+
             _mqttServer = mqttServer;
             _mqttServer.ClientConnectedAsync += async (args) =>
             {
@@ -196,14 +203,11 @@ namespace MTConnect.Mqtt
         {
             try
             {
-                var bytes = Encoding.UTF8.GetBytes(payload);
-
-                return new MqttApplicationMessage
-                {
-                    Topic = topic,
-                    Payload = bytes,
-                    Retain = true
-                };
+                var messageBuilder = new MqttApplicationMessageBuilder();
+                messageBuilder.WithTopic(topic);
+                messageBuilder.WithPayload(payload);
+                messageBuilder.WithRetainFlag(RetainMessages);
+                return messageBuilder.Build();
             }
             catch { }
 
@@ -228,18 +232,6 @@ namespace MTConnect.Mqtt
                 // Agent Application Version
                 topic = $"MTConnect/Agents/{agent.Uuid}/Version";
                 messages.Add(CreateMessage(topic, agent.Version.ToString()));
-
-                //// Observation Buffer Size
-                //topic = $"MTConnect/Agents/{agent.Uuid}/BufferSize";
-                //messages.Add(CreateMessage(topic, agent.BufferSize.ToString()));
-
-                //// Asset Buffer Size
-                //topic = $"MTConnect/Agents/{agent.Uuid}/AssetBufferSize";
-                //messages.Add(CreateMessage(topic, agent.AssetBufferSize.ToString()));
-
-                //// Asset Count
-                //topic = $"MTConnect/Agents/{agent.Uuid}/AssetCount";
-                //messages.Add(CreateMessage(topic, agent.AssetCount.ToString()));
 
                 // Sender
                 topic = $"MTConnect/Agents/{agent.Uuid}/Sender";
@@ -274,11 +266,7 @@ namespace MTConnect.Mqtt
         {
             if (observation != null && observation.DataItem != null && !observation.Values.IsNullOrEmpty())
             {
-                var category = observation.Category.ToString().ToTitleCase() + "s";
-                var topicPrefix = $"MTConnect/Devices/{observation.DeviceUuid}/Observations/{observation.DataItem.Container.Type}/{observation.DataItem.Container.Id}/{category}/{observation.Type}";
-
-                var topic = $"{topicPrefix}/{observation.DataItemId}";
-                if (!string.IsNullOrEmpty(observation.SubType)) topic = $"{topicPrefix}/SubTypes/{observation.SubType}/{observation.DataItemId}";
+                var topic = CreateTopic(observation);
 
                 if (observation.Category != Devices.DataItems.DataItemCategory.CONDITION)
                 {
@@ -311,6 +299,66 @@ namespace MTConnect.Mqtt
             return null;
         }
 
+        private string CreateTopic(IObservation observation)
+        {
+            if (observation != null)
+            {
+                var type = DataItem.GetPascalCaseType(observation.DataItem.Type);
+                var subtype = DataItem.GetPascalCaseType(observation.DataItem.SubType);
+
+                var category = observation.Category.ToString().ToTitleCase() + "s";
+
+                // Add Prefixes
+                var prefixes = new List<string>();
+                prefixes.Add("MTConnect");
+                prefixes.Add("Devices");
+                prefixes.Add(observation.DeviceUuid);
+                prefixes.Add("Observations");
+
+                var paths = new List<string>();
+
+                // Add Container
+                paths.Add(RemoveNamespacePrefix(observation.DataItem.Container.Type));
+                paths.Add(observation.DataItem.Container.Id);
+                paths.Add(category);
+
+                // Add Type
+                paths.Add(RemoveNamespacePrefix(type));
+
+                // Add SubType
+                if (!string.IsNullOrEmpty(subtype))
+                {
+                    paths.Add("SubTypes");
+                    paths.Add(RemoveNamespacePrefix(subtype));
+                }
+
+                // Add DataItemId
+                paths.Add(observation.DataItemId);
+
+
+                switch (Format)
+                {
+                    case MTConnectMqttFormat.Hierarchy:
+
+                        return string.Join("/", new string[]
+                        {
+                            string.Join("/", prefixes),
+                            string.Join("/", paths),
+                            observation.DataItemId
+                        });
+
+                    default:
+                        return string.Join("/", new string[]
+{
+                            string.Join("/", prefixes),
+                            observation.DataItemId
+});
+                }
+            }
+
+            return null;
+        }
+
         private IEnumerable<MqttApplicationMessage> CreateMessage(IAsset asset, string documentFormatterId = DocumentFormat.XML)
         {
             if (asset != null)
@@ -327,7 +375,22 @@ namespace MTConnect.Mqtt
             return null;
         }
 
-
         #endregion
+
+
+        private static string RemoveNamespacePrefix(string type)
+        {
+            if (!string.IsNullOrEmpty(type))
+            {
+                if (type.Contains(':'))
+                {
+                    return type.Substring(type.IndexOf(':') + 1);
+                }
+
+                return type;
+            }
+
+            return null;
+        }
     }
 }

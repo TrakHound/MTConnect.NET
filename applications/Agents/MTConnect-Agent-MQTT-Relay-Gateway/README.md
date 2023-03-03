@@ -1,42 +1,38 @@
 ![MTConnect.NET Logo](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/dev/img/mtconnect-net-03-md.png) 
 
-# MTConnect Http Gateway Agent
+# MTConnect MQTT Relay Gateway Agent
 
 [![MTConnect.NET](https://github.com/TrakHound/MTConnect.NET/actions/workflows/dotnet.yml/badge.svg)](https://github.com/TrakHound/MTConnect.NET/actions/workflows/dotnet.yml)
 
 ## Overview
 This project is a full implementation of an MTConnect Agent used to read data from industrial machine tools and devices. 
-This MTConnect Agent application is fully compatible with the latest **Version 2.1 of the MTConnect Standard**.
-It receives data from other MTConnect Agents using HTTP, an in-memory buffer with an optional durable file system based buffer, and an Http REST interface for retrieving data.
+This MTConnect Agent application is fully compatible with the latest **Version 2.1 of the MTConnect Standard**. 
+It receives data from other MTConnect Agents using HTTP and an MQTT client to publish messages to an external MQTT Broker
 
 #### Features
+- MQTT client to publish to an external broker
+- Reads from other HTTP MTConnect Agents for easy implementation of MQTT with existing MTConnect Agents
 - Easy setup with Windows Installers availble in the latest [Releases](https://github.com/TrakHound/MTConnect.NET/releases)
 - Options to run as Windows Service or as a console application (typically for testing/debugging)
 - Optional 'Durable' buffer used to retain the Agent data between application/machine restarts
 - High performance / Low resource usage
 - Flexible Device configurations (traditional 'devices.xml' file or 'devices' directory with individual Device files)
-- On-Demand MTConnect Versioning allowing for older clients to request the version of MTConnect they are compatible with using HTTP Url parameters
 - Configuration File monitoring to automatically restart the Agent upon configuration file changes
 - Flexible Logging using NLog which can be used to output log information to separate files for easier analysis
 
 
-![Traditional Agent Architecture](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/mtconnect-agent-http-http-communication-white.png) 
+![MQTT Agent Architecture](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/mtconnect-agent-http-mqtt-communication-white.png) 
 
 ## Download
 To download the latest release as a Windows Installer, use the link below:
-- [Download Latest Release Windows Installer](https://github.com/TrakHound/MTConnect.NET/releases/download/v5.1.0/TrakHound-MTConnect-Http-Gateway-Agent-Install-v5.1.0.exe)
 
-## Releases
-Releases for this application are located under the Releases tab. The current release is listed below:
-- [MTConnect Agent Current Release](https://github.com/TrakHound/MTConnect.NET/releases)
+- [Download Latest Release Windows Installer](https://github.com/TrakHound/MTConnect.NET/releases/download/v5.1.0/TrakHound-MTConnect-MQTT-Relay-Gateway-Agent-Install-v5.1.0.exe)
 
-## Source Code
-This project uses the MTConnect.NET-Applications-Agents library (available on [Nuget](https://www.nuget.org/packages/MTConnect.NET-Applications-Agents)) to create an MTConnect Agent application. More information about this library can be found [Here](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-Applications-Agents). The MTConnect.NET-Applications-Agents library makes creating an MTConnect Agent application simple as well as makes it easy to keep updated using Nuget. A fully functionaly MTConnect Application can be created in just a few lines of code.
 
 ## Usage
 The Agent can be run from a command line prompt or as a Windows Service using the format below:
 ```
-agent [help|install|install-start|start|stop|remove|debug|run|run-service] [configuration_file] [http_port]
+agent [help|install|install-start|start|stop|remove|debug|run|run-service] [configuration_file] [mqtt_port]
 
 --------------------
 
@@ -58,7 +54,7 @@ Arguments :
   configuration_file  |  Specifies the Agent Configuration file to load
                          Default : agent.config.json
 
-           http_port  |  Specifies the TCP Port to use for the HTTP Server
+           mqtt_port  |  Specifies the TCP Port to use for the MQTT client
                          Note : This overrides what is read from the Configuration file
 ```
 #### Example 1:
@@ -74,8 +70,39 @@ Starts the Windows Service (Note: requires Administrator Privileges)
 > agent start
 
 #### Example 4:
-Runs the Agent in the command line prompt using verbose logging and overrides the Http Port to 5001
-> agent debug "" 5001
+Runs the Agent in the command line prompt using verbose logging and overrides the MQTT Port to 1884
+> agent debug "" 1884
+
+
+## MQTT Topic Structure
+For more information on MQTT Topics [Click Here](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-MQTT)
+
+#### Devices
+```
+MTConnect/Devices/[DEVICE_UUID]/Device
+```
+
+#### Observations
+```
+MTConnect/Devices/[DEVICE_UUID]/Observations/[COMPONENT_TYPE]/[COMPONENT_ID]/[DATA_ITEM_CATEGORY]/[DATA_ITEM_TYPE]/[DATA_ITEM_ID]
+MTConnect/Devices/[DEVICE_UUID]/Observations/[COMPONENT_TYPE]/[COMPONENT_ID]/[DATA_ITEM_CATEGORY]/[DATA_ITEM_TYPE]/SubTypes/[DATA_ITEM_SUBTYPE]/[DATA_ITEM_ID]
+```
+##### Conditions
+Condition messages are sent as an array of Observations since a Condition may have multiple Fault States. This is similar to how the Current request functions in an HTTP Agent.
+
+#### Assets
+```
+MTConnect/Devices/[DEVICE_UUID]/Assets/[ASSET_TYPE]/[ASSET_ID]
+MTConnect/Assets/[ASSET_TYPE]/[ASSET_ID]
+```
+> Note: Assets are sent to two topics. One for the "Global" assets and one for the Device that the Asset was added to
+
+#### Agent
+The Agent topic contains information that would normally be in the Header of a Response Document from an HTTP Agent.
+```
+MTConnect/Assets/[AGENT_UUID]
+```
+
 
 ## Configuration
 More information about [Configurations](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-Common/Configurations). The default configuration file is shown below :
@@ -94,52 +121,26 @@ clients:
   useSSL: true
   heartbeat: 0
 
-The server Hostname to bind to.
-# Change this to the server's IP Address or hostname
+# - MQTT Configuration -
+
+# The hostname of the MQTT broker to publish messages to
 server: localhost
 
-# The port number the agent binds to for requests.
-port: 5000
-
-# Configuration for Static Files that can be served from the Http Server
-files:
-- path: schemas
-  location: schemas
-
-# The maximum number of Observations the agent can hold in its buffer
-observationBufferSize: 150000
-
-# The maximum number of assets the agent can hold in its buffer
-assetBufferSize: 1000
-
-# Sets whether the Agent buffers are durable and retain state after restart
-durable: false
-
-# Sets the default MTConnect version to output response documents for.
-defaultVersion: 2.1
+# The port number of the MQTT broker to publish messages to
+port: 1883
 ```
 
-#### HTTP Configuration
+#### MQTT Configuration
 
-* `port` - The port number the agent binds to for requests.
+* `port` - The port number of the external MQTT broker to publish messages to.
 
-* `serverIp` - The server IP Address to bind to. Can be used to select the interface in IPV4 or IPV6.
+* `server` - The server hostname of the external MQTT broker to publish messages to.
 
-* `responseCompression` - Sets the List of Encodings (ex. gzip, br, deflate) to pass to the Accept-Encoding HTTP Header
+* `username` - The username of the external MQTT broker to publish messages to.
 
-* `maxStreamingThreads` - The maximum number of Threads to use for the Http Stream Requests
+* `password` - The password of the external MQTT broker to publish messages to.
 
-* `allowPut` - Allow HTTP PUT or POST of data item values or assets.
-
-* `allowPutFrom` - Allow HTTP PUT or POST from a specific host or list of hosts. 
-
-* `indentOutput` - Sets the default response document indendation
-
-* `outputComments` - Sets the default response document comments output. Comments contain descriptions from the MTConnect standard
-
-* `outputValidationLevel` - Sets the default response document validation level. 0 = Ignore, 1 = Warning, 2 = Strict
-
-* `files` - Sets the configuration for Static Files that can be served from the Http Server. For more information see ()
+* `useTls` - Sets whether to use TLS in the connection to the external MQTT broker to publish messages to.
 
 
 #### Agent Configuration
@@ -173,28 +174,19 @@ defaultVersion: 2.1
 
 * `devices` - The Path to look for the file(s) that represent the Device Information Models to load into the Agent. The path can either be a single file or a directory. The path can be absolute or relative to the executable's directory
 
-#### Client Configuration
+#### Adapter Configuration
 
-* `clients` - List of MTConnect Client connection configurations. For more information see()
+* `adapters` - List of SHDR Adapter connection configurations. For more information see()
 
-#### XML Configuration
+* `allowShdrDevice` - Sets whether a Device Model can be sent from an SHDR Adapter
 
-* `devicesNamespaces` - List of extended XML namespaces to use with MTConnectDevicesResponse documents
+* `preserveUuid` - Do not overwrite the UUID with the UUID from the adapter, preserve the UUID for the Device. This can be overridden on a per adapter basis.
 
-* `streamsNamespaces` - List of extended XML namespaces to use with MTConnectStreamsResponse documents
+* `suppressIpAddress` - Suppress the Adapter IP Address and port when creating the Agent Device ids and names for 1.7. This applies to all adapters.
 
-* `assetsNamespaces` - List of extended XML namespaces to use with MTConnectAssetsResponse documents
+* `timeout` - The amount of time (in milliseconds) an adapter can be silent before it is disconnected.
 
-* `errorNamespaces` - List of extended XML namespaces to use with MTConnectErrorResponse documents
-
-
-* `devicesStyle` - List of XSLT Stylesheets to use with MTConnectDevicesResponse documents
-
-* `streamsStyle` - List of XSLT Stylesheets to use with MTConnectStreamsResponse documents
-
-* `assetsStyle` - List of XSLT Stylesheets to use with MTConnectAssetsResponse documents
-
-* `errorStyle` - List of XSLT Stylesheets to use with MTConnectErrorResponse documents
+* `reconnectInterval` - The amount of time (in milliseconds) between adapter reconnection attempts.
 
 #### Windows Service Configuration
 
@@ -231,8 +223,8 @@ The default [NLog Configuration File](https://github.com/TrakHound/MTConnect.NET
         <target xsi:type="File" name="agent-validation-file" fileName="logs\agent-validation-${shortdate}.log"
             layout="${longdate}|${event-properties:item=EventId_Id:whenEmpty=0}|${uppercase:${level}}|${logger}|${message} ${exception:format=tostring}" />
 
-        <!--Http Log File-->
-        <target xsi:type="File" name="http-file" fileName="logs\http-${shortdate}.log"
+        <!--Mqtt Log File-->
+        <target xsi:type="File" name="mqtt-file" fileName="logs\mqtt-${shortdate}.log"
             layout="${longdate}|${event-properties:item=EventId_Id:whenEmpty=0}|${uppercase:${level}}|${logger}|${message} ${exception:format=tostring}" />
 
         <!--Adapter Log File-->
@@ -257,8 +249,8 @@ The default [NLog Configuration File](https://github.com/TrakHound/MTConnect.NET
         <!--Agent Validation Logger (Used to log Data Validation Errors)-->
         <logger name="agent-validation-logger" minlevel="Warning" writeTo="agent-validation-file" final="true" />
         
-        <!--Http Logger-->
-        <logger name="http-logger" minlevel="Info" writeTo="http-file" final="true" />
+        <!--Mqtt Logger-->
+        <logger name="mqtt-logger" minlevel="Info" writeTo="mqtt-file" final="true" />
         
         <!--Adapter Logger-->
         <logger name="adapter-logger" minlevel="Info" writeTo="adapter-file" final="true" />
@@ -273,6 +265,13 @@ The default [NLog Configuration File](https://github.com/TrakHound/MTConnect.NET
     </rules>
 </nlog>
 ```
+
+## Releases
+Releases for this application are located under the Releases tab. The current release is listed below:
+- [MTConnect Agent Current Release](https://github.com/TrakHound/MTConnect.NET/releases)
+
+## Source Code
+This project uses the MTConnect.NET-Applications-Agents-MQTT library (available on [Nuget](https://www.nuget.org/packages/MTConnect.NET-Applications-Agents-MQTT)) to create an MTConnect Agent application. More information about this library can be found [Here](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-Applications-Agents-MQTT). The MTConnect.NET-Applications-Agents-MQTT library makes creating an MTConnect MQTT Agent application simple as well as makes it easy to keep updated using Nuget. A fully functionaly MTConnect Application can be created in just a few lines of code.
 
 ## Contribution / Feedback
 - Please use the [Issues](https://github.com/TrakHound/MTConnect.NET/issues) tab to create issues for specific problems that you may encounter 

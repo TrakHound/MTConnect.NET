@@ -719,7 +719,7 @@ namespace MTConnect.Agents
                             var existingLevel = existingObservation.GetValue(ValueKeys.Level);
                             var existingNativeCode = existingObservation.GetValue(ValueKeys.NativeCode);
 
-                            if (existingNativeCode != nativeCode && existingLevel != ConditionLevel.UNAVAILABLE.ToString())
+                            if (!string.IsNullOrEmpty(existingNativeCode) && existingNativeCode != nativeCode && existingLevel != ConditionLevel.UNAVAILABLE.ToString())
                             {
                                 observations.Insert(i, existingObservation);
                                 i++;
