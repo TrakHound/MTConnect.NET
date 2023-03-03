@@ -6,7 +6,7 @@
 [![GitHub all releases](https://img.shields.io/github/downloads/TrakHound/MTConnect.NET/total?label=Release%20Downloads)](https://github.com/TrakHound/MTConnect.NET/releases/latest)
 [![Nuget](https://img.shields.io/nuget/dt/MTConnect.NET?label=Nuget%20Downloads)](https://www.nuget.org/packages/MTConnect.NET)
 
-> 1/22/2023 Updated to support MTConnect 2.1
+> 3/2/2023 Added MQTT Gateway Agent Applications
 
 ## Overview
 MTConnect.NET is a fully featured .NET library for MTConnect to develop Agents, Adapters, and Clients. Supports MTConnect Versions up to 2.1.
@@ -46,20 +46,20 @@ Other features of MTConnect.NET :
 
 - [MTConnect MQTT Broker Agent](https://github.com/TrakHound/MTConnect.NET/tree/master/applications/Agents/MTConnect-Agent-MQTT-Broker) : This MTConnect Agent application is fully compatible with the latest Version 2.1 of the MTConnect Standard. It uses the SHDR protocol to receive data from Adapters, an in-memory buffer with an optional durable file system based buffer, and a built-in MQTT broker.
 
+- [MTConnect MQTT Relay Gateway Agent](https://github.com/TrakHound/MTConnect.NET/tree/master/applications/Agents/MTConnect-Agent-MQTT-Relay-Gateway) : This MTConnect Agent application is fully compatible with the latest Version 2.1 of the MTConnect Standard. It receives data from other MTConnect Agents using HTTP and an MQTT client to publish messages to an external MQTT Broker.
+
+- [MTConnect MQTT Broker Gateway Agent](https://github.com/TrakHound/MTConnect.NET/tree/master/applications/Agents/MTConnect-Agent-MQTT-Broker-Gateway) : This MTConnect Agent application is fully compatible with the latest Version 2.1 of the MTConnect Standard. It receives data from other MTConnect Agents using HTTP and a built-in MQTT broker.
+
 #### Specialized (IIS)
 
 - [MTConnect HTTP Agent - AspNetCore](https://github.com/TrakHound/MTConnect.NET/tree/master/applications/Agents/MTConnect-Agent-Http-AspNetCore) : Similar to the MTConnect Agent application but uses either the built-in Kestrel server or can be setup through IIS (Internet Information Services). This allows the agent to be used with all of the features available through ASP.NET and IIS such as security, permissions, monitoring, etc.
 
 - [MTConnect HTTP Gateway Agent - AspNetCore](https://github.com/TrakHound/MTConnect.NET/tree/master/applications/Agents/MTConnect-Agent-Http-Gateway-AspNetCore) : An Agent that runs mulitple MTConnectClients on the backend and passes that data to an MTConnectAgent. This can be used to access MTConnect data on a central server. Uses either the built-in Kestrel server or can be setup through IIS (Internet Information Services). This allows the agent to be used with all of the features available through ASP.NET and IIS such as security, permissions, monitoring, etc.
 
-#### In Progress
-
-- [MTConnect MQTT Gateway Agent](https://github.com/TrakHound/MTConnect.NET/tree/master/applications/Agents/MTConnect-Agent-MQTT-Gateway) : (In-Progress) An MTConnect Gateway Agent with an MQTT broker built-in.
-
 ### Live Demo
-A live demo of the MTConnect Gateway HTTP Agent (AspNetCore) application is running at [https://mtconnect.trakhound.com](https://mtconnect.trakhound.com?outputComments=true&indentOutput=true&version=1.8).
-- [https://mtconnect.trakhound.com/current](https://mtconnect.trakhound.com/current?outputComments=true&indentOutput=true&version=1.8)
-- [https://mtconnect.trakhound.com/sample](https://mtconnect.trakhound.com/sample?outputComments=true&indentOutput=true&version=1.8&count=500)
+A live demo of the MTConnect Gateway HTTP Agent (AspNetCore) application is running at [https://mtconnect.trakhound.com](https://mtconnect.trakhound.com?outputComments=true&indentOutput=true&version=2.1).
+- [https://mtconnect.trakhound.com/current](https://mtconnect.trakhound.com/current?outputComments=true&indentOutput=true&version=2.1)
+- [https://mtconnect.trakhound.com/sample](https://mtconnect.trakhound.com/sample?outputComments=true&indentOutput=true&version=2.1&count=500)
 - [https://mtconnect.trakhound.com/assets](https://mtconnect.trakhound.com/assets?outputComments=true&indentOutput=true)
 
 ## Docker
@@ -78,6 +78,7 @@ The Nuget packages for the libraries in this repo are listed below:
 - [MTConnect.NET-MQTT](https://www.nuget.org/packages/MTConnect.NET-MQTT/)
 - [MTConnect.NET-Services](https://www.nuget.org/packages/MTConnect.NET-Services/)
 - [MTConnect.NET-DeviceFinder](https://www.nuget.org/packages/MTConnect.NET-DeviceFinder/)
+- [MTConnect.NET-Applications-Adaters](https://www.nuget.org/packages/MTConnect.NET-Applications-Adapters/)
 - [MTConnect.NET-Applications-Agents](https://www.nuget.org/packages/MTConnect.NET-Applications-Agents/)
 - [MTConnect.NET-Applications-Agents-MQTT](https://www.nuget.org/packages/MTConnect.NET-Applications-Agents-MQTT/)
 
