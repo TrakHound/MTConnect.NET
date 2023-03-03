@@ -31,7 +31,7 @@ server: akljadkfjdlsf-ats.iot.us-east-1.amazonaws.com
 port: 8883
 
 certificateAuthority: certs/AmazonRootCA1.pem
-pemClientCertificate: certs/asfdslkafjdslkfjdklsdjf-certificate.pem.crt
+pemCertificate: certs/asfdslkafjdslkfjdklsdjf-certificate.pem.crt
 pemPrivateKey: certs/sdlkajlksdajfldskjfdldlskfjdslkaj-private.pem.key
 
 mqttFormat: Flat
