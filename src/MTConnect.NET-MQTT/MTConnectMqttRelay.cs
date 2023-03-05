@@ -101,6 +101,12 @@ namespace MTConnect.Mqtt
                         // Declare new MQTT Client Options with Tcp Server
                         var clientOptionsBuilder = new MqttClientOptionsBuilder().WithTcpServer(_configuration.Server, _configuration.Port);
 
+                        // Set Client ID
+                        if (!string.IsNullOrEmpty(_configuration.ClientId))
+                        {
+                            clientOptionsBuilder.WithClientId(_configuration.ClientId);
+                        }
+
                         var certificates = new List<X509Certificate2>();
 
                         // Add CA (Certificate Authority)

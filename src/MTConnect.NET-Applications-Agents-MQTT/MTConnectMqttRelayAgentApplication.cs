@@ -1,6 +1,7 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
+using MQTTnet.Extensions.ManagedClient;
 using MTConnect.Configurations;
 using MTConnect.Mqtt;
 using NLog;
@@ -90,6 +91,7 @@ namespace MTConnect.Applications.Agents
                 clientConfiguration.Port = _port > 0 ? _port : _configuration.Port;
                 clientConfiguration.Username = _configuration.Username;
                 clientConfiguration.Password = _configuration.Password;
+                clientConfiguration.ClientId = _configuration.ClientId;
                 clientConfiguration.CertificateAuthority = _configuration.CertificateAuthority;
                 clientConfiguration.PemCertificate = _configuration.PemCertificate;
                 clientConfiguration.PemPrivateKey = _configuration.PemPrivateKey;

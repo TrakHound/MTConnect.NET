@@ -41,6 +41,7 @@ namespace MTConnect.Clients.Mqtt
         private readonly int _port;
         private readonly string _username;
         private readonly string _password;
+        private readonly string _clientId;
         private readonly string _caCertPath;
         private readonly string _pemClientCertPath;
         private readonly string _pemPrivateKeyPath;
@@ -88,6 +89,7 @@ namespace MTConnect.Clients.Mqtt
                 _port = configuration.Port; ;
                 _username = configuration.Username;
                 _password = configuration.Password;
+                _clientId = configuration.ClientId;
                 _caCertPath = configuration.CertificateAuthority;
                 _pemClientCertPath = configuration.PemCertificate;
                 _pemPrivateKeyPath = configuration.PemPrivateKey;
@@ -108,6 +110,12 @@ namespace MTConnect.Clients.Mqtt
             {
                 // Declare new MQTT Client Options with Tcp Server
                 var clientOptionsBuilder = new MqttClientOptionsBuilder().WithTcpServer(_server, _port);
+
+                // Set Client ID
+                if (!string.IsNullOrEmpty(_clientId))
+                {
+                    clientOptionsBuilder.WithClientId(_clientId);
+                }
 
                 var certificates = new List<X509Certificate2>();
 

@@ -22,6 +22,9 @@ namespace MTConnect.Configurations
         [JsonPropertyName("password")]
         public string Password { get; set; }
 
+        [JsonPropertyName("clientId")]
+        public string ClientId { get; set; }
+
         [JsonPropertyName("certificateAuthority")]
         public string CertificateAuthority { get; set; }
 

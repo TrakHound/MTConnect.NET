@@ -13,6 +13,8 @@ namespace MTConnect.Configurations
 
         string Password { get; set; }
 
+        string ClientId { get; set; }
+
         string CertificateAuthority { get; set; }
 
         string PemCertificate { get; set; }
