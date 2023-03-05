@@ -30,7 +30,7 @@ namespace MTConnect.Devices.Xml
             {
                 writer.WriteStartElement("Filter");
                 writer.WriteAttributeString("type", filter.Type.ToString());
-                writer.WriteString(filter.Value.ToString());
+                writer.WriteValue(filter.Value);
                 writer.WriteEndElement();
             }
         }
