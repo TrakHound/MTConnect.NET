@@ -88,6 +88,7 @@ namespace MTConnect.Clients
             RetryInterval = 10000;
             ContentEncodings = HttpContentEncodings.DefaultAccept;
             ContentType = MimeTypes.Get(DocumentFormat);
+            UseStreaming = true;
         }
 
 
@@ -168,6 +169,11 @@ namespace MTConnect.Clients
         /// Gets or Sets whether the stream requests a Current (true) or a Sample (false)
         /// </summary>
         public bool CurrentOnly { get; set; }
+
+        /// <summary>
+        /// Gets or Sets whether the client should use Streaming (true) or Polling (false)
+        /// </summary>
+        public bool UseStreaming { get; set; }
 
 
         #region "Events"
@@ -616,77 +622,138 @@ namespace MTConnect.Clients
                             }
                         }
 
-                        // Run Current Request
-                        var current = await GetCurrentAsync(_stop.Token, path: _streamPath);
-                        if (current != null)
+                        if (UseStreaming)
                         {
-                            _lastResponse = UnixDateTime.Now;
-                            OnResponseReceived?.Invoke(this, new EventArgs());
-
-                            // Raise CurrentReceived Event
-                            ProcessCurrentDocument(current, _stop.Token);
-                            //OnCurrentReceived?.Invoke(this, current);
-
-                            // Check Assets
-                            if (!current.Streams.IsNullOrEmpty())
+                            // Run Current Request
+                            var current = await GetCurrentAsync(_stop.Token, path: _streamPath);
+                            if (current != null)
                             {
-                                var deviceStream = current.Streams.FirstOrDefault(o => o.Uuid == Device || o.Name == Device);
-                                if (deviceStream != null && deviceStream.Observations != null) CheckAssetChanged(deviceStream.Observations, _stop.Token);
+                                _lastResponse = UnixDateTime.Now;
+                                OnResponseReceived?.Invoke(this, new EventArgs());
+
+                                // Raise CurrentReceived Event
+                                ProcessCurrentDocument(current, _stop.Token);
+
+                                // Check Assets
+                                if (!current.Streams.IsNullOrEmpty())
+                                {
+                                    var deviceStream = current.Streams.FirstOrDefault(o => o.Uuid == Device || o.Name == Device);
+                                    if (deviceStream != null && deviceStream.Observations != null) CheckAssetChanged(deviceStream.Observations, _stop.Token);
+                                }
+
+                                // Read the Next Available Sequence from the MTConnect Agent
+                                if (initialRequest && !_initializeFromBuffer && _lastSequence == 0)
+                                {
+                                    _lastSequence = current.Header.NextSequence;
+                                }
+
+                                // Check if Agent Instance ID has changed (Agent has been reset)
+                                if (_lastInstanceId != 0 && _lastInstanceId != current.Header.InstanceId)
+                                {
+                                    // Reset 'From' query parameter
+                                    _lastSequence = 0;
+                                }
+
+                                // Read & Save the Instance ID of the MTConnect Agent
+                                _lastInstanceId = current.Header.InstanceId;
+
+                                // If the LastSequence is not within the current sequence range then reset Sequeunce to 0
+                                if (current.Header.FirstSequence > _lastSequence ||
+                                    current.Header.NextSequence < _lastSequence)
+                                {
+                                    _lastSequence = 0;
+                                }
+
+                                // Create the Url to use for the Sample Stream
+                                string url = CreateSampleUrl(Authority, Device, _lastSequence, Interval, Heartbeat, MaximumSampleCount, _streamPath);
+                                if (CurrentOnly) url = CreateCurrentUrl(Authority, Device, Interval, _streamPath);
+
+                                // Create and Start the Stream
+                                _stream = new MTConnectHttpClientStream(url, DocumentFormat);
+                                _stream.Timeout = Heartbeat * 3;
+                                _stream.ContentEncodings = ContentEncodings;
+                                _stream.ContentType = ContentType;
+                                _stream.Starting += (s, o) => OnStreamStarting?.Invoke(this, url);
+                                _stream.Started += (s, o) => OnStreamStarted?.Invoke(this, url);
+                                _stream.Stopping += (s, o) => OnStreamStopping?.Invoke(this, url);
+                                _stream.Stopped += (s, o) => OnStreamStopped?.Invoke(this, url);
+                                _stream.DocumentReceived += (s, doc) => ProcessSampleDocument(doc, _stop.Token);
+                                _stream.ErrorReceived += (s, doc) => ProcessSampleError(doc);
+                                _stream.OnConnectionError += (s, ex) => OnConnectionError?.Invoke(this, ex);
+                                _stream.OnInternalError += (s, ex) => OnInternalError?.Invoke(this, ex);
+
+                                // Run Stream (Blocking call)
+                                await _stream.Run(_stop.Token);
+
+                                initialRequest = false;
+
+                                if (!_stop.Token.IsCancellationRequested)
+                                {
+                                    await Task.Delay(RetryInterval, _stop.Token);
+                                }
                             }
-
-                            // Read the Next Available Sequence from the MTConnect Agent
-                            if (initialRequest && !_initializeFromBuffer && _lastSequence == 0)
-                            {
-                                _lastSequence = current.Header.NextSequence;
-                            }
-
-                            // Check if Agent Instance ID has changed (Agent has been reset)
-                            if (_lastInstanceId != 0 && _lastInstanceId != current.Header.InstanceId)
-                            {
-                                // Reset 'From' query parameter
-                                _lastSequence = 0;
-                            }
-
-                            // Read & Save the Instance ID of the MTConnect Agent
-                            _lastInstanceId = current.Header.InstanceId;
-
-                            // If the LastSequence is not within the current sequence range then reset Sequeunce to 0
-                            if (current.Header.FirstSequence > _lastSequence ||
-                                current.Header.NextSequence < _lastSequence)
-                            {
-                                _lastSequence = 0;
-                            }
-
-                            // Create the Url to use for the Sample Stream
-                            string url = CreateSampleUrl(Authority, Device, _lastSequence, Interval, Heartbeat, MaximumSampleCount, _streamPath);
-                            if (CurrentOnly) url = CreateCurrentUrl(Authority, Device, Interval, _streamPath);
-
-                            // Create and Start the Stream
-                            _stream = new MTConnectHttpClientStream(url, DocumentFormat);
-                            _stream.Timeout = Heartbeat * 3;
-                            _stream.ContentEncodings = ContentEncodings;
-                            _stream.ContentType = ContentType;
-                            _stream.Starting += (s, o) => OnStreamStarting?.Invoke(this, url);
-                            _stream.Started += (s, o) => OnStreamStarted?.Invoke(this, url);
-                            _stream.Stopping += (s, o) => OnStreamStopping?.Invoke(this, url);
-                            _stream.Stopped += (s, o) => OnStreamStopped?.Invoke(this, url);
-                            _stream.DocumentReceived += (s, doc) => ProcessSampleDocument(doc, _stop.Token);
-                            _stream.ErrorReceived += (s, doc) => ProcessSampleError(doc);
-                            _stream.OnConnectionError += (s, ex) => OnConnectionError?.Invoke(this, ex);
-                            _stream.OnInternalError += (s, ex) => OnInternalError?.Invoke(this, ex);
-
-                            // Run Stream (Blocking call)
-                            await _stream.Run(_stop.Token);
-
-                            initialRequest = false;
-
-                            if (!_stop.Token.IsCancellationRequested)
+                            else
                             {
                                 await Task.Delay(RetryInterval, _stop.Token);
                             }
                         }
                         else
                         {
+                            do
+                            {
+                                // Run Current Request
+                                var current = await GetCurrentAsync(_stop.Token, path: _streamPath);
+                                if (current != null)
+                                {
+                                    _lastResponse = UnixDateTime.Now;
+                                    OnResponseReceived?.Invoke(this, new EventArgs());
+
+                                    // Raise CurrentReceived Event
+                                    ProcessCurrentDocument(current, _stop.Token);
+
+                                    // Check Assets
+                                    if (!current.Streams.IsNullOrEmpty())
+                                    {
+                                        var deviceStream = current.Streams.FirstOrDefault(o => o.Uuid == Device || o.Name == Device);
+                                        if (deviceStream != null && deviceStream.Observations != null) CheckAssetChanged(deviceStream.Observations, _stop.Token);
+                                    }
+
+                                    // Read the Next Available Sequence from the MTConnect Agent
+                                    if (initialRequest && !_initializeFromBuffer && _lastSequence == 0)
+                                    {
+                                        _lastSequence = current.Header.NextSequence;
+                                    }
+
+                                    // Check if Agent Instance ID has changed (Agent has been reset)
+                                    if (_lastInstanceId != 0 && _lastInstanceId != current.Header.InstanceId)
+                                    {
+                                        // Reset 'From' query parameter
+                                        _lastSequence = 0;
+                                    }
+
+                                    // Read & Save the Instance ID of the MTConnect Agent
+                                    _lastInstanceId = current.Header.InstanceId;
+
+                                    // If the LastSequence is not within the current sequence range then reset Sequeunce to 0
+                                    if (current.Header.FirstSequence > _lastSequence ||
+                                        current.Header.NextSequence < _lastSequence)
+                                    {
+                                        _lastSequence = 0;
+                                    }
+
+                                    initialRequest = false;
+
+                                    // Wait for the specified pollingInterval between Current Requests
+                                    var pollingInterval = Math.Max(1, Interval);
+                                    await Task.Delay(pollingInterval);
+                                }
+                                else
+                                {
+                                    break; // Break out of the Current Polling loop and start at a new Probe Request
+                                }
+                            }
+                            while (!_stop.Token.IsCancellationRequested);
+
                             await Task.Delay(RetryInterval, _stop.Token);
                         }
                     }

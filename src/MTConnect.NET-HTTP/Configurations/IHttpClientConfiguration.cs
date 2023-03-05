@@ -47,5 +47,15 @@ namespace MTConnect.Configurations
         /// Gets or Sets whether the Connection Information (Host / Port) is output to the Agent to be collected by a client
         /// </summary>
         bool OutputConnectionInformation { get; }
+
+        /// <summary>
+        /// Gets or Sets whether the stream requests a Current (true) or a Sample (false)
+        /// </summary>
+        bool CurrentOnly { get; }
+
+        /// <summary>
+        /// Gets or Sets whether the client should use Streaming (true) or Polling (false)
+        /// </summary>
+        bool UseStreaming { get; }
     }
 }

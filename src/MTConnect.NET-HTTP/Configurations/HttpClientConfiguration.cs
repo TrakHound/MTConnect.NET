@@ -69,6 +69,18 @@ namespace MTConnect.Configurations
         [JsonPropertyName("outputConnectionInformation")]
         public bool OutputConnectionInformation { get; set; }
 
+        /// <summary>
+        /// Gets or Sets whether the stream requests a Current (true) or a Sample (false)
+        /// </summary>
+        [JsonPropertyName("currentOnly")]
+        public bool CurrentOnly { get; set; }
+
+        /// <summary>
+        /// Gets or Sets whether the client should use Streaming (true) or Polling (false)
+        /// </summary>
+        [JsonPropertyName("useStreaming")]
+        public bool UseStreaming { get; set; }
+
 
         public HttpClientConfiguration()
         {
@@ -76,6 +88,8 @@ namespace MTConnect.Configurations
             Interval = 500;
             Heartbeat = 1000;
             OutputConnectionInformation = true;
+            CurrentOnly = false;
+            UseStreaming = true;
         }
 
 

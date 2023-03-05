@@ -94,6 +94,8 @@ namespace MTConnect.Applications.Agents
                         agentClient.Id = clientConfiguration.Id;
                         agentClient.Interval = clientConfiguration.Interval;
                         agentClient.Heartbeat = clientConfiguration.Heartbeat;
+                        agentClient.CurrentOnly = clientConfiguration.CurrentOnly;
+                        agentClient.UseStreaming = clientConfiguration.UseStreaming;
 
                         // Subscribe to the Event handlers to receive the MTConnect documents
                         agentClient.OnClientStarted += (s, e) => AgentClientStarted(agentClient);
