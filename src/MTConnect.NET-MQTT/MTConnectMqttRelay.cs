@@ -84,7 +84,10 @@ namespace MTConnect.Mqtt
 
             try
             {
-                if (_mqttClient != null) _mqttClient.DisconnectAsync();
+                if (_mqttClient != null)
+                {
+                    _mqttClient.DisconnectAsync(MqttClientDisconnectReason.NormalDisconnection);
+                }
             }
             catch { }
         }

@@ -45,6 +45,7 @@ namespace MTConnect.Clients.Mqtt
         private readonly string _caCertPath;
         private readonly string _pemClientCertPath;
         private readonly string _pemPrivateKeyPath;
+        private readonly bool _allowUntrustedCertificates;
         private readonly bool _useTls;
         private readonly IEnumerable<string> _topics;
 
@@ -93,6 +94,7 @@ namespace MTConnect.Clients.Mqtt
                 _caCertPath = configuration.CertificateAuthority;
                 _pemClientCertPath = configuration.PemCertificate;
                 _pemPrivateKeyPath = configuration.PemPrivateKey;
+                _allowUntrustedCertificates = configuration.AllowUntrustedCertificates;
                 _useTls = configuration.UseTls;
             }
 
@@ -139,9 +141,9 @@ namespace MTConnect.Clients.Mqtt
                     {
                         UseTls = true,
                         SslProtocol = System.Security.Authentication.SslProtocols.Tls12,
-                        IgnoreCertificateRevocationErrors = true,
-                        IgnoreCertificateChainErrors = true,
-                        AllowUntrustedCertificates = true,
+                        IgnoreCertificateRevocationErrors = _allowUntrustedCertificates,
+                        IgnoreCertificateChainErrors = _allowUntrustedCertificates,
+                        AllowUntrustedCertificates = _allowUntrustedCertificates,
                         Certificates = certificates
                     });
                 }
@@ -187,7 +189,7 @@ namespace MTConnect.Clients.Mqtt
             try
             {
                 // Disconnect from the MQTT Client
-                if (_mqttClient != null) await _mqttClient.DisconnectAsync();
+                if (_mqttClient != null) await _mqttClient.DisconnectAsync(MqttClientDisconnectReason.NormalDisconnection);
             }
             catch { }      
         }
@@ -354,7 +356,7 @@ namespace MTConnect.Clients.Mqtt
         }
 
 
-        private string GetFilePath(string path)
+        private static string GetFilePath(string path)
         {
             var x = path;
             if (!Path.IsPathRooted(x))
