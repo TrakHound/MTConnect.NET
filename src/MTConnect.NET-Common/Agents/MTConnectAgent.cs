@@ -745,30 +745,27 @@ namespace MTConnect.Agents
         {
             if (dataItem != null)
             {
-                if (newTimestamp > existingTimestamp)
+                if (!dataItem.Filters.IsNullOrEmpty())
                 {
-                    if (!dataItem.Filters.IsNullOrEmpty())
+                    foreach (var filter in dataItem.Filters)
                     {
-                        foreach (var filter in dataItem.Filters)
+                        if (filter.Type == DataItemFilterType.PERIOD)
                         {
-                            if (filter.Type == DataItemFilterType.PERIOD)
+                            if (filter.Value > 0)
                             {
-                                if (filter.Value > 0)
-                                {
-                                    // Get Period based on Seconds specified in Filter
-                                    var period = TimeSpan.FromSeconds(filter.Value);
+                                // Get Period based on Seconds specified in Filter
+                                var period = TimeSpan.FromSeconds(filter.Value);
 
-                                    // Get Duration between newTimestamp and existingTimestamp
-                                    var duration = TimeSpan.FromMilliseconds(newTimestamp - existingTimestamp);
+                                // Get Duration between newTimestamp and existingTimestamp
+                                var duration = TimeSpan.FromMilliseconds(newTimestamp - existingTimestamp);
 
-                                    return duration > period;
-                                }
+                                return duration > period;
                             }
                         }
                     }
-
-                    return true;
                 }
+
+                return true;
             }
 
             return false;
