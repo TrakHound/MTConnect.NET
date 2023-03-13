@@ -18,6 +18,8 @@ namespace MTConnect.Mqtt
 {
     public class MTConnectMqttBroker : IHostedService
     {
+        private const int _retryInterval = 5000;
+
         private readonly IMTConnectAgent _mtconnectAgent;
         private readonly MqttServer _mqttServer;
         private CancellationTokenSource _stop;
@@ -25,6 +27,8 @@ namespace MTConnect.Mqtt
 
 
         public MTConnectMqttFormat Format { get; set; }
+
+        public string TopicPrefix { get; set; }
 
         public bool RetainMessages { get; set; }
 
@@ -66,33 +70,7 @@ namespace MTConnect.Mqtt
 
             if (!_mqttServer.IsStarted)
             {
-                await _mqttServer.StartAsync();
-
-                // Publish MTConnect Agent Information
-                await PublishAgent(_mtconnectAgent);
-
-                var devices = _mtconnectAgent.GetDevices();
-                foreach (var device in devices)
-                {
-                    // Publish the Device
-                    await PublishDevice(device);
-                }
-
-                // Add Current Observations (to Initialize each DataItem on the MQTT broker)
-                var observations = _mtconnectAgent.GetCurrentObservations();
-                if (!observations.IsNullOrEmpty())
-                {
-                    foreach (var observationOutput in observations)
-                    {
-                        var observation = Observation.Create(observationOutput.DataItem);
-                        observation.DeviceUuid = observationOutput.DeviceUuid;
-                        observation.DataItem = observationOutput.DataItem;
-                        observation.Timestamp = observationOutput.Timestamp;
-                        observation.AddValues(observationOutput.Values);
-
-                        await PublishObservation(observation);
-                    }
-                }
+                _ = Task.Run(Worker, _stop.Token);
             }
         }
 
@@ -102,6 +80,60 @@ namespace MTConnect.Mqtt
             if (_mqttServer != null) await _mqttServer.StopAsync();
         }
 
+
+        private async Task Worker()
+        {
+            do
+            {
+                try
+                {
+                    try
+                    {
+                        await _mqttServer.StartAsync();
+
+                        // Publish MTConnect Agent Information
+                        await PublishAgent(_mtconnectAgent);
+
+                        var devices = _mtconnectAgent.GetDevices();
+                        foreach (var device in devices)
+                        {
+                            // Publish the Device
+                            await PublishDevice(device);
+                        }
+
+                        // Add Current Observations (to Initialize each DataItem on the MQTT broker)
+                        var observations = _mtconnectAgent.GetCurrentObservations();
+                        if (!observations.IsNullOrEmpty())
+                        {
+                            foreach (var observationOutput in observations)
+                            {
+                                var observation = Observation.Create(observationOutput.DataItem);
+                                observation.DeviceUuid = observationOutput.DeviceUuid;
+                                observation.DataItem = observationOutput.DataItem;
+                                observation.Timestamp = observationOutput.Timestamp;
+                                observation.AddValues(observationOutput.Values);
+
+                                await PublishObservation(observation);
+                            }
+                        }
+
+                        while (!_stop.Token.IsCancellationRequested)
+                        {
+                            await Task.Delay(100);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        if (ConnectionError != null) ConnectionError.Invoke(this, ex);
+                    }
+
+                    await Task.Delay(_retryInterval, _stop.Token);
+                }
+                catch (TaskCanceledException) { }
+                catch (Exception ex) { }
+
+            } while (!_stop.Token.IsCancellationRequested);
+        }
 
 
         private async void DeviceAdded(object sender, IDevice device)
@@ -126,7 +158,7 @@ namespace MTConnect.Mqtt
         {
             foreach (var documentFormat in _documentFormats)
             {
-                var messages = CreateMessages(agent);
+                var messages = MTConnectMqttMessage.Create(agent, RetainMessages);
                 if (!messages.IsNullOrEmpty())
                 {
                     foreach (var message in messages)
@@ -144,7 +176,7 @@ namespace MTConnect.Mqtt
         {
             foreach (var documentFormat in _documentFormats)
             {
-                var messages = CreateMessages(device, documentFormat);
+                var messages = MTConnectMqttMessage.Create(device, documentFormat, RetainMessages);
                 if (!messages.IsNullOrEmpty())
                 {
                     foreach (var message in messages)
@@ -162,115 +194,10 @@ namespace MTConnect.Mqtt
         {
             foreach (var documentFormat in _documentFormats)
             {
-                var message = CreateMessage(observation, documentFormat);
-                if (message != null && message.Payload != null) await Publish(message);
-            }
-        }
-
-        private async Task PublishAsset(IAsset asset)
-        {
-            foreach (var documentFormat in _documentFormats)
-            {
-                var messages = CreateMessage(asset, documentFormat);
-                await Publish(messages);
-            }
-        }
-
-
-        private async Task Publish(MqttApplicationMessage message)
-        {
-            if (_mqttServer != null && _mqttServer.IsStarted)
-            {
-                await _mqttServer.InjectApplicationMessage(new InjectedMqttApplicationMessage(message));
-            }
-        }
-
-        private async Task Publish(IEnumerable<MqttApplicationMessage> messages)
-        {
-            if (_mqttServer != null && _mqttServer.IsStarted && !messages.IsNullOrEmpty())
-            {
-                foreach (var message in messages)
-                {
-                    await _mqttServer.InjectApplicationMessage(new InjectedMqttApplicationMessage(message));
-                }
-            }
-        }
-
-
-        #region "Messages"
-
-        private MqttApplicationMessage CreateMessage(string topic, string payload)
-        {
-            try
-            {
-                var messageBuilder = new MqttApplicationMessageBuilder();
-                messageBuilder.WithTopic(topic);
-                messageBuilder.WithPayload(payload);
-                messageBuilder.WithRetainFlag(RetainMessages);
-                return messageBuilder.Build();
-            }
-            catch { }
-
-            return null;
-        }
-
-
-        private IEnumerable<MqttApplicationMessage> CreateMessages(IMTConnectAgent agent)
-        {
-            if (agent != null)
-            {
-                var messages = new List<MqttApplicationMessage>();
-
-                // UUID
-                var topic = $"MTConnect/Agents/{agent.Uuid}/UUID";
-                messages.Add(CreateMessage(topic, agent.Uuid));
-
-                // InstanceId
-                topic = $"MTConnect/Agents/{agent.Uuid}/InstanceId";
-                messages.Add(CreateMessage(topic, agent.InstanceId.ToString()));
-
-                // Agent Application Version
-                topic = $"MTConnect/Agents/{agent.Uuid}/Version";
-                messages.Add(CreateMessage(topic, agent.Version.ToString()));
-
-                // Sender
-                topic = $"MTConnect/Agents/{agent.Uuid}/Sender";
-                messages.Add(CreateMessage(topic, agent.Sender));
-
-                // DeviceModelChangeTime
-                topic = $"MTConnect/Agents/{agent.Uuid}/DeviceModelChangeTime";
-                messages.Add(CreateMessage(topic, agent.DeviceModelChangeTime.ToString("o")));
-
-                return messages;
-            }
-
-            return null;
-        }
-
-        private IEnumerable<MqttApplicationMessage> CreateMessages(IDevice device, string documentFormatterId = DocumentFormat.XML)
-        {
-            if (device != null && !string.IsNullOrEmpty(documentFormatterId))
-            {
-                var messages = new List<MqttApplicationMessage>();
-
-                var topic = $"MTConnect/Devices/{device.Uuid}/Device";
-                messages.Add(CreateMessage(topic, Formatters.EntityFormatter.Format(documentFormatterId, device)));
-
-                return messages;
-            }
-
-            return null;
-        }
-
-        private MqttApplicationMessage CreateMessage(IObservation observation, string documentFormatterId = DocumentFormat.XML)
-        {
-            if (observation != null && observation.DataItem != null && !observation.Values.IsNullOrEmpty())
-            {
-                var topic = CreateTopic(observation);
-
                 if (observation.Category != Devices.DataItems.DataItemCategory.CONDITION)
                 {
-                    return CreateMessage(topic, Formatters.EntityFormatter.Format(documentFormatterId, observation));
+                    var message = MTConnectMqttMessage.Create(observation, Format, documentFormat, RetainMessages);
+                    if (message != null && message.Payload != null) await Publish(message);
                 }
                 else
                 {
@@ -290,107 +217,50 @@ namespace MTConnect.Mqtt
                                 y.AddValues(dataItemObservation.Values);
                                 x.Add(y);
                             }
-                            return CreateMessage(topic, Formatters.EntityFormatter.Format(documentFormatterId, x));
+
+                            var message = MTConnectMqttMessage.Create(x, Format, documentFormat, RetainMessages);
+                            if (message != null && message.Payload != null) await Publish(message);
                         }
                     }
                 }
             }
-
-            return null;
         }
 
-        private string CreateTopic(IObservation observation)
+        private async Task PublishAsset(IAsset asset)
         {
-            if (observation != null)
+            foreach (var documentFormat in _documentFormats)
             {
-                var type = DataItem.GetPascalCaseType(observation.DataItem.Type);
-                var subtype = DataItem.GetPascalCaseType(observation.DataItem.SubType);
-
-                var category = observation.Category.ToString().ToTitleCase() + "s";
-
-                // Add Prefixes
-                var prefixes = new List<string>();
-                prefixes.Add("MTConnect");
-                prefixes.Add("Devices");
-                prefixes.Add(observation.DeviceUuid);
-                prefixes.Add("Observations");
-
-                var paths = new List<string>();
-
-                // Add Container
-                paths.Add(RemoveNamespacePrefix(observation.DataItem.Container.Type));
-                paths.Add(observation.DataItem.Container.Id);
-                paths.Add(category);
-
-                // Add Type
-                paths.Add(RemoveNamespacePrefix(type));
-
-                // Add SubType
-                if (!string.IsNullOrEmpty(subtype))
-                {
-                    paths.Add("SubTypes");
-                    paths.Add(RemoveNamespacePrefix(subtype));
-                }
-
-                // Add DataItemId
-                paths.Add(observation.DataItemId);
-
-
-                switch (Format)
-                {
-                    case MTConnectMqttFormat.Hierarchy:
-
-                        return string.Join("/", new string[]
-                        {
-                            string.Join("/", prefixes),
-                            string.Join("/", paths),
-                            observation.DataItemId
-                        });
-
-                    default:
-                        return string.Join("/", new string[]
-{
-                            string.Join("/", prefixes),
-                            observation.DataItemId
-});
-                }
+                var messages = MTConnectMqttMessage.Create(asset, documentFormat, RetainMessages);
+                await Publish(messages);
             }
-
-            return null;
         }
 
-        private IEnumerable<MqttApplicationMessage> CreateMessage(IAsset asset, string documentFormatterId = DocumentFormat.XML)
+
+        private async Task Publish(MqttApplicationMessage message)
         {
-            if (asset != null)
+            if (_mqttServer != null && _mqttServer.IsStarted)
             {
-                var messages = new List<MqttApplicationMessage>();
+                // Set the Topic Prefix
+                if (!string.IsNullOrEmpty(TopicPrefix)) message.Topic = $"{TopicPrefix}/{message.Topic}";
 
-                var payload = Formatters.EntityFormatter.Format(documentFormatterId, asset);
-                messages.Add(CreateMessage($"MTConnect/Assets/{asset.Type}/{asset.AssetId}", payload));
-                messages.Add(CreateMessage($"MTConnect/Devices/{asset.DeviceUuid}/Assets/{asset.Type}/{asset.AssetId}", payload));
+                var injectMessage = new InjectedMqttApplicationMessage(message);
 
-                return messages;
+                await _mqttServer.InjectApplicationMessage(injectMessage);
             }
-
-            return null;
         }
 
-        #endregion
-
-
-        private static string RemoveNamespacePrefix(string type)
+        private async Task Publish(IEnumerable<MqttApplicationMessage> messages)
         {
-            if (!string.IsNullOrEmpty(type))
+            if (_mqttServer != null && _mqttServer.IsStarted && !messages.IsNullOrEmpty())
             {
-                if (type.Contains(':'))
+                foreach (var message in messages)
                 {
-                    return type.Substring(type.IndexOf(':') + 1);
+                    // Set the Topic Prefix
+                    if (!string.IsNullOrEmpty(TopicPrefix)) message.Topic = $"{TopicPrefix}/{message.Topic}";
+
+                    await _mqttServer.InjectApplicationMessage(new InjectedMqttApplicationMessage(message));
                 }
-
-                return type;
             }
-
-            return null;
         }
     }
 }

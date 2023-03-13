@@ -117,6 +117,9 @@ namespace MTConnect.Applications.Agents
             _mqttServer = mqttFactory.CreateMqttServer(mqttServerOptions);
 
             _mqttBroker = new MTConnectMqttBroker(Agent, _mqttServer);
+            _mqttBroker.Format = _configuration.MqttFormat;
+            _mqttBroker.RetainMessages = _configuration.RetainMessages;
+            _mqttBroker.TopicPrefix = _configuration.TopicPrefix;
             await _mqttBroker.StartAsync(CancellationToken.None);
         }
 

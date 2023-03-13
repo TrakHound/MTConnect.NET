@@ -2,6 +2,7 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using System.Text.Json.Serialization;
+using YamlDotNet.Serialization;
 
 namespace MTConnect.Configurations
 {
@@ -48,6 +49,10 @@ namespace MTConnect.Configurations
 
         [JsonPropertyName("mqttFormat")]
         public MTConnectMqttFormat MqttFormat { get; set; }
+
+        [JsonPropertyName("mqttTopicPrefix")]
+        [YamlMember(Alias = "mqttTopicPrefix")]
+        public string TopicPrefix { get; set; }
 
 
         public MqttAgentApplicationConfiguration()

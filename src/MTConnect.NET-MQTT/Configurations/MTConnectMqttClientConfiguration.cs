@@ -40,6 +40,9 @@ namespace MTConnect.Configurations
         [JsonPropertyName("retryInterval")]
         public int RetryInterval { get; set; }
 
+        [JsonPropertyName("topicPrefix")]
+        public string TopicPrefix { get; set; }
+
 
         public MTConnectMqttClientConfiguration()
         {

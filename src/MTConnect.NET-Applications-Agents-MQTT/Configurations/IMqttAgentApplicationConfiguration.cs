@@ -3,9 +3,6 @@
 
 namespace MTConnect.Configurations
 {
-    /// <summary>
-    /// Configuration for an MTConnect Shdr > Http Agent
-    /// </summary>
     public interface IMqttAgentApplicationConfiguration : IAgentApplicationConfiguration, IMTConnectMqttClientConfiguration
     {
         bool RetainMessages { get; set; }

@@ -26,5 +26,7 @@ namespace MTConnect.Configurations
         bool AllowUntrustedCertificates { get; set; }
 
         int RetryInterval { get; set; }
+
+        string TopicPrefix { get; set; }
     }
 }
