@@ -22,7 +22,7 @@ namespace MTConnect.Formatters.Xml
         public string ContentType => "application/xml";
 
 
-        public string Format(IDevice device)
+        public string Format(IDevice device, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             if (device != null)
             {
@@ -42,7 +42,7 @@ namespace MTConnect.Formatters.Xml
             return null;
         }
 
-        public string Format(IComponent component)
+        public string Format(IComponent component, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             if (component != null)
             {
@@ -62,7 +62,7 @@ namespace MTConnect.Formatters.Xml
             return null;
         }
 
-        public string Format(IComposition composition)
+        public string Format(IComposition composition, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             if (composition != null)
             {
@@ -82,7 +82,7 @@ namespace MTConnect.Formatters.Xml
             return null;
         }
 
-        public string Format(IDataItem dataItem)
+        public string Format(IDataItem dataItem, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             if (dataItem != null)
             {
@@ -102,7 +102,7 @@ namespace MTConnect.Formatters.Xml
             return null;
         }
 
-        public string Format(IObservation observation)
+        public string Format(IObservation observation, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             if (observation != null)
             {
@@ -122,7 +122,7 @@ namespace MTConnect.Formatters.Xml
             return null;
         }
 
-        public string Format(IEnumerable<IObservation> observations)
+        public string Format(IEnumerable<IObservation> observations, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             if (!observations.IsNullOrEmpty())
             {
@@ -154,7 +154,7 @@ namespace MTConnect.Formatters.Xml
             return null;
         }
 
-        public string Format(IAsset asset)
+        public string Format(IAsset asset, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             if (asset != null)
             {

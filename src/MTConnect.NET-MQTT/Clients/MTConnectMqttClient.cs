@@ -82,7 +82,7 @@ namespace MTConnect.Clients.Mqtt
             _mqttClient.ApplicationMessageReceivedAsync += MessageReceived;
         }
 
-        public MTConnectMqttClient(MTConnectMqttClientConfiguration configuration, IEnumerable<string> topics = null)
+        public MTConnectMqttClient(IMTConnectMqttClientConfiguration configuration, IEnumerable<string> topics = null)
         {
             if (configuration != null)
             {

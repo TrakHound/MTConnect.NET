@@ -12,69 +12,70 @@ namespace MTConnect.Streams.Json
     {
         public JsonEvent() { }
 
-        public JsonEvent(IObservation e)
+        public JsonEvent(IObservation observation, bool categoryOutput = false)
         {
-            if (e != null)
+            if (observation != null)
             {
-                DataItemId = e.DataItemId;
-                Timestamp = e.Timestamp;
-                Name = e.Name;
-                Sequence = e.Sequence;
-                Type = e.Type;
-                SubType = e.SubType;
-                CompositionId = e.CompositionId;
-                Result = e.GetValue(ValueKeys.Result);
-                ResetTriggered = e.GetValue(ValueKeys.ResetTriggered);
-                NativeCode = e.GetValue(ValueKeys.NativeCode);
-                AssetType = e.GetValue(ValueKeys.AssetType);
+                DataItemId = observation.DataItemId;
+                if (categoryOutput) Category = observation.Category.ToString();
+                Timestamp = observation.Timestamp;
+                Name = observation.Name;
+                Sequence = observation.Sequence;
+                Type = observation.Type;
+                SubType = observation.SubType;
+                CompositionId = observation.CompositionId;
+                Result = observation.GetValue(ValueKeys.Result);
+                ResetTriggered = observation.GetValue(ValueKeys.ResetTriggered);
+                NativeCode = observation.GetValue(ValueKeys.NativeCode);
+                AssetType = observation.GetValue(ValueKeys.AssetType);
 
 
                 // DataSet Entries
-                if (e is EventDataSetObservation)
+                if (observation is EventDataSetObservation)
                 {
-                    Entries = CreateEntries(((EventDataSetObservation)e).Entries);
+                    Entries = CreateEntries(((EventDataSetObservation)observation).Entries);
                     Count = !Entries.IsNullOrEmpty() ? Entries.Count() : 0;
                 }
 
                 // Table Entries
-                if (e is EventTableObservation)
+                if (observation is EventTableObservation)
                 {
-                    Entries = CreateEntries(((EventTableObservation)e).Entries);
+                    Entries = CreateEntries(((EventTableObservation)observation).Entries);
                     Count = !Entries.IsNullOrEmpty() ? Entries.Count() : 0;
                 }
             }
         }
 
-        public JsonEvent(IObservationOutput e)
+        public JsonEvent(IObservationOutput observation)
         {
-            if (e != null)
+            if (observation != null)
             {
-                DataItemId = e.DataItemId;
-                Timestamp = e.Timestamp;
-                Name = e.Name;
-                Sequence = e.Sequence;
-                Type = e.Type;
-                SubType = e.SubType;
-                CompositionId = e.CompositionId;
-                Result = e.GetValue(ValueKeys.Result);
-                ResetTriggered = e.GetValue(ValueKeys.ResetTriggered);
-                NativeCode = e.GetValue(ValueKeys.NativeCode);
-                AssetType = e.GetValue(ValueKeys.AssetType);
+                DataItemId = observation.DataItemId;
+                Timestamp = observation.Timestamp;
+                Name = observation.Name;
+                Sequence = observation.Sequence;
+                Type = observation.Type;
+                SubType = observation.SubType;
+                CompositionId = observation.CompositionId;
+                Result = observation.GetValue(ValueKeys.Result);
+                ResetTriggered = observation.GetValue(ValueKeys.ResetTriggered);
+                NativeCode = observation.GetValue(ValueKeys.NativeCode);
+                AssetType = observation.GetValue(ValueKeys.AssetType);
 
                 // DataSet Entries
-                if (e.Representation == DataItemRepresentation.DATA_SET)
+                if (observation.Representation == DataItemRepresentation.DATA_SET)
                 {
                     var dataSetObservation = new EventDataSetObservation();
-                    dataSetObservation.AddValues(e.Values);
+                    dataSetObservation.AddValues(observation.Values);
                     Entries = CreateEntries(dataSetObservation.Entries);
                     Count = !Entries.IsNullOrEmpty() ? Entries.Count() : 0;
                 }
 
                 // Table Entries
-                if (e.Representation == DataItemRepresentation.TABLE)
+                if (observation.Representation == DataItemRepresentation.TABLE)
                 {
                     var tableObservation = new EventTableObservation();
-                    tableObservation.AddValues(e.Values);
+                    tableObservation.AddValues(observation.Values);
                     Entries = CreateEntries(tableObservation.Entries);
                     Count = !Entries.IsNullOrEmpty() ? Entries.Count() : 0;
                 }

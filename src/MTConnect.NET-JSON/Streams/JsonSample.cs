@@ -23,11 +23,12 @@ namespace MTConnect.Streams.Json
 
         public JsonSample() { }
 
-        public JsonSample(IObservation observation)
+        public JsonSample(IObservation observation, bool categoryOutput = false)
         {
             if (observation != null)
             {
                 DataItemId = observation.DataItemId;
+                if (categoryOutput) Category = observation.Category.ToString();
                 Timestamp = observation.Timestamp;
                 Name = observation.Name;
                 Sequence = observation.Sequence;

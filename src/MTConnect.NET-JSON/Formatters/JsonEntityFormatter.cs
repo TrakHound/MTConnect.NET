@@ -29,7 +29,7 @@ namespace MTConnect.Formatters
         public string ContentType => "application/json";
 
 
-        public string Format(IDevice device)
+        public string Format(IDevice device, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             if (device != null)
             {
@@ -39,7 +39,7 @@ namespace MTConnect.Formatters
             return null;
         }
 
-        public string Format(IComponent component)
+        public string Format(IComponent component, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             if (component != null)
             {
@@ -49,7 +49,7 @@ namespace MTConnect.Formatters
             return null;
         }
 
-        public string Format(IComposition composition)
+        public string Format(IComposition composition, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             if (composition != null)
             {
@@ -59,7 +59,7 @@ namespace MTConnect.Formatters
             return null;
         }
 
-        public string Format(IDataItem dataItem)
+        public string Format(IDataItem dataItem, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             if (dataItem != null)
             {
@@ -69,10 +69,13 @@ namespace MTConnect.Formatters
             return null;
         }
 
-        public string Format(IObservation observation)
+        public string Format(IObservation observation, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             if (observation != null)
             {
+                // Get Option for 'Category' output
+                var categoryOutput = GetFormatterOption<bool>(options, "categoryOutput");
+
                 switch (observation.Category)
                 {
                     // Sample
@@ -80,7 +83,7 @@ namespace MTConnect.Formatters
                         var sampleObservation = SampleObservation.Create(observation);
                         if (sampleObservation != null)
                         {
-                            return JsonFunctions.Convert(new JsonSample(sampleObservation));
+                            return JsonFunctions.Convert(new JsonSample(sampleObservation, categoryOutput));
                         }
                         break;
 
@@ -89,7 +92,7 @@ namespace MTConnect.Formatters
                         var eventObservation = EventObservation.Create(observation);
                         if (eventObservation != null)
                         {
-                            return JsonFunctions.Convert(new JsonEvent(eventObservation));
+                            return JsonFunctions.Convert(new JsonEvent(eventObservation, categoryOutput));
                         }
                         break;
 
@@ -98,7 +101,7 @@ namespace MTConnect.Formatters
                         var conditionObservation = ConditionObservation.Create(observation);
                         if (conditionObservation != null)
                         {
-                            return JsonFunctions.Convert(new JsonCondition(conditionObservation));
+                            return JsonFunctions.Convert(new JsonCondition(conditionObservation, categoryOutput));
                         }
                         break;
                 }
@@ -107,10 +110,13 @@ namespace MTConnect.Formatters
             return null;
         }
 
-        public string Format(IEnumerable<IObservation> observations)
+        public string Format(IEnumerable<IObservation> observations, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             if (!observations.IsNullOrEmpty())
             {
+                // Get Option for 'Category' output
+                var categoryOutput = GetFormatterOption<bool>(options, "categoryOutput");
+
                 var x = new List<object>();
 
                 foreach (var observation in observations)
@@ -122,7 +128,7 @@ namespace MTConnect.Formatters
                             var sampleObservation = SampleObservation.Create(observation);
                             if (sampleObservation != null)
                             {
-                                x.Add(new JsonSample(sampleObservation));
+                                x.Add(new JsonSample(sampleObservation, categoryOutput));
                             }
                             break;
 
@@ -131,7 +137,7 @@ namespace MTConnect.Formatters
                             var eventObservation = EventObservation.Create(observation);
                             if (eventObservation != null)
                             {
-                                x.Add(new JsonEvent(eventObservation));
+                                x.Add(new JsonEvent(eventObservation, categoryOutput));
                             }
                             break;
 
@@ -140,7 +146,7 @@ namespace MTConnect.Formatters
                             var conditionObservation = ConditionObservation.Create(observation);
                             if (conditionObservation != null)
                             {
-                                x.Add(new JsonCondition(conditionObservation));
+                                x.Add(new JsonCondition(conditionObservation, categoryOutput));
                             }
                             break;
                     }
@@ -153,7 +159,7 @@ namespace MTConnect.Formatters
             return null;
         }
 
-        public string Format(IAsset asset)
+        public string Format(IAsset asset, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             if (asset != null)
             {

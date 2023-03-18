@@ -105,7 +105,12 @@ namespace MTConnect.Mqtt
             {
                 var topic = CreateTopic(observation, format);
 
-                var payload = Formatters.EntityFormatter.Format(documentFormatterId, observation);
+                var formatOptions = new List<KeyValuePair<string, string>>
+                {
+                    new KeyValuePair<string, string>("categoryOutput", "true")
+                };
+
+                var payload = Formatters.EntityFormatter.Format(documentFormatterId, observation, formatOptions);
                 if (!string.IsNullOrEmpty(payload))
                 {
                     return CreateMessage(topic, payload, retain);
@@ -125,7 +130,12 @@ namespace MTConnect.Mqtt
                 {
                     var topic = CreateTopic(firstObservation, format);
 
-                    var payload = Formatters.EntityFormatter.Format(documentFormatterId, observations);
+                    var formatOptions = new List<KeyValuePair<string, string>>
+                    {
+                        new KeyValuePair<string, string>("categoryOutput", "true")
+                    };
+
+                    var payload = Formatters.EntityFormatter.Format(documentFormatterId, observations, formatOptions);
                     if (!string.IsNullOrEmpty(payload))
                     {
                         return CreateMessage(topic, payload, retain);

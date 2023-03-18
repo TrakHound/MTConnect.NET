@@ -15,19 +15,19 @@ namespace MTConnect.Formatters
         string ContentType { get; }
 
 
-        string Format(IDevice device);
+        string Format(IDevice device, IEnumerable<KeyValuePair<string, string>> options = null);
 
-        string Format(IComponent component);
+        string Format(IComponent component, IEnumerable<KeyValuePair<string, string>> options = null);
 
-        string Format(IComposition composition);
+        string Format(IComposition composition, IEnumerable<KeyValuePair<string, string>> options = null);
 
-        string Format(IDataItem dataItem);
+        string Format(IDataItem dataItem, IEnumerable<KeyValuePair<string, string>> options = null);
 
-        string Format(IObservation observation);
+        string Format(IObservation observation, IEnumerable<KeyValuePair<string, string>> options = null);
 
-        string Format(IEnumerable<IObservation> observations);
+        string Format(IEnumerable<IObservation> observations, IEnumerable<KeyValuePair<string, string>> options = null);
 
-        string Format(IAsset asset);
+        string Format(IAsset asset, IEnumerable<KeyValuePair<string, string>> options = null);
 
 
         FormattedEntityReadResult<IDevice> CreateDevice(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null);

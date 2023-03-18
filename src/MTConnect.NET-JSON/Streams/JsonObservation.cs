@@ -16,7 +16,7 @@ namespace MTConnect.Streams.Json
         [JsonPropertyName("name")]
         public string Name { get; set; }
 
-        [JsonIgnore]
+        [JsonPropertyName("category")]
         public string Category { get; set; }
 
         [JsonPropertyName("representation")]

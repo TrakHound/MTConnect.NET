@@ -31,92 +31,92 @@ namespace MTConnect.Formatters
         }
 
 
-        public static string Format(string documentFormatterId, IDevice device)
+        public static string Format(string documentFormatterId, IDevice device, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Get the Formatter with the specified ID
             var formatter = GetFormatter(documentFormatterId);
             if (formatter != null)
             {
                 // Create the string representation of the Entity using the Formatter
-                return formatter.Format(device);
+                return formatter.Format(device, options);
             }
 
             return null;
         }
 
-        public static string Format(string documentFormatterId, IComponent component)
+        public static string Format(string documentFormatterId, IComponent component, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Get the Formatter with the specified ID
             var formatter = GetFormatter(documentFormatterId);
             if (formatter != null)
             {
                 // Create the string representation of the Entity using the Formatter
-                return formatter.Format(component);
+                return formatter.Format(component, options);
             }
 
             return null;
         }
 
-        public static string Format(string documentFormatterId, IComposition composition)
+        public static string Format(string documentFormatterId, IComposition composition, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Get the Formatter with the specified ID
             var formatter = GetFormatter(documentFormatterId);
             if (formatter != null)
             {
                 // Create the string representation of the Entity using the Formatter
-                return formatter.Format(composition);
+                return formatter.Format(composition, options);
             }
 
             return null;
         }
 
-        public static string Format(string documentFormatterId, IDataItem dataItem)
+        public static string Format(string documentFormatterId, IDataItem dataItem, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Get the Formatter with the specified ID
             var formatter = GetFormatter(documentFormatterId);
             if (formatter != null)
             {
                 // Create the string representation of the Entity using the Formatter
-                return formatter.Format(dataItem);
+                return formatter.Format(dataItem, options);
             }
 
             return null;
         }
 
-        public static string Format(string documentFormatterId, IObservation observation)
+        public static string Format(string documentFormatterId, IObservation observation, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Get the Formatter with the specified ID
             var formatter = GetFormatter(documentFormatterId);
             if (formatter != null)
             {
                 // Create the string representation of the Entity using the Formatter
-                return formatter.Format(observation);
+                return formatter.Format(observation, options);
             }
 
             return null;
         }
 
-        public static string Format(string documentFormatterId, IEnumerable<IObservation> observations)
+        public static string Format(string documentFormatterId, IEnumerable<IObservation> observations, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Get the Formatter with the specified ID
             var formatter = GetFormatter(documentFormatterId);
             if (formatter != null)
             {
                 // Create the string representation of the Entity using the Formatter
-                return formatter.Format(observations);
+                return formatter.Format(observations, options);
             }
 
             return null;
         }
 
-        public static string Format(string documentFormatterId, IAsset asset)
+        public static string Format(string documentFormatterId, IAsset asset, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Get the Formatter with the specified ID
             var formatter = GetFormatter(documentFormatterId);
             if (formatter != null)
             {
                 // Create the string representation of the Entity using the Formatter
-                return formatter.Format(asset);
+                return formatter.Format(asset, options);
             }
 
             return null;
