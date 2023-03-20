@@ -31,6 +31,12 @@ namespace MTConnect.Assets
         long Timestamp { get; set; }
 
         /// <summary>
+        /// The Agent InstanceId of the Agent that produced this Asset
+        /// </summary>
+        [JsonPropertyName("instanceId")]
+        long InstanceId { get; set; }
+
+        /// <summary>
         /// The piece of equipments UUID that supplied this data.
         /// </summary>
         [JsonPropertyName("deviceUuid")]

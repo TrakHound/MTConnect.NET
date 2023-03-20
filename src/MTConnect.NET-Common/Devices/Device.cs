@@ -4,7 +4,6 @@
 using MTConnect.Devices.Configurations;
 using MTConnect.Devices.DataItems;
 using MTConnect.Devices.References;
-using MTConnect.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -118,6 +117,11 @@ namespace MTConnect.Devices
         /// An XML container consisting of one or more types of Reference XML elements.
         /// </summary>
         public IEnumerable<IReference> References { get; set; }
+
+        /// <summary>
+        /// The Agent InstanceId that produced this Device
+        /// </summary>
+        public long InstanceId { get; set; }
 
 
         /// <summary>
@@ -659,6 +663,7 @@ namespace MTConnect.Devices
                     obj.Name = device.Name;
                     obj.NativeName = device.NativeName;
                     obj.Uuid = device.Uuid;
+                    obj.InstanceId = device.InstanceId;
                     obj.Type = device.Type;
                     obj.Parent = device;
 

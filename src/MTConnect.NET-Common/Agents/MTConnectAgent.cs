@@ -535,7 +535,7 @@ namespace MTConnect.Agents
             return observations;
         }
 
-        private static IObservationOutput CreateObservation(IDataItem dataItem, IObservationInput observationInput)
+        private IObservationOutput CreateObservation(IDataItem dataItem, IObservationInput observationInput)
         {
             var observation = new ObservationOutput();
             observation._dataItem = dataItem;
@@ -547,6 +547,7 @@ namespace MTConnect.Agents
             observation._subType = dataItem.SubType;
             observation._name = dataItem.Name;
             observation._compositionId = dataItem.CompositionId;
+            observation._instanceId = _instanceId;
             //observation._sequence = observationInput.Sequence; // No Sequence in IObservationInput
             observation._timestamp = observationInput.Timestamp.ToDateTime();
             observation._values = observationInput.Values?.ToArray();
@@ -824,6 +825,7 @@ namespace MTConnect.Agents
                     obj.Name = device.Name;
                     obj.NativeName = device.NativeName;
                     obj.Uuid = device.Uuid;
+                    obj.InstanceId = _instanceId;
                     obj.Type = device.Type;
                     obj.SampleRate = device.SampleRate;
                     obj.SampleInterval = device.SampleInterval;
@@ -1093,6 +1095,7 @@ namespace MTConnect.Agents
                         // Create new Observation
                         var observation = Observation.Create(dataItem);
                         observation.DeviceUuid = _agent.Uuid;
+                        observation.InstanceId = _instanceId;
                         observation.Timestamp = timestamp.ToDateTime();
                         observation.AddValues(new List<ObservationValue>
                         {
@@ -1123,6 +1126,7 @@ namespace MTConnect.Agents
                         // Create new Observation
                         var observation = Observation.Create(dataItem);
                         observation.DeviceUuid = _agent.Uuid;
+                        observation.InstanceId = _instanceId;
                         observation.Timestamp = timestamp.ToDateTime();
                         observation.AddValues(new List<ObservationValue>
                         {
@@ -1152,6 +1156,7 @@ namespace MTConnect.Agents
                         // Create new Observation
                         var observation = Observation.Create(dataItem);
                         observation.DeviceUuid = _agent.Uuid;
+                        observation.InstanceId = _instanceId;
                         observation.Timestamp = timestamp.ToDateTime();
                         observation.AddValues(new List<ObservationValue>
                         {
@@ -1595,6 +1600,7 @@ namespace MTConnect.Agents
                                     var observation = Observation.Create(dataItem);
                                     observation.DeviceUuid = deviceUuid;
                                     observation.DataItem = dataItem;
+                                    observation.InstanceId = _instanceId;
                                     observation.Timestamp = observationInput.Timestamp.ToDateTime();
                                     observation.AddValues(observationInput.Values);
 
@@ -1674,69 +1680,74 @@ namespace MTConnect.Agents
         {
             // Get Device UUID from deviceKey
             var deviceUuid = GetDeviceUuid(deviceKey);
-
-            // Get Device from DeviceBuffer
-            _devices.TryGetValue(deviceUuid, out var device);
-            if (device != null)
+            if (!string.IsNullOrEmpty(deviceUuid))
             {
-                // Set Device UUID Property
-                asset.DeviceUuid = device.Uuid;
-
-                // Set Timestamp
-                if ((!ignoreTimestamp.HasValue && _configuration.IgnoreTimestamps) || (ignoreTimestamp.HasValue && ignoreTimestamp.Value))
+                // Get Device from DeviceBuffer
+                _devices.TryGetValue(deviceUuid, out var device);
+                if (device != null)
                 {
-                    asset.Timestamp = UnixDateTime.Now;
-                }
-                else asset.Timestamp = asset.Timestamp > 0 ? asset.Timestamp : UnixDateTime.Now;
+                    // Set Device UUID Property
+                    asset.DeviceUuid = device.Uuid;
 
-                // Validate Asset based on Device's MTConnectVersion
-                var validationResults = asset.IsValid(device.MTConnectVersion);
-                if (validationResults.IsValid || _configuration.InputValidationLevel < InputValidationLevel.Strict)
-                {
-                    // Set flag whether the Asset already exists in the Buffer
-                    var exists = _assetIds.Contains(asset.AssetId);
+                    // Set InstanceId
+                    asset.InstanceId = _instanceId;
 
-                    // Add Asset to AssetBuffer
-                    if (OnAssetUpdate(asset))
+                    // Set Timestamp
+                    if ((!ignoreTimestamp.HasValue && _configuration.IgnoreTimestamps) || (ignoreTimestamp.HasValue && ignoreTimestamp.Value))
                     {
-                        // Update AssetChanged DataItem
-                        if (!device.DataItems.IsNullOrEmpty())
-                        {
-                            var assetChanged = device.DataItems.FirstOrDefault(o => o.Type == AssetChangedDataItem.TypeId);
-                            if (assetChanged != null)
-                            {
-                                var assetChangedObservation = new ObservationInput();
-                                assetChangedObservation.DataItemKey = assetChanged.Id;
-                                assetChangedObservation.AddValue(ValueKeys.Result, asset.AssetId);
-                                assetChangedObservation.AddValue(ValueKeys.AssetType, asset.Type);
-                                assetChangedObservation.Timestamp = asset.Timestamp;
-                                AddObservation(deviceUuid, assetChangedObservation);
-                            }
-                        }
-
-                        // Update Agent Metrics
-                        if (_metrics != null) _metrics.UpdateAsset(deviceUuid, asset.AssetId);
-
-                        if (!exists)
-                        {
-                            OnNewAssetAdded(asset);
-
-                            // Update Asset Count
-                            //IncrementAssetCount(deviceUuid, asset.Type);
-                        }
-
-                        if (!validationResults.IsValid && _configuration.InputValidationLevel > InputValidationLevel.Ignore)
-                        {
-                            if (InvalidAssetAdded != null) InvalidAssetAdded.Invoke(asset, validationResults);
-                        }
-
-                        AssetAdded?.Invoke(this, asset);
-                        return true;
+                        asset.Timestamp = UnixDateTime.Now;
                     }
-                }
-                else
-                {
-                    if (InvalidAssetAdded != null) InvalidAssetAdded.Invoke(asset, validationResults);
+                    else asset.Timestamp = asset.Timestamp > 0 ? asset.Timestamp : UnixDateTime.Now;
+
+                    // Validate Asset based on Device's MTConnectVersion
+                    var validationResults = asset.IsValid(device.MTConnectVersion);
+                    if (validationResults.IsValid || _configuration.InputValidationLevel < InputValidationLevel.Strict)
+                    {
+                        // Set flag whether the Asset already exists in the Buffer
+                        var exists = _assetIds.Contains(asset.AssetId);
+
+                        // Add Asset to AssetBuffer
+                        if (OnAssetUpdate(asset))
+                        {
+                            // Update AssetChanged DataItem
+                            if (!device.DataItems.IsNullOrEmpty())
+                            {
+                                var assetChanged = device.DataItems.FirstOrDefault(o => o.Type == AssetChangedDataItem.TypeId);
+                                if (assetChanged != null)
+                                {
+                                    var assetChangedObservation = new ObservationInput();
+                                    assetChangedObservation.DataItemKey = assetChanged.Id;
+                                    assetChangedObservation.AddValue(ValueKeys.Result, asset.AssetId);
+                                    assetChangedObservation.AddValue(ValueKeys.AssetType, asset.Type);
+                                    assetChangedObservation.Timestamp = asset.Timestamp;
+                                    AddObservation(deviceUuid, assetChangedObservation);
+                                }
+                            }
+
+                            // Update Agent Metrics
+                            if (_metrics != null) _metrics.UpdateAsset(deviceUuid, asset.AssetId);
+
+                            if (!exists)
+                            {
+                                OnNewAssetAdded(asset);
+
+                                // Update Asset Count
+                                //IncrementAssetCount(deviceUuid, asset.Type);
+                            }
+
+                            if (!validationResults.IsValid && _configuration.InputValidationLevel > InputValidationLevel.Ignore)
+                            {
+                                if (InvalidAssetAdded != null) InvalidAssetAdded.Invoke(asset, validationResults);
+                            }
+
+                            AssetAdded?.Invoke(this, asset);
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        if (InvalidAssetAdded != null) InvalidAssetAdded.Invoke(asset, validationResults);
+                    }
                 }
             }
 

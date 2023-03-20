@@ -68,6 +68,7 @@ namespace MTConnect.Assets.CuttingTools
             {
                 var asset = new CuttingToolAsset();
                 asset.AssetId = AssetId;
+                asset.InstanceId = InstanceId;
                 asset.Type = Type;
                 asset.Timestamp = Timestamp;
                 if (mtconnectVersion > MTConnectVersions.Version13) asset.DeviceUuid = DeviceUuid;

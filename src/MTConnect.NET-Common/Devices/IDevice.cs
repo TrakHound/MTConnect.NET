@@ -22,5 +22,10 @@ namespace MTConnect.Devices
         /// the information to be published for a piece of equipment in an MTConnect Response Document.
         /// </summary>
         Version MTConnectVersion { get; }
+
+        /// <summary>
+        /// The Agent InstanceId that produced this Device
+        /// </summary>
+        long InstanceId { get; }
     }
 }

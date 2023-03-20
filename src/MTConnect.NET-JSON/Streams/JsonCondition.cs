@@ -25,13 +25,14 @@ namespace MTConnect.Streams.Json
 
         public JsonCondition() { }
 
-        public JsonCondition(IObservation observation, bool categoryOutput = false)
+        public JsonCondition(IObservation observation, bool categoryOutput = false, bool instanceIdOutput = false)
         {
             var condition = observation as ConditionObservation;
             if (condition != null)
             {
                 DataItemId = condition.DataItemId;
                 if (categoryOutput) Category = observation.Category.ToString();
+                if (instanceIdOutput) InstanceId = observation.InstanceId;
                 Timestamp = condition.Timestamp;
                 Name = condition.Name;
                 Sequence = condition.Sequence;
@@ -54,6 +55,7 @@ namespace MTConnect.Streams.Json
                 DataItemId = condition.DataItemId;
                 Timestamp = condition.Timestamp;
                 Name = condition.Name;
+                InstanceId = condition.InstanceId;
                 Sequence = condition.Sequence;
                 Type = condition.Type;
                 SubType = condition.SubType;
@@ -88,6 +90,7 @@ namespace MTConnect.Streams.Json
             condition.DataItemId = DataItemId;
             condition.Timestamp = Timestamp;
             condition.Name = Name;
+            condition.InstanceId = InstanceId;
             condition.Sequence = Sequence;
             condition.Category = Category.ConvertEnum<DataItemCategory>();
             condition.Type = Type;

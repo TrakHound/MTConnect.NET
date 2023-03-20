@@ -73,6 +73,13 @@ namespace MTConnect.Assets
         }
 
         /// <summary>
+        /// The Agent InstanceId that produced this Asset
+        /// </summary>
+        [XmlIgnore]
+        [JsonPropertyName("instanceId")]
+        public long InstanceId { get; set; }
+
+        /// <summary>
         /// The piece of equipments UUID that supplied this data.
         /// </summary>
         [XmlAttribute("deviceUuid")]

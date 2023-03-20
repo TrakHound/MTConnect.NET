@@ -12,12 +12,13 @@ namespace MTConnect.Streams.Json
     {
         public JsonEvent() { }
 
-        public JsonEvent(IObservation observation, bool categoryOutput = false)
+        public JsonEvent(IObservation observation, bool categoryOutput = false, bool instanceIdOutput = false)
         {
             if (observation != null)
             {
                 DataItemId = observation.DataItemId;
                 if (categoryOutput) Category = observation.Category.ToString();
+                if (instanceIdOutput) InstanceId = observation.InstanceId;
                 Timestamp = observation.Timestamp;
                 Name = observation.Name;
                 Sequence = observation.Sequence;
@@ -53,6 +54,7 @@ namespace MTConnect.Streams.Json
                 DataItemId = observation.DataItemId;
                 Timestamp = observation.Timestamp;
                 Name = observation.Name;
+                InstanceId = observation.InstanceId;
                 Sequence = observation.Sequence;
                 Type = observation.Type;
                 SubType = observation.SubType;
@@ -107,6 +109,7 @@ namespace MTConnect.Streams.Json
             e.DataItemId = DataItemId;
             e.Timestamp = Timestamp;
             e.Name = Name;
+            e.InstanceId = InstanceId;
             e.Sequence = Sequence;
             e.Category = Category.ConvertEnum<DataItemCategory>();
             e.Type = Type;

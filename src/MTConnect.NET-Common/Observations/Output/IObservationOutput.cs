@@ -23,6 +23,8 @@ namespace MTConnect.Observations.Output
 
         string Name { get; }
 
+        long InstanceId { get; }
+
         long Sequence { get; }
 
         DateTime Timestamp { get; }

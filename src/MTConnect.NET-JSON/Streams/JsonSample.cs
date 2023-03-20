@@ -23,12 +23,13 @@ namespace MTConnect.Streams.Json
 
         public JsonSample() { }
 
-        public JsonSample(IObservation observation, bool categoryOutput = false)
+        public JsonSample(IObservation observation, bool categoryOutput = false, bool instanceIdOutput = false)
         {
             if (observation != null)
             {
                 DataItemId = observation.DataItemId;
                 if (categoryOutput) Category = observation.Category.ToString();
+                if (instanceIdOutput) InstanceId = observation.InstanceId;
                 Timestamp = observation.Timestamp;
                 Name = observation.Name;
                 Sequence = observation.Sequence;
@@ -73,6 +74,7 @@ namespace MTConnect.Streams.Json
                 DataItemId = observation.DataItemId;
                 Timestamp = observation.Timestamp;
                 Name = observation.Name;
+                InstanceId = observation.InstanceId;
                 Sequence = observation.Sequence;
                 Type = observation.Type;
                 SubType = observation.SubType;
@@ -138,6 +140,7 @@ namespace MTConnect.Streams.Json
             sample.DataItemId = DataItemId;
             sample.Timestamp = Timestamp;
             sample.Name = Name;
+            sample.InstanceId = InstanceId;
             sample.Sequence = Sequence;
             sample.Category = Category.ConvertEnum<DataItemCategory>();
             sample.Type = Type;

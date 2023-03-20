@@ -62,6 +62,16 @@ namespace MTConnect.Observations.Output
         }
 
         /// <summary>
+        /// The Agent Instance ID that produced the Observation
+        /// </summary>
+        internal long _instanceId;
+        public long InstanceId
+        {
+            get => _instanceId;
+            set => _instanceId = value;
+        }
+
+        /// <summary>
         /// A number representing the sequential position of an occurence of the DataItem in the data buffer of the Agent.
         /// The value MUST be represented as an unsigned 64 bit with valid values from 1 to 2^64-1.
         /// </summary>
@@ -144,6 +154,7 @@ namespace MTConnect.Observations.Output
             _dataItemId = null;
             _timestamp = DateTime.MinValue;
             _name = null;
+            _instanceId = 0;
             _sequence = 0;
             _category = DataItemCategory.CONDITION;
             _type = null;
@@ -159,6 +170,7 @@ namespace MTConnect.Observations.Output
                 _dataItemId = observation.DataItemId;
                 _timestamp = observation.Timestamp;
                 _name = observation.Name;
+                _instanceId = observation.InstanceId;
                 _sequence = observation.Sequence;
                 _category = observation.Category;
                 _type = observation.Type;

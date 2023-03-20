@@ -51,6 +51,11 @@ namespace MTConnect.Observations
         string Name { get; }
 
         /// <summary>
+        /// The Agent Instance ID that produced the Observation
+        /// </summary>
+        long InstanceId { get; }
+
+        /// <summary>
         /// A number representing the sequential position of an occurence of the DataItem in the data buffer of the Agent.
         /// The value MUST be represented as an unsigned 64 bit with valid values from 1 to 2^64-1.
         /// </summary>

@@ -113,6 +113,7 @@ namespace MTConnect.Observations
                 result._subType = observation.SubType;
                 result._name = observation.Name;
                 result._compositionId = observation.CompositionId;
+                result._instanceId = observation.InstanceId;
                 result._sequence = observation.Sequence;
                 result._timestamp = observation.Timestamp;
                 result.AddValues(observation.Values);

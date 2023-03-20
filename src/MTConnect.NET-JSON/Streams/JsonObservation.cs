@@ -37,6 +37,9 @@ namespace MTConnect.Streams.Json
         [JsonPropertyName("sequence")]
         public long Sequence { get; set; }
 
+        [JsonPropertyName("instanceId")]
+        public long InstanceId { get; set; }
+
         [JsonPropertyName("resetTriggered")]
         public string ResetTriggered { get; set; }
 

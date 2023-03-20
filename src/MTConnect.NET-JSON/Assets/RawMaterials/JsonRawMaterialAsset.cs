@@ -18,6 +18,9 @@ namespace MTConnect.Assets.Json.RawMaterials
         [JsonPropertyName("timestamp")]
         public DateTime Timestamp { get; set; }
 
+        [JsonPropertyName("instanceId")]
+        public long InstanceId { get; set; }
+
         [JsonPropertyName("deviceUuid")]
         public string DeviceUuid { get; set; }
 
@@ -86,6 +89,7 @@ namespace MTConnect.Assets.Json.RawMaterials
                 AssetId = asset.AssetId;
                 Type = asset.Type;
                 Timestamp = asset.Timestamp.ToDateTime();
+                InstanceId = asset.InstanceId;
                 DeviceUuid = asset.DeviceUuid;
                 Removed = asset.Removed;
                 Description = asset.Description;

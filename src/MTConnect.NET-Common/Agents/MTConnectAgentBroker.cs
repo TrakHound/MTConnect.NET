@@ -1659,6 +1659,7 @@ namespace MTConnect.Agents
                             // Add Unavailable Observation to ObservationBuffer
                             var observation = Observation.Create(dataItem);
                             observation.DeviceUuid = device.Uuid;
+                            observation.InstanceId = InstanceId;
                             observation.Timestamp = ts.ToDateTime();
                             observation.AddValues(new List<ObservationValue>
                             {

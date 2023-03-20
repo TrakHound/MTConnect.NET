@@ -76,6 +76,9 @@ namespace MTConnect.Formatters
                 // Get Option for 'Category' output
                 var categoryOutput = GetFormatterOption<bool>(options, "categoryOutput");
 
+                // Get Option for 'InstanceId' output
+                var instanceIdOutput = GetFormatterOption<bool>(options, "instanceIdOutput");
+
                 switch (observation.Category)
                 {
                     // Sample
@@ -83,7 +86,7 @@ namespace MTConnect.Formatters
                         var sampleObservation = SampleObservation.Create(observation);
                         if (sampleObservation != null)
                         {
-                            return JsonFunctions.Convert(new JsonSample(sampleObservation, categoryOutput));
+                            return JsonFunctions.Convert(new JsonSample(sampleObservation, categoryOutput, instanceIdOutput));
                         }
                         break;
 
@@ -92,7 +95,7 @@ namespace MTConnect.Formatters
                         var eventObservation = EventObservation.Create(observation);
                         if (eventObservation != null)
                         {
-                            return JsonFunctions.Convert(new JsonEvent(eventObservation, categoryOutput));
+                            return JsonFunctions.Convert(new JsonEvent(eventObservation, categoryOutput, instanceIdOutput));
                         }
                         break;
 
@@ -101,7 +104,7 @@ namespace MTConnect.Formatters
                         var conditionObservation = ConditionObservation.Create(observation);
                         if (conditionObservation != null)
                         {
-                            return JsonFunctions.Convert(new JsonCondition(conditionObservation, categoryOutput));
+                            return JsonFunctions.Convert(new JsonCondition(conditionObservation, categoryOutput, instanceIdOutput));
                         }
                         break;
                 }
@@ -117,6 +120,9 @@ namespace MTConnect.Formatters
                 // Get Option for 'Category' output
                 var categoryOutput = GetFormatterOption<bool>(options, "categoryOutput");
 
+                // Get Option for 'InstanceId' output
+                var instanceIdOutput = GetFormatterOption<bool>(options, "instanceIdOutput");
+
                 var x = new List<object>();
 
                 foreach (var observation in observations)
@@ -128,7 +134,7 @@ namespace MTConnect.Formatters
                             var sampleObservation = SampleObservation.Create(observation);
                             if (sampleObservation != null)
                             {
-                                x.Add(new JsonSample(sampleObservation, categoryOutput));
+                                x.Add(new JsonSample(sampleObservation, categoryOutput, instanceIdOutput));
                             }
                             break;
 
@@ -137,7 +143,7 @@ namespace MTConnect.Formatters
                             var eventObservation = EventObservation.Create(observation);
                             if (eventObservation != null)
                             {
-                                x.Add(new JsonEvent(eventObservation, categoryOutput));
+                                x.Add(new JsonEvent(eventObservation, categoryOutput, instanceIdOutput));
                             }
                             break;
 
@@ -146,7 +152,7 @@ namespace MTConnect.Formatters
                             var conditionObservation = ConditionObservation.Create(observation);
                             if (conditionObservation != null)
                             {
-                                x.Add(new JsonCondition(conditionObservation, categoryOutput));
+                                x.Add(new JsonCondition(conditionObservation, categoryOutput, instanceIdOutput));
                             }
                             break;
                     }

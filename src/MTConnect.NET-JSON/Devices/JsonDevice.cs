@@ -47,6 +47,12 @@ namespace MTConnect.Devices.Json
         public string Uuid { get; set; }
 
         /// <summary>
+        /// The Agent InstanceId that produced this Device
+        /// </summary>
+        [JsonPropertyName("instanceId")]
+        public long InstanceId { get; set; }
+
+        /// <summary>
         /// DEPRECATED IN REL. 1.1
         /// </summary>
         [JsonPropertyName("iso841Class")]
@@ -136,6 +142,7 @@ namespace MTConnect.Devices.Json
                 Name = device.Name;
                 NativeName = device.NativeName;
                 Uuid = device.Uuid;
+                InstanceId = device.InstanceId;
                 if (device.SampleRate > 0) SampleRate = device.SampleRate;
                 if (device.SampleInterval > 0) SampleInterval = device.SampleInterval;
                 Iso841Class = device.Iso841Class;
@@ -203,6 +210,7 @@ namespace MTConnect.Devices.Json
             device.Name = Name;
             device.NativeName = NativeName;
             device.Uuid = Uuid;
+            device.InstanceId = InstanceId;
             device.SampleRate = SampleRate.HasValue ? SampleRate.Value : 0;
             device.SampleInterval = SampleInterval.HasValue ? SampleInterval.Value : 0;
             device.Iso841Class = Iso841Class;

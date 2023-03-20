@@ -86,6 +86,16 @@ namespace MTConnect.Observations
             set => _name = value;
         }
 
+        internal long _instanceId;
+        /// <summary>
+        /// The Agent Instance ID that produced the Observation
+        /// </summary>
+        public long InstanceId
+        {
+            get => _instanceId;
+            set => _instanceId = value;
+        }
+
         internal long _sequence;
         /// <summary>
         /// A number representing the sequential position of an occurence of the DataItem in the data buffer of the Agent.
