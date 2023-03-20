@@ -8,6 +8,7 @@ using MTConnect.Devices;
 using MTConnect.Observations;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 
 namespace MTConnect.Mqtt
 {
@@ -28,31 +29,64 @@ namespace MTConnect.Mqtt
             return null;
         }
 
-        public static IEnumerable<MqttApplicationMessage> Create(IMTConnectAgent agent, bool retain = false)
+        public static IEnumerable<MqttApplicationMessage> Create(IMTConnectAgent agent, IEnumerable<int> observationIntervals, int heartbeat, bool retain = false)
         {
             if (agent != null)
             {
                 var messages = new List<MqttApplicationMessage>();
 
-                // UUID
-                var topic = $"MTConnect/Agents/{agent.Uuid}/UUID";
-                messages.Add(CreateMessage(topic, agent.Uuid, retain));
+                try
+                {
+                    var information = new MTConnectMqttAgentInformation();
+                    information.Uuid = agent.Uuid;
+                    information.InstanceId = agent.InstanceId;
+                    information.Version = agent.Version;
+                    information.Sender = agent.Sender;
+                    information.DeviceModelChangeTime = agent.DeviceModelChangeTime;
+                    information.HeartbeatInterval = heartbeat;
 
-                // InstanceId
-                topic = $"MTConnect/Agents/{agent.Uuid}/InstanceId";
-                messages.Add(CreateMessage(topic, agent.InstanceId.ToString(), retain));
+                    // Set Observation Intervals
+                    information.ObservationIntervals = observationIntervals;
 
-                // Agent Application Version
-                topic = $"MTConnect/Agents/{agent.Uuid}/Version";
-                messages.Add(CreateMessage(topic, agent.Version.ToString(), retain));
+                    // Set Devices (list of Device UUID's associated with the Agent)
+                    var devices = agent.GetDevices();
+                    if (!devices.IsNullOrEmpty())
+                    {
+                        information.Devices = devices.Select(o => o.Uuid);
+                    }
 
-                // Sender
-                topic = $"MTConnect/Agents/{agent.Uuid}/Sender";
-                messages.Add(CreateMessage(topic, agent.Sender, retain));
+                    var topic = $"MTConnect/Agents/{agent.Uuid}/Information";
+                    var json = JsonSerializer.Serialize(information, new JsonSerializerOptions { WriteIndented = true });
 
-                // DeviceModelChangeTime
-                topic = $"MTConnect/Agents/{agent.Uuid}/DeviceModelChangeTime";
-                messages.Add(CreateMessage(topic, agent.DeviceModelChangeTime.ToString("o"), retain));
+                    messages.Add(CreateMessage(topic, json, retain));
+                }
+                catch { }
+
+                
+
+                //// UUID
+                //var topic = $"MTConnect/Agents/{agent.Uuid}/UUID";
+                //messages.Add(CreateMessage(topic, agent.Uuid, retain));
+
+                //// InstanceId
+                //topic = $"MTConnect/Agents/{agent.Uuid}/InstanceId";
+                //messages.Add(CreateMessage(topic, agent.InstanceId.ToString(), retain));
+
+                //// Agent Application Version
+                //topic = $"MTConnect/Agents/{agent.Uuid}/Version";
+                //messages.Add(CreateMessage(topic, agent.Version.ToString(), retain));
+
+                //// Sender
+                //topic = $"MTConnect/Agents/{agent.Uuid}/Sender";
+                //messages.Add(CreateMessage(topic, agent.Sender, retain));
+
+                //// DeviceModelChangeTime
+                //topic = $"MTConnect/Agents/{agent.Uuid}/DeviceModelChangeTime";
+                //messages.Add(CreateMessage(topic, agent.DeviceModelChangeTime.ToString("o"), retain));
+
+                //// Heartbeat Interval
+                //topic = $"MTConnect/Agents/{agent.Uuid}/HeartbeatInterval";
+                //messages.Add(CreateMessage(topic, heartbeat.ToString(), true));
 
                 return messages;
             }
@@ -60,14 +94,85 @@ namespace MTConnect.Mqtt
             return null;
         }
 
-        public static IEnumerable<MqttApplicationMessage> Create(IDevice device, string documentFormatterId = DocumentFormat.XML, bool retain = false)
+        //public static IEnumerable<MqttApplicationMessage> Create(IMTConnectAgent agent, int heartbeat, bool retain = false)
+        //{
+        //    if (agent != null)
+        //    {
+        //        var messages = new List<MqttApplicationMessage>();
+
+        //        // UUID
+        //        var topic = $"MTConnect/Agents/{agent.Uuid}/UUID";
+        //        messages.Add(CreateMessage(topic, agent.Uuid, retain));
+
+        //        // InstanceId
+        //        topic = $"MTConnect/Agents/{agent.Uuid}/InstanceId";
+        //        messages.Add(CreateMessage(topic, agent.InstanceId.ToString(), retain));
+
+        //        // Agent Application Version
+        //        topic = $"MTConnect/Agents/{agent.Uuid}/Version";
+        //        messages.Add(CreateMessage(topic, agent.Version.ToString(), retain));
+
+        //        // Sender
+        //        topic = $"MTConnect/Agents/{agent.Uuid}/Sender";
+        //        messages.Add(CreateMessage(topic, agent.Sender, retain));
+
+        //        // DeviceModelChangeTime
+        //        topic = $"MTConnect/Agents/{agent.Uuid}/DeviceModelChangeTime";
+        //        messages.Add(CreateMessage(topic, agent.DeviceModelChangeTime.ToString("o"), retain));
+
+        //        // Heartbeat Interval
+        //        topic = $"MTConnect/Agents/{agent.Uuid}/HeartbeatInterval";
+        //        messages.Add(CreateMessage(topic, heartbeat.ToString(), true));
+
+        //        return messages;
+        //    }
+
+        //    return null;
+        //}
+
+        public static IEnumerable<MqttApplicationMessage> CreateHeartbeat(IMTConnectAgent agent, long timestamp)
+        {
+            if (agent != null)
+            {
+                var messages = new List<MqttApplicationMessage>();
+
+                // Conver to Milliseconds (from Ticks)
+                var ts = timestamp / 10000;
+
+                // Heartbeat Timestamp
+                var topic = $"MTConnect/Agents/{agent.Uuid}/HeartbeatTimestamp";
+                messages.Add(CreateMessage(topic, ts.ToString()));
+
+                return messages;
+            }
+
+            return null;
+        }
+
+        public static IEnumerable<MqttApplicationMessage> Create(IDevice device, string agentUuid, string documentFormatterId = DocumentFormat.XML, bool retain = false)
         {
             if (device != null && !string.IsNullOrEmpty(documentFormatterId))
             {
                 var messages = new List<MqttApplicationMessage>();
 
-                var topic = $"MTConnect/Devices/{device.Uuid}/Device";
+                // Create Agent UUID Message
+                var topic = $"MTConnect/Devices/{device.Uuid}/AgentUuid";
+                messages.Add(CreateMessage(topic, agentUuid, true));
 
+                //// Create DeviceIndex UUID Message
+                //topic = $"MTConnect/DeviceIndex/{device.Uuid}";
+                //messages.Add(CreateMessage(topic, device.Uuid, true));
+
+                //// Create DeviceIndex ID Message
+                //topic = $"MTConnect/DeviceIndex/{device.Id}";
+                //messages.Add(CreateMessage(topic, device.Uuid, true));
+
+                //// Create DeviceIndex Name Message
+                //topic = $"MTConnect/DeviceIndex/{device.Name}";
+                //messages.Add(CreateMessage(topic, device.Uuid, true));
+
+                // Create Device Message
+                topic = $"MTConnect/Devices/{device.Uuid}/Device";
                 var payload = Formatters.EntityFormatter.Format(documentFormatterId, device);
                 if (!string.IsNullOrEmpty(payload))
                 {
@@ -99,15 +204,16 @@ namespace MTConnect.Mqtt
             return null;
         }
 
-        public static MqttApplicationMessage Create(IObservation observation, MTConnectMqttFormat format, string documentFormatterId = DocumentFormat.XML, bool retain = false)
+        public static MqttApplicationMessage Create(IObservation observation, MTConnectMqttFormat format, string documentFormatterId = DocumentFormat.XML, bool retain = false, int interval = 0)
         {
             if (observation != null && !string.IsNullOrEmpty(observation.DeviceUuid) && observation.DataItem != null && observation.DataItem.Container != null && !observation.Values.IsNullOrEmpty())
             {
-                var topic = CreateTopic(observation, format);
+                var topic = CreateTopic(observation, format, interval);
 
                 var formatOptions = new List<KeyValuePair<string, string>>
                 {
-                    new KeyValuePair<string, string>("categoryOutput", "true")
+                    new KeyValuePair<string, string>("categoryOutput", "true"),
+                    new KeyValuePair<string, string>("instanceIdOutput", "true")
                 };
 
                 var payload = Formatters.EntityFormatter.Format(documentFormatterId, observation, formatOptions);
@@ -120,7 +226,7 @@ namespace MTConnect.Mqtt
             return null;
         }
 
-        public static MqttApplicationMessage Create(IEnumerable<IObservation> observations, MTConnectMqttFormat format, string documentFormatterId = DocumentFormat.XML, bool retain = false)
+        public static MqttApplicationMessage Create(IEnumerable<IObservation> observations, MTConnectMqttFormat format, string documentFormatterId = DocumentFormat.XML, bool retain = false, int interval = 0)
         {
             if (!observations.IsNullOrEmpty())
             {
@@ -128,11 +234,12 @@ namespace MTConnect.Mqtt
                 var firstObservation = observations.FirstOrDefault();
                 if (firstObservation != null)
                 {
-                    var topic = CreateTopic(firstObservation, format);
+                    var topic = CreateTopic(firstObservation, format, interval);
 
                     var formatOptions = new List<KeyValuePair<string, string>>
                     {
-                        new KeyValuePair<string, string>("categoryOutput", "true")
+                        new KeyValuePair<string, string>("categoryOutput", "true"),
+                        new KeyValuePair<string, string>("instanceIdOutput", "true")
                     };
 
                     var payload = Formatters.EntityFormatter.Format(documentFormatterId, observations, formatOptions);
@@ -147,7 +254,7 @@ namespace MTConnect.Mqtt
         }
 
 
-        private static string CreateTopic(IObservation observation, MTConnectMqttFormat format)
+        private static string CreateTopic(IObservation observation, MTConnectMqttFormat format, int interval = 0)
         {
             if (observation != null)
             {
@@ -161,7 +268,16 @@ namespace MTConnect.Mqtt
                 prefixes.Add("MTConnect");
                 prefixes.Add("Devices");
                 prefixes.Add(observation.DeviceUuid);
-                prefixes.Add("Observations");
+
+                if (interval > 0)
+                {
+                    prefixes.Add($"Observations[{interval}]");
+                }
+                else
+                {
+                    prefixes.Add("Observations");
+                }
+
 
                 var paths = new List<string>();
 

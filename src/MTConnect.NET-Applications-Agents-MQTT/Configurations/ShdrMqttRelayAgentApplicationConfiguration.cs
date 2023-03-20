@@ -10,13 +10,19 @@ namespace MTConnect.Configurations
     /// <summary>
     /// Configuration for an MTConnect SHDR > MQTT Agent Application
     /// </summary>
-    public class ShdrMqttAgentApplicationConfiguration : ShdrAgentApplicationConfiguration, IShdrMqttAgentApplicationConfiguration
+    public class ShdrMqttRelayAgentApplicationConfiguration : ShdrAgentApplicationConfiguration, IShdrMqttRelayAgentApplicationConfiguration
     {
         [JsonPropertyName("server")]
         public string Server { get; set; }
 
         [JsonPropertyName("port")]
         public int Port { get; set; }
+
+        [JsonPropertyName("clientId")]
+        public string ClientId { get; set; }
+
+        [JsonPropertyName("qos")]
+        public int QoS { get; set; }
 
         [JsonPropertyName("username")]
         public string Username { get; set; }
@@ -39,6 +45,9 @@ namespace MTConnect.Configurations
         [JsonPropertyName("useTls")]
         public bool UseTls { get; set; }
 
+        [JsonPropertyName("retryInterval")]
+        public int RetryInterval { get; set; }
+
         [JsonPropertyName("retainMessages")]
         public bool RetainMessages { get; set; }
 
@@ -53,10 +62,12 @@ namespace MTConnect.Configurations
         public IEnumerable<int> ObservationIntervals { get; set; }
 
 
-        public ShdrMqttAgentApplicationConfiguration()
+        public ShdrMqttRelayAgentApplicationConfiguration()
         {
             Server = "localhost";
             Port = 1883;
+            QoS = 1;
+            RetryInterval = 5000;
             RetainMessages = true;
             MqttFormat = MTConnectMqttFormat.Hierarchy;
             ObservationIntervals = new List<int> { 0, 1000 };

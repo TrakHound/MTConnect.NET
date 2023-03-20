@@ -32,6 +32,12 @@ server: localhost
 # The port number of the MQTT broker to publish messages to
 port: 1883
 
+# The Intervals to publish Observations at (in milliseconds)
+observationIntervals:
+- 0
+- 100
+- 1000
+
 
 # - Agent Configuration -
 

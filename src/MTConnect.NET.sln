@@ -88,10 +88,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-Applications-
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{0957974A-CA4D-45DD-A0CB-2C4A9CD03350}"
 	ProjectSection(SolutionItems) = preProject
+		..\docs\MQTT-AWS-Greengrass-Moquette.md = ..\docs\MQTT-AWS-Greengrass-Moquette.md
 		..\docs\MQTT-AWS-Greengrass-Mqtt-Bridge.md = ..\docs\MQTT-AWS-Greengrass-Mqtt-Bridge.md
 		..\docs\MQTT-AWS-IoT.md = ..\docs\MQTT-AWS-IoT.md
-		..\docs\MQTT-AWS-Greengrass-Moquette.md = ..\docs\MQTT-AWS-Greengrass-Moquette.md
 		..\docs\MQTT-HiveMQ.md = ..\docs\MQTT-HiveMQ.md
+		..\docs\MQTT-Protocol.md = ..\docs\MQTT-Protocol.md
 		..\README.md = ..\README.md
 	EndProjectSection
 EndProject

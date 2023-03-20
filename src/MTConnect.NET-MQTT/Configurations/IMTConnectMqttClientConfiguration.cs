@@ -9,11 +9,17 @@ namespace MTConnect.Configurations
 
         int Port { get; set; }
 
+        int Interval { get; set; }
+
+        string DeviceUuid { get; set; }
+
         string Username { get; set; }
 
         string Password { get; set; }
 
         string ClientId { get; set; }
+
+        int QoS { get; set; }
 
         string CertificateAuthority { get; set; }
 

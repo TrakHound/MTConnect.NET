@@ -13,6 +13,12 @@ namespace MTConnect.Configurations
         [JsonPropertyName("port")]
         public int Port { get; set; }
 
+        [JsonPropertyName("interval")]
+        public int Interval { get; set; }
+
+        [JsonPropertyName("deviceUuid")]
+        public string DeviceUuid { get; set; }
+
         [JsonPropertyName("username")]
         public string Username { get; set; }
 
@@ -21,6 +27,9 @@ namespace MTConnect.Configurations
 
         [JsonPropertyName("clientId")]
         public string ClientId { get; set; }
+
+        [JsonPropertyName("qos")]
+        public int QoS { get; set; }
 
         [JsonPropertyName("certificateAuthority")]
         public string CertificateAuthority { get; set; }
@@ -48,6 +57,7 @@ namespace MTConnect.Configurations
         {
             Server = "localhost";
             Port = 1883;
+            QoS = 1;
             RetryInterval = 5000;
         }
     }

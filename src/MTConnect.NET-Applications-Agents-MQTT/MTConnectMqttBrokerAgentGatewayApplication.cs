@@ -61,6 +61,8 @@ namespace MTConnect.Applications.Agents
         protected override void OnAgentConfigurationUpdated(AgentConfiguration configuration)
         {
             _configuration = configuration as MqttAgentGatewayApplicationConfiguration;
+
+            base.OnAgentConfigurationUpdated(configuration);
         }
 
 

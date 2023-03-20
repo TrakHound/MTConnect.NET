@@ -116,7 +116,12 @@ namespace MTConnect.Applications.Agents
             var mqttFactory = new MqttFactory();
             _mqttServer = mqttFactory.CreateMqttServer(mqttServerOptions);
 
-            _mqttBroker = new MTConnectMqttBroker(Agent, _mqttServer);
+
+            // Set Observation Intervals
+            IEnumerable<int> observationIntervals = new List<int> { 0, 1000 };
+            if (!_configuration.ObservationIntervals.IsNullOrEmpty()) observationIntervals = _configuration.ObservationIntervals;
+
+            _mqttBroker = new MTConnectMqttBroker(Agent, _mqttServer, observationIntervals);
             _mqttBroker.Format = _configuration.MqttFormat;
             _mqttBroker.RetainMessages = _configuration.RetainMessages;
             _mqttBroker.TopicPrefix = _configuration.TopicPrefix;

@@ -49,6 +49,8 @@ namespace MTConnect.Applications.Agents
         protected override void OnAgentConfigurationUpdated(AgentConfiguration configuration)
         {
             _configuration = configuration as ShdrMqttAgentApplicationConfiguration;
+
+            base.OnAgentConfigurationUpdated(configuration);
         }
 
 

@@ -31,7 +31,7 @@ namespace MTConnect.Applications.Agents
         private readonly object _lock = new object();
 
         private System.Timers.Timer _clientInformationTimer;
-        private MqttAgentGatewayApplicationConfiguration _configuration;
+        private MqttRelayAgentGatewayApplicationConfiguration _configuration;
 
 
         public MTConnectMqttRelayAgentGatewayApplication()
@@ -40,27 +40,29 @@ namespace MTConnect.Applications.Agents
             ServiceDisplayName = DefaultServiceDisplayName;
             ServiceDescription = DefaultServiceDescription;
 
-            if (ConfigurationType == null) ConfigurationType = typeof(MqttAgentGatewayApplicationConfiguration);
+            if (ConfigurationType == null) ConfigurationType = typeof(MqttRelayAgentGatewayApplicationConfiguration);
         }
 
 
         protected override IAgentApplicationConfiguration OnConfigurationFileRead(string configurationPath)
         {
             // Read the Configuration File
-            var configuration = AgentConfiguration.Read<MqttAgentGatewayApplicationConfiguration>(configurationPath);
-            base.OnAgentConfigurationUpdated(configuration);
+            var configuration = AgentConfiguration.Read<MqttRelayAgentGatewayApplicationConfiguration>(configurationPath);
+            OnAgentConfigurationUpdated(configuration);
             _configuration = configuration;
             return _configuration;
         }
 
         protected override void OnAgentConfigurationWatcherInitialize(IAgentApplicationConfiguration configuration)
         {
-            _agentConfigurationWatcher = new AgentConfigurationFileWatcher<MqttAgentGatewayApplicationConfiguration>(configuration.Path, configuration.ConfigurationFileRestartInterval * 1000);
+            _agentConfigurationWatcher = new AgentConfigurationFileWatcher<MqttRelayAgentGatewayApplicationConfiguration>(configuration.Path, configuration.ConfigurationFileRestartInterval * 1000);
         }
 
         protected override void OnAgentConfigurationUpdated(AgentConfiguration configuration)
         {
-            _configuration = configuration as MqttAgentGatewayApplicationConfiguration;
+            _configuration = configuration as MqttRelayAgentGatewayApplicationConfiguration;
+
+            base.OnAgentConfigurationUpdated(configuration);
         }
 
 

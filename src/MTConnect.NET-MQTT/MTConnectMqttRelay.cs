@@ -20,22 +20,36 @@ namespace MTConnect.Mqtt
 {
     public class MTConnectMqttRelay : IDisposable
     {
+        private const string _documentFormat = "JSON";
+
+
         private readonly IMTConnectAgent _mtconnectAgent;
-        private readonly MTConnectMqttClientConfiguration _configuration;
+        private readonly IMTConnectMqttClientConfiguration _configuration;
         private readonly MqttFactory _mqttFactory;
         private readonly IMqttClient _mqttClient;
-        private readonly IEnumerable<string> _documentFormats = new List<string>() { "JSON" };
+        private readonly object _lock = new object();
         private CancellationTokenSource _stop;
+
+        private readonly List<int> _observationIntervals = new List<int>();
+        private readonly List<System.Timers.Timer> _observationIntervalTimers = new List<System.Timers.Timer>();
+        private readonly Dictionary<int, Dictionary<string, IObservation>> _observationBuffers = new Dictionary<int, Dictionary<string, IObservation>>();
+
+        private readonly int _heartbeatInterval;
+        private readonly System.Timers.Timer _heartbeatTimer = new System.Timers.Timer();
 
 
         public string Server => _configuration.Server;
 
         public int Port => _configuration.Port;
 
+        public int QoS => _configuration.QoS;
+
         /// <summary>
         /// Gets or Sets the Interval in Milliseconds that the Client will attempt to reconnect if the connection fails
         /// </summary>
         public int RetryInterval => _configuration.RetryInterval;
+
+        public int HeartbeatInterval => _heartbeatInterval;
 
         public MTConnectMqttFormat Format { get; set; }
 
@@ -56,33 +70,73 @@ namespace MTConnect.Mqtt
         public EventHandler<Exception> PublishError { get; set; }
 
 
-        public MTConnectMqttRelay(IMTConnectAgent mtconnectAgent, MTConnectMqttClientConfiguration configuration)
+        public MTConnectMqttRelay(IMTConnectAgent mtconnectAgent, IMTConnectMqttClientConfiguration configuration, IEnumerable<int> observationIntervals = null, int heartbeatInterval = 1000)
         {
             _mtconnectAgent = mtconnectAgent;
             _mtconnectAgent.DeviceAdded += DeviceAdded;
             _mtconnectAgent.ObservationAdded += ObservationAdded;
             _mtconnectAgent.AssetAdded += AssetAdded;
 
+            // Set Configuration (MQTT client to external broker)
             _configuration = configuration;
             if (_configuration == null) _configuration = new MTConnectMqttClientConfiguration();
+
+            // Set Observation Intervals
+            if (!observationIntervals.IsNullOrEmpty())
+            {
+                _observationIntervals.AddRange(observationIntervals);
+            }
 
             Format = MTConnectMqttFormat.Hierarchy;
             RetainMessages = true;
 
             _mqttFactory = new MqttFactory();
             _mqttClient = _mqttFactory.CreateMqttClient();
+
+            // Set Heartbeat Timer
+            _heartbeatInterval = heartbeatInterval;
+            _heartbeatTimer.Interval = _heartbeatInterval;
+            _heartbeatTimer.Elapsed += HeartbeatTimerElapsed;
         }
+
 
         public void Start()
         {
             _stop = new CancellationTokenSource();
 
             _ = Task.Run(Worker, _stop.Token);
+
+            _heartbeatTimer.Start();
+
+            if (!_observationIntervals.IsNullOrEmpty())
+            {
+                var timerIntervals = _observationIntervals.Where(o => o > 0);
+                if (!timerIntervals.IsNullOrEmpty())
+                {
+                    foreach (var interval in timerIntervals)
+                    {
+                        var timer = new System.Timers.Timer();
+                        timer.Interval = interval;
+                        timer.Elapsed += ObservationIntervalTimerElapsed;
+                        lock (_lock) _observationIntervalTimers.Add(timer);
+
+                        timer.Start();
+                    }
+                }
+            }
         }
 
         public void Stop()
         {
             if (_stop != null) _stop.Cancel();
+
+            if (_heartbeatTimer != null) _heartbeatTimer.Stop();
+
+            if (!_observationIntervalTimers.IsNullOrEmpty())
+            {
+                foreach (var timer in _observationIntervalTimers) timer.Dispose();
+                _observationIntervalTimers.Clear();
+            }
 
             try
             {
@@ -184,6 +238,7 @@ namespace MTConnect.Mqtt
                                 var observation = Observation.Create(observationOutput.DataItem);
                                 observation.DeviceUuid = observationOutput.DeviceUuid;
                                 observation.DataItem = observationOutput.DataItem;
+                                observation.InstanceId = observationOutput.InstanceId;
                                 observation.Timestamp = observationOutput.Timestamp;
                                 observation.AddValues(observationOutput.Values);
 
@@ -220,7 +275,6 @@ namespace MTConnect.Mqtt
         private async void DeviceAdded(object sender, IDevice device)
         {
             await PublishDevice(device);
-            await PublishAgent(_mtconnectAgent);
         }
 
         private async void ObservationAdded(object sender, IObservation observation)
@@ -231,23 +285,19 @@ namespace MTConnect.Mqtt
         private async void AssetAdded(object sender, IAsset asset)
         {
             await PublishAsset(asset);
-            await PublishAgent(_mtconnectAgent);
         }
 
 
         private async Task PublishAgent(IMTConnectAgent agent)
         {
-            foreach (var documentFormat in _documentFormats)
+            var messages = MTConnectMqttMessage.Create(agent, _observationIntervals, _heartbeatInterval, RetainMessages);
+            if (!messages.IsNullOrEmpty())
             {
-                var messages = MTConnectMqttMessage.Create(agent, RetainMessages);
-                if (!messages.IsNullOrEmpty())
+                foreach (var message in messages)
                 {
-                    foreach (var message in messages)
+                    if (message != null && message.Payload != null)
                     {
-                        if (message != null && message.Payload != null)
-                        {
-                            await Publish(message);
-                        }
+                        await Publish(message);
                     }
                 }
             }
@@ -255,17 +305,14 @@ namespace MTConnect.Mqtt
 
         private async Task PublishDevice(IDevice device)
         {
-            foreach (var documentFormat in _documentFormats)
+            var messages = MTConnectMqttMessage.Create(device, _mtconnectAgent.Uuid, _documentFormat, RetainMessages);
+            if (!messages.IsNullOrEmpty())
             {
-                var messages = MTConnectMqttMessage.Create(device, documentFormat, RetainMessages);
-                if (!messages.IsNullOrEmpty())
+                foreach (var message in messages)
                 {
-                    foreach (var message in messages)
+                    if (message != null && message.Payload != null)
                     {
-                        if (message != null && message.Payload != null)
-                        {
-                            await Publish(message);
-                        }
+                        await Publish(message);
                     }
                 }
             }
@@ -273,35 +320,70 @@ namespace MTConnect.Mqtt
 
         private async Task PublishObservation(IObservation observation)
         {
-            foreach (var documentFormat in _documentFormats)
+            if (!_observationIntervals.IsNullOrEmpty())
             {
-                if (observation.Category != Devices.DataItems.DataItemCategory.CONDITION)
+                foreach (var interval in _observationIntervals)
                 {
-                    var message = MTConnectMqttMessage.Create(observation, Format, documentFormat, RetainMessages);
-                    if (message != null && message.Payload != null) await Publish(message);
-                }
-                else
-                {
-                    var observations = _mtconnectAgent.GetCurrentObservations(observation.DeviceUuid);
-                    if (!observations.IsNullOrEmpty())
+                    if (interval > 0)
                     {
-                        var dataItemObservations = observations.Where(o => o.DataItemId == observation.DataItemId);
-                        if (!dataItemObservations.IsNullOrEmpty())
+                        var bufferKey = CreateBufferKey(observation.DeviceUuid, observation.DataItemId, interval);
+                        if (!string.IsNullOrEmpty(bufferKey))
                         {
-                            var x = new List<IObservation>();
-                            foreach (var dataItemObservation in dataItemObservations)
+                            lock (_lock)
                             {
-                                var y = Observation.Create(dataItemObservation.DataItem);
-                                y.DeviceUuid = dataItemObservation.DeviceUuid;
-                                y.DataItem = dataItemObservation.DataItem;
-                                y.Timestamp = dataItemObservation.Timestamp;
-                                y.AddValues(dataItemObservation.Values);
-                                x.Add(y);
-                            }
+                                _observationBuffers.TryGetValue(interval, out var buffer);
+                                if (buffer == null)
+                                {
+                                    buffer = new Dictionary<string, IObservation>();
+                                    _observationBuffers.Add(interval, buffer);
+                                }
 
-                            var message = MTConnectMqttMessage.Create(x, Format, documentFormat, RetainMessages);
-                            if (message != null && message.Payload != null) await Publish(message);
+                                buffer.Remove(bufferKey);
+                                buffer.Add(bufferKey, observation);
+                            }
                         }
+                    }
+                    else
+                    {
+                        await PublishObservation(observation, 0);
+                    }
+                }
+            }
+            else
+            {
+                await PublishObservation(observation, 0);
+            }
+        }
+
+        private async Task PublishObservation(IObservation observation, int interval)
+        {
+            if (observation.Category != Devices.DataItems.DataItemCategory.CONDITION)
+            {
+                var message = MTConnectMqttMessage.Create(observation, Format, _documentFormat, RetainMessages, interval);
+                if (message != null && message.Payload != null) await Publish(message);
+            }
+            else
+            {
+                var observations = _mtconnectAgent.GetCurrentObservations(observation.DeviceUuid);
+                if (!observations.IsNullOrEmpty())
+                {
+                    var dataItemObservations = observations.Where(o => o.DataItemId == observation.DataItemId);
+                    if (!dataItemObservations.IsNullOrEmpty())
+                    {
+                        var x = new List<IObservation>();
+                        foreach (var dataItemObservation in dataItemObservations)
+                        {
+                            var y = Observation.Create(dataItemObservation.DataItem);
+                            y.DeviceUuid = dataItemObservation.DeviceUuid;
+                            y.DataItem = dataItemObservation.DataItem;
+                            y.InstanceId = dataItemObservation.InstanceId;
+                            y.Timestamp = dataItemObservation.Timestamp;
+                            y.AddValues(dataItemObservation.Values);
+                            x.Add(y);
+                        }
+
+                        var message = MTConnectMqttMessage.Create(x, Format, _documentFormat, RetainMessages, interval);
+                        if (message != null && message.Payload != null) await Publish(message);
                     }
                 }
             }
@@ -309,11 +391,8 @@ namespace MTConnect.Mqtt
 
         private async Task PublishAsset(IAsset asset)
         {
-            foreach (var documentFormat in _documentFormats)
-            {
-                var messages = MTConnectMqttMessage.Create(asset, documentFormat, RetainMessages);
-                await Publish(messages);
-            }
+            var messages = MTConnectMqttMessage.Create(asset, _documentFormat, RetainMessages);
+            await Publish(messages);
         }
 
 
@@ -325,6 +404,9 @@ namespace MTConnect.Mqtt
                 {
                     // Set the Topic Prefix
                     if (!string.IsNullOrEmpty(TopicPrefix)) message.Topic = $"{TopicPrefix}/{message.Topic}";
+
+                    // Set QoS for Message
+                    message.QualityOfServiceLevel = (MQTTnet.Protocol.MqttQualityOfServiceLevel)QoS;
 
                     await _mqttClient.PublishAsync(message);
                 }
@@ -346,6 +428,9 @@ namespace MTConnect.Mqtt
                         // Set the Topic Prefix
                         if (!string.IsNullOrEmpty(TopicPrefix)) message.Topic = $"{TopicPrefix}/{message.Topic}";
 
+                        // Set QoS for Message
+                        message.QualityOfServiceLevel = (MQTTnet.Protocol.MqttQualityOfServiceLevel)QoS;
+
                         await _mqttClient.PublishAsync(message);
                     }
                 }
@@ -356,6 +441,47 @@ namespace MTConnect.Mqtt
             }
         }
 
+
+        private async void HeartbeatTimerElapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            await Publish(MTConnectMqttMessage.CreateHeartbeat(_mtconnectAgent, UnixDateTime.Now));
+        }
+
+        private async void ObservationIntervalTimerElapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            if (sender != null)
+            {
+                var timer = (System.Timers.Timer)sender;
+                var interval = (int)timer.Interval;
+
+                Dictionary<string, IObservation> buffer;
+                lock (_lock)
+                {
+                    _observationBuffers.TryGetValue(interval, out buffer);
+                    _observationBuffers.Remove(interval);
+                }
+
+                if (!buffer.IsNullOrEmpty())
+                {
+                    foreach (var observation in buffer.Values)
+                    {
+                        await PublishObservation(observation, interval);
+                    }
+                }
+            }
+        }
+
+
+
+        private static string CreateBufferKey(string deviceUuid, string dataItemId, int interval)
+        {
+            if (!string.IsNullOrEmpty(deviceUuid) && !string.IsNullOrEmpty(dataItemId) && interval > 0)
+            {
+                return $"{deviceUuid}::{dataItemId}::{interval}";
+            }
+
+            return null;
+        }
 
         private static string GetFilePath(string path)
         {

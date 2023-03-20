@@ -3,7 +3,6 @@
 
 using MTConnect.Agents;
 using MTConnect.Assets;
-using MTConnect.Buffers;
 using MTConnect.Configurations;
 using MTConnect.Devices;
 using MTConnect.Devices.DataItems;
@@ -271,7 +270,8 @@ namespace MTConnect.Applications.Agents
 
 
                 // Create MTConnectAgentBroker
-                _mtconnectAgent = new MTConnectAgent(configuration, agentInformation.Uuid, agentInformation.InstanceId, agentInformation.DeviceModelChangeTime, initializeDataItems);
+                _mtconnectAgent = new MTConnectAgent(configuration, agentInformation.Uuid);
+
 
                 if (verboseLogging)
                 {

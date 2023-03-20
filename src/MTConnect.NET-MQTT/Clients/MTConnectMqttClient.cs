@@ -4,32 +4,41 @@
 using MQTTnet;
 using MQTTnet.Client;
 using MTConnect.Assets;
+using MTConnect.Assets.Json;
 using MTConnect.Configurations;
 using MTConnect.Devices;
 using MTConnect.Devices.DataItems;
 using MTConnect.Devices.Json;
+using MTConnect.Formatters;
+using MTConnect.Mqtt;
 using MTConnect.Observations;
 using MTConnect.Streams.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace MTConnect.Clients.Mqtt
+namespace MTConnect.Clients
 {
     public class MTConnectMqttClient : IDisposable
     {
         private const string _defaultTopic = "MTConnect/#";
+        private const string _defaultAgentsTopic = "MTConnect/Agents/#";
+        private const string _defaultAgentTopicPattern = "MTConnect\\/Agents\\/([^\\/]*)\\/([^\\/]*)";
         private const string _deviceUuidTopicPattern = "MTConnect\\/Devices\\/([^\\/]*)";
         private const string _deviceTopicPattern = "MTConnect\\/Devices\\/([^\\/]*)\\/Device";
+        private const string _deviceAgentUuidTopicPattern = "MTConnect\\/Devices\\/([^\\/]*)\\/AgentUuid";
         private const string _observationsTopicPattern = "MTConnect\\/Devices\\/([^\\/]*)\\/Observations";
         private const string _conditionsTopicPattern = "MTConnect\\/Devices\\/(.*)\\/Observations\\/.*\\/Conditions";
         private const string _assetTopicPattern = "MTConnect\\/Devices\\/([^\\/]*)\\/Assets";
 
+        private static readonly Regex _agentRegex = new Regex(_defaultAgentTopicPattern);
         private static readonly Regex _deviceUuidRegex = new Regex(_deviceUuidTopicPattern);
+        private static readonly Regex _deviceAgentUuidRegex = new Regex(_deviceAgentUuidTopicPattern);
         private static readonly Regex _deviceRegex = new Regex(_deviceTopicPattern);
         private static readonly Regex _observationsRegex = new Regex(_observationsTopicPattern);
         private static readonly Regex _conditionsRegex = new Regex(_conditionsTopicPattern);
@@ -39,6 +48,9 @@ namespace MTConnect.Clients.Mqtt
         private readonly IMqttClient _mqttClient;
         private readonly string _server;
         private readonly int _port;
+        private readonly int _qos;
+        private readonly int _interval;
+        private readonly string _deviceUuid;
         private readonly string _username;
         private readonly string _password;
         private readonly string _clientId;
@@ -48,6 +60,16 @@ namespace MTConnect.Clients.Mqtt
         private readonly bool _allowUntrustedCertificates;
         private readonly bool _useTls;
         private readonly IEnumerable<string> _topics;
+        private readonly Dictionary<string, MTConnectMqttAgentInformation> _agents = new Dictionary<string, MTConnectMqttAgentInformation>(); // AgentUuid > AgentInformation
+        private readonly Dictionary<string, string> _deviceAgentUuids = new Dictionary<string, string>(); // DeviceUuid > AgentUuid
+        private readonly Dictionary<string, long> _agentInstanceIds = new Dictionary<string, long>(); // AgentUuid > InstanceId
+        private readonly Dictionary<string, long> _agentHeartbeatTimestamps = new Dictionary<string, long>(); // AgentUuid > Last Heartbeat received (Unix milliseconds)
+        private readonly Dictionary<string, System.Timers.Timer> _connectionTimers = new Dictionary<string, System.Timers.Timer>();
+        private readonly object _lock = new object();
+
+
+        private MTConnectMqttConnectionStatus _connectionStatus;
+
 
         public delegate void MTConnectMqttEventHandler<T>(string deviceUuid, T item);
 
@@ -56,11 +78,19 @@ namespace MTConnect.Clients.Mqtt
 
         public int Port => _port;
 
+        public int QoS => _qos;
+
+        public int Interval => _interval;
+
         public IEnumerable<string> Topics => _topics;
+
+        public MTConnectMqttConnectionStatus ConnectionStatus => _connectionStatus;
 
         public EventHandler Connected { get; set; }
 
         public EventHandler Disconnected { get; set; }
+
+        public EventHandler<MTConnectMqttConnectionStatus> ConnectionStatusChanged { get; set; }
 
         public EventHandler<Exception> ConnectionError { get; set; }
 
@@ -71,15 +101,26 @@ namespace MTConnect.Clients.Mqtt
         public MTConnectMqttEventHandler<IAsset> AssetReceived { get; set; }
 
 
-        public MTConnectMqttClient(string server, int port = 1883, IEnumerable<string> topics = null)
+        public MTConnectMqttClient(string server, int port = 1883, int interval = 0, string deviceUuid = null, IEnumerable<string> topics = null, int qos = 1)
         {
             _server = server;
             _port = port;
             _topics = !topics.IsNullOrEmpty() ? topics : new List<string> { _defaultTopic };
+            _qos = qos;
+            _interval = interval;
+            _deviceUuid = deviceUuid;
 
             _mqttFactory = new MqttFactory();
             _mqttClient = _mqttFactory.CreateMqttClient();
-            _mqttClient.ApplicationMessageReceivedAsync += MessageReceived;
+
+            if (!string.IsNullOrEmpty(_deviceUuid))
+            {
+                _mqttClient.ApplicationMessageReceivedAsync += DeviceMessageReceived;
+            }
+            else
+            {
+                _mqttClient.ApplicationMessageReceivedAsync += AllDevicesMessageReceived;
+            }
         }
 
         public MTConnectMqttClient(IMTConnectMqttClientConfiguration configuration, IEnumerable<string> topics = null)
@@ -87,7 +128,10 @@ namespace MTConnect.Clients.Mqtt
             if (configuration != null)
             {
                 _server = configuration.Server;
-                _port = configuration.Port; ;
+                _port = configuration.Port;
+                _interval = configuration.Interval;
+                _deviceUuid = configuration.DeviceUuid;
+                _qos = configuration.QoS;
                 _username = configuration.Username;
                 _password = configuration.Password;
                 _clientId = configuration.ClientId;
@@ -102,7 +146,15 @@ namespace MTConnect.Clients.Mqtt
 
             _mqttFactory = new MqttFactory();
             _mqttClient = _mqttFactory.CreateMqttClient();
-            _mqttClient.ApplicationMessageReceivedAsync += MessageReceived;
+
+            if (!string.IsNullOrEmpty(_deviceUuid))
+            {
+                _mqttClient.ApplicationMessageReceivedAsync += DeviceMessageReceived;
+            }
+            else
+            {
+                _mqttClient.ApplicationMessageReceivedAsync += AllDevicesMessageReceived;
+            }
         }
 
 
@@ -167,16 +219,17 @@ namespace MTConnect.Clients.Mqtt
                 // Connect to the MQTT Client
                 await _mqttClient.ConnectAsync(clientOptions);
 
-                // Configure Topics to subscribe to
-                var subscribeEptionsBuilder = _mqttFactory.CreateSubscribeOptionsBuilder();
-                foreach (var topic in _topics)
-                {
-                    subscribeEptionsBuilder.WithTopicFilter(topic);
-                }
-                var subscribeOptions = subscribeEptionsBuilder.Build();
 
-                // Subscribe to Topics
-                await _mqttClient.SubscribeAsync(subscribeOptions);
+                if (!string.IsNullOrEmpty(_deviceUuid))
+                {
+                    // Start protocol for a single Device
+                    await StartDeviceProtocol(_deviceUuid);
+                }
+                else
+                {
+                    // Start protocol for all devices
+                    await StartAllDevicesProtocol();
+                }
             }
             catch (Exception ex)
             {
@@ -200,7 +253,55 @@ namespace MTConnect.Clients.Mqtt
         }
 
 
-        private Task MessageReceived(MqttApplicationMessageReceivedEventArgs args)
+        private async Task StartAllDevicesProtocol()
+        {
+            // Clear any previous subscriptions
+            await _mqttClient.UnsubscribeAsync("#");
+
+            // Subscribe to all Agents
+            await _mqttClient.SubscribeAsync("MTConnect/Agents/#");
+        }
+
+        private async Task StartDeviceProtocol(string deviceUuid)
+        {
+            // Clear any previous subscriptions
+            await _mqttClient.UnsubscribeAsync("#");
+
+            // Subscribe to the Agent UUID for the Device
+            await _mqttClient.SubscribeAsync($"MTConnect/Devices/{deviceUuid}/AgentUuid");
+        }
+
+        private async Task SubscribeToDeviceAgent(string agentUuid)
+        {
+            // Subscribe to both Agent Information and Heartbeat
+            await _mqttClient.SubscribeAsync($"MTConnect/Agents/{agentUuid}/#");
+        }
+
+        private async Task SubscribeToDeviceModel(string deviceUuid)
+        {
+            // Subscribe to the Device Model
+            await _mqttClient.SubscribeAsync($"MTConnect/Devices/{deviceUuid}/Device");
+        }
+
+        private async Task SubscribeToDevice(string deviceUuid, int interval = 0)
+        {
+            if (interval > 0)
+            {
+                // Subscribe to the Device Observations for the specified Interval
+                await _mqttClient.SubscribeAsync($"MTConnect/Devices/{deviceUuid}/Observations[{interval}]/#");
+            }
+            else
+            {
+                // Subscribe to the Device "Realtime" Observations
+                await _mqttClient.SubscribeAsync($"MTConnect/Devices/{deviceUuid}/Observations/#");
+            }
+
+            // Subscribe to the Device Assets
+            await _mqttClient.SubscribeAsync($"MTConnect/Devices/{deviceUuid}/Assets/#");
+        }
+
+
+        private async Task AllDevicesMessageReceived(MqttApplicationMessageReceivedEventArgs args)
         {
             if (args.ApplicationMessage.Payload != null && args.ApplicationMessage.Payload.Length > 0)
             {
@@ -222,17 +323,57 @@ namespace MTConnect.Clients.Mqtt
                 {
                     ProcessDevice(args.ApplicationMessage);
                 }
+                else if (_deviceAgentUuidRegex.IsMatch(topic))
+                {
+                    await ProcessDeviceAgentUuid(args.ApplicationMessage);
+                }
+                else if (_agentRegex.IsMatch(topic))
+                {
+                    await ProcessAgent(args.ApplicationMessage, SubscribeToAllDevices);
+                }
             }
-
-            return Task.CompletedTask;
         }
 
-        private void ProcessObservation(MqttApplicationMessage message)
+        private async Task DeviceMessageReceived(MqttApplicationMessageReceivedEventArgs args)
+        {
+            if (args.ApplicationMessage.Payload != null && args.ApplicationMessage.Payload.Length > 0)
+            {
+                var topic = args.ApplicationMessage.Topic;
+
+                if (_conditionsRegex.IsMatch(topic))
+                {
+                    ProcessObservations(args.ApplicationMessage);
+                }
+                else if (_observationsRegex.IsMatch(topic))
+                {
+                    ProcessObservation(args.ApplicationMessage);
+                }
+                else if (_assetRegex.IsMatch(topic))
+                {
+                    ProcessAsset(args.ApplicationMessage);
+                }
+                else if (_deviceRegex.IsMatch(topic))
+                {
+                    ProcessDevice(args.ApplicationMessage);
+                }
+                else if (_deviceAgentUuidRegex.IsMatch(topic))
+                {
+                    await ProcessDeviceAgentUuid(args.ApplicationMessage);
+                }
+                else if (_agentRegex.IsMatch(topic))
+                {
+                    await ProcessAgent(args.ApplicationMessage, SubscribeToDevice);
+                }
+            }
+        }
+
+
+        private async void ProcessObservation(MqttApplicationMessage message)
         {
             try
             {
                 // Read Device UUID
-                var deviceUuid = _deviceUuidRegex.Match(message.Topic).Groups[0].Value;
+                var deviceUuid = _deviceUuidRegex.Match(message.Topic).Groups[1].Value;
 
                 // Deserialize JSON to Observation
                 var jsonObservation = JsonSerializer.Deserialize<JsonObservation>(message.Payload);
@@ -240,6 +381,7 @@ namespace MTConnect.Clients.Mqtt
                 {
                     var observation = new Observation();
                     observation.DeviceUuid = deviceUuid;
+                    observation.InstanceId = jsonObservation.InstanceId;
                     observation.DataItemId = jsonObservation.DataItemId;
                     observation.Category = jsonObservation.Category.ConvertEnum<DataItemCategory>();
                     observation.Name = jsonObservation.Name;
@@ -256,10 +398,34 @@ namespace MTConnect.Clients.Mqtt
                         observation.AddValue(ValueKeys.Result, jsonObservation.Result);
                     }
 
-
-                    if (ObservationReceived != null)
+                    // Get stored Agent Uuid for Device
+                    string agentUuid;
+                    lock (_lock) _deviceAgentUuids.TryGetValue(deviceUuid, out agentUuid);
+                    if (!string.IsNullOrEmpty(agentUuid))
                     {
-                        ObservationReceived.Invoke(deviceUuid, observation);
+                        // Verify Agent InstanceId
+                        long agentInstanceId;
+                        lock (_lock) _agentInstanceIds.TryGetValue(agentUuid, out agentInstanceId);
+
+                        if (observation.InstanceId == agentInstanceId)
+                        {
+                            if (ObservationReceived != null)
+                            {
+                                ObservationReceived.Invoke(deviceUuid, observation);
+                            }
+                        }
+                        else
+                        {
+                            // If InstanceId has changed, then restart protocol
+                            if (!string.IsNullOrEmpty(_deviceUuid))
+                            {
+                                await StartDeviceProtocol(_deviceUuid);
+                            }
+                            else
+                            {
+                                await StartAllDevicesProtocol();
+                            }
+                        }
                     }
                 }
             }
@@ -271,7 +437,7 @@ namespace MTConnect.Clients.Mqtt
             try
             {
                 // Read Device UUID
-                var deviceUuid = _deviceUuidRegex.Match(message.Topic).Groups[0].Value;
+                var deviceUuid = _deviceUuidRegex.Match(message.Topic).Groups[1].Value;
 
                 // Deserialize JSON to Observation
                 var jsonObservations = JsonSerializer.Deserialize<IEnumerable<JsonObservation>>(message.Payload);
@@ -281,6 +447,7 @@ namespace MTConnect.Clients.Mqtt
                     {
                         var observation = new Observation();
                         observation.DeviceUuid = deviceUuid;
+                        observation.InstanceId = jsonObservation.InstanceId;
                         observation.DataItemId = jsonObservation.DataItemId;
                         observation.Category = jsonObservation.Category.ConvertEnum<DataItemCategory>();
                         observation.Name = jsonObservation.Name;
@@ -307,12 +474,93 @@ namespace MTConnect.Clients.Mqtt
             catch { }
         }
 
-        private void ProcessDevice(MqttApplicationMessage message)
+        private async Task ProcessAgent(MqttApplicationMessage message, Func<MTConnectMqttAgentInformation, Task> onConnectedFunction)
+        {
+            try
+            {
+                var match = _agentRegex.Match(message.Topic);
+                if (match.Success && match.Groups.Count > 2)
+                {
+                    // Read Agent UUID
+                    var agentUuid = match.Groups[1].Value;
+
+                    // Read Agent Property
+                    var property = match.Groups[2].Value;
+
+                    if (!string.IsNullOrEmpty(agentUuid) && !string.IsNullOrEmpty(property))
+                    {
+                        // Decode UTF8 bytes to string
+                        var value = Encoding.UTF8.GetString(message.Payload);
+
+                        switch (property.ToLower())
+                        {
+                            case "information":
+
+                                var agentInformation = JsonSerializer.Deserialize<MTConnectMqttAgentInformation>(value);
+                                if (agentInformation != null)
+                                {
+                                    lock (_lock)
+                                    {
+                                        // Update the stored Agent Information
+                                        _agents.Remove(agentUuid);
+                                        _agents.Add(agentUuid, agentInformation);
+
+                                        // Update the stored Agent InstanceId
+                                        _agentInstanceIds.Remove(agentUuid);
+                                        _agentInstanceIds.Add(agentUuid, agentInformation.InstanceId);
+
+                                        // Stop the existing Connection Timer
+                                        _connectionTimers.TryGetValue(agentUuid, out var connectionTimer);
+                                        if (connectionTimer != null) connectionTimer.Stop();
+
+                                        // Start new Connection Timer
+                                        _connectionTimers.Remove(agentUuid);
+                                        connectionTimer = new System.Timers.Timer();
+                                        connectionTimer.Interval = agentInformation.HeartbeatInterval;
+                                        connectionTimer.Elapsed += (s, a) => ConnectionTimerElapsed(agentUuid);
+                                        _connectionTimers.Add(agentUuid, connectionTimer);
+                                        connectionTimer.Start();
+                                    }
+                                }
+
+                                break;
+
+
+                            case "heartbeattimestamp":
+
+                                var previousConnectionStatus = _connectionStatus;
+                                _connectionStatus = MTConnectMqttConnectionStatus.Connected;
+
+                                lock (_lock)
+                                {
+                                    _agentHeartbeatTimestamps.Remove(agentUuid);
+                                    _agentHeartbeatTimestamps.Add(agentUuid, value.ToLong());
+                                }
+
+                                if (previousConnectionStatus == MTConnectMqttConnectionStatus.Disconnected)
+                                {
+                                    if (ConnectionStatusChanged != null) ConnectionStatusChanged.Invoke(this, _connectionStatus);
+
+                                    if (_agents.TryGetValue(agentUuid, out var agent))
+                                    {
+                                        if (onConnectedFunction != null) await onConnectedFunction(agent);
+                                    }
+                                }
+
+                                break;
+                        }
+                    }
+                }
+            }
+            catch { }
+        }
+
+        private async void ProcessDevice(MqttApplicationMessage message)
         {
             try
             {
                 // Read Device UUID
-                var deviceUuid = _deviceUuidRegex.Match(message.Topic).Groups[0].Value;
+                var deviceUuid = _deviceUuidRegex.Match(message.Topic).Groups[1].Value;
 
                 // Deserialize JSON to Device
                 var jsonDevice = JsonSerializer.Deserialize<JsonDevice>(message.Payload);
@@ -325,8 +573,21 @@ namespace MTConnect.Clients.Mqtt
                         {
                             DeviceReceived.Invoke(deviceUuid, device);
                         }
+
+                        await SubscribeToDevice(deviceUuid, _interval);
                     }
                 }
+            }
+            catch { }
+        }
+
+        private async Task ProcessDeviceAgentUuid(MqttApplicationMessage message)
+        {
+            try
+            {             
+                var agentUuid = Encoding.UTF8.GetString(message.Payload);
+
+                await SubscribeToDeviceAgent(agentUuid);
             }
             catch { }
         }
@@ -336,23 +597,81 @@ namespace MTConnect.Clients.Mqtt
             try
             {
                 // Read Device UUID
-                var deviceUuid = _deviceUuidRegex.Match(message.Topic).Groups[0].Value;
+                var deviceUuid = _deviceUuidRegex.Match(message.Topic).Groups[1].Value;
 
                 // Deserialize JSON to Device
-                var jsonDevice = JsonSerializer.Deserialize<JsonDevice>(message.Payload);
-                if (jsonDevice != null)
+                var jsonAsset = JsonSerializer.Deserialize<JsonAsset>(message.Payload);
+                if (jsonAsset != null)
                 {
-                    var device = jsonDevice.ToDevice();
-                    if (device != null)
+                    var response = EntityFormatter.CreateAsset(DocumentFormat.JSON, jsonAsset.Type, message.Payload);
+                    if (response.Success)
                     {
-                        if (DeviceReceived != null)
+                        if (AssetReceived != null)
                         {
-                            DeviceReceived.Invoke(deviceUuid, device);
+                            AssetReceived.Invoke(deviceUuid, response.Entity);
                         }
                     }
                 }
             }
             catch { }
+        }
+
+
+        private async Task SubscribeToAllDevices(MTConnectMqttAgentInformation agent)
+        {
+            // Subscribe to Devices
+            if (!agent.Devices.IsNullOrEmpty())
+            {
+                foreach (var deviceUuid in agent.Devices)
+                {
+                    lock (_lock)
+                    {
+                        _deviceAgentUuids.Remove(deviceUuid);
+                        _deviceAgentUuids.Add(deviceUuid, agent.Uuid);
+                    }
+
+                    await SubscribeToDeviceModel(deviceUuid);
+                }
+            }
+        }
+
+        private async Task SubscribeToDevice(MTConnectMqttAgentInformation agent)
+        {
+            lock (_lock)
+            {
+                _deviceAgentUuids.Remove(_deviceUuid);
+                _deviceAgentUuids.Add(_deviceUuid, agent.Uuid);
+            }
+
+            // Subscribe to Device
+            await SubscribeToDeviceModel(_deviceUuid);
+        }
+
+
+        private void ConnectionTimerElapsed(string agentUuid)
+        {
+            MTConnectMqttAgentInformation agentInformation;
+            long timestamp = 0;
+            var now = UnixDateTime.Now / 10000;
+
+            lock (_lock)
+            {
+                _agents.TryGetValue(agentUuid, out agentInformation);
+                _agentHeartbeatTimestamps.TryGetValue(agentUuid, out timestamp);
+            }
+
+            if (agentInformation != null && timestamp > 0)
+            {
+                var diff = now - timestamp;
+
+                if (_connectionStatus == MTConnectMqttConnectionStatus.Connected && diff > agentInformation.HeartbeatInterval * 3)
+                {
+                    // Set Connection Status to Disconnected
+                    _connectionStatus = MTConnectMqttConnectionStatus.Disconnected;
+
+                    if (ConnectionStatusChanged != null) ConnectionStatusChanged.Invoke(this, _connectionStatus);
+                }
+            }
         }
 
 

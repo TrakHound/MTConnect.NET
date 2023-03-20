@@ -23,7 +23,7 @@ namespace MTConnect.Applications.Agents
         private readonly Logger _adapterShdrLogger = LogManager.GetLogger("adapter-shdr-logger");
 
         private readonly List<ShdrAdapterClient> _adapters = new List<ShdrAdapterClient>();
-        private IShdrMqttAgentApplicationConfiguration _configuration;
+        private IShdrMqttRelayAgentApplicationConfiguration _configuration;
 
 
         public MTConnectShdrMqttRelayAgentApplication()
@@ -35,7 +35,7 @@ namespace MTConnect.Applications.Agents
         protected override IAgentApplicationConfiguration OnConfigurationFileRead(string configurationPath)
         {
             // Read the Configuration File
-            var configuration = AgentConfiguration.Read<ShdrMqttAgentApplicationConfiguration>(configurationPath);
+            var configuration = AgentConfiguration.Read<ShdrMqttRelayAgentApplicationConfiguration>(configurationPath);
             base.OnAgentConfigurationUpdated(configuration);
             _configuration = configuration;
             return _configuration;
@@ -43,12 +43,14 @@ namespace MTConnect.Applications.Agents
 
         protected override void OnAgentConfigurationWatcherInitialize(IAgentApplicationConfiguration configuration)
         {
-            _agentConfigurationWatcher = new AgentConfigurationFileWatcher<ShdrMqttAgentApplicationConfiguration>(configuration.Path, configuration.ConfigurationFileRestartInterval * 1000);
+            _agentConfigurationWatcher = new AgentConfigurationFileWatcher<ShdrMqttRelayAgentApplicationConfiguration>(configuration.Path, configuration.ConfigurationFileRestartInterval * 1000);
         }
 
         protected override void OnAgentConfigurationUpdated(AgentConfiguration configuration)
         {
-            _configuration = configuration as ShdrMqttAgentApplicationConfiguration;
+            _configuration = configuration as ShdrMqttRelayAgentApplicationConfiguration;
+
+            base.OnAgentConfigurationUpdated(configuration);
         }
 
 

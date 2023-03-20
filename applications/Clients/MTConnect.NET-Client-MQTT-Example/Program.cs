@@ -1,4 +1,4 @@
-﻿using MTConnect.Clients.Mqtt;
+﻿using MTConnect.Clients;
 using MTConnect.Configurations;
 using MTConnect.Observations;
 
@@ -15,6 +15,8 @@ var topics = new List<string>();
 var configuration = new MTConnectMqttClientConfiguration();
 configuration.Server = "localhost";
 configuration.Port = 1883;
+//configuration.Interval = 100;
+configuration.DeviceUuid = "OKUMA.Lathe.123456";
 
 var client = new MTConnectMqttClient(configuration, topics: topics);
 client.DeviceReceived += (s, o) =>
@@ -27,7 +29,7 @@ client.ObservationReceived += (s, o) =>
 };
 client.AssetReceived += (s, o) =>
 {
-    Console.WriteLine("Asset Received");
+    Console.WriteLine($"Asset Received : {o.AssetId} : {o.Type}");
 };
 
 await client.StartAsync();

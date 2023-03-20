@@ -1,7 +1,6 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-using MQTTnet.Extensions.ManagedClient;
 using MTConnect.Configurations;
 using MTConnect.Mqtt;
 using NLog;
@@ -24,7 +23,7 @@ namespace MTConnect.Applications.Agents
         private readonly Logger _mqttLogger = LogManager.GetLogger("mqtt-logger");
 
         private MTConnectMqttRelay _relay;
-        private IMqttAgentApplicationConfiguration _configuration;
+        private IMqttRelayAgentApplicationConfiguration _configuration;
         private int _port = 0;
 
 
@@ -65,7 +64,7 @@ namespace MTConnect.Applications.Agents
         protected override IAgentApplicationConfiguration OnConfigurationFileRead(string configurationPath)
         {
             // Read the Configuration File
-            var configuration = AgentConfiguration.Read<MqttAgentApplicationConfiguration>(configurationPath);
+            var configuration = AgentConfiguration.Read<MqttRelayAgentApplicationConfiguration>(configurationPath);
             base.OnAgentConfigurationUpdated(configuration);
             _configuration = configuration;
             return _configuration;
@@ -73,12 +72,14 @@ namespace MTConnect.Applications.Agents
 
         protected override void OnAgentConfigurationWatcherInitialize(IAgentApplicationConfiguration configuration)
         {
-            _agentConfigurationWatcher = new AgentConfigurationFileWatcher<MqttAgentApplicationConfiguration>(configuration.Path, configuration.ConfigurationFileRestartInterval * 1000);
+            _agentConfigurationWatcher = new AgentConfigurationFileWatcher<MqttRelayAgentApplicationConfiguration>(configuration.Path, configuration.ConfigurationFileRestartInterval * 1000);
         }
 
         protected override void OnAgentConfigurationUpdated(AgentConfiguration configuration)
         {
-            _configuration = configuration as IMqttAgentApplicationConfiguration;
+            _configuration = configuration as IMqttRelayAgentApplicationConfiguration;
+
+            base.OnAgentConfigurationUpdated(configuration);
         }
 
 
@@ -89,6 +90,7 @@ namespace MTConnect.Applications.Agents
                 var clientConfiguration = new MTConnectMqttClientConfiguration();
                 clientConfiguration.Server = _configuration.Server;
                 clientConfiguration.Port = _port > 0 ? _port : _configuration.Port;
+                clientConfiguration.QoS = _configuration.QoS;
                 clientConfiguration.Username = _configuration.Username;
                 clientConfiguration.Password = _configuration.Password;
                 clientConfiguration.ClientId = _configuration.ClientId;
@@ -98,7 +100,13 @@ namespace MTConnect.Applications.Agents
                 clientConfiguration.UseTls = _configuration.UseTls;
                 clientConfiguration.AllowUntrustedCertificates = _configuration.AllowUntrustedCertificates;
 
-                _relay = new MTConnectMqttRelay(Agent, clientConfiguration);
+
+                // Set Observation Intervals
+                IEnumerable<int> observationIntervals = new List<int> { 0, 1000 };
+                if (!_configuration.ObservationIntervals.IsNullOrEmpty()) observationIntervals = _configuration.ObservationIntervals;
+
+
+                _relay = new MTConnectMqttRelay(Agent, clientConfiguration, observationIntervals);
                 _relay.Format = _configuration.MqttFormat;
                 _relay.RetainMessages = _configuration.RetainMessages;
                 _relay.Connected += MqttClientConnected;
@@ -114,7 +122,11 @@ namespace MTConnect.Applications.Agents
 
         protected override void OnStopAgent()
         {
-            if (_relay != null) _relay.Dispose();
+            if (_relay != null)
+            {
+                _relay.Stop();
+                _relay.Dispose();
+            }
         }
 
 
