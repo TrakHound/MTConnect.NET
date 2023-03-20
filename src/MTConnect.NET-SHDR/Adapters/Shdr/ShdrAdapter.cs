@@ -364,19 +364,23 @@ namespace MTConnect.Adapters.Shdr
         {
             if (!string.IsNullOrEmpty(line))
             {
-                // Write Line to each client in stored client list
-                var clients = GetAgentClients();
-                if (!clients.IsNullOrEmpty())
+                try
                 {
-                    var success = true;
-
-                    foreach (var client in clients)
+                    // Write Line to each client in stored client list
+                    var clients = GetAgentClients();
+                    if (!clients.IsNullOrEmpty())
                     {
-                        if (!WriteLineToClient(client, line)) success = false;
-                    }
+                        var success = true;
 
-                    return success;
-                }              
+                        foreach (var client in clients)
+                        {
+                            if (!WriteLineToClient(client, line)) success = false;
+                        }
+
+                        return success;
+                    }
+                }
+                catch { }     
             }
 
             return false;
