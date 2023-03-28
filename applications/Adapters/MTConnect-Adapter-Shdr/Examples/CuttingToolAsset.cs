@@ -25,6 +25,7 @@ namespace MTConnect.Applications
             tool.CuttingToolLifeCycle.CuttingItems.Add(new CuttingItem
             {
                 ItemId = "12.1",
+                Indices = "1",
                 Locus = CuttingItemLocas.FLUTE.ToString()
             });
             tool.CuttingToolLifeCycle.CutterStatus.Add(CutterStatus.AVAILABLE);
