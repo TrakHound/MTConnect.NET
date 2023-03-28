@@ -137,44 +137,13 @@ namespace MTConnect.Shdr
                     }
                     else
                     {
-                        return $"{target}|{resetTriggered}{value}";
+                        return $"|{target}|{resetTriggered}{value}";
                     }
                 }
             }
 
             return null;
         }
-
-        //private static string ToString(ShdrDataItem dataItem, bool ignoreTimestamp = false)
-        //{
-        //    if (dataItem != null && !string.IsNullOrEmpty(dataItem.DataItemKey))
-        //    {
-        //        var valueString = dataItem.GetValue(ValueKeys.Result);
-        //        var nativeCodeString = dataItem.GetValue(ValueKeys.NativeCode);
-
-        //        if (valueString != null || nativeCodeString != null)
-        //        {
-        //            var value = valueString != null ? valueString.Replace("|", @"\|") : "";
-        //            var nativeCode = nativeCodeString != null ? nativeCodeString.Replace("|", @"\|") : "";
-        //            var resetTriggered = dataItem.ResetTriggered != ResetTriggered.NOT_SPECIFIED ? $":{dataItem.ResetTriggered} " : "";
-
-        //            if (dataItem.Timestamp > 0 && dataItem.Duration > 0)
-        //            {
-        //                return $"{dataItem.Timestamp.ToDateTime().ToString("o")}@{dataItem.Duration}|{dataItem.DataItemKey}|{nativeCode}|{resetTriggered}{value}";
-        //            }
-        //            else if (dataItem.Timestamp > 0 && !ignoreTimestamp)
-        //            {
-        //                return $"{GetTimestampString(dataItem.Timestamp, dataItem.Duration)}|{dataItem.DataItemKey}|{nativeCode}|{resetTriggered}{value}";
-        //            }
-        //            else
-        //            {
-        //                return $"{dataItem.DataItemKey}|{nativeCode}|{resetTriggered}{value}";
-        //            }
-        //        }
-        //    }
-
-        //    return "";
-        //}
 
         /// <summary>
         /// Read a ShdrCondition object from an SHDR line
@@ -197,7 +166,8 @@ namespace MTConnect.Shdr
                 }
                 else
                 {
-                    return FromLine(input);
+                    var y = ShdrLine.GetNextSegment(input);
+                    return FromLine(y);
                 }
             }
 

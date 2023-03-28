@@ -635,22 +635,16 @@ namespace MTConnect.Shdr
         {
             if (!string.IsNullOrEmpty(line))
             {
-                var x = ShdrLine.GetNextValue(line);
-                var y = ShdrLine.GetNextSegment(line);
+                var x = ShdrLine.GetNextSegment(line);
+                var y = ShdrLine.GetNextValue(x);
 
-                var timestamp = ShdrLine.GetTimestamp(x);
-                if (timestamp.HasValue)
+                if (y.Contains(":"))
                 {
-                    x = ShdrLine.GetNextValue(y);
-
-                    if (x.Contains(":"))
-                    {
-                        var i = x.IndexOf(':');
-                        x = x.Substring(i + 1);
-                    }
+                    var i = y.IndexOf(':');
+                    y = y.Substring(i + 1);
                 }
 
-                return x;
+                return y;
             }
 
             return null;

@@ -90,11 +90,11 @@ namespace MTConnect.Shdr
                 {
                     if (!IsUnavailable)
                     {
-                        return $"{target}|{PrintEntries(Entries)}";
+                        return $"|{target}|{PrintEntries(Entries)}";
                     }
                     else
                     {
-                        return $"{target}|{Observation.Unavailable}";
+                        return $"|{target}|{Observation.Unavailable}";
                     }
                 }
             }
@@ -137,7 +137,8 @@ namespace MTConnect.Shdr
                 }
                 else
                 {
-                    return FromLine(input);
+                    var y = ShdrLine.GetNextSegment(input);
+                    return FromLine(y);
                 }
             }
 

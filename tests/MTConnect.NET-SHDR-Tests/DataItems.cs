@@ -17,29 +17,29 @@ namespace MTConnect.Tests.Shdr
         private const long AfterY2KUnix = 9466848000000000;
         private const string AfterY2K = "2000-01-01T00:00:00.0000000Z";
 
-        private static string CheckSingleFormatOutput = "avail|AVAILABLE";
+        private static string CheckSingleFormatOutput = "|avail|AVAILABLE";
         private static string CheckSingleTimestampFormatOutput = $"{BeforeY2K}|avail|AVAILABLE";
-        private static string CheckSingleQuotesFormatOutput = "programComment|The subprogram \'404\' is not found";
-        private static string CheckSingleDoubleQuotesFormatOutput = "programComment|The subprogram \"404\" is not found";
-        private static string CheckSinglePipeFormatOutput = "programHeader|Program Author \\| Patrick";
-        private static string CheckSingleEmptyFormatOutput = "program|";
-        private static string CheckSingleTrimFormatOutput = "program|TEST.NC";
+        private static string CheckSingleQuotesFormatOutput = "|programComment|The subprogram \'404\' is not found";
+        private static string CheckSingleDoubleQuotesFormatOutput = "|programComment|The subprogram \"404\" is not found";
+        private static string CheckSinglePipeFormatOutput = "|programHeader|Program Author \\| Patrick";
+        private static string CheckSingleEmptyFormatOutput = "|program|";
+        private static string CheckSingleTrimFormatOutput = "|program|TEST.NC";
         private static string CheckSingleDurationFormatOutput = "@100|pcount|0.12345";
         private static string CheckSingleDurationTimestampFormatOutput = $"{BeforeY2K}@100|pcount|0.12345";
-        private static string CheckSingleResetTriggeredFormatOutput = "pcount|0.12345:DAY";
+        private static string CheckSingleResetTriggeredFormatOutput = "|pcount|0.12345:DAY";
         private static string CheckSingleResetTriggeredTimestampFormatOutput = $"{BeforeY2K}|pcount|0.12345:DAY";
         private static string CheckSingleResetTriggeredDurationFormatOutput = "@100|pcount|0.12345:DAY";
         private static string CheckSingleResetTriggeredDurationTimestampFormatOutput = $"{BeforeY2K}@100|pcount|0.12345:DAY";
 
-        private static string CheckMultipleFormatOutput = "avail|AVAILABLE|load|15.1234567|execution|READY|position|0.1267498";
+        private static string CheckMultipleFormatOutput = "|avail|AVAILABLE|load|15.1234567|execution|READY|position|0.1267498";
         private static string CheckMultipleTimestampFormatOutput = $"{BeforeY2K}|avail|AVAILABLE|load|15.1234567|execution|READY|position|0.1267498";
         private static string CheckMultipleTimestampDifferentFormatOutput = $"{BeforeY2K}|load|15.1234567\r\n{AfterY2K}|avail|AVAILABLE|execution|READY|position|0.1267498";
-        private static string CheckMultipleQuotesFormatOutput = "avail|AVAILABLE|load|15.1234567|programComment|The subprogram \'404\' is not found|position|0.1267498";
-        private static string CheckMultipleDoubleQuotesFormatOutput = "avail|AVAILABLE|load|15.1234567|programComment|The subprogram \"404\" is not found|position|0.1267498";
-        private static string CheckMultiplePipeFormatOutput = "avail|AVAILABLE|load|15.1234567|programHeader|Program Author \\| Patrick|position|0.1267498";
-        private static string CheckMultipleEmptyFormatOutput = "avail|AVAILABLE|program||execution|READY|position|0.1267498";
-        private static string CheckMultipleAllEmptyFormatOutput = "avail||program||execution||position|";
-        private static string CheckMultipleResetTriggeredFormatOutput = "avail|AVAILABLE|load|15.1234567|pcount|0.12345:DAY|position|0.1267498";
+        private static string CheckMultipleQuotesFormatOutput = "|avail|AVAILABLE|load|15.1234567|programComment|The subprogram \'404\' is not found|position|0.1267498";
+        private static string CheckMultipleDoubleQuotesFormatOutput = "|avail|AVAILABLE|load|15.1234567|programComment|The subprogram \"404\" is not found|position|0.1267498";
+        private static string CheckMultiplePipeFormatOutput = "|avail|AVAILABLE|load|15.1234567|programHeader|Program Author \\| Patrick|position|0.1267498";
+        private static string CheckMultipleEmptyFormatOutput = "|avail|AVAILABLE|program||execution|READY|position|0.1267498";
+        private static string CheckMultipleAllEmptyFormatOutput = "|avail||program||execution||position|";
+        private static string CheckMultipleResetTriggeredFormatOutput = "|avail|AVAILABLE|load|15.1234567|pcount|0.12345:DAY|position|0.1267498";
         private static string CheckMultipleResetTriggeredTimestampFormatOutput = $"{BeforeY2K}|avail|AVAILABLE|load|15.1234567|pcount|0.12345:DAY|position|0.1267498";
 
 

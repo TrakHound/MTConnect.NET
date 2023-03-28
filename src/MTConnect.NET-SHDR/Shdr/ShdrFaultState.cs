@@ -120,11 +120,11 @@ namespace MTConnect.Shdr
                 {
                     if (Level != ConditionLevel.UNAVAILABLE)
                     {
-                        line = $"{target}|{Level}|{NativeCode}|{NativeSeverity}|{qualifier}|{message}";
+                        line = $"|{target}|{Level}|{NativeCode}|{NativeSeverity}|{qualifier}|{message}";
                     }
                     else
                     {
-                        line = $"{target}|{Level}||||";
+                        line = $"|{target}|{Level}||||";
                     }
                 }
 
@@ -149,14 +149,18 @@ namespace MTConnect.Shdr
                 // Start reading input and read Timestamp first (if specified)
                 var x = ShdrLine.GetNextValue(input);
 
-                if (DateTime.TryParse(x, null, System.Globalization.DateTimeStyles.AdjustToUniversal, out var timestamp))
+                if (!string.IsNullOrEmpty(x))
                 {
-                    var y = ShdrLine.GetNextSegment(input);
-                    return FromLine(y, timestamp.ToUnixTime());
+                    if (DateTime.TryParse(x, null, System.Globalization.DateTimeStyles.AdjustToUniversal, out var timestamp))
+                    {
+                        var y = ShdrLine.GetNextSegment(input);
+                        return FromLine(y, timestamp.ToUnixTime());
+                    }
                 }
                 else
                 {
-                    return FromLine(input);
+                    var y = ShdrLine.GetNextSegment(input);
+                    return FromLine(y);
                 }
             }
 

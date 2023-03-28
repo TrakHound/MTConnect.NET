@@ -112,7 +112,7 @@ namespace MTConnect.Shdr
                     }
                     else
                     {
-                        return $"{target}|{value}{resetTriggered}";
+                        return $"|{target}|{value}{resetTriggered}";
                     }
                 }     
             }
@@ -147,7 +147,7 @@ namespace MTConnect.Shdr
                     }
                     else
                     {
-                        return $"{target}|{value}{resetTriggered}";
+                        return $"|{target}|{value}{resetTriggered}";
                     }
                 }
             }
@@ -206,7 +206,7 @@ namespace MTConnect.Shdr
         /// </summary>
         /// <param name="dataItems">List of ShdrDataItems</param>
         /// <returns>A single Multi-Line SHDR valid string</returns>
-        public static string ToString(IEnumerable<ShdrDataItem> dataItems)
+        public static string ToString(IEnumerable<ShdrDataItem> dataItems, bool ignoreTimestamp = false)
         {
             var lines = new List<string>();
 
@@ -222,52 +222,93 @@ namespace MTConnect.Shdr
                         {
                             var deviceDataItems = dataItems.Where(o => o.DeviceKey == deviceKey);
 
-                            // Get list of unique Timestamps in list of ShdrDataItems
-                            var timestamps = deviceDataItems.Select(o => o.Timestamp).Distinct();
-                            if (!timestamps.IsNullOrEmpty())
+                            if (!ignoreTimestamp)
                             {
-                                var oTimestamps = timestamps.OrderBy(o => o);
-
-                                foreach (var timestamp in oTimestamps)
+                                // Get list of unique Timestamps in list of ShdrDataItems
+                                var timestamps = deviceDataItems.Select(o => o.Timestamp).Distinct();
+                                if (!timestamps.IsNullOrEmpty())
                                 {
-                                    string line = null;
+                                    var oTimestamps = timestamps.OrderBy(o => o);
 
-                                    // Get list of ShdrDataItems at this Timestamp (No Duration)
-                                    var timestampDataItems = deviceDataItems.Where(o => o.Timestamp == timestamp && o.Duration <= 0)?.ToList();
-                                    if (!timestampDataItems.IsNullOrEmpty())
+                                    foreach (var timestamp in oTimestamps)
                                     {
-                                        // Add Timestamp to beginning of line
-                                        var timestampPrefix = GetTimestampString(timestamp);
-                                        if (!string.IsNullOrEmpty(timestampPrefix)) line = timestampPrefix + "|";
+                                        string line = null;
 
-                                        // Add each DataItem to line
-                                        for (var i = 0; i < timestampDataItems.Count; i++)
+                                        // Get list of ShdrDataItems at this Timestamp (No Duration)
+                                        var timestampDataItems = deviceDataItems.Where(o => o.Timestamp == timestamp && o.Duration <= 0)?.ToList();
+                                        if (!timestampDataItems.IsNullOrEmpty())
                                         {
-                                            var x = ToString(timestampDataItems[i], true, timestampDataItems[i].DeviceKey);
-                                            if (!string.IsNullOrEmpty(x))
-                                            {
-                                                line += x;
+                                            // Add Timestamp to beginning of line
+                                            var timestampPrefix = GetTimestampString(timestamp);
+                                            if (!string.IsNullOrEmpty(timestampPrefix)) line = timestampPrefix;
+                                            //if (!string.IsNullOrEmpty(timestampPrefix)) line = timestampPrefix + "|";
 
-                                                if (i < timestampDataItems.Count - 1) line += "|";
+                                            // Add each DataItem to line
+                                            for (var i = 0; i < timestampDataItems.Count; i++)
+                                            {
+                                                var x = ToString(timestampDataItems[i], true, timestampDataItems[i].DeviceKey);
+                                                if (!string.IsNullOrEmpty(x))
+                                                {
+                                                    line += x;
+
+                                                    //if (i < timestampDataItems.Count - 1) line += "|";
+                                                }
                                             }
+
+                                            // Add line to list of lines
+                                            lines.Add(line);
                                         }
 
-                                        // Add line to list of lines
-                                        lines.Add(line);
+                                        // Get list of ShdrDataItems at this Timestamp (With Duration)
+                                        timestampDataItems = deviceDataItems.Where(o => o.Timestamp == timestamp && o.Duration > 0)?.ToList();
+                                        if (!timestampDataItems.IsNullOrEmpty())
+                                        {
+                                            foreach (var dataItem in timestampDataItems)
+                                            {
+                                                line = dataItem.ToString();
+                                                if (!string.IsNullOrEmpty(line))
+                                                {
+                                                    // Add line to list of lines
+                                                    lines.Add(line);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                string line = null;
+
+                                // Get list of ShdrDataItems (No Duration)
+                                var noDurationDataItems = deviceDataItems.Where(o => o.Duration <= 0)?.ToList();
+                                if (!noDurationDataItems.IsNullOrEmpty())
+                                {
+                                    // Add each DataItem to line
+                                    for (var i = 0; i < noDurationDataItems.Count; i++)
+                                    {
+                                        var x = ToString(noDurationDataItems[i], true, noDurationDataItems[i].DeviceKey);
+                                        if (!string.IsNullOrEmpty(x))
+                                        {
+                                            line += x;
+                                        }
                                     }
 
-                                    // Get list of ShdrDataItems at this Timestamp (With Duration)
-                                    timestampDataItems = deviceDataItems.Where(o => o.Timestamp == timestamp && o.Duration > 0)?.ToList();
-                                    if (!timestampDataItems.IsNullOrEmpty())
+                                    // Add line to list of lines
+                                    lines.Add(line);
+                                }
+
+                                // Get list of ShdrDataItems (With Duration)
+                                var durationDataItems = deviceDataItems.Where(o => o.Duration > 0)?.ToList();
+                                if (!durationDataItems.IsNullOrEmpty())
+                                {
+                                    foreach (var dataItem in durationDataItems)
                                     {
-                                        foreach (var dataItem in timestampDataItems)
+                                        line = dataItem.ToString();
+                                        if (!string.IsNullOrEmpty(line))
                                         {
-                                            line = dataItem.ToString();
-                                            if (!string.IsNullOrEmpty(line))
-                                            {
-                                                // Add line to list of lines
-                                                lines.Add(line);
-                                            }
+                                            // Add line to list of lines
+                                            lines.Add(line);
                                         }
                                     }
                                 }
@@ -283,6 +324,7 @@ namespace MTConnect.Shdr
 
             return "";
         }
+
 
         /// <summary>
         /// Read list of ShdrDataItem objects from an SHDR line
@@ -312,7 +354,8 @@ namespace MTConnect.Shdr
                 }
                 else
                 {
-                    return FromKeyValuePairs(input, 0, duration.HasValue ? duration.Value : 0, uppercaseValue);
+                    var y = ShdrLine.GetNextSegment(input);
+                    return FromKeyValuePairs(y, 0, duration.HasValue ? duration.Value : 0, uppercaseValue);
                 }
             }
 

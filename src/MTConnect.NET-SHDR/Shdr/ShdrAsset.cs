@@ -127,8 +127,8 @@ namespace MTConnect.Shdr
                 {
                     var multilineId = StringFunctions.RandomString(10);
 
-                    var header = $"{AssetDesignator}|{AssetId}|{AssetType}|--multiline--{multilineId}";
-                    if (Timestamp > 0) header = $"{Timestamp.ToDateTime().ToString("o")}|{header}";
+                    var header = $"|{AssetDesignator}|{AssetId}|{AssetType}|--multiline--{multilineId}";
+                    if (Timestamp > 0) header = $"{Timestamp.ToDateTime().ToString("o")}{header}";
 
                     var xml = XmlFunctions.FormatXml(Xml, true, false, true);
 
@@ -142,7 +142,7 @@ namespace MTConnect.Shdr
                 else
                 {
                     if (Timestamp > 0) return $"{Timestamp.ToDateTime().ToString("o")}|{AssetDesignator}|{AssetId}|{AssetType}|{Xml}";
-                    else return $"{AssetDesignator}|{AssetId}|{AssetType}|{Xml}";
+                    else return $"|{AssetDesignator}|{AssetId}|{AssetType}|{Xml}";
                 }
             }
 
@@ -159,7 +159,7 @@ namespace MTConnect.Shdr
                 }
                 else
                 {
-                    return $"{AssetDesignator}|{asset.AssetId}|{asset.AssetType}|{asset.Xml}";
+                    return $"|{AssetDesignator}|{asset.AssetId}|{asset.AssetType}|{asset.Xml}";
                 }
             }
 

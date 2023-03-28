@@ -2130,7 +2130,8 @@ namespace MTConnect.Adapters.Shdr
             if (asset != null)
             {
                 // Set Timestamp (if not already set)
-                if (asset.Timestamp > 0) asset.Timestamp = UnixDateTime.Now;
+                if (!OutputTimestamps) asset.Timestamp = 0;
+                else if (asset.Timestamp <= 0) asset.Timestamp = UnixDateTime.Now;
 
                 lock (_lock)
                 {
