@@ -6,7 +6,10 @@ using MTConnect.Errors;
 using MTConnect.Http;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
+using System.Net.Sockets;
+using System.Security.Authentication;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -17,12 +20,75 @@ namespace MTConnect.Clients
     /// </summary>
     public class MTConnectHttpProbeClient : IMTConnectProbeClient
     {
-        private const int DefaultTimeout = 5000;
+        private const int DefaultTimeout = 15000;
+        private static readonly HttpClient _httpClient;
 
-        private static readonly HttpClient _httpClient = new HttpClient()
+        static MTConnectHttpProbeClient()
         {
-            Timeout = TimeSpan.FromMilliseconds(DefaultTimeout)
-        };
+            var handler = new SocketsHttpHandler()
+            {
+                SslOptions = new System.Net.Security.SslClientAuthenticationOptions
+                {
+                    
+                },
+                AllowAutoRedirect = true,
+                
+                
+                //SslProtocols = SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls
+            };
+
+            _httpClient = new HttpClient(handler);
+            _httpClient.Timeout = TimeSpan.FromMilliseconds(DefaultTimeout);
+        }
+
+        public static bool GetResolvedConnecionIPAddress(string serverNameOrURL, out IPAddress resolvedIPAddress)
+        {
+            bool isResolved = false;
+            IPHostEntry hostEntry = null;
+            IPAddress resolvIP = null;
+            try
+            {
+                if (!IPAddress.TryParse(serverNameOrURL, out resolvIP))
+                {
+                    hostEntry = Dns.GetHostEntry(serverNameOrURL);
+
+                    if (hostEntry != null && hostEntry.AddressList != null && hostEntry.AddressList.Length > 0)
+                    {
+                        if (hostEntry.AddressList.Length == 1)
+                        {
+                            resolvIP = hostEntry.AddressList[0];
+                            isResolved = true;
+                        }
+                        else
+                        {
+                            foreach (IPAddress var in hostEntry.AddressList)
+                            {
+                                if (var.AddressFamily == AddressFamily.InterNetwork)
+                                {
+                                    resolvIP = var;
+                                    isResolved = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    isResolved = true;
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+            finally
+            {
+                resolvedIPAddress = resolvIP;
+            }
+
+            return isResolved;
+        }
 
 
         /// <summary>
@@ -131,37 +197,49 @@ namespace MTConnect.Clients
         {
             try
             {
-                // Create Http Request
-                using (var request = new HttpRequestMessage())
+                var handler = new SocketsHttpHandler()
                 {
-                    request.Method = HttpMethod.Get;
-                    request.RequestUri = CreateUri();
-
-                    // Add 'Accept' HTTP Header
-                    var contentType = Formatters.ResponseDocumentFormatter.GetContentType(DocumentFormat);
-                    if (!string.IsNullOrEmpty(contentType))
+                    SslOptions = new System.Net.Security.SslClientAuthenticationOptions
                     {
-                        request.Headers.Add(HttpHeaders.Accept, contentType);
-                    }
+                        TargetHost = GetHostname(Authority)
+                    },
+                    AllowAutoRedirect = true,
+                };
 
-                    // Add 'Accept-Encoding' HTTP Header 
-                    if (!ContentEncodings.IsNullOrEmpty())
+                using (var client = new HttpClient(handler))
+                {
+                    // Create Http Request
+                    using (var request = new HttpRequestMessage())
                     {
-                        foreach (var contentEncoding in ContentEncodings)
+                        request.Method = HttpMethod.Get;
+                        request.RequestUri = CreateUri();
+
+                        // Add 'Accept' HTTP Header
+                        var contentType = Formatters.ResponseDocumentFormatter.GetContentType(DocumentFormat);
+                        if (!string.IsNullOrEmpty(contentType))
                         {
-                            request.Headers.Add(HttpHeaders.AcceptEncoding, contentEncoding.ToString().ToLower());
+                            request.Headers.Add(HttpHeaders.Accept, contentType);
                         }
-                    }
 
-                    // Create Uri and Send Request
+                        // Add 'Accept-Encoding' HTTP Header 
+                        if (!ContentEncodings.IsNullOrEmpty())
+                        {
+                            foreach (var contentEncoding in ContentEncodings)
+                            {
+                                request.Headers.Add(HttpHeaders.AcceptEncoding, contentEncoding.ToString().ToLower());
+                            }
+                        }
+
+                        // Create Uri and Send Request
 #if NET5_0_OR_GREATER
-                    using (var response = _httpClient.Send(request))
+                        using (var response = client.Send(request))
 #else
                     using (var response = _httpClient.SendAsync(request).Result)
 #endif
-                    {
-                        response.EnsureSuccessStatusCode();
-                        return HandleResponse(response);
+                        {
+                            response.EnsureSuccessStatusCode();
+                            return HandleResponse(response);
+                        }
                     }
                 }
             }
@@ -218,6 +296,49 @@ namespace MTConnect.Clients
                         return await HandleResponseAsync(response, cancellationToken);
                     }
                 }
+
+
+                //var handler = new SocketsHttpHandler()
+                //{
+                //    SslOptions = new System.Net.Security.SslClientAuthenticationOptions
+                //    {
+                //        TargetHost = GetHostname(Authority).ToUpper()
+                //    },
+                //    AllowAutoRedirect = true
+                //};
+
+                //using (var client = new HttpClient(handler))
+                //{
+                //    // Create Http Request
+                //    using (var request = new HttpRequestMessage())
+                //    {
+                //        request.Method = HttpMethod.Get;
+                //        request.RequestUri = CreateUri();
+
+                //        // Add 'Accept' HTTP Header
+                //        var contentType = Formatters.ResponseDocumentFormatter.GetContentType(DocumentFormat);
+                //        if (!string.IsNullOrEmpty(contentType))
+                //        {
+                //            request.Headers.Add(HttpHeaders.Accept, contentType);
+                //        }
+
+                //        // Add 'Accept-Encoding' HTTP Header 
+                //        if (!ContentEncodings.IsNullOrEmpty())
+                //        {
+                //            foreach (var contentEncoding in ContentEncodings)
+                //            {
+                //                request.Headers.Add(HttpHeaders.AcceptEncoding, contentEncoding.ToString().ToLower());
+                //            }
+                //        }
+
+                //        // Create Uri and Send Request
+                //        using (var response = await client.SendAsync(request, cancellationToken))
+                //        {
+                //            response.EnsureSuccessStatusCode();
+                //            return await HandleResponseAsync(response, cancellationToken);
+                //        }
+                //    }
+                //}
             }
             catch (TaskCanceledException ex) when (ex.InnerException is TimeoutException)
             {
@@ -264,6 +385,7 @@ namespace MTConnect.Clients
 
                 // Replace 'localhost' with '127.0.0.1' (This is due to a performance issue with .NET Core's System.Net.Http.HttpClient)
                 if (url.Contains("localhost")) url = url.Replace("localhost", "127.0.0.1");
+                //if (url.Contains(Environment.MachineName)) url = url.Replace(Environment.MachineName, "127.0.0.1");
 
                 // Check for http
                 if (!url.StartsWith("http://") && !url.StartsWith("https://")) url = "http://" + url;
@@ -280,6 +402,19 @@ namespace MTConnect.Clients
 
             return null;
         }
+
+
+        private static string GetHostname(string url)
+        {
+            if (!string.IsNullOrEmpty(url))
+            {
+                var uri = new Uri(url);
+                return uri.Host;
+            }
+
+            return null;
+        }
+
 
 
         private IDevicesResponseDocument HandleResponse(HttpResponseMessage response)

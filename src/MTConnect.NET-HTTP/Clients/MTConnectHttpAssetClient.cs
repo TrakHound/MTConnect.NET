@@ -7,6 +7,7 @@ using MTConnect.Http;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Security.Authentication;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -17,12 +18,20 @@ namespace MTConnect.Clients
     /// </summary>
     public class MTConnectHttpAssetClient : IMTConnectAssetClient
     {
-        private const int DefaultTimeout = 5000;
+        private const int DefaultTimeout = 15000;
+        private static readonly HttpClient _httpClient;
 
-        private static readonly HttpClient _httpClient = new HttpClient()
+        static MTConnectHttpAssetClient()
         {
-            Timeout = TimeSpan.FromMilliseconds(DefaultTimeout)
-        };
+            var handler = new HttpClientHandler()
+            {
+                AllowAutoRedirect = true,
+                SslProtocols = SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls
+            };
+
+            _httpClient = new HttpClient(handler);
+            _httpClient.Timeout = TimeSpan.FromMilliseconds(DefaultTimeout);
+        }
 
 
         /// <summary>

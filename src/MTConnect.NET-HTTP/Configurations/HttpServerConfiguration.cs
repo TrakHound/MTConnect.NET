@@ -1,26 +1,13 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
-// TrakHound Inc. licenses this file to you under the MIT license.
-
-using MTConnect.Http;
+﻿using MTConnect.Http;
+using MTConnect.Tls;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using YamlDotNet.Serialization;
 
 namespace MTConnect.Configurations
 {
-    /// <summary>
-    /// Configuration for an MTConnect Http Agent
-    /// </summary>
-    public class HttpAgentConfiguration : AgentConfiguration, IHttpAgentConfiguration
+    public class HttpServerConfiguration
     {
-        [JsonPropertyName("http")]
-        public IEnumerable<HttpServerConfiguration> Http { get; set; }
-
-
-
-
-
-
         /// <summary>
         /// The port number the agent binds to for requests.
         /// </summary>
@@ -32,6 +19,24 @@ namespace MTConnect.Configurations
         /// </summary>
         [JsonPropertyName("server")]
         public string Server { get; set; }
+
+        [JsonPropertyName("tls")]
+        public TlsConfiguration Tls { get; set; }
+
+        //[JsonPropertyName("useTls")]
+        //public bool UseTls { get; set; }
+
+        //[JsonPropertyName("tlsCertificateChain")]
+        //public string TlsCertificateChain { get; set; }
+
+        //[JsonPropertyName("tlsPrivateKey")]
+        //public string TlsPrivateKey { get; set; }
+
+        //[JsonPropertyName("tlsCertificatePassword")]
+        //public string TlsCertificatePassword { get; set; }
+
+        //[JsonPropertyName("tlsVerifyClientCertificate")]
+        //public string TlsVerifyClientCertificate { get; set; }
 
         /// <summary>
         /// Gets or Sets the List of Encodings (ex. gzip, br, deflate) to pass to the Accept-Encoding HTTP Header
@@ -108,9 +113,9 @@ namespace MTConnect.Configurations
         public IEnumerable<FileConfiguration> Files { get; set; }
 
 
-        public HttpAgentConfiguration()
+        public HttpServerConfiguration()
         {
-            Server = "127.0.0.1";
+            Server = null;
             Port = 5000;
             AllowPut = false;
             AllowPutFrom = null;

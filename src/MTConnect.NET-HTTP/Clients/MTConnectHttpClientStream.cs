@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
+using System.Security.Authentication;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,15 +24,23 @@ namespace MTConnect.Clients
         private const byte LineFeed = 10;
         private const byte CarriageReturn = 13;
         private const byte Dash = 45;
-
-        private static readonly HttpClient _httpClient = new HttpClient()
-        {
-            Timeout = TimeSpan.FromMilliseconds(DefaultTimeout)
-        };
+        private static readonly HttpClient _httpClient;
 
         private CancellationTokenSource _stop;
         private string _documentFormat = DocumentFormat.XML;
 
+
+        static MTConnectHttpClientStream()
+        {
+            var handler = new HttpClientHandler()
+            {
+                AllowAutoRedirect = true,
+                SslProtocols = SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls
+            };
+
+            _httpClient = new HttpClient(handler);
+            _httpClient.Timeout = TimeSpan.FromMilliseconds(DefaultTimeout);
+        }
 
         public MTConnectHttpClientStream(string url, string documentFormat = DocumentFormat.XML)
         {
@@ -147,7 +156,6 @@ namespace MTConnect.Clients
                         }
                     }
 
-
                     // Get the HTTP Stream 
 #if NET5_0_OR_GREATER
                     using (var stream = await _httpClient.GetStreamAsync(Url, stop.Token))
@@ -167,6 +175,7 @@ namespace MTConnect.Clients
                         string contentEncoding = null;
                         var trimBytes = new byte[] { 10, 13 };
                         string lineStr = null;
+
 
                         var readBuffer = new byte[1];
                         var read = await stream.ReadAsync(readBuffer, 0, readBuffer.Length, stop.Token);

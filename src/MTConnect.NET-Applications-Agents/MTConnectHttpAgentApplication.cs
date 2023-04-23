@@ -1,12 +1,14 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
+using Ceen;
 using MTConnect.Configurations;
 using MTConnect.Servers.Http;
 using NLog;
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 
 namespace MTConnect.Applications.Agents
@@ -82,28 +84,30 @@ namespace MTConnect.Applications.Agents
             _configuration = configuration as IHttpAgentApplicationConfiguration;
         }
 
-        protected virtual MTConnectHttpAgentServer OnHttpServerInitialize(int port)
-        {
-            return new MTConnectHttpAgentServer(_configuration, Agent, null, port);
-        }
+        //protected virtual MTConnectHttpAgentServer OnHttpServerInitialize(int port)
+        //{
+        //    return new MTConnectHttpAgentServer(_configuration, Agent, null, port);
+        //}
 
         protected override void OnStartAgentBeforeLoad(IEnumerable<DeviceConfiguration> devices, bool initializeDataItems = false) 
         {
             // Intialize the Http Server
-            _httpServer = OnHttpServerInitialize(_port);
+            //_httpServer = OnHttpServerInitialize(_port);
+            _httpServer = new MTConnectHttpServer(_configuration, Agent);
 
-            _httpServer.ListenerStarted += HttpListenerStarted;
-            _httpServer.ListenerStopped += HttpListenerStopped;
+            _httpServer.ServerStarted += HttpListenerStarted;
+            _httpServer.ServerStopped += HttpListenerStopped;
+            _httpServer.ServerCertificateLoaded += HttpServerCertificateLoaded;
 
             // Setup Http Server Logging
-            if (_verboseLogging)
-            {
-                _httpServer.ListenerException += HttpListenerException;
+            //if (_verboseLogging)
+            //{
+                _httpServer.ServerException += HttpListenerException;
                 _httpServer.ClientConnected += HttpClientConnected;
                 _httpServer.ClientDisconnected += HttpClientDisconnected;
                 _httpServer.ClientException += HttpClientException;
                 _httpServer.ResponseSent += HttpResponseSent;
-            }
+            //}
 
             // Start the Http Server
             _httpServer.Start();
@@ -143,14 +147,19 @@ namespace MTConnect.Applications.Agents
             _httpLogger.Info($"[Http Server] : Listener Stopped for " + prefix);
         }
 
+        private void HttpServerCertificateLoaded(object sender, X509Certificate2 certificate)
+        {
+            _httpLogger.Info($"[Http Server] : TLS Certificate Loaded : {certificate.ToString()}");
+        }
+
         private void HttpListenerException(object sender, Exception exception)
         {
             _httpLogger.Warn($"[Http Server] : Listener Exception : " + exception.Message);
         }
 
-        private void HttpClientConnected(object sender, HttpListenerRequest request)
+        private void HttpClientConnected(object sender, IHttpRequest request)
         {
-            _httpLogger.Info($"[Http Server] : Http Client Connected : (" + request.HttpMethod + ") : " + request.LocalEndPoint + " : " + request.Url);
+            _httpLogger.Debug($"[Http Server] : Http Client Connected : (" + request.Method + ") : " + request.RemoteEndPoint + " : " + request.OriginalPath);
         }
 
         private void HttpClientDisconnected(object sender, string remoteEndPoint)

@@ -11,6 +11,9 @@ namespace MTConnect.Configurations
     /// </summary>
     public interface IHttpAgentConfiguration : IAgentConfiguration
     {
+        IEnumerable<HttpServerConfiguration> Http { get; }
+
+
         /// <summary>
         /// The port number the agent binds to for requests.
         /// </summary>

@@ -5,9 +5,14 @@ using MTConnect.Clients;
 
 //var agentUrl = "localhost:5006";
 //var agentUrl = "localhost:5005";
+//var agentUrl = "http://localhost:5001";
+//var agentUrl = "http://DESKTOP-HV74M4N:5001";
+//var agentUrl = "https://localhost:5002";
+//var agentUrl = "https://DESKTOP-HV74M4N:5002";
 //var agentUrl = "localhost:5000";
-var agentUrl = "192.168.1.136:5000";
+//var agentUrl = "192.168.1.136:5000";
 //var agentUrl = "mtconnect.mazakcorp.com:5719";
+var agentUrl = "https://trakhound.com";
 
 
 for (int i = 0; i < 1; i++)

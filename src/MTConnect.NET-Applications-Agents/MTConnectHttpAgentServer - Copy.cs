@@ -1,7 +1,6 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-using Ceen;
 using MTConnect.Agents;
 using MTConnect.Configurations;
 using MTConnect.Http;
@@ -36,7 +35,7 @@ namespace MTConnect.Applications.Agents
         }
 
 
-        protected override byte[] OnProcessStatic(IHttpRequest httpRequest, string absolutePath, string relativePath, Version version = null)
+        protected override byte[] OnProcessStatic(HttpListenerRequest httpRequest, string absolutePath, string relativePath, Version version = null)
         {
             if (_configuration.DevicesStyle != null && (relativePath == _configuration.DevicesStyle.Location || relativePath.Replace('\\', '/') == _configuration.StreamsStyle.Location))
             {
