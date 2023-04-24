@@ -758,7 +758,7 @@ namespace MTConnect.Agents
                                 var period = TimeSpan.FromSeconds(filter.Value);
 
                                 // Get Duration between newTimestamp and existingTimestamp
-                                var duration = TimeSpan.FromMilliseconds(newTimestamp - existingTimestamp);
+                                var duration = TimeSpan.FromTicks(newTimestamp - existingTimestamp);
 
                                 return duration > period;
                             }
