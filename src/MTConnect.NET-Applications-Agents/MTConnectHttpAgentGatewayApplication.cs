@@ -102,10 +102,14 @@ namespace MTConnect.Applications.Agents
                         agentClient.OnClientStopped += (s, e) => AgentClientStopped(agentClient);
                         agentClient.OnStreamStarted += (s, query) => AgentClientStreamStarted(agentClient, query);
                         agentClient.OnStreamStopped += (s, e) => AgentClientStreamStopped(agentClient);
-                        agentClient.OnProbeReceived += (s, doc) => DevicesDocumentReceived(agentClient, doc);
                         agentClient.OnCurrentReceived += (s, doc) => StreamsDocumentReceived(agentClient, doc);
                         agentClient.OnSampleReceived += (s, doc) => StreamsDocumentReceived(agentClient, doc);
                         agentClient.OnAssetsReceived += (s, doc) => AssetsDocumentReceived(agentClient, doc);
+
+                        if (Agent.GetDevice(agentClient.Device) == null)
+                        {
+                            agentClient.OnProbeReceived += (s, doc) => DevicesDocumentReceived(agentClient, doc);
+                        }
 
                         _clients.Add(agentClient);
                     }
