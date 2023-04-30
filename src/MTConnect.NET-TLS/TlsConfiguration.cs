@@ -67,10 +67,14 @@ namespace MTConnect.Tls
                 {
                     X509Certificate2 certificate;
 
+#if NET5_0_OR_GREATER
                     // Read from PEM file(s)
                     if (!string.IsNullOrEmpty(Pem.PrivateKeyPath)) certificate = X509Certificate2.CreateFromPemFile(Pem.CertificatePath, Pem.PrivateKeyPath);
                     else certificate = X509Certificate2.CreateFromPemFile(Pem.CertificatePath);
-                    
+#else
+                    certificate = null;
+#endif
+
                     // Export to Pkcs12
                     var pfxPassword = Guid.NewGuid().ToString();
                     var pkcsCert = certificate.Export(X509ContentType.Pkcs12, pfxPassword);

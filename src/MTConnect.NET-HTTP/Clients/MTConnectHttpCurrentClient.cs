@@ -7,7 +7,6 @@ using MTConnect.Streams;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
-using System.Security.Authentication;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
@@ -24,13 +23,7 @@ namespace MTConnect.Clients
 
         static MTConnectHttpCurrentClient()
         {
-            var handler = new HttpClientHandler()
-            {
-                AllowAutoRedirect = true,
-                SslProtocols = SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls
-            };
-
-            _httpClient = new HttpClient(handler);
+            _httpClient = new HttpClient();
             _httpClient.Timeout = TimeSpan.FromMilliseconds(DefaultTimeout);
         }
 

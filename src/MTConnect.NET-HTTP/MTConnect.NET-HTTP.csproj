@@ -116,8 +116,6 @@
 		<PackageReference Include="System.Text.Json" Version="6.0.1" />
 	</ItemGroup>
 	<ItemGroup>
-	  <PackageReference Include="Ceen.Httpd" Version="0.9.10" />
-	  <PackageReference Include="Ceen.Mvc" Version="0.9.10" />
 	  <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">
 	    <PrivateAssets>all</PrivateAssets>
 	    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -129,6 +127,10 @@
 	    <Pack>True</Pack>
 	    <PackagePath>\</PackagePath>
 	  </None>
+	</ItemGroup>
+	
+	<ItemGroup>
+	  <Folder Include="Ceen\Httpd\" />
 	</ItemGroup>
 
 </Project>

@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Net.Sockets;
-using System.Security.Authentication;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -25,19 +24,7 @@ namespace MTConnect.Clients
 
         static MTConnectHttpProbeClient()
         {
-            var handler = new SocketsHttpHandler()
-            {
-                SslOptions = new System.Net.Security.SslClientAuthenticationOptions
-                {
-                    
-                },
-                AllowAutoRedirect = true,
-                
-                
-                //SslProtocols = SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls
-            };
-
-            _httpClient = new HttpClient(handler);
+            _httpClient = new HttpClient();
             _httpClient.Timeout = TimeSpan.FromMilliseconds(DefaultTimeout);
         }
 
@@ -197,49 +184,37 @@ namespace MTConnect.Clients
         {
             try
             {
-                var handler = new SocketsHttpHandler()
+                // Create Http Request
+                using (var request = new HttpRequestMessage())
                 {
-                    SslOptions = new System.Net.Security.SslClientAuthenticationOptions
+                    request.Method = HttpMethod.Get;
+                    request.RequestUri = CreateUri();
+
+                    // Add 'Accept' HTTP Header
+                    var contentType = Formatters.ResponseDocumentFormatter.GetContentType(DocumentFormat);
+                    if (!string.IsNullOrEmpty(contentType))
                     {
-                        TargetHost = GetHostname(Authority)
-                    },
-                    AllowAutoRedirect = true,
-                };
+                        request.Headers.Add(HttpHeaders.Accept, contentType);
+                    }
 
-                using (var client = new HttpClient(handler))
-                {
-                    // Create Http Request
-                    using (var request = new HttpRequestMessage())
+                    // Add 'Accept-Encoding' HTTP Header 
+                    if (!ContentEncodings.IsNullOrEmpty())
                     {
-                        request.Method = HttpMethod.Get;
-                        request.RequestUri = CreateUri();
-
-                        // Add 'Accept' HTTP Header
-                        var contentType = Formatters.ResponseDocumentFormatter.GetContentType(DocumentFormat);
-                        if (!string.IsNullOrEmpty(contentType))
+                        foreach (var contentEncoding in ContentEncodings)
                         {
-                            request.Headers.Add(HttpHeaders.Accept, contentType);
+                            request.Headers.Add(HttpHeaders.AcceptEncoding, contentEncoding.ToString().ToLower());
                         }
+                    }
 
-                        // Add 'Accept-Encoding' HTTP Header 
-                        if (!ContentEncodings.IsNullOrEmpty())
-                        {
-                            foreach (var contentEncoding in ContentEncodings)
-                            {
-                                request.Headers.Add(HttpHeaders.AcceptEncoding, contentEncoding.ToString().ToLower());
-                            }
-                        }
-
-                        // Create Uri and Send Request
+                    // Create Uri and Send Request
 #if NET5_0_OR_GREATER
-                        using (var response = client.Send(request))
+                        using (var response = _httpClient.Send(request))
 #else
                     using (var response = _httpClient.SendAsync(request).Result)
 #endif
-                        {
-                            response.EnsureSuccessStatusCode();
-                            return HandleResponse(response);
-                        }
+                    {
+                        response.EnsureSuccessStatusCode();
+                        return HandleResponse(response);
                     }
                 }
             }
