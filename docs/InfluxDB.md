@@ -1,6 +1,8 @@
 # MTConnect > InfluxDB
 Uses the MTConnect.NET MTConnectHttpClient class to read from an MTConnect Agent and write that data to an InfluxDB database
 
+This is a simple example for basic Value Observations and would need to be edited to support Conditions, Datasets, Tables, TimeSeries, and Assets.
+
 ## Example
 ```c#
 using InfluxDB.Client;
