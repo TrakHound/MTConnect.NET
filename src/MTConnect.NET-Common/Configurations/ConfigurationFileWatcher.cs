@@ -21,9 +21,9 @@ namespace MTConnect.Configurations
         private bool _update = false;
 
 
-        public EventHandler<T> ConfigurationUpdated { get; set; }
+        public event EventHandler<T> ConfigurationUpdated;
 
-        public EventHandler<string> ErrorReceived { get; set; }
+        public event EventHandler<string> ErrorReceived;
 
 
         public ConfigurationFileWatcher(string path, int interval = DefaultInterval)

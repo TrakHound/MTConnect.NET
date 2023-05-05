@@ -40,9 +40,9 @@ namespace MTConnect.Buffers
 
         public bool UseCompression { get; set; } = true;
 
-        public EventHandler BufferLoadStarted { get; set; }
+        public event EventHandler BufferLoadStarted;
 
-        public EventHandler<AssetBufferLoadArgs> BufferLoadCompleted { get; set; }
+        public event EventHandler<AssetBufferLoadArgs> BufferLoadCompleted;
 
 
         public MTConnectAssetFileBuffer()

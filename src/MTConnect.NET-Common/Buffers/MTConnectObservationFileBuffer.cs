@@ -46,11 +46,11 @@ namespace MTConnect.Buffers
 
         public bool UseCompression { get; set; } = true;
 
-        public EventHandler BufferLoadStarted { get; set; }
+        public event EventHandler BufferLoadStarted;
 
-        public EventHandler<ObservationBufferLoadArgs> BufferLoadCompleted { get; set; }
+        public event EventHandler<ObservationBufferLoadArgs> BufferLoadCompleted;
 
-        public EventHandler<ObservationBufferRetentionArgs> BufferRetentionCompleted { get; set; }
+        public event EventHandler<ObservationBufferRetentionArgs> BufferRetentionCompleted;
 
 
         public MTConnectObservationFileBuffer()

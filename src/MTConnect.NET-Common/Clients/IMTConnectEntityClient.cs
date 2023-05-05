@@ -7,11 +7,11 @@ namespace MTConnect.Clients
 {
     public interface IMTConnectEntityClient
     {
-        EventHandler<IDevice> DeviceReceived { get; set; }
+        event EventHandler<IDevice> DeviceReceived;
 
-        EventHandler<IAsset> AssetReceived { get; set; }
+        event EventHandler<IAsset> AssetReceived;
 
-        EventHandler<IObservation> ObservationReceived { get; set; }
+        event EventHandler<IObservation> ObservationReceived;
 
 
         void Start();

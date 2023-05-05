@@ -97,18 +97,18 @@ namespace MTConnect.Applications.Agents
                         agentClient.CurrentOnly = clientConfiguration.CurrentOnly;
                         agentClient.UseStreaming = clientConfiguration.UseStreaming;
 
-                        // Subscribe to the Event handlers to receive the MTConnect documents
-                        agentClient.OnClientStarted += (s, e) => AgentClientStarted(agentClient);
-                        agentClient.OnClientStopped += (s, e) => AgentClientStopped(agentClient);
-                        agentClient.OnStreamStarted += (s, query) => AgentClientStreamStarted(agentClient, query);
-                        agentClient.OnStreamStopped += (s, e) => AgentClientStreamStopped(agentClient);
-                        agentClient.OnCurrentReceived += (s, doc) => StreamsDocumentReceived(agentClient, doc);
-                        agentClient.OnSampleReceived += (s, doc) => StreamsDocumentReceived(agentClient, doc);
-                        agentClient.OnAssetsReceived += (s, doc) => AssetsDocumentReceived(agentClient, doc);
+                        // Subscribe to the Events to receive the MTConnect documents
+                        agentClient.ClientStarted += (s, e) => AgentClientStarted(agentClient);
+                        agentClient.ClientStopped += (s, e) => AgentClientStopped(agentClient);
+                        agentClient.StreamStarted += (s, query) => AgentClientStreamStarted(agentClient, query);
+                        agentClient.StreamStopped += (s, e) => AgentClientStreamStopped(agentClient);
+                        agentClient.CurrentReceived += (s, doc) => StreamsDocumentReceived(agentClient, doc);
+                        agentClient.SampleReceived += (s, doc) => StreamsDocumentReceived(agentClient, doc);
+                        agentClient.AssetsReceived += (s, doc) => AssetsDocumentReceived(agentClient, doc);
 
                         if (Agent.GetDevice(agentClient.Device) == null)
                         {
-                            agentClient.OnProbeReceived += (s, doc) => DevicesDocumentReceived(agentClient, doc);
+                            agentClient.ProbeReceived += (s, doc) => DevicesDocumentReceived(agentClient, doc);
                         }
 
                         _clients.Add(agentClient);

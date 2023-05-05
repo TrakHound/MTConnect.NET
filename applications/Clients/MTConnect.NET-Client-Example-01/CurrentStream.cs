@@ -12,7 +12,7 @@ for (int i = 0; i < 1; i++)
     client.CurrentOnly = true;
     //client.ContentEncodings = null;
     //client.ContentType = null;
-    client.OnProbeReceived += (sender, document) =>
+    client.ProbeReceived += (sender, document) =>
     {
         Console.WriteLine("Probe Received");
 
@@ -37,7 +37,7 @@ for (int i = 0; i < 1; i++)
             //}
         }
     };
-    client.OnCurrentReceived += (sender, document) =>
+    client.CurrentReceived += (sender, document) =>
     {
         Console.WriteLine($"MTConnectStreams : Current : {document.GetObservations().Count()} Observations");
 
@@ -59,7 +59,7 @@ for (int i = 0; i < 1; i++)
         //    }
         //}
     };
-    client.OnSampleReceived += (sender, document) =>
+    client.SampleReceived += (sender, document) =>
     {
         Console.WriteLine($"MTConnectStreams : Sample : {document.GetObservations().Count()} Observations");
 
@@ -81,7 +81,7 @@ for (int i = 0; i < 1; i++)
         //    }
         //}
     };
-    client.OnAssetsReceived += (sender, document) =>
+    client.AssetsReceived += (sender, document) =>
     {
         Console.WriteLine($"MTConnectAssets : {document.Assets.Count()} Assets");
 

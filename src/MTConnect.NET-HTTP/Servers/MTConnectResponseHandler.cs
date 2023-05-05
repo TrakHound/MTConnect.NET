@@ -25,22 +25,22 @@ namespace MTConnect.Servers.Http
         /// <summary>
         /// Event Handler for when an error occurs with a MTConnectHttpResponse is written to the HTTP Client
         /// </summary>
-        public EventHandler<MTConnectHttpResponse> ResponseSent { get; set; }
+        public event EventHandler<MTConnectHttpResponse> ResponseSent;
 
         /// <summary>
         /// Event Handler for when a client makes a request to the server
         /// </summary>
-        public EventHandler<IHttpRequest> ClientConnected { get; set; }
+        public event EventHandler<IHttpRequest> ClientConnected;
 
         /// <summary>
         /// Event Handler for when a client completes a request or disconnects from the server
         /// </summary>
-        public EventHandler<string> ClientDisconnected { get; set; }
+        public event EventHandler<string> ClientDisconnected;
 
         /// <summary>
         /// Event Handler for when an error occurs with the HttpListenerRequest
         /// </summary>
-        public EventHandler<Exception> ClientException { get; set; }
+        public event EventHandler<Exception> ClientException;
 
 
         public MTConnectResponseHandler(IHttpAgentConfiguration configuration, IMTConnectAgentBroker mtconnectAgent)

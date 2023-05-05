@@ -97,20 +97,20 @@ namespace MTConnect.Applications
                             _clients.Add(agentClient);
 
                             // Subscribe to the Event handlers to receive status events
-                            agentClient.OnClientStarting += (s, e) => ClientStarting(((MTConnectHttpClient)s).Authority);
-                            agentClient.OnClientStarted += (s, e) => ClientStarted(((MTConnectHttpClient)s).Authority);
-                            agentClient.OnClientStopping += (s, e) => ClientStopping(((MTConnectHttpClient)s).Authority);
-                            agentClient.OnClientStopped += (s, e) => ClientStopped(((MTConnectHttpClient)s).Authority);
-                            agentClient.OnStreamStarting += (s, streamUrl) => StreamStarting(streamUrl);
-                            agentClient.OnStreamStarted += (s, streamUrl) => StreamStarted(streamUrl);
-                            agentClient.OnStreamStopping += (s, streamUrl) => StreamStopping(streamUrl);
-                            agentClient.OnStreamStopped += (s, streamUrl) => StreamStopped(streamUrl);
+                            agentClient.ClientStarting += (s, e) => ClientStarting(((MTConnectHttpClient)s).Authority);
+                            agentClient.ClientStarted += (s, e) => ClientStarted(((MTConnectHttpClient)s).Authority);
+                            agentClient.ClientStopping += (s, e) => ClientStopping(((MTConnectHttpClient)s).Authority);
+                            agentClient.ClientStopped += (s, e) => ClientStopped(((MTConnectHttpClient)s).Authority);
+                            agentClient.StreamStarting += (s, streamUrl) => StreamStarting(streamUrl);
+                            agentClient.StreamStarted += (s, streamUrl) => StreamStarted(streamUrl);
+                            agentClient.StreamStopping += (s, streamUrl) => StreamStopping(streamUrl);
+                            agentClient.StreamStopped += (s, streamUrl) => StreamStopped(streamUrl);
 
                             // Subscribe to the Event handlers to receive the MTConnect documents
-                            agentClient.OnProbeReceived += (s, doc) => DevicesDocumentReceived(doc);
-                            agentClient.OnCurrentReceived += (s, doc) => StreamsDocumentReceived(doc);
-                            agentClient.OnSampleReceived += (s, doc) => StreamsDocumentReceived(doc);
-                            agentClient.OnAssetsReceived += (s, doc) => AssetsDocumentReceived(doc);
+                            agentClient.ProbeReceived += (s, doc) => DevicesDocumentReceived(doc);
+                            agentClient.CurrentReceived += (s, doc) => StreamsDocumentReceived(doc);
+                            agentClient.SampleReceived += (s, doc) => StreamsDocumentReceived(doc);
+                            agentClient.AssetsReceived += (s, doc) => AssetsDocumentReceived(doc);
 
                             agentClient.Start();
                         }

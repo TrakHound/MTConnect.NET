@@ -27,8 +27,6 @@ namespace MTConnect.Agents
     {
         private const int InformationUpdateInterval = 1000;
 
-
-        private readonly object _lock = new object();
         private readonly IAgentConfiguration _configuration;
         private readonly MTConnectAgentInformation _information;
 
@@ -41,7 +39,6 @@ namespace MTConnect.Agents
         protected readonly ConcurrentDictionary<string, IDevice> _devices = new ConcurrentDictionary<string, IDevice>(); // Resolves either the Device Name or UUID to the Device
         protected readonly ConcurrentDictionary<string, IEnumerable<IDataItem>> _deviceDataItems = new ConcurrentDictionary<string, IEnumerable<IDataItem>>();
         protected readonly ConcurrentDictionary<string, IEnumerable<string>> _deviceDataItemIds = new ConcurrentDictionary<string, IEnumerable<string>>();
-        private readonly List<AssetCount> _deviceAssetCounts = new List<AssetCount>();
 
         protected readonly ConcurrentDictionary<string, string> _dataItemKeys = new ConcurrentDictionary<string, string>(); // Caches DeviceUuid:DataItemKey to DeviceUuid:DataItemId
         protected readonly ConcurrentDictionary<string, IDataItem> _dataItems = new ConcurrentDictionary<string, IDataItem>(); // Key = DeviceUuid:DataItemId
@@ -131,57 +128,60 @@ namespace MTConnect.Agents
         /// </summary>
         public DateTime DeviceModelChangeTime => _deviceModelChangeTime.ToDateTime();
 
+        #endregion
+
+        #region "Events"
 
         /// <summary>
         /// Raised when a new Device is added to the Agent
         /// </summary>
-        public EventHandler<IDevice> DeviceAdded { get; set; }
+        public event EventHandler<IDevice> DeviceAdded;
 
         /// <summary>
         /// Raised when a new Observation is attempted to be added to the Agent
         /// </summary>
-        public EventHandler<IObservationInput> ObservationReceived { get; set; }
+        public event EventHandler<IObservationInput> ObservationReceived;
 
         /// <summary>
         /// Raised when a new Observation is added to the Agent
         /// </summary>
-        public EventHandler<IObservation> ObservationAdded { get; set; }
+        public event EventHandler<IObservation> ObservationAdded;
 
         /// <summary>
         /// Raised when a new Asset is attempted to be added to the Agent
         /// </summary>
-        public EventHandler<IAsset> AssetReceived { get; set; }
+        public event EventHandler<IAsset> AssetReceived;
 
         /// <summary>
         /// Raised when a new Asset is added to the Agent
         /// </summary>
-        public EventHandler<IAsset> AssetAdded { get; set; }
+        public event EventHandler<IAsset> AssetAdded;
 
 
         /// <summary>
         /// Raised when an Invalid Component is Added
         /// </summary>
-        public MTConnectComponentValidationHandler InvalidComponentAdded { get; set; }
+        public event MTConnectComponentValidationHandler InvalidComponentAdded;
 
         /// <summary>
         /// Raised when an Invalid Composition is Added
         /// </summary>
-        public MTConnectCompositionValidationHandler InvalidCompositionAdded { get; set; }
+        public event MTConnectCompositionValidationHandler InvalidCompositionAdded;
 
         /// <summary>
         /// Raised when an Invalid DataItem is Added
         /// </summary>
-        public MTConnectDataItemValidationHandler InvalidDataItemAdded { get; set; }
+        public event MTConnectDataItemValidationHandler InvalidDataItemAdded;
 
         /// <summary>
         /// Raised when an Invalid Observation is Added
         /// </summary>
-        public MTConnectObservationValidationHandler InvalidObservationAdded { get; set; }
+        public event MTConnectObservationValidationHandler InvalidObservationAdded;
 
         /// <summary>
         /// Raised when an Invalid Asset is Added
         /// </summary>
-        public MTConnectAssetValidationHandler InvalidAssetAdded { get; set; }
+        public event MTConnectAssetValidationHandler InvalidAssetAdded;
 
         #endregion
 

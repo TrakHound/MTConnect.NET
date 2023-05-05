@@ -9,10 +9,10 @@ using MTConnect.Clients;
 //var agentUrl = "http://DESKTOP-HV74M4N:5001";
 //var agentUrl = "https://localhost:5002";
 //var agentUrl = "https://DESKTOP-HV74M4N:5002";
-//var agentUrl = "localhost:5000";
+var agentUrl = "localhost:5000";
 //var agentUrl = "192.168.1.136:5000";
 //var agentUrl = "mtconnect.mazakcorp.com:5719";
-var agentUrl = "https://trakhound.com";
+//var agentUrl = "https://trakhound.com";
 
 
 for (int i = 0; i < 1; i++)
@@ -23,7 +23,7 @@ for (int i = 0; i < 1; i++)
     client.Heartbeat = 10000;
     //client.ContentEncodings = null;
     //client.ContentType = null;
-    client.OnProbeReceived += (sender, document) =>
+    client.ProbeReceived += (sender, document) =>
     {
         Console.WriteLine("Probe Received");
 
@@ -45,7 +45,7 @@ for (int i = 0; i < 1; i++)
             //}
         }
     };
-    client.OnCurrentReceived += (sender, document) =>
+    client.CurrentReceived += (sender, document) =>
     {
         Console.WriteLine($"MTConnectStreams : Current : {document.GetObservations().Count()} Observations");
 
@@ -67,7 +67,7 @@ for (int i = 0; i < 1; i++)
         //    }
         //}
     };
-    client.OnSampleReceived += (sender, document) =>
+    client.SampleReceived += (sender, document) =>
     {
         Console.WriteLine($"MTConnectStreams : Sample : {document.GetObservations().Count()} Observations");
 
@@ -89,7 +89,7 @@ for (int i = 0; i < 1; i++)
         //    }
         //}
     };
-    client.OnAssetsReceived += (sender, document) =>
+    client.AssetsReceived += (sender, document) =>
     {
         Console.WriteLine($"MTConnectAssets : {document.Assets.Count()} Assets");
 

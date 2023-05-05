@@ -35,7 +35,7 @@ namespace MTConnect.Buffers
         /// <summary>
         /// Raised when an Asset is pushed out of the Buffer
         /// </summary>
-        EventHandler<IAsset> AssetRemoved { get; set; }
+        event EventHandler<IAsset> AssetRemoved;
 
 
         /// <summary>

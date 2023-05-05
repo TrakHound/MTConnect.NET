@@ -66,58 +66,58 @@ namespace MTConnect.Agents
 
 
 
-        #region "Event Handlers"
+        #region "Events"
 
         /// <summary>
         /// Event raised when a new Device is added to the Agent
         /// </summary>
-        EventHandler<IDevice> DeviceAdded { get; set; }
+        event EventHandler<IDevice> DeviceAdded;
 
         /// <summary>
         /// Raised when a new Observation is attempted to be added to the Agent
         /// </summary>
-        EventHandler<IObservationInput> ObservationReceived { get; set; }
+        event EventHandler<IObservationInput> ObservationReceived;
 
         /// <summary>
         /// Raised when a new Observation is successfully added to the Agent
         /// </summary>
-        EventHandler<IObservation> ObservationAdded { get; set; }
+        event EventHandler<IObservation> ObservationAdded;
 
         /// <summary>
         /// Raised when a new Asset is attempted to be added to the Agent
         /// </summary>
-        EventHandler<IAsset> AssetReceived { get; set; }
+        event EventHandler<IAsset> AssetReceived;
 
         /// <summary>
         /// Raised when a new Asset is added to the Agent
         /// </summary>
-        EventHandler<IAsset> AssetAdded { get; set; }
+        event EventHandler<IAsset> AssetAdded;
 
 
         /// <summary>
         /// Raised when an Invalid Component is Added
         /// </summary>
-        MTConnectComponentValidationHandler InvalidComponentAdded { get; set; }
+        event MTConnectComponentValidationHandler InvalidComponentAdded;
 
         /// <summary>
         /// Raised when an Invalid Composition is Added
         /// </summary>
-        MTConnectCompositionValidationHandler InvalidCompositionAdded { get; set; }
+        event MTConnectCompositionValidationHandler InvalidCompositionAdded;
 
         /// <summary>
         /// Raised when an Invalid DataItem is Added
         /// </summary>
-        MTConnectDataItemValidationHandler InvalidDataItemAdded { get; set; }
+        event MTConnectDataItemValidationHandler InvalidDataItemAdded;
 
         /// <summary>
         /// Raised when an Invalid Observation is Added
         /// </summary>
-        MTConnectObservationValidationHandler InvalidObservationAdded { get; set; }
+        event MTConnectObservationValidationHandler InvalidObservationAdded;
 
         /// <summary>
         /// Raised when an Invalid Asset is Added
         /// </summary>
-        MTConnectAssetValidationHandler InvalidAssetAdded { get; set; }
+        event MTConnectAssetValidationHandler InvalidAssetAdded;
 
         #endregion
 

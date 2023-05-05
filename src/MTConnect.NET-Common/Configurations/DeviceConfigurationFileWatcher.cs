@@ -1,7 +1,6 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-using MTConnect.Devices;
 using System;
 using System.IO;
 
@@ -22,9 +21,9 @@ namespace MTConnect.Configurations
         private bool _update = false;
 
 
-        public EventHandler<DeviceConfiguration> ConfigurationUpdated { get; set; }
+        public event EventHandler<DeviceConfiguration> ConfigurationUpdated;
 
-        public EventHandler<string> ErrorReceived { get; set; }
+        public event EventHandler<string> ErrorReceived;
 
 
         public DeviceConfigurationFileWatcher(string path, int interval = DefaultInterval, string documentFormatter = DocumentFormat.XML)

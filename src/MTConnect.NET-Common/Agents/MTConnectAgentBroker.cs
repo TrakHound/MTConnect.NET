@@ -7,7 +7,6 @@ using MTConnect.Configurations;
 using MTConnect.Devices;
 using MTConnect.Devices.DataItems;
 using MTConnect.Devices.DataItems.Events;
-using MTConnect.Devices.DataItems.Samples;
 using MTConnect.Errors;
 using MTConnect.Headers;
 using MTConnect.Observations;
@@ -26,7 +25,6 @@ namespace MTConnect.Agents
     public class MTConnectAgentBroker : MTConnectAgent, IMTConnectAgentBroker, IDisposable
     {
         private readonly object _lock = new object();
-        //private readonly IMTConnectDeviceBuffer _deviceBuffer;
         private readonly IMTConnectObservationBuffer _observationBuffer;
         private readonly IMTConnectAssetBuffer _assetBuffer;
         private readonly List<AssetCount> _deviceAssetCounts = new List<AssetCount>();
@@ -97,46 +95,49 @@ namespace MTConnect.Agents
             }
         }
 
+        #endregion
+
+        #region "Events"
 
         /// <summary>
         /// Raised when an MTConnectDevices response Document is requested from the Agent
         /// </summary>
-        public MTConnectDevicesRequestedHandler DevicesRequestReceived { get; set; }
+        public event MTConnectDevicesRequestedHandler DevicesRequestReceived;
 
         /// <summary>
         /// Raised when an MTConnectDevices response Document is sent successfully from the Agent
         /// </summary>
-        public MTConnectDevicesHandler DevicesResponseSent { get; set; }
+        public event MTConnectDevicesHandler DevicesResponseSent;
 
         /// <summary>
         /// Raised when an MTConnectStreams response Document is requested from the Agent
         /// </summary>
-        public MTConnectStreamsRequestedHandler StreamsRequestReceived { get; set; }
+        public event MTConnectStreamsRequestedHandler StreamsRequestReceived;
 
         /// <summary>
         /// Raised when an MTConnectStreams response Document is sent successfully from the Agent
         /// </summary>
-        public EventHandler StreamsResponseSent { get; set; }
+        public event EventHandler StreamsResponseSent;
 
         /// <summary>
         /// Raised when an MTConnectAssets response Document is requested from the Agent
         /// </summary>
-        public MTConnectAssetsRequestedHandler AssetsRequestReceived { get; set; }
+        public event MTConnectAssetsRequestedHandler AssetsRequestReceived;
 
         /// <summary>
         /// Raised when an MTConnectAssets response Document is requested from the Agent for a specific Device
         /// </summary>
-        public MTConnectDeviceAssetsRequestedHandler DeviceAssetsRequestReceived { get; set; }
+        public event MTConnectDeviceAssetsRequestedHandler DeviceAssetsRequestReceived;
 
         /// <summary>
         /// Raised when an MTConnectAssets response Document is sent successfully from the Agent
         /// </summary>
-        public MTConnectAssetsHandler AssetsResponseSent { get; set; }
+        public event MTConnectAssetsHandler AssetsResponseSent;
 
         /// <summary>
         /// Raised when an MTConnectError response Document is sent successfully from the Agent
         /// </summary>
-        public MTConnectErrorHandler ErrorResponseSent { get; set; }
+        public event MTConnectErrorHandler ErrorResponseSent;
 
         #endregion
 
@@ -1685,7 +1686,8 @@ namespace MTConnect.Agents
 
                             var bufferObservation = new BufferObservation(bufferKey, observation);
                             _observationBuffer.AddObservation(ref bufferObservation);
-                            ObservationAdded?.Invoke(this, observation);
+
+                            //ObservationAdded?.Invoke(observation);
                         }
                     }
                 }

@@ -47,7 +47,7 @@ namespace MTConnect.Buffers
             get { return _assetIds.Keys.ToList(); }
         }
 
-        public EventHandler<IAsset> AssetRemoved { get; set; }
+        public event EventHandler<IAsset> AssetRemoved;
 
 
         public MTConnectAssetBuffer() 

@@ -187,23 +187,23 @@ namespace IntegrationTests
             {
                 Interval = 500
             };
-            client.OnCurrentReceived += onCurrent;
-            client.OnSampleReceived += onSample;
-            client.OnConnectionError += (
+            client.CurrentReceived += onCurrent;
+            client.SampleReceived += onSample;
+            client.ConnectionError += (
                 sender,
                 exception) =>
             {
                 _logger.LogDebug(exception, "Connection error happened.");
                 tcs.TrySetResult(null);
             };
-            client.OnInternalError += (
+            client.InternalError += (
                 sender,
                 exception) =>
             {
                 _logger.LogDebug(exception, "Internal error happened.");
                 tcs.TrySetResult(null);
             };
-            client.OnMTConnectError += (
+            client.MTConnectError += (
                 sender,
                 exception) =>
             {
@@ -217,7 +217,7 @@ namespace IntegrationTests
 
                 tcs.TrySetResult(null);
             };
-            client.OnClientStarted += (
+            client.ClientStarted += (
                 sender,
                 args) =>
             {

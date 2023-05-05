@@ -11,6 +11,7 @@ namespace MTConnect.Buffers
 
         public string Path { get; set; }
 
+
         public BufferFile(string path, int pageSize)
         {
             SequenceTop = System.IO.Path.GetFileName(path).ToLong();

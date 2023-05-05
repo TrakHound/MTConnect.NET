@@ -132,17 +132,17 @@ namespace MTConnect.Clients
         /// <summary>
         /// Raised when an MTConnectError Document is received
         /// </summary>
-        public EventHandler<IErrorResponseDocument> OnMTConnectError { get; set; }
+        public event EventHandler<IErrorResponseDocument> MTConnectError;
 
         /// <summary>
         /// Raised when an Connection Error occurs
         /// </summary>
-        public EventHandler<Exception> OnConnectionError { get; set; }
+        public event EventHandler<Exception> ConnectionError;
 
         /// <summary>
         /// Raised when an Internal Error occurs
         /// </summary>
-        public EventHandler<Exception> OnInternalError { get; set; }
+        public event EventHandler<Exception> InternalError;
 
 
         /// <summary>
@@ -189,16 +189,16 @@ namespace MTConnect.Clients
             }
             catch (TaskCanceledException ex) when (ex.InnerException is TimeoutException)
             {
-                OnConnectionError?.Invoke(this, ex);
+                ConnectionError?.Invoke(this, ex);
             }
             catch (TaskCanceledException) { /* Ignore Task Cancelled */  }
             catch (HttpRequestException ex)
             {
-                OnConnectionError?.Invoke(this, ex);
+                ConnectionError?.Invoke(this, ex);
             }
             catch (Exception ex)
             {
-                OnInternalError?.Invoke(this, ex);
+                InternalError?.Invoke(this, ex);
             }
 
             return null;
@@ -243,16 +243,16 @@ namespace MTConnect.Clients
             }
             catch (TaskCanceledException ex) when (ex.InnerException is TimeoutException)
             {
-                OnConnectionError?.Invoke(this, ex);
+                ConnectionError?.Invoke(this, ex);
             }
             catch (TaskCanceledException) { /* Ignore Task Cancelled */  }
             catch (HttpRequestException ex)
             {
-                OnConnectionError?.Invoke(this, ex);
+                ConnectionError?.Invoke(this, ex);
             }
             catch (Exception ex)
             {
-                OnInternalError?.Invoke(this, ex);
+                InternalError?.Invoke(this, ex);
             }
 
             return null;
@@ -328,7 +328,7 @@ namespace MTConnect.Clients
             {
                 if (!response.IsSuccessStatusCode)
                 {
-                    OnConnectionError?.Invoke(this, new Exception(response.ReasonPhrase));
+                    ConnectionError?.Invoke(this, new Exception(response.ReasonPhrase));
                 }
                 else if (response.Content != null)
                 {
@@ -346,7 +346,7 @@ namespace MTConnect.Clients
             {
                 if (!response.IsSuccessStatusCode)
                 {
-                    OnConnectionError?.Invoke(this, new Exception(response.ReasonPhrase));
+                    ConnectionError?.Invoke(this, new Exception(response.ReasonPhrase));
                 }
                 else if (response.Content != null)
                 {
@@ -383,7 +383,7 @@ namespace MTConnect.Clients
                     var errorDocument = Formatters.ResponseDocumentFormatter.CreateErrorResponseDocument(DocumentFormat.ToString(), bytes).Document;
                     if (errorDocument != null)
                     {
-                        OnMTConnectError?.Invoke(this, errorDocument);
+                        MTConnectError?.Invoke(this, errorDocument);
                     }
                 }
             }

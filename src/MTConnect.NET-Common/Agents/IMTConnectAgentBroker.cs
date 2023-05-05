@@ -51,47 +51,47 @@ namespace MTConnect.Agents
         Dictionary<string, int> DataItemIndexes { get; }
 
 
-        #region "Event Handlers"
+        #region "Events"
 
         /// <summary>
         /// Raised when an MTConnectDevices response Document is requested from the Agent
         /// </summary>
-        MTConnectDevicesRequestedHandler DevicesRequestReceived { get; set; }
+        event MTConnectDevicesRequestedHandler DevicesRequestReceived;
 
         /// <summary>
         /// Raised when an MTConnectDevices response Document is sent successfully from the Agent
         /// </summary>
-        MTConnectDevicesHandler DevicesResponseSent { get; set; }
+        event MTConnectDevicesHandler DevicesResponseSent;
 
         /// <summary>
         /// Raised when an MTConnectStreams response Document is requested from the Agent
         /// </summary>
-        MTConnectStreamsRequestedHandler StreamsRequestReceived { get; set; }
+        event MTConnectStreamsRequestedHandler StreamsRequestReceived;
 
         /// <summary>
         /// Raised when an MTConnectStreams response Document is sent successfully from the Agent
         /// </summary>
-        EventHandler StreamsResponseSent { get; set; }
+        event EventHandler StreamsResponseSent;
 
         /// <summary>
         /// Raised when an MTConnectAssets response Document is requested from the Agent
         /// </summary>
-        MTConnectAssetsRequestedHandler AssetsRequestReceived { get; set; }
+        event MTConnectAssetsRequestedHandler AssetsRequestReceived;
 
         /// <summary>
         /// Raised when an MTConnectAssets response Document is requested from the Agent for a specific Device
         /// </summary>
-        MTConnectDeviceAssetsRequestedHandler DeviceAssetsRequestReceived { get; set; }
+        event MTConnectDeviceAssetsRequestedHandler DeviceAssetsRequestReceived;
 
         /// <summary>
         /// Raised when an MTConnectAssets response Document is sent successfully from the Agent
         /// </summary>
-        MTConnectAssetsHandler AssetsResponseSent { get; set; }
+        event MTConnectAssetsHandler AssetsResponseSent;
 
         /// <summary>
         /// Raised when an MTConnectError response Document is sent successfully from the Agent
         /// </summary>
-        MTConnectErrorHandler ErrorResponseSent { get; set; }
+        event MTConnectErrorHandler ErrorResponseSent;
 
         #endregion
 

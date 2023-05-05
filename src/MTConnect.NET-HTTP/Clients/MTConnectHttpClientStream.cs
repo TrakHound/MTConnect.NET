@@ -72,19 +72,19 @@ namespace MTConnect.Clients
         public string ContentType { get; set; }
 
 
-        public EventHandler<IStreamsResponseDocument> DocumentReceived { get; set; }
+        public event EventHandler<IStreamsResponseDocument> DocumentReceived;
 
-        public EventHandler<IErrorResponseDocument> ErrorReceived { get; set; }
+        public event EventHandler<IErrorResponseDocument> ErrorReceived;
 
-        public EventHandler<Exception> OnInternalError { get; set; }
+        public event EventHandler<Exception> InternalError;
 
-        public EventHandler<Exception> OnConnectionError { get; set; }
+        public event EventHandler<Exception> ConnectionError;
 
-        public EventHandler Starting { get; set; }
-        public EventHandler Started { get; set; }
+        public event EventHandler Starting;
+        public event EventHandler Started;
 
-        public EventHandler Stopping { get; set; }
-        public EventHandler Stopped { get; set; }
+        public event EventHandler Stopping;
+        public event EventHandler Stopped;
 
 
         public void Start(CancellationToken cancellationToken)
@@ -124,7 +124,7 @@ namespace MTConnect.Clients
                     responseTimer.Elapsed += (o, e) =>
                     {
                         stop.Cancel();
-                        OnConnectionError?.Invoke(this, new TimeoutException($"HTTP Stream Timeout Exceeded ({Timeout})"));
+                        ConnectionError?.Invoke(this, new TimeoutException($"HTTP Stream Timeout Exceeded ({Timeout})"));
                     };
                     responseTimer.Start();
                 }
@@ -260,16 +260,16 @@ namespace MTConnect.Clients
                 }
                 catch (TaskCanceledException ex) when (ex.InnerException is TimeoutException)
                 {
-                    OnConnectionError?.Invoke(this, ex);
+                    ConnectionError?.Invoke(this, ex);
                 }
                 catch (TaskCanceledException) { /* Ignore Task Cancelled */  }
                 catch (HttpRequestException ex)
                 {
-                    OnConnectionError?.Invoke(this, ex);
+                    ConnectionError?.Invoke(this, ex);
                 }
                 catch (Exception ex)
                 {
-                    OnInternalError?.Invoke(this, ex);
+                    InternalError?.Invoke(this, ex);
                 }
                 finally
                 {

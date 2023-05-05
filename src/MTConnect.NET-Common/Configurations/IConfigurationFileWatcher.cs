@@ -10,8 +10,8 @@ namespace MTConnect.Configurations
     /// </summary>
     public interface IConfigurationFileWatcher<T> : IDisposable
     {
-        EventHandler<T> ConfigurationUpdated { get; set; }
+        event EventHandler<T> ConfigurationUpdated;
 
-        EventHandler<string> ErrorReceived { get; set; }
+        event EventHandler<string> ErrorReceived;
     }
 }

@@ -308,9 +308,9 @@ namespace MTConnect.DeviceFinder
                 var uri = MTConnectHttpProbeClient.CreateUri(address.ToString(), port);
                 var probe = new MTConnectHttpProbeClient(uri.ToString());
                 probe.Timeout = Timeout;
-                probe.OnMTConnectError += ProbeMTConnectError;
-                probe.OnConnectionError += ProbeExceptionError;
-                probe.OnInternalError += ProbeExceptionError;
+                probe.MTConnectError += ProbeMTConnectError;
+                probe.ConnectionError += ProbeExceptionError;
+                probe.InternalError += ProbeExceptionError;
 
                 // Notify that a new Probe request has been sent
                 ProbeSent?.Invoke(this, address, port);

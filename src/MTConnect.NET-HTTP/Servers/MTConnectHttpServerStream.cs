@@ -51,15 +51,15 @@ namespace MTConnect.Servers.Http
 
         public IEnumerable<KeyValuePair<string, string>> Headers { get; set; }
 
-        public EventHandler<string> StreamStarted { get; set; }
+        public event EventHandler<string> StreamStarted;
 
-        public EventHandler<string> StreamStopped { get; set; }
+        public event EventHandler<string> StreamStopped;
 
-        public EventHandler<Exception> StreamException { get; set; }
+        public event EventHandler<Exception> StreamException;
 
-        public EventHandler<MTConnectHttpStreamArgs> DocumentReceived { get; set; }
+        public event EventHandler<MTConnectHttpStreamArgs> DocumentReceived;
 
-        public EventHandler<MTConnectHttpStreamArgs> HeartbeatReceived { get; set; }
+        public event EventHandler<MTConnectHttpStreamArgs> HeartbeatReceived;
 
 
 
