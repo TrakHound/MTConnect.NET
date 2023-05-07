@@ -18,7 +18,7 @@ namespace MTConnect.Clients
     /// <summary>
     /// Client that implements the full MTConnect HTTP REST Api Protocol (Probe, Current, Sample Stream, and Assets)
     /// </summary>
-    public class MTConnectHttpClient : IMTConnectClient
+    public class MTConnectHttpClient : IMTConnectClient, IMTConnectEntityClient
     {
         private readonly Dictionary<string, IDevice> _devices = new Dictionary<string, IDevice>();
         private readonly object _lock = new object();
@@ -85,7 +85,7 @@ namespace MTConnect.Clients
             Timeout = 5000;
             Heartbeat = 1000;
             MaximumSampleCount = 1000;
-            RetryInterval = 10000;
+            ReconnectionInterval = 10000;
             ContentEncodings = HttpContentEncodings.DefaultAccept;
             ContentType = MimeTypes.Get(DocumentFormat);
             UseStreaming = true;
@@ -133,7 +133,7 @@ namespace MTConnect.Clients
         /// <summary>
         /// Gets or Sets the Interval in Milliseconds that the Client will attempt to reconnect if the connection fails
         /// </summary>
-        public int RetryInterval { get; set; }
+        public int ReconnectionInterval { get; set; }
 
         /// <summary>
         /// Gets or Sets the Maximum Number of Samples returned per interval from the Sample Stream
@@ -177,6 +177,12 @@ namespace MTConnect.Clients
 
 
         #region "Events"
+
+        public event EventHandler<IDevice> DeviceReceived;
+
+        public event EventHandler<IObservation> ObservationReceived;
+
+        public event EventHandler<IAsset> AssetReceived;
 
         /// <summary>
         /// Raised when an MTConnectDevices Document is received
@@ -593,8 +599,7 @@ namespace MTConnect.Clients
                         _lastResponse = UnixDateTime.Now;
                        ResponseReceived?.Invoke(this, new EventArgs());
 
-                        // Raise ProbeReceived Event
-                        ProbeReceived?.Invoke(this, probe);
+                        ProcessProbeDocument(probe);
 
                         // Get All Assets
                         if (probe.Header.AssetCount > 0)
@@ -689,12 +694,12 @@ namespace MTConnect.Clients
 
                                 if (!_stop.Token.IsCancellationRequested)
                                 {
-                                    await Task.Delay(RetryInterval, _stop.Token);
+                                    await Task.Delay(ReconnectionInterval, _stop.Token);
                                 }
                             }
                             else
                             {
-                                await Task.Delay(RetryInterval, _stop.Token);
+                                await Task.Delay(ReconnectionInterval, _stop.Token);
                             }
                         }
                         else
@@ -754,12 +759,12 @@ namespace MTConnect.Clients
                             }
                             while (!_stop.Token.IsCancellationRequested);
 
-                            await Task.Delay(RetryInterval, _stop.Token);
+                            await Task.Delay(ReconnectionInterval, _stop.Token);
                         }
                     }
                     else
                     {
-                        await Task.Delay(RetryInterval, _stop.Token);
+                        await Task.Delay(ReconnectionInterval, _stop.Token);
                     }
                 }
                 catch (TaskCanceledException) { }
@@ -771,6 +776,20 @@ namespace MTConnect.Clients
             } while (!_stop.Token.IsCancellationRequested);
 
             ClientStopped?.Invoke(this, new EventArgs());
+        }
+
+        private void ProcessProbeDocument(IDevicesResponseDocument document)
+        {
+            // Raise ProbeReceived Event
+            ProbeReceived?.Invoke(this, document);
+
+            if (document != null && !document.Devices.IsNullOrEmpty())
+            {
+                foreach (var device in document.Devices)
+                {
+                    DeviceReceived?.Invoke(this, device);
+                }
+            }
         }
 
         private void ProcessCurrentDocument(IStreamsResponseDocument document, CancellationToken cancel)
@@ -788,7 +807,8 @@ namespace MTConnect.Clients
                     if (!string.IsNullOrEmpty(Device)) deviceStream = document.Streams.FirstOrDefault(o => o.Uuid == Device || o.Name == Device);
                     else deviceStream = document.Streams.FirstOrDefault();
 
-                    if (deviceStream != null && deviceStream.Observations != null && deviceStream.Observations.Count() > 0)
+                    var observations = deviceStream.Observations;
+                    if (deviceStream != null && !observations.IsNullOrEmpty())
                     {
                         // Recreate Response Document (to set DataItem property for Observations)
                         var response = new StreamsResponseDocument();
@@ -804,6 +824,15 @@ namespace MTConnect.Clients
                         CheckAssetChanged(deviceStream.Observations, cancel);
 
                         CurrentReceived?.Invoke(this, response);
+
+                        observations = response.GetObservations();
+                        if (!observations.IsNullOrEmpty())
+                        {
+                            foreach (var observation in observations)
+                            {
+                                ObservationReceived?.Invoke(this, observation);
+                            }
+                        }
                     }
                 }
             }
@@ -846,6 +875,15 @@ namespace MTConnect.Clients
                         _lastSequence = deviceStream.Observations.Max(o => o.Sequence);
 
                         SampleReceived?.Invoke(this, response);
+
+                        var observations = response.GetObservations();
+                        if (!observations.IsNullOrEmpty())
+                        {
+                            foreach (var observation in observations)
+                            {
+                                ObservationReceived?.Invoke(this, observation);
+                            }
+                        }
                     }
                 }
             }
@@ -936,6 +974,14 @@ namespace MTConnect.Clients
                             if (doc != null)
                             {
                                 AssetsReceived?.Invoke(this, doc);
+
+                                if (doc != null && !doc.Assets.IsNullOrEmpty())
+                                {
+                                    foreach (var asset in doc.Assets)
+                                    {
+                                        AssetReceived?.Invoke(this, asset);
+                                    }
+                                }
                             }
                         }
                     }

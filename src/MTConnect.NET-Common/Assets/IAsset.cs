@@ -10,7 +10,7 @@ namespace MTConnect.Assets
     /// An Asset XML element is a container type XML element used to organize
     /// information describing an entity that is not a piece of equipment.
     /// </summary>
-    public interface IAsset
+    public interface IAsset : IMTConnectEntity
     {
         /// <summary>
         /// The unique identifier for the MTConnect Asset.

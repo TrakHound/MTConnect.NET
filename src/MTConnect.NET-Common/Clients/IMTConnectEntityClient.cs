@@ -1,4 +1,7 @@
-﻿using MTConnect.Assets;
+﻿// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// TrakHound Inc. licenses this file to you under the MIT license.
+
+using MTConnect.Assets;
 using MTConnect.Devices;
 using MTConnect.Observations;
 using System;
@@ -12,10 +15,5 @@ namespace MTConnect.Clients
         event EventHandler<IAsset> AssetReceived;
 
         event EventHandler<IObservation> ObservationReceived;
-
-
-        void Start();
-
-        void Stop();
     }
 }

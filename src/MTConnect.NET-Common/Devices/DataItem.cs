@@ -29,6 +29,22 @@ namespace MTConnect.Devices
         private static Dictionary<string, Type> _types;
 
 
+        internal string _uuid;
+        /// <summary>
+        /// The UUID of the MTConnect Entity
+        /// </summary>
+        public string Uuid
+        {
+            get
+            {
+                _uuid = Device != null ? $"{Device.Uuid}.{Id}" : Id;
+                return _uuid;
+            }
+            set => _uuid = value;
+        }
+
+        public MTConnectEntityType EntityType => MTConnectEntityType.DataItem;
+
         /// <summary>
         /// Specifies the kind of information provided by a data item.
         /// Each category of information will provide similar characteristics in its representation.

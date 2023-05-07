@@ -16,15 +16,17 @@ using MTConnect.Streams.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net.Mime;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MTConnect.Clients
 {
-    public class MTConnectMqttClient : IDisposable
+    public class MTConnectMqttClient : IMTConnectEntityClient, IDisposable
     {
         private const string _defaultTopic = "MTConnect/#";
         private const string _defaultAgentsTopic = "MTConnect/Agents/#";
@@ -68,11 +70,17 @@ namespace MTConnect.Clients
         private readonly object _lock = new object();
 
 
+        private CancellationTokenSource _stop;
         private MTConnectMqttConnectionStatus _connectionStatus;
 
 
         public delegate void MTConnectMqttEventHandler<T>(string deviceUuid, T item);
 
+
+        /// <summary>
+        /// Gets or Sets the Interval in Milliseconds that the Client will attempt to reconnect if the connection fails
+        /// </summary>
+        public int ReconnectionInterval { get; set; }
 
         public string Server => _server;
 
@@ -86,23 +94,50 @@ namespace MTConnect.Clients
 
         public MTConnectMqttConnectionStatus ConnectionStatus => _connectionStatus;
 
-        public EventHandler Connected { get; set; }
+        public event EventHandler Connected;
 
-        public EventHandler Disconnected { get; set; }
+        public event EventHandler Disconnected;
 
-        public EventHandler<MTConnectMqttConnectionStatus> ConnectionStatusChanged { get; set; }
+        public event EventHandler<MTConnectMqttConnectionStatus> ConnectionStatusChanged;
 
-        public EventHandler<Exception> ConnectionError { get; set; }
+        public event EventHandler<Exception> ConnectionError;
 
-        public MTConnectMqttEventHandler<IDevice> DeviceReceived { get; set; }
+        /// <summary>
+        /// Raised when an Internal Error occurs
+        /// </summary>
+        public event EventHandler<Exception> InternalError;
 
-        public MTConnectMqttEventHandler<IObservation> ObservationReceived { get; set; }
+        public event EventHandler<IDevice> DeviceReceived;
 
-        public MTConnectMqttEventHandler<IAsset> AssetReceived { get; set; }
+        public event EventHandler<IObservation> ObservationReceived;
+
+        public event EventHandler<IAsset> AssetReceived;
+
+        /// <summary>
+        /// Raised when the Client is Starting
+        /// </summary>
+        public event EventHandler ClientStarting;
+
+        /// <summary>
+        /// Raised when the Client is Started
+        /// </summary>
+        public event EventHandler ClientStarted;
+
+        /// <summary>
+        /// Raised when the Client is Stopping
+        /// </summary>
+        public event EventHandler ClientStopping;
+
+        /// <summary>
+        /// Raised when the Client is Stopeed
+        /// </summary>
+        public event EventHandler ClientStopped;
 
 
         public MTConnectMqttClient(string server, int port = 1883, int interval = 0, string deviceUuid = null, IEnumerable<string> topics = null, int qos = 1)
         {
+            ReconnectionInterval = 10000;
+
             _server = server;
             _port = port;
             _topics = !topics.IsNullOrEmpty() ? topics : new List<string> { _defaultTopic };
@@ -125,6 +160,8 @@ namespace MTConnect.Clients
 
         public MTConnectMqttClient(IMTConnectMqttClientConfiguration configuration, IEnumerable<string> topics = null)
         {
+            ReconnectionInterval = 10000;
+
             if (configuration != null)
             {
                 _server = configuration.Server;
@@ -158,98 +195,136 @@ namespace MTConnect.Clients
         }
 
 
-        public async Task StartAsync()
+        public void Start()
         {
-            try
-            {
-                // Declare new MQTT Client Options with Tcp Server
-                var clientOptionsBuilder = new MqttClientOptionsBuilder().WithTcpServer(_server, _port);
+            _stop = new CancellationTokenSource();
 
-                // Set Client ID
-                if (!string.IsNullOrEmpty(_clientId))
-                {
-                    clientOptionsBuilder.WithClientId(_clientId);
-                }
+            ClientStarting?.Invoke(this, new EventArgs());
 
-                var certificates = new List<X509Certificate2>();
-
-                // Add CA (Certificate Authority)
-                if (!string.IsNullOrEmpty(_caCertPath))
-                {
-                    certificates.Add(new X509Certificate2(GetFilePath(_caCertPath)));
-                }
-
-                // Add Client Certificate & Private Key
-                if (!string.IsNullOrEmpty(_pemClientCertPath) && !string.IsNullOrEmpty(_pemPrivateKeyPath))
-                {
-
-#if NET5_0_OR_GREATER
-                    certificates.Add(new X509Certificate2(X509Certificate2.CreateFromPemFile(GetFilePath(_pemClientCertPath), GetFilePath(_pemPrivateKeyPath)).Export(X509ContentType.Pfx)));
-#else
-                    throw new Exception("PEM Certificates Not Supported in .NET Framework 4.8 or older");
-#endif
-
-                    clientOptionsBuilder.WithTls(new MqttClientOptionsBuilderTlsParameters()
-                    {
-                        UseTls = true,
-                        SslProtocol = System.Security.Authentication.SslProtocols.Tls12,
-                        IgnoreCertificateRevocationErrors = _allowUntrustedCertificates,
-                        IgnoreCertificateChainErrors = _allowUntrustedCertificates,
-                        AllowUntrustedCertificates = _allowUntrustedCertificates,
-                        Certificates = certificates
-                    });
-                }
-
-                // Add Credentials
-                if (!string.IsNullOrEmpty(_username) && !string.IsNullOrEmpty(_password))
-                {
-                    if (_useTls)
-                    {
-                        clientOptionsBuilder.WithCredentials(_username, _password).WithTls();
-                    }
-                    else
-                    {
-                        clientOptionsBuilder.WithCredentials(_username, _password);
-                    }
-                }
-
-                // Build MQTT Client Options
-                var clientOptions = clientOptionsBuilder.Build();
-
-                // Connect to the MQTT Client
-                await _mqttClient.ConnectAsync(clientOptions);
-
-
-                if (!string.IsNullOrEmpty(_deviceUuid))
-                {
-                    // Start protocol for a single Device
-                    await StartDeviceProtocol(_deviceUuid);
-                }
-                else
-                {
-                    // Start protocol for all devices
-                    await StartAllDevicesProtocol();
-                }
-            }
-            catch (Exception ex)
-            {
-                if (ConnectionError != null) ConnectionError.Invoke(this, ex);
-            }
+            _ = Task.Run(Worker, _stop.Token);
         }
 
-        public async Task StopAsync()
+        public void Stop()
         {
-            try
-            {
-                // Disconnect from the MQTT Client
-                if (_mqttClient != null) await _mqttClient.DisconnectAsync(MqttClientDisconnectReason.NormalDisconnection);
-            }
-            catch { }      
+            ClientStopping?.Invoke(this, new EventArgs());
+
+            if (_stop != null) _stop.Cancel();
         }
 
         public void Dispose()
         {
             if (_mqttClient != null) _mqttClient.Dispose();
+        }
+
+
+        private async Task Worker()
+        {
+            do
+            {
+                try
+                {
+                    try
+                    {
+                        // Declare new MQTT Client Options with Tcp Server
+                        var clientOptionsBuilder = new MqttClientOptionsBuilder().WithTcpServer(_server, _port);
+
+                        // Set Client ID
+                        if (!string.IsNullOrEmpty(_clientId))
+                        {
+                            clientOptionsBuilder.WithClientId(_clientId);
+                        }
+
+                        var certificates = new List<X509Certificate2>();
+
+                        // Add CA (Certificate Authority)
+                        if (!string.IsNullOrEmpty(_caCertPath))
+                        {
+                            certificates.Add(new X509Certificate2(GetFilePath(_caCertPath)));
+                        }
+
+                        // Add Client Certificate & Private Key
+                        if (!string.IsNullOrEmpty(_pemClientCertPath) && !string.IsNullOrEmpty(_pemPrivateKeyPath))
+                        {
+
+#if NET5_0_OR_GREATER
+                            certificates.Add(new X509Certificate2(X509Certificate2.CreateFromPemFile(GetFilePath(_pemClientCertPath), GetFilePath(_pemPrivateKeyPath)).Export(X509ContentType.Pfx)));
+#else
+                    throw new Exception("PEM Certificates Not Supported in .NET Framework 4.8 or older");
+#endif
+
+                            clientOptionsBuilder.WithTls(new MqttClientOptionsBuilderTlsParameters()
+                            {
+                                UseTls = true,
+                                SslProtocol = System.Security.Authentication.SslProtocols.Tls12,
+                                IgnoreCertificateRevocationErrors = _allowUntrustedCertificates,
+                                IgnoreCertificateChainErrors = _allowUntrustedCertificates,
+                                AllowUntrustedCertificates = _allowUntrustedCertificates,
+                                Certificates = certificates
+                            });
+                        }
+
+                        // Add Credentials
+                        if (!string.IsNullOrEmpty(_username) && !string.IsNullOrEmpty(_password))
+                        {
+                            if (_useTls)
+                            {
+                                clientOptionsBuilder.WithCredentials(_username, _password).WithTls();
+                            }
+                            else
+                            {
+                                clientOptionsBuilder.WithCredentials(_username, _password);
+                            }
+                        }
+
+                        // Build MQTT Client Options
+                        var clientOptions = clientOptionsBuilder.Build();
+
+                        // Connect to the MQTT Client
+                        _mqttClient.ConnectAsync(clientOptions).Wait();
+
+                        if (!string.IsNullOrEmpty(_deviceUuid))
+                        {
+                            // Start protocol for a single Device
+                            StartDeviceProtocol(_deviceUuid).Wait();
+                        }
+                        else
+                        {
+                            // Start protocol for all devices
+                            StartAllDevicesProtocol().Wait();
+                        }
+
+                        ClientStarted?.Invoke(this, new EventArgs());
+
+                        while (_mqttClient.IsConnected && !_stop.IsCancellationRequested)
+                        {
+                            await Task.Delay(100);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        if (ConnectionError != null) ConnectionError.Invoke(this, ex);
+                    }
+
+                    await Task.Delay(ReconnectionInterval, _stop.Token);
+                }
+                catch (TaskCanceledException) { }
+                catch (Exception ex)
+                {
+                    InternalError?.Invoke(this, ex);
+                }
+
+            } while (!_stop.Token.IsCancellationRequested);
+
+
+            try
+            {
+                // Disconnect from the MQTT Client
+                if (_mqttClient != null) _mqttClient.DisconnectAsync(MqttClientDisconnectReason.NormalDisconnection).Wait();
+            }
+            catch { }
+
+
+            ClientStopped?.Invoke(this, new EventArgs());
         }
 
 

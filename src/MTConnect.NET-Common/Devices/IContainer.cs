@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace MTConnect.Devices
 {
-    public interface IContainer
+    public interface IContainer : IMTConnectEntity
     {
         /// <summary>
         /// The unique identifier for this Component in the document.

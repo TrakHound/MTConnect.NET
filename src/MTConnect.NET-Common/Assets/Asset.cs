@@ -1,6 +1,7 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
+using MTConnect.Devices;
 using MTConnect.Extensions;
 using System;
 using System.Collections.Generic;
@@ -23,6 +24,22 @@ namespace MTConnect.Assets
         private long _timestamp;
         private DateTime _dateTime;
 
+
+        internal string _uuid;
+        /// <summary>
+        /// The UUID of the MTConnect Entity
+        /// </summary>
+        public string Uuid
+        {
+            get
+            {
+                _uuid = $"{DeviceUuid}.{AssetId}.{Timestamp}";
+                return _uuid;
+            }
+            set => _uuid = value;
+        }
+
+        public MTConnectEntityType EntityType => MTConnectEntityType.Asset;
 
         /// <summary>
         /// The unique identifier for the MTConnect Asset.

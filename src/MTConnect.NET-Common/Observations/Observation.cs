@@ -52,6 +52,22 @@ namespace MTConnect.Observations
             set => _dataItem = value;
         }
 
+        internal string _uuid;
+        /// <summary>
+        /// The UUID of the MTConnect Entity
+        /// </summary>
+        public string Uuid
+        {
+            get
+            {
+                _uuid = $"{DeviceUuid}.{DataItemId}.{Timestamp.ToUnixTime()}";
+                return _uuid;
+            }
+            set => _uuid = value;
+        }
+
+        public MTConnectEntityType EntityType => MTConnectEntityType.Observation;
+
         /// <summary>
         /// The unique identifier for the DataItem. 
         /// The DataItemID MUST match the id attribute of the data item defined in the Device Information Model that this DataItem element represents.

@@ -24,6 +24,8 @@ namespace MTConnect.Devices
         private static readonly Version DefaultMinimumVersion = MTConnectVersions.Version10;
 
 
+        public MTConnectEntityType EntityType => MTConnectEntityType.Device;
+
         /// <summary>
         /// The unique identifier for this Device in the document.
         /// An id MUST be unique across all the id attributes in the document.

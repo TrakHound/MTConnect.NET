@@ -28,6 +28,8 @@ namespace MTConnect.Devices
         private static Dictionary<string, Type> _types;
 
 
+        public MTConnectEntityType EntityType => MTConnectEntityType.Composition;
+
         /// <summary>
         /// The unique identifier for this Component in the document.
         /// An id MUST be unique across all the id attributes in the document.

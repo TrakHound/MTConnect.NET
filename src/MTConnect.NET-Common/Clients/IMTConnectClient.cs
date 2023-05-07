@@ -39,7 +39,7 @@ namespace MTConnect.Clients
         /// <summary>
         /// Gets or Sets the Interval in Milliseconds that the Client will attempt to reconnect if the connection fails
         /// </summary>
-        int RetryInterval { get; set; }
+        int ReconnectionInterval { get; set; }
 
         /// <summary>
         /// Gets or Sets the Maximum Number of Samples returned per interval from the Sample Stream

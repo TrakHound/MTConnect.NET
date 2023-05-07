@@ -11,7 +11,7 @@ namespace MTConnect.Observations
     /// <summary>
     /// An Information Model Input that describes Streaming Data reported by a piece of equipment.
     /// </summary>
-    public interface IObservation
+    public interface IObservation : IMTConnectEntity
     {
         /// <summary>
         /// The UUID of the Device that the Observation is associated with

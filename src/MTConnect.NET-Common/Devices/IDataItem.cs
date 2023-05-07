@@ -13,7 +13,7 @@ namespace MTConnect.Devices
     /// An abstract XML Element. Replaced in the XML document by Elements representing various types of DataItem XML Elements.
     /// There can be mulitple types of DataItem XML Elements in the document.
     /// </summary>
-    public interface IDataItem
+    public interface IDataItem : IMTConnectEntity
     {
         /// <summary>
         /// Specifies the kind of information provided by a data item.
