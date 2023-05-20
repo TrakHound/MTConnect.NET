@@ -30,7 +30,7 @@ namespace MTConnect.Applications.Agents
         private readonly IHttpAgentApplicationConfiguration _agentConfiguration;
 
 
-        public MTConnectHttpAgentServer(IHttpAgentApplicationConfiguration configuration, IMTConnectAgentBroker mtconnectAgent, IEnumerable<string> prefixes = null, int port = 0) : base(configuration, mtconnectAgent, prefixes, port)
+        public MTConnectHttpAgentServer(IHttpAgentApplicationConfiguration configuration, IMTConnectAgentBroker mtconnectAgent) : base(configuration, mtconnectAgent)
         {
             _agentConfiguration = configuration;
         }
@@ -43,31 +43,32 @@ namespace MTConnect.Applications.Agents
 
         protected override byte[] OnProcessStatic(MTConnectStaticFileRequest request)
         {
-            if (_agentConfiguration.DevicesStyle != null && (request.LocalPath == _agentConfiguration.DevicesStyle.Location || request.LocalPath.Replace('\\', '/') == _agentConfiguration.StreamsStyle.Location))
+            if (request.LocalPath != null)
             {
-                return ReadDevicesStylesheet(request.FilePath, request.Version);
-            }
-            else if (_agentConfiguration.StreamsStyle != null && (request.LocalPath == _agentConfiguration.StreamsStyle.Location || request.LocalPath.Replace('\\', '/') == _agentConfiguration.StreamsStyle.Location))
-            {
-                return ReadStreamsStylesheet(request.FilePath, request.Version);
+                if (_agentConfiguration.DevicesStyle != null && _agentConfiguration.DevicesStyle.Location != null)
+                {
+                    var requestPath = !request.LocalPath.StartsWith('/') ? "/" + request.LocalPath : request.LocalPath;
+
+                    // Check to see if the request is for the Devices Stylesheet set in the Agent Configuration
+                    if (requestPath == _agentConfiguration.DevicesStyle.Location || requestPath.Replace('\\', '/') == _agentConfiguration.DevicesStyle.Location)
+                    {
+                        return ReadDevicesStylesheet(request.FilePath, request.Version);
+                    }
+                }
+                else if (_agentConfiguration.StreamsStyle != null && _agentConfiguration.StreamsStyle.Location != null)
+                {
+                    var requestPath = !request.LocalPath.StartsWith('/') ? "/" + request.LocalPath : request.LocalPath;
+
+                    // Check to see if the request is for the Streams Stylesheet set in the Agent Configuration
+                    if (requestPath == _agentConfiguration.StreamsStyle.Location || requestPath.Replace('\\', '/') == _agentConfiguration.StreamsStyle.Location)
+                    {
+                        return ReadStreamsStylesheet(request.FilePath, request.Version);
+                    }
+                }
             }
 
             return null;
         }
-
-        //protected override byte[] OnProcessStatic(IHttpRequest httpRequest, string absolutePath, string relativePath, Version version = null)
-        //{
-        //    if (_agentConfiguration.DevicesStyle != null && (relativePath == _agentConfiguration.DevicesStyle.Location || relativePath.Replace('\\', '/') == _agentConfiguration.StreamsStyle.Location))
-        //    {
-        //        return ReadDevicesStylesheet(absolutePath, version);
-        //    }
-        //    else if (_agentConfiguration.StreamsStyle != null && (relativePath == _agentConfiguration.StreamsStyle.Location || relativePath.Replace('\\', '/') == _agentConfiguration.StreamsStyle.Location))
-        //    {
-        //        return ReadStreamsStylesheet(absolutePath, version);
-        //    }
-
-        //    return null;
-        //}
 
         protected override List<KeyValuePair<string, string>> OnCreateFormatOptions(MTConnectFormatOptionsArgs args)
         {

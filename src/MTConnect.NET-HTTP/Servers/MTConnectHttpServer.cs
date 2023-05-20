@@ -68,12 +68,7 @@ namespace MTConnect.Servers.Http
         public event EventHandler<Exception> ClientException;
 
 
-        public MTConnectHttpServer(
-            IHttpAgentConfiguration configuration,
-            IMTConnectAgentBroker mtconnectAgent,
-            IEnumerable<string> prefixes = null,
-            int port = 0
-            )
+        public MTConnectHttpServer(IHttpAgentConfiguration configuration, IMTConnectAgentBroker mtconnectAgent)
         {
             _mtconnectAgent = mtconnectAgent;
             _configuration = configuration;
@@ -84,34 +79,28 @@ namespace MTConnect.Servers.Http
         /// Method run when an Observation is attempted to be added to the MTConnect Agent from an HTTP PUT request
         /// </summary>
         /// <returns>Returns False if a Device cannot be found from the specified DeviceKey</returns>
-        protected virtual bool OnObservationInput(string deviceKey, string dataItemKey, string input)
-        {
-            return false;
-        }
+        protected virtual bool OnObservationInput(string deviceKey, string dataItemKey, string input) { return false; }
 
         /// <summary>
         /// Method run when an Asset is attempted to be added to the MTConnect Agent from an HTTP PUT request
         /// </summary>
         /// <returns>Returns False if a Device cannot be found from the specified DeviceKey</returns>
-        protected virtual bool OnAssetInput(string assetId, string deviceKey, string assetType, byte[] requestBody, string documentFormat = DocumentFormat.XML)
-        {
-            return false;
-        }
+        protected virtual bool OnAssetInput(string assetId, string deviceKey, string assetType, byte[] requestBody, string documentFormat = DocumentFormat.XML) { return false; }
 
         /// <summary>
         /// Method run after the initial ServerConfig is set but before the server is started. Used to edit the configuration and/or to add routes
         /// </summary>
-        protected virtual void OnConfigureServer(ServerConfig serverConfig)
-        {
+        protected virtual void OnConfigureServer(ServerConfig serverConfig) { }
 
-        }
-
+        /// <summary>
+        /// Method run on a Static File request
+        /// </summary>
         protected virtual byte[] OnProcessStatic(MTConnectStaticFileRequest request) { return null; }
 
+        /// <summary>
+        /// Method run when creating the Format Options after an MTConnect REST response is processed and before it is returned
+        /// </summary>
         protected virtual List<KeyValuePair<string, string>> OnCreateFormatOptions(MTConnectFormatOptionsArgs args) { return null; }
-
-        //protected virtual byte[] OnProcessStatic(IHttpRequest httpRequest, string absolutePath, string relativePath, Version version = null) { return null; }
-
 
 
         public void Start()
@@ -219,10 +208,6 @@ namespace MTConnect.Servers.Http
             probeHandler.ClientDisconnected += ClientDisconnected;
             probeHandler.ClientException += ClientException;
             probeHandler.CreateFormatOptionsFunction = OnCreateFormatOptions;
-            serverConfig.AddRoute("/", probeHandler);
-            //serverConfig.AddRoute("[^\\/((?!probe|current|sample|assets).)*$]", probeHandler);
-            serverConfig.AddRoute("/probe", probeHandler);
-            serverConfig.AddRoute("/*/probe", probeHandler);
 
             // Setup the Current Request Handler
             var currentHandler = new MTConnectCurrentResponseHandler(_configuration, _mtconnectAgent);
@@ -231,8 +216,6 @@ namespace MTConnect.Servers.Http
             currentHandler.ClientDisconnected += ClientDisconnected;
             currentHandler.ClientException += ClientException;
             currentHandler.CreateFormatOptionsFunction = OnCreateFormatOptions;
-            serverConfig.AddRoute("/current", currentHandler);
-            serverConfig.AddRoute("/*/current", currentHandler);
 
             // Setup the Sample Request Handler
             var sampleHandler = new MTConnectSampleResponseHandler(_configuration, _mtconnectAgent);
@@ -241,8 +224,6 @@ namespace MTConnect.Servers.Http
             sampleHandler.ClientDisconnected += ClientDisconnected;
             sampleHandler.ClientException += ClientException;
             sampleHandler.CreateFormatOptionsFunction = OnCreateFormatOptions;
-            serverConfig.AddRoute("/sample", sampleHandler);
-            serverConfig.AddRoute("/*/sample", sampleHandler);
 
             // Setup the Assets Request Handler
             var assetsHandler = new MTConnectAssetsResponseHandler(_configuration, _mtconnectAgent);
@@ -251,8 +232,6 @@ namespace MTConnect.Servers.Http
             assetsHandler.ClientDisconnected += ClientDisconnected;
             assetsHandler.ClientException += ClientException;
             assetsHandler.CreateFormatOptionsFunction = OnCreateFormatOptions;
-            serverConfig.AddRoute("/assets", assetsHandler);
-            serverConfig.AddRoute("/*/assets", assetsHandler);
 
             // Setup the Asset Request Handler
             var assetHandler = new MTConnectAssetResponseHandler(_configuration, _mtconnectAgent);
@@ -261,7 +240,6 @@ namespace MTConnect.Servers.Http
             assetHandler.ClientDisconnected += ClientDisconnected;
             assetHandler.ClientException += ClientException;
             assetHandler.CreateFormatOptionsFunction = OnCreateFormatOptions;
-            serverConfig.AddRoute("/asset/*", assetHandler);
 
             // Setup the Static Request Handler
             var staticHandler = new MTConnectStaticResponseHandler(_configuration, _mtconnectAgent);
@@ -271,10 +249,46 @@ namespace MTConnect.Servers.Http
             staticHandler.ClientException += ClientException;
             staticHandler.ProcessFunction = OnProcessStatic;
             staticHandler.CreateFormatOptionsFunction = OnCreateFormatOptions;
-            //staticHandler.FileRequested += StaticFileRequested;
-            serverConfig.AddRoute("[^\\/((?!probe|current|sample|assets).)*$]", staticHandler);
+
+
+            // Setup Routes (Processed in Order)
+            serverConfig.AddRoute("/", probeHandler);
+            serverConfig.AddRoute("/probe", probeHandler);
+            serverConfig.AddRoute("/*/probe", probeHandler);
+            serverConfig.AddRoute("/current", currentHandler);
+            serverConfig.AddRoute("/*/current", currentHandler);
+            serverConfig.AddRoute("/sample", sampleHandler);
+            serverConfig.AddRoute("/*/sample", sampleHandler);
+            serverConfig.AddRoute("/assets", assetsHandler);
+            serverConfig.AddRoute("/*/assets", assetsHandler);
+            serverConfig.AddRoute("/asset/*", assetHandler);
+            serverConfig.AddRoute(async (context) =>
+            {
+                return await DeviceRootHandler(probeHandler, context);
+            });
+            serverConfig.AddRoute(staticHandler);
 
             return serverConfig;
+        }
+
+        private async Task<bool> DeviceRootHandler(MTConnectProbeResponseHandler probeHandler, IHttpContext context)
+        {
+            if (context != null && context.Request != null && context.Request.Path != null)
+            {
+                var deviceKey = context.Request.Path.Trim('/');
+                if (!string.IsNullOrEmpty(deviceKey))
+                {
+                    var device = _mtconnectAgent.GetDevice(deviceKey);
+                    if (device != null)
+                    {
+                        await probeHandler.HandleAsync(context);
+
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
     }
 }
