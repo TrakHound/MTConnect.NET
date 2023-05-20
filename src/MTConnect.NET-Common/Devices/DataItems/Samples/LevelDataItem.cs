@@ -12,6 +12,7 @@ namespace MTConnect.Devices.DataItems.Samples
         public const string TypeId = "LEVEL";
         public const string NameId = "level";
         public const string DefaultUnits = Devices.Units.PERCENT;
+        public const int DefaultSignificantDigits = 0;
         public new const string DescriptionText = "Level of a resource.";
 
         public override string TypeDescription => DescriptionText;
@@ -34,7 +35,7 @@ namespace MTConnect.Devices.DataItems.Samples
             Type = TypeId;
             Name = NameId;
             Units = DefaultUnits;
-            SignificantDigits = 0;
+            SignificantDigits = DefaultSignificantDigits;
         }
     }
 }

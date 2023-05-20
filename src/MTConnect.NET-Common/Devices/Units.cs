@@ -1,6 +1,10 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+
 namespace MTConnect.Devices
 {
     /// <summary>
@@ -244,6 +248,15 @@ namespace MTConnect.Devices
         /// </summary>
         public const string WATT_SECOND = "WATT_SECOND";
 
+
+        public static IEnumerable<string> Get()
+        {
+            return typeof(Units)
+            .GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy)
+            .Where(fi => fi.IsLiteral && !fi.IsInitOnly && fi.FieldType == typeof(string))
+            .Select(x => (string)x.GetRawConstantValue())
+            .ToList();
+        }
 
         /// <summary>
         /// Convert the specified value from NativeUnits specified to the Units specified

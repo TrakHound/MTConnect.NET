@@ -3,6 +3,7 @@
 
 using MTConnect.Devices.References;
 using System.Collections.Generic;
+using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -11,6 +12,9 @@ namespace MTConnect.Devices.Xml
     [XmlRoot("Composition")]
     public class XmlComposition
     {
+        private static readonly XmlSerializer _serializer = new XmlSerializer(typeof(XmlComposition));
+
+
         [XmlAttribute("id")]
         public string Id { get; set; }
 
@@ -72,6 +76,30 @@ namespace MTConnect.Devices.Xml
             }
 
             return composition;
+        }
+
+        public static IComposition FromXml(byte[] xmlBytes)
+        {
+            if (xmlBytes != null && xmlBytes.Length > 0)
+            {
+                try
+                {
+                    using (var textReader = new MemoryStream(xmlBytes))
+                    {
+                        using (var xmlReader = XmlReader.Create(textReader))
+                        {
+                            var xmlObj = (XmlComposition)_serializer.Deserialize(xmlReader);
+                            if (xmlObj != null)
+                            {
+                                return xmlObj.ToComposition();
+                            }
+                        }
+                    }
+                }
+                catch { }
+            }
+
+            return null;
         }
 
         public static void WriteXml(XmlWriter writer, IComposition composition, bool outputComments = false)

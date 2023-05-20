@@ -9,6 +9,7 @@ using MTConnect.Observations.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 
 namespace MTConnect.Devices
@@ -27,6 +28,12 @@ namespace MTConnect.Devices
         private static readonly object _lock = new object();
 
         private static Dictionary<string, Type> _types;
+        private static Dictionary<string, string> _typeDescriptions;
+        private static Dictionary<string, IEnumerable<string>> _subtypes;
+        private static Dictionary<string, string> _subtypeDescriptions;
+        private static Dictionary<string, string> _defaultNames;
+        private static Dictionary<string, string> _defaultUnits;
+        private static Dictionary<string, int> _defaultSignificantDigits;
 
 
         internal string _uuid;
@@ -481,14 +488,19 @@ namespace MTConnect.Devices
 
         public static string CreateDataItemId(string parentId, string type, string subType = null)
         {
-            if (!string.IsNullOrEmpty(subType))
+            if (!string.IsNullOrEmpty(parentId) && !string.IsNullOrEmpty(type))
             {
-                return $"{parentId}_{type}_{subType}";
+                if (!string.IsNullOrEmpty(subType))
+                {
+                    return $"{parentId}_{type.ToLower()}_{subType.ToLower()}";
+                }
+                else
+                {
+                    return $"{parentId}_{type.ToLower()}";
+                }
             }
-            else
-            {
-                return $"{parentId}_{type}";
-            }
+
+            return null;
         }
 
         public static string CreateId(string parentId, string name, string suffix)
@@ -594,7 +606,207 @@ namespace MTConnect.Devices
             return new DataItem();
         }
 
-        private static Type GetDataItemType(string type)
+        public static IEnumerable<string> GetTypes()
+        {
+            if (_types == null) _types = GetAllTypes();
+
+            return _types.Keys;
+        }
+
+        public static IEnumerable<KeyValuePair<string, string>> GetTypeDescriptions()
+        {
+            if (_typeDescriptions == null)
+            {
+                if (_types == null) _types = GetAllTypes();
+
+                if (!_types.IsNullOrEmpty())
+                {
+                    _typeDescriptions = new Dictionary<string, string>();
+
+                    foreach (var type in _types)
+                    {
+                        var instance = Create(type.Value);
+                        if (instance != null)
+                        {
+                            _typeDescriptions.Remove(instance.Type);
+                            _typeDescriptions.Add(instance.Type, instance.TypeDescription);
+                        }
+                    }
+                }
+            }
+
+            return _typeDescriptions;
+        }
+
+        public static IEnumerable<KeyValuePair<string, IEnumerable<string>>> GetSubTypes()
+        {
+            if (_subtypes == null)
+            {
+                if (_types == null) _types = GetAllTypes();
+
+                if (!_types.IsNullOrEmpty())
+                {
+                    _subtypes = new Dictionary<string, IEnumerable<string>>();
+
+                    foreach (var type in _types)
+                    {
+                        var enumType = type.Value.GetNestedType("SubTypes");
+                        if (enumType != null)
+                        {
+                            var enumValues = Enum.GetValues(enumType);
+                            if (enumValues != null)
+                            {
+                                var values = new List<string>();
+
+                                foreach (var enumValue in enumValues)
+                                {
+                                    values.Add(enumValue.ToString());
+                                }
+
+                                _subtypes.Remove(type.Key);
+                                _subtypes.Add(type.Key, values);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return _subtypes;
+        }
+
+        public static IEnumerable<KeyValuePair<string, string>> GetSubTypeDescriptions()
+        {
+            if (_subtypeDescriptions == null)
+            {
+                if (_types == null) _types = GetAllTypes();
+
+                if (!_types.IsNullOrEmpty())
+                {
+                    _subtypeDescriptions = new Dictionary<string, string>();
+
+                    foreach (var type in _types)
+                    {
+                        var method = type.Value.GetMethod("GetSubTypeDescription");
+                        if (method != null)
+                        {
+                            var enumType = type.Value.GetNestedType("SubTypes");
+                            if (enumType != null)
+                            {
+                                var enumValues = Enum.GetValues(enumType);
+                                if (enumValues != null)
+                                {
+                                    var values = new List<string>();
+
+                                    foreach (var enumValue in enumValues)
+                                    {
+                                        var str = enumValue.ToString();
+
+                                        var value = (string)method.Invoke(null, new object[] { str });
+                                        if (value != null)
+                                        {
+                                            var key = $"{type.Key}.{str}";
+                                            _subtypeDescriptions.Remove(key);
+                                            _subtypeDescriptions.Add(key, value);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return _subtypeDescriptions;
+        }
+
+        public static IEnumerable<KeyValuePair<string, string>> GetDefaultNames()
+        {
+            if (_defaultNames == null)
+            {
+                if (_types == null) _types = GetAllTypes();
+
+                if (!_types.IsNullOrEmpty())
+                {
+                    _defaultNames = new Dictionary<string, string>();
+
+                    foreach (var type in _types)
+                    {
+                        var field = type.Value.GetField("NameId");
+                        if (field != null)
+                        {
+                            var value = (string)field.GetRawConstantValue();
+                            if (value != null)
+                            {
+                                _defaultNames.Remove(type.Key);
+                                _defaultNames.Add(type.Key, value);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return _defaultNames;
+        }
+
+        public static IEnumerable<KeyValuePair<string, string>> GetDefaultUnits()
+        {
+            if (_defaultUnits == null)
+            {
+                if (_types == null) _types = GetAllTypes();
+
+                if (!_types.IsNullOrEmpty())
+                {
+                    _defaultUnits = new Dictionary<string, string>();
+
+                    foreach (var type in _types)
+                    {
+                        var field = type.Value.GetField("DefaultUnits");
+                        if (field != null)
+                        {
+                            var value = (string)field.GetRawConstantValue();
+                            if (value != null)
+                            {
+                                _defaultUnits.Remove(type.Key);
+                                _defaultUnits.Add(type.Key, value);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return _defaultUnits;
+        }
+
+        public static IEnumerable<KeyValuePair<string, int>> GetDefaultSignificantDigits()
+        {
+            if (_defaultSignificantDigits == null)
+            {
+                if (_types == null) _types = GetAllTypes();
+
+                if (!_types.IsNullOrEmpty())
+                {
+                    _defaultSignificantDigits = new Dictionary<string, int>();
+
+                    foreach (var type in _types)
+                    {
+                        var field = type.Value.GetField("DefaultSignificantDigits");
+                        if (field != null)
+                        {
+                            var value = (int)field.GetRawConstantValue();
+                            if (value >= 0)
+                            {
+                                _defaultSignificantDigits.Remove(type.Key);
+                                _defaultSignificantDigits.Add(type.Key, value);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return _defaultSignificantDigits;
+        }
+
+        public static Type GetDataItemType(string type)
         {
             if (!string.IsNullOrEmpty(type))
             {
@@ -621,6 +833,90 @@ namespace MTConnect.Devices
             }
 
             return typeof(DataItem);
+        }
+
+        public static string GetDataItemDescription(string type)
+        {
+            if (!string.IsNullOrEmpty(type))
+            {
+                var x = GetTypeDescriptions();
+                if (!x.IsNullOrEmpty())
+                {
+                    return x.FirstOrDefault(o => o.Key == type).Value;
+                }
+            }
+
+            return null;
+        }
+
+        public static IEnumerable<string> GetDataItemSubTypes(string type)
+        {
+            if (!string.IsNullOrEmpty(type))
+            {
+                var x = GetSubTypes();
+                if (!x.IsNullOrEmpty())
+                {
+                    return x.FirstOrDefault(o => o.Key == type).Value;
+                }
+            }
+
+            return null;
+        }
+
+        public static string GetDataItemSubTypeDescription(string type, string subtype)
+        {
+            if (!string.IsNullOrEmpty(type) && !string.IsNullOrEmpty(subtype))
+            {
+                var x = GetSubTypeDescriptions();
+                if (!x.IsNullOrEmpty())
+                {
+                    return x.FirstOrDefault(o => o.Key == $"{type}.{subtype}").Value;
+                }
+            }
+
+            return null;
+        }
+
+        public static string GetDataItemDefaultName(string type)
+        {
+            if (!string.IsNullOrEmpty(type))
+            {
+                var x = GetDefaultNames();
+                if (!x.IsNullOrEmpty())
+                {
+                    return x.FirstOrDefault(o => o.Key == type).Value;
+                }
+            }
+
+            return null;
+        }
+
+        public static string GetDataItemDefaultUnits(string type)
+        {
+            if (!string.IsNullOrEmpty(type))
+            {
+                var x = GetDefaultUnits();
+                if (!x.IsNullOrEmpty())
+                {
+                    return x.FirstOrDefault(o => o.Key == type).Value;
+                }
+            }
+
+            return null;
+        }
+
+        public static int GetDataItemDefaultSignificantDigits(string type)
+        {
+            if (!string.IsNullOrEmpty(type))
+            {
+                var x = GetDefaultSignificantDigits();
+                if (!x.IsNullOrEmpty())
+                {
+                    return x.FirstOrDefault(o => o.Key == type).Value;
+                }
+            }
+
+            return -1;
         }
 
         private static Dictionary<string, Type> GetAllTypes()

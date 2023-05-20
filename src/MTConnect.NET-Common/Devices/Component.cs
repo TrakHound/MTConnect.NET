@@ -27,6 +27,7 @@ namespace MTConnect.Devices
         private static readonly object _lock = new object();
 
         private static Dictionary<string, Type> _types;
+        private static Dictionary<string, string> _typeDescriptions;
 
 
         public MTConnectEntityType EntityType => MTConnectEntityType.Component;
@@ -753,6 +754,38 @@ namespace MTConnect.Devices
             return new Component();
         }
 
+        public static IEnumerable<string> GetTypes()
+        {
+            if (_types == null) _types = GetAllTypes();
+
+            return _types.Keys;
+        }
+
+        public static IEnumerable<KeyValuePair<string, string>> GetTypeDescriptions()
+        {
+            if (_typeDescriptions == null)
+            {
+                if (_types == null) _types = GetAllTypes();
+
+                if (!_types.IsNullOrEmpty())
+                {
+                    _typeDescriptions = new Dictionary<string, string>();
+
+                    foreach (var type in _types)
+                    {
+                        var instance = Create(type.Value);
+                        if (instance != null)
+                        {
+                            _typeDescriptions.Remove(instance.Type);
+                            _typeDescriptions.Add(instance.Type, instance.TypeDescription);
+                        }
+                    }
+                }
+            }
+
+            return _typeDescriptions;
+        }
+
         private static Type GetComponentType(string type)
         {
             if (!string.IsNullOrEmpty(type))
@@ -781,6 +814,21 @@ namespace MTConnect.Devices
 
             return typeof(Component);
         }
+
+        //private static string GetComponentTypeDescription(string type)
+        //{
+        //    var t = GetComponentType(type);
+        //    if (t != null)
+        //    {
+        //        var field = t.GetField(nameof(DescriptionText));
+        //        if (field != null)
+        //        {
+        //            return field.GetValue()
+        //        }
+        //    }
+
+        //    return null;
+        //}
 
         private static Dictionary<string, Type> GetAllTypes()
         {

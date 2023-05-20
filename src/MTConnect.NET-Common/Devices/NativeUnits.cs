@@ -1,6 +1,10 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+
 namespace MTConnect.Devices
 {
     /// <summary>
@@ -197,5 +201,15 @@ namespace MTConnect.Devices
         /// Pressure in Torr.
         /// </summary>
         public const string TORR = "TORR";
+
+
+        public static IEnumerable<string> Get()
+        {
+            return typeof(NativeUnits)
+            .GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy)
+            .Where(fi => fi.IsLiteral && !fi.IsInitOnly && fi.FieldType == typeof(string))
+            .Select(x => (string)x.GetRawConstantValue())
+            .ToList();
+        }
     }
 }

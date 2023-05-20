@@ -33,7 +33,9 @@ namespace MTConnect.Formatters
         {
             if (device != null)
             {
-                return new JsonDevice(device).ToString();
+                var indentOuput = GetFormatterOption<bool>(options, "indentOutput");
+
+                return new JsonDevice(device).ToString(indentOuput);
             }
 
             return null;
@@ -63,7 +65,9 @@ namespace MTConnect.Formatters
         {
             if (dataItem != null)
             {
-                return new JsonDataItem(dataItem).ToString();
+                var indentOuput = GetFormatterOption<bool>(options, "indentOutput");
+
+                return JsonFunctions.Convert(new JsonDataItem(dataItem), indented:indentOuput);
             }
 
             return null;
@@ -186,17 +190,78 @@ namespace MTConnect.Formatters
 
         public FormattedEntityReadResult<IDevice> CreateDevice(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
-            //var messages = new List<string>();
-            //var warnings = new List<string>();
-            //var errors = new List<string>();
+            var messages = new List<string>();
+            var warnings = new List<string>();
+            var errors = new List<string>();
 
-            //// Read Document
-            //var entity = JsonDevice.FromJson(content);
-            //var success = entity != null;
+            try
+            {
+                var jsonEntity = JsonSerializer.Deserialize<JsonDevice>(content);
+                var entity = jsonEntity.ToDevice();
+                var success = entity != null;
 
-            //return new FormattedEntityReadResult<IDevice>(entity, success, messages, warnings, errors);
+                return new FormattedEntityReadResult<IDevice>(entity, success, messages, warnings, errors);
+            }
+            catch { }
 
             return new FormattedEntityReadResult<IDevice>();
+        }
+
+        public FormattedEntityReadResult<IComponent> CreateComponent(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
+        {
+            var messages = new List<string>();
+            var warnings = new List<string>();
+            var errors = new List<string>();
+
+            try
+            {
+                var jsonEntity = JsonSerializer.Deserialize<JsonComponent>(content);
+                var entity = jsonEntity.ToComponent();
+                var success = entity != null;
+
+                return new FormattedEntityReadResult<IComponent>(entity, success, messages, warnings, errors);
+            }
+            catch { }
+
+            return new FormattedEntityReadResult<IComponent>();
+        }
+
+        public FormattedEntityReadResult<IComposition> CreateComposition(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
+        {
+            var messages = new List<string>();
+            var warnings = new List<string>();
+            var errors = new List<string>();
+
+            try
+            {
+                var jsonEntity = JsonSerializer.Deserialize<JsonComposition>(content);
+                var entity = jsonEntity.ToComposition();
+                var success = entity != null;
+
+                return new FormattedEntityReadResult<IComposition>(entity, success, messages, warnings, errors);
+            }
+            catch { }
+
+            return new FormattedEntityReadResult<IComposition>();
+        }
+
+        public FormattedEntityReadResult<IDataItem> CreateDataItem(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
+        {
+            var messages = new List<string>();
+            var warnings = new List<string>();
+            var errors = new List<string>();
+
+            try
+            {
+                var jsonEntity = JsonSerializer.Deserialize<JsonDataItem>(content);
+                var entity = jsonEntity.ToDataItem();
+                var success = entity != null;
+
+                return new FormattedEntityReadResult<IDataItem>(entity, success, messages, warnings, errors);
+            }
+            catch { }
+
+            return new FormattedEntityReadResult<IDataItem>();
         }
 
         public FormattedEntityReadResult<IAsset> CreateAsset(string assetType, byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)

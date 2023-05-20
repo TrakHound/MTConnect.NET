@@ -42,7 +42,12 @@ namespace MTConnect.Devices.Xml
             {
                 var devices = new List<IDevice>();
 
-                foreach (var device in Devices) devices.Add(device.ToDevice());
+                foreach (var xmlDevice in Devices)
+                {
+                    var device = xmlDevice.ToDevice();
+                    ((Device)device).MTConnectVersion = Version;
+                    devices.Add(device);
+                }
 
                 document.Devices = devices;
             }
@@ -62,10 +67,10 @@ namespace MTConnect.Devices.Xml
                     var bytes = XmlFunctions.SanitizeBytes(xmlBytes);
 
                     var xml = Encoding.UTF8.GetString(bytes);
+                    var version = MTConnectVersion.Get(xml);
+
                     xml = xml.Trim();
                     xml = Namespaces.Clear(xml);
-
-                    var version = MTConnectVersion.Get(xml);
 
                     using (var textReader = new StringReader(xml))
                     {

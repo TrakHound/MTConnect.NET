@@ -136,6 +136,45 @@ namespace MTConnect.Formatters
             return FormattedEntityReadResult<IDevice>.Error(null, $"Entity Formatter Not found for \"{documentFormatterId}\"");
         }
 
+        public static FormattedEntityReadResult<IComponent> CreateComponent(string documentFormatterId, byte[] content)
+        {
+            // Get the Formatter with the specified ID
+            var formatter = GetFormatter(documentFormatterId);
+            if (formatter != null)
+            {
+                // Create the Entity using the Formatter
+                return formatter.CreateComponent(content);
+            }
+
+            return FormattedEntityReadResult<IComponent>.Error(null, $"Entity Formatter Not found for \"{documentFormatterId}\"");
+        }
+
+        public static FormattedEntityReadResult<IComposition> CreateComposition(string documentFormatterId, byte[] content)
+        {
+            // Get the Formatter with the specified ID
+            var formatter = GetFormatter(documentFormatterId);
+            if (formatter != null)
+            {
+                // Create the Entity using the Formatter
+                return formatter.CreateComposition(content);
+            }
+
+            return FormattedEntityReadResult<IComposition>.Error(null, $"Entity Formatter Not found for \"{documentFormatterId}\"");
+        }
+
+        public static FormattedEntityReadResult<IDataItem> CreateDataItem(string documentFormatterId, byte[] content)
+        {
+            // Get the Formatter with the specified ID
+            var formatter = GetFormatter(documentFormatterId);
+            if (formatter != null)
+            {
+                // Create the Entity using the Formatter
+                return formatter.CreateDataItem(content);
+            }
+
+            return FormattedEntityReadResult<IDataItem>.Error(null, $"Entity Formatter Not found for \"{documentFormatterId}\"");
+        }
+
         public static FormattedEntityReadResult<IAsset> CreateAsset(string documentFormatterId, string assetType, byte[] content)
         {
             // Get the Formatter with the specified ID

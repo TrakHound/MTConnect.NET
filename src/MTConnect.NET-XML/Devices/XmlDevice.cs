@@ -156,6 +156,7 @@ namespace MTConnect.Devices.Xml
                     using (var memoryReader = new MemoryStream(bytes))
                     {
                         var readerSettings = new XmlReaderSettings();
+                        readerSettings.ConformanceLevel = ConformanceLevel.Fragment;
                         readerSettings.IgnoreComments = true;
                         readerSettings.IgnoreProcessingInstructions = true;
                         readerSettings.IgnoreWhitespace = true;
@@ -193,6 +194,7 @@ namespace MTConnect.Devices.Xml
                         using (var xmlWriter = XmlWriter.Create(stream, xmlWriterSettings))
                         {
                             WriteXml(xmlWriter, device);
+                            xmlWriter.Flush();
                             return stream.ToArray();
                         }
                     }

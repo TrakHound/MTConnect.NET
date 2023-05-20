@@ -12,6 +12,7 @@ namespace MTConnect.Devices.DataItems.Samples
         public const string TypeId = "LOAD";
         public const string NameId = "load";
         public const string DefaultUnits = Devices.Units.PERCENT;
+        public const int DefaultSignificantDigits = 0;
         public new const string DescriptionText = "The measurement of the actual versus the standard rating of a piece of equipment.";
 
         public override string TypeDescription => DescriptionText;
@@ -31,7 +32,7 @@ namespace MTConnect.Devices.DataItems.Samples
             Type = TypeId;
             Name = NameId;
             Units = DefaultUnits;
-            SignificantDigits = 0;
+            SignificantDigits = DefaultSignificantDigits;
         }
     }
 }

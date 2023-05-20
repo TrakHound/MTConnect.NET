@@ -316,6 +316,14 @@ namespace MTConnect.Devices
                             components.Add(organizer);
                         }
                     }
+                    else 
+                    {
+                        var organizer = (Component)components.FirstOrDefault(o => o.Type == organizerType);
+                        if (organizer != null)
+                        {
+                            organizer.AddComponent(component);
+                        }
+                    }
                 }
                 else
                 {

@@ -200,7 +200,7 @@ namespace MTConnect.Devices.Json
         }
 
 
-        public override string ToString() => JsonFunctions.Convert(this);
+        public string ToString(bool indent = false) => JsonFunctions.Convert(this, indented: indent);
 
         public Device ToDevice()
         {

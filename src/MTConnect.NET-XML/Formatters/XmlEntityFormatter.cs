@@ -26,14 +26,20 @@ namespace MTConnect.Formatters.Xml
         {
             if (device != null)
             {
+                var indentOuput = GetFormatterOption<bool>(options, "indentOutput");
+                var settings = indentOuput ? XmlFunctions.XmlWriterSettingsIndent : XmlFunctions.XmlWriterSettings;
+
                 try
                 {
                     using (var writer = new StringWriter())
                     {
                         // Use XmlWriter to write XML to stream
-                        var xmlWriter = XmlWriter.Create(writer, XmlFunctions.XmlWriterSettings);
-                        XmlDevice.WriteXml(xmlWriter, device);
-                        return writer.ToString();
+                        using (var xmlWriter = XmlWriter.Create(writer, settings))
+                        {
+                            XmlDevice.WriteXml(xmlWriter, device);
+                            xmlWriter.Flush();
+                            return writer.ToString();
+                        }
                     }
                 }
                 catch { }
@@ -53,6 +59,7 @@ namespace MTConnect.Formatters.Xml
                         // Use XmlWriter to write XML to stream
                         var xmlWriter = XmlWriter.Create(writer, XmlFunctions.XmlWriterSettings);
                         XmlComponent.WriteXml(xmlWriter, component);
+                        xmlWriter.Flush();
                         return writer.ToString();
                     }
                 }
@@ -73,6 +80,7 @@ namespace MTConnect.Formatters.Xml
                         // Use XmlWriter to write XML to stream
                         var xmlWriter = XmlWriter.Create(writer, XmlFunctions.XmlWriterSettings);
                         XmlComposition.WriteXml(xmlWriter, composition);
+                        xmlWriter.Flush();
                         return writer.ToString();
                     }
                 }
@@ -88,12 +96,17 @@ namespace MTConnect.Formatters.Xml
             {
                 try
                 {
+                    var indentOuput = GetFormatterOption<bool>(options, "indentOutput");
+
                     using (var writer = new StringWriter())
                     {
                         // Use XmlWriter to write XML to stream
-                        var xmlWriter = XmlWriter.Create(writer, XmlFunctions.XmlWriterSettings);
-                        XmlDataItem.WriteXml(xmlWriter, dataItem);
-                        return writer.ToString();
+                        using (var xmlWriter = XmlWriter.Create(writer, XmlFunctions.XmlWriterSettings))
+                        {
+                            XmlDataItem.WriteXml(xmlWriter, dataItem);
+                            xmlWriter.Flush();
+                            return XmlFunctions.FormatXml(writer.ToString(), indentOuput, false, true);
+                        }
                     }
                 }
                 catch { }
@@ -171,11 +184,50 @@ namespace MTConnect.Formatters.Xml
             var warnings = new List<string>();
             var errors = new List<string>();
 
-            // Read Document
+            // Read Entity
             var entity = XmlDevice.FromXml(content);
             var success = entity != null;
 
             return new FormattedEntityReadResult<IDevice>(entity, success, messages, warnings, errors);
+        }
+
+        public FormattedEntityReadResult<IComponent> CreateComponent(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
+        {
+            var messages = new List<string>();
+            var warnings = new List<string>();
+            var errors = new List<string>();
+
+            // Read Entity
+            var entity = XmlComponent.FromXml(content);
+            var success = entity != null;
+
+            return new FormattedEntityReadResult<IComponent>(entity, success, messages, warnings, errors);
+        }
+
+        public FormattedEntityReadResult<IComposition> CreateComposition(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
+        {
+            var messages = new List<string>();
+            var warnings = new List<string>();
+            var errors = new List<string>();
+
+            // Read Entity
+            var entity = XmlComposition.FromXml(content);
+            var success = entity != null;
+
+            return new FormattedEntityReadResult<IComposition>(entity, success, messages, warnings, errors);
+        }
+
+        public FormattedEntityReadResult<IDataItem> CreateDataItem(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
+        {
+            var messages = new List<string>();
+            var warnings = new List<string>();
+            var errors = new List<string>();
+
+            // Read Entity
+            var entity = XmlDataItem.FromXml(content);
+            var success = entity != null;
+
+            return new FormattedEntityReadResult<IDataItem>(entity, success, messages, warnings, errors);
         }
 
         public FormattedEntityReadResult<IAsset> CreateAsset(string assetType, byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
@@ -184,7 +236,7 @@ namespace MTConnect.Formatters.Xml
             var warnings = new List<string>();
             var errors = new List<string>();
 
-            // Read Document
+            // Read Entity
             var entity = XmlAsset.FromXml(assetType, content);
             var success = entity != null;
 

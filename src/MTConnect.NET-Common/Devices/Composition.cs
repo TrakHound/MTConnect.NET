@@ -328,6 +328,13 @@ namespace MTConnect.Devices
             return new Composition();
         }
 
+        public static IEnumerable<string> GetTypes()
+        {
+            if (_types == null) _types = GetAllTypes();
+
+            return _types.Keys;
+        }
+
         private static Type GetCompositionType(string type)
         {
             if (!string.IsNullOrEmpty(type))

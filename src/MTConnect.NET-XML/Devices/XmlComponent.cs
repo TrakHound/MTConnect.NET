@@ -2,9 +2,12 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Devices.References;
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Xml;
+using System.Xml.Linq;
 using System.Xml.Serialization;
 
 namespace MTConnect.Devices.Xml
@@ -141,14 +144,45 @@ namespace MTConnect.Devices.Xml
             {
                 try
                 {
-                    using (var textReader = new MemoryStream(xmlBytes))
+                    // Clean whitespace and Encoding Marks (BOM)
+                    var bytes = XmlFunctions.SanitizeBytes(xmlBytes);
+
+                    var xml = System.Text.Encoding.UTF8.GetString(bytes);
+                    xml = XmlFunctions.FormatXml(xml, false, false, true);
+
+                    var typeRegex = "^<(\\S*).*<\\/(.*)>$";
+                    var type = new Regex(typeRegex).Match(xml).Groups[1]?.ToString();
+
+                    if (type != null)
                     {
-                        using (var xmlReader = XmlReader.Create(textReader))
+                        xml = xml.Replace($"<{type}", "<Component");
+                        xml = xml.Replace($"</{type}>", "</Component>");
+
+                        bytes = System.Text.Encoding.UTF8.GetBytes(xml);
+
+                        using (var memoryReader = new MemoryStream(bytes))
                         {
-                            var xmlObj = (XmlComponent)_serializer.Deserialize(xmlReader);
-                            if (xmlObj != null)
+                            //var doc = XDocument.Load(memoryReader);
+                            //if (doc != null)
+                            //{
+                            //    doc.Save(memoryReader);
+                            //}
+
+                            var readerSettings = new XmlReaderSettings();
+                            readerSettings.ConformanceLevel = ConformanceLevel.Fragment;
+                            readerSettings.IgnoreComments = true;
+                            readerSettings.IgnoreProcessingInstructions = true;
+                            readerSettings.IgnoreWhitespace = true;
+
+                            using (var xmlReader = XmlReader.Create(memoryReader, readerSettings))
                             {
-                                return xmlObj.ToComponent();
+                                var xmlObj = (XmlComponent)_serializer.Deserialize(xmlReader);
+                                if (xmlObj != null)
+                                {
+                                    xmlObj.Type = type;
+
+                                    return xmlObj.ToComponent();
+                                }
                             }
                         }
                     }
@@ -159,17 +193,18 @@ namespace MTConnect.Devices.Xml
             return null;
         }
 
-        //public static IComponent FromXml(string xml)
+        //public static IComponent FromXml(byte[] xmlBytes)
         //{
-        //    if (!string.IsNullOrEmpty(xml))
+        //    if (xmlBytes != null && xmlBytes.Length > 0)
         //    {
         //        try
         //        {
-        //            xml = xml.Trim();
-
-        //            using (var textReader = new StringReader(Namespaces.Clear(xml)))
+        //            using (var textReader = new MemoryStream(xmlBytes))
         //            {
-        //                using (var xmlReader = XmlReader.Create(textReader))
+        //                var settings = new XmlReaderSettings();
+        //                settings.ConformanceLevel = ConformanceLevel.Fragment;
+
+        //                using (var xmlReader = XmlReader.Create(textReader, settings))
         //                {
         //                    var xmlObj = (XmlComponent)_serializer.Deserialize(xmlReader);
         //                    if (xmlObj != null)
