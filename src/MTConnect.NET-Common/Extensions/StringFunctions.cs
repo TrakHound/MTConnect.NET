@@ -12,10 +12,38 @@ namespace MTConnect
 {
     public static class StringFunctions
     {
-        private static readonly Random _random = new Random();
         private static readonly Encoding _utf8 = Encoding.UTF8;
-        private static MD5 _md5 = MD5.Create();
 
+        [ThreadStatic]
+        private static MD5 _md5;
+
+        [ThreadStatic]
+        private static Random _random;
+
+        private static MD5 MD5Algorithm
+        {
+            get
+            {
+                if (_md5 == null)
+                {
+                    _md5 = MD5.Create();
+                }
+                return _md5;
+            }
+        }
+
+        private static Random Random
+        {
+            get
+            {
+                if (_random == null)
+                {
+                    _random = new Random();
+                }
+
+                return _random;
+            }
+        }
 
         public static string ToPascalCase(this string s)
         {
@@ -237,7 +265,7 @@ namespace MTConnect
         {
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
             return new string(Enumerable.Repeat(chars, length)
-              .Select(s => s[_random.Next(s.Length)]).ToArray());
+              .Select(s => s[Random.Next(s.Length)]).ToArray());
         }
 
         public static DateTime ToDateTime(this string s)
@@ -254,8 +282,7 @@ namespace MTConnect
         {
             try
             {
-                if (_md5 == null) _md5 = MD5.Create();
-                var hash = _md5.ComputeHash(_utf8.GetBytes(s));
+                var hash = MD5Algorithm.ComputeHash(_utf8.GetBytes(s));
                 return string.Concat(hash.Select(b => b.ToString("x2")));
             }
             catch { }
@@ -269,7 +296,7 @@ namespace MTConnect
             {
                 try
                 {
-                    var hash = _md5.ComputeHash(bytes);
+                    var hash = MD5Algorithm.ComputeHash(bytes);
                     return string.Concat(hash.Select(b => b.ToString("x2")));
                 }
                 catch { }
@@ -296,7 +323,7 @@ namespace MTConnect
         {
             try
             {
-                return _md5.ComputeHash(_utf8.GetBytes(s));
+                return MD5Algorithm.ComputeHash(_utf8.GetBytes(s));
             }
             catch { }
 
@@ -309,7 +336,7 @@ namespace MTConnect
             {
                 try
                 {
-                    return _md5.ComputeHash(bytes);
+                    return MD5Algorithm.ComputeHash(bytes);
                 }
                 catch { }
             }

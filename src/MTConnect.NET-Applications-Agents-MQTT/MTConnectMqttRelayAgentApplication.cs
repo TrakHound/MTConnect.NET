@@ -99,6 +99,7 @@ namespace MTConnect.Applications.Agents
                 clientConfiguration.PemPrivateKey = _configuration.PemPrivateKey;
                 clientConfiguration.UseTls = _configuration.UseTls;
                 clientConfiguration.AllowUntrustedCertificates = _configuration.AllowUntrustedCertificates;
+                clientConfiguration.TopicPrefix = _configuration.TopicPrefix;
 
 
                 // Set Observation Intervals
