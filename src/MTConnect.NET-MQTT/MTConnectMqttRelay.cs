@@ -53,7 +53,7 @@ namespace MTConnect.Mqtt
 
         public MTConnectMqttFormat Format { get; set; }
 
-        public string TopicPrefix { get; set; }
+        public string TopicPrefix => _configuration.TopicPrefix;
 
         public bool RetainMessages { get; set; }
 
