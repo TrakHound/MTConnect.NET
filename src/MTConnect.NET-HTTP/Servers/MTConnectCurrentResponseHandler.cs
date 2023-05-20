@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace MTConnect.Servers.Http
 {
-    class MTConnectCurrentResponseHandler : MTConnectResponseHandler
+    class MTConnectCurrentResponseHandler : MTConnectHttpResponseHandler
     {
         private const int _minimumHeartbeat = 500; // 500 ms
         private const int _defaultHeartbeat = 10000; // 10 Seconds

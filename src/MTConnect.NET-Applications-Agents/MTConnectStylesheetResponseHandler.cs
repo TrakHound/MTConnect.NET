@@ -1,25 +1,22 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+﻿// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-using Ceen.Httpd;
+using Ceen;
 using MTConnect.Agents;
 using MTConnect.Configurations;
 using MTConnect.Http;
-using MTConnect.Servers;
 using MTConnect.Servers.Http;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
-using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Text;
+using System.Threading.Tasks;
+using YamlDotNet.Core;
 
-namespace MTConnect.Applications.Agents
+namespace MTConnect.Servers
 {
-    /// <summary>
-    /// An Http Web Server for processing MTConnect REST Api Requests including functionality for serving XML related files
-    /// </summary>
-    public class MTConnectHttpAgentServer : MTConnectHttpServer
+    class MTConnectStaticResponseHandler : MTConnectHttpResponseHandler
     {
         private static readonly Dictionary<string, string> _devicesSchemas = new Dictionary<string, string>();
         private static readonly Dictionary<string, string> _streamsSchemas = new Dictionary<string, string>();
@@ -30,112 +27,104 @@ namespace MTConnect.Applications.Agents
         private readonly IHttpAgentApplicationConfiguration _agentConfiguration;
 
 
-        public MTConnectHttpAgentServer(IHttpAgentApplicationConfiguration configuration, IMTConnectAgentBroker mtconnectAgent, IEnumerable<string> prefixes = null, int port = 0) : base(configuration, mtconnectAgent, prefixes, port)
+        public MTConnectStaticResponseHandler(IHttpAgentConfiguration configuration, IMTConnectAgentBroker mtconnectAgent) : base(configuration, mtconnectAgent) 
         {
-            _agentConfiguration = configuration;
+            _agentConfiguration = configuration as IHttpAgentApplicationConfiguration;
         }
 
 
-        protected override void OnConfigureServer(ServerConfig serverConfig)
+        protected async override Task<MTConnectHttpResponse> OnRequestReceived(IHttpContext context)
         {
-            base.OnConfigureServer(serverConfig);
-        }
+            var httpRequest = context.Request;
+            var httpResponse = context.Response;
 
-        protected override byte[] OnProcessStatic(MTConnectStaticFileRequest request)
-        {
-            if (_agentConfiguration.DevicesStyle != null && (request.LocalPath == _agentConfiguration.DevicesStyle.Location || request.LocalPath.Replace('\\', '/') == _agentConfiguration.StreamsStyle.Location))
+            if (httpRequest != null && httpRequest.Path != null && httpResponse != null)
             {
-                return ReadDevicesStylesheet(request.FilePath, request.Version);
-            }
-            else if (_agentConfiguration.StreamsStyle != null && (request.LocalPath == _agentConfiguration.StreamsStyle.Location || request.LocalPath.Replace('\\', '/') == _agentConfiguration.StreamsStyle.Location))
-            {
-                return ReadStreamsStylesheet(request.FilePath, request.Version);
-            }
+                var absolutePath = "";
+                var relativePath = "";
 
-            return null;
-        }
+                // Get File extension to prevent certain files (.exe, .dll, etc) from being accessed
+                // that could cause security concerns
+                var pathExtension = Path.GetExtension(relativePath);
+                var valid = pathExtension != ".exe" && pathExtension != ".dll";
 
-        //protected override byte[] OnProcessStatic(IHttpRequest httpRequest, string absolutePath, string relativePath, Version version = null)
-        //{
-        //    if (_agentConfiguration.DevicesStyle != null && (relativePath == _agentConfiguration.DevicesStyle.Location || relativePath.Replace('\\', '/') == _agentConfiguration.StreamsStyle.Location))
-        //    {
-        //        return ReadDevicesStylesheet(absolutePath, version);
-        //    }
-        //    else if (_agentConfiguration.StreamsStyle != null && (relativePath == _agentConfiguration.StreamsStyle.Location || relativePath.Replace('\\', '/') == _agentConfiguration.StreamsStyle.Location))
-        //    {
-        //        return ReadStreamsStylesheet(absolutePath, version);
-        //    }
-
-        //    return null;
-        //}
-
-        protected override List<KeyValuePair<string, string>> OnCreateFormatOptions(MTConnectFormatOptionsArgs args)
-        {
-            var x = new List<KeyValuePair<string, string>>();
-
-            switch (args.DocumentFormat)
-            {
-                case DocumentFormat.XML:
-
-                    if (_configuration != null)
+                if (valid)
+                {
+                    if (_agentConfiguration.DevicesStyle != null && (relativePath == _agentConfiguration.DevicesStyle.Location || relativePath.Replace('\\', '/') == _agentConfiguration.StreamsStyle.Location))
                     {
-                        if (args.ValidationLevel > 0)
-                        {
-                            // Add XSD Schema (xlink)
-                            x.Add(new KeyValuePair<string, string>("schema", ReadCommonSchema(args.MTConnectVersion)));
-
-                            // Add XSD Schema
-                            switch (args.RequestType)
-                            {
-                                case MTConnectRequestType.Probe: x.Add(new KeyValuePair<string, string>("schema", ReadDevicesSchema(args.MTConnectVersion))); break;
-                                case MTConnectRequestType.Current: x.Add(new KeyValuePair<string, string>("schema", ReadStreamsSchema(args.MTConnectVersion))); break;
-                                case MTConnectRequestType.Sample: x.Add(new KeyValuePair<string, string>("schema", ReadStreamsSchema(args.MTConnectVersion))); break;
-                                case MTConnectRequestType.Asset: x.Add(new KeyValuePair<string, string>("schema", ReadAssetsSchema(args.MTConnectVersion))); break;
-                                case MTConnectRequestType.Assets: x.Add(new KeyValuePair<string, string>("schema", ReadAssetsSchema(args.MTConnectVersion))); break;
-                            }
-                        }
-
-                        if (!_agentConfiguration.StreamsNamespaces.IsNullOrEmpty())
-                        {
-                            foreach (var streamsNamespace in _agentConfiguration.StreamsNamespaces)
-                            {
-                                x.Add(new KeyValuePair<string, string>("namespace", JsonSerializer.Serialize(streamsNamespace)));
-                            }
-                        }
-
-                        // Add Devices Stylesheet
-                        if (_agentConfiguration.DevicesStyle != null)
-                        {
-                            x.Add(new KeyValuePair<string, string>("devicesStyle.location", _agentConfiguration.DevicesStyle.Location));
-                            x.Add(new KeyValuePair<string, string>("devicesStyle.path", _agentConfiguration.DevicesStyle.Path));
-                        }
-
-                        // Add Streams Stylesheet
-                        if (_agentConfiguration.StreamsStyle != null)
-                        {
-                            x.Add(new KeyValuePair<string, string>("streamsStyle.location", _agentConfiguration.StreamsStyle.Location));
-                            x.Add(new KeyValuePair<string, string>("streamsStyle.path", _agentConfiguration.StreamsStyle.Path));
-                        }
-
-                        // Add Assets Stylesheet
-                        if (_agentConfiguration.AssetsStyle != null)
-                        {
-                            x.Add(new KeyValuePair<string, string>("assetsStyle.location", _agentConfiguration.AssetsStyle.Location));
-                            x.Add(new KeyValuePair<string, string>("assetsStyle.path", _agentConfiguration.AssetsStyle.Path));
-                        }
-
-                        // Add Error Stylesheet
-                        if (_agentConfiguration.ErrorStyle != null)
-                        {
-                            x.Add(new KeyValuePair<string, string>("errorStyle.location", _agentConfiguration.ErrorStyle.Location));
-                            x.Add(new KeyValuePair<string, string>("errorStyle.path", _agentConfiguration.ErrorStyle.Path));
-                        }
+                        return ReadDevicesStylesheet(absolutePath, version);
                     }
+                    else if (_agentConfiguration.StreamsStyle != null && (relativePath == _agentConfiguration.StreamsStyle.Location || relativePath.Replace('\\', '/') == _agentConfiguration.StreamsStyle.Location))
+                    {
+                        return ReadStreamsStylesheet(absolutePath, version);
+                    }
+                }
 
-                    break;
+
+
+
+
+
+                //var urlSegments = GetUriSegments(httpRequest.OriginalPath);
+
+                //// Get Accept-Encoding Header (ex. gzip, br)
+                //var acceptEncodings = GetRequestHeaderValues(httpRequest, HttpHeaders.AcceptEncoding);
+                //acceptEncodings = ProcessAcceptEncodings(acceptEncodings);
+
+                //// Read AssetIds from URL Path
+                //var assetIdsString = httpRequest.Path?.Trim('/');
+                //if (urlSegments.Length > 1)
+                //{
+                //    assetIdsString = urlSegments[urlSegments.Length - 1];
+                //}
+
+                //// Create list of AssetIds
+                //IEnumerable<string> assetIds = null;
+                //if (!string.IsNullOrEmpty(assetIdsString))
+                //{
+                //    assetIds = assetIdsString.Split(';');
+                //    if (assetIds.IsNullOrEmpty()) assetIds = new List<string>() { assetIdsString };
+                //}
+
+                //// Read MTConnectVersion from Query string
+                //var versionString = httpRequest.QueryString["version"];
+                //Version.TryParse(versionString, out var version);
+                //if (version == null) version = _mtconnectAgent.MTConnectVersion;
+
+                //// Read DocumentFormat from Query string
+                //var documentFormatString = httpRequest.QueryString["documentFormat"];
+                //var documentFormat = DocumentFormat.XML;
+                //if (!string.IsNullOrEmpty(documentFormatString) && documentFormatString.ToUpper() == DocumentFormat.JSON.ToString())
+                //{
+                //    documentFormat = DocumentFormat.JSON;
+                //}
+
+                //// Read ValidationLevel from Query string
+                //int validationLevel = (int)_configuration.OutputValidationLevel;
+                //var validationLevelString = httpRequest.QueryString["validationLevel"];
+                //if (!string.IsNullOrEmpty(validationLevelString)) validationLevel = validationLevelString.ToInt();
+
+
+                //// Set Format Options
+                //var formatOptions = CreateFormatOptions(MTConnectRequestType.Asset, documentFormat, version, validationLevel);
+                //formatOptions.Add(new KeyValuePair<string, string>("validationLevel", validationLevel.ToString()));
+
+                //// Read IndentOutput from Query string
+                //var indentOutputString = httpRequest.QueryString["indentOutput"];
+                //if (!string.IsNullOrEmpty(indentOutputString)) formatOptions.Add(new KeyValuePair<string, string>("indentOutput", indentOutputString));
+                //else formatOptions.Add(new KeyValuePair<string, string>("indentOutput", _configuration.IndentOutput.ToString()));
+
+                //// Read OutputComments from Query string
+                //var outputCommentsString = httpRequest.QueryString["outputComments"];
+                //if (!string.IsNullOrEmpty(outputCommentsString)) formatOptions.Add(new KeyValuePair<string, string>("outputComments", outputCommentsString));
+                //else formatOptions.Add(new KeyValuePair<string, string>("outputComments", _configuration.OutputComments.ToString()));
+
+
+                //// Get MTConnectAssets document from the MTConnectAgent
+                //return MTConnectHttpRequests.GetAssetRequest(_mtconnectAgent, assetIds, version, documentFormat, formatOptions);
             }
 
-            return x;
+            return new MTConnectHttpResponse();
         }
 
 

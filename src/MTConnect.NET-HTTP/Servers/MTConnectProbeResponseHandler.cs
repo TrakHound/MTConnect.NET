@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace MTConnect.Servers.Http
 {
-    class MTConnectProbeResponseHandler : MTConnectResponseHandler
+    class MTConnectProbeResponseHandler : MTConnectHttpResponseHandler
     {
         public MTConnectProbeResponseHandler(IHttpAgentConfiguration configuration, IMTConnectAgentBroker mtconnectAgent) : base(configuration, mtconnectAgent) { }
 

@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace MTConnect.Servers.Http
 {
-    abstract class MTConnectResponseHandler : IHttpModule
+    public abstract class MTConnectHttpResponseHandler : IHttpModule
     {
         protected readonly IMTConnectAgentBroker _mtconnectAgent;
         protected readonly IHttpAgentConfiguration _configuration;
@@ -42,8 +42,10 @@ namespace MTConnect.Servers.Http
         /// </summary>
         public event EventHandler<Exception> ClientException;
 
+        public Func<MTConnectFormatOptionsArgs, List<KeyValuePair<string, string>>> CreateFormatOptionsFunction { get; set; }
 
-        public MTConnectResponseHandler(IHttpAgentConfiguration configuration, IMTConnectAgentBroker mtconnectAgent)
+
+        public MTConnectHttpResponseHandler(IHttpAgentConfiguration configuration, IMTConnectAgentBroker mtconnectAgent)
         {
             _mtconnectAgent = mtconnectAgent;
             _configuration = configuration;
@@ -363,13 +365,42 @@ namespace MTConnect.Servers.Http
         }
 
 
-        protected virtual List<KeyValuePair<string, string>> OnCreateFormatOptions(string requestType, string documentFormat, Version mtconnectVersion, int validationLevel = 0) { return null; }
+        //protected virtual List<KeyValuePair<string, string>> OnCreateFormatOptions(string requestType, string documentFormat, Version mtconnectVersion, int validationLevel = 0) { return null; }
 
         protected List<KeyValuePair<string, string>> CreateFormatOptions(string requestType, string documentFormat, Version mtconnectVersion, int validationLevel = 0)
         {
-            var x = OnCreateFormatOptions(requestType, documentFormat, mtconnectVersion, validationLevel);
+            List<KeyValuePair<string, string>> x = null;
+
+            if (CreateFormatOptionsFunction != null)
+            {
+                var formatOptions = new MTConnectFormatOptionsArgs();
+                formatOptions.RequestType = requestType;
+                formatOptions.DocumentFormat = documentFormat;
+                formatOptions.MTConnectVersion = mtconnectVersion;
+                formatOptions.ValidationLevel = validationLevel;
+
+                x = CreateFormatOptionsFunction(formatOptions);
+            }
+
+            //var x = OnCreateFormatOptions(requestType, documentFormat, mtconnectVersion, validationLevel);
 
             return !x.IsNullOrEmpty() ? x : new List<KeyValuePair<string, string>>();
         }
+
+        //protected override List<KeyValuePair<string, string>> OnCreateFormatOptions(string requestType, string documentFormat, Version mtconnectVersion, int validationLevel = 0)
+        //{
+        //    if (CreateFormatOptionsFunction != null)
+        //    {
+        //        var formatOptions = new MTConnectFormatOptionsArgs();
+        //        formatOptions.RequestType = requestType;
+        //        formatOptions.DocumentFormat = documentFormat;
+        //        formatOptions.MTConnectVersion = mtconnectVersion;
+        //        formatOptions.ValidationLevel = validationLevel;
+
+        //        return CreateFormatOptionsFunction(formatOptions);
+        //    }
+
+        //    return null;
+        //}
     }
 }

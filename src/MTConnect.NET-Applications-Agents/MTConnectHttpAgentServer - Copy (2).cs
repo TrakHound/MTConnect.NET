@@ -1,15 +1,15 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-using Ceen.Httpd;
+using Ceen;
 using MTConnect.Agents;
 using MTConnect.Configurations;
 using MTConnect.Http;
-using MTConnect.Servers;
 using MTConnect.Servers.Http;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -27,108 +27,89 @@ namespace MTConnect.Applications.Agents
         private static readonly Dictionary<string, string> _commonSchemas = new Dictionary<string, string>();
         private static readonly object _lock = new object();
 
-        private readonly IHttpAgentApplicationConfiguration _agentConfiguration;
+        private readonly IHttpAgentApplicationConfiguration _configuration;
 
 
         public MTConnectHttpAgentServer(IHttpAgentApplicationConfiguration configuration, IMTConnectAgentBroker mtconnectAgent, IEnumerable<string> prefixes = null, int port = 0) : base(configuration, mtconnectAgent, prefixes, port)
         {
-            _agentConfiguration = configuration;
+            _configuration = configuration;
         }
 
 
-        protected override void OnConfigureServer(ServerConfig serverConfig)
+        protected override byte[] OnProcessStatic(IHttpRequest httpRequest, string absolutePath, string relativePath, Version version = null)
         {
-            base.OnConfigureServer(serverConfig);
-        }
-
-        protected override byte[] OnProcessStatic(MTConnectStaticFileRequest request)
-        {
-            if (_agentConfiguration.DevicesStyle != null && (request.LocalPath == _agentConfiguration.DevicesStyle.Location || request.LocalPath.Replace('\\', '/') == _agentConfiguration.StreamsStyle.Location))
+            if (_configuration.DevicesStyle != null && (relativePath == _configuration.DevicesStyle.Location || relativePath.Replace('\\', '/') == _configuration.StreamsStyle.Location))
             {
-                return ReadDevicesStylesheet(request.FilePath, request.Version);
+                return ReadDevicesStylesheet(absolutePath, version);
             }
-            else if (_agentConfiguration.StreamsStyle != null && (request.LocalPath == _agentConfiguration.StreamsStyle.Location || request.LocalPath.Replace('\\', '/') == _agentConfiguration.StreamsStyle.Location))
+            else if (_configuration.StreamsStyle != null && (relativePath == _configuration.StreamsStyle.Location || relativePath.Replace('\\', '/') == _configuration.StreamsStyle.Location))
             {
-                return ReadStreamsStylesheet(request.FilePath, request.Version);
+                return ReadStreamsStylesheet(absolutePath, version);
             }
 
             return null;
         }
 
-        //protected override byte[] OnProcessStatic(IHttpRequest httpRequest, string absolutePath, string relativePath, Version version = null)
-        //{
-        //    if (_agentConfiguration.DevicesStyle != null && (relativePath == _agentConfiguration.DevicesStyle.Location || relativePath.Replace('\\', '/') == _agentConfiguration.StreamsStyle.Location))
-        //    {
-        //        return ReadDevicesStylesheet(absolutePath, version);
-        //    }
-        //    else if (_agentConfiguration.StreamsStyle != null && (relativePath == _agentConfiguration.StreamsStyle.Location || relativePath.Replace('\\', '/') == _agentConfiguration.StreamsStyle.Location))
-        //    {
-        //        return ReadStreamsStylesheet(absolutePath, version);
-        //    }
-
-        //    return null;
-        //}
-
-        protected override List<KeyValuePair<string, string>> OnCreateFormatOptions(MTConnectFormatOptionsArgs args)
+        protected override List<KeyValuePair<string, string>> OnCreateFormatOptions(string requestType, string documentFormat, Version mtconnectVersion, int validationLevel = 0)
         {
             var x = new List<KeyValuePair<string, string>>();
 
-            switch (args.DocumentFormat)
+            switch (documentFormat)
             {
                 case DocumentFormat.XML:
 
                     if (_configuration != null)
                     {
-                        if (args.ValidationLevel > 0)
+                        if (validationLevel > 0)
                         {
                             // Add XSD Schema (xlink)
-                            x.Add(new KeyValuePair<string, string>("schema", ReadCommonSchema(args.MTConnectVersion)));
+                            x.Add(new KeyValuePair<string, string>("schema", ReadCommonSchema(mtconnectVersion)));
 
                             // Add XSD Schema
-                            switch (args.RequestType)
+                            switch (requestType)
                             {
-                                case MTConnectRequestType.Probe: x.Add(new KeyValuePair<string, string>("schema", ReadDevicesSchema(args.MTConnectVersion))); break;
-                                case MTConnectRequestType.Current: x.Add(new KeyValuePair<string, string>("schema", ReadStreamsSchema(args.MTConnectVersion))); break;
-                                case MTConnectRequestType.Sample: x.Add(new KeyValuePair<string, string>("schema", ReadStreamsSchema(args.MTConnectVersion))); break;
-                                case MTConnectRequestType.Asset: x.Add(new KeyValuePair<string, string>("schema", ReadAssetsSchema(args.MTConnectVersion))); break;
-                                case MTConnectRequestType.Assets: x.Add(new KeyValuePair<string, string>("schema", ReadAssetsSchema(args.MTConnectVersion))); break;
+                                case MTConnectRequestType.Probe: x.Add(new KeyValuePair<string, string>("schema", ReadDevicesSchema(mtconnectVersion))); break;
+                                case MTConnectRequestType.Current: x.Add(new KeyValuePair<string, string>("schema", ReadStreamsSchema(mtconnectVersion))); break;
+                                case MTConnectRequestType.Sample: x.Add(new KeyValuePair<string, string>("schema", ReadStreamsSchema(mtconnectVersion))); break;
+                                case MTConnectRequestType.Asset: x.Add(new KeyValuePair<string, string>("schema", ReadAssetsSchema(mtconnectVersion))); break;
+                                case MTConnectRequestType.Assets: x.Add(new KeyValuePair<string, string>("schema", ReadAssetsSchema(mtconnectVersion))); break;
                             }
                         }
 
-                        if (!_agentConfiguration.StreamsNamespaces.IsNullOrEmpty())
+                        if (!_configuration.StreamsNamespaces.IsNullOrEmpty())
                         {
-                            foreach (var streamsNamespace in _agentConfiguration.StreamsNamespaces)
+                            foreach (var streamsNamespace in _configuration.StreamsNamespaces)
                             {
                                 x.Add(new KeyValuePair<string, string>("namespace", JsonSerializer.Serialize(streamsNamespace)));
                             }
                         }
 
                         // Add Devices Stylesheet
-                        if (_agentConfiguration.DevicesStyle != null)
+                        if (_configuration.DevicesStyle != null)
                         {
-                            x.Add(new KeyValuePair<string, string>("devicesStyle.location", _agentConfiguration.DevicesStyle.Location));
-                            x.Add(new KeyValuePair<string, string>("devicesStyle.path", _agentConfiguration.DevicesStyle.Path));
+                            x.Add(new KeyValuePair<string, string>("devicesStyle.location", _configuration.DevicesStyle.Location));
+                            x.Add(new KeyValuePair<string, string>("devicesStyle.path", _configuration.DevicesStyle.Path));
                         }
 
                         // Add Streams Stylesheet
-                        if (_agentConfiguration.StreamsStyle != null)
+                        if (_configuration.StreamsStyle != null)
                         {
-                            x.Add(new KeyValuePair<string, string>("streamsStyle.location", _agentConfiguration.StreamsStyle.Location));
-                            x.Add(new KeyValuePair<string, string>("streamsStyle.path", _agentConfiguration.StreamsStyle.Path));
+                            x.Add(new KeyValuePair<string, string>("streamsStyle.location", _configuration.StreamsStyle.Location));
+                            x.Add(new KeyValuePair<string, string>("streamsStyle.path", _configuration.StreamsStyle.Path));
                         }
 
                         // Add Assets Stylesheet
-                        if (_agentConfiguration.AssetsStyle != null)
+                        if (_configuration.AssetsStyle != null)
                         {
-                            x.Add(new KeyValuePair<string, string>("assetsStyle.location", _agentConfiguration.AssetsStyle.Location));
-                            x.Add(new KeyValuePair<string, string>("assetsStyle.path", _agentConfiguration.AssetsStyle.Path));
+                            x.Add(new KeyValuePair<string, string>("assetsStyle.location", _configuration.AssetsStyle.Location));
+                            x.Add(new KeyValuePair<string, string>("assetsStyle.path", _configuration.AssetsStyle.Path));
                         }
 
                         // Add Error Stylesheet
-                        if (_agentConfiguration.ErrorStyle != null)
+                        if (_configuration.ErrorStyle != null)
                         {
-                            x.Add(new KeyValuePair<string, string>("errorStyle.location", _agentConfiguration.ErrorStyle.Location));
-                            x.Add(new KeyValuePair<string, string>("errorStyle.path", _agentConfiguration.ErrorStyle.Path));
+                            x.Add(new KeyValuePair<string, string>("errorStyle.location", _configuration.ErrorStyle.Location));
+                            x.Add(new KeyValuePair<string, string>("errorStyle.path", _configuration.ErrorStyle.Path));
                         }
                     }
 
@@ -141,7 +122,7 @@ namespace MTConnect.Applications.Agents
 
         #region "Stylesheets"
 
-        private static byte[] ReadDevicesStylesheet(string filePath, Version mtconnectVersion)
+        private byte[] ReadDevicesStylesheet(string filePath, Version mtconnectVersion)
         {
             if (filePath != null)
             {
@@ -181,7 +162,7 @@ namespace MTConnect.Applications.Agents
             return null;
         }
 
-        private static byte[] ReadStreamsStylesheet(string filePath, Version mtconnectVersion)
+        private byte[] ReadStreamsStylesheet(string filePath, Version mtconnectVersion)
         {
             if (filePath != null)
             {
@@ -211,7 +192,7 @@ namespace MTConnect.Applications.Agents
 
         #region "Schemas"
 
-        private static string ReadDevicesSchema(Version mtconnectVersion)
+        private string ReadDevicesSchema(Version mtconnectVersion)
         {
             if (mtconnectVersion != null)
             {
@@ -245,7 +226,7 @@ namespace MTConnect.Applications.Agents
             return null;
         }
 
-        private static string ReadStreamsSchema(Version mtconnectVersion)
+        private string ReadStreamsSchema(Version mtconnectVersion)
         {
             if (mtconnectVersion != null)
             {
@@ -279,7 +260,7 @@ namespace MTConnect.Applications.Agents
             return null;
         }
 
-        private static string ReadAssetsSchema(Version mtconnectVersion)
+        private string ReadAssetsSchema(Version mtconnectVersion)
         {
             if (mtconnectVersion != null)
             {
@@ -313,7 +294,7 @@ namespace MTConnect.Applications.Agents
             return null;
         }
 
-        private static string ReadCommonSchema(Version mtconnectVersion)
+        private string ReadCommonSchema(Version mtconnectVersion)
         {
             if (mtconnectVersion != null)
             {

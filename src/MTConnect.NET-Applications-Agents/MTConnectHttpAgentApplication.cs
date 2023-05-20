@@ -93,7 +93,7 @@ namespace MTConnect.Applications.Agents
         {
             // Intialize the Http Server
             //_httpServer = OnHttpServerInitialize(_port);
-            _httpServer = new MTConnectHttpServer(_configuration, Agent);
+            _httpServer = new MTConnectHttpAgentServer(_configuration, Agent);
 
             _httpServer.ServerStarted += HttpListenerStarted;
             _httpServer.ServerStopped += HttpListenerStopped;

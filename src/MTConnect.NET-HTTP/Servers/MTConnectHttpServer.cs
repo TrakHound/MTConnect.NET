@@ -14,6 +14,9 @@ using System.Threading.Tasks;
 
 namespace MTConnect.Servers.Http
 {
+    /// <summary>
+    /// An Http Web Server for processing MTConnect REST Api Requests
+    /// </summary>
     public class MTConnectHttpServer : IDisposable
     {
         protected readonly IMTConnectAgentBroker _mtconnectAgent;
@@ -22,18 +25,18 @@ namespace MTConnect.Servers.Http
 
 
         /// <summary>
-        /// Event Handler for when an error occurs with a MTConnectHttpResponse is written to the HTTP Client
+        /// Event for when an error occurs with a MTConnectHttpResponse is written to the HTTP Client
         /// </summary>
         public event EventHandler<MTConnectHttpResponse> ResponseSent;
 
         /// <summary>
-        /// Event Handler for when the HttpListener is started
+        /// Event for when the HttpListener is started
         /// </summary>
         /// <returns>URL Prefix that the HttpListener is listening for requests on</returns>
         public event EventHandler<string> ServerStarted;
 
         /// <summary>
-        /// Event Handler for when the HttpListener is stopped
+        /// Event for when the HttpListener is stopped
         /// </summary>
         /// <returns>URL Prefix that the HttpListener is listening for requests on</returns>
         public event EventHandler<string> ServerStopped;
@@ -44,23 +47,23 @@ namespace MTConnect.Servers.Http
         public event EventHandler<string> ServerLogRecevied;
 
         /// <summary>
-        /// Event Handler for when an error occurs with the HttpListener
+        /// Event for when an error occurs with the HttpListener
         /// </summary>
         public event EventHandler<Exception> ServerException;
 
 
         /// <summary>
-        /// Event Handler for when a client makes a request to the server
+        /// Event for when a client makes a request to the server
         /// </summary>
         public event EventHandler<IHttpRequest> ClientConnected;
 
         /// <summary>
-        /// Event Handler for when a client completes a request or disconnects from the server
+        /// Event for when a client completes a request or disconnects from the server
         /// </summary>
         public event EventHandler<string> ClientDisconnected;
 
         /// <summary>
-        /// Event Handler for when an error occurs with the HttpListenerRequest
+        /// Event for when an error occurs with the HttpListenerRequest
         /// </summary>
         public event EventHandler<Exception> ClientException;
 
@@ -94,6 +97,21 @@ namespace MTConnect.Servers.Http
         {
             return false;
         }
+
+        /// <summary>
+        /// Method run after the initial ServerConfig is set but before the server is started. Used to edit the configuration and/or to add routes
+        /// </summary>
+        protected virtual void OnConfigureServer(ServerConfig serverConfig)
+        {
+
+        }
+
+        protected virtual byte[] OnProcessStatic(MTConnectStaticFileRequest request) { return null; }
+
+        protected virtual List<KeyValuePair<string, string>> OnCreateFormatOptions(MTConnectFormatOptionsArgs args) { return null; }
+
+        //protected virtual byte[] OnProcessStatic(IHttpRequest httpRequest, string absolutePath, string relativePath, Version version = null) { return null; }
+
 
 
         public void Start()
@@ -200,8 +218,9 @@ namespace MTConnect.Servers.Http
             probeHandler.ClientConnected += ClientConnected;
             probeHandler.ClientDisconnected += ClientDisconnected;
             probeHandler.ClientException += ClientException;
+            probeHandler.CreateFormatOptionsFunction = OnCreateFormatOptions;
             serverConfig.AddRoute("/", probeHandler);
-            serverConfig.AddRoute("[^\\/((?!probe|current|sample|assets).)*$]", probeHandler);
+            //serverConfig.AddRoute("[^\\/((?!probe|current|sample|assets).)*$]", probeHandler);
             serverConfig.AddRoute("/probe", probeHandler);
             serverConfig.AddRoute("/*/probe", probeHandler);
 
@@ -211,6 +230,7 @@ namespace MTConnect.Servers.Http
             currentHandler.ClientConnected += ClientConnected;
             currentHandler.ClientDisconnected += ClientDisconnected;
             currentHandler.ClientException += ClientException;
+            currentHandler.CreateFormatOptionsFunction = OnCreateFormatOptions;
             serverConfig.AddRoute("/current", currentHandler);
             serverConfig.AddRoute("/*/current", currentHandler);
 
@@ -220,6 +240,7 @@ namespace MTConnect.Servers.Http
             sampleHandler.ClientConnected += ClientConnected;
             sampleHandler.ClientDisconnected += ClientDisconnected;
             sampleHandler.ClientException += ClientException;
+            sampleHandler.CreateFormatOptionsFunction = OnCreateFormatOptions;
             serverConfig.AddRoute("/sample", sampleHandler);
             serverConfig.AddRoute("/*/sample", sampleHandler);
 
@@ -229,6 +250,7 @@ namespace MTConnect.Servers.Http
             assetsHandler.ClientConnected += ClientConnected;
             assetsHandler.ClientDisconnected += ClientDisconnected;
             assetsHandler.ClientException += ClientException;
+            assetsHandler.CreateFormatOptionsFunction = OnCreateFormatOptions;
             serverConfig.AddRoute("/assets", assetsHandler);
             serverConfig.AddRoute("/*/assets", assetsHandler);
 
@@ -238,7 +260,19 @@ namespace MTConnect.Servers.Http
             assetHandler.ClientConnected += ClientConnected;
             assetHandler.ClientDisconnected += ClientDisconnected;
             assetHandler.ClientException += ClientException;
+            assetHandler.CreateFormatOptionsFunction = OnCreateFormatOptions;
             serverConfig.AddRoute("/asset/*", assetHandler);
+
+            // Setup the Static Request Handler
+            var staticHandler = new MTConnectStaticResponseHandler(_configuration, _mtconnectAgent);
+            staticHandler.ResponseSent += ResponseSent;
+            staticHandler.ClientConnected += ClientConnected;
+            staticHandler.ClientDisconnected += ClientDisconnected;
+            staticHandler.ClientException += ClientException;
+            staticHandler.ProcessFunction = OnProcessStatic;
+            staticHandler.CreateFormatOptionsFunction = OnCreateFormatOptions;
+            //staticHandler.FileRequested += StaticFileRequested;
+            serverConfig.AddRoute("[^\\/((?!probe|current|sample|assets).)*$]", staticHandler);
 
             return serverConfig;
         }

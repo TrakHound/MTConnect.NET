@@ -53,15 +53,19 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="MTConnectHttpAgentServer - Copy (2).cs" />
 	  <Compile Remove="MTConnectHttpAgentServer - Copy.cs" />
-	  <Compile Remove="MTConnectHttpAgentServer.cs" />
+	  <Compile Remove="MTConnectSchemaResponseHandler.cs" />
 	  <Compile Remove="MTConnectShdrHttpAgentServer.cs" />
+	  <Compile Remove="MTConnectStylesheetResponseHandler.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
+	  <None Include="MTConnectHttpAgentServer - Copy (2).cs" />
 	  <None Include="MTConnectHttpAgentServer - Copy.cs" />
-	  <None Include="MTConnectHttpAgentServer.cs" />
+	  <None Include="MTConnectSchemaResponseHandler.cs" />
 	  <None Include="MTConnectShdrHttpAgentServer.cs" />
+	  <None Include="MTConnectStylesheetResponseHandler.cs" />
 	</ItemGroup>
 
 	<ItemGroup>

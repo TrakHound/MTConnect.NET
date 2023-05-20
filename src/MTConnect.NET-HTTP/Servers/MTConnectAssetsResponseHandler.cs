@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace MTConnect.Servers
 {
-    class MTConnectAssetsResponseHandler : MTConnectResponseHandler
+    class MTConnectAssetsResponseHandler : MTConnectHttpResponseHandler
     {
         public MTConnectAssetsResponseHandler(IHttpAgentConfiguration configuration, IMTConnectAgentBroker mtconnectAgent) : base(configuration, mtconnectAgent) { }
 
