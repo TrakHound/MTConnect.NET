@@ -12,12 +12,14 @@
     <Compile Remove="Assets.cs" />
     <Compile Remove="ClientRequests.cs" />
     <Compile Remove="CurrentStream.cs" />
+    <Compile Remove="SampleStream.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <None Include="Assets.cs" />
     <None Include="ClientRequests.cs" />
     <None Include="CurrentStream.cs" />
+    <None Include="SampleStream.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -25,6 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\src\MTConnect.NET-MQTT\MTConnect.NET-MQTT.csproj" />
     <ProjectReference Include="..\..\..\src\MTConnect.NET\MTConnect.NET.csproj" />
   </ItemGroup>
 
