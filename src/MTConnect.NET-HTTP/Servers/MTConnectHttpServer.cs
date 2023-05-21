@@ -8,6 +8,7 @@ using MTConnect.Configurations;
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
@@ -79,13 +80,13 @@ namespace MTConnect.Servers.Http
         /// Method run when an Observation is attempted to be added to the MTConnect Agent from an HTTP PUT request
         /// </summary>
         /// <returns>Returns False if a Device cannot be found from the specified DeviceKey</returns>
-        protected virtual bool OnObservationInput(string deviceKey, string dataItemKey, string input) { return false; }
+        protected virtual bool OnObservationInput(MTConnectObservationInputArgs args) { return false; }
 
         /// <summary>
         /// Method run when an Asset is attempted to be added to the MTConnect Agent from an HTTP PUT request
         /// </summary>
         /// <returns>Returns False if a Device cannot be found from the specified DeviceKey</returns>
-        protected virtual bool OnAssetInput(string assetId, string deviceKey, string assetType, byte[] requestBody, string documentFormat = DocumentFormat.XML) { return false; }
+        protected virtual bool OnAssetInput(MTConnectAssetInputArgs args) { return false; }
 
         /// <summary>
         /// Method run after the initial ServerConfig is set but before the server is started. Used to edit the configuration and/or to add routes
@@ -250,8 +251,38 @@ namespace MTConnect.Servers.Http
             staticHandler.ProcessFunction = OnProcessStatic;
             staticHandler.CreateFormatOptionsFunction = OnCreateFormatOptions;
 
+            // Setup the Put Request Handler
+            var putHandler = new MTConnectPutResponseHandler(_configuration, _mtconnectAgent);
+            putHandler.ResponseSent += ResponseSent;
+            putHandler.ClientConnected += ClientConnected;
+            putHandler.ClientDisconnected += ClientDisconnected;
+            putHandler.ClientException += ClientException;
+            putHandler.ProcessFunction = OnObservationInput;
+            putHandler.CreateFormatOptionsFunction = OnCreateFormatOptions;
+
+            // Setup the Post Request Handler
+            var postHandler = new MTConnectPostResponseHandler(_configuration, _mtconnectAgent);
+            postHandler.ResponseSent += ResponseSent;
+            postHandler.ClientConnected += ClientConnected;
+            postHandler.ClientDisconnected += ClientDisconnected;
+            postHandler.ClientException += ClientException;
+            postHandler.ProcessFunction = OnAssetInput;
+            postHandler.CreateFormatOptionsFunction = OnCreateFormatOptions;
+
 
             // Setup Routes (Processed in Order)
+            serverConfig.AddRoute(async (context) =>
+            {
+                return await DeviceRootHandler(probeHandler, context);
+            });
+            serverConfig.AddRoute(async (context) =>
+            {
+                return await PutHandler(putHandler, context);
+            });
+            serverConfig.AddRoute(async (context) =>
+            {
+                return await PostHandler(postHandler, context);
+            });
             serverConfig.AddRoute("/", probeHandler);
             serverConfig.AddRoute("/probe", probeHandler);
             serverConfig.AddRoute("/*/probe", probeHandler);
@@ -262,29 +293,64 @@ namespace MTConnect.Servers.Http
             serverConfig.AddRoute("/assets", assetsHandler);
             serverConfig.AddRoute("/*/assets", assetsHandler);
             serverConfig.AddRoute("/asset/*", assetHandler);
-            serverConfig.AddRoute(async (context) =>
-            {
-                return await DeviceRootHandler(probeHandler, context);
-            });
             serverConfig.AddRoute(staticHandler);
 
             return serverConfig;
         }
 
-        private async Task<bool> DeviceRootHandler(MTConnectProbeResponseHandler probeHandler, IHttpContext context)
+        private async Task<bool> DeviceRootHandler(MTConnectProbeResponseHandler handler, IHttpContext context)
         {
             if (context != null && context.Request != null && context.Request.Path != null)
             {
-                var deviceKey = context.Request.Path.Trim('/');
-                if (!string.IsNullOrEmpty(deviceKey))
+                if (context.Request.Method == HttpMethod.Get.Method)
                 {
-                    var device = _mtconnectAgent.GetDevice(deviceKey);
-                    if (device != null)
+                    var deviceKey = context.Request.Path.Trim('/');
+                    if (!string.IsNullOrEmpty(deviceKey))
                     {
-                        await probeHandler.HandleAsync(context);
+                        var device = _mtconnectAgent.GetDevice(deviceKey);
+                        if (device != null)
+                        {
+                            await handler.HandleAsync(context);
 
-                        return true;
+                            return true;
+                        }
                     }
+                }
+            }
+
+            return false;
+        }
+
+        private static async Task<bool> PutHandler(MTConnectPutResponseHandler handler, IHttpContext context)
+        {
+            var httpRequest = context.Request;
+            var httpResponse = context.Response;
+
+            if (httpRequest != null && httpRequest.Path != null && httpResponse != null)
+            {
+                if (httpRequest.Method == HttpMethod.Put.Method)
+                {
+                    await handler.HandleAsync(context);
+
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static async Task<bool> PostHandler(MTConnectPostResponseHandler handler, IHttpContext context)
+        {
+            var httpRequest = context.Request;
+            var httpResponse = context.Response;
+
+            if (httpRequest != null && httpRequest.Path != null && httpResponse != null)
+            {
+                if (httpRequest.Method == HttpMethod.Post.Method)
+                {
+                    await handler.HandleAsync(context);
+
+                    return true;
                 }
             }
 

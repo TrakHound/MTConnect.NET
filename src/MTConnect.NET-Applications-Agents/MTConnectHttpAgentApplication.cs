@@ -7,7 +7,6 @@ using MTConnect.Servers.Http;
 using NLog;
 using System;
 using System.Collections.Generic;
-using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 
@@ -84,16 +83,15 @@ namespace MTConnect.Applications.Agents
             _configuration = configuration as IHttpAgentApplicationConfiguration;
         }
 
-        //protected virtual MTConnectHttpAgentServer OnHttpServerInitialize(int port)
-        //{
-        //    return new MTConnectHttpAgentServer(_configuration, Agent, null, port);
-        //}
+        protected virtual MTConnectHttpAgentServer OnHttpServerInitialize()
+        {
+            return new MTConnectHttpAgentServer(_configuration, Agent);
+        }
 
         protected override void OnStartAgentBeforeLoad(IEnumerable<DeviceConfiguration> devices, bool initializeDataItems = false) 
         {
             // Intialize the Http Server
-            //_httpServer = OnHttpServerInitialize(_port);
-            _httpServer = new MTConnectHttpAgentServer(_configuration, Agent);
+            _httpServer = OnHttpServerInitialize();
 
             _httpServer.ServerStarted += HttpListenerStarted;
             _httpServer.ServerStopped += HttpListenerStopped;

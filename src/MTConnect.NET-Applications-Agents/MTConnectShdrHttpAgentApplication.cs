@@ -50,10 +50,10 @@ namespace MTConnect.Applications.Agents
             _configuration = configuration as ShdrHttpAgentApplicationConfiguration;
         }
 
-        //protected override MTConnectHttpAgentServer OnHttpServerInitialize(int port)
-        //{
-        //    return new MTConnectShdrHttpAgentServer(_configuration, Agent, null, port);
-        //}
+        protected override MTConnectHttpAgentServer OnHttpServerInitialize()
+        {
+            return new MTConnectShdrHttpAgentServer(_configuration, Agent);
+        }
 
         protected override void OnStartAgentBeforeLoad(IEnumerable<DeviceConfiguration> devices, bool initializeDataItems = false)
         {
