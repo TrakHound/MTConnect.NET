@@ -108,11 +108,25 @@ namespace MTConnect.Servers.Http
         {
             _stop = new CancellationTokenSource();
 
-            if (_configuration != null && !_configuration.Http.IsNullOrEmpty())
+            if (_configuration != null)
             {
-                foreach (var httpServer in _configuration.Http)
+                var httpServerConfigurations = new List<IHttpServerConfiguration>();
+
+                if (!_configuration.Http.IsNullOrEmpty())
                 {
-                    _ = Task.Run(() => StartServer(httpServer, _stop.Token));
+                    httpServerConfigurations.AddRange(_configuration.Http);
+                }
+                else
+                {
+                    httpServerConfigurations.Add(_configuration);
+                }
+
+                if (!httpServerConfigurations.IsNullOrEmpty())
+                {
+                    foreach (var httpServer in httpServerConfigurations)
+                    {
+                        _ = Task.Run(() => StartServer(httpServer, _stop.Token));
+                    }
                 }
             }
         }
@@ -125,7 +139,7 @@ namespace MTConnect.Servers.Http
         public void Dispose() { Stop(); }
 
 
-        private async Task StartServer(HttpServerConfiguration serverConfiguration, CancellationToken cancellationToken)
+        private async Task StartServer(IHttpServerConfiguration serverConfiguration, CancellationToken cancellationToken)
         {
             if (serverConfiguration != null)
             {

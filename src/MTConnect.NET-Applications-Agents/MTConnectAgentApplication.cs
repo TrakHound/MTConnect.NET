@@ -53,7 +53,6 @@ namespace MTConnect.Applications.Agents
 
         protected Type ConfigurationType { get; set; }
 
-
         public IMTConnectAgentBroker Agent => _mtconnectAgent;
 
         public EventHandler<AgentConfiguration> OnRestart { get; set; }

@@ -100,7 +100,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect-Agent-MQTT-Broker
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect-Agent-MQTT-Relay-Gateway", "..\applications\Agents\MTConnect-Agent-MQTT-Relay-Gateway\MTConnect-Agent-MQTT-Relay-Gateway.csproj", "{61CB960E-761A-4F89-A365-E9394AD3FA30}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MTConnect.NET-TLS", "MTConnect.NET-TLS\MTConnect.NET-TLS.csproj", "{82B8CF89-A378-47FF-B0DE-EE5F020D9586}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-TLS", "MTConnect.NET-TLS\MTConnect.NET-TLS.csproj", "{82B8CF89-A378-47FF-B0DE-EE5F020D9586}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MTConnect-Agent", "..\applications\Agents\MTConnect-Agent\MTConnect-Agent.csproj", "{45DD20AA-AB6E-4F48-95F1-56424ABAB69F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -313,6 +315,12 @@ Global
 		{82B8CF89-A378-47FF-B0DE-EE5F020D9586}.Package|Any CPU.Build.0 = Debug|Any CPU
 		{82B8CF89-A378-47FF-B0DE-EE5F020D9586}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{82B8CF89-A378-47FF-B0DE-EE5F020D9586}.Release|Any CPU.Build.0 = Release|Any CPU
+		{45DD20AA-AB6E-4F48-95F1-56424ABAB69F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{45DD20AA-AB6E-4F48-95F1-56424ABAB69F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{45DD20AA-AB6E-4F48-95F1-56424ABAB69F}.Package|Any CPU.ActiveCfg = Debug|Any CPU
+		{45DD20AA-AB6E-4F48-95F1-56424ABAB69F}.Package|Any CPU.Build.0 = Debug|Any CPU
+		{45DD20AA-AB6E-4F48-95F1-56424ABAB69F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{45DD20AA-AB6E-4F48-95F1-56424ABAB69F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -351,6 +359,7 @@ Global
 		{44BAF649-0F9F-446A-B1A4-6F2DCF91C968} = {6C3F47E0-BC95-48CB-93A4-C34A0D5CA43B}
 		{61CB960E-761A-4F89-A365-E9394AD3FA30} = {6C3F47E0-BC95-48CB-93A4-C34A0D5CA43B}
 		{82B8CF89-A378-47FF-B0DE-EE5F020D9586} = {E0233BEB-F66C-43C4-9DC8-20182894CF5F}
+		{45DD20AA-AB6E-4F48-95F1-56424ABAB69F} = {6C3F47E0-BC95-48CB-93A4-C34A0D5CA43B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CC13D3AD-18BF-4695-AB2A-087EF0885B20}

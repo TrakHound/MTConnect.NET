@@ -2,6 +2,7 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Http;
+using MTConnect.Tls;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using YamlDotNet.Serialization;
@@ -17,10 +18,6 @@ namespace MTConnect.Configurations
         public IEnumerable<HttpServerConfiguration> Http { get; set; }
 
 
-
-
-
-
         /// <summary>
         /// The port number the agent binds to for requests.
         /// </summary>
@@ -32,6 +29,9 @@ namespace MTConnect.Configurations
         /// </summary>
         [JsonPropertyName("server")]
         public string Server { get; set; }
+
+        [JsonPropertyName("tls")]
+        public TlsConfiguration Tls { get; set; }
 
         /// <summary>
         /// Gets or Sets the List of Encodings (ex. gzip, br, deflate) to pass to the Accept-Encoding HTTP Header
@@ -55,6 +55,22 @@ namespace MTConnect.Configurations
                     return responseCompression;
                 }
                 return null;
+            }
+            set
+            {
+                if (!value.IsNullOrEmpty())
+                {
+                    var strValues = new List<string>();
+                    foreach (var val in value)
+                    {
+                        strValues.Add(val.ToString());
+                    }
+                    ResponseCompressionString = strValues;
+                }
+                else
+                {
+                    ResponseCompressionString = null;
+                }
             }
         }
 
@@ -110,7 +126,8 @@ namespace MTConnect.Configurations
 
         public HttpAgentConfiguration()
         {
-            Server = "127.0.0.1";
+            Server = null;
+            //Server = "127.0.0.1";
             Port = 5000;
             AllowPut = false;
             AllowPutFrom = null;

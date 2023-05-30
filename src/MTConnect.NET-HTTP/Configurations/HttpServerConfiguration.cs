@@ -6,7 +6,7 @@ using YamlDotNet.Serialization;
 
 namespace MTConnect.Configurations
 {
-    public class HttpServerConfiguration
+    public class HttpServerConfiguration : IHttpServerConfiguration
     {
         /// <summary>
         /// The port number the agent binds to for requests.
@@ -22,21 +22,6 @@ namespace MTConnect.Configurations
 
         [JsonPropertyName("tls")]
         public TlsConfiguration Tls { get; set; }
-
-        //[JsonPropertyName("useTls")]
-        //public bool UseTls { get; set; }
-
-        //[JsonPropertyName("tlsCertificateChain")]
-        //public string TlsCertificateChain { get; set; }
-
-        //[JsonPropertyName("tlsPrivateKey")]
-        //public string TlsPrivateKey { get; set; }
-
-        //[JsonPropertyName("tlsCertificatePassword")]
-        //public string TlsCertificatePassword { get; set; }
-
-        //[JsonPropertyName("tlsVerifyClientCertificate")]
-        //public string TlsVerifyClientCertificate { get; set; }
 
         /// <summary>
         /// Gets or Sets the List of Encodings (ex. gzip, br, deflate) to pass to the Accept-Encoding HTTP Header
@@ -60,6 +45,22 @@ namespace MTConnect.Configurations
                     return responseCompression;
                 }
                 return null;
+            }
+            set
+            {
+                if (!value.IsNullOrEmpty())
+                {
+                    var strValues = new List<string>();
+                    foreach (var val in value)
+                    {
+                        strValues.Add(val.ToString());
+                    }
+                    ResponseCompressionString = strValues;
+                }
+                else
+                {
+                    ResponseCompressionString = null;
+                }
             }
         }
 
