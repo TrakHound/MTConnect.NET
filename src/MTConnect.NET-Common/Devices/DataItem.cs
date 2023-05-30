@@ -28,6 +28,9 @@ namespace MTConnect.Devices
         private static readonly object _lock = new object();
 
         private static Dictionary<string, Type> _types;
+        private static IEnumerable<string> _conditionTypes;
+        private static IEnumerable<string> _eventTypes;
+        private static IEnumerable<string> _sampleTypes;
         private static Dictionary<string, string> _typeDescriptions;
         private static Dictionary<string, IEnumerable<string>> _subtypes;
         private static Dictionary<string, string> _subtypeDescriptions;
@@ -528,6 +531,10 @@ namespace MTConnect.Devices
                 {
                     case DataItems.Events.AdapterUriDataItem.TypeId: return "AdapterURI";
                     case DataItems.Events.MTConnectVersionDataItem.TypeId: return "MTConnectVersion";
+                    case DataItems.Samples.AmperageACDataItem.TypeId: return "AmperageAC";
+                    case DataItems.Samples.AmperageDCDataItem.TypeId: return "AmperageDC";
+                    case DataItems.Samples.VoltageACDataItem.TypeId: return "VoltageAC";
+                    case DataItems.Samples.VoltageDCDataItem.TypeId: return "VoltageDC";
                 }
 
                 lock (_lock)
@@ -611,6 +618,84 @@ namespace MTConnect.Devices
             if (_types == null) _types = GetAllTypes();
 
             return _types.Keys;
+        }
+
+        public static IEnumerable<string> GetConditionTypes()
+        {
+            if (_conditionTypes == null)
+            {
+                if (_types == null) _types = GetAllTypes();
+
+                if (!_types.IsNullOrEmpty())
+                {
+                    var x = new List<string>();
+
+                    foreach (var type in _types)
+                    {
+                        var instance = Create(type.Value);
+                        if (instance != null)
+                        {
+                            x.Add(instance.Type);
+                        }
+                    }
+
+                    _conditionTypes = x.OrderBy(o => o);
+                }
+            }
+
+            return _conditionTypes;
+        }
+
+        public static IEnumerable<string> GetEventTypes()
+        {
+            if (_eventTypes == null)
+            {
+                if (_types == null) _types = GetAllTypes();
+
+                if (!_types.IsNullOrEmpty())
+                {
+                    var x = new List<string>();
+
+                    foreach (var type in _types)
+                    {
+                        var instance = Create(type.Value);
+                        if (instance != null && instance.Category == DataItemCategory.EVENT)
+                        {
+                            x.Add(instance.Type);
+                        }
+                    }
+
+                    _eventTypes = x.OrderBy(o => o);
+                }
+            }
+
+            return _eventTypes;
+        }
+
+        public static IEnumerable<string> GetSampleTypes()
+        {
+            if (_sampleTypes == null)
+            {
+                if (_types == null) _types = GetAllTypes();
+
+                if (!_types.IsNullOrEmpty())
+                {
+                    var x = new List<string>();
+
+                    foreach (var type in _types)
+                    {
+                        var instance = Create(type.Value);
+                        if (instance != null && instance.Category == DataItemCategory.SAMPLE)
+                        {
+                            x.Add(instance.Type);
+                        }
+                    }
+
+                    _sampleTypes = x.OrderBy(o => o);
+                }
+            }
+
+            return _sampleTypes;
         }
 
         public static IEnumerable<KeyValuePair<string, string>> GetTypeDescriptions()
