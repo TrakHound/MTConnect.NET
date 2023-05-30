@@ -32,9 +32,9 @@ client.AssetReceived += (s, o) =>
     Console.WriteLine($"Asset Received : {o.AssetId} : {o.Type}");
 };
 
-await client.StartAsync();
+client.Start();
 
 Console.WriteLine("Press enter to exit.");
 Console.ReadLine();
 
-await client.StopAsync();
+client.Stop();

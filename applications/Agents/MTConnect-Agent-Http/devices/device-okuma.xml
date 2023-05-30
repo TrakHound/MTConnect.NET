@@ -22,13 +22,9 @@
 							</Constraints>
 						</DataItem>
 						<DataItem category="EVENT" id="L2S1ChuckState" name="S1ChuckState" type="CHUCK_STATE">
-							<InitialValue>OPEN</InitialValue>
 						</DataItem>
 						<DataItem category="SAMPLE" id="L2S1SurfaceSpeed" name="S1SurfaceSpeed" nativeUnits="MILLIMETER/SECOND" type="e:SURFACE_SPEED" units="MILLIMETER/SECOND"/>
 					</DataItems>
-					<Compositions>
-						<Composition id="Xballscrew" type="ENGINE"/>
-					</Compositions>
 				</Rotary>
 				<Rotary id="L2c2" name="C2" nativeName="S">
 					<DataItems>
