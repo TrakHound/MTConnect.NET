@@ -178,10 +178,19 @@ namespace MTConnect.Clients
 
         #region "Events"
 
+        /// <summary>
+        /// Raised when a Device is received
+        /// </summary>
         public event EventHandler<IDevice> DeviceReceived;
 
+        /// <summary>
+        /// Raised when an Observation is received
+        /// </summary>
         public event EventHandler<IObservation> ObservationReceived;
 
+        /// <summary>
+        /// Raised when an Asset is received
+        /// </summary>
         public event EventHandler<IAsset> AssetReceived;
 
         /// <summary>

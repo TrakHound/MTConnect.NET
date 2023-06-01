@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "MTConnect-Agent-MQTT-Broker-Gateway": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:59481;http://localhost:59482"
+    }
+  }
+}

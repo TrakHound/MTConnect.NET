@@ -55,7 +55,7 @@ namespace MTConnect.Applications.Agents
 
         public IMTConnectAgentBroker Agent => _mtconnectAgent;
 
-        public EventHandler<AgentConfiguration> OnRestart { get; set; }
+        public event EventHandler<AgentConfiguration> OnRestart;
 
 
         public MTConnectAgentApplication()
@@ -720,5 +720,6 @@ namespace MTConnect.Applications.Agents
         }
 
         #endregion
+
     }
 }
