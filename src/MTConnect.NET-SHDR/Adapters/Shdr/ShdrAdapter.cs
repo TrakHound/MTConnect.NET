@@ -680,11 +680,11 @@ namespace MTConnect.Adapters.Shdr
                 var shdrLine = sendItem.ToString();
 
                 var success = WriteLine(shdrLine);
-                if (success)
-                {
+                //if (success)
+                //{
                     // Update Last Sent DataItems
                     UpdateLastDataItems(new List<ShdrDataItem> { newDataItem });
-                }
+                //}
 
                 return success;
             }
@@ -763,11 +763,11 @@ namespace MTConnect.Adapters.Shdr
                 var shdrLine = ShdrDataItem.ToString(dataItems);
 
                 var success = WriteLine(shdrLine);
-                if (success)
-                {
+                //if (success)
+                //{
                     // Update Last Sent DataItems
                     UpdateLastDataItems(dataItems);
-                }
+                //}
 
                 return success;
             }
@@ -794,11 +794,11 @@ namespace MTConnect.Adapters.Shdr
                 // Create SHDR string to send
                 var shdrLine = ShdrDataItem.ToString(sendItems);
                 var success = WriteLine(shdrLine);
-                if (success)
-                {
+                //if (success)
+                //{
                     // Update Last Sent DataItems
                     UpdateLastDataItems(dataItems);
-                }
+                //}
 
                 return success;
             }
@@ -976,11 +976,11 @@ namespace MTConnect.Adapters.Shdr
                 var shdrLine = newMessage.ToString();
 
                 var success = WriteLine(shdrLine);
-                if (success)
-                {
+                //if (success)
+                //{
                     // Update Last Sent Messages
                     UpdateLastMessages(new List<ShdrMessage> { newMessage });
-                }
+                //}
 
                 return success;
             }
@@ -1058,11 +1058,11 @@ namespace MTConnect.Adapters.Shdr
                     if (!success) break;
                 }
 
-                if (success)
-                {
+                //if (success)
+                //{
                     // Update Last Sent Messages
                     UpdateLastMessages(messages);
-                }
+                //}
 
                 return success;
             }
@@ -1091,11 +1091,11 @@ namespace MTConnect.Adapters.Shdr
                     if (!success) break;
                 }
 
-                if (success)
-                {
+                //if (success)
+                //{
                     // Update Last Sent Messages
                     UpdateLastMessages(messages);
-                }
+                //}
 
                 return success;
             }
@@ -1227,11 +1227,11 @@ namespace MTConnect.Adapters.Shdr
                 var shdrLine = newCondition.ToString();
 
                 var success = WriteLine(shdrLine);
-                if (success)
-                {
+                //if (success)
+                //{
                     // Update Last Sent DataItems
                     UpdateLastConditions(new List<ShdrCondition> { newCondition });
-                }
+                //}
 
                 return success;
             }
@@ -1315,11 +1315,11 @@ namespace MTConnect.Adapters.Shdr
                     if (!success) break;
                 }
 
-                if (success)
-                {
+                //if (success)
+                //{
                     // Update Last Sent Conditions
                     UpdateLastConditions(conditions);
-                }
+                //}
 
                 return success;
             }
@@ -1355,11 +1355,11 @@ namespace MTConnect.Adapters.Shdr
                     if (!success) break;
                 }
 
-                if (success)
-                {
+                //if (success)
+                //{
                     // Update Last Sent Conditions
                     UpdateLastConditions(conditions);
-                }
+                //}
 
                 return success;
             }
@@ -1474,11 +1474,11 @@ namespace MTConnect.Adapters.Shdr
                 var shdrLine = newTimeSeries.ToString();
 
                 var success = WriteLine(shdrLine);
-                if (success)
-                {
+                //if (success)
+                //{
                     // Update Last Sent TimeSeries
                     UpdateLastTimeSeries(new List<ShdrTimeSeries> { newTimeSeries });
-                }
+                //}
 
                 return success;
             }
@@ -1556,11 +1556,11 @@ namespace MTConnect.Adapters.Shdr
                     if (!success) break;
                 }
 
-                if (success)
-                {
+                //if (success)
+                //{
                     // Update Last Sent TimeSeries
                     UpdateLastTimeSeries(timeSeries);
-                }
+                //}
 
                 return success;
             }
@@ -1589,11 +1589,11 @@ namespace MTConnect.Adapters.Shdr
                     if (!success) break;
                 }
 
-                if (success)
-                {
+                //if (success)
+                //{
                     // Update Last Sent TimeSeries
                     UpdateLastTimeSeries(timeSeries);
-                }
+                //}
 
                 return success;
             }
@@ -1711,11 +1711,11 @@ namespace MTConnect.Adapters.Shdr
                 var shdrLine = newDataSet.ToString();
 
                 var success = WriteLine(shdrLine);
-                if (success)
-                {
+                //if (success)
+                //{
                     // Update Last Sent TimeSeries
                     UpdateLastDataSets(new List<ShdrDataSet> { newDataSet });
-                }
+                //}
 
                 return success;
             }
@@ -1793,11 +1793,11 @@ namespace MTConnect.Adapters.Shdr
                     if (!success) break;
                 }
 
-                if (success)
-                {
+                //if (success)
+                //{
                     // Update Last Sent DataSet
                     UpdateLastDataSets(dataSets);
-                }
+                //}
 
                 return success;
             }
@@ -1826,11 +1826,11 @@ namespace MTConnect.Adapters.Shdr
                     if (!success) break;
                 }
 
-                if (success)
-                {
+                //if (success)
+                //{
                     // Update Last Sent DataSet
                     UpdateLastDataSets(dataSets);
-                }
+                //}
 
                 return success;
             }
@@ -1948,11 +1948,11 @@ namespace MTConnect.Adapters.Shdr
                 var shdrLine = newTable.ToString();
 
                 var success = WriteLine(shdrLine);
-                if (success)
-                {
+                //if (success)
+                //{
                     // Update Last Sent
                     UpdateLastTables(new List<ShdrTable> { newTable });
-                }
+                //}
 
                 return success;
             }
@@ -2030,11 +2030,11 @@ namespace MTConnect.Adapters.Shdr
                     if (!success) break;
                 }
 
-                if (success)
-                {
+                //if (success)
+                //{
                     // Update Last Sent Table
                     UpdateLastTables(tables);
-                }
+                //}
 
                 return success;
             }
@@ -2063,11 +2063,11 @@ namespace MTConnect.Adapters.Shdr
                     if (!success) break;
                 }
 
-                if (success)
-                {
+                //if (success)
+                //{
                     // Update Last Sent Table
                     UpdateLastTables(tables);
-                }
+                //}
 
                 return success;
             }
@@ -2193,7 +2193,38 @@ namespace MTConnect.Adapters.Shdr
         /// <param name="asset">The Asset to add</param>
         public void AddAsset(Assets.IAsset asset)
         {
-            AddAsset(new ShdrAsset(asset));
+            if (asset != null)
+            {
+                var newAsset = new ShdrAsset(asset);
+
+                // Set Timestamp (if not already set)
+                if (!OutputTimestamps) newAsset.Timestamp = 0;
+                else if (newAsset.Timestamp <= 0) newAsset.Timestamp = UnixDateTime.Now;
+
+                // Get the Current Asset (if exists)
+                ShdrAsset currentAsset;
+                lock (_lock) _currentAssets.TryGetValue(newAsset.AssetId, out currentAsset);
+
+                // Check to see if new Asset is the same as the Current
+                var add = true;
+                if (currentAsset != null && FilterDuplicates)
+                {
+                    add = !ObjectExtensions.ByteArraysEqual(newAsset.ChangeId, currentAsset.ChangeId);
+                }
+
+                if (add)
+                {
+                    // Add to Current
+                    lock (_lock)
+                    {
+                        _currentAssets.Remove(newAsset.AssetId);
+                        _currentAssets.Add(newAsset.AssetId, newAsset);
+                    }
+
+                    // Call Overridable Method
+                    OnAssetAdd(newAsset);
+                }
+            }
         }
 
         /// <summary>
@@ -2204,18 +2235,21 @@ namespace MTConnect.Adapters.Shdr
         {
             if (asset != null)
             {
+                var newAsset = new ShdrAsset(asset.AssetId, asset.AssetType, asset.Xml, asset.Timestamp);
+
                 // Set Timestamp (if not already set)
-                if (asset.Timestamp <= 0) asset.Timestamp = UnixDateTime.Now;
+                if (!OutputTimestamps) newAsset.Timestamp = 0;
+                else if (newAsset.Timestamp <= 0) newAsset.Timestamp = UnixDateTime.Now;
 
                 // Get the Current Asset (if exists)
                 ShdrAsset currentAsset;
-                lock (_lock) _currentAssets.TryGetValue(asset.AssetId, out currentAsset);
+                lock (_lock) _currentAssets.TryGetValue(newAsset.AssetId, out currentAsset);
 
                 // Check to see if new Asset is the same as the Current
                 var add = true;
                 if (currentAsset != null && FilterDuplicates)
                 {
-                    add = !ObjectExtensions.ByteArraysEqual(asset.ChangeId, currentAsset.ChangeId);
+                    add = !ObjectExtensions.ByteArraysEqual(newAsset.ChangeId, currentAsset.ChangeId);
                 }
 
                 if (add)
@@ -2223,12 +2257,12 @@ namespace MTConnect.Adapters.Shdr
                     // Add to Current
                     lock (_lock)
                     {
-                        _currentAssets.Remove(asset.AssetId);
-                        _currentAssets.Add(asset.AssetId, asset);
+                        _currentAssets.Remove(newAsset.AssetId);
+                        _currentAssets.Add(newAsset.AssetId, newAsset);
                     }
 
                     // Call Overridable Method
-                    OnAssetAdd(asset);
+                    OnAssetAdd(newAsset);
                 }
             }
         }
@@ -2319,11 +2353,11 @@ namespace MTConnect.Adapters.Shdr
                     if (!success) break;
                 }
 
-                if (success)
-                {
+                //if (success)
+                //{
                     // Update Last Sent Asset
                     UpdateLastAsset(assets);
-                }
+                //}
 
                 return success;
             }
