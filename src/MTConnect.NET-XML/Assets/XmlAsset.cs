@@ -2,6 +2,7 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -16,6 +17,10 @@ namespace MTConnect.Assets.Xml
     /// </summary>
     public class XmlAsset
     {
+        private static readonly Dictionary<Type, XmlSerializer> _serializers = new Dictionary<Type, XmlSerializer>();
+        private static readonly object _lock = new object();
+
+
         /// <summary>
         /// The unique identifier for the MTConnect Asset.
         /// </summary>
@@ -81,7 +86,16 @@ namespace MTConnect.Assets.Xml
                         xml = xml.Trim();
 
                         // Create an XmlSerializer using the specified Type
-                        var serializer = new XmlSerializer(type);
+                        XmlSerializer serializer;
+                        lock (_lock)
+                        {
+                            _serializers.TryGetValue(type, out serializer);
+                            if (serializer == null)
+                            {
+                                serializer = new XmlSerializer(type);
+                                _serializers.Add(type, serializer);
+                            }
+                        }                
 
                         using (var textReader = new StringReader(Namespaces.Clear(xml)))
                         {
@@ -113,7 +127,17 @@ namespace MTConnect.Assets.Xml
 
                 using (var writer = new StringWriter())
                 {
-                    var serializer = new XmlSerializer(asset.GetType());
+                    XmlSerializer serializer;
+                    lock (_lock)
+                    {
+                        _serializers.TryGetValue(asset.GetType(), out serializer);
+                        if (serializer == null)
+                        {
+                            serializer = new XmlSerializer(asset.GetType());
+                            _serializers.Add(asset.GetType(), serializer);
+                        }
+                    }
+
                     serializer.Serialize(writer, asset, namespaces);
 
                     var xml = writer.ToString();

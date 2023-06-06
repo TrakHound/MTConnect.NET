@@ -60,13 +60,15 @@ namespace MTConnect.Shdr
         /// <summary>
         /// The XML representation of the MTConnect Asset
         /// </summary>
-        public string Xml { get; }
+        public string Xml { get; private set; }
 
         /// <summary>
         /// The Timestamp (in Unix Ticks) that represents when the Asset was created / updated
         /// </summary>
         public long Timestamp { get; set; }
 
+
+        private byte[] changeId;
         /// <summary>
         /// An MD5 Hash of the Asset that can be used for comparison
         /// </summary>
@@ -74,11 +76,24 @@ namespace MTConnect.Shdr
         {
             get
             {
-                // Normalize Timestamp in order to compare
-                return _utf8.GetBytes(ToString(new ShdrAsset(AssetId, AssetType, Xml, 0)));
+                if (changeId == null)
+                {
+                    // Normalize Timestamp in order to compare
+                    var asset = new ShdrAsset(AssetId, AssetType, Xml, 0);
+                    if (asset.Asset != null)
+                    {
+                        asset.Asset.Timestamp = 0;
+                        asset.Xml = XmlAsset.ToXml(asset.Asset);
+                    }
+
+                    changeId = _utf8.GetBytes(ToString(asset, true));
+                }
+
+                return changeId;
             }
         }
 
+        private byte[] changeIdWithTimestamp;
         /// <summary>
         /// An MD5 Hash of the Asset including the Timestamp that can be used for comparison
         /// </summary>
@@ -86,7 +101,9 @@ namespace MTConnect.Shdr
         {
             get
             {
-                return _utf8.GetBytes(ToString(new ShdrAsset(AssetId, AssetType, Xml, Timestamp)));
+                if (changeIdWithTimestamp == null) changeIdWithTimestamp = _utf8.GetBytes(ToString(new ShdrAsset(AssetId, AssetType, Xml, Timestamp)));
+
+                return changeIdWithTimestamp;
             }
         }
 
