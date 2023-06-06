@@ -31,6 +31,7 @@ namespace MTConnect.Applications
             tool.CuttingToolLifeCycle.CutterStatus.Add(CutterStatus.AVAILABLE);
             tool.CuttingToolLifeCycle.CutterStatus.Add(CutterStatus.NEW);
             tool.CuttingToolLifeCycle.CutterStatus.Add(CutterStatus.MEASURED);
+            tool.CuttingToolLifeCycle.ToolLife = new ToolLife();
             tool.Timestamp = UnixDateTime.Now;
 
             return tool;
