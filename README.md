@@ -6,7 +6,7 @@
 [![GitHub all releases](https://img.shields.io/github/downloads/TrakHound/MTConnect.NET/total?label=Release%20Downloads)](https://github.com/TrakHound/MTConnect.NET/releases/latest)
 [![Nuget](https://img.shields.io/nuget/dt/MTConnect.NET?label=Nuget%20Downloads)](https://www.nuget.org/packages/MTConnect.NET)
 
-> 3/2/2023 Added MQTT Gateway Agent Applications
+> 6/6/2023 Updated SHDR Adapter
 
 ## Overview
 MTConnect.NET is a fully featured .NET library for MTConnect to develop Agents, Adapters, and Clients. Supports MTConnect Versions up to 2.1.
