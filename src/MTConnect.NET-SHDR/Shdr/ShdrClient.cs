@@ -8,7 +8,6 @@ using MTConnect.Devices;
 using MTConnect.Devices.DataItems;
 using MTConnect.Devices.Xml;
 using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -69,44 +68,44 @@ namespace MTConnect.Shdr
         /// <summary>
         /// Raised when a client connection is established
         /// </summary>
-        public EventHandler<string> Connected { get; set; }
+        public event EventHandler<string> Connected;
 
         /// <summary>
         /// Raised when the client is disconnected
         /// </summary>
-        public EventHandler<string> Disconnected { get; set; }
+        public event EventHandler<string> Disconnected;
 
         /// <summary>
         /// Raised when an error occurs during the connection
         /// </summary>
-        public EventHandler<Exception> ConnectionError { get; set; }
+        public event EventHandler<Exception> ConnectionError;
 
         /// <summary>
         /// Raised when the client is not connected but is listening for new connections
         /// </summary>
-        public EventHandler<string> Listening { get; set; }
+        public event EventHandler<string> Listening;
 
 
         /// <summary>
         /// Raised when a Pong message response is received from the Adapter
         /// </summary>
-        public EventHandler<string> PongReceived { get; set; }
+        public event EventHandler<string> PongReceived;
 
         /// <summary>
         /// Raised when a Ping message request is sent to the Adapter
         /// </summary>
-        public EventHandler<string> PingSent { get; set; }
+        public event EventHandler<string> PingSent;
 
 
         /// <summary>
         /// Raised when an SHDR Protocol line message is received from the Adapter
         /// </summary>
-        public EventHandler<string> ProtocolReceived { get; set; }
+        public event EventHandler<string> ProtocolReceived;
 
         /// <summary>
         /// Raised when an SHDR Command message is received from the Adapter
         /// </summary>
-        public EventHandler<string> CommandReceived { get; set; }
+        public event EventHandler<string> CommandReceived;
 
 
         public ShdrClient()

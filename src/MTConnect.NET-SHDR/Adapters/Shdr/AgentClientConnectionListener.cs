@@ -44,17 +44,17 @@ namespace MTConnect.Adapters.Shdr
         public int Heartbeat { get; set; }
 
 
-        public AgentConnectedHandler ClientConnected;
+        public event AgentConnectedHandler ClientConnected;
 
-        public AgentDisconnectedHandler ClientDisconnected;
+        public event AgentDisconnectedHandler ClientDisconnected;
 
-        public AgentResponseHandler ClientPingReceived;
+        public event AgentResponseHandler ClientPingReceived;
 
-        public AgentResponseHandler ClientPongSent;
+        public event AgentResponseHandler ClientPongSent;
 
-        public AgentListenerErrorHandler ListenerErrorReceived;
+        public event AgentListenerErrorHandler ListenerErrorReceived;
 
-        public AgentConnectionErrorHandler ConnectionErrorReceived;
+        public event AgentConnectionErrorHandler ConnectionErrorReceived;
 
 
         public AgentClientConnectionListener(int port, int heartbeat)

@@ -103,38 +103,38 @@ namespace MTConnect.Adapters.Shdr
         /// <summary>
         /// Raised when a new Agent connection is established. Includes the AgentClient ID as an argument.
         /// </summary>
-        public EventHandler<string> AgentConnected { get; set; }
+        public event EventHandler<string> AgentConnected;
 
         /// <summary>
         /// Raised when an existing Agent connection is disconnected. Includes the AgentClient ID as an argument.
         /// </summary>
-        public EventHandler<string> AgentDisconnected { get; set; }
+        public event EventHandler<string> AgentDisconnected;
 
         /// <summary>
         /// Raised when an error occurs during an existing Agent connection. Includes the AgentClient ID as an argument.
         /// </summary>
-        public EventHandler<string> AgentConnectionError { get; set; }
+        public event EventHandler<string> AgentConnectionError;
 
 
         /// <summary>
         /// Raised when a Ping request message is received from an Agent. Includes the AgentClient ID as an argument.
         /// </summary>
-        public EventHandler<string> PingReceived { get; set; }
+        public event EventHandler<string> PingReceived;
 
         /// <summary>
         /// Raised when a Pong response message is sent to an Agent. Includes the AgentClient ID as an argument.
         /// </summary>
-        public EventHandler<string> PongSent { get; set; }
+        public event EventHandler<string> PongSent;
 
         /// <summary>
         /// Raised when a new line is sent to the Agent. Includes the AgentClient ID and the Line sent as an argument.
         /// </summary>
-        public EventHandler<AdapterEventArgs> LineSent { get; set; }
+        public event EventHandler<AdapterEventArgs> LineSent;
 
         /// <summary>
         /// Raised when an error occurs when sending a new line to the Agent. Includes the AgentClient ID and the Error message as an argument.
         /// </summary>
-        public EventHandler<AdapterEventArgs> SendError { get; set; }
+        public event EventHandler<AdapterEventArgs> SendError;
 
 
         public ShdrAdapter(int port = 7878, int heartbeat = 10000)
