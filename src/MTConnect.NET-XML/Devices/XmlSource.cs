@@ -34,7 +34,7 @@ namespace MTConnect.Devices.Xml
 
         public static void WriteXml(XmlWriter writer, ISource source)
         {
-            if (source != null)
+            if (source != null && (!string.IsNullOrEmpty(source.ComponentId) || !string.IsNullOrEmpty(source.CompositionId) || !string.IsNullOrEmpty(source.DataItemId) || !string.IsNullOrEmpty(source.Value)))
             {
                 writer.WriteStartElement("Source");
                 if (!string.IsNullOrEmpty(source.ComponentId)) writer.WriteAttributeString("componentId", source.ComponentId);
