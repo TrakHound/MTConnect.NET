@@ -32,7 +32,41 @@ Condition messages are sent as an array of Observations since a Condition may ha
 MTConnect/Devices/[DEVICE_UUID]/Assets/[ASSET_TYPE]/[ASSET_ID]
 ```
 
-### Topic Structure
+### Topic Structure (MTConnectMqttFormat.Flat)
+
+> [Node] = (Payload)
+
+```bash
+- MTConnect
+   ─ Devices
+      ─ [DEVICE_UUID]
+        - Device = (JSON)
+        - Observations
+          - [DATA_ITEM_ID] = (JSON Array)
+          - [DATA_ITEM_ID] = (JSON Array)
+          - [DATA_ITEM_ID] = (JSON Array)
+        - Assets
+          - [ASSET_TYPE]
+            - [ASSET_ID] = (JSON)
+```
+
+### Example
+```bash
+- MTConnect
+   ─ Devices
+      ─ OKUMA.Lathe.123456
+        - Device
+        - Observations
+          - L2avail = {"dataItemId":"L2avail","name":"avail","type":"AVAILABILITY","timestamp":"2023-02-07T20:02:26.8978653Z","result":"AVAILABLE"}
+          - L2estop = {"dataItemId":"L2estop","name":"estop","type":"EMERGENCY_STOP","timestamp":"2023-02-07T20:02:26.8978653Z","result":"ARMED"}
+          - L2p1execution = {"dataItemId":"L2p1execution","name":"p1execution","type":"EXECUTION","timestamp":"2023-02-07T20:02:26.7671421Z","result":"UNAVAILABLE"}
+          - L2p1system = [{"level":"WARNING","dataItemId":"L2p1system","name":"p1system","type":"SYSTEM","timestamp":"2023-02-07T20:30:16.8639659Z","result":"Not Found","nativeCode":"404"},{"level":"FAULT","dataItemId":"L2p1system","name":"p1system","type":"SYSTEM","timestamp":"2023-02-07T20:30:38.9662297Z","result":"Interval Error","nativeCode":"500"}]         
+        - Assets
+          - CuttingTool
+            - 5.12 = {"assetId":"5.12","type":"CuttingTool","timestamp":"2023-02-07T13:36:04.7288143Z","deviceUuid":"OKUMA.Lathe.123456","serialNumber":"12345678946","toolId":"12","cuttingToolLifeCycle":{"cutterStatus":["AVAILABLE","NEW","MEASURED"],"location":{"type":"SPINDLE"},"programToolGroup":"5","programToolNumber":"12","measurements":[{"type":"FunctionalLength","value":7.6543,"units":"MILLIMETER","code":"LF"},{"type":"CuttingDiameterMax","value":0.375,"units":"MILLIMETER","code":"DC"}]}}
+```
+
+### Topic Structure (MTConnectMqttFormat.Hierarchy)
 
 > [Node] = (Payload)
 
