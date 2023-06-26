@@ -9,10 +9,21 @@ MTConnect/Devices/[DEVICE_UUID]/Device
 ```
 
 ### Device Observations
+Observations may use the **MTConnectMqttFormat.Flat** or **MTConnectMqttFormat.Hierarchy** option to specify how the topics are structured.
+
+MTConnectMqttFormat.Flat Format:
+```
+MTConnect/Devices/[DEVICE_UUID]/Observations/[DATA_ITEM_ID]
+```
+
+MTConnectMqttFormat.Hierarchy Format:
 ```
 MTConnect/Devices/[DEVICE_UUID]/Observations/[COMPONENT_TYPE]/[COMPONENT_ID]/[DATA_ITEM_CATEGORY]/[DATA_ITEM_TYPE]/[DATA_ITEM_ID]
 MTConnect/Devices/[DEVICE_UUID]/Observations/[COMPONENT_TYPE]/[COMPONENT_ID]/[DATA_ITEM_CATEGORY]/[DATA_ITEM_TYPE]/SubTypes/[DATA_ITEM_SUBTYPE]/[DATA_ITEM_ID]
 ```
+
+The "Flat" format is typically used for brokers that limit the topic depth (number of forward slash "/" characters). For example, AWS IoT Core.
+
 #### Device Condition Observations
 Condition messages are sent as an array of Observations since a Condition may have multiple Fault States. This is similar to how the Current request functions in an HTTP Agent.
 
@@ -112,36 +123,5 @@ MTConnect/Assets/[ASSET_TYPE]/[ASSET_ID]
       - 5.12 = {"assetId":"5.12","type":"CuttingTool","timestamp":"2023-02-07T13:36:04.7288143Z","deviceUuid":"OKUMA.Lathe.123456","serialNumber":"12345678946","toolId":"12","cuttingToolLifeCycle":{"cutterStatus":["AVAILABLE","NEW","MEASURED"],"location":{"type":"SPINDLE"},"programToolGroup":"5","programToolNumber":"12","measurements":[{"type":"FunctionalLength","value":7.6543,"units":"MILLIMETER","code":"LF"},{"type":"CuttingDiameterMax","value":0.375,"units":"MILLIMETER","code":"DC"}]}}
 ```
 
-## Agents
-The **MTConnect/Agents** topics are used to send data about the Agent. This is the data that is typically in the HTTP Response Document Header
-
-```
-MTConnect/Agents/[AGENT_UUID]
-```
-
-### Topic Structure
-
-> [Node] = (Payload)
-
-```bash
-- MTConnect
-   ─ Agents
-      ─ [AGENT_UUID]
-        - UUID
-        - InstanceId
-        - Version
-        - Sender
-        - DeviceModelChangeTime
-```
-
-### Example
-```bash
-- MTConnect
-   ─ Agents
-      ─ d7e169c5-14bb-48a3-bf9f-521152df2c84
-        - UUID = d7e169c5-14bb-48a3-bf9f-521152df2c84
-        - InstanceId = 1669400832
-        - Version = 5.0.0.0
-        - Sender = DESKTOP-HV74M4N
-        - DeviceModelChangeTime = 2023-02-07T20:02:26.7682252Z
-```
+## More Information
+More information can be found in the MQTT-Protocol document (https://github.com/TrakHound/MTConnect.NET/blob/master/docs/MQTT-Protocol.md).
