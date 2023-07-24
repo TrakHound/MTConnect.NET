@@ -7,6 +7,7 @@ using MTConnect.Agents;
 using MTConnect.Configurations;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
@@ -174,10 +175,18 @@ namespace MTConnect.Servers.Http
                                 }
                             }
 
-                            EndPoint endpoint;
+                            EndPoint endpoint = null;
                             if (!string.IsNullOrEmpty(serverConfiguration.Server))
                             {
-                                endpoint = new DnsEndPoint(serverConfiguration.Server, serverConfiguration.Port);
+								var hostEntry = Dns.GetHostEntry(serverConfiguration.Server);
+                                if (hostEntry != null && !hostEntry.AddressList.IsNullOrEmpty())
+                                {
+                                    var hostAddress = hostEntry.AddressList.FirstOrDefault(o => o.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
+                                    if (hostAddress != null)
+                                    {
+										endpoint = new IPEndPoint(hostAddress, serverConfiguration.Port);
+									}
+                                }
                             }
                             else endpoint = new IPEndPoint(IPAddress.Any, serverConfiguration.Port);
 
