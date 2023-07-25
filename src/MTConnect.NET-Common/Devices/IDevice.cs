@@ -23,9 +23,9 @@ namespace MTConnect.Devices
         /// </summary>
         Version MTConnectVersion { get; }
 
-        /// <summary>
-        /// The Agent InstanceId that produced this Device
-        /// </summary>
-        long InstanceId { get; }
-    }
+		/// <summary>
+		/// The Agent InstanceId that produced this Device
+		/// </summary>
+		long InstanceId { get; }
+	}
 }

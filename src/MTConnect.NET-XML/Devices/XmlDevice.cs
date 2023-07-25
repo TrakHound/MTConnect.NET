@@ -10,7 +10,7 @@ using System.Xml.Serialization;
 
 namespace MTConnect.Devices.Xml
 {
-    [XmlRoot("Device")]
+	[XmlRoot("Device")]
     public class XmlDevice
     {
         private static readonly XmlSerializer _serializer = new XmlSerializer(typeof(XmlDevice));
@@ -43,7 +43,10 @@ namespace MTConnect.Devices.Xml
         [XmlAttribute("mtconnectVersion")]
         public string MTConnectVersion { get; set; }
 
-        [XmlElement("Description")]
+		[XmlAttribute("hash")]
+		public string Hash { get; set; }
+
+		[XmlElement("Description")]
         public XmlDescription Description { get; set; }
 
         [XmlElement("Configuration")]
@@ -82,6 +85,7 @@ namespace MTConnect.Devices.Xml
             device.SampleInterval = SampleInterval;
             device.Iso841Class = Iso841Class;
             device.CoordinateSystemIdRef = CoordinateSystemIdRef;
+            device.Hash = device.Hash;
             if (Version.TryParse(MTConnectVersion, out var mtconnectVersion))
             {
                 device.MTConnectVersion = mtconnectVersion;
@@ -230,9 +234,10 @@ namespace MTConnect.Devices.Xml
                 if (device.SampleRate > 0) writer.WriteAttributeString("sampleRate", device.SampleRate.ToString());
                 if (!string.IsNullOrEmpty(device.CoordinateSystemIdRef)) writer.WriteAttributeString("coordinateSystemIdRef", device.CoordinateSystemIdRef);
                 if (device.MTConnectVersion != null) writer.WriteAttributeString("mtconnectVersion", device.MTConnectVersion.ToString());
+                if (device.MTConnectVersion != null && device.MTConnectVersion >= MTConnectVersions.Version22) writer.WriteAttributeString("hash", device.Hash);
 
-                // Write Description
-                XmlDescription.WriteXml(writer, device.Description);
+				// Write Description
+				XmlDescription.WriteXml(writer, device.Description);
 
                 // Write Configuration
                 XmlConfiguration.WriteXml(writer, device.Configuration, outputComments);

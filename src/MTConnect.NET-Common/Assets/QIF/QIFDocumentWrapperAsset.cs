@@ -32,7 +32,7 @@ namespace MTConnect.Assets.QIF
         public string QifDocument { get; set; }
 
 
-        public override IAsset Process(Version mtconnectVersion)
+        protected override IAsset OnProcess(Version mtconnectVersion)
         {
             if (mtconnectVersion != null && mtconnectVersion >= MTConnectVersions.Version18)
             {

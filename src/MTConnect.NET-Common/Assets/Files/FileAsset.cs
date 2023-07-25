@@ -9,10 +9,10 @@ using System.Xml.Serialization;
 
 namespace MTConnect.Assets.Files
 {
-    /// <summary>
-    /// The File Asset is an AbstractFile with information about the File instance and its URL.
-    /// </summary>
-    [XmlRoot("File")]
+	/// <summary>
+	/// The File Asset is an AbstractFile with information about the File instance and its URL.
+	/// </summary>
+	[XmlRoot("File")]
     public class FileAsset : AbstractFileAsset<FileAsset>
     {
         public const string TypeId = "File";
@@ -98,7 +98,7 @@ namespace MTConnect.Assets.Files
         }
 
 
-        public override IAsset Process(Version mtconnectVersion)
+        protected override IAsset OnProcess(Version mtconnectVersion)
         {
             if (Size <= 0) return null;
             if (string.IsNullOrEmpty(VersionId)) return null;
@@ -146,5 +146,26 @@ namespace MTConnect.Assets.Files
 
             return new AssetValidationResult(result, message);
         }
-    }
+
+		public override string GenerateHash()
+		{
+			return GenerateHash(this);
+		}
+
+		public static string GenerateHash(FileAsset asset)
+		{
+			if (asset != null)
+			{
+				var ids = new List<string>();
+
+				ids.Add(ObjectExtensions.GetHashPropertyString(asset).ToSHA1Hash());
+
+				// Need to include CuttingItems
+
+				return StringFunctions.ToSHA1Hash(ids.ToArray());
+			}
+
+			return null;
+		}
+	}
 }

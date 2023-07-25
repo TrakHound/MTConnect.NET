@@ -148,7 +148,7 @@ namespace MTConnect.Assets.RawMaterials
         }
 
 
-        public override IAsset Process(Version mtconnectVersion)
+        protected override IAsset OnProcess(Version mtconnectVersion)
         {
             if (mtconnectVersion != null && mtconnectVersion >= MTConnectVersions.Version18)
             {

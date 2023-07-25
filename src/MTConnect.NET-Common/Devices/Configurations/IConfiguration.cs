@@ -2,6 +2,7 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Devices.Configurations.CoordinateSystems;
+using MTConnect.Devices.Configurations.ImageFiles;
 using MTConnect.Devices.Configurations.Motion;
 using MTConnect.Devices.Configurations.Relationships;
 using MTConnect.Devices.Configurations.Sensor;
@@ -11,21 +12,26 @@ using System.Collections.Generic;
 
 namespace MTConnect.Devices.Configurations
 {
-    /// <summary>
-    /// Configuration contains technical information about a component describing its physical layout,
-    /// functional characteristics, and relationships with other components within a piece of equipment.
-    /// </summary>
-    public interface IConfiguration
+	/// <summary>
+	/// Configuration contains technical information about a component describing its physical layout,
+	/// functional characteristics, and relationships with other components within a piece of equipment.
+	/// </summary>
+	public interface IConfiguration
     {
         /// <summary>
         /// CoordinateSystems organizes CoordinateSystem elements for a Component and its children.
         /// </summary>
         IEnumerable<ICoordinateSystem> CoordinateSystems { get; }
 
-        /// <summary>
-        /// Motion defines the movement of the Component relative to a coordinate system.
-        /// </summary>
-        IMotion Motion { get; }
+		/// <summary>
+		/// ImageFiles groups one or more ImageFile entities 
+		/// </summary>
+		IEnumerable<IImageFile> ImageFiles { get; }
+
+		/// <summary>
+		/// Motion defines the movement of the Component relative to a coordinate system.
+		/// </summary>
+		IMotion Motion { get; }
 
         /// <summary>
         /// Relationships organizes Relationship elements for a Component.
@@ -46,5 +52,5 @@ namespace MTConnect.Devices.Configurations
         /// Specifications organizes Specification elements for a Component. 
         /// </summary>
         IEnumerable<IAbstractSpecification> Specifications { get; }
-    }
+	}
 }

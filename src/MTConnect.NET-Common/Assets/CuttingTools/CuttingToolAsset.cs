@@ -2,13 +2,14 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using System;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using System.Xml;
 using System.Xml.Serialization;
 
 namespace MTConnect.Assets.CuttingTools
 {
-    [XmlRoot("CuttingTool")]
+	[XmlRoot("CuttingTool")]
     public class CuttingToolAsset : Asset
     {
         public const string TypeId = "CuttingTool";
@@ -62,7 +63,7 @@ namespace MTConnect.Assets.CuttingTools
         }
 
 
-        public override IAsset Process(Version mtconnectVersion)
+        protected override IAsset OnProcess(Version mtconnectVersion)
         {
             if (mtconnectVersion != null && mtconnectVersion >= MTConnectVersions.Version12)
             {
@@ -74,6 +75,7 @@ namespace MTConnect.Assets.CuttingTools
                 if (mtconnectVersion > MTConnectVersions.Version13) asset.DeviceUuid = DeviceUuid;
                 asset.Removed = Removed;
                 asset.Description = Description;
+                asset.Hash = Hash;
 
                 if (!string.IsNullOrEmpty(SerialNumber)) asset.SerialNumber = SerialNumber;
                 else asset.SerialNumber = AssetId;
@@ -107,5 +109,27 @@ namespace MTConnect.Assets.CuttingTools
 
             return new AssetValidationResult(result, message);
         }
-    }
+
+
+		public override string GenerateHash()
+		{
+			return GenerateHash(this);
+		}
+
+		public static string GenerateHash(CuttingToolAsset asset)
+		{
+			if (asset != null)
+			{
+				var ids = new List<string>();
+
+				ids.Add(ObjectExtensions.GetHashPropertyString(asset).ToSHA1Hash());
+
+                // Need to include CuttingItems
+
+				return StringFunctions.ToSHA1Hash(ids.ToArray());
+			}
+
+			return null;
+		}
+	}
 }

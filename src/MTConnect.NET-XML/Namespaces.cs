@@ -11,7 +11,7 @@ using System.Xml;
 
 namespace MTConnect
 {
-    internal static class Namespaces
+	internal static class Namespaces
     {      
         internal const string DefaultXmlSchemaInstance = "http://www.w3.org/2001/XMLSchema-instance";
         
@@ -79,6 +79,7 @@ namespace MTConnect
                     {
                         case 0: return Version20.Devices;
                         case 1: return Version21.Devices;
+                        case 2: return Version22.Devices;
                     }
 
                     break;
@@ -115,6 +116,7 @@ namespace MTConnect
                     {
                         case 0: return Version20.Streams;
                         case 1: return Version21.Streams;
+                        case 2: return Version22.Streams;
                     }
 
                     break;
@@ -201,6 +203,7 @@ namespace MTConnect
                     {
                         case 0: return Version20.Assets;
                         case 1: return Version21.Assets;
+                        case 2: return Version22.Assets;
                     }
 
                     break;
@@ -236,6 +239,7 @@ namespace MTConnect
                     {
                         case 0: return Version20.Error;
                         case 1: return Version21.Error;
+                        case 2: return Version22.Error;
                     }
 
                     break;
@@ -252,7 +256,21 @@ namespace MTConnect
         }
 
 
-        internal static class Version21
+		internal static class Version22
+		{
+			public const string Assets = "urn:mtconnect.org:MTConnectAssets:2.2";
+			public const string Devices = "urn:mtconnect.org:MTConnectDevices:2.2";
+			public const string Error = "urn:mtconnect.org:MTConnectError:2.2";
+			public const string Streams = "urn:mtconnect.org:MTConnectStreams:2.2";
+
+			public static bool Match(string ns)
+			{
+				return ns == Assets || ns == Devices || ns == Error || ns == Streams;
+			}
+		}
+
+
+		internal static class Version21
         {
             public const string Assets = "urn:mtconnect.org:MTConnectAssets:2.1";
             public const string Devices = "urn:mtconnect.org:MTConnectDevices:2.1";

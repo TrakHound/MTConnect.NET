@@ -55,9 +55,17 @@ namespace MTConnect.Assets
         [JsonPropertyName("description")]
         string Description { get; set; }
 
+		/// <summary>
+		/// Condensed message digest from a secure one-way hash function. FIPS PUB 180-4
+		/// </summary>
+		[JsonPropertyName("hash")]
+		string Hash { get; set; }
 
-        IAsset Process(Version mtconnectVersion);
+
+		IAsset Process(Version mtconnectVersion);
 
         AssetValidationResult IsValid(Version mtconnectVersion);
-    }
+
+        string GenerateHash();
+	}
 }

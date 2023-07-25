@@ -3,15 +3,15 @@
 
 namespace MTConnect.Devices.DataItems.Events
 {
-    /// <summary>
-    /// A reference to the tool offset variables applied to the active cutting tool.
-    /// </summary>
-    public class ToolOffsetDataItem : DataItem
+	/// <summary>
+	/// Reference to the tool offset variables applied to the active cutting tool.
+	/// </summary>
+	public class ToolOffsetDataItem : DataItem
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "TOOL_OFFSET";
         public const string NameId = "toolOffset";
-        public new const string DescriptionText = "A reference to the tool offset variables applied to the active cutting tool.";
+        public new const string DescriptionText = "Reference to the tool offset variables applied to the active cutting tool.";
 
         public override string TypeDescription => DescriptionText;
 

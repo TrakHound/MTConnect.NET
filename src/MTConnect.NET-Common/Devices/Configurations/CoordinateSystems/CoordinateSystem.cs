@@ -8,10 +8,15 @@ namespace MTConnect.Devices.Configurations.CoordinateSystems
     /// </summary>
     public class CoordinateSystem : ICoordinateSystem
     {
-        /// <summary>
-        /// The unique identifier for this element.    
-        /// </summary>
-        public string Id { get; set; }
+		/// <summary>
+		/// UUID for the coordinate system.   
+		/// </summary>
+		public string Uuid { get; set; }
+
+		/// <summary>
+		/// The Unique identifier for the coordinate system.  
+		/// </summary>
+		public string Id { get; set; }
 
         /// <summary>
         /// The name of the coordinate system.

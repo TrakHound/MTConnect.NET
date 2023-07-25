@@ -261,6 +261,7 @@ namespace MTConnect.Agents
         {
             _agent = new Agent(this);
             _agent.InitializeDataItems();
+            _agent.Hash = _agent.GenerateHash();
 
             // Add Name and UUID to DeviceKey dictionary
             _deviceKeys.TryRemove(_agent.Name.ToLower(), out _);
@@ -947,6 +948,9 @@ namespace MTConnect.Agents
                             }
                         }
                     }
+
+                    // Generate Device Hash
+                    obj.Hash = obj.GenerateHash();
  
                     return obj;
                 } 
@@ -1191,7 +1195,7 @@ namespace MTConnect.Agents
                     _devices.TryGetValue(obj.Uuid, out var existingDevice);
 
                     // Check if Device Already Exists in the Device Buffer and is changed
-                    if (existingDevice != null && obj.ChangeId == existingDevice.ChangeId)
+                    if (existingDevice != null && obj.Hash == existingDevice.Hash)
                     {
                         return true;
                     }
@@ -1698,6 +1702,9 @@ namespace MTConnect.Agents
                         asset.Timestamp = UnixDateTime.Now;
                     }
                     else asset.Timestamp = asset.Timestamp > 0 ? asset.Timestamp : UnixDateTime.Now;
+
+                    // Set Asset Hash
+                    asset.Hash = asset.GenerateHash();
 
                     // Validate Asset based on Device's MTConnectVersion
                     var validationResults = asset.IsValid(device.MTConnectVersion);

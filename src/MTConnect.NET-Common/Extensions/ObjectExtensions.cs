@@ -123,7 +123,7 @@ namespace MTConnect
             return 0;
         }
 
-        public static string[] GetChangeIdPropertyList(object obj)
+        public static string[] GetHashPropertyList(object obj)
         {
             if (obj != null)
             {
@@ -136,7 +136,7 @@ namespace MTConnect
                     {
                         var name = properties[i].Name;
 
-                        if (name != "ChangeId" && properties[i].MemberType == MemberTypes.Property)
+                        if (name != "Hash" && properties[i].MemberType == MemberTypes.Property)
                         {
                             var type = properties[i].PropertyType;
                             if (type.IsValueType || type == typeof(string) || type == typeof(DateTime))
@@ -155,11 +155,11 @@ namespace MTConnect
             return null;
         }
 
-        public static string GetChangeIdPropertyString(object obj)
+        public static string GetHashPropertyString(object obj)
         {
             var s = "";
 
-            var items = GetChangeIdPropertyList(obj);
+            var items = GetHashPropertyList(obj);
             if (!items.IsNullOrEmpty())
             {
                 foreach (var item in items)
