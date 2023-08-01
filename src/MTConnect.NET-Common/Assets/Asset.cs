@@ -13,11 +13,11 @@ using System.Xml.Serialization;
 
 namespace MTConnect.Assets
 {
-    /// <summary>
-    /// It is used in the manufacturing process, but is not permanently associated with a single piece of equipment. 
-    /// It can be removed from the piece of equipment without compromising its function, and can be associated with other pieces of equipment during its lifecycle.
-    /// </summary>
-    public class Asset : IAsset
+	/// <summary>
+	/// It is used in the manufacturing process, but is not permanently associated with a single piece of equipment. 
+	/// It can be removed from the piece of equipment without compromising its function, and can be associated with other pieces of equipment during its lifecycle.
+	/// </summary>
+	public class Asset : IAsset
     {
         private static Dictionary<string, Type> _types;
 
@@ -122,6 +122,12 @@ namespace MTConnect.Assets
         [JsonPropertyName("description")]
         public string Description { get; set; }
 
+		/// <summary>
+		/// Condensed message digest from a secure one-way hash function. FIPS PUB 180-4
+		/// </summary>
+		[XmlAttribute("hash")]
+        [JsonPropertyName("hash")]
+        public string Hash { get; set; }
 
         public static IAsset Create(string type)
         {
@@ -203,16 +209,28 @@ namespace MTConnect.Assets
         }
 
 
-        public virtual IAsset Process(Version mtconnectVersion)
+        public IAsset Process(Version mtconnectVersion)
         {
-            if (mtconnectVersion < MTConnectVersions.Version12) return null;
+			if (mtconnectVersion < MTConnectVersions.Version12) return null;
 
-            return this;
-        }
+			if (mtconnectVersion < MTConnectVersions.Version22) Hash = null;
+
+			return OnProcess(mtconnectVersion);
+		}
+
+        protected virtual IAsset OnProcess(Version mtconnectVersion)
+        {
+			return this;
+		}
 
         public virtual AssetValidationResult IsValid(Version mtconnectVersion)
         {
             return new AssetValidationResult(true);
         }
-    }
+
+        public virtual string GenerateHash()
+        {
+			return null;
+        }
+	}
 }

@@ -21,12 +21,12 @@
 		<Copyright>Copyright (c) 2023 TrakHound Inc., All Rights Reserved.</Copyright>
 		<RepositoryUrl>https://github.com/TrakHound/MTConnect.NET</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
-		<Description>MTConnect.NET is a fully featured .NET library for MTConnect Agents, Adapters, and Clients. Supports MTConnect Versions up to 2.1. Supports .NET Framework 4.6.1 up to .NET 6</Description>
+		<Description>MTConnect.NET is a fully featured .NET library for MTConnect Agents, Adapters, and Clients. Supports MTConnect Versions up to 2.1. Supports .NET Framework 4.6.1 up to .NET 7</Description>
 		<PackageProjectUrl>https://www.TrakHound.com</PackageProjectUrl>
 		<PackageTags>mtconnect;iiot;iot;cnc;</PackageTags>
-		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-		<PackageIconUrl>https://static.trakhound.com/mtconnect-net.png</PackageIconUrl>
-		<PackageReadmeFile>README-Nuget.md</PackageReadmeFile>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageIconUrl>https://static.trakhound.com/mtconnect-net-nuget.png</PackageIconUrl>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 
 		<!-- Optional: Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
@@ -52,7 +52,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<None Include="..\..\README-Nuget.md">
+		<None Include="..\..\README.md">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
 		</None>

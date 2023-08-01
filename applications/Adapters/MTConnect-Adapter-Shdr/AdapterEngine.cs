@@ -1,7 +1,9 @@
 ﻿using MTConnect.Adapters.Shdr;
+using MTConnect.Assets.CuttingTools;
 using MTConnect.NET_Adapter_SHDR.Simulator;
 using MTConnect.Observations.Events.Values;
 using NLog;
+using System;
 
 namespace MTConnect.Applications
 {
@@ -16,6 +18,7 @@ namespace MTConnect.Applications
     {
         protected readonly Logger _engineLogger = LogManager.GetLogger("engine-logger");
         private PlcSimulator _dataSource;
+        private CuttingToolAsset asset = Examples.CuttingTool();
 
 
         protected override void OnStart()
@@ -62,8 +65,11 @@ namespace MTConnect.Applications
                 Adapter.AddDataItem($"axis_{i}_pos", axis.MachinePosition, ts);
             }
 
-            Adapter.AddAsset(Examples.CuttingTool());
-
+            asset.CuttingToolLifeCycle.ToolLife.Value++;
+            foreach (var asset in _dataSource.ToolAssets)
+            {
+                Adapter.AddAsset(asset);
+            }
 
             // The Adapter (ShdrAdapter) handles sending the data to the MTConnect Agent using the SHDR Protocol
         }

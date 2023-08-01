@@ -123,16 +123,29 @@ namespace MTConnect.Devices
         public IContainer Parent { get; set; }
 
 
-        /// <summary>
-        /// A MD5 Hash of the Component that can be used to compare Component objects
-        /// </summary>
-        public string ChangeId => CreateChangeId();
+		private string _hash;
+		/// <summary>
+		/// Condensed message digest from a secure one-way hash function. FIPS PUB 180-4
+		/// </summary>
+		public string Hash
+		{
+			get
+			{
+				if (_hash == null) _hash = GenerateHash();
+				return _hash;
+			}
+		}
+
+		///// <summary>
+		///// A MD5 Hash of the Component that can be used to compare Component objects
+		///// </summary>
+		//public string ChangeId => CreateChangeId();
 
 
-        /// <summary>
-        /// The text description that describes what the Component Type represents
-        /// </summary>
-        public virtual string TypeDescription => DescriptionText;
+		/// <summary>
+		/// The text description that describes what the Component Type represents
+		/// </summary>
+		public virtual string TypeDescription => DescriptionText;
 
         /// <summary>
         /// Gets whether the Component is an Organizer Type
@@ -182,25 +195,25 @@ namespace MTConnect.Devices
         }
 
 
-        public string CreateChangeId()
+        public string GenerateHash()
         {
-            return CreateChangeId(this);
+            return GenerateHash(this);
         }
 
-        public static string CreateChangeId(IComponent component)
+        public static string GenerateHash(IComponent component)
         {
             if (component != null)
             {
                 var ids = new List<string>();
 
-                ids.Add(ObjectExtensions.GetChangeIdPropertyString(component).ToMD5Hash());
+                ids.Add(ObjectExtensions.GetHashPropertyString(component).ToSHA1Hash());
 
                 // Add DataItem Change Ids
                 if (!component.DataItems.IsNullOrEmpty())
                 {
                     foreach (var dataItem in component.DataItems)
                     {
-                        ids.Add(dataItem.ChangeId);
+                        ids.Add(dataItem.Hash);
                     }
                 }
 
@@ -209,7 +222,7 @@ namespace MTConnect.Devices
                 {
                     foreach (var composition in component.Compositions)
                     {
-                        ids.Add(composition.ChangeId);
+                        ids.Add(composition.Hash);
                     }
                 }
 
@@ -218,11 +231,11 @@ namespace MTConnect.Devices
                 {
                     foreach (var subcomponent in component.Components)
                     {
-                        ids.Add(subcomponent.ChangeId);
+                        ids.Add(subcomponent.Hash);
                     }
                 }
 
-                return StringFunctions.ToMD5Hash(ids.ToArray());
+                return StringFunctions.ToSHA1Hash(ids.ToArray());
             }
 
             return null;

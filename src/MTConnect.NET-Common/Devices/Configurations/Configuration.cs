@@ -2,6 +2,7 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Devices.Configurations.CoordinateSystems;
+using MTConnect.Devices.Configurations.ImageFiles;
 using MTConnect.Devices.Configurations.Motion;
 using MTConnect.Devices.Configurations.Relationships;
 using MTConnect.Devices.Configurations.Sensor;
@@ -25,10 +26,15 @@ namespace MTConnect.Devices.Configurations
         /// </summary>
         public IEnumerable<ICoordinateSystem> CoordinateSystems { get; set; }
 
-        /// <summary>
-        /// Motion defines the movement of the Component relative to a coordinate system.
-        /// </summary>
-        public IMotion Motion { get; set; }
+		/// <summary>
+		/// ImageFiles groups one or more ImageFile entities 
+		/// </summary>
+		public IEnumerable<IImageFile> ImageFiles { get; set; }
+
+		/// <summary>
+		/// Motion defines the movement of the Component relative to a coordinate system.
+		/// </summary>
+		public IMotion Motion { get; set; }
 
         /// <summary>
         /// Relationships organizes Relationship elements for a Component.

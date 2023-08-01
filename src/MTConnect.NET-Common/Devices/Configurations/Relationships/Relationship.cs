@@ -29,22 +29,31 @@ namespace MTConnect.Devices.Configurations.Relationships
         /// </summary>
         public string IdRef { get; set; }
 
-        /// <summary>
-        /// A MD5 Hash of the Relationship that can be used to compare Relationship objects
-        /// </summary>
-        public string ChangeId => CreateChangeId();
+
+		private string _hash;
+		/// <summary>
+		/// Condensed message digest from a secure one-way hash function. FIPS PUB 180-4
+		/// </summary>
+		public string Hash
+		{
+			get
+			{
+				if (_hash == null) _hash = GenerateHash();
+				return _hash;
+			}
+		}
 
 
-        public string CreateChangeId()
+		public string GenerateHash()
         {
-            return CreateChangeId(this);
+            return GenerateHash(this);
         }
 
-        public static string CreateChangeId(IRelationship relationship)
+        public static string GenerateHash(IRelationship relationship)
         {
             if (relationship != null)
             {
-                return ObjectExtensions.GetChangeIdPropertyString(relationship).ToMD5Hash();
+                return ObjectExtensions.GetHashPropertyString(relationship).ToSHA1Hash();
             }
 
             return null;

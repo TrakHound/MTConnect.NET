@@ -13,8 +13,6 @@ namespace MTConnect.Adapters.Shdr
     /// <typeparam name="TConfiguration">The type of configuration file to use</typeparam>
     public abstract class MTConnectShdrAdapterEngine<TConfiguration> where TConfiguration : ShdrAdapterApplicationConfiguration
     {
-        private const int _defaultReadInterval = 1000;
-
         private CancellationTokenSource _stop;
         private bool _isStarted;
 
@@ -22,14 +20,6 @@ namespace MTConnect.Adapters.Shdr
         public ShdrAdapter Adapter { get; set; }
 
         public TConfiguration Configuration { get; set; }
-
-        public int ReadInterval { get; set; }
-
-
-        public MTConnectShdrAdapterEngine()
-        {
-            ReadInterval = _defaultReadInterval;
-        }
 
 
         protected virtual void OnStart() { }
@@ -67,22 +57,27 @@ namespace MTConnect.Adapters.Shdr
 
         private async Task Worker()
         {
-            try
+            if (Configuration != null)
             {
-                while (!_stop.Token.IsCancellationRequested)
+                try
                 {
-                    try
+                    while (!_stop.Token.IsCancellationRequested)
                     {
-                        await Task.Delay(ReadInterval, _stop.Token);
+                        try
+                        {
 
-                        OnRead();
-                        await OnReadAsync();
+
+                            await Task.Delay(Configuration.ReadInterval, _stop.Token);
+
+                            OnRead();
+                            await OnReadAsync();
+                        }
+                        catch (TaskCanceledException) { }
+                        catch { }
                     }
-                    catch (TaskCanceledException) { }
-                    catch { }
                 }
+                catch { }
             }
-            catch { }
         }
     }
 }

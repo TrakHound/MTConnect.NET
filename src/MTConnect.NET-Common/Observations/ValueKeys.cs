@@ -23,6 +23,8 @@ namespace MTConnect.Observations
         public const string Count = "Count";
         public const string Duration = "Duration";
         public const string AssetType = "AssetType";
+        public const string DeviceType = "DeviceType";
+        public const string Hash = "Hash";
         public const string ResetTriggered = "ResetTriggered";
         public const string TimeSeriesPrefix = "TimeSeries";
         public const string DataSetPrefix = "DataSet";

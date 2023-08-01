@@ -9,10 +9,10 @@ using System.Xml.Serialization;
 
 namespace MTConnect.Assets.Files
 {
-    /// <summary>
-    /// An AbstractFile is an abstract Asset type model that contains the common properties of the File and FileArchetype types.
-    /// </summary>
-    [XmlRoot("AbstractFile")]
+	/// <summary>
+	/// An AbstractFile is an abstract Asset type model that contains the common properties of the File and FileArchetype types.
+	/// </summary>
+	[XmlRoot("AbstractFile")]
     public abstract class AbstractFileAsset<T> : Asset where T : IAsset
     {
         /// <summary>
@@ -68,7 +68,7 @@ namespace MTConnect.Assets.Files
         public bool FileCommentsSpecified => !FileComments.IsNullOrEmpty();
 
 
-        public override IAsset Process(Version mtconnectVersion)
+        protected override IAsset OnProcess(Version mtconnectVersion)
         {
             if (mtconnectVersion != null && mtconnectVersion >= MTConnectVersions.Version17)
             {
@@ -96,5 +96,5 @@ namespace MTConnect.Assets.Files
 
             return new AssetValidationResult(result, message);
         }
-    }
+	}
 }

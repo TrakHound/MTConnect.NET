@@ -5,10 +5,15 @@ namespace MTConnect.Devices.Configurations.CoordinateSystems
 {
     public static class CoordinateSystemAttributeDescriptions
     {
-        /// <summary>
-        /// The unique identifier for this element.
-        /// </summary>
-        public const string Id = "The unique identifier for this element.";
+		/// <summary>
+		/// UUID for the coordinate system.
+		/// </summary>
+		public const string Uuid = "UUID for the coordinate system.";
+
+		/// <summary>
+		/// The unique identifier for this element.
+		/// </summary>
+		public const string Id = "The unique identifier for this element.";
 
         /// <summary>
         /// The name of the coordinate system.

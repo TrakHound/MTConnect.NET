@@ -206,15 +206,28 @@ namespace MTConnect.Devices
         public IContainer Container { get; set; }
 
 
-        /// <summary>
-        /// A MD5 Hash of the DataItem that can be used to compare DataItem objects
-        /// </summary>
-        public string ChangeId => CreateChangeId();
+		private string _hash;
+		/// <summary>
+		/// Condensed message digest from a secure one-way hash function. FIPS PUB 180-4
+		/// </summary>
+		public string Hash
+		{
+			get
+			{
+				if (_hash == null) _hash = GenerateHash();
+				return _hash;
+			}
+		}
 
-        /// <summary>
-        /// The text description that describes what the DataItem Type represents
-        /// </summary>
-        public virtual string TypeDescription => DescriptionText;
+		///// <summary>
+		///// A MD5 Hash of the DataItem that can be used to compare DataItem objects
+		///// </summary>
+		//public string ChangeId => CreateChangeId();
+
+		/// <summary>
+		/// The text description that describes what the DataItem Type represents
+		/// </summary>
+		public virtual string TypeDescription => DescriptionText;
 
         /// <summary>
         /// The text description that describes what the DataItem SubType represents
@@ -309,28 +322,28 @@ namespace MTConnect.Devices
         }
 
 
-        public string CreateChangeId()
+        public string GenerateHash()
         {
-            return CreateChangeId(this);
+            return GenerateHash(this);
         }
 
-        public static string CreateChangeId(IDataItem dataItem)
+        public static string GenerateHash(IDataItem dataItem)
         {
             if (dataItem != null)
             {
                 var ids = new List<string>();
-                ids.Add(ObjectExtensions.GetChangeIdPropertyString(dataItem).ToMD5Hash());
+                ids.Add(ObjectExtensions.GetHashPropertyString(dataItem).ToSHA1Hash());
 
                 // Add Relationship Change ID's
                 if (!dataItem.Relationships.IsNullOrEmpty())
                 {
                     foreach (var relationship in dataItem.Relationships)
                     {
-                        ids.Add(relationship.ChangeId);
+                        ids.Add(relationship.Hash);
                     }
                 }
 
-                return StringFunctions.ToMD5Hash(ids.ToArray());
+                return StringFunctions.ToSHA1Hash(ids.ToArray());
             }
 
             return null;

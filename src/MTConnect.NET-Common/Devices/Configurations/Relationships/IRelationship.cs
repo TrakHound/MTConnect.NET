@@ -29,9 +29,9 @@ namespace MTConnect.Devices.Configurations.Relationships
         /// </summary>
         string IdRef { get; }
 
-        /// <summary>
-        /// A MD5 Hash of the Relationship that can be used to compare Relationship objects
-        /// </summary>
-        string ChangeId { get; }
-    }
+		/// <summary>
+		/// Condensed message digest from a secure one-way hash function. FIPS PUB 180-4
+		/// </summary>
+		string Hash { get; }
+	}
 }

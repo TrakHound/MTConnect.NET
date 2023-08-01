@@ -91,16 +91,16 @@ namespace MTConnect.Devices
         IContainer Parent { get; set; }
 
 
-        /// <summary>
-        /// A MD5 Hash of the Component that can be used to compare Component objects
-        /// </summary>
-        string ChangeId { get; }
+		/// <summary>
+		/// Condensed message digest from a secure one-way hash function. FIPS PUB 180-4
+		/// </summary>
+		string Hash { get; }
 
 
-        /// <summary>
-        /// The text description that describes what the Component Type represents
-        /// </summary>
-        string TypeDescription { get; }
+		/// <summary>
+		/// The text description that describes what the Component Type represents
+		/// </summary>
+		string TypeDescription { get; }
 
 
         /// <summary>

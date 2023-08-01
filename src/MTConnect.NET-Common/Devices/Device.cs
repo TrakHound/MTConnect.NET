@@ -88,11 +88,16 @@ namespace MTConnect.Devices
         /// </summary>
         public virtual Version MTConnectVersion { get; set; }
 
-        /// <summary>
-        /// An element that can contain any descriptive content. 
-        /// This can contain information about the Component and manufacturer specific details.
-        /// </summary>
-        public virtual IDescription Description { get; set; }
+		/// <summary>
+		/// Condensed message digest from a secure one-way hash function. FIPS PUB 180-4
+		/// </summary>
+		public string Hash { get; set; }
+
+		/// <summary>
+		/// An element that can contain any descriptive content. 
+		/// This can contain information about the Component and manufacturer specific details.
+		/// </summary>
+		public virtual IDescription Description { get; set; }
 
         /// <summary>
         /// An XML element that contains technical information about a piece of equipment describing its physical layout or functional characteristics.
@@ -126,16 +131,10 @@ namespace MTConnect.Devices
         public long InstanceId { get; set; }
 
 
-        /// <summary>
-        /// The Container that this Device is directly associated with
-        /// </summary>
-        public IContainer Parent { get; set; }
-
-
-        /// <summary>
-        /// A MD5 Hash of the Device that can be used to compare Device objects
-        /// </summary>
-        public string ChangeId => CreateChangeId();
+		/// <summary>
+		/// The Container that this Device is directly associated with
+		/// </summary>
+		public IContainer Parent { get; set; }
 
 
         /// <summary>
@@ -194,25 +193,25 @@ namespace MTConnect.Devices
         }
 
 
-        public string CreateChangeId()
+        public string GenerateHash()
         {
-            return CreateChangeId(this);
+            return GenerateHash(this);
         }
 
-        public static string CreateChangeId(IDevice device)
+        public static string GenerateHash(IDevice device)
         {
             if (device != null)
             {
                 var ids = new List<string>();
 
-                ids.Add(ObjectExtensions.GetChangeIdPropertyString(device).ToMD5Hash());
+                ids.Add(ObjectExtensions.GetHashPropertyString(device).ToSHA1Hash());
 
                 // Add DataItem Change Ids
                 if (!device.DataItems.IsNullOrEmpty())
                 {
                     foreach (var dataItem in device.DataItems)
                     {
-                        ids.Add(dataItem.ChangeId);
+                        ids.Add(dataItem.Hash);
                     }
                 }
 
@@ -221,7 +220,7 @@ namespace MTConnect.Devices
                 {
                     foreach (var composition in device.Compositions)
                     {
-                        ids.Add(composition.ChangeId);
+                        ids.Add(composition.Hash);
                     }
                 }
 
@@ -230,19 +229,19 @@ namespace MTConnect.Devices
                 {
                     foreach (var component in device.Components)
                     {
-                        ids.Add(component.ChangeId);
+                        ids.Add(component.Hash);
                     }
                 }
 
-                return StringFunctions.ToMD5Hash(ids.ToArray());
+                return StringFunctions.ToSHA1Hash(ids.ToArray());
             }
 
             return null;
         }
 
-        public static string CreateDeviceChangeId(IDevice device)
+        public static string CreateDeviceHash(IDevice device)
         {
-            var s = ObjectExtensions.GetChangeIdPropertyString(device);
+            var s = ObjectExtensions.GetHashPropertyString(device);
             return s.ToMD5Hash();
         }
 
@@ -695,7 +694,8 @@ namespace MTConnect.Devices
                     if (mtconnectVersion >= MTConnectVersions.Version13) obj.References = device.References;
                     if (mtconnectVersion >= MTConnectVersions.Version17) obj.Configuration = device.Configuration;
                     if (mtconnectVersion >= MTConnectVersions.Version18) obj.CoordinateSystemIdRef = device.CoordinateSystemIdRef;
-                    if (mtconnectVersion >= MTConnectVersions.Version17) obj.MTConnectVersion = device.MTConnectVersion;
+                    obj.MTConnectVersion = device.MTConnectVersion != null ? device.MTConnectVersion : mtconnectVersion;
+                    if (mtconnectVersion >= MTConnectVersions.Version22) obj.Hash = device.Hash;
 
                     // Add DataItems
                     if (!device.DataItems.IsNullOrEmpty())

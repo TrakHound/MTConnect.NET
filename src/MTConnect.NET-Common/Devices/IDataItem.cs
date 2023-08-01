@@ -166,16 +166,16 @@ namespace MTConnect.Devices
         IContainer Container { get; }
 
 
-        /// <summary>
-        /// A MD5 Hash of the DataItem that can be used to compare DataItem objects
-        /// </summary>
-        string ChangeId { get; }
+		/// <summary>
+		/// Condensed message digest from a secure one-way hash function. FIPS PUB 180-4
+		/// </summary>
+		string Hash { get; }
 
 
-        /// <summary>
-        /// The text description that describes what the DataItem Type represents
-        /// </summary>
-        string TypeDescription { get; }
+		/// <summary>
+		/// The text description that describes what the DataItem Type represents
+		/// </summary>
+		string TypeDescription { get; }
 
         /// <summary>
         /// The text description that describes what the DataItem SubType represents

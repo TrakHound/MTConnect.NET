@@ -108,16 +108,30 @@ namespace MTConnect.Devices
         public IContainer Parent { get; set; }
 
 
-        /// <summary>
-        /// A MD5 Hash of the Composition that can be used to compare Composition objects
-        /// </summary>
-        public string ChangeId => CreateChangeId();
+		private string _hash;
+		/// <summary>
+		/// Condensed message digest from a secure one-way hash function. FIPS PUB 180-4
+		/// </summary>
+		public string Hash
+		{
+			get
+			{
+				if (_hash == null) _hash = GenerateHash();
+				return _hash;
+			}
+		}
 
 
-        /// <summary>
-        /// The text description that describes what the Composition Type represents
-        /// </summary>
-        public virtual string TypeDescription => DescriptionText;
+		///// <summary>
+		///// A MD5 Hash of the Composition that can be used to compare Composition objects
+		///// </summary>
+		//public string ChangeId => CreateChangeId();
+
+
+		/// <summary>
+		/// The text description that describes what the Composition Type represents
+		/// </summary>
+		public virtual string TypeDescription => DescriptionText;
 
 
         /// <summary>
@@ -160,29 +174,29 @@ namespace MTConnect.Devices
         }
 
 
-        public string CreateChangeId()
+        public string GenerateHash()
         {
-            return CreateChangeId(this);
+            return GenerateHash(this);
         }
 
-        public static string CreateChangeId(IComposition composition)
+        public static string GenerateHash(IComposition composition)
         {
             if (composition != null)
             {
                 var ids = new List<string>();
 
-                ids.Add(ObjectExtensions.GetChangeIdPropertyString(composition).ToMD5Hash());
+                ids.Add(ObjectExtensions.GetHashPropertyString(composition).ToSHA1Hash());
 
                 // Add DataItem Change Ids
                 if (!composition.DataItems.IsNullOrEmpty())
                 {
                     foreach (var dataItem in composition.DataItems)
                     {
-                        ids.Add(dataItem.ChangeId);
+                        ids.Add(dataItem.Hash);
                     }
                 }
 
-                return StringFunctions.ToMD5Hash(ids.ToArray());
+                return StringFunctions.ToSHA1Hash(ids.ToArray());
             }
 
             return null;

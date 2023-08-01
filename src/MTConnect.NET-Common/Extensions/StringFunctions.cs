@@ -17,7 +17,10 @@ namespace MTConnect
         [ThreadStatic]
         private static MD5 _md5;
 
-        [ThreadStatic]
+		[ThreadStatic]
+		private static SHA1 _sha1;
+
+		[ThreadStatic]
         private static Random _random;
 
         private static MD5 MD5Algorithm
@@ -32,7 +35,19 @@ namespace MTConnect
             }
         }
 
-        private static Random Random
+		private static SHA1 SHA1Algorithm
+		{
+			get
+			{
+				if (_sha1 == null)
+				{
+					_sha1 = SHA1.Create();
+				}
+				return _sha1;
+			}
+		}
+
+		private static Random Random
         {
             get
             {
@@ -390,7 +405,121 @@ namespace MTConnect
             return null;
         }
 
-        public static string ToFileSize(this long byteCount)
+
+		public static string ToSHA1Hash(this string s)
+		{
+			try
+			{
+				var hash = SHA1Algorithm.ComputeHash(_utf8.GetBytes(s));
+				return string.Concat(hash.Select(b => b.ToString("x2")));
+			}
+			catch { }
+
+			return null;
+		}
+
+		public static string ToSHA1Hash(this byte[] bytes)
+		{
+			if (bytes != null)
+			{
+				try
+				{
+					var hash = SHA1Algorithm.ComputeHash(bytes);
+					return string.Concat(hash.Select(b => b.ToString("x2")));
+				}
+				catch { }
+			}
+
+			return null;
+		}
+
+		public static string ToSHA1HashString(this byte[] hashBytes)
+		{
+			if (hashBytes != null)
+			{
+				try
+				{
+					return string.Concat(hashBytes.Select(b => b.ToString("x2")));
+				}
+				catch { }
+			}
+
+			return null;
+		}
+
+		public static byte[] ToSHA1HashBytes(this string s)
+		{
+			try
+			{
+				return SHA1Algorithm.ComputeHash(_utf8.GetBytes(s));
+			}
+			catch { }
+
+			return null;
+		}
+
+		public static byte[] ToSHA1HashBytes(this byte[] bytes)
+		{
+			if (bytes != null)
+			{
+				try
+				{
+					return SHA1Algorithm.ComputeHash(bytes);
+				}
+				catch { }
+			}
+			return null;
+		}
+
+		public static string ToSHA1Hash(string[] lines)
+		{
+			if (lines != null && lines.Length > 0)
+			{
+				var x1 = lines[0];
+				var h = x1.ToSHA1Hash();
+
+				for (int i = 1; i < lines.Length; i++)
+				{
+					x1 = lines[i].ToSHA1Hash();
+					x1 = h + x1;
+					h = x1.ToSHA1Hash();
+				}
+
+				return h;
+			}
+
+			return null;
+		}
+
+		public static byte[] ToSHA1HashBytes(byte[][] hashBytes)
+		{
+			if (hashBytes != null && hashBytes.Length > 0)
+			{
+				var x1 = hashBytes[0];
+				var x2 = x1;
+				byte[] a1;
+
+				for (int i = 1; i < hashBytes.Length; i++)
+				{
+					x2 = hashBytes[i];
+					if (x2 != null)
+					{
+						a1 = new byte[x1.Length + x2.Length];
+						Array.Copy(x1, 0, a1, 0, x1.Length);
+						Array.Copy(x2, 0, a1, x1.Length, x2.Length);
+
+						x1 = a1.ToSHA1HashBytes();
+					}
+				}
+
+				return x2;
+			}
+
+			return null;
+		}
+
+
+		public static string ToFileSize(this long byteCount)
         {
             string[] suf = { "B", "KB", "MB", "GB", "TB", "PB", "EB" }; //Longs run out around EB
             if (byteCount == 0)

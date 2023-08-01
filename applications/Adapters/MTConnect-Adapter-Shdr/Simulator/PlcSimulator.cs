@@ -1,4 +1,8 @@
-﻿using System.Threading;
+﻿using MTConnect.Applications;
+using MTConnect.Assets.CuttingTools;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MTConnect.NET_Adapter_SHDR.Simulator
@@ -18,6 +22,7 @@ namespace MTConnect.NET_Adapter_SHDR.Simulator
         public AxisData[] AxisDatas; // [0] = X, [1] = Y, [2] = Z
         public ProcessData[] ProcessDatas; // [0] = Main Process
         public ToolTableData[] ToolTable;
+        public CuttingToolAsset[] ToolAssets;
 
         public class SpindleData
         {
@@ -80,6 +85,15 @@ namespace MTConnect.NET_Adapter_SHDR.Simulator
                 Length = 10.354,
                 Diameter = 0.375
             };
+
+            var tools = new List<CuttingToolAsset>();
+            for (var i = 0; i < 100; i++)
+            {
+                var tool = Examples.CuttingTool();
+                tool.AssetId = $"tool.{i + 1}";
+                tools.Add(tool);
+            }
+            ToolAssets = tools.ToArray();
         }
 
         public void Connect()
@@ -119,14 +133,14 @@ namespace MTConnect.NET_Adapter_SHDR.Simulator
                     ProcessDatas[0].ToolOffset = 5;
                 }
 
-                for (var i = 0; i < 1000; i++)
+                for (var i = 0; i < 10; i++)
                 {
-                    //EmergencyStop = true;
+                    EmergencyStop = true;
 
-                    //ProcessDatas[0].Program = "PRT_011.NC";
+                    ProcessDatas[0].Program = "PRT_011.NC";
 
-                    //SpindleDatas[0].ProgrammedSpeed = 5500;
-                    //SpindleDatas[0].ActualSpeed = 5499;
+                    SpindleDatas[0].ProgrammedSpeed = 5500;
+                    SpindleDatas[0].ActualSpeed = 5499;
 
                     AxisDatas[0].MachinePosition = 123.45678 + (double)i / 1000;
                     AxisDatas[0].WorkPosition = 45.12345 + (double)i / 1000;
