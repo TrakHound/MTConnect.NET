@@ -14,7 +14,8 @@ namespace MTConnect.Servers
 {
     class MTConnectAssetResponseHandler : MTConnectHttpResponseHandler
     {
-        public MTConnectAssetResponseHandler(IHttpAgentConfiguration configuration, IMTConnectAgentBroker mtconnectAgent) : base(configuration, mtconnectAgent) { }
+        public MTConnectAssetResponseHandler(IHttpAgentConfiguration agentConfiguration, IMTConnectAgentBroker mtconnectAgent, IHttpServerConfiguration serverConfiguration) 
+            : base(agentConfiguration, mtconnectAgent, serverConfiguration) { }
 
 
         protected async override Task<MTConnectHttpResponse> OnRequestReceived(IHttpContext context)
@@ -59,7 +60,7 @@ namespace MTConnect.Servers
                 }
 
                 // Read ValidationLevel from Query string
-                int validationLevel = (int)_configuration.OutputValidationLevel;
+                int validationLevel = (int)_agentConfiguration.OutputValidationLevel;
                 var validationLevelString = httpRequest.QueryString["validationLevel"];
                 if (!string.IsNullOrEmpty(validationLevelString)) validationLevel = validationLevelString.ToInt();
 
@@ -71,12 +72,12 @@ namespace MTConnect.Servers
                 // Read IndentOutput from Query string
                 var indentOutputString = httpRequest.QueryString["indentOutput"];
                 if (!string.IsNullOrEmpty(indentOutputString)) formatOptions.Add(new KeyValuePair<string, string>("indentOutput", indentOutputString));
-                else formatOptions.Add(new KeyValuePair<string, string>("indentOutput", _configuration.IndentOutput.ToString()));
+                else formatOptions.Add(new KeyValuePair<string, string>("indentOutput", _agentConfiguration.IndentOutput.ToString()));
 
                 // Read OutputComments from Query string
                 var outputCommentsString = httpRequest.QueryString["outputComments"];
                 if (!string.IsNullOrEmpty(outputCommentsString)) formatOptions.Add(new KeyValuePair<string, string>("outputComments", outputCommentsString));
-                else formatOptions.Add(new KeyValuePair<string, string>("outputComments", _configuration.OutputComments.ToString()));
+                else formatOptions.Add(new KeyValuePair<string, string>("outputComments", _agentConfiguration.OutputComments.ToString()));
 
 
                 // Get MTConnectAssets document from the MTConnectAgent

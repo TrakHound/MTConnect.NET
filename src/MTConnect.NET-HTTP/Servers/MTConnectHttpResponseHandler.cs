@@ -19,7 +19,8 @@ namespace MTConnect.Servers.Http
     public abstract class MTConnectHttpResponseHandler : IHttpModule
     {
         protected readonly IMTConnectAgentBroker _mtconnectAgent;
-        protected readonly IHttpAgentConfiguration _configuration;
+        protected readonly IHttpAgentConfiguration _agentConfiguration;
+        protected readonly IHttpServerConfiguration _serverConfiguration;
 
 
         /// <summary>
@@ -45,10 +46,11 @@ namespace MTConnect.Servers.Http
         public Func<MTConnectFormatOptionsArgs, List<KeyValuePair<string, string>>> CreateFormatOptionsFunction { get; set; }
 
 
-        public MTConnectHttpResponseHandler(IHttpAgentConfiguration configuration, IMTConnectAgentBroker mtconnectAgent)
+        public MTConnectHttpResponseHandler(IHttpAgentConfiguration agentConfiguration, IMTConnectAgentBroker mtconnectAgent, IHttpServerConfiguration serverConfiguration)
         {
             _mtconnectAgent = mtconnectAgent;
-            _configuration = configuration;
+            _agentConfiguration = agentConfiguration;
+            _serverConfiguration = serverConfiguration;
         }
 
 
@@ -143,8 +145,8 @@ namespace MTConnect.Servers.Http
                 try
                 {
                     // Gzip
-                    if (!_configuration.ResponseCompression.IsNullOrEmpty() &&
-                        _configuration.ResponseCompression.Contains(HttpResponseCompression.Gzip) &&
+                    if (!_serverConfiguration.ResponseCompression.IsNullOrEmpty() &&
+						_serverConfiguration.ResponseCompression.Contains(HttpResponseCompression.Gzip) &&
                         !acceptEncodings.IsNullOrEmpty() && acceptEncodings.Contains("gzip"))
                     {
                         httpResponse.AddHeader("Content-Encoding", "gzip");
@@ -160,8 +162,8 @@ namespace MTConnect.Servers.Http
                     }
 
 #if NET5_0_OR_GREATER
-                    else if (!_configuration.ResponseCompression.IsNullOrEmpty() &&
-                        _configuration.ResponseCompression.Contains(HttpResponseCompression.Br) &&
+                    else if (!_serverConfiguration.ResponseCompression.IsNullOrEmpty() &&
+						_serverConfiguration.ResponseCompression.Contains(HttpResponseCompression.Br) &&
                         !acceptEncodings.IsNullOrEmpty() && acceptEncodings.Contains("br"))
                     {
                         httpResponse.AddHeader("Content-Encoding", "br");
@@ -177,8 +179,8 @@ namespace MTConnect.Servers.Http
                     }
 #endif
 
-                    else if (!_configuration.ResponseCompression.IsNullOrEmpty() &&
-                        _configuration.ResponseCompression.Contains(HttpResponseCompression.Deflate) &&
+                    else if (!_serverConfiguration.ResponseCompression.IsNullOrEmpty() &&
+						_serverConfiguration.ResponseCompression.Contains(HttpResponseCompression.Deflate) &&
                         !acceptEncodings.IsNullOrEmpty() && acceptEncodings.Contains("deflate"))
                     {
                         httpResponse.AddHeader("Content-Encoding", "deflate");
@@ -246,26 +248,26 @@ namespace MTConnect.Servers.Http
 
         protected IEnumerable<string> ProcessAcceptEncodings(IEnumerable<string> acceptEncodings)
         {
-            if (!acceptEncodings.IsNullOrEmpty() && !_configuration.ResponseCompression.IsNullOrEmpty())
+            if (!acceptEncodings.IsNullOrEmpty() && !_serverConfiguration.ResponseCompression.IsNullOrEmpty())
             {
                 var output = new List<string>();
 
                 // Gzip
-                if (_configuration.ResponseCompression.Contains(HttpResponseCompression.Gzip) &&
+                if (_serverConfiguration.ResponseCompression.Contains(HttpResponseCompression.Gzip) &&
                     !acceptEncodings.IsNullOrEmpty() && acceptEncodings.Contains(HttpContentEncodings.Gzip))
                 {
                     output.Add(HttpContentEncodings.Gzip);
                 }
 
 #if NET5_0_OR_GREATER
-                else if (_configuration.ResponseCompression.Contains(HttpResponseCompression.Br) &&
+                else if (_serverConfiguration.ResponseCompression.Contains(HttpResponseCompression.Br) &&
                     !acceptEncodings.IsNullOrEmpty() && acceptEncodings.Contains(HttpContentEncodings.Brotli))
                 {
                     output.Add(HttpContentEncodings.Brotli);
                 }
 #endif
 
-                else if (_configuration.ResponseCompression.Contains(HttpResponseCompression.Deflate) &&
+                else if (_serverConfiguration.ResponseCompression.Contains(HttpResponseCompression.Deflate) &&
                     !acceptEncodings.IsNullOrEmpty() && acceptEncodings.Contains(HttpContentEncodings.Deflate))
                 {
                     output.Add(HttpContentEncodings.Deflate);

@@ -18,7 +18,8 @@ namespace MTConnect.Servers
         public Func<MTConnectStaticFileRequest, byte[]> ProcessFunction { get; set; }
 
 
-        public MTConnectStaticResponseHandler(IHttpAgentConfiguration configuration, IMTConnectAgentBroker mtconnectAgent) : base(configuration, mtconnectAgent) { }
+        public MTConnectStaticResponseHandler(IHttpAgentConfiguration agentConfiguration, IMTConnectAgentBroker mtconnectAgent, IHttpServerConfiguration serverConfiguration)
+            : base(agentConfiguration, mtconnectAgent, serverConfiguration) { }
 
 
         protected async override Task<MTConnectHttpResponse> OnRequestReceived(IHttpContext context)
@@ -48,7 +49,7 @@ namespace MTConnect.Servers
                         valid = false;
 
                         // Check to see if the path matches one that is configured
-                        if (!_configuration.Files.IsNullOrEmpty())
+                        if (!_agentConfiguration.Files.IsNullOrEmpty())
                         {
                             var resource = Path.GetFileName(requestedPath);
                             contentType = MimeTypes.GetMimeType(resource);
@@ -60,7 +61,7 @@ namespace MTConnect.Servers
                             if (!string.IsNullOrEmpty(relativePath))
                             {
                                 // Find a FileConfiguration whose Location matches the requested Resource
-                                var fileConfiguration = _configuration.Files.FirstOrDefault(o => o.Location == resource);
+                                var fileConfiguration = _agentConfiguration.Files.FirstOrDefault(o => o.Location == resource);
                                 if (fileConfiguration != null)
                                 {
                                     // Rewrite the localPath to the one that is configured that matches the 'Location' property
@@ -70,7 +71,7 @@ namespace MTConnect.Servers
                                 else
                                 {
                                     // Find a FileConfiguration whose Location matches the requested Resource
-                                    fileConfiguration = _configuration.Files.FirstOrDefault(o => o.Location == relativePath);
+                                    fileConfiguration = _agentConfiguration.Files.FirstOrDefault(o => o.Location == relativePath);
                                     if (fileConfiguration != null)
                                     {
                                         // Rewrite the localPath to the one that is configured that matches the 'Location' property

@@ -156,7 +156,7 @@ namespace MTConnect.Servers.Http
 
                         try
                         {
-                            var config = CreateServerConfig();
+                            var config = CreateServerConfig(serverConfiguration);
 
                             var useSsl = false;
                             if (serverConfiguration.Tls != null)
@@ -190,6 +190,7 @@ namespace MTConnect.Servers.Http
                             }
                             else endpoint = new IPEndPoint(IPAddress.Any, serverConfiguration.Port);
 
+
                             if (ServerStarted != null) ServerStarted.Invoke(this, endpointId);
 
                             await HttpServer.ListenAsync(endpoint, useSsl, config, cancellationToken);
@@ -215,7 +216,7 @@ namespace MTConnect.Servers.Http
                 }
             }
         }
-        private ServerConfig CreateServerConfig()
+        private ServerConfig CreateServerConfig(IHttpServerConfiguration serverConfiguration)
         {
             var serverConfig = new ServerConfig();
 
@@ -226,7 +227,7 @@ namespace MTConnect.Servers.Http
             serverConfig.MaxProcessingTimeSeconds = 60;
 
             // Setup the Probe Request Handler
-            var probeHandler = new MTConnectProbeResponseHandler(_configuration, _mtconnectAgent);
+            var probeHandler = new MTConnectProbeResponseHandler(_configuration, _mtconnectAgent, serverConfiguration);
             probeHandler.ResponseSent += ResponseSent;
             probeHandler.ClientConnected += ClientConnected;
             probeHandler.ClientDisconnected += ClientDisconnected;
@@ -234,7 +235,7 @@ namespace MTConnect.Servers.Http
             probeHandler.CreateFormatOptionsFunction = OnCreateFormatOptions;
 
             // Setup the Current Request Handler
-            var currentHandler = new MTConnectCurrentResponseHandler(_configuration, _mtconnectAgent);
+            var currentHandler = new MTConnectCurrentResponseHandler(_configuration, _mtconnectAgent, serverConfiguration);
             currentHandler.ResponseSent += ResponseSent;
             currentHandler.ClientConnected += ClientConnected;
             currentHandler.ClientDisconnected += ClientDisconnected;
@@ -242,7 +243,7 @@ namespace MTConnect.Servers.Http
             currentHandler.CreateFormatOptionsFunction = OnCreateFormatOptions;
 
             // Setup the Sample Request Handler
-            var sampleHandler = new MTConnectSampleResponseHandler(_configuration, _mtconnectAgent);
+            var sampleHandler = new MTConnectSampleResponseHandler(_configuration, _mtconnectAgent, serverConfiguration);
             sampleHandler.ResponseSent += ResponseSent;
             sampleHandler.ClientConnected += ClientConnected;
             sampleHandler.ClientDisconnected += ClientDisconnected;
@@ -250,7 +251,7 @@ namespace MTConnect.Servers.Http
             sampleHandler.CreateFormatOptionsFunction = OnCreateFormatOptions;
 
             // Setup the Assets Request Handler
-            var assetsHandler = new MTConnectAssetsResponseHandler(_configuration, _mtconnectAgent);
+            var assetsHandler = new MTConnectAssetsResponseHandler(_configuration, _mtconnectAgent, serverConfiguration);
             assetsHandler.ResponseSent += ResponseSent;
             assetsHandler.ClientConnected += ClientConnected;
             assetsHandler.ClientDisconnected += ClientDisconnected;
@@ -258,15 +259,33 @@ namespace MTConnect.Servers.Http
             assetsHandler.CreateFormatOptionsFunction = OnCreateFormatOptions;
 
             // Setup the Asset Request Handler
-            var assetHandler = new MTConnectAssetResponseHandler(_configuration, _mtconnectAgent);
+            var assetHandler = new MTConnectAssetResponseHandler(_configuration, _mtconnectAgent, serverConfiguration);
             assetHandler.ResponseSent += ResponseSent;
             assetHandler.ClientConnected += ClientConnected;
             assetHandler.ClientDisconnected += ClientDisconnected;
             assetHandler.ClientException += ClientException;
             assetHandler.CreateFormatOptionsFunction = OnCreateFormatOptions;
 
-            // Setup the Static Request Handler
-            var staticHandler = new MTConnectStaticResponseHandler(_configuration, _mtconnectAgent);
+			// Setup the Put Request Handler
+			var putHandler = new MTConnectPutResponseHandler(_configuration, _mtconnectAgent, serverConfiguration);
+			putHandler.ResponseSent += ResponseSent;
+			putHandler.ClientConnected += ClientConnected;
+			putHandler.ClientDisconnected += ClientDisconnected;
+			putHandler.ClientException += ClientException;
+			putHandler.ProcessFunction = OnObservationInput;
+			putHandler.CreateFormatOptionsFunction = OnCreateFormatOptions;
+
+			// Setup the Post Request Handler
+			var postHandler = new MTConnectPostResponseHandler(_configuration, _mtconnectAgent, serverConfiguration);
+			postHandler.ResponseSent += ResponseSent;
+			postHandler.ClientConnected += ClientConnected;
+			postHandler.ClientDisconnected += ClientDisconnected;
+			postHandler.ClientException += ClientException;
+			postHandler.ProcessFunction = OnAssetInput;
+			postHandler.CreateFormatOptionsFunction = OnCreateFormatOptions;
+
+			// Setup the Static Request Handler
+			var staticHandler = new MTConnectStaticResponseHandler(_configuration, _mtconnectAgent, serverConfiguration);
             staticHandler.ResponseSent += ResponseSent;
             staticHandler.ClientConnected += ClientConnected;
             staticHandler.ClientDisconnected += ClientDisconnected;
@@ -274,39 +293,20 @@ namespace MTConnect.Servers.Http
             staticHandler.ProcessFunction = OnProcessStatic;
             staticHandler.CreateFormatOptionsFunction = OnCreateFormatOptions;
 
-            // Setup the Put Request Handler
-            var putHandler = new MTConnectPutResponseHandler(_configuration, _mtconnectAgent);
-            putHandler.ResponseSent += ResponseSent;
-            putHandler.ClientConnected += ClientConnected;
-            putHandler.ClientDisconnected += ClientDisconnected;
-            putHandler.ClientException += ClientException;
-            putHandler.ProcessFunction = OnObservationInput;
-            putHandler.CreateFormatOptionsFunction = OnCreateFormatOptions;
-
-            // Setup the Post Request Handler
-            var postHandler = new MTConnectPostResponseHandler(_configuration, _mtconnectAgent);
-            postHandler.ResponseSent += ResponseSent;
-            postHandler.ClientConnected += ClientConnected;
-            postHandler.ClientDisconnected += ClientDisconnected;
-            postHandler.ClientException += ClientException;
-            postHandler.ProcessFunction = OnAssetInput;
-            postHandler.CreateFormatOptionsFunction = OnCreateFormatOptions;
-
-
             // Setup Routes (Processed in Order)
             serverConfig.AddRoute(async (context) =>
             {
                 return await DeviceRootHandler(probeHandler, context);
             });
-            serverConfig.AddRoute(async (context) =>
-            {
-                return await PutHandler(putHandler, context);
-            });
+			serverConfig.AddRoute(async (context) =>
+			{
+				return await PutHandler(putHandler, context);
+			});
             serverConfig.AddRoute(async (context) =>
             {
                 return await PostHandler(postHandler, context);
             });
-            serverConfig.AddRoute("/", probeHandler);
+			serverConfig.AddRoute("/", probeHandler);
             serverConfig.AddRoute("/probe", probeHandler);
             serverConfig.AddRoute("/*/probe", probeHandler);
             serverConfig.AddRoute("/current", currentHandler);
