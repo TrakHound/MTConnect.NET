@@ -32,7 +32,7 @@ namespace MTConnect.Clients
         /// <summary>
         /// Raised when an MTConnectError Document is received
         /// </summary>
-        EventHandler<IErrorResponseDocument> OnMTConnectError { get; set; }
+        event EventHandler<IErrorResponseDocument> OnMTConnectError;
 
 
         /// <summary>

@@ -148,17 +148,17 @@ namespace MTConnect.Clients
         /// <summary>
         /// Raised when an MTConnectError Document is received
         /// </summary>
-        public EventHandler<IErrorResponseDocument> OnMTConnectError { get; set; }
+        public event EventHandler<IErrorResponseDocument> OnMTConnectError;
 
         /// <summary>
         /// Raised when an Connection Error occurs
         /// </summary>
-        public EventHandler<Exception> OnConnectionError { get; set; }
+        public event EventHandler<Exception> OnConnectionError;
 
         /// <summary>
         /// Raised when an Internal Error occurs
         /// </summary>
-        public EventHandler<Exception> OnInternalError { get; set; }
+        public event EventHandler<Exception> OnInternalError;
 
 
         /// <summary>

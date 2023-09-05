@@ -72,72 +72,72 @@ namespace MTConnect.Clients
         /// <summary>
         /// Raised when an MTConnectDevices Document is received
         /// </summary>
-        EventHandler<IDevicesResponseDocument> OnProbeReceived { get; set; }
+        event EventHandler<IDevicesResponseDocument> OnProbeReceived;
 
         /// <summary>
         /// Raised when an MTConnectSreams Document is received from a Current Request
         /// </summary>
-        EventHandler<IStreamsResponseDocument> OnCurrentReceived { get; set; }
+        event EventHandler<IStreamsResponseDocument> OnCurrentReceived;
 
         /// <summary>
         /// Raised when an MTConnectSreams Document is received from the Samples Stream
         /// </summary>
-        EventHandler<IStreamsResponseDocument> OnSampleReceived { get; set; }
+        event EventHandler<IStreamsResponseDocument> OnSampleReceived;
 
         /// <summary>
         /// Raised when an MTConnectAssets Document is received
         /// </summary>
-        EventHandler<IAssetsResponseDocument> OnAssetsReceived { get; set; }
+        event EventHandler<IAssetsResponseDocument> OnAssetsReceived;
 
         /// <summary>
         /// Raised when an MTConnectError Document is received
         /// </summary>
-        EventHandler<IErrorResponseDocument> OnMTConnectError { get; set; }
+        event EventHandler<IErrorResponseDocument> OnMTConnectError;
 
         /// <summary>
         /// Raised when any Response from the Client is received
         /// </summary>
-        EventHandler OnResponseReceived { get; set; }
+        event EventHandler OnResponseReceived;
 
         /// <summary>
         /// Raised when the Client is Starting
         /// </summary>
-        EventHandler OnClientStarting { get; set; }
+        event EventHandler OnClientStarting;
 
         /// <summary>
         /// Raised when the Client is Started
         /// </summary>
-        EventHandler OnClientStarted { get; set; }
+        event EventHandler OnClientStarted;
 
         /// <summary>
         /// Raised when the Client is Stopping
         /// </summary>
-        EventHandler OnClientStopping { get; set; }
+        event EventHandler OnClientStopping;
 
         /// <summary>
         /// Raised when the Client is Stopeed
         /// </summary>
-        EventHandler OnClientStopped { get; set; }
+        event EventHandler OnClientStopped;
 
         /// <summary>
         /// Raised when the Stream is Starting
         /// </summary>
-        EventHandler<string> OnStreamStarting { get; set; }
+        event EventHandler<string> OnStreamStarting;
 
         /// <summary>
         /// Raised when the Stream is Started
         /// </summary>
-        EventHandler<string> OnStreamStarted { get; set; }
+        event EventHandler<string> OnStreamStarted;
 
         /// <summary>
         /// Raised when the Stream is Stopped
         /// </summary>
-        EventHandler<string> OnStreamStopping { get; set; }
+        event EventHandler<string> OnStreamStopping;
 
         /// <summary>
         /// Raised when the Stream is Stopped
         /// </summary>
-        EventHandler<string> OnStreamStopped { get; set; }
+        event EventHandler<string> OnStreamStopped;
 
         #endregion
 

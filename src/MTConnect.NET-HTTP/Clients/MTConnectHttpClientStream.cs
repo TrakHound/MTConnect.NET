@@ -70,19 +70,19 @@ namespace MTConnect.Clients
         public string ContentType { get; set; }
 
 
-        public EventHandler<IStreamsResponseDocument> DocumentReceived { get; set; }
+        public event EventHandler<IStreamsResponseDocument> DocumentReceived;
 
-        public EventHandler<IErrorResponseDocument> ErrorReceived { get; set; }
+        public event EventHandler<IErrorResponseDocument> ErrorReceived;
 
-        public EventHandler<Exception> OnInternalError { get; set; }
+        public event EventHandler<Exception> OnInternalError;
 
-        public EventHandler<Exception> OnConnectionError { get; set; }
+        public event EventHandler<Exception> OnConnectionError;
 
-        public EventHandler Starting { get; set; }
-        public EventHandler Started { get; set; }
+        public event EventHandler Starting;
+        public event EventHandler Started;
 
-        public EventHandler Stopping { get; set; }
-        public EventHandler Stopped { get; set; }
+        public event EventHandler Stopping;
+        public event EventHandler Stopped;
 
 
         public void Start(CancellationToken cancellationToken)

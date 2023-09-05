@@ -86,19 +86,19 @@ namespace MTConnect.Clients
 
         public MTConnectMqttConnectionStatus ConnectionStatus => _connectionStatus;
 
-        public EventHandler Connected { get; set; }
+        public event EventHandler Connected;
 
-        public EventHandler Disconnected { get; set; }
+        public event EventHandler Disconnected;
 
-        public EventHandler<MTConnectMqttConnectionStatus> ConnectionStatusChanged { get; set; }
+        public event EventHandler<MTConnectMqttConnectionStatus> ConnectionStatusChanged;
 
-        public EventHandler<Exception> ConnectionError { get; set; }
+        public event EventHandler<Exception> ConnectionError;
 
-        public MTConnectMqttEventHandler<IDevice> DeviceReceived { get; set; }
+        public event MTConnectMqttEventHandler<IDevice> DeviceReceived;
 
-        public MTConnectMqttEventHandler<IObservation> ObservationReceived { get; set; }
+        public event MTConnectMqttEventHandler<IObservation> ObservationReceived;
 
-        public MTConnectMqttEventHandler<IAsset> AssetReceived { get; set; }
+        public event MTConnectMqttEventHandler<IAsset> AssetReceived;
 
 
         public MTConnectMqttClient(string server, int port = 1883, int interval = 0, string deviceUuid = null, IEnumerable<string> topics = null, int qos = 1)

@@ -76,20 +76,14 @@ namespace MTConnect.Applications.Agents
                     }
                     else
                     {
-                        if (_mtconnectAgent.InvalidObservationAdded != null)
-                        {
-                            _mtconnectAgent.InvalidObservationAdded.Invoke(deviceKey, dataItemKey, new ValidationResult(false, $"DataItemKey \"{dataItemKey}\" not Found in Device"));
-                        }
+                        _mtconnectAgent.OnInvalidObservationAdded(deviceKey, dataItemKey, new ValidationResult(false, $"DataItemKey \"{dataItemKey}\" not Found in Device"));
                     }
 
                     return true;
                 }
                 else
                 {
-                    if (_mtconnectAgent.InvalidObservationAdded != null)
-                    {
-                        _mtconnectAgent.InvalidObservationAdded.Invoke(deviceKey, dataItemKey, new ValidationResult(false, $"Device \"{deviceKey}\" not Found"));
-                    }
+                    _mtconnectAgent.OnInvalidObservationAdded(deviceKey, dataItemKey, new ValidationResult(false, $"Device \"{deviceKey}\" not Found"));
                 }
             }
 

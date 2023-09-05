@@ -181,82 +181,82 @@ namespace MTConnect.Clients
         /// <summary>
         /// Raised when an MTConnectDevices Document is received
         /// </summary>
-        public EventHandler<IDevicesResponseDocument> OnProbeReceived { get; set; }
+        public event EventHandler<IDevicesResponseDocument> OnProbeReceived;
 
         /// <summary>
         /// Raised when an MTConnectSreams Document is received from a Current Request
         /// </summary>
-        public EventHandler<IStreamsResponseDocument> OnCurrentReceived { get; set; }
+        public event EventHandler<IStreamsResponseDocument> OnCurrentReceived;
 
         /// <summary>
         /// Raised when an MTConnectSreams Document is received from the Samples Stream
         /// </summary>
-        public EventHandler<IStreamsResponseDocument> OnSampleReceived { get; set; }
+        public event EventHandler<IStreamsResponseDocument> OnSampleReceived;
 
         /// <summary>
         /// Raised when an MTConnectAssets Document is received
         /// </summary>
-        public EventHandler<IAssetsResponseDocument> OnAssetsReceived { get; set; }
+        public event EventHandler<IAssetsResponseDocument> OnAssetsReceived;
 
         /// <summary>
         /// Raised when an MTConnectError Document is received
         /// </summary>
-        public EventHandler<IErrorResponseDocument> OnMTConnectError { get; set; }
+        public event EventHandler<IErrorResponseDocument> OnMTConnectError;
 
         /// <summary>
         /// Raised when an Connection Error occurs
         /// </summary>
-        public EventHandler<Exception> OnConnectionError { get; set; }
+        public event EventHandler<Exception> OnConnectionError;
 
         /// <summary>
         /// Raised when an Internal Error occurs
         /// </summary>
-        public EventHandler<Exception> OnInternalError { get; set; }
+        public event EventHandler<Exception> OnInternalError;
 
         /// <summary>
         /// Raised when any Response from the Client is received
         /// </summary>
-        public EventHandler OnResponseReceived { get; set; }
+        public event EventHandler OnResponseReceived;
 
         /// <summary>
         /// Raised when the Client is Starting
         /// </summary>
-        public EventHandler OnClientStarting { get; set; }
+        public event EventHandler OnClientStarting;
 
         /// <summary>
         /// Raised when the Client is Started
         /// </summary>
-        public EventHandler OnClientStarted { get; set; }
+        public event EventHandler OnClientStarted;
 
         /// <summary>
         /// Raised when the Client is Stopping
         /// </summary>
-        public EventHandler OnClientStopping { get; set; }
+        public event EventHandler OnClientStopping;
 
         /// <summary>
         /// Raised when the Client is Stopeed
         /// </summary>
-        public EventHandler OnClientStopped { get; set; }
+        public event EventHandler OnClientStopped;
 
         /// <summary>
         /// Raised when the Stream is Starting
         /// </summary>
-        public EventHandler<string> OnStreamStarting { get; set; }
+        public event EventHandler<string> OnStreamStarting;
 
         /// <summary>
         /// Raised when the Stream is Started
         /// </summary>
-        public EventHandler<string> OnStreamStarted { get; set; }
+        public event EventHandler<string> OnStreamStarted;
 
         /// <summary>
         /// Raised when the Stream is Stopped
         /// </summary>
-        public EventHandler<string> OnStreamStopping { get; set; }
+        public event EventHandler<string> OnStreamStopping;
 
         /// <summary>
         /// Raised when the Stream is Stopped
         /// </summary>
-        public EventHandler<string> OnStreamStopped { get; set; }
+        public event EventHandler<string> OnStreamStopped;
 
         #endregion
 

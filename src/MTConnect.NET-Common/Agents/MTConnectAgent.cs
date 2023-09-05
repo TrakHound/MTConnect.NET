@@ -131,57 +131,60 @@ namespace MTConnect.Agents
         /// </summary>
         public DateTime DeviceModelChangeTime => _deviceModelChangeTime.ToDateTime();
 
+        #endregion
+
+        #region "Events"
 
         /// <summary>
         /// Raised when a new Device is added to the Agent
         /// </summary>
-        public EventHandler<IDevice> DeviceAdded { get; set; }
+        public event EventHandler<IDevice> DeviceAdded;
 
         /// <summary>
         /// Raised when a new Observation is attempted to be added to the Agent
         /// </summary>
-        public EventHandler<IObservationInput> ObservationReceived { get; set; }
+        public event EventHandler<IObservationInput> ObservationReceived;
 
         /// <summary>
         /// Raised when a new Observation is added to the Agent
         /// </summary>
-        public EventHandler<IObservation> ObservationAdded { get; set; }
+        public event EventHandler<IObservation> ObservationAdded;
 
         /// <summary>
         /// Raised when a new Asset is attempted to be added to the Agent
         /// </summary>
-        public EventHandler<IAsset> AssetReceived { get; set; }
+        public event EventHandler<IAsset> AssetReceived;
 
         /// <summary>
         /// Raised when a new Asset is added to the Agent
         /// </summary>
-        public EventHandler<IAsset> AssetAdded { get; set; }
+        public event EventHandler<IAsset> AssetAdded;
 
 
         /// <summary>
         /// Raised when an Invalid Component is Added
         /// </summary>
-        public MTConnectComponentValidationHandler InvalidComponentAdded { get; set; }
+        public event MTConnectComponentValidationHandler InvalidComponentAdded;
 
         /// <summary>
         /// Raised when an Invalid Composition is Added
         /// </summary>
-        public MTConnectCompositionValidationHandler InvalidCompositionAdded { get; set; }
+        public event MTConnectCompositionValidationHandler InvalidCompositionAdded;
 
         /// <summary>
         /// Raised when an Invalid DataItem is Added
         /// </summary>
-        public MTConnectDataItemValidationHandler InvalidDataItemAdded { get; set; }
+        public event MTConnectDataItemValidationHandler InvalidDataItemAdded;
 
         /// <summary>
         /// Raised when an Invalid Observation is Added
         /// </summary>
-        public MTConnectObservationValidationHandler InvalidObservationAdded { get; set; }
+        public event MTConnectObservationValidationHandler InvalidObservationAdded;
 
         /// <summary>
         /// Raised when an Invalid Asset is Added
         /// </summary>
-        public MTConnectAssetValidationHandler InvalidAssetAdded { get; set; }
+        public event MTConnectAssetValidationHandler InvalidAssetAdded;
 
         #endregion
 
@@ -1599,17 +1602,25 @@ namespace MTConnect.Agents
                                     }
                                 }
 
-                                if (ObservationAdded != null)
-                                {
-                                    var observation = Observation.Create(dataItem);
-                                    observation.DeviceUuid = deviceUuid;
-                                    observation.DataItem = dataItem;
-                                    observation.InstanceId = _instanceId;
-                                    observation.Timestamp = observationInput.Timestamp.ToDateTime();
-                                    observation.AddValues(observationInput.Values);
+                                var observation = Observation.Create(dataItem);
+                                observation.DeviceUuid = deviceUuid;
+                                observation.DataItem = dataItem;
+                                observation.InstanceId = _instanceId;
+                                observation.Timestamp = observationInput.Timestamp.ToDateTime();
+                                observation.AddValues(observationInput.Values);
+                                OnObservationAdded(observation);
 
-                                    ObservationAdded?.Invoke(this, observation);
-                                }
+                                //if (ObservationAdded != null)
+                                //{
+                                //    var observation = Observation.Create(dataItem);
+                                //    observation.DeviceUuid = deviceUuid;
+                                //    observation.DataItem = dataItem;
+                                //    observation.InstanceId = _instanceId;
+                                //    observation.Timestamp = observationInput.Timestamp.ToDateTime();
+                                //    observation.AddValues(observationInput.Values);
+
+                                //    ObservationAdded?.Invoke(this, observation);
+                                //}
                             }
                         }
                         else success = true; // Return true if no update needed
@@ -1656,6 +1667,22 @@ namespace MTConnect.Agents
         protected virtual bool OnAddObservation(string deviceUuid, IDataItem dataItem, IObservationInput observationInput)
         {
             return true;
+        }
+
+        public void OnObservationAdded(IObservation observation)
+        {
+            if (ObservationAdded != null)
+            {
+                ObservationAdded?.Invoke(this, observation);
+            }
+        }
+
+        public void OnInvalidObservationAdded(string deviceUuid, string dataItemId, ValidationResult result)
+        {
+            if (InvalidObservationAdded != null)
+            {
+                InvalidObservationAdded?.Invoke(deviceUuid, dataItemId, result);
+            }
         }
 
         #endregion

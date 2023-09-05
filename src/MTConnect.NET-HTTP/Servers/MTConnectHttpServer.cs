@@ -12,8 +12,6 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net;
-using System.Net.WebSockets;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -34,7 +32,7 @@ namespace MTConnect.Servers.Http
         /// <summary>
         /// Event Handler for when an error occurs with a MTConnectHttpResponse is written to the HTTP Client
         /// </summary>
-        public EventHandler<MTConnectHttpResponse> ResponseSent { get; set; }
+        public event EventHandler<MTConnectHttpResponse> ResponseSent;
 
 
         public MTConnectHttpServer(
@@ -73,7 +71,7 @@ namespace MTConnect.Servers.Http
             var request = context.Request;
             var response = context.Response;
 
-            //if (ClientConnected != null) ClientConnected.Invoke(this, request);
+            OnClientConnected(request);
 
             response.Headers.Add("Access-Control-Allow-Origin", "*");
             response.Headers.Add("Access-Control-Allow-Methods", "POST, PUT, GET, DELETE");
@@ -1123,7 +1121,7 @@ namespace MTConnect.Servers.Http
                 }
                 catch (Exception ex)
                 {
-                    if (ClientDisconnected != null) ClientDisconnected.Invoke(this, sampleStream.Id);
+                    OnClientDisconnected(sampleStream.Id);
                     sampleStream.Stop();
                 }
             }

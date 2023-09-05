@@ -97,46 +97,49 @@ namespace MTConnect.Agents
             }
         }
 
+        #endregion
+
+        #region "Events"
 
         /// <summary>
         /// Raised when an MTConnectDevices response Document is requested from the Agent
         /// </summary>
-        public MTConnectDevicesRequestedHandler DevicesRequestReceived { get; set; }
+        public event MTConnectDevicesRequestedHandler DevicesRequestReceived;
 
         /// <summary>
         /// Raised when an MTConnectDevices response Document is sent successfully from the Agent
         /// </summary>
-        public MTConnectDevicesHandler DevicesResponseSent { get; set; }
+        public event MTConnectDevicesHandler DevicesResponseSent;
 
         /// <summary>
         /// Raised when an MTConnectStreams response Document is requested from the Agent
         /// </summary>
-        public MTConnectStreamsRequestedHandler StreamsRequestReceived { get; set; }
+        public event MTConnectStreamsRequestedHandler StreamsRequestReceived;
 
         /// <summary>
         /// Raised when an MTConnectStreams response Document is sent successfully from the Agent
         /// </summary>
-        public EventHandler StreamsResponseSent { get; set; }
+        public event EventHandler StreamsResponseSent;
 
         /// <summary>
         /// Raised when an MTConnectAssets response Document is requested from the Agent
         /// </summary>
-        public MTConnectAssetsRequestedHandler AssetsRequestReceived { get; set; }
+        public event MTConnectAssetsRequestedHandler AssetsRequestReceived;
 
         /// <summary>
         /// Raised when an MTConnectAssets response Document is requested from the Agent for a specific Device
         /// </summary>
-        public MTConnectDeviceAssetsRequestedHandler DeviceAssetsRequestReceived { get; set; }
+        public event MTConnectDeviceAssetsRequestedHandler DeviceAssetsRequestReceived;
 
         /// <summary>
         /// Raised when an MTConnectAssets response Document is sent successfully from the Agent
         /// </summary>
-        public MTConnectAssetsHandler AssetsResponseSent { get; set; }
+        public event MTConnectAssetsHandler AssetsResponseSent;
 
         /// <summary>
         /// Raised when an MTConnectError response Document is sent successfully from the Agent
         /// </summary>
-        public MTConnectErrorHandler ErrorResponseSent { get; set; }
+        public event MTConnectErrorHandler ErrorResponseSent;
 
         #endregion
 
@@ -1685,7 +1688,8 @@ namespace MTConnect.Agents
 
                             var bufferObservation = new BufferObservation(bufferKey, observation);
                             _observationBuffer.AddObservation(ref bufferObservation);
-                            ObservationAdded?.Invoke(this, observation);
+                            OnObservationAdded(observation);
+                            //base.ObservationAdded?.Invoke(this, observation);
                         }
                     }
                 }

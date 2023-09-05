@@ -31,34 +31,34 @@ namespace MTConnect.Servers.Http
         /// Event Handler for when the HttpListener is started
         /// </summary>
         /// <returns>URL Prefix that the HttpListener is listening for requests on</returns>
-        public EventHandler<string> ListenerStarted { get; set; }
+        public event EventHandler<string> ListenerStarted;
 
         /// <summary>
         /// Event Handler for when the HttpListener is stopped
         /// </summary>
         /// <returns>URL Prefix that the HttpListener is listening for requests on</returns>
-        public EventHandler<string> ListenerStopped { get; set; }
+        public event EventHandler<string> ListenerStopped;
 
         /// <summary>
         /// Event Handler for when an error occurs with the HttpListener
         /// </summary>
-        public EventHandler<Exception> ListenerException { get; set; }
+        public event EventHandler<Exception> ListenerException;
 
 
         /// <summary>
         /// Event Handler for when a client makes a request to the server
         /// </summary>
-        public EventHandler<HttpListenerRequest> ClientConnected { get; set; }
+        public event EventHandler<HttpListenerRequest> ClientConnected;
 
         /// <summary>
         /// Event Handler for when a client completes a request or disconnects from the server
         /// </summary>
-        public EventHandler<string> ClientDisconnected { get; set; }
+        public event EventHandler<string> ClientDisconnected;
 
         /// <summary>
         /// Event Handler for when an error occurs with the HttpListenerRequest
         /// </summary>
-        public EventHandler<Exception> ClientException { get; set; }
+        public event EventHandler<Exception> ClientException;
 
 
         public HttpServer(IHttpAgentConfiguration configuration, IEnumerable<string> prefixes = null, int port = 0)
@@ -288,6 +288,16 @@ namespace MTConnect.Servers.Http
         protected virtual async Task OnRequestReceived(HttpListenerContext context) 
         {
             await Task.Delay(1); // Placeholder as this method is meant to be overridden
+        }
+
+        protected void OnClientConnected(HttpListenerRequest request)
+        {
+            if (ClientConnected != null) ClientConnected.Invoke(this, request);
+        }
+
+        protected void OnClientDisconnected(string clientId)
+        {
+            if (ClientDisconnected != null) ClientDisconnected.Invoke(this, clientId);
         }
 
         protected virtual bool IsStreamRequest(HttpListenerContext context)
