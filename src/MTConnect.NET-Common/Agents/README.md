@@ -13,15 +13,15 @@ if (configuration != null)
     // Create Device Buffer
     var deviceBuffer = new MTConnectDeviceBuffer();
 
-    // Create Streaming Buffer
-    var streamingBuffer = new MTConnectObservationBuffer(configuration);
+    // Create Observation Buffer
+    var observationBuffer = new MTConnectObservationBuffer(configuration);
 
     // Create Asset Buffer
     var assetBuffer = new MTConnectAssetBuffer(configuration);
 
 
     // Create MTConnectAgent
-    var agent = new MTConnectAgent(configuration, deviceBuffer, streamingBuffer, assetBuffer);
+    var agent = new MTConnectAgentBroker(configuration, deviceBuffer, observationBuffer, assetBuffer);
 }
 ```
 
@@ -31,7 +31,7 @@ using MTConnect.Agents;
 using MTConnect.Configurations;
 
 var configuration = AgentConfiguration.Read();
-var agent = new MTConnectAgent(configuration);
+var agent = new MTConnectAgentBroker(configuration);
 var devicesDocument = agent.GetDevices();
 ```
 
@@ -41,7 +41,7 @@ using MTConnect.Agents;
 using MTConnect.Configurations;
 
 var configuration = AgentConfiguration.Read();
-var agent = new MTConnectAgent(configuration);
+var agent = new MTConnectAgentBroker(configuration);
 var streamsDocument = agent.GetDeviceStreams();
 ```
 
@@ -51,6 +51,6 @@ using MTConnect.Agents;
 using MTConnect.Configurations;
 
 var configuration = AgentConfiguration.Read();
-var agent = new MTConnectAgent(configuration);
+var agent = new MTConnectAgentBroker(configuration);
 var assetsDocument = agent.GetAssets();
 ```
