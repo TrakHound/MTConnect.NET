@@ -6,7 +6,7 @@
 
 ## Overview
 This project is a full implementation of an MTConnect Agent used to read data from industrial machine tools and devices.
-This MTConnect Agent application is fully compatible with the latest **Version 2.1 of the MTConnect Standard**.
+This MTConnect Agent application is fully compatible with the latest **Version 2.2 of the MTConnect Standard**.
 It receives data from other MTConnect Agents using HTTP and a built-in MQTT broker.
 
 #### Features
