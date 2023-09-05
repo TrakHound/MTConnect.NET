@@ -202,7 +202,19 @@ namespace MTConnect.Devices
             {
                 var ids = new List<string>();
 
-                ids.Add(ObjectExtensions.GetHashPropertyString(device).ToSHA1Hash());
+                var hashMembers = new string[10];
+                hashMembers[0] = $"uuid:{device.Uuid}";
+                hashMembers[1] = $"id:{device.Id}";
+                hashMembers[2] = $"name:{device.Name}";
+                hashMembers[3] = $"type:{device.Type}";
+                hashMembers[4] = $"nativeName:{device.NativeName}";
+                hashMembers[5] = $"sampleInterval:{device.SampleInterval}";
+                hashMembers[6] = $"sampleRate:{device.SampleRate}";
+                hashMembers[7] = $"coordinateSystemIdRef:{device.CoordinateSystemIdRef}";
+                hashMembers[8] = $"iso841Class:{device.Iso841Class}";
+                hashMembers[9] = $"mtconnectVersion:{device.MTConnectVersion}";
+                var propertiesHash = string.Join(';', hashMembers).ToSHA1Hash();
+                ids.Add(propertiesHash);
 
                 // Add DataItem Change Ids
                 if (!device.DataItems.IsNullOrEmpty())
