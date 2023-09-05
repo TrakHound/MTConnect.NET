@@ -213,7 +213,7 @@ namespace MTConnect.Devices
                 hashMembers[7] = $"coordinateSystemIdRef:{device.CoordinateSystemIdRef}";
                 hashMembers[8] = $"iso841Class:{device.Iso841Class}";
                 hashMembers[9] = $"mtconnectVersion:{device.MTConnectVersion}";
-                var propertiesHash = string.Join(';', hashMembers).ToSHA1Hash();
+                var propertiesHash = string.Join(";", hashMembers).ToSHA1Hash();
                 ids.Add(propertiesHash);
 
                 // Add DataItem Change Ids
