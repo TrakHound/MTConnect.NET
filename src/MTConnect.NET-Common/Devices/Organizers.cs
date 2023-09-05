@@ -1,11 +1,11 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
+using MTConnect.Devices.Components;
+using MTConnect.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MTConnect.Devices.Components;
-using MTConnect.Interfaces;
 
 namespace MTConnect.Devices
 {
@@ -53,7 +53,10 @@ namespace MTConnect.Devices
 
         private static readonly IEnumerable<string> _interfaces = new List<string>
         {
-            BarFeederInterface.TypeId
+            BarFeederInterface.TypeId,
+            ChuckInterface.TypeId,
+            DoorInterface.TypeId,
+            MaterialHandlerInterface.TypeId
         };
 
         private static readonly IEnumerable<string> _materials = new List<string>

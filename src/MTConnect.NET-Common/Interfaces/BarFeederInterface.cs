@@ -4,11 +4,18 @@
 namespace MTConnect.Interfaces
 {
     /// <summary>
-    /// BarFeederInterface provides the set of information used to coordinate the operations between a Bar Feeder and another piece of equipment.
+    /// Interface that coordinates the operations between a bar feeder and another piece of equipment.
+    /// Bar feeder is a piece of equipment that pushes bar stock(i.e., long pieces of material of various shapes) into an associated piece of equipment – most typically a lathe or turning center.
     /// </summary>
     public class BarFeederInterface : Interface 
     {
         public const string TypeId = "BarFeederInterface";
+        public const string NameId = "barFeeder";
+        public new const string DescriptionText = "Interface that coordinates the operations between a bar feeder and another piece of equipment. Bar feeder is a piece of equipment that pushes bar stock(i.e., long pieces of material of various shapes) into an associated piece of equipment – most typically a lathe or turning center.";
+
+        public override string TypeDescription => DescriptionText;
+
+        public override System.Version MinimumVersion => MTConnectVersions.Version13;
 
 
         public BarFeederInterface()
