@@ -150,7 +150,7 @@ namespace MTConnect.Applications.Agents
 
         private void HttpClientConnected(object sender, HttpListenerRequest request)
         {
-            _httpLogger.Info($"[Http Server] : Http Client Connected : (" + request.HttpMethod + ") : " + request.LocalEndPoint + " : " + request.Url);
+            _httpLogger.Debug($"[Http Server] : Http Client Connected : (" + request.HttpMethod + ") : " + request.LocalEndPoint + " : " + request.Url);
         }
 
         private void HttpClientDisconnected(object sender, string remoteEndPoint)
@@ -166,14 +166,14 @@ namespace MTConnect.Applications.Agents
         private void HttpResponseSent(object sender, MTConnectHttpResponse response)
         {
             var totalTime = response.ResponseDuration + response.FormatDuration + response.WriteDuration;
-            _httpLogger.Info($"[Http Server] : Http Response Sent : {response.StatusCode} : {response.ContentType} : Agent Process Time {response.ResponseDuration}ms : Document Format Time {response.FormatDuration}ms : Write Time {response.WriteDuration}ms : Total Response Time {totalTime}ms");
+            _httpLogger.Debug($"[Http Server] : Http Response Sent : {response.StatusCode} : {response.ContentType} : Process Time {response.ResponseDuration}ms : Format Time {response.FormatDuration}ms : Write Time {response.WriteDuration}ms : Total Time {totalTime}ms");
 
             // Format Messages
             if (!response.FormatMessages.IsNullOrEmpty())
             {
                 foreach (var message in response.FormatMessages)
                 {
-                    _agentValidationLogger.Debug($"[Http Server] : Formatter Message : {message}");
+                    _agentValidationLogger.Trace($"[Http Server] : Formatter Message : {message}");
                 }
             }
 
