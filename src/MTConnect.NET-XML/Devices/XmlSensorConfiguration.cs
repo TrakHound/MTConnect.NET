@@ -92,10 +92,14 @@ namespace MTConnect.Devices.Xml
                 // Write Channels
                 if (!sensorConfiguration.Channels.IsNullOrEmpty())
                 {
+                    writer.WriteStartElement("Channels");
+
                     foreach (var channel in sensorConfiguration.Channels)
                     {
                         XmlChannel.WriteXml(writer, channel);
                     }
+
+                    writer.WriteEndElement();
                 }
 
                 writer.WriteEndElement();
