@@ -344,7 +344,7 @@ namespace MTConnect.Applications.Agents
                     _mtconnectAgent.AssetsRequestReceived += AssetsRequested;
                     _mtconnectAgent.DeviceAssetsRequestReceived += DeviceAssetsRequested;
                     _mtconnectAgent.AssetsResponseSent += AssetsSent;
-                    _mtconnectAgent.ObservationAdded += ObservationAdded;
+                    //_mtconnectAgent.ObservationAdded += ObservationAdded;
                     _mtconnectAgent.InvalidComponentAdded += InvalidComponent;
                     _mtconnectAgent.InvalidCompositionAdded += InvalidComposition;
                     _mtconnectAgent.InvalidDataItemAdded += InvalidDataItem;
@@ -547,7 +547,7 @@ namespace MTConnect.Applications.Agents
                     assetLastCount = assetCount;
                 };
                 _metricsTimer.Start();
-            }           
+            }
         }
 
         #endregion
@@ -605,25 +605,25 @@ namespace MTConnect.Applications.Agents
 
         private void DevicesRequested(string deviceName)
         {
-            _agentLogger.Trace($"[Agent] : MTConnectDevices Requested : " + deviceName);
+            _agentLogger.Debug($"[Agent] : MTConnectDevices Requested : " + deviceName);
         }
 
         private void DevicesSent(IDevicesResponseDocument document)
         {
             if (document != null && document.Header != null)
             {
-                _agentLogger.Trace($"[Agent] : MTConnectDevices Sent : " + document.Header.CreationTime);
+                _agentLogger.Log(_logLevel, $"[Agent] : MTConnectDevices Sent : " + document.Header.CreationTime);
             }
         }
 
         private void StreamsRequested(string deviceName)
         {
-            _agentLogger.Trace($"[Agent] : MTConnectStreams Requested : " + deviceName);
+            _agentLogger.Debug($"[Agent] : MTConnectStreams Requested : " + deviceName);
         }
 
         private void StreamsSent(object sender, EventArgs args)
         {
-            _agentLogger.Trace("[Agent] : MTConnectStreams Sent");
+            _agentLogger.Log(_logLevel, "[Agent] : MTConnectStreams Sent");
         }
 
         private void AssetsRequested(IEnumerable<string> assetIds)
@@ -634,12 +634,12 @@ namespace MTConnect.Applications.Agents
                 string.Join(";", assetIds.ToArray());
             }
 
-            _agentLogger.Trace($"[Agent] : MTConnectAssets Requested : AssetIds = " + ids);
+            _agentLogger.Debug($"[Agent] : MTConnectAssets Requested : AssetIds = " + ids);
         }
 
         private void DeviceAssetsRequested(string deviceUuid)
         {
-            _agentLogger.Trace($"[Agent] : MTConnectAssets Requested : DeviceUuid = " + deviceUuid);
+            _agentLogger.Debug($"[Agent] : MTConnectAssets Requested : DeviceUuid = " + deviceUuid);
         }
 
 
@@ -647,7 +647,7 @@ namespace MTConnect.Applications.Agents
         {
             if (document != null && document.Header != null)
             {
-                _agentLogger.Trace($"[Agent] : MTConnectAssets Sent : " + document.Header.CreationTime);
+                _agentLogger.Log(_logLevel, $"[Agent] : MTConnectAssets Sent : " + document.Header.CreationTime);
             }
         }
 
@@ -668,7 +668,7 @@ namespace MTConnect.Applications.Agents
             {
                 foreach (var value in observation.Values)
                 {
-                    _agentLogger.Trace($"[Agent] : Observation Added Successfully : {observation.DeviceUuid} : {observation.DataItemId} : {value.Key} = {value.Value}");
+                    _agentLogger.Debug($"[Agent] : Observation Added Successfully : {observation.DeviceUuid} : {observation.DataItemId} : {value.Key} = {value.Value}");
                 }
             }
         }

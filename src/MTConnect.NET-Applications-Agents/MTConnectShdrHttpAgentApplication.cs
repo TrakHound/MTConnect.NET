@@ -133,7 +133,7 @@ namespace MTConnect.Applications.Agents
         {
             if (configuration != null)
             {
-                var adapterComponent = new ShdrAdapterComponent(configuration, idSuffix, device , device);
+                var adapterComponent = new ShdrAdapterComponent(configuration, idSuffix, device, device);
 
                 // Add Adapter Component to Agent Device
                 Agent.Agent.AddAdapterComponent(adapterComponent);

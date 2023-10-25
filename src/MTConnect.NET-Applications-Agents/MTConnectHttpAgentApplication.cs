@@ -1,12 +1,13 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
+using Ceen;
 using MTConnect.Configurations;
 using MTConnect.Servers.Http;
 using NLog;
 using System;
 using System.Collections.Generic;
-using System.Net;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 
 namespace MTConnect.Applications.Agents
@@ -82,34 +83,35 @@ namespace MTConnect.Applications.Agents
             _configuration = configuration as IHttpAgentApplicationConfiguration;
         }
 
-        protected virtual MTConnectHttpAgentServer OnHttpServerInitialize(int port)
+        protected virtual MTConnectHttpAgentServer OnHttpServerInitialize()
         {
-            return new MTConnectHttpAgentServer(_configuration, Agent, null, port);
+            return new MTConnectHttpAgentServer(_configuration, Agent);
         }
 
-        protected override void OnStartAgentBeforeLoad(IEnumerable<DeviceConfiguration> devices, bool initializeDataItems = false) 
+        protected override void OnStartAgentBeforeLoad(IEnumerable<DeviceConfiguration> devices, bool initializeDataItems = false)
         {
             // Intialize the Http Server
-            _httpServer = OnHttpServerInitialize(_port);
+            _httpServer = OnHttpServerInitialize();
 
-            _httpServer.ListenerStarted += HttpListenerStarted;
-            _httpServer.ListenerStopped += HttpListenerStopped;
+            _httpServer.ServerStarted += HttpListenerStarted;
+            _httpServer.ServerStopped += HttpListenerStopped;
+            _httpServer.ServerCertificateLoaded += HttpServerCertificateLoaded;
 
             // Setup Http Server Logging
-            if (_verboseLogging)
-            {
-                _httpServer.ListenerException += HttpListenerException;
-                _httpServer.ClientConnected += HttpClientConnected;
-                _httpServer.ClientDisconnected += HttpClientDisconnected;
-                _httpServer.ClientException += HttpClientException;
-                _httpServer.ResponseSent += HttpResponseSent;
-            }
+            //if (_verboseLogging)
+            //{
+            _httpServer.ServerException += HttpListenerException;
+            _httpServer.ClientConnected += HttpClientConnected;
+            _httpServer.ClientDisconnected += HttpClientDisconnected;
+            _httpServer.ClientException += HttpClientException;
+            _httpServer.ResponseSent += HttpResponseSent;
+            //}
 
             // Start the Http Server
             _httpServer.Start();
         }
 
-        protected override void OnStopAgent() 
+        protected override void OnStopAgent()
         {
             if (_httpServer != null) _httpServer.Stop();
             Thread.Sleep(2000); // Delay 2 seconds to allow Http Server to stop
@@ -143,14 +145,19 @@ namespace MTConnect.Applications.Agents
             _httpLogger.Info($"[Http Server] : Listener Stopped for " + prefix);
         }
 
+        private void HttpServerCertificateLoaded(object sender, X509Certificate2 certificate)
+        {
+            _httpLogger.Info($"[Http Server] : TLS Certificate Loaded : {certificate.ToString()}");
+        }
+
         private void HttpListenerException(object sender, Exception exception)
         {
             _httpLogger.Warn($"[Http Server] : Listener Exception : " + exception.Message);
         }
 
-        private void HttpClientConnected(object sender, HttpListenerRequest request)
+        private void HttpClientConnected(object sender, IHttpRequest request)
         {
-            _httpLogger.Debug($"[Http Server] : Http Client Connected : (" + request.HttpMethod + ") : " + request.LocalEndPoint + " : " + request.Url);
+            _httpLogger.Debug($"[Http Server] : Http Client Connected : (" + request.Method + ") : " + request.RemoteEndPoint + " : " + request.OriginalPath);
         }
 
         private void HttpClientDisconnected(object sender, string remoteEndPoint)
@@ -166,14 +173,14 @@ namespace MTConnect.Applications.Agents
         private void HttpResponseSent(object sender, MTConnectHttpResponse response)
         {
             var totalTime = response.ResponseDuration + response.FormatDuration + response.WriteDuration;
-            _httpLogger.Debug($"[Http Server] : Http Response Sent : {response.StatusCode} : {response.ContentType} : Process Time {response.ResponseDuration}ms : Format Time {response.FormatDuration}ms : Write Time {response.WriteDuration}ms : Total Time {totalTime}ms");
+            _httpLogger.Info($"[Http Server] : Http Response Sent : {response.StatusCode} : {response.ContentType} : Agent Process Time {response.ResponseDuration}ms : Document Format Time {response.FormatDuration}ms : Write Time {response.WriteDuration}ms : Total Response Time {totalTime}ms");
 
             // Format Messages
             if (!response.FormatMessages.IsNullOrEmpty())
             {
                 foreach (var message in response.FormatMessages)
                 {
-                    _agentValidationLogger.Trace($"[Http Server] : Formatter Message : {message}");
+                    _agentValidationLogger.Debug($"[Http Server] : Formatter Message : {message}");
                 }
             }
 
