@@ -16,6 +16,8 @@ namespace MTConnect.SysML
 
         public string DataType { get; set; }
 
+        public string DataTypeUmlId { get; set; }
+
         public bool IsArray { get; set; }
 
 
@@ -38,6 +40,7 @@ namespace MTConnect.SysML
                 Id = $"{idPrefix}.{name}";
                 Name = name;
                 DataType = ParseType(xmiDocument, umlProperty.PropertyType);
+                DataTypeUmlId = umlProperty.PropertyType;
 
                 var description = umlProperty.Comments?.FirstOrDefault().Body;
                 Description = ModelHelper.ProcessDescription(description);

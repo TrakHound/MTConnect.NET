@@ -1,57 +1,25 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-using MTConnect.Devices.Configurations;
-using MTConnect.Devices.DataItems;
-using MTConnect.Devices.References;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace MTConnect.Devices
 {
-    /// <summary>
-    /// The primary container element of each device. 
-    /// Device is contained within the top level Devices container. 
-    /// There MAY be multiple Device elements in an XML document.
-    /// </summary>
-    public class Device : IDevice
+    public partial class Device : IDevice
     {
         public const string TypeId = "Device";
-        public const string DescriptionText = "The primary container element of each device. Device is contained within the top level Devices container. There MAY be multiple Device elements in an XML document.";
-
         private static readonly Version DefaultMaximumVersion = null;
         private static readonly Version DefaultMinimumVersion = MTConnectVersions.Version10;
 
-
         public MTConnectEntityType EntityType => MTConnectEntityType.Device;
 
-        /// <summary>
-        /// The unique identifier for this Device in the document.
-        /// An id MUST be unique across all the id attributes in the document.
-        /// An XML ID-type.
-        /// </summary>
-        public string Id { get; set; }
 
         /// <summary>
-        /// The name of the Device.
-        /// THis name should be unique within the XML document to allow for easier data integration.
-        /// An NMTOKEN XML type.
+        /// The Agent InstanceId that produced this Device
         /// </summary>
-        public string Name { get; set; }
-
-        /// <summary>
-        /// A unique identifier that will only refer ot this Device.
-        /// For example, this may be the manufacturer's code and the serial number.
-        /// The uuid shoudl be alphanumeric and not exceeding 255 characters.
-        /// An NMTOKEN XML type.
-        /// </summary>
-        public string Uuid { get; set; }
-
-        /// <summary>
-        /// The type of Device
-        /// </summary>
-        public string Type { get; set; }
+        public long InstanceId { get; set; }
 
         /// <summary>
         /// DEPRECATED IN REL. 1.1
@@ -59,82 +27,9 @@ namespace MTConnect.Devices
         public string Iso841Class { get; set; }
 
         /// <summary>
-        /// The name the device manufacturer assigned to this Device.
-        /// If the native name is not provided, it MUST be the name.
+        /// The Container that this Device is directly associated with
         /// </summary>
-        public string NativeName { get; set; }
-
-        /// <summary>
-        /// The interval in milliseconds between the completion of the reading of one sample of data from a device until the beginning of the next sampling of that data.
-        /// This is the number of milliseconds between data captures.
-        /// If the sample interval is smaller than one millisecond, the number can be represented as a floating point number.
-        /// For example, an interval of 100 microseconds would be 0.1.
-        /// </summary>
-        public double SampleInterval { get; set; }
-
-        /// <summary>
-        /// DEPRECATED IN REL. 1.2 (REPLACED BY SampleInterval)
-        /// </summary>
-        public double SampleRate { get; set; }
-
-        /// <summary>
-        /// Specifies the CoordinateSystem for this Component and its children.
-        /// </summary>
-        public string CoordinateSystemIdRef { get; set; }
-
-        /// <summary>
-        /// The MTConnect version of the Devices Information Model used to configure
-        /// the information to be published for a piece of equipment in an MTConnect Response Document.
-        /// </summary>
-        public virtual Version MTConnectVersion { get; set; }
-
-		/// <summary>
-		/// Condensed message digest from a secure one-way hash function. FIPS PUB 180-4
-		/// </summary>
-		public string Hash { get; set; }
-
-		/// <summary>
-		/// An element that can contain any descriptive content. 
-		/// This can contain information about the Component and manufacturer specific details.
-		/// </summary>
-		public virtual IDescription Description { get; set; }
-
-        /// <summary>
-        /// An XML element that contains technical information about a piece of equipment describing its physical layout or functional characteristics.
-        /// </summary>
-        public IConfiguration Configuration { get; set; }
-
-        /// <summary>
-        /// A container for the Data XML Elements provided by this Device.
-        /// The data items define the measured values to be reported by this Device.
-        /// </summary>
-        public virtual IEnumerable<IDataItem> DataItems { get; set; }
-
-        /// <summary>
-        /// A container for SubComponent XML Elements.
-        /// </summary>
-        public virtual IEnumerable<IComponent> Components { get; set; }
-
-        /// <summary>
-        /// A container for the Composition elements associated with this Device element.
-        /// </summary>
-        public virtual IEnumerable<IComposition> Compositions { get; set; }
-
-        /// <summary>
-        /// An XML container consisting of one or more types of Reference XML elements.
-        /// </summary>
-        public IEnumerable<IReference> References { get; set; }
-
-        /// <summary>
-        /// The Agent InstanceId that produced this Device
-        /// </summary>
-        public long InstanceId { get; set; }
-
-
-		/// <summary>
-		/// The Container that this Device is directly associated with
-		/// </summary>
-		public IContainer Parent { get; set; }
+        public IContainer Parent { get; set; }
 
 
         /// <summary>
@@ -401,7 +296,8 @@ namespace MTConnect.Devices
                     RemoveComponent(subComponent, componentId);
                 }
 
-                component.Components = components;
+                ((Component)component).Components = components;
+                //component.Components = components;
             }
         }
 
@@ -489,7 +385,7 @@ namespace MTConnect.Devices
                         var compositions = new List<IComposition>();
                         compositions.AddRange(component.Compositions);
                         compositions.RemoveAll(o => o.Id == compositionId);
-                        component.Compositions = compositions;
+                        ((Component)component).Compositions = compositions;
                     }
                 }
             }

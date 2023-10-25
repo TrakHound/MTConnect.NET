@@ -12,14 +12,8 @@ using System.Text.RegularExpressions;
 
 namespace MTConnect.Devices
 {
-    /// <summary>
-    /// Composition XML elements are used to describe the lowest level physical building blocks of a piece of equipment contained within a Component.
-    /// </summary>
-    public class Composition : IComposition
+    public partial class Composition : IComposition
     {
-        public const string DescriptionText = "Composition XML elements are used to describe the lowest level physical building blocks of a piece of equipment contained within a Component.";
-
-
         private static readonly Version DefaultMaximumVersion = null;
         private static readonly Version DefaultMinimumVersion = MTConnectVersions.Version14;
         private static readonly Dictionary<string, string> _typeIds = new Dictionary<string, string>();
@@ -30,77 +24,8 @@ namespace MTConnect.Devices
 
         public MTConnectEntityType EntityType => MTConnectEntityType.Composition;
 
-        /// <summary>
-        /// The unique identifier for this Component in the document.
-        /// An id MUST be unique across all the id attributes in the document.
-        /// An XML ID-type.
-        /// </summary>
-        public string Id { get; set; }
-
-        /// <summary>
-        /// The type of component
-        /// </summary>
-        public string Type { get; set; }
-
-        /// <summary>
-        /// The name of the Component.
-        /// Name is an optional attribute.
-        /// If provided, Name MUST be unique within a type of Component or subComponent.
-        /// It is recommended that duplicate names SHOULD NOT occur within a Device.
-        /// An NMTOKEN XML type.
-        /// </summary>
-        public string Name { get; set; }
-
-        /// <summary>
-        /// The name the device manufacturer assigned to the Component.
-        /// If the native name is not provided it MUST be the Name.
-        /// </summary>
-        public string NativeName { get; set; }
-
-        /// <summary>
-        /// The interval in milliseconds between the completion of the reading of one sample of data from a component until the beginning of the next sampling of that data.
-        /// This is the number of milliseconds between data captures. 
-        /// If the sample interval is smaller than one millisecond, the number can be represented as a floating point number.
-        /// For example, an interval of 100 microseconds would be 0.1.
-        /// </summary>
-        public double SampleInterval { get; set; }
-
-        /// <summary>
-        /// DEPRECATED IN REL. 1.2 (REPLACED BY sampleInterval)
-        /// </summary>
-        public double SampleRate { get; set; }
-
-        /// <summary>
-        /// A unique identifier that will only refer to this Component.
-        /// For example, this can be the manufacturer's code or the serial number.
-        /// The uuid should be alphanumeric and not exceeding 255 characters.
-        /// An NMTOKEN XML type.
-        /// </summary>
-        public string Uuid { get; set; }
-
-        /// <summary>
-        /// Specifies the CoordinateSystem for this Composition and its children.
-        /// </summary>
-        public string CoordinateSystemIdRef { get; set; }
-
-        /// <summary>
-        /// An element that can contain any descriptive content. 
-        /// This can contain information about the Component and manufacturer specific details.
-        /// </summary>
-        public virtual IDescription Description { get; set; }
-
-        /// <summary>
-        /// An element that can contain descriptive content defining the configuration information for a Component.
-        /// </summary>
-        public IConfiguration Configuration { get; set; }
 
         public virtual IEnumerable<IDataItem> DataItems { get; set; }
-
-        /// <summary>
-        /// An XML container consisting of one or more types of Reference XML elements.
-        /// </summary>
-        public IEnumerable<IReference> References { get; set; }
-
 
         /// <summary>
         /// The Container (Component or Device) that this Composition is directly associated with
@@ -120,12 +45,6 @@ namespace MTConnect.Devices
 				return _hash;
 			}
 		}
-
-
-		///// <summary>
-		///// A MD5 Hash of the Composition that can be used to compare Composition objects
-		///// </summary>
-		//public string ChangeId => CreateChangeId();
 
 
 		/// <summary>

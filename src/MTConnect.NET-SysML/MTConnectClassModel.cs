@@ -59,7 +59,7 @@ namespace MTConnect.SysML
                         propertyModels.Add(new MTConnectPropertyModel(xmiDocument, id, umlProperty));
                     }
 
-                    Properties = propertyModels;
+                    Properties = propertyModels.OrderBy(o => o.Name).ToList();
                 }
             }
         }

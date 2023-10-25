@@ -6,8 +6,6 @@ using MTConnect.Assets;
 using MTConnect.Configurations;
 using MTConnect.Devices;
 using MTConnect.Devices.DataItems;
-using MTConnect.Devices.DataItems.Events;
-using MTConnect.Devices.DataItems.Samples;
 using MTConnect.Observations;
 using MTConnect.Observations.Input;
 using MTConnect.Observations.Output;
@@ -107,7 +105,7 @@ namespace MTConnect.Agents
                 if (version == null) version = MTConnectVersions.Max;
 
                 _mtconnectVersion = version;
-                if (_agent != null) _agent.MTConnectVersion = _mtconnectVersion;
+                if (_agent != null) _agent.MTConnectVersion = _mtconnectVersion.ToString();
             }
         }
 
@@ -1715,7 +1713,7 @@ namespace MTConnect.Agents
                 if (device != null)
                 {
                     // Set Device UUID Property
-                    asset.DeviceUuid = device.Uuid;
+                    ((Asset)asset).DeviceUuid = device.Uuid;
 
                     // Set InstanceId
                     asset.InstanceId = _instanceId;
@@ -1723,12 +1721,12 @@ namespace MTConnect.Agents
                     // Set Timestamp
                     if ((!ignoreTimestamp.HasValue && _configuration.IgnoreTimestamps) || (ignoreTimestamp.HasValue && ignoreTimestamp.Value))
                     {
-                        asset.Timestamp = UnixDateTime.Now;
+                        ((Asset)asset).Timestamp = DateTime.Now;
                     }
-                    else asset.Timestamp = asset.Timestamp > 0 ? asset.Timestamp : UnixDateTime.Now;
+                    else ((Asset)asset).Timestamp = asset.Timestamp > DateTime.Now ? asset.Timestamp : DateTime.Now;
 
                     // Set Asset Hash
-                    asset.Hash = asset.GenerateHash();
+                    ((Asset)asset).Hash = asset.GenerateHash();
 
                     // Validate Asset based on Device's MTConnectVersion
                     var validationResults = asset.IsValid(device.MTConnectVersion);
@@ -1750,7 +1748,7 @@ namespace MTConnect.Agents
                                     assetChangedObservation.DataItemKey = assetChanged.Id;
                                     assetChangedObservation.AddValue(ValueKeys.Result, asset.AssetId);
                                     assetChangedObservation.AddValue(ValueKeys.AssetType, asset.Type);
-                                    assetChangedObservation.Timestamp = asset.Timestamp;
+                                    assetChangedObservation.Timestamp = asset.Timestamp.ToUnixTime();
                                     AddObservation(deviceUuid, assetChangedObservation);
                                 }
                             }

@@ -85,6 +85,15 @@ namespace MTConnect.Devices.DataItems
             return null;
         }
 {{- end }}
+{{ else }}
+
+        public {{name}}(string deviceId)
+        {
+            Id = CreateId(deviceId, NameId);
+            Category = CategoryId;
+            Type = TypeId;
+            Name = NameId;
+        }
 {{- end }}
     }
 }

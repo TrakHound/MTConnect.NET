@@ -59,10 +59,12 @@ namespace MTConnect.SysML.CSharp
                                 // Convert Numbers to Strings (leading numbers aren't supported as Enum values)
                                 var name = value.Name;
                                 name = StringFunctions.ReplaceNumbersWithWords(name);
-                                //value.Name = name.ToTitleCase();
 
                                 // Replace '/' (not supported as Enum values)
-                                value.Name = value.Name.Replace('/', '_');
+                                name = name.Replace('/', '_');
+
+                                name = name.ToUnderscoreUpper();
+                                value.Name = name;
                             }
 
                             //value.Name = value.Name.Replace("/", "_PER_");

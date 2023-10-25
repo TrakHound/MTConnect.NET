@@ -10,6 +10,9 @@ namespace MTConnect.SysML.Models.Devices
 
         public List<MTConnectEnumModel> Enums { get; set; } = new();
 
-        public MTConnectConfigurationModel(XmiDocument xmiDocument, UmlClass umlClass) : base(xmiDocument, "Devices.Configurations.Configuration", umlClass) { }
+        public MTConnectConfigurationModel(XmiDocument xmiDocument, UmlClass umlClass) : base(xmiDocument, "Devices.Configurations.Configuration", umlClass)
+        {
+            ParentName = null;
+        }
     }
 }

@@ -10,20 +10,20 @@ namespace MTConnect.Devices
     /// Replaced in the XML document by types of Component elements representing physical and logical parts of the Device.
     /// There can be multiple types of Component XML Elements in the document.
     /// </summary>
-    public interface IComponent : IContainer
+    public partial interface IComponent : IContainer
     {
         bool IsOrganizer { get; }
 
 
-        /// <summary>
-        /// A container for the Component elements associated with this Component element.
-        /// </summary>
-        IEnumerable<IComponent> Components { get; set; }
+        ///// <summary>
+        ///// A container for the Component elements associated with this Component element.
+        ///// </summary>
+        //IEnumerable<IComponent> Components { get; set; }
 
-        /// <summary>
-        /// A container for the Composition elements associated with this Component element.
-        /// </summary>
-        IEnumerable<IComposition> Compositions { get; set; }
+        ///// <summary>
+        ///// A container for the Composition elements associated with this Component element.
+        ///// </summary>
+        //IEnumerable<IComposition> Compositions { get; set; }
 
 
         /// <summary>

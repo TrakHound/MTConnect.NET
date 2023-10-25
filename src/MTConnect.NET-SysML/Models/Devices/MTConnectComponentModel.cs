@@ -8,6 +8,7 @@ namespace MTConnect.SysML.Models.Devices
         public MTConnectComponentModel(XmiDocument xmiDocument, UmlClass umlClass) : base(xmiDocument, "Devices.Component", umlClass)
         {
             IsAbstract = false;
+            ParentName = null;
 
             Properties?.RemoveAll(o => o.Name == "ComponentStream");
             Properties?.RemoveAll(o => o.Name == "CompositionStream");

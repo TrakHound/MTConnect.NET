@@ -3,7 +3,7 @@
 
 using MTConnect.Agents;
 using MTConnect.Devices.Components;
-using MTConnect.Devices.DataItems.Events;
+using MTConnect.Devices.DataItems;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -52,7 +52,7 @@ namespace MTConnect.Devices
                 Id = $"agent_{_agent.Uuid.ToMD5Hash().Substring(0, 10)}";
                 Name = "agent";
                 Uuid = _agent.Uuid;
-                MTConnectVersion = _agent.MTConnectVersion;
+                MTConnectVersion = _agent.MTConnectVersion.ToString();
             }
         }
 

@@ -51,7 +51,7 @@ namespace MTConnect.SysML
                 if (match != null)
                 {
                     var description = match.Comments?.FirstOrDefault().Body;
-                    return ModelHelper.ProcessDescription(description);
+                    return ProcessDescription(description);
                 }
             }
 
@@ -300,6 +300,7 @@ namespace MTConnect.SysML
 
                 result = result.Replace("\n", "");
                 result = result.Replace("\r", "");
+                result = result.Replace("\"", "'");
                 result = UppercaseFirstWord(result);
 
 

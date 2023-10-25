@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 
 namespace MTConnect.SysML.CSharp
 {
@@ -90,6 +89,11 @@ namespace MTConnect.SysML.CSharp
                                 case "Devices.Composition": ((ClassModel)template).IsPartial = true; break;
                                 case "Devices.DataItem": ((ClassModel)template).IsPartial = true; break;
                                 case "Assets.Asset": ((ClassModel)template).IsPartial = true; break;
+                                case "Assets.ComponentConfigurationParameters.ComponentConfigurationParameter": ((ClassModel)template).IsPartial = true; break;
+                                case "Assets.CuttingTools.CuttingTool": ((ClassModel)template).IsPartial = true; break;
+                                case "Assets.Files.File": ((ClassModel)template).IsPartial = true; break;
+                                case "Assets.QIF.QIFDocument": ((ClassModel)template).IsPartial = true; break;
+                                case "Assets.RawMaterials.RawMaterial": ((ClassModel)template).IsPartial = true; break;
                             }
 
                             templates.Add(template);
@@ -150,6 +154,7 @@ namespace MTConnect.SysML.CSharp
 
             return exportModels;
         }
+
 
         private static void WriteModel(ITemplateModel template, string outputPath)
         {

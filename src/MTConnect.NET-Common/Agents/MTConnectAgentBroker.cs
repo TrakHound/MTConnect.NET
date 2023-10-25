@@ -6,8 +6,6 @@ using MTConnect.Buffers;
 using MTConnect.Configurations;
 using MTConnect.Devices;
 using MTConnect.Devices.DataItems;
-using MTConnect.Devices.DataItems.Events;
-using MTConnect.Devices.DataItems.Samples;
 using MTConnect.Errors;
 using MTConnect.Headers;
 using MTConnect.Observations;

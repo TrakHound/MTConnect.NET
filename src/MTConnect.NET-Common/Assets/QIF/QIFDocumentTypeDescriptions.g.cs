@@ -1,0 +1,38 @@
+// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// TrakHound Inc. licenses this file to you under the MIT license.
+
+namespace MTConnect.Assets.QIF
+{
+    public static class QIFDocumentTypeDescriptions
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        public const string MEASUREMENT_RESOURCE = "";
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        public const string PLAN = "";
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        public const string PRODUCT = "";
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        public const string RESULTS = "";
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        public const string RULES = "";
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        public const string STATISTICS = "";
+    }
+}

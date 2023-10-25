@@ -10,7 +10,7 @@ namespace {{namespace}}
     /// </summary>
     public {{- if (is_partial) }} partial{{ end }} {{- if (is_abstract) }} abstract{{ end }} class {{name}} : {{ if (parent_name) }}{{parent_name}}, I{{name}}{{else}}I{{name}}{{ end }}
     {
-        public const string DescriptionText = "{{description}}";
+        {{ if (parent_name) }}public new const string DescriptionText = "{{description}}";{{ else }}public const string DescriptionText = "{{description}}";{{ end }}
 
 {{ i = 0 }}{{- for property in properties }}{{ i = i + 1 }}
         /// <summary>

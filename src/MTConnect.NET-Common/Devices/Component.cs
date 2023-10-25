@@ -12,15 +12,8 @@ using System.Text.RegularExpressions;
 
 namespace MTConnect.Devices
 {
-    /// <summary>
-    /// An abstract XML Element.
-    /// Replaced in the XML document by types of Component elements representing physical and logical parts of the Device.
-    /// There can be multiple types of Component XML Elements in the document.
-    /// </summary>
-    public class Component : IComponent
+    public partial class Component : IComponent
     {
-        public const string DescriptionText = "An abstract XML Element. Replaced in the XML document by types of Component elements representing physical and logical parts of the Device. There can be multiple types of Component XML Elements in the document.";
-
         private static readonly Version DefaultMaximumVersion = null;
         private static readonly Version DefaultMinimumVersion = MTConnectVersions.Version10;
         private static readonly Dictionary<string, string> _typeIds = new Dictionary<string, string>();
@@ -32,90 +25,13 @@ namespace MTConnect.Devices
 
         public MTConnectEntityType EntityType => MTConnectEntityType.Component;
 
-        /// <summary>
-        /// The unique identifier for this Component in the document.
-        /// An id MUST be unique across all the id attributes in the document.
-        /// An XML ID-type.
-        /// </summary>
-        public string Id { get; set; }
 
-        /// <summary>
-        /// The type of component
-        /// </summary>
-        public string Type { get; set; }
-
-        /// <summary>
-        /// The name of the Component.
-        /// Name is an optional attribute.
-        /// If provided, Name MUST be unique within a type of Component or subComponent.
-        /// It is recommended that duplicate names SHOULD NOT occur within a Device.
-        /// An NMTOKEN XML type.
-        /// </summary>
-        public string Name { get; set; }
-
-        /// <summary>
-        /// The name the device manufacturer assigned to the Component.
-        /// If the native name is not provided it MUST be the Name.
-        /// </summary>
-        public string NativeName { get; set; }
-
-        /// <summary>
-        /// The interval in milliseconds between the completion of the reading of one sample of data from a component until the beginning of the next sampling of that data.
-        /// This is the number of milliseconds between data captures. 
-        /// If the sample interval is smaller than one millisecond, the number can be represented as a floating point number.
-        /// For example, an interval of 100 microseconds would be 0.1.
-        /// </summary>
-        public double SampleInterval { get; set; }
-
-        /// <summary>
-        /// DEPRECATED IN REL. 1.2 (REPLACED BY sampleInterval)
-        /// </summary>
-        public double SampleRate { get; set; }
-
-        /// <summary>
-        /// A unique identifier that will only refer to this Component.
-        /// For example, this can be the manufacturer's code or the serial number.
-        /// The uuid should be alphanumeric and not exceeding 255 characters.
-        /// An NMTOKEN XML type.
-        /// </summary>
-        public string Uuid { get; set; }
-
-        /// <summary>
-        /// Specifies the CoordinateSystem for this Component and its children.
-        /// </summary>
-        public string CoordinateSystemIdRef { get; set; }
-
-        /// <summary>
-        /// An element that can contain any descriptive content. 
-        /// This can contain information about the Component and manufacturer specific details.
-        /// </summary>
-        public virtual IDescription Description { get; set; }
-
-        /// <summary>
-        /// An XML element that contains technical information about a piece of equipment describing its physical layout or functional characteristics.
-        /// </summary>
-        public IConfiguration Configuration { get; set; }
-
-        /// <summary>
-        /// A container for the DataItem elements associated with this Component element.
-        /// </summary>
         public virtual IEnumerable<IDataItem> DataItems { get; set; }
 
         /// <summary>
-        /// A container for the Composition elements associated with this Component element.
+        /// The Type of Component
         /// </summary>
-        public virtual IEnumerable<IComposition> Compositions { get; set; }
-
-        /// <summary>
-        /// A container for the SubComponent elements associated with this Component element.
-        /// </summary>
-        public virtual IEnumerable<IComponent> Components { get; set; }
-
-        /// <summary>
-        /// An XML container consisting of one or more types of Reference XML elements.
-        /// </summary>
-        public IEnumerable<IReference> References { get; set; }
-
+        public string Type { get; set; }
 
         /// <summary>
         /// The Container (Component or Device) that this Component is directly associated with
@@ -135,11 +51,6 @@ namespace MTConnect.Devices
 				return _hash;
 			}
 		}
-
-		///// <summary>
-		///// A MD5 Hash of the Component that can be used to compare Component objects
-		///// </summary>
-		//public string ChangeId => CreateChangeId();
 
 
 		/// <summary>
@@ -417,7 +328,7 @@ namespace MTConnect.Devices
                     RemoveComponent(subComponent, componentId);
                 }
 
-                component.Components = components;
+                ((Component)component).AddComponents(components);
             }
         }
 
@@ -505,7 +416,8 @@ namespace MTConnect.Devices
                         var compositions = new List<IComposition>();
                         compositions.AddRange(component.Compositions);
                         compositions.RemoveAll(o => o.Id == compositionId);
-                        component.Compositions = compositions;
+                        ((Component)component).AddCompositions(compositions);
+                        //component.Compositions = compositions;
                     }
                 }
             }

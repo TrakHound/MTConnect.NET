@@ -8,7 +8,7 @@ namespace MTConnect.Devices.Components
     /// <summary>
     /// {{description}}
     /// </summary>
-    public {{- if (is_abstract) }} abstract{{ end }} class {{name}}Component : {{ if (parent_type) }}{{parent_type}}{{else}}Component{{ end }} {{- if (is_organizer) }}, IOrganizerComponent{{ end }}
+    public {{- if (is_abstract) }} abstract{{ end }} class {{name}} : {{ if (parent_type) }}{{parent_type}}{{else}}Component{{ end }} {{- if (is_organizer) }}, IOrganizerComponent{{ end }}
     {
         public const string TypeId = "{{type}}";
         public const string NameId = "{{default_name}}";
@@ -19,6 +19,6 @@ namespace MTConnect.Devices.Components
         {{ if (minimum_version_enum) }}public override System.Version MinimumVersion => {{minimum_version_enum}};{{ end }} 
 
 
-        public {{name}}Component()  { Type = TypeId; }
+        public {{name}}() { Type = TypeId; }
     }
 }
