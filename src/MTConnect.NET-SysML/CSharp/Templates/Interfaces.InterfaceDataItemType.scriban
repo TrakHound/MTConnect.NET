@@ -1,0 +1,39 @@
+// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// TrakHound Inc. licenses this file to you under the MIT license.
+
+using MTConnect.Devices;
+
+namespace MTConnect.Interfaces
+{
+    /// <summary>
+    /// {{description}}
+    /// </summary>
+    public class {{name}} : InterfaceDataItem
+    {
+        public const DataItemCategory CategoryId = DataItemCategory.{{category}};
+        public const string TypeId = "{{type}}";
+        public const string NameId = "{{default_name}}";
+        {{ if (units_enum) }}public const string DefaultUnits = {{units_enum}};{{ end }}     
+        public new const string DescriptionText = "{{description}}";
+        
+        public override string TypeDescription => DescriptionText;
+        {{ if (maximum_version_enum) }}public override System.Version MaximumVersion => {{maximum_version_enum}};{{ end }}
+        {{ if (minimum_version_enum) }}public override System.Version MinimumVersion => {{minimum_version_enum}};{{ end }}       
+
+
+        public {{name}}()
+        {
+            Category = CategoryId;
+            Type = TypeId;
+            {{ if (units_enum) }}Units = DefaultUnits;{{ end }}
+        }
+
+        public {{name}}(string deviceId)
+        {
+            Id = CreateId(deviceId, NameId);
+            Category = CategoryId;
+            Type = TypeId;
+            Name = NameId;
+        }
+    }
+}

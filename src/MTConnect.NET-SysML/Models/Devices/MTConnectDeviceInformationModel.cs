@@ -1,5 +1,4 @@
-﻿using MTConnect.SysML.CSharp;
-using MTConnect.SysML.Xmi;
+﻿using MTConnect.SysML.Xmi;
 using System.Linq;
 
 namespace MTConnect.SysML.Models.Devices

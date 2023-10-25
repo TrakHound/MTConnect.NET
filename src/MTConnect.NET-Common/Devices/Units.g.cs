@@ -3,7 +3,7 @@
 
 namespace MTConnect.Devices
 {
-    public static class Units
+    public static partial class Units
     {
         /// <summary>
         /// Amps.

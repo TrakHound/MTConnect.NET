@@ -1461,7 +1461,7 @@ namespace MTConnect.Agents
                             assetChangedObservation.DataItemKey = assetRemoved.Id;
                             assetChangedObservation.AddValue(ValueKeys.Result, asset.AssetId);
                             assetChangedObservation.AddValue(ValueKeys.AssetType, asset.Type);
-                            assetChangedObservation.Timestamp = asset.Timestamp;
+                            assetChangedObservation.Timestamp = asset.Timestamp.ToUnixTime();
                             AddObservation(asset.DeviceUuid, assetChangedObservation);
                         }
                     }

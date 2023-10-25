@@ -11,6 +11,8 @@ namespace MTConnect.SysML.CSharp
     {
         public string Namespace => NamespaceHelper.GetNamespace(Id);
 
+        public bool IsPartial { get; set; }
+
 
         public EnumStringModel() { }
 

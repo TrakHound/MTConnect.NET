@@ -13,6 +13,9 @@
 		<None Update="CSharp\Templates\Assets.CuttingToolMeasurement.scriban">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
+		<None Update="CSharp\Templates\Interfaces.InterfaceDataItemType.scriban">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
 		<None Update="CSharp\Templates\EnumDescriptions.scriban">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>

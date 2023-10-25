@@ -3,7 +3,7 @@
 
 namespace {{namespace}}
 {
-    public static class {{name}}
+    public static {{- if (is_partial) }} partial{{ end }} class {{name}}
     {
 {{- i = 0 }}{{ for value in values }}{{ i = i + 1 }}
         /// <summary>

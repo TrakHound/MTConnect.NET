@@ -9,35 +9,26 @@ using System.Linq;
 
 namespace MTConnect.SysML.CSharp
 {
-    public class DataItemType : MTConnectDataItemType, ITemplateModel
+    public class InterfaceDataItemType : DataItemType
     {
-        public string Namespace => NamespaceHelper.GetNamespace(Id);
+        public InterfaceDataItemType() { }
 
-        public string UnitsEnum => Units != null ? $"Devices.Units.{Units}" : null;
-
-        public string MaximumVersionEnum => MTConnectVersion.GetVersionEnum(MaximumVersion);
-
-        public string MinimumVersionEnum => MTConnectVersion.GetVersionEnum(MinimumVersion);
-
-
-        public DataItemType() { }
-
-        public DataItemType(XmiDocument xmiDocument, string category, string idPrefix, UmlClass umlClass, UmlEnumerationLiteral umlEnumerationLiteral, IEnumerable<UmlClass> subClasses = null)
+        public InterfaceDataItemType(XmiDocument xmiDocument, string category, string idPrefix, UmlClass umlClass, UmlEnumerationLiteral umlEnumerationLiteral, IEnumerable<UmlClass> subClasses = null)
             : base (xmiDocument, category, idPrefix, umlClass, umlEnumerationLiteral, subClasses) { }
 
 
-        public static DataItemType Create(MTConnectDataItemType importModel)
+        public static InterfaceDataItemType Create(MTConnectInterfaceDataItemType importModel)
         {
             if (importModel != null)
             {
-                var type = typeof(DataItemType);
+                var type = typeof(InterfaceDataItemType);
 
                 var importProperties = importModel.GetType().GetProperties();
                 var exportProperties = type.GetProperties();
 
                 if (importProperties != null && exportProperties != null)
                 {
-                    var exportModel = new DataItemType();
+                    var exportModel = new InterfaceDataItemType();
 
                     foreach (var importProperty in importProperties)
                     {
@@ -57,10 +48,9 @@ namespace MTConnect.SysML.CSharp
             return null;
         }
 
-
-        public virtual string RenderModel()
+        public override string RenderModel()
         {
-            var templateFilename = $"Devices.DataItemType.scriban";
+            var templateFilename = $"Interfaces.InterfaceDataItemType.scriban";
             var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "csharp", "templates", templateFilename);
             if (File.Exists(templatePath))
             {

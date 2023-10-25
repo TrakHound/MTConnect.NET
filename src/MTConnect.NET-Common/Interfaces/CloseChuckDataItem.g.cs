@@ -1,40 +1,38 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-using MTConnect.Devices.DataItems;
+using MTConnect.Devices;
 
 namespace MTConnect.Interfaces
 {
     /// <summary>
-    /// Operating state of the request to close a chuck.
+    /// Operating state of the service to close a chuck.
     /// </summary>
     public class CloseChuckDataItem : InterfaceDataItem
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "CLOSE_CHUCK";
-        public const string NameId = "closeChuck";
-        public new const string DescriptionText = "Operating state of the request to close a chuck.";
-
+        public const string NameId = "";
+             
+        public new const string DescriptionText = "Operating state of the service to close a chuck.";
+        
         public override string TypeDescription => DescriptionText;
-
-        public override System.Version MinimumVersion => MTConnectVersions.Version13;
+        
+        public override System.Version MinimumVersion => MTConnectVersions.Version13;       
 
 
         public CloseChuckDataItem()
         {
             Category = CategoryId;
             Type = TypeId;
+            
         }
 
-        public CloseChuckDataItem(
-            string parentId,
-            SubTypes subType
-            )
+        public CloseChuckDataItem(string deviceId)
         {
-            Id = CreateId(parentId, NameId, GetSubTypeId(subType));
+            Id = CreateId(deviceId, NameId);
             Category = CategoryId;
             Type = TypeId;
-            SubType = subType.ToString();
             Name = NameId;
         }
     }

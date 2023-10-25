@@ -14,6 +14,8 @@ namespace MTConnect.SysML
 
         public MTConnectAssetInformationModel AssetInformationModel { get; set; }
 
+        public MTConnectInterfaceInformationModel IntefaceInformationModel { get; set; }
+
 
         public static MTConnectModel Parse(string xmiPath)
         {
@@ -28,6 +30,7 @@ namespace MTConnect.SysML
                     mtconnectModel.DeviceInformationModel = new MTConnectDeviceInformationModel(doc);
                     mtconnectModel.ObservationInformationModel = new MTConnectObservationInformationModel(doc);
                     mtconnectModel.AssetInformationModel = new MTConnectAssetInformationModel(doc);
+                    mtconnectModel.IntefaceInformationModel = new MTConnectInterfaceInformationModel(doc);
 
                     return mtconnectModel;
                 }

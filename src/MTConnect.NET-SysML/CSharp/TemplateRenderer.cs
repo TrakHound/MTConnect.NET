@@ -65,7 +65,8 @@ namespace MTConnect.SysML.CSharp
 
                         ITemplateModel template = null;
 
-                        if (typeof(MTConnectDataItemType).IsAssignableFrom(type)) template = DataItemType.Create((MTConnectDataItemType)exportModel);
+                        if (typeof(MTConnectInterfaceDataItemType).IsAssignableFrom(type)) template = InterfaceDataItemType.Create((MTConnectInterfaceDataItemType)exportModel);
+                        else if (typeof(MTConnectDataItemType).IsAssignableFrom(type)) template = DataItemType.Create((MTConnectDataItemType)exportModel);
                         else if (typeof(MTConnectCompositionType).IsAssignableFrom(type)) template = CompositionType.Create((MTConnectCompositionType)exportModel);
                         else if (typeof(MTConnectComponentType).IsAssignableFrom(type)) template = ComponentType.Create((MTConnectComponentType)exportModel);
                         else if (typeof(MTConnectClassModel).IsAssignableFrom(type)) template = ClassModel.Create((MTConnectClassModel)exportModel);
@@ -82,7 +83,7 @@ namespace MTConnect.SysML.CSharp
 
                         if (template != null)
                         {
-                            switch (exportModel.Id)
+                            switch (template.Id)
                             {
                                 case "Devices.Device": ((ClassModel)template).IsPartial = true; break;
                                 case "Devices.Component": ((ClassModel)template).IsPartial = true; break;
@@ -94,6 +95,7 @@ namespace MTConnect.SysML.CSharp
                                 case "Assets.Files.File": ((ClassModel)template).IsPartial = true; break;
                                 case "Assets.QIF.QIFDocument": ((ClassModel)template).IsPartial = true; break;
                                 case "Assets.RawMaterials.RawMaterial": ((ClassModel)template).IsPartial = true; break;
+                                case "Devices.Units": ((EnumStringModel)template).IsPartial = true; break;
                             }
 
                             templates.Add(template);
