@@ -26,17 +26,17 @@ namespace MTConnect.Devices
         /// <summary>
         /// Dataitem type that defines the meaning of the key.
         /// </summary>
-        public DataItemType KeyType { get; set; }
+        public string KeyType { get; set; }
         
         /// <summary>
         /// Same as DataItem DataItem::subType. See DataItem.
         /// </summary>
-        public DataItemSubType SubType { get; set; }
+        public string SubType { get; set; }
         
         /// <summary>
         /// Same as DataItem DataItem::type. See DataItem Types.
         /// </summary>
-        public DataItemType Type { get; set; }
+        public string Type { get; set; }
         
         /// <summary>
         /// Same as DataItem DataItem::units. See Value Properties of DataItem.

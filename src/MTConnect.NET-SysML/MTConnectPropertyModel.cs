@@ -75,6 +75,12 @@ namespace MTConnect.SysML
                     // ID
                     case "_19_0_3_91b028d_1579272245466_691733_672": return "string";
 
+                    // DataItemTypeEnum
+                    case "_19_0_3_45f01b9_1579563576485_587701_22033": return "string";
+
+                    // DataItemSubTypeEnum
+                    case "_19_0_3_45f01b9_1579563592155_977172_22064": return "string";
+
                     default:
 
                         string dataType = null;

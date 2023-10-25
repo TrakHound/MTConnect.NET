@@ -71,12 +71,12 @@ namespace MTConnect.Devices.Configurations
         /// <summary>
         /// Same as DataItem DataItem::subType. See DataItem.
         /// </summary>
-        public DataItemSubType SubType { get; set; }
+        public string SubType { get; set; }
         
         /// <summary>
         /// Same as DataItem type. See DataItem Types.
         /// </summary>
-        public DataItemType Type { get; set; }
+        public string Type { get; set; }
         
         /// <summary>
         /// Same as DataItem DataItem::units. See DataItem.
