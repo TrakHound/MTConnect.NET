@@ -1,0 +1,20 @@
+// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// TrakHound Inc. licenses this file to you under the MIT license.
+
+namespace {{namespace}}
+{
+    /// <summary>
+    /// {{description}}
+    /// </summary>
+    public enum {{name}}
+    {
+{{- i = 0 }}{{ for value in values }}{{ i = i + 1 }}
+        /// <summary>
+        /// {{value.description}}
+        /// </summary>
+        {{value.name}}
+        {{- if (i < (values | array.size)) }},
+        {{ end }}
+{{- end }}
+    }
+}

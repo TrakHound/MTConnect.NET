@@ -1,0 +1,21 @@
+// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// TrakHound Inc. licenses this file to you under the MIT license.
+
+namespace {{namespace}}
+{
+    /// <summary>
+    /// {{description}}
+    /// </summary>
+    public interface I{{name}} {{- if (parent_type) }} : I{{parent_type}}{{ end }}
+    {
+{{- i = 0 }}{{- for property in properties }}{{ i = i + 1 }}
+        /// <summary>
+        /// {{property.description}}
+        /// </summary>
+        {{ if (property.is_array) }}IEnumerable<{{property.data_type}}> {{property.name}} { get; }{{ end }}
+        {{- if (!property.is_array) }}{{property.data_type}} {{property.name}} { get; }{{ end }}
+        {{- if (i < (properties | array.size)) }}
+        {{ end }}
+{{- end }}
+    }
+}

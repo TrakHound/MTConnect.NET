@@ -1,0 +1,37 @@
+// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// TrakHound Inc. licenses this file to you under the MIT license.
+
+namespace MTConnect.Assets.CuttingTools.Measurements
+{
+    /// <summary>
+    /// {{description}}
+    /// </summary>
+    public class {{name}} : Measurement
+    {
+        public const string TypeId = "{{type_id}}";
+        public const string CodeId = "{{code_id}}";
+
+
+        public {{name}}()
+        {
+            Type = TypeId;
+            Code = CodeId;
+            {{ if (units_enum) }}Units = {{units_enum}};{{ end }}
+        }
+
+        public {{name}}(double value)
+        {
+            Type = TypeId;
+            Code = CodeId;
+            Value = value;
+            {{ if (units_enum) }}Units = {{units_enum}};{{ end }}
+        }
+
+        public {{name}}(Measurement measurement) : base(measurement)
+        {
+            Type = TypeId;
+            Code = CodeId;
+            {{ if (units_enum) }}Units = {{units_enum}};{{ end }}
+        }
+    }
+}
