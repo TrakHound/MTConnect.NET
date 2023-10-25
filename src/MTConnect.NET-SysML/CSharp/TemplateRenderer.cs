@@ -2,6 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 
 namespace MTConnect.SysML.CSharp
 {
@@ -14,11 +16,53 @@ namespace MTConnect.SysML.CSharp
                 var exportModels = GetExportModels(mtconnectModel);
                 if (exportModels != null)
                 {
+                    var classModels = exportModels.Where(o => typeof(MTConnectClassModel).IsAssignableFrom(o.GetType())).Select(o => (MTConnectClassModel)o);
+                    var dClassModels = classModels.Where(o => o.Name != null).ToDictionary(o => o.Name);
+
+                    var enumModels = exportModels.Where(o => typeof(MTConnectEnumModel).IsAssignableFrom(o.GetType())).Select(o => (MTConnectEnumModel)o);
+                    var dEnumModels = enumModels.Where(o => o.Name != null).ToDictionary(o => o.Name);
+
+
                     var templates = new List<ITemplateModel>();
 
                     foreach (var exportModel in exportModels)
                     {
                         var type = exportModel.GetType();
+
+                        if (typeof(MTConnectClassModel).IsAssignableFrom(type))
+                        {
+                            var classModel = (MTConnectClassModel)exportModel;
+                            if (classModel.Properties != null)
+                            {
+                                foreach (var property in classModel.Properties)
+                                {
+                                    switch (property.DataType)
+                                    {
+                                        case "UnitsEnum": property.DataType = "string"; break;
+                                        case "NativeUnitsEnum": property.DataType = "string"; break;
+                                        case "MeasurementCodeEnum": property.DataType = "string"; break;
+                                        default:
+
+                                            var classMatch = dClassModels.GetValueOrDefault(property.DataType);
+                                            if (classMatch != null)
+                                            {
+                                                property.DataType = $"{NamespaceHelper.GetNamespace(classMatch.Id)}.I{classMatch.Name}";
+                                            }
+                                            else
+                                            {
+                                                var enumMatch = dEnumModels.GetValueOrDefault(property.DataType);
+                                                if (enumMatch != null)
+                                                {
+                                                    property.DataType = $"{NamespaceHelper.GetNamespace(enumMatch.Id)}.{enumMatch.Name}";
+                                                }
+                                            }
+
+                                            break;                               
+                                    }
+                                }
+                            }
+                        }
+
 
                         ITemplateModel template = null;
 
@@ -30,8 +74,9 @@ namespace MTConnect.SysML.CSharp
                         {
                             switch (exportModel.Id)
                             {
-                                case "Devices.UnitsEnum": template = EnumStringModel.Create((MTConnectEnumModel)exportModel); break;
-                                case "Devices.NativeUnitsEnum": template = EnumStringModel.Create((MTConnectEnumModel)exportModel); break;
+                                case "Devices.UnitsEnum": template = EnumStringModel.Create((MTConnectEnumModel)exportModel, ConvertUnitEnum); break;
+                                case "Devices.NativeUnitsEnum": template = EnumStringModel.Create((MTConnectEnumModel)exportModel, ConvertUnitEnum); break;
+                                case "Assets.CuttingTools.Measurements.MeasurementCodeEnum": template = EnumStringModel.Create((MTConnectEnumModel)exportModel); break;
                                 default: template = EnumModel.Create((MTConnectEnumModel)exportModel); break;
                             }
                         }
@@ -57,6 +102,7 @@ namespace MTConnect.SysML.CSharp
                         {
                             WriteModel(template, outputPath);
                             WriteInterface(template, outputPath);
+                            WriteDescriptions(template, outputPath);
                         }
                     }
                 }
@@ -142,6 +188,40 @@ namespace MTConnect.SysML.CSharp
                     File.WriteAllText(resultPath, result);
                 }
             }
+        }
+
+        private static void WriteDescriptions(ITemplateModel template, string outputPath)
+        {
+            if (template != null)
+            {
+                var result = template.RenderDescriptions();
+                if (result != null && template.Id != null)
+                {
+                    var resultPath = template.Id.Replace('.', '\\');
+                    resultPath = Path.Combine(outputPath, resultPath);
+                    var resultDirectory = Path.GetDirectoryName(resultPath);
+                    var resultFilename = Path.GetFileName(resultPath);
+                    resultPath = Path.Combine(resultDirectory, $"{resultFilename}Descriptions.g.cs");
+
+                    if (!Directory.Exists(resultDirectory)) Directory.CreateDirectory(resultDirectory);
+
+                    File.WriteAllText(resultPath, result);
+                }
+            }
+        }
+
+
+        private static string ConvertUnitEnum(string input)
+        {           
+            var output = input;
+
+            if (output != null)
+            {
+                output = output.Replace("/", "_PER_");
+                output = output.Replace("^2", "_SQUARED");
+            }
+
+            return output;
         }
     }
 }

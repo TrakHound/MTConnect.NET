@@ -49,11 +49,12 @@ namespace MTConnect.SysML.CSharp
 
                     foreach (var propertyModel in exportModel.Properties)
                     {
-                        // Convert to Interface
-                        if (propertyModel.DataType.ToLower() != propertyModel.DataType && propertyModel.DataType != "System.DateTime" && !propertyModel.DataType.EndsWith("Enum"))
-                        {
-                            if (!propertyModel.DataType.StartsWith("I")) propertyModel.DataType = $"I{propertyModel.DataType}";
-                        }
+                        //// Convert to Interface
+                        //if (propertyModel.DataType.ToLower() != propertyModel.DataType && propertyModel.DataType != "System.DateTime" && !propertyModel.DataType.EndsWith("Enum"))
+                        //{
+                        //    if (!propertyModel.DataType.StartsWith("I")) propertyModel.DataType = $"I{propertyModel.DataType}";
+                        //    //if (!propertyModel.DataType.StartsWith("I")) propertyModel.DataType = $"I{propertyModel.DataType}";
+                        //}
 
                         // Remove 'Enum' suffix
                         if (propertyModel.DataType.EndsWith("Enum"))
@@ -98,6 +99,30 @@ namespace MTConnect.SysML.CSharp
         public string RenderInterface()
         {
             var templateFilename = $"Interface.scriban";
+            var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "csharp", "templates", templateFilename);
+            if (File.Exists(templatePath))
+            {
+                try
+                {
+                    var templateContents = File.ReadAllText(templatePath);
+                    if (templateContents != null)
+                    {
+                        var template = Template.Parse(templateContents);
+                        return template.Render(this);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+
+            return null;
+        }
+
+        public string RenderDescriptions()
+        {
+            var templateFilename = $"ModelDescriptions.scriban";
             var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "csharp", "templates", templateFilename);
             if (File.Exists(templatePath))
             {

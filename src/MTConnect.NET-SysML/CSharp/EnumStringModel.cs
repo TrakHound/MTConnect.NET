@@ -17,7 +17,7 @@ namespace MTConnect.SysML.CSharp
         public EnumStringModel(XmiDocument xmiDocument, string id, UmlEnumeration umlEnumeration) : base(xmiDocument, id, umlEnumeration) { }
 
 
-        public static EnumStringModel Create(MTConnectEnumModel importModel)
+        public static EnumStringModel Create(MTConnectEnumModel importModel, Func<string, string> convertFunction = null)
         {
             if (importModel != null)
             {
@@ -38,6 +38,30 @@ namespace MTConnect.SysML.CSharp
                         if (exportProperty != null)
                         {
                             exportProperty.SetValue(exportModel, propertyValue);
+                        }
+                    }
+
+                    exportModel.Id = ModelHelper.RemoveEnumSuffix(exportModel.Id);
+                    exportModel.Name = ModelHelper.RemoveEnumSuffix(exportModel.Name);
+
+                    if (exportModel.Values != null)
+                    {
+                        foreach (var value in exportModel.Values)
+                        {
+                            if (convertFunction != null)
+                            {
+                                value.Name = convertFunction(value.Name);
+                            }
+                            else
+                            {
+                                // Convert Numbers to Strings (leading numbers aren't supported as Enum values)
+                                var name = value.Name;
+                                name = StringFunctions.ReplaceNumbersWithWords(name);
+                                value.Name = name.ToTitleCase();
+
+                                // Replace '/' (not supported as Enum values)
+                                value.Name = value.Name.Replace('/', '_');
+                            }
                         }
                     }
 
@@ -74,5 +98,29 @@ namespace MTConnect.SysML.CSharp
         }
 
         public string RenderInterface() => null;
+
+        public string RenderDescriptions()
+        {
+            var templateFilename = $"EnumDescriptions.scriban";
+            var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "csharp", "templates", templateFilename);
+            if (File.Exists(templatePath))
+            {
+                try
+                {
+                    var templateContents = File.ReadAllText(templatePath);
+                    if (templateContents != null)
+                    {
+                        var template = Template.Parse(templateContents);
+                        return template.Render(this);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+
+            return null;
+        }
     }
 }

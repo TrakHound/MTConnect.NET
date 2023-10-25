@@ -572,5 +572,52 @@ namespace MTConnect.SysML
                     .Aggregate((x, y) => x ^ y); //xor the bytes together so you end up with a ulong (64-bit int)
             }
         }
+
+
+        public static string ReplaceNumbersWithWords(string text)
+        {
+            if (!string.IsNullOrEmpty(text))
+            {
+                var regex = new Regex(@"\d+");
+
+                var conversions = new Dictionary<int, string>
+                 {
+                     {0, "zero"},
+                     {1, "one"},
+                     {2, "two"},
+                     {3, "three"},
+                     {4, "four"},
+                     {5, "five"},
+                     {6, "six"},
+                     {7, "seven"},
+                     {8, "eight"},
+                     {9, "nine"},
+                     {10, "ten"},
+                 };
+
+                var matches = regex.Matches(text);
+                var buffer = new StringBuilder();
+                var lastProcessedIndex = 0;
+                var originalStringLength = text.Length;
+
+                foreach (var match in matches.Cast<Match>())
+                {
+                    var numGroup = match.Groups[0];
+                    var num = int.Parse(numGroup.ToString());
+                    if (conversions.ContainsKey(num))
+                    {
+                        buffer.Append(text.Substring(lastProcessedIndex, numGroup.Index - lastProcessedIndex));
+                        buffer.Append(conversions[num]);
+                        lastProcessedIndex = numGroup.Index + numGroup.Length;
+                    }
+                }
+
+                buffer.Append(text.Substring(lastProcessedIndex, originalStringLength - lastProcessedIndex));
+
+                return buffer.ToString();
+            }
+
+            return null;
+        }
     }
 }

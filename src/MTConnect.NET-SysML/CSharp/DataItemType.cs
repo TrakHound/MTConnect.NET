@@ -83,5 +83,7 @@ namespace MTConnect.SysML.CSharp
         }
 
         public string RenderInterface() => null;
+
+        public string RenderDescriptions() => null;
     }
 }

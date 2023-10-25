@@ -17,6 +17,8 @@ namespace MTConnect.SysML.Models.Devices
 
         public MTConnectConfigurationModel Configurations { get; private set; }
 
+        public MTConnectPackageModel References { get; private set; } = new();
+
 
         public MTConnectDeviceInformationModel() { }
 
@@ -124,6 +126,7 @@ namespace MTConnect.SysML.Models.Devices
                         DataItems.Enums.Add(new MTConnectEnumModel(xmiDocument, "Devices", dataTypes?.Enumerations.FirstOrDefault(o => o.Name == "CategoryEnum")));
                         DataItems.Enums.Add(new MTConnectEnumModel(xmiDocument, "Devices", dataTypes?.Enumerations.FirstOrDefault(o => o.Name == "CoordinateSystemEnum")));
                         DataItems.Enums.Add(new MTConnectEnumModel(xmiDocument, "Devices", dataTypes?.Enumerations.FirstOrDefault(o => o.Name == "RepresentationEnum")));
+                        DataItems.Enums.Add(new MTConnectEnumModel(xmiDocument, "Devices", dataTypes?.Enumerations.FirstOrDefault(o => o.Name == "ResetTriggerEnum")));
                         DataItems.Enums.Add(new MTConnectEnumModel(xmiDocument, "Devices", dataTypes?.Enumerations.FirstOrDefault(o => o.Name == "StatisticEnum")));
                     }
 
@@ -154,6 +157,13 @@ namespace MTConnect.SysML.Models.Devices
                         Configurations.Enums.Add(new MTConnectEnumModel(xmiDocument, "Devices.Configurations", dataTypes?.Enumerations.FirstOrDefault(o => o.Name == "CriticalityEnum")));
                         Configurations.Enums.Add(new MTConnectEnumModel(xmiDocument, "Devices.Configurations", dataTypes?.Enumerations.FirstOrDefault(o => o.Name == "RoleTypeEnum")));
                         Configurations.Enums.Add(new MTConnectEnumModel(xmiDocument, "Devices.Configurations", dataTypes?.Enumerations.FirstOrDefault(o => o.Name == "OriginatorEnum")));
+                    }
+
+                    // References
+                    var references = deviceInformationModel.Packages?.FirstOrDefault(o => o.Name == "References");
+                    if (references != null)
+                    {
+                        References.Classes.AddRange(MTConnectClassModel.Parse(xmiDocument, "Devices.References", references.Classes));
                     }
                 }
             }

@@ -14,6 +14,8 @@ namespace MTConnect.SysML.Models.Devices
 
         public string Name { get; set; }
 
+        public string Type { get; set; }
+
         public string ParentName { get; set; }
 
         public string Description { get; set; }
@@ -41,6 +43,7 @@ namespace MTConnect.SysML.Models.Devices
 
                 Id = $"{idPrefix}.{name}";
                 Name = name;
+                Type = umlClass.Name;
                 DefaultName = name.ToCamelCase();
                 IsAbstract = umlClass.IsAbstract;
                 IsOrganizer = isOrganizer;

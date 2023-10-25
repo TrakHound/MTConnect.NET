@@ -93,7 +93,7 @@ namespace MTConnect.SysML.Models.Assets
                 var cuttingItemPackage = cuttingTool.Packages.FirstOrDefault(o => o.Name == "Cutting Item");
                 if (cuttingItemPackage != null)
                 {
-                    packages.Add(cuttingItemPackage.Packages.FirstOrDefault(o => o.Name == "Cutting Item Measurement Subtypes"));
+                    //packages.Add(cuttingItemPackage.Packages.FirstOrDefault(o => o.Name == "Cutting Item Measurement Subtypes"));
                 }
 
                 umlClasses = ModelHelper.GetClasses(packages);

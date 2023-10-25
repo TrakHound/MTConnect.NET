@@ -132,6 +132,17 @@ namespace MTConnect.SysML
             return name;
         }
 
+        public static string RemoveEnumSuffix(string name)
+        {
+            if (name != null)
+            {
+                var suffix = "Enum";
+                if (name.EndsWith(suffix)) name = name.Substring(0, name.Length - suffix.Length);
+            }
+
+            return name;
+        }
+
         private static IEnumerable<UmlPackage> GetAllPackages(UmlModel umlModel)
         {
             var packages = new List<UmlPackage>();
@@ -366,7 +377,7 @@ namespace MTConnect.SysML
 
         public static bool IsValueClass(UmlClass umlClass)
         {
-            if (umlClass != null)
+            if (umlClass != null && umlClass.Generalization == null)
             {
                 var umlProperties = umlClass.Properties?.Where(o => !o.Name.StartsWith("made") && !o.Name.StartsWith("is") && !o.Name.StartsWith("observes"));
                 if (umlProperties != null && umlProperties.Count() == 1)

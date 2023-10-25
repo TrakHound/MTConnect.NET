@@ -26,6 +26,13 @@ namespace MTConnect.SysML.Models.Devices
             var nativeUnitsProperty = Properties?.FirstOrDefault(o => o.Name == "NativeUnits");
             if (nativeUnitsProperty != null) nativeUnitsProperty.DataType = "string";
 
+            // Override Constraints
+            var constraintProperty = Properties?.FirstOrDefault(o => o.Name == "Constraint");
+            if (constraintProperty != null) constraintProperty.Name = "Constraints";
+
+            // Override Relationships
+            var relationshipProperty = Properties?.FirstOrDefault(o => o.Name == "Relationship");
+            if (relationshipProperty != null) relationshipProperty.Name = "Relationships";
 
             Properties?.RemoveAll(o => o.Name == "Observation");
         }

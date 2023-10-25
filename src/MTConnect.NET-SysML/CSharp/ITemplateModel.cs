@@ -7,5 +7,7 @@
         string RenderModel();
 
         string RenderInterface();
+
+        string RenderDescriptions();
     }
 }

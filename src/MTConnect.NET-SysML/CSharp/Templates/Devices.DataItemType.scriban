@@ -73,7 +73,7 @@ namespace MTConnect.Devices.DataItems
 {{- end }}
 {{- if ((sub_types | array.size) > 0) }}{{ i = 0 }}
 
-        public static string GetSubTypeId(string subType)
+        public static string GetSubTypeId(SubTypes subType)
         {
             switch (subType)
             {

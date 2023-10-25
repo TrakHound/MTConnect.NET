@@ -14,6 +14,8 @@ namespace MTConnect.SysML.Models.Devices
 
         public string Name { get; set; }
 
+        public string Type { get; set; }
+
         public string Description { get; set; }
 
         public string DefaultName { get; set; }
@@ -35,6 +37,7 @@ namespace MTConnect.SysML.Models.Devices
 
                 Id = $"{idPrefix}.{name}";
                 Name = name;
+                Type = umlEnumerationLiteral.Name;
                 DefaultName = name.ToCamelCase();
 
                 MaximumVersion = MTConnectVersion.LookupDeprecated(xmiDocument, umlEnumerationLiteral.Id);

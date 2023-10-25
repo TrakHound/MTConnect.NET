@@ -8,7 +8,7 @@ namespace {{namespace}}
     /// <summary>
     /// {{description}}
     /// </summary>
-    public {{- if (is_partial) }} partial{{ end }} {{- if (is_abstract) }} abstract{{ end }} class {{name}} : {{ if (parent_type) }}{{parent_type}}, I{{name}}{{else}}I{{name}}{{ end }}
+    public {{- if (is_partial) }} partial{{ end }} {{- if (is_abstract) }} abstract{{ end }} class {{name}} : {{ if (parent_name) }}{{parent_name}}, I{{name}}{{else}}I{{name}}{{ end }}
     {
         public const string DescriptionText = "{{description}}";
 
@@ -16,7 +16,7 @@ namespace {{namespace}}
         /// <summary>
         /// {{property.description}}
         /// </summary>
-        {{ if (property.is_array) }}public IEnumerable<{{property.data_type}}> {{property.name}} { get; set; }{{ end }}
+        {{ if (property.is_array) }}public System.Collections.Generic.IEnumerable<{{property.data_type}}> {{property.name}} { get; set; }{{ end }}
         {{- if (!property.is_array) }}public {{property.data_type}} {{property.name}} { get; set; }{{ end }}
         {{- if (i < (properties | array.size)) }}
         {{ end }}
