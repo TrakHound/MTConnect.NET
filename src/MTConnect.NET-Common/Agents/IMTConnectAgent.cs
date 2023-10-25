@@ -5,6 +5,7 @@ using MTConnect.Agents.Metrics;
 using MTConnect.Assets;
 using MTConnect.Configurations;
 using MTConnect.Devices;
+using MTConnect.Devices.DataItems;
 using MTConnect.Observations;
 using MTConnect.Observations.Input;
 using MTConnect.Observations.Output;
@@ -309,6 +310,11 @@ namespace MTConnect.Agents
         /// <param name="assets">The Assets to add</param>
         /// <returns>True if the Assets was added successfully</returns>
         bool AddAssets(string deviceKey, IEnumerable<IAsset> assets);
+
+
+        void OnObservationAdded(IObservation observation);
+
+        void OnInvalidObservationAdded(string deviceUuid, string dataItemId, ValidationResult result);
 
         #endregion
 

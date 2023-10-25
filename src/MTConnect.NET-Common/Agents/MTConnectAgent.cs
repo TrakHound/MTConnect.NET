@@ -1599,17 +1599,25 @@ namespace MTConnect.Agents
                                     }
                                 }
 
-                                if (ObservationAdded != null)
-                                {
-                                    var observation = Observation.Create(dataItem);
-                                    observation.DeviceUuid = deviceUuid;
-                                    observation.DataItem = dataItem;
-                                    observation.InstanceId = _instanceId;
-                                    observation.Timestamp = observationInput.Timestamp.ToDateTime();
-                                    observation.AddValues(observationInput.Values);
+                                var observation = Observation.Create(dataItem);
+                                observation.DeviceUuid = deviceUuid;
+                                observation.DataItem = dataItem;
+                                observation.InstanceId = _instanceId;
+                                observation.Timestamp = observationInput.Timestamp.ToDateTime();
+                                observation.AddValues(observationInput.Values);
+                                OnObservationAdded(observation);
 
-                                    ObservationAdded?.Invoke(this, observation);
-                                }
+                                //if (ObservationAdded != null)
+                                //{
+                                //    var observation = Observation.Create(dataItem);
+                                //    observation.DeviceUuid = deviceUuid;
+                                //    observation.DataItem = dataItem;
+                                //    observation.InstanceId = _instanceId;
+                                //    observation.Timestamp = observationInput.Timestamp.ToDateTime();
+                                //    observation.AddValues(observationInput.Values);
+
+                                //    ObservationAdded?.Invoke(this, observation);
+                                //}
                             }
                         }
                         else success = true; // Return true if no update needed
@@ -1656,6 +1664,22 @@ namespace MTConnect.Agents
         protected virtual bool OnAddObservation(string deviceUuid, IDataItem dataItem, IObservationInput observationInput)
         {
             return true;
+        }
+
+        public void OnObservationAdded(IObservation observation)
+        {
+            if (ObservationAdded != null)
+            {
+                ObservationAdded?.Invoke(this, observation);
+            }
+        }
+
+        public void OnInvalidObservationAdded(string deviceUuid, string dataItemId, ValidationResult result)
+        {
+            if (InvalidObservationAdded != null)
+            {
+                InvalidObservationAdded?.Invoke(deviceUuid, dataItemId, result);
+            }
         }
 
         #endregion

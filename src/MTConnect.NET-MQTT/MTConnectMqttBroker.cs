@@ -42,15 +42,15 @@ namespace MTConnect.Mqtt
 
         public bool RetainMessages { get; set; }
 
-        public EventHandler ClientConnected { get; set; }
+        public event EventHandler ClientConnected;
 
-        public EventHandler ClientDisconnected { get; set; }
+        public event EventHandler ClientDisconnected;
 
-        public EventHandler<string> MessageSent { get; set; }
+        public event EventHandler<string> MessageSent;
 
-        public EventHandler<Exception> ConnectionError { get; set; }
+        public event EventHandler<Exception> ConnectionError;
 
-        public EventHandler<Exception> PublishError { get; set; }
+        public event EventHandler<Exception> PublishError;
 
 
         public MTConnectMqttBroker(IMTConnectAgent mtconnectAgent, MqttServer mqttServer, IEnumerable<int> observationIntervals = null, int heartbeatInterval = 1000)

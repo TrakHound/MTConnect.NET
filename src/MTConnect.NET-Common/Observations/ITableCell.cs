@@ -13,6 +13,8 @@ namespace MTConnect.Observations
         /// </summary>
         string Key { get; }
 
+        public string KeyDescription { get; set; }
+
         /// <summary>
         /// The Value for each key-value pair.
         /// </summary>

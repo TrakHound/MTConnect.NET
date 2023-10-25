@@ -10,6 +10,7 @@ using MTConnect.Assets.Json.RawMaterials;
 using MTConnect.Assets.QIF;
 using MTConnect.Assets.RawMaterials;
 using MTConnect.Headers;
+using MTConnect.Streams.Json;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
@@ -21,7 +22,7 @@ namespace MTConnect.Assets.Json
         /// Contains the Header information in an MTConnect Assets XML document
         /// </summary>
         [JsonPropertyName("header")]
-        public MTConnectAssetsHeader Header { get; set; }
+        public JsonAssetsHeader Header { get; set; }
 
         /// <summary>
         /// An XML container that consists of one or more types of Asset XML elements.
@@ -34,16 +35,7 @@ namespace MTConnect.Assets.Json
         {
             if (assetsDocument != null)
             {
-                var header = new MTConnectAssetsHeader();
-                header.InstanceId = assetsDocument.Header.InstanceId;
-                header.Version = assetsDocument.Header.Version;
-                header.Sender = assetsDocument.Header.Sender;
-                header.AssetBufferSize = assetsDocument.Header.AssetBufferSize;
-                header.AssetCount = assetsDocument.Header.AssetCount;
-                header.DeviceModelChangeTime = assetsDocument.Header.DeviceModelChangeTime;
-                header.TestIndicator = assetsDocument.Header.TestIndicator;
-                header.CreationTime = assetsDocument.Header.CreationTime;
-                Header = header;
+                Header = new JsonAssetsHeader(assetsDocument.Header);
 
                 // Add Assets
                 if (!assetsDocument.Assets.IsNullOrEmpty())
@@ -72,7 +64,8 @@ namespace MTConnect.Assets.Json
         public AssetsResponseDocument ToAssetsDocument()
         {
             var assetsDocument = new AssetsResponseDocument();
-            assetsDocument.Header = Header;
+
+            assetsDocument.Header = Header.ToAssetsHeader();
 
             // Add Assets
             if (!Assets.IsNullOrEmpty())

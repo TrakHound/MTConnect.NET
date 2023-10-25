@@ -185,7 +185,7 @@ namespace MTConnect.Observations
         /// <summary>
         /// Returns whether the Observation is Unavailable meaning a valid value cannot be determined
         /// </summary>
-        public bool IsUnavailable => GetValue(ValueKeys.Result) == Unavailable;
+        public virtual bool IsUnavailable => GetValue(ValueKeys.Result) == Unavailable;
 
 
         public static Observation Create(IDataItem dataItem)

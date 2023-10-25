@@ -75,6 +75,11 @@ namespace MTConnect.Observations
             set => AddValue(ValueKeys.Message, value);
         }
 
+        /// <summary>
+        /// Returns whether the Observation is Unavailable meaning a valid value cannot be determined
+        /// </summary>
+        public override bool IsUnavailable => GetValue(ValueKeys.Level) == Unavailable;
+
 
         public ConditionObservation()
         {

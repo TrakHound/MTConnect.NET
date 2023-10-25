@@ -59,15 +59,15 @@ namespace MTConnect.Mqtt
 
         public bool AllowUntrustedCertificates => _configuration.AllowUntrustedCertificates;
 
-        public EventHandler Connected { get; set; }
+        public event EventHandler Connected;
 
-        public EventHandler Disconnected { get; set; }
+        public event EventHandler Disconnected;
 
-        public EventHandler<string> MessageSent { get; set; }
+        public event EventHandler<string> MessageSent;
 
-        public EventHandler<Exception> ConnectionError { get; set; }
+        public event EventHandler<Exception> ConnectionError;
 
-        public EventHandler<Exception> PublishError { get; set; }
+        public event EventHandler<Exception> PublishError;
 
 
         public MTConnectMqttRelay(IMTConnectAgent mtconnectAgent, IMTConnectMqttClientConfiguration configuration, IEnumerable<int> observationIntervals = null, int heartbeatInterval = 1000)

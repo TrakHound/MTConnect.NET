@@ -7,6 +7,7 @@ using MTConnect.Configurations;
 using MTConnect.Devices;
 using MTConnect.Devices.DataItems;
 using MTConnect.Devices.DataItems.Events;
+using MTConnect.Devices.DataItems.Samples;
 using MTConnect.Errors;
 using MTConnect.Headers;
 using MTConnect.Observations;
@@ -25,6 +26,7 @@ namespace MTConnect.Agents
     public class MTConnectAgentBroker : MTConnectAgent, IMTConnectAgentBroker, IDisposable
     {
         private readonly object _lock = new object();
+        //private readonly IMTConnectDeviceBuffer _deviceBuffer;
         private readonly IMTConnectObservationBuffer _observationBuffer;
         private readonly IMTConnectAssetBuffer _assetBuffer;
         private readonly List<AssetCount> _deviceAssetCounts = new List<AssetCount>();
@@ -1686,8 +1688,8 @@ namespace MTConnect.Agents
 
                             var bufferObservation = new BufferObservation(bufferKey, observation);
                             _observationBuffer.AddObservation(ref bufferObservation);
-
-                            //ObservationAdded?.Invoke(observation);
+                            OnObservationAdded(observation);
+                            //base.ObservationAdded?.Invoke(this, observation);
                         }
                     }
                 }

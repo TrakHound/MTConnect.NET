@@ -5,8 +5,8 @@ using MTConnect.Agents;
 using MTConnect.Configurations;
 using MTConnect.Devices.DataItems;
 using MTConnect.Formatters;
-using MTConnect.Servers;
 using MTConnect.Shdr;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -17,14 +17,19 @@ namespace MTConnect.Applications.Agents
     /// </summary>
     public class MTConnectShdrHttpAgentServer : MTConnectHttpAgentServer
     {
-        public MTConnectShdrHttpAgentServer(IHttpAgentApplicationConfiguration configuration, IMTConnectAgentBroker mtconnectAgent) : base(configuration, mtconnectAgent) { }
+        public MTConnectShdrHttpAgentServer(
+            IHttpAgentApplicationConfiguration configuration,
+            IMTConnectAgentBroker mtconnectAgent,
+            IEnumerable<string> prefixes = null,
+            int port = 0
+            )
+            : base(configuration, mtconnectAgent, prefixes, port) { }
 
 
-        //protected override bool OnObservationInput(string deviceKey, string dataItemKey, string input)
-        protected override bool OnObservationInput(MTConnectObservationInputArgs args)
+        protected override bool OnObservationInput(string deviceKey, string dataItemKey, string input)
         {
             // Get the Devices Document from the Agent
-            var devicesDocument = _mtconnectAgent.GetDevicesResponseDocument(args.DeviceKey);
+            var devicesDocument = _mtconnectAgent.GetDevicesResponseDocument(deviceKey);
             if (devicesDocument != null && !devicesDocument.Devices.IsNullOrEmpty())
             {
                 // Get the first Device (should only be one Device)
@@ -32,11 +37,11 @@ namespace MTConnect.Applications.Agents
                 if (device != null)
                 {
                     // Get the DataItem based on the Key
-                    var dataItem = device.GetDataItemByKey(args.DataItemKey);
+                    var dataItem = device.GetDataItemByKey(dataItemKey);
                     if (dataItem != null)
                     {
                         // Construct an SHDR Line using the DataItemId and the Input string from Http
-                        var shdrLine = $"|{dataItem.Id}|{args.Value}";
+                        var shdrLine = $"{dataItem.Id}|{input}";
 
                         if (dataItem.Category == DataItemCategory.CONDITION)
                         {
@@ -71,39 +76,32 @@ namespace MTConnect.Applications.Agents
                     }
                     else
                     {
-                        //if (_mtconnectAgent.InvalidObservationAdded != null)
-                        //{
-                        //    _mtconnectAgent.InvalidObservationAdded.Invoke(deviceKey, dataItemKey, new ValidationResult(false, $"DataItemKey \"{dataItemKey}\" not Found in Device"));
-                        //}
+                        _mtconnectAgent.OnInvalidObservationAdded(deviceKey, dataItemKey, new ValidationResult(false, $"DataItemKey \"{dataItemKey}\" not Found in Device"));
                     }
 
                     return true;
                 }
                 else
                 {
-                    //if (_mtconnectAgent.InvalidObservationAdded != null)
-                    //{
-                    //    _mtconnectAgent.InvalidObservationAdded.Invoke(deviceKey, dataItemKey, new ValidationResult(false, $"Device \"{deviceKey}\" not Found"));
-                    //}
+                    _mtconnectAgent.OnInvalidObservationAdded(deviceKey, dataItemKey, new ValidationResult(false, $"Device \"{deviceKey}\" not Found"));
                 }
             }
 
             return false;
         }
 
-        //protected override bool OnAssetInput(string assetId, string deviceKey, string assetType, byte[] requestBytes, string documentFormat = DocumentFormat.XML)
-        protected override bool OnAssetInput(MTConnectAssetInputArgs args)
+        protected override bool OnAssetInput(string assetId, string deviceKey, string assetType, byte[] requestBytes, string documentFormat = DocumentFormat.XML)
         {
-            if (!string.IsNullOrEmpty(args.DeviceKey) && !string.IsNullOrEmpty(args.AssetType))
+            if (!string.IsNullOrEmpty(deviceKey) && !string.IsNullOrEmpty(assetType))
             {
                 //var asset = Assets.Xml.XmlAsset.FromXml(assetType, );
-                var result = EntityFormatter.CreateAsset(args.DocumentFormat, args.AssetType, ReadRequestBody(args.RequestBody));
+                var result = EntityFormatter.CreateAsset(documentFormat, assetType, ReadRequestBody(requestBytes));
                 if (result.Success)
                 {
                     var asset = result.Entity;
-                    asset.AssetId = args.AssetId;
+                    asset.AssetId = assetId;
                     asset.Timestamp = asset.Timestamp > 0 ? asset.Timestamp : UnixDateTime.Now;
-                    return _mtconnectAgent.AddAsset(args.DeviceKey, asset);
+                    return _mtconnectAgent.AddAsset(deviceKey, asset);
                 }
             }
 

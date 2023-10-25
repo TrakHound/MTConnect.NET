@@ -5,7 +5,7 @@
 [![MTConnect.NET](https://github.com/TrakHound/MTConnect.NET/actions/workflows/dotnet.yml/badge.svg)](https://github.com/TrakHound/MTConnect.NET/actions/workflows/dotnet.yml)
 
 ## Overview
-This project is a full implementation of an MTConnect Agent used to read data from industrial machine tools and devices. This MTConnect Agent application is fully compatible with the latest **Version 2.1 of the MTConnect Standard**. It uses the SHDR protocol to receive data from Adapters and an MQTT client to publish messages to an external MQTT Broker.
+This project is a full implementation of an MTConnect Agent used to read data from industrial machine tools and devices. This MTConnect Agent application is fully compatible with the latest **Version 2.2 of the MTConnect Standard**. It uses the SHDR protocol to receive data from Adapters and an MQTT client to publish messages to an external MQTT Broker.
 
 #### Features
 - MQTT client to publish to an external broker

@@ -6,7 +6,7 @@
 
 ## Overview
 This project is a full implementation of an MTConnect Agent used to read data from industrial machine tools and devices. 
-This MTConnect Agent application is fully compatible with the latest **Version 2.1 of the MTConnect Standard**.
+This MTConnect Agent application is fully compatible with the latest **Version 2.2 of the MTConnect Standard**.
 It receives data from other MTConnect Agents using HTTP, an in-memory buffer with an optional durable file system based buffer, and an Http REST interface for retrieving data.
 
 #### Features
@@ -116,7 +116,7 @@ assetBufferSize: 1000
 durable: false
 
 # Sets the default MTConnect version to output response documents for.
-defaultVersion: 2.1
+defaultVersion: 2.2
 ```
 
 #### HTTP Configuration

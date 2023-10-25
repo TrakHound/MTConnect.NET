@@ -15,6 +15,8 @@ namespace MTConnect.Observations
         /// </summary>
         string Key { get; }
 
+        string KeyDescription { get; }
+
         /// <summary>
         /// Boolean removal indicator of a key-value pair that MUST be true or false.
         /// </summary>
