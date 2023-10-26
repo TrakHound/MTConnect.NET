@@ -3,6 +3,7 @@ using MTConnect.SysML.CSharp;
 using System.Text.Json;
 
 var xmlPath = @"D:\TrakHound\MTConnect\MTConnectSysMLModel.xml";
+//var outputPath = @"C:\temp\mtconnect-model-results";
 var outputPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../../../src/MTConnect.NET-Common");
 
 var mtconnectModel = MTConnectModel.Parse(xmlPath);

@@ -2,7 +2,6 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Devices;
-using MTConnect.Devices.DataItems;
 using MTConnect.Extensions;
 using System;
 using System.Collections.Generic;
@@ -260,7 +259,7 @@ namespace MTConnect.Observations
         {
             switch (category)
             {
-                case DataItemCategory.EVENT: return Events.Values.EventValue.GetDescriptionText(type, subType, value);
+                case DataItemCategory.EVENT: return Observations.Events.EventValue.GetDescriptionText(type, subType, value);
             }
 
             return null;

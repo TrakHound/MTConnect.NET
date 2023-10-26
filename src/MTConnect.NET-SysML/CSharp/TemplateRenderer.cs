@@ -1,4 +1,5 @@
 ﻿using MTConnect.SysML.Models.Devices;
+using MTConnect.SysML.Models.Observations;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -70,6 +71,7 @@ namespace MTConnect.SysML.CSharp
                         else if (typeof(MTConnectCompositionType).IsAssignableFrom(type)) template = CompositionType.Create((MTConnectCompositionType)exportModel);
                         else if (typeof(MTConnectComponentType).IsAssignableFrom(type)) template = ComponentType.Create((MTConnectComponentType)exportModel);
                         else if (typeof(MTConnectClassModel).IsAssignableFrom(type)) template = ClassModel.Create((MTConnectClassModel)exportModel);
+                        else if (typeof(MTConnectObservationModel).IsAssignableFrom(type)) template = ObservationModel.Create((MTConnectObservationModel)exportModel);
                         else if (typeof(MTConnectEnumModel).IsAssignableFrom(type))
                         {
                             switch (exportModel.Id)
