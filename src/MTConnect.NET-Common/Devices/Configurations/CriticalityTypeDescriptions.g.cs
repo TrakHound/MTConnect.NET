@@ -14,5 +14,17 @@ namespace MTConnect.Devices.Configurations
         /// Services or functions provided by the associated element is not required for the operation of this element.
         /// </summary>
         public const string NONCRITICAL = "Services or functions provided by the associated element is not required for the operation of this element.";
+
+
+        public static string Get(CriticalityType value)
+        {
+            switch (value)
+            {
+                case CriticalityType.CRITICAL: return "Services or functions provided by the associated element is required for the operation of this element.";
+                case CriticalityType.NONCRITICAL: return "Services or functions provided by the associated element is not required for the operation of this element.";
+            }
+
+            return null;
+        }
     }
 }

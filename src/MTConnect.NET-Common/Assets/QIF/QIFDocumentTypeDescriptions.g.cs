@@ -34,5 +34,21 @@ namespace MTConnect.Assets.QIF
         /// 
         /// </summary>
         public const string STATISTICS = "";
+
+
+        public static string Get(QIFDocumentType value)
+        {
+            switch (value)
+            {
+                case QIFDocumentType.MEASUREMENT_RESOURCE: return "";
+                case QIFDocumentType.PLAN: return "";
+                case QIFDocumentType.PRODUCT: return "";
+                case QIFDocumentType.RESULTS: return "";
+                case QIFDocumentType.RULES: return "";
+                case QIFDocumentType.STATISTICS: return "";
+            }
+
+            return null;
+        }
     }
 }

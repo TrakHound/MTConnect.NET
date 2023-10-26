@@ -24,5 +24,19 @@ namespace MTConnect.Devices.Configurations
         /// Rotates around an axis with a fixed range of motion.
         /// </summary>
         public const string REVOLUTE = "Rotates around an axis with a fixed range of motion.";
+
+
+        public static string Get(MotionType value)
+        {
+            switch (value)
+            {
+                case MotionType.CONTINUOUS: return "Revolves around an axis with a continuous range of motion.";
+                case MotionType.FIXED: return "Axis does not move.";
+                case MotionType.PRISMATIC: return "Sliding linear motion along an axis with a fixed range of motion.";
+                case MotionType.REVOLUTE: return "Rotates around an axis with a fixed range of motion.";
+            }
+
+            return null;
+        }
     }
 }

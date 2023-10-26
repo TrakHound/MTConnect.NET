@@ -1,4 +1,5 @@
-﻿using MTConnect.SysML.Xmi;
+﻿using MTConnect.SysML.Models.Observations;
+using MTConnect.SysML.Xmi;
 using System.Linq;
 
 namespace MTConnect.SysML.Models.Devices
@@ -33,8 +34,8 @@ namespace MTConnect.SysML.Models.Devices
                     {
                         DataItems = new MTConnectDataItemsModel();
 
-                        var conditionEnum = umlModel.Profiles.FirstOrDefault().Packages.FirstOrDefault().Enumerations.FirstOrDefault(o => o.Name == "InterfaceEventEnum");
-                        DataItems.Types.AddRange(MTConnectInterfaceDataItemType.Parse(xmiDocument, "EVENT", "Interfaces", deviceDataItems.Classes, conditionEnum));
+                        var eventEnum = umlModel.Profiles.FirstOrDefault().Packages.FirstOrDefault().Enumerations.FirstOrDefault(o => o.Name == "InterfaceEventEnum");
+                        DataItems.Types.AddRange(MTConnectInterfaceDataItemType.Parse(xmiDocument, "EVENT", "Interfaces", deviceDataItems.Classes, eventEnum));
                     }
                 }
             }

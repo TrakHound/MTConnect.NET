@@ -249,5 +249,64 @@ namespace MTConnect.Devices
         /// Measurement of electrical energy, equal to one Joule.
         /// </summary>
         public const string WATT_SECOND = "Measurement of electrical energy, equal to one Joule.";
+
+
+        public static string Get(Units value)
+        {
+            switch (value)
+            {
+                case Units.AMPERE: return "Amps.";
+                case Units.CELSIUS: return "Degrees Celsius.";
+                case Units.COULOMB: return "Electric charge in coulombs (C).";
+                case Units.COUNT: return "Count of something.";
+                case Units.COUNT_PER_SECOND: return "Counts per second.";
+                case Units.CUBIC_MILLIMETER: return "Geometric volume in millimeters.";
+                case Units.CUBIC_MILLIMETER_PER_SECOND: return "Change of geometric volume per second.";
+                case Units.CUBIC_MILLIMETER_PER_SECOND_SQUARED: return "Change in geometric volume per second squared.";
+                case Units.DECIBEL: return "Sound level.";
+                case Units.DEGREE: return "Angle in degrees.";
+                case Units.DEGREE_3D: return "Space-delimited, floating-point representation of the angular rotation in degrees around the X, Y, and Z axes relative to a cartesian coordinate system respectively in order as A, B, and C. If any of the rotations is not known, it **MUST** be zero (0).";
+                case Units.DEGREE_PER_SECOND: return "Angular degrees per second.";
+                case Units.DEGREE_PER_SECOND_SQUARED: return "Angular acceleration in degrees per second squared.";
+                case Units.GRAM: return "Gram.";
+                case Units.GRAM_PER_CUBIC_METER: return "Gram per cubic meter.";
+                case Units.HERTZ: return "Frequency measured in cycles per second.";
+                case Units.JOULE: return "Measurement of energy.";
+                case Units.KILOGRAM: return "Kilograms.";
+                case Units.LITER: return "Measurement of volume of a fluid.";
+                case Units.LITER_PER_SECOND: return "Liters per second.";
+                case Units.METER_PER_SECOND_SQUARED: return "Acceleration in meters per second squared.";
+                case Units.MICRO_RADIAN: return "Measurement of tilt.";
+                case Units.MILLIGRAM: return "Milligram.";
+                case Units.MILLIGRAM_PER_CUBIC_MILLIMETER: return "Milligram per cubic millimeter.";
+                case Units.MILLILITER: return "Milliliter.";
+                case Units.MILLIMETER: return "Millimeters.";
+                case Units.MILLIMETER_3D: return "Point in space identified by X, Y, and Z positions and represented by a space-delimited set of numbers each expressed in millimeters.";
+                case Units.MILLIMETER_PER_REVOLUTION: return "Millimeters per revolution.";
+                case Units.MILLIMETER_PER_SECOND: return "Millimeters per second.";
+                case Units.MILLIMETER_PER_SECOND_SQUARED: return "Acceleration in millimeters per second squared.";
+                case Units.NEWTON: return "Force in Newtons.";
+                case Units.NEWTON_METER: return "Torque, a unit for force times distance.";
+                case Units.OHM: return "Measure of electrical resistance.";
+                case Units.PASCAL: return "Pressure in Newtons per square meter.";
+                case Units.PASCAL_SECOND: return "Measurement of viscosity.";
+                case Units.PASCAL_PER_SECOND: return "Pascal per second.";
+                case Units.PERCENT: return "Percentage.";
+                case Units.PH: return "Measure of the acidity or alkalinity of a solution.";
+                case Units.REVOLUTION_PER_MINUTE: return "Revolutions per minute.";
+                case Units.REVOLUTION_PER_SECOND: return "Rotational velocity in revolution per second.";
+                case Units.REVOLUTION_PER_SECOND_SQUARED: return "Revolutions per second squared.";
+                case Units.SECOND: return "Measurement of time.";
+                case Units.SIEMENS_PER_METER: return "Measurement of electrical conductivity.";
+                case Units.UNIT_VECTOR_3D: return "3d Unit Vector.Space delimited list of three floating point numbers.";
+                case Units.VOLT: return "Volts.";
+                case Units.VOLT_AMPERE: return "Measurement of the apparent power in an electrical circuit, equal to the product of root-mean-square (RMS) voltage and RMS current (commonly referred to as VA).";
+                case Units.VOLT_AMPERE_REACTIVE: return "Measurement of reactive power in an AC electrical circuit (commonly referred to as VAR).";
+                case Units.WATT: return "Watts.";
+                case Units.WATT_SECOND: return "Measurement of electrical energy, equal to one Joule.";
+            }
+
+            return null;
+        }
     }
 }

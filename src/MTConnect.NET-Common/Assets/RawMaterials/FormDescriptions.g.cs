@@ -49,5 +49,24 @@ namespace MTConnect.Assets.RawMaterials
         /// 
         /// </summary>
         public const string SHEET = "";
+
+
+        public static string Get(Form value)
+        {
+            switch (value)
+            {
+                case Form.BAR: return "";
+                case Form.BLOCK: return "";
+                case Form.CASTING: return "";
+                case Form.FILAMENT: return "";
+                case Form.GAS: return "";
+                case Form.GEL: return "";
+                case Form.LIQUID: return "";
+                case Form.POWDER: return "";
+                case Form.SHEET: return "";
+            }
+
+            return null;
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using MTConnect.SysML.Xmi;
+﻿using MTConnect.SysML.Models.Devices;
+using MTConnect.SysML.Xmi;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -24,10 +25,10 @@ namespace MTConnect.SysML.Models.Observations
                 var umlModel = xmiDocument.Model;
 
                 // Find Information Model in the UML
-                var informationModel = umlModel.Packages.FirstOrDefault(o => o.Name == "Observation Information Model");
-                if (informationModel != null)
+                var observationInformationModel = umlModel.Packages.FirstOrDefault(o => o.Name == "Observation Information Model");
+                if (observationInformationModel != null)
                 {
-                    var observationTypesPackage = informationModel.Packages.FirstOrDefault(o => o.Name == "Observation Types");
+                    var observationTypesPackage = observationInformationModel.Packages.FirstOrDefault(o => o.Name == "Observation Types");
                     if (observationTypesPackage != null)
                     {
                         // Conditions
@@ -44,6 +45,20 @@ namespace MTConnect.SysML.Models.Observations
                         var sampleEnum = umlModel.Profiles.FirstOrDefault().Packages.FirstOrDefault().Enumerations.FirstOrDefault(o => o.Name == "SampleEnum");
                         var sampleValues = observationTypesPackage.Packages.FirstOrDefault(o => o.Name == "Sample Types");
                         Models.AddRange(MTConnectObservationModel.Parse(xmiDocument, "Sample", "Observations.Samples", sampleValues.Classes, sampleEnum));
+                    }
+                }
+
+                // Find Interface Information Model in the UML
+                var interfaceInformationModel = umlModel.Packages.FirstOrDefault(o => o.Name == "Interface Interaction Model");
+                if (interfaceInformationModel != null && observationInformationModel != null)
+                {
+                    // DataItems
+                    var interfaceDataItems = interfaceInformationModel.Packages?.FirstOrDefault(o => o.Name == "DataItem Types for Interface");
+                    if (interfaceDataItems != null)
+                    {
+                        // Event Observations
+                        var eventEnum = umlModel.Profiles.FirstOrDefault().Packages.FirstOrDefault().Enumerations.FirstOrDefault(o => o.Name == "InterfaceEventEnum");
+                        Models.AddRange(MTConnectObservationModel.Parse(xmiDocument, "Event", "Observations.Events", interfaceDataItems.Classes, eventEnum));
                     }
                 }
             }

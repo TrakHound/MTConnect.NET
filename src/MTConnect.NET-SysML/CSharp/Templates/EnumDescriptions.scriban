@@ -13,5 +13,21 @@ namespace {{namespace}}
         {{- if (i < (values | array.size)) }}
         {{ end }}
 {{- end }}
+
+{{- if ((values | array.size) > 0) }}{{ i = 0 }}
+
+
+        public static string Get({{name}} value)
+        {
+            switch (value)
+            {
+{{- for value in values }}{{ i = i + 1 }}
+                case {{name}}.{{value.name}}: return "{{value.description}}";
+{{- end }}
+            }
+
+            return null;
+        }
+{{- end }}
     }
 }

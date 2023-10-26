@@ -19,5 +19,18 @@ namespace MTConnect.Assets.Files
         /// Content is modified from `PRODUCTION` or `EXPERIMENTAL`.
         /// </summary>
         public const string REVISION = "Content is modified from `PRODUCTION` or `EXPERIMENTAL`.";
+
+
+        public static string Get(FileState value)
+        {
+            switch (value)
+            {
+                case FileState.EXPERIMENTAL: return "Used for processes other than production or otherwise defined.";
+                case FileState.PRODUCTION: return "Used for production processes.";
+                case FileState.REVISION: return "Content is modified from `PRODUCTION` or `EXPERIMENTAL`.";
+            }
+
+            return null;
+        }
     }
 }

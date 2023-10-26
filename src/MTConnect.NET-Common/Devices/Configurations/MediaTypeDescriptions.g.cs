@@ -49,5 +49,24 @@ namespace MTConnect.Devices.Configurations
         /// Parasolid XT Siemens data interchange format.
         /// </summary>
         public const string X_T = "Parasolid XT Siemens data interchange format.";
+
+
+        public static string Get(MediaType value)
+        {
+            switch (value)
+            {
+                case MediaType.THREE_D_S: return "Autodesk file format.";
+                case MediaType.ACIS: return "Dassault file format.";
+                case MediaType.COLLADA: return "Iso 17506.";
+                case MediaType.GDML: return "Geometry Description Markup Language.";
+                case MediaType.IGES: return "Initial Graphics Exchange Specification.";
+                case MediaType.OBJ: return "Wavefront OBJ file format.";
+                case MediaType.STEP: return "Iso 10303 STEP AP203 or AP242 format.";
+                case MediaType.STL: return "Stereolithography file format.";
+                case MediaType.X_T: return "Parasolid XT Siemens data interchange format.";
+            }
+
+            return null;
+        }
     }
 }

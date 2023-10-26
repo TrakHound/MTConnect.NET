@@ -54,5 +54,25 @@ namespace MTConnect.Assets.CuttingTools
         /// Location for a tool awaiting transfer from a tool magazine to spindle or a turret.
         /// </summary>
         public const string TRANSFER_POT = "Location for a tool awaiting transfer from a tool magazine to spindle or a turret.";
+
+
+        public static string Get(LocationType value)
+        {
+            switch (value)
+            {
+                case LocationType.CRIB: return "Location with regard to a tool crib.";
+                case LocationType.END_EFFECTOR: return "Location associated with an end effector.";
+                case LocationType.EXPIRED_POT: return "Location for a tool that is no longer usable and is awaiting removal from a tool magazine or turret.";
+                case LocationType.POT: return "Number of the pot in the tool handling system.";
+                case LocationType.REMOVAL_POT: return "Location for a tool removed from a tool magazine or turret awaiting transfer to a location outside of the piece of equipment.";
+                case LocationType.RETURN_POT: return "Location for a tool removed from a spindle or turret and awaiting return to a tool magazine.";
+                case LocationType.SPINDLE: return "Location associated with a spindle.";
+                case LocationType.STAGING_POT: return "Location for a tool awaiting transfer to a tool magazine or turret from outside of the piece of equipment.";
+                case LocationType.STATION: return "Tool location in a horizontal turning machine.";
+                case LocationType.TRANSFER_POT: return "Location for a tool awaiting transfer from a tool magazine to spindle or a turret.";
+            }
+
+            return null;
+        }
     }
 }

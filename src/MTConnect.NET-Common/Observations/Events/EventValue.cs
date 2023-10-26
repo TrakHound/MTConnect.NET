@@ -1,11 +1,10 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-using MTConnect.Devices;
-using MTConnect.Devices.DataItems.Events;
-using MTConnect.Observations;
+using MTConnect.Devices.DataItems;
+using MTConnect.Interfaces;
 
-namespace MTConnect.Observations.Events.Values
+namespace MTConnect.Observations.Events
 {
     public class EventValue : EventValueObservation
     {
@@ -40,21 +39,21 @@ namespace MTConnect.Observations.Events.Values
 
                     switch (subType.ToUnderscoreUpper().ConvertEnum<CompositionStateDataItem.SubTypes>())
                     {
-                        case CompositionStateDataItem.SubTypes.ACTION: return CompositionActionStateDescriptions.Get(value.ConvertEnum<CompositionActionState>());
-                        case CompositionStateDataItem.SubTypes.LATERAL: return CompositionLateralStateDescriptions.Get(value.ConvertEnum<CompositionLateralState>());
-                        case CompositionStateDataItem.SubTypes.MOTION: return CompositionMotionStateDescriptions.Get(value.ConvertEnum<CompositionMotionState>());
-                        case CompositionStateDataItem.SubTypes.SWITCHED: return CompositionSwitchedStateDescriptions.Get(value.ConvertEnum<CompositionSwitchedState>());
-                        case CompositionStateDataItem.SubTypes.VERTICAL: return CompositionVerticalStateDescriptions.Get(value.ConvertEnum<CompositionVerticalState>());
+                        case CompositionStateDataItem.SubTypes.ACTION: return CompositionStateActionDescriptions.Get(value.ConvertEnum<CompositionStateAction>());
+                        case CompositionStateDataItem.SubTypes.LATERAL: return CompositionStateLateralDescriptions.Get(value.ConvertEnum<CompositionStateLateral>());
+                        case CompositionStateDataItem.SubTypes.MOTION: return CompositionStateMotionDescriptions.Get(value.ConvertEnum<CompositionStateMotion>());
+                        case CompositionStateDataItem.SubTypes.SWITCHED: return CompositionStateSwitchedDescriptions.Get(value.ConvertEnum<CompositionStateSwitched>());
+                        case CompositionStateDataItem.SubTypes.VERTICAL: return CompositionStateVerticalDescriptions.Get(value.ConvertEnum<CompositionStateVertical>());
                     }
                     break;
                 case ConnectionStatusDataItem.TypeId: return ConnectionStatusDescriptions.Get(value.ConvertEnum<ConnectionStatus>());
                 case ControllerModeDataItem.TypeId: return ControllerModeDescriptions.Get(value.ConvertEnum<ControllerMode>());
-                case ControllerModeOverrideDataItem.TypeId: return ControllerModeOverrideValueDescriptions.Get(value.ConvertEnum<ControllerModeOverrideValue>());
+                case ControllerModeOverrideDataItem.TypeId: return ControllerModeOverrideDescriptions.Get(value.ConvertEnum<ControllerModeOverride>());
                 case DirectionDataItem.TypeId:
                     switch (subType.ToUnderscoreUpper().ConvertEnum<DirectionDataItem.SubTypes>())
                     {
-                        case DirectionDataItem.SubTypes.LINEAR: return LinearDirectionDescriptions.Get(value.ConvertEnum<LinearDirection>());
-                        case DirectionDataItem.SubTypes.ROTARY: return RotaryDirectionDescriptions.Get(value.ConvertEnum<RotaryDirection>());
+                        case DirectionDataItem.SubTypes.LINEAR: return DirectionLinearDescriptions.Get(value.ConvertEnum<DirectionLinear>());
+                        case DirectionDataItem.SubTypes.ROTARY: return DirectionRotaryDescriptions.Get(value.ConvertEnum<DirectionRotary>());
                     }
                     break;
                 case DoorStateDataItem.TypeId: return DoorStateDescriptions.Get(value.ConvertEnum<DoorState>());

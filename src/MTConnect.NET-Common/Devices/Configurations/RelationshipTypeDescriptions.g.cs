@@ -19,5 +19,18 @@ namespace MTConnect.Devices.Configurations
         /// Functions as a peer which provides equal functionality and capabilities in the relationship with the associated element.
         /// </summary>
         public const string PEER = "Functions as a peer which provides equal functionality and capabilities in the relationship with the associated element.";
+
+
+        public static string Get(RelationshipType value)
+        {
+            switch (value)
+            {
+                case RelationshipType.CHILD: return "Functions as a child in the relationship with the associated element.";
+                case RelationshipType.PARENT: return "Functions as a parent in the relationship with the associated element.";
+                case RelationshipType.PEER: return "Functions as a peer which provides equal functionality and capabilities in the relationship with the associated element.";
+            }
+
+            return null;
+        }
     }
 }

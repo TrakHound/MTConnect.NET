@@ -184,5 +184,51 @@ namespace MTConnect.Devices
         /// Pressure in Torr.
         /// </summary>
         public const string TORR = "Pressure in Torr.";
+
+
+        public static string Get(NativeUnits value)
+        {
+            switch (value)
+            {
+                case NativeUnits.AMPERE_HOUR: return "Electric charge in ampere hour.";
+                case NativeUnits.BAR: return "Pressure in Bar.";
+                case NativeUnits.CENTIPOISE: return "Measure of viscosity.";
+                case NativeUnits.DEGREE_PER_MINUTE: return "Rotational velocity in degrees per minute.";
+                case NativeUnits.FAHRENHEIT: return "Temperature in Fahrenheit.";
+                case NativeUnits.FOOT: return "Feet.";
+                case NativeUnits.FOOT_3D: return "Point in space identified by X, Y, and Z positions and represented by a space-delimited set of numbers each expressed in feet.";
+                case NativeUnits.FOOT_PER_MINUTE: return "Feet per minute.";
+                case NativeUnits.FOOT_PER_SECOND: return "Feet per second.";
+                case NativeUnits.FOOT_PER_SECOND_SQUARED: return "Acceleration in feet per second squared.";
+                case NativeUnits.GALLON_PER_MINUTE: return "Gallons per minute.";
+                case NativeUnits.GRAVITATIONAL_ACCELERATION: return "Acceleration relative to earth's gravity given in `METER/SECOND^2`.> Note 1 to entry: At different points on Earth's surface, the free-fall acceleration ranges from 9.764 to 9.834 m/s2 (Wikipedia: Gravitational Acceleration). The constant can be customized depending on the location in the universe.> Note 2 to entry: In the standard, it is assumed that Earth's average value of gravitational acceleration is 9.90665 m/s2.";
+                case NativeUnits.GRAVITATIONAL_FORCE: return "$$mass\times GRAVITATIONAL_ACCELERATION$$ (g) given in `METER/SECOND^2`.";
+                case NativeUnits.HOUR: return "Measurement of time in hours.";
+                case NativeUnits.INCH: return "Inches.";
+                case NativeUnits.INCH_3D: return "Point in space identified by X, Y, and Z positions and represented by a space-delimited set of numbers each expressed in inches.";
+                case NativeUnits.INCH_POUND: return "Measure of torque in inch pounds.";
+                case NativeUnits.INCH_PER_MINUTE: return "Inches per minute.";
+                case NativeUnits.INCH_PER_SECOND: return "Inches per second.";
+                case NativeUnits.INCH_PER_SECOND_SQUARED: return "Acceleration in inches per second squared.";
+                case NativeUnits.KELVIN: return "Measurement of temperature.";
+                case NativeUnits.KILOWATT: return "Measurement in kilowatt.";
+                case NativeUnits.KILOWATT_HOUR: return "Kilowatt hours which is 3.6 mega joules.";
+                case NativeUnits.LITER_PER_MINUTE: return "Measurement of rate of flow of a fluid.";
+                case NativeUnits.MILLIMETER_MERCURY: return "Pressure in Millimeter of Mercury (mmHg).";
+                case NativeUnits.MILLIMETER_PER_MINUTE: return "Velocity in millimeters per minute.";
+                case NativeUnits.MINUTE: return "Measurement of time in minutes.";
+                case NativeUnits.OTHER: return "Unsupported unit.";
+                case NativeUnits.PASCAL_PER_MINUTE: return "Pascal per minute.";
+                case NativeUnits.POUND: return "Us pounds.";
+                case NativeUnits.POUND_PER_INCH_SQUARED: return "Pressure in pounds per square inch (PSI).";
+                case NativeUnits.RADIAN: return "Angle in radians.";
+                case NativeUnits.RADIAN_PER_MINUTE: return "Velocity in radians per minute.";
+                case NativeUnits.RADIAN_PER_SECOND: return "Rotational acceleration in radian per second squared.";
+                case NativeUnits.RADIAN_PER_SECOND_SQUARED: return "Rotational acceleration in radian per second squared.";
+                case NativeUnits.TORR: return "Pressure in Torr.";
+            }
+
+            return null;
+        }
     }
 }
