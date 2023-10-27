@@ -186,7 +186,7 @@ namespace MTConnect.Devices
         public const string TORR = "Pressure in Torr.";
 
 
-        public static string Get(NativeUnits value)
+        public static string Get(string value)
         {
             switch (value)
             {

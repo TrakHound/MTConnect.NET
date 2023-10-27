@@ -166,7 +166,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
         public const string Wt = "Total weight of the cutting tool in grams. The force exerted by the mass of the cutting tool.";
 
 
-        public static string Get(MeasurementCode value)
+        public static string Get(string value)
         {
             switch (value)
             {

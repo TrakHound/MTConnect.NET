@@ -103,7 +103,7 @@ namespace MTConnect.SysML.CSharp
 
         public string RenderDescriptions()
         {
-            var templateFilename = $"EnumDescriptions.scriban";
+            var templateFilename = $"EnumStringDescriptions.scriban";
             var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "csharp", "templates", templateFilename);
             if (File.Exists(templatePath))
             {

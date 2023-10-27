@@ -104,8 +104,11 @@ namespace MTConnect.SysML.Models.Devices
                             var instanceValue = property.DefaultValue as UmlInstanceValue;
                             if (instanceValue != null)
                             {
+                                var unitType = ModelHelper.GetEnumName(xmiDocument, property.PropertyType);
+
                                 Units = ModelHelper.GetEnumValue(xmiDocument, property.PropertyType, instanceValue.Instance);
                                 Units = UnitsHelper.Get(Units);
+                                if (!string.IsNullOrEmpty(Units)) Units = $"{unitType}.{Units}";
                             }
                         }
                     }

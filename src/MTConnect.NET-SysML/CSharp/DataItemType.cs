@@ -13,7 +13,7 @@ namespace MTConnect.SysML.CSharp
     {
         public string Namespace => NamespaceHelper.GetNamespace(Id);
 
-        public string UnitsEnum => Units != null ? $"Devices.Units.{Units}" : null;
+        public string UnitsEnum => Units != null ? $"Devices.{Units}" : null;
 
         public string MaximumVersionEnum => MTConnectVersion.GetVersionEnum(MaximumVersion);
 
@@ -48,6 +48,12 @@ namespace MTConnect.SysML.CSharp
                         {
                             exportProperty.SetValue(exportModel, propertyValue);
                         }
+                    }
+                    
+                    if (exportModel.Units != null)
+                    {
+                        exportModel.Units = exportModel.Units.Replace("NativeUnitsEnum", "NativeUnits");
+                        exportModel.Units = exportModel.Units.Replace("UnitsEnum", "Units");
                     }
 
                     return exportModel;

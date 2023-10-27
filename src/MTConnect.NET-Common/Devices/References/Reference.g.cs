@@ -8,7 +8,7 @@ namespace MTConnect.Devices.References
     /// <summary>
     /// Pointer to information that is associated with another entity defined elsewhere in the MTConnectDevices entity for a piece of equipment.
     /// </summary>
-    public abstract class Reference : IReference
+    public abstract partial class Reference : IReference
     {
         public const string DescriptionText = "Pointer to information that is associated with another entity defined elsewhere in the MTConnectDevices entity for a piece of equipment.";
 

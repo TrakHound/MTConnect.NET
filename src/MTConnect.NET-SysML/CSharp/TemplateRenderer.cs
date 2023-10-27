@@ -96,9 +96,9 @@ namespace MTConnect.SysML.CSharp
                                 case "Devices.Composition": ((ClassModel)template).IsPartial = true; break;
                                 case "Devices.DataItem": ((ClassModel)template).IsPartial = true; break;
                                 case "Devices.AbstractDataItemRelationship": ((ClassModel)template).IsPartial = true; break;
+                                case "Devices.References.Reference": ((ClassModel)template).IsPartial = true; break;
                                 case "Devices.Units": ((EnumStringModel)template).IsPartial = true; break;
 
-                                case "Devices.DataItemStatistic": ((EnumModel)template).Values.Add(new MTConnectEnumValueModel { Name = "NONE" }); break;
                                 case "Devices.DataItemStatistic": ((EnumModel)template).Values.Add(new MTConnectEnumValueModel { Name = "NONE" }); break;
 
                                 case "Assets.Asset": ((ClassModel)template).IsPartial = true; break;

@@ -6,7 +6,7 @@ namespace MTConnect.Devices.References
     /// <summary>
     /// Pointer to information that is associated with another entity defined elsewhere in the MTConnectDevices entity for a piece of equipment.
     /// </summary>
-    public interface IReference
+    public partial interface IReference
     {
         /// <summary>
         /// Pointer to the id of a DataItem that contains the information to be associated with this entity.

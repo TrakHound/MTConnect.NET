@@ -251,7 +251,7 @@ namespace MTConnect.Devices
         public const string WATT_SECOND = "Measurement of electrical energy, equal to one Joule.";
 
 
-        public static string Get(Units value)
+        public static string Get(string value)
         {
             switch (value)
             {
