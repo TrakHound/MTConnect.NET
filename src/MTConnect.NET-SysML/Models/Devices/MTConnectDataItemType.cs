@@ -46,12 +46,21 @@ namespace MTConnect.SysML.Models.Devices
             {
                 UmlId = umlClass.Id;
 
-                var name = $"{umlClass.Name.ToTitleCase()}DataItem";
+                var name = $"{ConvertClassName(umlClass.Name)}DataItem";
+
+                //string name;
+                //switch (umlClass.Name)
+                //{
+                //    case "AdapterURI": name = "AdapterUriDataItem"; break;
+                //    case "MTConnectVersion": name = "MTConnectVersionDataItem"; break;
+                //    default: name = $"{umlClass.Name.ToTitleCase()}DataItem"; break;
+                //}
 
                 Id = $"{idPrefix}.{name}";
                 Name = name;
                 Category = category;
-                Type = umlClass.Name.ToUnderscoreUpper();
+                Type = umlEnumerationLiteral.Name;
+                //Type = umlClass.Name.ToUnderscoreUpper();
 
                 var description = umlEnumerationLiteral.Comments?.FirstOrDefault().Body;
                 Description = ModelHelper.ProcessDescription(description);
@@ -138,7 +147,8 @@ namespace MTConnect.SysML.Models.Devices
                     // Filter out SubTypes (ex. Type.Subtype)
                     if (!umlClass.Name.Contains('.'))
                     {
-                        var enumItem = umlEnumeration.Items.FirstOrDefault(o => o.Name.ToTitleCase() == umlClass.Name);
+                        var enumItem = umlEnumeration.Items.FirstOrDefault(o => ConvertEnumName(o.Name) == ConvertClassName(umlClass.Name));
+                        //var enumItem = umlEnumeration.Items.FirstOrDefault(o => o.Name.ToTitleCase() == umlClass.Name);
                         var subClasses = umlClasses.Where(o => o.Name.StartsWith($"{umlClass.Name}."));
 
                         types.Add(new MTConnectDataItemType(xmiDocument, category, idPrefix, umlClass, enumItem, subClasses));
@@ -147,6 +157,46 @@ namespace MTConnect.SysML.Models.Devices
             }
 
             return types.OrderBy(o => o.Name);
+        }
+
+
+        private static string ConvertClassName(string name)
+        {
+            if (name != null)
+            {
+                switch (name)
+                {
+                    case "AdapterURI": return "AdapterUri"; 
+                    case "AmperageAC": return "AmperageAC"; 
+                    case "AmperageDC": return "AmperageDC";
+                    case "VoltageAC": return "VoltageAC";
+                    case "VoltageDC": return "VoltageDC";
+                    case "MTConnectVersion": return "MTConnectVersion";
+                    case "PH": return "PH";
+                    default: return name.ToTitleCase();
+                }
+            }
+
+            return null;
+        }
+
+        private static string ConvertEnumName(string name)
+        {
+            if (name != null)
+            {
+                switch (name)
+                {
+                    case "ADAPTER_URI": return "AdapterUri";
+                    case "AMPERAGE_AC": return "AmperageAC";
+                    case "AMPERAGE_DC": return "AmperageDC";
+                    case "VOLTAGE_AC": return "VoltageAC";
+                    case "VOLTAGE_DC": return "VoltageDC";
+                    case "PH": return "PH";
+                    default: return name.ToTitleCase();
+                }
+            }
+
+            return null;
         }
     }
 }

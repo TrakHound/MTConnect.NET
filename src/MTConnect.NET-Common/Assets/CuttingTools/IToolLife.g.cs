@@ -11,7 +11,7 @@ namespace MTConnect.Assets.CuttingTools
         /// <summary>
         /// Indicates if the tool life counts from zero to maximum or maximum to zero.
         /// </summary>
-        CountDirectionType CountDirection { get; }
+        MTConnect.Assets.CuttingTools.CountDirectionType CountDirection { get; }
         
         /// <summary>
         /// Initial life of the tool when it is new.

@@ -3,9 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
-using System.Xml;
-using System.Xml.Serialization;
 
 namespace MTConnect.Assets.CuttingTools
 {
@@ -14,44 +11,7 @@ namespace MTConnect.Assets.CuttingTools
         public const string TypeId = "CuttingTool";
 
 
-        /// <summary>
-        /// The unique identifier for this assembly. 
-        /// This is defined as an XML string type and is implementation dependent.
-        /// </summary>
-        public string SerialNumber { get; set; }
-
-        /// <summary>
-        /// The identifier for a class of cutting tools. 
-        /// This is defined as an XML string type and is implementation dependent.
-        /// </summary>
-        public string ToolId { get; set; }
-
-        /// <summary>
-        /// The manufacturers of the cutting tool. 
-        /// An optional attribute referring to the manufacturers of this tool, for this element, this will reference the Tool Item and Adaptive Items specifically. 
-        /// The Cutting Items manufacturers’ will be an attribute of the CuttingItem elements. 
-        /// The representation will be a comma (,) delimited list of manufacturer names. This can be any series of numbers and letters as defined by the XML type string.
-        /// </summary>
-        [XmlAttribute("manufacturers")]
-        [JsonPropertyName("manufacturers")]
-        public string Manufacturers { get; set; }
-
-        /// <summary>
-        /// Data regarding the use of this tool.
-        /// </summary>
-        [XmlElement("CuttingToolLifeCycle")]
-        [JsonPropertyName("cuttingToolLifeCycle")]
-        public CuttingToolLifeCycle CuttingToolLifeCycle { get; set; }
-
-        /// <summary>
-        /// The content of this XML element is the assetId of the CuttingToolArchetype document.
-        /// </summary>
-        [XmlElement("CuttingToolArchetypeReference")]
-        [JsonPropertyName("cuttingToolArchetypeReference")]
-        public string CuttingToolArchetypeReference { get; set; }
-
-
-        public CuttingToolAsset()
+        public CuttingTool()
         {
             Type = TypeId;
             CuttingToolLifeCycle = new CuttingToolLifeCycle();
@@ -62,7 +22,7 @@ namespace MTConnect.Assets.CuttingTools
         {
             if (mtconnectVersion != null && mtconnectVersion >= MTConnectVersions.Version12)
             {
-                var asset = new CuttingToolAsset();
+                var asset = new CuttingTool();
                 asset.AssetId = AssetId;
                 asset.InstanceId = InstanceId;
                 asset.Type = Type;
@@ -111,7 +71,7 @@ namespace MTConnect.Assets.CuttingTools
 			return GenerateHash(this);
 		}
 
-		public static string GenerateHash(CuttingToolAsset asset)
+		public static string GenerateHash(CuttingTool asset)
 		{
 			if (asset != null)
 			{

@@ -21,7 +21,7 @@ namespace MTConnect.Devices
         /// <summary>
         /// MTConnect version of the Device Information Model used to configure the information to be published for a piece of equipment in an MTConnect Response Document.
         /// </summary>
-        public string MTConnectVersion { get; set; }
+        public System.Version MTConnectVersion { get; set; }
         
         /// <summary>
         /// Name of an element or a piece of equipment.

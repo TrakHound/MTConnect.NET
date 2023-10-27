@@ -12,7 +12,11 @@ namespace MTConnect.SysML.Models.Devices
 
             // Override MTConnectVersion (to fix case)
             var mtconnectVersionProperty = Properties?.FirstOrDefault(o => o.Name?.ToLower() == "mtconnectversion");
-            if (mtconnectVersionProperty != null) mtconnectVersionProperty.Name = "MTConnectVersion";
+            if (mtconnectVersionProperty != null)
+            {
+                mtconnectVersionProperty.Name = "MTConnectVersion";
+                mtconnectVersionProperty.DataType = "System.Version";
+            }
 
             Properties?.RemoveAll(o => o.Name == "Adapter");
             Properties?.RemoveAll(o => o.Name == "Auxiliary");

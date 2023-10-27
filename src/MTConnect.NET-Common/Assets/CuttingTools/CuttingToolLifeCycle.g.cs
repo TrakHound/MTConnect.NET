@@ -8,7 +8,7 @@ namespace MTConnect.Assets.CuttingTools
     /// <summary>
     /// Data regarding the application or use of the tool.This data is provided by various pieces of equipment (i.e. machine tool, presetter) and statistical process control applications. Life cycle data will not remain static, but will change periodically when a tool is used or measured.
     /// </summary>
-    public class CuttingToolLifeCycle : ICuttingToolLifeCycle
+    public partial class CuttingToolLifeCycle : ICuttingToolLifeCycle
     {
         public const string DescriptionText = "Data regarding the application or use of the tool.This data is provided by various pieces of equipment (i.e. machine tool, presetter) and statistical process control applications. Life cycle data will not remain static, but will change periodically when a tool is used or measured.";
 
@@ -66,6 +66,6 @@ namespace MTConnect.Assets.CuttingTools
         /// <summary>
         /// Cutting tool life as related to the assembly.
         /// </summary>
-        public System.Collections.Generic.IEnumerable<MTConnect.Assets.CuttingTools.IToolLife> ToolLifes { get; set; }
+        public System.Collections.Generic.IEnumerable<MTConnect.Assets.CuttingTools.IToolLife> ToolLife { get; set; }
     }
 }

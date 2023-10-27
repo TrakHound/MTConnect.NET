@@ -11,12 +11,12 @@ namespace MTConnect.Assets.Files
         /// <summary>
         /// Category of application that will use this file.
         /// </summary>
-        ApplicationCategory ApplicationCategory { get; }
+        MTConnect.Assets.Files.ApplicationCategory ApplicationCategory { get; }
         
         /// <summary>
         /// Type of application that will use this file.
         /// </summary>
-        ApplicationType ApplicationType { get; }
+        MTConnect.Assets.Files.ApplicationType ApplicationType { get; }
         
         /// <summary>
         /// Remark or interpretation for human interpretation associated with a File or FileArchetype.

@@ -105,7 +105,7 @@ namespace MTConnect.Agents
                 if (version == null) version = MTConnectVersions.Max;
 
                 _mtconnectVersion = version;
-                if (_agent != null) _agent.MTConnectVersion = _mtconnectVersion.ToString();
+                if (_agent != null) _agent.MTConnectVersion = _mtconnectVersion;
             }
         }
 
@@ -749,7 +749,7 @@ namespace MTConnect.Agents
                 {
                     foreach (var filter in dataItem.Filters)
                     {
-                        if (filter.Type == DataItemFilterType.PERIOD)
+                        if (filter.Type == FilterType.PERIOD)
                         {
                             if (filter.Value > 0)
                             {
@@ -781,7 +781,7 @@ namespace MTConnect.Agents
                     {
                         foreach (var filter in dataItem.Filters)
                         {
-                            if (filter.Type == DataItemFilterType.MINIMUM_DELTA)
+                            if (filter.Type == FilterType.MINIMUM_DELTA)
                             {
                                 if (filter.Value > 0)
                                 {

@@ -52,7 +52,7 @@ namespace MTConnect.Devices
                 Id = $"agent_{_agent.Uuid.ToMD5Hash().Substring(0, 10)}";
                 Name = "agent";
                 Uuid = _agent.Uuid;
-                MTConnectVersion = _agent.MTConnectVersion.ToString();
+                MTConnectVersion = _agent.MTConnectVersion;
             }
         }
 
@@ -97,7 +97,7 @@ namespace MTConnect.Devices
             if (_agent != null)
             {
                 // Initialize Availability
-                _agent.AddObservation(Uuid, DataItem.CreateId(Id, AvailabilityDataItem.NameId), Observations.Events.Values.Availability.AVAILABLE);
+                _agent.AddObservation(Uuid, DataItem.CreateId(Id, AvailabilityDataItem.NameId), Observations.Events.Availability.AVAILABLE);
 
 
                 // Initialize Application Manufacturer

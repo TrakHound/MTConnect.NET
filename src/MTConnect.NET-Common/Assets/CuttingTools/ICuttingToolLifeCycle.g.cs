@@ -6,7 +6,7 @@ namespace MTConnect.Assets.CuttingTools
     /// <summary>
     /// Data regarding the application or use of the tool.This data is provided by various pieces of equipment (i.e. machine tool, presetter) and statistical process control applications. Life cycle data will not remain static, but will change periodically when a tool is used or measured.
     /// </summary>
-    public interface ICuttingToolLifeCycle
+    public partial interface ICuttingToolLifeCycle
     {
         /// <summary>
         /// Identifier for the capability to connect any component of the cutting tool together, except Assembly Items, on the machine side. Code: `CCMS`
@@ -61,6 +61,6 @@ namespace MTConnect.Assets.CuttingTools
         /// <summary>
         /// Cutting tool life as related to the assembly.
         /// </summary>
-        System.Collections.Generic.IEnumerable<MTConnect.Assets.CuttingTools.IToolLife> ToolLifes { get; }
+        System.Collections.Generic.IEnumerable<MTConnect.Assets.CuttingTools.IToolLife> ToolLife { get; }
     }
 }

@@ -108,7 +108,7 @@ namespace MTConnect.SysML.Models.Assets
                 var profile = xmiDocument.Model.Profiles.FirstOrDefault();
                 var dataTypes = profile.Packages.FirstOrDefault(o => o.Name == "DataTypes");
 
-                CuttingTools.Enums.Add(new MTConnectEnumModel(xmiDocument, "Assets.CuttingTools", dataTypes?.Enumerations.FirstOrDefault(o => o.Name == "CountDirectionEnum")));
+                CuttingTools.Enums.Add(new MTConnectEnumModel(xmiDocument, "Assets.CuttingTools", dataTypes?.Enumerations.FirstOrDefault(o => o.Name == "CountDirectionTypeEnum")));
                 CuttingTools.Enums.Add(new MTConnectEnumModel(xmiDocument, "Assets.CuttingTools", dataTypes?.Enumerations.FirstOrDefault(o => o.Name == "CutterStatusTypeEnum")));
                 CuttingTools.Enums.Add(new MTConnectEnumModel(xmiDocument, "Assets.CuttingTools", dataTypes?.Enumerations.FirstOrDefault(o => o.Name == "ToolLifeEnum")));
                 CuttingTools.Enums.Add(new MTConnectEnumModel(xmiDocument, "Assets.CuttingTools", dataTypes?.Enumerations.FirstOrDefault(o => o.Name == "LocationTypeEnum")));
@@ -134,6 +134,8 @@ namespace MTConnect.SysML.Models.Assets
                 var profile = xmiDocument.Model.Profiles.FirstOrDefault();
                 var dataTypes = profile.Packages.FirstOrDefault(o => o.Name == "DataTypes");
 
+                Files.Enums.Add(new MTConnectEnumModel(xmiDocument, "Assets.Files", dataTypes?.Enumerations.FirstOrDefault(o => o.Name == "ApplicationCategoryEnum")));
+                Files.Enums.Add(new MTConnectEnumModel(xmiDocument, "Assets.Files", dataTypes?.Enumerations.FirstOrDefault(o => o.Name == "ApplicationTypeEnum")));
                 Files.Enums.Add(new MTConnectEnumModel(xmiDocument, "Assets.Files", dataTypes?.Enumerations.FirstOrDefault(o => o.Name == "FileStateEnum")));
             }
         }

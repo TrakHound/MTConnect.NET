@@ -58,6 +58,6 @@ namespace MTConnect.Assets.CuttingTools
         /// <summary>
         /// Cutting tool life as related to the assembly.
         /// </summary>
-        public const string ToolLifes = "Cutting tool life as related to the assembly.";
+        public const string ToolLife = "Cutting tool life as related to the assembly.";
     }
 }

@@ -32,7 +32,7 @@ namespace MTConnect.SysML
                 IsArray = ModelHelper.IsArray(xmiDocument, umlProperty.Id);
 
                 var propertyName = umlProperty.Name;
-                if (IsArray && !propertyName.EndsWith("s")) propertyName += "s";
+                if (IsArray && !propertyName.EndsWith("s") && propertyName != "hasToolLife") propertyName += "s";
                 if (propertyName.StartsWith("has") && propertyName != "hash") propertyName = propertyName.Substring(3);
 
                 if (propertyName == "xlink:type") propertyName = "xLinkType";

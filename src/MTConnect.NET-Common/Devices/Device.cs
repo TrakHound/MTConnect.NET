@@ -609,7 +609,7 @@ namespace MTConnect.Devices
                     if (mtconnectVersion >= MTConnectVersions.Version13) obj.References = device.References;
                     if (mtconnectVersion >= MTConnectVersions.Version17) obj.Configuration = device.Configuration;
                     if (mtconnectVersion >= MTConnectVersions.Version18) obj.CoordinateSystemIdRef = device.CoordinateSystemIdRef;
-                    obj.MTConnectVersion = device.MTConnectVersion != null ? device.MTConnectVersion : mtconnectVersion.ToString();
+                    obj.MTConnectVersion = device.MTConnectVersion != null ? device.MTConnectVersion : mtconnectVersion;
                     if (mtconnectVersion >= MTConnectVersions.Version22) obj.Hash = device.Hash;
 
                     // Add DataItems

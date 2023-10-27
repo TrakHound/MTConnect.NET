@@ -32,7 +32,7 @@ namespace MTConnect.Devices
                 case NativeUnits.KELVIN: return "K";
                 case NativeUnits.KILOWATT: return "kW";
                 case NativeUnits.KILOWATT_HOUR: return "kWh";
-                case NativeUnits.LITER: return "L";
+                //case NativeUnits.LITER: return "L";
                 case NativeUnits.MINUTE: return "min";
                 case NativeUnits.PASCAL_PER_MINUTE: return "Pas/min";
                 case NativeUnits.POUND: return "lb";
