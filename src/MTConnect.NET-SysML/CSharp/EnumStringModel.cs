@@ -37,7 +37,7 @@ namespace MTConnect.SysML.CSharp
                         var propertyValue = importProperty.GetValue(importModel);
 
                         var exportProperty = exportProperties.FirstOrDefault(o => o.Name ==  importProperty.Name);
-                        if (exportProperty != null)
+                        if (exportProperty != null && exportProperty.PropertyType == importProperty.PropertyType)
                         {
                             exportProperty.SetValue(exportModel, propertyValue);
                         }

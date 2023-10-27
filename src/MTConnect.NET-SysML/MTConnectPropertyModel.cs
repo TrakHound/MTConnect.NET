@@ -21,6 +21,8 @@ namespace MTConnect.SysML
         public bool IsArray { get; set; }
 
 
+        public MTConnectPropertyModel() { }
+
         public MTConnectPropertyModel(XmiDocument xmiDocument, string idPrefix, UmlProperty umlProperty) 
         {
             UmlId = umlProperty.Id;

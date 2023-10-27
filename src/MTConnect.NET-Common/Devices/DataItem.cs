@@ -1,6 +1,7 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
+using MTConnect.Devices.Configurations;
 using MTConnect.Devices.DataItems;
 using MTConnect.Extensions;
 using MTConnect.Observations;
@@ -165,7 +166,7 @@ namespace MTConnect.Devices
         private void Init()
         {
             Filters = new List<Filter>();
-            Relationships = new List<Relationship>();
+            Relationships = new List<IAbstractDataItemRelationship>();
         }
 
 
@@ -969,7 +970,7 @@ namespace MTConnect.Devices
                     obj.Relationships = dataItem.Relationships;
                     if (dataItem.Relationships != null && mtconnectVersion >= MTConnectVersions.Version15)
                     {
-                        var relationships = new List<IRelationship>();
+                        var relationships = new List<IAbstractDataItemRelationship>();
                         foreach (var relationship in dataItem.Relationships)
                         {
                             // Component Relationship

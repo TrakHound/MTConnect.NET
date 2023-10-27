@@ -26,6 +26,13 @@ namespace MTConnect.Devices
         /// </summary>
         public string Iso841Class { get; set; }
 
+        public IEnumerable<IDataItem> DataItems { get; set; }
+
+        /// <summary>
+        /// The Type of Device
+        /// </summary>
+        public string Type { get; set; }
+
         /// <summary>
         /// The Container that this Device is directly associated with
         /// </summary>
@@ -602,7 +609,7 @@ namespace MTConnect.Devices
                     if (mtconnectVersion >= MTConnectVersions.Version13) obj.References = device.References;
                     if (mtconnectVersion >= MTConnectVersions.Version17) obj.Configuration = device.Configuration;
                     if (mtconnectVersion >= MTConnectVersions.Version18) obj.CoordinateSystemIdRef = device.CoordinateSystemIdRef;
-                    obj.MTConnectVersion = device.MTConnectVersion != null ? device.MTConnectVersion : mtconnectVersion;
+                    obj.MTConnectVersion = device.MTConnectVersion != null ? device.MTConnectVersion : mtconnectVersion.ToString();
                     if (mtconnectVersion >= MTConnectVersions.Version22) obj.Hash = device.Hash;
 
                     // Add DataItems

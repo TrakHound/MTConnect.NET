@@ -1,9 +1,6 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-using MTConnect.Devices.Configurations;
-using MTConnect.Devices.DataItems;
-using MTConnect.Devices.References;
 using MTConnect.Extensions;
 using System;
 using System.Collections.Generic;

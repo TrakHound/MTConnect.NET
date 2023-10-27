@@ -26,7 +26,7 @@ namespace MTConnect.Devices
         public MTConnectEntityType EntityType => MTConnectEntityType.Component;
 
 
-        public virtual IEnumerable<IDataItem> DataItems { get; set; }
+        public IEnumerable<IDataItem> DataItems { get; set; }
 
         /// <summary>
         /// The Type of Component

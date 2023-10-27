@@ -27,7 +27,7 @@ namespace MTConnect.Observations
 
         public SampleTableObservation() : base()
         {
-            _representation = Devices.DataItems.DataItemRepresentation.TABLE;
+            _representation = Devices.DataItemRepresentation.TABLE;
         }
     }
 }

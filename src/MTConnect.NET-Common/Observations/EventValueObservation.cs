@@ -20,7 +20,7 @@ namespace MTConnect.Observations
 
         public EventValueObservation() : base()
         {
-            _representation = Devices.DataItems.DataItemRepresentation.VALUE;
+            _representation = Devices.DataItemRepresentation.VALUE;
         }
     }
 }

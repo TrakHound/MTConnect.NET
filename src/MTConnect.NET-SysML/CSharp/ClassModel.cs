@@ -2,6 +2,7 @@
 using MTConnect.SysML.Xmi.UML;
 using Scriban;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -13,9 +14,17 @@ namespace MTConnect.SysML.CSharp
 
         public bool IsPartial { get; set; }
 
+        public bool HasModel { get; set; } = true;
+
+        public bool HasInterface { get; set; } = true;
+
+        public bool HasDescriptions { get; set; } = true;
+
         public string MaximumVersionEnum => MTConnectVersion.GetVersionEnum(MaximumVersion);
 
         public string MinimumVersionEnum => MTConnectVersion.GetVersionEnum(MinimumVersion);
+
+        public new List<PropertyModel> Properties { get; set; } = new();
 
 
         public ClassModel() { }
@@ -41,27 +50,24 @@ namespace MTConnect.SysML.CSharp
                         var propertyValue = importProperty.GetValue(importModel);
 
                         var exportProperty = exportProperties.FirstOrDefault(o => o.Name ==  importProperty.Name);
-                        if (exportProperty != null)
+                        if (exportProperty != null && exportProperty.PropertyType == importProperty.PropertyType)
                         {
                             exportProperty.SetValue(exportModel, propertyValue);
                         }
                     }
 
-                    foreach (var propertyModel in exportModel.Properties)
+                    foreach (var propertyModel in importModel.Properties)
                     {
-                        //// Convert to Interface
-                        //if (propertyModel.DataType.ToLower() != propertyModel.DataType && propertyModel.DataType != "System.DateTime" && !propertyModel.DataType.EndsWith("Enum"))
-                        //{
-                        //    if (!propertyModel.DataType.StartsWith("I")) propertyModel.DataType = $"I{propertyModel.DataType}";
-                        //    //if (!propertyModel.DataType.StartsWith("I")) propertyModel.DataType = $"I{propertyModel.DataType}";
-                        //}
+                        var exportPropertyModel = PropertyModel.Create(propertyModel);
 
                         // Remove 'Enum' suffix
-                        if (propertyModel.DataType.EndsWith("Enum"))
+                        if (exportPropertyModel.DataType.EndsWith("Enum"))
                         {   
                             var suffix = "Enum";
-                            if (propertyModel.DataType.EndsWith(suffix)) propertyModel.DataType = propertyModel.DataType.Substring(0, propertyModel.DataType.Length - suffix.Length);
+                            if (exportPropertyModel.DataType.EndsWith(suffix)) exportPropertyModel.DataType = exportPropertyModel.DataType.Substring(0, exportPropertyModel.DataType.Length - suffix.Length);
                         }
+
+                        exportModel.Properties.Add(exportPropertyModel);
                     }
 
                     return exportModel;
@@ -76,7 +82,7 @@ namespace MTConnect.SysML.CSharp
         {
             var templateFilename = $"Model.scriban";
             var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "csharp", "templates", templateFilename);
-            if (File.Exists(templatePath))
+            if (HasModel && File.Exists(templatePath))
             {
                 try
                 {
@@ -100,7 +106,7 @@ namespace MTConnect.SysML.CSharp
         {
             var templateFilename = $"Interface.scriban";
             var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "csharp", "templates", templateFilename);
-            if (File.Exists(templatePath))
+            if (HasInterface && File.Exists(templatePath))
             {
                 try
                 {
@@ -124,7 +130,7 @@ namespace MTConnect.SysML.CSharp
         {
             var templateFilename = $"ModelDescriptions.scriban";
             var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "csharp", "templates", templateFilename);
-            if (File.Exists(templatePath))
+            if (HasDescriptions && File.Exists(templatePath))
             {
                 try
                 {

@@ -108,6 +108,13 @@ namespace MTConnect.SysML.Models.Devices
                             {
                                 DataItems.Classes.AddRange(MTConnectClassModel.Parse(xmiDocument, "Devices", definitionProperties.Classes));
                             }
+
+                            // Relationship Types for DataItem
+                            var dataItemRelationships = dataItemProperties.Packages?.FirstOrDefault(o => o.Name == "Relationship Types for DataItem");
+                            if (dataItemRelationships != null)
+                            {
+                                DataItems.Classes.AddRange(MTConnectClassModel.Parse(xmiDocument, "Devices", dataItemRelationships.Classes));
+                            }
                         }
 
                         var observationTypes = observationInformationModel.Packages?.FirstOrDefault(o => o.Name == "Observation Types");
@@ -134,9 +141,11 @@ namespace MTConnect.SysML.Models.Devices
                         DataItems.Enums.Add(new MTConnectEnumModel(xmiDocument, "Devices", dataTypes?.Enumerations.FirstOrDefault(o => o.Name == "NativeUnitEnum")));
                         DataItems.Enums.Add(new MTConnectEnumModel(xmiDocument, "Devices", dataTypes?.Enumerations.FirstOrDefault(o => o.Name == "CategoryEnum")));
                         DataItems.Enums.Add(new MTConnectEnumModel(xmiDocument, "Devices", dataTypes?.Enumerations.FirstOrDefault(o => o.Name == "CoordinateSystemEnum")));
+                        DataItems.Enums.Add(new MTConnectEnumModel(xmiDocument, "Devices", dataTypes?.Enumerations.FirstOrDefault(o => o.Name == "DataItemRelationshipTypeEnum")));
                         DataItems.Enums.Add(new MTConnectEnumModel(xmiDocument, "Devices", dataTypes?.Enumerations.FirstOrDefault(o => o.Name == "FilterEnum")));
                         DataItems.Enums.Add(new MTConnectEnumModel(xmiDocument, "Devices", dataTypes?.Enumerations.FirstOrDefault(o => o.Name == "RepresentationEnum")));
                         DataItems.Enums.Add(new MTConnectEnumModel(xmiDocument, "Devices", dataTypes?.Enumerations.FirstOrDefault(o => o.Name == "ResetTriggerEnum")));
+                        DataItems.Enums.Add(new MTConnectEnumModel(xmiDocument, "Devices", dataTypes?.Enumerations.FirstOrDefault(o => o.Name == "SpecificationRelationshipTypeEnum")));
                         DataItems.Enums.Add(new MTConnectEnumModel(xmiDocument, "Devices", dataTypes?.Enumerations.FirstOrDefault(o => o.Name == "StatisticEnum")));
 
                         // Change the name of "FilterEnum" to "FilterTypeEnum"

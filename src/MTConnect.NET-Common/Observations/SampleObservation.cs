@@ -2,7 +2,6 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Devices;
-using MTConnect.Devices.DataItems;
 using System;
 
 namespace MTConnect.Observations

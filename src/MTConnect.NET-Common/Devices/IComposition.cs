@@ -10,6 +10,9 @@ namespace MTConnect.Devices
     /// </summary>
     public partial interface IComposition : IContainer
     {
+
+
+
         /// <summary>
         /// Return a list of All DataItems
         /// </summary>

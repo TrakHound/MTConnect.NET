@@ -8,9 +8,9 @@ namespace MTConnect.Devices
     /// <summary>
     /// Component composed of a piece of equipment that produces observation about itself.
     /// </summary>
-    public partial class Device : Component, IDevice
+    public partial class Device : IDevice
     {
-        public new const string DescriptionText = "Component composed of a piece of equipment that produces observation about itself.";
+        public const string DescriptionText = "Component composed of a piece of equipment that produces observation about itself.";
 
 
         /// <summary>

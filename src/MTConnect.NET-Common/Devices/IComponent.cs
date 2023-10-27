@@ -12,18 +12,12 @@ namespace MTConnect.Devices
     /// </summary>
     public partial interface IComponent : IContainer
     {
+        /// <summary>
+        /// The type of component
+        /// </summary>
+        string Type { get; }
+
         bool IsOrganizer { get; }
-
-
-        ///// <summary>
-        ///// A container for the Component elements associated with this Component element.
-        ///// </summary>
-        //IEnumerable<IComponent> Components { get; set; }
-
-        ///// <summary>
-        ///// A container for the Composition elements associated with this Component element.
-        ///// </summary>
-        //IEnumerable<IComposition> Compositions { get; set; }
 
 
         /// <summary>

@@ -87,17 +87,26 @@ namespace MTConnect.SysML.CSharp
                         {
                             switch (template.Id)
                             {
-                                case "Devices.Device": ((ClassModel)template).IsPartial = true; break;
+                                case "Devices.Device": 
+                                    ((ClassModel)template).IsPartial = true;
+                                    ((ClassModel)template).ParentName = null;
+                                    break;
+
                                 case "Devices.Component": ((ClassModel)template).IsPartial = true; break;
                                 case "Devices.Composition": ((ClassModel)template).IsPartial = true; break;
                                 case "Devices.DataItem": ((ClassModel)template).IsPartial = true; break;
+                                case "Devices.AbstractDataItemRelationship": ((ClassModel)template).IsPartial = true; break;
+                                case "Devices.Units": ((EnumStringModel)template).IsPartial = true; break;
+
+                                case "Devices.DataItemStatistic": ((EnumModel)template).Values.Add(new MTConnectEnumValueModel { Name = "NONE" }); break;
+                                case "Devices.DataItemStatistic": ((EnumModel)template).Values.Add(new MTConnectEnumValueModel { Name = "NONE" }); break;
+
                                 case "Assets.Asset": ((ClassModel)template).IsPartial = true; break;
                                 case "Assets.ComponentConfigurationParameters.ComponentConfigurationParameter": ((ClassModel)template).IsPartial = true; break;
                                 case "Assets.CuttingTools.CuttingTool": ((ClassModel)template).IsPartial = true; break;
                                 case "Assets.Files.File": ((ClassModel)template).IsPartial = true; break;
                                 case "Assets.QIF.QIFDocument": ((ClassModel)template).IsPartial = true; break;
                                 case "Assets.RawMaterials.RawMaterial": ((ClassModel)template).IsPartial = true; break;
-                                case "Devices.Units": ((EnumStringModel)template).IsPartial = true; break;
                             }
 
                             templates.Add(template);
@@ -106,6 +115,57 @@ namespace MTConnect.SysML.CSharp
 
                     if (templates != null)
                     {
+                        var componentModel = templates.FirstOrDefault(o => o.Id == "Devices.Component");
+                        if (componentModel != null)
+                        {
+                            // Add special template for the IContainer interface
+                            var containerModel = new ClassModel();
+                            containerModel.Id = "Devices.Container";
+                            containerModel.Name = "Container";
+                            containerModel.IsPartial = true;
+                            containerModel.HasModel = false;
+                            containerModel.HasDescriptions = false;
+                            foreach (var property in ((ClassModel)componentModel).Properties?.Where(o => o.Name != "Components" && o.Name != "Compositions"))
+                            {
+                                containerModel.Properties.Add(PropertyModel.Create(property));
+                            }
+                            templates.Add(containerModel);
+
+
+                            var deviceModel = templates.FirstOrDefault(o => o.Id == "Devices.Device");
+                            if (deviceModel != null)
+                            {
+                                // Remove redundant Properties (inherits from IContainer)
+                                foreach (var property in ((ClassModel)deviceModel).Properties)
+                                {
+                                    if (containerModel.Properties.Any(o => o.Name == property.Name))
+                                    {
+                                        property.ExportToInterface = false;
+                                    }
+                                }
+                            }
+
+                            var compositionModel = templates.FirstOrDefault(o => o.Id == "Devices.Composition");
+                            if (compositionModel != null)
+                            {
+                                // Remove redundant Properties (inherits from IContainer)
+                                foreach (var property in ((ClassModel)compositionModel).Properties)
+                                {
+                                    if (containerModel.Properties.Any(o => o.Name == property.Name))
+                                    {
+                                        property.ExportToInterface = false;
+                                    }
+                                }
+                            }
+
+                            // Remove redundant Properties (inherits from IContainer)
+                            foreach (var property in ((ClassModel)componentModel).Properties?.Where(o => o.Name != "Components" && o.Name != "Compositions"))
+                            {
+                                property.ExportToInterface = false;
+                            }
+                        }
+
+
                         foreach (var template in templates)
                         {
                             WriteModel(template, outputPath);

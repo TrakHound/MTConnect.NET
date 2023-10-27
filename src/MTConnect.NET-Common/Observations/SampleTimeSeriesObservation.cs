@@ -27,7 +27,7 @@ namespace MTConnect.Observations
 
         public SampleTimeSeriesObservation() : base()
         {
-            _representation = Devices.DataItems.DataItemRepresentation.TIME_SERIES;
+            _representation = Devices.DataItemRepresentation.TIME_SERIES;
         }
     }
 }

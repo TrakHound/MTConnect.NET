@@ -76,7 +76,7 @@ namespace MTConnect.Devices
         /// <summary>
         /// Association between a DataItem and another entity.
         /// </summary>
-        System.Collections.Generic.IEnumerable<AbstractDataItemRelationship> Relationships { get; }
+        System.Collections.Generic.IEnumerable<MTConnect.Devices.IAbstractDataItemRelationship> Relationships { get; }
         
         /// <summary>
         /// Description of a means to interpret data consisting of multiple data points or samples reported as a single value.  If representation is not specified, it **MUST** be determined to be `VALUE`.
