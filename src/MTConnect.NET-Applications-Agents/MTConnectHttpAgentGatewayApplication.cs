@@ -6,7 +6,7 @@ using MTConnect.Clients;
 using MTConnect.Configurations;
 using MTConnect.Devices;
 using MTConnect.Devices.Components;
-using MTConnect.Devices.DataItems.Events;
+using MTConnect.Devices.DataItems;
 using MTConnect.Observations.Input;
 using MTConnect.Streams;
 using NLog;
@@ -182,7 +182,7 @@ namespace MTConnect.Applications.Agents
             if (client != null)
             {
                 var dataItemId = DataItem.CreateId(client.Id, ConnectionStatusDataItem.NameId);
-                Agent.AddObservation(Agent.Uuid, dataItemId, Observations.Events.Values.ConnectionStatus.LISTEN);
+                Agent.AddObservation(Agent.Uuid, dataItemId, Observations.Events.ConnectionStatus.LISTEN);
 
                 _clientLogger.Info($"[Http-Adapter] : ID = {client.Id} : Client Started : {client.Authority}");
             }
@@ -193,7 +193,7 @@ namespace MTConnect.Applications.Agents
             if (client != null)
             {
                 var dataItemId = DataItem.CreateId(client.Id, ConnectionStatusDataItem.NameId);
-                Agent.AddObservation(Agent.Uuid, dataItemId, Observations.Events.Values.ConnectionStatus.CLOSED);
+                Agent.AddObservation(Agent.Uuid, dataItemId, Observations.Events.ConnectionStatus.CLOSED);
 
                 _clientLogger.Info($"[Http-Adapter] : ID = {client.Id} : Client Stopped : {client.Authority}");
             }
@@ -204,7 +204,7 @@ namespace MTConnect.Applications.Agents
             if (client != null)
             {
                 var dataItemId = DataItem.CreateId(client.Id, ConnectionStatusDataItem.NameId);
-                Agent.AddObservation(Agent.Uuid, dataItemId, Observations.Events.Values.ConnectionStatus.ESTABLISHED);
+                Agent.AddObservation(Agent.Uuid, dataItemId, Observations.Events.ConnectionStatus.ESTABLISHED);
 
                 _clientLogger.Info($"[Http-Adapter] : ID = {client.Id} : Client Stream Started : {query}");
             }
@@ -215,8 +215,8 @@ namespace MTConnect.Applications.Agents
             if (client != null)
             {
                 var dataItemId = DataItem.CreateId(client.Id, ConnectionStatusDataItem.NameId);
-                Agent.AddObservation(Agent.Uuid, dataItemId, Observations.Events.Values.ConnectionStatus.CLOSED);
-                Agent.AddObservation(Agent.Uuid, dataItemId, Observations.Events.Values.ConnectionStatus.LISTEN);
+                Agent.AddObservation(Agent.Uuid, dataItemId, Observations.Events.ConnectionStatus.CLOSED);
+                Agent.AddObservation(Agent.Uuid, dataItemId, Observations.Events.ConnectionStatus.LISTEN);
 
                 _clientLogger.Info($"[Http-Adapter] : ID = {client.Id} : Client Stream Stopped");
             }

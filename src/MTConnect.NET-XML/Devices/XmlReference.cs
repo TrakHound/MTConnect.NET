@@ -16,13 +16,15 @@ namespace MTConnect.Devices.Xml
         public string Name { get; set; }
 
 
-        public virtual IReference ToReference()
-        {
-            var reference = new Reference();
-            reference.IdRef = IdRef;
-            reference.Name = Name;
-            return reference;
-        }
+        public virtual IReference ToReference() { return null; }
+
+        //public virtual IReference ToReference()
+        //{
+        //    var reference = new Reference();
+        //    reference.IdRef = IdRef;
+        //    reference.Name = Name;
+        //    return reference;
+        //}
 
         public static void WriteXml(XmlWriter writer, IReference reference)
         {

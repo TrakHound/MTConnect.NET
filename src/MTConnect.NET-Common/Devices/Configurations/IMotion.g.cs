@@ -16,7 +16,7 @@ namespace MTConnect.Devices.Configurations
         /// <summary>
         /// Axis along or around which the Component moves relative to a coordinate system.
         /// </summary>
-        double Axis { get; }
+        MTConnect.UnitVector3D Axis { get; }
         
         /// <summary>
         /// Coordinate system within which the kinematic motion occurs.
@@ -36,7 +36,7 @@ namespace MTConnect.Devices.Configurations
         /// <summary>
         /// Coordinates of the origin position of a coordinate system.
         /// </summary>
-        string Origin { get; }
+        MTConnect.UnitVector3D Origin { get; }
         
         /// <summary>
         /// Pointer to the id attribute of the parent Motion.The kinematic chain connects all components using the parent relations. All motion is connected to the motion of the parent. The first node in the chain will not have a parent.

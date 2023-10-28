@@ -16,21 +16,21 @@ namespace MTConnect.Devices.Configurations
         /// <summary>
         /// Lower conformance boundary for a variable.> Note: immediate concern or action may be required.
         /// </summary>
-        public double LowerLimit { get; set; }
+        public double? LowerLimit { get; set; }
         
         /// <summary>
         /// Lower boundary indicating increased concern and supervision may be required.
         /// </summary>
-        public double LowerWarning { get; set; }
+        public double? LowerWarning { get; set; }
         
         /// <summary>
         /// Upper conformance boundary for a variable.> Note: immediate concern or action may be required.
         /// </summary>
-        public double UpperLimit { get; set; }
+        public double? UpperLimit { get; set; }
         
         /// <summary>
         /// Upper boundary indicating increased concern and supervision may be required.
         /// </summary>
-        public double UpperWarning { get; set; }
+        public double? UpperWarning { get; set; }
     }
 }

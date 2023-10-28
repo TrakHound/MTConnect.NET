@@ -42,6 +42,9 @@ namespace MTConnect.SysML.CSharp
                                         case "UnitsEnum": property.DataType = "string"; break;
                                         case "NativeUnitsEnum": property.DataType = "string"; break;
                                         case "MeasurementCodeEnum": property.DataType = "string"; break;
+                                        case "UNIT_VECTOR_3D": property.DataType = "MTConnect.UnitVector3D"; break;
+                                        case "POSITION_3D": property.DataType = "MTConnect.Position3D"; break;
+                                        case "DEGREE_3D": property.DataType = "MTConnect.Degree3D"; break;
                                         default:
 
                                             var classMatch = dClassModels.GetValueOrDefault(property.DataType);
@@ -101,7 +104,9 @@ namespace MTConnect.SysML.CSharp
                                 case "Devices.References.Reference": ((ClassModel)template).IsPartial = true; break;
                                 case "Devices.Units": ((EnumStringModel)template).IsPartial = true; break;
 
+                                case "Devices.DataItemResetTrigger": ((EnumModel)template).Values.Add(new MTConnectEnumValueModel { Name = "NONE" }); break;
                                 case "Devices.DataItemStatistic": ((EnumModel)template).Values.Add(new MTConnectEnumValueModel { Name = "NONE" }); break;
+                                case "Devices.Configurations.CriticalityType": ((EnumModel)template).Values.Add(new MTConnectEnumValueModel { Name = "NOT_SPECIFIED" }); break;
 
                                 case "Assets.Asset": ((ClassModel)template).IsPartial = true; break;
                                 case "Assets.ComponentConfigurationParameters.ComponentConfigurationParameter": ((ClassModel)template).IsPartial = true; break;
@@ -140,10 +145,12 @@ namespace MTConnect.SysML.CSharp
                             var deviceModel = templates.FirstOrDefault(o => o.Id == "Devices.Device");
                             if (deviceModel != null)
                             {
-                                // Remove redundant Properties (inherits from IContainer)
+                                // Remove redundant Properties (inherits from IComponent)
                                 foreach (var property in ((ClassModel)deviceModel).Properties)
                                 {
-                                    if (containerModel.Properties.Any(o => o.Name == property.Name))
+                                    if (property.Name == "Hash") property.ExportToInterface = false;
+
+                                    if (((ClassModel)componentModel).Properties.Any(o => o.Name == property.Name))
                                     {
                                         property.ExportToInterface = false;
                                     }

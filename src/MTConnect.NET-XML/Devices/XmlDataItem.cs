@@ -1,7 +1,7 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-using MTConnect.Devices.Configurations.Relationships;
+using MTConnect.Devices.Configurations;
 using MTConnect.Devices.DataItems;
 using System.Collections.Generic;
 using System.IO;
@@ -16,7 +16,7 @@ namespace MTConnect.Devices.Xml
 
 
         [XmlAttribute("category")]
-        public DataItemCategory DataItemCategory { get; set; }
+        public string DataItemCategory { get; set; }
 
         [XmlAttribute("id")]
         public string Id { get; set; }
@@ -25,7 +25,7 @@ namespace MTConnect.Devices.Xml
         public string Type { get; set; }
 
         [XmlAttribute("coordinateSystem")]
-        public DataItemCoordinateSystem CoordinateSystem { get; set; }
+        public string CoordinateSystem { get; set; }
 
         [XmlAttribute("coordinateSystemIdRef")]
         public string CoordinateSystemIdRef { get; set; }
@@ -37,7 +37,7 @@ namespace MTConnect.Devices.Xml
         public string CompositionId { get; set; }
 
         [XmlAttribute("nativeScale")]
-        public double NativeScale { get; set; }
+        public int NativeScale { get; set; }
 
         [XmlAttribute("nativeUnits")]
         public string NativeUnits { get; set; }
@@ -46,7 +46,7 @@ namespace MTConnect.Devices.Xml
         public string SubType { get; set; }
 
         [XmlAttribute("statistic")]
-        public DataItemStatistic Statistic { get; set; }
+        public string Statistic { get; set; }
 
         [XmlAttribute("units")]
         public string Units { get; set; }
@@ -58,7 +58,7 @@ namespace MTConnect.Devices.Xml
         public string Discrete { get; set; }
 
         [XmlAttribute("representation")]
-        public DataItemRepresentation Representation { get; set; }
+        public string Representation { get; set; }
 
         [XmlAttribute("significantDigits")]
         public int SignificantDigits { get; set; }
@@ -77,15 +77,15 @@ namespace MTConnect.Devices.Xml
         public string InitialValue { get; set; }
 
         [XmlElement("ResetTrigger")]
-        public DataItemResetTrigger ResetTrigger { get; set; }
+        public string ResetTrigger { get; set; }
 
         [XmlElement("Definition")]
         public XmlDataItemDefinition Definition { get; set; }
 
-        [XmlArray("Relationships")]
-        [XmlArrayItem("DataItemRelationship", typeof(XmlDataItemRelationship))]
-        [XmlArrayItem("SpecificationRelationship", typeof(XmlSpecificationRelationship))]
-        public List<XmlRelationship> Relationships { get; set; }
+        //[XmlArray("Relationships")]
+        //[XmlArrayItem("DataItemRelationship", typeof(XmlDataItemRelationship))]
+        //[XmlArrayItem("SpecificationRelationship", typeof(XmlSpecificationRelationship))]
+        //public List<XmlAbstractDataItemRelationship> Relationships { get; set; }
 
 
         public DataItem ToDataItem()
@@ -93,7 +93,7 @@ namespace MTConnect.Devices.Xml
             var dataItem = DataItem.Create(Type);
             if (dataItem == null) dataItem = new DataItem();
 
-            dataItem.Category = DataItemCategory;
+            if (!string.IsNullOrEmpty(DataItemCategory)) dataItem.Category = DataItemCategory.ConvertEnum<DataItemCategory>();
             dataItem.Id = Id;
             dataItem.Name = Name;
             dataItem.Type = Type;
@@ -102,12 +102,12 @@ namespace MTConnect.Devices.Xml
             dataItem.NativeScale = NativeScale;
             dataItem.SampleRate = SampleRate;
             dataItem.CompositionId = CompositionId;
-            dataItem.Representation = Representation;
-            dataItem.ResetTrigger = ResetTrigger;
-            dataItem.CoordinateSystem = CoordinateSystem;
+            if (!string.IsNullOrEmpty(Representation)) dataItem.Representation = Representation.ConvertEnum<DataItemRepresentation>();
+            if (!string.IsNullOrEmpty(ResetTrigger)) dataItem.ResetTrigger = ResetTrigger.ConvertEnum<DataItemResetTrigger>();
+            if (!string.IsNullOrEmpty(CoordinateSystem)) dataItem.CoordinateSystem = CoordinateSystem.ConvertEnum<DataItemCoordinateSystem>();
             dataItem.CoordinateSystemIdRef = CoordinateSystemIdRef;
             dataItem.Units = Units;
-            dataItem.Statistic = Statistic;
+            if (!string.IsNullOrEmpty(Statistic)) dataItem.Statistic = Statistic.ConvertEnum<DataItemStatistic>();
             dataItem.SignificantDigits = SignificantDigits;
             dataItem.InitialValue = InitialValue;
             dataItem.Discrete = Discrete.ToBoolean();
@@ -132,16 +132,16 @@ namespace MTConnect.Devices.Xml
                 dataItem.Filters = filters;
             }
 
-            // Relationships
-            if (!Relationships.IsNullOrEmpty())
-            {
-                var relationships = new List<IRelationship>();
-                foreach (var relationship in Relationships)
-                {
-                    relationships.Add(relationship.ToRelationship());
-                }
-                dataItem.Relationships = relationships;
-            }
+            //// Relationships
+            //if (!Relationships.IsNullOrEmpty())
+            //{
+            //    var relationships = new List<IAbstractDataItemRelationship>();
+            //    foreach (var relationship in Relationships)
+            //    {
+            //        relationships.Add(relationship.ToRelationship());
+            //    }
+            //    dataItem.Relationships = relationships;
+            //}
 
             return dataItem;
         }
@@ -215,36 +215,36 @@ namespace MTConnect.Devices.Xml
                 if (dataItem.ResetTrigger != DataItemResetTrigger.NONE) writer.WriteAttributeString("resetTrigger", dataItem.ResetTrigger.ToString());
 
 
-                // Write Source
-                XmlSource.WriteXml(writer, dataItem.Source);
+                //// Write Source
+                //XmlSource.WriteXml(writer, dataItem.Source);
 
                 // Write Constraints
                 XmlConstraints.WriteXml(writer, dataItem.Constraints);
 
-                // Write Filters
-                if (!dataItem.Filters.IsNullOrEmpty())
-                {
-                    writer.WriteStartElement("Filters");
-                    foreach (var filter in dataItem.Filters)
-                    {
-                        XmlFilter.WriteXml(writer, filter);
-                    }
-                    writer.WriteEndElement();
-                }
+                //// Write Filters
+                //if (!dataItem.Filters.IsNullOrEmpty())
+                //{
+                //    writer.WriteStartElement("Filters");
+                //    foreach (var filter in dataItem.Filters)
+                //    {
+                //        XmlFilter.WriteXml(writer, filter);
+                //    }
+                //    writer.WriteEndElement();
+                //}
 
-                // Write Definition
-                XmlDataItemDefinition.WriteXml(writer, dataItem.Definition);
+                //// Write Definition
+                //XmlDataItemDefinition.WriteXml(writer, dataItem.Definition);
 
-                // Write Relationships
-                if (!dataItem.Relationships.IsNullOrEmpty())
-                {
-                    writer.WriteStartElement("Relationships");
-                    foreach (var relationship in dataItem.Relationships)
-                    {
-                        XmlRelationship.WriteXml(writer, relationship);
-                    }
-                    writer.WriteEndElement();
-                }
+                //// Write Relationships
+                //if (!dataItem.Relationships.IsNullOrEmpty())
+                //{
+                //    writer.WriteStartElement("Relationships");
+                //    foreach (var relationship in dataItem.Relationships)
+                //    {
+                //        XmlAbstractDataItemRelationship.WriteXml(writer, relationship);
+                //    }
+                //    writer.WriteEndElement();
+                //}
 
                 writer.WriteEndElement();
             }

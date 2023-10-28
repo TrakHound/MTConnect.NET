@@ -8,7 +8,7 @@ namespace MTConnect.Devices
         /// <summary>
         /// Semantic definition of a Cell.
         /// </summary>
-        public const string CellDefinition = "Semantic definition of a Cell.";
+        public const string CellDefinitions = "Semantic definition of a Cell.";
         
         /// <summary>
         /// Descriptive content.

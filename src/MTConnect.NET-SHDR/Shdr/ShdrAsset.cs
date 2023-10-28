@@ -82,7 +82,8 @@ namespace MTConnect.Shdr
                     var asset = new ShdrAsset(AssetId, AssetType, Xml, 0);
                     if (asset.Asset != null)
                     {
-                        asset.Asset.Timestamp = 0;
+                        ((Asset)asset.Asset).Timestamp = DateTime.MinValue;
+                        //asset.Asset.Timestamp = 0;
                         asset.Xml = XmlAsset.ToXml(asset.Asset);
                     }
 
@@ -129,7 +130,8 @@ namespace MTConnect.Shdr
                 AssetType = asset.Type;
                 Asset = asset;
                 Xml = XmlAsset.ToXml(asset);
-                Timestamp = asset.Timestamp;
+                Timestamp = asset.Timestamp.ToUnixTime();
+                //Timestamp = asset.Timestamp;
             }
         }
 

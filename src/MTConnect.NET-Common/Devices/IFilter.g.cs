@@ -11,7 +11,7 @@ namespace MTConnect.Devices
         /// <summary>
         /// Type of Filter.
         /// </summary>
-        MTConnect.Devices.FilterType Type { get; }
+        MTConnect.Devices.DataItemFilterType Type { get; }
         
         /// <summary>
         /// 

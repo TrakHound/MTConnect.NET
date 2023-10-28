@@ -1,7 +1,7 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-using MTConnect.Devices.Configurations.Relationships;
+using MTConnect.Devices.Configurations;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -11,13 +11,13 @@ namespace MTConnect.Devices.Xml
     public class XmlDeviceRelationship : XmlRelationship
     {
         [XmlAttribute("type")]
-        public DeviceRelationshipType Type { get; set; }
+        public RelationshipType Type { get; set; }
 
         [XmlAttribute("deviceUuidRef")]
         public string DeviceUuidRef { get; set; }
 
         [XmlAttribute("role")]
-        public Role Role { get; set; }
+        public RoleType Role { get; set; }
 
         [XmlAttribute("href")]
         public string Href { get; set; }
@@ -32,7 +32,7 @@ namespace MTConnect.Devices.Xml
             relationship.Id = Id;
             relationship.Name = Name;
             relationship.Criticality = Criticality;
-            relationship.IdRef = IdRef;
+            //relationship.IdRef = IdRef;
             relationship.Type = Type;
             relationship.DeviceUuidRef = DeviceUuidRef;
             relationship.Role = Role;

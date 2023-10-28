@@ -9,7 +9,7 @@ using System.Xml.Serialization;
 
 namespace MTConnect.Devices.Xml
 {
-    public class XmlRelationship
+    public class XmlAbstractDataItemRelationship
     {
         [XmlAttribute("id")]
         public string Id { get; set; }
@@ -24,19 +24,19 @@ namespace MTConnect.Devices.Xml
         public string IdRef { get; set; }
 
 
-        public virtual IRelationship ToRelationship() { return null; }
+        public virtual IAbstractDataItemRelationship ToRelationship() { return null; }
 
-        //public virtual IRelationship ToRelationship()
+        //public virtual IAbstractDataItemRelationship ToRelationship()
         //{
-        //    var relationship = new Relationship();
-        //    relationship.Id = Id;
+        //    var relationship = new AbstractDataItemRelationship();
+        //    //relationship.Id = Id;
         //    relationship.Name = Name;
-        //    relationship.Criticality = Criticality;
+        //    //relationship.Criticality = Criticality;
         //    relationship.IdRef = IdRef;
         //    return relationship;
         //}
 
-        public static void WriteXml(XmlWriter writer, IRelationship relationship)
+        public static void WriteXml(XmlWriter writer, IAbstractDataItemRelationship relationship)
         {
             if (relationship != null)
             {
@@ -55,12 +55,12 @@ namespace MTConnect.Devices.Xml
             }
         }
 
-        public static void WriteCommonXml(XmlWriter writer, IRelationship relationship)
+        public static void WriteCommonXml(XmlWriter writer, IAbstractDataItemRelationship relationship)
         {
             // Write Properties
-            if (!string.IsNullOrEmpty(relationship.Id)) writer.WriteAttributeString("id", relationship.Id);
+            //if (!string.IsNullOrEmpty(relationship.Id)) writer.WriteAttributeString("id", relationship.Id);
             if (!string.IsNullOrEmpty(relationship.Name)) writer.WriteAttributeString("name", relationship.Name);
-            if (relationship.Criticality != CriticalityType.NOT_SPECIFIED) writer.WriteAttributeString("criticality", relationship.Criticality.ToString());
+            //if (relationship.Criticality != CriticalityType.NOT_SPECIFIED) writer.WriteAttributeString("criticality", relationship.Criticality.ToString());
             //if (!string.IsNullOrEmpty(relationship.IdRef)) writer.WriteAttributeString("idRef", relationship.IdRef);
         }
 

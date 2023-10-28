@@ -5,7 +5,6 @@ using MTConnect.Assets;
 using MTConnect.Assets.Xml;
 using MTConnect.Configurations;
 using MTConnect.Devices;
-using MTConnect.Devices.DataItems;
 using MTConnect.Devices.Xml;
 using System;
 using System.Net;
@@ -582,7 +581,7 @@ namespace MTConnect.Shdr
                         var condition = ShdrFaultState.FromString(line);
                         if (condition != null) OnConditionFaultStateReceived(condition);
                     }
-                    else if (dataItem.Type == Devices.DataItems.Events.MessageDataItem.TypeId)
+                    else if (dataItem.Type == Devices.DataItems.MessageDataItem.TypeId)
                     {
                         var message = ShdrMessage.FromString(line);
                         if (message != null) OnMessageReceived(message);

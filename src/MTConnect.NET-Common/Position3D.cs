@@ -3,7 +3,7 @@
 
 using System.Text.RegularExpressions;
 
-namespace MTConnect.Observations
+namespace MTConnect
 {
     public class Position3D
     {

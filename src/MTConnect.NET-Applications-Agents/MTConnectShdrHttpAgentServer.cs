@@ -2,11 +2,14 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Agents;
+using MTConnect.Assets;
 using MTConnect.Configurations;
+using MTConnect.Devices;
 using MTConnect.Devices.DataItems;
 using MTConnect.Formatters;
 using MTConnect.Servers;
 using MTConnect.Shdr;
+using System;
 using System.Linq;
 using System.Text;
 
@@ -43,7 +46,7 @@ namespace MTConnect.Applications.Agents
                             var condition = ShdrFaultState.FromString(shdrLine);
                             if (condition != null) _mtconnectAgent.AddObservation(device.Uuid, condition);
                         }
-                        else if (dataItem.Type == Devices.DataItems.Events.MessageDataItem.TypeId)
+                        else if (dataItem.Type == Devices.DataItems.MessageDataItem.TypeId)
                         {
                             var message = ShdrMessage.FromString(shdrLine);
                             if (message != null) _mtconnectAgent.AddObservation(device.Uuid, message);
@@ -100,9 +103,9 @@ namespace MTConnect.Applications.Agents
                 var result = EntityFormatter.CreateAsset(args.DocumentFormat, args.AssetType, ReadRequestBody(args.RequestBody));
                 if (result.Success)
                 {
-                    var asset = result.Entity;
+                    var asset = (Asset)result.Entity;
                     asset.AssetId = args.AssetId;
-                    asset.Timestamp = asset.Timestamp > 0 ? asset.Timestamp : UnixDateTime.Now;
+                    asset.Timestamp = asset.Timestamp > DateTime.MinValue ? asset.Timestamp : DateTime.Now;
                     return _mtconnectAgent.AddAsset(args.DeviceKey, asset);
                 }
             }

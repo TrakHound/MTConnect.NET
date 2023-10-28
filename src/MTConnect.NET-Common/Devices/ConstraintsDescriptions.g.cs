@@ -28,6 +28,6 @@ namespace MTConnect.Devices
         /// <summary>
         /// Single data value that is expected to be reported for a DataItem.Value **MUST NOT** be used in conjunction with any other Constraint elements.
         /// </summary>
-        public const string Value = "Single data value that is expected to be reported for a DataItem.Value **MUST NOT** be used in conjunction with any other Constraint elements.";
+        public const string Values = "Single data value that is expected to be reported for a DataItem.Value **MUST NOT** be used in conjunction with any other Constraint elements.";
     }
 }

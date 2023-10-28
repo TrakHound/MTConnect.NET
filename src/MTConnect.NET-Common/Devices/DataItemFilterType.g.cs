@@ -3,7 +3,7 @@
 
 namespace MTConnect.Devices
 {
-    public enum FilterType
+    public enum DataItemFilterType
     {
         /// <summary>
         /// New value **MUST NOT** be reported for a data item unless the measured value has changed from the last reported value by at least the delta given as the value of this element.The value of Filter **MUST** be an absolute value using the same units as the reported data.

@@ -1,7 +1,6 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-using MTConnect.Devices.DataItems;
 using System.Collections.Generic;
 using System.Xml;
 using System.Xml.Serialization;
@@ -11,13 +10,13 @@ namespace MTConnect.Devices.Xml
     public class XmlConstraints
     {
         [XmlElement("Maximum")]
-        public string Maximum { get; set; }
+        public double? Maximum { get; set; }
 
         [XmlElement("Minimum")]
-        public string Minimum { get; set; }
+        public double? Minimum { get; set; }
 
         [XmlElement("Nominal")]
-        public string Nominal { get; set; }
+        public double? Nominal { get; set; }
 
         [XmlElement("Value")]
         public List<string> Values { get; set; }
@@ -43,26 +42,26 @@ namespace MTConnect.Devices.Xml
                 writer.WriteStartElement("Constraints");
 
                 // Maximum
-                if (!string.IsNullOrEmpty(constraints.Maximum))
+                if (constraints.Maximum != null)
                 {
                     writer.WriteStartElement("Maximum");
-                    writer.WriteString(constraints.Maximum);
+                    writer.WriteString(constraints.Maximum.ToString());
                     writer.WriteEndElement();
                 }
 
                 // Minimum
-                if (!string.IsNullOrEmpty(constraints.Minimum))
+                if (constraints.Minimum != null)
                 {
                     writer.WriteStartElement("Minimum");
-                    writer.WriteString(constraints.Minimum);
+                    writer.WriteString(constraints.Minimum.ToString());
                     writer.WriteEndElement();
                 }
 
                 // Nominal
-                if (!string.IsNullOrEmpty(constraints.Nominal))
+                if (constraints.Nominal != null)
                 {
                     writer.WriteStartElement("Nominal");
-                    writer.WriteString(constraints.Nominal);
+                    writer.WriteString(constraints.Nominal.ToString());
                     writer.WriteEndElement();
                 }
 

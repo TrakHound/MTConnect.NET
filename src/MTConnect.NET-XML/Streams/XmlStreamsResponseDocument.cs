@@ -2,14 +2,12 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Configurations;
-using MTConnect.Devices.DataItems;
+using MTConnect.Devices;
 using MTConnect.Observations;
 using MTConnect.Streams.Output;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
-using System.Diagnostics;
 
 namespace MTConnect.Streams.Xml
 {

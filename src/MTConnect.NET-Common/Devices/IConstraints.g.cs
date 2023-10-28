@@ -16,21 +16,21 @@ namespace MTConnect.Devices
         /// <summary>
         /// Numeric upper constraint.If the data reported for a data item is a range of numeric values, the expected value reported **MAY** be described with an upper limit defined by this constraint.
         /// </summary>
-        double Maximum { get; }
+        double? Maximum { get; }
         
         /// <summary>
         /// Numeric lower constraint.If the data reported for a data item is a range of numeric values, the expected value reported **MAY** be described with a lower limit defined by this constraint.
         /// </summary>
-        double Minimum { get; }
+        double? Minimum { get; }
         
         /// <summary>
         /// Numeric target or expected value.
         /// </summary>
-        double Nominal { get; }
+        double? Nominal { get; }
         
         /// <summary>
         /// Single data value that is expected to be reported for a DataItem.Value **MUST NOT** be used in conjunction with any other Constraint elements.
         /// </summary>
-        string Value { get; }
+        System.Collections.Generic.IEnumerable<string> Values { get; }
     }
 }

@@ -1,7 +1,7 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-using MTConnect.Devices.Configurations.Specifications;
+using MTConnect.Devices.Configurations;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -30,14 +30,14 @@ namespace MTConnect.Devices.Xml
         [XmlAttribute("compositionIdRef")]
         public string CompositionIdRef { get; set; }
 
-        [XmlAttribute("coordinateIdRef")]
-        public string CoordinateIdRef { get; set; }
+        [XmlAttribute("coordinateSystemIdRef")]
+        public string CoordinateSystemIdRef { get; set; }
 
         [XmlAttribute("originator")]
         public Originator Originator { get; set; }
 
 
-        public virtual IAbstractSpecification ToSpecification()
+        public virtual ISpecification ToSpecification()
         {
             var specification = new Specification();
             specification.Id = Id;
@@ -47,7 +47,7 @@ namespace MTConnect.Devices.Xml
             specification.DataItemIdRef = DataItemIdRef;
             specification.Units = Units;
             specification.CompositionIdRef = CompositionIdRef;
-            specification.CoordinateIdRef = CoordinateIdRef;
+            specification.CoordinateSystemIdRef = CoordinateSystemIdRef;
             specification.Originator = Originator;
             return specification;
         }

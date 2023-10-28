@@ -3,7 +3,7 @@
 
 using System.Text.RegularExpressions;
 
-namespace MTConnect.Observations
+namespace MTConnect
 {
     /// <summary>
     /// A space-delimited, floating-point representation of the angular rotation in degrees around the X, Y, and Z axes relative

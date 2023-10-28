@@ -1,7 +1,7 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-using MTConnect.Devices.Configurations.CoordinateSystems;
+using MTConnect.Devices.Configurations;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -43,7 +43,7 @@ namespace MTConnect.Devices.Xml
             coordinateSystem.NativeName = NativeName;
             coordinateSystem.ParentIdRef = ParentIdRef;
             coordinateSystem.Type = Type;
-            coordinateSystem.Origin = Origin;
+            coordinateSystem.Origin = UnitVector3D.FromString(Origin);
             if (Transformation != null) coordinateSystem.Transformation = Transformation.ToTransformation();
             coordinateSystem.Description = Description;
             return coordinateSystem;
@@ -71,10 +71,10 @@ namespace MTConnect.Devices.Xml
                 }
 
                 // Write Origin
-                if (!string.IsNullOrEmpty(coordinateSystem.Origin))
+                if (coordinateSystem.Origin != null)
                 {
                     writer.WriteStartElement("Origin");
-                    writer.WriteString(coordinateSystem.Origin);
+                    writer.WriteString(coordinateSystem.Origin.ToString());
                     writer.WriteEndElement();
                 }
 

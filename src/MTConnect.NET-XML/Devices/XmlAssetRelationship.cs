@@ -1,7 +1,7 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-using MTConnect.Devices.Configurations.Relationships;
+using MTConnect.Devices.Configurations;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -26,7 +26,7 @@ namespace MTConnect.Devices.Xml
             relationship.Id = Id;
             relationship.Name = Name;
             relationship.Criticality = Criticality;
-            relationship.IdRef = IdRef;
+            //relationship.IdRef = IdRef;
             relationship.AssetIdRef = AssetIdRef;
             relationship.AssetType = AssetType;
             relationship.Href = Href;

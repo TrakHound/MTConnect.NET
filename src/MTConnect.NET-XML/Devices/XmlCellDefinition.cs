@@ -25,7 +25,7 @@ namespace MTConnect.Devices.Xml
         public string SubType { get; set; }
 
         [XmlElement("Description")]
-        public string Description { get; set; }
+        public XmlDescription Description { get; set; }
 
 
         public ICellDefinition ToCellDefinition()
@@ -36,7 +36,7 @@ namespace MTConnect.Devices.Xml
             definition.Units = Units;
             definition.Type = Type;
             definition.SubType = SubType;
-            definition.Description = Description;
+            definition.Description = Description?.ToDescription();
             return definition;
         }
 
@@ -53,11 +53,9 @@ namespace MTConnect.Devices.Xml
                 if (!string.IsNullOrEmpty(cellDefinition.SubType)) writer.WriteAttributeString("subType", cellDefinition.SubType);
 
                 // Write Description
-                if (!string.IsNullOrEmpty(cellDefinition.Description))
+                if (cellDefinition.Description != null)
                 {
-                    writer.WriteStartElement("Description");
-                    writer.WriteString(cellDefinition.Description);
-                    writer.WriteEndElement();
+                    XmlDescription.WriteXml(writer, cellDefinition.Description);
                 }
 
                 writer.WriteEndElement();

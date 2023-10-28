@@ -9,24 +9,9 @@ namespace MTConnect.Devices
     public partial interface IDevice
     {
         /// <summary>
-        /// Condensed message digest from a secure one-way hash function. FIPS PUB 180-4
-        /// </summary>
-        string Hash { get; }
-        
-        /// <summary>
         /// MTConnect version of the Device Information Model used to configure the information to be published for a piece of equipment in an MTConnect Response Document.
         /// </summary>
         System.Version MTConnectVersion { get; }
-        
-        /// <summary>
-        /// Logical or physical entity that provides a capability.
-        /// </summary>
-        System.Collections.Generic.IEnumerable<MTConnect.Devices.IComponent> Components { get; }
-        
-        /// <summary>
-        /// Functional part of a piece of equipment contained within a Component.
-        /// </summary>
-        System.Collections.Generic.IEnumerable<MTConnect.Devices.IComposition> Compositions { get; }
         
     }
 }

@@ -1,7 +1,7 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-using MTConnect.Devices.Configurations.Sensor;
+using MTConnect.Devices.Configurations;
 using System;
 using System.Xml;
 using System.Xml.Serialization;
@@ -18,7 +18,7 @@ namespace MTConnect.Devices.Xml
         public string Name { get; set; }
 
         [XmlElement("Description")]
-        public string Description { get; set; }
+        public XmlDescription Description { get; set; }
 
         [XmlElement("CalibrationDate")]
         public DateTime CalibrationDate { get; set; }
@@ -35,7 +35,7 @@ namespace MTConnect.Devices.Xml
             var channel = new Channel();
             channel.Number = Number;
             channel.Name = Name;
-            channel.Description = Description;
+            channel.Description = Description.ToDescription();
             channel.CalibrationDate = CalibrationDate;
             channel.NextCalibrationDate = NextCalibrationDate;
             channel.CalibrationInitials = CalibrationInitials;
@@ -52,13 +52,13 @@ namespace MTConnect.Devices.Xml
                 if (!string.IsNullOrEmpty(channel.Number)) writer.WriteAttributeString("number", channel.Number);
                 if (!string.IsNullOrEmpty(channel.Name)) writer.WriteAttributeString("name", channel.Name);
 
-                // Write Description
-                if (!string.IsNullOrEmpty(channel.Description))
-                {
-                    writer.WriteStartElement("Description");
-                    writer.WriteString(channel.Description);
-                    writer.WriteEndElement();
-                }
+                //// Write Description
+                //if (!string.IsNullOrEmpty(channel.Description))
+                //{
+                //    writer.WriteStartElement("Description");
+                //    writer.WriteString(channel.Description);
+                //    writer.WriteEndElement();
+                //}
 
                 // Write CalibrationDate
                 if (channel.CalibrationDate > DateTime.MinValue)

@@ -5,7 +5,7 @@ using MTConnect.Adapters.Shdr;
 using MTConnect.Configurations;
 using MTConnect.Devices;
 using MTConnect.Devices.Components;
-using MTConnect.Devices.DataItems.Events;
+using MTConnect.Devices.DataItems;
 using NLog;
 using System;
 using System.Collections.Generic;
@@ -177,7 +177,7 @@ namespace MTConnect.Applications.Agents
             var adapterClient = (ShdrAdapterClient)sender;
 
             var dataItemId = DataItem.CreateId(adapterClient.Id, ConnectionStatusDataItem.NameId);
-            Agent.AddObservation(Agent.Uuid, dataItemId, Observations.Events.Values.ConnectionStatus.ESTABLISHED);
+            Agent.AddObservation(Agent.Uuid, dataItemId, Observations.Events.ConnectionStatus.ESTABLISHED);
 
             _adapterLogger.Info($"[Adapter] : ID = " + adapterClient.Id + " : " + message);
         }
@@ -187,7 +187,7 @@ namespace MTConnect.Applications.Agents
             var adapterClient = (ShdrAdapterClient)sender;
 
             var dataItemId = DataItem.CreateId(adapterClient.Id, ConnectionStatusDataItem.NameId);
-            Agent.AddObservation(Agent.Uuid, dataItemId, Observations.Events.Values.ConnectionStatus.CLOSED);
+            Agent.AddObservation(Agent.Uuid, dataItemId, Observations.Events.ConnectionStatus.CLOSED);
 
             _adapterLogger.Info($"[Adapter] : ID = " + adapterClient.Id + " : " + message);
         }
@@ -203,7 +203,7 @@ namespace MTConnect.Applications.Agents
             var adapterClient = (ShdrAdapterClient)sender;
 
             var dataItemId = DataItem.CreateId(adapterClient.Id, ConnectionStatusDataItem.NameId);
-            Agent.AddObservation(Agent.Uuid, dataItemId, Observations.Events.Values.ConnectionStatus.LISTEN);
+            Agent.AddObservation(Agent.Uuid, dataItemId, Observations.Events.ConnectionStatus.LISTEN);
 
             _adapterLogger.Log(_logLevel, $"[Adapter] : ID = " + adapterClient.Id + " : " + message);
         }

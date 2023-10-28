@@ -1,7 +1,7 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-using MTConnect.Devices.Configurations.Specifications;
+using MTConnect.Devices.Configurations;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -32,7 +32,7 @@ namespace MTConnect.Devices.Xml
          public double? Minimum { get; set; }
 
 
-        public override IAbstractSpecification ToSpecification()
+        public override ISpecification ToSpecification()
         {
             var specification = new Specification();
             specification.Id = Id;
@@ -42,7 +42,7 @@ namespace MTConnect.Devices.Xml
             specification.DataItemIdRef = DataItemIdRef;
             specification.Units = Units;
             specification.CompositionIdRef = CompositionIdRef;
-            specification.CoordinateIdRef = CoordinateIdRef;
+            specification.CoordinateSystemIdRef = CoordinateSystemIdRef;
             specification.Originator = Originator;
             specification.Maximum = Maximum;
             specification.UpperLimit = UpperLimit;
@@ -54,7 +54,7 @@ namespace MTConnect.Devices.Xml
             return specification;
         }
 
-        public static void WriteXml(XmlWriter writer, IAbstractSpecification specification)
+        public static void WriteXml(XmlWriter writer, ISpecification specification)
         {
             if (specification != null)
             {
@@ -75,7 +75,7 @@ namespace MTConnect.Devices.Xml
             }
         }
 
-        public static void WriteAbstractXml(XmlWriter writer, IAbstractSpecification specification)
+        public static void WriteAbstractXml(XmlWriter writer, ISpecification specification)
         {
             if (specification != null)
             {
@@ -87,7 +87,7 @@ namespace MTConnect.Devices.Xml
                 if (!string.IsNullOrEmpty(specification.DataItemIdRef)) writer.WriteAttributeString("dataItemRef", specification.DataItemIdRef);
                 if (!string.IsNullOrEmpty(specification.Units)) writer.WriteAttributeString("units", specification.Units);
                 if (!string.IsNullOrEmpty(specification.CompositionIdRef)) writer.WriteAttributeString("compositionIdRef", specification.CompositionIdRef);
-                if (!string.IsNullOrEmpty(specification.CoordinateIdRef)) writer.WriteAttributeString("coordinateIdRef", specification.CoordinateIdRef);
+                if (!string.IsNullOrEmpty(specification.CoordinateSystemIdRef)) writer.WriteAttributeString("coordinateSystemIdRef", specification.CoordinateSystemIdRef);
                 if (specification.Originator != Originator.MANUFACTURER) writer.WriteAttributeString("originator", specification.Originator.ToString());
             }
         }

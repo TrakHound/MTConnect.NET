@@ -971,7 +971,7 @@ namespace MTConnect.Clients
         {
             if (observations != null && observations.Count() > 0)
             {
-                var assetsChanged = observations.Where(o => o.Type == Devices.DataItems.Events.AssetChangedDataItem.TypeId.ToPascalCase());
+                var assetsChanged = observations.Where(o => o.Type == Devices.DataItems.AssetChangedDataItem.TypeId.ToPascalCase());
                 if (assetsChanged != null)
                 {
                     foreach (var assetChanged in assetsChanged)

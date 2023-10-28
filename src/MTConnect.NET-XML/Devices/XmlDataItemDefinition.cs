@@ -1,7 +1,6 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-using MTConnect.Devices.DataItems;
 using System.Collections.Generic;
 using System.Xml;
 using System.Xml.Serialization;
@@ -11,7 +10,7 @@ namespace MTConnect.Devices.Xml
     public class XmlDataItemDefinition
     {
         [XmlElement("Description")]
-        public string Description { get; set; }
+        public XmlDescription Description { get; set; }
 
         [XmlArray("EntryDefinitions")]
         [XmlArrayItem("EntryDefinition")]
@@ -25,7 +24,7 @@ namespace MTConnect.Devices.Xml
         public IDataItemDefinition ToDefinition()
         {
             var definition = new DataItemDefinition();
-            definition.Description = Description;
+            definition.Description = Description.ToDescription();
 
             // Entry Definitions
             if (!EntryDefinitions.IsNullOrEmpty())
@@ -58,13 +57,13 @@ namespace MTConnect.Devices.Xml
             {
                 writer.WriteStartElement("Definition");
 
-                // Write Description
-                if (!string.IsNullOrEmpty(dataItemDefinition.Description))
-                {
-                    writer.WriteStartElement("Description");
-                    writer.WriteString(dataItemDefinition.Description);
-                    writer.WriteEndElement();
-                }
+                //// Write Description
+                //if (!string.IsNullOrEmpty(dataItemDefinition.Description))
+                //{
+                //    writer.WriteStartElement("Description");
+                //    writer.WriteString(dataItemDefinition.Description);
+                //    writer.WriteEndElement();
+                //}
 
                 // Write Entry Definitions
                 if (!dataItemDefinition.EntryDefinitions.IsNullOrEmpty())

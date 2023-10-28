@@ -2,9 +2,6 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Devices.Configurations;
-using MTConnect.Devices.Configurations.CoordinateSystems;
-using MTConnect.Devices.Configurations.Relationships;
-using MTConnect.Devices.Configurations.Specifications;
 using System.Collections.Generic;
 using System.Xml;
 using System.Xml.Serialization;
@@ -85,7 +82,8 @@ namespace MTConnect.Devices.Xml
             // Specifications
             if (!Specifications.IsNullOrEmpty())
             {
-                var specifications = new List<IAbstractSpecification>();
+                var specifications = new List<ISpecification>();
+                //var specifications = new List<IAbstractSpecification>();
                 foreach (var specification in Specifications)
                 {
                     specifications.Add(specification.ToSpecification());

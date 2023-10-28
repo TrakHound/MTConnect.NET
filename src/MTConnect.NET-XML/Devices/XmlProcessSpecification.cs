@@ -1,7 +1,7 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-using MTConnect.Devices.Configurations.Specifications;
+using MTConnect.Devices.Configurations;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -20,7 +20,7 @@ namespace MTConnect.Devices.Xml
         public XmlAlarmLimits AlarmLimits { get; set; }
 
 
-        public override IAbstractSpecification ToSpecification()
+        public override ISpecification ToSpecification()
         {
             var specification = new ProcessSpecification();
             specification.Id = Id;
@@ -30,7 +30,7 @@ namespace MTConnect.Devices.Xml
             specification.DataItemIdRef = DataItemIdRef;
             specification.Units = Units;
             specification.CompositionIdRef = CompositionIdRef;
-            specification.CoordinateIdRef = CoordinateIdRef;
+            specification.CoordinateSystemIdRef = CoordinateSystemIdRef;
             specification.Originator = Originator;
 
             if (ControlLimits != null) specification.ControlLimits = ControlLimits.ToControlLimits();

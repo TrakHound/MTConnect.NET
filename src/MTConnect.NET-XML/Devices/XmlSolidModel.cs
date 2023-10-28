@@ -1,7 +1,7 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-using MTConnect.Devices.Configurations.SolidModel;
+using MTConnect.Devices.Configurations;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -23,7 +23,7 @@ namespace MTConnect.Devices.Xml
         public string ItemRef { get; set; }
 
         [XmlAttribute("mediaType")]
-        public SolidModelMediaType MediaType { get; set; }
+        public MediaType MediaType { get; set; }
 
         [XmlAttribute("coordinateSystemIdRef")]
         public string CoordinateSystemIdRef { get; set; }
@@ -45,7 +45,7 @@ namespace MTConnect.Devices.Xml
             solidModel.MediaType = MediaType;
             solidModel.CoordinateSystemIdRef = CoordinateSystemIdRef;
             if (Transformation != null) solidModel.Transformation = Transformation.ToTransformation();
-            solidModel.Scale = Scale;
+            solidModel.Scale = UnitVector3D.FromString(Scale);
             return solidModel;
         }
 
@@ -72,7 +72,7 @@ namespace MTConnect.Devices.Xml
                 if (solidModel.Scale != null)
                 {
                     writer.WriteStartElement("Scale");
-                    writer.WriteString(solidModel.Scale);
+                    writer.WriteString(solidModel.Scale.ToString());
                     writer.WriteEndElement();
                 }
 

@@ -8,7 +8,7 @@ namespace MTConnect.Devices
     /// <summary>
     /// Provides a means to control when an agent records updated information for a DataItem.
     /// </summary>
-    public abstract class Filter : IFilter
+    public class Filter : IFilter
     {
         public const string DescriptionText = "Provides a means to control when an agent records updated information for a DataItem.";
 
@@ -16,7 +16,7 @@ namespace MTConnect.Devices
         /// <summary>
         /// Type of Filter.
         /// </summary>
-        public MTConnect.Devices.FilterType Type { get; set; }
+        public MTConnect.Devices.DataItemFilterType Type { get; set; }
         
         /// <summary>
         /// 

@@ -86,7 +86,7 @@ namespace MTConnect.Devices
         /// <summary>
         /// Type of event that may cause a reset to occur.
         /// </summary>
-        MTConnect.Devices.ResetTrigger ResetTrigger { get; }
+        MTConnect.Devices.DataItemResetTrigger ResetTrigger { get; }
         
         /// <summary>
         /// Rate at which successive samples of a data item are recorded by a piece of equipment.

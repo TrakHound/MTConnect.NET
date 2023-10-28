@@ -1,7 +1,7 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-using MTConnect.Devices.Configurations.Motion;
+using MTConnect.Devices.Configurations;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -26,7 +26,7 @@ namespace MTConnect.Devices.Xml
         public MotionActuationType Actuation { get; set; }
 
         [XmlElement("Description")]
-        public string Description { get; set; }
+        public XmlDescription Description { get; set; }
 
         [XmlElement("Origin")]
         public string Origin { get; set; }
@@ -46,10 +46,10 @@ namespace MTConnect.Devices.Xml
             motion.CoordinateSystemIdRef = CoordinateSystemIdRef;
             motion.Type = Type;
             motion.Actuation = Actuation;
-            motion.Axis = Axis;
-            motion.Origin = Origin;
+            motion.Axis = UnitVector3D.FromString(Axis);
+            motion.Origin = UnitVector3D.FromString(Origin);
             if (Transformation != null) motion.Transformation = Transformation.ToTransformation();
-            motion.Description = Description;
+            motion.Description = Description.ToDescription();
             return motion;
         }
 
@@ -66,19 +66,19 @@ namespace MTConnect.Devices.Xml
                 writer.WriteAttributeString("type", motion.Type.ToString());
                 writer.WriteAttributeString("actuation", motion.Actuation.ToString());
 
-                // Write Description
-                if (!string.IsNullOrEmpty(motion.Description))
-                {
-                    writer.WriteStartElement("Description");
-                    writer.WriteString(motion.Description);
-                    writer.WriteEndElement();
-                }
+                //// Write Description
+                //if (!string.IsNullOrEmpty(motion.Description))
+                //{
+                //    writer.WriteStartElement("Description");
+                //    writer.WriteString(motion.Description);
+                //    writer.WriteEndElement();
+                //}
 
                 // Write Origin
                 if (motion.Origin != null)
                 {
                     writer.WriteStartElement("Origin");
-                    writer.WriteString(motion.Origin);
+                    writer.WriteString(motion.Origin.ToString());
                     writer.WriteEndElement();
                 }
 
@@ -89,7 +89,7 @@ namespace MTConnect.Devices.Xml
                 if (motion.Axis != null)
                 {
                     writer.WriteStartElement("Axis");
-                    writer.WriteString(motion.Axis);
+                    writer.WriteString(motion.Axis.ToString());
                     writer.WriteEndElement();
                 }
 

@@ -118,15 +118,13 @@ namespace MTConnect.SysML
                     case "CategoryEnum": name = "DataItemCategoryEnum"; break;
                     case "CodeEnum": name = "MeasurementCodeEnum"; break;
                     case "CoordinateSystemEnum": name = "DataItemCoordinateSystemEnum"; break;
-                    case "FilterEnum": name = "FilterTypeEnum"; break;
+                    case "FilterEnum": name = "DataItemFilterTypeEnum"; break;
                     case "NativeUnitEnum": name = "NativeUnitsEnum"; break;
                     case "RepresentationEnum": name = "DataItemRepresentationEnum"; break;
+                    case "ResetTriggerEnum": name = "DataItemResetTriggerEnum"; break;
                     case "StatisticEnum": name = "DataItemStatisticEnum"; break;
                     case "UnitEnum": name = "UnitsEnum"; break;
                 }
-
-                //var suffix = "Enum";
-                //if (name.EndsWith(suffix)) name = name.Substring(0, name.Length - suffix.Length);
             }
 
             return name;
@@ -345,12 +343,15 @@ namespace MTConnect.SysML
                 case "_19_0_3_68e0225_1677585034568_640359_707": return true; // Devices.Configuration.ImageFiles
 
                 case "EAID_src1FD414_08E5_4c06_8E6A_D0FBEE71B296": return true; // Devices.Configruation.SensorConfiguration.Channels
+                //case "_19_0_3_45f01b9_1587596366617_434199_806": return true; // Devices.Configruation.SolidModel.Scale
 
                 case "_19_0_3_91b028d_1579280419002_422759_4126": return true; // Devices.DataItem.Filters
                 case "_19_0_3_68e0225_1607601081190_91136_31": return true; // Devices.DataItem.Relationships
+                case "EAID_303DE47E_9DA0_45be_9630_C12FCD3FCB23": return true; // Devices.Contstraints.Value
 
                 case "_19_0_3_45f01b9_1581433281431_574073_286": return true; // Devices.DataItems.Definition.CellDefinitions
                 case "_19_0_3_45f01b9_1582939789522_356798_4412": return true; // Devices.DataItems.Definition.EntryDefinitions
+                case "_19_0_3_45f01b9_1582940123488_979807_4523": return true; // Devices.DataItems.EntryDefinition.CellDefinitions
 
                 case "EAID_CB3DBE83_DB10_4aa0_9685_72CC1BEA5285": return true; // Assets.CuttingTool.Manufacturers
 
@@ -371,6 +372,41 @@ namespace MTConnect.SysML
 
                 case "_19_0_3_68e0225_1678197264958_675939_17962": return true; // Assets.ComponentConfigurationParameters.ParameterSet
                 case "_19_0_3_68e0225_1678197386869_402580_18053": return true; // Assets.ParameterSet.Parameters
+            }
+
+            return false;
+        }
+
+        public static bool IsOptional(XmiDocument xmiDocument, string id)
+        {
+            switch (id)
+            {
+                case "EAID_C7968EFA_A55E_4ccf_B7CA_CFE13D86C116": return true; // Devices.DataItem.Maximum
+                case "EAID_72FA9526_7E5D_4084_A7F0_39FD402026E6": return true; // Devices.DataItem.Minimum
+                case "EAID_7B83A56F_E21C_4aa3_9851_413935CE01A2": return true; // Devices.DataItem.Nominal
+
+                case "_19_0_3_68e0225_1605644630392_83676_2528": return true; // Devices.Configurations.SpecificationLimits.LowerLimit
+                case "_19_0_3_68e0225_1605644626222_931495_2512": return true; // Devices.Configurations.SpecificationLimits.Nominal
+                case "_19_0_3_68e0225_1605644623289_677234_2496": return true; // Devices.Configurations.SpecificationLimits.UpperLimit
+
+                case "_19_0_3_68e0225_1605644652700_647829_2576": return true; // Devices.Configurations.AlarmLimits.LowerLimit
+                case "_19_0_3_68e0225_1605644655989_576567_2592": return true; // Devices.Configurations.AlarmLimits.LowerWarning
+                case "_19_0_3_68e0225_1605644643483_185781_2544": return true; // Devices.Configurations.AlarmLimits.UpperLimit
+                case "_19_0_3_68e0225_1605644647420_931185_2560": return true; // Devices.Configurations.AlarmLimits.UpperWarning
+
+                case "_19_0_3_68e0225_1636568068616_675126_84": return true; // Devices.Configurations.Specification.Maximum
+                case "_19_0_3_68e0225_1636568073147_54408_100": return true; // Devices.Configurations.Specification.UpperLimit
+                case "_19_0_3_68e0225_1636568078240_370406_116": return true; // Devices.Configurations.Specification.LowerWarning
+                case "_19_0_3_68e0225_1636568080906_86201_132": return true; // Devices.Configurations.Specification.LowerLimit
+                case "_19_0_3_68e0225_1636568084399_748206_148": return true; // Devices.Configurations.Specification.UpperWarning
+                case "_19_0_3_68e0225_1636568086926_172243_164": return true; // Devices.Configurations.Specification.Nominal
+                case "_19_0_3_68e0225_1636568090268_102258_180": return true; // Devices.Configurations.Specification.Minimum
+
+                case "_19_0_3_68e0225_1605644563152_491205_2336": return true; // Devices.Configurations.ControlLimits.UpperLimit
+                case "_19_0_3_68e0225_1605644567845_98299_2368": return true; // Devices.Configurations.ControlLimits.LowerWarning
+                case "_19_0_3_68e0225_1605644572644_365697_2400": return true; // Devices.Configurations.ControlLimits.LowerLimit
+                case "_19_0_3_68e0225_1605644565736_276152_2352": return true; // Devices.Configurations.ControlLimits.UpperWarning
+                case "_19_0_3_68e0225_1605644570052_987268_2384": return true; // Devices.Configurations.ControlLimits.Nominal
             }
 
             return false;
@@ -414,7 +450,7 @@ namespace MTConnect.SysML
                     //var valueProperty = umlProperties.FirstOrDefault(o => o.Name == "Value");
                     if (valueProperty != null)
                     {
-                        return MTConnectPropertyModel.ParseType(xmiDocument, valueProperty.PropertyType);
+                        return MTConnectPropertyModel.ParseType(xmiDocument, valueProperty.Id, valueProperty.PropertyType);
                     }
                 }
             }

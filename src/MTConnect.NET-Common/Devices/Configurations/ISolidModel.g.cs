@@ -41,7 +41,7 @@ namespace MTConnect.Devices.Configurations
         /// <summary>
         /// Either a single multiplier applied to all three dimensions or a three space multiplier given in the X, Y, and Z dimensions in the coordinate system used for the SolidModel.
         /// </summary>
-        double Scale { get; }
+        MTConnect.UnitVector3D Scale { get; }
         
         /// <summary>
         /// Associated model file if an item reference is used.

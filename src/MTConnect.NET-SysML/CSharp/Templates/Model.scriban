@@ -17,7 +17,7 @@ namespace {{namespace}}
         /// {{property.description}}
         /// </summary>
         {{ if (property.is_array) }}public System.Collections.Generic.IEnumerable<{{property.data_type}}> {{property.name}} { get; set; }{{ end }}
-        {{- if (!property.is_array) }}public {{property.data_type}} {{property.name}} { get; set; }{{ end }}
+        {{- if (!property.is_array) }}public {{property.data_type}}{{ if (property.is_optional) }}?{{ end }} {{property.name}} { get; set; }{{ end }}
         {{- if (i < (properties | array.size)) }}
         {{ end }}
 {{- end }}

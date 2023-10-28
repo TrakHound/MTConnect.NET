@@ -36,22 +36,22 @@ namespace MTConnect.Devices.Configurations
         /// <summary>
         /// Lower conformance boundary for a variable.> Note: immediate concern or action may be required.
         /// </summary>
-        public double LowerLimit { get; set; }
+        public double? LowerLimit { get; set; }
         
         /// <summary>
         /// Lower boundary indicating increased concern and supervision may be required.
         /// </summary>
-        public double LowerWarning { get; set; }
+        public double? LowerWarning { get; set; }
         
         /// <summary>
         /// Numeric upper constraint.
         /// </summary>
-        public double Maximum { get; set; }
+        public double? Maximum { get; set; }
         
         /// <summary>
         /// Numeric lower constraint.
         /// </summary>
-        public double Minimum { get; set; }
+        public double? Minimum { get; set; }
         
         /// <summary>
         /// Name provides additional meaning and differentiates between Specification elements.
@@ -61,7 +61,7 @@ namespace MTConnect.Devices.Configurations
         /// <summary>
         /// Numeric target or expected value.
         /// </summary>
-        public double Nominal { get; set; }
+        public double? Nominal { get; set; }
         
         /// <summary>
         /// Reference to the creator of the Specification.
@@ -86,11 +86,11 @@ namespace MTConnect.Devices.Configurations
         /// <summary>
         /// Upper conformance boundary for a variable.> Note: immediate concern or action may be required.
         /// </summary>
-        public double UpperLimit { get; set; }
+        public double? UpperLimit { get; set; }
         
         /// <summary>
         /// Upper boundary indicating increased concern and supervision may be required.
         /// </summary>
-        public double UpperWarning { get; set; }
+        public double? UpperWarning { get; set; }
     }
 }

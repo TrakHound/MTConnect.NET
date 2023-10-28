@@ -3,8 +3,6 @@
 
 using MTConnect.Configurations;
 using MTConnect.Devices.DataItems;
-using MTConnect.Devices.DataItems.Events;
-using MTConnect.Devices.DataItems.Samples;
 using System.Collections.Generic;
 
 namespace MTConnect.Devices.Components

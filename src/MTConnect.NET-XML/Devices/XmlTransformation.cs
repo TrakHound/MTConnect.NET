@@ -20,8 +20,8 @@ namespace MTConnect.Devices.Xml
         public ITransformation ToTransformation()
         {
             var transformation = new Transformation();
-            transformation.Translation = Translation;
-            transformation.Rotation = Rotation;
+            transformation.Translation = UnitVector3D.FromString(Translation);
+            transformation.Rotation =  Degree3D.FromString(Rotation);
             return transformation;
         }
 
@@ -35,7 +35,7 @@ namespace MTConnect.Devices.Xml
                 if (transformation.Translation != null)
                 {
                     writer.WriteStartElement("Translation");
-                    writer.WriteString(transformation.Translation);
+                    writer.WriteString(transformation.Translation.ToString());
                     writer.WriteEndElement();
                 }
 
@@ -43,7 +43,7 @@ namespace MTConnect.Devices.Xml
                 if (transformation.Rotation != null)
                 {
                     writer.WriteStartElement("Rotation");
-                    writer.WriteString(transformation.Rotation);
+                    writer.WriteString(transformation.Rotation.ToString());
                     writer.WriteEndElement();
                 }
 

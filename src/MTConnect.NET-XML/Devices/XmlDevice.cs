@@ -46,7 +46,7 @@ namespace MTConnect.Devices.Xml
 		[XmlAttribute("hash")]
 		public string Hash { get; set; }
 
-		[XmlElement("Description")]
+        [XmlElement("Description")]
         public XmlDescription Description { get; set; }
 
         [XmlElement("Configuration")]
@@ -92,18 +92,18 @@ namespace MTConnect.Devices.Xml
             }
 
             if (Description != null) device.Description = Description.ToDescription();
-            if (Configuration != null) device.Configuration = Configuration.ToConfiguration();
+            //if (Configuration != null) device.Configuration = Configuration.ToConfiguration();
 
-            // References
-            if (!References.IsNullOrEmpty())
-            {
-                var references = new List<IReference>();
-                foreach (var reference in References)
-                {
-                    references.Add(reference.ToReference());
-                }
-                device.References = references;
-            }
+            //// References
+            //if (!References.IsNullOrEmpty())
+            //{
+            //    var references = new List<IReference>();
+            //    foreach (var reference in References)
+            //    {
+            //        references.Add(reference.ToReference());
+            //    }
+            //    device.References = references;
+            //}
 
             // DataItems
             if (!DataItems.IsNullOrEmpty())

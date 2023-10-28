@@ -18,6 +18,8 @@ namespace MTConnect.SysML
 
         public string DataTypeUmlId { get; set; }
 
+        public bool IsOptional { get; set; }
+
         public bool IsArray { get; set; }
 
 
@@ -30,6 +32,7 @@ namespace MTConnect.SysML
             if (xmiDocument != null && umlProperty != null)
             {
                 IsArray = ModelHelper.IsArray(xmiDocument, umlProperty.Id);
+                IsOptional = ModelHelper.IsOptional(xmiDocument, umlProperty.Id);
 
                 var propertyName = umlProperty.Name;
                 if (IsArray && !propertyName.EndsWith("s") && propertyName != "hasToolLife") propertyName += "s";
@@ -41,7 +44,7 @@ namespace MTConnect.SysML
 
                 Id = $"{idPrefix}.{name}";
                 Name = name;
-                DataType = ParseType(xmiDocument, umlProperty.PropertyType);
+                DataType = ParseType(xmiDocument, umlProperty.Id, umlProperty.PropertyType);
                 DataTypeUmlId = umlProperty.PropertyType;
 
                 var description = umlProperty.Comments?.FirstOrDefault().Body;
@@ -50,10 +53,32 @@ namespace MTConnect.SysML
             }
         }
 
-        internal static string ParseType(XmiDocument xmiDocument, string typeId)
+        internal static string ParseType(XmiDocument xmiDocument, string propertyId, string typeId)
         {
-            if (xmiDocument != null && typeId != null)
+            if (xmiDocument != null && propertyId != null && typeId != null)
             {
+                switch (propertyId)
+                {
+                    // CoordinateSystem.Origin
+                    case "_19_0_3_45f01b9_1579107788324_454462_163661": return "UNIT_VECTOR_3D";
+
+                    // SolidModel.Scale
+                    case "_19_0_3_45f01b9_1587596366617_434199_806": return "UNIT_VECTOR_3D";
+
+                    // Motion.Axis
+                    case "_19_0_3_91b028d_1579531167395_857364_8288": return "UNIT_VECTOR_3D";
+
+                    // Motion.Origin
+                    case "_19_0_3_91b028d_1579531211501_359270_8311": return "UNIT_VECTOR_3D";
+
+                    // Translation.Rotation
+                    case "_19_0_3_45f01b9_1583182442343_989150_4833": return "DEGREE_3D";
+
+                    // Translation.Translation
+                    case "_19_0_3_45f01b9_1579106868983_196924_163307": return "UNIT_VECTOR_3D";
+                }
+
+
                 switch (typeId)
                 {
                     // string

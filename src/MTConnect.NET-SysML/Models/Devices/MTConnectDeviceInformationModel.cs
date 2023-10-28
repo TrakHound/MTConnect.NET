@@ -102,6 +102,10 @@ namespace MTConnect.SysML.Models.Devices
                             DataItems.Classes.RemoveAll(o => o.Id == "Devices.MinimumDeltaFilter");
                             DataItems.Classes.RemoveAll(o => o.Id == "Devices.PeriodFilter");
 
+                            // Don't make Filter abstract (use Type instead)
+                            var filterModel = DataItems.Classes.FirstOrDefault(o => o.Id == "Devices.Filter");
+                            if (filterModel != null) filterModel.IsAbstract = false;
+
                             // Properties of Definition
                             var definitionProperties = dataItemProperties.Packages?.FirstOrDefault(o => o.Name == "Properties of Definition");
                             if (definitionProperties != null)

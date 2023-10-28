@@ -3,7 +3,7 @@
 
 namespace MTConnect.Devices
 {
-    public enum ResetTrigger
+    public enum DataItemResetTrigger
     {
         /// <summary>
         /// Observation of the DataItem that is measuring an action or operation is to be reset upon completion of that action or operation.
@@ -48,6 +48,11 @@ namespace MTConnect.Devices
         /// <summary>
         /// Observation of the DataItem is to be reset at the end of a 7-day period.
         /// </summary>
-        WEEK
+        WEEK,
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        NONE
     }
 }

@@ -3,7 +3,7 @@
 
 namespace MTConnect.Devices
 {
-    public static class ResetTriggerDescriptions
+    public static class DataItemResetTriggerDescriptions
     {
         /// <summary>
         /// Observation of the DataItem that is measuring an action or operation is to be reset upon completion of that action or operation.
@@ -49,21 +49,27 @@ namespace MTConnect.Devices
         /// Observation of the DataItem is to be reset at the end of a 7-day period.
         /// </summary>
         public const string WEEK = "Observation of the DataItem is to be reset at the end of a 7-day period.";
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        public const string NONE = "";
 
 
-        public static string Get(ResetTrigger value)
+        public static string Get(DataItemResetTrigger value)
         {
             switch (value)
             {
-                case ResetTrigger.ACTION_COMPLETE: return "Observation of the DataItem that is measuring an action or operation is to be reset upon completion of that action or operation.";
-                case ResetTrigger.ANNUAL: return "Observation of the DataItem is to be reset at the end of a 12-month period.";
-                case ResetTrigger.DAY: return "Observation of the DataItem is to be reset at the end of a 24-hour period.";
-                case ResetTrigger.LIFE: return "Observation of the DataItem is not reset and accumulates for the entire life of the piece of equipment.";
-                case ResetTrigger.MAINTENANCE: return "Observation of the DataItem is to be reset upon completion of a maintenance event.";
-                case ResetTrigger.MONTH: return "Observation of the DataItem is to be reset at the end of a monthly period.";
-                case ResetTrigger.POWER_ON: return "Observation of the DataItem is to be reset when power was applied to the piece of equipment after a planned or unplanned interruption of power has occurred.";
-                case ResetTrigger.SHIFT: return "Observation of the DataItem is to be reset at the end of a work shift.";
-                case ResetTrigger.WEEK: return "Observation of the DataItem is to be reset at the end of a 7-day period.";
+                case DataItemResetTrigger.ACTION_COMPLETE: return "Observation of the DataItem that is measuring an action or operation is to be reset upon completion of that action or operation.";
+                case DataItemResetTrigger.ANNUAL: return "Observation of the DataItem is to be reset at the end of a 12-month period.";
+                case DataItemResetTrigger.DAY: return "Observation of the DataItem is to be reset at the end of a 24-hour period.";
+                case DataItemResetTrigger.LIFE: return "Observation of the DataItem is not reset and accumulates for the entire life of the piece of equipment.";
+                case DataItemResetTrigger.MAINTENANCE: return "Observation of the DataItem is to be reset upon completion of a maintenance event.";
+                case DataItemResetTrigger.MONTH: return "Observation of the DataItem is to be reset at the end of a monthly period.";
+                case DataItemResetTrigger.POWER_ON: return "Observation of the DataItem is to be reset when power was applied to the piece of equipment after a planned or unplanned interruption of power has occurred.";
+                case DataItemResetTrigger.SHIFT: return "Observation of the DataItem is to be reset at the end of a work shift.";
+                case DataItemResetTrigger.WEEK: return "Observation of the DataItem is to be reset at the end of a 7-day period.";
+                case DataItemResetTrigger.NONE: return "";
             }
 
             return null;

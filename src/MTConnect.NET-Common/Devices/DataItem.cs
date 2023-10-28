@@ -165,6 +165,9 @@ namespace MTConnect.Devices
 
         private void Init()
         {
+            Representation = DataItemRepresentation.VALUE;
+            Statistic = DataItemStatistic.NONE;
+            ResetTrigger = DataItemResetTrigger.NONE;
             Filters = new List<Filter>();
             Relationships = new List<IAbstractDataItemRelationship>();
         }

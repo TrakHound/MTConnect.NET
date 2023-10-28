@@ -1,7 +1,7 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-using MTConnect.Devices.Configurations.Relationships;
+using MTConnect.Devices.Configurations;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -11,7 +11,7 @@ namespace MTConnect.Devices.Xml
     public class XmlComponentRelationship : XmlRelationship
     {
         [XmlAttribute("type")]
-        public ComponentRelationshipType Type { get; set; }
+        public RelationshipType Type { get; set; }
 
 
         public override IRelationship ToRelationship()

@@ -48,8 +48,11 @@
 		<None Update="devices-Copy.xml">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
-		<None Update="devices\device-okuma.xml">
+		<None Update="devices\dummy.xml">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="devices\device-okuma.xml">
+		  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
 		</None>
 		<None Update="devices\device-mazak.xml">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
