@@ -1,7 +1,7 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-using MTConnect.Assets.CuttingTools.Measurements;
+using MTConnect.Assets.CuttingTools;
 using System.Text.Json.Serialization;
 
 namespace MTConnect.Assets.Json.CuttingTools.Measurements
@@ -12,10 +12,10 @@ namespace MTConnect.Assets.Json.CuttingTools.Measurements
         public string Type { get; set; }
 
         [JsonPropertyName("value")]
-        public double Value { get; set; }
+        public double? Value { get; set; }
 
         [JsonPropertyName("significantDigits")]
-        public int SignificantDigits { get; set; }
+        public int? SignificantDigits { get; set; }
 
         [JsonPropertyName("units")]
         public string Units { get; set; }
@@ -27,18 +27,18 @@ namespace MTConnect.Assets.Json.CuttingTools.Measurements
         public string Code { get; set; }
 
         [JsonPropertyName("maximum")]
-        public double Maximum { get; set; }
+        public double? Maximum { get; set; }
 
         [JsonPropertyName("minimum")]
-        public double Minimum { get; set; }
+        public double? Minimum { get; set; }
 
         [JsonPropertyName("nominal")]
-        public double Nominal { get; set; }
+        public double? Nominal { get; set; }
 
 
         public JsonMeasurement() { }
 
-        public JsonMeasurement(Measurement measurement)
+        public JsonMeasurement(IMeasurement measurement)
         {
             if (measurement != null)
             {
@@ -55,7 +55,7 @@ namespace MTConnect.Assets.Json.CuttingTools.Measurements
         }
 
 
-        public Measurement ToMeasurement()
+        public IMeasurement ToMeasurement()
         {
             var measurement = new Measurement();
             measurement.Type = Type;

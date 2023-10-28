@@ -9,7 +9,7 @@ namespace MTConnect.Assets.Json.CuttingTools
     public class JsonToolLife
     {
         [JsonPropertyName("value")]
-        public long Value { get; set; }
+        public double Value { get; set; }
 
         [JsonPropertyName("type")]
         public string Type { get; set; }
@@ -18,18 +18,18 @@ namespace MTConnect.Assets.Json.CuttingTools
         public string CountDirection { get; set; }
 
         [JsonPropertyName("warning")]
-        public long Warning { get; set; }
+        public double? Warning { get; set; }
 
         [JsonPropertyName("limit")]
-        public long Limit { get; set; }
+        public double? Limit { get; set; }
 
         [JsonPropertyName("initial")]
-        public long Initial { get; set; }
+        public double? Initial { get; set; }
 
 
         public JsonToolLife() { }
 
-        public JsonToolLife(ToolLife toolLife)
+        public JsonToolLife(IToolLife toolLife)
         {
             if (toolLife != null)
             {
@@ -43,12 +43,12 @@ namespace MTConnect.Assets.Json.CuttingTools
         }
 
 
-        public ToolLife ToToolLife()
+        public IToolLife ToToolLife()
         {
             var toolLife = new ToolLife();
             toolLife.Value = Value;
             toolLife.Type = Type.ConvertEnum<ToolLifeType>();
-            toolLife.CountDirection = CountDirection.ConvertEnum<ToolLifeCountDirection>();
+            toolLife.CountDirection = CountDirection.ConvertEnum<CountDirectionType>();
             toolLife.Warning = Warning;
             toolLife.Limit = Limit;
             toolLife.Initial = Initial;

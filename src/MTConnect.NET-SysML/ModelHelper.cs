@@ -123,6 +123,7 @@ namespace MTConnect.SysML
                     case "RepresentationEnum": name = "DataItemRepresentationEnum"; break;
                     case "ResetTriggerEnum": name = "DataItemResetTriggerEnum"; break;
                     case "StatisticEnum": name = "DataItemStatisticEnum"; break;
+                    case "ToolLifeEnum": name = "ToolLifeTypeEnum"; break;
                     case "UnitEnum": name = "UnitsEnum"; break;
                 }
             }
@@ -361,6 +362,7 @@ namespace MTConnect.SysML
                 case "EAID_F7C32A8C_8166_4c26_839E_F946E18DB022": return true; // Assets.CuttingItem.Indices
                 case "EAID_9E5855C8_F90D_4ddf_A2FC_4610634008B4": return true; // Assets.CuttingItem.Manufacturers
                 case "_19_0_3_91b028d_1582658982276_248635_527": return true; // Assets.CuttingItem.Measurements
+                case "EAID_dst4843A3_8ECC_42a0_9DC5_9F8247F1E3C7": return true; // Assets.CuttingItem.ItemLife
 
                 case "EAID_dst8C9154_3651_4af3_9311_2AA3D0EF7282": return true; // Assets.CuttingToolLifeCycle.ToolLife
                 case "EAID_dstC908A3_8442_4a95_AB3E_68DFB6274CDD": return true; // Assets.CuttingToolLifeCycle.CutterStatus
@@ -407,6 +409,36 @@ namespace MTConnect.SysML
                 case "_19_0_3_68e0225_1605644572644_365697_2400": return true; // Devices.Configurations.ControlLimits.LowerLimit
                 case "_19_0_3_68e0225_1605644565736_276152_2352": return true; // Devices.Configurations.ControlLimits.UpperWarning
                 case "_19_0_3_68e0225_1605644570052_987268_2384": return true; // Devices.Configurations.ControlLimits.Nominal
+
+                case "EAID_816C2A06_ABDB_4bc5_B6B9_81DB30748E81": return true; // Assets.CuttingTools.ToolLife.Initial
+                case "EAID_F82F6CC7_3926_4b9a_A2EC_B4E33841EA55": return true; // Assets.CuttingTools.ToolLife.Limit
+                case "EAID_85A88677_0C19_4f98_BC72_D9C12AADEC96": return true; // Assets.CuttingTools.ToolLife.Warning
+
+                case "EAID_3C9431B8_07D3_447e_8AB2_57092629A506": return true; // Assets.CuttingTools.ItemLife.Initial
+                case "EAID_10171B17_FEA7_4320_89AE_C0EF01C53A08": return true; // Assets.CuttingTools.ItemLife.Limit
+                case "EAID_96660E74_7536_4ed9_852E_F058E7959BE7": return true; // Assets.CuttingTools.ItemLife.Warning
+
+                case "EAID_03F2782A_F815_48c6_9768_20270E8E7815": return true; // Assets.CuttingTools.Location.NegativeOverlap
+                case "EAID_1714E6CA_F95C_45c2_8A79_7A5DD3A758B0": return true; // Assets.CuttingTools.Location.PositiveOverlap
+
+                case "EAID_7879B467_C3DF_46ed_8EFF_525BAEBF408E": return true; // Assets.CuttingTools.Measurement.Maximum
+                case "EAID_786BC04E_2E91_4c0c_98A0_E5F0FE18D3F8": return true; // Assets.CuttingTools.Measurement.Minimum
+                case "EAID_F49DCFE5_6CDE_40bc_AD09_CC685107A9BA": return true; // Assets.CuttingTools.Measurement.Nominal
+                case "EAID_E8029A72_0F82_4977_AD41_978D749E3845": return true; // Assets.CuttingTools.Measurement.SignificantDigits
+                case "_19_0_3_68e0225_1636118507748_705715_75": return true; // Assets.CuttingTools.Measurement.Value
+
+                case "EAID_9C794E2F_70E7_48ef_B2C6_CCF96033981D": return true; // Assets.CuttingTools.ProcessFeedRate.Maximum
+                case "EAID_B7DA2543_0482_4a2d_B5BD_2DD529A63DC4": return true; // Assets.CuttingTools.ProcessFeedRate.Minimum
+                case "EAID_11C5DEFD_AD02_485a_A491_459FA25B2A32": return true; // Assets.CuttingTools.ProcessFeedRate.Nominal
+                case "_19_0_3_68e0225_1636117526335_679126_67": return true; // Assets.CuttingTools.ProcessFeedRate.Value
+
+                case "EAID_4F5F7CB2_ED9F_46c2_B4BB_EE9D41608A0F": return true; // Assets.CuttingTools.ProcessSpindleSpeed.Maximum
+                case "EAID_A8DED60C_FFB4_43bf_BC80_AFBEF1EBDFAB": return true; // Assets.CuttingTools.ProcessSpindleSpeed.Minimum
+                case "EAID_E5A5CE64_0C68_4a21_9B39_8C5167039B06": return true; // Assets.CuttingTools.ProcessSpindleSpeed.Nominal
+                case "_19_0_3_68e0225_1636117179847_339275_62": return true; // Assets.CuttingTools.ProcessSpindleSpeed.Value
+
+                case "EAID_320E255E_EDA1_49b8_928D_8A87BE90CF06": return true; // Assets.CuttingTools.ReconditionCount.MaximumCount
+                case "_19_0_3_68e0225_1636115275525_86177_53": return true; // Assets.CuttingTools.ReconditionCount.Value
             }
 
             return false;

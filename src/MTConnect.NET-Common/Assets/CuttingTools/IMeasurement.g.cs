@@ -16,12 +16,12 @@ namespace MTConnect.Assets.CuttingTools
         /// <summary>
         /// Maximum value for the measurement.
         /// </summary>
-        double Maximum { get; }
+        double? Maximum { get; }
         
         /// <summary>
         /// Minimum value for the measurement.
         /// </summary>
-        double Minimum { get; }
+        double? Minimum { get; }
         
         /// <summary>
         /// Units the measurement was originally recorded in. See Device Information Model for the complete list of nativeUnits.
@@ -31,12 +31,12 @@ namespace MTConnect.Assets.CuttingTools
         /// <summary>
         /// As advertised value for the measurement.
         /// </summary>
-        double Nominal { get; }
+        double? Nominal { get; }
         
         /// <summary>
         /// Number of significant digits in the reported value.
         /// </summary>
-        int SignificantDigits { get; }
+        int? SignificantDigits { get; }
         
         /// <summary>
         /// Units for the measurements. See Device Information Model for the complete list of units.
@@ -46,6 +46,6 @@ namespace MTConnect.Assets.CuttingTools
         /// <summary>
         /// 
         /// </summary>
-        double Value { get; }
+        double? Value { get; }
     }
 }

@@ -1,7 +1,6 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-using MTConnect.Devices.DataItems;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
@@ -11,13 +10,13 @@ namespace MTConnect.Devices.Json
     public class JsonConstraints
     {
         [JsonPropertyName("maximum")]
-        public string Maximum { get; set; }
+        public double? Maximum { get; set; }
 
         [JsonPropertyName("minimum")]
-        public string Minimum { get; set; }
+        public double? Minimum { get; set; }
 
         [JsonPropertyName("nominal")]
-        public string Nominal { get; set; }
+        public double? Nominal { get; set; }
 
         [JsonPropertyName("values")]
         public List<string> Values { get; set; }

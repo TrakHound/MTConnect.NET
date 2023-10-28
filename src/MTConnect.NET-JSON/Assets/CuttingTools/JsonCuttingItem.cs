@@ -2,7 +2,7 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Assets.CuttingTools;
-using MTConnect.Assets.CuttingTools.Measurements;
+using MTConnect.Assets.Json.CuttingTools;
 using MTConnect.Assets.Json.CuttingTools.Measurements;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
@@ -44,7 +44,7 @@ namespace MTConnect.Assets.Json.CuttingTools
 
         public JsonCuttingItem() { }
 
-        public JsonCuttingItem(CuttingItem cuttingItem)
+        public JsonCuttingItem(ICuttingItem cuttingItem)
         {
             if (cuttingItem != null)
             {
@@ -92,7 +92,7 @@ namespace MTConnect.Assets.Json.CuttingTools
         }
 
 
-        public CuttingItem ToCuttingItem()
+        public ICuttingItem ToCuttingItem()
         {
             var cuttingItem = new CuttingItem();
             cuttingItem.Indices = Indices;
@@ -106,7 +106,7 @@ namespace MTConnect.Assets.Json.CuttingTools
             // ItemLife
             if (!ItemLife.IsNullOrEmpty())
             {
-                var itemLifes = new List<ItemLife>();
+                var itemLifes = new List<IItemLife>();
                 foreach (var itemLife in ItemLife)
                 {
                     itemLifes.Add(itemLife.ToItemLife());
@@ -117,10 +117,10 @@ namespace MTConnect.Assets.Json.CuttingTools
             // CutterStatus
             if (!CutterStatus.IsNullOrEmpty())
             {
-                var statuses = new List<CutterStatus>();
+                var statuses = new List<CutterStatusType>();
                 foreach (var cutterStatus in CutterStatus)
                 {
-                    statuses.Add(cutterStatus.ConvertEnum<CutterStatus>());
+                    statuses.Add(cutterStatus.ConvertEnum<CutterStatusType>());
                 }
                 cuttingItem.CutterStatus = statuses;
             }
@@ -128,7 +128,7 @@ namespace MTConnect.Assets.Json.CuttingTools
             // Measurements
             if (!Measurements.IsNullOrEmpty())
             {
-                var measurements = new List<Measurement>();
+                var measurements = new List<IMeasurement>();
                 foreach (var measurement in Measurements)
                 {
                     measurements.Add(measurement.ToMeasurement());

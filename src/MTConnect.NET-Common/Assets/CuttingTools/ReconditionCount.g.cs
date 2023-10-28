@@ -16,11 +16,11 @@ namespace MTConnect.Assets.CuttingTools
         /// <summary>
         /// Maximum number of times the tool may be reconditioned.
         /// </summary>
-        public int MaximumCount { get; set; }
+        public int? MaximumCount { get; set; }
         
         /// <summary>
         /// 
         /// </summary>
-        public int Value { get; set; }
+        public int? Value { get; set; }
     }
 }

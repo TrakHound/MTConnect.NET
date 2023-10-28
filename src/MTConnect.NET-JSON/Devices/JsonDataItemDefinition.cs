@@ -10,7 +10,7 @@ namespace MTConnect.Devices.Json
     public class JsonDataItemDefinition
     {
         [JsonPropertyName("description")]
-        public string Description { get; set; }
+        public JsonDescription Description { get; set; }
 
         [JsonPropertyName("entryDefinitions")]
         public IEnumerable<JsonEntryDefinition> EntryDefinitions { get; set; }
@@ -25,7 +25,7 @@ namespace MTConnect.Devices.Json
         {
             if (dataItemDefinition != null)
             {
-                Description = dataItemDefinition.Description;
+                if (dataItemDefinition.Description != null) Description = new JsonDescription(dataItemDefinition.Description);
 
                 // EntryDefinitions
                 if (!dataItemDefinition.EntryDefinitions.IsNullOrEmpty())
@@ -56,7 +56,8 @@ namespace MTConnect.Devices.Json
         public IDataItemDefinition ToDefinition()
         {
             var definition = new DataItemDefinition();
-            definition.Description = Description;
+
+            if (Description != null) definition.Description = Description.ToDescription();
 
             // Entry Definitions
             if (!EntryDefinitions.IsNullOrEmpty())

@@ -113,7 +113,10 @@ namespace MTConnect.SysML.CSharp
                                 case "Assets.CuttingTools.CuttingTool": ((ClassModel)template).IsPartial = true; break;
                                 case "Assets.CuttingTools.CuttingToolLifeCycle": ((ClassModel)template).IsPartial = true; break;
                                 case "Assets.CuttingTools.CuttingItem": ((ClassModel)template).IsPartial = true; break;
-                                case "Assets.CuttingTools.Measurement": ((ClassModel)template).IsPartial = true; break;
+                                case "Assets.CuttingTools.Measurement":
+                                    ((ClassModel)template).IsPartial = true; 
+                                    ((ClassModel)template).IsAbstract = false; 
+                                    break;
                                 case "Assets.Files.File": ((ClassModel)template).IsPartial = true; break;
                                 case "Assets.QIF.QIFDocument": ((ClassModel)template).IsPartial = true; break;
                                 case "Assets.RawMaterials.RawMaterial": ((ClassModel)template).IsPartial = true; break;

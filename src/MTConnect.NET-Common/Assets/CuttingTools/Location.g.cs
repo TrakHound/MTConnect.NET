@@ -21,12 +21,12 @@ namespace MTConnect.Assets.CuttingTools
         /// <summary>
         /// Number of locations at lower index values from this location.
         /// </summary>
-        public int NegativeOverlap { get; set; }
+        public int? NegativeOverlap { get; set; }
         
         /// <summary>
         /// Number of locations at higher index value from this location.
         /// </summary>
-        public int PositiveOverlap { get; set; }
+        public int? PositiveOverlap { get; set; }
         
         /// <summary>
         /// Tool bar associated with a tool.

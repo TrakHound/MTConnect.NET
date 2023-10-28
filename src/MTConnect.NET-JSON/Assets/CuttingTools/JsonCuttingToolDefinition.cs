@@ -14,7 +14,7 @@ namespace MTConnect.Assets.Json.CuttingTools
 
         public JsonCuttingToolDefinition() { }
 
-        public JsonCuttingToolDefinition(CuttingToolDefinition cuttingToolDefinition)
+        public JsonCuttingToolDefinition(ICuttingToolDefinition cuttingToolDefinition)
         {
             if (cuttingToolDefinition != null)
             {
@@ -26,7 +26,7 @@ namespace MTConnect.Assets.Json.CuttingTools
         public CuttingToolDefinition ToCuttingToolDefinition()
         {
             var cuttingToolDefinition = new CuttingToolDefinition();
-            cuttingToolDefinition.Format = Format.ConvertEnum<CuttingToolDefinitionFormat>();
+            cuttingToolDefinition.Format = Format.ConvertEnum<FormatType>();
             return cuttingToolDefinition;
         }
     }

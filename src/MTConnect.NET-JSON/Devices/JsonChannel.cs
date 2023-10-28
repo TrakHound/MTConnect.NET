@@ -1,7 +1,7 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-using MTConnect.Devices.Configurations.Sensor;
+using MTConnect.Devices.Configurations;
 using System;
 using System.Text.Json.Serialization;
 
@@ -15,9 +15,6 @@ namespace MTConnect.Devices.Json
         [JsonPropertyName("name")]
         public string Name { get; set; }
 
-        [JsonPropertyName("description")]
-        public string Description { get; set; }
-
         [JsonPropertyName("calibrationDate")]
         public DateTime CalibrationDate { get; set; }
 
@@ -26,6 +23,9 @@ namespace MTConnect.Devices.Json
 
         [JsonPropertyName("calibrationInitials")]
         public string CalibrationInitials { get; set; }
+
+        [JsonPropertyName("description")]
+        public JsonDescription Description { get; set; }
 
 
         public JsonChannel() { }
@@ -36,10 +36,11 @@ namespace MTConnect.Devices.Json
             {
                 Number = channel.Number;
                 Name = channel.Name;
-                Description = channel.Description;
                 CalibrationDate = channel.CalibrationDate;
                 NextCalibrationDate = channel.NextCalibrationDate;
                 CalibrationInitials = channel.CalibrationInitials;
+
+                if (channel.Description != null) Description = new JsonDescription(channel.Description);
             }
         }
 
@@ -49,10 +50,10 @@ namespace MTConnect.Devices.Json
             var channel = new Channel();
             channel.Number = Number;
             channel.Name = Name;
-            channel.Description = Description;
             channel.CalibrationDate = CalibrationDate;
             channel.NextCalibrationDate = NextCalibrationDate;
             channel.CalibrationInitials = CalibrationInitials;
+            if (Description != null) channel.Description = Description.ToDescription();
             return channel;
         }
     }

@@ -8,7 +8,7 @@ namespace MTConnect.Assets.CuttingTools
     /// <summary>
     /// Constrained scalar value associated with a cutting tool.
     /// </summary>
-    public abstract partial class Measurement : IMeasurement
+    public partial class Measurement : IMeasurement
     {
         public const string DescriptionText = "Constrained scalar value associated with a cutting tool.";
 
@@ -21,12 +21,12 @@ namespace MTConnect.Assets.CuttingTools
         /// <summary>
         /// Maximum value for the measurement.
         /// </summary>
-        public double Maximum { get; set; }
+        public double? Maximum { get; set; }
         
         /// <summary>
         /// Minimum value for the measurement.
         /// </summary>
-        public double Minimum { get; set; }
+        public double? Minimum { get; set; }
         
         /// <summary>
         /// Units the measurement was originally recorded in. See Device Information Model for the complete list of nativeUnits.
@@ -36,12 +36,12 @@ namespace MTConnect.Assets.CuttingTools
         /// <summary>
         /// As advertised value for the measurement.
         /// </summary>
-        public double Nominal { get; set; }
+        public double? Nominal { get; set; }
         
         /// <summary>
         /// Number of significant digits in the reported value.
         /// </summary>
-        public int SignificantDigits { get; set; }
+        public int? SignificantDigits { get; set; }
         
         /// <summary>
         /// Units for the measurements. See Device Information Model for the complete list of units.
@@ -51,6 +51,6 @@ namespace MTConnect.Assets.CuttingTools
         /// <summary>
         /// 
         /// </summary>
-        public double Value { get; set; }
+        public double? Value { get; set; }
     }
 }

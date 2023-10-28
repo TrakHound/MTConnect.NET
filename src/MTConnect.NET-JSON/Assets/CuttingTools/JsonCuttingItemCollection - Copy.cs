@@ -3,7 +3,6 @@
 
 using MTConnect.Assets.CuttingTools;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json.Serialization;
 
 namespace MTConnect.Assets.Json.CuttingTools
@@ -14,48 +13,49 @@ namespace MTConnect.Assets.Json.CuttingTools
         public int Count { get; set; }
 
 
-        [JsonPropertyName("cuttingItems")]
+        [JsonPropertyName("cuttingItem")]
         public IEnumerable<JsonCuttingItem> CuttingItems { get; set; }
 
 
         public JsonCuttingItemCollection() { }
 
-        public JsonCuttingItemCollection(IEnumerable<ICuttingItem> cuttingItems)
+        public JsonCuttingItemCollection(CuttingItemCollection cuttingItemCollection)
         {
-            if (!cuttingItems.IsNullOrEmpty())
+            if (cuttingItemCollection != null)
             {
-                Count = cuttingItems.Count();
+                Count = cuttingItemCollection.Count;
 
                 // CuttingItems
-                if (!cuttingItems.IsNullOrEmpty())
+                if (!cuttingItemCollection.CuttingItems.IsNullOrEmpty())
                 {
-                    var jsonCuttingItems = new List<JsonCuttingItem>();
-                    foreach (var cuttingItem in cuttingItems)
+                    var cuttingItems = new List<JsonCuttingItem>();
+                    foreach (var cuttingItem in cuttingItemCollection.CuttingItems)
                     {
-                        jsonCuttingItems.Add(new JsonCuttingItem(cuttingItem));
+                        cuttingItems.Add(new JsonCuttingItem(cuttingItem));
                     }
-                    CuttingItems = jsonCuttingItems;
+                    CuttingItems = cuttingItems;
                 }
             }
         }
 
 
-        public IEnumerable<ICuttingItem> ToCuttingItems()
+        public CuttingItemCollection ToCuttingItemCollection()
         {
+            var cuttingItemCollection = new CuttingItemCollection();
+            cuttingItemCollection.Count = Count;
+
             // CuttingItems
             if (!CuttingItems.IsNullOrEmpty())
             {
-                var cuttingItems = new List<ICuttingItem>();
-
+                var cuttingItems = new List<CuttingItem>();
                 foreach (var cuttingItem in CuttingItems)
                 {
                     cuttingItems.Add(cuttingItem.ToCuttingItem());
                 }
-
-                return cuttingItems;
+                cuttingItemCollection.CuttingItems = cuttingItems;
             }
 
-            return null;
+            return cuttingItemCollection;
         }
     }
 }

@@ -35,7 +35,7 @@ namespace MTConnect.SysML
                 IsOptional = ModelHelper.IsOptional(xmiDocument, umlProperty.Id);
 
                 var propertyName = umlProperty.Name;
-                if (IsArray && !propertyName.EndsWith("s") && propertyName != "hasToolLife") propertyName += "s";
+                if (IsArray && !propertyName.EndsWith("s") && propertyName != "hasToolLife" && propertyName != "hasItemLife") propertyName += "s";
                 if (propertyName.StartsWith("has") && propertyName != "hash") propertyName = propertyName.Substring(3);
 
                 if (propertyName == "xlink:type") propertyName = "xLinkType";

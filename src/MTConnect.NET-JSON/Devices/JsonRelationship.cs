@@ -2,7 +2,7 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Assets;
-using MTConnect.Devices.Configurations.Relationships;
+using MTConnect.Devices.Configurations;
 using MTConnect.Devices.DataItems;
 using System.Text.Json.Serialization;
 

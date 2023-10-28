@@ -7,7 +7,7 @@ using MTConnect.Assets.CuttingTools.Measurements;
 
 namespace MTConnect.Assets.CuttingTools
 {
-    public abstract partial class Measurement
+    public partial class Measurement
     {
         public string Type { get; set; }
 

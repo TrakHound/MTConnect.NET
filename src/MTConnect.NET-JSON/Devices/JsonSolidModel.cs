@@ -1,7 +1,7 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-using MTConnect.Devices.Configurations.SolidModel;
+using MTConnect.Devices.Configurations;
 using System.Text.Json.Serialization;
 
 namespace MTConnect.Devices.Json
@@ -45,7 +45,7 @@ namespace MTConnect.Devices.Json
                 MediaType = solidModel.MediaType.ToString();
                 CoordinateSystemIdRef = solidModel.CoordinateSystemIdRef;
                 if (solidModel.Transformation != null) Transformation = new JsonTransformation(solidModel.Transformation);
-                Scale = solidModel.Scale;
+                Scale = solidModel.Scale.ToString();
             }
         }
 
@@ -57,10 +57,10 @@ namespace MTConnect.Devices.Json
             solidModel.SolidModelIdRef = Id;
             solidModel.Href = Href;
             solidModel.ItemRef = ItemRef;
-            solidModel.MediaType = MediaType.ConvertEnum<SolidModelMediaType>();
+            solidModel.MediaType = MediaType.ConvertEnum<MediaType>();
             solidModel.CoordinateSystemIdRef = CoordinateSystemIdRef;
             if (Transformation != null) solidModel.Transformation = Transformation.ToTransformation();
-            solidModel.Scale = Scale;
+            solidModel.Scale = UnitVector3D.FromString(Scale);
             return solidModel;
         }
     }

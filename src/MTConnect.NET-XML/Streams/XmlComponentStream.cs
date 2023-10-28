@@ -9,9 +9,6 @@ using System.Xml;
 
 namespace MTConnect.Streams.Xml
 {
-    /// <summary>
-    /// ComponentStream is a XML container that organizes the data associated with each Structural Element defined for that piece of equipment in the associated MTConnectDevices XML document
-    /// </summary>
     internal static class XmlComponentStream
     {
         public static void WriteXml(

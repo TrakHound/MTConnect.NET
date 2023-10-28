@@ -18,7 +18,7 @@ namespace MTConnect.Formatters
 {
     public class JsonResponseDocumentFormatter : IResponseDocumentFormatter
     {
-        public string Id => "JSON";
+        public string Id => "JSON-cppagent";
 
         public string ContentType => "application/json";
 

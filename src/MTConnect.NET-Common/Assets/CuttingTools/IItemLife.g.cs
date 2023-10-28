@@ -16,17 +16,17 @@ namespace MTConnect.Assets.CuttingTools
         /// <summary>
         /// Initial life of the item when it is new.
         /// </summary>
-        double Initial { get; }
+        double? Initial { get; }
         
         /// <summary>
         /// End of life limit for this item.
         /// </summary>
-        double Limit { get; }
+        double? Limit { get; }
         
         /// <summary>
         /// Type of item life being accumulated.
         /// </summary>
-        MTConnect.Assets.CuttingTools.ToolLife Type { get; }
+        MTConnect.Assets.CuttingTools.ToolLifeType Type { get; }
         
         /// <summary>
         /// Value of ItemLife.
@@ -36,6 +36,6 @@ namespace MTConnect.Assets.CuttingTools
         /// <summary>
         /// Point at which a item life warning will be raised.
         /// </summary>
-        double Warning { get; }
+        double? Warning { get; }
     }
 }

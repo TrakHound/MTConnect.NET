@@ -1,7 +1,7 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-using MTConnect.Devices.Configurations.CoordinateSystems;
+using MTConnect.Devices.Configurations;
 using System.Text.Json.Serialization;
 
 namespace MTConnect.Devices.Json
@@ -44,7 +44,7 @@ namespace MTConnect.Devices.Json
                 NativeName = coordinateSystem.NativeName;
                 ParentIdRef = coordinateSystem.ParentIdRef;
                 Type = coordinateSystem.Type.ToString();
-                Origin = coordinateSystem.Origin;
+                Origin = coordinateSystem.Origin.ToString();
                 if (coordinateSystem.Transformation != null) Transformation = new JsonTransformation(coordinateSystem.Transformation);
                 Description = coordinateSystem.Description;
             }
@@ -59,7 +59,7 @@ namespace MTConnect.Devices.Json
             coordinateSystem.NativeName = NativeName;
             coordinateSystem.ParentIdRef = ParentIdRef;
             coordinateSystem.Type = Type.ConvertEnum<CoordinateSystemType>();
-            coordinateSystem.Origin = Origin;
+            coordinateSystem.Origin = UnitVector3D.FromString(Origin);
             if (Transformation != null) coordinateSystem.Transformation = Transformation.ToTransformation();
             coordinateSystem.Description = Description;
             return coordinateSystem;

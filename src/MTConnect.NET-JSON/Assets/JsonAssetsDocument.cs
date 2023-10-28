@@ -47,8 +47,8 @@ namespace MTConnect.Assets.Json
 
                         switch (asset.Type)
                         {
-                            case "CuttingTool": jsonAsset = new JsonCuttingToolAsset(asset as CuttingToolAsset); break;
-                            case "File": jsonAsset = new JsonFileAsset(asset as FileAsset); break;
+                            case "CuttingTool": jsonAsset = new JsonCuttingToolAsset(asset as CuttingTool); break;
+                            case "File": jsonAsset = new JsonFileAsset(asset as File); break;
                             case "QIFDocumentWrapper": jsonAsset = new JsonQIFDocumentWrapperAsset(asset as QIFDocumentWrapperAsset); break;
                             case "RawMaterial": jsonAsset = new JsonRawMaterialAsset(asset as RawMaterialAsset); break;
                         }

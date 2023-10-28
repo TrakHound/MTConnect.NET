@@ -12,10 +12,6 @@ using System.Xml.Serialization;
 
 namespace MTConnect.Streams.Xml
 {
-    /// <summary>
-    /// Samples is a XML container type element. 
-    /// Samples organizes the Data Entities returned in the MTConnectStreams XML document for those DataItem elements defined with a category attribute of EVENT in the MTConnectDevices document.
-    /// </summary>
     internal class XmlObservationContainer
     {
         private const string ConditionUnavailable = "Unavailable";
@@ -28,9 +24,6 @@ namespace MTConnect.Streams.Xml
         private bool _outputComments = false;
 
 
-        /// <summary>
-        /// An XML container type element that organizes the data reported in the MTConnectStreams document for DataItem elements defined in the MTConnectDevices document with a category attribute of EVENT.
-        /// </summary>
         [XmlIgnore]
         public List<IObservationOutput> Observations { get; set; }
 

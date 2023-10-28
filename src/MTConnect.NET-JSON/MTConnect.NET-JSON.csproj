@@ -54,6 +54,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="Assets\CuttingTools\JsonCuttingItemCollection - Copy.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -106,6 +110,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<None Include="Assets\CuttingTools\JsonCuttingItemCollection - Copy.cs" />
 		<None Include="README.md">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>

@@ -9,21 +9,21 @@ namespace MTConnect.Assets.Json.CuttingTools
     public class JsonProcessSpindleSpeed
     {
         [JsonPropertyName("maximum")]
-        public double Maximum { get; set; }
+        public double? Maximum { get; set; }
 
         [JsonPropertyName("minimum")]
-        public double Minimum { get; set; }
+        public double? Minimum { get; set; }
 
         [JsonPropertyName("nominal")]
-        public double Nominal { get; set; }
+        public double? Nominal { get; set; }
 
         [JsonPropertyName("value")]
-        public double Value { get; set; }
+        public double? Value { get; set; }
 
 
         public JsonProcessSpindleSpeed() { }
 
-        public JsonProcessSpindleSpeed(ProcessSpindleSpeed processSpindleSpeed)
+        public JsonProcessSpindleSpeed(IProcessSpindleSpeed processSpindleSpeed)
         {
             if (processSpindleSpeed != null)
             {
@@ -35,7 +35,7 @@ namespace MTConnect.Assets.Json.CuttingTools
         }
 
 
-        public ProcessSpindleSpeed ToProcessSpindleSpeed()
+        public IProcessSpindleSpeed ToProcessSpindleSpeed()
         {
             var processSpindleSpeed = new ProcessSpindleSpeed();
             processSpindleSpeed.Maximum = Maximum;

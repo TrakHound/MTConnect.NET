@@ -9,7 +9,7 @@ namespace MTConnect.Assets.Json.CuttingTools
     public class JsonCuttingToolArchetype
     {
         [JsonPropertyName("cuttingToolDefinition")]
-        public CuttingToolDefinition CuttingToolDefinition { get; set; }
+        public JsonCuttingToolDefinition CuttingToolDefinition { get; set; }
 
 
         public JsonCuttingToolArchetype() { }
@@ -18,7 +18,7 @@ namespace MTConnect.Assets.Json.CuttingTools
         {
             if (cuttingToolArchetype != null)
             {
-                CuttingToolDefinition = cuttingToolArchetype.CuttingToolDefinition;
+                CuttingToolDefinition = new JsonCuttingToolDefinition(cuttingToolArchetype.CuttingToolDefinition);
             }
         }
 
@@ -26,7 +26,7 @@ namespace MTConnect.Assets.Json.CuttingTools
         public CuttingToolArchetype ToCuttingToolArchetype()
         {
             var cuttingToolArchetype = new CuttingToolArchetype();
-            cuttingToolArchetype.CuttingToolDefinition = CuttingToolDefinition;
+            if (CuttingToolDefinition != null) cuttingToolArchetype.CuttingToolDefinition = CuttingToolDefinition.ToCuttingToolDefinition();
             return cuttingToolArchetype;
         }
     }

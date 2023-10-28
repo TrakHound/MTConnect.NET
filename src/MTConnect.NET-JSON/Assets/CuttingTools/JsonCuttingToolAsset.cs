@@ -2,6 +2,7 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Assets.CuttingTools;
+using MTConnect.Devices.Json;
 using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
@@ -29,7 +30,7 @@ namespace MTConnect.Assets.Json.CuttingTools
         public bool Removed { get; set; }
 
         [JsonPropertyName("description")]
-        public string Description { get; set; }
+        public JsonDescription Description { get; set; }
 
 
         [JsonPropertyName("serialNumber")]
@@ -50,17 +51,18 @@ namespace MTConnect.Assets.Json.CuttingTools
 
         public JsonCuttingToolAsset() { }
 
-        public JsonCuttingToolAsset(CuttingToolAsset asset)
+        public JsonCuttingToolAsset(CuttingTool asset)
         {
             if (asset != null)
             {
                 AssetId = asset.AssetId;
                 Type = asset.Type;
-                Timestamp = asset.Timestamp.ToDateTime();
+                Timestamp = asset.Timestamp;
                 InstanceId = asset.InstanceId;
                 DeviceUuid = asset.DeviceUuid;
                 Removed = asset.Removed;
-                Description = asset.Description;
+
+                if (asset.Description != null) Description = new JsonDescription(asset.Description);
 
                 SerialNumber = asset.SerialNumber;
                 ToolId = asset.ToolId;
@@ -71,16 +73,17 @@ namespace MTConnect.Assets.Json.CuttingTools
         }
 
 
-        public CuttingToolAsset ToCuttingToolAsset()
+        public CuttingTool ToCuttingToolAsset()
         {
-            var asset = new CuttingToolAsset();
+            var asset = new CuttingTool();
 
             asset.AssetId = AssetId;
             asset.Type = Type;
-            asset.Timestamp = Timestamp.ToUnixTime();
+            asset.Timestamp = Timestamp;
             asset.DeviceUuid = DeviceUuid;
             asset.Removed = Removed;
-            asset.Description = Description;
+
+            if (Description != null) asset.Description = Description.ToDescription();
 
             asset.SerialNumber = SerialNumber;
             asset.ToolId = ToolId;

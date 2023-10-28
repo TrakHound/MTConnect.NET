@@ -77,7 +77,7 @@ namespace MTConnect.Streams.Json
                 if (!componentStream.Observations.IsNullOrEmpty())
                 {
                     // Add Samples
-                    var sampleObservations = componentStream.Observations.Where(o => o.Category == Devices.DataItems.DataItemCategory.SAMPLE);
+                    var sampleObservations = componentStream.Observations.Where(o => o.Category == Devices.DataItemCategory.SAMPLE);
                     if (!sampleObservations.IsNullOrEmpty())
                     {
                         var samples = new List<JsonSample>();
@@ -89,7 +89,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add Events
-                    var eventObservations = componentStream.Observations.Where(o => o.Category == Devices.DataItems.DataItemCategory.EVENT);
+                    var eventObservations = componentStream.Observations.Where(o => o.Category == Devices.DataItemCategory.EVENT);
                     if (!eventObservations.IsNullOrEmpty())
                     {
                         var events = new List<JsonEvent>();
@@ -101,7 +101,7 @@ namespace MTConnect.Streams.Json
                     }
 
                     // Add Conditions
-                    var confiditionObservations = componentStream.Observations.Where(o => o.Category == Devices.DataItems.DataItemCategory.CONDITION);
+                    var confiditionObservations = componentStream.Observations.Where(o => o.Category == Devices.DataItemCategory.CONDITION);
                     if (!confiditionObservations.IsNullOrEmpty())
                     {
                         var conditions = new List<JsonCondition>();

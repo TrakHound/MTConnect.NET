@@ -11,9 +11,6 @@ using System.Xml;
 
 namespace MTConnect.Streams.Xml
 {
-    /// <summary>
-    /// The Streams Information Model provides a representation of the data reported by a piece of equipment used for a manufacturing process, or used for any other purpose.
-    /// </summary>
     public static class XmlStreamsResponseDocument
     {
 

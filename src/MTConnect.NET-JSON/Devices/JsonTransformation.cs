@@ -21,8 +21,8 @@ namespace MTConnect.Devices.Json
         {
             if (transformation != null)
             {
-                Translation = transformation.Translation;
-                Rotation = transformation.Rotation;
+                Translation = transformation.Translation.ToString();
+                Rotation = transformation.Rotation.ToString();
             }
         }
 
@@ -30,8 +30,8 @@ namespace MTConnect.Devices.Json
         public ITransformation ToTransformation()
         {
             var transformation = new Transformation();
-            transformation.Translation = Translation;
-            transformation.Rotation = Rotation;
+            transformation.Translation = UnitVector3D.FromString(Translation);
+            transformation.Rotation = Degree3D.FromString(Rotation);
             return transformation;
         }
     }

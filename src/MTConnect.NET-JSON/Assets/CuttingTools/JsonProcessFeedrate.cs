@@ -9,18 +9,18 @@ namespace MTConnect.Assets.Json.CuttingTools
     public class JsonProcessFeedrate
     {
         [JsonPropertyName("maximum")]
-        public int Maximum { get; set; }
+        public double? Maximum { get; set; }
 
         [JsonPropertyName("minimum")]
-        public int Minimum { get; set; }
+        public double? Minimum { get; set; }
 
         [JsonPropertyName("nominal")]
-        public int Nominal { get; set; }
+        public double? Nominal { get; set; }
 
 
         public JsonProcessFeedrate() { }
 
-        public JsonProcessFeedrate(ProcessFeedrate processFeedrate)
+        public JsonProcessFeedrate(IProcessFeedRate processFeedrate)
         {
             if (processFeedrate != null)
             {
@@ -31,9 +31,9 @@ namespace MTConnect.Assets.Json.CuttingTools
         }
 
 
-        public ProcessFeedrate ToProcessFeedrate()
+        public IProcessFeedRate ToProcessFeedrate()
         {
-            var processFeedrate = new ProcessFeedrate();
+            var processFeedrate = new ProcessFeedRate();
             processFeedrate.Maximum = Maximum;
             processFeedrate.Minimum = Minimum;
             processFeedrate.Nominal = Nominal;

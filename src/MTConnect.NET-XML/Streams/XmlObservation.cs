@@ -3,7 +3,6 @@
 
 using MTConnect.Configurations;
 using MTConnect.Devices;
-using MTConnect.Devices.DataItems;
 using MTConnect.Observations;
 using System.Collections.Generic;
 using System.Linq;

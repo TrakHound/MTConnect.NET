@@ -6,31 +6,33 @@ namespace MTConnect.Assets.CuttingTools
     public static class ToolLifeDescriptions
     {
         /// <summary>
-        /// Tool life measured in minutes. All units for minimum, maximum, and nominal **MUST** be provided in minutes.
+        /// Indicates if the tool life counts from zero to maximum or maximum to zero.
         /// </summary>
-        public const string MINUTES = "Tool life measured in minutes. All units for minimum, maximum, and nominal **MUST** be provided in minutes.";
+        public const string CountDirection = "Indicates if the tool life counts from zero to maximum or maximum to zero.";
         
         /// <summary>
-        /// Tool life measured in parts. All units for minimum, maximum, and nominal **MUST** be provided as the number of parts.
+        /// Initial life of the tool when it is new.
         /// </summary>
-        public const string PART_COUNT = "Tool life measured in parts. All units for minimum, maximum, and nominal **MUST** be provided as the number of parts.";
+        public const string Initial = "Initial life of the tool when it is new.";
         
         /// <summary>
-        /// Tool life measured in tool wear. Wear **MUST** be provided in millimeters as an offset to nominal. All units for minimum, maximum, and nominal **MUST** be given as millimeter offsets aswell. The standard will only consider dimensional wear at this time.
+        /// End of life limit for the tool.
         /// </summary>
-        public const string WEAR = "Tool life measured in tool wear. Wear **MUST** be provided in millimeters as an offset to nominal. All units for minimum, maximum, and nominal **MUST** be given as millimeter offsets aswell. The standard will only consider dimensional wear at this time.";
-
-
-        public static string Get(ToolLife value)
-        {
-            switch (value)
-            {
-                case ToolLife.MINUTES: return "Tool life measured in minutes. All units for minimum, maximum, and nominal **MUST** be provided in minutes.";
-                case ToolLife.PART_COUNT: return "Tool life measured in parts. All units for minimum, maximum, and nominal **MUST** be provided as the number of parts.";
-                case ToolLife.WEAR: return "Tool life measured in tool wear. Wear **MUST** be provided in millimeters as an offset to nominal. All units for minimum, maximum, and nominal **MUST** be given as millimeter offsets aswell. The standard will only consider dimensional wear at this time.";
-            }
-
-            return null;
-        }
+        public const string Limit = "End of life limit for the tool.";
+        
+        /// <summary>
+        /// Type of tool life being accumulated.
+        /// </summary>
+        public const string Type = "Type of tool life being accumulated.";
+        
+        /// <summary>
+        /// Value of ToolLife.
+        /// </summary>
+        public const string Value = "Value of ToolLife.";
+        
+        /// <summary>
+        /// Point at which a tool life warning will be raised.
+        /// </summary>
+        public const string Warning = "Point at which a tool life warning will be raised.";
     }
 }

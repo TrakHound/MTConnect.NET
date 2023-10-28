@@ -9,21 +9,21 @@ namespace MTConnect.Assets.Json.CuttingTools
     public class JsonLocation
     {
         [JsonPropertyName("value")]
-        public int Value { get; set; }
+        public string Value { get; set; }
 
         [JsonPropertyName("type")]
         public string Type { get; set; }
 
         [JsonPropertyName("positiveOverlap")]
-        public int PositiveOverlap { get; set; }
+        public int? PositiveOverlap { get; set; }
 
         [JsonPropertyName("negativeOverlap")]
-        public int NegativeOverlap { get; set; }
+        public int? NegativeOverlap { get; set; }
 
 
         public JsonLocation() { }
 
-        public JsonLocation(Location location)
+        public JsonLocation(ILocation location)
         {
             if (location != null)
             {
@@ -35,7 +35,7 @@ namespace MTConnect.Assets.Json.CuttingTools
         }
 
 
-        public Location ToLocation()
+        public ILocation ToLocation()
         {
             var location = new Location();
             location.Value = Value;

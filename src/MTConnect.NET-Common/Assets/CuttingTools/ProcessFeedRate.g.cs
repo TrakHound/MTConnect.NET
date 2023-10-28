@@ -16,21 +16,21 @@ namespace MTConnect.Assets.CuttingTools
         /// <summary>
         /// Upper bound for the tool’s process target feedrate.
         /// </summary>
-        public double Maximum { get; set; }
+        public double? Maximum { get; set; }
         
         /// <summary>
         /// Lower bound for the tool's feedrate.
         /// </summary>
-        public double Minimum { get; set; }
+        public double? Minimum { get; set; }
         
         /// <summary>
         /// Nominal feedrate the tool is designed to operate at.
         /// </summary>
-        public double Nominal { get; set; }
+        public double? Nominal { get; set; }
         
         /// <summary>
         /// 
         /// </summary>
-        public string Value { get; set; }
+        public string? Value { get; set; }
     }
 }

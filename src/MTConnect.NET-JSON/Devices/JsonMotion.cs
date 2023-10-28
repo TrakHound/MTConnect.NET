@@ -1,7 +1,7 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-using MTConnect.Devices.Configurations.Motion;
+using MTConnect.Devices.Configurations;
 using System.Text.Json.Serialization;
 
 namespace MTConnect.Devices.Json
@@ -24,7 +24,7 @@ namespace MTConnect.Devices.Json
         public string Actuation { get; set; }
 
         [JsonPropertyName("description")]
-        public string Description { get; set; }
+        public JsonDescription Description { get; set; }
 
         [JsonPropertyName("origin")]
         public string Origin { get; set; }
@@ -47,10 +47,10 @@ namespace MTConnect.Devices.Json
                 CoordinateSystemIdRef = motion.CoordinateSystemIdRef;
                 Type = motion.Type.ToString();
                 Actuation = motion.Actuation.ToString();
-                Description = motion.Description;
-                Origin = motion.Origin;
+                if (motion.Description != null) Description = new JsonDescription(motion.Description);
+                Origin = motion.Origin.ToString();
                 if (motion.Transformation != null) Transformation = new JsonTransformation(motion.Transformation);
-                Axis = motion.Axis;
+                Axis = motion.Axis.ToString();
             }
         }
 
@@ -63,10 +63,10 @@ namespace MTConnect.Devices.Json
             motion.CoordinateSystemIdRef = CoordinateSystemIdRef;
             motion.Type = Type.ConvertEnum<MotionType>();
             motion.Actuation = Actuation.ConvertEnum<MotionActuationType>();
-            motion.Axis = Axis;
-            motion.Origin = Origin;
+            motion.Axis = UnitVector3D.FromString(Axis);
+            motion.Origin = UnitVector3D.FromString(Origin);
             if (Transformation != null) motion.Transformation = Transformation.ToTransformation();
-            motion.Description = Description;
+            if (Description != null) motion.Description = Description.ToDescription();
             return motion;
         }
     }

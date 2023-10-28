@@ -1,23 +1,46 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
+// MTConnect SysML v2.2 : UML ID = EAID_37DECE45_091E_4f0c_AD72_EB481C0C1919
+
 namespace MTConnect.Assets.CuttingTools
 {
-    public enum ToolLife
+    /// <summary>
+    /// Cutting tool life as related to the assembly.
+    /// </summary>
+    public class ToolLife : IToolLife
     {
+        public const string DescriptionText = "Cutting tool life as related to the assembly.";
+
+
         /// <summary>
-        /// Tool life measured in minutes. All units for minimum, maximum, and nominal **MUST** be provided in minutes.
+        /// Indicates if the tool life counts from zero to maximum or maximum to zero.
         /// </summary>
-        MINUTES,
+        public MTConnect.Assets.CuttingTools.CountDirectionType CountDirection { get; set; }
         
         /// <summary>
-        /// Tool life measured in parts. All units for minimum, maximum, and nominal **MUST** be provided as the number of parts.
+        /// Initial life of the tool when it is new.
         /// </summary>
-        PART_COUNT,
+        public double? Initial { get; set; }
         
         /// <summary>
-        /// Tool life measured in tool wear. Wear **MUST** be provided in millimeters as an offset to nominal. All units for minimum, maximum, and nominal **MUST** be given as millimeter offsets aswell. The standard will only consider dimensional wear at this time.
+        /// End of life limit for the tool.
         /// </summary>
-        WEAR
+        public double? Limit { get; set; }
+        
+        /// <summary>
+        /// Type of tool life being accumulated.
+        /// </summary>
+        public MTConnect.Assets.CuttingTools.ToolLifeType Type { get; set; }
+        
+        /// <summary>
+        /// Value of ToolLife.
+        /// </summary>
+        public double Value { get; set; }
+        
+        /// <summary>
+        /// Point at which a tool life warning will be raised.
+        /// </summary>
+        public double? Warning { get; set; }
     }
 }

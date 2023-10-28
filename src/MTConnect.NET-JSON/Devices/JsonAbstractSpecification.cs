@@ -29,8 +29,8 @@ namespace MTConnect.Devices.Json
         [JsonPropertyName("compositionIdRef")]
         public string CompositionIdRef { get; set; }
 
-        [JsonPropertyName("coordinateIdRef")]
-        public string CoordinateIdRef { get; set; }
+        [JsonPropertyName("coordinateSystemIdRef")]
+        public string CoordinateSystemIdRef { get; set; }
 
         [JsonPropertyName("originator")]
         public string Originator { get; set; }
@@ -38,7 +38,7 @@ namespace MTConnect.Devices.Json
 
         public JsonAbstractSpecification() { }
 
-        public JsonAbstractSpecification(IAbstractSpecification specification)
+        public JsonAbstractSpecification(ISpecification specification)
         {
             if (specification != null)
             {
@@ -49,13 +49,13 @@ namespace MTConnect.Devices.Json
                 DataItemIdRef = specification.DataItemIdRef;
                 Units = specification.Units;
                 CompositionIdRef = specification.CompositionIdRef;
-                CoordinateIdRef = specification.CoordinateIdRef;
+                CoordinateSystemIdRef = specification.CoordinateSystemIdRef;
                 Originator = specification.Originator.ToString();
             }
         }
 
 
-        public virtual IAbstractSpecification ToSpecification()
+        public virtual ISpecification ToSpecification()
         {
             var specification = new Specification();
             specification.Id = Id;
@@ -65,7 +65,7 @@ namespace MTConnect.Devices.Json
             specification.DataItemIdRef = DataItemIdRef;
             specification.Units = Units;
             specification.CompositionIdRef = CompositionIdRef;
-            specification.CoordinateIdRef = CoordinateIdRef;
+            specification.CoordinateSystemIdRef = CoordinateSystemIdRef;
             specification.Originator = Originator.ConvertEnum<Originator>();
             return specification;
         }

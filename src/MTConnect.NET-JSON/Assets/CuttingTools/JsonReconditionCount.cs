@@ -9,15 +9,15 @@ namespace MTConnect.Assets.Json.CuttingTools
     public class JsonReconditionCount
     {
         [JsonPropertyName("maximumCount")]
-        public int MaximumCount { get; set; }
+        public int? MaximumCount { get; set; }
 
         [JsonPropertyName("value")]
-        public int Value { get; set; }
+        public int? Value { get; set; }
 
 
         public JsonReconditionCount() { }
 
-        public JsonReconditionCount(ReconditionCount reconditionCount)
+        public JsonReconditionCount(IReconditionCount reconditionCount)
         {
             if (reconditionCount != null)
             {
@@ -27,7 +27,7 @@ namespace MTConnect.Assets.Json.CuttingTools
         }
 
 
-        public ReconditionCount ToReconditionCount()
+        public IReconditionCount ToReconditionCount()
         {
             var reconditionCount = new ReconditionCount();
             reconditionCount.MaximumCount = MaximumCount;

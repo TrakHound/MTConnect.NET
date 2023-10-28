@@ -8,9 +8,6 @@ using System.Xml;
 
 namespace MTConnect.Streams.Xml
 {
-    /// <summary>
-    /// DeviceStream is a XML container that organizes data reported from a single piece of equipment.A DeviceStream element MUST be provided for each piece of equipment reporting data in an MTConnectStreams document.
-    /// </summary>
     internal static class XmlDeviceStream
     {
         public static void WriteXml(
