@@ -49,7 +49,7 @@ namespace MTConnect.Devices
         double SampleInterval { get; }
         
         /// <summary>
-        /// **deprecated** in *MTConnect Version 1.2*. Replaced by sampleInterval,Component.
+        /// **DEPRECATED** in *MTConnect Version 1.2*. Replaced by sampleInterval,Component.
         /// </summary>
         double SampleRate { get; }
         

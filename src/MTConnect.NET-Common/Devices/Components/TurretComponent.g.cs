@@ -6,13 +6,13 @@
 namespace MTConnect.Devices.Components
 {
     /// <summary>
-    /// Toolingdelivery composed of a tool mounting mechanism that holds any number of tools.
+    /// ToolingDelivery composed of a tool mounting mechanism that holds any number of tools.
     /// </summary>
     public class TurretComponent : Component
     {
         public const string TypeId = "Turret";
         public const string NameId = "turretComponent";
-        public new const string DescriptionText = "Toolingdelivery composed of a tool mounting mechanism that holds any number of tools.";
+        public new const string DescriptionText = "ToolingDelivery composed of a tool mounting mechanism that holds any number of tools.";
 
         public override string TypeDescription => DescriptionText;
         

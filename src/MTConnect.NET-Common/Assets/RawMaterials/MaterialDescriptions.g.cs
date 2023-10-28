@@ -31,9 +31,9 @@ namespace MTConnect.Assets.RawMaterials
         public const string ManufacturingDate = "Manufacturing date of the material from the material manufacturer.";
         
         /// <summary>
-        /// Astm standard code that the material complies with.
+        /// ASTM standard code that the material complies with.
         /// </summary>
-        public const string MaterialCode = "Astm standard code that the material complies with.";
+        public const string MaterialCode = "ASTM standard code that the material complies with.";
         
         /// <summary>
         /// Name of the material. Examples: `ULTM9085`, `ABS`, `4140`.

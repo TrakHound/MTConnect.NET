@@ -46,8 +46,8 @@ namespace MTConnect.Devices.Configurations
         public const string Type = "Type of coordinate system.";
         
         /// <summary>
-        /// Uuid for the coordinate system.
+        /// UUID for the coordinate system.
         /// </summary>
-        public const string Uuid = "Uuid for the coordinate system.";
+        public const string Uuid = "UUID for the coordinate system.";
     }
 }

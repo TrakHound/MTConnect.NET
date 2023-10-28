@@ -9,7 +9,7 @@ namespace MTConnect.Observations.Events
     public enum ValveState
     {
         /// <summary>
-        /// Valvestate where flow is allowed and the aperture is static.> Note: For a binary value, `OPEN` indicates the valve has the maximum possible aperture.
+        /// ValveState where flow is allowed and the aperture is static.> Note: For a binary value, `OPEN` indicates the valve has the maximum possible aperture.
         /// </summary>
         OPEN,
         
@@ -19,7 +19,7 @@ namespace MTConnect.Observations.Events
         OPENING,
         
         /// <summary>
-        /// Valvestate where flow is not possible, the aperture is static, and the valve is completely shut.
+        /// ValveState where flow is not possible, the aperture is static, and the valve is completely shut.
         /// </summary>
         CLOSED,
         

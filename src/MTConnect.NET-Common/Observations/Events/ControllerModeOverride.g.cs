@@ -9,12 +9,12 @@ namespace MTConnect.Observations.Events
     public enum ControllerModeOverride
     {
         /// <summary>
-        /// Controllermodeoverride is in the `ON` state and the mode override is active.
+        /// ControllerModeOverride is in the `ON` state and the mode override is active.
         /// </summary>
         ON,
         
         /// <summary>
-        /// Controllermodeoverride is in the `OFF` state and the mode override is inactive.
+        /// ControllerModeOverride is in the `OFF` state and the mode override is inactive.
         /// </summary>
         OFF
     }

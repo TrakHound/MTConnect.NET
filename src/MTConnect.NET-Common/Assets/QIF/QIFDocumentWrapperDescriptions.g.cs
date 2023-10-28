@@ -6,9 +6,9 @@ namespace MTConnect.Assets.QIF
     public static class QIFDocumentWrapperDescriptions
     {
         /// <summary>
-        /// Qif Document as given by the QIF standard.
+        /// QIF Document as given by the QIF standard.
         /// </summary>
-        public const string QIFDocument = "Qif Document as given by the QIF standard.";
+        public const string QIFDocument = "QIF Document as given by the QIF standard.";
         
         /// <summary>
         /// Contained QIF Document type as defined in the QIF Standard.

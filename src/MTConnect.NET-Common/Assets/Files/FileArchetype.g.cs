@@ -6,11 +6,11 @@
 namespace MTConnect.Assets.Files
 {
     /// <summary>
-    /// Abstractfile type that provides information common to all versions of a file.
+    /// AbstractFile type that provides information common to all versions of a file.
     /// </summary>
     public class FileArchetype : AbstractFile, IFileArchetype
     {
-        public new const string DescriptionText = "Abstractfile type that provides information common to all versions of a file.";
+        public new const string DescriptionText = "AbstractFile type that provides information common to all versions of a file.";
 
 
     }

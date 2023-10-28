@@ -11,9 +11,9 @@ namespace MTConnect.Devices.Configurations
         public const string CoordinateSystemIdRef = "Reference to the coordinate system for this SolidModel.";
         
         /// <summary>
-        /// Url giving the location of the SolidModel. If not present, the model referenced in the solidModelIdRef,SolidModel is used.href,SolidModel is of type `xlink:href` from the W3C XLink specification.
+        /// URL giving the location of the SolidModel. If not present, the model referenced in the solidModelIdRef,SolidModel is used.href,SolidModel is of type `xlink:href` from the W3C XLink specification.
         /// </summary>
-        public const string Href = "Url giving the location of the SolidModel. If not present, the model referenced in the solidModelIdRef,SolidModel is used.href,SolidModel is of type `xlink:href` from the W3C XLink specification.";
+        public const string Href = "URL giving the location of the SolidModel. If not present, the model referenced in the solidModelIdRef,SolidModel is used.href,SolidModel is of type `xlink:href` from the W3C XLink specification.";
         
         /// <summary>
         /// Unique identifier for this element.

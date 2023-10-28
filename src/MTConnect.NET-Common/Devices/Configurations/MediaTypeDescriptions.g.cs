@@ -16,9 +16,9 @@ namespace MTConnect.Devices.Configurations
         public const string ACIS = "Dassault file format.";
         
         /// <summary>
-        /// Iso 17506.
+        /// ISO 17506.
         /// </summary>
-        public const string COLLADA = "Iso 17506.";
+        public const string COLLADA = "ISO 17506.";
         
         /// <summary>
         /// Geometry Description Markup Language.
@@ -36,14 +36,14 @@ namespace MTConnect.Devices.Configurations
         public const string OBJ = "Wavefront OBJ file format.";
         
         /// <summary>
-        /// Iso 10303 STEP AP203 or AP242 format.
+        /// ISO 10303 STEP AP203 or AP242 format.
         /// </summary>
-        public const string STEP = "Iso 10303 STEP AP203 or AP242 format.";
+        public const string STEP = "ISO 10303 STEP AP203 or AP242 format.";
         
         /// <summary>
-        /// Stereolithography file format.
+        /// STereoLithography file format.
         /// </summary>
-        public const string STL = "Stereolithography file format.";
+        public const string STL = "STereoLithography file format.";
         
         /// <summary>
         /// Parasolid XT Siemens data interchange format.
@@ -57,12 +57,12 @@ namespace MTConnect.Devices.Configurations
             {
                 case MediaType.THREE_D_S: return "Autodesk file format.";
                 case MediaType.ACIS: return "Dassault file format.";
-                case MediaType.COLLADA: return "Iso 17506.";
+                case MediaType.COLLADA: return "ISO 17506.";
                 case MediaType.GDML: return "Geometry Description Markup Language.";
                 case MediaType.IGES: return "Initial Graphics Exchange Specification.";
                 case MediaType.OBJ: return "Wavefront OBJ file format.";
-                case MediaType.STEP: return "Iso 10303 STEP AP203 or AP242 format.";
-                case MediaType.STL: return "Stereolithography file format.";
+                case MediaType.STEP: return "ISO 10303 STEP AP203 or AP242 format.";
+                case MediaType.STL: return "STereoLithography file format.";
                 case MediaType.X_T: return "Parasolid XT Siemens data interchange format.";
             }
 

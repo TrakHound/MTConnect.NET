@@ -1,9 +1,7 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-using MTConnect.Assets;
 using MTConnect.Devices.Configurations;
-using MTConnect.Devices.DataItems;
 using System.Text.Json.Serialization;
 
 namespace MTConnect.Devices.Json
@@ -55,7 +53,6 @@ namespace MTConnect.Devices.Json
                 AssetIdRef = relationship.AssetIdRef;
                 AssetType = relationship.AssetType;
                 Criticality = relationship.Criticality.ToString();
-                IdRef = relationship.IdRef;
                 Href = relationship.Href;
             }
         }
@@ -76,10 +73,8 @@ namespace MTConnect.Devices.Json
         {
             if (relationship != null)
             {
-                Id = relationship.Id;
                 Name = relationship.Name;
                 Type = relationship.Type.ToString();
-                Criticality = relationship.Criticality.ToString();
                 IdRef = relationship.IdRef;
             }
         }
@@ -92,7 +87,6 @@ namespace MTConnect.Devices.Json
                 Name = relationship.Name;
                 Type = relationship.Type.ToString();
                 Criticality = relationship.Criticality.ToString();
-                IdRef = relationship.IdRef;
                 DeviceUuidRef = relationship.DeviceUuidRef;
                 Role = relationship.Role.ToString();
                 Href = relationship.Href;
@@ -104,10 +98,8 @@ namespace MTConnect.Devices.Json
         {
             if (relationship != null)
             {
-                Id = relationship.Id;
                 Name = relationship.Name;
                 Type = relationship.Type.ToString();
-                Criticality = relationship.Criticality.ToString();
                 IdRef = relationship.IdRef;
             }
         }
@@ -120,8 +112,6 @@ namespace MTConnect.Devices.Json
             relationship.Name = Name;
             relationship.AssetIdRef = AssetIdRef;
             relationship.AssetType = AssetType;
-            relationship.Criticality = Criticality.ConvertEnum<Criticality>();
-            relationship.IdRef = IdRef;
             relationship.Href = Href;
             return relationship;
         }
@@ -131,8 +121,7 @@ namespace MTConnect.Devices.Json
             var relationship = new ComponentRelationship();
             relationship.Id = Id;
             relationship.Name = Name;
-            relationship.Type = Type.ConvertEnum<ComponentRelationshipType>();
-            relationship.Criticality = Criticality.ConvertEnum<Criticality>();
+            relationship.Type = Type.ConvertEnum<RelationshipType>();
             relationship.IdRef = IdRef;
             return relationship;
         }
@@ -140,10 +129,8 @@ namespace MTConnect.Devices.Json
         public virtual IDataItemRelationship ToDataItemRelationship()
         {
             var relationship = new DataItemRelationship();
-            relationship.Id = Id;
             relationship.Name = Name;
             relationship.Type = Type.ConvertEnum<DataItemRelationshipType>();
-            relationship.Criticality = Criticality.ConvertEnum<Criticality>();
             relationship.IdRef = IdRef;
             return relationship;
         }
@@ -153,19 +140,15 @@ namespace MTConnect.Devices.Json
             var relationship = new DeviceRelationship();
             relationship.Id = Id;
             relationship.Name = Name;
-            relationship.Type = Type.ConvertEnum<DeviceRelationshipType>();
-            relationship.Criticality = Criticality.ConvertEnum<Criticality>();
-            relationship.IdRef = IdRef;
+            relationship.Type = Type.ConvertEnum<RelationshipType>();
             return relationship;
         }
 
         public virtual ISpecificationRelationship ToSpecificationRelationship()
         {
             var relationship = new SpecificationRelationship();
-            relationship.Id = Id;
             relationship.Name = Name;
             relationship.Type = Type.ConvertEnum<SpecificationRelationshipType>();
-            relationship.Criticality = Criticality.ConvertEnum<Criticality>();
             relationship.IdRef = IdRef;
             return relationship;
         }

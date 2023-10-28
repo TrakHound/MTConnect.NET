@@ -3,8 +3,8 @@
 
 using MTConnect.Assets;
 using MTConnect.Assets.CuttingTools;
-using MTConnect.Assets.Files;
 using MTConnect.Assets.Json.CuttingTools;
+using MTConnect.Assets.Files;
 using MTConnect.Assets.Json.Files;
 using MTConnect.Assets.Json.QIF;
 using MTConnect.Assets.Json.RawMaterials;
@@ -86,7 +86,7 @@ namespace MTConnect.Formatters
                 switch (observation.Category)
                 {
                     // Sample
-                    case Devices.DataItems.DataItemCategory.SAMPLE:
+                    case Devices.DataItemCategory.SAMPLE:
                         var sampleObservation = SampleObservation.Create(observation);
                         if (sampleObservation != null)
                         {
@@ -95,7 +95,7 @@ namespace MTConnect.Formatters
                         break;
 
                     // Event
-                    case Devices.DataItems.DataItemCategory.EVENT:
+                    case Devices.DataItemCategory.EVENT:
                         var eventObservation = EventObservation.Create(observation);
                         if (eventObservation != null)
                         {
@@ -104,7 +104,7 @@ namespace MTConnect.Formatters
                         break;
 
                     // Condition
-                    case Devices.DataItems.DataItemCategory.CONDITION:
+                    case Devices.DataItemCategory.CONDITION:
                         var conditionObservation = ConditionObservation.Create(observation);
                         if (conditionObservation != null)
                         {
@@ -134,7 +134,7 @@ namespace MTConnect.Formatters
                     switch (observation.Category)
                     {
                         // Sample
-                        case Devices.DataItems.DataItemCategory.SAMPLE:
+                        case Devices.DataItemCategory.SAMPLE:
                             var sampleObservation = SampleObservation.Create(observation);
                             if (sampleObservation != null)
                             {
@@ -143,7 +143,7 @@ namespace MTConnect.Formatters
                             break;
 
                         // Event
-                        case Devices.DataItems.DataItemCategory.EVENT:
+                        case Devices.DataItemCategory.EVENT:
                             var eventObservation = EventObservation.Create(observation);
                             if (eventObservation != null)
                             {
@@ -152,7 +152,7 @@ namespace MTConnect.Formatters
                             break;
 
                         // Condition
-                        case Devices.DataItems.DataItemCategory.CONDITION:
+                        case Devices.DataItemCategory.CONDITION:
                             var conditionObservation = ConditionObservation.Create(observation);
                             if (conditionObservation != null)
                             {
@@ -175,8 +175,8 @@ namespace MTConnect.Formatters
             {
                 switch (asset.Type)
                 {
-                    case "CuttingTool": return JsonFunctions.Convert(new JsonCuttingToolAsset(asset as CuttingToolAsset));
-                    case "File": return JsonFunctions.Convert(new JsonFileAsset(asset as FileAsset));
+                    case "CuttingTool": return JsonFunctions.Convert(new JsonCuttingToolAsset(asset as CuttingTool));
+                    case "File": return JsonFunctions.Convert(new JsonFileAsset(asset as File));
                     case "QIFDocumentWrapper": return JsonFunctions.Convert(new JsonQIFDocumentWrapperAsset(asset as QIFDocumentWrapperAsset));
                     case "RawMaterial": return JsonFunctions.Convert(new JsonRawMaterialAsset(asset as RawMaterialAsset));
 

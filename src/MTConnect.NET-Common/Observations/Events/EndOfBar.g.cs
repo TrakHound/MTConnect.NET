@@ -9,12 +9,12 @@ namespace MTConnect.Observations.Events
     public enum EndOfBar
     {
         /// <summary>
-        /// Endofbar has been reached.
+        /// EndOfBar has been reached.
         /// </summary>
         YES,
         
         /// <summary>
-        /// Endofbar has not been reached.
+        /// EndOfBar has not been reached.
         /// </summary>
         NO
     }

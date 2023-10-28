@@ -6,13 +6,13 @@
 namespace MTConnect.Devices.Components
 {
     /// <summary>
-    /// Toolingdelivery composed of a tool delivery mechanism that moves tools between a ToolMagazine and a spindle a Turret.
+    /// ToolingDelivery composed of a tool delivery mechanism that moves tools between a ToolMagazine and a spindle a Turret.
     /// </summary>
     public class AutomaticToolChangerComponent : Component
     {
         public const string TypeId = "AutomaticToolChanger";
         public const string NameId = "automaticToolChangerComponent";
-        public new const string DescriptionText = "Toolingdelivery composed of a tool delivery mechanism that moves tools between a ToolMagazine and a spindle a Turret.";
+        public new const string DescriptionText = "ToolingDelivery composed of a tool delivery mechanism that moves tools between a ToolMagazine and a spindle a Turret.";
 
         public override string TypeDescription => DescriptionText;
         

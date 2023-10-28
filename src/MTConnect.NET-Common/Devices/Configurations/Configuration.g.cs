@@ -31,7 +31,7 @@ namespace MTConnect.Devices.Configurations
         /// <summary>
         /// Association between two pieces of equipment that function independently but together perform a manufacturing operation.
         /// </summary>
-        public System.Collections.Generic.IEnumerable<MTConnect.Devices.Configurations.IRelationship> Relationships { get; set; }
+        public System.Collections.Generic.IEnumerable<MTConnect.Devices.Configurations.IConfigurationRelationship> Relationships { get; set; }
         
         /// <summary>
         /// Configuration for a Sensor.

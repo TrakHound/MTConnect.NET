@@ -18,7 +18,7 @@ namespace MTConnect.Assets.Json.Files
 
         public JsonFileComment() { }
 
-        public JsonFileComment(FileComment fileComment)
+        public JsonFileComment(IFileComment fileComment)
         {
             if (fileComment != null)
             {
@@ -28,7 +28,7 @@ namespace MTConnect.Assets.Json.Files
         }
 
 
-        public FileComment ToFileComment()
+        public IFileComment ToFileComment()
         {
             var fileComment = new FileComment();
             fileComment.Timestamp = Timestamp;

@@ -14,7 +14,7 @@ namespace MTConnect.Devices.Configurations
 
 
         /// <summary>
-        /// Url giving the location of the image file.
+        /// URL giving the location of the image file.
         /// </summary>
         public string Href { get; set; }
         

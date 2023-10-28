@@ -6,11 +6,11 @@
 namespace MTConnect.Devices.Configurations
 {
     /// <summary>
-    /// Configurationrelationship that describes the association between a Component and an Asset.
+    /// ConfigurationRelationship that describes the association between a Component and an Asset.
     /// </summary>
-    public class AssetRelationship : Relationship, IAssetRelationship
+    public class AssetRelationship : ConfigurationRelationship, IAssetRelationship
     {
-        public new const string DescriptionText = "Configurationrelationship that describes the association between a Component and an Asset.";
+        public new const string DescriptionText = "ConfigurationRelationship that describes the association between a Component and an Asset.";
 
 
         /// <summary>
@@ -24,7 +24,7 @@ namespace MTConnect.Devices.Configurations
         public string AssetType { get; set; }
         
         /// <summary>
-        /// Uri reference to the associated Asset.
+        /// URI reference to the associated Asset.
         /// </summary>
         public string Href { get; set; }
     }

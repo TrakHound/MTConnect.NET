@@ -31,7 +31,7 @@ namespace MTConnect.Devices.Json
         }
 
 
-        public override IAbstractSpecification ToSpecification()
+        public override ISpecification ToSpecification()
         {
             var specification = new ProcessSpecification();
             specification.Id = Id;
@@ -41,7 +41,7 @@ namespace MTConnect.Devices.Json
             specification.DataItemIdRef = DataItemIdRef;
             specification.Units = Units;
             specification.CompositionIdRef = CompositionIdRef;
-            specification.CoordinateIdRef = CoordinateIdRef;
+            specification.CoordinateSystemIdRef = CoordinateSystemIdRef;
             specification.Originator = Originator.ConvertEnum<Originator>();
 
             if (ControlLimits != null) specification.ControlLimits = ControlLimits.ToControlLimits();

@@ -4,9 +4,9 @@
 namespace MTConnect.Devices.Configurations
 {
     /// <summary>
-    /// Configurationrelationship that describes the association between a Component and an Asset.
+    /// ConfigurationRelationship that describes the association between a Component and an Asset.
     /// </summary>
-    public interface IAssetRelationship : IRelationship
+    public interface IAssetRelationship : IConfigurationRelationship
     {
         /// <summary>
         /// Uuid of the related Asset.
@@ -19,7 +19,7 @@ namespace MTConnect.Devices.Configurations
         string AssetType { get; }
         
         /// <summary>
-        /// Uri reference to the associated Asset.
+        /// URI reference to the associated Asset.
         /// </summary>
         string Href { get; }
     }

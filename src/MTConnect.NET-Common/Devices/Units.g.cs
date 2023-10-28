@@ -221,7 +221,7 @@ namespace MTConnect.Devices
         public const string SIEMENS_PER_METER = "SIEMENS/METER";
         
         /// <summary>
-        /// 3d Unit Vector.Space delimited list of three floating point numbers.
+        /// 3D Unit Vector.Space delimited list of three floating point numbers.
         /// </summary>
         public const string UNIT_VECTOR_3D = "UNIT_VECTOR_3D";
         

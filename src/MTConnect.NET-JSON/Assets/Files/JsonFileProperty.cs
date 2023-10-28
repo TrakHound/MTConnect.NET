@@ -17,7 +17,7 @@ namespace MTConnect.Assets.Json.Files
 
         public JsonFileProperty() { }
 
-        public JsonFileProperty(FileProperty fileProperty)
+        public JsonFileProperty(IFileProperty fileProperty)
         {
             if (fileProperty != null)
             {
@@ -27,7 +27,7 @@ namespace MTConnect.Assets.Json.Files
         }
 
 
-        public FileProperty ToFileProperty()
+        public IFileProperty ToFileProperty()
         {
             var fileProperty = new FileProperty();
             fileProperty.Name = Name;

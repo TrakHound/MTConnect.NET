@@ -6,11 +6,11 @@
 namespace MTConnect.Devices.Configurations
 {
     /// <summary>
-    /// Configurationrelationship that describes the association between two components within a piece of equipment that function independently but together perform a capability or service within a piece of equipment.
+    /// ConfigurationRelationship that describes the association between two components within a piece of equipment that function independently but together perform a capability or service within a piece of equipment.
     /// </summary>
-    public class ComponentRelationship : Relationship, IComponentRelationship
+    public class ComponentRelationship : ConfigurationRelationship, IComponentRelationship
     {
-        public new const string DescriptionText = "Configurationrelationship that describes the association between two components within a piece of equipment that function independently but together perform a capability or service within a piece of equipment.";
+        public new const string DescriptionText = "ConfigurationRelationship that describes the association between two components within a piece of equipment that function independently but together perform a capability or service within a piece of equipment.";
 
 
         /// <summary>

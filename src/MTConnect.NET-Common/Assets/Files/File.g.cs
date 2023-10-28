@@ -6,11 +6,11 @@
 namespace MTConnect.Assets.Files
 {
     /// <summary>
-    /// Abstractfile type that provides information about the File instance and its URL.
+    /// AbstractFile type that provides information about the File instance and its URL.
     /// </summary>
     public partial class File : AbstractFile, IFile
     {
-        public new const string DescriptionText = "Abstractfile type that provides information about the File instance and its URL.";
+        public new const string DescriptionText = "AbstractFile type that provides information about the File instance and its URL.";
 
 
         /// <summary>
@@ -21,10 +21,10 @@ namespace MTConnect.Assets.Files
         /// <summary>
         /// Reference to the target Device for this File.
         /// </summary>
-        public string Destination { get; set; }
+        public System.Collections.Generic.IEnumerable<MTConnect.Assets.Files.IDestination> Destinations { get; set; }
         
         /// <summary>
-        /// Url reference to the file location.
+        /// URL reference to the file location.
         /// </summary>
         public MTConnect.Assets.Files.IFileLocation Location { get; set; }
         

@@ -9,7 +9,7 @@ namespace MTConnect.Devices.Configurations
     public interface IImageFile
     {
         /// <summary>
-        /// Url giving the location of the image file.
+        /// URL giving the location of the image file.
         /// </summary>
         string Href { get; }
         

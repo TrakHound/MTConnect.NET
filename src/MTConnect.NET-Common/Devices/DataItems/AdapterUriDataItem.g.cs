@@ -4,7 +4,7 @@
 namespace MTConnect.Devices.DataItems
 {
     /// <summary>
-    /// Uri of the adapter.
+    /// URI of the adapter.
     /// </summary>
     public class AdapterUriDataItem : DataItem
     {
@@ -12,7 +12,7 @@ namespace MTConnect.Devices.DataItems
         public const string TypeId = "ADAPTER_URI";
         public const string NameId = "";
              
-        public new const string DescriptionText = "Uri of the adapter.";
+        public new const string DescriptionText = "URI of the adapter.";
         
         public override string TypeDescription => DescriptionText;
         

@@ -4,7 +4,7 @@
 namespace MTConnect.Devices.DataItems
 {
     /// <summary>
-    /// **deprecated:** Replaced with `CONDITION` category data items in Version 1.1.0.
+    /// **DEPRECATED:** Replaced with `CONDITION` category data items in Version 1.1.0.
     /// </summary>
     public class AlarmDataItem : DataItem
     {
@@ -12,7 +12,7 @@ namespace MTConnect.Devices.DataItems
         public const string TypeId = "ALARM";
         public const string NameId = "";
              
-        public new const string DescriptionText = "**deprecated:** Replaced with `CONDITION` category data items in Version 1.1.0.";
+        public new const string DescriptionText = "**DEPRECATED:** Replaced with `CONDITION` category data items in Version 1.1.0.";
         
         public override string TypeDescription => DescriptionText;
         public override System.Version MaximumVersion => MTConnectVersions.Version11;

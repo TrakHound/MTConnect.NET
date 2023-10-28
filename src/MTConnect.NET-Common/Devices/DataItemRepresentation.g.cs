@@ -11,7 +11,7 @@ namespace MTConnect.Devices
         DATA_SET,
         
         /// <summary>
-        /// **deprecated** as a representation in *MTConnect Version 1.5*. Replaced by the discrete,DataItem attribute of a DataItem.
+        /// **DEPRECATED** as a representation in *MTConnect Version 1.5*. Replaced by the discrete,DataItem attribute of a DataItem.
         /// </summary>
         DISCRETE,
         

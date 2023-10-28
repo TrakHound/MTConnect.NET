@@ -4,7 +4,7 @@
 namespace MTConnect.Devices.DataItems
 {
     /// <summary>
-    /// Uuid of the characteristic.
+    /// UUID of the characteristic.
     /// </summary>
     public class CharacteristicPersistentIdDataItem : DataItem
     {
@@ -12,7 +12,7 @@ namespace MTConnect.Devices.DataItems
         public const string TypeId = "CHARACTERISTIC_PERSISTENT_ID";
         public const string NameId = "";
              
-        public new const string DescriptionText = "Uuid of the characteristic.";
+        public new const string DescriptionText = "UUID of the characteristic.";
         
         public override string TypeDescription => DescriptionText;
         

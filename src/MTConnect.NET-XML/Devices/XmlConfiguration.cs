@@ -19,9 +19,10 @@ namespace MTConnect.Devices.Xml
         public XmlMotion Motion { get; set; }
 
         [XmlArray("Relationships")]
+        [XmlArrayItem("AssetRelationship", typeof(XmlAssetRelationship))]
         [XmlArrayItem("DeviceRelationship", typeof(XmlDeviceRelationship))]
         [XmlArrayItem("ComponentRelationShip", typeof(XmlComponentRelationship))]
-        public List<XmlRelationship> Relationships { get; set; }
+        public List<XmlConfigurationRelationship> Relationships { get; set; }
 
         [XmlElement("SensorConfiguration")]
         public XmlSensorConfiguration SensorConfiguration { get; set; }
@@ -59,7 +60,7 @@ namespace MTConnect.Devices.Xml
             // Relationships
             if (!Relationships.IsNullOrEmpty())
             {
-                var relationships = new List<IRelationship>();
+                var relationships = new List<IConfigurationRelationship>();
                 foreach (var relationship in Relationships)
                 {
                     relationships.Add(relationship.ToRelationship());
@@ -83,7 +84,6 @@ namespace MTConnect.Devices.Xml
             if (!Specifications.IsNullOrEmpty())
             {
                 var specifications = new List<ISpecification>();
-                //var specifications = new List<IAbstractSpecification>();
                 foreach (var specification in Specifications)
                 {
                     specifications.Add(specification.ToSpecification());
@@ -126,7 +126,18 @@ namespace MTConnect.Devices.Xml
                     writer.WriteStartElement("Relationships");
                     foreach (var relationship in configuration.Relationships)
                     {
-                        XmlRelationship.WriteXml(writer, relationship);
+                        if (typeof(IAssetRelationship).IsAssignableFrom(relationship.GetType()))
+                        {
+                            XmlAssetRelationship.WriteXml(writer, (IAssetRelationship)relationship);
+                        }
+                        else if (typeof(IComponentRelationship).IsAssignableFrom(relationship.GetType()))
+                        {
+                            XmlComponentRelationship.WriteXml(writer, (IComponentRelationship)relationship);
+                        }
+                        else if (typeof(IDeviceRelationship).IsAssignableFrom(relationship.GetType()))
+                        {
+                            XmlDeviceRelationship.WriteXml(writer, (IDeviceRelationship)relationship);
+                        }
                     }
                     writer.WriteEndElement();
                 }

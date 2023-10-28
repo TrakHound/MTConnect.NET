@@ -11,7 +11,7 @@ namespace MTConnect.Devices
         AVERAGE,
         
         /// <summary>
-        /// **deprecated** in *Version 1.6*. ~~A measure of the 'peakedness' of a probability distribution; i.e., the shape of the distribution curve.~~
+        /// **DEPRECATED** in *Version 1.6*. ~~A measure of the 'peakedness' of a probability distribution; i.e., the shape of the distribution curve.~~
         /// </summary>
         KURTOSIS,
         

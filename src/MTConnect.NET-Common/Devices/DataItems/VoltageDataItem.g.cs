@@ -27,7 +27,7 @@ namespace MTConnect.Devices.DataItems
             ALTERNATING,
             
             /// <summary>
-            /// Dc current or voltage.**DEPRECATED** in *Version 1.6*.
+            /// DC current or voltage.**DEPRECATED** in *Version 1.6*.
             /// </summary>
             DIRECT,
             
@@ -71,7 +71,7 @@ namespace MTConnect.Devices.DataItems
             switch (s)
             {
                 case SubTypes.ALTERNATING: return "Alternating voltage or current. If not specified further in statistic, defaults to RMS voltage. **DEPRECATED** in *Version 1.6*.";
-                case SubTypes.DIRECT: return "Dc current or voltage.**DEPRECATED** in *Version 1.6*.";
+                case SubTypes.DIRECT: return "DC current or voltage.**DEPRECATED** in *Version 1.6*.";
                 case SubTypes.ACTUAL: return "Measured or reported value of an observation.**DEPRECATED** in *Version 1.6*.";
                 case SubTypes.TARGET: return "Goal of the operation or process.**DEPRECATED** in *Version 1.6*.";
             }

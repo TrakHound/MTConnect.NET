@@ -18,12 +18,12 @@ namespace MTConnect.Assets.Files
         /// <summary>
         /// Remark or interpretation for human interpretation associated with a File or FileArchetype.
         /// </summary>
-        public const string FileComment = "Remark or interpretation for human interpretation associated with a File or FileArchetype.";
+        public const string FileComments = "Remark or interpretation for human interpretation associated with a File or FileArchetype.";
         
         /// <summary>
         /// Key-value pair providing additional metadata about a File.
         /// </summary>
-        public const string FileProperty = "Key-value pair providing additional metadata about a File.";
+        public const string FileProperties = "Key-value pair providing additional metadata about a File.";
         
         /// <summary>
         /// Mime type of the file.

@@ -16,9 +16,9 @@ namespace MTConnect.Devices
         public const string Key = "Unique identification of the Cell in the Definition. The description applies to all Cell observation having this key.";
         
         /// <summary>
-        /// Dataitem type that defines the meaning of the key.
+        /// DataItem type that defines the meaning of the key.
         /// </summary>
-        public const string KeyType = "Dataitem type that defines the meaning of the key.";
+        public const string KeyType = "DataItem type that defines the meaning of the key.";
         
         /// <summary>
         /// Same as DataItem DataItem::subType. See DataItem.

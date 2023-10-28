@@ -211,32 +211,32 @@ namespace MTConnect.SysML.Models.Devices
                             Configurations.Classes.AddRange(MTConnectClassModel.Parse(xmiDocument, "Devices.Configurations", package.Classes));
                         }
 
-                        // Change name of "ConfigurationRelationship" to "Relationship"
-                        if (Configurations.Properties != null)
-                        {
-                            foreach (var propertyModel in Configurations.Properties)
-                            {
-                                if (propertyModel.DataType == "ConfigurationRelationship") propertyModel.DataType = "Relationship";
-                            }
-                        }
-                        foreach (var classModel in Configurations.Classes)
-                        {
-                            if (classModel.Id == "Devices.Configurations.ConfigurationRelationship")
-                            {
-                                classModel.Id = "Devices.Configurations.Relationship";
-                                classModel.Name = "Relationship";
-                            }
+                        //// Change name of "ConfigurationRelationship" to "Relationship"
+                        //if (Configurations.Properties != null)
+                        //{
+                        //    foreach (var propertyModel in Configurations.Properties)
+                        //    {
+                        //        if (propertyModel.DataType == "ConfigurationRelationship") propertyModel.DataType = "Relationship";
+                        //    }
+                        //}
+                        //foreach (var classModel in Configurations.Classes)
+                        //{
+                        //    if (classModel.Id == "Devices.Configurations.ConfigurationRelationship")
+                        //    {
+                        //        classModel.Id = "Devices.Configurations.Relationship";
+                        //        classModel.Name = "Relationship";
+                        //    }
 
-                            if (classModel.ParentName == "ConfigurationRelationship") classModel.ParentName = "Relationship";
+                        //    if (classModel.ParentName == "ConfigurationRelationship") classModel.ParentName = "Relationship";
 
-                            if (classModel.Properties != null)
-                            {
-                                foreach (var propertyModel in classModel.Properties)
-                                {
-                                    if (propertyModel.DataType == "ConfigurationRelationship") propertyModel.DataType = "Relationship";
-                                }
-                            }
-                        }
+                        //    if (classModel.Properties != null)
+                        //    {
+                        //        foreach (var propertyModel in classModel.Properties)
+                        //        {
+                        //            if (propertyModel.DataType == "ConfigurationRelationship") propertyModel.DataType = "Relationship";
+                        //        }
+                        //    }
+                        //}
 
                         // Add Enums
                         var profile = xmiDocument.Model.Profiles.FirstOrDefault();
@@ -257,6 +257,23 @@ namespace MTConnect.SysML.Models.Devices
                     if (references != null)
                     {
                         References.Classes.AddRange(MTConnectClassModel.Parse(xmiDocument, "Devices.References", references.Classes));
+
+                        foreach (var referenceClass in References.Classes)
+                        {
+                            if (referenceClass.Id == "Devices.References.ComponentRef")
+                            {
+                                referenceClass.Id = "Devices.References.ComponentReference";
+                                referenceClass.Name = "ComponentReference";
+                                referenceClass.Properties?.RemoveAll(o => o.Name == "IdRef");
+                            }
+
+                            if (referenceClass.Id == "Devices.References.DataItemRef")
+                            {
+                                referenceClass.Id = "Devices.References.DataItemReference";
+                                referenceClass.Name = "DataItemReference";
+                                referenceClass.Properties?.RemoveAll(o => o.Name == "IdRef");
+                            }
+                        }
                     }
                 }
             }

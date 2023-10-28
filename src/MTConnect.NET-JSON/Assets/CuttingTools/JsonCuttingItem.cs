@@ -2,7 +2,6 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Assets.CuttingTools;
-using MTConnect.Assets.Json.CuttingTools;
 using MTConnect.Assets.Json.CuttingTools.Measurements;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
@@ -12,13 +11,13 @@ namespace MTConnect.Assets.Json.CuttingTools
     public class JsonCuttingItem
     {
         [JsonPropertyName("indices")]
-        public string Indices { get; set; }
+        public IEnumerable<string> Indices { get; set; }
 
         [JsonPropertyName("itemId")]
         public string ItemId { get; set; }
 
         [JsonPropertyName("manufacturers")]
-        public string Manufacturers { get; set; }
+        public IEnumerable<string> Manufacturers { get; set; }
 
         [JsonPropertyName("grade")]
         public string Grade { get; set; }

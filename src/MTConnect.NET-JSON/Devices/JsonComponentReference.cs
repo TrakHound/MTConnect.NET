@@ -6,7 +6,7 @@ using System.Text.Json.Serialization;
 
 namespace MTConnect.Devices.Json
 {
-    public class JsonReference
+    public class JsonComponentReference
     {
         [JsonPropertyName("idRef")]
         public string IdRef { get; set; }
@@ -15,9 +15,9 @@ namespace MTConnect.Devices.Json
         public string Name { get; set; }
 
 
-        public JsonReference() { }
+        public JsonComponentReference() { }
 
-        public JsonReference(IReference reference)
+        public JsonComponentReference(IComponentReference reference)
         {
             if (reference != null)
             {
@@ -29,7 +29,7 @@ namespace MTConnect.Devices.Json
 
         public virtual IReference ToReference()
         {
-            var reference = new Reference();
+            var reference = new ComponentReference();
             reference.IdRef = IdRef;
             reference.Name = Name;
             return reference;

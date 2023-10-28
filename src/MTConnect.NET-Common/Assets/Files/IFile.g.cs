@@ -4,7 +4,7 @@
 namespace MTConnect.Assets.Files
 {
     /// <summary>
-    /// Abstractfile type that provides information about the File instance and its URL.
+    /// AbstractFile type that provides information about the File instance and its URL.
     /// </summary>
     public partial interface IFile : IAbstractFile
     {
@@ -16,10 +16,10 @@ namespace MTConnect.Assets.Files
         /// <summary>
         /// Reference to the target Device for this File.
         /// </summary>
-        string Destination { get; }
+        System.Collections.Generic.IEnumerable<MTConnect.Assets.Files.IDestination> Destinations { get; }
         
         /// <summary>
-        /// Url reference to the file location.
+        /// URL reference to the file location.
         /// </summary>
         MTConnect.Assets.Files.IFileLocation Location { get; }
         

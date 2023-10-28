@@ -1,5 +1,6 @@
 ﻿using MTConnect.SysML.Xmi;
 using MTConnect.SysML.Xmi.UML;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -322,11 +323,30 @@ namespace MTConnect.SysML
             if (text != null && text.Length > 0)
             {
                 var words = text.Split(' ');
-                words[0] = words[0].UppercaseFirstCharacter();
+                words[0] = UppercaseFirstCharacter(words[0]);
+
                 return string.Join(' ', words);
             }
 
             return null;
+        }
+
+        private static string UppercaseFirstCharacter(string s)
+        {
+            if (s == null) return null;
+
+            if (s.Length > 1)
+            {
+                var l = s.ToCharArray();
+                var a = new char[l.Length];
+
+                a[0] = char.ToUpper(l[0]);
+                Array.Copy(l, 1, a, 1, a.Length - 1);
+
+                return new string(a);
+            }
+
+            return s.ToUpper();
         }
 
 
@@ -369,6 +389,11 @@ namespace MTConnect.SysML
                 case "EAID_dstAB92D5_E33E_4e6e_92EB_1FFFBF29ED9F": return true; // Assets.CuttingToolLifeCycle.CuttingItem
                 case "EAID_dst6C3AA0_3DE7_43bf_B6D6_22C9350D4FE2": return true; // Assets.CuttingToolLifeCycle.Measurement
 
+                case "_19_0_3_68e0225_1605276232723_226459_243": return true; // Assets.Files.AbstractFile.FileComments
+                case "_19_0_3_45f01b9_1589825726302_711121_874": return true; // Assets.Files.AbstractFile.FileProperties
+
+                case "_19_0_3_68e0225_1605277201359_44575_523": return true; // Assets.Files.File.Destinations
+
                 case "_19_0_3_68e0225_1622116618960_627070_1641": return true; // Assets.RawMaterial.InitialDimension
                 case "_19_0_3_68e0225_1622116618964_666287_1642": return true; // Assets.RawMaterial.CurrentDimension
 
@@ -377,6 +402,25 @@ namespace MTConnect.SysML
             }
 
             return false;
+        }
+
+        public static string ConvertArrayName(string name)
+        {
+            if (name != null)
+            {
+                switch (name)
+                {
+                    case "ToolLife": return "ToolLife";
+                    case "ItemLife": return "ItemLife";
+                    case "FileProperty": return "FileProperties";
+                    default:
+                        if (!name.EndsWith("s")) return name += "s";
+                        break;
+                
+                }
+            }
+
+            return name;
         }
 
         public static bool IsOptional(XmiDocument xmiDocument, string id)
@@ -449,6 +493,9 @@ namespace MTConnect.SysML
         {
             if (umlClass != null && umlClass.Generalization == null)
             {
+                if (umlClass.Name == "Destination") return false;
+
+
                 var umlProperties = umlClass.Properties?.Where(o => !o.Name.StartsWith("made") && !o.Name.StartsWith("is") && !o.Name.StartsWith("observes"));
                 if (umlProperties != null && umlProperties.Count() == 1)
                 {

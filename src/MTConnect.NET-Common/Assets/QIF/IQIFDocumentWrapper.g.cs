@@ -9,7 +9,7 @@ namespace MTConnect.Assets.QIF
     public interface IQIFDocumentWrapper : IAsset
     {
         /// <summary>
-        /// Qif Document as given by the QIF standard.
+        /// QIF Document as given by the QIF standard.
         /// </summary>
         MTConnect.Assets.QIF.IQIFDocument QIFDocument { get; }
         

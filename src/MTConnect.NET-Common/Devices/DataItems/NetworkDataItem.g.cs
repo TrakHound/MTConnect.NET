@@ -22,12 +22,12 @@ namespace MTConnect.Devices.DataItems
         public enum SubTypes
         {
             /// <summary>
-            /// Ipv4 network address of the component.
+            /// IPV4 network address of the component.
             /// </summary>
             I_PV4_ADDRESS,
             
             /// <summary>
-            /// Ipv6 network address of the component.
+            /// IPV6 network address of the component.
             /// </summary>
             I_PV6_ADDRESS,
             
@@ -37,7 +37,7 @@ namespace MTConnect.Devices.DataItems
             GATEWAY,
             
             /// <summary>
-            /// Subnet mask for the component network.
+            /// SubNet mask for the component network.
             /// </summary>
             SUBNET_MASK,
             
@@ -85,10 +85,10 @@ namespace MTConnect.Devices.DataItems
             var s = subType.ConvertEnum<SubTypes>();
             switch (s)
             {
-                case SubTypes.I_PV4_ADDRESS: return "Ipv4 network address of the component.";
-                case SubTypes.I_PV6_ADDRESS: return "Ipv6 network address of the component.";
+                case SubTypes.I_PV4_ADDRESS: return "IPV4 network address of the component.";
+                case SubTypes.I_PV6_ADDRESS: return "IPV6 network address of the component.";
                 case SubTypes.GATEWAY: return "Gateway for the component network.";
-                case SubTypes.SUBNET_MASK: return "Subnet mask for the component network.";
+                case SubTypes.SUBNET_MASK: return "SubNet mask for the component network.";
                 case SubTypes.V_LAN_ID: return "Layer2 Virtual Local Network (VLAN) ID for the component network.";
                 case SubTypes.MAC_ADDRESS: return "Media Access Control Address. The unique physical address of the network hardware.";
                 case SubTypes.WIRELESS: return "Identifies whether the connection type is wireless.";

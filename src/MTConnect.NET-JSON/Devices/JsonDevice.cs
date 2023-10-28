@@ -1,6 +1,7 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
+using MTConnect.Devices;
 using MTConnect.Devices.References;
 using System;
 using System.Collections.Generic;
@@ -59,7 +60,7 @@ namespace MTConnect.Devices.Json
         public IEnumerable<JsonComposition> Compositions { get; set; }
 
         [JsonPropertyName("references")]
-        public IEnumerable<JsonReference> References { get; set; }
+        public JsonReferenceContainer References { get; set; }
 
 
         public JsonDevice() { }
@@ -82,15 +83,7 @@ namespace MTConnect.Devices.Json
                 if (device.Description != null) Description = new JsonDescription(device.Description);
 
                 // References
-                if (!device.References.IsNullOrEmpty())
-                {
-                    var references = new List<JsonReference>();
-                    foreach (var reference in device.References)
-                    {
-                        references.Add(new JsonReference(reference));
-                    }
-                    References = references;
-                }
+                if (!device.References.IsNullOrEmpty()) References = new JsonReferenceContainer(device.References);
 
                 // Configuration
                 if (device.Configuration != null) Configuration = new JsonConfiguration(device.Configuration);
@@ -154,15 +147,7 @@ namespace MTConnect.Devices.Json
             if (Description != null) device.Description = Description.ToDescription();
 
             // References
-            if (!References.IsNullOrEmpty())
-            {
-                var references = new List<IReference>();
-                foreach (var reference in References)
-                {
-                    references.Add(reference.ToReference());
-                }
-                device.References = references;
-            }
+            if (References != null) device.References = References.ToReferences();
 
             // Configuration
             if (Configuration != null) device.Configuration = Configuration.ToConfiguration();

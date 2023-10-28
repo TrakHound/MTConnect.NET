@@ -6,9 +6,9 @@ namespace MTConnect.Devices.Configurations
     public static class ImageFileDescriptions
     {
         /// <summary>
-        /// Url giving the location of the image file.
+        /// URL giving the location of the image file.
         /// </summary>
-        public const string Href = "Url giving the location of the image file.";
+        public const string Href = "URL giving the location of the image file.";
         
         /// <summary>
         /// Unique identifier of the image file.

@@ -8,21 +8,32 @@ using System.Xml.Serialization;
 namespace MTConnect.Devices.Xml
 {
     [XmlRoot("ComponentRelationship")]
-    public class XmlComponentRelationship : XmlRelationship
+    public class XmlComponentRelationship : XmlConfigurationRelationship
     {
-        [XmlAttribute("type")]
-        public RelationshipType Type { get; set; }
+        [XmlAttribute("idRef")]
+        public string IdRef { get; set; }
 
 
-        public override IRelationship ToRelationship()
+        public override IComponentRelationship ToRelationship()
         {
             var relationship = new ComponentRelationship();
             relationship.Id = Id;
             relationship.Name = Name;
+            relationship.Type = Type;
             relationship.Criticality = Criticality;
             relationship.IdRef = IdRef;
-            relationship.Type = Type;
             return relationship;
+        }
+
+        public static void WriteXml(XmlWriter writer, IComponentRelationship relationship)
+        {
+            if (relationship != null)
+            {
+                writer.WriteStartElement(relationship.GetType().Name);
+                WriteCommonXml(writer, relationship);
+                if (!string.IsNullOrEmpty(relationship.IdRef)) writer.WriteAttributeString("idRef", relationship.IdRef);
+                writer.WriteEndElement();
+            }
         }
     }
 }

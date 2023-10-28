@@ -8,11 +8,8 @@ using System.Xml.Serialization;
 namespace MTConnect.Devices.Xml
 {
     [XmlRoot("DeviceRelationship")]
-    public class XmlDeviceRelationship : XmlRelationship
+    public class XmlDeviceRelationship : XmlConfigurationRelationship
     {
-        [XmlAttribute("type")]
-        public RelationshipType Type { get; set; }
-
         [XmlAttribute("deviceUuidRef")]
         public string DeviceUuidRef { get; set; }
 
@@ -26,19 +23,32 @@ namespace MTConnect.Devices.Xml
         public string XLinkType { get; set; }
 
 
-        public override IRelationship ToRelationship()
+        public override IDeviceRelationship ToRelationship()
         {
             var relationship = new DeviceRelationship();
             relationship.Id = Id;
             relationship.Name = Name;
-            relationship.Criticality = Criticality;
-            //relationship.IdRef = IdRef;
             relationship.Type = Type;
+            relationship.Criticality = Criticality;
             relationship.DeviceUuidRef = DeviceUuidRef;
             relationship.Role = Role;
             relationship.Href = Href;
             relationship.XLinkType = XLinkType;
             return relationship;
+        }
+
+        public static void WriteXml(XmlWriter writer, IDeviceRelationship relationship)
+        {
+            if (relationship != null)
+            {
+                writer.WriteStartElement(relationship.GetType().Name);
+                WriteCommonXml(writer, relationship);
+                if (!string.IsNullOrEmpty(relationship.DeviceUuidRef)) writer.WriteAttributeString("deviceUuidRef", relationship.DeviceUuidRef);
+                if (relationship.Role != null) writer.WriteAttributeString("role", relationship.Role.ToString());
+                if (!string.IsNullOrEmpty(relationship.Href)) writer.WriteAttributeString("href", relationship.Href);
+                if (!string.IsNullOrEmpty(relationship.XLinkType)) writer.WriteAttributeString("type", "http://www.w3.org/1999/xlink", relationship.XLinkType);
+                writer.WriteEndElement();
+            }
         }
     }
 }

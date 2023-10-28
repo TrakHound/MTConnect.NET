@@ -4,7 +4,7 @@
 namespace MTConnect.Devices.DataItems
 {
     /// <summary>
-    /// Uuid of the device whose metadata has changed.
+    /// UUID of the device whose metadata has changed.
     /// </summary>
     public class DeviceChangedDataItem : DataItem
     {
@@ -12,7 +12,7 @@ namespace MTConnect.Devices.DataItems
         public const string TypeId = "DEVICE_CHANGED";
         public const string NameId = "";
              
-        public new const string DescriptionText = "Uuid of the device whose metadata has changed.";
+        public new const string DescriptionText = "UUID of the device whose metadata has changed.";
         
         public override string TypeDescription => DescriptionText;
         

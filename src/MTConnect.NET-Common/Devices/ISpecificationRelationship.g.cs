@@ -4,7 +4,7 @@
 namespace MTConnect.Devices
 {
     /// <summary>
-    /// Abstractdataitemrelationship that provides a semantic reference to another Specification described by the type and idRef property.
+    /// AbstractDataItemRelationship that provides a semantic reference to another Specification described by the type and idRef property.
     /// </summary>
     public interface ISpecificationRelationship : IAbstractDataItemRelationship
     {

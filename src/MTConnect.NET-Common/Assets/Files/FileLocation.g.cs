@@ -6,15 +6,15 @@
 namespace MTConnect.Assets.Files
 {
     /// <summary>
-    /// Url reference to the file location.
+    /// URL reference to the file location.
     /// </summary>
     public class FileLocation : IFileLocation
     {
-        public const string DescriptionText = "Url reference to the file location.";
+        public const string DescriptionText = "URL reference to the file location.";
 
 
         /// <summary>
-        /// Url reference to the file.`href` is of type `xlink:href` from the W3C XLink specification.
+        /// URL reference to the file.`href` is of type `xlink:href` from the W3C XLink specification.
         /// </summary>
         public string Href { get; set; }
         

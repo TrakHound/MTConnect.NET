@@ -22,22 +22,22 @@ namespace MTConnect.Devices.DataItems
         public enum SubTypes
         {
             /// <summary>
-            /// Eventenum:sensor_state where the state is DataItemSubTypeEnum::BINARY
+            /// EventEnum:SENSOR_STATE where the state is DataItemSubTypeEnum::BINARY
             /// </summary>
             BINARY,
             
             /// <summary>
-            /// Eventenum:sensor_state where the state is DataItemSubTypeEnum::BOOLEAN
+            /// EventEnum:SENSOR_STATE where the state is DataItemSubTypeEnum::BOOLEAN
             /// </summary>
             BOOLEAN,
             
             /// <summary>
-            /// Eventenum:sensor_state where the state is DataItemSubTypeEnum::ENUMERATED
+            /// EventEnum:SENSOR_STATE where the state is DataItemSubTypeEnum::ENUMERATED
             /// </summary>
             ENUMERATED,
             
             /// <summary>
-            /// Eventenum:sensor_state where the state is DataItemSubTypeEnum::DETECT
+            /// EventEnum:SENSOR_STATE where the state is DataItemSubTypeEnum::DETECT
             /// </summary>
             DETECT
         }
@@ -70,10 +70,10 @@ namespace MTConnect.Devices.DataItems
             var s = subType.ConvertEnum<SubTypes>();
             switch (s)
             {
-                case SubTypes.BINARY: return "Eventenum:sensor_state where the state is DataItemSubTypeEnum::BINARY";
-                case SubTypes.BOOLEAN: return "Eventenum:sensor_state where the state is DataItemSubTypeEnum::BOOLEAN";
-                case SubTypes.ENUMERATED: return "Eventenum:sensor_state where the state is DataItemSubTypeEnum::ENUMERATED";
-                case SubTypes.DETECT: return "Eventenum:sensor_state where the state is DataItemSubTypeEnum::DETECT";
+                case SubTypes.BINARY: return "EventEnum:SENSOR_STATE where the state is DataItemSubTypeEnum::BINARY";
+                case SubTypes.BOOLEAN: return "EventEnum:SENSOR_STATE where the state is DataItemSubTypeEnum::BOOLEAN";
+                case SubTypes.ENUMERATED: return "EventEnum:SENSOR_STATE where the state is DataItemSubTypeEnum::ENUMERATED";
+                case SubTypes.DETECT: return "EventEnum:SENSOR_STATE where the state is DataItemSubTypeEnum::DETECT";
             }
 
             return null;

@@ -4,7 +4,7 @@
 namespace MTConnect.Devices.DataItems
 {
     /// <summary>
-    /// Uuid of a device removed from an MTConnect Agent.
+    /// UUID of a device removed from an MTConnect Agent.
     /// </summary>
     public class DeviceRemovedDataItem : DataItem
     {
@@ -12,7 +12,7 @@ namespace MTConnect.Devices.DataItems
         public const string TypeId = "DEVICE_REMOVED";
         public const string NameId = "";
              
-        public new const string DescriptionText = "Uuid of a device removed from an MTConnect Agent.";
+        public new const string DescriptionText = "UUID of a device removed from an MTConnect Agent.";
         
         public override string TypeDescription => DescriptionText;
         

@@ -4,7 +4,7 @@
 namespace MTConnect.Devices.DataItems
 {
     /// <summary>
-    /// Uuid of new device added to an MTConnect Agent.
+    /// UUID of new device added to an MTConnect Agent.
     /// </summary>
     public class DeviceAddedDataItem : DataItem
     {
@@ -12,7 +12,7 @@ namespace MTConnect.Devices.DataItems
         public const string TypeId = "DEVICE_ADDED";
         public const string NameId = "";
              
-        public new const string DescriptionText = "Uuid of new device added to an MTConnect Agent.";
+        public new const string DescriptionText = "UUID of new device added to an MTConnect Agent.";
         
         public override string TypeDescription => DescriptionText;
         

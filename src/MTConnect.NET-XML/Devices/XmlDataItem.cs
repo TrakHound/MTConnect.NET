@@ -1,8 +1,6 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-using MTConnect.Devices.Configurations;
-using MTConnect.Devices.DataItems;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
@@ -82,10 +80,10 @@ namespace MTConnect.Devices.Xml
         [XmlElement("Definition")]
         public XmlDataItemDefinition Definition { get; set; }
 
-        //[XmlArray("Relationships")]
-        //[XmlArrayItem("DataItemRelationship", typeof(XmlDataItemRelationship))]
-        //[XmlArrayItem("SpecificationRelationship", typeof(XmlSpecificationRelationship))]
-        //public List<XmlAbstractDataItemRelationship> Relationships { get; set; }
+        [XmlArray("Relationships")]
+        [XmlArrayItem("DataItemRelationship", typeof(XmlDataItemRelationship))]
+        [XmlArrayItem("SpecificationRelationship", typeof(XmlSpecificationRelationship))]
+        public List<XmlAbstractDataItemRelationship> Relationships { get; set; }
 
 
         public DataItem ToDataItem()
@@ -132,16 +130,16 @@ namespace MTConnect.Devices.Xml
                 dataItem.Filters = filters;
             }
 
-            //// Relationships
-            //if (!Relationships.IsNullOrEmpty())
-            //{
-            //    var relationships = new List<IAbstractDataItemRelationship>();
-            //    foreach (var relationship in Relationships)
-            //    {
-            //        relationships.Add(relationship.ToRelationship());
-            //    }
-            //    dataItem.Relationships = relationships;
-            //}
+            // Relationships
+            if (!Relationships.IsNullOrEmpty())
+            {
+                var relationships = new List<IAbstractDataItemRelationship>();
+                foreach (var relationship in Relationships)
+                {
+                    relationships.Add(relationship.ToRelationship());
+                }
+                dataItem.Relationships = relationships;
+            }
 
             return dataItem;
         }
@@ -215,36 +213,43 @@ namespace MTConnect.Devices.Xml
                 if (dataItem.ResetTrigger != DataItemResetTrigger.NONE) writer.WriteAttributeString("resetTrigger", dataItem.ResetTrigger.ToString());
 
 
-                //// Write Source
-                //XmlSource.WriteXml(writer, dataItem.Source);
+                // Write Source
+                XmlSource.WriteXml(writer, dataItem.Source);
 
                 // Write Constraints
                 XmlConstraints.WriteXml(writer, dataItem.Constraints);
 
-                //// Write Filters
-                //if (!dataItem.Filters.IsNullOrEmpty())
-                //{
-                //    writer.WriteStartElement("Filters");
-                //    foreach (var filter in dataItem.Filters)
-                //    {
-                //        XmlFilter.WriteXml(writer, filter);
-                //    }
-                //    writer.WriteEndElement();
-                //}
+                // Write Filters
+                if (!dataItem.Filters.IsNullOrEmpty())
+                {
+                    writer.WriteStartElement("Filters");
+                    foreach (var filter in dataItem.Filters)
+                    {
+                        XmlFilter.WriteXml(writer, filter);
+                    }
+                    writer.WriteEndElement();
+                }
 
-                //// Write Definition
-                //XmlDataItemDefinition.WriteXml(writer, dataItem.Definition);
+                // Write Definition
+                XmlDataItemDefinition.WriteXml(writer, dataItem.Definition);
 
-                //// Write Relationships
-                //if (!dataItem.Relationships.IsNullOrEmpty())
-                //{
-                //    writer.WriteStartElement("Relationships");
-                //    foreach (var relationship in dataItem.Relationships)
-                //    {
-                //        XmlAbstractDataItemRelationship.WriteXml(writer, relationship);
-                //    }
-                //    writer.WriteEndElement();
-                //}
+                // Write Relationships
+                if (!dataItem.Relationships.IsNullOrEmpty())
+                {
+                    writer.WriteStartElement("Relationships");
+                    foreach (var relationship in dataItem.Relationships)
+                    {
+                        if (typeof(IDataItemRelationship).IsAssignableFrom(relationship.GetType()))
+                        {
+                            XmlDataItemRelationship.WriteXml(writer, (IDataItemRelationship)relationship);
+                        }
+                        else if (typeof(ISpecificationRelationship).IsAssignableFrom(relationship.GetType()))
+                        {
+                            XmlSpecificationRelationship.WriteXml(writer, (ISpecificationRelationship)relationship);
+                        }
+                    }
+                    writer.WriteEndElement();
+                }
 
                 writer.WriteEndElement();
             }

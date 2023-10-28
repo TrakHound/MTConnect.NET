@@ -4,7 +4,7 @@
 namespace MTConnect.Devices.DataItems
 {
     /// <summary>
-    /// Uri for the source file associated with Program.
+    /// URI for the source file associated with Program.
     /// </summary>
     public class ProgramLocationDataItem : DataItem
     {
@@ -12,7 +12,7 @@ namespace MTConnect.Devices.DataItems
         public const string TypeId = "PROGRAM_LOCATION";
         public const string NameId = "";
              
-        public new const string DescriptionText = "Uri for the source file associated with Program.";
+        public new const string DescriptionText = "URI for the source file associated with Program.";
         
         public override string TypeDescription => DescriptionText;
         

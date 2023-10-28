@@ -84,7 +84,7 @@ namespace MTConnect.Assets.RawMaterials
         public string Name { get; set; }
         
         /// <summary>
-        /// Iso process type supported by this raw material. Examples include: `VAT_POLYMERIZATION`, `BINDER_JETTING`, `MATERIAL_EXTRUSION`, `MATERIAL_JETTING`, `SHEET_LAMINATION`, `POWDER_BED_FUSION` and `DIRECTED_ENERGY_DEPOSITION`.
+        /// ISO process type supported by this raw material. Examples include: `VAT_POLYMERIZATION`, `BINDER_JETTING`, `MATERIAL_EXTRUSION`, `MATERIAL_JETTING`, `SHEET_LAMINATION`, `POWDER_BED_FUSION` and `DIRECTED_ENERGY_DEPOSITION`.
         /// </summary>
         public string ProcessKind { get; set; }
         

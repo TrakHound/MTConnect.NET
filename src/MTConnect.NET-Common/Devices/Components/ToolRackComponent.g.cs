@@ -6,13 +6,13 @@
 namespace MTConnect.Devices.Components
 {
     /// <summary>
-    /// Toolingdelivery composed of a linear or matrixed tool storage mechanism that holds any number of tools.
+    /// ToolingDelivery composed of a linear or matrixed tool storage mechanism that holds any number of tools.
     /// </summary>
     public class ToolRackComponent : Component
     {
         public const string TypeId = "ToolRack";
         public const string NameId = "toolRackComponent";
-        public new const string DescriptionText = "Toolingdelivery composed of a linear or matrixed tool storage mechanism that holds any number of tools.";
+        public new const string DescriptionText = "ToolingDelivery composed of a linear or matrixed tool storage mechanism that holds any number of tools.";
 
         public override string TypeDescription => DescriptionText;
         

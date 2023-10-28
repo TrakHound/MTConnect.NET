@@ -4,7 +4,7 @@
 namespace MTConnect.Devices.DataItems
 {
     /// <summary>
-    /// Assetid of the Asset that has been removed.
+    /// AssetId of the Asset that has been removed.
     /// </summary>
     public class AssetRemovedDataItem : DataItem
     {
@@ -12,7 +12,7 @@ namespace MTConnect.Devices.DataItems
         public const string TypeId = "ASSET_REMOVED";
         public const string NameId = "";
              
-        public new const string DescriptionText = "Assetid of the Asset that has been removed.";
+        public new const string DescriptionText = "AssetId of the Asset that has been removed.";
         
         public override string TypeDescription => DescriptionText;
         

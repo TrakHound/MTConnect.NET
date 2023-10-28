@@ -14,7 +14,7 @@ namespace MTConnect.Assets.Json.Files
 
         public JsonDestination() { }
 
-        public JsonDestination(Destination destination)
+        public JsonDestination(IDestination destination)
         {
             if (destination != null)
             {
@@ -23,7 +23,7 @@ namespace MTConnect.Assets.Json.Files
         }
 
 
-        public Destination ToDestination()
+        public IDestination ToDestination()
         {
             var destination = new Destination();
             destination.DeviceUuid = DeviceUuid;

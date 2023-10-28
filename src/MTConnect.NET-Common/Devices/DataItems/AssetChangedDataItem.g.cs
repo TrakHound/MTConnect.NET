@@ -4,7 +4,7 @@
 namespace MTConnect.Devices.DataItems
 {
     /// <summary>
-    /// Assetid of the Asset that has been added or changed.
+    /// AssetId of the Asset that has been added or changed.
     /// </summary>
     public class AssetChangedDataItem : DataItem
     {
@@ -12,7 +12,7 @@ namespace MTConnect.Devices.DataItems
         public const string TypeId = "ASSET_CHANGED";
         public const string NameId = "";
              
-        public new const string DescriptionText = "Assetid of the Asset that has been added or changed.";
+        public new const string DescriptionText = "AssetId of the Asset that has been added or changed.";
         
         public override string TypeDescription => DescriptionText;
         

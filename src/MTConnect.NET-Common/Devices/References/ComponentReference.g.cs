@@ -8,14 +8,10 @@ namespace MTConnect.Devices.References
     /// <summary>
     /// Reference that is a pointer to all of the information associated with another entity defined for a piece of equipment.
     /// </summary>
-    public class ComponentRef : Reference, IComponentRef
+    public class ComponentReference : Reference, IComponentReference
     {
         public new const string DescriptionText = "Reference that is a pointer to all of the information associated with another entity defined for a piece of equipment.";
 
 
-        /// <summary>
-        /// Pointer to the id attribute of the Component that contains the information to be associated with this element.
-        /// </summary>
-        public MTConnect.Devices.IComponent IdRef { get; set; }
     }
 }

@@ -66,7 +66,7 @@ namespace MTConnect.Devices
         public const string GRAVITATIONAL_ACCELERATION = "GRAVITATIONAL_ACCELERATION";
         
         /// <summary>
-        /// $$mass\times GRAVITATIONAL_ACCELERATION$$ (g) given in `METER/SECOND^2`.
+        /// $$MASS\times GRAVITATIONAL_ACCELERATION$$ (g) given in `METER/SECOND^2`.
         /// </summary>
         public const string GRAVITATIONAL_FORCE = "GRAVITATIONAL_FORCE";
         
@@ -151,7 +151,7 @@ namespace MTConnect.Devices
         public const string PASCAL_PER_MINUTE = "PASCAL/MINUTE";
         
         /// <summary>
-        /// Us pounds.
+        /// US pounds.
         /// </summary>
         public const string POUND = "POUND";
         

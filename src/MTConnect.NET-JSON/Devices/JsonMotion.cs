@@ -48,7 +48,7 @@ namespace MTConnect.Devices.Json
                 Type = motion.Type.ToString();
                 Actuation = motion.Actuation.ToString();
                 if (motion.Description != null) Description = new JsonDescription(motion.Description);
-                Origin = motion.Origin.ToString();
+                if (motion.Origin != null) Origin = motion.Origin.ToString();
                 if (motion.Transformation != null) Transformation = new JsonTransformation(motion.Transformation);
                 Axis = motion.Axis.ToString();
             }

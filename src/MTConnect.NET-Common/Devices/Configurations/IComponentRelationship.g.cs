@@ -4,9 +4,9 @@
 namespace MTConnect.Devices.Configurations
 {
     /// <summary>
-    /// Configurationrelationship that describes the association between two components within a piece of equipment that function independently but together perform a capability or service within a piece of equipment.
+    /// ConfigurationRelationship that describes the association between two components within a piece of equipment that function independently but together perform a capability or service within a piece of equipment.
     /// </summary>
-    public interface IComponentRelationship : IRelationship
+    public interface IComponentRelationship : IConfigurationRelationship
     {
         /// <summary>
         /// Reference to the associated Component.

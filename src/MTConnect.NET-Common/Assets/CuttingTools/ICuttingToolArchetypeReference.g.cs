@@ -9,12 +9,12 @@ namespace MTConnect.Assets.CuttingTools
     public interface ICuttingToolArchetypeReference
     {
         /// <summary>
-        /// Url of the CuttingToolArchetype information model.
+        /// URL of the CuttingToolArchetype information model.
         /// </summary>
         string Source { get; }
         
         /// <summary>
-        /// Assetid of the related CuttingToolArchetype.
+        /// AssetId of the related CuttingToolArchetype.
         /// </summary>
         string Value { get; }
     }

@@ -16,7 +16,7 @@ namespace MTConnect.Devices.Configurations
         ACIS,
         
         /// <summary>
-        /// Iso 17506.
+        /// ISO 17506.
         /// </summary>
         COLLADA,
         
@@ -36,12 +36,12 @@ namespace MTConnect.Devices.Configurations
         OBJ,
         
         /// <summary>
-        /// Iso 10303 STEP AP203 or AP242 format.
+        /// ISO 10303 STEP AP203 or AP242 format.
         /// </summary>
         STEP,
         
         /// <summary>
-        /// Stereolithography file format.
+        /// STereoLithography file format.
         /// </summary>
         STL,
         

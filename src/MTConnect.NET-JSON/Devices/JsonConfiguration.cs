@@ -2,7 +2,6 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Devices.Configurations;
-using MTConnect.Devices.DataItems;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
@@ -139,7 +138,16 @@ namespace MTConnect.Devices.Json
             // Relationships
             if (Relationships != null)
             {
-                var relationships = new List<IRelationship>();
+                var relationships = new List<IConfigurationRelationship>();
+
+                // AssetRelationship
+                if (!Relationships.AssetRelationships.IsNullOrEmpty())
+                {
+                    foreach (var relationship in Relationships.AssetRelationships)
+                    {
+                        relationships.Add(relationship.ToAssetRelationship());
+                    }
+                }
 
                 // ComponentRelationship
                 if (!Relationships.ComponentRelationships.IsNullOrEmpty())
@@ -150,14 +158,14 @@ namespace MTConnect.Devices.Json
                     }
                 }
 
-                // DataItemRelationship
-                if (!Relationships.DataItemRelationships.IsNullOrEmpty())
-                {
-                    foreach (var relationship in Relationships.DataItemRelationships)
-                    {
-                        relationships.Add(relationship.ToDataItemRelationship());
-                    }
-                }
+                //// DataItemRelationship
+                //if (!Relationships.DataItemRelationships.IsNullOrEmpty())
+                //{
+                //    foreach (var relationship in Relationships.DataItemRelationships)
+                //    {
+                //        relationships.Add(relationship.ToDataItemRelationship());
+                //    }
+                //}
 
                 // DeviceRelationship
                 if (!Relationships.DeviceRelationships.IsNullOrEmpty())
@@ -168,14 +176,14 @@ namespace MTConnect.Devices.Json
                     }
                 }
 
-                // SpecificationRelationship
-                if (!Relationships.SpecificationRelationships.IsNullOrEmpty())
-                {
-                    foreach (var relationship in Relationships.SpecificationRelationships)
-                    {
-                        relationships.Add(relationship.ToSpecificationRelationship());
-                    }
-                }
+                //// SpecificationRelationship
+                //if (!Relationships.SpecificationRelationships.IsNullOrEmpty())
+                //{
+                //    foreach (var relationship in Relationships.SpecificationRelationships)
+                //    {
+                //        relationships.Add(relationship.ToSpecificationRelationship());
+                //    }
+                //}
 
                 configuration.Relationships = relationships;
             }
@@ -195,7 +203,7 @@ namespace MTConnect.Devices.Json
             // Specifications
             if (!Specifications.IsNullOrEmpty())
             {
-                var specifications = new List<IAbstractSpecification>();
+                var specifications = new List<ISpecification>();
                 foreach (var specification in Specifications)
                 {
                     specifications.Add(specification.ToSpecification());

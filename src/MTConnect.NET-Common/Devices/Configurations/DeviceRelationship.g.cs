@@ -6,11 +6,11 @@
 namespace MTConnect.Devices.Configurations
 {
     /// <summary>
-    /// Configurationrelationship that describes the association between two pieces of equipment that function independently but together perform a manufacturing operation.
+    /// ConfigurationRelationship that describes the association between two pieces of equipment that function independently but together perform a manufacturing operation.
     /// </summary>
-    public class DeviceRelationship : Relationship, IDeviceRelationship
+    public class DeviceRelationship : ConfigurationRelationship, IDeviceRelationship
     {
-        public new const string DescriptionText = "Configurationrelationship that describes the association between two pieces of equipment that function independently but together perform a manufacturing operation.";
+        public new const string DescriptionText = "ConfigurationRelationship that describes the association between two pieces of equipment that function independently but together perform a manufacturing operation.";
 
 
         /// <summary>
@@ -19,7 +19,7 @@ namespace MTConnect.Devices.Configurations
         public string DeviceUuidRef { get; set; }
         
         /// <summary>
-        /// Uri identifying the agent that is publishing information for the associated piece of equipment.
+        /// URI identifying the agent that is publishing information for the associated piece of equipment.
         /// </summary>
         public string Href { get; set; }
         
@@ -29,7 +29,7 @@ namespace MTConnect.Devices.Configurations
         public MTConnect.Devices.Configurations.RoleType Role { get; set; }
         
         /// <summary>
-        /// `xlink:type`**must** have a fixed value of `locator` as defined in W3C XLink 1.1 https://www.w3.org/TR/xlink11/.
+        /// `xlink:type`**MUST** have a fixed value of `locator` as defined in W3C XLink 1.1 https://www.w3.org/TR/xlink11/.
         /// </summary>
         public string XLinkType { get; set; }
     }

@@ -9,9 +9,9 @@ namespace MTConnect.Devices.Configurations
     public interface IConfigurationRelationship
     {
         /// <summary>
-        /// Name associated with this ConfigurationRelationship.
+        /// Defines whether the services or functions provided by the associated piece of equipment is required for the operation of this piece of equipment.
         /// </summary>
-        string Name { get; }
+        MTConnect.Devices.Configurations.CriticalityType Criticality { get; }
         
         /// <summary>
         /// Unique identifier for this ConfigurationRelationship.
@@ -19,13 +19,13 @@ namespace MTConnect.Devices.Configurations
         string Id { get; }
         
         /// <summary>
+        /// Name associated with this ConfigurationRelationship.
+        /// </summary>
+        string Name { get; }
+        
+        /// <summary>
         /// Defines the authority that this piece of equipment has relative to the associated piece of equipment.
         /// </summary>
         MTConnect.Devices.Configurations.RelationshipType Type { get; }
-        
-        /// <summary>
-        /// Defines whether the services or functions provided by the associated piece of equipment is required for the operation of this piece of equipment.
-        /// </summary>
-        CriticalityType Criticality { get; }
     }
 }

@@ -49,7 +49,7 @@ namespace MTConnect.Devices.Configurations
         MTConnect.Devices.Configurations.CoordinateSystemType Type { get; }
         
         /// <summary>
-        /// Uuid for the coordinate system.
+        /// UUID for the coordinate system.
         /// </summary>
         string Uuid { get; }
     }

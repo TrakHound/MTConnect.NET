@@ -40,13 +40,13 @@ namespace MTConnect.Assets.Json.CuttingTools
         public string ToolId { get; set; }
 
         [JsonPropertyName("manufacturers")]
-        public string Manufacturers { get; set; }
+        public IEnumerable<string> Manufacturers { get; set; }
 
         [JsonPropertyName("cuttingToolLifeCycle")]
         public JsonCuttingToolLifeCycle CuttingToolLifeCycle { get; set; }
 
         [JsonPropertyName("cuttingToolArchetypeReference")]
-        public string CuttingToolArchetypeReference { get; set; }
+        public JsonCuttingToolArchetypeReference CuttingToolArchetypeReference { get; set; }
 
 
         public JsonCuttingToolAsset() { }
@@ -68,7 +68,7 @@ namespace MTConnect.Assets.Json.CuttingTools
                 ToolId = asset.ToolId;
                 Manufacturers = asset.Manufacturers;
                 if (asset.CuttingToolLifeCycle != null) CuttingToolLifeCycle = new JsonCuttingToolLifeCycle(asset.CuttingToolLifeCycle);
-                CuttingToolArchetypeReference = asset.CuttingToolArchetypeReference;
+                if (asset.CuttingToolArchetypeReference != null) CuttingToolArchetypeReference = new JsonCuttingToolArchetypeReference(asset.CuttingToolArchetypeReference);
             }
         }
 
@@ -89,7 +89,7 @@ namespace MTConnect.Assets.Json.CuttingTools
             asset.ToolId = ToolId;
             asset.Manufacturers = Manufacturers;
             if (CuttingToolLifeCycle != null) asset.CuttingToolLifeCycle = CuttingToolLifeCycle.ToCuttingToolLifeCycle();
-            asset.CuttingToolArchetypeReference = CuttingToolArchetypeReference;
+            if (CuttingToolArchetypeReference != null) asset.CuttingToolArchetypeReference = CuttingToolArchetypeReference.ToCuttingToolArchetypeReference();
             return asset;
         }
     }

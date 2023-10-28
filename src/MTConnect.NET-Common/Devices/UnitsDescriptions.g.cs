@@ -221,9 +221,9 @@ namespace MTConnect.Devices
         public const string SIEMENS_PER_METER = "Measurement of electrical conductivity.";
         
         /// <summary>
-        /// 3d Unit Vector.Space delimited list of three floating point numbers.
+        /// 3D Unit Vector.Space delimited list of three floating point numbers.
         /// </summary>
-        public const string UNIT_VECTOR_3D = "3d Unit Vector.Space delimited list of three floating point numbers.";
+        public const string UNIT_VECTOR_3D = "3D Unit Vector.Space delimited list of three floating point numbers.";
         
         /// <summary>
         /// Volts.
@@ -298,7 +298,7 @@ namespace MTConnect.Devices
                 case Units.REVOLUTION_PER_SECOND_SQUARED: return "Revolutions per second squared.";
                 case Units.SECOND: return "Measurement of time.";
                 case Units.SIEMENS_PER_METER: return "Measurement of electrical conductivity.";
-                case Units.UNIT_VECTOR_3D: return "3d Unit Vector.Space delimited list of three floating point numbers.";
+                case Units.UNIT_VECTOR_3D: return "3D Unit Vector.Space delimited list of three floating point numbers.";
                 case Units.VOLT: return "Volts.";
                 case Units.VOLT_AMPERE: return "Measurement of the apparent power in an electrical circuit, equal to the product of root-mean-square (RMS) voltage and RMS current (commonly referred to as VA).";
                 case Units.VOLT_AMPERE_REACTIVE: return "Measurement of reactive power in an AC electrical circuit (commonly referred to as VAR).";

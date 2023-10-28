@@ -171,16 +171,16 @@ namespace MTConnect.Devices.Json
             // Relationships
             if (Relationships != null)
             {
-                var relationships = new List<IRelationship>();
+                var relationships = new List<IAbstractDataItemRelationship>();
 
-                // ComponentRelationship
-                if (!Relationships.ComponentRelationships.IsNullOrEmpty())
-                {
-                    foreach (var relationship in Relationships.ComponentRelationships)
-                    {
-                        relationships.Add(relationship.ToComponentRelationship());
-                    }
-                }
+                //// ComponentRelationship
+                //if (!Relationships.ComponentRelationships.IsNullOrEmpty())
+                //{
+                //    foreach (var relationship in Relationships.ComponentRelationships)
+                //    {
+                //        relationships.Add(relationship.ToComponentRelationship());
+                //    }
+                //}
 
                 // DataItemRelationship
                 if (!Relationships.DataItemRelationships.IsNullOrEmpty())
@@ -191,14 +191,14 @@ namespace MTConnect.Devices.Json
                     }
                 }
 
-                // DeviceRelationship
-                if (!Relationships.DeviceRelationships.IsNullOrEmpty())
-                {
-                    foreach (var relationship in Relationships.DeviceRelationships)
-                    {
-                        relationships.Add(relationship.ToDeviceRelationship());
-                    }
-                }
+                //// DeviceRelationship
+                //if (!Relationships.DeviceRelationships.IsNullOrEmpty())
+                //{
+                //    foreach (var relationship in Relationships.DeviceRelationships)
+                //    {
+                //        relationships.Add(relationship.ToDeviceRelationship());
+                //    }
+                //}
 
                 // SpecificationRelationship
                 if (!Relationships.SpecificationRelationships.IsNullOrEmpty())

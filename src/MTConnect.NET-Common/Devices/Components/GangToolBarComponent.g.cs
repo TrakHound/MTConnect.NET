@@ -6,13 +6,13 @@
 namespace MTConnect.Devices.Components
 {
     /// <summary>
-    /// Toolingdelivery composed of a tool mounting mechanism that holds any number of tools.
+    /// ToolingDelivery composed of a tool mounting mechanism that holds any number of tools.
     /// </summary>
     public class GangToolBarComponent : Component
     {
         public const string TypeId = "GangToolBar";
         public const string NameId = "gangToolBarComponent";
-        public new const string DescriptionText = "Toolingdelivery composed of a tool mounting mechanism that holds any number of tools.";
+        public new const string DescriptionText = "ToolingDelivery composed of a tool mounting mechanism that holds any number of tools.";
 
         public override string TypeDescription => DescriptionText;
         

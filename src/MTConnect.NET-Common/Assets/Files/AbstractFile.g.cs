@@ -26,12 +26,12 @@ namespace MTConnect.Assets.Files
         /// <summary>
         /// Remark or interpretation for human interpretation associated with a File or FileArchetype.
         /// </summary>
-        public MTConnect.Assets.Files.IFileComment FileComment { get; set; }
+        public System.Collections.Generic.IEnumerable<MTConnect.Assets.Files.IFileComment> FileComments { get; set; }
         
         /// <summary>
         /// Key-value pair providing additional metadata about a File.
         /// </summary>
-        public MTConnect.Assets.Files.IFileProperty FileProperty { get; set; }
+        public System.Collections.Generic.IEnumerable<MTConnect.Assets.Files.IFileProperty> FileProperties { get; set; }
         
         /// <summary>
         /// Mime type of the file.

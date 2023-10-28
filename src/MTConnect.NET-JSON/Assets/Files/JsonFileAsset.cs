@@ -2,6 +2,7 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Assets.Files;
+using MTConnect.Devices.Json;
 using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
@@ -29,7 +30,7 @@ namespace MTConnect.Assets.Json.Files
         public bool Removed { get; set; }
 
         [JsonPropertyName("description")]
-        public string Description { get; set; }
+        public JsonDescription Description { get; set; }
 
 
         [JsonPropertyName("name")]
@@ -81,17 +82,18 @@ namespace MTConnect.Assets.Json.Files
 
         public JsonFileAsset() { }
 
-        public JsonFileAsset(FileAsset asset)
+        public JsonFileAsset(IFile asset)
         {
             if (asset != null)
             {
                 AssetId = asset.AssetId;
                 Type = asset.Type;
-                Timestamp = asset.Timestamp.ToDateTime();
+                Timestamp = asset.Timestamp;
                 InstanceId = asset.InstanceId;
                 DeviceUuid = asset.DeviceUuid;
                 Removed = asset.Removed;
-                Description = asset.Description;
+
+                if (asset.Description != null) Description = new JsonDescription(asset.Description);
 
                 Size = asset.Size;
                 VersionId = asset.VersionId;
@@ -105,7 +107,7 @@ namespace MTConnect.Assets.Json.Files
                 ApplicationCategory = asset.ApplicationCategory.ToString();
                 ApplicationType = asset.ApplicationType.ToString();
 
-                if (asset != null) FileLocation = new JsonFileLocation(asset.FileLocation);
+                if (asset != null) FileLocation = new JsonFileLocation(asset.Location);
 
                 // FileProperties
                 if (!asset.FileProperties.IsNullOrEmpty())
@@ -132,16 +134,17 @@ namespace MTConnect.Assets.Json.Files
         }
 
 
-        public FileAsset ToFileAsset()
+        public IFile ToFileAsset()
         {
-            var asset = new FileAsset();
+            var asset = new File();
 
             asset.AssetId = AssetId;
             asset.Type = Type;
-            asset.Timestamp = Timestamp.ToUnixTime();
+            asset.Timestamp = Timestamp;
             asset.DeviceUuid = DeviceUuid;
             asset.Removed = Removed;
-            asset.Description = Description;
+
+            if (Description != null) asset.Description = Description.ToDescription();
 
             asset.Size = Size;
             asset.VersionId = VersionId;
@@ -155,12 +158,12 @@ namespace MTConnect.Assets.Json.Files
             asset.ApplicationCategory = ApplicationCategory.ConvertEnum<ApplicationCategory>();
             asset.ApplicationType = ApplicationType.ConvertEnum<ApplicationType>();
 
-            if (FileLocation != null) asset.FileLocation = FileLocation.ToFileLocation();
+            if (FileLocation != null) asset.Location = FileLocation.ToFileLocation();
 
             // FileProperties
             if (!FileProperties.IsNullOrEmpty())
             {
-                var fileProperties = new List<FileProperty>();
+                var fileProperties = new List<IFileProperty>();
                 foreach (var fileProperty in FileProperties)
                 {
                     fileProperties.Add(fileProperty.ToFileProperty());
@@ -171,7 +174,7 @@ namespace MTConnect.Assets.Json.Files
             // FileComments
             if (!FileComments.IsNullOrEmpty())
             {
-                var fileComments = new List<FileComment>();
+                var fileComments = new List<IFileComment>();
                 foreach (var fileComment in FileComments)
                 {
                     fileComments.Add(fileComment.ToFileComment());

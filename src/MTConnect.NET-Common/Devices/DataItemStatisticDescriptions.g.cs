@@ -11,9 +11,9 @@ namespace MTConnect.Devices
         public const string AVERAGE = "Mathematical average value calculated for the data item during the calculation period.";
         
         /// <summary>
-        /// **deprecated** in *Version 1.6*. ~~A measure of the 'peakedness' of a probability distribution; i.e., the shape of the distribution curve.~~
+        /// **DEPRECATED** in *Version 1.6*. ~~A measure of the 'peakedness' of a probability distribution; i.e., the shape of the distribution curve.~~
         /// </summary>
-        public const string KURTOSIS = "**deprecated** in *Version 1.6*. ~~A measure of the 'peakedness' of a probability distribution; i.e., the shape of the distribution curve.~~";
+        public const string KURTOSIS = "**DEPRECATED** in *Version 1.6*. ~~A measure of the 'peakedness' of a probability distribution; i.e., the shape of the distribution curve.~~";
         
         /// <summary>
         /// Maximum or peak value recorded for the data item during the calculation period.
@@ -61,7 +61,7 @@ namespace MTConnect.Devices
             switch (value)
             {
                 case DataItemStatistic.AVERAGE: return "Mathematical average value calculated for the data item during the calculation period.";
-                case DataItemStatistic.KURTOSIS: return "**deprecated** in *Version 1.6*. ~~A measure of the 'peakedness' of a probability distribution; i.e., the shape of the distribution curve.~~";
+                case DataItemStatistic.KURTOSIS: return "**DEPRECATED** in *Version 1.6*. ~~A measure of the 'peakedness' of a probability distribution; i.e., the shape of the distribution curve.~~";
                 case DataItemStatistic.MAXIMUM: return "Maximum or peak value recorded for the data item during the calculation period.";
                 case DataItemStatistic.MEDIAN: return "Middle number of a series of numbers.";
                 case DataItemStatistic.MINIMUM: return "Minimum value recorded for the data item during the calculation period.";

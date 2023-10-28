@@ -6,7 +6,7 @@ using System.Xml.Serialization;
 
 namespace MTConnect.Devices.Xml
 {
-    [XmlRoot("DataItemRelationship")]
+    [XmlRoot("SpecificationRelationship")]
     public class XmlSpecificationRelationship : XmlAbstractDataItemRelationship
     {
         [XmlAttribute("type")]
@@ -16,12 +16,21 @@ namespace MTConnect.Devices.Xml
         public override IAbstractDataItemRelationship ToRelationship()
         {
             var relationship = new SpecificationRelationship();
-            //relationship.Id = Id;
             relationship.Name = Name;
-            //relationship.Criticality = Criticality;
             relationship.IdRef = IdRef;
             relationship.Type = Type;
             return relationship;
+        }
+
+        public static void WriteXml(XmlWriter writer, ISpecificationRelationship relationship)
+        {
+            if (relationship != null)
+            {
+                writer.WriteStartElement(relationship.GetType().Name);
+                WriteCommonXml(writer, relationship);
+                writer.WriteAttributeString("type", relationship.Type.ToString());
+                writer.WriteEndElement();
+            }
         }
     }
 }

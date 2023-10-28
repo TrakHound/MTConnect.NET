@@ -4,7 +4,7 @@
 namespace MTConnect.Assets.Files
 {
     /// <summary>
-    /// Abstractfile type that provides information common to all versions of a file.
+    /// AbstractFile type that provides information common to all versions of a file.
     /// </summary>
     public interface IFileArchetype : IAbstractFile
     {

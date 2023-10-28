@@ -19,7 +19,7 @@ namespace MTConnect.Devices.Configurations
         public string CoordinateSystemIdRef { get; set; }
         
         /// <summary>
-        /// Url giving the location of the SolidModel. If not present, the model referenced in the solidModelIdRef,SolidModel is used.href,SolidModel is of type `xlink:href` from the W3C XLink specification.
+        /// URL giving the location of the SolidModel. If not present, the model referenced in the solidModelIdRef,SolidModel is used.href,SolidModel is of type `xlink:href` from the W3C XLink specification.
         /// </summary>
         public string Href { get; set; }
         

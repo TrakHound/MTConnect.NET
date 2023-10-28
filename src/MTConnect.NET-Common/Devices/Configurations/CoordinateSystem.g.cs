@@ -54,7 +54,7 @@ namespace MTConnect.Devices.Configurations
         public MTConnect.Devices.Configurations.CoordinateSystemType Type { get; set; }
         
         /// <summary>
-        /// Uuid for the coordinate system.
+        /// UUID for the coordinate system.
         /// </summary>
         public string Uuid { get; set; }
     }

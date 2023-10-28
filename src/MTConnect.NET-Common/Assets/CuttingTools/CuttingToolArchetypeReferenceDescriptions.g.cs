@@ -6,13 +6,13 @@ namespace MTConnect.Assets.CuttingTools
     public static class CuttingToolArchetypeReferenceDescriptions
     {
         /// <summary>
-        /// Url of the CuttingToolArchetype information model.
+        /// URL of the CuttingToolArchetype information model.
         /// </summary>
-        public const string Source = "Url of the CuttingToolArchetype information model.";
+        public const string Source = "URL of the CuttingToolArchetype information model.";
         
         /// <summary>
-        /// Assetid of the related CuttingToolArchetype.
+        /// AssetId of the related CuttingToolArchetype.
         /// </summary>
-        public const string Value = "Assetid of the related CuttingToolArchetype.";
+        public const string Value = "AssetId of the related CuttingToolArchetype.";
     }
 }

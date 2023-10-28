@@ -6,11 +6,11 @@
 namespace MTConnect.Assets.QIF
 {
     /// <summary>
-    /// Qif Document as given by the QIF standard.
+    /// QIF Document as given by the QIF standard.
     /// </summary>
     public partial class QIFDocument : IQIFDocument
     {
-        public const string DescriptionText = "Qif Document as given by the QIF standard.";
+        public const string DescriptionText = "QIF Document as given by the QIF standard.";
 
 
     }

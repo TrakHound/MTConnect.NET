@@ -49,7 +49,7 @@ namespace MTConnect.Devices.Json
         public IEnumerable<JsonComposition> Compositions { get; set; }
 
         [JsonPropertyName("references")]
-        public IEnumerable<JsonReference> References { get; set; }
+        public JsonReferenceContainer References { get; set; }
 
 
         public JsonComponent() { }
@@ -68,15 +68,7 @@ namespace MTConnect.Devices.Json
                 if (component.SampleInterval > 0) SampleInterval = component.SampleInterval;
 
                 // References
-                if (!component.References.IsNullOrEmpty())
-                {
-                    var references = new List<JsonReference>();
-                    foreach (var reference in component.References)
-                    {
-                        references.Add(new JsonReference(reference));
-                    }
-                    References = references;
-                }
+                if (!component.References.IsNullOrEmpty()) References = new JsonReferenceContainer(component.References);
 
                 // Configuration
                 if (component.Configuration != null) Configuration = new JsonConfiguration(component.Configuration);
@@ -133,15 +125,7 @@ namespace MTConnect.Devices.Json
             component.SampleInterval = SampleInterval.HasValue ? SampleInterval.Value : 0;
 
             // References
-            if (!References.IsNullOrEmpty())
-            {
-                var references = new List<IReference>();
-                foreach (var reference in References)
-                {
-                    references.Add(reference.ToReference());
-                }
-                component.References = references;
-            }
+            if (References != null) component.References = References.ToReferences();
 
             // Configuration
             if (Configuration != null) component.Configuration = Configuration.ToConfiguration();

@@ -11,9 +11,9 @@ namespace MTConnect.Devices.Configurations
         public const string DeviceUuidRef = "Reference to the uuid attribute of the Device element of the associated piece of equipment.";
         
         /// <summary>
-        /// Uri identifying the agent that is publishing information for the associated piece of equipment.
+        /// URI identifying the agent that is publishing information for the associated piece of equipment.
         /// </summary>
-        public const string Href = "Uri identifying the agent that is publishing information for the associated piece of equipment.";
+        public const string Href = "URI identifying the agent that is publishing information for the associated piece of equipment.";
         
         /// <summary>
         /// Defines the services or capabilities that the referenced piece of equipment provides relative to this piece of equipment.
@@ -21,8 +21,8 @@ namespace MTConnect.Devices.Configurations
         public const string Role = "Defines the services or capabilities that the referenced piece of equipment provides relative to this piece of equipment.";
         
         /// <summary>
-        /// `xlink:type`**must** have a fixed value of `locator` as defined in W3C XLink 1.1 https://www.w3.org/TR/xlink11/.
+        /// `xlink:type`**MUST** have a fixed value of `locator` as defined in W3C XLink 1.1 https://www.w3.org/TR/xlink11/.
         /// </summary>
-        public const string XLinkType = "`xlink:type`**must** have a fixed value of `locator` as defined in W3C XLink 1.1 https://www.w3.org/TR/xlink11/.";
+        public const string XLinkType = "`xlink:type`**MUST** have a fixed value of `locator` as defined in W3C XLink 1.1 https://www.w3.org/TR/xlink11/.";
     }
 }

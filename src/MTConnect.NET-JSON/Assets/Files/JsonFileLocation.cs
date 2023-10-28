@@ -12,26 +12,26 @@ namespace MTConnect.Assets.Json.Files
         public string Href { get; set; }
 
         [JsonPropertyName("xLinkType")]
-        public string xLinkType { get; set; }
+        public string XLinkType { get; set; }
 
 
         public JsonFileLocation() { }
 
-        public JsonFileLocation(FileLocation fileLocation)
+        public JsonFileLocation(IFileLocation fileLocation)
         {
             if (fileLocation != null)
             {
                 Href = fileLocation.Href;
-                xLinkType = fileLocation.xLinkType;
+                XLinkType = fileLocation.XLinkType;
             }
         }
 
 
-        public FileLocation ToFileLocation()
+        public IFileLocation ToFileLocation()
         {
             var fileLocation = new FileLocation();
             fileLocation.Href = Href;
-            fileLocation.xLinkType = xLinkType;
+            fileLocation.XLinkType = XLinkType;
             return fileLocation;
         }
     }

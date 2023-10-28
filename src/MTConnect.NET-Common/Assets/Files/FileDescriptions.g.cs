@@ -13,12 +13,12 @@ namespace MTConnect.Assets.Files
         /// <summary>
         /// Reference to the target Device for this File.
         /// </summary>
-        public const string Destination = "Reference to the target Device for this File.";
+        public const string Destinations = "Reference to the target Device for this File.";
         
         /// <summary>
-        /// Url reference to the file location.
+        /// URL reference to the file location.
         /// </summary>
-        public const string Location = "Url reference to the file location.";
+        public const string Location = "URL reference to the file location.";
         
         /// <summary>
         /// Time the file was modified.

@@ -29,7 +29,7 @@ namespace MTConnect.Devices
         public string Key { get; set; }
         
         /// <summary>
-        /// Dataitem type that defines the meaning of the key.
+        /// DataItem type that defines the meaning of the key.
         /// </summary>
         public string KeyType { get; set; }
         

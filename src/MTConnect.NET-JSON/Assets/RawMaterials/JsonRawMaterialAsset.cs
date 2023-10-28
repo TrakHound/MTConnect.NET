@@ -2,6 +2,7 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Assets.RawMaterials;
+using MTConnect.Devices.Json;
 using System;
 using System.Text.Json.Serialization;
 
@@ -28,7 +29,7 @@ namespace MTConnect.Assets.Json.RawMaterials
         public bool Removed { get; set; }
 
         [JsonPropertyName("description")]
-        public string Description { get; set; }
+        public JsonDescription Description { get; set; }
 
 
         [JsonPropertyName("name")]
@@ -88,11 +89,12 @@ namespace MTConnect.Assets.Json.RawMaterials
             {
                 AssetId = asset.AssetId;
                 Type = asset.Type;
-                Timestamp = asset.Timestamp.ToDateTime();
+                Timestamp = asset.Timestamp;
                 InstanceId = asset.InstanceId;
                 DeviceUuid = asset.DeviceUuid;
                 Removed = asset.Removed;
-                Description = asset.Description;
+
+                if (asset.Description != null) Description = new JsonDescription(asset.Description);
 
                 Name = asset.Name;
                 ContainerType = asset.ContainerType;
@@ -121,10 +123,11 @@ namespace MTConnect.Assets.Json.RawMaterials
 
             asset.AssetId = AssetId;
             asset.Type = Type;
-            asset.Timestamp = Timestamp.ToUnixTime();
+            asset.Timestamp = Timestamp;
             asset.DeviceUuid = DeviceUuid;
             asset.Removed = Removed;
-            asset.Description = Description;
+
+            if (Description != null) asset.Description = Description.ToDescription();
 
             asset.Name = Name;
             asset.ContainerType = ContainerType;

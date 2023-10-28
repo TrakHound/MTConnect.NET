@@ -4,7 +4,7 @@
 namespace MTConnect.Devices
 {
     /// <summary>
-    /// Abstractdataitemrelationship that provides a semantic reference to another DataItem described by the type property.
+    /// AbstractDataItemRelationship that provides a semantic reference to another DataItem described by the type property.
     /// </summary>
     public interface IDataItemRelationship : IAbstractDataItemRelationship
     {

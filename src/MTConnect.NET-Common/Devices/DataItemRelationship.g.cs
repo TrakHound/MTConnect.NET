@@ -6,11 +6,11 @@
 namespace MTConnect.Devices
 {
     /// <summary>
-    /// Abstractdataitemrelationship that provides a semantic reference to another DataItem described by the type property.
+    /// AbstractDataItemRelationship that provides a semantic reference to another DataItem described by the type property.
     /// </summary>
     public class DataItemRelationship : AbstractDataItemRelationship, IDataItemRelationship
     {
-        public new const string DescriptionText = "Abstractdataitemrelationship that provides a semantic reference to another DataItem described by the type property.";
+        public new const string DescriptionText = "AbstractDataItemRelationship that provides a semantic reference to another DataItem described by the type property.";
 
 
         /// <summary>

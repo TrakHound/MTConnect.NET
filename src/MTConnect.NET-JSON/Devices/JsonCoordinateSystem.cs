@@ -44,7 +44,7 @@ namespace MTConnect.Devices.Json
                 NativeName = coordinateSystem.NativeName;
                 ParentIdRef = coordinateSystem.ParentIdRef;
                 Type = coordinateSystem.Type.ToString();
-                Origin = coordinateSystem.Origin.ToString();
+                if (coordinateSystem.Origin != null) Origin = coordinateSystem.Origin.ToString();
                 if (coordinateSystem.Transformation != null) Transformation = new JsonTransformation(coordinateSystem.Transformation);
                 Description = coordinateSystem.Description;
             }

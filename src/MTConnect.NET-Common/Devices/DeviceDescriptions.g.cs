@@ -71,8 +71,8 @@ namespace MTConnect.Devices
         public const string SampleInterval = "Interval in milliseconds between the completion of the reading of the data associated with the Component until the beginning of the next sampling of that data.This information may be used by client software applications to understand how often information from a Component is expected to be refreshed.The refresh rate for data from all child Component entities will be thesame as for the parent Component element unless specifically overridden by another sampleInterval provided for the childComponent.";
         
         /// <summary>
-        /// **deprecated** in *MTConnect Version 1.2*. Replaced by sampleInterval,Component.
+        /// **DEPRECATED** in *MTConnect Version 1.2*. Replaced by sampleInterval,Component.
         /// </summary>
-        public const string SampleRate = "**deprecated** in *MTConnect Version 1.2*. Replaced by sampleInterval,Component.";
+        public const string SampleRate = "**DEPRECATED** in *MTConnect Version 1.2*. Replaced by sampleInterval,Component.";
     }
 }

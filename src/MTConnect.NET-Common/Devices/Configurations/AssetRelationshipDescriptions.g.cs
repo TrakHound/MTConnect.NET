@@ -16,8 +16,8 @@ namespace MTConnect.Devices.Configurations
         public const string AssetType = "Type of Asset being referenced.";
         
         /// <summary>
-        /// Uri reference to the associated Asset.
+        /// URI reference to the associated Asset.
         /// </summary>
-        public const string Href = "Uri reference to the associated Asset.";
+        public const string Href = "URI reference to the associated Asset.";
     }
 }
