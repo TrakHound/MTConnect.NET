@@ -1,11 +1,8 @@
 ﻿// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MTConnect.Assets.CuttingTools
 {
@@ -15,11 +12,11 @@ namespace MTConnect.Assets.CuttingTools
         {
             CutterStatus = new List<CutterStatusType>();
             Measurements = new List<Measurement>();
-            CuttingItems = new CuttingItemCollection();
+            CuttingItems = new List<ICuttingItem>();
         }
 
 
-        public CuttingToolLifeCycle Process()
+        public ICuttingToolLifeCycle Process()
         {
             var lifeCycle = new CuttingToolLifeCycle();
             lifeCycle.CutterStatus = CutterStatus;
@@ -34,10 +31,10 @@ namespace MTConnect.Assets.CuttingTools
             lifeCycle.CuttingItems = CuttingItems;
 
             // Process Cutting Items
-            if (CuttingItems != null && !CuttingItems.CuttingItems.IsNullOrEmpty() && CuttingItems.Count > 0)
+            if (CuttingItems != null && !CuttingItems.IsNullOrEmpty() && CuttingItems.Count() > 0)
             {
-                var cuttingItems = new CuttingItemCollection();
-                foreach (var cuttingItem in CuttingItems.CuttingItems)
+                var cuttingItems = new List<ICuttingItem>();
+                foreach (var cuttingItem in CuttingItems)
                 {
                     var processedCuttingItem = cuttingItem.Process();
                     if (processedCuttingItem != null) cuttingItems.Add(processedCuttingItem);

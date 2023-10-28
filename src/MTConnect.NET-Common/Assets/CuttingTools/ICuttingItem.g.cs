@@ -6,12 +6,12 @@ namespace MTConnect.Assets.CuttingTools
     /// <summary>
     /// Part of of the tool that physically removes the material from the workpiece by shear deformation.
     /// </summary>
-    public interface ICuttingItem
+    public partial interface ICuttingItem
     {
         /// <summary>
         /// Status of the cutting tool.
         /// </summary>
-        MTConnect.Assets.CuttingTools.CutterStatusType CutterStatus { get; }
+        System.Collections.Generic.IEnumerable<MTConnect.Assets.CuttingTools.CutterStatusType> CutterStatus { get; }
         
         /// <summary>
         /// Free-form description of the cutting item.

@@ -4,22 +4,22 @@
 namespace MTConnect.Assets.CuttingTools.Measurements
 {
     /// <summary>
-    /// Dimension of the length of the shank.
+    /// Flat length of a chamfer.
     /// </summary>
-    public class ShankLengthMeasurement : Measurement
+    public class ChamferFlatLengthMeasurement : Measurement
     {
-        public const string TypeId = "ShankLength";
-        public const string CodeId = "LS";
+        public const string TypeId = "ChamferFlatLength";
+        public const string CodeId = "BCH";
 
 
-        public ShankLengthMeasurement()
+        public ChamferFlatLengthMeasurement()
         {
             Type = TypeId;
             Code = CodeId;
             
         }
 
-        public ShankLengthMeasurement(double value)
+        public ChamferFlatLengthMeasurement(double value)
         {
             Type = TypeId;
             Code = CodeId;
@@ -27,7 +27,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
             
         }
 
-        public ShankLengthMeasurement(IMeasurement measurement) : base(measurement)
+        public ChamferFlatLengthMeasurement(IMeasurement measurement) : base(measurement)
         {
             Type = TypeId;
             Code = CodeId;

@@ -4,22 +4,22 @@
 namespace MTConnect.Assets.CuttingTools.Measurements
 {
     /// <summary>
-    /// Dimension of the length of the shank.
+    /// Diameter of a circle to which all edges of a equilateral and round regular insert are tangential.
     /// </summary>
-    public class ShankLengthMeasurement : Measurement
+    public class IncribedCircleDiameterMeasurement : Measurement
     {
-        public const string TypeId = "ShankLength";
-        public const string CodeId = "LS";
+        public const string TypeId = "IncribedCircleDiameter";
+        public const string CodeId = "IC";
 
 
-        public ShankLengthMeasurement()
+        public IncribedCircleDiameterMeasurement()
         {
             Type = TypeId;
             Code = CodeId;
             
         }
 
-        public ShankLengthMeasurement(double value)
+        public IncribedCircleDiameterMeasurement(double value)
         {
             Type = TypeId;
             Code = CodeId;
@@ -27,7 +27,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
             
         }
 
-        public ShankLengthMeasurement(IMeasurement measurement) : base(measurement)
+        public IncribedCircleDiameterMeasurement(IMeasurement measurement) : base(measurement)
         {
             Type = TypeId;
             Code = CodeId;

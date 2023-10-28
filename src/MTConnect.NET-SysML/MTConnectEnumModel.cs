@@ -3,6 +3,7 @@ using MTConnect.SysML.Xmi.UML;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml.Linq;
 
 namespace MTConnect.SysML
 {
@@ -28,7 +29,18 @@ namespace MTConnect.SysML
                 UmlId = umlEnumeration.Id;
 
                 var name = $"{umlEnumeration.Name.ToTitleCase()}";
-                name = ModelHelper.ConvertEnumName(name) ;
+                name = ModelHelper.ConvertEnumName(name);
+
+                //if (convertFunction != null)
+                //{
+                //    name = convertFunction(umlEnumeration.Name);
+                //}
+                //else
+                //{
+                //    name = $"{umlEnumeration.Name.ToTitleCase()}";
+                //    name = ModelHelper.ConvertEnumName(name);
+                //}
+
 
                 Id = $"{idPrefix}.{name}";
                 Name = name;

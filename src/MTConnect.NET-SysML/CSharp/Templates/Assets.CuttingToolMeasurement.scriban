@@ -27,7 +27,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
             {{ if (units_enum) }}Units = {{units_enum}};{{ end }}
         }
 
-        public {{name}}(Measurement measurement) : base(measurement)
+        public {{name}}(IMeasurement measurement) : base(measurement)
         {
             Type = TypeId;
             Code = CodeId;

@@ -4,22 +4,22 @@
 namespace MTConnect.Assets.CuttingTools.Measurements
 {
     /// <summary>
-    /// Dimension of the length of the shank.
+    /// Nominal radius of a rounded corner measured in the X Y-plane.
     /// </summary>
-    public class ShankLengthMeasurement : Measurement
+    public class CornerRadiusMeasurement : Measurement
     {
-        public const string TypeId = "ShankLength";
-        public const string CodeId = "LS";
+        public const string TypeId = "CornerRadius";
+        public const string CodeId = "RE";
 
 
-        public ShankLengthMeasurement()
+        public CornerRadiusMeasurement()
         {
             Type = TypeId;
             Code = CodeId;
             
         }
 
-        public ShankLengthMeasurement(double value)
+        public CornerRadiusMeasurement(double value)
         {
             Type = TypeId;
             Code = CodeId;
@@ -27,7 +27,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
             
         }
 
-        public ShankLengthMeasurement(IMeasurement measurement) : base(measurement)
+        public CornerRadiusMeasurement(IMeasurement measurement) : base(measurement)
         {
             Type = TypeId;
             Code = CodeId;

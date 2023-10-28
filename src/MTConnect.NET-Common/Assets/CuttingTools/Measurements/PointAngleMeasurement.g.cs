@@ -4,22 +4,22 @@
 namespace MTConnect.Assets.CuttingTools.Measurements
 {
     /// <summary>
-    /// Dimension of the length of the shank.
+    /// Angle between the major cutting edge and the same cutting edge rotated by 180 degrees about the tool axis.
     /// </summary>
-    public class ShankLengthMeasurement : Measurement
+    public class PointAngleMeasurement : Measurement
     {
-        public const string TypeId = "ShankLength";
-        public const string CodeId = "LS";
+        public const string TypeId = "PointAngle";
+        public const string CodeId = "SIG";
 
 
-        public ShankLengthMeasurement()
+        public PointAngleMeasurement()
         {
             Type = TypeId;
             Code = CodeId;
             
         }
 
-        public ShankLengthMeasurement(double value)
+        public PointAngleMeasurement(double value)
         {
             Type = TypeId;
             Code = CodeId;
@@ -27,7 +27,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
             
         }
 
-        public ShankLengthMeasurement(IMeasurement measurement) : base(measurement)
+        public PointAngleMeasurement(IMeasurement measurement) : base(measurement)
         {
             Type = TypeId;
             Code = CodeId;

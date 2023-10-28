@@ -4,22 +4,22 @@
 namespace MTConnect.Assets.CuttingTools.Measurements
 {
     /// <summary>
-    /// Dimension of the length of the shank.
+    /// Measure of the length of a wiper edge of a cutting item.
     /// </summary>
-    public class ShankLengthMeasurement : Measurement
+    public class WiperEdgeLengthMeasurement : Measurement
     {
-        public const string TypeId = "ShankLength";
-        public const string CodeId = "LS";
+        public const string TypeId = "WiperEdgeLength";
+        public const string CodeId = "BS";
 
 
-        public ShankLengthMeasurement()
+        public WiperEdgeLengthMeasurement()
         {
             Type = TypeId;
             Code = CodeId;
             
         }
 
-        public ShankLengthMeasurement(double value)
+        public WiperEdgeLengthMeasurement(double value)
         {
             Type = TypeId;
             Code = CodeId;
@@ -27,7 +27,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
             
         }
 
-        public ShankLengthMeasurement(IMeasurement measurement) : base(measurement)
+        public WiperEdgeLengthMeasurement(IMeasurement measurement) : base(measurement)
         {
             Type = TypeId;
             Code = CodeId;

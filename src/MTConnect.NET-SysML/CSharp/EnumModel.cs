@@ -48,8 +48,6 @@ namespace MTConnect.SysML.CSharp
                     {
                         foreach (var value in exportModel.Values)
                         {
-                            value.Name = value.Name?.ToUnderscoreUpper();
-
                             if (convertFunction != null)
                             {
                                 value.Name = convertFunction(value.Name);
@@ -57,7 +55,7 @@ namespace MTConnect.SysML.CSharp
                             else
                             {
                                 // Convert Numbers to Strings (leading numbers aren't supported as Enum values)
-                                var name = value.Name;
+                                var name = value.Name?.ToUnderscoreUpper();
                                 name = StringFunctions.ReplaceNumbersWithWords(name);
 
                                 // Replace '/' (not supported as Enum values)

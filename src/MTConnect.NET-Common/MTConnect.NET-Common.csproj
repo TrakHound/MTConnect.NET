@@ -557,4 +557,8 @@
 		<PackageReference Include="YamlDotNet" Version="12.2.1" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Assets\CuttingTools\Measurements\" />
+	</ItemGroup>
+
 </Project>

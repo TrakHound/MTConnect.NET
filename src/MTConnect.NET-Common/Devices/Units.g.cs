@@ -28,7 +28,7 @@ namespace MTConnect.Devices
         /// <summary>
         /// Counts per second.
         /// </summary>
-        public const string COUNT_PER_SECOND = "COUNT_PER_SECOND";
+        public const string COUNT_PER_SECOND = "COUNT/SECOND";
         
         /// <summary>
         /// Geometric volume in millimeters.
@@ -38,12 +38,12 @@ namespace MTConnect.Devices
         /// <summary>
         /// Change of geometric volume per second.
         /// </summary>
-        public const string CUBIC_MILLIMETER_PER_SECOND = "CUBIC_MILLIMETER_PER_SECOND";
+        public const string CUBIC_MILLIMETER_PER_SECOND = "CUBIC_MILLIMETER/SECOND";
         
         /// <summary>
         /// Change in geometric volume per second squared.
         /// </summary>
-        public const string CUBIC_MILLIMETER_PER_SECOND_SQUARED = "CUBIC_MILLIMETER_PER_SECOND_SQUARED";
+        public const string CUBIC_MILLIMETER_PER_SECOND_SQUARED = "CUBIC_MILLIMETER/SECOND^2";
         
         /// <summary>
         /// Sound level.
@@ -63,12 +63,12 @@ namespace MTConnect.Devices
         /// <summary>
         /// Angular degrees per second.
         /// </summary>
-        public const string DEGREE_PER_SECOND = "DEGREE_PER_SECOND";
+        public const string DEGREE_PER_SECOND = "DEGREE/SECOND";
         
         /// <summary>
         /// Angular acceleration in degrees per second squared.
         /// </summary>
-        public const string DEGREE_PER_SECOND_SQUARED = "DEGREE_PER_SECOND_SQUARED";
+        public const string DEGREE_PER_SECOND_SQUARED = "DEGREE/SECOND^2";
         
         /// <summary>
         /// Gram.
@@ -78,7 +78,7 @@ namespace MTConnect.Devices
         /// <summary>
         /// Gram per cubic meter.
         /// </summary>
-        public const string GRAM_PER_CUBIC_METER = "GRAM_PER_CUBIC_METER";
+        public const string GRAM_PER_CUBIC_METER = "GRAM/CUBIC_METER";
         
         /// <summary>
         /// Frequency measured in cycles per second.
@@ -103,12 +103,12 @@ namespace MTConnect.Devices
         /// <summary>
         /// Liters per second.
         /// </summary>
-        public const string LITER_PER_SECOND = "LITER_PER_SECOND";
+        public const string LITER_PER_SECOND = "LITER/SECOND";
         
         /// <summary>
         /// Acceleration in meters per second squared.
         /// </summary>
-        public const string METER_PER_SECOND_SQUARED = "METER_PER_SECOND_SQUARED";
+        public const string METER_PER_SECOND_SQUARED = "METER/SECOND^2";
         
         /// <summary>
         /// Measurement of tilt.
@@ -123,7 +123,7 @@ namespace MTConnect.Devices
         /// <summary>
         /// Milligram per cubic millimeter.
         /// </summary>
-        public const string MILLIGRAM_PER_CUBIC_MILLIMETER = "MILLIGRAM_PER_CUBIC_MILLIMETER";
+        public const string MILLIGRAM_PER_CUBIC_MILLIMETER = "MILLIGRAM/CUBIC_MILLIMETER";
         
         /// <summary>
         /// Milliliter.
@@ -143,17 +143,17 @@ namespace MTConnect.Devices
         /// <summary>
         /// Millimeters per revolution.
         /// </summary>
-        public const string MILLIMETER_PER_REVOLUTION = "MILLIMETER_PER_REVOLUTION";
+        public const string MILLIMETER_PER_REVOLUTION = "MILLIMETER/REVOLUTION";
         
         /// <summary>
         /// Millimeters per second.
         /// </summary>
-        public const string MILLIMETER_PER_SECOND = "MILLIMETER_PER_SECOND";
+        public const string MILLIMETER_PER_SECOND = "MILLIMETER/SECOND";
         
         /// <summary>
         /// Acceleration in millimeters per second squared.
         /// </summary>
-        public const string MILLIMETER_PER_SECOND_SQUARED = "MILLIMETER_PER_SECOND_SQUARED";
+        public const string MILLIMETER_PER_SECOND_SQUARED = "MILLIMETER/SECOND^2";
         
         /// <summary>
         /// Force in Newtons.
@@ -183,7 +183,7 @@ namespace MTConnect.Devices
         /// <summary>
         /// Pascal per second.
         /// </summary>
-        public const string PASCAL_PER_SECOND = "PASCAL_PER_SECOND";
+        public const string PASCAL_PER_SECOND = "PASCAL/SECOND";
         
         /// <summary>
         /// Percentage.
@@ -198,17 +198,17 @@ namespace MTConnect.Devices
         /// <summary>
         /// Revolutions per minute.
         /// </summary>
-        public const string REVOLUTION_PER_MINUTE = "REVOLUTION_PER_MINUTE";
+        public const string REVOLUTION_PER_MINUTE = "REVOLUTION/MINUTE";
         
         /// <summary>
         /// Rotational velocity in revolution per second.
         /// </summary>
-        public const string REVOLUTION_PER_SECOND = "REVOLUTION_PER_SECOND";
+        public const string REVOLUTION_PER_SECOND = "REVOLUTION/SECOND";
         
         /// <summary>
         /// Revolutions per second squared.
         /// </summary>
-        public const string REVOLUTION_PER_SECOND_SQUARED = "REVOLUTION_PER_SECOND_SQUARED";
+        public const string REVOLUTION_PER_SECOND_SQUARED = "REVOLUTION/SECOND^2";
         
         /// <summary>
         /// Measurement of time.
@@ -218,7 +218,7 @@ namespace MTConnect.Devices
         /// <summary>
         /// Measurement of electrical conductivity.
         /// </summary>
-        public const string SIEMENS_PER_METER = "SIEMENS_PER_METER";
+        public const string SIEMENS_PER_METER = "SIEMENS/METER";
         
         /// <summary>
         /// 3d Unit Vector.Space delimited list of three floating point numbers.

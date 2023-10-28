@@ -73,7 +73,11 @@ namespace MTConnect.SysML.Models.Assets
             {
                 foreach (var umlClass in umlClasses)
                 {
-                    models.Add(new MTConnectCuttingToolMeasurementModel(xmiDocument, measurementType, idPrefix, umlClass));
+                    var model = new MTConnectCuttingToolMeasurementModel(xmiDocument, measurementType, idPrefix, umlClass);
+                    if (!models.Any(o => o.Id == model.Id))
+                    {
+                        models.Add(model);
+                    }
                 }
             }
 

@@ -4,22 +4,22 @@
 namespace MTConnect.Assets.CuttingTools.Measurements
 {
     /// <summary>
-    /// Dimension of the length of the shank.
+    /// Angle between the tool cutting edge plane and the tool feed plane measured in a plane parallel the xy-plane.
     /// </summary>
-    public class ShankLengthMeasurement : Measurement
+    public class ToolCuttingEdgeAngleMeasurement : Measurement
     {
-        public const string TypeId = "ShankLength";
-        public const string CodeId = "LS";
+        public const string TypeId = "ToolCuttingEdgeAngle";
+        public const string CodeId = "KAPR";
 
 
-        public ShankLengthMeasurement()
+        public ToolCuttingEdgeAngleMeasurement()
         {
             Type = TypeId;
             Code = CodeId;
             
         }
 
-        public ShankLengthMeasurement(double value)
+        public ToolCuttingEdgeAngleMeasurement(double value)
         {
             Type = TypeId;
             Code = CodeId;
@@ -27,7 +27,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
             
         }
 
-        public ShankLengthMeasurement(IMeasurement measurement) : base(measurement)
+        public ToolCuttingEdgeAngleMeasurement(IMeasurement measurement) : base(measurement)
         {
             Type = TypeId;
             Code = CodeId;

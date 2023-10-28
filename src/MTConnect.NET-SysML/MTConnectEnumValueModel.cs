@@ -12,6 +12,8 @@ namespace MTConnect.SysML
 
         public string Name { get; set; }
 
+        public string Value { get; set; }
+
         public string Description { get; set; }
 
 
@@ -24,10 +26,14 @@ namespace MTConnect.SysML
                 UmlId = enumerationLiteral.Id;
 
                 var name = enumerationLiteral.Name;
-                if (convertFunction != null) name = convertFunction(name);
+                if (convertFunction != null)
+                {
+                    name = convertFunction(name);
+                }
 
                 Id = $"{idPrefix}.{name}";
                 Name = name;
+                Value = enumerationLiteral.Name;
 
                 var description = enumerationLiteral.Comments?.FirstOrDefault().Body;
                 Description = ModelHelper.ProcessDescription(description);

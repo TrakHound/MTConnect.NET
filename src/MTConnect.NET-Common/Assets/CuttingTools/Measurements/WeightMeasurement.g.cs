@@ -1,17 +1,37 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-// MTConnect SysML v2.2 : UML ID = _19_0_3_68e0225_1612380279018_31146_528
-
 namespace MTConnect.Assets.CuttingTools.Measurements
 {
     /// <summary>
     /// Total weight of the cutting tool in grams. The force exerted by the mass of the cutting tool.
     /// </summary>
-    public class WeightMeasurement : IWeightMeasurement
+    public class WeightMeasurement : Measurement
     {
-        public const string DescriptionText = "Total weight of the cutting tool in grams. The force exerted by the mass of the cutting tool.";
+        public const string TypeId = "Weight";
+        public const string CodeId = "WT";
 
 
+        public WeightMeasurement()
+        {
+            Type = TypeId;
+            Code = CodeId;
+            
+        }
+
+        public WeightMeasurement(double value)
+        {
+            Type = TypeId;
+            Code = CodeId;
+            Value = value;
+            
+        }
+
+        public WeightMeasurement(IMeasurement measurement) : base(measurement)
+        {
+            Type = TypeId;
+            Code = CodeId;
+            
+        }
     }
 }

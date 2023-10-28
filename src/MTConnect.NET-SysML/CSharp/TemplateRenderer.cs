@@ -1,4 +1,5 @@
-﻿using MTConnect.SysML.Models.Devices;
+﻿using MTConnect.SysML.Models.Assets;
+using MTConnect.SysML.Models.Devices;
 using MTConnect.SysML.Models.Observations;
 using System.Collections;
 using System.Collections.Generic;
@@ -70,6 +71,7 @@ namespace MTConnect.SysML.CSharp
                         else if (typeof(MTConnectDataItemType).IsAssignableFrom(type)) template = DataItemType.Create((MTConnectDataItemType)exportModel);
                         else if (typeof(MTConnectCompositionType).IsAssignableFrom(type)) template = CompositionType.Create((MTConnectCompositionType)exportModel);
                         else if (typeof(MTConnectComponentType).IsAssignableFrom(type)) template = ComponentType.Create((MTConnectComponentType)exportModel);
+                        else if (typeof(MTConnectCuttingToolMeasurementModel).IsAssignableFrom(type)) template = CuttingToolMeasurementModel.Create((MTConnectCuttingToolMeasurementModel)exportModel);
                         else if (typeof(MTConnectClassModel).IsAssignableFrom(type)) template = ClassModel.Create((MTConnectClassModel)exportModel);
                         else if (typeof(MTConnectObservationModel).IsAssignableFrom(type)) template = ObservationModel.Create((MTConnectObservationModel)exportModel);
                         else if (typeof(MTConnectEnumModel).IsAssignableFrom(type))
@@ -78,7 +80,7 @@ namespace MTConnect.SysML.CSharp
                             {
                                 case "Devices.UnitsEnum": template = EnumStringModel.Create((MTConnectEnumModel)exportModel, ConvertUnitEnum); break;
                                 case "Devices.NativeUnitsEnum": template = EnumStringModel.Create((MTConnectEnumModel)exportModel, ConvertUnitEnum); break;
-                                case "Assets.CuttingTools.Measurements.MeasurementCodeEnum": template = EnumStringModel.Create((MTConnectEnumModel)exportModel); break;
+                                case "Assets.CuttingTools.Measurements.MeasurementCodeEnum": template = EnumStringModel.Create((MTConnectEnumModel)exportModel, ConvertMeasurementCodeEnum); break;
                                 default: template = EnumModel.Create((MTConnectEnumModel)exportModel); break;
                             }
                         }
@@ -105,6 +107,8 @@ namespace MTConnect.SysML.CSharp
                                 case "Assets.ComponentConfigurationParameters.ComponentConfigurationParameter": ((ClassModel)template).IsPartial = true; break;
                                 case "Assets.CuttingTools.CuttingTool": ((ClassModel)template).IsPartial = true; break;
                                 case "Assets.CuttingTools.CuttingToolLifeCycle": ((ClassModel)template).IsPartial = true; break;
+                                case "Assets.CuttingTools.CuttingItem": ((ClassModel)template).IsPartial = true; break;
+                                case "Assets.CuttingTools.Measurement": ((ClassModel)template).IsPartial = true; break;
                                 case "Assets.Files.File": ((ClassModel)template).IsPartial = true; break;
                                 case "Assets.QIF.QIFDocument": ((ClassModel)template).IsPartial = true; break;
                                 case "Assets.RawMaterials.RawMaterial": ((ClassModel)template).IsPartial = true; break;
@@ -289,6 +293,18 @@ namespace MTConnect.SysML.CSharp
             {
                 output = output.Replace("/", "_PER_");
                 output = output.Replace("^2", "_SQUARED");
+            }
+
+            return output;
+        }
+
+        private static string ConvertMeasurementCodeEnum(string input)
+        {
+            var output = input;
+
+            if (output != null)
+            {
+                output = input;
             }
 
             return output;

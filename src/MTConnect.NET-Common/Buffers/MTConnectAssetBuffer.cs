@@ -241,7 +241,7 @@ namespace MTConnect.Buffers
                 var asset = GetAsset(assetId);
                 if (asset != null)
                 {
-                    asset.Removed = true;
+                    ((Asset)asset).Removed = true;
                     return AddAsset(asset);
                 }
             }
@@ -262,7 +262,7 @@ namespace MTConnect.Buffers
                 {
                     foreach (var asset in assets)
                     {
-                        asset.Removed = true;
+                        ((Asset)asset).Removed = true;
                         return AddAsset(asset);
                     }
                 }

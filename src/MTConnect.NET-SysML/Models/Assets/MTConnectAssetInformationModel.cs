@@ -93,7 +93,7 @@ namespace MTConnect.SysML.Models.Assets
                 var cuttingItemPackage = cuttingTool.Packages.FirstOrDefault(o => o.Name == "Cutting Item");
                 if (cuttingItemPackage != null)
                 {
-                    //packages.Add(cuttingItemPackage.Packages.FirstOrDefault(o => o.Name == "Cutting Item Measurement Subtypes"));
+                    packages.Add(cuttingItemPackage.Packages.FirstOrDefault(o => o.Name == "Cutting Item Measurement Subtypes"));
                 }
 
                 umlClasses = ModelHelper.GetClasses(packages);
@@ -113,7 +113,7 @@ namespace MTConnect.SysML.Models.Assets
                 CuttingTools.Enums.Add(new MTConnectEnumModel(xmiDocument, "Assets.CuttingTools", dataTypes?.Enumerations.FirstOrDefault(o => o.Name == "ToolLifeEnum")));
                 CuttingTools.Enums.Add(new MTConnectEnumModel(xmiDocument, "Assets.CuttingTools", dataTypes?.Enumerations.FirstOrDefault(o => o.Name == "LocationTypeEnum")));
                 CuttingTools.Enums.Add(new MTConnectEnumModel(xmiDocument, "Assets.CuttingTools", dataTypes?.Enumerations.FirstOrDefault(o => o.Name == "FormatTypeEnum")));
-                CuttingTools.Enums.Add(new MTConnectEnumModel(xmiDocument, "Assets.CuttingTools.Measurements", dataTypes?.Enumerations.FirstOrDefault(o => o.Name == "CodeEnum")));
+                CuttingTools.Enums.Add(new MTConnectEnumModel(xmiDocument, "Assets.CuttingTools.Measurements", dataTypes?.Enumerations.FirstOrDefault(o => o.Name == "CodeEnum"), ConvertMeasurementCode));
             }
         }
 
@@ -180,6 +180,14 @@ namespace MTConnect.SysML.Models.Assets
 
                 RawMaterials.Enums.Add(new MTConnectEnumModel(xmiDocument, "Assets.RawMaterials", dataTypes?.Enumerations.FirstOrDefault(o => o.Name == "FormEnum")));
             }
+        }
+
+
+        private static string ConvertMeasurementCode(string name)
+        {
+            if (name == "N/A") return "N_A";
+
+            return name;
         }
     }
 }

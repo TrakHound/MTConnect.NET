@@ -8,7 +8,7 @@ namespace MTConnect.Assets.CuttingTools
     /// <summary>
     /// Part of of the tool that physically removes the material from the workpiece by shear deformation.
     /// </summary>
-    public class CuttingItem : ICuttingItem
+    public partial class CuttingItem : ICuttingItem
     {
         public const string DescriptionText = "Part of of the tool that physically removes the material from the workpiece by shear deformation.";
 
@@ -16,7 +16,7 @@ namespace MTConnect.Assets.CuttingTools
         /// <summary>
         /// Status of the cutting tool.
         /// </summary>
-        public MTConnect.Assets.CuttingTools.CutterStatusType CutterStatus { get; set; }
+        public System.Collections.Generic.IEnumerable<MTConnect.Assets.CuttingTools.CutterStatusType> CutterStatus { get; set; }
         
         /// <summary>
         /// Free-form description of the cutting item.

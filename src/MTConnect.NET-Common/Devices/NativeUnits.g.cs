@@ -23,7 +23,7 @@ namespace MTConnect.Devices
         /// <summary>
         /// Rotational velocity in degrees per minute.
         /// </summary>
-        public const string DEGREE_PER_MINUTE = "DEGREE_PER_MINUTE";
+        public const string DEGREE_PER_MINUTE = "DEGREE/MINUTE";
         
         /// <summary>
         /// Temperature in Fahrenheit.
@@ -43,22 +43,22 @@ namespace MTConnect.Devices
         /// <summary>
         /// Feet per minute.
         /// </summary>
-        public const string FOOT_PER_MINUTE = "FOOT_PER_MINUTE";
+        public const string FOOT_PER_MINUTE = "FOOT/MINUTE";
         
         /// <summary>
         /// Feet per second.
         /// </summary>
-        public const string FOOT_PER_SECOND = "FOOT_PER_SECOND";
+        public const string FOOT_PER_SECOND = "FOOT/SECOND";
         
         /// <summary>
         /// Acceleration in feet per second squared.
         /// </summary>
-        public const string FOOT_PER_SECOND_SQUARED = "FOOT_PER_SECOND_SQUARED";
+        public const string FOOT_PER_SECOND_SQUARED = "FOOT/SECOND^2";
         
         /// <summary>
         /// Gallons per minute.
         /// </summary>
-        public const string GALLON_PER_MINUTE = "GALLON_PER_MINUTE";
+        public const string GALLON_PER_MINUTE = "GALLON/MINUTE";
         
         /// <summary>
         /// Acceleration relative to earth's gravity given in `METER/SECOND^2`.> Note 1 to entry: At different points on Earth's surface, the free-fall acceleration ranges from 9.764 to 9.834 m/s2 (Wikipedia: Gravitational Acceleration). The constant can be customized depending on the location in the universe.> Note 2 to entry: In the standard, it is assumed that Earth's average value of gravitational acceleration is 9.90665 m/s2.
@@ -93,17 +93,17 @@ namespace MTConnect.Devices
         /// <summary>
         /// Inches per minute.
         /// </summary>
-        public const string INCH_PER_MINUTE = "INCH_PER_MINUTE";
+        public const string INCH_PER_MINUTE = "INCH/MINUTE";
         
         /// <summary>
         /// Inches per second.
         /// </summary>
-        public const string INCH_PER_SECOND = "INCH_PER_SECOND";
+        public const string INCH_PER_SECOND = "INCH/SECOND";
         
         /// <summary>
         /// Acceleration in inches per second squared.
         /// </summary>
-        public const string INCH_PER_SECOND_SQUARED = "INCH_PER_SECOND_SQUARED";
+        public const string INCH_PER_SECOND_SQUARED = "INCH/SECOND^2";
         
         /// <summary>
         /// Measurement of temperature.
@@ -123,7 +123,7 @@ namespace MTConnect.Devices
         /// <summary>
         /// Measurement of rate of flow of a fluid.
         /// </summary>
-        public const string LITER_PER_MINUTE = "LITER_PER_MINUTE";
+        public const string LITER_PER_MINUTE = "LITER/MINUTE";
         
         /// <summary>
         /// Pressure in Millimeter of Mercury (mmHg).
@@ -133,7 +133,7 @@ namespace MTConnect.Devices
         /// <summary>
         /// Velocity in millimeters per minute.
         /// </summary>
-        public const string MILLIMETER_PER_MINUTE = "MILLIMETER_PER_MINUTE";
+        public const string MILLIMETER_PER_MINUTE = "MILLIMETER/MINUTE";
         
         /// <summary>
         /// Measurement of time in minutes.
@@ -148,7 +148,7 @@ namespace MTConnect.Devices
         /// <summary>
         /// Pascal per minute.
         /// </summary>
-        public const string PASCAL_PER_MINUTE = "PASCAL_PER_MINUTE";
+        public const string PASCAL_PER_MINUTE = "PASCAL/MINUTE";
         
         /// <summary>
         /// Us pounds.
@@ -158,7 +158,7 @@ namespace MTConnect.Devices
         /// <summary>
         /// Pressure in pounds per square inch (PSI).
         /// </summary>
-        public const string POUND_PER_INCH_SQUARED = "POUND_PER_INCH_SQUARED";
+        public const string POUND_PER_INCH_SQUARED = "POUND/INCH^2";
         
         /// <summary>
         /// Angle in radians.
@@ -168,17 +168,17 @@ namespace MTConnect.Devices
         /// <summary>
         /// Velocity in radians per minute.
         /// </summary>
-        public const string RADIAN_PER_MINUTE = "RADIAN_PER_MINUTE";
+        public const string RADIAN_PER_MINUTE = "RADIAN/MINUTE";
         
         /// <summary>
         /// Rotational acceleration in radian per second squared.
         /// </summary>
-        public const string RADIAN_PER_SECOND = "RADIAN_PER_SECOND";
+        public const string RADIAN_PER_SECOND = "RADIAN/SECOND";
         
         /// <summary>
         /// Rotational acceleration in radian per second squared.
         /// </summary>
-        public const string RADIAN_PER_SECOND_SQUARED = "RADIAN_PER_SECOND_SQUARED";
+        public const string RADIAN_PER_SECOND_SQUARED = "RADIAN/SECOND^2";
         
         /// <summary>
         /// Pressure in Torr.
