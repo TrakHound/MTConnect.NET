@@ -22,8 +22,8 @@ namespace MTConnect.Streams.Json
         [JsonPropertyName("representation")]
         public string Representation { get; set; }
 
-        [JsonPropertyName("type")]
-        public string Type { get; set; }
+        //[JsonIgnore]
+        //public string Type { get; set; }
 
         [JsonPropertyName("subType")]
         public string SubType { get; set; }
@@ -43,17 +43,17 @@ namespace MTConnect.Streams.Json
         [JsonPropertyName("resetTriggered")]
         public string ResetTriggered { get; set; }
 
-        [JsonPropertyName("result")]
-        public string Result { get; set; }
+        //[JsonPropertyName("value")]
+        //public string Value { get; set; }
 
-        [JsonPropertyName("samples")]
-        public IEnumerable<string> Samples { get; set; }
+        //[JsonPropertyName("samples")]
+        //public IEnumerable<string> Samples { get; set; }
 
-        [JsonPropertyName("entries")]
-        public IEnumerable<JsonEntry> Entries { get; set; }
+        //[JsonPropertyName("value")]
+        //public IEnumerable<JsonEntry> Entries { get; set; }
 
-        [JsonPropertyName("count")]
-        public long? Count { get; set; }
+        //[JsonPropertyName("count")]
+        //public long? Count { get; set; }
 
         [JsonPropertyName("nativeCode")]
         public string NativeCode { get; set; }
@@ -62,14 +62,24 @@ namespace MTConnect.Streams.Json
         public string AssetType { get; set; }
 
 
-        public static IEnumerable<JsonEntry> CreateEntries(IEnumerable<IDataSetEntry> entries)
+        public static Dictionary<string, object> CreateDataSetEntries(IEnumerable<IDataSetEntry> entries)
         {
             if (!entries.IsNullOrEmpty())
             {
-                var jsonEntries = new List<JsonEntry>();
+                var jsonEntries = new Dictionary<string, object>();
                 foreach (var entry in entries)
                 {
-                    jsonEntries.Add(new JsonEntry(entry));
+                    if (!jsonEntries.ContainsKey(entry.Key))
+                    {
+                        if (double.TryParse(entry.Value, out var value))
+                        {
+                            jsonEntries.Add(entry.Key, value);
+                        }
+                        else
+                        {
+                            jsonEntries.Add(entry.Key, entry.Value);
+                        }
+                    }
                 }
                 return jsonEntries;
             }
@@ -77,14 +87,14 @@ namespace MTConnect.Streams.Json
             return null;
         }
 
-        public static IEnumerable<JsonEntry> CreateEntries(IEnumerable<ITableEntry> entries)
+        public static IEnumerable<IDataSetEntry> CreateDataSetEntries(Dictionary<string, object> entries)
         {
             if (!entries.IsNullOrEmpty())
             {
-                var jsonEntries = new List<JsonEntry>();
+                var jsonEntries = new List<IDataSetEntry>();
                 foreach (var entry in entries)
                 {
-                    jsonEntries.Add(new JsonEntry(entry));
+                    jsonEntries.Add(new DataSetEntry(entry.Key, entry.Value));
                 }
                 return jsonEntries;
             }
@@ -92,16 +102,60 @@ namespace MTConnect.Streams.Json
             return null;
         }
 
-        public static IEnumerable<string> CreateTimeSeriesSamples(IEnumerable<double> samples)
+
+        public static Dictionary<string, Dictionary<string, object>> CreateTableEntries(IEnumerable<ITableEntry> entries)
         {
-            if (!samples.IsNullOrEmpty())
+            if (!entries.IsNullOrEmpty())
             {
-                var jsonResults = new List<string>();
-                foreach (var sample in samples)
+                var jsonEntries = new Dictionary<string, Dictionary<string, object>>();
+                foreach (var entry in entries)
                 {
-                    jsonResults.Add(sample.ToString());
+                    if (!jsonEntries.ContainsKey(entry.Key) && !entry.Cells.IsNullOrEmpty())
+                    {
+                        var cells = new Dictionary<string, object>();
+
+                        foreach (var cell in entry.Cells)
+                        {
+                            if (!cells.ContainsKey(entry.Key))
+                            {
+                                if (double.TryParse(cell.Value, out var value))
+                                {
+                                    cells.Add(cell.Key, value);
+                                }
+                                else
+                                {
+                                    cells.Add(cell.Key, cell.Value);
+                                }
+                            }
+                        }
+
+                        jsonEntries.Add(entry.Key, cells);
+                    }
                 }
-                return jsonResults;
+                return jsonEntries;
+            }
+
+            return null;
+        }
+
+        public static IEnumerable<ITableEntry> CreateTableEntries(Dictionary<string, Dictionary<string, object>> entries)
+        {
+            if (!entries.IsNullOrEmpty())
+            {
+                var jsonEntries = new List<ITableEntry>();
+                foreach (var entry in entries)
+                {
+                    if (entry.Value != null)
+                    {
+                        var cells = new List<ITableCell>();
+                        foreach (var cell in entry.Value)
+                        {
+                            cells.Add(new TableCell(cell.Key, cell.Value));
+                        }
+                        jsonEntries.Add(new TableEntry(entry.Key, cells));
+                    }
+                }
+                return jsonEntries;
             }
 
             return null;

@@ -33,33 +33,33 @@ namespace MTConnect.Streams.Json
             {
                 var l = new List<IObservation>();
 
-                if (!Samples.IsNullOrEmpty())
+                if (Samples != null)
                 {
-                    foreach (var sample in Samples) l.Add(sample.ToSample());
+                    foreach (var observation in Samples.Observations) l.Add(observation);
                 }
 
-                if (!Events.IsNullOrEmpty())
+                if (Events != null)
                 {
-                    foreach (var e in Events) l.Add(e.ToEvent());
+                    foreach (var observation in Events.Observations) l.Add(observation);
                 }
 
-                if (!Conditions.IsNullOrEmpty())
+                if (Conditions != null)
                 {
-                    foreach (var condition in Conditions) l.Add(condition.ToCondition());
+                    foreach (var observation in Conditions.Observations) l.Add(observation);
                 }
 
                 return l;
             }
         }
 
-        [JsonPropertyName("samples")]
-        public IEnumerable<JsonSample> Samples { get; set; }
+        [JsonPropertyName("Samples")]
+        public JsonSamples Samples { get; set; }
 
-        [JsonPropertyName("events")]
-        public IEnumerable<JsonEvent> Events { get; set; }
+        [JsonPropertyName("Events")]
+        public JsonEvents Events { get; set; }
 
-        [JsonPropertyName("condition")]
-        public IEnumerable<JsonCondition> Conditions { get; set; }
+        [JsonPropertyName("Condition")]
+        public JsonConditions Conditions { get; set; }
 
 
         public JsonComponentStream() { }
@@ -80,36 +80,21 @@ namespace MTConnect.Streams.Json
                     var sampleObservations = componentStream.Observations.Where(o => o.Category == Devices.DataItemCategory.SAMPLE);
                     if (!sampleObservations.IsNullOrEmpty())
                     {
-                        var samples = new List<JsonSample>();
-                        foreach (var observation in sampleObservations)
-                        {
-                            samples.Add(new JsonSample(observation));
-                        }
-                        Samples = samples;
+                        Samples = new JsonSamples(sampleObservations);
                     }
 
                     // Add Events
                     var eventObservations = componentStream.Observations.Where(o => o.Category == Devices.DataItemCategory.EVENT);
                     if (!eventObservations.IsNullOrEmpty())
                     {
-                        var events = new List<JsonEvent>();
-                        foreach (var observation in eventObservations)
-                        {
-                            events.Add(new JsonEvent(observation));
-                        }
-                        Events = events;
+                        Events = new JsonEvents(eventObservations);
                     }
 
                     // Add Conditions
-                    var confiditionObservations = componentStream.Observations.Where(o => o.Category == Devices.DataItemCategory.CONDITION);
-                    if (!confiditionObservations.IsNullOrEmpty())
+                    var conditionObservations = componentStream.Observations.Where(o => o.Category == Devices.DataItemCategory.CONDITION);
+                    if (!conditionObservations.IsNullOrEmpty())
                     {
-                        var conditions = new List<JsonCondition>();
-                        foreach (var observation in confiditionObservations)
-                        {
-                            conditions.Add(new JsonCondition(observation));
-                        }
-                        Conditions = conditions;
+                        Conditions = new JsonConditions(conditionObservations);
                     }
                 }
             }
@@ -128,37 +113,21 @@ namespace MTConnect.Streams.Json
             var observations = new List<IObservation>();
 
             // Add Samples
-            if (!Samples.IsNullOrEmpty())
+            if (Samples != null)
             {
-                var samples = new List<ISampleObservation>();
-                foreach (var jsonSample in Samples)
-                {
-                    var sample = jsonSample.ToSample();
-                    if (sample != null) samples.Add(sample);
-                }
-                observations.AddRange(samples);
+                observations.AddRange(Samples.Observations);
             }
 
             // Add Events
-            if (!Events.IsNullOrEmpty())
+            if (Events != null)
             {
-                var events = new List<IEventObservation>();
-                foreach (var e in Events)
-                {
-                    events.Add(e.ToEvent());
-                }
-                observations.AddRange(events);
+                observations.AddRange(Events.Observations);
             }
 
             // Add Conditions
-            if (!Conditions.IsNullOrEmpty())
+            if (Conditions != null)
             {
-                var conditions = new List<IConditionObservation>();
-                foreach (var sample in Conditions)
-                {
-                    conditions.Add(sample.ToCondition());
-                }
-                observations.AddRange(conditions);
+                observations.AddRange(Conditions.Observations);
             }
 
             componentStream.Observations = observations;

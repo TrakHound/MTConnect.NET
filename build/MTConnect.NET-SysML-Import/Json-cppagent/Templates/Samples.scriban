@@ -1,0 +1,81 @@
+// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// TrakHound Inc. licenses this file to you under the MIT license.
+
+using MTConnect.Devices;
+using MTConnect.Devices.DataItems;
+using MTConnect.Observations;
+using MTConnect.Observations.Output;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json.Serialization;
+
+namespace MTConnect.Streams.Json
+{
+    public class JsonSamples
+    {
+        [JsonIgnore]
+        public List<IObservation> Observations
+        {
+            get
+            {
+                var l = new List<IObservation>();
+
+{{- for type in types }}
+                if (!{{type.name}}.IsNullOrEmpty()) foreach (var x in {{type.name}}) l.Add(x.ToObservation({{type.name}}DataItem.TypeId));
+                if (!{{type.name}}DataSet.IsNullOrEmpty()) foreach (var x in {{type.name}}DataSet) l.Add(x.ToObservation({{type.name}}DataItem.TypeId));
+{{ end }}
+
+                return l;
+            }
+        }
+
+{{- for type in types }}
+        [JsonPropertyName("{{type.name}}")]
+        public IEnumerable<JsonSampleValue> {{type.name}} { get; set; }
+
+        [JsonPropertyName("{{type.name}}DataSet")]
+        public IEnumerable<JsonSampleDataSet> {{type.name}}DataSet { get; set; }
+
+{{ end }}
+
+        public JsonSamples() { }
+
+        public JsonSamples(IEnumerable<IObservationOutput> observations)
+        {
+            if (observations != null)
+            {
+                if (!observations.IsNullOrEmpty())
+                {
+                    IEnumerable<IObservationOutput> typeObservations;
+
+{{- for type in types }}
+                    // Add {{type.name}}
+                    typeObservations = observations.Where(o => o.Type == {{type.name}}DataItem.TypeId);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonSampleValue>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonSampleValue(observation));
+                        }
+                        {{type.name}} = jsonObservations;
+                    }
+
+                    // Add {{type.name}}DataSet
+                    typeObservations = observations.Where(o => o.Type == {{type.name}}DataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonSampleDataSet>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonSampleDataSet(observation));
+                        }
+                        {{type.name}}DataSet = jsonObservations;
+                    }
+
+{{ end }}
+                }
+            }
+        }
+    }  
+}

@@ -45,7 +45,8 @@ namespace MTConnect.SysML.Models.Devices
             {
                 UmlId = umlClass.Id;
 
-                var name = $"{ConvertClassName(umlClass.Name)}DataItem";
+                var name = ConvertClassName(umlClass.Name);
+                //var name = $"{ConvertClassName(umlClass.Name)}DataItem";
 
                 //string name;
                 //switch (umlClass.Name)
@@ -71,7 +72,7 @@ namespace MTConnect.SysML.Models.Devices
                 if (umlClass.Generalization != null)
                 {
                     ParentName = ModelHelper.GetClassName(xmiDocument, umlClass.Generalization.General);
-                    if (ParentName != null && ParentName != "DataItem") ParentName += "DataItem";
+                    //if (ParentName != null && ParentName != "DataItem") ParentName += "DataItem";
                 }
 
                 if (umlClass.Properties != null)
@@ -190,6 +191,7 @@ namespace MTConnect.SysML.Models.Devices
                     case "AMPERAGE_DC": return "AmperageDC";
                     case "VOLTAGE_AC": return "VoltageAC";
                     case "VOLTAGE_DC": return "VoltageDC";
+                    case "MTCONNECT_VERSION": return "MTConnectVersion";
                     case "PH": return "PH";
                     default: return name.ToTitleCase();
                 }

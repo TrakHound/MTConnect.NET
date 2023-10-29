@@ -59,6 +59,10 @@ namespace MTConnect.SysML.CSharp
                         exportModel.Units = UnitsHelper.Get(exportModel.Units);
                     }
 
+                    exportModel.Id += "DataItem";
+                    exportModel.Name += "DataItem";
+                    if (exportModel.ParentName != null && exportModel.ParentName != "DataItem") exportModel.ParentName += "DataItem";
+
                     return exportModel;
                 }
             }

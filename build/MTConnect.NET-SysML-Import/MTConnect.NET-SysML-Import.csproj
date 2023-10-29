@@ -56,6 +56,12 @@
 		<None Update="CSharp\Templates\Observations.Observation.scriban">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
+		<None Update="Json-cppagent\Templates\Events.scriban">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Json-cppagent\Templates\Samples.scriban">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
 		<None Update="Json-cppagent\Templates\Components.scriban">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>

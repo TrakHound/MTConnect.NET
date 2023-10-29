@@ -9,6 +9,7 @@ var xmlPath = @"D:\TrakHound\MTConnect\MTConnectSysMLModel.xml";
 
 var mtconnectModel = MTConnectModel.Parse(xmlPath);
 
+
 //var jsonOptions = new JsonSerializerOptions();
 //jsonOptions.WriteIndented = true;
 //jsonOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault;
@@ -16,6 +17,7 @@ var mtconnectModel = MTConnectModel.Parse(xmlPath);
 
 //var json = JsonSerializer.Serialize(mtconnectModel, options: jsonOptions);
 //await File.WriteAllTextAsync(@"C:\temp\mtconnect-model.json", json);
+
 
 RenderCommonClasses();
 RenderJsonComponents();

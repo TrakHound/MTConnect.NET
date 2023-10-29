@@ -24,6 +24,12 @@ namespace MTConnect.Streams.Json
 
         public JsonEntry() { }
 
+        public JsonEntry(string key, object value)
+        {
+            Key = key;
+            Value = value?.ToString();
+        }
+
         public JsonEntry(IDataSetEntry entry)
         {
             if (entry != null)

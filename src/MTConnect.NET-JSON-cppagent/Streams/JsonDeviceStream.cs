@@ -15,7 +15,7 @@ namespace MTConnect.Streams.Json
         [JsonPropertyName("uuid")]
         public string Uuid { get; set; }
 
-        [JsonPropertyName("componentStream")]
+        [JsonPropertyName("ComponentStream")]
         public List<JsonComponentStream> ComponentStreams { get; set; }
 
 

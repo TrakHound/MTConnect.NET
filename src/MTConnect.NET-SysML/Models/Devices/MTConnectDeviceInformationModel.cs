@@ -135,6 +135,9 @@ namespace MTConnect.SysML.Models.Devices
                             var sampleEnum = umlModel.Profiles.FirstOrDefault().Packages.FirstOrDefault().Enumerations.FirstOrDefault(o => o.Name == "SampleEnum");
                             var sampleTypes = observationTypes.Packages?.FirstOrDefault(o => o.Name == "Sample Types");
                             DataItems.Types.AddRange(MTConnectDataItemType.Parse(xmiDocument, "SAMPLE", "Devices.DataItems", sampleTypes.Classes, sampleEnum));
+
+                            // Remove Empty Types
+                            DataItems.Types.RemoveAll(o => string.IsNullOrEmpty(o.Name));
                         }
 
                         // Add Enums

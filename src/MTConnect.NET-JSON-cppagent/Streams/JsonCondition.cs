@@ -10,8 +10,11 @@ namespace MTConnect.Streams.Json
 {
     public class JsonCondition : JsonObservation
     {
-        [JsonPropertyName("level")]
-        public string Level { get; set; }
+        [JsonPropertyName("type")]
+        public string Type { get; set; }
+
+        //[JsonPropertyName("level")]
+        //public string Level { get; set; }
 
         [JsonPropertyName("nativeSeverity")]
         public string NativeSeverity { get; set; }
@@ -21,6 +24,9 @@ namespace MTConnect.Streams.Json
 
         [JsonPropertyName("statistic")]
         public string Statistic { get; set; }
+
+        [JsonPropertyName("value")]
+        public string Value { get; set; }
 
 
         public JsonCondition() { }
@@ -39,9 +45,9 @@ namespace MTConnect.Streams.Json
                 Type = condition.Type;
                 SubType = condition.SubType;
                 CompositionId = condition.CompositionId;
-                if (!string.IsNullOrEmpty(condition.Message)) Result = condition.Message;
+                if (!string.IsNullOrEmpty(condition.Message)) Value = condition.Message;
 
-                Level = condition.Level.ToString();
+                //Level = condition.Level.ToString();
                 NativeCode = condition.NativeCode;
                 NativeSeverity = condition.NativeSeverity;
                 if (condition.Qualifier != ConditionQualifier.NOT_SPECIFIED) Qualifier = condition.Qualifier.ToString();
@@ -63,11 +69,11 @@ namespace MTConnect.Streams.Json
 
                 // Message
                 var message = condition.GetValue(ValueKeys.Message);
-                if (!string.IsNullOrEmpty(message)) Result = message;
+                if (!string.IsNullOrEmpty(message)) Value = message;
 
-                // Level
-                var level = condition.GetValue(ValueKeys.Level);
-                if (!string.IsNullOrEmpty(level)) Level = level;
+                //// Level
+                //var level = condition.GetValue(ValueKeys.Level);
+                //if (!string.IsNullOrEmpty(level)) Level = level;
 
                 // NativeCode
                 var nativeCode = condition.GetValue(ValueKeys.NativeCode);
@@ -84,7 +90,7 @@ namespace MTConnect.Streams.Json
         }
 
 
-        public IConditionObservation ToCondition()
+        public IConditionObservation ToCondition(ConditionLevel conditionLevel)
         {
             var condition = new ConditionObservation();
             condition.DataItemId = DataItemId;
@@ -96,10 +102,11 @@ namespace MTConnect.Streams.Json
             condition.Type = Type;
             condition.SubType = SubType;
             condition.CompositionId = CompositionId;
-            condition.Level = Level.ConvertEnum<ConditionLevel>();
+            condition.Level = conditionLevel;
+            //condition.Level = Level.ConvertEnum<ConditionLevel>();
             condition.NativeCode = NativeCode;
             condition.NativeSeverity = NativeSeverity;
-            condition.Qualifier = Level.ConvertEnum<ConditionQualifier>();
+            condition.Qualifier = Qualifier.ConvertEnum<ConditionQualifier>();
             return condition;
         }
     }

@@ -99,7 +99,7 @@ namespace MTConnect.Streams.Json
             condition.Level = Level.ConvertEnum<ConditionLevel>();
             condition.NativeCode = NativeCode;
             condition.NativeSeverity = NativeSeverity;
-            condition.Qualifier = Level.ConvertEnum<ConditionQualifier>();
+            condition.Qualifier = Qualifier.ConvertEnum<ConditionQualifier>();
             return condition;
         }
     }

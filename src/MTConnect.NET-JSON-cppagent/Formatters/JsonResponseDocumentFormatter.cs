@@ -44,7 +44,7 @@ namespace MTConnect.Formatters
             var indentOutput = GetFormatterOption<bool>(options, "indentOutput");
             var jsonOptions = indentOutput ? JsonFunctions.IndentOptions : JsonFunctions.DefaultOptions;
 
-            var json = JsonSerializer.SerializeToUtf8Bytes(new JsonStreamsDocument(document), jsonOptions);
+            var json = JsonSerializer.SerializeToUtf8Bytes(new JsonStreamsResponseDocument(document), jsonOptions);
             if (!json.IsNullOrEmpty())
             {
                 return FormattedDocumentWriteResult.Successful(json, ContentType);
@@ -96,7 +96,7 @@ namespace MTConnect.Formatters
         public FormattedDocumentReadResult<IStreamsResponseDocument> CreateStreamsResponseDocument(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read Document
-            var document = JsonSerializer.Deserialize<JsonStreamsDocument>(content);
+            var document = JsonSerializer.Deserialize<JsonStreamsResponseDocument>(content);
             var success = document != null;
 
             return new FormattedDocumentReadResult<IStreamsResponseDocument>(document.ToStreamsDocument(), success);

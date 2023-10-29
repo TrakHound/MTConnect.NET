@@ -4,15 +4,24 @@
 using MTConnect.Devices;
 using MTConnect.Observations;
 using MTConnect.Observations.Output;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 
 namespace MTConnect.Streams.Json
 {
-    public class JsonEvent : JsonObservation
+    public class JsonSampleDataSet : JsonObservation
     {
-        public JsonEvent() { }
+        [JsonPropertyName("value")]
+        public Dictionary<string, object> Entries { get; set; }
 
-        public JsonEvent(IObservation observation, bool categoryOutput = false, bool instanceIdOutput = false)
+        [JsonPropertyName("count")]
+        public long? Count { get; set; }
+
+
+        public JsonSampleDataSet() { }
+
+        public JsonSampleDataSet(IObservation observation, bool categoryOutput = false, bool instanceIdOutput = false)
         {
             if (observation != null)
             {
@@ -22,32 +31,22 @@ namespace MTConnect.Streams.Json
                 Timestamp = observation.Timestamp;
                 Name = observation.Name;
                 Sequence = observation.Sequence;
-                Type = observation.Type;
                 SubType = observation.SubType;
                 CompositionId = observation.CompositionId;
-                Result = observation.GetValue(ValueKeys.Result);
                 ResetTriggered = observation.GetValue(ValueKeys.ResetTriggered);
                 NativeCode = observation.GetValue(ValueKeys.NativeCode);
                 AssetType = observation.GetValue(ValueKeys.AssetType);
 
-
                 // DataSet Entries
-                if (observation is EventDataSetObservation)
+                if (observation is SampleDataSetObservation)
                 {
-                    Entries = CreateEntries(((EventDataSetObservation)observation).Entries);
-                    Count = !Entries.IsNullOrEmpty() ? Entries.Count() : 0;
-                }
-
-                // Table Entries
-                if (observation is EventTableObservation)
-                {
-                    Entries = CreateEntries(((EventTableObservation)observation).Entries);
+                    Entries = CreateDataSetEntries(((SampleDataSetObservation)observation).Entries);
                     Count = !Entries.IsNullOrEmpty() ? Entries.Count() : 0;
                 }
             }
         }
 
-        public JsonEvent(IObservationOutput observation)
+        public JsonSampleDataSet(IObservationOutput observation)
         {
             if (observation != null)
             {
@@ -56,10 +55,8 @@ namespace MTConnect.Streams.Json
                 Name = observation.Name;
                 InstanceId = observation.InstanceId;
                 Sequence = observation.Sequence;
-                Type = observation.Type;
                 SubType = observation.SubType;
                 CompositionId = observation.CompositionId;
-                Result = observation.GetValue(ValueKeys.Result);
                 ResetTriggered = observation.GetValue(ValueKeys.ResetTriggered);
                 NativeCode = observation.GetValue(ValueKeys.NativeCode);
                 AssetType = observation.GetValue(ValueKeys.AssetType);
@@ -67,56 +64,28 @@ namespace MTConnect.Streams.Json
                 // DataSet Entries
                 if (observation.Representation == DataItemRepresentation.DATA_SET)
                 {
-                    var dataSetObservation = new EventDataSetObservation();
+                    var dataSetObservation = new SampleDataSetObservation();
                     dataSetObservation.AddValues(observation.Values);
-                    Entries = CreateEntries(dataSetObservation.Entries);
-                    Count = !Entries.IsNullOrEmpty() ? Entries.Count() : 0;
-                }
-
-                // Table Entries
-                if (observation.Representation == DataItemRepresentation.TABLE)
-                {
-                    var tableObservation = new EventTableObservation();
-                    tableObservation.AddValues(observation.Values);
-                    Entries = CreateEntries(tableObservation.Entries);
+                    Entries = CreateDataSetEntries(dataSetObservation.Entries);
                     Count = !Entries.IsNullOrEmpty() ? Entries.Count() : 0;
                 }
             }
         }
 
-
-        public IEventObservation ToEvent()
+        public ISampleDataSetObservation ToObservation(string type)
         {
-            if (Representation == DataItemRepresentation.DATA_SET.ToString())
-            {
-
-            }
-            else if (Representation == DataItemRepresentation.TABLE.ToString())
-            {
-
-            }
-            else if (Representation == DataItemRepresentation.TIME_SERIES.ToString())
-            {
-
-            }
-
-            return ToEventValue();
-        }
-
-        public IEventValueObservation ToEventValue()
-        {
-            var e = new EventValueObservation();
+            var e = new SampleDataSetObservation();
             e.DataItemId = DataItemId;
             e.Timestamp = Timestamp;
             e.Name = Name;
             e.InstanceId = InstanceId;
             e.Sequence = Sequence;
             e.Category = Category.ConvertEnum<DataItemCategory>();
-            e.Type = Type;
+            e.Type = type;
             e.SubType = SubType;
             e.CompositionId = CompositionId;
             e.ResetTriggered = ResetTriggered.ConvertEnum<ResetTriggered>();
-            e.Result = Result;
+            e.Entries = CreateDataSetEntries(Entries);
             return e;
         }
     }
