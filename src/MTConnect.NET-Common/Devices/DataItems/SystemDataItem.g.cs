@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.CONDITION;
         public const string TypeId = "SYSTEM";
-        public const string NameId = "";
+        public const string NameId = "system";
              
         public new const string DescriptionText = "General purpose indication associated with an electronic component of a piece of equipment or a controller that represents a fault that is not associated with the operator, program, or hardware.";
         

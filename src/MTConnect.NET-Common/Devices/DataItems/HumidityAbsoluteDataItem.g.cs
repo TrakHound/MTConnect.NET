@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "HUMIDITY_ABSOLUTE";
-        public const string NameId = "";
+        public const string NameId = "humidityAbsolute";
         public const string DefaultUnits = Devices.Units.GRAM_PER_CUBIC_METER;     
         public new const string DescriptionText = "Amount of water vapor expressed in grams per cubic meter.";
         

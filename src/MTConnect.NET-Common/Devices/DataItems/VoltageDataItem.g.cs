@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "VOLTAGE";
-        public const string NameId = "";
+        public const string NameId = "voltage";
         public const string DefaultUnits = Devices.Units.VOLT;     
         public new const string DescriptionText = "Electrical potential between two points.**DEPRECATED** in *Version 1.6*. Replaced by `VOLTAGE_AC` and `VOLTAGE_DC`.";
         

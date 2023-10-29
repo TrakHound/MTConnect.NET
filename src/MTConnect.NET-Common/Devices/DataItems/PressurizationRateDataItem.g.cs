@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "PRESSURIZATION_RATE";
-        public const string NameId = "";
+        public const string NameId = "pressurizationRate";
         public const string DefaultUnits = Devices.Units.PASCAL_PER_SECOND;     
         public new const string DescriptionText = "Change of pressure per unit time.";
         

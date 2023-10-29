@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "AXIS_INTERLOCK";
-        public const string NameId = "";
+        public const string NameId = "axisInterlock";
              
         public new const string DescriptionText = "State of the axis lockout function when power has been removed and the axis is allowed to move freely.";
         

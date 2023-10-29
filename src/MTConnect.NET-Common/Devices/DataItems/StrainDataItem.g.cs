@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "STRAIN";
-        public const string NameId = "";
+        public const string NameId = "strain";
         public const string DefaultUnits = Devices.Units.PERCENT;     
         public new const string DescriptionText = "Amount of deformation per unit length of an object when a load is applied.";
         

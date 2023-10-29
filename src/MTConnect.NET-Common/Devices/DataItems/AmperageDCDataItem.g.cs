@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "AMPERAGE_DC";
-        public const string NameId = "";
+        public const string NameId = "amperageDc";
         public const string DefaultUnits = Devices.Units.AMPERE;     
         public new const string DescriptionText = "Electric current flowing in one direction only.";
         

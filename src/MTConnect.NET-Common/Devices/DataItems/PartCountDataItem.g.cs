@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "PART_COUNT";
-        public const string NameId = "";
+        public const string NameId = "partCount";
              
         public new const string DescriptionText = "Aggregate count of parts.";
         

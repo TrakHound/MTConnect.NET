@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "END_OF_BAR";
-        public const string NameId = "";
+        public const string NameId = "endOfBar";
              
         public new const string DescriptionText = "Indication of whether the end of a piece of bar stock being feed by a bar feeder has been reached.";
         

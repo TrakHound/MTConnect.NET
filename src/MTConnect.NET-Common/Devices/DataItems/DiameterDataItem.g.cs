@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "DIAMETER";
-        public const string NameId = "";
+        public const string NameId = "diameter";
         public const string DefaultUnits = Devices.Units.MILLIMETER;     
         public new const string DescriptionText = "Dimension of a diameter.";
         

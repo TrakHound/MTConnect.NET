@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "TOOL_ASSET_ID";
-        public const string NameId = "";
+        public const string NameId = "toolAssetId";
              
         public new const string DescriptionText = "Identifier of an individual tool asset.";
         

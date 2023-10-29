@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "TENSION";
-        public const string NameId = "";
+        public const string NameId = "tension";
         public const string DefaultUnits = Devices.Units.NEWTON;     
         public new const string DescriptionText = "Force that stretches or elongates an object.";
         

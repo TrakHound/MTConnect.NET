@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "ROTARY_VELOCITY";
-        public const string NameId = "";
+        public const string NameId = "rotaryVelocity";
         public const string DefaultUnits = Devices.Units.REVOLUTION_PER_MINUTE;     
         public new const string DescriptionText = "Rotational speed of a rotary axis.";
         

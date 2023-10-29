@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "CONTROLLER_MODE";
-        public const string NameId = "";
+        public const string NameId = "controllerMode";
              
         public new const string DescriptionText = "Current mode of the Controller component.";
         

@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "DEPOSITION_MASS";
-        public const string NameId = "";
+        public const string NameId = "depositionMass";
         public const string DefaultUnits = Devices.Units.MILLIGRAM;     
         public new const string DescriptionText = "Mass of the material deposited in an additive manufacturing process.";
         

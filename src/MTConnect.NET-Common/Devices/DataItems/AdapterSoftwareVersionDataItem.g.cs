@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "ADAPTER_SOFTWARE_VERSION";
-        public const string NameId = "";
+        public const string NameId = "adapterSoftwareVersion";
              
         public new const string DescriptionText = "Originator’s software version of the adapter.";
         

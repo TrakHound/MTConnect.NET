@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "COMPOSITION_STATE";
-        public const string NameId = "";
+        public const string NameId = "compositionState";
              
         public new const string DescriptionText = "Operating state of a mechanism represented by a Composition entity.";
         

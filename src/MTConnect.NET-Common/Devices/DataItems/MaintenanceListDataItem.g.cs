@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "MAINTENANCE_LIST";
-        public const string NameId = "";
+        public const string NameId = "maintenanceList";
              
         public new const string DescriptionText = "Actions or activities to be performed in support of a piece of equipment.";
         

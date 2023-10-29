@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "TOOL_NUMBER";
-        public const string NameId = "";
+        public const string NameId = "toolNumber";
              
         public new const string DescriptionText = "Identifier assigned by the Controller component to a cutting tool when in use by a piece of equipment.";
         

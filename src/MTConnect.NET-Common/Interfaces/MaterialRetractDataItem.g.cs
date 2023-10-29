@@ -12,7 +12,7 @@ namespace MTConnect.Interfaces
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "MATERIAL_RETRACT";
-        public const string NameId = "";
+        public const string NameId = "materialRetract";
              
         public new const string DescriptionText = "Operating state of the service to remove or retract material or product.";
         

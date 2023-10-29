@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "DENSITY";
-        public const string NameId = "";
+        public const string NameId = "density";
         public const string DefaultUnits = Devices.Units.MILLIGRAM_PER_CUBIC_MILLIMETER;     
         public new const string DescriptionText = "Volumetric mass of a material per unit volume of that material.";
         

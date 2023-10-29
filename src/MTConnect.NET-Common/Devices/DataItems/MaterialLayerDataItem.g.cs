@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "MATERIAL_LAYER";
-        public const string NameId = "";
+        public const string NameId = "materialLayer";
              
         public new const string DescriptionText = "Identifies the layers of material applied to a part or product as part of an additive manufacturing process.";
         

@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "OPERATING_SYSTEM";
-        public const string NameId = "";
+        public const string NameId = "operatingSystem";
              
         public new const string DescriptionText = "Operating System (OS) of a Component.";
         

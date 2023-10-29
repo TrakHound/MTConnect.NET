@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "Z_DIMENSION";
-        public const string NameId = "";
+        public const string NameId = "zDimension";
         public const string DefaultUnits = Devices.Units.MILLIMETER;     
         public new const string DescriptionText = "Dimension of an entity relative to the Z direction of the referenced coordinate system.";
         

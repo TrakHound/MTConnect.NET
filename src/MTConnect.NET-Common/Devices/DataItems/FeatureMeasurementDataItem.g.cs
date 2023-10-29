@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "FEATURE_MEASUREMENT";
-        public const string NameId = "";
+        public const string NameId = "featureMeasurement";
              
         public new const string DescriptionText = "Assessing elements of a feature.";
         

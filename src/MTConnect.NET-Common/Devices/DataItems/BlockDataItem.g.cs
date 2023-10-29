@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "BLOCK";
-        public const string NameId = "";
+        public const string NameId = "block";
              
         public new const string DescriptionText = "Line of code or command being executed by a Controller entity.";
         

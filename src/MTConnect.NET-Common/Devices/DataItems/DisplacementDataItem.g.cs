@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "DISPLACEMENT";
-        public const string NameId = "";
+        public const string NameId = "displacement";
         public const string DefaultUnits = Devices.Units.MILLIMETER;     
         public new const string DescriptionText = "Change in position of an object.";
         

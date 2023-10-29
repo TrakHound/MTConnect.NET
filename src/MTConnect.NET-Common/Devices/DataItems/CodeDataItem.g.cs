@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "CODE";
-        public const string NameId = "";
+        public const string NameId = "code";
              
         public new const string DescriptionText = "Programmatic code being executed.**DEPRECATED** in *Version 1.1*.";
         

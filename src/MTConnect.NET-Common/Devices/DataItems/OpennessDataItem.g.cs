@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "OPENNESS";
-        public const string NameId = "";
+        public const string NameId = "openness";
         public const string DefaultUnits = Devices.Units.PERCENT;     
         public new const string DescriptionText = "Percentage open where 100% is fully open and 0% is fully closed.";
         

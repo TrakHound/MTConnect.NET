@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "DIRECTION";
-        public const string NameId = "";
+        public const string NameId = "direction";
              
         public new const string DescriptionText = "Direction of motion.";
         

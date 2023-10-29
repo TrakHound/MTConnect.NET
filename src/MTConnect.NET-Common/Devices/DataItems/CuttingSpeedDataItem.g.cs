@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "CUTTING_SPEED";
-        public const string NameId = "";
+        public const string NameId = "cuttingSpeed";
         public const string DefaultUnits = Devices.Units.MILLIMETER_PER_SECOND;     
         public new const string DescriptionText = "Speed difference (relative velocity) between the cutting mechanism and the surface of the workpiece it is operating on.";
         

@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "ANGLE";
-        public const string NameId = "";
+        public const string NameId = "angle";
         public const string DefaultUnits = Devices.Units.DEGREE;     
         public new const string DescriptionText = "Angular position.";
         

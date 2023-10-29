@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "PROGRAM_HEADER";
-        public const string NameId = "";
+        public const string NameId = "programHeader";
              
         public new const string DescriptionText = "Non-executable header section of the control program.";
         

@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "LINEAR_FORCE";
-        public const string NameId = "";
+        public const string NameId = "linearForce";
         public const string DefaultUnits = Devices.Units.NEWTON;     
         public new const string DescriptionText = "Force applied to a mass in one direction only.";
         

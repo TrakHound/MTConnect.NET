@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "LEVEL";
-        public const string NameId = "";
+        public const string NameId = "level";
              
         public new const string DescriptionText = "Level of a resource.**DEPRECATED** in *Version 1.2*.  See `FILL_LEVEL`.";
         

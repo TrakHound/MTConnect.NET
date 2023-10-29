@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.CONDITION;
         public const string TypeId = "MOTION_PROGRAM";
-        public const string NameId = "";
+        public const string NameId = "motionProgram";
              
         public new const string DescriptionText = "Indication that an error occurred in the motion program associated with a piece of equipment.";
         

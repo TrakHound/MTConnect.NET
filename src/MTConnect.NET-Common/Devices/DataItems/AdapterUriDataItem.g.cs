@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "ADAPTER_URI";
-        public const string NameId = "";
+        public const string NameId = "adapterUri";
              
         public new const string DescriptionText = "URI of the adapter.";
         

@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "SOUND_LEVEL";
-        public const string NameId = "";
+        public const string NameId = "soundLevel";
         public const string DefaultUnits = Devices.Units.DECIBEL;     
         public new const string DescriptionText = "Sound level or sound pressure level relative to atmospheric pressure.";
         

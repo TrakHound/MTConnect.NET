@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "ALARM";
-        public const string NameId = "";
+        public const string NameId = "alarm";
              
         public new const string DescriptionText = "**DEPRECATED:** Replaced with `CONDITION` category data items in Version 1.1.0.";
         

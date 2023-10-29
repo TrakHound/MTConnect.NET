@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "MASS";
-        public const string NameId = "";
+        public const string NameId = "mass";
         public const string DefaultUnits = Devices.Units.KILOGRAM;     
         public new const string DescriptionText = "Mass of an object(s) or an amount of material.";
         

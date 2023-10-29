@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "BATTERY_CAPACITY";
-        public const string NameId = "";
+        public const string NameId = "batteryCapacity";
         public const string DefaultUnits = Devices.Units.COULOMB;     
         public new const string DescriptionText = "Maximum rated charge a battery is capable of maintaining based on the battery discharging at a specified current over a specified time period.";
         

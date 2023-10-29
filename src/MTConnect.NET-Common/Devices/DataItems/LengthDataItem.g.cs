@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "LENGTH";
-        public const string NameId = "";
+        public const string NameId = "length";
         public const string DefaultUnits = Devices.Units.MILLIMETER;     
         public new const string DescriptionText = "Length of an object.";
         

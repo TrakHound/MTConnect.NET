@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "PH";
-        public const string NameId = "";
+        public const string NameId = "ph";
         public const string DefaultUnits = Devices.Units.PH;     
         public new const string DescriptionText = "Acidity or alkalinity of a solution.";
         

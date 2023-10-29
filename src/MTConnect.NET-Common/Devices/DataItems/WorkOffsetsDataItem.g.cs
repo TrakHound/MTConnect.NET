@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "WORK_OFFSETS";
-        public const string NameId = "";
+        public const string NameId = "workOffsets";
              
         public new const string DescriptionText = "Properties of each addressable work offset.";
         

@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "FILL_LEVEL";
-        public const string NameId = "";
+        public const string NameId = "fillLevel";
         public const string DefaultUnits = Devices.Units.PERCENT;     
         public new const string DescriptionText = "Amount of a substance remaining compared to the planned maximum amount of that substance.";
         

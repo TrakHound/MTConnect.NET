@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "VOLTAGE_AC";
-        public const string NameId = "";
+        public const string NameId = "voltageAc";
         public const string DefaultUnits = Devices.Units.VOLT;     
         public new const string DescriptionText = "Electrical potential between two points in an electrical circuit in which the current periodically reverses direction.";
         

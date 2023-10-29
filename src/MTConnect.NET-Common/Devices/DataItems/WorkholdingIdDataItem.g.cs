@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "WORKHOLDING_ID";
-        public const string NameId = "";
+        public const string NameId = "workholdingId";
              
         public new const string DescriptionText = "Identifier for the current workholding or part clamp in use by a piece of equipment.";
         

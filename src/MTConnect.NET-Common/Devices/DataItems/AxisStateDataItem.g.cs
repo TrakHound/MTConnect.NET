@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "AXIS_STATE";
-        public const string NameId = "";
+        public const string NameId = "axisState";
              
         public new const string DescriptionText = "State of a Linear or Rotary component representing an axis.";
         

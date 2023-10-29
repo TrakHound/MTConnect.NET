@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "APPLICATION";
-        public const string NameId = "";
+        public const string NameId = "application";
              
         public new const string DescriptionText = "Application on a Component.";
         

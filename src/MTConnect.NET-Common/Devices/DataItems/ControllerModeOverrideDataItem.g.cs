@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "CONTROLLER_MODE_OVERRIDE";
-        public const string NameId = "";
+        public const string NameId = "controllerModeOverride";
              
         public new const string DescriptionText = "Setting or operator selection that changes the behavior of a piece of equipment.";
         

@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "TORQUE";
-        public const string NameId = "";
+        public const string NameId = "torque";
         public const string DefaultUnits = Devices.Units.NEWTON_METER;     
         public new const string DescriptionText = "Turning force exerted on an object or by an object.";
         

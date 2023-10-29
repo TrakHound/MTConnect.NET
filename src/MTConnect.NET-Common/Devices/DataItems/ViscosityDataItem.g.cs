@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "VISCOSITY";
-        public const string NameId = "";
+        public const string NameId = "viscosity";
         public const string DefaultUnits = Devices.Units.PASCAL_SECOND;     
         public new const string DescriptionText = "Fluid's resistance to flow.";
         

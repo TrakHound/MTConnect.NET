@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "FOLLOWING_ERROR";
-        public const string NameId = "";
+        public const string NameId = "followingError";
         public const string DefaultUnits = Devices.Units.COUNT;     
         public new const string DescriptionText = "Difference between actual and commanded position at any specific point in time during a motion.";
         

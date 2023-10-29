@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "LINE_LABEL";
-        public const string NameId = "";
+        public const string NameId = "lineLabel";
              
         public new const string DescriptionText = "Identifier for a Block of code in a Program.";
         

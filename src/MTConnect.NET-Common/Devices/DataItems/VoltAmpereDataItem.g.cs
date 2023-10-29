@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "VOLT_AMPERE";
-        public const string NameId = "";
+        public const string NameId = "voltAmpere";
         public const string DefaultUnits = Devices.Units.VOLT_AMPERE;     
         public new const string DescriptionText = "Apparent power in an electrical circuit, equal to the product of root-mean-square (RMS) voltage and RMS current (commonly referred to as VA).";
         

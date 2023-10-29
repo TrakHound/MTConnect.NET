@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "CYCLE_COUNT";
-        public const string NameId = "";
+        public const string NameId = "cycleCount";
              
         public new const string DescriptionText = "Accumulation of the number of times a cyclic function has attempted to, or is planned to attempt to execute.";
         

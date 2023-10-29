@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "ACCUMULATED_TIME";
-        public const string NameId = "";
+        public const string NameId = "accumulatedTime";
         public const string DefaultUnits = Devices.Units.SECOND;     
         public new const string DescriptionText = "Accumulated time for an activity or event.";
         

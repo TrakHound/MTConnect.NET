@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "ACTUATOR_STATE";
-        public const string NameId = "";
+        public const string NameId = "actuatorState";
              
         public new const string DescriptionText = "Operational state of an apparatus for moving or controlling a mechanism or system.";
         

@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "COMPONENT_DATA";
-        public const string NameId = "";
+        public const string NameId = "componentData";
              
         public new const string DescriptionText = "Event that represents a Component where the EntryDefinition identifies the Component and the CellDefinitions define the Component's observed DataItems.";
         

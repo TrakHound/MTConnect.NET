@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "FLOW";
-        public const string NameId = "";
+        public const string NameId = "flow";
         public const string DefaultUnits = Devices.Units.LITER_PER_SECOND;     
         public new const string DescriptionText = "Rate of flow of a fluid.";
         

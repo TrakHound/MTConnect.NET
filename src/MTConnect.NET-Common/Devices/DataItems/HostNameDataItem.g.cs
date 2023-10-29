@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "HOST_NAME";
-        public const string NameId = "";
+        public const string NameId = "hostName";
              
         public new const string DescriptionText = "Name of the host computer supplying data.";
         

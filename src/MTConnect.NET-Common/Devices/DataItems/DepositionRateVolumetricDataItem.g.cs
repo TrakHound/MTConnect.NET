@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "DEPOSITION_RATE_VOLUMETRIC";
-        public const string NameId = "";
+        public const string NameId = "depositionRateVolumetric";
         public const string DefaultUnits = Devices.Units.CUBIC_MILLIMETER_PER_SECOND;     
         public new const string DescriptionText = "Rate at which a spatial volume of material is deposited in an additive manufacturing process.";
         

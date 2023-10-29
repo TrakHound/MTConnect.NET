@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "SPINDLE_SPEED";
-        public const string NameId = "";
+        public const string NameId = "spindleSpeed";
         public const string DefaultUnits = Devices.Units.REVOLUTION_PER_MINUTE;     
         public new const string DescriptionText = "Rotational speed of the rotary axis.**DEPRECATED** in *Version 1.2*.  Replaced by `ROTARY_VELOCITY`.";
         

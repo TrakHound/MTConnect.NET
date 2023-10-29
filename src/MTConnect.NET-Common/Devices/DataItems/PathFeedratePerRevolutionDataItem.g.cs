@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "PATH_FEEDRATE_PER_REVOLUTION";
-        public const string NameId = "";
+        public const string NameId = "pathFeedratePerRevolution";
         public const string DefaultUnits = Devices.Units.MILLIMETER_PER_REVOLUTION;     
         public new const string DescriptionText = "Feedrate for the axes, or a single axis.";
         

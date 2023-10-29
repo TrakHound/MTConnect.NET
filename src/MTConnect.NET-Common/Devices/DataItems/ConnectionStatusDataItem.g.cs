@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "CONNECTION_STATUS";
-        public const string NameId = "";
+        public const string NameId = "connectionStatus";
              
         public new const string DescriptionText = "Status of the connection between an adapter and an agent.";
         

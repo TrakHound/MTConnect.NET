@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "ROTATION";
-        public const string NameId = "";
+        public const string NameId = "rotation";
         public const string DefaultUnits = Devices.Units.DEGREE_3D;     
         public new const string DescriptionText = "Three space angular displacement of an object or coordinate system relative to a cartesian coordinate system.";
         

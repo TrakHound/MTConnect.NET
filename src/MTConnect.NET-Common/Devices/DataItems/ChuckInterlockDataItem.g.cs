@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "CHUCK_INTERLOCK";
-        public const string NameId = "";
+        public const string NameId = "chuckInterlock";
              
         public new const string DescriptionText = "State of an interlock function or control logic state intended to prevent the associated Chuck component from being operated.";
         

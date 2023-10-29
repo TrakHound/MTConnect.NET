@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "VOLT_AMPERE_REACTIVE";
-        public const string NameId = "";
+        public const string NameId = "voltAmpereReactive";
         public const string DefaultUnits = Devices.Units.VOLT_AMPERE_REACTIVE;     
         public new const string DescriptionText = "Reactive power in an AC electrical circuit (commonly referred to as VAR).";
         

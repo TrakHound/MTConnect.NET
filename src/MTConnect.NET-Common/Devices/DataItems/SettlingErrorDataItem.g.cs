@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "SETTLING_ERROR";
-        public const string NameId = "";
+        public const string NameId = "settlingError";
         public const string DefaultUnits = Devices.Units.COUNT;     
         public new const string DescriptionText = "Difference between actual and commanded position at the end of a motion.";
         

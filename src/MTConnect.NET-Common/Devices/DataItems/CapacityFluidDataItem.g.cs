@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "CAPACITY_FLUID";
-        public const string NameId = "";
+        public const string NameId = "capacityFluid";
         public const string DefaultUnits = Devices.Units.MILLILITER;     
         public new const string DescriptionText = "Fluid capacity of an object or container.";
         

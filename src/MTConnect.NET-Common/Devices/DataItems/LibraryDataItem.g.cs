@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "LIBRARY";
-        public const string NameId = "";
+        public const string NameId = "library";
              
         public new const string DescriptionText = "Software library on a Component";
         

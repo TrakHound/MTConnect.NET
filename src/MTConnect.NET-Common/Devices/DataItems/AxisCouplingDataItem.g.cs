@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "AXIS_COUPLING";
-        public const string NameId = "";
+        public const string NameId = "axisCoupling";
              
         public new const string DescriptionText = "Describes the way the axes will be associated to each other.   This is used in conjunction with `COUPLED_AXES` to indicate the way they are interacting.";
         

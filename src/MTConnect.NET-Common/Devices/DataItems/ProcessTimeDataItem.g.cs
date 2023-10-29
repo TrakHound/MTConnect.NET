@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "PROCESS_TIME";
-        public const string NameId = "";
+        public const string NameId = "processTime";
              
         public new const string DescriptionText = "Time and date associated with an activity or event.";
         

@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "PROGRAM_COMMENT";
-        public const string NameId = "";
+        public const string NameId = "programComment";
              
         public new const string DescriptionText = "Comment or non-executable statement in the control program.";
         

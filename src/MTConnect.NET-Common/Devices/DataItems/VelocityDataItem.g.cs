@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "VELOCITY";
-        public const string NameId = "";
+        public const string NameId = "velocity";
         public const string DefaultUnits = Devices.Units.MILLIMETER_PER_SECOND;     
         public new const string DescriptionText = "Rate of change of position of a Component.";
         

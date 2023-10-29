@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "ANGULAR_VELOCITY";
-        public const string NameId = "";
+        public const string NameId = "angularVelocity";
         public const string DefaultUnits = Devices.Units.DEGREE_PER_SECOND;     
         public new const string DescriptionText = "Rate of change of angular position.";
         

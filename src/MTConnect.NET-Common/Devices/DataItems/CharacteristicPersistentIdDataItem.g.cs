@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "CHARACTERISTIC_PERSISTENT_ID";
-        public const string NameId = "";
+        public const string NameId = "characteristicPersistentId";
              
         public new const string DescriptionText = "UUID of the characteristic.";
         

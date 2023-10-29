@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "PROGRAM_LOCATION";
-        public const string NameId = "";
+        public const string NameId = "programLocation";
              
         public new const string DescriptionText = "URI for the source file associated with Program.";
         

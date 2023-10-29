@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "PROGRAM_EDIT_NAME";
-        public const string NameId = "";
+        public const string NameId = "programEditName";
              
         public new const string DescriptionText = "Name of the program being edited. This is used in conjunction with ProgramEdit when in `ACTIVE` state.";
         

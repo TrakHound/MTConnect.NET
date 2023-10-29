@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "NETWORK_PORT";
-        public const string NameId = "";
+        public const string NameId = "networkPort";
              
         public new const string DescriptionText = "Number of the TCP/IP or UDP/IP port for the connection endpoint.";
         

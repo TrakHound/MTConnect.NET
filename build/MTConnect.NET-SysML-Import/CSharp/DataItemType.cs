@@ -13,6 +13,8 @@ namespace MTConnect.SysML.CSharp
     {
         public string Namespace => NamespaceHelper.GetNamespace(Id);
 
+        public string DefaultName => Type.ToCamelCase();
+
         public string UnitsEnum => Units != null ? $"Devices.{Units}" : null;
 
         public string MaximumVersionEnum => MTConnectVersion.GetVersionEnum(MaximumVersion);

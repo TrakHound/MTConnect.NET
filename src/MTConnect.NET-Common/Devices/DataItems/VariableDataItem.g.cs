@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "VARIABLE";
-        public const string NameId = "";
+        public const string NameId = "variable";
              
         public new const string DescriptionText = "Data whose meaning may change over time due to changes in the operation of a piece of equipment or the process being executed on that piece of equipment.";
         

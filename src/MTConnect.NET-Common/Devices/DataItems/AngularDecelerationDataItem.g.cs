@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "ANGULAR_DECELERATION";
-        public const string NameId = "";
+        public const string NameId = "angularDeceleration";
         public const string DefaultUnits = Devices.Units.DEGREE_PER_SECOND_SQUARED;     
         public new const string DescriptionText = "Negative rate of change of angular velocity.";
         

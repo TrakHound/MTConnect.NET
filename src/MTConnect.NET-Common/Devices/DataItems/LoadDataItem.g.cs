@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "LOAD";
-        public const string NameId = "";
+        public const string NameId = "load";
         public const string DefaultUnits = Devices.Units.PERCENT;     
         public new const string DescriptionText = "Actual versus the standard rating of a piece of equipment.";
         

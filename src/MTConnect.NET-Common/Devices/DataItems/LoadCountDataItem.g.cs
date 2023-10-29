@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "LOAD_COUNT";
-        public const string NameId = "";
+        public const string NameId = "loadCount";
              
         public new const string DescriptionText = "Accumulation of the number of times an operation has attempted to, or is planned to attempt to, load materials, parts, or other items.";
         

@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "SENSOR_STATE";
-        public const string NameId = "";
+        public const string NameId = "sensorState";
              
         public new const string DescriptionText = "Detection result of a sensor.";
         

@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "LEAK_DETECT";
-        public const string NameId = "";
+        public const string NameId = "leakDetect";
              
         public new const string DescriptionText = "Indication designating whether a leak has been detected.";
         

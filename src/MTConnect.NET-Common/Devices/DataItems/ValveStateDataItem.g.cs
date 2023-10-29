@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "VALVE_STATE";
-        public const string NameId = "";
+        public const string NameId = "valveState";
              
         public new const string DescriptionText = "State of a valve is one of open, closed, or transitioning between the states.";
         

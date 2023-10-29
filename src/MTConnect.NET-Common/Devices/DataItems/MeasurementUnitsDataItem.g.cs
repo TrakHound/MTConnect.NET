@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "MEASUREMENT_UNITS";
-        public const string NameId = "";
+        public const string NameId = "measurementUnits";
              
         public new const string DescriptionText = "Engineering units of the measurement.";
         

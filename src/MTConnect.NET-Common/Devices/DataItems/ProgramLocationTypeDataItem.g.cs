@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "PROGRAM_LOCATION_TYPE";
-        public const string NameId = "";
+        public const string NameId = "programLocationType";
              
         public new const string DescriptionText = "Defines whether the logic or motion program defined by Program is being executed from the local memory of the controller or from an outside source.";
         

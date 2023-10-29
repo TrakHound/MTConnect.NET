@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "COUPLED_AXES";
-        public const string NameId = "";
+        public const string NameId = "coupledAxes";
              
         public new const string DescriptionText = "Set of associated axes.";
         

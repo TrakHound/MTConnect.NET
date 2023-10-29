@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "UNCERTAINTY";
-        public const string NameId = "";
+        public const string NameId = "uncertainty";
              
         public new const string DescriptionText = "Uncertainty specified by UncertaintyType.";
         

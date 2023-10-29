@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "HARDNESS";
-        public const string NameId = "";
+        public const string NameId = "hardness";
              
         public new const string DescriptionText = "Hardness of a material.";
         

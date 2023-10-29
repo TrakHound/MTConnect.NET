@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "PROCESS_AGGREGATE_ID";
-        public const string NameId = "";
+        public const string NameId = "processAggregateId";
              
         public new const string DescriptionText = "Identifier given to link the individual occurrence to a group of related occurrences, such as a process step in a process plan.";
         

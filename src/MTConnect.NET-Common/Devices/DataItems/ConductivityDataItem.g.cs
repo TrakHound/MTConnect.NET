@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "CONDUCTIVITY";
-        public const string NameId = "";
+        public const string NameId = "conductivity";
         public const string DefaultUnits = Devices.Units.SIEMENS_PER_METER;     
         public new const string DescriptionText = "Ability of a material to conduct electricity.";
         

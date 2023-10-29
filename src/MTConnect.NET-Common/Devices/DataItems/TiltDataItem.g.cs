@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "TILT";
-        public const string NameId = "";
+        public const string NameId = "tilt";
         public const string DefaultUnits = Devices.Units.MICRO_RADIAN;     
         public new const string DescriptionText = "Angular displacement.";
         

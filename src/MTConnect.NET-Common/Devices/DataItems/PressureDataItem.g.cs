@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "PRESSURE";
-        public const string NameId = "";
+        public const string NameId = "pressure";
         public const string DefaultUnits = Devices.Units.PASCAL;     
         public new const string DescriptionText = "Force per unit area measured relative to atmospheric pressure. Commonly referred to as gauge pressure.";
         

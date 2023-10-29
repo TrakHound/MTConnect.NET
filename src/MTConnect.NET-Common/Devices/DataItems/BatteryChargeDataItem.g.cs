@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "BATTERY_CHARGE";
-        public const string NameId = "";
+        public const string NameId = "batteryCharge";
         public const string DefaultUnits = Devices.Units.PERCENT;     
         public new const string DescriptionText = "Value of the battery's present capacity expressed as a percentage of the battery's maximum rated capacity.";
         

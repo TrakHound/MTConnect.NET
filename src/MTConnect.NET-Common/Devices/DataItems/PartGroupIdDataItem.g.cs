@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "PART_GROUP_ID";
-        public const string NameId = "";
+        public const string NameId = "partGroupId";
              
         public new const string DescriptionText = "Identifier given to a collection of individual parts.";
         

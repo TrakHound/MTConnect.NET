@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "PATH_FEEDRATE_OVERRIDE";
-        public const string NameId = "";
+        public const string NameId = "pathFeedrateOverride";
              
         public new const string DescriptionText = "Value of a signal or calculation issued to adjust the feedrate for the axes associated with a Path component that may represent a single axis or the coordinated movement of multiple axes.";
         

@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "PROCESS_TIMER";
-        public const string NameId = "";
+        public const string NameId = "processTimer";
         public const string DefaultUnits = Devices.Units.SECOND;     
         public new const string DescriptionText = "Amount of time a piece of equipment has performed different types of activities associated with the process being performed at that piece of equipment.";
         

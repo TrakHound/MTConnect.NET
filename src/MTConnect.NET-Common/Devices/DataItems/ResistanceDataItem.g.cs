@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "RESISTANCE";
-        public const string NameId = "";
+        public const string NameId = "resistance";
         public const string DefaultUnits = Devices.Units.OHM;     
         public new const string DescriptionText = "Degree to which a substance opposes the passage of an electric current.";
         

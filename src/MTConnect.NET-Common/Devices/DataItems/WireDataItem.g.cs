@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "WIRE";
-        public const string NameId = "";
+        public const string NameId = "wire";
              
         public new const string DescriptionText = "Identifier for the type of wire used as the cutting mechanism in Electrical Discharge Machining or similar processes.";
         

@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "PART_DETECT";
-        public const string NameId = "";
+        public const string NameId = "partDetect";
              
         public new const string DescriptionText = "Indication designating whether a part or work piece has been detected or is present.";
         

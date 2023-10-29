@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "DEPOSITION_DENSITY";
-        public const string NameId = "";
+        public const string NameId = "depositionDensity";
         public const string DefaultUnits = Devices.Units.MILLIGRAM_PER_CUBIC_MILLIMETER;     
         public new const string DescriptionText = "Density of the material deposited in an additive manufacturing process per unit of volume.";
         

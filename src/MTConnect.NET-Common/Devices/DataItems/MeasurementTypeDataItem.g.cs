@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "MEASUREMENT_TYPE";
-        public const string NameId = "";
+        public const string NameId = "measurementType";
              
         public new const string DescriptionText = "Class of measurement being performed. QIF 3:2018 Section 6.3";
         

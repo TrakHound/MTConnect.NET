@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "DEW_POINT";
-        public const string NameId = "";
+        public const string NameId = "dewPoint";
         public const string DefaultUnits = Devices.Units.CELSIUS;     
         public new const string DescriptionText = "Temperature at which moisture begins to condense, corresponding to saturation for a given absolute humidity.";
         

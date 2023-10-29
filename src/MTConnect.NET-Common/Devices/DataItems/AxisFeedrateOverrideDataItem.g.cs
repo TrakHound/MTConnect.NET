@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "AXIS_FEEDRATE_OVERRIDE";
-        public const string NameId = "";
+        public const string NameId = "axisFeedrateOverride";
              
         public new const string DescriptionText = "Value of a signal or calculation issued to adjust the feedrate of an individual linear type axis.";
         

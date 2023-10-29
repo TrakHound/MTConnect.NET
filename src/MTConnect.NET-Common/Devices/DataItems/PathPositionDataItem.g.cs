@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "PATH_POSITION";
-        public const string NameId = "";
+        public const string NameId = "pathPosition";
         public const string DefaultUnits = Devices.Units.MILLIMETER_3D;     
         public new const string DescriptionText = "Position of a control point associated with a Controller or a Path.";
         

@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "VOLUME_SPATIAL";
-        public const string NameId = "";
+        public const string NameId = "volumeSpatial";
         public const string DefaultUnits = Devices.Units.CUBIC_MILLIMETER;     
         public new const string DescriptionText = "Geometric volume of an object or container.";
         

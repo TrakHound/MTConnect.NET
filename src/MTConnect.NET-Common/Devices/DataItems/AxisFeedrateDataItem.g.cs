@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "AXIS_FEEDRATE";
-        public const string NameId = "";
+        public const string NameId = "axisFeedrate";
         public const string DefaultUnits = Devices.Units.MILLIMETER_PER_SECOND;     
         public new const string DescriptionText = "Feedrate of a linear axis.";
         

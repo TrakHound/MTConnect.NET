@@ -370,14 +370,19 @@ namespace MTConnect.Devices
 
         public static string CreateId(string parentId, string name, string suffix)
         {
-            if (!string.IsNullOrEmpty(suffix))
+            if (!string.IsNullOrEmpty(name))
             {
-                return $"{parentId}_{name}_{suffix}";
+                if (!string.IsNullOrEmpty(suffix))
+                {
+                    return $"{parentId}_{name}_{suffix}";
+                }
+                else
+                {
+                    return $"{parentId}_{name}";
+                }
             }
-            else
-            {
-                return $"{parentId}_{name}";
-            }
+
+            return null;
         }
 
         /// <summary>

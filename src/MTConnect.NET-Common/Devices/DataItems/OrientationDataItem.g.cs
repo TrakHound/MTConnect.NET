@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "ORIENTATION";
-        public const string NameId = "";
+        public const string NameId = "orientation";
         public const string DefaultUnits = Devices.Units.DEGREE_3D;     
         public new const string DescriptionText = "Angular position of a plane or vector relative to a cartesian coordinate system";
         

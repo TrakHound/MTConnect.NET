@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "PROCESS_STATE";
-        public const string NameId = "";
+        public const string NameId = "processState";
              
         public new const string DescriptionText = "Particular condition of the process occurrence at a specific time.";
         

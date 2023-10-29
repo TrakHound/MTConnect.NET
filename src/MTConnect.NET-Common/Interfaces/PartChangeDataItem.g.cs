@@ -12,7 +12,7 @@ namespace MTConnect.Interfaces
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "PART_CHANGE";
-        public const string NameId = "";
+        public const string NameId = "partChange";
              
         public new const string DescriptionText = "Operating state of the service to change the part or product associated with a piece of equipment to a different part or product.";
         

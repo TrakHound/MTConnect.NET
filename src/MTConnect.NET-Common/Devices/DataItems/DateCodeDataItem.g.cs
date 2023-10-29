@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "DATE_CODE";
-        public const string NameId = "";
+        public const string NameId = "dateCode";
              
         public new const string DescriptionText = "Time and date code associated with a material or other physical item.";
         

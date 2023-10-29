@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "DOOR_STATE";
-        public const string NameId = "";
+        public const string NameId = "doorState";
              
         public new const string DescriptionText = "Operational state of a Door component or composition element.";
         

@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "TEMPERATURE";
-        public const string NameId = "";
+        public const string NameId = "temperature";
         public const string DefaultUnits = Devices.Units.CELSIUS;     
         public new const string DescriptionText = "Degree of hotness or coldness measured on a definite scale.";
         

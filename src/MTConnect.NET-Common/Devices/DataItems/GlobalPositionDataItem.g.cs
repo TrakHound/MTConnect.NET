@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "GLOBAL_POSITION";
-        public const string NameId = "";
+        public const string NameId = "globalPosition";
         public const string DefaultUnits = Devices.Units.MILLIMETER;     
         public new const string DescriptionText = "Position in three-dimensional space.**DEPRECATED** in Version 1.1.";
         

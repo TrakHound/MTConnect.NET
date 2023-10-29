@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "POSITION_CARTESIAN";
-        public const string NameId = "";
+        public const string NameId = "positionCartesian";
         public const string DefaultUnits = Devices.Units.MILLIMETER_3D;     
         public new const string DescriptionText = "Point in a cartesian coordinate system.";
         

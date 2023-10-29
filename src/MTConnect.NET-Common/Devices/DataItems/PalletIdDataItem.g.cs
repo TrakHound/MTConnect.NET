@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "PALLET_ID";
-        public const string NameId = "";
+        public const string NameId = "palletId";
              
         public new const string DescriptionText = "Identifier for a pallet.";
         

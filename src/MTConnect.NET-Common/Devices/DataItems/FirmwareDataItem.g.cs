@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "FIRMWARE";
-        public const string NameId = "";
+        public const string NameId = "firmware";
              
         public new const string DescriptionText = "Embedded software of a Component.";
         

@@ -12,7 +12,7 @@ namespace MTConnect.Interfaces
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "CLOSE_CHUCK";
-        public const string NameId = "";
+        public const string NameId = "closeChuck";
              
         public new const string DescriptionText = "Operating state of the service to close a chuck.";
         

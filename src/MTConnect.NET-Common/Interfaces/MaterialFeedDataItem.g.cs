@@ -12,7 +12,7 @@ namespace MTConnect.Interfaces
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "MATERIAL_FEED";
-        public const string NameId = "";
+        public const string NameId = "materialFeed";
              
         public new const string DescriptionText = "Operating state of the service to advance material or feed product to a piece of equipment from a continuous or bulk source.";
         

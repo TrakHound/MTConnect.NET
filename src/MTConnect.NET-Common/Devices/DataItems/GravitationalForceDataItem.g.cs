@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "GRAVITATIONAL_FORCE";
-        public const string NameId = "";
+        public const string NameId = "gravitationalForce";
         public const string DefaultUnits = Devices.NativeUnits.GRAVITATIONAL_FORCE;     
         public new const string DescriptionText = "Force relative to earth's gravity.";
         

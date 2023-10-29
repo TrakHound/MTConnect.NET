@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "OPERATING_MODE";
-        public const string NameId = "";
+        public const string NameId = "operatingMode";
              
         public new const string DescriptionText = "State of Component or Composition that describes the automatic or manual operation of the entity.";
         

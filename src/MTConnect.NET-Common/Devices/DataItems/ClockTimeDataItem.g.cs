@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "CLOCK_TIME";
-        public const string NameId = "";
+        public const string NameId = "clockTime";
              
         public new const string DescriptionText = "Time provided by a timing device at a specific point in time.";
         

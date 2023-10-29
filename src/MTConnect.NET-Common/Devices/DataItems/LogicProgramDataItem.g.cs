@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.CONDITION;
         public const string TypeId = "LOGIC_PROGRAM";
-        public const string NameId = "";
+        public const string NameId = "logicProgram";
              
         public new const string DescriptionText = "Indication that an error occurred in the logic program or programmable logic controller (PLC) associated with a piece of equipment.";
         

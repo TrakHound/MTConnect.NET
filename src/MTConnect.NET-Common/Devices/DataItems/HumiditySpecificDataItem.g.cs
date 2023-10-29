@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "HUMIDITY_SPECIFIC";
-        public const string NameId = "";
+        public const string NameId = "humiditySpecific";
         public const string DefaultUnits = Devices.Units.PERCENT;     
         public new const string DescriptionText = "Ratio of the water vapor present over the total weight of the water vapor and air present expressed as a percent.";
         

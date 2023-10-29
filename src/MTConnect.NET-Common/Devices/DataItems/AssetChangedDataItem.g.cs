@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "ASSET_CHANGED";
-        public const string NameId = "";
+        public const string NameId = "assetChanged";
              
         public new const string DescriptionText = "AssetId of the Asset that has been added or changed.";
         

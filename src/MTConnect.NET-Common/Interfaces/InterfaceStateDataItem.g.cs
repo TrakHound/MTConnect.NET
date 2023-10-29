@@ -12,7 +12,7 @@ namespace MTConnect.Interfaces
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "INTERFACE_STATE";
-        public const string NameId = "";
+        public const string NameId = "interfaceState";
              
         public new const string DescriptionText = "Operational state of an Interface.";
         

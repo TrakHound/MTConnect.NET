@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "DISPLACEMENT_LINEAR";
-        public const string NameId = "";
+        public const string NameId = "displacementLinear";
         public const string DefaultUnits = Devices.Units.MILLIMETER;     
         public new const string DescriptionText = "Absolute value of the change in position along a vector.";
         

@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "TRANSLATION";
-        public const string NameId = "";
+        public const string NameId = "translation";
         public const string DefaultUnits = Devices.Units.MILLIMETER_3D;     
         public new const string DescriptionText = "Three space linear displacement of an object or coordinate system relative to a cartesian coordinate system.";
         

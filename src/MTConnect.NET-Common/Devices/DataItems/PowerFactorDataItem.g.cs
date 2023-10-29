@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "POWER_FACTOR";
-        public const string NameId = "";
+        public const string NameId = "powerFactor";
         public const string DefaultUnits = Devices.Units.PERCENT;     
         public new const string DescriptionText = "Ratio of real power flowing to a load to the apparent power in that AC circuit.";
         

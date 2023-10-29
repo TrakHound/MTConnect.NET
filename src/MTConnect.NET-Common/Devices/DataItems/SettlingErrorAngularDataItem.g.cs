@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "SETTLING_ERROR_ANGULAR";
-        public const string NameId = "";
+        public const string NameId = "settlingErrorAngular";
         public const string DefaultUnits = Devices.Units.DEGREE;     
         public new const string DescriptionText = "Angular difference between the commanded encoder/resolver position, and the actual encoder/resolver position when motion is complete.";
         

@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "VOLUME_FLUID";
-        public const string NameId = "";
+        public const string NameId = "volumeFluid";
         public const string DefaultUnits = Devices.Units.MILLILITER;     
         public new const string DescriptionText = "Fluid volume of an object or container.";
         

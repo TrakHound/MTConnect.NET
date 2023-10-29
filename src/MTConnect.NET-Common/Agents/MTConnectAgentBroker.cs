@@ -1079,6 +1079,19 @@ namespace MTConnect.Agents
             var components = device.GetComponents();
             var componentStreams = new List<IComponentStreamOutput>();
 
+            // Add ComponentStream for Device
+            var deviceComponentStream = new ComponentStreamOutput();
+            deviceComponentStream.ComponentId = device.Id;
+            deviceComponentStream.ComponentType = device.Type;
+            deviceComponentStream.Component = device;
+            deviceComponentStream.Name = device.Name;
+            deviceComponentStream.Uuid = device.Uuid;
+            deviceComponentStream.Observations = GetObservations(device.Uuid, ref dataItemResults, device.DataItems, mtconnectVersion);
+            if (deviceComponentStream.Observations != null && deviceComponentStream.Observations.Length > 0)
+            {
+                componentStreams.Add(deviceComponentStream);
+            }
+
             if (!components.IsNullOrEmpty())
             {
                 foreach (var component in components)
@@ -1113,18 +1126,18 @@ namespace MTConnect.Agents
                 }
             }
 
-            // Add ComponentStream for Device
-            var deviceComponentStream = new ComponentStreamOutput();
-            deviceComponentStream.ComponentId = device.Id;
-            deviceComponentStream.ComponentType = device.Type;
-            deviceComponentStream.Component = device;
-            deviceComponentStream.Name = device.Name;
-            deviceComponentStream.Uuid = device.Uuid;
-            deviceComponentStream.Observations = GetObservations(device.Uuid, ref dataItemResults, device.DataItems, mtconnectVersion);
-            if (deviceComponentStream.Observations != null && deviceComponentStream.Observations.Length > 0)
-            {
-                componentStreams.Add(deviceComponentStream);
-            }
+            //// Add ComponentStream for Device
+            //var deviceComponentStream = new ComponentStreamOutput();
+            //deviceComponentStream.ComponentId = device.Id;
+            //deviceComponentStream.ComponentType = device.Type;
+            //deviceComponentStream.Component = device;
+            //deviceComponentStream.Name = device.Name;
+            //deviceComponentStream.Uuid = device.Uuid;
+            //deviceComponentStream.Observations = GetObservations(device.Uuid, ref dataItemResults, device.DataItems, mtconnectVersion);
+            //if (deviceComponentStream.Observations != null && deviceComponentStream.Observations.Length > 0)
+            //{
+            //    componentStreams.Add(deviceComponentStream);
+            //}
 
             if (componentStreams.Count > 0)
             {

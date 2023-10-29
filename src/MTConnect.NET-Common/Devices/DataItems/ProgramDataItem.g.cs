@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "PROGRAM";
-        public const string NameId = "";
+        public const string NameId = "program";
              
         public new const string DescriptionText = "Name of the logic or motion program being executed by the Controller component.";
         

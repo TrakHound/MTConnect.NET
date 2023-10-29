@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "EQUIPMENT_TIMER";
-        public const string NameId = "";
+        public const string NameId = "equipmentTimer";
         public const string DefaultUnits = Devices.Units.SECOND;     
         public new const string DescriptionText = "Amount of time a piece of equipment or a sub-part of a piece of equipment has performed specific activities.";
         

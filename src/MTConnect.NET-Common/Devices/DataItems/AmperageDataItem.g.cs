@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "AMPERAGE";
-        public const string NameId = "";
+        public const string NameId = "amperage";
              
         public new const string DescriptionText = "Strength of electrical current.**DEPRECATED** in *Version 1.6*. Replaced by `AMPERAGE_AC` and `AMPERAGE_DC`.";
         

@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "WATTAGE";
-        public const string NameId = "";
+        public const string NameId = "wattage";
         public const string DefaultUnits = Devices.Units.WATT;     
         public new const string DescriptionText = "Power flowing through or dissipated by an electrical circuit or piece of equipment.";
         

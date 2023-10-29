@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "BLOCK_COUNT";
-        public const string NameId = "";
+        public const string NameId = "blockCount";
              
         public new const string DescriptionText = "Total count of the number of blocks of program code that have been executed since execution started.";
         

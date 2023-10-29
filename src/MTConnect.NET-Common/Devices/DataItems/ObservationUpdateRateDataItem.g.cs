@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "OBSERVATION_UPDATE_RATE";
-        public const string NameId = "";
+        public const string NameId = "observationUpdateRate";
         public const string DefaultUnits = Devices.Units.COUNT_PER_SECOND;     
         public new const string DescriptionText = "Average rate of change of values for data items in the MTConnect streams. The average is computed over a rolling window defined by the implementation.";
         

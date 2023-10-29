@@ -10,7 +10,7 @@ namespace MTConnect.Devices.DataItems
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "SETTLING_ERROR_LINEAR";
-        public const string NameId = "";
+        public const string NameId = "settlingErrorLinear";
         public const string DefaultUnits = Devices.Units.MILLIMETER;     
         public new const string DescriptionText = "Difference between the commanded encoder/resolver position, and the actual encoder/resolver position when motion is complete.";
         
