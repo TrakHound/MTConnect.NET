@@ -49,11 +49,6 @@ namespace MTConnect.Devices
         /// Observation of the DataItem is to be reset at the end of a 7-day period.
         /// </summary>
         public const string WEEK = "Observation of the DataItem is to be reset at the end of a 7-day period.";
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        public const string NONE = "";
 
 
         public static string Get(DataItemResetTrigger value)
@@ -69,7 +64,6 @@ namespace MTConnect.Devices
                 case DataItemResetTrigger.POWER_ON: return "Observation of the DataItem is to be reset when power was applied to the piece of equipment after a planned or unplanned interruption of power has occurred.";
                 case DataItemResetTrigger.SHIFT: return "Observation of the DataItem is to be reset at the end of a work shift.";
                 case DataItemResetTrigger.WEEK: return "Observation of the DataItem is to be reset at the end of a 7-day period.";
-                case DataItemResetTrigger.NONE: return "";
             }
 
             return null;

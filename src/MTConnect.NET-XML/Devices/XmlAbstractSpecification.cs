@@ -34,7 +34,7 @@ namespace MTConnect.Devices.Xml
         public string CoordinateSystemIdRef { get; set; }
 
         [XmlAttribute("originator")]
-        public Originator Originator { get; set; }
+        public string Originator { get; set; }
 
 
         public virtual ISpecification ToSpecification()
@@ -48,7 +48,7 @@ namespace MTConnect.Devices.Xml
             specification.Units = Units;
             specification.CompositionIdRef = CompositionIdRef;
             specification.CoordinateSystemIdRef = CoordinateSystemIdRef;
-            specification.Originator = Originator;
+            if (!string.IsNullOrEmpty(Originator)) specification.Originator = Originator.ConvertEnum<Originator>();
             return specification;
         }
     }

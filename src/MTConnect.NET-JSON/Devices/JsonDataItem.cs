@@ -21,6 +21,9 @@ namespace MTConnect.Devices.Json
         [JsonPropertyName("coordinateSystem")]
         public string CoordinateSystem { get; set; }
 
+        [JsonPropertyName("coordinateSystemIdRef")]
+        public string CoordinateSystemIdRef { get; set; }
+
         [JsonPropertyName("name")]
         public string Name { get; set; }
 
@@ -127,12 +130,13 @@ namespace MTConnect.Devices.Json
                 }
 
                 if (dataItem.Representation != DataItemRepresentation.VALUE) Representation = dataItem.Representation.ToString();
-                if (dataItem.ResetTrigger != DataItemResetTrigger.NONE) ResetTrigger = dataItem.ResetTrigger.ToString();
+                if (dataItem.ResetTrigger != null) ResetTrigger = dataItem.ResetTrigger.ToString();
                 if (dataItem.CoordinateSystem != DataItemCoordinateSystem.MACHINE) CoordinateSystem = dataItem.CoordinateSystem.ToString();
+                CoordinateSystemIdRef = dataItem.CoordinateSystemIdRef;
                 if (dataItem.Constraints != null) Constraints = new JsonConstraints(dataItem.Constraints);
                 if (dataItem.Definition != null) Definition = new JsonDataItemDefinition(dataItem.Definition);
                 Units = dataItem.Units;
-                if (dataItem.Statistic != DataItemStatistic.NONE) Statistic = dataItem.Statistic.ToString();
+                if (dataItem.Statistic != null) Statistic = dataItem.Statistic.ToString();
                 if (dataItem.SignificantDigits > 0) SignificantDigits = dataItem.SignificantDigits;
 
                 if (!dataItem.Filters.IsNullOrEmpty())
@@ -215,6 +219,7 @@ namespace MTConnect.Devices.Json
             dataItem.Representation = Representation.ConvertEnum<DataItemRepresentation>();
             dataItem.ResetTrigger = ResetTrigger.ConvertEnum<DataItemResetTrigger>();
             dataItem.CoordinateSystem = CoordinateSystem.ConvertEnum<DataItemCoordinateSystem>();
+            dataItem.CoordinateSystemIdRef = CoordinateSystemIdRef;
             if (Constraints != null) dataItem.Constraints = Constraints.ToConstraints();
             if (Definition != null) dataItem.Definition = Definition.ToDefinition();
             dataItem.Units = Units;

@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace MTConnect.SysML
 {
-    internal class MTConnectVersion
+    public class MTConnectVersion
     {
         public static string GetVersionEnum(Version version)
         {

@@ -61,10 +61,7 @@ namespace MTConnect.Servers.Http
                 // Read DocumentFormat from Query string
                 var documentFormatString = httpRequest.QueryString["documentFormat"];
                 var documentFormat = DocumentFormat.XML;
-                if (!string.IsNullOrEmpty(documentFormatString) && documentFormatString.ToUpper() == DocumentFormat.JSON.ToString())
-                {
-                    documentFormat = DocumentFormat.JSON;
-                }
+                if (!string.IsNullOrEmpty(documentFormatString)) documentFormat = documentFormatString;
 
                 // Read ValidationLevel from Query string
                 int validationLevel = (int)_agentConfiguration.OutputValidationLevel;

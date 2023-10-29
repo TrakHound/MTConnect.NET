@@ -48,11 +48,6 @@ namespace MTConnect.Devices
         /// <summary>
         /// Statistical Standard Deviation value calculated for the data item during the calculation period.
         /// </summary>
-        STANDARD_DEVIATION,
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        NONE
+        STANDARD_DEVIATION
     }
 }

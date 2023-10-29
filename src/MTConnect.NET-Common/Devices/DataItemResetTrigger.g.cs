@@ -48,11 +48,6 @@ namespace MTConnect.Devices
         /// <summary>
         /// Observation of the DataItem is to be reset at the end of a 7-day period.
         /// </summary>
-        WEEK,
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        NONE
+        WEEK
     }
 }

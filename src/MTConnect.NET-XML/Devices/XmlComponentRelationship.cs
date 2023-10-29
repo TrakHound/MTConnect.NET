@@ -20,7 +20,7 @@ namespace MTConnect.Devices.Xml
             relationship.Id = Id;
             relationship.Name = Name;
             relationship.Type = Type;
-            relationship.Criticality = Criticality;
+            if (!string.IsNullOrEmpty(Criticality)) relationship.Criticality = Criticality.ConvertEnum<CriticalityType>();
             relationship.IdRef = IdRef;
             return relationship;
         }

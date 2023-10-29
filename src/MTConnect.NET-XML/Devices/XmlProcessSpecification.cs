@@ -31,7 +31,7 @@ namespace MTConnect.Devices.Xml
             specification.Units = Units;
             specification.CompositionIdRef = CompositionIdRef;
             specification.CoordinateSystemIdRef = CoordinateSystemIdRef;
-            specification.Originator = Originator;
+            specification.Originator = Originator.ConvertEnum<Originator>();
 
             if (ControlLimits != null) specification.ControlLimits = ControlLimits.ToControlLimits();
             if (SpecificationLimits != null) specification.SpecificationLimits = SpecificationLimits.ToSpecificationLimits();

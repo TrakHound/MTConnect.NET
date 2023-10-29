@@ -13,11 +13,6 @@ namespace MTConnect.Devices.Configurations
         /// <summary>
         /// Services or functions provided by the associated element is not required for the operation of this element.
         /// </summary>
-        NONCRITICAL,
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        NOT_SPECIFIED
+        NONCRITICAL
     }
 }

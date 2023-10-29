@@ -15,12 +15,12 @@ namespace MTConnect.Observations
         /// For those DataItem elements that report data that may be periodically reset to an initial value, 
         /// resetTriggered identifies when a reported value has been reset and what has caused that reset to occur.
         /// </summary>
-        public ResetTriggered ResetTriggered
+        public ResetTriggered? ResetTriggered
         {
             get => GetValue(ValueKeys.ResetTriggered).ConvertEnum<ResetTriggered>();
             set
             {
-                if (value != ResetTriggered.NOT_SPECIFIED)
+                if (value != null)
                 {
                     AddValue(new ObservationValue(ValueKeys.ResetTriggered, value));
                 }
@@ -50,12 +50,12 @@ namespace MTConnect.Observations
         /// <summary>
         /// The type of statistical calculation specified in the Device Information Model that this Sample element represents.
         /// </summary>
-        public DataItemStatistic Statistic
+        public DataItemStatistic? Statistic
         {
             get => GetValue(ValueKeys.Statistic).ConvertEnum<DataItemStatistic>();
             set
             {
-                if (value != DataItemStatistic.NONE)
+                if (value != null)
                 {
                     AddValue(new ObservationValue(ValueKeys.Statistic, value));
                 }

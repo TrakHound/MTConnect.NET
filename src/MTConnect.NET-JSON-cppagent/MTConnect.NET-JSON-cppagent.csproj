@@ -3,9 +3,15 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <RootNamespace>MTConnect.NET_JSON_cppagent</RootNamespace>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Assets\CuttingTools\JsonCuttingItemCollection - Copy.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Assets\CuttingTools\JsonCuttingItemCollection - Copy.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\MTConnect.NET-Common\MTConnect.NET-Common.csproj" />

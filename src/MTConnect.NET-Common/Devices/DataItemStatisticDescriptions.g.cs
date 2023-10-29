@@ -49,11 +49,6 @@ namespace MTConnect.Devices
         /// Statistical Standard Deviation value calculated for the data item during the calculation period.
         /// </summary>
         public const string STANDARD_DEVIATION = "Statistical Standard Deviation value calculated for the data item during the calculation period.";
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        public const string NONE = "";
 
 
         public static string Get(DataItemStatistic value)
@@ -69,7 +64,6 @@ namespace MTConnect.Devices
                 case DataItemStatistic.RANGE: return "Difference between the maximum and minimum value of a data item during the calculation period. Also represents Peak-to-Peak measurement in a waveform.";
                 case DataItemStatistic.ROOT_MEAN_SQUARE: return "Mathematical Root Mean Square (RMS) value calculated for the data item during the calculation period.";
                 case DataItemStatistic.STANDARD_DEVIATION: return "Statistical Standard Deviation value calculated for the data item during the calculation period.";
-                case DataItemStatistic.NONE: return "";
             }
 
             return null;

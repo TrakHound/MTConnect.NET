@@ -10,7 +10,7 @@ using System.Text.RegularExpressions;
 
 namespace MTConnect.SysML
 {
-    internal static class StringFunctions
+    public static class StringFunctions
     {
         private static readonly Encoding _utf8 = Encoding.UTF8;
 

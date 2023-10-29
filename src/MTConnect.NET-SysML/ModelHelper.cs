@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 
 namespace MTConnect.SysML
 {
-    internal static class ModelHelper
+    public static class ModelHelper
     {
         private static Dictionary<string, UmlPackage> _packages;
         private static Dictionary<string, UmlClass> _classes;
@@ -364,7 +364,6 @@ namespace MTConnect.SysML
                 case "_19_0_3_68e0225_1677585034568_640359_707": return true; // Devices.Configuration.ImageFiles
 
                 case "EAID_src1FD414_08E5_4c06_8E6A_D0FBEE71B296": return true; // Devices.Configruation.SensorConfiguration.Channels
-                //case "_19_0_3_45f01b9_1587596366617_434199_806": return true; // Devices.Configruation.SolidModel.Scale
 
                 case "_19_0_3_91b028d_1579280419002_422759_4126": return true; // Devices.DataItem.Filters
                 case "_19_0_3_68e0225_1607601081190_91136_31": return true; // Devices.DataItem.Relationships
@@ -430,6 +429,13 @@ namespace MTConnect.SysML
                 case "EAID_C7968EFA_A55E_4ccf_B7CA_CFE13D86C116": return true; // Devices.DataItem.Maximum
                 case "EAID_72FA9526_7E5D_4084_A7F0_39FD402026E6": return true; // Devices.DataItem.Minimum
                 case "EAID_7B83A56F_E21C_4aa3_9851_413935CE01A2": return true; // Devices.DataItem.Nominal
+
+                case "_19_0_3_91b028d_1579280424778_62185_4160": return true; // Devices.DataItem.ResetTrigger
+                case "EAID_FE16FE90_F8E4_4832_8D49_C35DD4857F52": return true; // Devices.DataItem.SignificantDigits
+                case "EAID_DE2DBB93_2F2D_4020_981C_C9302713E54C": return true; // Devices.DataItem.Statistic
+
+                case "_19_0_3_68e0225_1607601584366_130474_71": return true; // Devices.Configruations.ConfigurationRelationship.Criticality
+                case "EAID_6CAB5838_437F_4458_BB16_CB0E6FC7F3D3": return true; // Devices.Configruations.DeviceRelationship.Role
 
                 case "_19_0_3_68e0225_1605644630392_83676_2528": return true; // Devices.Configurations.SpecificationLimits.LowerLimit
                 case "_19_0_3_68e0225_1605644626222_931495_2512": return true; // Devices.Configurations.SpecificationLimits.Nominal

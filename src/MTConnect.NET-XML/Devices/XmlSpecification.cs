@@ -43,7 +43,7 @@ namespace MTConnect.Devices.Xml
             specification.Units = Units;
             specification.CompositionIdRef = CompositionIdRef;
             specification.CoordinateSystemIdRef = CoordinateSystemIdRef;
-            specification.Originator = Originator;
+            specification.Originator = Originator.ConvertEnum<Originator>();
             specification.Maximum = Maximum;
             specification.UpperLimit = UpperLimit;
             specification.UpperWarning = UpperWarning;
@@ -88,7 +88,7 @@ namespace MTConnect.Devices.Xml
                 if (!string.IsNullOrEmpty(specification.Units)) writer.WriteAttributeString("units", specification.Units);
                 if (!string.IsNullOrEmpty(specification.CompositionIdRef)) writer.WriteAttributeString("compositionIdRef", specification.CompositionIdRef);
                 if (!string.IsNullOrEmpty(specification.CoordinateSystemIdRef)) writer.WriteAttributeString("coordinateSystemIdRef", specification.CoordinateSystemIdRef);
-                if (specification.Originator != Originator.MANUFACTURER) writer.WriteAttributeString("originator", specification.Originator.ToString());
+                if (specification.Originator != Devices.Configurations.Originator.MANUFACTURER) writer.WriteAttributeString("originator", specification.Originator.ToString());
             }
         }
 

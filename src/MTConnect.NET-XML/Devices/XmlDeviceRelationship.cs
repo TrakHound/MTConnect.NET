@@ -14,7 +14,7 @@ namespace MTConnect.Devices.Xml
         public string DeviceUuidRef { get; set; }
 
         [XmlAttribute("role")]
-        public RoleType Role { get; set; }
+        public string Role { get; set; }
 
         [XmlAttribute("href")]
         public string Href { get; set; }
@@ -29,9 +29,9 @@ namespace MTConnect.Devices.Xml
             relationship.Id = Id;
             relationship.Name = Name;
             relationship.Type = Type;
-            relationship.Criticality = Criticality;
+            if (!string.IsNullOrEmpty(Criticality)) relationship.Criticality = Criticality.ConvertEnum<CriticalityType>();
             relationship.DeviceUuidRef = DeviceUuidRef;
-            relationship.Role = Role;
+            if (!string.IsNullOrEmpty(Role)) relationship.Role = Role.ConvertEnum<RoleType>();
             relationship.Href = Href;
             relationship.XLinkType = XLinkType;
             return relationship;

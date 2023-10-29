@@ -86,7 +86,7 @@ namespace MTConnect.Devices
         /// <summary>
         /// Type of event that may cause a reset to occur.
         /// </summary>
-        MTConnect.Devices.DataItemResetTrigger ResetTrigger { get; }
+        MTConnect.Devices.DataItemResetTrigger? ResetTrigger { get; }
         
         /// <summary>
         /// Rate at which successive samples of a data item are recorded by a piece of equipment.
@@ -96,7 +96,7 @@ namespace MTConnect.Devices
         /// <summary>
         /// Number of significant digits in the reported value.
         /// </summary>
-        int SignificantDigits { get; }
+        int? SignificantDigits { get; }
         
         /// <summary>
         /// Identifies the Component, DataItem, or Composition from which a measured value originates.
@@ -106,7 +106,7 @@ namespace MTConnect.Devices
         /// <summary>
         /// Type of statistical calculation performed on a series of data samples to provide the reported data value.
         /// </summary>
-        MTConnect.Devices.DataItemStatistic Statistic { get; }
+        MTConnect.Devices.DataItemStatistic? Statistic { get; }
         
         /// <summary>
         /// Sub-categorization of the data item type.

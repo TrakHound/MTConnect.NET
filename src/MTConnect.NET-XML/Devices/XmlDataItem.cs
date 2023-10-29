@@ -203,14 +203,14 @@ namespace MTConnect.Devices.Xml
                 if (dataItem.NativeScale > 0) writer.WriteAttributeString("nativeScale", dataItem.NativeScale.ToString());
                 if (!string.IsNullOrEmpty(dataItem.NativeUnits)) writer.WriteAttributeString("nativeUnits", dataItem.NativeUnits);
                 if (!string.IsNullOrEmpty(dataItem.Units)) writer.WriteAttributeString("units", dataItem.Units);
-                if (dataItem.Statistic != DataItemStatistic.NONE) writer.WriteAttributeString("statistic", dataItem.Statistic.ToString());
+                if (dataItem.Statistic != null) writer.WriteAttributeString("statistic", dataItem.Statistic.ToString());
                 if (dataItem.SampleRate > 0) writer.WriteAttributeString("sampleRate", dataItem.SampleRate.ToString());
                 if (dataItem.Discrete) writer.WriteAttributeString("discrete", dataItem.Discrete.ToString());
                 if (dataItem.Representation != DataItemRepresentation.VALUE) writer.WriteAttributeString("representation", dataItem.Representation.ToString());
                 if (dataItem.SignificantDigits > 0) writer.WriteAttributeString("significantDigits", dataItem.SignificantDigits.ToString());
                 if (!string.IsNullOrEmpty(dataItem.CompositionId)) writer.WriteAttributeString("compositionId", dataItem.CompositionId);
                 if (!string.IsNullOrEmpty(dataItem.InitialValue)) writer.WriteAttributeString("initialValue", dataItem.InitialValue);
-                if (dataItem.ResetTrigger != DataItemResetTrigger.NONE) writer.WriteAttributeString("resetTrigger", dataItem.ResetTrigger.ToString());
+                if (dataItem.ResetTrigger != null) writer.WriteAttributeString("resetTrigger", dataItem.ResetTrigger.ToString());
 
 
                 // Write Source

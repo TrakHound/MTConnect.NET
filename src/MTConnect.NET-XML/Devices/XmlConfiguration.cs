@@ -21,7 +21,7 @@ namespace MTConnect.Devices.Xml
         [XmlArray("Relationships")]
         [XmlArrayItem("AssetRelationship", typeof(XmlAssetRelationship))]
         [XmlArrayItem("DeviceRelationship", typeof(XmlDeviceRelationship))]
-        [XmlArrayItem("ComponentRelationShip", typeof(XmlComponentRelationship))]
+        [XmlArrayItem("ComponentRelationship", typeof(XmlComponentRelationship))]
         public List<XmlConfigurationRelationship> Relationships { get; set; }
 
         [XmlElement("SensorConfiguration")]

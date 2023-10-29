@@ -54,6 +54,7 @@ namespace MTConnect.SysML.CSharp
                     {
                         exportModel.Units = exportModel.Units.Replace("NativeUnitsEnum", "NativeUnits");
                         exportModel.Units = exportModel.Units.Replace("UnitsEnum", "Units");
+                        exportModel.Units = UnitsHelper.Get(exportModel.Units);
                     }
 
                     return exportModel;

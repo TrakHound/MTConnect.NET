@@ -26,7 +26,7 @@ namespace MTConnect.Devices.Xml
             relationship.Id = Id;
             relationship.Name = Name;
             relationship.Type = Type;
-            relationship.Criticality = Criticality;
+            if (!string.IsNullOrEmpty(Criticality)) relationship.Criticality = Criticality.ConvertEnum<CriticalityType>();
             relationship.AssetIdRef = AssetIdRef;
             relationship.AssetType = AssetType;
             relationship.Href = Href;

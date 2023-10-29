@@ -16,7 +16,7 @@ namespace MTConnect.Devices.Configurations
         /// <summary>
         /// Defines whether the services or functions provided by the associated piece of equipment is required for the operation of this piece of equipment.
         /// </summary>
-        public MTConnect.Devices.Configurations.CriticalityType Criticality { get; set; }
+        public MTConnect.Devices.Configurations.CriticalityType? Criticality { get; set; }
         
         /// <summary>
         /// Unique identifier for this ConfigurationRelationship.

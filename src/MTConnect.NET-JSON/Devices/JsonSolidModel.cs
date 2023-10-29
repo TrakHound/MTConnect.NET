@@ -45,7 +45,7 @@ namespace MTConnect.Devices.Json
                 MediaType = solidModel.MediaType.ToString();
                 CoordinateSystemIdRef = solidModel.CoordinateSystemIdRef;
                 if (solidModel.Transformation != null) Transformation = new JsonTransformation(solidModel.Transformation);
-                Scale = solidModel.Scale.ToString();
+                if (Scale != null) Scale = solidModel.Scale.ToString();
             }
         }
 

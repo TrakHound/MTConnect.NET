@@ -21,7 +21,7 @@ namespace MTConnect.Devices.Configurations
         /// <summary>
         /// Defines the services or capabilities that the referenced piece of equipment provides relative to this piece of equipment.
         /// </summary>
-        MTConnect.Devices.Configurations.RoleType Role { get; }
+        MTConnect.Devices.Configurations.RoleType? Role { get; }
         
         /// <summary>
         /// `xlink:type`**MUST** have a fixed value of `locator` as defined in W3C XLink 1.1 https://www.w3.org/TR/xlink11/.

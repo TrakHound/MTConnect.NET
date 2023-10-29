@@ -43,6 +43,7 @@ namespace MTConnect.SysML.CSharp
 
                     exportModel.Id = ModelHelper.RemoveEnumSuffix(exportModel.Id);
                     exportModel.Name = ModelHelper.RemoveEnumSuffix(exportModel.Name);
+                    //exportModel.Name = UnitsHelper.Get(exportModel.Name);
 
                     if (exportModel.Values != null)
                     {

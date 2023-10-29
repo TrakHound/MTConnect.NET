@@ -1,5 +1,4 @@
-﻿using MTConnect.SysML.CSharp;
-using MTConnect.SysML.Xmi;
+﻿using MTConnect.SysML.Xmi;
 using MTConnect.SysML.Xmi.UML;
 using System;
 using System.Collections.Generic;
@@ -116,7 +115,7 @@ namespace MTConnect.SysML.Models.Devices
                                 var unitType = ModelHelper.GetEnumName(xmiDocument, property.PropertyType);
 
                                 Units = ModelHelper.GetEnumValue(xmiDocument, property.PropertyType, instanceValue.Instance);
-                                Units = UnitsHelper.Get(Units);
+                                //Units = UnitsHelper.Get(Units);
                                 if (!string.IsNullOrEmpty(Units)) Units = $"{unitType}.{Units}";
                             }
                         }

@@ -1,0 +1,59 @@
+// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// TrakHound Inc. licenses this file to you under the MIT license.
+
+using MTConnect.Devices.Components;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json.Serialization;
+
+namespace MTConnect.Devices.Json
+{
+    public class JsonComponents
+    {
+{{- for type in types }}{{ i = i + 1 }}
+        [JsonPropertyName("{{type.type}}")]
+        public IEnumerable<JsonComponent> {{type.type}} { get; set; }
+
+{{ end }}
+
+        public JsonComponents() { }
+
+        public JsonComponents(IEnumerable<IComponent> components)
+        {
+            if (!components.IsNullOrEmpty())
+            {
+{{- for type in types }}{{ i = i + 1 }}
+                {{type.type}} = GetComponents(components, {{type.name}}.TypeId);
+{{ end }}
+            }
+        }
+
+        private IEnumerable<JsonComponent> GetComponents(IEnumerable<IComponent> components, string type)
+        {
+            if (!components.IsNullOrEmpty())
+            {
+                var typeComponents = components.Where(o => o.Type == type);
+                if (!typeComponents.IsNullOrEmpty())
+                {
+                    var jsonComponents = new List<JsonComponent>();
+                    foreach (var component in typeComponents) jsonComponents.Add(new JsonComponent(component));
+                    return jsonComponents;
+                }
+            }
+
+            return null;
+        }
+
+
+        public IEnumerable<IComponent> ToComponents()
+        {
+            var components = new List<IComponent>();
+
+{{- for type in types }}{{ i = i + 1 }}
+            if (!{{type.type}}.IsNullOrEmpty()) foreach (var component in {{type.type}}) components.Add(component.ToComponent());
+{{ end }}
+
+            return components;
+        }
+    }
+}

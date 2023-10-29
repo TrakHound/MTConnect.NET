@@ -25,12 +25,12 @@ namespace MTConnect.Observations
         /// For those DataItem elements that report data that may be periodically reset to an initial value, 
         /// resetTriggered identifies when a reported value has been reset and what has caused that reset to occur.
         /// </summary>
-        ResetTriggered ResetTriggered { get; }
+        ResetTriggered? ResetTriggered { get; }
 
         /// <summary>
         /// The type of statistical calculation specified in the Device Information Model that this Sample element represents.
         /// </summary>
-        DataItemStatistic Statistic { get; }
+        DataItemStatistic? Statistic { get; }
 
         /// <summary>
         /// The time-period over which the data was collected.

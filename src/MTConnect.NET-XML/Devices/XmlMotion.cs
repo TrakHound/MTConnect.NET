@@ -49,7 +49,7 @@ namespace MTConnect.Devices.Xml
             motion.Axis = UnitVector3D.FromString(Axis);
             motion.Origin = UnitVector3D.FromString(Origin);
             if (Transformation != null) motion.Transformation = Transformation.ToTransformation();
-            motion.Description = Description.ToDescription();
+            if (Description != null) motion.Description = Description.ToDescription();
             return motion;
         }
 
@@ -66,13 +66,11 @@ namespace MTConnect.Devices.Xml
                 writer.WriteAttributeString("type", motion.Type.ToString());
                 writer.WriteAttributeString("actuation", motion.Actuation.ToString());
 
-                //// Write Description
-                //if (!string.IsNullOrEmpty(motion.Description))
-                //{
-                //    writer.WriteStartElement("Description");
-                //    writer.WriteString(motion.Description);
-                //    writer.WriteEndElement();
-                //}
+                // Write Description
+                if (motion.Description != null)
+                {
+                    XmlDescription.WriteXml(writer, motion.Description);
+                }
 
                 // Write Origin
                 if (motion.Origin != null)

@@ -1,15 +1,64 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
-    <RootNamespace>MTConnect.NET_SysML_Import</RootNamespace>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net6.0</TargetFramework>
+		<RootNamespace>MTConnect.NET_SysML_Import</RootNamespace>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\MTConnect.NET-SysML\MTConnect.NET-SysML.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\src\MTConnect.NET-SysML\MTConnect.NET-SysML.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Scriban" Version="5.9.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Update="CSharp\Templates\Assets.CuttingToolMeasurement.scriban">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="CSharp\Templates\Devices.ComponentType.scriban">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="CSharp\Templates\Devices.CompositionType.scriban">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="CSharp\Templates\Devices.DataItemType.scriban">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="CSharp\Templates\Enum.scriban">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="CSharp\Templates\EnumDescriptions.scriban">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="CSharp\Templates\EnumString.scriban">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="CSharp\Templates\EnumStringDescriptions.scriban">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="CSharp\Templates\Interface.scriban">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="CSharp\Templates\Interfaces.InterfaceDataItemType.scriban">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="CSharp\Templates\Model.scriban">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="CSharp\Templates\ModelDescriptions.scriban">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="CSharp\Templates\Observations.Observation.scriban">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Json-cppagent\Templates\Components.scriban">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
 
 </Project>
