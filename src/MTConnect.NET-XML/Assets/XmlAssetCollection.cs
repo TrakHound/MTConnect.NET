@@ -43,30 +43,65 @@ namespace MTConnect.Assets.Xml
                 for (var i = 0; i < Assets.Count; i++)
                 {
                     var asset = Assets[i];
-                    var xml = XmlAsset.ToXml(asset, _indentOutput);
-                    if (!string.IsNullOrEmpty(xml))
-                    {
-                        if (_indentOutput)
-                        {
-                            writer.WriteWhitespace(XmlFunctions.NewLine);
+                    XmlAsset.WriteXml(writer, asset);
 
-                            // Manually Indent
-                            var lines = xml.Split(XmlFunctions.NewLineCharacter);
-                            foreach (var line in lines)
-                            {
-                                writer.WriteWhitespace(XmlFunctions.Tab);
-                                writer.WriteWhitespace(XmlFunctions.Tab);
-                                writer.WriteRaw(line);
-                            }
-                        }
-                        else
-                        {
-                            writer.WriteRaw(xml);
-                        }
-                    }
+
+                    //var xml = XmlAsset.ToXml(asset, _indentOutput);
+                    //if (!string.IsNullOrEmpty(xml))
+                    //{
+                    //    if (_indentOutput)
+                    //    {
+                    //        writer.WriteWhitespace(XmlFunctions.NewLine);
+
+                    //        // Manually Indent
+                    //        var lines = xml.Split(XmlFunctions.NewLineCharacter);
+                    //        foreach (var line in lines)
+                    //        {
+                    //            writer.WriteWhitespace(XmlFunctions.Tab);
+                    //            writer.WriteWhitespace(XmlFunctions.Tab);
+                    //            writer.WriteRaw(line);
+                    //        }
+                    //    }
+                    //    else
+                    //    {
+                    //        writer.WriteRaw(xml);
+                    //    }
+                    //}
                 }
             }
         }
+
+        //public void WriteXml(XmlWriter writer)
+        //{
+        //    if (!Assets.IsNullOrEmpty())
+        //    {
+        //        for (var i = 0; i < Assets.Count; i++)
+        //        {
+        //            var asset = Assets[i];
+        //            var xml = XmlAsset.ToXml(asset, _indentOutput);
+        //            if (!string.IsNullOrEmpty(xml))
+        //            {
+        //                if (_indentOutput)
+        //                {
+        //                    writer.WriteWhitespace(XmlFunctions.NewLine);
+
+        //                    // Manually Indent
+        //                    var lines = xml.Split(XmlFunctions.NewLineCharacter);
+        //                    foreach (var line in lines)
+        //                    {
+        //                        writer.WriteWhitespace(XmlFunctions.Tab);
+        //                        writer.WriteWhitespace(XmlFunctions.Tab);
+        //                        writer.WriteRaw(line);
+        //                    }
+        //                }
+        //                else
+        //                {
+        //                    writer.WriteRaw(xml);
+        //                }
+        //            }
+        //        }
+        //    }
+        //}
 
         public void ReadXml(XmlReader reader)
         {

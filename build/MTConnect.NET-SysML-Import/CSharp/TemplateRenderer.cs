@@ -112,7 +112,12 @@ namespace MTConnect.SysML.CSharp
 
                                 case "Assets.Asset": ((ClassModel)template).IsPartial = true; break;
                                 case "Assets.ComponentConfigurationParameters.ComponentConfigurationParameter": ((ClassModel)template).IsPartial = true; break;
-                                case "Assets.CuttingTools.CuttingTool": ((ClassModel)template).IsPartial = true; break;
+                                case "Assets.CuttingTools.CuttingTool": 
+                                    ((ClassModel)template).IsPartial = true;
+                                    ((ClassModel)template).Id += "Asset";
+                                    ((ClassModel)template).Name += "Asset";
+                                    if (((ClassModel)template).ParentName != null && ((ClassModel)template).ParentName != "Asset") ((ClassModel)template).ParentName += "Asset";
+                                    break;
                                 case "Assets.CuttingTools.CuttingToolLifeCycle": ((ClassModel)template).IsPartial = true; break;
                                 case "Assets.CuttingTools.CuttingItem": ((ClassModel)template).IsPartial = true; break;
                                 case "Assets.CuttingTools.Measurement":

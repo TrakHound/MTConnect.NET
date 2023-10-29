@@ -6,12 +6,12 @@ using System.Collections.Generic;
 
 namespace MTConnect.Assets.CuttingTools
 {
-    public partial class CuttingTool : Asset
+    public partial class CuttingToolAsset
     {
         public const string TypeId = "CuttingTool";
 
 
-        public CuttingTool()
+        public CuttingToolAsset()
         {
             Type = TypeId;
             CuttingToolLifeCycle = new CuttingToolLifeCycle();
@@ -22,7 +22,7 @@ namespace MTConnect.Assets.CuttingTools
         {
             if (mtconnectVersion != null && mtconnectVersion >= MTConnectVersions.Version12)
             {
-                var asset = new CuttingTool();
+                var asset = new CuttingToolAsset();
                 asset.AssetId = AssetId;
                 asset.InstanceId = InstanceId;
                 asset.Type = Type;
@@ -71,7 +71,7 @@ namespace MTConnect.Assets.CuttingTools
 			return GenerateHash(this);
 		}
 
-		public static string GenerateHash(CuttingTool asset)
+		public static string GenerateHash(CuttingToolAsset asset)
 		{
 			if (asset != null)
 			{

@@ -53,6 +53,16 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="Assets\CuttingTools\JsonCuttingItemCollection - Copy.cs" />
+	  <Compile Remove="Assets\CuttingTools\JsonCuttingItemCollection.cs" />
+	  <Compile Remove="Assets\CuttingTools\JsonCuttingToolArchetype.cs" />
+	  <Compile Remove="Assets\CuttingTools\JsonCuttingToolArchetypeReference.cs" />
+	  <Compile Remove="Assets\CuttingTools\JsonCuttingToolDefinition.cs" />
+	  <Compile Remove="Assets\CuttingTools\JsonItemLife.cs" />
+	  <Compile Remove="Assets\CuttingTools\JsonLocation.cs" />
+	  <Compile Remove="Assets\CuttingTools\JsonProcessFeedrate.cs" />
+	  <Compile Remove="Assets\CuttingTools\JsonReconditionCount.cs" />
+	  <Compile Remove="Assets\CuttingTools\JsonToolLife.cs" />
 	  <Compile Remove="Streams\Serializers.cs" />
 	  <Compile Remove="Streams\XmlComponentStream - Copy (2).cs" />
 	  <Compile Remove="Streams\XmlComponentStream - Copy.cs" />
@@ -75,6 +85,19 @@
 	  <Compile Remove="Streams\XmlStreamsResponseDocument - Copy %283%29.cs" />
 	  <Compile Remove="Streams\XmlStreamsResponseDocument - Copy %284%29.cs" />
 	  <Compile Remove="Streams\XmlStreamsResponseDocument - Copy.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Include="Assets\CuttingTools\JsonCuttingItemCollection - Copy.cs" />
+	  <None Include="Assets\CuttingTools\JsonCuttingItemCollection.cs" />
+	  <None Include="Assets\CuttingTools\JsonCuttingToolArchetype.cs" />
+	  <None Include="Assets\CuttingTools\JsonCuttingToolArchetypeReference.cs" />
+	  <None Include="Assets\CuttingTools\JsonCuttingToolDefinition.cs" />
+	  <None Include="Assets\CuttingTools\JsonItemLife.cs" />
+	  <None Include="Assets\CuttingTools\JsonLocation.cs" />
+	  <None Include="Assets\CuttingTools\JsonProcessFeedrate.cs" />
+	  <None Include="Assets\CuttingTools\JsonReconditionCount.cs" />
+	  <None Include="Assets\CuttingTools\JsonToolLife.cs" />
 	</ItemGroup>
 
 	<ItemGroup>

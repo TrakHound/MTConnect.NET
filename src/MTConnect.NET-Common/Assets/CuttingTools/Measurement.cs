@@ -73,7 +73,7 @@ namespace MTConnect.Assets.CuttingTools
                 }
             }
 
-            return null;
+            return new Measurement(measurement);
         }
     }
 }

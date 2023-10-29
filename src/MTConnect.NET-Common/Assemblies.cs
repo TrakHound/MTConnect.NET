@@ -11,7 +11,7 @@ using System.Reflection;
 
 namespace MTConnect
 {
-    internal class Assemblies
+    public static class Assemblies
     {
         private static Assembly[] _assemblies;
 

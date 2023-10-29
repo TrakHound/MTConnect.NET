@@ -51,7 +51,7 @@ namespace MTConnect.Assets.Json.CuttingTools
 
         public JsonCuttingToolAsset() { }
 
-        public JsonCuttingToolAsset(CuttingTool asset)
+        public JsonCuttingToolAsset(ICuttingToolAsset asset)
         {
             if (asset != null)
             {
@@ -73,9 +73,9 @@ namespace MTConnect.Assets.Json.CuttingTools
         }
 
 
-        public CuttingTool ToCuttingToolAsset()
+        public ICuttingToolAsset ToCuttingToolAsset()
         {
-            var asset = new CuttingTool();
+            var asset = new CuttingToolAsset();
 
             asset.AssetId = AssetId;
             asset.Type = Type;

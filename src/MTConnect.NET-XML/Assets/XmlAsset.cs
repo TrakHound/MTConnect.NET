@@ -1,9 +1,13 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
+using MTConnect.Assets.CuttingTools;
+using MTConnect.Devices.Configurations;
+using MTConnect.Extensions;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
@@ -11,55 +15,33 @@ using System.Xml.Serialization;
 
 namespace MTConnect.Assets.Xml
 {
-    /// <summary>
-    /// An Asset XML element is a container type XML element used to organize
-    /// information describing an entity that is not a piece of equipment.
-    /// </summary>
     public class XmlAsset
     {
         private static readonly Dictionary<Type, XmlSerializer> _serializers = new Dictionary<Type, XmlSerializer>();
         private static readonly object _lock = new object();
+        private static Dictionary<string, Type> _types;
 
 
-        /// <summary>
-        /// The unique identifier for the MTConnect Asset.
-        /// </summary>
         [XmlAttribute("assetId")]
         public string AssetId { get; set; }
 
-        /// <summary>
-        /// The type for the MTConnect Asset
-        /// </summary>
         [XmlAttribute("type")]
         public string Type { get; set; }
 
-        /// <summary>
-        /// The time this MTConnect Asset was last modified.
-        /// </summary>
         [XmlAttribute("timestamp")]
         public DateTime Timestamp { get; set; }
 
-        /// <summary>
-        /// The piece of equipments UUID that supplied this data.
-        /// </summary>
         [XmlAttribute("deviceUuid")]
         public string DeviceUuid { get; set; }
 
-        /// <summary>
-        /// This is an optional attribute that is an indicator that the MTConnect
-        /// Asset has been removed from the piece of equipment.
-        /// </summary>
         [XmlAttribute("removed")]
         public bool Removed { get; set; }
 
-        /// <summary>
-        /// An optional element that can contain any descriptive content.
-        /// </summary>
         [XmlAttribute("description")]
         public string Description { get; set; }
 
-        [XmlIgnore]
-        public string Xml { get; set; }
+
+        public virtual IAsset ToAsset() { return null; }
 
 
         public static IAsset FromXml(string type, byte[] xmlBytes)
@@ -67,7 +49,11 @@ namespace MTConnect.Assets.Xml
             var asset = Asset.Create(type);
             if (asset != null)
             {
-                return FromXml(asset.GetType(), xmlBytes);
+                var xmlType = GetAssetType(type);
+                if (xmlType == null) xmlType = typeof(XmlUnknownAsset);
+
+                return FromXml(xmlType, xmlBytes);
+                //return FromXml(asset.GetType(), xmlBytes);
             }
 
             return default;
@@ -77,8 +63,8 @@ namespace MTConnect.Assets.Xml
         {
             if (type != null && xmlBytes != null && xmlBytes.Length > 0)
             {
-                // Check if IAsset
-                if (typeof(IAsset).IsAssignableFrom(type))
+                // Check if XmlAsset
+                if (typeof(XmlAsset).IsAssignableFrom(type))
                 {
                     try
                     {
@@ -102,10 +88,10 @@ namespace MTConnect.Assets.Xml
                             using (var xmlReader = XmlReader.Create(textReader))
                             {
                                 // Deserialize and cast to IAsset
-                                var asset = (IAsset)serializer.Deserialize(xmlReader);
+                                var asset = (XmlAsset)serializer.Deserialize(xmlReader);
                                 if (asset != null)
                                 {
-                                    return asset;
+                                    return asset.ToAsset();
                                 }
                             }
                         }
@@ -115,6 +101,39 @@ namespace MTConnect.Assets.Xml
             }
 
             return default;
+        }
+
+        public static void WriteXml(XmlWriter writer, IAsset asset)
+        {
+            try
+            {
+                var assetType = GetAssetType(asset.Type);
+                if (assetType != null)
+                {
+                    var writeXmlMethod = assetType.GetMethod("WriteXml");
+                    if (writeXmlMethod != null)
+                    {
+                        writeXmlMethod.Invoke(null, new object[] { writer, asset });
+                    }
+                    else
+                    {
+                        // Write Unknown ?
+                    }
+                }
+            }
+            catch { }
+        }
+
+        public static void WriteCommonXml(XmlWriter writer, IAsset asset)
+        {
+            if (asset != null)
+            {
+                // Write Properties
+                writer.WriteAttributeString("assetId", asset.AssetId);
+                writer.WriteAttributeString("deviceUuid", asset.DeviceUuid);  
+                writer.WriteAttributeString("timestamp", asset.Timestamp.ToString("o"));  
+                if (asset.Removed) writer.WriteAttributeString("removed", "true");  
+            }
         }
 
 
@@ -127,34 +146,138 @@ namespace MTConnect.Assets.Xml
 
                 using (var writer = new StringWriter())
                 {
-                    XmlSerializer serializer;
-                    lock (_lock)
+                    var assetType = GetAssetType(asset.Type);
+                    if (assetType != null)
                     {
-                        _serializers.TryGetValue(asset.GetType(), out serializer);
-                        if (serializer == null)
+                        var writeXmlMethod = assetType.GetMethod("WriteXml");
+                        if (writeXmlMethod != null)
                         {
-                            serializer = new XmlSerializer(asset.GetType());
-                            _serializers.Add(asset.GetType(), serializer);
+                            writeXmlMethod.Invoke(null, new object[] { writer, asset });
+                        }
+                        else
+                        {
+                            // Write Unknown ?
                         }
                     }
 
-                    serializer.Serialize(writer, asset, namespaces);
+                    //XmlSerializer serializer = null;
+                    //lock (_lock)
+                    //{
+                    //    var assetType = GetAssetType(asset.Type);
+                    //    if (assetType != null)
+                    //    {
+                    //        _serializers.TryGetValue(assetType, out serializer);
+                    //        //_serializers.TryGetValue(asset.GetType(), out serializer);
+                    //        if (serializer == null)
+                    //        {
+                    //            serializer = new XmlSerializer(assetType);
+                    //            _serializers.Add(assetType, serializer);
+                    //        }
+                    //    }
+                    //}
 
-                    var xml = writer.ToString();
-                    var regexPattern = $@"(<{asset.Type}[.\s\S]*(?:(?:<\/{asset.Type}>)|(?:\/>)))";
-                    var regex = new Regex(regexPattern);
-                    var match = regex.Match(xml);
-                    if (match.Success)
-                    {
-                        xml = Namespaces.Clear(match.Groups[1].Value);
+                        //if (serializer != null)
+                        //{
 
-                        return XmlFunctions.FormatXml(xml, indent, false, true);
-                    }
+
+                        //    //serializer.Serialize(writer, asset, namespaces);
+
+                        //    //var xml = writer.ToString();
+                        //    //var regexPattern = $@"(<{asset.Type}[.\s\S]*(?:(?:<\/{asset.Type}>)|(?:\/>)))";
+                        //    //var regex = new Regex(regexPattern);
+                        //    //var match = regex.Match(xml);
+                        //    //if (match.Success)
+                        //    //{
+                        //    //    xml = Namespaces.Clear(match.Groups[1].Value);
+
+                        //    //    return XmlFunctions.FormatXml(xml, indent, false, true);
+                        //    //}
+                        //}
                 }
             }
             catch { }
 
             return null;
+        }
+
+
+        //public static IAsset Create(string type)
+        //{
+        //    if (!string.IsNullOrEmpty(type))
+        //    {
+        //        if (_types == null) _types = GetAllTypes();
+
+        //        if (!_types.IsNullOrEmpty())
+        //        {
+        //            if (_types.TryGetValue(type, out Type t))
+        //            {
+        //                var constructor = t.GetConstructor(System.Type.EmptyTypes);
+        //                if (constructor != null)
+        //                {
+        //                    try
+        //                    {
+        //                        return (IAsset)Activator.CreateInstance(t);
+        //                    }
+        //                    catch { }
+        //                }
+        //            }
+        //        }
+        //    }
+
+        //    return null;
+        //}
+
+        public static Type GetAssetType(string type)
+        {
+            if (!string.IsNullOrEmpty(type))
+            {
+                if (_types == null) _types = GetAllTypes();
+
+                if (!_types.IsNullOrEmpty())
+                {
+                    if (_types.TryGetValue(type, out Type t))
+                    {
+                        return t;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        private static Dictionary<string, Type> GetAllTypes()
+        {
+            var assemblies = Assemblies.Get();
+            if (!assemblies.IsNullOrEmpty())
+            {
+                var types = assemblies
+                    .SelectMany(
+                        x => x.GetMatchingTypesInAssembly(
+                            t => !t.IsInterface && !t.IsAbstract));
+
+                if (!types.IsNullOrEmpty())
+                {
+                    var objs = new Dictionary<string, Type>();
+                    var regex = new Regex("Xml(.+)Asset");
+
+                    foreach (var type in types)
+                    {
+                        if (type.Name != "XmlAsset" && type.Name != "XmlUnknownAsset" && type.Name != "XmlAsset`1")
+                        {
+                            var match = regex.Match(type.Name);
+                            if (match.Success && match.Groups.Count > 1)
+                            {
+                                var key = match.Groups[1].Value;
+                                if (!objs.ContainsKey(key)) objs.Add(key, type);
+                            }
+                        }
+                    }
+
+                    return objs;
+                }
+            }
+
+            return new Dictionary<string, Type>();
         }
     }
 }

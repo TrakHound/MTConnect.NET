@@ -1,7 +1,7 @@
 ﻿using MTConnect.SysML;
 using MTConnect.SysML.CSharp;
 using MTConnect.SysML.Json_cppagent;
-using System.Text.Json;
+using MTConnect.SysML.Xml;
 
 var xmlPath = @"D:\TrakHound\MTConnect\MTConnectSysMLModel.xml";
 //var outputPath = @"C:\temp\mtconnect-model-results";
@@ -19,8 +19,9 @@ var mtconnectModel = MTConnectModel.Parse(xmlPath);
 //await File.WriteAllTextAsync(@"C:\temp\mtconnect-model.json", json);
 
 
-RenderCommonClasses();
-RenderJsonComponents();
+//RenderCommonClasses();
+//RenderJsonComponents();
+RenderXmlComponents();
 
 
 
@@ -36,4 +37,11 @@ void RenderJsonComponents()
     var outputPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../../../src/MTConnect.NET-JSON-cppagent");
 
     JsonCppAgentTemplateRenderer.Render(mtconnectModel, outputPath);
+}
+
+void RenderXmlComponents()
+{
+    var outputPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../../../src/MTConnect.NET-XML");
+
+    XmlTemplateRenderer.Render(mtconnectModel, outputPath);
 }

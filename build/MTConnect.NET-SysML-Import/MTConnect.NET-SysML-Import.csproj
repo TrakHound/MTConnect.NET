@@ -65,6 +65,12 @@
 		<None Update="Json-cppagent\Templates\Components.scriban">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
+		<None Update="Xml\Templates\XmlCuttingToolLifeCycle.scriban">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Xml\Templates\XmlMeasurements.scriban">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
 	</ItemGroup>
 
 </Project>
