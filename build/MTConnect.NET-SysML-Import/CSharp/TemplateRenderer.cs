@@ -111,7 +111,12 @@ namespace MTConnect.SysML.CSharp
                                 //case "Devices.Configurations.CriticalityType": ((EnumModel)template).Values.Add(new MTConnectEnumValueModel { Name = "NOT_SPECIFIED" }); break;
 
                                 case "Assets.Asset": ((ClassModel)template).IsPartial = true; break;
-                                case "Assets.ComponentConfigurationParameters.ComponentConfigurationParameter": ((ClassModel)template).IsPartial = true; break;
+                                case "Assets.ComponentConfigurationParameters.ComponentConfigurationParameters": 
+                                    ((ClassModel)template).IsPartial = true;
+                                    ((ClassModel)template).Id += "Asset";
+                                    ((ClassModel)template).Name += "Asset";
+                                    if (((ClassModel)template).ParentName != null && ((ClassModel)template).ParentName != "Asset") ((ClassModel)template).ParentName += "Asset";
+                                    break;
                                 case "Assets.CuttingTools.CuttingTool": 
                                     ((ClassModel)template).IsPartial = true;
                                     ((ClassModel)template).Id += "Asset";
@@ -130,9 +135,36 @@ namespace MTConnect.SysML.CSharp
                                     ((ClassModel)template).IsPartial = true; 
                                     ((ClassModel)template).IsAbstract = false; 
                                     break;
-                                case "Assets.Files.File": ((ClassModel)template).IsPartial = true; break;
-                                case "Assets.QIF.QIFDocument": ((ClassModel)template).IsPartial = true; break;
-                                case "Assets.RawMaterials.RawMaterial": ((ClassModel)template).IsPartial = true; break;
+                                case "Assets.Files.File": 
+                                    ((ClassModel)template).IsPartial = true;
+                                    ((ClassModel)template).Id += "Asset";
+                                    ((ClassModel)template).Name += "Asset";
+                                    if (((ClassModel)template).ParentName != null && ((ClassModel)template).ParentName != "Asset") ((ClassModel)template).ParentName += "Asset";
+                                    break;
+                                case "Assets.Files.FileArchetype":
+                                    ((ClassModel)template).IsPartial = true;
+                                    ((ClassModel)template).Id += "Asset";
+                                    ((ClassModel)template).Name += "Asset";
+                                    if (((ClassModel)template).ParentName != null && ((ClassModel)template).ParentName != "Asset") ((ClassModel)template).ParentName += "Asset";
+                                    break;
+                                case "Assets.Files.AbstractFile":
+                                    ((ClassModel)template).IsPartial = true;
+                                    ((ClassModel)template).Id += "Asset";
+                                    ((ClassModel)template).Name += "Asset";
+                                    if (((ClassModel)template).ParentName != null && ((ClassModel)template).ParentName != "Asset") ((ClassModel)template).ParentName += "Asset";
+                                    break;
+                                case "Assets.QIF.QIFDocumentWrapper":
+                                    ((ClassModel)template).IsPartial = true;
+                                    ((ClassModel)template).Id += "Asset";
+                                    ((ClassModel)template).Name += "Asset";
+                                    if (((ClassModel)template).ParentName != null && ((ClassModel)template).ParentName != "Asset") ((ClassModel)template).ParentName += "Asset";
+                                    break;
+                                case "Assets.RawMaterials.RawMaterial":
+                                    ((ClassModel)template).IsPartial = true;
+                                    ((ClassModel)template).Id += "Asset";
+                                    ((ClassModel)template).Name += "Asset";
+                                    if (((ClassModel)template).ParentName != null && ((ClassModel)template).ParentName != "Asset") ((ClassModel)template).ParentName += "Asset";
+                                    break;
                             }
 
                             templates.Add(template);

@@ -6,7 +6,7 @@ namespace MTConnect.Assets.QIF
     /// <summary>
     /// QIF Document as given by the QIF standard.
     /// </summary>
-    public partial interface IQIFDocument
+    public interface IQIFDocument
     {
     }
 }

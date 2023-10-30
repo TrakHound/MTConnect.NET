@@ -489,6 +489,8 @@ namespace MTConnect.SysML
 
                 case "EAID_320E255E_EDA1_49b8_928D_8A87BE90CF06": return true; // Assets.CuttingTools.ReconditionCount.MaximumCount
                 case "_19_0_3_68e0225_1636115275525_86177_53": return true; // Assets.CuttingTools.ReconditionCount.Value
+
+                case "_19_0_3_68e0225_1605276845966_494050_370": return true; // Assets.Files.File.ModificationTime
             }
 
             return false;
