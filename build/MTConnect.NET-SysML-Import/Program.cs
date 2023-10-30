@@ -19,8 +19,8 @@ var mtconnectModel = MTConnectModel.Parse(xmlPath);
 //await File.WriteAllTextAsync(@"C:\temp\mtconnect-model.json", json);
 
 
-//RenderCommonClasses();
-//RenderJsonComponents();
+RenderCommonClasses();
+RenderJsonComponents();
 RenderXmlComponents();
 
 

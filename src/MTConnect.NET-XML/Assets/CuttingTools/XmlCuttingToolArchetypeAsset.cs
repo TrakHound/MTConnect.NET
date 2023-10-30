@@ -7,8 +7,8 @@ using System.Xml.Serialization;
 
 namespace MTConnect.Assets.Xml.CuttingTools
 {
-    [XmlRoot("CuttingTool")]
-    public class XmlCuttingToolAsset : XmlAsset
+    [XmlRoot("CuttingToolArchetype")]
+    public class XmlCuttingToolArchetypeAsset : XmlAsset
     {
         [XmlAttribute("serialNumber")]
         public string SerialNumber { get; set; }
@@ -19,26 +19,21 @@ namespace MTConnect.Assets.Xml.CuttingTools
         [XmlAttribute("manufacturers")]
         public string Manufacturers { get; set; }
 
+        [XmlAttribute("CuttingToolDefinition")]
+        public XmlCuttingToolDefinition CuttingToolDefinition { get; set; }
+
         [XmlElement("CuttingToolLifeCycle")]
         public XmlCuttingToolLifeCycle CuttingToolLifeCycle { get; set; }
 
-        [XmlElement("cuttingToolArchetypeReference")]
-        public XmlCuttingToolArchetypeReference CuttingToolArchetypeReference { get; set; }
 
-        [XmlElement("CuttingToolDefinition")]
-        public XmlCuttingToolDefinition CuttingToolDefinition { get; set; }
-
-
-        public override ICuttingToolAsset ToAsset()
+        public override ICuttingToolArchetypeAsset ToAsset()
         {
-            var asset = new CuttingToolAsset();
+            var asset = new CuttingToolArchetypeAsset();
             asset.AssetId = AssetId;
             asset.Type = CuttingToolAsset.TypeId;
             asset.Timestamp = Timestamp;
             asset.DeviceUuid = DeviceUuid;
             asset.Removed = Removed;
-
-            //if (Description != null) asset.Description = Description.ToDescription();
 
             asset.SerialNumber = SerialNumber;
             asset.ToolId = ToolId;
@@ -49,7 +44,6 @@ namespace MTConnect.Assets.Xml.CuttingTools
             }
 
             if (CuttingToolLifeCycle != null) asset.CuttingToolLifeCycle = CuttingToolLifeCycle.ToCuttingToolLifeCycle();
-            if (CuttingToolArchetypeReference != null) asset.CuttingToolArchetypeReference = CuttingToolArchetypeReference.ToCuttingToolArchetypeReference();
             if (CuttingToolDefinition != null) asset.CuttingToolDefinition = CuttingToolDefinition.ToCuttingToolDefinition();
             return asset;
         }
@@ -58,9 +52,9 @@ namespace MTConnect.Assets.Xml.CuttingTools
         {
             if (asset != null)
             {
-                var cuttingTool = (ICuttingToolAsset)asset;
+                var cuttingTool = (ICuttingToolArchetypeAsset)asset;
 
-                writer.WriteStartElement("CuttingTool");
+                writer.WriteStartElement("CuttingToolArchetype");
 
                 WriteCommonXml(writer, asset);
 
@@ -82,12 +76,6 @@ namespace MTConnect.Assets.Xml.CuttingTools
                 if (cuttingTool.CuttingToolLifeCycle != null)
                 {
                     XmlCuttingToolLifeCycle.WriteXml(writer, cuttingTool.CuttingToolLifeCycle);
-                }
-
-                // Write CuttingToolArchetypeReference
-                if (cuttingTool.CuttingToolArchetypeReference != null)
-                {
-                    XmlCuttingToolArchetypeReference.WriteXml(writer, cuttingTool.CuttingToolArchetypeReference);
                 }
 
                 // Write CuttingToolDefinition

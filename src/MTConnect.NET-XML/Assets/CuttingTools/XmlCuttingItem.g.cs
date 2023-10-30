@@ -7,7 +7,7 @@ using System.Xml.Serialization;
 
 namespace MTConnect.Assets.Xml.CuttingTools
 {
-    public partial class XmlCuttingToolLifeCycle
+    public partial class XmlCuttingItem
     {
         [XmlArray("Measurements")]
         [XmlArrayItem(BodyDiameterMaxMeasurement.TypeId, typeof(XmlBodyDiameterMaxMeasurement))]

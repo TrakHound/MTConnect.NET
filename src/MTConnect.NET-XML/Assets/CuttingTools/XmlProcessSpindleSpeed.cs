@@ -5,7 +5,7 @@ using MTConnect.Assets.CuttingTools;
 using System.Xml;
 using System.Xml.Serialization;
 
-namespace MTConnect.Assets.Json.CuttingTools
+namespace MTConnect.Assets.Xml.CuttingTools
 {
     public class XmlProcessSpindleSpeed
     {

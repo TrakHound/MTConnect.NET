@@ -11,6 +11,7 @@ namespace MTConnect.SysML.Xml
             {
                 WriteCuttingToolMeasurements(mtconnectModel, outputPath);
                 WriteCuttingToolLifeCycle(mtconnectModel, outputPath);
+                WriteCuttingItem(mtconnectModel, outputPath);
             }
         }
 
@@ -74,6 +75,44 @@ namespace MTConnect.SysML.Xml
                         if (result != null)
                         {
                             var resultPath = $"Assets/CuttingTools/XmlCuttingToolLifeCycle";
+                            resultPath = Path.Combine(outputPath, resultPath);
+                            resultPath = $"{resultPath}.g.cs";
+
+                            var resultDirectory = Path.GetDirectoryName(resultPath);
+                            if (!Directory.Exists(resultDirectory)) Directory.CreateDirectory(resultDirectory);
+
+                            File.WriteAllText(resultPath, result);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+        }
+
+        private static void WriteCuttingItem(MTConnectModel mtconnectModel, string outputPath)
+        {
+            var measurementsModel = new CuttingToolMeasurementsModel();
+
+            var measurements = mtconnectModel.AssetInformationModel.CuttingTools.Classes.Where(o => typeof(MTConnectCuttingToolMeasurementModel).IsAssignableFrom(o.GetType()));
+            foreach (var measurement in measurements.OrderBy(o => o.Name)) measurementsModel.Types.Add((MTConnectCuttingToolMeasurementModel)measurement);
+
+            var templateFilename = $"XmlCuttingItem.scriban";
+            var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "xml", "templates", templateFilename);
+            if (File.Exists(templatePath))
+            {
+                try
+                {
+                    var templateContents = File.ReadAllText(templatePath);
+                    if (templateContents != null)
+                    {
+                        var template = Template.Parse(templateContents);
+                        var result = template.Render(measurementsModel);
+                        if (result != null)
+                        {
+                            var resultPath = $"Assets/CuttingTools/XmlCuttingItem";
                             resultPath = Path.Combine(outputPath, resultPath);
                             resultPath = $"{resultPath}.g.cs";
 

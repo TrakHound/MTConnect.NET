@@ -2,26 +2,25 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Assets.CuttingTools;
-using MTConnect.Assets.Xml.CuttingTools;
 using System.Collections.Generic;
 using System.Xml;
 using System.Xml.Serialization;
 
-namespace MTConnect.Assets.Json.CuttingTools
+namespace MTConnect.Assets.Xml.CuttingTools
 {
     public partial class XmlCuttingToolLifeCycle
     {
         [XmlElement("CutterStatus")]
         public List<XmlCutterStatus> CutterStatus { get; set; }
 
-        //[JsonPropertyName("reconditionCount")]
-        //public JsonReconditionCount ReconditionCount { get; set; }
+        [XmlElement("ReconditionCount")]
+        public XmlReconditionCount ReconditionCount { get; set; }
 
-        //[JsonPropertyName("toolLife")]
-        //public IEnumerable<JsonToolLife> ToolLife { get; set; }
+        [XmlElement("ToolLife")]
+        public List<XmlToolLife> ToolLife { get; set; }
 
-        //[JsonPropertyName("location")]
-        //public JsonLocation Location { get; set; }
+        [XmlElement("Location")]
+        public XmlLocation Location { get; set; }
 
         [XmlElement("ProgramToolGroup")]
         public string ProgramToolGroup { get; set; }
@@ -57,24 +56,24 @@ namespace MTConnect.Assets.Json.CuttingTools
                 cuttingToolLifeCycle.CutterStatus = statuses;
             }
 
-            //if (ReconditionCount != null) cuttingToolLifeCycle.ReconditionCount = ReconditionCount.ToReconditionCount();
-            //if (Location != null) cuttingToolLifeCycle.Location = Location.ToLocation();
+            if (ReconditionCount != null) cuttingToolLifeCycle.ReconditionCount = ReconditionCount.ToReconditionCount();
+            if (Location != null) cuttingToolLifeCycle.Location = Location.ToLocation();
             cuttingToolLifeCycle.ProgramToolGroup = ProgramToolGroup;
             cuttingToolLifeCycle.ProgramToolNumber = ProgramToolNumber;
             if (ProcessSpindleSpeed != null) cuttingToolLifeCycle.ProcessSpindleSpeed = ProcessSpindleSpeed.ToProcessSpindleSpeed();
             if (ProcessFeedRate != null) cuttingToolLifeCycle.ProcessFeedRate = ProcessFeedRate.ToProcessFeedRate();
             cuttingToolLifeCycle.ConnectionCodeMachineSide = ConnectionCodeMachineSide;
 
-            //// ToolLife
-            //if (!ToolLife.IsNullOrEmpty())
-            //{
-            //    var toolifes = new List<IToolLife>();
-            //    foreach (var toolife in ToolLife)
-            //    {
-            //        toolifes.Add(toolife.ToToolLife());
-            //    }
-            //    cuttingToolLifeCycle.ToolLife = toolifes;
-            //}
+            // ToolLife
+            if (!ToolLife.IsNullOrEmpty())
+            {
+                var toolifes = new List<IToolLife>();
+                foreach (var toolife in ToolLife)
+                {
+                    toolifes.Add(toolife.ToToolLife());
+                }
+                cuttingToolLifeCycle.ToolLife = toolifes;
+            }
 
             // Measurements
             if (!Measurements.IsNullOrEmpty())
@@ -135,6 +134,18 @@ namespace MTConnect.Assets.Json.CuttingTools
                     writer.WriteEndElement();
                 }
 
+                // Write ReconditionCount
+                if (cuttingToolLifeCycle.ReconditionCount != null)
+                {
+                    XmlReconditionCount.WriteXml(writer, cuttingToolLifeCycle.ReconditionCount);
+                }
+
+                // Write Location
+                if (cuttingToolLifeCycle.Location != null)
+                {
+                    XmlLocation.WriteXml(writer, cuttingToolLifeCycle.Location);
+                }
+
                 // Write ProcessSpindleSpeed
                 if (cuttingToolLifeCycle.ProcessSpindleSpeed != null)
                 {
@@ -153,6 +164,12 @@ namespace MTConnect.Assets.Json.CuttingTools
                     writer.WriteStartElement("ConnectionCodeMachineSide");
                     writer.WriteString(cuttingToolLifeCycle.ConnectionCodeMachineSide);
                     writer.WriteEndElement();
+                }
+
+                // Write ItemLife
+                if (cuttingToolLifeCycle.ToolLife != null)
+                {
+                    XmlToolLife.WriteXml(writer, cuttingToolLifeCycle.ToolLife);
                 }
 
                 // Write Measurements

@@ -2,7 +2,6 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Assets.CuttingTools;
-using MTConnect.Assets.Json.CuttingTools;
 using System.Collections.Generic;
 using System.Xml;
 using System.Xml.Serialization;
