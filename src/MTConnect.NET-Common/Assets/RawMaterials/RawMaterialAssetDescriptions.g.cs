@@ -13,7 +13,7 @@ namespace MTConnect.Assets.RawMaterials
         /// <summary>
         /// Dimension of material currently in raw material.
         /// </summary>
-        public const string CurrentDimensions = "Dimension of material currently in raw material.";
+        public const string CurrentDimension = "Dimension of material currently in raw material.";
         
         /// <summary>
         /// Quantity of material currently in raw material.
@@ -43,7 +43,7 @@ namespace MTConnect.Assets.RawMaterials
         /// <summary>
         /// Dimension of material initially placed in raw material when manufactured.
         /// </summary>
-        public const string InitialDimensions = "Dimension of material initially placed in raw material when manufactured.";
+        public const string InitialDimension = "Dimension of material initially placed in raw material when manufactured.";
         
         /// <summary>
         /// Quantity of material initially placed in raw material when manufactured.

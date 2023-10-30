@@ -393,8 +393,8 @@ namespace MTConnect.SysML
 
                 case "_19_0_3_68e0225_1605277201359_44575_523": return true; // Assets.Files.File.Destinations
 
-                case "_19_0_3_68e0225_1622116618960_627070_1641": return true; // Assets.RawMaterial.InitialDimension
-                case "_19_0_3_68e0225_1622116618964_666287_1642": return true; // Assets.RawMaterial.CurrentDimension
+                //case "_19_0_3_68e0225_1622116618960_627070_1641": return true; // Assets.RawMaterial.InitialDimension
+                //case "_19_0_3_68e0225_1622116618964_666287_1642": return true; // Assets.RawMaterial.CurrentDimension
 
                 case "_19_0_3_68e0225_1678197264958_675939_17962": return true; // Assets.ComponentConfigurationParameters.ParameterSet
                 case "_19_0_3_68e0225_1678197386869_402580_18053": return true; // Assets.ParameterSet.Parameters
@@ -491,6 +491,19 @@ namespace MTConnect.SysML
                 case "_19_0_3_68e0225_1636115275525_86177_53": return true; // Assets.CuttingTools.ReconditionCount.Value
 
                 case "_19_0_3_68e0225_1605276845966_494050_370": return true; // Assets.Files.File.ModificationTime
+
+                //case "_19_0_3_68e0225_1622116618964_666287_1642": return true; // Assets.RawMaterials.RawMaterial.CurrentDimension
+                case "_19_0_3_68e0225_1622116620205_160609_1656": return true; // Assets.RawMaterials.RawMaterial.CurrentQuantity
+                case "_19_0_3_68e0225_1618831247227_54016_392": return true; // Assets.RawMaterials.RawMaterial.CurrentVolume
+                case "_19_0_3_68e0225_1618831102942_637392_372": return true; // Assets.RawMaterials.RawMaterial.FirstUseDate
+                case "_19_0_3_68e0225_1618831263908_747143_397": return true; // Assets.RawMaterials.RawMaterial.HasMaterial
+                //case "_19_0_3_68e0225_1622116618960_627070_1641": return true; // Assets.RawMaterials.RawMaterial.InitialDimension
+                case "_19_0_3_68e0225_1622116620204_269519_1655": return true; // Assets.RawMaterials.RawMaterial.InitialQuantity
+                case "_19_0_3_68e0225_1618831175692_489264_387": return true; // Assets.RawMaterials.RawMaterial.InitialVolume
+                case "_19_0_3_68e0225_1618831134662_505390_377": return true; // Assets.RawMaterials.RawMaterial.LastUseDate
+                case "_19_0_3_68e0225_1618831023683_973378_367": return true; // Assets.RawMaterials.RawMaterial.ManufacturingDate
+
+                case "_19_0_3_68e0225_1618831426887_198644_412": return true; // Assets.RawMaterials.Material.ManufacturingDate
             }
 
             return false;

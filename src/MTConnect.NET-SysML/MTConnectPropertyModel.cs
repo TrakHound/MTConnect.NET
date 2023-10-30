@@ -35,7 +35,6 @@ namespace MTConnect.SysML
                 IsOptional = ModelHelper.IsOptional(xmiDocument, umlProperty.Id);
 
                 var propertyName = umlProperty.Name;
-                //if (IsArray && !propertyName.EndsWith("s") && propertyName != "hasToolLife" && propertyName != "hasItemLife") propertyName += "s";
                 if (propertyName.StartsWith("has") && propertyName != "hash") propertyName = propertyName.Substring(3);
 
                 if (propertyName == "xlink:type") propertyName = "xLinkType";
@@ -77,6 +76,18 @@ namespace MTConnect.SysML
 
                     // Translation.Translation
                     case "_19_0_3_45f01b9_1579106868983_196924_163307": return "UNIT_VECTOR_3D";
+
+                    // RawMaterials.RawMateral.CurrentVolume
+                    case "_19_0_3_68e0225_1618831247227_54016_392": return "double";
+
+                    // RawMaterials.RawMateral.CurrentDimension
+                    case "_19_0_3_68e0225_1622116618964_666287_1642": return "MILLIMETER_3D";
+
+                    // RawMaterials.RawMateral.InitialVolume
+                    case "_19_0_3_68e0225_1618831175692_489264_387": return "double";
+
+                    // RawMaterials.RawMateral.InitialDimension
+                    case "_19_0_3_68e0225_1622116618960_627070_1641": return "MILLIMETER_3D";
                 }
 
 

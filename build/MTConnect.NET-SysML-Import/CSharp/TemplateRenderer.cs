@@ -45,6 +45,7 @@ namespace MTConnect.SysML.CSharp
                                         case "UNIT_VECTOR_3D": property.DataType = "MTConnect.UnitVector3D"; break;
                                         case "POSITION_3D": property.DataType = "MTConnect.Position3D"; break;
                                         case "DEGREE_3D": property.DataType = "MTConnect.Degree3D"; break;
+                                        case "MILLIMETER_3D": property.DataType = "MTConnect.Millimeter3D"; break;
                                         default:
 
                                             var classMatch = dClassModels.GetValueOrDefault(property.DataType);

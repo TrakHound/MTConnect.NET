@@ -25,7 +25,7 @@ namespace MTConnect.Assets.Json.RawMaterials
         public string Manufacturer { get; set; }
 
         [JsonPropertyName("manufacturingDate")]
-        public DateTime ManufacturingDate { get; set; }
+        public DateTime? ManufacturingDate { get; set; }
 
         [JsonPropertyName("manufacturingCode")]
         public string ManufacturingCode { get; set; }

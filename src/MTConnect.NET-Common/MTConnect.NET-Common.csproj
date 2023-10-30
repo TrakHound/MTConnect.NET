@@ -124,7 +124,6 @@
 	<ItemGroup>
 	  <Folder Include="Assets\CuttingTools\Measurements\" />
 	  <Folder Include="Assets\QIF\" />
-	  <Folder Include="Assets\RawMaterials\" />
 	</ItemGroup>
 
 </Project>

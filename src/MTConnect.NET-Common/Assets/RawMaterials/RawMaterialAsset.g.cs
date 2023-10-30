@@ -21,22 +21,22 @@ namespace MTConnect.Assets.RawMaterials
         /// <summary>
         /// Dimension of material currently in raw material.
         /// </summary>
-        public System.Collections.Generic.IEnumerable<string> CurrentDimensions { get; set; }
+        public MTConnect.Millimeter3D CurrentDimension { get; set; }
         
         /// <summary>
         /// Quantity of material currently in raw material.
         /// </summary>
-        public int CurrentQuantity { get; set; }
+        public int? CurrentQuantity { get; set; }
         
         /// <summary>
         /// Amount of material currently in raw material.
         /// </summary>
-        public string CurrentVolume { get; set; }
+        public double? CurrentVolume { get; set; }
         
         /// <summary>
         /// Date raw material was first used.
         /// </summary>
-        public System.DateTime FirstUseDate { get; set; }
+        public System.DateTime? FirstUseDate { get; set; }
         
         /// <summary>
         /// Form of the raw material.
@@ -46,32 +46,32 @@ namespace MTConnect.Assets.RawMaterials
         /// <summary>
         /// Material has existing usable volume.
         /// </summary>
-        public bool HasMaterial { get; set; }
+        public bool? HasMaterial { get; set; }
         
         /// <summary>
         /// Dimension of material initially placed in raw material when manufactured.
         /// </summary>
-        public System.Collections.Generic.IEnumerable<string> InitialDimensions { get; set; }
+        public MTConnect.Millimeter3D InitialDimension { get; set; }
         
         /// <summary>
         /// Quantity of material initially placed in raw material when manufactured.
         /// </summary>
-        public int InitialQuantity { get; set; }
+        public int? InitialQuantity { get; set; }
         
         /// <summary>
         /// Amount of material initially placed in raw material when manufactured.
         /// </summary>
-        public string InitialVolume { get; set; }
+        public double? InitialVolume { get; set; }
         
         /// <summary>
         /// Date raw material was last used.
         /// </summary>
-        public System.DateTime LastUseDate { get; set; }
+        public System.DateTime? LastUseDate { get; set; }
         
         /// <summary>
         /// Date the raw material was created.
         /// </summary>
-        public System.DateTime ManufacturingDate { get; set; }
+        public System.DateTime? ManufacturingDate { get; set; }
         
         /// <summary>
         /// Material used as the RawMaterial.

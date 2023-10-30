@@ -36,7 +36,7 @@ namespace MTConnect.Assets.RawMaterials
         /// <summary>
         /// Manufacturing date of the material from the material manufacturer.
         /// </summary>
-        public System.DateTime ManufacturingDate { get; set; }
+        public System.DateTime? ManufacturingDate { get; set; }
         
         /// <summary>
         /// ASTM standard code that the material complies with.

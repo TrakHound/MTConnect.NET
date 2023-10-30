@@ -16,22 +16,22 @@ namespace MTConnect.Assets.RawMaterials
         /// <summary>
         /// Dimension of material currently in raw material.
         /// </summary>
-        System.Collections.Generic.IEnumerable<string> CurrentDimensions { get; }
+        MTConnect.Millimeter3D CurrentDimension { get; }
         
         /// <summary>
         /// Quantity of material currently in raw material.
         /// </summary>
-        int CurrentQuantity { get; }
+        int? CurrentQuantity { get; }
         
         /// <summary>
         /// Amount of material currently in raw material.
         /// </summary>
-        string CurrentVolume { get; }
+        double? CurrentVolume { get; }
         
         /// <summary>
         /// Date raw material was first used.
         /// </summary>
-        System.DateTime FirstUseDate { get; }
+        System.DateTime? FirstUseDate { get; }
         
         /// <summary>
         /// Form of the raw material.
@@ -41,32 +41,32 @@ namespace MTConnect.Assets.RawMaterials
         /// <summary>
         /// Material has existing usable volume.
         /// </summary>
-        bool HasMaterial { get; }
+        bool? HasMaterial { get; }
         
         /// <summary>
         /// Dimension of material initially placed in raw material when manufactured.
         /// </summary>
-        System.Collections.Generic.IEnumerable<string> InitialDimensions { get; }
+        MTConnect.Millimeter3D InitialDimension { get; }
         
         /// <summary>
         /// Quantity of material initially placed in raw material when manufactured.
         /// </summary>
-        int InitialQuantity { get; }
+        int? InitialQuantity { get; }
         
         /// <summary>
         /// Amount of material initially placed in raw material when manufactured.
         /// </summary>
-        string InitialVolume { get; }
+        double? InitialVolume { get; }
         
         /// <summary>
         /// Date raw material was last used.
         /// </summary>
-        System.DateTime LastUseDate { get; }
+        System.DateTime? LastUseDate { get; }
         
         /// <summary>
         /// Date the raw material was created.
         /// </summary>
-        System.DateTime ManufacturingDate { get; }
+        System.DateTime? ManufacturingDate { get; }
         
         /// <summary>
         /// Material used as the RawMaterial.
