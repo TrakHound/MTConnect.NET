@@ -41,7 +41,7 @@ namespace MTConnect.Assets.Json.QIF
 
         public JsonQIFDocumentWrapperAsset() { }
 
-        public JsonQIFDocumentWrapperAsset(QIFDocumentWrapperAsset asset)
+        public JsonQIFDocumentWrapperAsset(IQIFDocumentWrapperAsset asset)
         {
             if (asset != null)
             {
@@ -54,13 +54,13 @@ namespace MTConnect.Assets.Json.QIF
 
                 if (asset.Description != null) Description = new JsonDescription(asset.Description);
 
-                QifDocumentType = asset.QifDocumentType;
-                QifDocument = asset.QifDocument;
+                QifDocumentType = asset.QifDocumentType.ToString();
+                //QifDocument = asset.QIFDocument; ??
             }
         }
 
 
-        public QIFDocumentWrapperAsset ToQIFDocumentWrapperAsset()
+        public IQIFDocumentWrapperAsset ToQIFDocumentWrapperAsset()
         {
             var asset = new QIFDocumentWrapperAsset();
 
@@ -72,8 +72,8 @@ namespace MTConnect.Assets.Json.QIF
 
             if (Description != null) asset.Description = Description.ToDescription();
 
-            asset.QifDocumentType = QifDocumentType;
-            asset.QifDocument = QifDocument;
+            asset.QifDocumentType = QifDocumentType.ConvertEnum<QIFDocumentType>();
+            //asset.QifDocument = QifDocument; ??
             return asset;
         }
     }

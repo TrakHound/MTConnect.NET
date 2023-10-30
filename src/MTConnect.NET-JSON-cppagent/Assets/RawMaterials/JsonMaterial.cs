@@ -36,7 +36,7 @@ namespace MTConnect.Assets.Json.RawMaterials
 
         public JsonMaterial() { }
 
-        public JsonMaterial(Material material)
+        public JsonMaterial(IMaterial material)
         {
             if (material != null)
             {
@@ -52,7 +52,7 @@ namespace MTConnect.Assets.Json.RawMaterials
         }
 
 
-        public Material ToMaterial()
+        public IMaterial ToMaterial()
         {
             var material = new Material();
             material.Id = Id;

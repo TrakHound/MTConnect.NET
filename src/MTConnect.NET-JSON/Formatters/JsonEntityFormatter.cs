@@ -176,7 +176,7 @@ namespace MTConnect.Formatters
                 switch (asset.Type)
                 {
                     case "CuttingTool": return JsonFunctions.Convert(new JsonCuttingToolAsset(asset as CuttingToolAsset));
-                    case "File": return JsonFunctions.Convert(new JsonFileAsset(asset as File));
+                    case "File": return JsonFunctions.Convert(new JsonFileAsset(asset as FileAsset));
                     case "QIFDocumentWrapper": return JsonFunctions.Convert(new JsonQIFDocumentWrapperAsset(asset as QIFDocumentWrapperAsset));
                     case "RawMaterial": return JsonFunctions.Convert(new JsonRawMaterialAsset(asset as RawMaterialAsset));
 

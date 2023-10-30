@@ -33,10 +33,10 @@ namespace MTConnect.Assets.Json.QIF
 
 
         [JsonPropertyName("qifDocumentType")]
-        public string QifDocumentType { get; set; }
+        public string QIFDocumentType { get; set; }
 
         [JsonPropertyName("qifDocument")]
-        public string QifDocument { get; set; }
+        public string QIFDocument { get; set; }
 
 
         public JsonQIFDocumentWrapperAsset() { }
@@ -54,8 +54,8 @@ namespace MTConnect.Assets.Json.QIF
 
                 if (asset.Description != null) Description = new JsonDescription(asset.Description);
 
-                QifDocumentType = asset.QifDocumentType;
-                QifDocument = asset.QifDocument;
+                QIFDocumentType = asset.QifDocumentType.ToString();
+                //QifDocument = asset.QifDocument;
             }
         }
 
@@ -72,8 +72,8 @@ namespace MTConnect.Assets.Json.QIF
 
             if (Description != null) asset.Description = Description.ToDescription();
 
-            asset.QifDocumentType = QifDocumentType;
-            asset.QifDocument = QifDocument;
+            asset.QifDocumentType = QIFDocumentType.ConvertEnum<QIFDocumentType>();
+            //asset.QifDocument = QifDocument;
             return asset;
         }
     }

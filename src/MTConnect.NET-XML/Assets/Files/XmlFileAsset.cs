@@ -8,6 +8,7 @@ using System.Xml.Serialization;
 
 namespace MTConnect.Assets.Xml.Files
 {
+    [XmlRoot("File")]
     public class XmlFileAsset : XmlAsset
     {
         [XmlAttribute("name")]
@@ -22,10 +23,12 @@ namespace MTConnect.Assets.Xml.Files
         [XmlAttribute("applicationType")]
         public string ApplicationType { get; set; }
 
-        [XmlAttribute("FileProperties")]
+        [XmlArray("FileProperties")]
+        [XmlArrayItem("FileProperty")]
         public List<XmlFileProperty> FileProperties { get; set; }
 
-        [XmlAttribute("FileComments")]
+        [XmlArray("FileComments")]
+        [XmlArrayItem("FileComment")]
         public List<XmlFileComment> FileComments { get; set; }
 
 
@@ -47,7 +50,8 @@ namespace MTConnect.Assets.Xml.Files
         [XmlElement("PublicKey")]
         public string PublicKey { get; set; }
 
-        [XmlElement("Destinations")]
+        [XmlArray("Destinations")]
+        [XmlArrayItem("Destination")]
         public List<XmlDestination> Destinations { get; set; }
 
         [XmlElement("CreationTime")]
@@ -57,12 +61,11 @@ namespace MTConnect.Assets.Xml.Files
         public string ModificationTime { get; set; }
 
 
-        public IFileAsset ToFileAsset()
+        public override IFileAsset ToAsset()
         {
             var asset = new FileAsset();
 
             asset.AssetId = AssetId;
-            asset.Type = Type;
             asset.Timestamp = Timestamp;
             asset.DeviceUuid = DeviceUuid;
             asset.Removed = Removed;
@@ -75,7 +78,7 @@ namespace MTConnect.Assets.Xml.Files
             asset.Signature = Signature;
             asset.PublicKey = PublicKey;
             asset.CreationTime = CreationTime.ToDateTime();
-            asset.ModificationTime = ModificationTime.ToDateTime();
+            if (!string.IsNullOrEmpty(ModificationTime)) asset.ModificationTime = ModificationTime.ToDateTime();
             asset.Name = Name;
             asset.MediaType = MediaType;
             asset.ApplicationCategory = ApplicationCategory.ConvertEnum<ApplicationCategory>();

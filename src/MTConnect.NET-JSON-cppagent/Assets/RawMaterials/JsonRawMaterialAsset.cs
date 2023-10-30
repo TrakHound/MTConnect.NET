@@ -83,7 +83,7 @@ namespace MTConnect.Assets.Json.RawMaterials
 
         public JsonRawMaterialAsset() { }
 
-        public JsonRawMaterialAsset(RawMaterialAsset asset)
+        public JsonRawMaterialAsset(IRawMaterialAsset asset)
         {
             if (asset != null)
             {
@@ -100,16 +100,16 @@ namespace MTConnect.Assets.Json.RawMaterials
                 ContainerType = asset.ContainerType;
                 ProcessKind = asset.ProcessKind;
                 SerialNumber = asset.SerialNumber;
-                Form = asset.Form;
+                //Form = asset.Form;
                 HasMaterial = asset.HasMaterial;
                 ManufacturingDate = asset.ManufacturingDate;
                 FirstUseDate = asset.FirstUseDate;
                 LastUseDate = asset.LastUseDate;
-                InitialVolume = asset.InitialVolume;
-                InitialDimension = asset.InitialDimension;
-                InitialQuantity = asset.InitialQuantity;
-                CurrentVolume = asset.CurrentVolume;
-                CurrentDimension = asset.CurrentDimension;
+                //InitialVolume = asset.InitialVolume;
+                //InitialDimension = asset.InitialDimension;
+                //InitialQuantity = asset.InitialQuantity;
+                //CurrentVolume = asset.CurrentVolume;
+                //CurrentDimension = asset.CurrentDimension;
                 CurrentQuantity = asset.CurrentQuantity;
 
                 if (asset != null) Material = new JsonMaterial(asset.Material);
@@ -117,7 +117,7 @@ namespace MTConnect.Assets.Json.RawMaterials
         }
 
 
-        public RawMaterialAsset ToRawMaterialAsset()
+        public IRawMaterialAsset ToRawMaterialAsset()
         {
             var asset = new RawMaterialAsset();
 
@@ -133,16 +133,16 @@ namespace MTConnect.Assets.Json.RawMaterials
             asset.ContainerType = ContainerType;
             asset.ProcessKind = ProcessKind;
             asset.SerialNumber = SerialNumber;
-            asset.Form = Form;
+            //asset.Form = Form;
             asset.HasMaterial = HasMaterial;
             asset.ManufacturingDate = ManufacturingDate;
             asset.FirstUseDate = FirstUseDate;
             asset.LastUseDate = LastUseDate;
-            asset.InitialVolume = InitialVolume;
-            asset.InitialDimension = InitialDimension;
-            asset.InitialQuantity = InitialQuantity;
-            asset.CurrentVolume = CurrentVolume;
-            asset.CurrentDimension = CurrentDimension;
+            //asset.InitialVolume = InitialVolume;
+            //asset.InitialDimension = InitialDimension;
+            //asset.InitialQuantity = InitialQuantity;
+            //asset.CurrentVolume = CurrentVolume;
+            //asset.CurrentDimension = CurrentDimension;
             asset.CurrentQuantity = CurrentQuantity;
 
             if (Material != null)

@@ -77,12 +77,12 @@ namespace MTConnect.Assets.Json.Files
         public DateTime CreationTime { get; set; }
 
         [JsonPropertyName("modificationTime")]
-        public DateTime ModificationTime { get; set; }
+        public DateTime? ModificationTime { get; set; }
 
 
         public JsonFileAsset() { }
 
-        public JsonFileAsset(IFile asset)
+        public JsonFileAsset(IFileAsset asset)
         {
             if (asset != null)
             {
@@ -134,9 +134,9 @@ namespace MTConnect.Assets.Json.Files
         }
 
 
-        public IFile ToFileAsset()
+        public IFileAsset ToFileAsset()
         {
-            var asset = new File();
+            var asset = new FileAsset();
 
             asset.AssetId = AssetId;
             asset.Type = Type;
