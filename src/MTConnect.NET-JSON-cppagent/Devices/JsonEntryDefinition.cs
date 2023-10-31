@@ -1,6 +1,8 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
+using MTConnect.Devices.Configurations;
+using System;
 using System.Text.Json.Serialization;
 
 namespace MTConnect.Devices.Json
@@ -23,7 +25,7 @@ namespace MTConnect.Devices.Json
         public string SubType { get; set; }
 
         [JsonPropertyName("Description")]
-        public JsonDescription Description { get; set; }
+        public string Description { get; set; }
 
         [JsonPropertyName("CellDefinitions")]
         public JsonCellDefinitions CellDefinitions { get; set; }
@@ -41,7 +43,10 @@ namespace MTConnect.Devices.Json
                 Type = definition.Type;
                 SubType = definition.SubType;
 
-                if (definition.Description != null) Description = new JsonDescription(definition.Description);
+                if (definition.Description != null)
+                {
+                    Description = definition.Description.Value;
+                }
 
                 // CellDefinitions
                 if (!definition.CellDefinitions.IsNullOrEmpty())
@@ -61,7 +66,12 @@ namespace MTConnect.Devices.Json
             definition.Type = Type;
             definition.SubType = SubType;
 
-            if (Description != null) definition.Description = Description.ToDescription();
+            if (Description != null)
+            {
+                var description = new Description();
+                description.Value = Description;
+                definition.Description = description;
+            }
 
             // Cell Definitions
             if (CellDefinitions != null)

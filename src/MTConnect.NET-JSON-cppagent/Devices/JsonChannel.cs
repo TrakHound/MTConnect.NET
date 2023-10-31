@@ -15,17 +15,17 @@ namespace MTConnect.Devices.Json
         [JsonPropertyName("name")]
         public string Name { get; set; }
 
-        [JsonPropertyName("calibrationDate")]
-        public DateTime CalibrationDate { get; set; }
+        [JsonPropertyName("CalibrationDate")]
+        public DateTime? CalibrationDate { get; set; }
 
-        [JsonPropertyName("nextCalibrationDate")]
-        public DateTime NextCalibrationDate { get; set; }
+        [JsonPropertyName("NextCalibrationDate")]
+        public DateTime? NextCalibrationDate { get; set; }
 
-        [JsonPropertyName("calibrationInitials")]
+        [JsonPropertyName("CalibrationInitials")]
         public string CalibrationInitials { get; set; }
 
         [JsonPropertyName("Description")]
-        public JsonDescription Description { get; set; }
+        public string Description { get; set; }
 
 
         public JsonChannel() { }
@@ -40,7 +40,10 @@ namespace MTConnect.Devices.Json
                 NextCalibrationDate = channel.NextCalibrationDate;
                 CalibrationInitials = channel.CalibrationInitials;
 
-                if (channel.Description != null) Description = new JsonDescription(channel.Description);
+                if (channel.Description != null)
+                {
+                    Description = channel.Description.Value;
+                }
             }
         }
 
@@ -53,7 +56,14 @@ namespace MTConnect.Devices.Json
             channel.CalibrationDate = CalibrationDate;
             channel.NextCalibrationDate = NextCalibrationDate;
             channel.CalibrationInitials = CalibrationInitials;
-            if (Description != null) channel.Description = Description.ToDescription();
+
+            if (Description != null)
+            {
+                var description = new Description();
+                description.Value = Description;
+                channel.Description = description;
+            }
+
             return channel;
         }
     }

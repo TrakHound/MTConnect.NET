@@ -15,6 +15,9 @@ namespace MTConnect.Devices.Json
         [JsonPropertyName("version")]
         public string Version { get; set; }
 
+        [JsonPropertyName("schemaVersion")]
+        public string SchemaVersion { get; set; }
+
         [JsonPropertyName("sender")]
         public string Sender { get; set; }
 
@@ -31,7 +34,7 @@ namespace MTConnect.Devices.Json
         public string DeviceModelChangeTime { get; set; }
 
         [JsonPropertyName("testIndicator")]
-        public string TestIndicator { get; set; }
+        public bool TestIndicator { get; set; }
 
         [JsonPropertyName("creationTime")]
         public DateTime CreationTime { get; set; }
@@ -56,7 +59,7 @@ namespace MTConnect.Devices.Json
         }
 
 
-        public virtual IMTConnectDevicesHeader ToDevicesHeader()
+        public IMTConnectDevicesHeader ToDevicesHeader()
         {
             var header = new MTConnectDevicesHeader();
             header.InstanceId = InstanceId;

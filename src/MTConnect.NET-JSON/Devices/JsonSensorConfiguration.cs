@@ -14,10 +14,10 @@ namespace MTConnect.Devices.Json
         public string FirmwareVersion { get; set; }
 
         [JsonPropertyName("calibrationDate")]
-        public DateTime CalibrationDate { get; set; }
+        public DateTime? CalibrationDate { get; set; }
 
         [JsonPropertyName("nextCalibrationDate")]
-        public DateTime NextCalibrationDate { get; set; }
+        public DateTime? NextCalibrationDate { get; set; }
 
         [JsonPropertyName("calibrationInitials")]
         public string CalibrationInitials { get; set; }

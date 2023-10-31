@@ -28,7 +28,7 @@ namespace MTConnect.Devices.Json
         public string Name { get; set; }
 
         [JsonPropertyName("nativeScale")]
-        public int? NativeScale { get; set; }
+        public double? NativeScale { get; set; }
 
         [JsonPropertyName("nativeUnits")]
         public string NativeUnits { get; set; }
@@ -170,7 +170,7 @@ namespace MTConnect.Devices.Json
             dataItem.Type = Type;
             dataItem.SubType = SubType;
             dataItem.NativeUnits = NativeUnits;
-            dataItem.NativeScale = NativeScale.HasValue ? NativeScale.Value : 0;
+            dataItem.NativeScale = NativeScale.HasValue ? NativeScale.Value.ToInt() : 0;
             dataItem.SampleRate = SampleRate.HasValue ? SampleRate.Value : 0;
             if (Source != null) dataItem.Source = Source.ToSource();
 

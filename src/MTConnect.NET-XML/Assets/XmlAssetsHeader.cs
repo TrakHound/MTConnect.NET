@@ -29,7 +29,7 @@ namespace MTConnect.Assets.Xml
         public string DeviceModelChangeTime { get; set; }
 
         [XmlAttribute("testIndicator")]
-        public string TestIndicator { get; set; }
+        public bool TestIndicator { get; set; }
 
         [XmlAttribute("creationTime")]
         public DateTime CreationTime { get; set; }
@@ -60,7 +60,7 @@ namespace MTConnect.Assets.Xml
                 writer.WriteAttributeString("assetBufferSize", header.AssetBufferSize.ToString());
                 writer.WriteAttributeString("assetCount", header.AssetCount.ToString());
                 writer.WriteAttributeString("deviceModelChangeTime", header.DeviceModelChangeTime);
-                if (!string.IsNullOrEmpty(header.TestIndicator)) writer.WriteAttributeString("testIndicator", header.TestIndicator);
+                if (header.TestIndicator) writer.WriteAttributeString("testIndicator", header.TestIndicator.ToString());
                 writer.WriteAttributeString("creationTime", header.CreationTime.ToString("o"));
                 writer.WriteEndElement();
             }

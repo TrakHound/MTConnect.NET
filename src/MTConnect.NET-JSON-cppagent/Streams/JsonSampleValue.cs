@@ -20,7 +20,7 @@ namespace MTConnect.Streams.Json
         public double? Duration { get; set; }
 
         [JsonPropertyName("value")]
-        public string Value { get; set; }
+        public object Value { get; set; }
 
 
         public JsonSampleValue() { }
@@ -83,7 +83,7 @@ namespace MTConnect.Streams.Json
             sample.SubType = SubType;
             sample.CompositionId = CompositionId;
             sample.ResetTriggered = ResetTriggered.ConvertEnum<ResetTriggered>();
-            sample.Result = Value;
+            if (Value != null) sample.Result = Value.ToString();
             sample.SampleRate = SampleRate.HasValue ? SampleRate.Value : 0;
             sample.Statistic = Statistic.ConvertEnum<DataItemStatistic>();
             sample.Duration = Duration.HasValue ? Duration.Value : 0;

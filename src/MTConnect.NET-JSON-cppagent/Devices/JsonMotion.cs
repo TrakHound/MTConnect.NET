@@ -4,6 +4,7 @@
 using MTConnect.Devices.Configurations;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
+using System.Threading.Channels;
 
 namespace MTConnect.Devices.Json
 {
@@ -25,7 +26,7 @@ namespace MTConnect.Devices.Json
         public string Actuation { get; set; }
 
         [JsonPropertyName("Description")]
-        public JsonDescription Description { get; set; }
+        public string Description { get; set; }
 
         [JsonPropertyName("Origin")]
         public IEnumerable<double> Origin { get; set; }
@@ -48,10 +49,14 @@ namespace MTConnect.Devices.Json
                 CoordinateSystemIdRef = motion.CoordinateSystemIdRef;
                 Type = motion.Type.ToString();
                 Actuation = motion.Actuation.ToString();
-                if (motion.Description != null) Description = new JsonDescription(motion.Description);
                 if (motion.Origin != null) Origin = motion.Origin.ToJsonArray();
                 if (motion.Transformation != null) Transformation = new JsonTransformation(motion.Transformation);
                 Axis = motion.Axis.ToJsonArray();
+
+                if (motion.Description != null)
+                {
+                    Description = motion.Description.Value;
+                }
             }
         }
 
@@ -67,7 +72,14 @@ namespace MTConnect.Devices.Json
             motion.Axis = JsonHelper.ToUnitVector3D(Axis);
             motion.Origin = JsonHelper.ToUnitVector3D(Origin);
             if (Transformation != null) motion.Transformation = Transformation.ToTransformation();
-            if (Description != null) motion.Description = Description.ToDescription();
+
+            if (Description != null)
+            {
+                var description = new Description();
+                description.Value = Description;
+                motion.Description = description;
+            }
+
             return motion;
         }
     }

@@ -463,7 +463,7 @@ namespace MTConnect.Agents
                 InstanceId = InstanceId,
                 Sender = Sender,
                 Version = Version.ToString(),
-                TestIndicator = null
+                TestIndicator = false
             };
 
             if (version < MTConnectVersions.Version17) header.DeviceModelChangeTime = null;
@@ -488,7 +488,7 @@ namespace MTConnect.Agents
                 FirstSequence = results.FirstSequence,
                 LastSequence = results.LastSequence,
                 NextSequence = results.NextSequence,
-                TestIndicator = null
+                TestIndicator = false
             };
 
             if (version < MTConnectVersions.Version17) header.DeviceModelChangeTime = null;
@@ -509,7 +509,7 @@ namespace MTConnect.Agents
                 InstanceId = InstanceId,
                 Sender = Sender,
                 Version = Version.ToString(),
-                TestIndicator = null
+                TestIndicator = false
             };
 
             if (version < MTConnectVersions.Version17) header.DeviceModelChangeTime = null;
@@ -526,7 +526,7 @@ namespace MTConnect.Agents
                 InstanceId = InstanceId,
                 Sender = Sender,
                 Version = Version.ToString(),
-                TestIndicator = null
+                TestIndicator = false
             };
         }
 

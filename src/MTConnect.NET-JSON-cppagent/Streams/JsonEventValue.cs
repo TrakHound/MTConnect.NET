@@ -11,7 +11,7 @@ namespace MTConnect.Streams.Json
     public class JsonEventValue : JsonObservation
     {
         [JsonPropertyName("value")]
-        public string Value { get; set; }
+        public object Value { get; set; }
 
 
         public JsonEventValue() { }
@@ -66,7 +66,7 @@ namespace MTConnect.Streams.Json
             e.SubType = SubType;
             e.CompositionId = CompositionId;
             e.ResetTriggered = ResetTriggered.ConvertEnum<ResetTriggered>();
-            e.Result = Value;
+            if (Value != null) e.Result = Value.ToString();
             return e;
         }
     }

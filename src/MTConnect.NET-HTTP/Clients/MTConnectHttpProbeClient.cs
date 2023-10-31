@@ -249,10 +249,17 @@ namespace MTConnect.Clients
                     request.RequestUri = CreateUri();
 
                     // Add 'Accept' HTTP Header
-                    var contentType = Formatters.ResponseDocumentFormatter.GetContentType(DocumentFormat);
-                    if (!string.IsNullOrEmpty(contentType))
+                    if (!string.IsNullOrEmpty(ContentType))
                     {
-                        request.Headers.Add(HttpHeaders.Accept, contentType);
+                        request.Headers.Add(HttpHeaders.Accept, ContentType);
+                    }
+                    else
+                    {
+                        var contentType = Formatters.ResponseDocumentFormatter.GetContentType(DocumentFormat);
+                        if (!string.IsNullOrEmpty(contentType))
+                        {
+                            request.Headers.Add(HttpHeaders.Accept, contentType);
+                        }
                     }
 
                     // Add 'Accept-Encoding' HTTP Header 

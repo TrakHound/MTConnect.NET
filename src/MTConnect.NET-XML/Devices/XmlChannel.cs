@@ -21,10 +21,10 @@ namespace MTConnect.Devices.Xml
         public XmlDescription Description { get; set; }
 
         [XmlElement("CalibrationDate")]
-        public DateTime CalibrationDate { get; set; }
+        public DateTime? CalibrationDate { get; set; }
 
         [XmlElement("NextCalibrationDate")]
-        public DateTime NextCalibrationDate { get; set; }
+        public DateTime? NextCalibrationDate { get; set; }
 
         [XmlElement("CalibrationInitials")]
         public string CalibrationInitials { get; set; }
@@ -64,7 +64,7 @@ namespace MTConnect.Devices.Xml
                 if (channel.CalibrationDate > DateTime.MinValue)
                 {
                     writer.WriteStartElement("CalibrationDate");
-                    writer.WriteString(channel.CalibrationDate.ToString("o"));
+                    writer.WriteString(channel.CalibrationDate?.ToString("o"));
                     writer.WriteEndElement();
                 }
 
@@ -72,7 +72,7 @@ namespace MTConnect.Devices.Xml
                 if (channel.NextCalibrationDate > DateTime.MinValue)
                 {
                     writer.WriteStartElement("NextCalibrationDate");
-                    writer.WriteString(channel.NextCalibrationDate.ToString("o"));
+                    writer.WriteString(channel.NextCalibrationDate?.ToString("o"));
                     writer.WriteEndElement();
                 }
 

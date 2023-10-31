@@ -9,8 +9,6 @@ using MTConnect.Assets.Json.QIF;
 using MTConnect.Assets.Json.RawMaterials;
 using MTConnect.Assets.QIF;
 using MTConnect.Assets.RawMaterials;
-using MTConnect.Headers;
-using MTConnect.Streams.Json;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 

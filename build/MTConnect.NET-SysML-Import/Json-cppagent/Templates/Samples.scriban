@@ -23,6 +23,8 @@ namespace MTConnect.Streams.Json
 {{- for type in types }}
                 if (!{{type.name}}.IsNullOrEmpty()) foreach (var x in {{type.name}}) l.Add(x.ToObservation({{type.name}}DataItem.TypeId));
                 if (!{{type.name}}DataSet.IsNullOrEmpty()) foreach (var x in {{type.name}}DataSet) l.Add(x.ToObservation({{type.name}}DataItem.TypeId));
+                if (!{{type.name}}Table.IsNullOrEmpty()) foreach (var x in {{type.name}}Table) l.Add(x.ToObservation({{type.name}}DataItem.TypeId));
+                if (!{{type.name}}TimeSeries.IsNullOrEmpty()) foreach (var x in {{type.name}}TimeSeries) l.Add(x.ToObservation({{type.name}}DataItem.TypeId));
 {{ end }}
 
                 return l;
@@ -35,6 +37,12 @@ namespace MTConnect.Streams.Json
 
         [JsonPropertyName("{{type.name}}DataSet")]
         public IEnumerable<JsonSampleDataSet> {{type.name}}DataSet { get; set; }
+
+        [JsonPropertyName("{{type.name}}Table")]
+        public IEnumerable<JsonSampleTable> {{type.name}}Table { get; set; }
+
+        [JsonPropertyName("{{type.name}}TimeSeries")]
+        public IEnumerable<JsonSampleTimeSeries> {{type.name}}TimeSeries { get; set; }
 
 {{ end }}
 
@@ -71,6 +79,30 @@ namespace MTConnect.Streams.Json
                             jsonObservations.Add(new JsonSampleDataSet(observation));
                         }
                         {{type.name}}DataSet = jsonObservations;
+                    }
+
+                    // Add {{type.name}}Table
+                    typeObservations = observations.Where(o => o.Type == {{type.name}}DataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonSampleTable>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonSampleTable(observation));
+                        }
+                        {{type.name}}Table = jsonObservations;
+                    }
+
+                    // Add {{type.name}}TimeSeries
+                    typeObservations = observations.Where(o => o.Type == {{type.name}}DataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonSampleTimeSeries>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonSampleTimeSeries(observation));
+                        }
+                        {{type.name}}TimeSeries = jsonObservations;
                     }
 
 {{ end }}

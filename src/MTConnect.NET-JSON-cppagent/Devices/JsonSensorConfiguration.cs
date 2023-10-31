@@ -14,16 +14,16 @@ namespace MTConnect.Devices.Json
         public string FirmwareVersion { get; set; }
 
         [JsonPropertyName("CalibrationDate")]
-        public DateTime CalibrationDate { get; set; }
+        public DateTime? CalibrationDate { get; set; }
 
         [JsonPropertyName("NextCalibrationDate")]
-        public DateTime NextCalibrationDate { get; set; }
+        public DateTime? NextCalibrationDate { get; set; }
 
         [JsonPropertyName("CalibrationInitials")]
         public string CalibrationInitials { get; set; }
 
         [JsonPropertyName("Channels")]
-        public List<JsonChannel> Channels { get; set; }
+        public JsonChannels Channels { get; set; }
 
 
         public JsonSensorConfiguration() { }
@@ -40,12 +40,7 @@ namespace MTConnect.Devices.Json
                 // Channels
                 if (!configuration.Channels.IsNullOrEmpty())
                 {
-                    var channels = new List<JsonChannel>();
-                    foreach (var coordinateSystem in configuration.Channels)
-                    {
-                        channels.Add(new JsonChannel(coordinateSystem));
-                    }
-                    Channels = channels;
+                    Channels = new JsonChannels(configuration.Channels);
                 }
             }
         }
@@ -59,16 +54,26 @@ namespace MTConnect.Devices.Json
             sensorConfiguration.NextCalibrationDate = NextCalibrationDate;
             sensorConfiguration.CalibrationInitials = CalibrationInitials;
 
-            // Channels
-            if (!Channels.IsNullOrEmpty())
+            if (Channels != null && !Channels.Channels.IsNullOrEmpty())
             {
                 var channels = new List<IChannel>();
-                foreach (var channel in Channels)
+                foreach (var channel in Channels.Channels)
                 {
                     channels.Add(channel.ToChannel());
                 }
                 sensorConfiguration.Channels = channels;
             }
+
+            //// Channels
+            //if (!Channels.IsNullOrEmpty())
+            //{
+            //    var channels = new List<IChannel>();
+            //    foreach (var channel in Channels)
+            //    {
+            //        channels.Add(channel.ToChannel());
+            //    }
+            //    sensorConfiguration.Channels = channels;
+            //}
 
             return sensorConfiguration;
         }

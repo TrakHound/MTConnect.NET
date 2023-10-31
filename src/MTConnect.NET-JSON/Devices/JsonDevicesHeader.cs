@@ -31,7 +31,7 @@ namespace MTConnect.Devices.Json
         public string DeviceModelChangeTime { get; set; }
 
         [JsonPropertyName("testIndicator")]
-        public string TestIndicator { get; set; }
+        public bool TestIndicator { get; set; }
 
         [JsonPropertyName("creationTime")]
         public DateTime CreationTime { get; set; }

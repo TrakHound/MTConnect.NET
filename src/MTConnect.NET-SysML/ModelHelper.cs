@@ -460,6 +460,12 @@ namespace MTConnect.SysML
                 case "_19_0_3_68e0225_1605644565736_276152_2352": return true; // Devices.Configurations.ControlLimits.UpperWarning
                 case "_19_0_3_68e0225_1605644570052_987268_2384": return true; // Devices.Configurations.ControlLimits.Nominal
 
+                case "EAID_3A147FC7_7743_4113_B7C5_39898A2FCCDC": return true; // Devices.Configurations.SensorConfiguration.CalibrationDate
+                case "EAID_CF5F303B_1708_4731_8BAA_004C65E8A073": return true; // Devices.Configurations.SensorConfiguration.NextCalibrationDate
+
+                case "EAID_5E07F763_7B89_42ba_9C06_01DD7CD5E39B": return true; // Devices.Configurations.Channel.CalibrationDate
+                case "EAID_CBE261CF_F527_472a_809F_30CB0C4887C3": return true; // Devices.Configurations.Channel.NextCalibrationDate
+
                 case "EAID_816C2A06_ABDB_4bc5_B6B9_81DB30748E81": return true; // Assets.CuttingTools.ToolLife.Initial
                 case "EAID_F82F6CC7_3926_4b9a_A2EC_B4E33841EA55": return true; // Assets.CuttingTools.ToolLife.Limit
                 case "EAID_85A88677_0C19_4f98_BC72_D9C12AADEC96": return true; // Assets.CuttingTools.ToolLife.Warning

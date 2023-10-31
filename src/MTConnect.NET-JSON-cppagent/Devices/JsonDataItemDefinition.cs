@@ -8,7 +8,7 @@ namespace MTConnect.Devices.Json
     public class JsonDataItemDefinition
     {
         [JsonPropertyName("Description")]
-        public JsonDescription Description { get; set; }
+        public string Description { get; set; }
 
         [JsonPropertyName("EntryDefinitions")]
         public JsonEntryDefinitions EntryDefinitions { get; set; }
@@ -19,22 +19,25 @@ namespace MTConnect.Devices.Json
 
         public JsonDataItemDefinition() { }
 
-        public JsonDataItemDefinition(IDataItemDefinition dataItemDefinition)
+        public JsonDataItemDefinition(IDataItemDefinition definition)
         {
-            if (dataItemDefinition != null)
+            if (definition != null)
             {
-                if (dataItemDefinition.Description != null) Description = new JsonDescription(dataItemDefinition.Description);
+                if (definition.Description != null)
+                {
+                    Description = definition.Description.Value;
+                }
 
                 // EntryDefinitions
-                if (!dataItemDefinition.EntryDefinitions.IsNullOrEmpty())
+                if (!definition.EntryDefinitions.IsNullOrEmpty())
                 {
-                    EntryDefinitions = new JsonEntryDefinitions(dataItemDefinition.EntryDefinitions);
+                    EntryDefinitions = new JsonEntryDefinitions(definition.EntryDefinitions);
                 }
 
                 // CellDefinitions
-                if (!dataItemDefinition.CellDefinitions.IsNullOrEmpty())
+                if (!definition.CellDefinitions.IsNullOrEmpty())
                 {
-                    CellDefinitions = new JsonCellDefinitions(dataItemDefinition.CellDefinitions);
+                    CellDefinitions = new JsonCellDefinitions(definition.CellDefinitions);
                 }
             }
         }
@@ -45,7 +48,12 @@ namespace MTConnect.Devices.Json
         {
             var definition = new DataItemDefinition();
 
-            if (Description != null) definition.Description = Description.ToDescription();
+            if (Description != null)
+            {
+                var description = new Description();
+                description.Value = Description;
+                definition.Description = description;
+            }
 
             // Entry Definitions
             if (EntryDefinitions != null)

@@ -7,25 +7,25 @@ using MTConnect.Observations.Output;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json.Nodes;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 
 namespace MTConnect.Streams.Json
 {
-    public class JsonSampleDataSet : JsonObservation
+    public class JsonSampleTimeSeries : JsonObservation
     {
         [JsonPropertyName("value")]
-        [JsonConverter(typeof(JsonSampleDataSetValueConverter))]
-        public Dictionary<string, object> Entries { get; set; }
+        [JsonConverter(typeof(JsonSampleTimeSeriesValueConverter))]
+        public IEnumerable<double> Samples { get; set; }
 
         [JsonPropertyName("count")]
         public long? Count { get; set; }
 
 
-        public JsonSampleDataSet() { }
+        public JsonSampleTimeSeries() { }
 
-        public JsonSampleDataSet(IObservation observation, bool categoryOutput = false, bool instanceIdOutput = false)
+        public JsonSampleTimeSeries(IObservation observation, bool categoryOutput = false, bool instanceIdOutput = false)
         {
             if (observation != null)
             {
@@ -41,16 +41,17 @@ namespace MTConnect.Streams.Json
                 NativeCode = observation.GetValue(ValueKeys.NativeCode);
                 AssetType = observation.GetValue(ValueKeys.AssetType);
 
-                // DataSet Entries
-                if (observation is SampleDataSetObservation)
+                // TimeSeries Entries
+                if (observation is SampleTimeSeriesObservation)
                 {
-                    Entries = CreateDataSetEntries(((SampleDataSetObservation)observation).Entries);
-                    Count = !Entries.IsNullOrEmpty() ? Entries.Count() : 0;
+                    var timeseriesObservation = (SampleTimeSeriesObservation)observation;
+                    Samples = timeseriesObservation.Samples;
+                    Count = timeseriesObservation.SampleCount;
                 }
             }
         }
 
-        public JsonSampleDataSet(IObservationOutput observation)
+        public JsonSampleTimeSeries(IObservationOutput observation)
         {
             if (observation != null)
             {
@@ -66,19 +67,19 @@ namespace MTConnect.Streams.Json
                 AssetType = observation.GetValue(ValueKeys.AssetType);
 
                 // DataSet Entries
-                if (observation.Representation == DataItemRepresentation.DATA_SET)
+                if (observation.Representation == DataItemRepresentation.TABLE)
                 {
-                    var dataSetObservation = new SampleDataSetObservation();
-                    dataSetObservation.AddValues(observation.Values);
-                    Entries = CreateDataSetEntries(dataSetObservation.Entries);
-                    Count = !Entries.IsNullOrEmpty() ? Entries.Count() : 0;
+                    var timeseriesObservation = new SampleTimeSeriesObservation();
+                    timeseriesObservation.AddValues(observation.Values);
+                    Samples = timeseriesObservation.Samples;
+                    Count = timeseriesObservation.SampleCount;
                 }
             }
         }
 
-        public ISampleDataSetObservation ToObservation(string type)
+        public ISampleTimeSeriesObservation ToObservation(string type)
         {
-            var observation = new SampleDataSetObservation();
+            var observation = new SampleTimeSeriesObservation();
             observation.DataItemId = DataItemId;
             observation.Timestamp = Timestamp;
             observation.Name = Name;
@@ -89,19 +90,31 @@ namespace MTConnect.Streams.Json
             observation.SubType = SubType;
             observation.CompositionId = CompositionId;
             observation.ResetTriggered = ResetTriggered.ConvertEnum<ResetTriggered>();
-            observation.Entries = CreateDataSetEntries(Entries);
+
+            if (!Samples.IsNullOrEmpty())
+            {
+                var samples = Samples.ToArray();
+                for (var i = 0; i < samples.Length - 1; i++)
+                {
+                    observation.AddValue(ValueKeys.CreateTimeSeriesValueKey(i), samples[i]);
+                }
+            }
+            else
+            {
+                observation.AddValue(ValueKeys.Result, Observation.Unavailable);
+            }
+
             return observation;
         }
 
-
-        public class JsonSampleDataSetValueConverter : JsonConverter<Dictionary<string, object>>
+        public class JsonSampleTimeSeriesValueConverter : JsonConverter<IEnumerable<double>>
         {
-            public override Dictionary<string, object> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+            public override IEnumerable<double> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
             {
                 if (reader.TokenType == JsonTokenType.StartObject)
                 {
                     var obj = JsonObject.Parse(ref reader);
-                    return obj.Deserialize<Dictionary<string, object>>();
+                    return obj.Deserialize<IEnumerable<double>>();
                 }
                 else
                 {
@@ -111,7 +124,7 @@ namespace MTConnect.Streams.Json
                 return null;
             }
 
-            public override void Write(Utf8JsonWriter writer, Dictionary<string, object> value, JsonSerializerOptions options)
+            public override void Write(Utf8JsonWriter writer, IEnumerable<double> value, JsonSerializerOptions options)
             {
                 //writer.WriteStringValue(dateTimeValue.ToString("MM/dd/yyyy", CultureInfo.InvariantCulture));
             }

@@ -16,10 +16,10 @@ namespace MTConnect.Devices.Xml
         public string FirmwareVersion { get; set; }
 
         [XmlElement("CalibrationDate")]
-        public DateTime CalibrationDate { get; set; }
+        public DateTime? CalibrationDate { get; set; }
 
         [XmlElement("NextCalibrationDate")]
-        public DateTime NextCalibrationDate { get; set; }
+        public DateTime? NextCalibrationDate { get; set; }
 
         [XmlElement("CalibrationInitials")]
         public string CalibrationInitials { get; set; }
@@ -69,7 +69,7 @@ namespace MTConnect.Devices.Xml
                 if (sensorConfiguration.CalibrationDate > DateTime.MinValue)
                 {
                     writer.WriteStartElement("CalibrationDate");
-                    writer.WriteString(sensorConfiguration.CalibrationDate.ToString("o"));
+                    writer.WriteString(sensorConfiguration.CalibrationDate?.ToString("o"));
                     writer.WriteEndElement();
                 }
 
@@ -77,7 +77,7 @@ namespace MTConnect.Devices.Xml
                 if (sensorConfiguration.NextCalibrationDate > DateTime.MinValue)
                 {
                     writer.WriteStartElement("NextCalibrationDate");
-                    writer.WriteString(sensorConfiguration.NextCalibrationDate.ToString("o"));
+                    writer.WriteString(sensorConfiguration.NextCalibrationDate?.ToString("o"));
                     writer.WriteEndElement();
                 }
 

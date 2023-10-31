@@ -46,7 +46,7 @@ namespace MTConnect.Headers
         /// A flag indicating that the Agent that published the Response Document is operating in a test mode.
         /// The contents of the Response Document may not be valid and SHOULD be used for testing and simulation purposes only.
         /// </summary>
-        string TestIndicator { get; }
+        bool TestIndicator { get; }
 
         /// <summary>
         /// CreationTime represents the time that an Agent published the Response Document.

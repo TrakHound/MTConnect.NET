@@ -86,8 +86,10 @@ namespace MTConnect.Formatters
 
         public FormattedDocumentReadResult<IDevicesResponseDocument> CreateDevicesResponseDocument(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
+            var json = System.Text.Encoding.UTF8.GetString(content);
+
             // Read Document
-            var document = JsonSerializer.Deserialize<JsonMTConnectDevices>(content);
+            var document = JsonSerializer.Deserialize<JsonDevicesResponseDocument>(json);
             var success = document != null;
 
             return new FormattedDocumentReadResult<IDevicesResponseDocument>(document.ToDocument(), success);

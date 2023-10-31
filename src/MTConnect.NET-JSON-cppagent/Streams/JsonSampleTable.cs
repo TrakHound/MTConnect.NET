@@ -7,25 +7,25 @@ using MTConnect.Observations.Output;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json.Nodes;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 
 namespace MTConnect.Streams.Json
 {
-    public class JsonSampleDataSet : JsonObservation
+    public class JsonSampleTable : JsonObservation
     {
         [JsonPropertyName("value")]
-        [JsonConverter(typeof(JsonSampleDataSetValueConverter))]
-        public Dictionary<string, object> Entries { get; set; }
+        [JsonConverter(typeof(JsonSampleTableValueConverter))]
+        public Dictionary<string, Dictionary<string, object>> Entries { get; set; }
 
         [JsonPropertyName("count")]
         public long? Count { get; set; }
 
 
-        public JsonSampleDataSet() { }
+        public JsonSampleTable() { }
 
-        public JsonSampleDataSet(IObservation observation, bool categoryOutput = false, bool instanceIdOutput = false)
+        public JsonSampleTable(IObservation observation, bool categoryOutput = false, bool instanceIdOutput = false)
         {
             if (observation != null)
             {
@@ -41,16 +41,16 @@ namespace MTConnect.Streams.Json
                 NativeCode = observation.GetValue(ValueKeys.NativeCode);
                 AssetType = observation.GetValue(ValueKeys.AssetType);
 
-                // DataSet Entries
-                if (observation is SampleDataSetObservation)
+                // Table Entries
+                if (observation is SampleTableObservation)
                 {
-                    Entries = CreateDataSetEntries(((SampleDataSetObservation)observation).Entries);
+                    Entries = CreateTableEntries(((SampleTableObservation)observation).Entries);
                     Count = !Entries.IsNullOrEmpty() ? Entries.Count() : 0;
                 }
             }
         }
 
-        public JsonSampleDataSet(IObservationOutput observation)
+        public JsonSampleTable(IObservationOutput observation)
         {
             if (observation != null)
             {
@@ -66,19 +66,19 @@ namespace MTConnect.Streams.Json
                 AssetType = observation.GetValue(ValueKeys.AssetType);
 
                 // DataSet Entries
-                if (observation.Representation == DataItemRepresentation.DATA_SET)
+                if (observation.Representation == DataItemRepresentation.TABLE)
                 {
-                    var dataSetObservation = new SampleDataSetObservation();
+                    var dataSetObservation = new SampleTableObservation();
                     dataSetObservation.AddValues(observation.Values);
-                    Entries = CreateDataSetEntries(dataSetObservation.Entries);
+                    Entries = CreateTableEntries(dataSetObservation.Entries);
                     Count = !Entries.IsNullOrEmpty() ? Entries.Count() : 0;
                 }
             }
         }
 
-        public ISampleDataSetObservation ToObservation(string type)
+        public ISampleTableObservation ToObservation(string type)
         {
-            var observation = new SampleDataSetObservation();
+            var observation = new SampleTableObservation();
             observation.DataItemId = DataItemId;
             observation.Timestamp = Timestamp;
             observation.Name = Name;
@@ -89,19 +89,27 @@ namespace MTConnect.Streams.Json
             observation.SubType = SubType;
             observation.CompositionId = CompositionId;
             observation.ResetTriggered = ResetTriggered.ConvertEnum<ResetTriggered>();
-            observation.Entries = CreateDataSetEntries(Entries);
+
+            if (Entries != null)
+            {
+                observation.Entries = CreateTableEntries(Entries);
+            }
+            else
+            {
+                observation.AddValue(ValueKeys.Result, Observation.Unavailable);
+            }
+
             return observation;
         }
 
-
-        public class JsonSampleDataSetValueConverter : JsonConverter<Dictionary<string, object>>
+        public class JsonSampleTableValueConverter : JsonConverter<Dictionary<string, Dictionary<string, object>>>
         {
-            public override Dictionary<string, object> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+            public override Dictionary<string, Dictionary<string, object>> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
             {
                 if (reader.TokenType == JsonTokenType.StartObject)
                 {
                     var obj = JsonObject.Parse(ref reader);
-                    return obj.Deserialize<Dictionary<string, object>>();
+                    return obj.Deserialize<Dictionary<string, Dictionary<string, object>>>();
                 }
                 else
                 {
@@ -111,7 +119,7 @@ namespace MTConnect.Streams.Json
                 return null;
             }
 
-            public override void Write(Utf8JsonWriter writer, Dictionary<string, object> value, JsonSerializerOptions options)
+            public override void Write(Utf8JsonWriter writer, Dictionary<string, Dictionary<string, object>> value, JsonSerializerOptions options)
             {
                 //writer.WriteStringValue(dateTimeValue.ToString("MM/dd/yyyy", CultureInfo.InvariantCulture));
             }

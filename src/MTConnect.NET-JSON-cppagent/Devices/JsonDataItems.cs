@@ -31,7 +31,7 @@ namespace MTConnect.Devices.Json
         {
             var dataItems = new List<IDataItem>();
 
-            if (!dataItems.IsNullOrEmpty())
+            if (!DataItems.IsNullOrEmpty())
             {
                 foreach (var dataItem in DataItems) dataItems.Add(dataItem.ToDataItem());
             }

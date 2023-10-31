@@ -11,7 +11,7 @@ namespace MTConnect.Devices.Configurations
         /// <summary>
         /// Date upon which the sensor unit was last calibrated.
         /// </summary>
-        System.DateTime CalibrationDate { get; }
+        System.DateTime? CalibrationDate { get; }
         
         /// <summary>
         /// The initials of the person verifying the validity of the calibration data.
@@ -31,6 +31,6 @@ namespace MTConnect.Devices.Configurations
         /// <summary>
         /// Date upon which the sensor unit is next scheduled to be calibrated.
         /// </summary>
-        System.DateTime NextCalibrationDate { get; }
+        System.DateTime? NextCalibrationDate { get; }
     }
 }

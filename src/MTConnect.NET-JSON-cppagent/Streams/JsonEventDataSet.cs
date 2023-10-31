@@ -4,8 +4,12 @@
 using MTConnect.Devices;
 using MTConnect.Observations;
 using MTConnect.Observations.Output;
+using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 
 namespace MTConnect.Streams.Json
@@ -13,6 +17,7 @@ namespace MTConnect.Streams.Json
     public class JsonEventDataSet : JsonObservation
     {
         [JsonPropertyName("value")]
+        [JsonConverter(typeof(JsonEventDataSetValueConverter))]
         public Dictionary<string, object> Entries { get; set; }
 
         [JsonPropertyName("count")]
@@ -74,19 +79,52 @@ namespace MTConnect.Streams.Json
 
         public IEventDataSetObservation ToObservation(string type)
         {
-            var e = new EventDataSetObservation();
-            e.DataItemId = DataItemId;
-            e.Timestamp = Timestamp;
-            e.Name = Name;
-            e.InstanceId = InstanceId;
-            e.Sequence = Sequence;
-            e.Category = Category.ConvertEnum<DataItemCategory>();
-            e.Type = type;
-            e.SubType = SubType;
-            e.CompositionId = CompositionId;
-            e.ResetTriggered = ResetTriggered.ConvertEnum<ResetTriggered>();
-            e.Entries = CreateDataSetEntries(Entries);
-            return e;
+            var observation = new EventDataSetObservation();
+            observation.DataItemId = DataItemId;
+            observation.Timestamp = Timestamp;
+            observation.Name = Name;
+            observation.InstanceId = InstanceId;
+            observation.Sequence = Sequence;
+            observation.Category = Category.ConvertEnum<DataItemCategory>();
+            observation.Type = type;
+            observation.SubType = SubType;
+            observation.CompositionId = CompositionId;
+            observation.ResetTriggered = ResetTriggered.ConvertEnum<ResetTriggered>();
+
+            if (Entries != null)
+            {
+                observation.Entries = CreateDataSetEntries(Entries);
+            }
+            else
+            {
+                observation.AddValue(ValueKeys.Result, Observation.Unavailable);
+            }
+
+            return observation;
+        }
+
+
+        public class JsonEventDataSetValueConverter : JsonConverter<Dictionary<string, object>>
+        {
+            public override Dictionary<string, object> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+            {
+                if (reader.TokenType == JsonTokenType.StartObject)
+                {
+                    var obj = JsonObject.Parse(ref reader);
+                    return obj.Deserialize<Dictionary<string, object>>();
+                }
+                else
+                {
+                    reader.Skip(); // Unavailable
+                }
+
+                return null;
+            }
+
+            public override void Write(Utf8JsonWriter writer, Dictionary<string, object> value, JsonSerializerOptions options)
+            {
+                //writer.WriteStringValue(dateTimeValue.ToString("MM/dd/yyyy", CultureInfo.InvariantCulture));
+            }
         }
     }
 }
