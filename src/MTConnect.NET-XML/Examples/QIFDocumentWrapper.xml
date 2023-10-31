@@ -1,0 +1,124 @@
+﻿<QIFDocumentWrapper qifDocumentType="MEASUREMENT_RESOURCE">
+	<QIFDocument xmlns="http://qifstandards.org/xsd/qif3" idMax="9" versionQIF="3.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://qifstandards.org/xsd/qif3 ../QIFApplications/QIFDocument.xsd">
+
+		<QPId>CC1834A6-9B7E-4f52-A2AF-B291784C071D</QPId>
+
+		<StandardsDefinitions n="1">
+			<Standard id="9">
+				<Organization>
+					<StandardsOrganizationEnum>ASME</StandardsOrganizationEnum>
+				</Organization>
+				<Designator>Y14.5</Designator>
+				<Year>1994</Year>
+			</Standard>
+		</StandardsDefinitions>
+
+		<Characteristics>
+			<FormalStandardId>9</FormalStandardId>
+			<CharacteristicDefinitions n="1">
+				<SphericityCharacteristicDefinition id="1">
+					<ToleranceValue>0.05</ToleranceValue>
+				</SphericityCharacteristicDefinition>
+			</CharacteristicDefinitions>
+			<CharacteristicNominals n="1">
+				<SphericityCharacteristicNominal id="2">
+					<CharacteristicDefinitionId>1</CharacteristicDefinitionId>
+				</SphericityCharacteristicNominal>
+			</CharacteristicNominals>
+			<CharacteristicItems n="1">
+				<SphericityCharacteristicItem id="3">
+					<Name>Sphericity1</Name>
+					<CharacteristicDesignator>
+						<Designator>W1RFTM2</Designator>
+						<UUID>816060DA-7EB4-4fbb-BF5B-A124D54A924D</UUID>
+					</CharacteristicDesignator>
+					<CharacteristicNominalId>2</CharacteristicNominalId>
+				</SphericityCharacteristicItem>
+			</CharacteristicItems>
+		</Characteristics>
+
+		<Plan>
+			<UnorderedPlanRoot>
+				<Steps n="1">
+					<MeasureEvaluateAll/>
+				</Steps>
+			</UnorderedPlanRoot>
+		</Plan>
+
+		<Results>
+			<MeasurementResultsSet n="2">
+				<MeasurementResults id="4">
+					<ThisResultsInstanceQPId>
+						EB5E1598-BD3A-4df3-B01E-7945AA313459
+					</ThisResultsInstanceQPId>
+					<MeasuredCharacteristics>
+						<CharacteristicMeasurements n="1">
+							<SphericityCharacteristicMeasurement id="5">
+								<Status>
+									<CharacteristicStatusEnum>FAIL</CharacteristicStatusEnum>
+								</Status>
+								<CharacteristicItemId>3</CharacteristicItemId>
+								<Value>0.251457258827</Value>
+							</SphericityCharacteristicMeasurement>
+						</CharacteristicMeasurements>
+					</MeasuredCharacteristics>
+					<InspectionStatus>
+						<InspectionStatusEnum>FAIL</InspectionStatusEnum>
+					</InspectionStatus>
+				</MeasurementResults>
+				<MeasurementResults id="6">
+					<ThisResultsInstanceQPId>
+						748AAA34-B1E2-4399-9BB2-3036452574FB
+					</ThisResultsInstanceQPId>
+					<MeasuredCharacteristics>
+						<CharacteristicMeasurements n="1">
+							<SphericityCharacteristicMeasurement id="7">
+								<Status>
+									<CharacteristicStatusEnum>FAIL</CharacteristicStatusEnum>
+								</Status>
+								<CharacteristicItemId>3</CharacteristicItemId>
+								<Value>0.051042207099</Value>
+							</SphericityCharacteristicMeasurement>
+						</CharacteristicMeasurements>
+					</MeasuredCharacteristics>
+					<InspectionStatus>
+						<InspectionStatusEnum>FAIL</InspectionStatusEnum>
+					</InspectionStatus>
+				</MeasurementResults>
+			</MeasurementResultsSet>
+		</Results>
+
+		<Statistics>
+			<StatisticalStudiesResults n="1">
+				<SimpleStudyResults id="8">
+					<ThisStatisticalStudyResultsInstanceQPId>
+						14A3745E-CF73-4c9a-8938-F2C06A1164F4
+					</ThisStatisticalStudyResultsInstanceQPId>
+					<Status>
+						<StatsEvalStatusEnum>INFORMATIONAL</StatsEvalStatusEnum>
+					</Status>
+					<CharacteristicsStats n="1">
+						<SphericityCharacteristicStats>
+							<MeasuredIds>
+								<Ids n="2">
+									<Id>5</Id>
+									<Id>7</Id>
+								</Ids>
+							</MeasuredIds>
+							<Status>
+								<StatsEvalStatusEnum>INFORMATIONAL</StatsEvalStatusEnum>
+							</Status>
+							<ValueStats>
+								<Average>
+									<Value>0.251457258827</Value>
+								</Average>
+							</ValueStats>
+						</SphericityCharacteristicStats>
+					</CharacteristicsStats>
+					<NumberOfSamples>2</NumberOfSamples>
+				</SimpleStudyResults>
+			</StatisticalStudiesResults>
+		</Statistics>
+
+	</QIFDocument>
+</QIFDocumentWrapper>

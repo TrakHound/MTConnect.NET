@@ -123,7 +123,6 @@
 
 	<ItemGroup>
 	  <Folder Include="Assets\CuttingTools\Measurements\" />
-	  <Folder Include="Assets\QIF\" />
 	</ItemGroup>
 
 </Project>

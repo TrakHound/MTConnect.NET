@@ -251,8 +251,18 @@ namespace MTConnect
 
         public static string Clear(string xml)
         {
-            string regex = @"xmlns(:\w+)?=""(urn:mtconnect[^""]+)""|xsi(:\w+)?=""(urn:mtconnect[^""]+)""";
-            return Regex.Replace(xml, regex, "");
+            var output = xml;
+
+            //string regex = @"xmlns(:\w+)?=""(urn:mtconnect[^""]+)""|xsi(:\w+)?=""(urn:mtconnect[^""]+)""";
+
+            string regex = @"xmlns(:\w+)?=""(.+)""";
+            output = Regex.Replace(output, regex, "");
+
+            regex = @"xsi:schemaLocation=""(.+)""";
+            //regex = @"xsi(:\w+)?=""(.+)""";
+            output = Regex.Replace(output, regex, "");
+
+            return output;
         }
 
 

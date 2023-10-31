@@ -81,9 +81,11 @@ namespace MTConnect.Assets.Xml
                                 serializer = new XmlSerializer(type);
                                 _serializers.Add(type, serializer);
                             }
-                        }                
+                        }
 
-                        using (var textReader = new StringReader(Namespaces.Clear(xml)))
+                        xml = Namespaces.Clear(xml);
+
+                        using (var textReader = new StringReader(xml))
                         {
                             using (var xmlReader = XmlReader.Create(textReader))
                             {
