@@ -50,7 +50,7 @@ namespace MTConnect.Devices.Json
             var components = new List<IComponent>();
 
 {{- for type in types }}{{ i = i + 1 }}
-            if (!{{type.type}}.IsNullOrEmpty()) foreach (var component in {{type.type}}) components.Add(component.ToComponent());
+            if (!{{type.type}}.IsNullOrEmpty()) foreach (var component in {{type.type}}) components.Add(component.ToComponent({{type.name}}.TypeId));
 {{ end }}
 
             return components;

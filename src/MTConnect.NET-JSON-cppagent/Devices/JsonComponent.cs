@@ -10,9 +10,6 @@ namespace MTConnect.Devices.Json
         [JsonPropertyName("id")]
         public string Id { get; set; }
 
-        [JsonPropertyName("type")]
-        public string Type { get; set; }
-
         [JsonPropertyName("name")]
         public string Name { get; set; }
 
@@ -60,7 +57,7 @@ namespace MTConnect.Devices.Json
                 Uuid = component.Uuid;
                 Name = component.Name;
                 NativeName = component.NativeName;
-                Type = component.Type;
+                //Type = component.Type;
                 if (component.Description != null) Description = new JsonDescription(component.Description);
                 if (component.SampleRate > 0) SampleRate = component.SampleRate;
                 if (component.SampleInterval > 0) SampleInterval = component.SampleInterval;
@@ -95,7 +92,7 @@ namespace MTConnect.Devices.Json
 
         public override string ToString() => JsonFunctions.Convert(this);
 
-        public Component ToComponent()
+        public Component ToComponent(string componentType)
         {
             var component = new Component();
 
@@ -103,7 +100,7 @@ namespace MTConnect.Devices.Json
             component.Uuid = Uuid;
             component.Name = Name;
             component.NativeName = NativeName;
-            component.Type = Type;
+            component.Type = componentType;
             if (Description != null) component.Description = Description.ToDescription();
             component.SampleRate = SampleRate.HasValue ? SampleRate.Value : 0;
             component.SampleInterval = SampleInterval.HasValue ? SampleInterval.Value : 0;

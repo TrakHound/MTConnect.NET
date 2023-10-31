@@ -24,7 +24,7 @@ namespace MTConnect.Devices.Json
         [JsonPropertyName("calibrationInitials")]
         public string CalibrationInitials { get; set; }
 
-        [JsonPropertyName("description")]
+        [JsonPropertyName("Description")]
         public JsonDescription Description { get; set; }
 
 

@@ -724,233 +724,233 @@ namespace MTConnect.Devices.Json
         public IEnumerable<IComponent> ToComponents()
         {
             var components = new List<IComponent>();
-            if (!Actuator.IsNullOrEmpty()) foreach (var component in Actuator) components.Add(component.ToComponent());
+            if (!Actuator.IsNullOrEmpty()) foreach (var component in Actuator) components.Add(component.ToComponent(ActuatorComponent.TypeId));
 
-            if (!Adapter.IsNullOrEmpty()) foreach (var component in Adapter) components.Add(component.ToComponent());
+            if (!Adapter.IsNullOrEmpty()) foreach (var component in Adapter) components.Add(component.ToComponent(AdapterComponent.TypeId));
 
-            if (!Adapters.IsNullOrEmpty()) foreach (var component in Adapters) components.Add(component.ToComponent());
+            if (!Adapters.IsNullOrEmpty()) foreach (var component in Adapters) components.Add(component.ToComponent(AdaptersComponent.TypeId));
 
-            if (!Amplifier.IsNullOrEmpty()) foreach (var component in Amplifier) components.Add(component.ToComponent());
+            if (!Amplifier.IsNullOrEmpty()) foreach (var component in Amplifier) components.Add(component.ToComponent(AmplifierComponent.TypeId));
 
-            if (!AutomaticToolChanger.IsNullOrEmpty()) foreach (var component in AutomaticToolChanger) components.Add(component.ToComponent());
+            if (!AutomaticToolChanger.IsNullOrEmpty()) foreach (var component in AutomaticToolChanger) components.Add(component.ToComponent(AutomaticToolChangerComponent.TypeId));
 
-            if (!Auxiliaries.IsNullOrEmpty()) foreach (var component in Auxiliaries) components.Add(component.ToComponent());
+            if (!Auxiliaries.IsNullOrEmpty()) foreach (var component in Auxiliaries) components.Add(component.ToComponent(AuxiliariesComponent.TypeId));
 
-            if (!Auxiliary.IsNullOrEmpty()) foreach (var component in Auxiliary) components.Add(component.ToComponent());
+            if (!Auxiliary.IsNullOrEmpty()) foreach (var component in Auxiliary) components.Add(component.ToComponent(AuxiliaryComponent.TypeId));
 
-            if (!Axes.IsNullOrEmpty()) foreach (var component in Axes) components.Add(component.ToComponent());
+            if (!Axes.IsNullOrEmpty()) foreach (var component in Axes) components.Add(component.ToComponent(AxesComponent.TypeId));
 
-            if (!Axis.IsNullOrEmpty()) foreach (var component in Axis) components.Add(component.ToComponent());
+            if (!Axis.IsNullOrEmpty()) foreach (var component in Axis) components.Add(component.ToComponent(AxisComponent.TypeId));
 
-            if (!Ballscrew.IsNullOrEmpty()) foreach (var component in Ballscrew) components.Add(component.ToComponent());
+            if (!Ballscrew.IsNullOrEmpty()) foreach (var component in Ballscrew) components.Add(component.ToComponent(BallscrewComponent.TypeId));
 
-            if (!BarFeeder.IsNullOrEmpty()) foreach (var component in BarFeeder) components.Add(component.ToComponent());
+            if (!BarFeeder.IsNullOrEmpty()) foreach (var component in BarFeeder) components.Add(component.ToComponent(BarFeederComponent.TypeId));
 
-            if (!Belt.IsNullOrEmpty()) foreach (var component in Belt) components.Add(component.ToComponent());
+            if (!Belt.IsNullOrEmpty()) foreach (var component in Belt) components.Add(component.ToComponent(BeltComponent.TypeId));
 
-            if (!Brake.IsNullOrEmpty()) foreach (var component in Brake) components.Add(component.ToComponent());
+            if (!Brake.IsNullOrEmpty()) foreach (var component in Brake) components.Add(component.ToComponent(BrakeComponent.TypeId));
 
-            if (!Chain.IsNullOrEmpty()) foreach (var component in Chain) components.Add(component.ToComponent());
+            if (!Chain.IsNullOrEmpty()) foreach (var component in Chain) components.Add(component.ToComponent(ChainComponent.TypeId));
 
-            if (!Chopper.IsNullOrEmpty()) foreach (var component in Chopper) components.Add(component.ToComponent());
+            if (!Chopper.IsNullOrEmpty()) foreach (var component in Chopper) components.Add(component.ToComponent(ChopperComponent.TypeId));
 
-            if (!Chuck.IsNullOrEmpty()) foreach (var component in Chuck) components.Add(component.ToComponent());
+            if (!Chuck.IsNullOrEmpty()) foreach (var component in Chuck) components.Add(component.ToComponent(ChuckComponent.TypeId));
 
-            if (!Chute.IsNullOrEmpty()) foreach (var component in Chute) components.Add(component.ToComponent());
+            if (!Chute.IsNullOrEmpty()) foreach (var component in Chute) components.Add(component.ToComponent(ChuteComponent.TypeId));
 
-            if (!CircuitBreaker.IsNullOrEmpty()) foreach (var component in CircuitBreaker) components.Add(component.ToComponent());
+            if (!CircuitBreaker.IsNullOrEmpty()) foreach (var component in CircuitBreaker) components.Add(component.ToComponent(CircuitBreakerComponent.TypeId));
 
-            if (!Clamp.IsNullOrEmpty()) foreach (var component in Clamp) components.Add(component.ToComponent());
+            if (!Clamp.IsNullOrEmpty()) foreach (var component in Clamp) components.Add(component.ToComponent(ClampComponent.TypeId));
 
-            if (!Compressor.IsNullOrEmpty()) foreach (var component in Compressor) components.Add(component.ToComponent());
+            if (!Compressor.IsNullOrEmpty()) foreach (var component in Compressor) components.Add(component.ToComponent(CompressorComponent.TypeId));
 
-            if (!Controller.IsNullOrEmpty()) foreach (var component in Controller) components.Add(component.ToComponent());
+            if (!Controller.IsNullOrEmpty()) foreach (var component in Controller) components.Add(component.ToComponent(ControllerComponent.TypeId));
 
-            if (!Controllers.IsNullOrEmpty()) foreach (var component in Controllers) components.Add(component.ToComponent());
+            if (!Controllers.IsNullOrEmpty()) foreach (var component in Controllers) components.Add(component.ToComponent(ControllersComponent.TypeId));
 
-            if (!Coolant.IsNullOrEmpty()) foreach (var component in Coolant) components.Add(component.ToComponent());
+            if (!Coolant.IsNullOrEmpty()) foreach (var component in Coolant) components.Add(component.ToComponent(CoolantComponent.TypeId));
 
-            if (!Cooling.IsNullOrEmpty()) foreach (var component in Cooling) components.Add(component.ToComponent());
+            if (!Cooling.IsNullOrEmpty()) foreach (var component in Cooling) components.Add(component.ToComponent(CoolingComponent.TypeId));
 
-            if (!CoolingTower.IsNullOrEmpty()) foreach (var component in CoolingTower) components.Add(component.ToComponent());
+            if (!CoolingTower.IsNullOrEmpty()) foreach (var component in CoolingTower) components.Add(component.ToComponent(CoolingTowerComponent.TypeId));
 
-            if (!Deposition.IsNullOrEmpty()) foreach (var component in Deposition) components.Add(component.ToComponent());
+            if (!Deposition.IsNullOrEmpty()) foreach (var component in Deposition) components.Add(component.ToComponent(DepositionComponent.TypeId));
 
-            if (!Dielectric.IsNullOrEmpty()) foreach (var component in Dielectric) components.Add(component.ToComponent());
+            if (!Dielectric.IsNullOrEmpty()) foreach (var component in Dielectric) components.Add(component.ToComponent(DielectricComponent.TypeId));
 
-            if (!Door.IsNullOrEmpty()) foreach (var component in Door) components.Add(component.ToComponent());
+            if (!Door.IsNullOrEmpty()) foreach (var component in Door) components.Add(component.ToComponent(DoorComponent.TypeId));
 
-            if (!Drain.IsNullOrEmpty()) foreach (var component in Drain) components.Add(component.ToComponent());
+            if (!Drain.IsNullOrEmpty()) foreach (var component in Drain) components.Add(component.ToComponent(DrainComponent.TypeId));
 
-            if (!Electric.IsNullOrEmpty()) foreach (var component in Electric) components.Add(component.ToComponent());
+            if (!Electric.IsNullOrEmpty()) foreach (var component in Electric) components.Add(component.ToComponent(ElectricComponent.TypeId));
 
-            if (!Enclosure.IsNullOrEmpty()) foreach (var component in Enclosure) components.Add(component.ToComponent());
+            if (!Enclosure.IsNullOrEmpty()) foreach (var component in Enclosure) components.Add(component.ToComponent(EnclosureComponent.TypeId));
 
-            if (!Encoder.IsNullOrEmpty()) foreach (var component in Encoder) components.Add(component.ToComponent());
+            if (!Encoder.IsNullOrEmpty()) foreach (var component in Encoder) components.Add(component.ToComponent(EncoderComponent.TypeId));
 
-            if (!EndEffector.IsNullOrEmpty()) foreach (var component in EndEffector) components.Add(component.ToComponent());
+            if (!EndEffector.IsNullOrEmpty()) foreach (var component in EndEffector) components.Add(component.ToComponent(EndEffectorComponent.TypeId));
 
-            if (!Environmental.IsNullOrEmpty()) foreach (var component in Environmental) components.Add(component.ToComponent());
+            if (!Environmental.IsNullOrEmpty()) foreach (var component in Environmental) components.Add(component.ToComponent(EnvironmentalComponent.TypeId));
 
-            if (!ExpiredPot.IsNullOrEmpty()) foreach (var component in ExpiredPot) components.Add(component.ToComponent());
+            if (!ExpiredPot.IsNullOrEmpty()) foreach (var component in ExpiredPot) components.Add(component.ToComponent(ExpiredPotComponent.TypeId));
 
-            if (!ExposureUnit.IsNullOrEmpty()) foreach (var component in ExposureUnit) components.Add(component.ToComponent());
+            if (!ExposureUnit.IsNullOrEmpty()) foreach (var component in ExposureUnit) components.Add(component.ToComponent(ExposureUnitComponent.TypeId));
 
-            if (!ExtrusionUnit.IsNullOrEmpty()) foreach (var component in ExtrusionUnit) components.Add(component.ToComponent());
+            if (!ExtrusionUnit.IsNullOrEmpty()) foreach (var component in ExtrusionUnit) components.Add(component.ToComponent(ExtrusionUnitComponent.TypeId));
 
-            if (!Fan.IsNullOrEmpty()) foreach (var component in Fan) components.Add(component.ToComponent());
+            if (!Fan.IsNullOrEmpty()) foreach (var component in Fan) components.Add(component.ToComponent(FanComponent.TypeId));
 
-            if (!FeatureOccurrence.IsNullOrEmpty()) foreach (var component in FeatureOccurrence) components.Add(component.ToComponent());
+            if (!FeatureOccurrence.IsNullOrEmpty()) foreach (var component in FeatureOccurrence) components.Add(component.ToComponent(FeatureOccurrenceComponent.TypeId));
 
-            if (!Feeder.IsNullOrEmpty()) foreach (var component in Feeder) components.Add(component.ToComponent());
+            if (!Feeder.IsNullOrEmpty()) foreach (var component in Feeder) components.Add(component.ToComponent(FeederComponent.TypeId));
 
-            if (!Filter.IsNullOrEmpty()) foreach (var component in Filter) components.Add(component.ToComponent());
+            if (!Filter.IsNullOrEmpty()) foreach (var component in Filter) components.Add(component.ToComponent(FilterComponent.TypeId));
 
-            if (!Galvanomotor.IsNullOrEmpty()) foreach (var component in Galvanomotor) components.Add(component.ToComponent());
+            if (!Galvanomotor.IsNullOrEmpty()) foreach (var component in Galvanomotor) components.Add(component.ToComponent(GalvanomotorComponent.TypeId));
 
-            if (!GangToolBar.IsNullOrEmpty()) foreach (var component in GangToolBar) components.Add(component.ToComponent());
+            if (!GangToolBar.IsNullOrEmpty()) foreach (var component in GangToolBar) components.Add(component.ToComponent(GangToolBarComponent.TypeId));
 
-            if (!Gripper.IsNullOrEmpty()) foreach (var component in Gripper) components.Add(component.ToComponent());
+            if (!Gripper.IsNullOrEmpty()) foreach (var component in Gripper) components.Add(component.ToComponent(GripperComponent.TypeId));
 
-            if (!Heating.IsNullOrEmpty()) foreach (var component in Heating) components.Add(component.ToComponent());
+            if (!Heating.IsNullOrEmpty()) foreach (var component in Heating) components.Add(component.ToComponent(HeatingComponent.TypeId));
 
-            if (!Hopper.IsNullOrEmpty()) foreach (var component in Hopper) components.Add(component.ToComponent());
+            if (!Hopper.IsNullOrEmpty()) foreach (var component in Hopper) components.Add(component.ToComponent(HopperComponent.TypeId));
 
-            if (!Hydraulic.IsNullOrEmpty()) foreach (var component in Hydraulic) components.Add(component.ToComponent());
+            if (!Hydraulic.IsNullOrEmpty()) foreach (var component in Hydraulic) components.Add(component.ToComponent(HydraulicComponent.TypeId));
 
-            if (!Interfaces.IsNullOrEmpty()) foreach (var component in Interfaces) components.Add(component.ToComponent());
+            if (!Interfaces.IsNullOrEmpty()) foreach (var component in Interfaces) components.Add(component.ToComponent(InterfacesComponent.TypeId));
 
-            if (!Linear.IsNullOrEmpty()) foreach (var component in Linear) components.Add(component.ToComponent());
+            if (!Linear.IsNullOrEmpty()) foreach (var component in Linear) components.Add(component.ToComponent(LinearComponent.TypeId));
 
-            if (!LinearPositionFeedback.IsNullOrEmpty()) foreach (var component in LinearPositionFeedback) components.Add(component.ToComponent());
+            if (!LinearPositionFeedback.IsNullOrEmpty()) foreach (var component in LinearPositionFeedback) components.Add(component.ToComponent(LinearPositionFeedbackComponent.TypeId));
 
-            if (!Link.IsNullOrEmpty()) foreach (var component in Link) components.Add(component.ToComponent());
+            if (!Link.IsNullOrEmpty()) foreach (var component in Link) components.Add(component.ToComponent(LinkComponent.TypeId));
 
-            if (!Loader.IsNullOrEmpty()) foreach (var component in Loader) components.Add(component.ToComponent());
+            if (!Loader.IsNullOrEmpty()) foreach (var component in Loader) components.Add(component.ToComponent(LoaderComponent.TypeId));
 
-            if (!Lock.IsNullOrEmpty()) foreach (var component in Lock) components.Add(component.ToComponent());
+            if (!Lock.IsNullOrEmpty()) foreach (var component in Lock) components.Add(component.ToComponent(LockComponent.TypeId));
 
-            if (!Lubrication.IsNullOrEmpty()) foreach (var component in Lubrication) components.Add(component.ToComponent());
+            if (!Lubrication.IsNullOrEmpty()) foreach (var component in Lubrication) components.Add(component.ToComponent(LubricationComponent.TypeId));
 
-            if (!Material.IsNullOrEmpty()) foreach (var component in Material) components.Add(component.ToComponent());
+            if (!Material.IsNullOrEmpty()) foreach (var component in Material) components.Add(component.ToComponent(MaterialComponent.TypeId));
 
-            if (!Materials.IsNullOrEmpty()) foreach (var component in Materials) components.Add(component.ToComponent());
+            if (!Materials.IsNullOrEmpty()) foreach (var component in Materials) components.Add(component.ToComponent(MaterialsComponent.TypeId));
 
-            if (!Motor.IsNullOrEmpty()) foreach (var component in Motor) components.Add(component.ToComponent());
+            if (!Motor.IsNullOrEmpty()) foreach (var component in Motor) components.Add(component.ToComponent(MotorComponent.TypeId));
 
-            if (!Oil.IsNullOrEmpty()) foreach (var component in Oil) components.Add(component.ToComponent());
+            if (!Oil.IsNullOrEmpty()) foreach (var component in Oil) components.Add(component.ToComponent(OilComponent.TypeId));
 
-            if (!Part.IsNullOrEmpty()) foreach (var component in Part) components.Add(component.ToComponent());
+            if (!Part.IsNullOrEmpty()) foreach (var component in Part) components.Add(component.ToComponent(PartComponent.TypeId));
 
-            if (!PartOccurrence.IsNullOrEmpty()) foreach (var component in PartOccurrence) components.Add(component.ToComponent());
+            if (!PartOccurrence.IsNullOrEmpty()) foreach (var component in PartOccurrence) components.Add(component.ToComponent(PartOccurrenceComponent.TypeId));
 
-            if (!Parts.IsNullOrEmpty()) foreach (var component in Parts) components.Add(component.ToComponent());
+            if (!Parts.IsNullOrEmpty()) foreach (var component in Parts) components.Add(component.ToComponent(PartsComponent.TypeId));
 
-            if (!Path.IsNullOrEmpty()) foreach (var component in Path) components.Add(component.ToComponent());
+            if (!Path.IsNullOrEmpty()) foreach (var component in Path) components.Add(component.ToComponent(PathComponent.TypeId));
 
-            if (!Personnel.IsNullOrEmpty()) foreach (var component in Personnel) components.Add(component.ToComponent());
+            if (!Personnel.IsNullOrEmpty()) foreach (var component in Personnel) components.Add(component.ToComponent(PersonnelComponent.TypeId));
 
-            if (!Pneumatic.IsNullOrEmpty()) foreach (var component in Pneumatic) components.Add(component.ToComponent());
+            if (!Pneumatic.IsNullOrEmpty()) foreach (var component in Pneumatic) components.Add(component.ToComponent(PneumaticComponent.TypeId));
 
-            if (!Pot.IsNullOrEmpty()) foreach (var component in Pot) components.Add(component.ToComponent());
+            if (!Pot.IsNullOrEmpty()) foreach (var component in Pot) components.Add(component.ToComponent(PotComponent.TypeId));
 
-            if (!Power.IsNullOrEmpty()) foreach (var component in Power) components.Add(component.ToComponent());
+            if (!Power.IsNullOrEmpty()) foreach (var component in Power) components.Add(component.ToComponent(PowerComponent.TypeId));
 
-            if (!PowerSupply.IsNullOrEmpty()) foreach (var component in PowerSupply) components.Add(component.ToComponent());
+            if (!PowerSupply.IsNullOrEmpty()) foreach (var component in PowerSupply) components.Add(component.ToComponent(PowerSupplyComponent.TypeId));
 
-            if (!Pressure.IsNullOrEmpty()) foreach (var component in Pressure) components.Add(component.ToComponent());
+            if (!Pressure.IsNullOrEmpty()) foreach (var component in Pressure) components.Add(component.ToComponent(PressureComponent.TypeId));
 
-            if (!Process.IsNullOrEmpty()) foreach (var component in Process) components.Add(component.ToComponent());
+            if (!Process.IsNullOrEmpty()) foreach (var component in Process) components.Add(component.ToComponent(ProcessComponent.TypeId));
 
-            if (!Processes.IsNullOrEmpty()) foreach (var component in Processes) components.Add(component.ToComponent());
+            if (!Processes.IsNullOrEmpty()) foreach (var component in Processes) components.Add(component.ToComponent(ProcessesComponent.TypeId));
 
-            if (!ProcessOccurrence.IsNullOrEmpty()) foreach (var component in ProcessOccurrence) components.Add(component.ToComponent());
+            if (!ProcessOccurrence.IsNullOrEmpty()) foreach (var component in ProcessOccurrence) components.Add(component.ToComponent(ProcessOccurrenceComponent.TypeId));
 
-            if (!ProcessPower.IsNullOrEmpty()) foreach (var component in ProcessPower) components.Add(component.ToComponent());
+            if (!ProcessPower.IsNullOrEmpty()) foreach (var component in ProcessPower) components.Add(component.ToComponent(ProcessPowerComponent.TypeId));
 
-            if (!Protective.IsNullOrEmpty()) foreach (var component in Protective) components.Add(component.ToComponent());
+            if (!Protective.IsNullOrEmpty()) foreach (var component in Protective) components.Add(component.ToComponent(ProtectiveComponent.TypeId));
 
-            if (!Pulley.IsNullOrEmpty()) foreach (var component in Pulley) components.Add(component.ToComponent());
+            if (!Pulley.IsNullOrEmpty()) foreach (var component in Pulley) components.Add(component.ToComponent(PulleyComponent.TypeId));
 
-            if (!Pump.IsNullOrEmpty()) foreach (var component in Pump) components.Add(component.ToComponent());
+            if (!Pump.IsNullOrEmpty()) foreach (var component in Pump) components.Add(component.ToComponent(PumpComponent.TypeId));
 
-            if (!Reel.IsNullOrEmpty()) foreach (var component in Reel) components.Add(component.ToComponent());
+            if (!Reel.IsNullOrEmpty()) foreach (var component in Reel) components.Add(component.ToComponent(ReelComponent.TypeId));
 
-            if (!RemovalPot.IsNullOrEmpty()) foreach (var component in RemovalPot) components.Add(component.ToComponent());
+            if (!RemovalPot.IsNullOrEmpty()) foreach (var component in RemovalPot) components.Add(component.ToComponent(RemovalPotComponent.TypeId));
 
-            if (!Resource.IsNullOrEmpty()) foreach (var component in Resource) components.Add(component.ToComponent());
+            if (!Resource.IsNullOrEmpty()) foreach (var component in Resource) components.Add(component.ToComponent(ResourceComponent.TypeId));
 
-            if (!Resources.IsNullOrEmpty()) foreach (var component in Resources) components.Add(component.ToComponent());
+            if (!Resources.IsNullOrEmpty()) foreach (var component in Resources) components.Add(component.ToComponent(ResourcesComponent.TypeId));
 
-            if (!ReturnPot.IsNullOrEmpty()) foreach (var component in ReturnPot) components.Add(component.ToComponent());
+            if (!ReturnPot.IsNullOrEmpty()) foreach (var component in ReturnPot) components.Add(component.ToComponent(ReturnPotComponent.TypeId));
 
-            if (!Rotary.IsNullOrEmpty()) foreach (var component in Rotary) components.Add(component.ToComponent());
+            if (!Rotary.IsNullOrEmpty()) foreach (var component in Rotary) components.Add(component.ToComponent(RotaryComponent.TypeId));
 
-            if (!SensingElement.IsNullOrEmpty()) foreach (var component in SensingElement) components.Add(component.ToComponent());
+            if (!SensingElement.IsNullOrEmpty()) foreach (var component in SensingElement) components.Add(component.ToComponent(SensingElementComponent.TypeId));
 
-            if (!Sensor.IsNullOrEmpty()) foreach (var component in Sensor) components.Add(component.ToComponent());
+            if (!Sensor.IsNullOrEmpty()) foreach (var component in Sensor) components.Add(component.ToComponent(SensorComponent.TypeId));
 
-            if (!Spindle.IsNullOrEmpty()) foreach (var component in Spindle) components.Add(component.ToComponent());
+            if (!Spindle.IsNullOrEmpty()) foreach (var component in Spindle) components.Add(component.ToComponent(SpindleComponent.TypeId));
 
-            if (!Spreader.IsNullOrEmpty()) foreach (var component in Spreader) components.Add(component.ToComponent());
+            if (!Spreader.IsNullOrEmpty()) foreach (var component in Spreader) components.Add(component.ToComponent(SpreaderComponent.TypeId));
 
-            if (!StagingPot.IsNullOrEmpty()) foreach (var component in StagingPot) components.Add(component.ToComponent());
+            if (!StagingPot.IsNullOrEmpty()) foreach (var component in StagingPot) components.Add(component.ToComponent(StagingPotComponent.TypeId));
 
-            if (!Station.IsNullOrEmpty()) foreach (var component in Station) components.Add(component.ToComponent());
+            if (!Station.IsNullOrEmpty()) foreach (var component in Station) components.Add(component.ToComponent(StationComponent.TypeId));
 
-            if (!Stock.IsNullOrEmpty()) foreach (var component in Stock) components.Add(component.ToComponent());
+            if (!Stock.IsNullOrEmpty()) foreach (var component in Stock) components.Add(component.ToComponent(StockComponent.TypeId));
 
-            if (!StorageBattery.IsNullOrEmpty()) foreach (var component in StorageBattery) components.Add(component.ToComponent());
+            if (!StorageBattery.IsNullOrEmpty()) foreach (var component in StorageBattery) components.Add(component.ToComponent(StorageBatteryComponent.TypeId));
 
-            if (!Structure.IsNullOrEmpty()) foreach (var component in Structure) components.Add(component.ToComponent());
+            if (!Structure.IsNullOrEmpty()) foreach (var component in Structure) components.Add(component.ToComponent(StructureComponent.TypeId));
 
-            if (!Structures.IsNullOrEmpty()) foreach (var component in Structures) components.Add(component.ToComponent());
+            if (!Structures.IsNullOrEmpty()) foreach (var component in Structures) components.Add(component.ToComponent(StructuresComponent.TypeId));
 
-            if (!Switch.IsNullOrEmpty()) foreach (var component in Switch) components.Add(component.ToComponent());
+            if (!Switch.IsNullOrEmpty()) foreach (var component in Switch) components.Add(component.ToComponent(SwitchComponent.TypeId));
 
-            if (!System.IsNullOrEmpty()) foreach (var component in System) components.Add(component.ToComponent());
+            if (!System.IsNullOrEmpty()) foreach (var component in System) components.Add(component.ToComponent(SystemComponent.TypeId));
 
-            if (!Systems.IsNullOrEmpty()) foreach (var component in Systems) components.Add(component.ToComponent());
+            if (!Systems.IsNullOrEmpty()) foreach (var component in Systems) components.Add(component.ToComponent(SystemsComponent.TypeId));
 
-            if (!Table.IsNullOrEmpty()) foreach (var component in Table) components.Add(component.ToComponent());
+            if (!Table.IsNullOrEmpty()) foreach (var component in Table) components.Add(component.ToComponent(TableComponent.TypeId));
 
-            if (!Tank.IsNullOrEmpty()) foreach (var component in Tank) components.Add(component.ToComponent());
+            if (!Tank.IsNullOrEmpty()) foreach (var component in Tank) components.Add(component.ToComponent(TankComponent.TypeId));
 
-            if (!Tensioner.IsNullOrEmpty()) foreach (var component in Tensioner) components.Add(component.ToComponent());
+            if (!Tensioner.IsNullOrEmpty()) foreach (var component in Tensioner) components.Add(component.ToComponent(TensionerComponent.TypeId));
 
-            if (!Thermostat.IsNullOrEmpty()) foreach (var component in Thermostat) components.Add(component.ToComponent());
+            if (!Thermostat.IsNullOrEmpty()) foreach (var component in Thermostat) components.Add(component.ToComponent(ThermostatComponent.TypeId));
 
-            if (!ToolingDelivery.IsNullOrEmpty()) foreach (var component in ToolingDelivery) components.Add(component.ToComponent());
+            if (!ToolingDelivery.IsNullOrEmpty()) foreach (var component in ToolingDelivery) components.Add(component.ToComponent(ToolingDeliveryComponent.TypeId));
 
-            if (!ToolMagazine.IsNullOrEmpty()) foreach (var component in ToolMagazine) components.Add(component.ToComponent());
+            if (!ToolMagazine.IsNullOrEmpty()) foreach (var component in ToolMagazine) components.Add(component.ToComponent(ToolMagazineComponent.TypeId));
 
-            if (!ToolRack.IsNullOrEmpty()) foreach (var component in ToolRack) components.Add(component.ToComponent());
+            if (!ToolRack.IsNullOrEmpty()) foreach (var component in ToolRack) components.Add(component.ToComponent(ToolRackComponent.TypeId));
 
-            if (!TransferArm.IsNullOrEmpty()) foreach (var component in TransferArm) components.Add(component.ToComponent());
+            if (!TransferArm.IsNullOrEmpty()) foreach (var component in TransferArm) components.Add(component.ToComponent(TransferArmComponent.TypeId));
 
-            if (!TransferPot.IsNullOrEmpty()) foreach (var component in TransferPot) components.Add(component.ToComponent());
+            if (!TransferPot.IsNullOrEmpty()) foreach (var component in TransferPot) components.Add(component.ToComponent(TransferPotComponent.TypeId));
 
-            if (!Transformer.IsNullOrEmpty()) foreach (var component in Transformer) components.Add(component.ToComponent());
+            if (!Transformer.IsNullOrEmpty()) foreach (var component in Transformer) components.Add(component.ToComponent(TransformerComponent.TypeId));
 
-            if (!Turret.IsNullOrEmpty()) foreach (var component in Turret) components.Add(component.ToComponent());
+            if (!Turret.IsNullOrEmpty()) foreach (var component in Turret) components.Add(component.ToComponent(TurretComponent.TypeId));
 
-            if (!Vacuum.IsNullOrEmpty()) foreach (var component in Vacuum) components.Add(component.ToComponent());
+            if (!Vacuum.IsNullOrEmpty()) foreach (var component in Vacuum) components.Add(component.ToComponent(VacuumComponent.TypeId));
 
-            if (!Valve.IsNullOrEmpty()) foreach (var component in Valve) components.Add(component.ToComponent());
+            if (!Valve.IsNullOrEmpty()) foreach (var component in Valve) components.Add(component.ToComponent(ValveComponent.TypeId));
 
-            if (!Vat.IsNullOrEmpty()) foreach (var component in Vat) components.Add(component.ToComponent());
+            if (!Vat.IsNullOrEmpty()) foreach (var component in Vat) components.Add(component.ToComponent(VatComponent.TypeId));
 
-            if (!Vibration.IsNullOrEmpty()) foreach (var component in Vibration) components.Add(component.ToComponent());
+            if (!Vibration.IsNullOrEmpty()) foreach (var component in Vibration) components.Add(component.ToComponent(VibrationComponent.TypeId));
 
-            if (!WasteDisposal.IsNullOrEmpty()) foreach (var component in WasteDisposal) components.Add(component.ToComponent());
+            if (!WasteDisposal.IsNullOrEmpty()) foreach (var component in WasteDisposal) components.Add(component.ToComponent(WasteDisposalComponent.TypeId));
 
-            if (!Water.IsNullOrEmpty()) foreach (var component in Water) components.Add(component.ToComponent());
+            if (!Water.IsNullOrEmpty()) foreach (var component in Water) components.Add(component.ToComponent(WaterComponent.TypeId));
 
-            if (!Wire.IsNullOrEmpty()) foreach (var component in Wire) components.Add(component.ToComponent());
+            if (!Wire.IsNullOrEmpty()) foreach (var component in Wire) components.Add(component.ToComponent(WireComponent.TypeId));
 
-            if (!WorkEnvelope.IsNullOrEmpty()) foreach (var component in WorkEnvelope) components.Add(component.ToComponent());
+            if (!WorkEnvelope.IsNullOrEmpty()) foreach (var component in WorkEnvelope) components.Add(component.ToComponent(WorkEnvelopeComponent.TypeId));
 
-            if (!Workpiece.IsNullOrEmpty()) foreach (var component in Workpiece) components.Add(component.ToComponent());
+            if (!Workpiece.IsNullOrEmpty()) foreach (var component in Workpiece) components.Add(component.ToComponent(WorkpieceComponent.TypeId));
 
 
             return components;

@@ -22,7 +22,7 @@ namespace MTConnect.Devices.Json
         [JsonPropertyName("subType")]
         public string SubType { get; set; }
 
-        [JsonPropertyName("description")]
+        [JsonPropertyName("Description")]
         public JsonDescription Description { get; set; }
 
 

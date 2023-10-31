@@ -10,19 +10,19 @@ namespace MTConnect.Devices.Json
 {
     public class JsonSensorConfiguration
     {
-        [JsonPropertyName("firmwareVersion")]
+        [JsonPropertyName("FirmwareVersion")]
         public string FirmwareVersion { get; set; }
 
-        [JsonPropertyName("calibrationDate")]
+        [JsonPropertyName("CalibrationDate")]
         public DateTime CalibrationDate { get; set; }
 
-        [JsonPropertyName("nextCalibrationDate")]
+        [JsonPropertyName("NextCalibrationDate")]
         public DateTime NextCalibrationDate { get; set; }
 
-        [JsonPropertyName("calibrationInitials")]
+        [JsonPropertyName("CalibrationInitials")]
         public string CalibrationInitials { get; set; }
 
-        [JsonPropertyName("channels")]
+        [JsonPropertyName("Channels")]
         public List<JsonChannel> Channels { get; set; }
 
 
