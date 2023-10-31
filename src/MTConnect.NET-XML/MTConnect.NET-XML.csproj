@@ -53,7 +53,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Compile Remove="Assets\QIF\XmlQIFDocumentWrapperAsset - Copy.cs" />
 	  <Compile Remove="Streams\Serializers.cs" />
 	  <Compile Remove="Streams\XmlComponentStream - Copy (2).cs" />
 	  <Compile Remove="Streams\XmlComponentStream - Copy.cs" />
@@ -76,10 +75,6 @@
 	  <Compile Remove="Streams\XmlStreamsResponseDocument - Copy %283%29.cs" />
 	  <Compile Remove="Streams\XmlStreamsResponseDocument - Copy %284%29.cs" />
 	  <Compile Remove="Streams\XmlStreamsResponseDocument - Copy.cs" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <None Include="Assets\QIF\XmlQIFDocumentWrapperAsset - Copy.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
