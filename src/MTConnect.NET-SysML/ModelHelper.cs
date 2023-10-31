@@ -504,6 +504,10 @@ namespace MTConnect.SysML
                 case "_19_0_3_68e0225_1618831023683_973378_367": return true; // Assets.RawMaterials.RawMaterial.ManufacturingDate
 
                 case "_19_0_3_68e0225_1618831426887_198644_412": return true; // Assets.RawMaterials.Material.ManufacturingDate
+
+                case "_19_0_3_68e0225_1678197448351_159297_18088": return true; // Assets.ComponentConfigurationParameters.Parameter.Maximum
+                case "_19_0_3_68e0225_1678197439753_242271_18083": return true; // Assets.ComponentConfigurationParameters.Parameter.Minimum
+                case "_19_0_3_68e0225_1678197459368_734960_18093": return true; // Assets.ComponentConfigurationParameters.Parameter.Nominal
             }
 
             return false;

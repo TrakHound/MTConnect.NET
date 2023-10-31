@@ -21,12 +21,12 @@ namespace MTConnect.Assets.ComponentConfigurationParameters
         /// <summary>
         /// Maximum allowed value.
         /// </summary>
-        public string Maximum { get; set; }
+        public double? Maximum { get; set; }
         
         /// <summary>
         /// Minimal allowed value.
         /// </summary>
-        public string Minimum { get; set; }
+        public double? Minimum { get; set; }
         
         /// <summary>
         /// Descriptive name.
@@ -36,7 +36,7 @@ namespace MTConnect.Assets.ComponentConfigurationParameters
         /// <summary>
         /// Nominal value.
         /// </summary>
-        public string Nominal { get; set; }
+        public double? Nominal { get; set; }
         
         /// <summary>
         /// Engineering units.units **SHOULD** be SI or MTConnect Units (See UnitEnum).

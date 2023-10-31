@@ -105,6 +105,9 @@ namespace MTConnect.SysML
                     // float
                     case "_19_0_3_91b028d_1579272506322_914606_702": return "double";
 
+                    // double
+                    case "_19_0_3_68e0225_1678197512818_76309_18111": return "double";
+
                     // DateTime
                     case "_19_0_3_91b028d_1579272233011_597138_670": return "System.DateTime";
 
