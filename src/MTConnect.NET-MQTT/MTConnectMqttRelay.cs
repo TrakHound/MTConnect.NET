@@ -357,7 +357,7 @@ namespace MTConnect.Mqtt
 
         private async Task PublishObservation(IObservation observation, int interval)
         {
-            if (observation.Category != Devices.DataItems.DataItemCategory.CONDITION)
+            if (observation.Category != Devices.DataItemCategory.CONDITION)
             {
                 var message = MTConnectMqttMessage.Create(observation, Format, _documentFormat, RetainMessages, interval);
                 if (message != null && message.Payload != null) await Publish(message);

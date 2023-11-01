@@ -11,6 +11,7 @@
   <ItemGroup>
     <Compile Remove="Assets.cs" />
     <Compile Remove="ClientRequests.cs" />
+    <Compile Remove="CppAgentJsonClient.cs" />
     <Compile Remove="CurrentStream.cs" />
     <Compile Remove="EntityClient.cs" />
     <Compile Remove="SampleStream.cs" />
@@ -19,6 +20,7 @@
   <ItemGroup>
     <None Include="Assets.cs" />
     <None Include="ClientRequests.cs" />
+    <None Include="CppAgentJsonClient.cs" />
     <None Include="CurrentStream.cs" />
     <None Include="EntityClient.cs" />
     <None Include="SampleStream.cs" />
@@ -27,6 +29,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\MTConnect.NET-HTTP\MTConnect.NET-HTTP.csproj" />
     <ProjectReference Include="..\..\..\src\MTConnect.NET-JSON-cppagent\MTConnect.NET-JSON-cppagent.csproj" />
+    <ProjectReference Include="..\..\..\src\MTConnect.NET-MQTT\MTConnect.NET-MQTT.csproj" />
   </ItemGroup>
 
 </Project>

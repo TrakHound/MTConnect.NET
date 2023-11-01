@@ -24,11 +24,16 @@ namespace MTConnect.Devices
 		/// </summary>
 		string Hash { get; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        string Type { get; }
 
-		/// <summary>
-		/// The text description that describes what the Component Type represents
-		/// </summary>
-		string TypeDescription { get; }
+
+        /// <summary>
+        /// The text description that describes what the Component Type represents
+        /// </summary>
+        string TypeDescription { get; }
 
 
         /// <summary>
