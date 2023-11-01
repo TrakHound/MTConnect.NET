@@ -6,7 +6,7 @@ using System.Text.Json.Serialization;
 
 namespace MTConnect.Assets.Json
 {
-    public class JsonAsset
+    public abstract class JsonAsset
     {
         [JsonPropertyName("assetId")]
         public string AssetId { get; set; }

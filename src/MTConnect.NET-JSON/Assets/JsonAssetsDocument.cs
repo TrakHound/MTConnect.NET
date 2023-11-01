@@ -1,16 +1,16 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
+using MTConnect.Assets.ComponentConfigurationParameters;
 using MTConnect.Assets.CuttingTools;
 using MTConnect.Assets.Files;
+using MTConnect.Assets.Json.ComponentConfigurationParameters;
 using MTConnect.Assets.Json.CuttingTools;
 using MTConnect.Assets.Json.Files;
 using MTConnect.Assets.Json.QIF;
 using MTConnect.Assets.Json.RawMaterials;
 using MTConnect.Assets.QIF;
 using MTConnect.Assets.RawMaterials;
-using MTConnect.Headers;
-using MTConnect.Streams.Json;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
@@ -18,15 +18,9 @@ namespace MTConnect.Assets.Json
 {
     public class JsonAssetsDocument
     {
-        /// <summary>
-        /// Contains the Header information in an MTConnect Assets XML document
-        /// </summary>
         [JsonPropertyName("header")]
         public JsonAssetsHeader Header { get; set; }
 
-        /// <summary>
-        /// An XML container that consists of one or more types of Asset XML elements.
-        /// </summary>
         [JsonPropertyName("assets")]
         public List<object> Assets { get; set; }
 
@@ -47,6 +41,7 @@ namespace MTConnect.Assets.Json
 
                         switch (asset.Type)
                         {
+                            case "ComponentConfigurationParameters": jsonAsset = new JsonComponentConfigurationParametersAsset(asset as ComponentConfigurationParametersAsset); break;
                             case "CuttingTool": jsonAsset = new JsonCuttingToolAsset(asset as CuttingToolAsset); break;
                             case "File": jsonAsset = new JsonFileAsset(asset as FileAsset); break;
                             case "QIFDocumentWrapper": jsonAsset = new JsonQIFDocumentWrapperAsset(asset as QIFDocumentWrapperAsset); break;
