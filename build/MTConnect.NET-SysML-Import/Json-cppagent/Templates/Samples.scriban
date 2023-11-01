@@ -58,7 +58,7 @@ namespace MTConnect.Streams.Json
 
 {{- for type in types }}
                     // Add {{type.name}}
-                    typeObservations = observations.Where(o => o.Type == {{type.name}}DataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == {{type.name}}DataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();

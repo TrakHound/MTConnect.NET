@@ -1,6 +1,7 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
+using MTConnect.NET_JSON_cppagent.Streams;
 using MTConnect.Observations;
 using System;
 using System.Collections.Generic;
@@ -22,9 +23,6 @@ namespace MTConnect.Streams.Json
         [JsonPropertyName("representation")]
         public string Representation { get; set; }
 
-        //[JsonIgnore]
-        //public string Type { get; set; }
-
         [JsonPropertyName("subType")]
         public string SubType { get; set; }
 
@@ -43,18 +41,6 @@ namespace MTConnect.Streams.Json
         [JsonPropertyName("resetTriggered")]
         public string ResetTriggered { get; set; }
 
-        //[JsonPropertyName("value")]
-        //public string Value { get; set; }
-
-        //[JsonPropertyName("samples")]
-        //public IEnumerable<string> Samples { get; set; }
-
-        //[JsonPropertyName("value")]
-        //public IEnumerable<JsonEntry> Entries { get; set; }
-
-        //[JsonPropertyName("count")]
-        //public long? Count { get; set; }
-
         [JsonPropertyName("nativeCode")]
         public string NativeCode { get; set; }
 
@@ -62,7 +48,7 @@ namespace MTConnect.Streams.Json
         public string AssetType { get; set; }
 
 
-        public static Dictionary<string, object> CreateDataSetEntries(IEnumerable<IDataSetEntry> entries)
+        public static JsonDataSetEntries CreateDataSetEntries(IEnumerable<IDataSetEntry> entries)
         {
             if (!entries.IsNullOrEmpty())
             {
@@ -81,7 +67,8 @@ namespace MTConnect.Streams.Json
                         }
                     }
                 }
-                return jsonEntries;
+
+                return new JsonDataSetEntries(jsonEntries);
             }
 
             return null;
@@ -103,7 +90,7 @@ namespace MTConnect.Streams.Json
         }
 
 
-        public static Dictionary<string, Dictionary<string, object>> CreateTableEntries(IEnumerable<ITableEntry> entries)
+        public static JsonTableEntries CreateTableEntries(IEnumerable<ITableEntry> entries)
         {
             if (!entries.IsNullOrEmpty())
             {
@@ -132,7 +119,7 @@ namespace MTConnect.Streams.Json
                         jsonEntries.Add(entry.Key, cells);
                     }
                 }
-                return jsonEntries;
+                return new JsonTableEntries(jsonEntries);
             }
 
             return null;
@@ -156,6 +143,17 @@ namespace MTConnect.Streams.Json
                     }
                 }
                 return jsonEntries;
+            }
+
+            return null;
+        }
+
+
+        public static JsonTimeSeriesSamples CreateTimeSeriesSamples(IEnumerable<double> samples)
+        {
+            if (!samples.IsNullOrEmpty())
+            {
+                return new JsonTimeSeriesSamples(samples);
             }
 
             return null;

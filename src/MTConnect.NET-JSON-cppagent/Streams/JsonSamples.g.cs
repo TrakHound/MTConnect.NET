@@ -1654,7 +1654,7 @@ namespace MTConnect.Streams.Json
                 {
                     IEnumerable<IObservationOutput> typeObservations;
                     // Add Acceleration
-                    typeObservations = observations.Where(o => o.Type == AccelerationDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == AccelerationDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -1703,7 +1703,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add AccumulatedTime
-                    typeObservations = observations.Where(o => o.Type == AccumulatedTimeDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == AccumulatedTimeDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -1752,7 +1752,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Amperage
-                    typeObservations = observations.Where(o => o.Type == AmperageDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == AmperageDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -1801,7 +1801,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add AmperageAC
-                    typeObservations = observations.Where(o => o.Type == AmperageACDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == AmperageACDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -1850,7 +1850,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add AmperageDC
-                    typeObservations = observations.Where(o => o.Type == AmperageDCDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == AmperageDCDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -1899,7 +1899,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Angle
-                    typeObservations = observations.Where(o => o.Type == AngleDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == AngleDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -1948,7 +1948,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add AngularAcceleration
-                    typeObservations = observations.Where(o => o.Type == AngularAccelerationDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == AngularAccelerationDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -1997,7 +1997,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add AngularDeceleration
-                    typeObservations = observations.Where(o => o.Type == AngularDecelerationDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == AngularDecelerationDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -2046,7 +2046,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add AngularVelocity
-                    typeObservations = observations.Where(o => o.Type == AngularVelocityDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == AngularVelocityDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -2095,7 +2095,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add AssetUpdateRate
-                    typeObservations = observations.Where(o => o.Type == AssetUpdateRateDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == AssetUpdateRateDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -2144,7 +2144,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add AxisFeedrate
-                    typeObservations = observations.Where(o => o.Type == AxisFeedrateDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == AxisFeedrateDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -2193,7 +2193,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add BatteryCapacity
-                    typeObservations = observations.Where(o => o.Type == BatteryCapacityDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == BatteryCapacityDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -2242,7 +2242,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add BatteryCharge
-                    typeObservations = observations.Where(o => o.Type == BatteryChargeDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == BatteryChargeDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -2291,7 +2291,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add CapacityFluid
-                    typeObservations = observations.Where(o => o.Type == CapacityFluidDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == CapacityFluidDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -2340,7 +2340,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add CapacitySpatial
-                    typeObservations = observations.Where(o => o.Type == CapacitySpatialDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == CapacitySpatialDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -2389,7 +2389,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add ChargeRate
-                    typeObservations = observations.Where(o => o.Type == ChargeRateDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == ChargeRateDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -2438,7 +2438,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Concentration
-                    typeObservations = observations.Where(o => o.Type == ConcentrationDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == ConcentrationDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -2487,7 +2487,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Conductivity
-                    typeObservations = observations.Where(o => o.Type == ConductivityDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == ConductivityDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -2536,7 +2536,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add CuttingSpeed
-                    typeObservations = observations.Where(o => o.Type == CuttingSpeedDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == CuttingSpeedDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -2585,7 +2585,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Deceleration
-                    typeObservations = observations.Where(o => o.Type == DecelerationDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == DecelerationDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -2634,7 +2634,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Density
-                    typeObservations = observations.Where(o => o.Type == DensityDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == DensityDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -2683,7 +2683,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add DepositionAccelerationVolumetric
-                    typeObservations = observations.Where(o => o.Type == DepositionAccelerationVolumetricDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == DepositionAccelerationVolumetricDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -2732,7 +2732,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add DepositionDensity
-                    typeObservations = observations.Where(o => o.Type == DepositionDensityDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == DepositionDensityDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -2781,7 +2781,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add DepositionMass
-                    typeObservations = observations.Where(o => o.Type == DepositionMassDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == DepositionMassDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -2830,7 +2830,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add DepositionRateVolumetric
-                    typeObservations = observations.Where(o => o.Type == DepositionRateVolumetricDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == DepositionRateVolumetricDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -2879,7 +2879,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add DepositionVolume
-                    typeObservations = observations.Where(o => o.Type == DepositionVolumeDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == DepositionVolumeDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -2928,7 +2928,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add DewPoint
-                    typeObservations = observations.Where(o => o.Type == DewPointDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == DewPointDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -2977,7 +2977,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Diameter
-                    typeObservations = observations.Where(o => o.Type == DiameterDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == DiameterDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -3026,7 +3026,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add DischargeRate
-                    typeObservations = observations.Where(o => o.Type == DischargeRateDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == DischargeRateDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -3075,7 +3075,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Displacement
-                    typeObservations = observations.Where(o => o.Type == DisplacementDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == DisplacementDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -3124,7 +3124,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add DisplacementAngular
-                    typeObservations = observations.Where(o => o.Type == DisplacementAngularDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == DisplacementAngularDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -3173,7 +3173,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add DisplacementLinear
-                    typeObservations = observations.Where(o => o.Type == DisplacementLinearDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == DisplacementLinearDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -3222,7 +3222,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add ElectricalEnergy
-                    typeObservations = observations.Where(o => o.Type == ElectricalEnergyDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == ElectricalEnergyDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -3271,7 +3271,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add EquipmentTimer
-                    typeObservations = observations.Where(o => o.Type == EquipmentTimerDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == EquipmentTimerDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -3320,7 +3320,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add FillLevel
-                    typeObservations = observations.Where(o => o.Type == FillLevelDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == FillLevelDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -3369,7 +3369,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Flow
-                    typeObservations = observations.Where(o => o.Type == FlowDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == FlowDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -3418,7 +3418,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add FollowingError
-                    typeObservations = observations.Where(o => o.Type == FollowingErrorDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == FollowingErrorDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -3467,7 +3467,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add FollowingErrorAngular
-                    typeObservations = observations.Where(o => o.Type == FollowingErrorAngularDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == FollowingErrorAngularDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -3516,7 +3516,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add FollowingErrorLinear
-                    typeObservations = observations.Where(o => o.Type == FollowingErrorLinearDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == FollowingErrorLinearDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -3565,7 +3565,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Frequency
-                    typeObservations = observations.Where(o => o.Type == FrequencyDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == FrequencyDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -3614,7 +3614,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add GlobalPosition
-                    typeObservations = observations.Where(o => o.Type == GlobalPositionDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == GlobalPositionDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -3663,7 +3663,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add GravitationalAcceleration
-                    typeObservations = observations.Where(o => o.Type == GravitationalAccelerationDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == GravitationalAccelerationDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -3712,7 +3712,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add GravitationalForce
-                    typeObservations = observations.Where(o => o.Type == GravitationalForceDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == GravitationalForceDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -3761,7 +3761,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add HumidityAbsolute
-                    typeObservations = observations.Where(o => o.Type == HumidityAbsoluteDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == HumidityAbsoluteDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -3810,7 +3810,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add HumidityRelative
-                    typeObservations = observations.Where(o => o.Type == HumidityRelativeDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == HumidityRelativeDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -3859,7 +3859,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add HumiditySpecific
-                    typeObservations = observations.Where(o => o.Type == HumiditySpecificDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == HumiditySpecificDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -3908,7 +3908,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Length
-                    typeObservations = observations.Where(o => o.Type == LengthDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == LengthDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -3957,7 +3957,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Level
-                    typeObservations = observations.Where(o => o.Type == LevelDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == LevelDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -4006,7 +4006,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add LinearForce
-                    typeObservations = observations.Where(o => o.Type == LinearForceDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == LinearForceDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -4055,7 +4055,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Load
-                    typeObservations = observations.Where(o => o.Type == LoadDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == LoadDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -4104,7 +4104,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Mass
-                    typeObservations = observations.Where(o => o.Type == MassDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == MassDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -4153,7 +4153,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add ObservationUpdateRate
-                    typeObservations = observations.Where(o => o.Type == ObservationUpdateRateDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == ObservationUpdateRateDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -4202,7 +4202,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Openness
-                    typeObservations = observations.Where(o => o.Type == OpennessDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == OpennessDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -4251,7 +4251,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Orientation
-                    typeObservations = observations.Where(o => o.Type == OrientationDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == OrientationDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -4300,7 +4300,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add PathFeedrate
-                    typeObservations = observations.Where(o => o.Type == PathFeedrateDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == PathFeedrateDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -4349,7 +4349,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add PathFeedratePerRevolution
-                    typeObservations = observations.Where(o => o.Type == PathFeedratePerRevolutionDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == PathFeedratePerRevolutionDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -4398,7 +4398,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add PathPosition
-                    typeObservations = observations.Where(o => o.Type == PathPositionDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == PathPositionDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -4447,7 +4447,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add PH
-                    typeObservations = observations.Where(o => o.Type == PHDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == PHDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -4496,7 +4496,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Position
-                    typeObservations = observations.Where(o => o.Type == PositionDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == PositionDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -4545,7 +4545,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add PositionCartesian
-                    typeObservations = observations.Where(o => o.Type == PositionCartesianDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == PositionCartesianDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -4594,7 +4594,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add PowerFactor
-                    typeObservations = observations.Where(o => o.Type == PowerFactorDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == PowerFactorDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -4643,7 +4643,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Pressure
-                    typeObservations = observations.Where(o => o.Type == PressureDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == PressureDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -4692,7 +4692,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add PressureAbsolute
-                    typeObservations = observations.Where(o => o.Type == PressureAbsoluteDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == PressureAbsoluteDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -4741,7 +4741,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add PressurizationRate
-                    typeObservations = observations.Where(o => o.Type == PressurizationRateDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == PressurizationRateDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -4790,7 +4790,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add ProcessTimer
-                    typeObservations = observations.Where(o => o.Type == ProcessTimerDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == ProcessTimerDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -4839,7 +4839,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Resistance
-                    typeObservations = observations.Where(o => o.Type == ResistanceDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == ResistanceDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -4888,7 +4888,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add RotaryVelocity
-                    typeObservations = observations.Where(o => o.Type == RotaryVelocityDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == RotaryVelocityDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -4937,7 +4937,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add SettlingError
-                    typeObservations = observations.Where(o => o.Type == SettlingErrorDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == SettlingErrorDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -4986,7 +4986,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add SettlingErrorAngular
-                    typeObservations = observations.Where(o => o.Type == SettlingErrorAngularDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == SettlingErrorAngularDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -5035,7 +5035,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add SettlingErrorLinear
-                    typeObservations = observations.Where(o => o.Type == SettlingErrorLinearDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == SettlingErrorLinearDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -5084,7 +5084,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add SoundLevel
-                    typeObservations = observations.Where(o => o.Type == SoundLevelDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == SoundLevelDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -5133,7 +5133,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add SpindleSpeed
-                    typeObservations = observations.Where(o => o.Type == SpindleSpeedDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == SpindleSpeedDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -5182,7 +5182,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Strain
-                    typeObservations = observations.Where(o => o.Type == StrainDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == StrainDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -5231,7 +5231,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Temperature
-                    typeObservations = observations.Where(o => o.Type == TemperatureDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == TemperatureDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -5280,7 +5280,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Tension
-                    typeObservations = observations.Where(o => o.Type == TensionDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == TensionDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -5329,7 +5329,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Tilt
-                    typeObservations = observations.Where(o => o.Type == TiltDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == TiltDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -5378,7 +5378,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Torque
-                    typeObservations = observations.Where(o => o.Type == TorqueDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == TorqueDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -5427,7 +5427,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Velocity
-                    typeObservations = observations.Where(o => o.Type == VelocityDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == VelocityDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -5476,7 +5476,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Viscosity
-                    typeObservations = observations.Where(o => o.Type == ViscosityDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == ViscosityDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -5525,7 +5525,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add VoltAmpere
-                    typeObservations = observations.Where(o => o.Type == VoltAmpereDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == VoltAmpereDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -5574,7 +5574,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add VoltAmpereReactive
-                    typeObservations = observations.Where(o => o.Type == VoltAmpereReactiveDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == VoltAmpereReactiveDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -5623,7 +5623,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Voltage
-                    typeObservations = observations.Where(o => o.Type == VoltageDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == VoltageDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -5672,7 +5672,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add VoltageAC
-                    typeObservations = observations.Where(o => o.Type == VoltageACDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == VoltageACDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -5721,7 +5721,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add VoltageDC
-                    typeObservations = observations.Where(o => o.Type == VoltageDCDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == VoltageDCDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -5770,7 +5770,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add VolumeFluid
-                    typeObservations = observations.Where(o => o.Type == VolumeFluidDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == VolumeFluidDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -5819,7 +5819,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add VolumeSpatial
-                    typeObservations = observations.Where(o => o.Type == VolumeSpatialDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == VolumeSpatialDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -5868,7 +5868,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add Wattage
-                    typeObservations = observations.Where(o => o.Type == WattageDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == WattageDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -5917,7 +5917,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add XDimension
-                    typeObservations = observations.Where(o => o.Type == XDimensionDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == XDimensionDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -5966,7 +5966,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add YDimension
-                    typeObservations = observations.Where(o => o.Type == YDimensionDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == YDimensionDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();
@@ -6015,7 +6015,7 @@ namespace MTConnect.Streams.Json
 
 
                     // Add ZDimension
-                    typeObservations = observations.Where(o => o.Type == ZDimensionDataItem.TypeId);
+                    typeObservations = observations.Where(o => o.Type == ZDimensionDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
                     {
                         var jsonObservations = new List<JsonSampleValue>();

@@ -2,13 +2,9 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Devices;
+using MTConnect.NET_JSON_cppagent.Streams;
 using MTConnect.Observations;
 using MTConnect.Observations.Output;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json;
-using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 
 namespace MTConnect.Streams.Json
@@ -16,8 +12,7 @@ namespace MTConnect.Streams.Json
     public class JsonSampleTable : JsonObservation
     {
         [JsonPropertyName("value")]
-        [JsonConverter(typeof(JsonSampleTableValueConverter))]
-        public Dictionary<string, Dictionary<string, object>> Entries { get; set; }
+        public JsonTableEntries Entries { get; set; }
 
         [JsonPropertyName("count")]
         public long? Count { get; set; }
@@ -44,8 +39,18 @@ namespace MTConnect.Streams.Json
                 // Table Entries
                 if (observation is SampleTableObservation)
                 {
-                    Entries = CreateTableEntries(((SampleTableObservation)observation).Entries);
-                    Count = !Entries.IsNullOrEmpty() ? Entries.Count() : 0;
+                    var tableObservation = (SampleTableObservation)observation;
+
+                    if (!tableObservation.Entries.IsNullOrEmpty())
+                    {
+                        Entries = CreateTableEntries(tableObservation.Entries);
+                        Count = Entries != null ? Entries.Count : 0;
+                    }
+                    else
+                    {
+                        Entries = new JsonTableEntries(true);
+                        Count = 0;
+                    }
                 }
             }
         }
@@ -65,13 +70,22 @@ namespace MTConnect.Streams.Json
                 NativeCode = observation.GetValue(ValueKeys.NativeCode);
                 AssetType = observation.GetValue(ValueKeys.AssetType);
 
-                // DataSet Entries
+                // Table Entries
                 if (observation.Representation == DataItemRepresentation.TABLE)
                 {
-                    var dataSetObservation = new SampleTableObservation();
-                    dataSetObservation.AddValues(observation.Values);
-                    Entries = CreateTableEntries(dataSetObservation.Entries);
-                    Count = !Entries.IsNullOrEmpty() ? Entries.Count() : 0;
+                    var tableObservation = new SampleTableObservation();
+                    tableObservation.AddValues(observation.Values);
+
+                    if (!tableObservation.Entries.IsNullOrEmpty())
+                    {
+                        Entries = CreateTableEntries(tableObservation.Entries);
+                        Count = Entries != null ? Entries.Count : 0;
+                    }
+                    else
+                    {
+                        Entries = new JsonTableEntries(true);
+                        Count = 0;
+                    }
                 }
             }
         }
@@ -90,9 +104,9 @@ namespace MTConnect.Streams.Json
             observation.CompositionId = CompositionId;
             observation.ResetTriggered = ResetTriggered.ConvertEnum<ResetTriggered>();
 
-            if (Entries != null)
+            if (Entries != null && !Entries.IsUnavailable)
             {
-                observation.Entries = CreateTableEntries(Entries);
+                observation.Entries = CreateTableEntries(Entries.Entries);
             }
             else
             {
@@ -100,29 +114,6 @@ namespace MTConnect.Streams.Json
             }
 
             return observation;
-        }
-
-        public class JsonSampleTableValueConverter : JsonConverter<Dictionary<string, Dictionary<string, object>>>
-        {
-            public override Dictionary<string, Dictionary<string, object>> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-            {
-                if (reader.TokenType == JsonTokenType.StartObject)
-                {
-                    var obj = JsonObject.Parse(ref reader);
-                    return obj.Deserialize<Dictionary<string, Dictionary<string, object>>>();
-                }
-                else
-                {
-                    reader.Skip(); // Unavailable
-                }
-
-                return null;
-            }
-
-            public override void Write(Utf8JsonWriter writer, Dictionary<string, Dictionary<string, object>> value, JsonSerializerOptions options)
-            {
-                //writer.WriteStringValue(dateTimeValue.ToString("MM/dd/yyyy", CultureInfo.InvariantCulture));
-            }
         }
     }
 }

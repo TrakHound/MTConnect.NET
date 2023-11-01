@@ -930,6 +930,16 @@ namespace MTConnect.Clients
             {
                 foreach (var inputObservation in inputComponentStream.Observations)
                 {
+
+
+
+
+                    Console.WriteLine($"{inputObservation.DataItemId} = {inputObservation.Representation}");
+
+
+
+
+
                     var dataItem = GetCachedDataItem(deviceUuid, inputObservation.DataItemId);
                     if (dataItem != null)
                     {

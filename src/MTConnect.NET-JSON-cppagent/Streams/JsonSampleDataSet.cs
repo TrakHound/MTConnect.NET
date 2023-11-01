@@ -2,13 +2,9 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Devices;
+using MTConnect.NET_JSON_cppagent.Streams;
 using MTConnect.Observations;
 using MTConnect.Observations.Output;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json.Nodes;
-using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace MTConnect.Streams.Json
@@ -16,8 +12,7 @@ namespace MTConnect.Streams.Json
     public class JsonSampleDataSet : JsonObservation
     {
         [JsonPropertyName("value")]
-        [JsonConverter(typeof(JsonSampleDataSetValueConverter))]
-        public Dictionary<string, object> Entries { get; set; }
+        public JsonDataSetEntries Entries { get; set; }
 
         [JsonPropertyName("count")]
         public long? Count { get; set; }
@@ -44,8 +39,18 @@ namespace MTConnect.Streams.Json
                 // DataSet Entries
                 if (observation is SampleDataSetObservation)
                 {
-                    Entries = CreateDataSetEntries(((SampleDataSetObservation)observation).Entries);
-                    Count = !Entries.IsNullOrEmpty() ? Entries.Count() : 0;
+                    var dataSetObservation = (SampleDataSetObservation)observation;
+
+                    if (!dataSetObservation.Entries.IsNullOrEmpty())
+                    {
+                        Entries = CreateDataSetEntries(dataSetObservation.Entries);
+                        Count = Entries != null ? Entries.Count : 0;
+                    }
+                    else
+                    {
+                        Entries = new JsonDataSetEntries(true);
+                        Count = 0;
+                    }
                 }
             }
         }
@@ -70,8 +75,17 @@ namespace MTConnect.Streams.Json
                 {
                     var dataSetObservation = new SampleDataSetObservation();
                     dataSetObservation.AddValues(observation.Values);
-                    Entries = CreateDataSetEntries(dataSetObservation.Entries);
-                    Count = !Entries.IsNullOrEmpty() ? Entries.Count() : 0;
+
+                    if (!dataSetObservation.Entries.IsNullOrEmpty())
+                    {
+                        Entries = CreateDataSetEntries(dataSetObservation.Entries);
+                        Count = Entries != null ? Entries.Count : 0;
+                    }
+                    else
+                    {
+                        Entries = new JsonDataSetEntries(true);
+                        Count = 0;
+                    }
                 }
             }
         }
@@ -89,32 +103,17 @@ namespace MTConnect.Streams.Json
             observation.SubType = SubType;
             observation.CompositionId = CompositionId;
             observation.ResetTriggered = ResetTriggered.ConvertEnum<ResetTriggered>();
-            observation.Entries = CreateDataSetEntries(Entries);
+
+            if (Entries != null && !Entries.IsUnavailable)
+            {
+                observation.Entries = CreateDataSetEntries(Entries.Entries);
+            }
+            else
+            {
+                observation.AddValue(ValueKeys.Result, Observation.Unavailable);
+            }
+
             return observation;
-        }
-
-
-        public class JsonSampleDataSetValueConverter : JsonConverter<Dictionary<string, object>>
-        {
-            public override Dictionary<string, object> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-            {
-                if (reader.TokenType == JsonTokenType.StartObject)
-                {
-                    var obj = JsonObject.Parse(ref reader);
-                    return obj.Deserialize<Dictionary<string, object>>();
-                }
-                else
-                {
-                    reader.Skip(); // Unavailable
-                }
-
-                return null;
-            }
-
-            public override void Write(Utf8JsonWriter writer, Dictionary<string, object> value, JsonSerializerOptions options)
-            {
-                //writer.WriteStringValue(dateTimeValue.ToString("MM/dd/yyyy", CultureInfo.InvariantCulture));
-            }
         }
     }
 }
