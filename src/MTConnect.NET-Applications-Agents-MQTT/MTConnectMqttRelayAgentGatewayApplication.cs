@@ -252,7 +252,7 @@ namespace MTConnect.Applications.Agents
                             input.Timestamp = observation.Timestamp.ToUnixTime();
                             input.Values = observation.Values;
 
-                            Agent.AddObservation(stream.Uuid, input);
+                            Agent.AddObservation(client.Device, input);
                         }
                     }
                 }
@@ -267,7 +267,7 @@ namespace MTConnect.Applications.Agents
 
                 foreach (var asset in document.Assets)
                 {
-                    Agent.AddAsset(asset.DeviceUuid, asset);
+                    Agent.AddAsset(client.Device, asset);
                 }
             }
         }
