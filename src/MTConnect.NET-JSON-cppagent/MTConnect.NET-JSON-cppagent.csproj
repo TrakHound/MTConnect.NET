@@ -6,14 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Assets\CuttingTools\JsonCuttingItemCollection - Copy.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="Assets\CuttingTools\JsonCuttingItemCollection - Copy.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\MTConnect.NET-Common\MTConnect.NET-Common.csproj" />
   </ItemGroup>
 

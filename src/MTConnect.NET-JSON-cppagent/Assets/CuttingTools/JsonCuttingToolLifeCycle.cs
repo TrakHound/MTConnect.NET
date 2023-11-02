@@ -2,7 +2,6 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Assets.CuttingTools;
-using MTConnect.Assets.Json.CuttingTools.Measurements;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
@@ -10,37 +9,37 @@ namespace MTConnect.Assets.Json.CuttingTools
 {
     public class JsonCuttingToolLifeCycle
     {
-        [JsonPropertyName("cutterStatus")]
-        public IEnumerable<string> CutterStatus { get; set; }
-
-        [JsonPropertyName("reconditionCount")]
-        public JsonReconditionCount ReconditionCount { get; set; }
-
-        [JsonPropertyName("toolLife")]
-        public IEnumerable<JsonToolLife> ToolLife { get; set; }
-
-        [JsonPropertyName("location")]
-        public JsonLocation Location { get; set; }
-
-        [JsonPropertyName("programToolGroup")]
+        [JsonPropertyName("ProgramToolGroup")]
         public string ProgramToolGroup { get; set; }
 
-        [JsonPropertyName("programToolNumber")]
+        [JsonPropertyName("ProgramToolNumber")]
         public string ProgramToolNumber { get; set; }
 
-        [JsonPropertyName("processSpindleSpeed")]
-        public JsonProcessSpindleSpeed ProcessSpindleSpeed { get; set; }
-
-        [JsonPropertyName("processFeedRate")]
-        public JsonProcessFeedrate ProcessFeedRate { get; set; }
-
-        [JsonPropertyName("connectionCodeMachineSide")]
+        [JsonPropertyName("ConnectionCodeMachineSide")]
         public string ConnectionCodeMachineSide { get; set; }
 
-        [JsonPropertyName("measurements")]
-        public IEnumerable<JsonMeasurement> Measurements { get; set; }
+        [JsonPropertyName("CutterStatus")]
+        public JsonCutterStatusCollection CutterStatus { get; set; }
 
-        [JsonPropertyName("cuttingItems")]
+        [JsonPropertyName("ReconditionCount")]
+        public JsonReconditionCount ReconditionCount { get; set; }
+
+        [JsonPropertyName("ToolLife")]
+        public IEnumerable<JsonToolLife> ToolLife { get; set; }
+
+        [JsonPropertyName("Location")]
+        public JsonLocation Location { get; set; }
+
+        [JsonPropertyName("ProcessSpindleSpeed")]
+        public JsonProcessSpindleSpeed ProcessSpindleSpeed { get; set; }
+
+        [JsonPropertyName("ProcessFeedRate")]
+        public JsonProcessFeedRate ProcessFeedRate { get; set; }
+
+        [JsonPropertyName("Measurements")]
+        public JsonMeasurements Measurements { get; set; }
+
+        [JsonPropertyName("CuttingItems")]
         public JsonCuttingItemCollection CuttingItems { get; set; }
 
 
@@ -50,24 +49,19 @@ namespace MTConnect.Assets.Json.CuttingTools
         {
             if (cuttingToolLifeCycle != null)
             {
+                ProgramToolNumber = cuttingToolLifeCycle.ProgramToolNumber;
+                ProgramToolGroup = cuttingToolLifeCycle.ProgramToolGroup;
+                ConnectionCodeMachineSide = cuttingToolLifeCycle.ConnectionCodeMachineSide;
+                if (cuttingToolLifeCycle.ReconditionCount != null) ReconditionCount = new JsonReconditionCount(cuttingToolLifeCycle.ReconditionCount);
+                if (cuttingToolLifeCycle.Location != null) Location = new JsonLocation(cuttingToolLifeCycle.Location);
+                if (cuttingToolLifeCycle.ProcessSpindleSpeed != null) ProcessSpindleSpeed = new JsonProcessSpindleSpeed(cuttingToolLifeCycle.ProcessSpindleSpeed);
+                if (cuttingToolLifeCycle.ProcessFeedRate != null) ProcessFeedRate = new JsonProcessFeedRate(cuttingToolLifeCycle.ProcessFeedRate);
+
                 // CutterStatus
                 if (!cuttingToolLifeCycle.CutterStatus.IsNullOrEmpty())
                 {
-                    var statuses = new List<string>();
-                    foreach (var cutterStatus in cuttingToolLifeCycle.CutterStatus)
-                    {
-                        statuses.Add(cutterStatus.ToString());
-                    }
-                    CutterStatus = statuses;
+                    CutterStatus = new JsonCutterStatusCollection(cuttingToolLifeCycle.CutterStatus);
                 }
-
-                if (cuttingToolLifeCycle.ReconditionCount != null) ReconditionCount = new JsonReconditionCount(cuttingToolLifeCycle.ReconditionCount);
-                if (cuttingToolLifeCycle.Location != null) Location = new JsonLocation(cuttingToolLifeCycle.Location);
-                ProgramToolGroup = cuttingToolLifeCycle.ProgramToolGroup;
-                ProgramToolNumber = cuttingToolLifeCycle.ProgramToolNumber;
-                if (cuttingToolLifeCycle.ProcessSpindleSpeed != null) ProcessSpindleSpeed = new JsonProcessSpindleSpeed(cuttingToolLifeCycle.ProcessSpindleSpeed);
-                if (cuttingToolLifeCycle.ProcessFeedRate != null) ProcessFeedRate = new JsonProcessFeedrate(cuttingToolLifeCycle.ProcessFeedRate);
-                ConnectionCodeMachineSide = cuttingToolLifeCycle.ConnectionCodeMachineSide;
 
                 // ToolLife
                 if (!cuttingToolLifeCycle.ToolLife.IsNullOrEmpty())
@@ -83,12 +77,7 @@ namespace MTConnect.Assets.Json.CuttingTools
                 // Measurements
                 if (!cuttingToolLifeCycle.Measurements.IsNullOrEmpty())
                 {
-                    var measurements = new List<JsonMeasurement>();
-                    foreach (var measurement in cuttingToolLifeCycle.Measurements)
-                    {
-                        measurements.Add(new JsonMeasurement(measurement));
-                    }
-                    Measurements = measurements;
+                    Measurements = new JsonMeasurements(cuttingToolLifeCycle.Measurements);
                 }
 
                 if (CuttingItems != null) CuttingItems = new JsonCuttingItemCollection(cuttingToolLifeCycle.CuttingItems);
@@ -100,17 +89,6 @@ namespace MTConnect.Assets.Json.CuttingTools
         {
             var cuttingToolLifeCycle = new CuttingToolLifeCycle();
 
-            // CutterStatus
-            if (!CutterStatus.IsNullOrEmpty())
-            {
-                var statuses = new List<CutterStatusType>();
-                foreach (var cutterStatus in CutterStatus)
-                {
-                    statuses.Add(cutterStatus.ConvertEnum<CutterStatusType>());
-                }
-                cuttingToolLifeCycle.CutterStatus = statuses;
-            }
-
             if (ReconditionCount != null) cuttingToolLifeCycle.ReconditionCount = ReconditionCount.ToReconditionCount();
             if (Location != null) cuttingToolLifeCycle.Location = Location.ToLocation();
             cuttingToolLifeCycle.ProgramToolGroup = ProgramToolGroup;
@@ -118,6 +96,17 @@ namespace MTConnect.Assets.Json.CuttingTools
             if (ProcessSpindleSpeed != null) cuttingToolLifeCycle.ProcessSpindleSpeed = ProcessSpindleSpeed.ToProcessSpindleSpeed();
             if (ProcessFeedRate != null) cuttingToolLifeCycle.ProcessFeedRate = ProcessFeedRate.ToProcessFeedrate();
             cuttingToolLifeCycle.ConnectionCodeMachineSide = ConnectionCodeMachineSide;
+
+            // CutterStatus
+            if (CutterStatus != null)
+            {
+                var statuses = new List<CutterStatusType>();
+                foreach (var cutterStatus in CutterStatus.Status)
+                {
+                    statuses.Add(cutterStatus.ToCutterStatus());
+                }
+                cuttingToolLifeCycle.CutterStatus = statuses;
+            }
 
             // ToolLife
             if (!ToolLife.IsNullOrEmpty())
@@ -131,14 +120,9 @@ namespace MTConnect.Assets.Json.CuttingTools
             }
 
             // Measurements
-            if (!Measurements.IsNullOrEmpty())
+            if (Measurements != null)
             {
-                var measurements = new List<IMeasurement>();
-                foreach (var measurement in Measurements)
-                {
-                    measurements.Add(measurement.ToMeasurement());
-                }
-                cuttingToolLifeCycle.Measurements = measurements;
+                cuttingToolLifeCycle.Measurements = Measurements.ToMeasurements();
             }
 
             if (CuttingItems != null)

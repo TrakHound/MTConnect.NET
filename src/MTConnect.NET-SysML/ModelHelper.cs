@@ -378,7 +378,7 @@ namespace MTConnect.SysML
                 case "EAID_E485DD9D_8788_4c57_B422_E3374F4215DC": return true; // Assets.CuttingToolArchetype.Manufacturers
 
                 case "EAID_dst225492_D39D_4863_B945_37824D539BEE": return true; // Assets.CuttingItem.CutterStatus
-                case "EAID_F7C32A8C_8166_4c26_839E_F946E18DB022": return true; // Assets.CuttingItem.Indices
+                //case "EAID_F7C32A8C_8166_4c26_839E_F946E18DB022": return true; // Assets.CuttingItem.Indices
                 case "EAID_9E5855C8_F90D_4ddf_A2FC_4610634008B4": return true; // Assets.CuttingItem.Manufacturers
                 case "_19_0_3_91b028d_1582658982276_248635_527": return true; // Assets.CuttingItem.Measurements
                 case "EAID_dst4843A3_8ECC_42a0_9DC5_9F8247F1E3C7": return true; // Assets.CuttingItem.ItemLife

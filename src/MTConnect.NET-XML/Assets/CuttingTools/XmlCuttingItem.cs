@@ -46,12 +46,7 @@ namespace MTConnect.Assets.Xml.CuttingTools
             cuttingItem.Description = Description;
             cuttingItem.Locus = Locus;
             cuttingItem.ProgramToolGroup = ProgramToolGroup;
-
-            // Indices
-            if (!string.IsNullOrEmpty(Indices))
-            {
-                cuttingItem.Indices = Indices.Split(",");
-            }
+            cuttingItem.Indices = Indices;
 
             // Manufacturers
             if (!string.IsNullOrEmpty(Manufacturers))
@@ -105,7 +100,9 @@ namespace MTConnect.Assets.Xml.CuttingTools
                 {
                     writer.WriteStartElement("CuttingItem");
                     if (!string.IsNullOrEmpty(cuttingItem.ItemId)) writer.WriteAttributeString("itemId", cuttingItem.ItemId);
+                    if (!string.IsNullOrEmpty(cuttingItem.Indices)) writer.WriteAttributeString("indices", cuttingItem.Indices);
                     if (!string.IsNullOrEmpty(cuttingItem.Grade)) writer.WriteAttributeString("grade", cuttingItem.Grade);
+                    if (!string.IsNullOrEmpty(cuttingItem.Description)) writer.WriteAttributeString("description", cuttingItem.Description);
                     if (!string.IsNullOrEmpty(cuttingItem.Locus)) writer.WriteAttributeString("locus", cuttingItem.Locus);
 
                     // Write Manufacturers

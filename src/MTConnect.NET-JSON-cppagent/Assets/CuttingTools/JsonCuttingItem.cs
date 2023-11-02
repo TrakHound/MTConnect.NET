@@ -2,7 +2,6 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Assets.CuttingTools;
-using MTConnect.Assets.Json.CuttingTools.Measurements;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
@@ -10,14 +9,11 @@ namespace MTConnect.Assets.Json.CuttingTools
 {
     public class JsonCuttingItem
     {
-        [JsonPropertyName("indices")]
-        public IEnumerable<string> Indices { get; set; }
-
         [JsonPropertyName("itemId")]
         public string ItemId { get; set; }
 
-        [JsonPropertyName("manufacturers")]
-        public IEnumerable<string> Manufacturers { get; set; }
+        [JsonPropertyName("indices")]
+        public string Indices { get; set; }
 
         [JsonPropertyName("grade")]
         public string Grade { get; set; }
@@ -28,17 +24,20 @@ namespace MTConnect.Assets.Json.CuttingTools
         [JsonPropertyName("locus")]
         public string Locus { get; set; }
 
-        [JsonPropertyName("itemLife")]
-        public IEnumerable<JsonItemLife> ItemLife { get; set; }
-
-        [JsonPropertyName("cutterStatus")]
-        public IEnumerable<string> CutterStatus { get; set; }
+        [JsonPropertyName("manufacturers")]
+        public string Manufacturers { get; set; }
 
         [JsonPropertyName("programToolGroup")]
         public string ProgramToolGroup { get; set; }
 
-        [JsonPropertyName("measurements")]
-        public IEnumerable<JsonMeasurement> Measurements { get; set; }
+        [JsonPropertyName("ItemLife")]
+        public IEnumerable<JsonItemLife> ItemLife { get; set; }
+
+        [JsonPropertyName("CutterStatus")]
+        public JsonCutterStatusCollection CutterStatus { get; set; }
+
+        [JsonPropertyName("Measurements")]
+        public JsonMeasurements Measurements { get; set; }
 
 
         public JsonCuttingItem() { }
@@ -49,7 +48,7 @@ namespace MTConnect.Assets.Json.CuttingTools
             {
                 Indices = cuttingItem.Indices;
                 ItemId = cuttingItem.ItemId;
-                Manufacturers = cuttingItem.Manufacturers;
+                if (!cuttingItem.Manufacturers.IsNullOrEmpty()) Manufacturers = string.Join(", ", cuttingItem.Manufacturers);
                 Grade = cuttingItem.Grade;
                 Description = cuttingItem.Description;
                 Locus = cuttingItem.Locus;
@@ -69,23 +68,13 @@ namespace MTConnect.Assets.Json.CuttingTools
                 // CutterStatus
                 if (!cuttingItem.CutterStatus.IsNullOrEmpty())
                 {
-                    var statuses = new List<string>();
-                    foreach (var cutterStatus in cuttingItem.CutterStatus)
-                    {
-                        statuses.Add(cutterStatus.ToString());
-                    }
-                    CutterStatus = statuses;
+                    CutterStatus = new JsonCutterStatusCollection(cuttingItem.CutterStatus);
                 }
 
                 // Measurements
                 if (!cuttingItem.Measurements.IsNullOrEmpty())
                 {
-                    var measurements = new List<JsonMeasurement>();
-                    foreach (var measurement in cuttingItem.Measurements)
-                    {
-                        measurements.Add(new JsonMeasurement(measurement));
-                    }
-                    Measurements = measurements;
+                    Measurements = new JsonMeasurements(cuttingItem.Measurements);
                 }
             }
         }
@@ -96,7 +85,7 @@ namespace MTConnect.Assets.Json.CuttingTools
             var cuttingItem = new CuttingItem();
             cuttingItem.Indices = Indices;
             cuttingItem.ItemId = ItemId;
-            cuttingItem.Manufacturers = Manufacturers;
+            if (!string.IsNullOrEmpty(Manufacturers)) cuttingItem.Manufacturers = Manufacturers.Split(',');
             cuttingItem.Grade = Grade;
             cuttingItem.Description = Description;
             cuttingItem.Locus = Locus;
@@ -114,25 +103,20 @@ namespace MTConnect.Assets.Json.CuttingTools
             }
 
             // CutterStatus
-            if (!CutterStatus.IsNullOrEmpty())
+            if (CutterStatus != null)
             {
                 var statuses = new List<CutterStatusType>();
-                foreach (var cutterStatus in CutterStatus)
+                foreach (var cutterStatus in CutterStatus.Status)
                 {
-                    statuses.Add(cutterStatus.ConvertEnum<CutterStatusType>());
+                    statuses.Add(cutterStatus.ToCutterStatus());
                 }
                 cuttingItem.CutterStatus = statuses;
             }
 
             // Measurements
-            if (!Measurements.IsNullOrEmpty())
+            if (Measurements != null)
             {
-                var measurements = new List<IMeasurement>();
-                foreach (var measurement in Measurements)
-                {
-                    measurements.Add(measurement.ToMeasurement());
-                }
-                cuttingItem.Measurements = measurements;
+                cuttingItem.Measurements = Measurements.ToMeasurements();
             }
 
             return cuttingItem;

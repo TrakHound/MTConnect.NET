@@ -930,16 +930,6 @@ namespace MTConnect.Clients
             {
                 foreach (var inputObservation in inputComponentStream.Observations)
                 {
-
-
-
-
-                    Console.WriteLine($"{inputObservation.DataItemId} = {inputObservation.Representation}");
-
-
-
-
-
                     var dataItem = GetCachedDataItem(deviceUuid, inputObservation.DataItemId);
                     if (dataItem != null)
                     {
@@ -981,7 +971,7 @@ namespace MTConnect.Clients
         {
             if (observations != null && observations.Count() > 0)
             {
-                var assetsChanged = observations.Where(o => o.Type == Devices.DataItems.AssetChangedDataItem.TypeId.ToPascalCase());
+                var assetsChanged = observations.Where(o => o.Type == Devices.DataItems.AssetChangedDataItem.TypeId);
                 if (assetsChanged != null)
                 {
                     foreach (var assetChanged in assetsChanged)

@@ -6,7 +6,7 @@ using System.Text.Json.Serialization;
 
 namespace MTConnect.Assets.Json.CuttingTools
 {
-    public class JsonProcessFeedrate
+    public class JsonProcessFeedRate
     {
         [JsonPropertyName("maximum")]
         public double? Maximum { get; set; }
@@ -17,16 +17,20 @@ namespace MTConnect.Assets.Json.CuttingTools
         [JsonPropertyName("nominal")]
         public double? Nominal { get; set; }
 
+        [JsonPropertyName("value")]
+        public object Value { get; set; }
 
-        public JsonProcessFeedrate() { }
 
-        public JsonProcessFeedrate(IProcessFeedRate processFeedrate)
+        public JsonProcessFeedRate() { }
+
+        public JsonProcessFeedRate(IProcessFeedRate processFeedrate)
         {
             if (processFeedrate != null)
             {
                 Maximum = processFeedrate.Maximum;
                 Minimum = processFeedrate.Minimum;
                 Nominal = processFeedrate.Nominal;
+                Value = processFeedrate.Value;
             }
         }
 
@@ -37,6 +41,7 @@ namespace MTConnect.Assets.Json.CuttingTools
             processFeedrate.Maximum = Maximum;
             processFeedrate.Minimum = Minimum;
             processFeedrate.Nominal = Nominal;
+            processFeedrate.Value = Value?.ToString();
             return processFeedrate;
         }
     }

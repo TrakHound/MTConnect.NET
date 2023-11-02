@@ -26,7 +26,7 @@ namespace MTConnect.Assets.CuttingTools
         /// <summary>
         /// Number or numbers representing the individual cutting item or items on the tool.Indices **SHOULD** start numbering with the inserts or CuttingItem furthest from the gauge line and increasing in value as the items get closer to the gauge line. Items at the same distance **MAY** be arbitrarily numbered.> Note: In XML, the representation **MUST** be a single number ('1') or a comma separated set of individual elements ('1,2,3,4'), or as a inclusive range of values as in ('1-10') or any combination of ranges and numbers as in '1-4,6-10,22'. There **MUST NOT** be spaces or non-integer values in the text representation.
         /// </summary>
-        System.Collections.Generic.IEnumerable<string> Indices { get; }
+        string Indices { get; }
         
         /// <summary>
         /// Manufacturer identifier of this cutting item.

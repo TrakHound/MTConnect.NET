@@ -346,6 +346,10 @@ namespace MTConnect.Clients
                 {
                     ProcessCurrentMessage(args.ApplicationMessage);
                 }
+                else if (IsAssetTopic(topic))
+                {
+                    ProcessAssetMessage(args.ApplicationMessage);
+                }
                 else if (IsProbeTopic(topic))
                 {
                     ProcessProbeMessage(args.ApplicationMessage);
@@ -421,10 +425,17 @@ namespace MTConnect.Clients
 
         private void ProcessCurrentMessage(MqttApplicationMessage message)
         {
-            var result = ResponseDocumentFormatter.CreateStreamsResponseDocument(_documentFormat, message.Payload);
-            if (result.Success)
+            if (!message.Retain)
             {
-                ProcessCurrentDocument(result.Document);
+                var result = ResponseDocumentFormatter.CreateStreamsResponseDocument(_documentFormat, message.Payload);
+                if (result.Success)
+                {
+                    ProcessCurrentDocument(result.Document);
+                }
+            }
+            else
+            {
+                Console.WriteLine("STALE CURRENT!!!");
             }
         }
 
@@ -436,6 +447,16 @@ namespace MTConnect.Clients
                 ProcessSampleDocument(result.Document);
             }
         }
+
+        private void ProcessAssetMessage(MqttApplicationMessage message)
+        {
+            var result = ResponseDocumentFormatter.CreateAssetsResponseDocument(_documentFormat, message.Payload);
+            if (result.Success)
+            {
+                ProcessAssetsDocument(result.Document);
+            }
+        }
+
 
         private void ProcessCurrentDocument(IStreamsResponseDocument document)
         {
@@ -529,48 +550,65 @@ namespace MTConnect.Clients
                             lastSequence = _deviceLastSequence.GetValueOrDefault(deviceStream.Uuid);
                         }
 
-                        // Recreate Response Document (to set DataItem property for Observations)
-                        var response = new StreamsResponseDocument();
-                        response.Header = document.Header;
+                        //if (lastCurrentSequence > 0)
+                        //{
+                            // Recreate Response Document (to set DataItem property for Observations)
+                            var response = new StreamsResponseDocument();
+                            response.Header = document.Header;
 
-                        var deviceStreams = new List<IDeviceStream>();
-                        foreach (var stream in document.Streams)
-                        {
-                            deviceStreams.Add(ProcessDeviceStream(stream));
-                        }
-                        response.Streams = deviceStreams;
-
-                        //CheckAssetChanged(deviceStream.Observations, cancel);
-
-                        SampleReceived?.Invoke(this, response);
-
-                        var observations = response.GetObservations();
-                        if (!observations.IsNullOrEmpty())
-                        {
-                            foreach (var observation in observations)
+                            var deviceStreams = new List<IDeviceStream>();
+                            foreach (var stream in document.Streams)
                             {
-                                if (observation.Sequence > lastSequence && observation.Sequence > lastCurrentSequence)
+                                deviceStreams.Add(ProcessDeviceStream(stream));
+                            }
+                            response.Streams = deviceStreams;
+
+                            //CheckAssetChanged(deviceStream.Observations, cancel);
+
+                            SampleReceived?.Invoke(this, response);
+
+                            var observations = response.GetObservations();
+                            if (!observations.IsNullOrEmpty())
+                            {
+                                foreach (var observation in observations)
                                 {
-                                    ObservationReceived?.Invoke(this, observation);
+                                    if (observation.Sequence > lastSequence && observation.Sequence > lastCurrentSequence)
+                                    {
+                                        ObservationReceived?.Invoke(this, observation);
+                                    }
+                                }
+
+                                //// Save the most recent Sequence that was read
+                                //_lastSequence = observations.Max(o => o.Sequence);
+
+                                var maxSequence = observations.Max(o => o.Sequence);
+
+                                // Save the most recent Sequence that was read
+                                lock (_lock)
+                                {
+                                    _deviceLastSequence.Remove(deviceStream.Uuid);
+                                    _deviceLastSequence.Add(deviceStream.Uuid, maxSequence);
                                 }
                             }
-
-                            //// Save the most recent Sequence that was read
-                            //_lastSequence = observations.Max(o => o.Sequence);
-
-                            var maxSequence = observations.Max(o => o.Sequence);
-
-                            // Save the most recent Sequence that was read
-                            lock (_lock)
-                            {
-                                _deviceLastSequence.Remove(deviceStream.Uuid);
-                                _deviceLastSequence.Add(deviceStream.Uuid, maxSequence);
-                            }
-                        }
+                        //}
                     }
                 }
             }
         }
+
+        private void ProcessAssetsDocument(IAssetsResponseDocument document)
+        {
+            if (document != null && !document.Assets.IsNullOrEmpty())
+            {
+                AssetsReceived?.Invoke(this, document);
+
+                foreach (var asset in document.Assets)
+                {
+                    AssetReceived?.Invoke(this, asset);
+                }
+            }
+        }
+
 
         private IDeviceStream ProcessDeviceStream(IDeviceStream inputDeviceStream)
         {

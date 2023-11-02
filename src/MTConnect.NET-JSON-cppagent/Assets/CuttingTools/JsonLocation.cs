@@ -8,9 +8,6 @@ namespace MTConnect.Assets.Json.CuttingTools
 {
     public class JsonLocation
     {
-        [JsonPropertyName("value")]
-        public string Value { get; set; }
-
         [JsonPropertyName("type")]
         public string Type { get; set; }
 
@@ -20,6 +17,24 @@ namespace MTConnect.Assets.Json.CuttingTools
         [JsonPropertyName("negativeOverlap")]
         public int? NegativeOverlap { get; set; }
 
+        [JsonPropertyName("turret")]
+        public string Turret { get; set; }
+
+        [JsonPropertyName("toolMagazine")]
+        public string ToolMagazine { get; set; }
+
+        [JsonPropertyName("toolBar")]
+        public string ToolBar { get; set; }
+
+        [JsonPropertyName("toolRack")]
+        public string ToolRack { get; set; }
+
+        [JsonPropertyName("automaticToolChanger")]
+        public string AutomaticToolChanger { get; set; }
+
+        [JsonPropertyName("value")]
+        public string Value { get; set; }
+
 
         public JsonLocation() { }
 
@@ -27,10 +42,15 @@ namespace MTConnect.Assets.Json.CuttingTools
         {
             if (location != null)
             {
-                Value = location.Value;
                 Type = location.Type.ToString();
                 PositiveOverlap = location.PositiveOverlap;
                 NegativeOverlap = location.NegativeOverlap;
+                Turret = location.Turret;
+                ToolMagazine = location.ToolMagazine;
+                ToolBar = location.ToolBar;
+                ToolRack = location.ToolRack;
+                AutomaticToolChanger = location.AutomaticToolChanger;
+                Value = location.Value;
             }
         }
 
@@ -38,10 +58,15 @@ namespace MTConnect.Assets.Json.CuttingTools
         public ILocation ToLocation()
         {
             var location = new Location();
-            location.Value = Value;
             location.Type = Type.ConvertEnum<LocationType>();
             location.PositiveOverlap = PositiveOverlap;
             location.NegativeOverlap = NegativeOverlap;
+            location.Turret = Turret;
+            location.ToolMagazine = ToolMagazine;
+            location.ToolBar = ToolBar;
+            location.ToolRack = ToolRack;
+            location.AutomaticToolChanger = AutomaticToolChanger;
+            location.Value = Value;
             return location;
         }
     }

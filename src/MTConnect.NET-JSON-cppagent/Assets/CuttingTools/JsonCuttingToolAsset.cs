@@ -29,7 +29,8 @@ namespace MTConnect.Assets.Json.CuttingTools
         [JsonPropertyName("removed")]
         public bool Removed { get; set; }
 
-        [JsonPropertyName("description")]
+        [JsonIgnore]
+        //[JsonPropertyName("description")]
         public JsonDescription Description { get; set; }
 
 
@@ -40,12 +41,13 @@ namespace MTConnect.Assets.Json.CuttingTools
         public string ToolId { get; set; }
 
         [JsonPropertyName("manufacturers")]
-        public IEnumerable<string> Manufacturers { get; set; }
+        public string Manufacturers { get; set; }
 
-        [JsonPropertyName("cuttingToolLifeCycle")]
+        [JsonPropertyName("CuttingToolLifeCycle")]
         public JsonCuttingToolLifeCycle CuttingToolLifeCycle { get; set; }
 
-        [JsonPropertyName("cuttingToolArchetypeReference")]
+        [JsonIgnore]
+        //[JsonPropertyName("cuttingToolArchetypeReference")]
         public JsonCuttingToolArchetypeReference CuttingToolArchetypeReference { get; set; }
 
 
@@ -66,7 +68,7 @@ namespace MTConnect.Assets.Json.CuttingTools
 
                 SerialNumber = asset.SerialNumber;
                 ToolId = asset.ToolId;
-                Manufacturers = asset.Manufacturers;
+                if (!asset.Manufacturers.IsNullOrEmpty()) Manufacturers = string.Join(", ", asset.Manufacturers);
                 if (asset.CuttingToolLifeCycle != null) CuttingToolLifeCycle = new JsonCuttingToolLifeCycle(asset.CuttingToolLifeCycle);
                 if (asset.CuttingToolArchetypeReference != null) CuttingToolArchetypeReference = new JsonCuttingToolArchetypeReference(asset.CuttingToolArchetypeReference);
             }
@@ -87,7 +89,7 @@ namespace MTConnect.Assets.Json.CuttingTools
 
             asset.SerialNumber = SerialNumber;
             asset.ToolId = ToolId;
-            asset.Manufacturers = Manufacturers;
+            if (!string.IsNullOrEmpty(Manufacturers)) asset.Manufacturers = Manufacturers.Split(',');
             if (CuttingToolLifeCycle != null) asset.CuttingToolLifeCycle = CuttingToolLifeCycle.ToCuttingToolLifeCycle();
             if (CuttingToolArchetypeReference != null) asset.CuttingToolArchetypeReference = CuttingToolArchetypeReference.ToCuttingToolArchetypeReference();
             return asset;

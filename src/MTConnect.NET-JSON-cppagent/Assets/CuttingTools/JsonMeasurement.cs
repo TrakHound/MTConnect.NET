@@ -4,13 +4,10 @@
 using MTConnect.Assets.CuttingTools;
 using System.Text.Json.Serialization;
 
-namespace MTConnect.Assets.Json.CuttingTools.Measurements
+namespace MTConnect.Assets.Json.CuttingTools
 {
     public class JsonMeasurement
     {
-        [JsonPropertyName("type")]
-        public string Type { get; set; }
-
         [JsonPropertyName("value")]
         public double? Value { get; set; }
 
@@ -42,7 +39,6 @@ namespace MTConnect.Assets.Json.CuttingTools.Measurements
         {
             if (measurement != null)
             {
-                Type = measurement.Type;
                 Value = measurement.Value;
                 SignificantDigits = measurement.SignificantDigits;
                 Units = measurement.Units;
@@ -55,10 +51,10 @@ namespace MTConnect.Assets.Json.CuttingTools.Measurements
         }
 
 
-        public IMeasurement ToMeasurement()
+        public IMeasurement ToMeasurement(string type)
         {
             var measurement = new Measurement();
-            measurement.Type = Type;
+            measurement.Type = type;
             measurement.Value = Value;
             measurement.SignificantDigits = SignificantDigits;
             measurement.Units = Units;
@@ -67,7 +63,7 @@ namespace MTConnect.Assets.Json.CuttingTools.Measurements
             measurement.Maximum = Maximum;
             measurement.Minimum = Minimum;
             measurement.Nominal = Nominal;
-            return Measurement.Create(Type, measurement);
+            return Measurement.Create(type, measurement);
         }
     }
 }

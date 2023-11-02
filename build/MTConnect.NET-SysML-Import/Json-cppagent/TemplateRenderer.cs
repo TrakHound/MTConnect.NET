@@ -1,4 +1,5 @@
-﻿using Scriban;
+﻿using MTConnect.SysML.Models.Assets;
+using Scriban;
 
 namespace MTConnect.SysML.Json_cppagent
 {
@@ -11,6 +12,7 @@ namespace MTConnect.SysML.Json_cppagent
                 WriteComponents(mtconnectModel, outputPath);
                 WriteEvents(mtconnectModel, outputPath);
                 WriteSamples(mtconnectModel, outputPath);
+                WriteCuttingToolMeasurements(mtconnectModel, outputPath);
             }
         }
 
@@ -112,6 +114,44 @@ namespace MTConnect.SysML.Json_cppagent
                         if (result != null)
                         {
                             var resultPath = "Streams/JsonSamples";
+                            resultPath = Path.Combine(outputPath, resultPath);
+                            resultPath = $"{resultPath}.g.cs";
+
+                            var resultDirectory = Path.GetDirectoryName(resultPath);
+                            if (!Directory.Exists(resultDirectory)) Directory.CreateDirectory(resultDirectory);
+
+                            File.WriteAllText(resultPath, result);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+        }
+
+        private static void WriteCuttingToolMeasurements(MTConnectModel mtconnectModel, string outputPath)
+        {
+            var measurementsModel = new CuttingToolMeasurementsModel();
+
+            var measurements = mtconnectModel.AssetInformationModel.CuttingTools.Classes.Where(o => typeof(MTConnectCuttingToolMeasurementModel).IsAssignableFrom(o.GetType()));
+            foreach (var measurement in measurements.OrderBy(o => o.Name)) measurementsModel.Types.Add((MTConnectCuttingToolMeasurementModel)measurement);
+
+            var templateFilename = $"Measurements.scriban";
+            var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "json-cppagent", "templates", templateFilename);
+            if (File.Exists(templatePath))
+            {
+                try
+                {
+                    var templateContents = File.ReadAllText(templatePath);
+                    if (templateContents != null)
+                    {
+                        var template = Template.Parse(templateContents);
+                        var result = template.Render(measurementsModel);
+                        if (result != null)
+                        {
+                            var resultPath = $"Assets/CuttingTools/JsonMeasurements";
                             resultPath = Path.Combine(outputPath, resultPath);
                             resultPath = $"{resultPath}.g.cs";
 

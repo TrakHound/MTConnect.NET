@@ -11,7 +11,7 @@ namespace MTConnect.Assets.Json.CuttingTools
     public class JsonCuttingItem
     {
         [JsonPropertyName("indices")]
-        public IEnumerable<string> Indices { get; set; }
+        public string Indices { get; set; }
 
         [JsonPropertyName("itemId")]
         public string ItemId { get; set; }

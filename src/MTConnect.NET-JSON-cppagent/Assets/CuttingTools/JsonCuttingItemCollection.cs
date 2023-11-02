@@ -13,9 +13,8 @@ namespace MTConnect.Assets.Json.CuttingTools
         [JsonPropertyName("count")]
         public int Count { get; set; }
 
-
-        [JsonPropertyName("cuttingItems")]
-        public IEnumerable<JsonCuttingItem> CuttingItems { get; set; }
+        [JsonPropertyName("list")]
+        public JsonCuttingItems CuttingItems { get; set; }
 
 
         public JsonCuttingItemCollection() { }
@@ -26,28 +25,18 @@ namespace MTConnect.Assets.Json.CuttingTools
             {
                 Count = cuttingItems.Count();
 
-                // CuttingItems
-                if (!cuttingItems.IsNullOrEmpty())
-                {
-                    var jsonCuttingItems = new List<JsonCuttingItem>();
-                    foreach (var cuttingItem in cuttingItems)
-                    {
-                        jsonCuttingItems.Add(new JsonCuttingItem(cuttingItem));
-                    }
-                    CuttingItems = jsonCuttingItems;
-                }
+                CuttingItems = new JsonCuttingItems(cuttingItems);
             }
         }
 
 
         public IEnumerable<ICuttingItem> ToCuttingItems()
         {
-            // CuttingItems
-            if (!CuttingItems.IsNullOrEmpty())
+            if (CuttingItems != null)
             {
                 var cuttingItems = new List<ICuttingItem>();
 
-                foreach (var cuttingItem in CuttingItems)
+                foreach (var cuttingItem in CuttingItems.CuttingItems)
                 {
                     cuttingItems.Add(cuttingItem.ToCuttingItem());
                 }
