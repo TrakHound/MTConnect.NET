@@ -20,9 +20,6 @@ namespace MTConnect.Assets.Json.Files
         [JsonPropertyName("timestamp")]
         public DateTime Timestamp { get; set; }
 
-        [JsonPropertyName("instanceId")]
-        public long InstanceId { get; set; }
-
         [JsonPropertyName("deviceUuid")]
         public string DeviceUuid { get; set; }
 
@@ -45,10 +42,10 @@ namespace MTConnect.Assets.Json.Files
         [JsonPropertyName("applicationType")]
         public string ApplicationType { get; set; }
 
-        [JsonPropertyName("fileProperties")]
+        [JsonPropertyName("FileProperties")]
         public IEnumerable<JsonFileProperty> FileProperties { get; set; }
 
-        [JsonPropertyName("fileComments")]
+        [JsonPropertyName("FileComments")]
         public IEnumerable<JsonFileComment> FileComments { get; set; }
 
 
@@ -61,7 +58,7 @@ namespace MTConnect.Assets.Json.Files
         [JsonPropertyName("state")]
         public string State { get; set; }
 
-        [JsonPropertyName("fileLocation")]
+        [JsonPropertyName("FileLocation")]
         public JsonFileLocation FileLocation { get; set; }
 
         [JsonPropertyName("signature")]
@@ -70,13 +67,13 @@ namespace MTConnect.Assets.Json.Files
         [JsonPropertyName("publicKey")]
         public string PublicKey { get; set; }
 
-        [JsonPropertyName("destinations")]
-        public IEnumerable<JsonDestination> Destinations { get; set; }
+        [JsonPropertyName("Destinations")]
+        public JsonDestinationCollection Destinations { get; set; }
 
-        [JsonPropertyName("creationTime")]
+        [JsonPropertyName("CreationTime")]
         public DateTime CreationTime { get; set; }
 
-        [JsonPropertyName("modificationTime")]
+        [JsonPropertyName("ModificationTime")]
         public DateTime? ModificationTime { get; set; }
 
 
@@ -89,7 +86,6 @@ namespace MTConnect.Assets.Json.Files
                 AssetId = asset.AssetId;
                 Type = asset.Type;
                 Timestamp = asset.Timestamp;
-                InstanceId = asset.InstanceId;
                 DeviceUuid = asset.DeviceUuid;
                 Removed = asset.Removed;
 
@@ -107,7 +103,9 @@ namespace MTConnect.Assets.Json.Files
                 ApplicationCategory = asset.ApplicationCategory.ToString();
                 ApplicationType = asset.ApplicationType.ToString();
 
-                if (asset != null) FileLocation = new JsonFileLocation(asset.Location);
+                if (asset.Location != null) FileLocation = new JsonFileLocation(asset.Location);
+
+                if (!asset.Destinations.IsNullOrEmpty()) Destinations = new JsonDestinationCollection(asset.Destinations);
 
                 // FileProperties
                 if (!asset.FileProperties.IsNullOrEmpty())
@@ -139,7 +137,6 @@ namespace MTConnect.Assets.Json.Files
             var asset = new FileAsset();
 
             asset.AssetId = AssetId;
-            asset.Type = Type;
             asset.Timestamp = Timestamp;
             asset.DeviceUuid = DeviceUuid;
             asset.Removed = Removed;
@@ -159,6 +156,8 @@ namespace MTConnect.Assets.Json.Files
             asset.ApplicationType = ApplicationType.ConvertEnum<ApplicationType>();
 
             if (FileLocation != null) asset.Location = FileLocation.ToFileLocation();
+
+            if (Destinations != null) asset.Destinations = Destinations.ToDestinations();
 
             // FileProperties
             if (!FileProperties.IsNullOrEmpty())

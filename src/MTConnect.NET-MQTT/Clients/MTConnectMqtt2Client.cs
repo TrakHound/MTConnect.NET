@@ -22,7 +22,7 @@ namespace MTConnect.Clients
     public class MTConnectMqtt2Client : IMTConnectEntityClient, IDisposable
     {
         private const string _defaultTopicPrefix = "MTConnect";
-        private const string _defaultDocumentFormat = "json-cppagent";
+        private const string _defaultDocumentFormat = "json-cppagent-mqtt";
 
         private const string _defaultProbeTopicPrefix = "Probe";
         private const string _defaultCurrentTopicPrefix = "Current";
@@ -165,7 +165,7 @@ namespace MTConnect.Clients
         public event EventHandler ClientStopped;
 
 
-        public MTConnectMqtt2Client(string server, int port = 1883, string deviceUuid = null, string topicPrefix = _defaultTopicPrefix, string documentFormat = _defaultDocumentFormat, int qos = 1)
+        public MTConnectMqtt2Client(string server, int port = 1883, string deviceUuid = null, string topicPrefix = _defaultTopicPrefix, string documentFormat = _defaultDocumentFormat, string clientId = null, int qos = 1)
         {
             ReconnectionInterval = 10000;
 
@@ -174,6 +174,7 @@ namespace MTConnect.Clients
             _deviceUuid = deviceUuid;
             _topicPrefix = topicPrefix;
             _documentFormat = documentFormat;
+            _clientId = clientId;
             _qos = qos;
 
             _mqttFactory = new MqttFactory();
@@ -214,6 +215,8 @@ namespace MTConnect.Clients
                     {
                         // Declare new MQTT Client Options with Tcp Server
                         var clientOptionsBuilder = new MqttClientOptionsBuilder().WithTcpServer(_server, _port);
+
+                        clientOptionsBuilder.WithCleanSession(false);
 
                         // Set Client ID
                         if (!string.IsNullOrEmpty(_clientId))
@@ -338,6 +341,8 @@ namespace MTConnect.Clients
             {
                 var topic = args.ApplicationMessage.Topic;
 
+                Console.WriteLine($"Message Received : {topic} : {args.ApplicationMessage.Payload.Length}");
+
                 if (IsSampleTopic(topic))
                 {
                     ProcessSampleMessage(args.ApplicationMessage);
@@ -441,10 +446,17 @@ namespace MTConnect.Clients
 
         private void ProcessSampleMessage(MqttApplicationMessage message)
         {
-            var result = ResponseDocumentFormatter.CreateStreamsResponseDocument(_documentFormat, message.Payload);
-            if (result.Success)
+            if (!message.Retain)
             {
-                ProcessSampleDocument(result.Document);
+                var result = ResponseDocumentFormatter.CreateStreamsResponseDocument(_documentFormat, message.Payload);
+                if (result.Success)
+                {
+                    ProcessSampleDocument(result.Document);
+                }
+            }
+            else
+            {
+                Console.WriteLine("STALE SAMPLE!!!");
             }
         }
 
@@ -550,8 +562,8 @@ namespace MTConnect.Clients
                             lastSequence = _deviceLastSequence.GetValueOrDefault(deviceStream.Uuid);
                         }
 
-                        //if (lastCurrentSequence > 0)
-                        //{
+                        if (lastCurrentSequence > 0)
+                        {
                             // Recreate Response Document (to set DataItem property for Observations)
                             var response = new StreamsResponseDocument();
                             response.Header = document.Header;
@@ -590,7 +602,7 @@ namespace MTConnect.Clients
                                     _deviceLastSequence.Add(deviceStream.Uuid, maxSequence);
                                 }
                             }
-                        //}
+                        }
                     }
                 }
             }

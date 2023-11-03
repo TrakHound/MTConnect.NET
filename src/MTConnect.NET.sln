@@ -107,7 +107,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-SysML", "MTCo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-SysML-Import", "..\build\MTConnect.NET-SysML-Import\MTConnect.NET-SysML-Import.csproj", "{2B098F26-85B1-4719-B389-001196E30446}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MTConnect.NET-JSON-cppagent", "MTConnect.NET-JSON-cppagent\MTConnect.NET-JSON-cppagent.csproj", "{51EFC805-C3DE-467C-8BE6-FC1C67FB95ED}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-JSON-cppagent", "MTConnect.NET-JSON-cppagent\MTConnect.NET-JSON-cppagent.csproj", "{51EFC805-C3DE-467C-8BE6-FC1C67FB95ED}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MTConnect.NET-Test-Adapter", "MTConnect.NET-Test-Adapter\MTConnect.NET-Test-Adapter.csproj", "{8430FDA3-B5DD-421A-8FD8-EFF60DBDA8D1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -338,6 +340,12 @@ Global
 		{51EFC805-C3DE-467C-8BE6-FC1C67FB95ED}.Package|Any CPU.Build.0 = Debug|Any CPU
 		{51EFC805-C3DE-467C-8BE6-FC1C67FB95ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{51EFC805-C3DE-467C-8BE6-FC1C67FB95ED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8430FDA3-B5DD-421A-8FD8-EFF60DBDA8D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8430FDA3-B5DD-421A-8FD8-EFF60DBDA8D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8430FDA3-B5DD-421A-8FD8-EFF60DBDA8D1}.Package|Any CPU.ActiveCfg = Debug|Any CPU
+		{8430FDA3-B5DD-421A-8FD8-EFF60DBDA8D1}.Package|Any CPU.Build.0 = Debug|Any CPU
+		{8430FDA3-B5DD-421A-8FD8-EFF60DBDA8D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8430FDA3-B5DD-421A-8FD8-EFF60DBDA8D1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -378,6 +386,7 @@ Global
 		{82B8CF89-A378-47FF-B0DE-EE5F020D9586} = {E0233BEB-F66C-43C4-9DC8-20182894CF5F}
 		{2B098F26-85B1-4719-B389-001196E30446} = {BBF53739-168D-4635-8595-083AC0C65E4C}
 		{51EFC805-C3DE-467C-8BE6-FC1C67FB95ED} = {100B4AD7-EC7E-41B8-9B90-C0F9FC0274FC}
+		{8430FDA3-B5DD-421A-8FD8-EFF60DBDA8D1} = {21FC4AC7-9DE9-40DD-9984-5C7B914394A3}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CC13D3AD-18BF-4695-AB2A-087EF0885B20}

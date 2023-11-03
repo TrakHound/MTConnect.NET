@@ -1,9 +1,12 @@
+using MTConnect;
 using MTConnect.Clients;
 using MTConnect.Observations;
 
-var agentUrl = "localhost";
+var server = "localhost";
 
-var client = new MTConnectMqtt2Client(agentUrl);
+var i = -1;
+
+var client = new MTConnectMqtt2Client(server, clientId: "patrick-test");
 //client.Interval = 100;
 //client.Heartbeat = 10000;
 //client.ContentType = "application/json";
@@ -18,6 +21,35 @@ client.ObservationReceived += (sender, observation) =>
     {
         case MTConnect.Devices.DataItemRepresentation.VALUE:
             Console.WriteLine($"Observation Received : {observation.DataItemId} = {observation.GetValue("Result")} @ {observation.Timestamp}");
+
+            //if (observation.DataItemId == "PartCountAct" && observation.GetValue("Result") != Observation.Unavailable)
+            if (observation.DataItemId == "PartCountAct" && !observation.IsUnavailable)
+            {
+                if (!observation.IsUnavailable)
+                {
+                    if (i < 0)
+                    {
+                        i = observation.GetValue("Result").ToInt();
+                    }
+                    else
+                    {
+                        if (observation.GetValue("Result").ToInt() != i)
+                        {
+                            if (observation != null)
+                            {
+
+                            }
+                        }
+                    }
+
+                    i++;
+                }
+                else
+                {
+                    i = -1;
+                }
+            }
+
             break;
 
         case MTConnect.Devices.DataItemRepresentation.DATA_SET:

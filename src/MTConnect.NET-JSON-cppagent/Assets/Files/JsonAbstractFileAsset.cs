@@ -6,7 +6,7 @@ using System.Text.Json.Serialization;
 
 namespace MTConnect.Assets.Json.Files
 {
-    public abstract class JsonAbstractFileAsset
+    public abstract class JsonAbstractFileAsset : JsonAsset
     {
         [JsonPropertyName("name")]
         public string Name { get; set; }
@@ -20,10 +20,10 @@ namespace MTConnect.Assets.Json.Files
         [JsonPropertyName("applicationType")]
         public string ApplicationType { get; set; }
 
-        [JsonPropertyName("fileProperties")]
+        [JsonPropertyName("FileProperties")]
         public IEnumerable<JsonFileProperty> FileProperties { get; set; }
 
-        [JsonPropertyName("fileComments")]
+        [JsonPropertyName("FileComments")]
         public IEnumerable<JsonFileComment> FileComments { get; set; }
     }
 }

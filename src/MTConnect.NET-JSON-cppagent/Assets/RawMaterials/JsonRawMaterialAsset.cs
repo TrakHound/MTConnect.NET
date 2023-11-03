@@ -13,9 +13,6 @@ namespace MTConnect.Assets.Json.RawMaterials
         [JsonPropertyName("assetId")]
         public string AssetId { get; set; }
 
-        [JsonPropertyName("type")]
-        public string Type { get; set; }
-
         [JsonPropertyName("timestamp")]
         public DateTime Timestamp { get; set; }
 
@@ -44,40 +41,40 @@ namespace MTConnect.Assets.Json.RawMaterials
         [JsonPropertyName("serialNumber")]
         public string SerialNumber { get; set; }
 
-        [JsonPropertyName("form")]
+        [JsonPropertyName("Form")]
         public string Form { get; set; }
 
-        [JsonPropertyName("hasMaterial")]
+        [JsonPropertyName("HasMaterial")]
         public bool? HasMaterial { get; set; }
 
-        [JsonPropertyName("manufacturingDate")]
+        [JsonPropertyName("ManufacturingDate")]
         public DateTime? ManufacturingDate { get; set; }
 
-        [JsonPropertyName("firstUseDate")]
+        [JsonPropertyName("FirstUseDate")]
         public DateTime? FirstUseDate { get; set; }
 
-        [JsonPropertyName("lastUseDate")]
+        [JsonPropertyName("LastUseDate")]
         public DateTime? LastUseDate { get; set; }
 
-        [JsonPropertyName("initialVolume")]
+        [JsonPropertyName("InitialVolume")]
         public double? InitialVolume { get; set; }
 
-        [JsonPropertyName("initialDimension")]
+        [JsonPropertyName("InitialDimension")]
         public string InitialDimension { get; set; }
 
-        [JsonPropertyName("initialQuantity")]
+        [JsonPropertyName("InitialQuantity")]
         public int? InitialQuantity { get; set; }
 
-        [JsonPropertyName("currentVolume")]
+        [JsonPropertyName("CurrentVolume")]
         public double? CurrentVolume { get; set; }
 
-        [JsonPropertyName("currentDimension")]
+        [JsonPropertyName("CurrentDimension")]
         public string CurrentDimension { get; set; }
 
-        [JsonPropertyName("currentQuantity")]
+        [JsonPropertyName("CurrentQuantity")]
         public int? CurrentQuantity { get; set; }
 
-        [JsonPropertyName("material")]
+        [JsonPropertyName("Material")]
         public JsonMaterial Material { get; set; }
 
 
@@ -88,7 +85,6 @@ namespace MTConnect.Assets.Json.RawMaterials
             if (asset != null)
             {
                 AssetId = asset.AssetId;
-                Type = asset.Type;
                 Timestamp = asset.Timestamp;
                 InstanceId = asset.InstanceId;
                 DeviceUuid = asset.DeviceUuid;
@@ -122,7 +118,6 @@ namespace MTConnect.Assets.Json.RawMaterials
             var asset = new RawMaterialAsset();
 
             asset.AssetId = AssetId;
-            asset.Type = Type;
             asset.Timestamp = Timestamp;
             asset.DeviceUuid = DeviceUuid;
             asset.Removed = Removed;

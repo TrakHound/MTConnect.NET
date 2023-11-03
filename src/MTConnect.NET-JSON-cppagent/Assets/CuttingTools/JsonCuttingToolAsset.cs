@@ -4,7 +4,6 @@
 using MTConnect.Assets.CuttingTools;
 using MTConnect.Devices.Json;
 using System;
-using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace MTConnect.Assets.Json.CuttingTools
@@ -46,8 +45,7 @@ namespace MTConnect.Assets.Json.CuttingTools
         [JsonPropertyName("CuttingToolLifeCycle")]
         public JsonCuttingToolLifeCycle CuttingToolLifeCycle { get; set; }
 
-        [JsonIgnore]
-        //[JsonPropertyName("cuttingToolArchetypeReference")]
+        [JsonPropertyName("CuttingToolArchetypeReference")]
         public JsonCuttingToolArchetypeReference CuttingToolArchetypeReference { get; set; }
 
 

@@ -8,7 +8,7 @@ namespace MTConnect.Assets.Json.Files
 {
     public class JsonDestination
     {
-        [JsonPropertyName("deviceUuid")]
+        [JsonPropertyName("value")] // Not sure why this is "value" when it is listed as an XML attribute with the name of "deviceUuid"
         public string DeviceUuid { get; set; }
 
 

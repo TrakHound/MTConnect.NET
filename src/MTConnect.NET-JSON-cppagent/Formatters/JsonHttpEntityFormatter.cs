@@ -3,8 +3,8 @@
 
 using MTConnect.Assets;
 using MTConnect.Assets.CuttingTools;
-using MTConnect.Assets.Json.CuttingTools;
 using MTConnect.Assets.Files;
+using MTConnect.Assets.Json.CuttingTools;
 using MTConnect.Assets.Json.Files;
 using MTConnect.Assets.Json.QIF;
 using MTConnect.Assets.Json.RawMaterials;
@@ -13,7 +13,6 @@ using MTConnect.Assets.RawMaterials;
 using MTConnect.Devices;
 using MTConnect.Devices.Json;
 using MTConnect.Observations;
-using MTConnect.Streams.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,11 +21,11 @@ using System.Text.Json;
 
 namespace MTConnect.Formatters
 {
-    public class JsonEntityFormatter : IEntityFormatter
+    public class JsonHttpEntityFormatter : IEntityFormatter
     {
-        public string Id => "JSON-cppagent";
+        public virtual string Id => "JSON-cppagent";
 
-        public string ContentType => "application/json";
+        public virtual string ContentType => "application/json";
 
 
         public string Format(IDevice device, IEnumerable<KeyValuePair<string, string>> options = null)

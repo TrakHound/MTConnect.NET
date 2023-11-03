@@ -16,11 +16,11 @@ using System.Text.Json;
 
 namespace MTConnect.Formatters
 {
-    public class JsonResponseDocumentFormatter : IResponseDocumentFormatter
+    public class JsonHttpResponseDocumentFormatter : IResponseDocumentFormatter
     {
-        public string Id => "JSON-cppagent";
+        public virtual string Id => "JSON-cppagent";
 
-        public string ContentType => "application/json";
+        public virtual string ContentType => "application/json";
 
 
         public FormattedDocumentWriteResult Format(IDevicesResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
@@ -53,7 +53,7 @@ namespace MTConnect.Formatters
             return FormattedDocumentWriteResult.Error();
         }
 
-        public FormattedDocumentWriteResult Format(IAssetsResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
+        public virtual FormattedDocumentWriteResult Format(IAssetsResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read Indent Option passed to Formatter
             var indentOutput = GetFormatterOption<bool>(options, "indentOutput");
@@ -104,7 +104,7 @@ namespace MTConnect.Formatters
             return new FormattedDocumentReadResult<IStreamsResponseDocument>(document.ToStreamsDocument(), success);
         }
 
-        public FormattedDocumentReadResult<IAssetsResponseDocument> CreateAssetsResponseDocument(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
+        public virtual FormattedDocumentReadResult<IAssetsResponseDocument> CreateAssetsResponseDocument(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read Document
             var document = JsonSerializer.Deserialize<JsonAssetsResponseDocument>(content);
@@ -123,7 +123,7 @@ namespace MTConnect.Formatters
         }
 
 
-        private static T GetFormatterOption<T>(IEnumerable<KeyValuePair<string, string>> options, string key)
+        protected static T GetFormatterOption<T>(IEnumerable<KeyValuePair<string, string>> options, string key)
         {
             if (!options.IsNullOrEmpty())
             {
@@ -141,7 +141,7 @@ namespace MTConnect.Formatters
             return default;
         }
 
-        private static IEnumerable<T> GetFormatterOptions<T>(IEnumerable<KeyValuePair<string, string>> options, string key)
+        protected static IEnumerable<T> GetFormatterOptions<T>(IEnumerable<KeyValuePair<string, string>> options, string key)
         {
             var l = new List<T>();
 

@@ -1,3 +1,10 @@
-﻿<RawMaterial name="test-material">
-
+﻿<RawMaterial name="test-material" containerType="Pallet" processKind="MATERIAL_EXTRUSION" serialNumber="321654">
+	<Form>BAR</Form>
+	<HasMaterial>true</HasMaterial>
+	<ManufacturingDate>2023-10-05T13:44:3214Z</ManufacturingDate>
+	<Material id="material123" name="ULTM9085" type="4140">
+		<Lot>00164</Lot>
+		<Manufacturer>ACME</Manufacturer>
+		<MaterialCode>ASM5366</MaterialCode>
+	</Material>
 </RawMaterial>

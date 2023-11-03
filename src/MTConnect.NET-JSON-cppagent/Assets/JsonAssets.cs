@@ -2,7 +2,11 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Assets.CuttingTools;
+using MTConnect.Assets.Files;
 using MTConnect.Assets.Json.CuttingTools;
+using MTConnect.Assets.Json.Files;
+using MTConnect.Assets.Json.RawMaterials;
+using MTConnect.Assets.RawMaterials;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
@@ -10,8 +14,20 @@ namespace MTConnect.Assets.Json
 {
     public class JsonAssets
     {
+        //[JsonPropertyName("ComponentConfigurationParameters")]
+        //public List<JsonComponentConfigurationParametersAsset> ComponentConfigurationParameters { get; set; }
+
         [JsonPropertyName("CuttingTool")]
         public List<JsonCuttingToolAsset> CuttingTools { get; set; }
+
+        [JsonPropertyName("File")]
+        public List<JsonFileAsset> Files { get; set; }
+
+        //[JsonPropertyName("QIF")]
+        //public List<JsonCuttingToolAsset> QIF { get; set; }
+
+        [JsonPropertyName("RawMaterial")]
+        public List<JsonRawMaterialAsset> RawMaterials { get; set; }
 
 
         public JsonAssets() { }
@@ -28,6 +44,16 @@ namespace MTConnect.Assets.Json
                             if (CuttingTools == null) CuttingTools = new List<JsonCuttingToolAsset>();
                             CuttingTools.Add(new JsonCuttingToolAsset((ICuttingToolAsset)asset));
                             break;
+
+                        case FileAsset.TypeId:
+                            if (Files == null) Files = new List<JsonFileAsset>();
+                            Files.Add(new JsonFileAsset((IFileAsset)asset));
+                            break;
+
+                        case RawMaterialAsset.TypeId:
+                            if (RawMaterials == null) RawMaterials = new List<JsonRawMaterialAsset>();
+                            RawMaterials.Add(new JsonRawMaterialAsset((IRawMaterialAsset)asset));
+                            break;
                     }
                 }
             }
@@ -40,7 +66,17 @@ namespace MTConnect.Assets.Json
 
             if (!CuttingTools.IsNullOrEmpty())
             {
-                foreach (var cuttingTool in CuttingTools) assets.Add(cuttingTool.ToCuttingToolAsset());
+                foreach (var asset in CuttingTools) assets.Add(asset.ToCuttingToolAsset());
+            }
+
+            if (!Files.IsNullOrEmpty())
+            {
+                foreach (var asset in Files) assets.Add(asset.ToFileAsset());
+            }
+
+            if (!RawMaterials.IsNullOrEmpty())
+            {
+                foreach (var asset in RawMaterials) assets.Add(asset.ToRawMaterialAsset());
             }
 
             return assets;

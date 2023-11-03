@@ -8,7 +8,7 @@ namespace MTConnect.Assets.Json.CuttingTools
 {
     public class JsonCuttingToolArchetype
     {
-        [JsonPropertyName("cuttingToolDefinition")]
+        [JsonPropertyName("CuttingToolDefinition")]
         public JsonCuttingToolDefinition CuttingToolDefinition { get; set; }
 
 

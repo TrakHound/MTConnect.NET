@@ -18,19 +18,19 @@ namespace MTConnect.Assets.Json.RawMaterials
         [JsonPropertyName("type")]
         public string Type { get; set; }
 
-        [JsonPropertyName("lot")]
+        [JsonPropertyName("Lot")]
         public string Lot { get; set; }
 
-        [JsonPropertyName("manufacturer")]
+        [JsonPropertyName("Manufacturer")]
         public string Manufacturer { get; set; }
 
-        [JsonPropertyName("manufacturingDate")]
+        [JsonPropertyName("ManufacturingDate")]
         public DateTime? ManufacturingDate { get; set; }
 
-        [JsonPropertyName("manufacturingCode")]
+        [JsonPropertyName("ManufacturingCode")]
         public string ManufacturingCode { get; set; }
 
-        [JsonPropertyName("materialCode")]
+        [JsonPropertyName("MaterialCode")]
         public string MaterialCode { get; set; }
 
 
