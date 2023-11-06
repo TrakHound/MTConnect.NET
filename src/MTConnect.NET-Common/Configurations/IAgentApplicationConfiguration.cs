@@ -1,6 +1,8 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
+using System.Collections.Generic;
+
 namespace MTConnect.Configurations
 {
     /// <summary>
@@ -46,5 +48,33 @@ namespace MTConnect.Configurations
         /// Gets or Sets the minimum time (in seconds) between Agent restarts when MonitorConfigurationFiles is enabled
         /// </summary>
         int ConfigurationFileRestartInterval { get; set; }
+
+
+        IEnumerable<object> Modules { get; set; }
+
+        //IEnumerable<object> Controllers { get; set; }
+
+        //IEnumerable<object> DataSources { get; set; }
+
+
+        Dictionary<object, object> GetModules();
+
+        IEnumerable<object> GetModules(string key);
+
+        IEnumerable<TConfiguration> GetModules<TConfiguration>(string key);
+
+
+        //Dictionary<object, object> GetControllers();
+
+        //IEnumerable<object> GetControllers(string key);
+
+        //IEnumerable<TConfiguration> GetControllers<TConfiguration>(string key);
+
+
+        //Dictionary<object, object> GetDataSources();
+
+        //IEnumerable<object> GetDataSources(string key);
+
+        //IEnumerable<TConfiguration> GetDataSources<TConfiguration>(string key);
     }
 }

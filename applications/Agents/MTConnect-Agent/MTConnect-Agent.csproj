@@ -8,4 +8,29 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\modules\MTConnect.NET-HttpAdapter-Module\MTConnect.NET-HttpAdapter-Module.csproj" />
+    <ProjectReference Include="..\..\..\modules\MTConnect.NET-HttpServer-Module\MTConnect.NET-HttpServer-Module.csproj" />
+    <ProjectReference Include="..\..\..\modules\MTConnect.NET-MqttBroker-Module\MTConnect.NET-MqttBroker-Module.csproj" />
+    <ProjectReference Include="..\..\..\modules\MTConnect.NET-MqttRelay-Module\MTConnect.NET-MqttRelay-Module.csproj" />
+    <ProjectReference Include="..\..\..\modules\MTConnect.NET-ShdrAdapter-Module\MTConnect.NET-ShdrAdapter-Module.csproj" />
+    <ProjectReference Include="..\..\..\src\MTConnect.NET-Applications-Agents\MTConnect.NET-Applications-Agents.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="agent.config.default.yaml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="devices\device-mazak.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="devices\device-okuma.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="README.md">
+      <PackagePath>\</PackagePath>
+      <Pack>True</Pack>
+    </None>
+  </ItemGroup>
+
 </Project>

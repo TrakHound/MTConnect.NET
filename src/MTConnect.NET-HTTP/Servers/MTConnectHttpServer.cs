@@ -22,7 +22,8 @@ namespace MTConnect.Servers.Http
     public class MTConnectHttpServer : IDisposable
     {
         protected readonly IMTConnectAgentBroker _mtconnectAgent;
-        protected readonly IHttpAgentConfiguration _configuration;
+        protected readonly IHttpServerConfiguration _configuration;
+        //protected readonly IHttpAgentConfiguration _configuration;
         private CancellationTokenSource _stop;
 
 
@@ -70,7 +71,7 @@ namespace MTConnect.Servers.Http
         public event EventHandler<Exception> ClientException;
 
 
-        public MTConnectHttpServer(IHttpAgentConfiguration configuration, IMTConnectAgentBroker mtconnectAgent)
+        public MTConnectHttpServer(IHttpServerConfiguration configuration, IMTConnectAgentBroker mtconnectAgent)
         {
             _mtconnectAgent = mtconnectAgent;
             _configuration = configuration;
@@ -111,24 +112,7 @@ namespace MTConnect.Servers.Http
 
             if (_configuration != null)
             {
-                var httpServerConfigurations = new List<IHttpServerConfiguration>();
-
-                if (!_configuration.Http.IsNullOrEmpty())
-                {
-                    httpServerConfigurations.AddRange(_configuration.Http);
-                }
-                else
-                {
-                    httpServerConfigurations.Add(_configuration);
-                }
-
-                if (!httpServerConfigurations.IsNullOrEmpty())
-                {
-                    foreach (var httpServer in httpServerConfigurations)
-                    {
-                        _ = Task.Run(() => StartServer(httpServer, _stop.Token));
-                    }
-                }
+                _ = Task.Run(() => StartServer(_configuration, _stop.Token));
             }
         }
 
@@ -227,7 +211,7 @@ namespace MTConnect.Servers.Http
             serverConfig.MaxProcessingTimeSeconds = 60;
 
             // Setup the Probe Request Handler
-            var probeHandler = new MTConnectProbeResponseHandler(_configuration, _mtconnectAgent, serverConfiguration);
+            var probeHandler = new MTConnectProbeResponseHandler(serverConfiguration, _mtconnectAgent);
             probeHandler.ResponseSent += ResponseSent;
             probeHandler.ClientConnected += ClientConnected;
             probeHandler.ClientDisconnected += ClientDisconnected;
@@ -235,7 +219,7 @@ namespace MTConnect.Servers.Http
             probeHandler.CreateFormatOptionsFunction = OnCreateFormatOptions;
 
             // Setup the Current Request Handler
-            var currentHandler = new MTConnectCurrentResponseHandler(_configuration, _mtconnectAgent, serverConfiguration);
+            var currentHandler = new MTConnectCurrentResponseHandler(serverConfiguration, _mtconnectAgent);
             currentHandler.ResponseSent += ResponseSent;
             currentHandler.ClientConnected += ClientConnected;
             currentHandler.ClientDisconnected += ClientDisconnected;
@@ -243,7 +227,7 @@ namespace MTConnect.Servers.Http
             currentHandler.CreateFormatOptionsFunction = OnCreateFormatOptions;
 
             // Setup the Sample Request Handler
-            var sampleHandler = new MTConnectSampleResponseHandler(_configuration, _mtconnectAgent, serverConfiguration);
+            var sampleHandler = new MTConnectSampleResponseHandler(serverConfiguration, _mtconnectAgent);
             sampleHandler.ResponseSent += ResponseSent;
             sampleHandler.ClientConnected += ClientConnected;
             sampleHandler.ClientDisconnected += ClientDisconnected;
@@ -251,7 +235,7 @@ namespace MTConnect.Servers.Http
             sampleHandler.CreateFormatOptionsFunction = OnCreateFormatOptions;
 
             // Setup the Assets Request Handler
-            var assetsHandler = new MTConnectAssetsResponseHandler(_configuration, _mtconnectAgent, serverConfiguration);
+            var assetsHandler = new MTConnectAssetsResponseHandler(serverConfiguration, _mtconnectAgent);
             assetsHandler.ResponseSent += ResponseSent;
             assetsHandler.ClientConnected += ClientConnected;
             assetsHandler.ClientDisconnected += ClientDisconnected;
@@ -259,7 +243,7 @@ namespace MTConnect.Servers.Http
             assetsHandler.CreateFormatOptionsFunction = OnCreateFormatOptions;
 
             // Setup the Asset Request Handler
-            var assetHandler = new MTConnectAssetResponseHandler(_configuration, _mtconnectAgent, serverConfiguration);
+            var assetHandler = new MTConnectAssetResponseHandler(serverConfiguration, _mtconnectAgent);
             assetHandler.ResponseSent += ResponseSent;
             assetHandler.ClientConnected += ClientConnected;
             assetHandler.ClientDisconnected += ClientDisconnected;
@@ -267,7 +251,7 @@ namespace MTConnect.Servers.Http
             assetHandler.CreateFormatOptionsFunction = OnCreateFormatOptions;
 
 			// Setup the Put Request Handler
-			var putHandler = new MTConnectPutResponseHandler(_configuration, _mtconnectAgent, serverConfiguration);
+			var putHandler = new MTConnectPutResponseHandler(serverConfiguration, _mtconnectAgent);
 			putHandler.ResponseSent += ResponseSent;
 			putHandler.ClientConnected += ClientConnected;
 			putHandler.ClientDisconnected += ClientDisconnected;
@@ -276,7 +260,7 @@ namespace MTConnect.Servers.Http
 			putHandler.CreateFormatOptionsFunction = OnCreateFormatOptions;
 
 			// Setup the Post Request Handler
-			var postHandler = new MTConnectPostResponseHandler(_configuration, _mtconnectAgent, serverConfiguration);
+			var postHandler = new MTConnectPostResponseHandler(serverConfiguration, _mtconnectAgent);
 			postHandler.ResponseSent += ResponseSent;
 			postHandler.ClientConnected += ClientConnected;
 			postHandler.ClientDisconnected += ClientDisconnected;
@@ -285,7 +269,7 @@ namespace MTConnect.Servers.Http
 			postHandler.CreateFormatOptionsFunction = OnCreateFormatOptions;
 
 			// Setup the Static Request Handler
-			var staticHandler = new MTConnectStaticResponseHandler(_configuration, _mtconnectAgent, serverConfiguration);
+			var staticHandler = new MTConnectStaticResponseHandler(serverConfiguration, _mtconnectAgent);
             staticHandler.ResponseSent += ResponseSent;
             staticHandler.ClientConnected += ClientConnected;
             staticHandler.ClientDisconnected += ClientDisconnected;

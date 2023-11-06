@@ -54,6 +54,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="Servers\MTConnectHttpServer - Copy.cs" />
 	  <Compile Remove="Servers\OutputValidationLevel.cs" />
 	</ItemGroup>
 
@@ -127,6 +128,7 @@
 	    <Pack>True</Pack>
 	    <PackagePath>\</PackagePath>
 	  </None>
+	  <None Include="Servers\MTConnectHttpServer - Copy.cs" />
 	</ItemGroup>
 	
 	<ItemGroup>

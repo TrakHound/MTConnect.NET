@@ -1,6 +1,7 @@
 ﻿using MTConnect.Http;
 using MTConnect.Tls;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace MTConnect.Configurations
 {
@@ -38,6 +39,16 @@ namespace MTConnect.Configurations
         /// </summary>
         int MaxStreamingThreads { get; set; }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        string DefaultVersion { get; set; }
+
+        /// <summary>
+        /// Gets or Sets the default DocumentFormat (ex. XML, JSON)
+        /// </summary>
+        string DocumentFormat { get; set; }
 
         /// <summary>
         /// Gets or Sets the default response document indendation

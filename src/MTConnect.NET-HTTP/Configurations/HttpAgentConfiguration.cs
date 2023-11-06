@@ -98,6 +98,18 @@ namespace MTConnect.Configurations
 
 
         /// <summary>
+        /// 
+        /// </summary>
+        [JsonPropertyName("defaultVersion")]
+        public string DefaultVersion { get; set; }
+
+        /// <summary>
+        /// Gets or Sets the default DocumentFormat (ex. XML, JSON)
+        /// </summary>
+        [JsonPropertyName("documentFormat")]
+        public string DocumentFormat { get; set; }
+
+        /// <summary>
         /// Gets or Sets the default response document indendation
         /// </summary>
         [JsonPropertyName("indentOutput")]

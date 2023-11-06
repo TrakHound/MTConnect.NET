@@ -35,7 +35,7 @@ namespace MTConnect.Devices.Xml
             var channel = new Channel();
             channel.Number = Number;
             channel.Name = Name;
-            channel.Description = Description.ToDescription();
+            if (Description != null) channel.Description = Description.ToDescription();
             channel.CalibrationDate = CalibrationDate;
             channel.NextCalibrationDate = NextCalibrationDate;
             channel.CalibrationInitials = CalibrationInitials;

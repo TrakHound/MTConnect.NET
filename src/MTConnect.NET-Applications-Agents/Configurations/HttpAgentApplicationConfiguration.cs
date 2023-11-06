@@ -84,6 +84,10 @@ namespace MTConnect.Configurations
         public StyleConfiguration ErrorStyle { get; set; }
 
 
+        [JsonPropertyName("controllers")]
+        public IEnumerable<object> Controllers { get; set; }
+
+
         public HttpAgentApplicationConfiguration() : base()
         {
             Devices = null;

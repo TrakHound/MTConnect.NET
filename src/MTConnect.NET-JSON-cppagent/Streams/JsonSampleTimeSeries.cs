@@ -104,7 +104,7 @@ namespace MTConnect.Streams.Json
             observation.Name = Name;
             observation.InstanceId = InstanceId;
             observation.Sequence = Sequence;
-            observation.Category = Category.ConvertEnum<DataItemCategory>();
+            //observation.Category = Category.ConvertEnum<DataItemCategory>();
             observation.Type = type;
             observation.SubType = SubType;
             observation.CompositionId = CompositionId;

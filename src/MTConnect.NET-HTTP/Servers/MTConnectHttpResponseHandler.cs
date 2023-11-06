@@ -19,7 +19,6 @@ namespace MTConnect.Servers.Http
     public abstract class MTConnectHttpResponseHandler : IHttpModule
     {
         protected readonly IMTConnectAgentBroker _mtconnectAgent;
-        protected readonly IHttpAgentConfiguration _agentConfiguration;
         protected readonly IHttpServerConfiguration _serverConfiguration;
 
 
@@ -46,10 +45,9 @@ namespace MTConnect.Servers.Http
         public Func<MTConnectFormatOptionsArgs, List<KeyValuePair<string, string>>> CreateFormatOptionsFunction { get; set; }
 
 
-        public MTConnectHttpResponseHandler(IHttpAgentConfiguration agentConfiguration, IMTConnectAgentBroker mtconnectAgent, IHttpServerConfiguration serverConfiguration)
+        public MTConnectHttpResponseHandler(IHttpServerConfiguration serverConfiguration, IMTConnectAgentBroker mtconnectAgent)
         {
             _mtconnectAgent = mtconnectAgent;
-            _agentConfiguration = agentConfiguration;
             _serverConfiguration = serverConfiguration;
         }
 

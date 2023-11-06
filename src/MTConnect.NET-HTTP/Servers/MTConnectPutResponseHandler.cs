@@ -18,8 +18,7 @@ namespace MTConnect.Servers
         public Func<MTConnectObservationInputArgs, bool> ProcessFunction { get; set; }
 
 
-        public MTConnectPutResponseHandler(IHttpAgentConfiguration agentConfiguration, IMTConnectAgentBroker mtconnectAgent, IHttpServerConfiguration serverConfiguration)
-            : base(agentConfiguration, mtconnectAgent, serverConfiguration) { }
+        public MTConnectPutResponseHandler(IHttpServerConfiguration serverConfiguration, IMTConnectAgentBroker mtconnectAgent) : base(serverConfiguration, mtconnectAgent) { }
 
 
         protected async override Task<MTConnectHttpResponse> OnRequestReceived(IHttpContext context)

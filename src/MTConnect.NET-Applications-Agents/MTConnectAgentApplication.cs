@@ -22,7 +22,7 @@ namespace MTConnect.Applications.Agents
     /// <summary>
     /// An MTConnect Agent Application base class supporting Command line arguments, Device management, Buffer management, Logging, Windows Service, and Configuration File management
     /// </summary>
-    public abstract class MTConnectAgentApplication : IMTConnectAgentApplication
+    public class MTConnectAgentApplication : IMTConnectAgentApplication
     {
         private const string DefaultServiceName = "MTConnect-Agent";
         private const string DefaultServiceDisplayName = "MTConnect Agent";
@@ -39,6 +39,9 @@ namespace MTConnect.Applications.Agents
         private MTConnectAgentBroker _mtconnectAgent;
         private IMTConnectObservationBuffer _observationBuffer;
         private MTConnectAssetFileBuffer _assetBuffer;
+        private MTConnectAgentModules _modules;
+        //private MTConnectControllers _controllers;
+        //private MTConnectDataSources _dataSources;
         protected IAgentConfigurationFileWatcher _agentConfigurationWatcher;
         private System.Timers.Timer _metricsTimer;
         private bool _started = false;
@@ -324,6 +327,9 @@ namespace MTConnect.Applications.Agents
                 // Create MTConnectAgentBroker
                 _mtconnectAgent = new MTConnectAgentBroker(configuration, _observationBuffer, _assetBuffer, agentInformation.Uuid, agentInformation.InstanceId, agentInformation.DeviceModelChangeTime, initializeDataItems);
 
+                // Initialize Agent Modules
+                _modules = new MTConnectAgentModules(configuration, _mtconnectAgent);
+                _modules.Load();
 
                 // Read Indexes for Buffer
                 if (configuration.Durable)
@@ -386,6 +392,7 @@ namespace MTConnect.Applications.Agents
                 }
 
                 OnStartAgentBeforeLoad(devices, initializeDataItems);
+                _modules.StartBeforeLoad();
 
                 // Initialize Agent Current Observations/Conditions
                 // This updates the MTConnectAgent's cache used to determine duplicate observations
@@ -395,6 +402,7 @@ namespace MTConnect.Applications.Agents
                     _mtconnectAgent.InitializeCurrentObservations(_observationBuffer.CurrentConditions.SelectMany(o => o.Value));
                 }
 
+                _modules.StartAfterLoad();
                 OnStartAgentAfterLoad(devices, initializeDataItems);
 
                 // Save Indexes for Buffer
@@ -446,12 +454,15 @@ namespace MTConnect.Applications.Agents
 
                 OnStopAgent();
 
+                if (_modules != null) _modules.Stop();
+
                 _started = false;
             }
         }
 
 
         protected virtual void OnStartAgentBeforeLoad(IEnumerable<DeviceConfiguration> devices, bool initializeDataItems = false) { }
+
         protected virtual void OnStartAgentAfterLoad(IEnumerable<DeviceConfiguration> devices, bool initializeDataItems = false) { }
 
         protected virtual void OnStopAgent() { }

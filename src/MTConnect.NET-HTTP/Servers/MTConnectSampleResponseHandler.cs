@@ -18,8 +18,7 @@ namespace MTConnect.Servers
         private const int _defaultHeartbeat = 10000; // 10 Seconds
 
 
-        public MTConnectSampleResponseHandler(IHttpAgentConfiguration agentConfiguration, IMTConnectAgentBroker mtconnectAgent, IHttpServerConfiguration serverConfiguration)
-            : base(agentConfiguration, mtconnectAgent, serverConfiguration) { }
+        public MTConnectSampleResponseHandler(IHttpServerConfiguration serverConfiguration, IMTConnectAgentBroker mtconnectAgent) : base(serverConfiguration, mtconnectAgent) { }
 
 
         protected async override Task<MTConnectHttpResponse> OnRequestReceived(IHttpContext context)
@@ -73,24 +72,25 @@ namespace MTConnect.Servers
                 if (!string.IsNullOrEmpty(documentFormatString)) documentFormat = documentFormatString;
 
                 // Read ValidationLevel from Query string
-                int validationLevel = (int)_agentConfiguration.OutputValidationLevel;
-                var validationLevelString = httpRequest.QueryString["validationLevel"];
-                if (!string.IsNullOrEmpty(validationLevelString)) validationLevel = validationLevelString.ToInt();
+                int validationLevel = 0;
+                //int validationLevel = (int)_agentConfiguration.OutputValidationLevel;
+                //var validationLevelString = httpRequest.QueryString["validationLevel"];
+                //if (!string.IsNullOrEmpty(validationLevelString)) validationLevel = validationLevelString.ToInt();
 
 
                 // Set Format Options
                 var formatOptions = CreateFormatOptions(MTConnectRequestType.Sample, documentFormat, version, validationLevel);
                 formatOptions.Add(new KeyValuePair<string, string>("validationLevel", validationLevel.ToString()));
 
-                // Read IndentOutput from Query string
-                var indentOutputString = httpRequest.QueryString["indentOutput"];
-                if (!string.IsNullOrEmpty(indentOutputString)) formatOptions.Add(new KeyValuePair<string, string>("indentOutput", indentOutputString));
-                else formatOptions.Add(new KeyValuePair<string, string>("indentOutput", _agentConfiguration.IndentOutput.ToString()));
+                //// Read IndentOutput from Query string
+                //var indentOutputString = httpRequest.QueryString["indentOutput"];
+                //if (!string.IsNullOrEmpty(indentOutputString)) formatOptions.Add(new KeyValuePair<string, string>("indentOutput", indentOutputString));
+                //else formatOptions.Add(new KeyValuePair<string, string>("indentOutput", _agentConfiguration.IndentOutput.ToString()));
 
-                // Read OutputComments from Query string
-                var outputCommentsString = httpRequest.QueryString["outputComments"];
-                if (!string.IsNullOrEmpty(outputCommentsString)) formatOptions.Add(new KeyValuePair<string, string>("outputComments", outputCommentsString));
-                else formatOptions.Add(new KeyValuePair<string, string>("outputComments", _agentConfiguration.OutputComments.ToString()));
+                //// Read OutputComments from Query string
+                //var outputCommentsString = httpRequest.QueryString["outputComments"];
+                //if (!string.IsNullOrEmpty(outputCommentsString)) formatOptions.Add(new KeyValuePair<string, string>("outputComments", outputCommentsString));
+                //else formatOptions.Add(new KeyValuePair<string, string>("outputComments", _agentConfiguration.OutputComments.ToString()));
 
 
                 if (interval > -1)
@@ -99,7 +99,7 @@ namespace MTConnect.Servers
                     var dataItemIds = PathProcessor.GetDataItemIds(_mtconnectAgent, path, documentFormat);
 
                     var sampleStream = new MTConnectHttpServerStream(
-						_agentConfiguration,
+						_serverConfiguration,
                         _mtconnectAgent,
                         deviceKey,
                         dataItemIds,

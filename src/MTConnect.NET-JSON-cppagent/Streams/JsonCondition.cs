@@ -98,7 +98,7 @@ namespace MTConnect.Streams.Json
             condition.Name = Name;
             condition.InstanceId = InstanceId;
             condition.Sequence = Sequence;
-            condition.Category = Category.ConvertEnum<DataItemCategory>();
+            //condition.Category = Category.ConvertEnum<DataItemCategory>();
             condition.Type = Type;
             condition.SubType = SubType;
             condition.CompositionId = CompositionId;

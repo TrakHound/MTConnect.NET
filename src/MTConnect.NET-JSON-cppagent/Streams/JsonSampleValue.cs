@@ -78,7 +78,7 @@ namespace MTConnect.Streams.Json
             sample.Name = Name;
             sample.InstanceId = InstanceId;
             sample.Sequence = Sequence;
-            sample.Category = Category.ConvertEnum<DataItemCategory>();
+            //sample.Category = Category.ConvertEnum<DataItemCategory>();
             sample.Type = type;
             sample.SubType = SubType;
             sample.CompositionId = CompositionId;

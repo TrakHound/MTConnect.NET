@@ -20,8 +20,8 @@ namespace MTConnect.Applications.Agents
 
         IMTConnectAgentBroker Agent { get; }
 
-        event EventHandler<AgentConfiguration> OnRestart;
 
+        event EventHandler<AgentConfiguration> OnRestart;
 
 
         /// <summary>

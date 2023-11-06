@@ -1,0 +1,69 @@
+﻿<Device uuid="OKUMA.Lathe.1234567" name="OKUMA-Lathe2" id="OKUMA.Lathe2">
+	<Description manufacturer="OKUMA" model="LB3000" serialNumber="3216549771">
+		Okuma MT Connect Adapter - Lathe
+	</Description>
+	<DataItems>
+		<DataItem category="EVENT" id="L2avail" name="avail" type="AVAILABILITY"/>
+	</DataItems>
+	<Components>
+		<Rotary id="L2c1" name="C" nativeName="S">
+			<DataItems>
+				<DataItem category="SAMPLE" id="L2S1speed" name="S1speed" nativeUnits="REVOLUTION/MINUTE" subType="ACTUAL" type="ROTARY_VELOCITY" units="REVOLUTION/MINUTE"/>
+				<DataItem category="SAMPLE" id="L2S1cmd" name="S1cmd" nativeUnits="REVOLUTION/MINUTE" subType="COMMANDED" type="ROTARY_VELOCITY" units="REVOLUTION/MINUTE"/>
+				<DataItem category="EVENT" id="L2S1ovr" name="S1ovr" nativeUnits="PERCENT" subType="PROGRAMMED" type="ROTARY_VELOCITY_OVERRIDE" units="PERCENT"/>
+				<DataItem category="SAMPLE" id="L2S1load" name="S1load" nativeUnits="PERCENT" type="LOAD" units="PERCENT"/>
+				<DataItem category="EVENT" id="L2S1Mode" name="S1Mode" type="ROTARY_MODE">
+					<Constraints>
+						<Value>SPINDLE</Value>
+					</Constraints>
+				</DataItem>
+				<DataItem category="EVENT" id="L2S1ChuckState" name="S1ChuckState" type="CHUCK_STATE">
+				</DataItem>
+				<DataItem category="SAMPLE" id="L2S1SurfaceSpeed" name="S1SurfaceSpeed" nativeUnits="MILLIMETER/SECOND" type="e:SURFACE_SPEED" units="MILLIMETER/SECOND"/>
+			</DataItems>
+		</Rotary>
+		<Rotary id="L2c2" name="C2" nativeName="S">
+			<DataItems>
+				<DataItem category="SAMPLE" id="L2S2speed" name="S2speed" nativeUnits="REVOLUTION/MINUTE" subType="ACTUAL" type="ROTARY_VELOCITY" units="REVOLUTION/MINUTE"/>
+				<DataItem category="SAMPLE" id="L2S2cmd" name="S2cmd" nativeUnits="REVOLUTION/MINUTE" subType="PROGRAMMED" type="ROTARY_VELOCITY" units="REVOLUTION/MINUTE"/>
+				<DataItem category="EVENT" id="L2S2ovr" name="S2ovr" nativeUnits="PERCENT" subType="PROGRAMMED" type="ROTARY_VELOCITY_OVERRIDE" units="PERCENT"/>
+				<DataItem category="SAMPLE" id="L2S2load" name="S2load" nativeUnits="PERCENT" type="LOAD" units="PERCENT"/>
+				<DataItem category="EVENT" id="L2S2Mode" name="S2Mode" type="ROTARY_MODE">
+					<Constraints>
+						<Value>SPINDLE</Value>
+					</Constraints>
+				</DataItem>
+				<DataItem category="EVENT" id="L2S2ChuckState" name="S2ChuckState" type="CHUCK_STATE"/>
+				<!--<DataItem category="SAMPLE" id="L2S2SurfaceSpeed" name="S2SurfaceSpeed" nativeUnits="MILLIMETER/SECOND" type="e:SURFACE_SPEED" units="MILLIMETER/SECOND"/>-->
+			</DataItems>
+		</Rotary>
+		<Linear id="L2x1" name="X">
+			<DataItems>
+				<DataItem category="SAMPLE" coordinateSystem="MACHINE" id="L2X1actm" name="X1actm" nativeUnits="MILLIMETER" subType="ACTUAL" type="POSITION" units="MILLIMETER" significantDigits="5"/>
+				<DataItem category="SAMPLE" coordinateSystem="WORK" id="L2X1actw" name="X1actw" nativeUnits="MILLIMETER" subType="ACTUAL" type="POSITION" units="MILLIMETER"/>
+				<DataItem category="SAMPLE" id="L2X1load" name="X1load" nativeUnits="PERCENT" type="LOAD" units="PERCENT"/>
+			</DataItems>
+		</Linear>
+		<Linear id="L2x2" name="X2">
+			<DataItems>
+				<DataItem category="SAMPLE" coordinateSystem="MACHINE" id="L2X2actm" name="X2actm" nativeUnits="MILLIMETER" subType="ACTUAL" type="POSITION" units="MILLIMETER"/>
+				<DataItem category="SAMPLE" coordinateSystem="WORK" id="L2X2actw" name="X2actw" nativeUnits="MILLIMETER" subType="ACTUAL" type="POSITION" units="MILLIMETER"/>
+				<DataItem category="SAMPLE" id="L2X2load" name="X2load" nativeUnits="PERCENT" type="LOAD" units="PERCENT"/>
+			</DataItems>
+		</Linear>
+		<Linear id="L2z1" name="Z">
+			<DataItems>
+				<DataItem category="SAMPLE" coordinateSystem="MACHINE" id="L2Z1actm" name="Z1actm" nativeUnits="MILLIMETER" subType="ACTUAL" type="POSITION" units="MILLIMETER"/>
+				<DataItem category="SAMPLE" coordinateSystem="WORK" id="L2Z1actw" name="Z1actw" nativeUnits="MILLIMETER" subType="ACTUAL" type="POSITION" units="MILLIMETER"/>
+				<DataItem category="SAMPLE" id="L2Z1load" name="Z1load" nativeUnits="PERCENT" type="LOAD" units="PERCENT"/>
+			</DataItems>
+		</Linear>
+		<Linear id="L2z2" name="Z2">
+			<DataItems>
+				<DataItem category="SAMPLE" coordinateSystem="MACHINE" id="L2Z2actm" name="Z2actm" nativeUnits="MILLIMETER" subType="ACTUAL" type="POSITION" units="MILLIMETER"/>
+				<DataItem category="SAMPLE" coordinateSystem="WORK" id="L2Z2actw" name="Z2actw" nativeUnits="MILLIMETER" subType="ACTUAL" type="POSITION" units="MILLIMETER"/>
+				<DataItem category="SAMPLE" id="L2Z2load" name="Z2load" nativeUnits="PERCENT" type="LOAD" units="PERCENT"/>
+			</DataItems>
+		</Linear>
+	</Components>
+</Device>
