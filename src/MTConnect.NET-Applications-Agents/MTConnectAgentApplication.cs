@@ -40,8 +40,7 @@ namespace MTConnect.Applications.Agents
         private IMTConnectObservationBuffer _observationBuffer;
         private MTConnectAssetFileBuffer _assetBuffer;
         private MTConnectAgentModules _modules;
-        //private MTConnectControllers _controllers;
-        //private MTConnectDataSources _dataSources;
+        private MTConnectAgentProcessors _processors;
         protected IAgentConfigurationFileWatcher _agentConfigurationWatcher;
         private System.Timers.Timer _metricsTimer;
         private bool _started = false;
@@ -414,6 +413,11 @@ namespace MTConnect.Applications.Agents
                     // Save DataItem Indexes
                     FileIndex.ToFile(FileIndex.DataItemsFileName, FileIndex.Create(_mtconnectAgent.DataItemIndexes));
                 }
+
+                // Initilialize Processors
+                _processors = new MTConnectAgentProcessors();
+                _processors.Load();
+                _mtconnectAgent.ProcessObservationFunction = _processors.Process;
 
                 // Start Agent
                 _mtconnectAgent.Start();

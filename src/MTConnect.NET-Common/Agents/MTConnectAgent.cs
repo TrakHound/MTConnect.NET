@@ -126,6 +126,10 @@ namespace MTConnect.Agents
         /// </summary>
         public DateTime DeviceModelChangeTime => _deviceModelChangeTime.ToDateTime();
 
+        public Func<ProcessObservation, IObservationInput> ProcessObservationFunction { get; set; }
+
+        public Func<IAsset, IAsset> ProcessAssetFunction { get; set; }
+
         #endregion
 
         #region "Events"
@@ -526,6 +530,46 @@ namespace MTConnect.Agents
                             {
                                 observations.Add(CreateObservation(dataItem, observationInput));
                             }
+                        }
+                    }
+                }
+            }
+
+            return observations;
+        }
+
+        public IEnumerable<IObservationOutput> GetCurrentObservations(string deviceKey, string dataItemKey, Version mtconnectVersion = null)
+        {
+            var observations = new List<IObservationOutput>();
+
+            var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersion;
+
+            var device = GetDevice(deviceKey, version);
+            if (device != null)
+            {
+                var dataItem = GetDataItem(device.Uuid, dataItemKey);
+                if (dataItem != null)
+                {
+                    var hash = $"{device.Uuid}:{dataItem.Id}";
+
+                    if (dataItem.Category == DataItemCategory.CONDITION)
+                    {
+                        if (_currentConditions.TryGetValue(hash, out var observationInputs))
+                        {
+                            if (!observationInputs.IsNullOrEmpty())
+                            {
+                                foreach (var observationInput in observationInputs)
+                                {
+                                    observations.Add(CreateObservation(dataItem, observationInput));
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (_currentObservations.TryGetValue(hash, out var observationInput))
+                        {
+                            observations.Add(CreateObservation(dataItem, observationInput));
                         }
                     }
                 }
@@ -1517,7 +1561,7 @@ namespace MTConnect.Agents
             {
                 ObservationReceived?.Invoke(this, observationInput);
 
-                var input = new ObservationInput();
+                IObservationInput input = new ObservationInput();
                 input.DeviceKey = deviceKey;
                 input.DataItemKey = observationInput.DataItemKey;
                 input.IsUnavailable = observationInput.IsUnavailable;
@@ -1551,6 +1595,12 @@ namespace MTConnect.Agents
                         case DataItemRepresentation.TIME_SERIES: if (input.IsUnavailable) input.AddValue(ValueKeys.SampleCount, 0); break;
                     }
 
+                    // Process Observation using Processers
+                    if (ProcessObservationFunction != null)
+                    {
+                        input = ProcessObservationFunction(new ProcessObservation(this, dataItem, input));
+                    }
+
                     var success = false;
                     var validationResult = new ValidationResult(true);
 
@@ -1566,7 +1616,8 @@ namespace MTConnect.Agents
                         // Convert Units (if needed)
                         if ((!convertUnits.HasValue && _configuration.ConvertUnits) || (convertUnits.HasValue && convertUnits.Value))
                         {
-                            observationInput = ConvertObservationValue(dataItem, input);
+                            input = ConvertObservationValue(dataItem, input);
+                            if (input == null) return false;
                         }
 
                         bool update;
@@ -1585,7 +1636,7 @@ namespace MTConnect.Agents
                         if (update)
                         {
                             // Call Update to Observation Buffer - HERE
-                            success = OnAddObservation(deviceUuid, dataItem, observationInput);
+                            success = OnAddObservation(deviceUuid, dataItem, input);
                             if (success)
                             {
                                 if (_metrics != null)
@@ -1601,21 +1652,9 @@ namespace MTConnect.Agents
                                 observation.DeviceUuid = deviceUuid;
                                 observation.DataItem = dataItem;
                                 observation.InstanceId = _instanceId;
-                                observation.Timestamp = observationInput.Timestamp.ToDateTime();
-                                observation.AddValues(observationInput.Values);
+                                observation.Timestamp = input.Timestamp.ToDateTime();
+                                observation.AddValues(input.Values);
                                 OnObservationAdded(observation);
-
-                                //if (ObservationAdded != null)
-                                //{
-                                //    var observation = Observation.Create(dataItem);
-                                //    observation.DeviceUuid = deviceUuid;
-                                //    observation.DataItem = dataItem;
-                                //    observation.InstanceId = _instanceId;
-                                //    observation.Timestamp = observationInput.Timestamp.ToDateTime();
-                                //    observation.AddValues(observationInput.Values);
-
-                                //    ObservationAdded?.Invoke(this, observation);
-                                //}
                             }
                         }
                         else success = true; // Return true if no update needed
@@ -1623,14 +1662,14 @@ namespace MTConnect.Agents
 
                     if (!validationResult.IsValid && InvalidObservationAdded != null)
                     {
-                        InvalidObservationAdded.Invoke(deviceUuid, observationInput.DataItemKey, validationResult);
+                        InvalidObservationAdded.Invoke(deviceUuid, input.DataItemKey, validationResult);
                     }
 
                     return success;
                 }
                 else if (InvalidObservationAdded != null)
                 {
-                    InvalidObservationAdded.Invoke(deviceUuid, observationInput.DataItemKey, new ValidationResult(false, $"DataItemKey \"{observationInput.DataItemKey}\" not Found in Device"));
+                    InvalidObservationAdded.Invoke(deviceUuid, input.DataItemKey, new ValidationResult(false, $"DataItemKey \"{input.DataItemKey}\" not Found in Device"));
                 }
             }
 

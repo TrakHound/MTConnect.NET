@@ -48,29 +48,28 @@ namespace MTConnect.Servers
 
                 // Read DocumentFormat from Query string
                 var documentFormatString = httpRequest.QueryString["documentFormat"];
-                var documentFormat = DocumentFormat.XML;
+                var documentFormat = _serverConfiguration.DocumentFormat;
                 if (!string.IsNullOrEmpty(documentFormatString)) documentFormat = documentFormatString;
 
                 // Read ValidationLevel from Query string
-                int validationLevel = 0;
-                //int validationLevel = (int)_agentConfiguration.OutputValidationLevel;
-                //var validationLevelString = httpRequest.QueryString["validationLevel"];
-                //if (!string.IsNullOrEmpty(validationLevelString)) validationLevel = validationLevelString.ToInt();
+                int validationLevel = (int)_serverConfiguration.OutputValidationLevel;
+                var validationLevelString = httpRequest.QueryString["validationLevel"];
+                if (!string.IsNullOrEmpty(validationLevelString)) validationLevel = validationLevelString.ToInt();
 
 
                 // Set Format Options
                 var formatOptions = CreateFormatOptions(MTConnectRequestType.Assets, documentFormat, version, validationLevel);
                 formatOptions.Add(new KeyValuePair<string, string>("validationLevel", validationLevel.ToString()));
 
-                //// Read IndentOutput from Query string
-                //var indentOutputString = httpRequest.QueryString["indentOutput"];
-                //if (!string.IsNullOrEmpty(indentOutputString)) formatOptions.Add(new KeyValuePair<string, string>("indentOutput", indentOutputString));
-                //else formatOptions.Add(new KeyValuePair<string, string>("indentOutput", _agentConfiguration.IndentOutput.ToString()));
+                // Read IndentOutput from Query string
+                var indentOutputString = httpRequest.QueryString["indentOutput"];
+                if (!string.IsNullOrEmpty(indentOutputString)) formatOptions.Add(new KeyValuePair<string, string>("indentOutput", indentOutputString));
+                else formatOptions.Add(new KeyValuePair<string, string>("indentOutput", _serverConfiguration.IndentOutput.ToString()));
 
-                //// Read OutputComments from Query string
-                //var outputCommentsString = httpRequest.QueryString["outputComments"];
-                //if (!string.IsNullOrEmpty(outputCommentsString)) formatOptions.Add(new KeyValuePair<string, string>("outputComments", outputCommentsString));
-                //else formatOptions.Add(new KeyValuePair<string, string>("outputComments", _agentConfiguration.OutputComments.ToString()));
+                // Read OutputComments from Query string
+                var outputCommentsString = httpRequest.QueryString["outputComments"];
+                if (!string.IsNullOrEmpty(outputCommentsString)) formatOptions.Add(new KeyValuePair<string, string>("outputComments", outputCommentsString));
+                else formatOptions.Add(new KeyValuePair<string, string>("outputComments", _serverConfiguration.OutputComments.ToString()));
 
 
                 // Get MTConnectAssets document from the MTConnectAgent

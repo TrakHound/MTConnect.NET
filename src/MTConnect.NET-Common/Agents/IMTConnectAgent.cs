@@ -150,6 +150,8 @@ namespace MTConnect.Agents
 
         IEnumerable<IObservationOutput> GetCurrentObservations(string deviceKey, Version mtconnectVersion = null);
 
+        IEnumerable<IObservationOutput> GetCurrentObservations(string deviceKey, string dataItemKey, Version mtconnectVersion = null);
+
 
         IEnumerable<IAsset> GetAssets(Version mtconnectVersion = null);
 

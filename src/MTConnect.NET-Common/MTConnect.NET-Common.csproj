@@ -108,10 +108,14 @@
 	<ItemGroup>
 	  <Compile Remove="Buffers\IMTConnectDeviceBuffer.cs" />
 	  <Compile Remove="Buffers\MTConnectDeviceBuffer.cs" />
+	  <Compile Remove="IMTConnectController.cs" />
+	  <Compile Remove="IMTConnectDataSource.cs" />
 	</ItemGroup>
 	<ItemGroup>
 	  <None Include="Buffers\IMTConnectDeviceBuffer.cs" />
 	  <None Include="Buffers\MTConnectDeviceBuffer.cs" />
+	  <None Include="IMTConnectController.cs" />
+	  <None Include="IMTConnectDataSource.cs" />
 	</ItemGroup>
 
 	<ItemGroup>

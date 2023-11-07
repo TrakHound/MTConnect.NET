@@ -115,15 +115,21 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect-Agent", "..\appli
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Modules", "Modules", "{0F01D2F5-0CFA-4DAE-A0FD-5733D291F6FB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MTConnect.NET-HttpServer-Module", "..\modules\MTConnect.NET-HttpServer-Module\MTConnect.NET-HttpServer-Module.csproj", "{E47E62C6-D94B-46ED-B94D-E2D4B9D943A7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-HttpServer-Module", "..\modules\MTConnect.NET-HttpServer-Module\MTConnect.NET-HttpServer-Module.csproj", "{E47E62C6-D94B-46ED-B94D-E2D4B9D943A7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MTConnect.NET-HttpAdapter-Module", "..\modules\MTConnect.NET-HttpAdapter-Module\MTConnect.NET-HttpAdapter-Module.csproj", "{574CBA61-0663-4328-A877-71CAA08F9AA5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-HttpAdapter-Module", "..\modules\MTConnect.NET-HttpAdapter-Module\MTConnect.NET-HttpAdapter-Module.csproj", "{574CBA61-0663-4328-A877-71CAA08F9AA5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MTConnect.NET-ShdrAdapter-Module", "..\modules\MTConnect.NET-ShdrAdapter-Module\MTConnect.NET-ShdrAdapter-Module.csproj", "{F088E268-C9DA-4CA1-A1E8-7D2D51A0C458}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-ShdrAdapter-Module", "..\modules\MTConnect.NET-ShdrAdapter-Module\MTConnect.NET-ShdrAdapter-Module.csproj", "{F088E268-C9DA-4CA1-A1E8-7D2D51A0C458}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MTConnect.NET-MqttBroker-Module", "..\modules\MTConnect.NET-MqttBroker-Module\MTConnect.NET-MqttBroker-Module.csproj", "{04699215-26AC-41B0-910C-D9E4BFB5F8AE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-MqttBroker-Module", "..\modules\MTConnect.NET-MqttBroker-Module\MTConnect.NET-MqttBroker-Module.csproj", "{04699215-26AC-41B0-910C-D9E4BFB5F8AE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MTConnect.NET-MqttRelay-Module", "..\modules\MTConnect.NET-MqttRelay-Module\MTConnect.NET-MqttRelay-Module.csproj", "{CF4E19E9-AC21-405F-A517-B26E00F5D206}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-MqttRelay-Module", "..\modules\MTConnect.NET-MqttRelay-Module\MTConnect.NET-MqttRelay-Module.csproj", "{CF4E19E9-AC21-405F-A517-B26E00F5D206}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Processors", "Processors", "{98D838F5-2AEB-4F62-A803-115C57C1E982}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MTConnect.NET-Python-Processor", "MTConnect.NET-Python-Processor\MTConnect.NET-Python-Processor.csproj", "{20E3FBE8-78AB-449F-BDF6-C3C46A4C8A98}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp33", "C:\temp\ConsoleApp33\ConsoleApp33.csproj", "{44F397AD-53F4-4947-B92E-6B56CE67887A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -396,6 +402,18 @@ Global
 		{CF4E19E9-AC21-405F-A517-B26E00F5D206}.Package|Any CPU.Build.0 = Debug|Any CPU
 		{CF4E19E9-AC21-405F-A517-B26E00F5D206}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CF4E19E9-AC21-405F-A517-B26E00F5D206}.Release|Any CPU.Build.0 = Release|Any CPU
+		{20E3FBE8-78AB-449F-BDF6-C3C46A4C8A98}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{20E3FBE8-78AB-449F-BDF6-C3C46A4C8A98}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{20E3FBE8-78AB-449F-BDF6-C3C46A4C8A98}.Package|Any CPU.ActiveCfg = Debug|Any CPU
+		{20E3FBE8-78AB-449F-BDF6-C3C46A4C8A98}.Package|Any CPU.Build.0 = Debug|Any CPU
+		{20E3FBE8-78AB-449F-BDF6-C3C46A4C8A98}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{20E3FBE8-78AB-449F-BDF6-C3C46A4C8A98}.Release|Any CPU.Build.0 = Release|Any CPU
+		{44F397AD-53F4-4947-B92E-6B56CE67887A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{44F397AD-53F4-4947-B92E-6B56CE67887A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{44F397AD-53F4-4947-B92E-6B56CE67887A}.Package|Any CPU.ActiveCfg = Debug|Any CPU
+		{44F397AD-53F4-4947-B92E-6B56CE67887A}.Package|Any CPU.Build.0 = Debug|Any CPU
+		{44F397AD-53F4-4947-B92E-6B56CE67887A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{44F397AD-53F4-4947-B92E-6B56CE67887A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -443,6 +461,7 @@ Global
 		{F088E268-C9DA-4CA1-A1E8-7D2D51A0C458} = {0F01D2F5-0CFA-4DAE-A0FD-5733D291F6FB}
 		{04699215-26AC-41B0-910C-D9E4BFB5F8AE} = {0F01D2F5-0CFA-4DAE-A0FD-5733D291F6FB}
 		{CF4E19E9-AC21-405F-A517-B26E00F5D206} = {0F01D2F5-0CFA-4DAE-A0FD-5733D291F6FB}
+		{20E3FBE8-78AB-449F-BDF6-C3C46A4C8A98} = {98D838F5-2AEB-4F62-A803-115C57C1E982}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CC13D3AD-18BF-4695-AB2A-087EF0885B20}

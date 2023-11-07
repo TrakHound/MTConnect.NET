@@ -98,6 +98,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\..\modules\MTConnect.NET-HttpAdapter-Module\MTConnect.NET-HttpAdapter-Module.csproj" />
+	  <ProjectReference Include="..\..\modules\MTConnect.NET-HttpServer-Module\MTConnect.NET-HttpServer-Module.csproj" />
+	  <ProjectReference Include="..\..\modules\MTConnect.NET-MqttBroker-Module\MTConnect.NET-MqttBroker-Module.csproj" />
+	  <ProjectReference Include="..\..\modules\MTConnect.NET-MqttRelay-Module\MTConnect.NET-MqttRelay-Module.csproj" />
+	  <ProjectReference Include="..\..\modules\MTConnect.NET-ShdrAdapter-Module\MTConnect.NET-ShdrAdapter-Module.csproj" />
 	  <ProjectReference Include="..\MTConnect.NET-HTTP\MTConnect.NET-HTTP.csproj" />
 	  <ProjectReference Include="..\MTConnect.NET-JSON-cppagent\MTConnect.NET-JSON-cppagent.csproj" />
 	  <ProjectReference Include="..\MTConnect.NET-JSON\MTConnect.NET-JSON.csproj" />
