@@ -30,7 +30,7 @@ namespace MTConnect.Applications.Agents
 
         protected readonly Logger _applicationLogger = LogManager.GetLogger("application-logger");
         protected readonly Logger _agentLogger = LogManager.GetLogger("agent-logger");
-        protected readonly Logger _agentMetricLogger = LogManager.GetLogger("agent--metric-logger");
+        protected readonly Logger _agentMetricLogger = LogManager.GetLogger("agent-metric-logger");
         protected readonly Logger _agentValidationLogger = LogManager.GetLogger("agent-validation-logger");
 
         private readonly List<DeviceConfigurationFileWatcher> _deviceConfigurationWatchers = new List<DeviceConfigurationFileWatcher>();
@@ -390,6 +390,11 @@ namespace MTConnect.Applications.Agents
                     _agentLogger.Warn($"No Devices Found : Reading from : {configuration.Devices}");
                 }
 
+                // Initilialize Processors
+                _processors = new MTConnectAgentProcessors(configuration);
+                _processors.Load();
+                _mtconnectAgent.ProcessObservationFunction = _processors.Process;
+
                 OnStartAgentBeforeLoad(devices, initializeDataItems);
                 _modules.StartBeforeLoad();
 
@@ -413,11 +418,6 @@ namespace MTConnect.Applications.Agents
                     // Save DataItem Indexes
                     FileIndex.ToFile(FileIndex.DataItemsFileName, FileIndex.Create(_mtconnectAgent.DataItemIndexes));
                 }
-
-                // Initilialize Processors
-                _processors = new MTConnectAgentProcessors();
-                _processors.Load();
-                _mtconnectAgent.ProcessObservationFunction = _processors.Process;
 
                 // Start Agent
                 _mtconnectAgent.Start();
@@ -459,6 +459,7 @@ namespace MTConnect.Applications.Agents
                 OnStopAgent();
 
                 if (_modules != null) _modules.Stop();
+                if (_processors != null) _processors.Dispose();
 
                 _started = false;
             }

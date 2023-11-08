@@ -63,11 +63,8 @@ namespace MTConnect.Configurations
         [JsonPropertyName("modules")]
         public IEnumerable<object> Modules { get; set; }
 
-        //[JsonPropertyName("controllers")]
-        //public IEnumerable<object> Controllers { get; set; }
-
-        //[JsonPropertyName("dataSources")]
-        //public IEnumerable<object> DataSources { get; set; }
+        [JsonPropertyName("processors")]
+        public IEnumerable<object> Processors { get; set; }
 
 
         public AgentApplicationConfiguration() : base()
@@ -183,209 +180,106 @@ namespace MTConnect.Configurations
 
 
 
-        //public Dictionary<object, object> GetControllers()
-        //{
-        //    if (!Controllers.IsNullOrEmpty())
-        //    {
-        //        var configurations = new Dictionary<object, object>();
+        public Dictionary<object, object> GetProcessors()
+        {
+            if (!Processors.IsNullOrEmpty())
+            {
+                var configurations = new Dictionary<object, object>();
 
-        //        foreach (var configurationObj in Controllers)
-        //        {
-        //            try
-        //            {
-        //                var rootDictionary = (Dictionary<object, object>)configurationObj;                      
-        //                foreach (var entry in rootDictionary)
-        //                {
-        //                    configurations.Add(entry.Key, entry.Value);
-        //                }
-        //            }
-        //            catch { }
-        //        }
+                foreach (var configurationObj in Processors)
+                {
+                    try
+                    {
+                        var rootDictionary = (Dictionary<object, object>)configurationObj;
+                        foreach (var entry in rootDictionary)
+                        {
+                            configurations.Add(entry.Key, entry.Value);
+                        }
+                    }
+                    catch { }
+                }
 
-        //        return configurations;
-        //    }
+                return configurations;
+            }
 
-        //    return null;
-        //}
+            return null;
+        }
 
-        //public IEnumerable<object> GetControllers(string key)
-        //{
-        //    if (!string.IsNullOrEmpty(key) && !Controllers.IsNullOrEmpty())
-        //    {
-        //        var configurations = new List<object>();
+        public IEnumerable<object> GetProcessors(string key)
+        {
+            if (!string.IsNullOrEmpty(key) && !Processors.IsNullOrEmpty())
+            {
+                var configurations = new List<object>();
 
-        //        foreach (var configurationObj in Controllers)
-        //        {
-        //            try
-        //            {
-        //                var rootDictionary = (Dictionary<object, object>)configurationObj;
-        //                if (rootDictionary.ContainsKey(key))
-        //                {
-        //                    var obj = rootDictionary[key];
-        //                    if (obj != null)
-        //                    {
-        //                        configurations.Add(obj);
-        //                    }
-        //                }
-        //            }
-        //            catch { }
-        //        }
+                foreach (var configurationObj in Processors)
+                {
+                    try
+                    {
+                        var rootDictionary = (Dictionary<object, object>)configurationObj;
+                        if (rootDictionary.ContainsKey(key))
+                        {
+                            var obj = rootDictionary[key];
+                            if (obj != null)
+                            {
+                                configurations.Add(obj);
+                            }
+                        }
+                    }
+                    catch { }
+                }
 
-        //        return configurations;
-        //    }
+                return configurations;
+            }
 
-        //    return null;
-        //}
+            return null;
+        }
 
-        //public IEnumerable<TConfiguration> GetControllers<TConfiguration>(string key)
-        //{
-        //    if (!string.IsNullOrEmpty(key) && !Controllers.IsNullOrEmpty())
-        //    {
-        //        var configurations = new List<TConfiguration>();
+        public IEnumerable<TConfiguration> GetProcessors<TConfiguration>(string key)
+        {
+            if (!string.IsNullOrEmpty(key) && !Processors.IsNullOrEmpty())
+            {
+                var configurations = new List<TConfiguration>();
 
-        //        foreach (var configurationObj in Controllers)
-        //        {
-        //            try
-        //            {
-        //                var rootDictionary = (Dictionary<object, object>)configurationObj;
-        //                if (rootDictionary.ContainsKey(key))
-        //                {
-        //                    var obj = rootDictionary[key];
-        //                    if (obj != null)
-        //                    {
-        //                        var serializerBuilder = new SerializerBuilder();
-        //                        serializerBuilder.WithNamingConvention(CamelCaseNamingConvention.Instance);
+                foreach (var configurationObj in Processors)
+                {
+                    try
+                    {
+                        var rootDictionary = (Dictionary<object, object>)configurationObj;
+                        if (rootDictionary.ContainsKey(key))
+                        {
+                            var obj = rootDictionary[key];
+                            if (obj != null)
+                            {
+                                var serializerBuilder = new SerializerBuilder();
+                                serializerBuilder.WithNamingConvention(CamelCaseNamingConvention.Instance);
 
-        //                        var serializer = serializerBuilder.Build();
-        //                        var yaml = serializer.Serialize(obj);
-        //                        if (yaml != null)
-        //                        {
-        //                            var deserializerBuilder = new DeserializerBuilder();
-        //                            deserializerBuilder.WithNamingConvention(CamelCaseNamingConvention.Instance);
-        //                            deserializerBuilder.IgnoreUnmatchedProperties();
+                                var serializer = serializerBuilder.Build();
+                                var yaml = serializer.Serialize(obj);
+                                if (yaml != null)
+                                {
+                                    var deserializerBuilder = new DeserializerBuilder();
+                                    deserializerBuilder.WithNamingConvention(CamelCaseNamingConvention.Instance);
+                                    deserializerBuilder.IgnoreUnmatchedProperties();
 
-        //                            var deserializer = deserializerBuilder.Build();
+                                    var deserializer = deserializerBuilder.Build();
 
-        //                            var configuration = deserializer.Deserialize<TConfiguration>(yaml);
-        //                            if (configuration != null)
-        //                            {
-        //                                configurations.Add(configuration);
-        //                            }
-        //                        }
-        //                    }
-        //                }
-        //            }
-        //            catch { }
-        //        }
+                                    var configuration = deserializer.Deserialize<TConfiguration>(yaml);
+                                    if (configuration != null)
+                                    {
+                                        configurations.Add(configuration);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    catch { }
+                }
 
-        //        return configurations;
-        //    }
+                return configurations;
+            }
 
-        //    return null;
-        //}
-
-
-        //public Dictionary<object, object> GetDataSources()
-        //{
-        //    if (!DataSources.IsNullOrEmpty())
-        //    {
-        //        var configurations = new Dictionary<object, object>();
-
-        //        foreach (var configurationObj in DataSources)
-        //        {
-        //            try
-        //            {
-        //                var rootDictionary = (Dictionary<object, object>)configurationObj;
-        //                foreach (var entry in rootDictionary)
-        //                {
-        //                    configurations.Add(entry.Key, entry.Value);
-        //                }
-        //            }
-        //            catch { }
-        //        }
-
-        //        return configurations;
-        //    }
-
-        //    return null;
-        //}
-
-        //public IEnumerable<object> GetDataSources(string key)
-        //{
-        //    if (!string.IsNullOrEmpty(key) && !DataSources.IsNullOrEmpty())
-        //    {
-        //        var configurations = new List<object>();
-
-        //        foreach (var configurationObj in DataSources)
-        //        {
-        //            try
-        //            {
-        //                var rootDictionary = (Dictionary<object, object>)configurationObj;
-        //                if (rootDictionary.ContainsKey(key))
-        //                {
-        //                    var obj = rootDictionary[key];
-        //                    if (obj != null)
-        //                    {
-        //                        configurations.Add(obj);
-        //                    }
-        //                }
-        //            }
-        //            catch { }
-        //        }
-
-        //        return configurations;
-        //    }
-
-        //    return null;
-        //}
-
-        //public IEnumerable<TConfiguration> GetDataSources<TConfiguration>(string key)
-        //{
-        //    if (!string.IsNullOrEmpty(key) && !DataSources.IsNullOrEmpty())
-        //    {
-        //        var configurations = new List<TConfiguration>();
-
-        //        foreach (var configurationObj in DataSources)
-        //        {
-        //            try
-        //            {
-        //                var rootDictionary = (Dictionary<object, object>)configurationObj;
-        //                if (rootDictionary.ContainsKey(key))
-        //                {
-        //                    var obj = rootDictionary[key];
-        //                    if (obj != null)
-        //                    {
-        //                        var serializerBuilder = new SerializerBuilder();
-        //                        serializerBuilder.WithNamingConvention(CamelCaseNamingConvention.Instance);
-
-        //                        var serializer = serializerBuilder.Build();
-        //                        var yaml = serializer.Serialize(obj);
-        //                        if (yaml != null)
-        //                        {
-        //                            var deserializerBuilder = new DeserializerBuilder();
-        //                            deserializerBuilder.WithNamingConvention(CamelCaseNamingConvention.Instance);
-        //                            deserializerBuilder.IgnoreUnmatchedProperties();
-
-        //                            var deserializer = deserializerBuilder.Build();
-
-        //                            var configuration = deserializer.Deserialize<TConfiguration>(yaml);
-        //                            if (configuration != null)
-        //                            {
-        //                                configurations.Add(configuration);
-        //                            }
-        //                        }
-        //                    }
-        //                }
-        //            }
-        //            catch { }
-        //        }
-
-        //        return configurations;
-        //    }
-
-        //    return null;
-        //}
-
+            return null;
+        }
 
 
         public static TConfiguration GetConfiguration<TConfiguration>(object controllerConfiguration)

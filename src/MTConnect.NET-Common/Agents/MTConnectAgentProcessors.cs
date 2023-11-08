@@ -2,6 +2,7 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Assets;
+using MTConnect.Configurations;
 using MTConnect.Observations.Input;
 using System;
 using System.Collections.Concurrent;
@@ -14,6 +15,14 @@ namespace MTConnect.Agents
         private static readonly ConcurrentDictionary<string, IMTConnectAgentProcessor> _processors = new ConcurrentDictionary<string, IMTConnectAgentProcessor>();
 
 
+        private readonly IAgentApplicationConfiguration _configuration;
+
+
+        public MTConnectAgentProcessors(IAgentApplicationConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
+
         public void Load()
         {
             InitializeProcessors();
@@ -23,16 +32,27 @@ namespace MTConnect.Agents
             {
                 foreach (var processorType in processorTypes)
                 {
-                    try
+                    var configurationTypeId = GetConfigurationTypeId(processorType);
+                    if (configurationTypeId != null)
                     {
-                        // Create new Instance of the Controller and add to cached dictionary
-                        var processor = (IMTConnectAgentProcessor)Activator.CreateInstance(processorType, new object[] { });
+                        var processorConfigurations = _configuration.GetProcessors(configurationTypeId);
+                        if (!processorConfigurations.IsNullOrEmpty())
+                        {
+                            foreach (var processorConfiguration in processorConfigurations)
+                            {
+                                try
+                                {
+                                    // Create new Instance of the Controller and add to cached dictionary
+                                    var processor = (IMTConnectAgentProcessor)Activator.CreateInstance(processorType, new object[] { processorConfiguration });
 
-                        var processorId = Guid.NewGuid().ToString();
+                                    var processorId = Guid.NewGuid().ToString();
 
-                        _processors.TryAdd(processorId, processor);
+                                    _processors.TryAdd(processorId, processor);
+                                }
+                                catch { }
+                            }
+                        }
                     }
-                    catch { }
                 }
             }
         }
@@ -49,13 +69,6 @@ namespace MTConnect.Agents
                     outputObservation = processor.Value.Process(observation);
                 }
             }
-
-
-            //outputObservation = new ObservationInput();
-            //outputObservation.DeviceKey = observation.DataItem.Device.Uuid;
-            //outputObservation.DataItemKey = observation.DataItem.Id;
-            //outputObservation.Values = observation.Values;
-            //outputObservation.Timestamp = observation.Timestamp.ToUnixTime();
 
             return outputObservation;
         }
@@ -77,15 +90,10 @@ namespace MTConnect.Agents
 
         public void Dispose()
         {
-            //if (!_processors.IsNullOrEmpty())
-            //{
-            //    foreach (var processor in _processors)
-            //    {
-            //        processor.Value.Stop();
-            //    }
-
-            //    _processors.Clear();
-            //}
+            if (!_processors.IsNullOrEmpty())
+            {
+                _processors.Clear();
+            }
         }
 
 
@@ -115,6 +123,22 @@ namespace MTConnect.Agents
                     catch { }
                 }
             }
+        }
+
+        private static string GetConfigurationTypeId(Type type)
+        {
+            if (type != null)
+            {
+                try
+                {
+                    var configurationTypeIdField = type.GetField("ConfigurationTypeId");
+
+                    return configurationTypeIdField.GetValue(null)?.ToString();
+                }
+                catch { }
+            }
+
+            return null;
         }
     }
 }

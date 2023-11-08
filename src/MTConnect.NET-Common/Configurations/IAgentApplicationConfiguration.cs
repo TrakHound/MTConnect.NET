@@ -52,9 +52,7 @@ namespace MTConnect.Configurations
 
         IEnumerable<object> Modules { get; set; }
 
-        //IEnumerable<object> Controllers { get; set; }
-
-        //IEnumerable<object> DataSources { get; set; }
+        IEnumerable<object> Processors { get; set; }
 
 
         Dictionary<object, object> GetModules();
@@ -64,17 +62,10 @@ namespace MTConnect.Configurations
         IEnumerable<TConfiguration> GetModules<TConfiguration>(string key);
 
 
-        //Dictionary<object, object> GetControllers();
+        Dictionary<object, object> GetProcessors();
 
-        //IEnumerable<object> GetControllers(string key);
+        IEnumerable<object> GetProcessors(string key);
 
-        //IEnumerable<TConfiguration> GetControllers<TConfiguration>(string key);
-
-
-        //Dictionary<object, object> GetDataSources();
-
-        //IEnumerable<object> GetDataSources(string key);
-
-        //IEnumerable<TConfiguration> GetDataSources<TConfiguration>(string key);
+        IEnumerable<TConfiguration> GetProcessors<TConfiguration>(string key);
     }
 }
