@@ -54,6 +54,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="Ceen\Mvc\RestApiHelper.cs" />
 	  <Compile Remove="Servers\MTConnectHttpServer - Copy.cs" />
 	  <Compile Remove="Servers\OutputValidationLevel.cs" />
 	</ItemGroup>
@@ -124,6 +125,7 @@
 	</ItemGroup>
 	
 	<ItemGroup>
+	  <None Include="Ceen\Mvc\RestApiHelper.cs" />
 	  <None Include="Clients\README.md">
 	    <Pack>True</Pack>
 	    <PackagePath>\</PackagePath>
