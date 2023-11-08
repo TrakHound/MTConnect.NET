@@ -328,6 +328,7 @@ namespace MTConnect.Applications.Agents
 
                 // Initialize Agent Modules
                 _modules = new MTConnectAgentModules(configuration, _mtconnectAgent);
+                _modules.ModuleLoaded += ModuleLoaded;
                 _modules.Load();
 
                 // Read Indexes for Buffer
@@ -392,6 +393,7 @@ namespace MTConnect.Applications.Agents
 
                 // Initilialize Processors
                 _processors = new MTConnectAgentProcessors(configuration);
+                _processors.ProcessorLoaded += ProcessorLoaded;
                 _processors.Load();
                 _mtconnectAgent.ProcessObservationFunction = _processors.Process;
 
@@ -618,6 +620,16 @@ namespace MTConnect.Applications.Agents
         #endregion
 
         #region "Logging"
+
+        private void ModuleLoaded(object sender, IMTConnectAgentModule module)
+        {
+            _applicationLogger.Debug($"[Application] : Module Loaded : " + module.GetType().Name);
+        }
+
+        private void ProcessorLoaded(object sender, IMTConnectAgentProcessor processor)
+        {
+            _applicationLogger.Debug($"[Application] : Processor Loaded : " + processor.GetType().Name);
+        }
 
         private void DevicesRequested(string deviceName)
         {

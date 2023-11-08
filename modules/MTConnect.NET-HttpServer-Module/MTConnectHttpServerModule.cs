@@ -40,7 +40,7 @@ namespace MTConnect.Modules.Http
         public void StartAfterLoad()
         {
             // Intialize the Http Server
-            _httpServer = new MTConnectHttpAgentServer(_configuration, _mtconnectAgent);
+            _httpServer = new MTConnectShdrHttpAgentServer(_configuration, _mtconnectAgent);
 
             _httpServer.ServerStarted += HttpListenerStarted;
             _httpServer.ServerStopped += HttpListenerStopped;

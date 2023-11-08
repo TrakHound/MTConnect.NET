@@ -17,6 +17,9 @@ namespace MTConnect.Agents
         private readonly IMTConnectAgentBroker _mtconnectAgent;
 
 
+        public event EventHandler<IMTConnectAgentModule> ModuleLoaded;
+
+
         public MTConnectAgentModules(IAgentApplicationConfiguration configuration, IMTConnectAgentBroker mtconnectAgent)
         {
             _configuration = configuration;
@@ -47,6 +50,8 @@ namespace MTConnect.Agents
                                     var module = (IMTConnectAgentModule)Activator.CreateInstance(moduleType, new object[] { _mtconnectAgent, moduleConfiguration });
 
                                     var moduleId = Guid.NewGuid().ToString();
+
+                                    if (ModuleLoaded != null) ModuleLoaded.Invoke(this, module);
 
                                     lock (_lock) _modules.Add(moduleId, module);
                                 }

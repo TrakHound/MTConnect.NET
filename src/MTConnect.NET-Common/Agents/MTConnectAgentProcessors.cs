@@ -19,6 +19,9 @@ namespace MTConnect.Agents
         private readonly IAgentApplicationConfiguration _configuration;
 
 
+        public event EventHandler<IMTConnectAgentProcessor> ProcessorLoaded;
+
+
         public MTConnectAgentProcessors(IAgentApplicationConfiguration configuration)
         {
             _configuration = configuration;
@@ -48,6 +51,8 @@ namespace MTConnect.Agents
                                     var processor = (IMTConnectAgentProcessor)Activator.CreateInstance(processorType, new object[] { processorConfiguration });
 
                                     var processorId = Guid.NewGuid().ToString();
+
+                                    if (ProcessorLoaded != null) ProcessorLoaded.Invoke(this, processor);
 
                                     lock (_lock) _processors.Add(processorId, processor);
                                 }

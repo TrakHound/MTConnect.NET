@@ -5,6 +5,7 @@ using MTConnect.Agents;
 using MTConnect.Assets;
 using MTConnect.Configurations;
 using MTConnect.Observations.Input;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,15 +15,21 @@ namespace MTConnect.Processors
     public class MTConnectPythonProcessor : IMTConnectAgentProcessor
     {
         public const string ConfigurationTypeId = "python";
+        private const int DefaultUpdateInterval = 2000;
 
         private const string _functionName = "process";
         private const string _defaultDirectory = "processors";
         private const string _defaultExtension = ".py";
 
+        private readonly Logger _logger = LogManager.GetLogger("python-processor-logger");
         private readonly Microsoft.Scripting.Hosting.ScriptEngine _pythonEngine;
         private readonly Dictionary<string, Func<ProcessObservation, ProcessObservation>> _functions = new Dictionary<string, Func<ProcessObservation, ProcessObservation>>();
         private readonly PythonProcessorConfiguration _configuration;
         private readonly object _lock = new object();
+
+        private FileSystemWatcher _watcher;
+        private System.Timers.Timer _watcherTimer;
+        private bool _update = false;
 
 
         public MTConnectPythonProcessor(object configuration)       
@@ -32,16 +39,16 @@ namespace MTConnect.Processors
             if (_configuration == null) _configuration = new PythonProcessorConfiguration();
 
             Load();
+
+            StartWatcher();
         }
+
 
         private void Load()
         {
             lock (_lock) _functions.Clear();
 
-            var dir = _configuration.Directory;
-            if (string.IsNullOrEmpty(dir)) dir = _defaultDirectory;
-            if (!Path.IsPathRooted(dir)) dir = Path.Combine(AppContext.BaseDirectory, dir);
-
+            var dir = GetDirectory();
             var files = Directory.GetFiles(dir, $"*{_defaultExtension}");
             if (!files.IsNullOrEmpty())
             {
@@ -64,14 +71,14 @@ namespace MTConnect.Processors
                 var process = scope.GetVariable<Func<ProcessObservation, ProcessObservation>>(_functionName);
                 if (process != null)
                 {
-                    var key = file.ToMD5Hash();
+                    _logger.Info($"[Python-Processor] : Script Loaded : {file}");
 
-                    AddFunction(key, process);
+                    AddFunction(file, process);
                 }
             }
             catch (Exception ex)
             {
-            
+                _logger.Error($"[Python-Processor] : Error Loading Script : {file} : {ex.Message}");
             }
         }
 
@@ -100,7 +107,7 @@ namespace MTConnect.Processors
                             }
                             catch (Exception ex)
                             {
-                                Console.WriteLine(ex.Message);
+                                _logger.Error($"[Python-Processor] : Process Error : {functionKey} : {ex.Message}");
                             }
                         }
                     }
@@ -110,7 +117,7 @@ namespace MTConnect.Processors
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                _logger.Error($"[Python-Processor] : Error During Process : {ex.Message}");
             }
 
             if (outputObservation != null)
@@ -134,27 +141,27 @@ namespace MTConnect.Processors
         }
 
 
-        private void AddFunction(string key, Func<ProcessObservation, ProcessObservation> function)
+        private void AddFunction(string filePath, Func<ProcessObservation, ProcessObservation> function)
         {
-            if (key != null && function != null)
+            if (filePath != null && function != null)
             {
                 lock (_lock)
                 {
-                    _functions.Remove(key);
-                    _functions.Add(key, function);
+                    _functions.Remove(filePath);
+                    _functions.Add(filePath, function);
                 }
             }
         }
 
-        private Func<ProcessObservation, ProcessObservation> GetFunction(string key)
+        private Func<ProcessObservation, ProcessObservation> GetFunction(string filePath)
         {
-            if (key != null)
+            if (filePath != null)
             {
                 lock (_lock)
                 {
-                    if (_functions.ContainsKey(key))
+                    if (_functions.ContainsKey(filePath))
                     {
-                        return _functions[key];
+                        return _functions[filePath];
                     }
                 }
             }
@@ -171,6 +178,58 @@ namespace MTConnect.Processors
                     _functions.Remove(key);
                 }
             }
+        }
+
+
+        private void StartWatcher()
+        {
+            _watcher = new FileSystemWatcher();
+            _watcher.Path = GetDirectory();
+            _watcher.Filter = $"*{_defaultExtension}";
+            _watcher.Created += FileWatcherUpdated;
+            _watcher.Changed += FileWatcherUpdated;
+            _watcher.Deleted += FileWatcherUpdated;
+            _watcher.EnableRaisingEvents = true;
+
+            _watcherTimer = new System.Timers.Timer();
+            _watcherTimer.Interval = DefaultUpdateInterval;
+            _watcherTimer.Elapsed += WatcherTimerElapsed;
+            _watcherTimer.Enabled = true;
+        }
+
+        private void StopWatcher()
+        {
+            if (_watcher != null) _watcher.Dispose();
+            if (_watcherTimer != null) _watcherTimer.Dispose();
+        }
+
+        private void FileWatcherUpdated(object sender, FileSystemEventArgs e)
+        {
+            _update = true;
+        }
+
+        private void WatcherTimerElapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            Update();
+        }
+
+        private void Update()
+        {
+            if (_update)
+            {
+                Load();
+
+                _update = false;
+            }
+        }
+
+
+        private string GetDirectory()
+        {
+            var dir = _configuration.Directory;
+            if (string.IsNullOrEmpty(dir)) dir = _defaultDirectory;
+            if (!Path.IsPathRooted(dir)) dir = Path.Combine(AppContext.BaseDirectory, dir);
+            return dir;
         }
     }
 }

@@ -59,6 +59,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\src\MTConnect.NET-HTTP\MTConnect.NET-HTTP.csproj" />
+		<ProjectReference Include="..\..\src\MTConnect.NET-SHDR\MTConnect.NET-SHDR.csproj" />
 		<ProjectReference Include="..\..\src\MTConnect.NET-XML\MTConnect.NET-XML.csproj" />
 	</ItemGroup>
 
