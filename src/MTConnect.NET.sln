@@ -127,9 +127,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-MqttRelay-Mod
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Processors", "Processors", "{98D838F5-2AEB-4F62-A803-115C57C1E982}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MTConnect.NET-Python-Processor", "MTConnect.NET-Python-Processor\MTConnect.NET-Python-Processor.csproj", "{20E3FBE8-78AB-449F-BDF6-C3C46A4C8A98}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp33", "C:\temp\ConsoleApp33\ConsoleApp33.csproj", "{44F397AD-53F4-4947-B92E-6B56CE67887A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-Python-Processor", "MTConnect.NET-Python-Processor\MTConnect.NET-Python-Processor.csproj", "{20E3FBE8-78AB-449F-BDF6-C3C46A4C8A98}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -408,12 +406,6 @@ Global
 		{20E3FBE8-78AB-449F-BDF6-C3C46A4C8A98}.Package|Any CPU.Build.0 = Debug|Any CPU
 		{20E3FBE8-78AB-449F-BDF6-C3C46A4C8A98}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{20E3FBE8-78AB-449F-BDF6-C3C46A4C8A98}.Release|Any CPU.Build.0 = Release|Any CPU
-		{44F397AD-53F4-4947-B92E-6B56CE67887A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{44F397AD-53F4-4947-B92E-6B56CE67887A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{44F397AD-53F4-4947-B92E-6B56CE67887A}.Package|Any CPU.ActiveCfg = Debug|Any CPU
-		{44F397AD-53F4-4947-B92E-6B56CE67887A}.Package|Any CPU.Build.0 = Debug|Any CPU
-		{44F397AD-53F4-4947-B92E-6B56CE67887A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{44F397AD-53F4-4947-B92E-6B56CE67887A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
