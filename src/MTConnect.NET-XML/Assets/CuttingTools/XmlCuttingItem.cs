@@ -51,7 +51,7 @@ namespace MTConnect.Assets.Xml.CuttingTools
             // Manufacturers
             if (!string.IsNullOrEmpty(Manufacturers))
             {
-                cuttingItem.Manufacturers = Manufacturers.Split(",");
+                cuttingItem.Manufacturers = Manufacturers.Split(',');
             }
 
             // CutterStatus

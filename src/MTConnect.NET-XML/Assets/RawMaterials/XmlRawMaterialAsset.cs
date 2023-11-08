@@ -59,7 +59,7 @@ namespace MTConnect.Assets.Xml.RawMaterials
         public XmlMaterial Material { get; set; }
 
 
-        public override IRawMaterialAsset ToAsset()
+        public override IAsset ToAsset()
         {
             var asset = new RawMaterialAsset();
 

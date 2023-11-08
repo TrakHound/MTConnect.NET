@@ -20,7 +20,7 @@ namespace MTConnect.Devices.Xml
         public string Href { get; set; }
 
 
-        public override IAssetRelationship ToRelationship()
+        public override IConfigurationRelationship ToRelationship()
         {
             var relationship = new AssetRelationship();
             relationship.Id = Id;

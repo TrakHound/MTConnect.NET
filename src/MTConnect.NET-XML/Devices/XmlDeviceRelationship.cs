@@ -23,7 +23,7 @@ namespace MTConnect.Devices.Xml
         public string XLinkType { get; set; }
 
 
-        public override IDeviceRelationship ToRelationship()
+        public override IConfigurationRelationship ToRelationship()
         {
             var relationship = new DeviceRelationship();
             relationship.Id = Id;

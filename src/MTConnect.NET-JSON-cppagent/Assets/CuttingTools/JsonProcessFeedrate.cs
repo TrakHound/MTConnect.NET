@@ -18,7 +18,7 @@ namespace MTConnect.Assets.Json.CuttingTools
         public double? Nominal { get; set; }
 
         [JsonPropertyName("value")]
-        public object Value { get; set; }
+        public double? Value { get; set; }
 
 
         public JsonProcessFeedRate() { }
@@ -41,7 +41,7 @@ namespace MTConnect.Assets.Json.CuttingTools
             processFeedrate.Maximum = Maximum;
             processFeedrate.Minimum = Minimum;
             processFeedrate.Nominal = Nominal;
-            processFeedrate.Value = Value?.ToString();
+            processFeedrate.Value = Value;
             return processFeedrate;
         }
     }

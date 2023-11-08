@@ -54,6 +54,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="Clients\MTConnectMqtt2Client.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.0" />
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">
 			<PrivateAssets>all</PrivateAssets>
@@ -64,6 +68,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<None Include="Clients\MTConnectMqtt2Client.cs" />
 		<None Include="README.md">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>

@@ -3,14 +3,15 @@
 
 using MTConnect.Configurations;
 using System;
-using System.Collections.Concurrent;
+using System.Collections.Generic;
 
 namespace MTConnect.Agents
 {
     public class MTConnectAgentModules
     {
-        private static readonly ConcurrentBag<Type> _moduleTypes = new ConcurrentBag<Type>();
-        private static readonly ConcurrentDictionary<string, IMTConnectAgentModule> _modules = new ConcurrentDictionary<string, IMTConnectAgentModule>();
+        private static readonly List<Type> _moduleTypes = new List<Type>();
+        private static readonly Dictionary<string, IMTConnectAgentModule> _modules = new Dictionary<string, IMTConnectAgentModule>();
+        private static readonly object _lock = new object();
 
         private readonly IAgentApplicationConfiguration _configuration;
         private readonly IMTConnectAgentBroker _mtconnectAgent;
@@ -26,7 +27,8 @@ namespace MTConnect.Agents
         {
             InitializeModules();
 
-            var moduleTypes = _moduleTypes.ToArray();
+            Type[] moduleTypes;
+            lock (_lock) moduleTypes = _moduleTypes.ToArray();
             if (!moduleTypes.IsNullOrEmpty())
             {
                 foreach (var moduleType in moduleTypes)
@@ -46,7 +48,7 @@ namespace MTConnect.Agents
 
                                     var moduleId = Guid.NewGuid().ToString();
 
-                                    _modules.TryAdd(moduleId, module);
+                                    lock (_lock) _modules.Add(moduleId, module);
                                 }
                                 catch { }
                             }
@@ -58,9 +60,11 @@ namespace MTConnect.Agents
 
         public void StartBeforeLoad()
         {
-            if (!_modules.IsNullOrEmpty())
+            Dictionary<string, IMTConnectAgentModule> modules;
+            lock (_lock) modules = _modules;
+            if (!modules.IsNullOrEmpty())
             {
-                foreach (var module in _modules)
+                foreach (var module in modules)
                 {
                     module.Value.StartBeforeLoad();
                 }
@@ -69,9 +73,11 @@ namespace MTConnect.Agents
 
         public void StartAfterLoad()
         {
-            if (!_modules.IsNullOrEmpty())
+            Dictionary<string, IMTConnectAgentModule> modules;
+            lock (_lock) modules = _modules;
+            if (!modules.IsNullOrEmpty())
             {
-                foreach (var module in _modules)
+                foreach (var module in modules)
                 {
                     module.Value.StartAfterLoad();
                 }
@@ -80,21 +86,23 @@ namespace MTConnect.Agents
 
         public void Stop()
         {
-            if (!_modules.IsNullOrEmpty())
+            Dictionary<string, IMTConnectAgentModule> modules;
+            lock (_lock) modules = _modules;
+            if (!modules.IsNullOrEmpty())
             {
-                foreach (var module in _modules)
+                foreach (var module in modules)
                 {
                     module.Value.Stop();
                 }
 
-                _modules.Clear();
+                lock (_lock) _modules.Clear();
             }
         }
 
 
         private static void InitializeModules()
         {
-            _moduleTypes.Clear();
+            lock (_lock) _moduleTypes.Clear();
 
             var assemblies = Assemblies.Get();
             if (!assemblies.IsNullOrEmpty())
@@ -110,7 +118,7 @@ namespace MTConnect.Agents
                             {
                                 if (typeof(IMTConnectAgentModule).IsAssignableFrom(type) && !type.IsInterface && !type.IsAbstract)
                                 {
-                                    _moduleTypes.Add(type);
+                                    lock (_lock) _moduleTypes.Add(type);
                                 }
                             }
                         }

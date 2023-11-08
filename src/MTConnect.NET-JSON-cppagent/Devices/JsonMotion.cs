@@ -4,7 +4,6 @@
 using MTConnect.Devices.Configurations;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
-using System.Threading.Channels;
 
 namespace MTConnect.Devices.Json
 {

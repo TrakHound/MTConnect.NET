@@ -61,7 +61,7 @@ namespace MTConnect.Assets.Xml.Files
         public string ModificationTime { get; set; }
 
 
-        public override IFileAsset ToAsset()
+        public override IAsset ToAsset()
         {
             var asset = new FileAsset();
 

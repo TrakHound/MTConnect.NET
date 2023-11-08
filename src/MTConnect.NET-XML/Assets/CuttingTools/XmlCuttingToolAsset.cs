@@ -29,7 +29,7 @@ namespace MTConnect.Assets.Xml.CuttingTools
         public XmlCuttingToolDefinition CuttingToolDefinition { get; set; }
 
 
-        public override ICuttingToolAsset ToAsset()
+        public override IAsset ToAsset()
         {
             var asset = new CuttingToolAsset();
             asset.AssetId = AssetId;
@@ -44,7 +44,7 @@ namespace MTConnect.Assets.Xml.CuttingTools
 
             if (!string.IsNullOrEmpty(Manufacturers))
             {
-                asset.Manufacturers = Manufacturers.Split(",");
+                asset.Manufacturers = Manufacturers.Split(',');
             }
 
             if (CuttingToolLifeCycle != null) asset.CuttingToolLifeCycle = CuttingToolLifeCycle.ToCuttingToolLifeCycle();

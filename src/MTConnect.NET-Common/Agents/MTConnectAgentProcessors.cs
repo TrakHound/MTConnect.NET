@@ -5,14 +5,15 @@ using MTConnect.Assets;
 using MTConnect.Configurations;
 using MTConnect.Observations.Input;
 using System;
-using System.Collections.Concurrent;
+using System.Collections.Generic;
 
 namespace MTConnect.Agents
 {
     public class MTConnectAgentProcessors
     {
-        private static readonly ConcurrentBag<Type> _processorTypes = new ConcurrentBag<Type>();
-        private static readonly ConcurrentDictionary<string, IMTConnectAgentProcessor> _processors = new ConcurrentDictionary<string, IMTConnectAgentProcessor>();
+        private static readonly List<Type> _processorTypes = new List<Type>();
+        private static readonly Dictionary<string, IMTConnectAgentProcessor> _processors = new Dictionary<string, IMTConnectAgentProcessor>();
+        private static readonly object _lock = new object();
 
 
         private readonly IAgentApplicationConfiguration _configuration;
@@ -27,7 +28,8 @@ namespace MTConnect.Agents
         {
             InitializeProcessors();
 
-            var processorTypes = _processorTypes.ToArray();
+            Type[] processorTypes;
+            lock (_lock) processorTypes = _processorTypes.ToArray();
             if (!processorTypes.IsNullOrEmpty())
             {
                 foreach (var processorType in processorTypes)
@@ -47,7 +49,7 @@ namespace MTConnect.Agents
 
                                     var processorId = Guid.NewGuid().ToString();
 
-                                    _processors.TryAdd(processorId, processor);
+                                    lock (_lock) _processors.Add(processorId, processor);
                                 }
                                 catch { }
                             }
@@ -62,9 +64,11 @@ namespace MTConnect.Agents
         {
             IObservationInput outputObservation = null;
 
-            if (observation != null && !_processors.IsNullOrEmpty())
+            Dictionary<string, IMTConnectAgentProcessor> processors;
+            lock (_lock) processors = _processors;
+            if (observation != null && !processors.IsNullOrEmpty())
             {
-                foreach (var processor in _processors)
+                foreach (var processor in processors)
                 {
                     outputObservation = processor.Value.Process(observation);
                 }
@@ -77,9 +81,11 @@ namespace MTConnect.Agents
         {
             var outputAsset = asset;
 
-            if (asset != null && !_processors.IsNullOrEmpty())
+            Dictionary<string, IMTConnectAgentProcessor> processors;
+            lock (_lock) processors = _processors;
+            if (asset != null && !processors.IsNullOrEmpty())
             {
-                foreach (var processor in _processors)
+                foreach (var processor in processors)
                 {
                     outputAsset = processor.Value.Process(outputAsset);
                 }
@@ -90,16 +96,19 @@ namespace MTConnect.Agents
 
         public void Dispose()
         {
-            if (!_processors.IsNullOrEmpty())
+            lock (_lock)
             {
-                _processors.Clear();
+                if (!_processors.IsNullOrEmpty())
+                {
+                    _processors.Clear();
+                }
             }
         }
 
 
         private static void InitializeProcessors()
         {
-            _processorTypes.Clear();
+            lock (_lock) _processorTypes.Clear();
 
             var assemblies = Assemblies.Get();
             if (!assemblies.IsNullOrEmpty())
@@ -115,7 +124,7 @@ namespace MTConnect.Agents
                             {
                                 if (typeof(IMTConnectAgentProcessor).IsAssignableFrom(type) && !type.IsInterface && !type.IsAbstract)
                                 {
-                                    _processorTypes.Add(type);
+                                    lock (_lock) _processorTypes.Add(type);
                                 }
                             }
                         }

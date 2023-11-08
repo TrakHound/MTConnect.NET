@@ -31,6 +31,6 @@ namespace MTConnect.Assets.CuttingTools
         /// <summary>
         /// 
         /// </summary>
-        public string? Value { get; set; }
+        public double? Value { get; set; }
     }
 }

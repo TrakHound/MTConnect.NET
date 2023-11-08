@@ -16,7 +16,7 @@ namespace MTConnect.Assets.QIF
         public XmlQIFDocument QIFDocument { get; set; }
 
 
-        public override IQIFDocumentWrapperAsset ToAsset()
+        public override IAsset ToAsset()
         {
             var asset = new QIFDocumentWrapperAsset();
 

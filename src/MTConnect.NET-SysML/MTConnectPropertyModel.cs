@@ -88,6 +88,10 @@ namespace MTConnect.SysML
 
                     // RawMaterials.RawMateral.InitialDimension
                     case "_19_0_3_68e0225_1622116618960_627070_1641": return "MILLIMETER_3D";
+
+
+                    // CuttingTools.ProcessFeedRate.Value (incorrect in MTConnect Model 2.2)
+                    case "_19_0_3_68e0225_1636117526335_679126_67": return "double";
                 }
 
 

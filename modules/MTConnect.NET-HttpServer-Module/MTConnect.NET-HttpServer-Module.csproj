@@ -1,8 +1,56 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
+	<PropertyGroup Condition="'$(Configuration)'=='Debug'">
+		<TargetFrameworks>net6.0</TargetFrameworks>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)'=='Release'">
+		<TargetFrameworks>net461;net462;net47;net471;net472;net48;netstandard2.0;netcoreapp3.1;net5.0;net6.0;net7.0</TargetFrameworks>
+		<DebugSymbols>false</DebugSymbols>
+		<DebugType>None</DebugType>
+		<Optimize>true</Optimize>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)'=='Package'">
+		<TargetFrameworks>net461;net462;net47;net471;net472;net48;netstandard2.0;netcoreapp3.1;net5.0;net6.0;net7.0</TargetFrameworks>
+		<Optimize>true</Optimize>
+	</PropertyGroup>
+
 	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>
-		<RootNamespace>MTConnect.NET_HttpServer_Module</RootNamespace>
+		<RootNamespace>MTConnect</RootNamespace>
+		<Configurations>Debug;Release;Package</Configurations>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<Authors>TrakHound</Authors>
+		<Company>TrakHound Inc.</Company>
+		<Copyright>Copyright (c) 2023 TrakHound Inc., All Rights Reserved.</Copyright>
+		<RepositoryUrl>https://github.com/TrakHound/MTConnect.NET</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<Description>MTConnect.NET-HttpServer-Module implements a server for the MTConnect HTTP REST Protocol for use with the MTConnectAgentApplication class in the MTConnect.NET-Applications-Agent library. Supports MTConnect Versions up to 2.2. Supports .NET Framework 4.6.1 up to .NET 7</Description>
+		<PackageProjectUrl>https://www.TrakHound.com</PackageProjectUrl>
+		<PackageTags>mtconnect;iiot;iot;cnc;</PackageTags>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageIconUrl>https://static.trakhound.com/mtconnect-net-nuget.png</PackageIconUrl>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+
+		<!-- Optional: Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+
+		<!-- Optional: Embed source files that are not tracked by the source control manager in the PDB -->
+		<EmbedUntrackedSources>true</EmbedUntrackedSources>
+
+		<!-- Optional: Build symbol package (.snupkg) to distribute the PDB containing Source Link -->
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+	</PropertyGroup>
+
+	<ItemGroup Condition="'$(Configuration)'=='Debug'">
+		<Compile Include="..\..\src\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(Configuration)'=='Release'">
+		<Compile Include="..\..\src\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
+	</ItemGroup>
+
+	<PropertyGroup Condition="'$(Configuration)'=='Package'">
+		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
 	</PropertyGroup>
 
 	<ItemGroup>

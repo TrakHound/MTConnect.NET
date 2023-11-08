@@ -28,7 +28,7 @@ namespace MTConnect.Assets.Xml.CuttingTools
             if (!string.IsNullOrEmpty(Maximum)) processFeedRate.Maximum = Maximum.ToDouble();
             if (!string.IsNullOrEmpty(Minimum)) processFeedRate.Minimum = Minimum.ToDouble();
             if (!string.IsNullOrEmpty(Nominal)) processFeedRate.Nominal = Nominal.ToDouble();
-            if (!string.IsNullOrEmpty(Value)) processFeedRate.Value = Value;
+            if (!string.IsNullOrEmpty(Value)) processFeedRate.Value = Value.ToDouble();
             return processFeedRate;
         }
 
@@ -41,7 +41,7 @@ namespace MTConnect.Assets.Xml.CuttingTools
                 if (processFeedRate.Maximum != null) writer.WriteAttributeString("maximum", processFeedRate.Maximum.ToString());
                 if (processFeedRate.Minimum != null) writer.WriteAttributeString("minimum", processFeedRate.Minimum.ToString());
                 if (processFeedRate.Nominal != null) writer.WriteAttributeString("nominal", processFeedRate.Nominal.ToString());
-                if (processFeedRate.Value != null) writer.WriteString(processFeedRate.Value);
+                if (processFeedRate.Value != null) writer.WriteString(processFeedRate.Value.ToString());
 
                 writer.WriteEndElement();
             }

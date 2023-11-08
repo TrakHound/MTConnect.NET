@@ -16,7 +16,7 @@ namespace MTConnect.Assets.ComponentConfigurationParameters
         public List<XmlParameterSet> ParameterSets { get; set; }
 
 
-        public override IComponentConfigurationParametersAsset ToAsset()
+        public override IAsset ToAsset()
         {
             var asset = new ComponentConfigurationParametersAsset();
 

@@ -90,7 +90,7 @@ namespace MTConnect.Modules
 
         public void Stop()
         {
-
+            if (_agentClient != null) _agentClient.Stop();
         }
 
 

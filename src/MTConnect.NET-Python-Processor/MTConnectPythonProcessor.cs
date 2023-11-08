@@ -5,6 +5,9 @@ using MTConnect.Agents;
 using MTConnect.Assets;
 using MTConnect.Configurations;
 using MTConnect.Observations.Input;
+using System;
+using System.Collections.Generic;
+using System.IO;
 
 namespace MTConnect.Processors
 {
@@ -149,7 +152,10 @@ namespace MTConnect.Processors
             {
                 lock (_lock)
                 {
-                    return _functions.GetValueOrDefault(key);
+                    if (_functions.ContainsKey(key))
+                    {
+                        return _functions[key];
+                    }
                 }
             }
 

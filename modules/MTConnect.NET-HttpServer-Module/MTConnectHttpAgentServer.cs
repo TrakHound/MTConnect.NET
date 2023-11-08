@@ -47,7 +47,7 @@ namespace MTConnect.Modules.Http
             {
                 if (_moduleConfiguration.DevicesStyle != null && _moduleConfiguration.DevicesStyle.Location != null)
                 {
-                    var requestPath = !request.LocalPath.StartsWith('/') ? "/" + request.LocalPath : request.LocalPath;
+                    var requestPath = !request.LocalPath.StartsWith("/") ? "/" + request.LocalPath : request.LocalPath;
 
                     // Check to see if the request is for the Devices Stylesheet set in the Agent Configuration
                     if (requestPath == _moduleConfiguration.DevicesStyle.Location || requestPath.Replace('\\', '/') == _moduleConfiguration.DevicesStyle.Location)
@@ -57,7 +57,7 @@ namespace MTConnect.Modules.Http
                 }
                 else if (_moduleConfiguration.StreamsStyle != null && _moduleConfiguration.StreamsStyle.Location != null)
                 {
-                    var requestPath = !request.LocalPath.StartsWith('/') ? "/" + request.LocalPath : request.LocalPath;
+                    var requestPath = !request.LocalPath.StartsWith("/") ? "/" + request.LocalPath : request.LocalPath;
 
                     // Check to see if the request is for the Streams Stylesheet set in the Agent Configuration
                     if (requestPath == _moduleConfiguration.StreamsStyle.Location || requestPath.Replace('\\', '/') == _moduleConfiguration.StreamsStyle.Location)

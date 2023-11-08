@@ -8,6 +8,6 @@ namespace MTConnect.Assets.CuttingTools
     /// </summary>
     public partial interface IMeasurement
     {
-        public string Type { get; set; }
+        string Type { get; set; }
     }
 }

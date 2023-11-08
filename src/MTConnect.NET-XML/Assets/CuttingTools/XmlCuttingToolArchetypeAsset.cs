@@ -26,7 +26,7 @@ namespace MTConnect.Assets.Xml.CuttingTools
         public XmlCuttingToolLifeCycle CuttingToolLifeCycle { get; set; }
 
 
-        public override ICuttingToolArchetypeAsset ToAsset()
+        public override IAsset ToAsset()
         {
             var asset = new CuttingToolArchetypeAsset();
             asset.AssetId = AssetId;
@@ -40,7 +40,7 @@ namespace MTConnect.Assets.Xml.CuttingTools
 
             if (!string.IsNullOrEmpty(Manufacturers))
             {
-                asset.Manufacturers = Manufacturers.Split(",");
+                asset.Manufacturers = Manufacturers.Split(',');
             }
 
             if (CuttingToolLifeCycle != null) asset.CuttingToolLifeCycle = CuttingToolLifeCycle.ToCuttingToolLifeCycle();

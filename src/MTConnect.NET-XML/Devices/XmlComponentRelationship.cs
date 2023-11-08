@@ -14,7 +14,7 @@ namespace MTConnect.Devices.Xml
         public string IdRef { get; set; }
 
 
-        public override IComponentRelationship ToRelationship()
+        public override IConfigurationRelationship ToRelationship()
         {
             var relationship = new ComponentRelationship();
             relationship.Id = Id;

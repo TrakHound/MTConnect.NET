@@ -295,7 +295,7 @@ namespace MTConnect.Configurations
                     var yaml = serializer.Serialize(controllerConfiguration);
                     if (yaml != null)
                     {
-                        if (yaml.StartsWith('-')) yaml = " " + yaml.TrimStart('-');
+                        if (yaml.StartsWith("-")) yaml = " " + yaml.TrimStart('-');
 
                         var deserializerBuilder = new DeserializerBuilder();
                         deserializerBuilder.WithNamingConvention(CamelCaseNamingConvention.Instance);

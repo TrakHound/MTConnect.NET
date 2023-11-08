@@ -13,7 +13,7 @@ namespace MTConnect.Devices.Xml
         public DataItemRelationshipType Type { get; set; }
 
 
-        public override IDataItemRelationship ToRelationship()
+        public override IAbstractDataItemRelationship ToRelationship()
         {
             var relationship = new DataItemRelationship();
             relationship.Name = Name;
