@@ -4,8 +4,8 @@
 using MTConnect.Devices.Configurations;
 using MTConnect.Devices.DataItems;
 using MTConnect.Extensions;
+using MTConnect.Input;
 using MTConnect.Observations;
-using MTConnect.Observations.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;

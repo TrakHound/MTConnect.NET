@@ -3,7 +3,7 @@
 
 using MTConnect.Assets;
 using MTConnect.Configurations;
-using MTConnect.Observations.Input;
+using MTConnect.Input;
 using System;
 using System.Collections.Generic;
 
@@ -67,7 +67,12 @@ namespace MTConnect.Agents
 
         public IObservationInput Process(ProcessObservation observation)
         {
-            IObservationInput outputObservation = null;
+            var defaultObservation = new ObservationInput();
+            defaultObservation.DeviceKey = observation.DataItem.Device.Uuid;
+            defaultObservation.DataItemKey = observation.DataItem.Id;
+            defaultObservation.Values = observation.Values;
+            defaultObservation.Timestamp = observation.Timestamp.ToUnixTime();
+            IObservationInput outputObservation = defaultObservation;
 
             Dictionary<string, IMTConnectAgentProcessor> processors;
             lock (_lock) processors = _processors;

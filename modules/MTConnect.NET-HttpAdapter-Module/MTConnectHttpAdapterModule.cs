@@ -8,7 +8,7 @@ using MTConnect.Configurations;
 using MTConnect.Devices;
 using MTConnect.Devices.Components;
 using MTConnect.Devices.DataItems;
-using MTConnect.Observations.Input;
+using MTConnect.Input;
 using MTConnect.Streams;
 using NLog;
 using System.Collections.Generic;
@@ -20,7 +20,7 @@ namespace MTConnect.Modules
     {
         public const string ConfigurationTypeId = "http-adapter";
 
-        private readonly Logger _clientLogger = LogManager.GetLogger("http-adpater-logger");
+        private readonly Logger _clientLogger = LogManager.GetLogger("http-adapter-logger");
         private readonly HttpClientConfiguration _configuration;
         private readonly IMTConnectAgentBroker _mtconnectAgent;
         private readonly Dictionary<string, MTConnectClientInformation> _clientInformations = new Dictionary<string, MTConnectClientInformation>();

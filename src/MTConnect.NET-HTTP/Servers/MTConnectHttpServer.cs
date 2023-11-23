@@ -23,7 +23,6 @@ namespace MTConnect.Servers.Http
     {
         protected readonly IMTConnectAgentBroker _mtconnectAgent;
         protected readonly IHttpServerConfiguration _configuration;
-        //protected readonly IHttpAgentConfiguration _configuration;
         private CancellationTokenSource _stop;
 
 

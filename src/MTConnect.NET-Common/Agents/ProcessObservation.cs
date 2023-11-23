@@ -1,6 +1,9 @@
-﻿using MTConnect.Devices;
+﻿// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// TrakHound Inc. licenses this file to you under the MIT license.
+
+using MTConnect.Devices;
+using MTConnect.Input;
 using MTConnect.Observations;
-using MTConnect.Observations.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;

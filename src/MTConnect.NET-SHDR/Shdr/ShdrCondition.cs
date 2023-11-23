@@ -1,6 +1,7 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
+using MTConnect.Input;
 using MTConnect.Observations;
 using System;
 using System.Collections.Generic;
@@ -131,6 +132,26 @@ namespace MTConnect.Shdr
             AddFaultState(new ShdrFaultState(timestamp, level));
         }
 
+        public ShdrCondition(IConditionObservationInput conditionObservation)
+        {
+            if (conditionObservation != null)
+            {
+                DeviceKey = conditionObservation.DeviceKey;
+                DataItemKey = conditionObservation.DataItemKey;
+
+                var faultStates = conditionObservation.FaultStates;
+                if (!faultStates.IsNullOrEmpty())
+                {
+                    var shdrFaultStates = new List<ShdrFaultState>();
+                    foreach (var faultState in faultStates)
+                    {
+                        shdrFaultStates.Add(new ShdrFaultState(faultState));
+                    }
+                    FaultStates = shdrFaultStates;
+                }
+            }
+        }
+
         public ShdrCondition(ShdrCondition condition)
         {
             if (condition != null)
@@ -140,6 +161,16 @@ namespace MTConnect.Shdr
                 FaultStates = condition.FaultStates?.ToList();
             }
         }
+
+        //public ShdrCondition(ShdrCondition condition)
+        //{
+        //    if (condition != null)
+        //    {
+        //        DeviceKey = condition.DeviceKey;
+        //        DataItemKey = condition.DataItemKey;
+        //        FaultStates = condition.FaultStates?.ToList();
+        //    }
+        //}
 
 
         /// <summary>

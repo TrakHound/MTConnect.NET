@@ -54,7 +54,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="IronPython.StdLib" Version="3.4.1" />
+		<PackageReference Include="IronPython" Version="3.4.1" />
 		<PackageReference Include="NLog" Version="5.1.0" />
 	</ItemGroup>
 

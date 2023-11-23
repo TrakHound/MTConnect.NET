@@ -4,7 +4,7 @@
 using MTConnect.Agents;
 using MTConnect.Assets;
 using MTConnect.Configurations;
-using MTConnect.Observations.Input;
+using MTConnect.Input;
 using NLog;
 using System;
 using System.Collections.Generic;

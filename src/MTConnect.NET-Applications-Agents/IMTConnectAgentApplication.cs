@@ -5,7 +5,7 @@ using MTConnect.Agents;
 using MTConnect.Configurations;
 using System;
 
-namespace MTConnect.Applications.Agents
+namespace MTConnect.Applications
 {
     /// <summary>
     /// An interface for an MTConnect Agent Application
