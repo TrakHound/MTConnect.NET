@@ -38,8 +38,8 @@ namespace MTConnect.Applications
         protected override void OnRead()
         {
             // Using a single Timestamp (per OnRead() call) can consolidate the SHDR output as well as make MTConnect data more "aligned" and easier to process
-            var ts = UnixDateTime.Now;
-            AddObservation("L2estop", EmergencyStop.ARMED, ts);
+            //var ts = UnixDateTime.Now;
+            //AddObservation("L2estop", EmergencyStop.ARMED, ts);
 
             //Adapter.AddDataItem("avail", _dataSource.Connected ? Availability.AVAILABLE : Availability.UNAVAILABLE, ts);
 

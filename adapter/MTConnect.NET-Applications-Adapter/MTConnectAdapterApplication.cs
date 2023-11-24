@@ -4,6 +4,7 @@
 using MTConnect.Adapters;
 using MTConnect.Configurations;
 using MTConnect.Input;
+using MTConnect.Logging;
 using NLog;
 using System;
 using System.Collections.Generic;
@@ -26,6 +27,7 @@ namespace MTConnect.Applications
 
         protected readonly Logger _applicationLogger = LogManager.GetLogger("application-logger");
         protected readonly Logger _adapterLogger = LogManager.GetLogger("adapter-logger");
+        protected readonly Logger _moduleLogger = LogManager.GetLogger("module-logger");
         private readonly Dictionary<string, IMTConnectAdapter> _adapters = new Dictionary<string, IMTConnectAdapter>();
         private readonly object _lock = new object();
 
@@ -289,12 +291,14 @@ namespace MTConnect.Applications
                 foreach (var module in _modules.Modules)
                 {
                     var adapter = new MTConnectAdapter(configuration.WriteInterval, configuration.EnableBuffer);
-                    adapter.WriteObservationsFunction = module.WriteObservations;
+                    adapter.WriteObservationsFunction = module.AddObservations;
                     adapter.Start();
 
                     _adapters.Remove(module.Id);
                     _adapters.Add(module.Id, adapter);
 
+                    module.Adapter = adapter;
+                    module.LogReceived += ModuleLogReceived;
                     module.Start();
                 }
 
@@ -535,41 +539,23 @@ namespace MTConnect.Applications
             _applicationLogger.Debug($"[Application] : Module Loaded : " + module.GetType().Name);
         }
 
-        //private void AgentConnected(object sender, string clientId)
-        //{
-        //    _adapterLogger.Info($"[Adapter] : Connected to Agent : {clientId}");
-        //}
-
-        //private void AgentDisconnected(object sender, string clientId)
-        //{
-        //    _adapterLogger.Info($"[Adapter] : Disconnected from Agent : {clientId}");
-        //}
-
-        //private void AgentConnectionError(object sender, string clientId)
-        //{
-        //    _adapterLogger.Info($"[Adapter] : Could not connect to Agent : {clientId}");
-        //}
-
-        //private void LineSent(object sender, AdapterEventArgs args)
-        //{
-        //    _adapterLogger.Debug($"[Adapter] : SHDR Protocol Line Sent : Client ID = {args.ClientId} : {args.Message}");
-        //}
-
-        //private void SendError(object sender, AdapterEventArgs args)
-        //{
-        //    _adapterLogger.Info($"[Adapter] : Error Sending SHDR Protocol Line : Client ID = {args.ClientId} : {args.Message}");
-        //}
-
-        //private void PingReceived(object sender, string clientId)
-        //{
-        //    _adapterLogger.Debug($"[Adapter] : Agent Ping Received : Client ID = {clientId}");
-        //}
-
-        //private void PongSent(object sender, string clientId)
-        //{
-        //    _adapterLogger.Debug($"[Adapter] : Agent Pong Sent : Client ID = {clientId}");
-        //}
+        private void ModuleLogReceived(object sender, MTConnectLogLevel logLevel, string message)
+        {
+            if (!string.IsNullOrEmpty(message))
+            {
+                switch (logLevel)
+                {
+                    case MTConnectLogLevel.Fatal: _moduleLogger.Fatal(message); break;
+                    case MTConnectLogLevel.Error: _moduleLogger.Error(message); break;
+                    case MTConnectLogLevel.Warning: _moduleLogger.Warn(message); break;
+                    case MTConnectLogLevel.Information: _moduleLogger.Info(message); break;
+                    case MTConnectLogLevel.Debug: _moduleLogger.Debug(message); break;
+                    case MTConnectLogLevel.Trace: _moduleLogger.Trace(message); break;
+                }
+            }
+        }
 
         #endregion
+
     }
 }

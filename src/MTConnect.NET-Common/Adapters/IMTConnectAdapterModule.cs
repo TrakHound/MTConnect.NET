@@ -1,7 +1,10 @@
 ﻿// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
+using MTConnect.Assets;
+using MTConnect.Devices;
 using MTConnect.Input;
+using MTConnect.Logging;
 using System.Collections.Generic;
 
 namespace MTConnect.Adapters
@@ -12,14 +15,21 @@ namespace MTConnect.Adapters
 
         string Description { get; }
 
+        IMTConnectAdapter Adapter { get; set; }
+
+
+        event MTConnectLogEventHandler LogReceived;
+
 
         void Start();
 
         void Stop();
 
 
-        bool WriteObservations(IEnumerable<IObservationInput> observations);
+        bool AddObservations(IEnumerable<IObservationInput> observations);
 
-        bool WriteConditionObservations(IEnumerable<IConditionObservationInput> conditionObservations);
+        bool AddAssets(IEnumerable<IAsset> assets);
+
+        bool AddDevices(IEnumerable<IDevice> devices);
     }
 }

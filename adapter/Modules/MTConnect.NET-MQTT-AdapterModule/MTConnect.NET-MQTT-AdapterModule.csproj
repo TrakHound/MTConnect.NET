@@ -4,7 +4,6 @@
     <TargetFramework>net6.0</TargetFramework>
     <RootNamespace>MTConnect.NET_MQTT_AdapterModule</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

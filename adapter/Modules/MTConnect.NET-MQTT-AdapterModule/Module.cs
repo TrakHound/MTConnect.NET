@@ -4,64 +4,45 @@
 using MQTTnet;
 using MQTTnet.Client;
 using MTConnect.Adapters;
+using MTConnect.Assets;
+using MTConnect.Configurations;
+using MTConnect.Devices;
 using MTConnect.Input;
+using MTConnect.Logging;
 using MTConnect.Mqtt;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
 
 namespace MTConnect
 {
-    public class Module : IMTConnectAdapterModule
+    public class Module : MTConnectAdapterModule
     {
         public const string ConfigurationTypeId = "mqtt";
 
+        private readonly MqttAdapterModuleConfiguration _configuration;
         private readonly MqttFactory _mqttFactory;
         private readonly IMqttClient _mqttClient;
         private CancellationTokenSource _stop;
-        private readonly string _server;
-        private readonly int _port;
-        private readonly int _qos;
-        private readonly int _interval;
-        private readonly int _retryInterval;
-        private readonly string _username;
-        private readonly string _password;
-        private readonly string _clientId;
-        private readonly string _caCertPath;
-        private readonly string _pemClientCertPath;
-        private readonly string _pemPrivateKeyPath;
-        private readonly bool _allowUntrustedCertificates;
-        private readonly bool _useTls;
-        private readonly string _topic;
-        private readonly string _deviceKey;
 
 
-        public string Id { get; set; }
-
-        public string Description { get; set; }
-
-
-        public Module(string id, object configuration)
+        public Module(string id, object moduleConfiguration) : base(id)
         {
-            Id = id;
-
             _mqttFactory = new MqttFactory();
             _mqttClient = _mqttFactory.CreateMqttClient();
 
-            _server = "localhost";
-            _port = 1883;
-            _topic = "OKUMA-Lathe";
-            _deviceKey = "OKUMA-Lathe";
+            _configuration = AdapterApplicationConfiguration.GetConfiguration<MqttAdapterModuleConfiguration>(moduleConfiguration);
+            if (_configuration == null) _configuration = new MqttAdapterModuleConfiguration();
         }
 
 
-        public void Start()
+        protected override void OnStart()
         {
             _stop = new CancellationTokenSource();
 
             _ = Task.Run(Worker, _stop.Token);
         }
 
-        public void Stop()
+        protected override void OnStop()
         {
             if (_stop != null) _stop.Cancel();
             if (_mqttClient != null) _mqttClient.Dispose();
@@ -76,28 +57,28 @@ namespace MTConnect
                     try
                     {
                         // Declare new MQTT Client Options with Tcp Server
-                        var clientOptionsBuilder = new MqttClientOptionsBuilder().WithTcpServer(_server, _port);
+                        var clientOptionsBuilder = new MqttClientOptionsBuilder().WithTcpServer(_configuration.Server, _configuration.Port);
 
                         // Set Client ID
-                        if (!string.IsNullOrEmpty(_clientId))
+                        if (!string.IsNullOrEmpty(_configuration.ClientId))
                         {
-                            clientOptionsBuilder.WithClientId(_clientId);
+                            clientOptionsBuilder.WithClientId(_configuration.ClientId);
                         }
 
                         var certificates = new List<X509Certificate2>();
 
                         // Add CA (Certificate Authority)
-                        if (!string.IsNullOrEmpty(_caCertPath))
+                        if (!string.IsNullOrEmpty(_configuration.CertificateAuthority))
                         {
-                            certificates.Add(new X509Certificate2(GetFilePath(_caCertPath)));
+                            certificates.Add(new X509Certificate2(GetFilePath(_configuration.CertificateAuthority)));
                         }
 
                         // Add Client Certificate & Private Key
-                        if (!string.IsNullOrEmpty(_pemClientCertPath) && !string.IsNullOrEmpty(_pemPrivateKeyPath))
+                        if (!string.IsNullOrEmpty(_configuration.PemCertificate) && !string.IsNullOrEmpty(_configuration.PemPrivateKey))
                         {
 
 #if NET5_0_OR_GREATER
-                            certificates.Add(new X509Certificate2(X509Certificate2.CreateFromPemFile(GetFilePath(_pemClientCertPath), GetFilePath(_pemPrivateKeyPath)).Export(X509ContentType.Pfx)));
+                            certificates.Add(new X509Certificate2(X509Certificate2.CreateFromPemFile(GetFilePath(_configuration.PemCertificate), GetFilePath(_configuration.PemPrivateKey)).Export(X509ContentType.Pfx)));
 #else
                     throw new Exception("PEM Certificates Not Supported in .NET Framework 4.8 or older");
 #endif
@@ -106,23 +87,23 @@ namespace MTConnect
                             {
                                 UseTls = true,
                                 SslProtocol = System.Security.Authentication.SslProtocols.Tls12,
-                                IgnoreCertificateRevocationErrors = _allowUntrustedCertificates,
-                                IgnoreCertificateChainErrors = _allowUntrustedCertificates,
-                                AllowUntrustedCertificates = _allowUntrustedCertificates,
+                                IgnoreCertificateRevocationErrors = _configuration.AllowUntrustedCertificates,
+                                IgnoreCertificateChainErrors = _configuration.AllowUntrustedCertificates,
+                                AllowUntrustedCertificates = _configuration.AllowUntrustedCertificates,
                                 Certificates = certificates
                             });
                         }
 
                         // Add Credentials
-                        if (!string.IsNullOrEmpty(_username) && !string.IsNullOrEmpty(_password))
+                        if (!string.IsNullOrEmpty(_configuration.Username) && !string.IsNullOrEmpty(_configuration.Password))
                         {
-                            if (_useTls)
+                            if (_configuration.UseTls)
                             {
-                                clientOptionsBuilder.WithCredentials(_username, _password).WithTls();
+                                clientOptionsBuilder.WithCredentials(_configuration.Username, _configuration.Password).WithTls();
                             }
                             else
                             {
-                                clientOptionsBuilder.WithCredentials(_username, _password);
+                                clientOptionsBuilder.WithCredentials(_configuration.Username, _configuration.Password);
                             }
                         }
 
@@ -132,18 +113,7 @@ namespace MTConnect
                         // Connect to the MQTT Client
                         _mqttClient.ConnectAsync(clientOptions).Wait();
 
-
-                        //if (!string.IsNullOrEmpty(_topic))
-                        //{
-                        //    await _mqttClient.SubscribeAsync(_topic);
-                        //}
-                        //else
-                        //{
-                        //    // ERROR ?
-                        //}
-
-
-                        //ClientStarted?.Invoke(this, new EventArgs());
+                        Log(MTConnectLogLevel.Information, "MQTT Client Connected");
 
                         while (_mqttClient.IsConnected && !_stop.IsCancellationRequested)
                         {
@@ -152,15 +122,15 @@ namespace MTConnect
                     }
                     catch (Exception ex)
                     {
-                        //if (ConnectionError != null) ConnectionError.Invoke(this, ex);
+                        Log(MTConnectLogLevel.Warning, $"MQTT Client Connection Error : {ex.Message}");
                     }
 
-                    await Task.Delay(_retryInterval, _stop.Token);
+                    await Task.Delay(_configuration.ReconnectInterval, _stop.Token);
                 }
                 catch (TaskCanceledException) { }
                 catch (Exception ex)
                 {
-                    //InternalError?.Invoke(this, ex);
+                    Log(MTConnectLogLevel.Error, $"MQTT Module Error : {ex.Message}");
                 }
 
             } while (!_stop.Token.IsCancellationRequested);
@@ -175,7 +145,7 @@ namespace MTConnect
         }
 
 
-        public bool WriteObservations(IEnumerable<IObservationInput> observations)
+        public override bool AddObservations(IEnumerable<IObservationInput> observations)
         {
             if (_mqttClient != null && !observations.IsNullOrEmpty())
             {
@@ -204,13 +174,18 @@ namespace MTConnect
                 var json = JsonSerializer.Serialize(mqttModels);
                 Console.WriteLine(json);
 
-                _mqttClient.PublishStringAsync($"{_topic}/observations", json);
+                _mqttClient.PublishStringAsync($"{_configuration.Topic}/{_configuration.DeviceKey}/observations", json);
             }
 
             return true;
         }
 
-        public bool WriteConditionObservations(IEnumerable<IConditionObservationInput> conditionObservations)
+        public override bool AddAssets(IEnumerable<IAsset> assets)
+        {
+            return true;
+        }
+
+        public override bool AddDevices(IEnumerable<IDevice> devices)
         {
             return true;
         }

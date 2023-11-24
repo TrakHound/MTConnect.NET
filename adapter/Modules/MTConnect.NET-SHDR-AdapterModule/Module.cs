@@ -2,15 +2,18 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Adapters;
+using MTConnect.Assets;
 using MTConnect.Configurations;
+using MTConnect.Devices;
 using MTConnect.Input;
+using MTConnect.Logging;
 using MTConnect.Shdr;
 using System.Net.Sockets;
 using System.Text;
 
 namespace MTConnect
 {
-    public class Module : IMTConnectAdapterModule
+    public class Module : MTConnectAdapterModule
     {
         public const string ConfigurationTypeId = "shdr";
 
@@ -21,27 +24,20 @@ namespace MTConnect
         private CancellationTokenSource _stop;
 
 
-        public string Id { get; set; }
-
-        public string Description { get; set; }
-
-
-        public Module(string id, object moduleConfiguration)
+        public Module(string id, object moduleConfiguration) : base(id)
         {
-            Id = id;
-
             _configuration = AdapterApplicationConfiguration.GetConfiguration<ShdrAdapterModuleConfiguration>(moduleConfiguration);
-            if (_configuration == null) moduleConfiguration = new ShdrAdapterModuleConfiguration();
+            if (_configuration == null) _configuration = new ShdrAdapterModuleConfiguration();
 
             _connectionListener = new AgentClientConnectionListener(_configuration.Port, _configuration.Heartbeat);
-            _connectionListener.ClientConnected += ClientConnected;
-            _connectionListener.ClientDisconnected += ClientDisconnected;
-            _connectionListener.ClientPingReceived += ClientPingReceived;
-            _connectionListener.ClientPongSent += ClientPongSent;
+            _connectionListener.ClientConnected += AgentClientConnected;
+            _connectionListener.ClientDisconnected += AgentClientDisconnected;
+            _connectionListener.ClientPingReceived += AgentClientPingReceived;
+            _connectionListener.ClientPongSent += AgentClientPongSent;
         }
 
 
-        public void Start()
+        protected override void OnStart()
         {
             _stop = new CancellationTokenSource();
 
@@ -49,14 +45,16 @@ namespace MTConnect
             _connectionListener.Start(_stop.Token);
         }
 
-        public void Stop()
+        protected override void OnStop()
         {
             if (_stop != null) _stop.Cancel();
             _connectionListener.Stop();
         }
 
 
-        public bool WriteObservations(IEnumerable<IObservationInput> observations)
+        #region "Entities"
+
+        public override bool AddObservations(IEnumerable<IObservationInput> observations)
         {
             // DataItems
             var dataItems = observations.Where(o => ShdrObservation.GetObservationType(o) == ShdrObservationType.DataItem);
@@ -126,50 +124,41 @@ namespace MTConnect
             return true;
         }
 
-        public bool WriteConditionObservations(IEnumerable<IConditionObservationInput> conditionObservations)
+        public override bool AddAssets(IEnumerable<IAsset> assets)
         {
-            if (!conditionObservations.IsNullOrEmpty())
-            {
-                var shdrConditions = new List<ShdrCondition>();
-                foreach (var conditionObservation in conditionObservations)
-                {
-                    var shdrCondition = new ShdrCondition(conditionObservation);
-                    var shdrLine = shdrCondition.ToString();
-                    WriteLine(shdrLine);
-                    Console.WriteLine(shdrLine);
-                }
-            }
-
             return true;
         }
 
+        public override bool AddDevices(IEnumerable<IDevice> devices)
+        {
+            return true;
+        }
+
+        #endregion
+
         #region "Event Handlers"
 
-        private void ClientConnected(string clientId, TcpClient client)
+        private void AgentClientConnected(string clientId, TcpClient client)
         {
             AddAgentClient(clientId, client);
-            //AgentConnected?.Invoke(this, clientId);
-
-            Console.WriteLine("Agent CONNECTED!");
-
-            //SendLast(UnixDateTime.Now);
+            Log(MTConnectLogLevel.Information, "Agent Connected");
+            Adapter.SendLast(UnixDateTime.Now);
         }
 
-        private void ClientDisconnected(string clientId)
+        private void AgentClientDisconnected(string clientId)
         {
             RemoveAgentClient(clientId);
-            //AgentDisconnected?.Invoke(this, clientId);
-            Console.WriteLine("Agent DISCONNECTED!");
+            Log(MTConnectLogLevel.Information, "Agent Disconnected");
         }
 
-        private void ClientPingReceived(string clientId)
+        private void AgentClientPingReceived(string clientId)
         {
-            //PingReceived?.Invoke(this, clientId);
+            Log(MTConnectLogLevel.Information, "PING Received");
         }
 
-        private void ClientPongSent(string clientId)
+        private void AgentClientPongSent(string clientId)
         {
-            //PongSent?.Invoke(this, clientId);
+            Log(MTConnectLogLevel.Information, "PONG Sent");
         }
 
         #endregion
@@ -225,6 +214,7 @@ namespace MTConnect
 
         #endregion
 
+        #region "Write"
 
         protected bool WriteLine(string line)
         {
@@ -421,5 +411,8 @@ namespace MTConnect
 
             return null;
         }
+
+        #endregion
+
     }
 }

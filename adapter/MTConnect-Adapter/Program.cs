@@ -48,16 +48,16 @@ namespace MTConnect.Applications
 
                 var ts = DateTime.Now;
 
-                app.DataSource.AddObservation("L2X1load", x, ts);
-                app.DataSource.AddObservation("L2Y1load", x, ts);
-                app.DataSource.AddObservation("L2Z1load", x, ts);
+                app.DataSource.AddObservation("Xload", x, ts);
+                app.DataSource.AddObservation("Yload", x, ts);
+                app.DataSource.AddObservation("Zload", x, ts);
 
 
                 var datasetEntries = new List<IDataSetEntry>();
                 datasetEntries.Add(new DataSetEntry("E100", 123.456));
                 datasetEntries.Add(new DataSetEntry("E101", 45));
                 datasetEntries.Add(new DataSetEntry("E102", 78));
-                var dataset = new DataSetObservationInput("L2p1Variables", datasetEntries);
+                var dataset = new DataSetObservationInput("testDataSet", datasetEntries);
                 app.DataSource.AddObservation(dataset);
 
 
@@ -73,7 +73,7 @@ namespace MTConnect.Applications
                 tableCells2.Add(new TableCell("Diameter", 6.500));
                 tableEntries.Add(new TableEntry("T2", tableCells2));
 
-                var table = new TableObservationInput("L2p1ToolTable", tableEntries);
+                var table = new TableObservationInput("testTable", tableEntries);
                 app.DataSource.AddObservation(table);
 
 
@@ -83,7 +83,7 @@ namespace MTConnect.Applications
                 samples.Add(3);
                 samples.Add(4);
                 samples.Add(5);
-                var timeSeries = new TimeSeriesObservationInput("L2p1Sensor", samples, 100);
+                var timeSeries = new TimeSeriesObservationInput("testTimeSeries", samples, 100);
                 app.DataSource.AddObservation(timeSeries);
 
 
