@@ -145,7 +145,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-Applications-
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-SHDR-AdapterModule", "..\adapter\Modules\MTConnect.NET-SHDR-AdapterModule\MTConnect.NET-SHDR-AdapterModule.csproj", "{4464C95D-2D5E-46D2-B2AD-DB250A07C59D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MTConnect.NET-MQTT-AdapterModule", "..\adapter\Modules\MTConnect.NET-MQTT-AdapterModule\MTConnect.NET-MQTT-AdapterModule.csproj", "{0BD4DECA-934F-4316-9AF7-2EB036522B95}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-MQTT-AdapterModule", "..\adapter\Modules\MTConnect.NET-MQTT-AdapterModule\MTConnect.NET-MQTT-AdapterModule.csproj", "{0BD4DECA-934F-4316-9AF7-2EB036522B95}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Clients", "Clients", "{B7D0BB51-FC51-4CB8-B612-2AED2A2233C1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -53,40 +53,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Compile Remove="Configurations\HttpAgentApplicationConfiguration.cs" />
-	  <Compile Remove="Configurations\HttpAgentGatewayApplicationConfiguration.cs" />
-	  <Compile Remove="Configurations\IHttpAgentApplicationConfiguration.cs" />
-	  <Compile Remove="Configurations\IShdrAgentApplicationConfiguration.cs" />
-	  <Compile Remove="Configurations\IShdrHttpAgentApplicationConfiguration.cs" />
-	  <Compile Remove="Configurations\ShdrAgentApplicationConfiguration.cs" />
-	  <Compile Remove="Configurations\ShdrHttpAgentApplicationConfiguration.cs" />
-	  <Compile Remove="MTConnectControllers.cs" />
-	  <Compile Remove="MTConnectDataSources.cs" />
-	  <Compile Remove="MTConnectHttpAgentApplication.cs" />
-	  <Compile Remove="MTConnectHttpAgentGatewayApplication.cs" />
-	  <Compile Remove="MTConnectHttpAgentServer.cs" />
-	  <Compile Remove="MTConnectShdrHttpAgentApplication.cs" />
-	  <Compile Remove="MTConnectShdrHttpAgentServer.cs" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <None Include="Configurations\HttpAgentApplicationConfiguration.cs" />
-	  <None Include="Configurations\HttpAgentGatewayApplicationConfiguration.cs" />
-	  <None Include="Configurations\IHttpAgentApplicationConfiguration.cs" />
-	  <None Include="Configurations\IShdrAgentApplicationConfiguration.cs" />
-	  <None Include="Configurations\IShdrHttpAgentApplicationConfiguration.cs" />
-	  <None Include="Configurations\ShdrAgentApplicationConfiguration.cs" />
-	  <None Include="Configurations\ShdrHttpAgentApplicationConfiguration.cs" />
-	  <None Include="MTConnectControllers.cs" />
-	  <None Include="MTConnectDataSources.cs" />
-	  <None Include="MTConnectHttpAgentApplication.cs" />
-	  <None Include="MTConnectHttpAgentGatewayApplication.cs" />
-	  <None Include="MTConnectHttpAgentServer.cs" />
-	  <None Include="MTConnectShdrHttpAgentApplication.cs" />
-	  <None Include="MTConnectShdrHttpAgentServer.cs" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<PackageReference Include="NLog" Version="5.1.0" />
 	</ItemGroup>
 

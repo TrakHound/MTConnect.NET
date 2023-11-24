@@ -41,16 +41,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Compile Remove="MTConnectAdapterApplication - Copy.cs" />
-	  <Compile Remove="MTConnectAdapterEngine - Copy.cs" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <None Include="MTConnectAdapterApplication - Copy.cs" />
-	  <None Include="MTConnectAdapterEngine - Copy.cs" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<ProjectReference Include="..\..\src\MTConnect.NET-Common\MTConnect.NET-Common.csproj" />
 		<ProjectReference Include="..\..\src\MTConnect.NET-Services\MTConnect.NET-Services.csproj" />
 		<ProjectReference Include="..\Modules\MTConnect.NET-MQTT-AdapterModule\MTConnect.NET-MQTT-AdapterModule.csproj" />
