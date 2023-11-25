@@ -56,5 +56,42 @@ namespace MTConnect.Assets.CuttingTools
 
             return lifeCycle;
         }
+
+        public static string GenerateHash(ICuttingToolLifeCycle cuttingToolLifeCycle)
+        {
+            if (cuttingToolLifeCycle != null)
+            {
+                var ids = new List<string>();
+                ids.Add(ObjectExtensions.GetHashPropertyString(cuttingToolLifeCycle).ToSHA1Hash());
+
+                if (!cuttingToolLifeCycle.CutterStatus.IsNullOrEmpty())
+                {
+                    foreach (var cutterStatus in cuttingToolLifeCycle.CutterStatus)
+                    {
+                        ids.Add(cutterStatus.ToString());
+                    }
+                }
+
+                if (!cuttingToolLifeCycle.CuttingItems.IsNullOrEmpty())
+                {
+                    foreach (var cuttingItem in cuttingToolLifeCycle.CuttingItems)
+                    {
+                        ids.Add(CuttingItem.GenerateHash(cuttingItem));
+                    }
+                }
+
+                if (!cuttingToolLifeCycle.ToolLife.IsNullOrEmpty())
+                {
+                    foreach (var toolLife in cuttingToolLifeCycle.ToolLife)
+                    {
+                        ids.Add(CuttingTools.ToolLife.GenerateHash(toolLife));
+                    }
+                }
+
+                return StringFunctions.ToSHA1Hash(ids.ToArray());
+            }
+
+            return null;
+        }
     }
 }

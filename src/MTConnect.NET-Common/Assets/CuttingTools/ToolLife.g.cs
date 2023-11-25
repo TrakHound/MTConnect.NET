@@ -8,7 +8,7 @@ namespace MTConnect.Assets.CuttingTools
     /// <summary>
     /// Cutting tool life as related to the assembly.
     /// </summary>
-    public class ToolLife : IToolLife
+    public partial class ToolLife : IToolLife
     {
         public const string DescriptionText = "Cutting tool life as related to the assembly.";
 

@@ -133,6 +133,7 @@ namespace MTConnect.SysML.CSharp
                                     break;
                                 case "Assets.CuttingTools.CuttingToolLifeCycle": ((ClassModel)template).IsPartial = true; break;
                                 case "Assets.CuttingTools.CuttingItem": ((ClassModel)template).IsPartial = true; break;
+                                case "Assets.CuttingTools.ToolLife": ((ClassModel)template).IsPartial = true; break;
                                 case "Assets.CuttingTools.Measurement":
                                     ((ClassModel)template).IsPartial = true; 
                                     ((ClassModel)template).IsAbstract = false; 

@@ -6,7 +6,7 @@ namespace MTConnect.Assets.CuttingTools
     /// <summary>
     /// Cutting tool life as related to the assembly.
     /// </summary>
-    public interface IToolLife
+    public partial interface IToolLife
     {
         /// <summary>
         /// Indicates if the tool life counts from zero to maximum or maximum to zero.

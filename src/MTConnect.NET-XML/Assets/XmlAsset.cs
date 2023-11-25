@@ -2,6 +2,7 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Assets.CuttingTools;
+using MTConnect.Devices;
 using MTConnect.Devices.Configurations;
 using MTConnect.Extensions;
 using System;
@@ -146,56 +147,87 @@ namespace MTConnect.Assets.Xml
                 var namespaces = new XmlSerializerNamespaces();
                 namespaces.Add("", "");
 
-                using (var writer = new StringWriter())
+                using (var stream = new MemoryStream())
                 {
-                    var assetType = GetAssetType(asset.Type);
-                    if (assetType != null)
+                    // Set the XmlWriterSettings to use
+                    var xmlWriterSettings = indent ? XmlFunctions.XmlWriterSettingsIndent : XmlFunctions.XmlWriterSettings;
+
+                    // Use XmlWriter to write XML to stream
+                    using (var xmlWriter = XmlWriter.Create(stream, xmlWriterSettings))
                     {
-                        var writeXmlMethod = assetType.GetMethod("WriteXml");
-                        if (writeXmlMethod != null)
+                        var assetType = GetAssetType(asset.Type);
+                        if (assetType != null)
                         {
-                            writeXmlMethod.Invoke(null, new object[] { writer, asset });
+                            var writeXmlMethod = assetType.GetMethod("WriteXml");
+                            if (writeXmlMethod != null)
+                            {
+                                writeXmlMethod.Invoke(null, new object[] { xmlWriter, asset });
+                            }
+                            else
+                            {
+                                // Write Unknown ?
+                            }
                         }
-                        else
-                        {
-                            // Write Unknown ?
-                        }
+
+                        xmlWriter.Flush();
+
+                        var bytes = stream.ToArray();
+                        return Encoding.UTF8.GetString(bytes);
+
+                        //return stream.ToArray();
                     }
-
-                    //XmlSerializer serializer = null;
-                    //lock (_lock)
-                    //{
-                    //    var assetType = GetAssetType(asset.Type);
-                    //    if (assetType != null)
-                    //    {
-                    //        _serializers.TryGetValue(assetType, out serializer);
-                    //        //_serializers.TryGetValue(asset.GetType(), out serializer);
-                    //        if (serializer == null)
-                    //        {
-                    //            serializer = new XmlSerializer(assetType);
-                    //            _serializers.Add(assetType, serializer);
-                    //        }
-                    //    }
-                    //}
-
-                        //if (serializer != null)
-                        //{
-
-
-                        //    //serializer.Serialize(writer, asset, namespaces);
-
-                        //    //var xml = writer.ToString();
-                        //    //var regexPattern = $@"(<{asset.Type}[.\s\S]*(?:(?:<\/{asset.Type}>)|(?:\/>)))";
-                        //    //var regex = new Regex(regexPattern);
-                        //    //var match = regex.Match(xml);
-                        //    //if (match.Success)
-                        //    //{
-                        //    //    xml = Namespaces.Clear(match.Groups[1].Value);
-
-                        //    //    return XmlFunctions.FormatXml(xml, indent, false, true);
-                        //    //}
-                        //}
                 }
+
+                //using (var writer = new StringWriter())
+                //{
+                //    var assetType = GetAssetType(asset.Type);
+                //    if (assetType != null)
+                //    {
+                //        var writeXmlMethod = assetType.GetMethod("WriteXml");
+                //        if (writeXmlMethod != null)
+                //        {
+                //            writeXmlMethod.Invoke(null, new object[] { writer, asset });
+                //        }
+                //        else
+                //        {
+                //            // Write Unknown ?
+                //        }
+                //    }
+
+                //    //XmlSerializer serializer = null;
+                //    //lock (_lock)
+                //    //{
+                //    //    var assetType = GetAssetType(asset.Type);
+                //    //    if (assetType != null)
+                //    //    {
+                //    //        _serializers.TryGetValue(assetType, out serializer);
+                //    //        //_serializers.TryGetValue(asset.GetType(), out serializer);
+                //    //        if (serializer == null)
+                //    //        {
+                //    //            serializer = new XmlSerializer(assetType);
+                //    //            _serializers.Add(assetType, serializer);
+                //    //        }
+                //    //    }
+                //    //}
+
+                //        //if (serializer != null)
+                //        //{
+
+
+                //        //    //serializer.Serialize(writer, asset, namespaces);
+
+                //        //    //var xml = writer.ToString();
+                //        //    //var regexPattern = $@"(<{asset.Type}[.\s\S]*(?:(?:<\/{asset.Type}>)|(?:\/>)))";
+                //        //    //var regex = new Regex(regexPattern);
+                //        //    //var match = regex.Match(xml);
+                //        //    //if (match.Success)
+                //        //    //{
+                //        //    //    xml = Namespaces.Clear(match.Groups[1].Value);
+
+                //        //    //    return XmlFunctions.FormatXml(xml, indent, false, true);
+                //        //    //}
+                //        //}
+                //}
             }
             catch { }
 

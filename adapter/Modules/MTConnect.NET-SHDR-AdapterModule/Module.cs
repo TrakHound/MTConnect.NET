@@ -124,8 +124,16 @@ namespace MTConnect
             return true;
         }
 
-        public override bool AddAssets(IEnumerable<IAsset> assets)
+        public override bool AddAssets(IEnumerable<IAssetInput> assets)
         {
+            foreach (var asset in assets)
+            {
+                var shdrModel = new ShdrAsset(asset.Asset);
+                var shdrLine = shdrModel.ToString();
+                WriteLine(shdrLine);
+                Console.WriteLine(shdrLine);
+            }
+
             return true;
         }
 

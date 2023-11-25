@@ -1,7 +1,9 @@
 ﻿// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
+using MTConnect.Assets;
 using MTConnect.Configurations;
+using MTConnect.Devices;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,6 +23,10 @@ namespace MTConnect.Input
 
 
         public event EventHandler<IObservationInput> ObservationAdded;
+
+        public event EventHandler<IAssetInput> AssetAdded;
+
+        public event EventHandler<IDevice> DeviceAdded;
 
 
         protected virtual void OnStart() { }
@@ -101,6 +107,26 @@ namespace MTConnect.Input
         public void AddObservation(IObservationInput observation)
         {
             if (ObservationAdded != null) ObservationAdded.Invoke(this, observation);
+        }
+
+
+        public void AddAsset(IAsset asset)
+        {
+            if (asset != null)
+            {
+                AddAsset(new AssetInput(asset));
+            }
+        }
+
+        public void AddAsset(IAssetInput asset)
+        {
+            if (AssetAdded != null) AssetAdded.Invoke(this, asset);
+        }
+
+
+        public void AddDevice(IDevice device)
+        {
+            if (DeviceAdded != null) DeviceAdded.Invoke(this, device);
         }
     }
 }

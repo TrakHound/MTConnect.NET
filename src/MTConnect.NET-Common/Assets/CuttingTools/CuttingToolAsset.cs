@@ -66,22 +66,23 @@ namespace MTConnect.Assets.CuttingTools
         }
 
 
-		public override string GenerateHash()
+		public override string GenerateHash(bool includeTimestamp = true)
 		{
-			return GenerateHash(this);
+			return GenerateHash(this, includeTimestamp);
 		}
 
-		public static string GenerateHash(CuttingToolAsset asset)
+		public static string GenerateHash(CuttingToolAsset asset, bool includeTimestamp = true)
 		{
 			if (asset != null)
 			{
 				var ids = new List<string>();
 
-				ids.Add(ObjectExtensions.GetHashPropertyString(asset).ToSHA1Hash());
+                if (includeTimestamp) ids.Add(ObjectExtensions.GetHashPropertyString(asset).ToSHA1Hash());
+                else ids.Add(ObjectExtensions.GetHashPropertyString(asset, new string[] { nameof(Timestamp), nameof(Uuid) }).ToSHA1Hash());
 
-                // Need to include CuttingItems
+                ids.Add(CuttingTools.CuttingToolLifeCycle.GenerateHash(asset.CuttingToolLifeCycle));
 
-				return StringFunctions.ToSHA1Hash(ids.ToArray());
+                return StringFunctions.ToSHA1Hash(ids.ToArray());
 			}
 
 			return null;

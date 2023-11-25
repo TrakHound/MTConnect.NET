@@ -48,7 +48,7 @@ namespace MTConnect.Adapters
             return true;
         }
 
-        public virtual bool AddAssets(IEnumerable<IAsset> assets)
+        public virtual bool AddAssets(IEnumerable<IAssetInput> assets)
         {
             return true;
         }

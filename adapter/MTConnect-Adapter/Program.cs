@@ -3,6 +3,8 @@ using MTConnect.Input;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using MTConnect.Assets.CuttingTools.Measurements;
+using MTConnect.Assets.CuttingTools;
 
 namespace MTConnect.Applications
 {
@@ -41,6 +43,7 @@ namespace MTConnect.Applications
 
             var x = 0;
             var i = 0;
+            var j = 0d;
 
             while (true)
             {
@@ -87,6 +90,10 @@ namespace MTConnect.Applications
                 app.DataSource.AddObservation(timeSeries);
 
 
+                app.DataSource.AddAsset(CuttingTool(j));
+                j += 23.3455;
+
+
                 //switch (i)
                 //{
                 //    case 0:
@@ -115,6 +122,54 @@ namespace MTConnect.Applications
                 if (i > 2) i = 0;
             }
 
+        }
+
+        public static CuttingToolAsset CuttingTool(double toolLifeValue)
+        {
+            var tool = new CuttingToolAsset();
+            tool.SerialNumber = "12345678946";
+            tool.AssetId = "5.12";
+            tool.ToolId = "12";
+
+            var cuttingToolLifeCycle = new CuttingToolLifeCycle
+            {
+                //Location = new Location
+                //{
+                //    Type = LocationType.SPINDLE
+                //},
+                ProgramToolNumber = "12",
+                ProgramToolGroup = "5"
+            };
+
+            var measurements = new List<IMeasurement>();
+            measurements.Add(new FunctionalLengthMeasurement(7.6543));
+            measurements.Add(new CuttingDiameterMaxMeasurement(0.375));
+            cuttingToolLifeCycle.Measurements = measurements;
+
+
+            //tool.CuttingToolLifeCycle.CuttingItems.Add(new CuttingItem
+            //{
+            //    ItemId = "12.1",
+            //    Indices = "1",
+            //});
+
+            var cutterStatuses = new List<CutterStatusType>();
+            cutterStatuses.Add(CutterStatusType.AVAILABLE);
+            cutterStatuses.Add(CutterStatusType.NEW);
+            cutterStatuses.Add(CutterStatusType.MEASURED);
+            cuttingToolLifeCycle.CutterStatus = cutterStatuses;
+
+            var toolLife = new ToolLife();
+            toolLife.Value = toolLifeValue;
+            cuttingToolLifeCycle.ToolLife = new IToolLife[] { toolLife };
+
+            //tool.CuttingToolLifeCycle.ToolLife = new ToolLife();
+
+            tool.CuttingToolLifeCycle = cuttingToolLifeCycle;
+
+            tool.Timestamp = DateTime.Now;
+
+            return tool;
         }
 
 

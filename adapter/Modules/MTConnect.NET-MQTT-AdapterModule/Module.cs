@@ -4,7 +4,6 @@
 using MQTTnet;
 using MQTTnet.Client;
 using MTConnect.Adapters;
-using MTConnect.Assets;
 using MTConnect.Configurations;
 using MTConnect.Devices;
 using MTConnect.Input;
@@ -180,7 +179,7 @@ namespace MTConnect
             return true;
         }
 
-        public override bool AddAssets(IEnumerable<IAsset> assets)
+        public override bool AddAssets(IEnumerable<IAssetInput> assets)
         {
             return true;
         }

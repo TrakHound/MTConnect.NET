@@ -106,7 +106,6 @@
 		<PackageReference Include="System.Text.Json" Version="6.0.1" />
 	</ItemGroup>
 	<ItemGroup>
-	  <Compile Remove="Adapters\IMTConnectAdapterPipeline.cs" />
 	  <Compile Remove="Adapters\MTConnectIntervalAdapter.cs" />
 	  <Compile Remove="Adapters\MTConnectIntervalQueueAdapter.cs" />
 	  <Compile Remove="Adapters\MTConnectQueueAdapter.cs" />
@@ -114,7 +113,6 @@
 	  <Compile Remove="Buffers\MTConnectDeviceBuffer.cs" />
 	</ItemGroup>
 	<ItemGroup>
-	  <None Include="Adapters\IMTConnectAdapterPipeline.cs" />
 	  <None Include="Adapters\MTConnectIntervalAdapter.cs" />
 	  <None Include="Adapters\MTConnectIntervalQueueAdapter.cs" />
 	  <None Include="Adapters\MTConnectQueueAdapter.cs" />

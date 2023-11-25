@@ -1,6 +1,7 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
+using System;
 using System.Collections.Generic;
 
 namespace MTConnect.Assets.CuttingTools
@@ -39,6 +40,18 @@ namespace MTConnect.Assets.CuttingTools
             }
 
             return cuttingItem;
+        }
+
+        public static string GenerateHash(ICuttingItem cuttingItem)
+        {
+            if (cuttingItem != null)
+            {
+                var ids = new List<string>();
+                ids.Add(ObjectExtensions.GetHashPropertyString(cuttingItem).ToSHA1Hash());
+                return StringFunctions.ToSHA1Hash(ids.ToArray());
+            }
+
+            return null;
         }
     }
 }

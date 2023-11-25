@@ -2,6 +2,7 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -123,7 +124,7 @@ namespace MTConnect
             return 0;
         }
 
-        public static string[] GetHashPropertyList(object obj)
+        public static string[] GetHashPropertyList(object obj, IEnumerable<string> ignorePropertyNames = null)
         {
             if (obj != null)
             {
@@ -136,14 +137,17 @@ namespace MTConnect
                     {
                         var name = properties[i].Name;
 
-                        if (name != "Hash" && properties[i].MemberType == MemberTypes.Property)
+                        if (ignorePropertyNames == null || !ignorePropertyNames.Contains(name))
                         {
-                            var type = properties[i].PropertyType;
-                            if (type.IsValueType || type == typeof(string) || type == typeof(DateTime))
+                            if (name != "Hash" && properties[i].MemberType == MemberTypes.Property)
                             {
-                                var value = properties[i].GetValue(obj);
+                                var type = properties[i].PropertyType;
+                                if (type.IsValueType || type == typeof(string) || type == typeof(DateTime))
+                                {
+                                    var value = properties[i].GetValue(obj);
 
-                                items[i] = $"{name}:{value}";
+                                    items[i] = $"{name}:{value}";
+                                }
                             }
                         }
                     }
@@ -155,11 +159,11 @@ namespace MTConnect
             return null;
         }
 
-        public static string GetHashPropertyString(object obj)
+        public static string GetHashPropertyString(object obj, IEnumerable<string> ignorePropertyNames = null)
         {
             var s = "";
 
-            var items = GetHashPropertyList(obj);
+            var items = GetHashPropertyList(obj, ignorePropertyNames);
             if (!items.IsNullOrEmpty())
             {
                 foreach (var item in items)

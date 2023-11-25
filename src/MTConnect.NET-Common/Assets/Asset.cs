@@ -141,7 +141,7 @@ namespace MTConnect.Assets
             return new AssetValidationResult(true);
         }
 
-        public virtual string GenerateHash()
+        public virtual string GenerateHash(bool includeTimestamp = true)
         {
 			return null;
         }

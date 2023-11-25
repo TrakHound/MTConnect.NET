@@ -1,7 +1,9 @@
 ﻿// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
+using MTConnect.Assets;
 using MTConnect.Configurations;
+using MTConnect.Devices;
 using System;
 
 namespace MTConnect.Input
@@ -16,6 +18,10 @@ namespace MTConnect.Input
 
         event EventHandler<IObservationInput> ObservationAdded;
 
+        event EventHandler<IAssetInput> AssetAdded;
+
+        event EventHandler<IDevice> DeviceAdded;
+
 
         void Start();
 
@@ -29,5 +35,11 @@ namespace MTConnect.Input
         void AddObservation(string dataItemKey, object resultValue, DateTime? timestamp);
 
         void AddObservation(IObservationInput observation);
+
+
+        void AddAsset(IAsset asset);
+
+
+        void AddDevice(IDevice device);
     }
 }

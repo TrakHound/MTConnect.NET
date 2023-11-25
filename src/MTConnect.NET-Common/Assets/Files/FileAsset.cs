@@ -66,18 +66,19 @@ namespace MTConnect.Assets.Files
             return new AssetValidationResult(result, message);
         }
 
-        public override string GenerateHash()
+        public override string GenerateHash(bool includeTimestamp = true)
         {
             return GenerateHash(this);
         }
 
-        public static string GenerateHash(FileAsset asset)
+        public static string GenerateHash(FileAsset asset, bool includeTimestamp = true)
         {
             if (asset != null)
             {
                 var ids = new List<string>();
 
-                ids.Add(ObjectExtensions.GetHashPropertyString(asset).ToSHA1Hash());
+                if (includeTimestamp) ids.Add(ObjectExtensions.GetHashPropertyString(asset).ToSHA1Hash());
+                else ids.Add(ObjectExtensions.GetHashPropertyString(asset, new string[] { nameof(Timestamp) }).ToSHA1Hash());
 
                 // Need to include CuttingItems
 

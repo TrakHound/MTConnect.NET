@@ -3,6 +3,7 @@
 
 using MTConnect.Input;
 using System;
+using System.Collections.Generic;
 
 namespace MTConnect.Adapters
 {
@@ -83,5 +84,26 @@ namespace MTConnect.Adapters
         bool SendObservation(string dataItemId, object value, long timestamp);
 
         bool SendObservation(IObservationInput observation);
+
+
+        /// <summary>
+        /// Add the specified MTConnect Asset
+        /// </summary>
+        /// <param name="asset">The Asset to add</param>
+        void AddAsset(IAssetInput asset);
+
+        /// <summary>
+        /// Remove the specified Asset using the SHDR command @REMOVE_ASSET@
+        /// </summary>
+        /// <param name="assetId">The AssetId of the Asset to remove</param>
+        /// <param name="timestamp">The timestamp to send as part of the SHDR command</param>
+        void RemoveAsset(string assetId, long timestamp = 0);
+
+        /// <summary>
+        /// Remove all Assets of the specified Type using the SHDR command @REMOVE_ALL_ASSETS@
+        /// </summary>
+        /// <param name="assetType">The Type of the Assets to remove</param>
+        /// <param name="timestamp">The timestamp to send as part of the SHDR command</param>
+        void RemoveAllAssets(string assetType, long timestamp = 0);
     }
 }

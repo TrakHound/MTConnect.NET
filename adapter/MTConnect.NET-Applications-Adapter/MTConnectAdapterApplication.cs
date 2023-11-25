@@ -60,6 +60,7 @@ namespace MTConnect.Applications
             if (_dataSource != null)
             {
                 _dataSource.ObservationAdded += DataSourceObservationAdded;
+                _dataSource.AssetAdded += DataSourceAssetAdded;
             }
 
             ServiceLabel = DefaultServiceLabel;
@@ -292,6 +293,8 @@ namespace MTConnect.Applications
                 {
                     var adapter = new MTConnectAdapter(configuration.WriteInterval, configuration.EnableBuffer);
                     adapter.WriteObservationsFunction = module.AddObservations;
+                    adapter.WriteAssetsFunction = module.AddAssets;
+                    adapter.WriteDevicesFunction = module.AddDevices;
                     adapter.Start();
 
                     _adapters.Remove(module.Id);
@@ -475,8 +478,21 @@ namespace MTConnect.Applications
             {
                 foreach (var adapter in adapters)
                 {
-                    //adapter.Value.SendObservation(observation);
                     adapter.Value.AddObservation(observation);
+                }
+            }
+        }
+
+        private void DataSourceAssetAdded(object sender, IAssetInput asset)
+        {
+            Dictionary<string, IMTConnectAdapter> adapters;
+            lock (_lock) adapters = _adapters;
+
+            if (!adapters.IsNullOrEmpty())
+            {
+                foreach (var adapter in adapters)
+                {
+                    adapter.Value.AddAsset(asset);
                 }
             }
         }

@@ -28,7 +28,7 @@ namespace MTConnect.Adapters
 
         bool AddObservations(IEnumerable<IObservationInput> observations);
 
-        bool AddAssets(IEnumerable<IAsset> assets);
+        bool AddAssets(IEnumerable<IAssetInput> assets);
 
         bool AddDevices(IEnumerable<IDevice> devices);
     }
