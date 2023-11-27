@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\MTConnect.NET-Common\MTConnect.NET-Common.csproj" />
+    <ProjectReference Include="..\..\libraries\MTConnect.NET-Common\MTConnect.NET-Common.csproj" />
   </ItemGroup>
 
 </Project>

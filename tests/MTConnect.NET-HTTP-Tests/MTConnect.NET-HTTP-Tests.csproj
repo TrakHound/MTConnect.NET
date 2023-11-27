@@ -16,8 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\MTConnect.NET-HTTP\MTConnect.NET-HTTP.csproj" />
-    <ProjectReference Include="..\MTConnect.NET-Tests-Agents\MTConnect.NET-Tests-Agents.csproj" />
+    <ProjectReference Include="..\..\libraries\MTConnect.NET-HTTP\MTConnect.NET-HTTP.csproj" />
   </ItemGroup>
 
 </Project>

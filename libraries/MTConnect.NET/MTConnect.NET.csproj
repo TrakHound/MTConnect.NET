@@ -4,9 +4,7 @@
 		<TargetFrameworks>net6.0</TargetFrameworks>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)'=='Release'">
-		<TargetFrameworks>net461;net462;net47;net471;net472;net48;netstandard2.0;netcoreapp3.1;net5.0;net6.0;net7.0</TargetFrameworks>
-		<DebugSymbols>false</DebugSymbols>
-		<DebugType>None</DebugType>
+		<TargetFrameworks>net461;net462;net47;net471;net472;net48;netstandard2.0;netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
 		<Optimize>true</Optimize>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)'=='Package'">
@@ -23,11 +21,12 @@
 		<Copyright>Copyright (c) 2023 TrakHound Inc., All Rights Reserved.</Copyright>
 		<RepositoryUrl>https://github.com/TrakHound/MTConnect.NET</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
-		<Description>MTConnect.NET-Applications-Adapter contains classes to fully implement an MTConnect SHDR Adapter application.  Supports MTConnect Versions up to 2.1. Supports .NET Framework 4.6.1 up to .NET 7</Description>
+		<Description>MTConnect.NET is a fully featured .NET library for MTConnect Agents, Adapters, and Clients. Supports MTConnect Versions up to 2.1. Supports .NET Framework 4.6.1 up to .NET 7</Description>
 		<PackageProjectUrl>https://www.TrakHound.com</PackageProjectUrl>
 		<PackageTags>mtconnect;iiot;iot;cnc;</PackageTags>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageIconUrl>https://static.trakhound.com/mtconnect-net-nuget.png</PackageIconUrl>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 
 		<!-- Optional: Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
@@ -40,27 +39,39 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 	</PropertyGroup>
 
-	<ItemGroup>
-		<PackageReference Include="NLog" Version="5.1.0" />
+	<ItemGroup Condition="'$(Configuration)'=='Debug'">
+		<Compile Include="..\..\build\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <ProjectReference Include="..\..\libraries\MTConnect.NET-Common\MTConnect.NET-Common.csproj" />
-	  <ProjectReference Include="..\..\libraries\MTConnect.NET-Services\MTConnect.NET-Services.csproj" />
-	  <ProjectReference Include="..\Modules\MTConnect.NET-MQTT-AdapterModule\MTConnect.NET-MQTT-AdapterModule.csproj" />
-	  <ProjectReference Include="..\Modules\MTConnect.NET-SHDR-AdapterModule\MTConnect.NET-SHDR-AdapterModule.csproj" />
+	<ItemGroup Condition="'$(Configuration)'=='Release'">
+		<Compile Include="..\..\build\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
 	</ItemGroup>
 
-	<ItemGroup>
-		<Compile Update="Service.cs">
-			<SubType>Component</SubType>
-		</Compile>
-	</ItemGroup>
+	<PropertyGroup Condition="'$(Configuration)'=='Package'">
+		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+	</PropertyGroup>
 
 	<ItemGroup>
-		<None Update="NLog.config">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		<None Include="..\..\README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
 		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\MTConnect.NET-Common\MTConnect.NET-Common.csproj" />
+		<ProjectReference Include="..\MTConnect.NET-HTTP\MTConnect.NET-HTTP.csproj" />
+		<ProjectReference Include="..\MTConnect.NET-JSON\MTConnect.NET-JSON.csproj" />
+		<ProjectReference Include="..\MTConnect.NET-Services\MTConnect.NET-Services.csproj" />
+		<ProjectReference Include="..\MTConnect.NET-SHDR\MTConnect.NET-SHDR.csproj" />
+		<ProjectReference Include="..\MTConnect.NET-XML\MTConnect.NET-XML.csproj" />
 	</ItemGroup>
 
 </Project>

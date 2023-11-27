@@ -23,7 +23,7 @@
 		<Copyright>Copyright (c) 2023 TrakHound Inc., All Rights Reserved.</Copyright>
 		<RepositoryUrl>https://github.com/TrakHound/MTConnect.NET</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
-		<Description>MTConnect.NET-Applications-Adapter contains classes to fully implement an MTConnect SHDR Adapter application.  Supports MTConnect Versions up to 2.1. Supports .NET Framework 4.6.1 up to .NET 7</Description>
+		<Description>MTConnect.NET-Applications-Agents contains classes to fully implement an MTConnect Agent application. Supports MTConnect Versions up to 2.1. Supports .NET Framework 4.6.1 up to .NET 7</Description>
 		<PackageProjectUrl>https://www.TrakHound.com</PackageProjectUrl>
 		<PackageTags>mtconnect;iiot;iot;cnc;</PackageTags>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -40,27 +40,49 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 	</PropertyGroup>
 
+	<ItemGroup Condition="'$(Configuration)'=='Debug'">
+		<Compile Include="..\..\build\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(Configuration)'=='Release'">
+		<Compile Include="..\..\build\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
+	</ItemGroup>
+
+	<PropertyGroup Condition="'$(Configuration)'=='Package'">
+		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+	</PropertyGroup>
+
 	<ItemGroup>
 		<PackageReference Include="NLog" Version="5.1.0" />
 	</ItemGroup>
 
 	<ItemGroup>
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
 	  <ProjectReference Include="..\..\libraries\MTConnect.NET-Common\MTConnect.NET-Common.csproj" />
+	  <ProjectReference Include="..\..\libraries\MTConnect.NET-JSON-cppagent\MTConnect.NET-JSON-cppagent.csproj" />
+	  <ProjectReference Include="..\..\libraries\MTConnect.NET-JSON\MTConnect.NET-JSON.csproj" />
 	  <ProjectReference Include="..\..\libraries\MTConnect.NET-Services\MTConnect.NET-Services.csproj" />
-	  <ProjectReference Include="..\Modules\MTConnect.NET-MQTT-AdapterModule\MTConnect.NET-MQTT-AdapterModule.csproj" />
-	  <ProjectReference Include="..\Modules\MTConnect.NET-SHDR-AdapterModule\MTConnect.NET-SHDR-AdapterModule.csproj" />
+	  <ProjectReference Include="..\..\libraries\MTConnect.NET-XML\MTConnect.NET-XML.csproj" />
+	  <ProjectReference Include="..\Modules\MTConnect.NET-HttpAdapter-AgentModule\MTConnect.NET-HttpAdapter-AgentModule.csproj" />
+	  <ProjectReference Include="..\Modules\MTConnect.NET-HttpServer-AgentModule\MTConnect.NET-HttpServer-AgentModule.csproj" />
+	  <ProjectReference Include="..\Modules\MTConnect.NET-ShdrAdapter-AgentModule\MTConnect.NET-ShdrAdapter-AgentModule.csproj" />
+	  <ProjectReference Include="..\Processors\MTConnect.NET-Python-Processor\MTConnect.NET-Python-Processor.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<Compile Update="Service.cs">
-			<SubType>Component</SubType>
-		</Compile>
+		<Compile Update="Service.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Update="NLog.config">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</None>
+	  <None Update="NLog.config">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
 	</ItemGroup>
 
 </Project>

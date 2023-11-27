@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup Condition="'$(Configuration)'=='Debug'">
 		<TargetFrameworks>net6.0</TargetFrameworks>
@@ -23,11 +23,12 @@
 		<Copyright>Copyright (c) 2023 TrakHound Inc., All Rights Reserved.</Copyright>
 		<RepositoryUrl>https://github.com/TrakHound/MTConnect.NET</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
-		<Description>MTConnect.NET-Applications-Adapter contains classes to fully implement an MTConnect SHDR Adapter application.  Supports MTConnect Versions up to 2.1. Supports .NET Framework 4.6.1 up to .NET 7</Description>
+		<Description>MTConnect.NET-HTTP implements the TLS protocol for use with the MTConnect.NET library. Supports MTConnect Versions up to 2.1. Supports .NET Framework 4.6.1 up to .NET 7</Description>
 		<PackageProjectUrl>https://www.TrakHound.com</PackageProjectUrl>
 		<PackageTags>mtconnect;iiot;iot;cnc;</PackageTags>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageIconUrl>https://static.trakhound.com/mtconnect-net-nuget.png</PackageIconUrl>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 
 		<!-- Optional: Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
@@ -40,27 +41,20 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 	</PropertyGroup>
 
-	<ItemGroup>
-		<PackageReference Include="NLog" Version="5.1.0" />
+	<ItemGroup Condition="'$(Configuration)'=='Debug'">
+		<Compile Include="..\..\build\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <ProjectReference Include="..\..\libraries\MTConnect.NET-Common\MTConnect.NET-Common.csproj" />
-	  <ProjectReference Include="..\..\libraries\MTConnect.NET-Services\MTConnect.NET-Services.csproj" />
-	  <ProjectReference Include="..\Modules\MTConnect.NET-MQTT-AdapterModule\MTConnect.NET-MQTT-AdapterModule.csproj" />
-	  <ProjectReference Include="..\Modules\MTConnect.NET-SHDR-AdapterModule\MTConnect.NET-SHDR-AdapterModule.csproj" />
+	<ItemGroup Condition="'$(Configuration)'=='Release'">
+		<Compile Include="..\..\build\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
 	</ItemGroup>
 
-	<ItemGroup>
-		<Compile Update="Service.cs">
-			<SubType>Component</SubType>
-		</Compile>
-	</ItemGroup>
+	<PropertyGroup Condition="'$(Configuration)'=='Package'">
+		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+	</PropertyGroup>
 
-	<ItemGroup>
-		<None Update="NLog.config">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</None>
-	</ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MTConnect.NET-Common\MTConnect.NET-Common.csproj" />
+  </ItemGroup>
 
 </Project>

@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\MTConnect.NET-XML\MTConnect.NET-XML.csproj" />
+    <ProjectReference Include="..\..\libraries\MTConnect.NET-XML\MTConnect.NET-XML.csproj" />
   </ItemGroup>
 
   <ItemGroup>

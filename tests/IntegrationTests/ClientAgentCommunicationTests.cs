@@ -8,19 +8,20 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using Microsoft.Extensions.Logging;
 using MTConnect;
-using MTConnect.Adapters.Shdr;
+using MTConnect.Adapters;
 using MTConnect.Agents;
 using MTConnect.Configurations;
 using MTConnect.Clients;
 using MTConnect.Devices;
 using MTConnect.Errors;
 using MTConnect.Servers.Http;
-using MTConnect.Observations.Samples.Values;
+using MTConnect.Observations;
 using MTConnect.Shdr;
 using MTConnect.Streams;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
+using MTConnect.Assets.CuttingTools;
 
 namespace IntegrationTests
 {
@@ -159,17 +160,30 @@ namespace IntegrationTests
                     ProgramToolGroup = "5"
                 }
             };
-            tool.CuttingToolLifeCycle.Measurements.Add(new MTConnect.Assets.CuttingTools.Measurements.FunctionalLengthMeasurement(7.6543));
-            tool.CuttingToolLifeCycle.Measurements.Add(new MTConnect.Assets.CuttingTools.Measurements.CuttingDiameterMaxMeasurement(0.375));
-            tool.CuttingToolLifeCycle.CuttingItems.Add(new MTConnect.Assets.CuttingTools.CuttingItem
+
+            var cuttingToolLifeCycle = new CuttingToolLifeCycle();
+
+            var measurements = new List<IMeasurement>();
+            measurements.Add(new MTConnect.Assets.CuttingTools.Measurements.FunctionalLengthMeasurement(7.6543));
+            measurements.Add(new MTConnect.Assets.CuttingTools.Measurements.CuttingDiameterMaxMeasurement(0.375));
+            cuttingToolLifeCycle.Measurements = measurements;
+
+            var cuttingItems = new List<ICuttingItem>();
+            cuttingItems.Add(new CuttingItem
             {
                 ItemId = "12.1",
-                Locus = MTConnect.Assets.CuttingTools.CuttingItemLocas.FLUTE.ToString()
+                //Locus = MTConnect.Assets.CuttingTools..FLUTE.ToString()
             });
-            tool.CuttingToolLifeCycle.CutterStatus.Add(MTConnect.Assets.CuttingTools.CutterStatus.AVAILABLE);
-            tool.CuttingToolLifeCycle.CutterStatus.Add(MTConnect.Assets.CuttingTools.CutterStatus.NEW);
-            tool.CuttingToolLifeCycle.CutterStatus.Add(MTConnect.Assets.CuttingTools.CutterStatus.MEASURED);
-            tool.Timestamp = UnixDateTime.Now;
+            cuttingToolLifeCycle.CuttingItems = cuttingItems;
+
+            var cutterStatus = new List<CutterStatusType>();
+            cutterStatus.Add(CutterStatusType.AVAILABLE);
+            cutterStatus.Add(CutterStatusType.NEW);
+            cutterStatus.Add(CutterStatusType.MEASURED);
+            cuttingToolLifeCycle.CutterStatus = cutterStatus;
+
+            tool.CuttingToolLifeCycle = cuttingToolLifeCycle;
+            tool.Timestamp = DateTime.Now;
 
             _adapter.SendAsset(tool);
         }
@@ -371,7 +385,8 @@ namespace IntegrationTests
             // Otherwise the added dataitem will be contained in the Current response instead of the Sample response
             await Task.Delay(1000);
 
-            _adapter.AddDataItem(new ShdrDataItem("servotemp1", new TemperatureValue(120)));
+            _adapter.AddDataItem(new ShdrDataItem("servotemp1", 120));
+            //_adapter.AddDataItem(new ShdrDataItem("servotemp1", new TemperatureValue(120)));
             
             Assert.True(observationEvt.WaitOne(c_maxWaitTimeout));
         }

@@ -9,11 +9,11 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\src\MTConnect.NET-SysML\MTConnect.NET-SysML.csproj" />
+		<PackageReference Include="Scriban" Version="5.9.0" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Scriban" Version="5.9.0" />
+	  <ProjectReference Include="..\..\libraries\MTConnect.NET-SysML\MTConnect.NET-SysML.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

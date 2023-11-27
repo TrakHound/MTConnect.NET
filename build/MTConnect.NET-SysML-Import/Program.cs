@@ -11,13 +11,13 @@ var xmlPath = @"D:\TrakHound\MTConnect\MTConnectSysMLModel.xml";
 var mtconnectModel = MTConnectModel.Parse(xmlPath);
 
 
-var jsonOptions = new JsonSerializerOptions();
-jsonOptions.WriteIndented = true;
-jsonOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault;
-jsonOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+//var jsonOptions = new JsonSerializerOptions();
+//jsonOptions.WriteIndented = true;
+//jsonOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault;
+//jsonOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
 
-var json = JsonSerializer.Serialize(mtconnectModel, options: jsonOptions);
-await File.WriteAllTextAsync(@"C:\temp\mtconnect-model.json", json);
+//var json = JsonSerializer.Serialize(mtconnectModel, options: jsonOptions);
+//await File.WriteAllTextAsync(@"C:\temp\mtconnect-model.json", json);
 
 
 RenderCommonClasses();
@@ -28,21 +28,21 @@ RenderXmlComponents();
 
 void RenderCommonClasses()
 {
-    var outputPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../../../src/MTConnect.NET-Common");
+    var outputPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../../../libraries/MTConnect.NET-Common");
 
     CSharpTemplateRenderer.Render(mtconnectModel, outputPath);
 }
 
 void RenderJsonComponents()
 {
-    var outputPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../../../src/MTConnect.NET-JSON-cppagent");
+    var outputPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../../../libraries/MTConnect.NET-JSON-cppagent");
 
     JsonCppAgentTemplateRenderer.Render(mtconnectModel, outputPath);
 }
 
 void RenderXmlComponents()
 {
-    var outputPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../../../src/MTConnect.NET-XML");
+    var outputPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../../../libraries/MTConnect.NET-XML");
 
     XmlTemplateRenderer.Render(mtconnectModel, outputPath);
 }
