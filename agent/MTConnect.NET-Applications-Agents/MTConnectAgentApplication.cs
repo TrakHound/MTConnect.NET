@@ -577,7 +577,7 @@ namespace MTConnect.Applications
 
         private void PrintHelp()
         {
-            var assembly = Assembly.GetExecutingAssembly();
+            var assembly = Assembly.GetEntryAssembly();
             var name = assembly.GetName().Name.ToLower();
 
             Console.WriteLine();

@@ -2,7 +2,6 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Adapters;
-using MTConnect.Assets;
 using MTConnect.Configurations;
 using MTConnect.Devices;
 using MTConnect.Input;
@@ -67,7 +66,18 @@ namespace MTConnect
                 Console.WriteLine(shdrLine);
             }
 
+            // Messages
             var messages = observations.Where(o => ShdrObservation.GetObservationType(o) == ShdrObservationType.Message);
+            if (!messages.IsNullOrEmpty())
+            {
+                foreach (var x in messages)
+                {
+                    var shdrModel = new ShdrMessage(x);
+                    var shdrLine = shdrModel.ToString();
+                    WriteLine(shdrLine);
+                    Console.WriteLine(shdrLine);
+                }
+            }
 
             // Conditions
             var conditions = observations.Where(o => ShdrObservation.GetObservationType(o) == ShdrObservationType.Condition);

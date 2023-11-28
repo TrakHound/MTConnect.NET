@@ -95,7 +95,7 @@ namespace MTConnect.Shdr
             Timestamp = timestamp.ToUnixTime();
         }
 
-        public ShdrMessage(ObservationInput observation)
+        public ShdrMessage(IObservationInput observation)
         {
             if (observation != null)
             {
