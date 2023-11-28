@@ -4,13 +4,13 @@
 		<TargetFrameworks>net8.0</TargetFrameworks>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)'=='Release'">
-		<TargetFrameworks>net461;net462;net47;net471;net472;net48;netstandard2.0;netcoreapp3.1;net5.0;net6.0;net7.0</TargetFrameworks>
+		<TargetFrameworks>net461;net462;net47;net471;net472;net48;netstandard2.0;netcoreapp3.1;net5.0;net6.0;net7.0;net8.0</TargetFrameworks>
 		<DebugSymbols>false</DebugSymbols>
 		<DebugType>None</DebugType>
 		<Optimize>true</Optimize>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)'=='Package'">
-		<TargetFrameworks>net461;net462;net47;net471;net472;net48;netstandard2.0;netcoreapp3.1;net5.0;net6.0;net7.0</TargetFrameworks>
+		<TargetFrameworks>net461;net462;net47;net471;net472;net48;netstandard2.0;netcoreapp3.1;net5.0;net6.0;net7.0;net8.0</TargetFrameworks>
 		<Optimize>true</Optimize>
 	</PropertyGroup>
 
@@ -55,9 +55,9 @@
 
 	<ItemGroup>
 	  <Compile Remove="Adapters\ShdrAdapter - Copy.cs" />
-	  <Compile Remove="Adapters\ShdrIntervalAdapter.cs" />
-	  <Compile Remove="Adapters\ShdrIntervalQueueAdapter.cs" />
-	  <Compile Remove="Adapters\ShdrQueueAdapter.cs" />
+	  <Compile Remove="Adapters\ShdrIntervalAdapter - Copy.cs" />
+	  <Compile Remove="Adapters\ShdrIntervalQueueAdapter - Copy.cs" />
+	  <Compile Remove="Adapters\ShdrQueueAdapter - Copy.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -74,9 +74,9 @@
 
 	<ItemGroup>
 	  <None Include="Adapters\ShdrAdapter - Copy.cs" />
-	  <None Include="Adapters\ShdrIntervalAdapter.cs" />
-	  <None Include="Adapters\ShdrIntervalQueueAdapter.cs" />
-	  <None Include="Adapters\ShdrQueueAdapter.cs" />
+	  <None Include="Adapters\ShdrIntervalAdapter - Copy.cs" />
+	  <None Include="Adapters\ShdrIntervalQueueAdapter - Copy.cs" />
+	  <None Include="Adapters\ShdrQueueAdapter - Copy.cs" />
 	  <None Include="README.md">
 	    <Pack>True</Pack>
 	    <PackagePath>\</PackagePath>

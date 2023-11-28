@@ -88,10 +88,7 @@ namespace IntegrationTests
                 devicesFile,
                 _logger);
 
-            _adapter = new ShdrIntervalAdapter(_machineName, _fixture.CurrentAdapterPort, 2000)
-            {
-                Interval = 100
-            };
+            _adapter = new ShdrIntervalAdapter(_machineName, _fixture.CurrentAdapterPort, 2000, 100);
             _adapter.Start();
 
             AddCuttingTools();
