@@ -34,6 +34,7 @@ namespace MTConnect.Input
         protected virtual void OnStop() { }
 
         protected virtual void OnRead() { }
+
         protected virtual Task OnReadAsync() { return Task.CompletedTask; }
 
 

@@ -244,46 +244,6 @@ namespace MTConnect.Applications
         {
             if (!_started && configuration != null)
             {
-                //// Create MTConnectAgentBroker
-                //if (configuration.EnableBuffer)
-                //{
-                //    _adapter = new ShdrIntervalQueueAdapter(configuration.DeviceKey, configuration.Port, configuration.Heartbeat, configuration.WriteInterval);
-                //}
-                //else
-                //{
-                //    _adapter = new ShdrIntervalAdapter(configuration.DeviceKey, configuration.Port, configuration.Heartbeat, configuration.WriteInterval);
-                //}
-
-                //_adapter.Timeout = configuration.Timeout;
-                //_adapter.MultilineAssets = configuration.MultilineAssets;
-                //_adapter.MultilineDevices = configuration.MultilineDevices;
-                //_adapter.FilterDuplicates = configuration.FilterDuplicates;
-                //_adapter.OutputTimestamps = configuration.OutputTimestamps;
-
-                //if (!string.IsNullOrEmpty(_adapter.DeviceKey))
-                //{
-                //    _adapterLogger.Info($"[Adapter] : Listening on TCP Port {_adapter.Port} for Device ({_adapter.DeviceKey})...");
-                //}
-                //else
-                //{
-                //    _adapterLogger.Info($"[Adapter] : Listening on TCP Port {_adapter.Port}...");
-                //}
-
-                //if (verboseLogging)
-                //{
-                //    _adapter.AgentConnected += AgentConnected;
-                //    _adapter.AgentDisconnected += AgentDisconnected;
-                //    _adapter.AgentConnectionError += AgentConnectionError;
-                //    _adapter.LineSent += LineSent;
-                //    _adapter.PingReceived += PingReceived;
-                //    _adapter.PongSent += PongSent;
-                //    _adapter.SendError += SendError;
-                //}
-
-                // Set Engine Adapter
-                //if (_engine != null) _engine.Adapter = _adapter;
-
-
                 // Initialize Agent Modules
                 _modules = new MTConnectAdapterModules(configuration);
                 _modules.ModuleLoaded += ModuleLoaded;
@@ -307,8 +267,7 @@ namespace MTConnect.Applications
 
                 OnStartAdapter();
 
-                // Start Adapter
-                //_adapter.Start();
+                // Start DataSource
                 _dataSource.Configuration = configuration;
                 _dataSource.Start();
 
