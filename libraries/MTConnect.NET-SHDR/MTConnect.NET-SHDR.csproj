@@ -54,13 +54,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Compile Remove="Adapters\ShdrAdapter - Copy.cs" />
-	  <Compile Remove="Adapters\ShdrIntervalAdapter - Copy.cs" />
-	  <Compile Remove="Adapters\ShdrIntervalQueueAdapter - Copy.cs" />
-	  <Compile Remove="Adapters\ShdrQueueAdapter - Copy.cs" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<ProjectReference Include="..\MTConnect.NET-HTTP\MTConnect.NET-HTTP.csproj" />
 		<ProjectReference Include="..\MTConnect.NET-XML\MTConnect.NET-XML.csproj" />
 	</ItemGroup>
@@ -73,10 +66,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Include="Adapters\ShdrAdapter - Copy.cs" />
-	  <None Include="Adapters\ShdrIntervalAdapter - Copy.cs" />
-	  <None Include="Adapters\ShdrIntervalQueueAdapter - Copy.cs" />
-	  <None Include="Adapters\ShdrQueueAdapter - Copy.cs" />
 	  <None Include="README.md">
 	    <Pack>True</Pack>
 	    <PackagePath>\</PackagePath>

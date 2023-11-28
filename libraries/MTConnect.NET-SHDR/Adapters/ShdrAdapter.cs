@@ -209,6 +209,69 @@ namespace MTConnect.Adapters
             }
         }
 
+        protected ShdrAdapter(int port = 7878, int heartbeat = 10000, int? interval = null, bool bufferEnabled = false)
+        {
+            FilterDuplicates = true;
+            OutputTimestamps = true;
+            Port = port;
+            Heartbeat = heartbeat;
+            Timeout = 5000;
+
+            var adapter = new MTConnectAdapter(interval, bufferEnabled);
+            adapter.WriteObservationsFunction = WriteDataItems;
+            _adapter = adapter;
+
+            _connectionListener = new AgentClientConnectionListener(Port, heartbeat);
+            _connectionListener.ClientConnected += ClientConnected;
+            _connectionListener.ClientDisconnected += ClientDisconnected;
+            _connectionListener.ClientPingReceived += ClientPingReceived;
+            _connectionListener.ClientPongSent += ClientPongSent;
+        }
+
+        protected ShdrAdapter(string deviceKey, int port = 7878, int heartbeat = 10000, int? interval = null, bool bufferEnabled = false)
+        {
+            FilterDuplicates = true;
+            OutputTimestamps = true;
+            DeviceKey = deviceKey;
+            Port = port;
+            Heartbeat = heartbeat;
+            Timeout = 5000;
+
+            var adapter = new MTConnectAdapter(interval, bufferEnabled);
+            adapter.WriteObservationsFunction = WriteDataItems;
+            _adapter = adapter;
+
+            _connectionListener = new AgentClientConnectionListener(Port, heartbeat);
+            _connectionListener.ClientConnected += ClientConnected;
+            _connectionListener.ClientDisconnected += ClientDisconnected;
+            _connectionListener.ClientPingReceived += ClientPingReceived;
+            _connectionListener.ClientPongSent += ClientPongSent;
+        }
+
+        protected ShdrAdapter(ShdrAdapterClientConfiguration configuration, int? interval = null, bool bufferEnabled = false)
+        {
+            FilterDuplicates = true;
+            OutputTimestamps = true;
+
+            if (configuration != null)
+            {
+                DeviceKey = configuration.DeviceKey;
+                Port = configuration.Port;
+                Heartbeat = configuration.Heartbeat;
+                Timeout = 5000;
+
+                var adapter = new MTConnectAdapter(interval, bufferEnabled);
+                adapter.WriteObservationsFunction = WriteDataItems;
+                _adapter = adapter;
+
+                _connectionListener = new AgentClientConnectionListener(Port, Heartbeat);
+                _connectionListener.ClientConnected += ClientConnected;
+                _connectionListener.ClientDisconnected += ClientDisconnected;
+                _connectionListener.ClientPingReceived += ClientPingReceived;
+                _connectionListener.ClientPongSent += ClientPongSent;
+            }
+        }
+
 
         /// <summary>
         /// Starts the Adapter to begins listening for Agent connections as well as starts the Queue for collecting and sending data to the Agent(s).
