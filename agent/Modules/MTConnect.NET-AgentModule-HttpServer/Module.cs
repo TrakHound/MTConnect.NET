@@ -12,7 +12,7 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace MTConnect.Modules.Http
 {
-    public class Module : IMTConnectAgentModule
+    public class Module : MTConnectAgentModule
     {
         public const string ConfigurationTypeId = "http-server";
 
@@ -22,22 +22,14 @@ namespace MTConnect.Modules.Http
         private IMTConnectAgentBroker _mtconnectAgent;
         private MTConnectHttpServer _httpServer;
 
-
-        public string Id { get; set; }
-
-        public string Description { get; }
-
-
-        public Module(IMTConnectAgentBroker mtconnectAgent, object controllerConfiguration)
+        public Module(IMTConnectAgentBroker mtconnectAgent, object controllerConfiguration) : base(mtconnectAgent)
         {
             _mtconnectAgent = mtconnectAgent;
             _configuration = AgentApplicationConfiguration.GetConfiguration<ModuleConfiguration>(controllerConfiguration);
         }
 
 
-        public void StartBeforeLoad() { }
-
-        public void StartAfterLoad()
+        protected override void OnStartAfterLoad()
         {
             // Intialize the Http Server
             _httpServer = new MTConnectShdrHttpAgentServer(_configuration, _mtconnectAgent);
@@ -60,7 +52,7 @@ namespace MTConnect.Modules.Http
             _httpServer.Start();
         }
 
-        public void Stop()
+        protected override void OnStop()
         {
             if (_httpServer != null)
             {

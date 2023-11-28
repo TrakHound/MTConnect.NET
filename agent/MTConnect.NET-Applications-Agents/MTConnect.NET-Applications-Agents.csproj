@@ -69,10 +69,12 @@
 	  <ProjectReference Include="..\..\libraries\MTConnect.NET-JSON\MTConnect.NET-JSON.csproj" />
 	  <ProjectReference Include="..\..\libraries\MTConnect.NET-Services\MTConnect.NET-Services.csproj" />
 	  <ProjectReference Include="..\..\libraries\MTConnect.NET-XML\MTConnect.NET-XML.csproj" />
-	  <ProjectReference Include="..\Modules\MTConnect.NET-HttpAdapter-AgentModule\MTConnect.NET-HttpAdapter-AgentModule.csproj" />
-	  <ProjectReference Include="..\Modules\MTConnect.NET-HttpServer-AgentModule\MTConnect.NET-HttpServer-AgentModule.csproj" />
-	  <ProjectReference Include="..\Modules\MTConnect.NET-ShdrAdapter-AgentModule\MTConnect.NET-ShdrAdapter-AgentModule.csproj" />
-	  <ProjectReference Include="..\Processors\MTConnect.NET-Python-Processor\MTConnect.NET-Python-Processor.csproj" />
+	  <ProjectReference Include="..\Modules\MTConnect.NET-AgentModule-HttpAdapter\MTConnect.NET-AgentModule-HttpAdapter.csproj" />
+	  <ProjectReference Include="..\Modules\MTConnect.NET-AgentModule-HttpServer\MTConnect.NET-AgentModule-HttpServer.csproj" />
+	  <ProjectReference Include="..\Modules\MTConnect.NET-AgentModule-MqttAdapter\MTConnect.NET-AgentModule-MqttAdapter.csproj" />
+	  <ProjectReference Include="..\Modules\MTConnect.NET-AgentModule-MqttRelay\MTConnect.NET-AgentModule-MqttRelay.csproj" />
+	  <ProjectReference Include="..\Modules\MTConnect.NET-AgentModule-ShdrAdapter\MTConnect.NET-AgentModule-ShdrAdapter.csproj" />
+	  <ProjectReference Include="..\Processors\MTConnect.NET-AgentProcessor-Python\MTConnect.NET-AgentProcessor-Python.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

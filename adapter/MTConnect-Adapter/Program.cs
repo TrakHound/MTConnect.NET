@@ -49,6 +49,7 @@ namespace MTConnect.Applications
             {
                 Console.ReadLine();
 
+                var rnd = new Random();
                 var ts = DateTime.Now;
 
                 app.DataSource.AddObservation("Xload", x, ts);
@@ -57,9 +58,10 @@ namespace MTConnect.Applications
 
 
                 var datasetEntries = new List<IDataSetEntry>();
-                datasetEntries.Add(new DataSetEntry("E100", 123.456));
-                datasetEntries.Add(new DataSetEntry("E101", 45));
-                datasetEntries.Add(new DataSetEntry("E102", 78));
+                for (var e = 0; e < 100; e++)
+                {
+                    datasetEntries.Add(new DataSetEntry($"E{e.ToString("D3")}", rnd.NextDouble() * 100));
+                }           
                 var dataset = new DataSetObservationInput("testDataSet", datasetEntries);
                 app.DataSource.AddObservation(dataset);
 

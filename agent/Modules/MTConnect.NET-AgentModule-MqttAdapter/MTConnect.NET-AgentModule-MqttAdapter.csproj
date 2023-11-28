@@ -42,11 +42,11 @@
 	</PropertyGroup>
 
 	<ItemGroup Condition="'$(Configuration)'=='Debug'">
-		<Compile Include="..\..\src\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
+		<Compile Include="..\..\..\build\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(Configuration)'=='Release'">
-		<Compile Include="..\..\src\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
+		<Compile Include="..\..\..\build\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
 	</ItemGroup>
 
 	<PropertyGroup Condition="'$(Configuration)'=='Package'">
@@ -54,12 +54,28 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="Models\ConditionModel.cs" />
+	  <Compile Remove="Models\DataItemModel.cs" />
 	  <Compile Remove="Models\DataModel - Copy.cs" />
+	  <Compile Remove="Models\DataModel.cs" />
+	  <Compile Remove="Models\MessageModel.cs" />
+	  <Compile Remove="Models\PayloadModel.cs" />
+	  <Compile Remove="Models\TableEntryModel.cs" />
+	  <Compile Remove="Module - Copy.cs" />
+	  <Compile Remove="ModuleConfiguration - Copy.cs" />
 	  <Compile Remove="PayloadModel.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
+	  <None Include="Models\ConditionModel.cs" />
+	  <None Include="Models\DataItemModel.cs" />
 	  <None Include="Models\DataModel - Copy.cs" />
+	  <None Include="Models\DataModel.cs" />
+	  <None Include="Models\MessageModel.cs" />
+	  <None Include="Models\PayloadModel.cs" />
+	  <None Include="Models\TableEntryModel.cs" />
+	  <None Include="Module - Copy.cs" />
+	  <None Include="ModuleConfiguration - Copy.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -68,7 +84,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\src\MTConnect.NET-MQTT\MTConnect.NET-MQTT.csproj" />
+	  <ProjectReference Include="..\..\..\libraries\MTConnect.NET-MQTT\MTConnect.NET-MQTT.csproj" />
 	</ItemGroup>
 
 </Project>

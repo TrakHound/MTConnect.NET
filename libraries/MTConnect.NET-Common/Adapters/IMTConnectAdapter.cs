@@ -54,12 +54,12 @@ namespace MTConnect.Adapters
         /// <summary>
         /// Sends all Items that have changed since last sent to the Agent
         /// </summary>
-        void SendChanged();
+        bool SendChanged();
 
         /// <summary>
         /// Sends all of the last sent Items, Assets, and Devices to the Agent. This can be used upon reconnection to the Agent
         /// </summary>
-        void SendLast(long timestamp = 0);
+        bool SendLast(long timestamp = 0);
 
 
         /// <summary>

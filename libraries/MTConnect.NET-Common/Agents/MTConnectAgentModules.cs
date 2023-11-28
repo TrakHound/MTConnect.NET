@@ -2,6 +2,7 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Configurations;
+using MTConnect.Logging;
 using System;
 using System.Collections.Generic;
 
@@ -18,6 +19,8 @@ namespace MTConnect.Agents
 
 
         public event EventHandler<IMTConnectAgentModule> ModuleLoaded;
+
+        public event MTConnectLogEventHandler LogReceived;
 
 
         public MTConnectAgentModules(IAgentApplicationConfiguration configuration, IMTConnectAgentBroker mtconnectAgent)
@@ -48,6 +51,7 @@ namespace MTConnect.Agents
                                 {
                                     // Create new Instance of the Controller and add to cached dictionary
                                     var module = (IMTConnectAgentModule)Activator.CreateInstance(moduleType, new object[] { _mtconnectAgent, moduleConfiguration });
+                                    module.LogReceived += HandleModuleLogReceived;
 
                                     var moduleId = Guid.NewGuid().ToString();
 
@@ -131,6 +135,11 @@ namespace MTConnect.Agents
                     catch { }
                 }
             }
+        }
+
+        private void HandleModuleLogReceived(object sender, MTConnectLogLevel logLevel, string message)
+        {
+            if (LogReceived != null) LogReceived.Invoke(sender, logLevel, message);
         }
 
         private static string GetConfigurationTypeId(Type type)

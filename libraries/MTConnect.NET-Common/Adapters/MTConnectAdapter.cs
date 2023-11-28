@@ -148,7 +148,7 @@ namespace MTConnect.Adapters
         public event EventHandler<AdapterEventArgs> SendError;
 
 
-        public MTConnectAdapter(int? interval = 0, bool bufferEnabled = false)
+        public MTConnectAdapter(int? interval = null, bool bufferEnabled = false)
         {
             _interval = interval;
             _bufferEnabled = bufferEnabled;
@@ -304,9 +304,10 @@ namespace MTConnect.Adapters
         /// <summary>
         /// Sends all Items that have changed since last sent to the Agent
         /// </summary>
-        public void SendChanged()
+        public bool SendChanged()
         {
-            WriteChangedObservations();
+            bool success;
+            success = WriteChangedObservations();
             //WriteChangedConditionObservations();
             //WriteChangedDataItems();
             //WriteChangedMessages();
@@ -314,18 +315,21 @@ namespace MTConnect.Adapters
             //WriteChangedTimeSeries();
             //WriteChangedDataSets();
             //WriteChangedTables();
-            WriteChangedAssets();
+            if (success) WriteChangedAssets();
 
             // Call Overridable Method
-            OnChangedSent();
+            //OnChangedSent();
+
+            return success;
         }
 
         /// <summary>
         /// Sends all of the last sent Items, Assets, and Devices to the Agent. This can be used upon reconnection to the Agent
         /// </summary>
-        public void SendLast(long timestamp = 0)
+        public bool SendLast(long timestamp = 0)
         {
-            WriteLastObservations(timestamp);
+            bool success;
+            success = WriteLastObservations(timestamp);
             //WriteLastConditionObservations(timestamp);
             //WriteLastDataItems(timestamp);
             //WriteLastMessages(timestamp);
@@ -333,17 +337,20 @@ namespace MTConnect.Adapters
             //WriteLastTimeSeries(timestamp);
             //WriteLastDataSets(timestamp);
             //WriteLastTables(timestamp);
-            WriteAllAssets();
+            if (success) WriteAllAssets();
             //WriteAllDevices();
 
             // Call Overridable Method
-            OnLastSent();
+            //OnLastSent();
+
+            return success;
         }
 
 
-        public void SendBuffer()
+        public bool SendBuffer()
         {
-            WriteBufferObservations();
+            bool success;
+            success = WriteBufferObservations();
             //WriteBufferConditionObservations();
             //WriteChangedDataItems();
             //WriteChangedMessages();
@@ -353,10 +360,12 @@ namespace MTConnect.Adapters
             //WriteChangedTables();
             //WriteChangedAssets();
 
-            WriteChangedAssets();
+            if (success) success = WriteChangedAssets();
 
             //// Call Overridable Method
             //OnChangedSent();
+
+            return success;
         }
 
 

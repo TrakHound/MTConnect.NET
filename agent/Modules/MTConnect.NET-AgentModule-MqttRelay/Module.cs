@@ -1,17 +1,24 @@
-﻿using MQTTnet.Client;
+﻿// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// TrakHound Inc. licenses this file to you under the MIT license.
+
 using MQTTnet;
+using MQTTnet.Client;
 using MTConnect.Agents;
 using MTConnect.Assets;
 using MTConnect.Configurations;
 using MTConnect.Devices;
-using MTConnect.Streams.Output;
-using MTConnect.Observations;
-using System.Security.Cryptography.X509Certificates;
 using MTConnect.Formatters;
+using MTConnect.Streams.Output;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Security.Cryptography.X509Certificates;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MTConnect
 {
-    public class Module : IMTConnectAgentModule
+    public class Module : MTConnectAgentModule
     {
         public const string ConfigurationTypeId = "mqtt2-relay";
 
@@ -22,12 +29,7 @@ namespace MTConnect
         private CancellationTokenSource _stop;
 
 
-        public string Id { get; }
-
-        public string Description { get; }
-
-
-        public Module(IMTConnectAgentBroker mtconnectAgent, object configuration)
+        public Module(IMTConnectAgentBroker mtconnectAgent, object configuration) : base(mtconnectAgent)
         {
             _configuration = AgentApplicationConfiguration.GetConfiguration<ModuleConfiguration>(configuration);
 
@@ -42,16 +44,14 @@ namespace MTConnect
         }
 
 
-        public void StartBeforeLoad() { }
-
-        public void StartAfterLoad()
+        protected override void OnStartAfterLoad()
         {
             _stop = new CancellationTokenSource();
 
             _ = Task.Run(Worker, _stop.Token);
         }
 
-        public void Stop()
+        protected override void OnStop()
         {
             _server.Stop();
 
@@ -132,6 +132,8 @@ namespace MTConnect
 
                         await _mqttClient.ConnectAsync(clientOptions, CancellationToken.None);
 
+                        Log(Logging.MTConnectLogLevel.Information, $"MQTT Relay Connected to External Broker ({_configuration.Server}:{_configuration.Port})");
+
                         //if (Connected != null) Connected.Invoke(this, new EventArgs());
 
                         _server.Start();
@@ -143,15 +145,17 @@ namespace MTConnect
                     }
                     catch (Exception ex)
                     {
+                        Log(Logging.MTConnectLogLevel.Warning, $"MQTT Relay Connection Error : {ex.Message}");
                         //if (ConnectionError != null) ConnectionError.Invoke(this, ex);
                     }
 
+                    Log(Logging.MTConnectLogLevel.Information, $"MQTT Relay Disconnected from External Broker ({_configuration.Server}:{_configuration.Port})");
                     //if (Disconnected != null) Disconnected.Invoke(this, new EventArgs());
 
                     await Task.Delay(_configuration.ReconnectInterval, _stop.Token);
                 }
                 catch (TaskCanceledException) { }
-                catch (Exception ex) { }
+                catch (Exception) { }
 
             } while (!_stop.Token.IsCancellationRequested);
         }

@@ -7,6 +7,7 @@ using MTConnect.Buffers;
 using MTConnect.Configurations;
 using MTConnect.Devices;
 using MTConnect.Devices.DataItems;
+using MTConnect.Logging;
 using MTConnect.Observations;
 using NLog;
 using System;
@@ -32,6 +33,7 @@ namespace MTConnect.Applications
         protected readonly Logger _agentLogger = LogManager.GetLogger("agent-logger");
         protected readonly Logger _agentMetricLogger = LogManager.GetLogger("agent-metric-logger");
         protected readonly Logger _agentValidationLogger = LogManager.GetLogger("agent-validation-logger");
+        protected readonly Logger _moduleLogger = LogManager.GetLogger("module-logger");
 
         private readonly List<DeviceConfigurationFileWatcher> _deviceConfigurationWatchers = new List<DeviceConfigurationFileWatcher>();
 
@@ -329,6 +331,7 @@ namespace MTConnect.Applications
                 // Initialize Agent Modules
                 _modules = new MTConnectAgentModules(configuration, _mtconnectAgent);
                 _modules.ModuleLoaded += ModuleLoaded;
+                _modules.LogReceived += ModuleLogReceived;
                 _modules.Load();
 
                 // Read Indexes for Buffer
@@ -624,6 +627,22 @@ namespace MTConnect.Applications
         private void ModuleLoaded(object sender, IMTConnectAgentModule module)
         {
             _applicationLogger.Debug($"[Application] : Module Loaded : " + module.GetType().Name);
+        }
+
+        private void ModuleLogReceived(object sender, MTConnectLogLevel logLevel, string message)
+        {
+            if (!string.IsNullOrEmpty(message))
+            {
+                switch (logLevel)
+                {
+                    case MTConnectLogLevel.Fatal: _moduleLogger.Fatal(message); break;
+                    case MTConnectLogLevel.Error: _moduleLogger.Error(message); break;
+                    case MTConnectLogLevel.Warning: _moduleLogger.Warn(message); break;
+                    case MTConnectLogLevel.Information: _moduleLogger.Info(message); break;
+                    case MTConnectLogLevel.Debug: _moduleLogger.Debug(message); break;
+                    case MTConnectLogLevel.Trace: _moduleLogger.Trace(message); break;
+                }
+            }
         }
 
         private void ProcessorLoaded(object sender, IMTConnectAgentProcessor processor)

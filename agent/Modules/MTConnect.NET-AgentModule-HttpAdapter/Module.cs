@@ -16,7 +16,7 @@ using System.Linq;
 
 namespace MTConnect.Modules
 {
-    public class Module : IMTConnectAgentModule
+    public class Module : MTConnectAgentModule
     {
         public const string ConfigurationTypeId = "http-adapter";
 
@@ -28,21 +28,14 @@ namespace MTConnect.Modules
         private System.Timers.Timer _clientInformationTimer;
 
 
-        public string Id { get; }
-
-        public string Description { get; }
-
-
-        public Module(IMTConnectAgentBroker mtconnectAgent, object configuration)
+        public Module(IMTConnectAgentBroker mtconnectAgent, object configuration) : base(mtconnectAgent)
         {
             _mtconnectAgent = mtconnectAgent;
             _configuration = AgentApplicationConfiguration.GetConfiguration<HttpClientConfiguration>(configuration);
         }
 
 
-        public void StartBeforeLoad() { }
-
-        public void StartAfterLoad()
+        protected override void OnStartAfterLoad()
         {
             if (_configuration != null && !string.IsNullOrEmpty(_configuration.Address))
             {
@@ -88,7 +81,7 @@ namespace MTConnect.Modules
             }
         }
 
-        public void Stop()
+        protected override void OnStop()
         {
             if (_agentClient != null) _agentClient.Stop();
         }

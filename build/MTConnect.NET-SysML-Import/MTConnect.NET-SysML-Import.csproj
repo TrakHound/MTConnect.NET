@@ -79,4 +79,8 @@
 		</None>
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Protobuf\" />
+	</ItemGroup>
+
 </Project>

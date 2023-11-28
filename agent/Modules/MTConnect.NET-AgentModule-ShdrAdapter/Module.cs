@@ -14,7 +14,7 @@ using System.Linq;
 
 namespace MTConnect.Modules
 {
-    public class Module : IMTConnectAgentModule
+    public class Module : MTConnectAgentModule
     {
         public const string ConfigurationTypeId = "shdr-adapter";
 
@@ -25,19 +25,14 @@ namespace MTConnect.Modules
         private readonly List<ShdrAdapterClient> _adapters = new List<ShdrAdapterClient>();
 
 
-        public string Id { get; }
-
-        public string Description { get; }
-
-
-        public Module(IMTConnectAgentBroker mtconnectAgent, object configuration)
+        public Module(IMTConnectAgentBroker mtconnectAgent, object configuration) : base(mtconnectAgent)
         {
             _mtconnectAgent = mtconnectAgent;
             _configuration = AgentApplicationConfiguration.GetConfiguration<ShdrAdapterClientConfiguration>(configuration);
         }
 
 
-        public void StartBeforeLoad()
+        protected override void OnStartBeforeLoad()
         {
             if (_configuration != null)
             {
@@ -61,9 +56,7 @@ namespace MTConnect.Modules
             }
         }
 
-        public void StartAfterLoad() { }
-
-        public void Stop()
+        protected override void OnStop()
         {
             // Stop Adapter Clients
             if (!_adapters.IsNullOrEmpty())

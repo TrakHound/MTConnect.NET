@@ -47,8 +47,8 @@
 	<ItemGroup>
 	  <ProjectReference Include="..\..\libraries\MTConnect.NET-Common\MTConnect.NET-Common.csproj" />
 	  <ProjectReference Include="..\..\libraries\MTConnect.NET-Services\MTConnect.NET-Services.csproj" />
-	  <ProjectReference Include="..\Modules\MTConnect.NET-MQTT-AdapterModule\MTConnect.NET-MQTT-AdapterModule.csproj" />
-	  <ProjectReference Include="..\Modules\MTConnect.NET-SHDR-AdapterModule\MTConnect.NET-SHDR-AdapterModule.csproj" />
+	  <ProjectReference Include="..\Modules\MTConnect.NET-AdapterModule-MQTT\MTConnect.NET-AdapterModule-MQTT.csproj" />
+	  <ProjectReference Include="..\Modules\MTConnect.NET-AdapterModule-SHDR\MTConnect.NET-AdapterModule-SHDR.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

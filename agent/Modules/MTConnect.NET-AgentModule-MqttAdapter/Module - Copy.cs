@@ -6,12 +6,11 @@ using MQTTnet.Client;
 using MQTTnet.Server;
 using MTConnect.Agents;
 using MTConnect.Configurations;
-using MTConnect.Mqtt;
 using NLog;
+using ProtoBuf;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Compression;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
 using System.Threading;
@@ -19,7 +18,7 @@ using System.Threading.Tasks;
 
 namespace MTConnect.Modules
 {
-    public class Module : MTConnectAgentModule
+    public class Module : IMTConnectAgentModule
     {
         public const string ConfigurationTypeId = "mqtt-adapter";
 
@@ -48,7 +47,12 @@ namespace MTConnect.Modules
         private CancellationTokenSource _stop;
 
 
-        public Module(IMTConnectAgentBroker mtconnectAgent, object configuration) : base(mtconnectAgent)
+        public string Id { get; }
+
+        public string Description { get; }
+
+
+        public Module(IMTConnectAgentBroker mtconnectAgent, object configuration)
         {
             _mtconnectAgent = mtconnectAgent;
             _mqttFactory = new MqttFactory();
@@ -77,7 +81,9 @@ namespace MTConnect.Modules
         }
 
 
-        protected override void OnStartAfterLoad()
+        public void StartBeforeLoad() { }
+
+        public void StartAfterLoad()
         {
             if (_configuration != null)
             {
@@ -88,7 +94,7 @@ namespace MTConnect.Modules
         }
 
 
-        protected override void OnStop()
+        public void Stop()
         {
             if (_stop != null) _stop.Cancel();
             if (_mqttClient != null) _mqttClient.Dispose();
@@ -163,7 +169,7 @@ namespace MTConnect.Modules
 
                         if (!string.IsNullOrEmpty(_topic))
                         {
-                            await _mqttClient.SubscribeAsync($"{_topic}/#");
+                            await _mqttClient.SubscribeAsync(_topic);
                         }
                         else
                         {
@@ -211,8 +217,8 @@ namespace MTConnect.Modules
                 var dataModels = ProcessPayload(args.ApplicationMessage.Payload);
                 if (!dataModels.IsNullOrEmpty())
                 {
-                    //Console.WriteLine(topic);
-                    //Console.WriteLine(JsonSerializer.Serialize(dataModels));
+                    Console.WriteLine(topic);
+                    Console.WriteLine(JsonSerializer.Serialize(dataModels));
 
                     foreach (var dataModel in dataModels)
                     {
@@ -245,34 +251,35 @@ namespace MTConnect.Modules
             }
         }
 
-        public static IEnumerable<MTConnectMqttInputModel> ProcessPayload(byte[] payload)
+        public static IEnumerable<DataModel> ProcessPayload(byte[] payload)
         {
             if (!payload.IsNullOrEmpty())
             {
                 try
                 {
-                    // Decompress from gzip
-                    byte[] uncompressedBytes;
-                    using (var inputStream = new MemoryStream(payload))
-                    using (var outputStream = new MemoryStream())
-                    using (var encodingStream = new GZipStream(inputStream, CompressionMode.Decompress, true))
-                    {
-                        encodingStream.CopyTo(outputStream);
-                        uncompressedBytes = outputStream.ToArray();
-                    }
+                    //// Decompress from gzip
+                    //byte[] uncompressedBytes;
+                    //using (var inputStream = new MemoryStream(payload))
+                    //using (var outputStream = new MemoryStream())
+                    //using (var encodingStream = new GZipStream(inputStream, CompressionMode.Decompress, true))
+                    //{
+                    //    encodingStream.CopyTo(outputStream);
+                    //    uncompressedBytes = outputStream.ToArray();
+                    //}
 
+                    var uncompressedBytes = payload;
                     if (!uncompressedBytes.IsNullOrEmpty())
                     {
-                        // Convert JSON bytes to Mqtt PayloadModel
-                        IEnumerable<MTConnectMqttInputModel> payloadModel = null;
+                        // Convert Protobuf to Mqtt PayloadModel
+                        PayloadModel payloadModel = null;
                         using (var inputStream2 = new MemoryStream(uncompressedBytes))
                         {
-                            payloadModel = JsonSerializer.Deserialize<IEnumerable<MTConnectMqttInputModel>>(inputStream2);
+                            payloadModel = Serializer.Deserialize<PayloadModel>(inputStream2);
                         }
 
                         if (payloadModel != null)
                         {
-                            return payloadModel;
+                            return payloadModel.DataModels;
                         }
                     }
                 }

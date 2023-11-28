@@ -9,6 +9,7 @@ using MTConnect.Devices;
 using MTConnect.Input;
 using MTConnect.Logging;
 using MTConnect.Mqtt;
+using System.IO.Compression;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
 
@@ -171,9 +172,23 @@ namespace MTConnect
 
 
                 var json = JsonSerializer.Serialize(mqttModels);
-                Console.WriteLine(json);
+                //Console.WriteLine(json);
 
-                _mqttClient.PublishStringAsync($"{_configuration.Topic}/{_configuration.DeviceKey}/observations", json);
+                var utf8 = System.Text.Encoding.UTF8.GetBytes(json);
+                Console.WriteLine($"JSON = {utf8.Length / 1000}");
+
+                var payload = CompressPayload(utf8);
+                Console.WriteLine($"JSON-gzip = {payload.Length / 1000}");
+
+                var message = new MqttApplicationMessage();
+                message.Topic = $"{_configuration.Topic}/{_configuration.DeviceKey}/observations-gzip";
+                message.Payload = payload;
+                _mqttClient.PublishAsync(message);
+
+                //var message2 = new MqttApplicationMessage();
+                //message2.Topic = $"{_configuration.Topic}/{_configuration.DeviceKey}/observations";
+                //message2.Payload = utf8;
+                //_mqttClient.PublishAsync(message2);
             }
 
             return true;
@@ -187,6 +202,23 @@ namespace MTConnect
         public override bool AddDevices(IEnumerable<IDevice> devices)
         {
             return true;
+        }
+
+
+        private static byte[] CompressPayload(byte[] payload)
+        {
+            var bytes = payload;
+
+            using (var ms = new MemoryStream())
+            {
+                using (var zip = new GZipStream(ms, CompressionMode.Compress, true))
+                {
+                    zip.Write(bytes, 0, bytes.Length);
+                }
+                bytes = ms.ToArray();
+            }
+
+            return bytes;
         }
 
 
