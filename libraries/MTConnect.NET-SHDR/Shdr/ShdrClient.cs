@@ -636,7 +636,7 @@ namespace MTConnect.Shdr
                 var x = ShdrLine.GetNextSegment(line);
                 var y = ShdrLine.GetNextValue(x);
 
-                if (y.Contains(":"))
+                if (y != null && y.Contains(":"))
                 {
                     var i = y.IndexOf(':');
                     y = y.Substring(i + 1);

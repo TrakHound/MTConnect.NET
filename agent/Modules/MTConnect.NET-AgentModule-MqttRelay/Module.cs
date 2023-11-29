@@ -134,8 +134,6 @@ namespace MTConnect
 
                         Log(Logging.MTConnectLogLevel.Information, $"MQTT Relay Connected to External Broker ({_configuration.Server}:{_configuration.Port})");
 
-                        //if (Connected != null) Connected.Invoke(this, new EventArgs());
-
                         _server.Start();
 
                         while (!_stop.Token.IsCancellationRequested && _mqttClient.IsConnected)
@@ -146,11 +144,9 @@ namespace MTConnect
                     catch (Exception ex)
                     {
                         Log(Logging.MTConnectLogLevel.Warning, $"MQTT Relay Connection Error : {ex.Message}");
-                        //if (ConnectionError != null) ConnectionError.Invoke(this, ex);
                     }
 
                     Log(Logging.MTConnectLogLevel.Information, $"MQTT Relay Disconnected from External Broker ({_configuration.Server}:{_configuration.Port})");
-                    //if (Disconnected != null) Disconnected.Invoke(this, new EventArgs());
 
                     await Task.Delay(_configuration.ReconnectInterval, _stop.Token);
                 }
@@ -220,7 +216,7 @@ namespace MTConnect
                     var topic = $"{_configuration.TopicPrefix}/{device.Uuid}/{_configuration.SampleTopic}";
 
                     var message = new MqttApplicationMessage();
-                    message.Retain = true;
+                    //message.Retain = true;
                     message.Topic = topic;
                     message.QualityOfServiceLevel = MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce;
                     message.Payload = formatResult.Content;

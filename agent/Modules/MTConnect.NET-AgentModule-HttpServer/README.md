@@ -9,7 +9,7 @@ This Agent Module implements the MTConnect REST Protocol
 ```yaml
  - http-server:
     hostname: localhost
-    port: 7878
+    port: 5000
     allowPut: true
     indentOutput: true
     documentFormat: xml

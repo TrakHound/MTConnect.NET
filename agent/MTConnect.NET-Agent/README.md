@@ -130,11 +130,15 @@ More information about [Configurations](https://github.com/TrakHound/MTConnect.N
 # - Device Configuration -
 devices: devices
 
+# - Processors -
+processors:
+- python: # - Add Python Processor
+    directory: processors
+
 # - Modules -
-- modules:
+modules:
   
-  # - Add HTTP Server module
-  - http-server:
+- http-server: # - Add HTTP Server module
     hostname: localhost
     port: 7878
     allowPut: true
@@ -145,37 +149,33 @@ devices: devices
     - br
     files:
     - path: schemas
-      location: schemas
+    location: schemas
     - path: styles
-      location: styles
+    location: styles
     - path: styles/favicon.ico
-      location: favicon.ico
+    location: favicon.ico
 
-  # - Add MQTT Relay module
-  - mqtt2-relay:
-      server: localhost
-      port: 1883
-      currentInterval: 5000
-      sampleInterval: 500
+- mqtt2-relay: # - Add MQTT Relay module
+    server: localhost
+    port: 1883
+    currentInterval: 5000
+    sampleInterval: 500
 
-  # - Add SHDR Adapter module for Device = M12346 and Port = 7878
-  - shdr-adapter:
-      deviceKey: M12346
-      hostname: localhost
-      port: 7878
+- shdr-adapter: # - Add SHDR Adapter module for Device = M12346 and Port = 7878
+    deviceKey: M12346
+    hostname: localhost
+    port: 7878
 
-  # - Add SHDR Adapter module for Device = OKUMA-Lathe and Port = 7879
-  - shdr-adapter:
-      deviceKey: OKUMA-Lathe
-      hostname: localhost
-      port: 7879
+- shdr-adapter: # - Add SHDR Adapter module for Device = OKUMA-Lathe and Port = 7879
+    deviceKey: OKUMA-Lathe
+    hostname: localhost
+    port: 7879
 
-  # - Add MQTT Adapter module for Device = M12346 and Topic = cnc-01
-  - mqtt-adapter:
-      deviceKey: M12346
-      server: localhost
-      port: 1883
-      topic: cnc-01
+- mqtt-adapter: # - Add MQTT Adapter module for Device = M12346 and Topic = cnc-01
+    deviceKey: M12346
+    server: localhost
+    port: 1883
+    topic: cnc-01
 
 
 # The maximum number of Observations the agent can hold in its buffer

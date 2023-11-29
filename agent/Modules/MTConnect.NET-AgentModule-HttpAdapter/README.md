@@ -9,7 +9,7 @@ This Agent Module implements an adapter to read from other MTConnect Agents usin
 ```yaml
 - http-adapter:
     address: localhost
-    port: 5001
+    port: 5000
     deviceKey: M12346
     interval: 100
 ```
