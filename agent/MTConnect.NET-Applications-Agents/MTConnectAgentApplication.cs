@@ -59,6 +59,7 @@ namespace MTConnect.Applications
 
         public IMTConnectAgentBroker Agent => _mtconnectAgent;
 
+
         public event EventHandler<AgentConfiguration> OnRestart;
 
 

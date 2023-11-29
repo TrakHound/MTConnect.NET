@@ -1,19 +1,20 @@
 ![MTConnect.NET Logo](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/dev/img/mtconnect-net-03-md.png) 
 
-# MTConnect Http Agent
+# MTConnect Agent
 
 [![MTConnect.NET](https://github.com/TrakHound/MTConnect.NET/actions/workflows/dotnet.yml/badge.svg)](https://github.com/TrakHound/MTConnect.NET/actions/workflows/dotnet.yml)
 
 ## Overview
-This project is a full implementation of an MTConnect Agent used to read data from industrial machine tools and devices. This MTConnect Agent application is fully compatible with the latest **Version 2.2 of the MTConnect Standard**. It uses the SHDR protocol to receive data from Adapters, an in-memory buffer with an optional durable file system based buffer, and an Http REST interface for retrieving data.
+This project is a full implementation of an MTConnect Agent used to read data from industrial machine tools and devices. This MTConnect Agent application is fully compatible with the latest **Version 2.2 of the MTConnect Standard**.
 
 #### Features
-- Easy setup with Windows Installers availble in the latest [Releases](https://github.com/TrakHound/MTConnect.NET/releases)
+- Plugin architecture to support Http Server, Mqtt Server, SHDR Adapters, etc.
+- Processors for transforming input data using simple Python scripts
+- Easy setup with Windows Installers
 - Options to run as Windows Service or as a console application (typically for testing/debugging)
 - Optional 'Durable' buffer used to retain the Agent data between application/machine restarts
 - High performance / Low resource usage
 - Flexible Device configurations (traditional 'devices.xml' file or 'devices' directory with individual Device files)
-- SHDR protocol compatibility for easy implementation with existing MTConnect Adapters
 - On-Demand MTConnect Versioning allowing for older clients to request the version of MTConnect they are compatible with using HTTP Url parameters
 - Configuration File monitoring to automatically restart the Agent upon configuration file changes
 - Flexible Logging using NLog which can be used to output log information to separate files for easier analysis
@@ -129,24 +130,53 @@ More information about [Configurations](https://github.com/TrakHound/MTConnect.N
 # - Device Configuration -
 devices: devices
 
-# - SHDR Adapter Configuration -
-# The Agent is able to receive data through a TCP port using the SHDR protocol
-adapters:
-- hostname: localhost
-  port: 7878
-  reconnectInterval: 1000
+# - Modules -
+- modules:
+  
+  # - Add HTTP Server module
+  - http-server:
+    hostname: localhost
+    port: 7878
+    allowPut: true
+    indentOutput: true
+    documentFormat: xml
+    responseCompression:
+    - gzip
+    - br
+    files:
+    - path: schemas
+      location: schemas
+    - path: styles
+      location: styles
+    - path: styles/favicon.ico
+      location: favicon.ico
 
-# The server Hostname to bind to.
-# Change this to the server's IP Address or hostname
-server: localhost
+  # - Add MQTT Relay module
+  - mqtt2-relay:
+      server: localhost
+      port: 1883
+      currentInterval: 5000
+      sampleInterval: 500
 
-# The port number the agent binds to for requests.
-port: 5000
+  # - Add SHDR Adapter module for Device = M12346 and Port = 7878
+  - shdr-adapter:
+      deviceKey: M12346
+      hostname: localhost
+      port: 7878
 
-# Configuration for Static Files that can be served from the Http Server
-files:
-- path: schemas
-  location: schemas
+  # - Add SHDR Adapter module for Device = OKUMA-Lathe and Port = 7879
+  - shdr-adapter:
+      deviceKey: OKUMA-Lathe
+      hostname: localhost
+      port: 7879
+
+  # - Add MQTT Adapter module for Device = M12346 and Topic = cnc-01
+  - mqtt-adapter:
+      deviceKey: M12346
+      server: localhost
+      port: 1883
+      topic: cnc-01
+
 
 # The maximum number of Observations the agent can hold in its buffer
 observationBufferSize: 150000
@@ -160,29 +190,6 @@ durable: false
 # Sets the default MTConnect version to output response documents for.
 defaultVersion: 2.2
 ```
-
-#### HTTP Configuration
-
-* `port` - The port number the agent binds to for requests.
-
-* `serverIp` - The server IP Address to bind to. Can be used to select the interface in IPV4 or IPV6.
-
-* `responseCompression` - Sets the List of Encodings (ex. gzip, br, deflate) to pass to the Accept-Encoding HTTP Header
-
-* `maxStreamingThreads` - The maximum number of Threads to use for the Http Stream Requests
-
-* `allowPut` - Allow HTTP PUT or POST of data item values or assets.
-
-* `allowPutFrom` - Allow HTTP PUT or POST from a specific host or list of hosts. 
-
-* `indentOutput` - Sets the default response document indendation
-
-* `outputComments` - Sets the default response document comments output. Comments contain descriptions from the MTConnect standard
-
-* `outputValidationLevel` - Sets the default response document validation level. 0 = Ignore, 1 = Warning, 2 = Strict
-
-* `files` - Sets the configuration for Static Files that can be served from the Http Server. For more information see ()
-
 
 #### Agent Configuration
 
@@ -215,38 +222,6 @@ defaultVersion: 2.2
 
 * `devices` - The Path to look for the file(s) that represent the Device Information Models to load into the Agent. The path can either be a single file or a directory. The path can be absolute or relative to the executable's directory
 
-#### Adapter Configuration
-
-* `adapters` - List of SHDR Adapter connection configurations. For more information see()
-
-* `allowShdrDevice` - Sets whether a Device Model can be sent from an SHDR Adapter
-
-* `preserveUuid` - Do not overwrite the UUID with the UUID from the adapter, preserve the UUID for the Device. This can be overridden on a per adapter basis.
-
-* `suppressIpAddress` - Suppress the Adapter IP Address and port when creating the Agent Device ids and names for 1.7. This applies to all adapters.
-
-* `timeout` - The amount of time (in milliseconds) an adapter can be silent before it is disconnected.
-
-* `reconnectInterval` - The amount of time (in milliseconds) between adapter reconnection attempts.
-
-#### XML Configuration
-
-* `devicesNamespaces` - List of extended XML namespaces to use with MTConnectDevicesResponse documents
-
-* `streamsNamespaces` - List of extended XML namespaces to use with MTConnectStreamsResponse documents
-
-* `assetsNamespaces` - List of extended XML namespaces to use with MTConnectAssetsResponse documents
-
-* `errorNamespaces` - List of extended XML namespaces to use with MTConnectErrorResponse documents
-
-
-* `devicesStyle` - List of XSLT Stylesheets to use with MTConnectDevicesResponse documents
-
-* `streamsStyle` - List of XSLT Stylesheets to use with MTConnectStreamsResponse documents
-
-* `assetsStyle` - List of XSLT Stylesheets to use with MTConnectAssetsResponse documents
-
-* `errorStyle` - List of XSLT Stylesheets to use with MTConnectErrorResponse documents
 
 #### Windows Service Configuration
 
@@ -259,9 +234,7 @@ defaultVersion: 2.2
 Logging is done using [NLog](https://github.com/NLog/NLog) which allows for customized logging through the NLog.config file located in the application's install directory. The loggers are setup so that there is a separate logger for:
 - **(agent-logger)** MTConnect Agent
 - **(agent-validation-logger)** MTConnect Data Validation Errors
-- **(http-logger)** Http Server
-- **(adapter-logger)** MTConnect Adapters
-- **(adapter-shdr-logger)** Raw SHDR lines read by the Adapter (used for debugging adapters)
+- **(module-logger)** Modules
 
 The default [NLog Configuration File](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-Applications-Agents/NLog.config) is shown below:
 

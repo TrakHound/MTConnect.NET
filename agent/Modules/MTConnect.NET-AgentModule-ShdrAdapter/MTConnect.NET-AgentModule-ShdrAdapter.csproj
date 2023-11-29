@@ -61,4 +61,11 @@
 	  <ProjectReference Include="..\..\..\libraries\MTConnect.NET-SHDR\MTConnect.NET-SHDR.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <None Update="README.md">
+	    <PackagePath>\</PackagePath>
+	    <Pack>True</Pack>
+	  </None>
+	</ItemGroup>
+
 </Project>
