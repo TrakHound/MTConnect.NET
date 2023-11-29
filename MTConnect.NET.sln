@@ -30,8 +30,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Adapter", "Adapter", "{5C17
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Modules", "Modules", "{494ACCF3-8FB7-429D-9119-92F7DD646B5F}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Clients", "Clients", "{B7D0BB51-FC51-4CB8-B612-2AED2A2233C1}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libraries", "Libraries", "{B7CCD58C-A3F3-43BE-BBF8-2B20D118C39D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-Common", "libraries\MTConnect.NET-Common\MTConnect.NET-Common.csproj", "{5AF3BDBE-AE71-42A8-B05F-034220EC0F6D}"
@@ -90,7 +88,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-AdapterModule
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-AdapterModule-SHDR", "adapter\Modules\MTConnect.NET-AdapterModule-SHDR\MTConnect.NET-AdapterModule-SHDR.csproj", "{D2125645-0149-4D2D-BBF6-5E36E6EBB6C1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MTConnect.NET-Protobuf", "libraries\MTConnect.NET-Protobuf\MTConnect.NET-Protobuf.csproj", "{B4A1AFBE-5D57-45BA-B735-A2C2C20A971C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-Protobuf", "libraries\MTConnect.NET-Protobuf\MTConnect.NET-Protobuf.csproj", "{B4A1AFBE-5D57-45BA-B735-A2C2C20A971C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-AgentModule-MqttAdapter", "agent\Modules\MTConnect.NET-AgentModule-MqttAdapter\MTConnect.NET-AgentModule-MqttAdapter.csproj", "{ACD5D3A4-0474-4E24-BF18-1F699CDB101F}"
 EndProject
