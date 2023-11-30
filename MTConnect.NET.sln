@@ -74,7 +74,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-AgentProcesso
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-AgentModule-MqttRelay", "agent\Modules\MTConnect.NET-AgentModule-MqttRelay\MTConnect.NET-AgentModule-MqttRelay.csproj", "{CB2E7F5A-55D5-43BD-ABC8-145E8436BE88}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-AgentModule-HttpAdapter", "agent\Modules\MTConnect.NET-AgentModule-HttpAdapter\MTConnect.NET-AgentModule-HttpAdapter.csproj", "{2104A3F5-A157-4763-8B90-38CD103D93D8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-AgentModule-HttpClientAdapter", "agent\Modules\MTConnect.NET-AgentModule-HttpAdapter\MTConnect.NET-AgentModule-HttpClientAdapter.csproj", "{2104A3F5-A157-4763-8B90-38CD103D93D8}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-AgentModule-HttpServer", "agent\Modules\MTConnect.NET-AgentModule-HttpServer\MTConnect.NET-AgentModule-HttpServer.csproj", "{7025F1F6-F914-4830-8171-30872F184918}"
 EndProject
@@ -98,7 +98,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Clients", "Clients", "{4558
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-Client-SHDR", "clients\MTConnect.NET-Client-SHDR\MTConnect.NET-Client-SHDR.csproj", "{3B6E6874-ADB2-4C59-9E65-C13693466920}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MTConnect.NET-Client-HTTP", "clients\MTConnect.NET-Client-HTTP\MTConnect.NET-Client-HTTP.csproj", "{619557F6-A8D5-4995-9D96-0E3174221FC6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-Client-HTTP", "clients\MTConnect.NET-Client-HTTP\MTConnect.NET-Client-HTTP.csproj", "{619557F6-A8D5-4995-9D96-0E3174221FC6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0712EA0C-EC0D-42EE-9CDD-148893A018F8}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

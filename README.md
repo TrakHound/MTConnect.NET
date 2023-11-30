@@ -35,6 +35,35 @@ Other features of MTConnect.NET :
 - Full client support for requesting data from any MTConnect Agent (Probe, Current, Sample Stream, Assets, etc.). See [Clients](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-HTTP/Clients/Rest) for more information.
 - (In-Progress) [Models](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-Models/Models) framework for setting and accessing data using an object model as opposed to DataItem ID's and Types
 
+## Download
+
+- [Agent Releases](https://github.com/TrakHound/MTConnect.NET/releases)
+- [Adapter Source](https://github.com/TrakHound/MTConnect.NET/tree/version-6.0/adapter/MTConnect.NET-Adapter)
+- [Nuget](https://www.nuget.org/packages/MTConnect.NET#readme-body-tab)
+
+## Usage
+
+### Create Agent
+```c#
+using MTConnect.Agents;
+
+var agent = new MTConnectAgent();
+```
+
+### Create Adapter
+```c#
+using MTConnect.Adapters;
+
+var adapter = new ShdrAdapter();
+```
+
+### Create Client
+```c#
+using MTConnect.Clients;
+
+var client = new MTConnectHttpClient();
+```
+
 ## Agent Applications
 
 #### Recommended (Windows / Linux)

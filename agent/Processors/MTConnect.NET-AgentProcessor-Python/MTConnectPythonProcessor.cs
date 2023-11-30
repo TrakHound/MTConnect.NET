@@ -49,12 +49,16 @@ namespace MTConnect.Processors
             lock (_lock) _functions.Clear();
 
             var dir = GetDirectory();
-            var files = Directory.GetFiles(dir, $"*{_defaultExtension}");
-            if (!files.IsNullOrEmpty())
+            if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
+            if (Directory.Exists(dir))
             {
-                foreach (var file in files)
+                var files = Directory.GetFiles(dir, $"*{_defaultExtension}");
+                if (!files.IsNullOrEmpty())
                 {
-                    LoadEngine(file);
+                    foreach (var file in files)
+                    {
+                        LoadEngine(file);
+                    }
                 }
             }
         }

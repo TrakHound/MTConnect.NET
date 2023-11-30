@@ -69,7 +69,7 @@
 	  <ProjectReference Include="..\..\libraries\MTConnect.NET-JSON\MTConnect.NET-JSON.csproj" />
 	  <ProjectReference Include="..\..\libraries\MTConnect.NET-Services\MTConnect.NET-Services.csproj" />
 	  <ProjectReference Include="..\..\libraries\MTConnect.NET-XML\MTConnect.NET-XML.csproj" />
-	  <ProjectReference Include="..\Modules\MTConnect.NET-AgentModule-HttpAdapter\MTConnect.NET-AgentModule-HttpAdapter.csproj" />
+	  <ProjectReference Include="..\Modules\MTConnect.NET-AgentModule-HttpAdapter\MTConnect.NET-AgentModule-HttpClientAdapter.csproj" />
 	  <ProjectReference Include="..\Modules\MTConnect.NET-AgentModule-HttpServer\MTConnect.NET-AgentModule-HttpServer.csproj" />
 	  <ProjectReference Include="..\Modules\MTConnect.NET-AgentModule-MqttAdapter\MTConnect.NET-AgentModule-MqttAdapter.csproj" />
 	  <ProjectReference Include="..\Modules\MTConnect.NET-AgentModule-MqttRelay\MTConnect.NET-AgentModule-MqttRelay.csproj" />

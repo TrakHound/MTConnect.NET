@@ -48,7 +48,6 @@ namespace MTConnect
                     var response = _mtconnectAgent.GetDevicesResponseDocument(device.Uuid);
                     if (response != null)
                     {
-                        Console.WriteLine($"Probe : {device.Uuid}");
                         if (ProbeReceived != null) ProbeReceived.Invoke(device, response);
                     }
                 }
@@ -78,7 +77,6 @@ namespace MTConnect
                             var response = _mtconnectAgent.GetDeviceStreamsResponseDocument(device.Uuid);
                             if (response != null)
                             {
-                                Console.WriteLine($"Current : {device.Uuid}");
                                 if (CurrentReceived != null) CurrentReceived.Invoke(device, response);
                             }
                         }
@@ -108,7 +106,6 @@ namespace MTConnect
                             var response = _mtconnectAgent.GetDeviceStreamsResponseDocument(device.Uuid, _lastSequence, -1, 1000); // COUNT = 1000 ??
                             if (response != null && response.ObservationCount > 0)
                             {
-                                Console.WriteLine($"Sample : {device.Uuid} : {_lastSequence}");
                                 if (SampleReceived != null) SampleReceived.Invoke(device, response);
                                 if (response.LastObservationSequence >= lastSequence) lastSequence = response.LastObservationSequence + 1;
                             }
@@ -132,8 +129,6 @@ namespace MTConnect
             var response = _mtconnectAgent.GetDevicesResponseDocument(device.Uuid);
             if (response != null)
             {
-                Console.WriteLine("Probe");
-
                 if (ProbeReceived != null) ProbeReceived.Invoke(device, response);
             }
         }

@@ -627,7 +627,7 @@ namespace MTConnect.Applications
 
         private void ModuleLoaded(object sender, IMTConnectAgentModule module)
         {
-            _applicationLogger.Debug($"[Application] : Module Loaded : " + module.GetType().Name);
+            _applicationLogger.Info($"[Application] : Module Loaded : " + module.GetType().Name);
         }
 
         private void ModuleLogReceived(object sender, MTConnectLogLevel logLevel, string message)
@@ -648,7 +648,7 @@ namespace MTConnect.Applications
 
         private void ProcessorLoaded(object sender, IMTConnectAgentProcessor processor)
         {
-            _applicationLogger.Debug($"[Application] : Processor Loaded : " + processor.GetType().Name);
+            _applicationLogger.Info($"[Application] : Processor Loaded : " + processor.GetType().Name);
         }
 
         private void DevicesRequested(string deviceName)

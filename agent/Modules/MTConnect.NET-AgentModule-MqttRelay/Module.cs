@@ -20,7 +20,7 @@ namespace MTConnect
 {
     public class Module : MTConnectAgentModule
     {
-        public const string ConfigurationTypeId = "mqtt2-relay";
+        public const string ConfigurationTypeId = "mqtt-relay";
 
         private readonly MTConnectMqttServer _server;
         private readonly ModuleConfiguration _configuration;
