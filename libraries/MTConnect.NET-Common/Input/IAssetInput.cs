@@ -17,20 +17,23 @@ namespace MTConnect.Input
         /// </summary>
         string AssetId { get; }
 
+        /// <summary>
+        /// The Asset to add
+        /// </summary>
         IAsset Asset { get; }
 
         /// <summary>
-        /// The timestamp (UnixTime in Milliseconds) that the observation was recorded at
+        /// The timestamp (UnixTime in Milliseconds) that the Asset was recorded at
         /// </summary>
         long Timestamp { get; }
 
         /// <summary>
-        /// An MD5 Hash of the Observation that can be used for comparison
+        /// An MD5 Hash of the Asset that can be used for comparison
         /// </summary>
         byte[] ChangeId { get; }
 
         /// <summary>
-        /// An MD5 Hash of the Observation including the Timestamp that can be used for comparison
+        /// An MD5 Hash of the Asset including the Timestamp that can be used for comparison
         /// </summary>
         byte[] ChangeIdWithTimestamp { get; }
     }

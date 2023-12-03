@@ -31,7 +31,7 @@ namespace MTConnect.Devices.Xml
             description.Model = Model;
             description.SerialNumber = SerialNumber;
             description.Station = Station;
-            description.Value = CDATA;
+            description.Value = CDATA != null ? CDATA.Trim() : null;
             return description;
         }
 

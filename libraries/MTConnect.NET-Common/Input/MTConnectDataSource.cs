@@ -26,7 +26,7 @@ namespace MTConnect.Input
 
         public event EventHandler<IAssetInput> AssetAdded;
 
-        public event EventHandler<IDevice> DeviceAdded;
+        public event EventHandler<IDeviceInput> DeviceAdded;
 
 
         protected virtual void OnStart() { }
@@ -126,6 +126,14 @@ namespace MTConnect.Input
 
 
         public void AddDevice(IDevice device)
+        {
+            if (device != null)
+            {
+                AddDevice(new DeviceInput(device));
+            }
+        }
+
+        public void AddDevice(IDeviceInput device)
         {
             if (DeviceAdded != null) DeviceAdded.Invoke(this, device);
         }

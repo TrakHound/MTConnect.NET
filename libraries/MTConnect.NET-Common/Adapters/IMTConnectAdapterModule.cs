@@ -29,6 +29,6 @@ namespace MTConnect.Adapters
 
         bool AddAssets(IEnumerable<IAssetInput> assets);
 
-        bool AddDevices(IEnumerable<IDevice> devices);
+        bool AddDevices(IEnumerable<IDeviceInput> devices);
     }
 }

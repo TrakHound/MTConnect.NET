@@ -19,7 +19,7 @@ namespace MTConnect.Modules.Http
         private readonly Logger _httpLogger = LogManager.GetLogger("http-server-logger");
         private readonly Logger _agentValidationLogger = LogManager.GetLogger("agent-validation-logger");
         private readonly ModuleConfiguration _configuration;
-        private IMTConnectAgentBroker _mtconnectAgent;
+        private readonly IMTConnectAgentBroker _mtconnectAgent;
         private MTConnectHttpServer _httpServer;
 
         public Module(IMTConnectAgentBroker mtconnectAgent, object controllerConfiguration) : base(mtconnectAgent)
@@ -39,14 +39,11 @@ namespace MTConnect.Modules.Http
             _httpServer.ServerCertificateLoaded += HttpServerCertificateLoaded;
 
             // Setup Http Server Logging
-            //if (_verboseLogging)
-            //{
             _httpServer.ServerException += HttpListenerException;
             _httpServer.ClientConnected += HttpClientConnected;
             _httpServer.ClientDisconnected += HttpClientDisconnected;
             _httpServer.ClientException += HttpClientException;
             _httpServer.ResponseSent += HttpResponseSent;
-            //}
 
             // Start the Http Server
             _httpServer.Start();
@@ -113,7 +110,6 @@ namespace MTConnect.Modules.Http
             logResponseMessage.Add($"Write Time {response.WriteDuration.ToString("N3")}ms");
             logResponseMessage.Add($"Total Time {totalTime.ToString("N3")}ms");
             _httpLogger.Info(string.Join(" : ", logResponseMessage));
-            //_httpLogger.Info($"[HTTP-Server] : Http Response Sent : {response.StatusCode} : {response.ContentType} : Agent Process Time {response.ResponseDuration}ms : Document Format Time {response.FormatDuration}ms : Write Time {response.WriteDuration}ms : Total Response Time {totalTime}ms");
 
             // Format Messages
             if (!response.FormatMessages.IsNullOrEmpty())
@@ -144,5 +140,6 @@ namespace MTConnect.Modules.Http
         }
 
         #endregion
+
     }
 }

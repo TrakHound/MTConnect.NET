@@ -61,6 +61,7 @@ namespace MTConnect.Applications
             {
                 _dataSource.ObservationAdded += DataSourceObservationAdded;
                 _dataSource.AssetAdded += DataSourceAssetAdded;
+                _dataSource.DeviceAdded += DataSourceDeviceAdded;
             }
 
             ServiceLabel = DefaultServiceLabel;
@@ -452,6 +453,20 @@ namespace MTConnect.Applications
                 foreach (var adapter in adapters)
                 {
                     adapter.Value.AddAsset(asset);
+                }
+            }
+        }
+
+        private void DataSourceDeviceAdded(object sender, IDeviceInput device)
+        {
+            Dictionary<string, IMTConnectAdapter> adapters;
+            lock (_lock) adapters = _adapters;
+
+            if (!adapters.IsNullOrEmpty())
+            {
+                foreach (var adapter in adapters)
+                {
+                    adapter.Value.AddDevice(device);
                 }
             }
         }

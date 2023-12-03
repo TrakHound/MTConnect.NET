@@ -147,8 +147,16 @@ namespace MTConnect
             return true;
         }
 
-        public override bool AddDevices(IEnumerable<IDevice> devices)
+        public override bool AddDevices(IEnumerable<IDeviceInput> devices)
         {
+            foreach (var device in devices)
+            {
+                var shdrModel = new ShdrDevice(device.Device);
+                var shdrLine = shdrModel.ToString();
+                WriteLine(shdrLine);
+                Console.WriteLine(shdrLine);
+            }
+
             return true;
         }
 

@@ -105,5 +105,12 @@ namespace MTConnect.Adapters
         /// <param name="assetType">The Type of the Assets to remove</param>
         /// <param name="timestamp">The timestamp to send as part of the SHDR command</param>
         void RemoveAllAssets(string assetType, long timestamp = 0);
+
+
+        /// <summary>
+        /// Add the specified MTConnect Device
+        /// </summary>
+        /// <param name="device">The Device to add</param>
+        void AddDevice(IDeviceInput device);
     }
 }

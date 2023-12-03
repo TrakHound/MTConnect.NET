@@ -5,7 +5,6 @@ using MTConnect.Agents;
 using MTConnect.Assets;
 using MTConnect.Configurations;
 using MTConnect.Devices;
-using MTConnect.Devices.DataItems;
 using MTConnect.Formatters;
 using MTConnect.Servers;
 using MTConnect.Shdr;
@@ -23,7 +22,6 @@ namespace MTConnect.Modules.Http
         public MTConnectShdrHttpAgentServer(ModuleConfiguration configuration, IMTConnectAgentBroker mtconnectAgent) : base(configuration, mtconnectAgent) { }
 
 
-        //protected override bool OnObservationInput(string deviceKey, string dataItemKey, string input)
         protected override bool OnObservationInput(MTConnectObservationInputArgs args)
         {
             // Get the Devices Document from the Agent
@@ -94,7 +92,6 @@ namespace MTConnect.Modules.Http
             return false;
         }
 
-        //protected override bool OnAssetInput(string assetId, string deviceKey, string assetType, byte[] requestBytes, string documentFormat = DocumentFormat.XML)
         protected override bool OnAssetInput(MTConnectAssetInputArgs args)
         {
             if (!string.IsNullOrEmpty(args.DeviceKey) && !string.IsNullOrEmpty(args.AssetType))

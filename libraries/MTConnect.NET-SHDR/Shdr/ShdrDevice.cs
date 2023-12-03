@@ -91,7 +91,7 @@ namespace MTConnect.Shdr
 
         public string ToString(bool multiline = false)
         {
-            if (!string.IsNullOrEmpty(DeviceUuid) && !string.IsNullOrEmpty(Xml))
+            if (!string.IsNullOrEmpty(DeviceUuid))
             {
                 if (multiline)
                 {
@@ -110,7 +110,12 @@ namespace MTConnect.Shdr
                 }
                 else
                 {
-                    return $"{DeviceDesignator}|{DeviceUuid}|{Xml}";
+                    var xmlBytes = XmlDevice.ToXml(Device, false);
+                    if (xmlBytes != null)
+                    {
+                        var xml = Encoding.UTF8.GetString(xmlBytes);
+                        return $"{DeviceDesignator}|{DeviceUuid}|{xml}";
+                    }
                 }
             }
 
@@ -119,13 +124,51 @@ namespace MTConnect.Shdr
 
         private static string ToString(ShdrDevice device, bool ignoreTimestamp = false)
         {
-            if (device != null && !string.IsNullOrEmpty(device.DeviceUuid) && !string.IsNullOrEmpty(device.Xml))
+            if (device != null && !string.IsNullOrEmpty(device.DeviceUuid))
             {
-                return $"{DeviceDesignator}|{device.DeviceUuid}|{device.Xml}";
+                return device.ToString();
             }
 
             return "";
         }
+
+        //public string ToString(bool multiline = false)
+        //{
+        //    if (!string.IsNullOrEmpty(DeviceUuid) && !string.IsNullOrEmpty(Xml))
+        //    {
+        //        if (multiline)
+        //        {
+        //            var multilineId = StringFunctions.RandomString(10);
+
+        //            var header = $"{DeviceDesignator}|{DeviceUuid}|--multiline--{multilineId}";
+
+        //            var xml = XmlDevice.ToXml(Device, true);
+
+        //            var result = header;
+        //            result += "\n";
+        //            result += xml;
+        //            result += $"\n--multiline--{multilineId}\n";
+
+        //            return result;
+        //        }
+        //        else
+        //        {
+        //            return $"{DeviceDesignator}|{DeviceUuid}|{Xml}";
+        //        }
+        //    }
+
+        //    return null;
+        //}
+
+        //private static string ToString(ShdrDevice device, bool ignoreTimestamp = false)
+        //{
+        //    if (device != null && !string.IsNullOrEmpty(device.DeviceUuid) && !string.IsNullOrEmpty(device.Xml))
+        //    {
+        //        return $"{DeviceDesignator}|{device.DeviceUuid}|{device.Xml}";
+        //    }
+
+        //    return "";
+        //}
 
 
         #region "Commands"

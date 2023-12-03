@@ -175,10 +175,12 @@ namespace MTConnect
                 //Console.WriteLine(json);
 
                 var utf8 = System.Text.Encoding.UTF8.GetBytes(json);
-                Console.WriteLine($"JSON = {utf8.Length / 1000}");
+                Console.WriteLine($"JSON = {(double)utf8.Length / 1000}kb");
+                //Console.WriteLine($"JSON = {utf8.Length / 1000}");
 
                 var payload = CompressPayload(utf8);
-                Console.WriteLine($"JSON-gzip = {payload.Length / 1000}");
+                Console.WriteLine($"JSON-gzip = {(double)payload.Length / 1000}kb");
+                //Console.WriteLine($"JSON-gzip = {payload.Length / 1000}");
 
                 var message = new MqttApplicationMessage();
                 message.Topic = $"{_configuration.Topic}/{_configuration.DeviceKey}/observations-gzip";
@@ -199,7 +201,7 @@ namespace MTConnect
             return true;
         }
 
-        public override bool AddDevices(IEnumerable<IDevice> devices)
+        public override bool AddDevices(IEnumerable<IDeviceInput> devices)
         {
             return true;
         }

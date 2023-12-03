@@ -969,11 +969,14 @@ namespace MTConnect.Devices
                         source.ComponentId = dataItem.Source.ComponentId;
                         if (mtconnectVersion >= MTConnectVersions.Version14) source.CompositionId = dataItem.Source.CompositionId;
                         source.DataItemId = dataItem.Source.DataItemId;
-                        obj.Source = source;
+
+                        if (!string.IsNullOrEmpty(source.ComponentId) || !string.IsNullOrEmpty(source.CompositionId) || !string.IsNullOrEmpty(source.DataItemId))
+                        {
+                            obj.Source = source;
+                        }
                     }
 
                     // Check Relationships
-                    obj.Relationships = dataItem.Relationships;
                     if (dataItem.Relationships != null && mtconnectVersion >= MTConnectVersions.Version15)
                     {
                         var relationships = new List<IAbstractDataItemRelationship>();

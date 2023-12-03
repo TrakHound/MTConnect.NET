@@ -19,5 +19,8 @@ namespace MTConnect.Devices
         /// The Type of Device
         /// </summary>
         string Type { get; }
+
+
+        string GenerateHash();
     }
 }

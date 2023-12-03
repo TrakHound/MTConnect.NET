@@ -429,15 +429,21 @@ namespace MTConnect.Shdr
                                 var shdrAsset = ShdrAsset.FromString(line);
                                 if (shdrAsset != null)
                                 {
-                                    var assetType = Asset.GetAssetType(shdrAsset.AssetType);
-                                    if (assetType != null)
+                                    var asset = XmlAsset.FromXml(shdrAsset.AssetType, Encoding.UTF8.GetBytes(shdrAsset.Xml));
+                                    if (asset != null)
                                     {
-                                        var asset = XmlAsset.FromXml(assetType, Encoding.UTF8.GetBytes(shdrAsset.Xml));
-                                        if (asset != null)
-                                        {
-                                            OnAssetReceived(asset);
-                                        }
+                                        OnAssetReceived(asset);
                                     }
+
+                                    //var assetType = Asset.GetAssetType(shdrAsset.AssetType);
+                                    //if (assetType != null)
+                                    //{
+                                    //    var asset = XmlAsset.FromXml(assetType, Encoding.UTF8.GetBytes(shdrAsset.Xml));
+                                    //    if (asset != null)
+                                    //    {
+                                    //        OnAssetReceived(asset);
+                                    //    }
+                                    //}
                                 }
 
                                 // Raise ProtocolReceived Event passing the Line that was read as a parameter

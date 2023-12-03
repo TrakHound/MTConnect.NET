@@ -68,7 +68,7 @@ namespace MTConnect.Agents
         public IObservationInput Process(ProcessObservation observation)
         {
             var defaultObservation = new ObservationInput();
-            defaultObservation.DeviceKey = observation.DataItem.Device.Uuid;
+            defaultObservation.DeviceKey = observation.DataItem.Device?.Uuid;
             defaultObservation.DataItemKey = observation.DataItem.Id;
             defaultObservation.Values = observation.Values;
             defaultObservation.Timestamp = observation.Timestamp.ToUnixTime();

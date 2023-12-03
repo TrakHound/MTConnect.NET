@@ -20,7 +20,7 @@ namespace MTConnect.Input
 
         event EventHandler<IAssetInput> AssetAdded;
 
-        event EventHandler<IDevice> DeviceAdded;
+        event EventHandler<IDeviceInput> DeviceAdded;
 
 
         void Start();
@@ -39,7 +39,11 @@ namespace MTConnect.Input
 
         void AddAsset(IAsset asset);
 
+        void AddAsset(IAssetInput assetInput);
+
 
         void AddDevice(IDevice device);
+
+        void AddDevice(IDeviceInput deviceInput);
     }
 }

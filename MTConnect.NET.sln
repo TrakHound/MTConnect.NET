@@ -88,8 +88,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-Protobuf", "l
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-AgentModule-MqttAdapter", "agent\Modules\MTConnect.NET-AgentModule-MqttAdapter\MTConnect.NET-AgentModule-MqttAdapter.csproj", "{ACD5D3A4-0474-4E24-BF18-1F699CDB101F}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{8B92CDDC-1202-44D3-8858-FA4581BCFF8A}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-Adapter", "adapter\MTConnect.NET-Adapter\MTConnect.NET-Adapter.csproj", "{26DB5DDD-5D08-4BB7-82EA-16595332CF24}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-Agent", "agent\MTConnect.NET-Agent\MTConnect.NET-Agent.csproj", "{04171268-E71D-45F5-9B14-C325AB522BD1}"

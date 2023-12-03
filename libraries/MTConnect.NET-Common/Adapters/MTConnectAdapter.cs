@@ -1,8 +1,6 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-using MTConnect.Assets;
-using MTConnect.Devices;
 using MTConnect.Input;
 using System;
 using System.Collections.Generic;
@@ -23,7 +21,9 @@ namespace MTConnect.Adapters
         private readonly int? _interval;
         private readonly bool _bufferEnabled;
 
-        private readonly Dictionary<string, IDevice> _devices = new Dictionary<string, IDevice>();
+        private readonly Dictionary<string, IDeviceInput> _currentDevices = new Dictionary<string, IDeviceInput>();
+        private readonly Dictionary<string, IDeviceInput> _lastDevices = new Dictionary<string, IDeviceInput>();
+        private readonly Dictionary<byte[], bool> _sentDevices = new Dictionary<byte[], bool>();
 
         private readonly Dictionary<string, IAssetInput> _currentAssets = new Dictionary<string, IAssetInput>();
         private readonly Dictionary<string, IAssetInput> _lastAssets = new Dictionary<string, IAssetInput>();
@@ -33,17 +33,6 @@ namespace MTConnect.Adapters
         private readonly Dictionary<string, IObservationInput> _lastObservations = new Dictionary<string, IObservationInput>();
         private readonly ItemQueue<IObservationInput> _observationsBuffer = new ItemQueue<IObservationInput>();
         private readonly Dictionary<byte[], bool> _sentObservations = new Dictionary<byte[], bool>();
-
-        //private readonly Dictionary<string, IObservationInput> _currentAssets = new Dictionary<string, IObservationInput>();
-        //private readonly Dictionary<string, IObservationInput> _lastAssets = new Dictionary<string, IObservationInput>();
-        //private readonly ItemQueue<IObservationInput> _observationsBuffer = new ItemQueue<IObservationInput>();
-        //private readonly Dictionary<byte[], bool> _sentObservations = new Dictionary<byte[], bool>();
-
-
-        //private readonly Dictionary<string, IConditionObservationInput> _currentConditionObservations = new Dictionary<string, IConditionObservationInput>();
-        //private readonly Dictionary<string, IConditionObservationInput> _lastConditionObservations = new Dictionary<string, IConditionObservationInput>();
-        //private readonly ItemQueue<IConditionObservationInput> _conditionObservationsBuffer = new ItemQueue<IConditionObservationInput>();
-        //private readonly Dictionary<byte[], bool> _sentConditionObservations = new Dictionary<byte[], bool>();
 
 
         private CancellationTokenSource _stop;
@@ -60,32 +49,6 @@ namespace MTConnect.Adapters
         /// </summary>
         public string DeviceKey { get; }
 
-
-        ///// <summary>
-        ///// The TCP Port used for communication
-        ///// </summary>
-        //public int Port { get; }
-
-        ///// <summary>
-        ///// The heartbeat used to maintain a connection between the Adapter and the Agent
-        ///// </summary>
-        //public int Heartbeat { get; }
-
-        ///// <summary>
-        ///// The amount of time (in milliseconds) to allow for a connection attempt to the Agent
-        ///// </summary>
-        //public int Timeout { get; set; }
-
-        ///// <summary>
-        ///// Use multiline Assets
-        ///// </summary>
-        //public bool MultilineAssets { get; set; }
-
-        ///// <summary>
-        ///// Use multiline Devices
-        ///// </summary>
-        //public bool MultilineDevices { get; set; }
-
         /// <summary>
         /// Determines whether to filter out duplicate data
         /// </summary>
@@ -100,42 +63,8 @@ namespace MTConnect.Adapters
 
         public Func<IEnumerable<IAssetInput>, bool> WriteAssetsFunction { get; set; }
 
-        public Func<IEnumerable<IDevice>, bool> WriteDevicesFunction { get; set; }
+        public Func<IEnumerable<IDeviceInput>, bool> WriteDevicesFunction { get; set; }
 
-
-        //public Func<IEnumerable<IConditionObservationInput>, bool> WriteConditionObservationsFunction { get; set; }
-
-
-        ///// <summary>
-        ///// Raised when a new Agent connection is established. Includes the AgentClient ID as an argument.
-        ///// </summary>
-        //public event EventHandler<string> AgentConnected;
-
-        ///// <summary>
-        ///// Raised when an existing Agent connection is disconnected. Includes the AgentClient ID as an argument.
-        ///// </summary>
-        //public event EventHandler<string> AgentDisconnected;
-
-        ///// <summary>
-        ///// Raised when an error occurs during an existing Agent connection. Includes the AgentClient ID as an argument.
-        ///// </summary>
-        //public event EventHandler<string> AgentConnectionError;
-
-
-        ///// <summary>
-        ///// Raised when a Ping request message is received from an Agent. Includes the AgentClient ID as an argument.
-        ///// </summary>
-        //public event EventHandler<string> PingReceived;
-
-        ///// <summary>
-        ///// Raised when a Pong response message is sent to an Agent. Includes the AgentClient ID as an argument.
-        ///// </summary>
-        //public event EventHandler<string> PongSent;
-
-        ///// <summary>
-        ///// Raised when a new line is sent to the Agent. Includes the AgentClient ID and the Line sent as an argument.
-        ///// </summary>
-        //public event EventHandler<AdapterEventArgs> LineSent;
 
         /// <summary>
         /// Raised when new data is sent to the Agent. Includes the AgentClient ID and the Line sent as an argument.
@@ -165,10 +94,6 @@ namespace MTConnect.Adapters
         {
             _stop = new CancellationTokenSource();
 
-            // Start Agent Connection Listener
-            //_connectionListener.Start(_stop.Token);
-
-
             if (_interval != null && _interval >= 0)
             {
                 // Start Write Queue
@@ -185,7 +110,6 @@ namespace MTConnect.Adapters
         public void Stop()
         {
             if (_stop != null) _stop.Cancel();
-            //_connectionListener.Stop();
 
             // Call Overridable Method
             OnStop();
@@ -316,6 +240,7 @@ namespace MTConnect.Adapters
             //WriteChangedDataSets();
             //WriteChangedTables();
             if (success) WriteChangedAssets();
+            if (success) WriteChangedDevices();
 
             // Call Overridable Method
             //OnChangedSent();
@@ -338,6 +263,7 @@ namespace MTConnect.Adapters
             //WriteLastDataSets(timestamp);
             //WriteLastTables(timestamp);
             if (success) WriteAllAssets();
+            if (success) WriteAllDevices();
             //WriteAllDevices();
 
             // Call Overridable Method
@@ -361,6 +287,7 @@ namespace MTConnect.Adapters
             //WriteChangedAssets();
 
             if (success) success = WriteChangedAssets();
+            if (success) success = WriteChangedDevices();
 
             //// Call Overridable Method
             //OnChangedSent();
@@ -519,6 +446,10 @@ namespace MTConnect.Adapters
 
                 return success;
             }
+            else
+            {
+                return true;
+            }
 
             return false;
         }
@@ -586,6 +517,10 @@ namespace MTConnect.Adapters
 
                 return success;
             }
+            else
+            {
+                return true;
+            }
 
             return false;
         }
@@ -617,6 +552,10 @@ namespace MTConnect.Adapters
 
                 return success;
             }
+            else
+            {
+                return true;
+            }
 
             return false;
         }
@@ -640,6 +579,10 @@ namespace MTConnect.Adapters
                     // Update Last Sent DataItems
                     UpdateLastObservations(sendObservations);
                 }
+            }
+            else
+            {
+                return true;
             }
 
             return false;
@@ -850,6 +793,10 @@ namespace MTConnect.Adapters
 
                 return success;
             }
+            else
+            {
+                return true;
+            }
 
             return false;
         }
@@ -880,6 +827,10 @@ namespace MTConnect.Adapters
 
                 return success;
             }
+            else
+            {
+                return true;
+            }
 
             return false;
         }
@@ -908,6 +859,238 @@ namespace MTConnect.Adapters
         {
             //// Create SHDR string to send
             //var shdrLine = ShdrAsset.RemoveAll(assetType, timestamp);
+
+            //// Write line to stream
+            //WriteLine(shdrLine);
+        }
+
+        #endregion
+
+        #region "Devices"
+
+        /// <summary>
+        /// Add the specified MTConnect Device and sends it to the Agent
+        /// </summary>
+        /// <param name="device">The Device to send</param>
+        private void SendDevice(IDeviceInput device)
+        {
+            if (device != null && device.DeviceKey != null)
+            {
+                //// Set Timestamp (if not already set)
+                //if (!OutputTimestamps) device.Timestamp = 0;
+                //else if (device.Timestamp <= 0) device.Timestamp = UnixDateTime.Now;
+
+                lock (_lock)
+                {
+                    // Check to see if Device already exists in list
+                    var existing = _lastDevices.FirstOrDefault(o => o.Key == device.DeviceKey).Value;
+                    if (existing == null)
+                    {
+                        _lastDevices.Add(device.DeviceKey, device);
+                    }
+                    else
+                    {
+                        _lastDevices.Remove(device.DeviceKey);
+                        _lastDevices.Add(device.DeviceKey, device);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Add the specified MTConnect Devices and sends them to the Agent
+        /// </summary>
+        /// <param name="devices">The Devices to send</param>
+        private void SendDevices(IEnumerable<IDeviceInput> devices)
+        {
+            if (!devices.IsNullOrEmpty())
+            {
+                foreach (var item in devices)
+                {
+                    SendDevice(item);
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// Add the specified MTConnect Device
+        /// </summary>
+        /// <param name="device">The Device to add</param>
+        public void AddDevice(IDeviceInput device)
+        {
+            if (device != null && device.DeviceKey != null)
+            {
+                var newDevice = new DeviceInput(device);
+
+                // Set Timestamp (if not already set)
+                if (!OutputTimestamps) newDevice.Timestamp = 0;
+                else if (newDevice.Timestamp <= 0) newDevice.Timestamp = UnixDateTime.Now;
+
+                // Get the Current Device (if exists)
+                IDeviceInput currentDevice;
+                lock (_lock) _currentDevices.TryGetValue(newDevice.DeviceKey, out currentDevice);
+
+                // Check to see if new Device is the same as the Current
+                var add = true;
+                if (currentDevice != null && FilterDuplicates)
+                {
+                    add = !ObjectExtensions.ByteArraysEqual(newDevice.ChangeId, currentDevice.ChangeId);
+                }
+
+                if (add)
+                {
+                    // Add to Current
+                    lock (_lock)
+                    {
+                        _currentDevices.Remove(newDevice.DeviceKey);
+                        _currentDevices.Add(newDevice.DeviceKey, newDevice);
+                    }
+
+                    // Call Overridable Method
+                    //OnDeviceAdd(newDevice);
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// Add the specified MTConnect Devices
+        /// </summary>
+        /// <param name="devices">The Devices to send</param>
+        private void AddDevices(IEnumerable<IDeviceInput> devices)
+        {
+            if (!devices.IsNullOrEmpty())
+            {
+                foreach (var item in devices)
+                {
+                    AddDevice(item);
+                }
+            }
+        }
+
+
+        protected void UpdateLastDevice(IEnumerable<IDeviceInput> devices)
+        {
+            if (!devices.IsNullOrEmpty())
+            {
+                // Find the most recent Device for each DeviceId
+                var deviceKeys = devices.Select(o => o.DeviceKey).Distinct();
+                foreach (var deviceKey in deviceKeys)
+                {
+                    var keyDevices = devices.Where(o => o.DeviceKey == deviceKey);
+                    var mostRecent = keyDevices.OrderByDescending(o => o.Timestamp).FirstOrDefault();
+
+                    lock (_lock)
+                    {
+                        _lastDevices.Remove(mostRecent.DeviceKey);
+                        _lastDevices.Add(mostRecent.DeviceKey, mostRecent);
+                    }
+                }
+            }
+        }
+
+
+        protected bool WriteChangedDevices()
+        {
+            // Get a list of all Current Devices
+            List<IDeviceInput> devices;
+            lock (_lock)
+            {
+                // Get List of Table that need to be Updated
+                devices = new List<IDeviceInput>();
+                var items = _currentDevices.Values;
+                foreach (var item in items)
+                {
+                    var isSent = false;
+                    if (_sentDevices.ContainsKey(item.ChangeId)) isSent = _sentDevices[item.ChangeId];
+
+                    if (!isSent)
+                    {
+                        _sentDevices.Remove(item.ChangeId);
+                        _sentDevices.Add(item.ChangeId, true);
+
+                        devices.Add(item);
+                    }
+                }
+            }
+
+            if (!devices.IsNullOrEmpty())
+            {
+                var success = WriteDevicesFunction(devices);
+                if (success)
+                {
+                    UpdateLastDevice(devices);
+                }
+
+                return success;
+            }
+            else
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        protected bool WriteAllDevices()
+        {
+            // Get a list of all Devices
+            IEnumerable<IDeviceInput> devices;
+            lock (_lock) devices = _lastDevices.Values.ToList();
+
+            if (!devices.IsNullOrEmpty())
+            {
+                var success = WriteDevicesFunction(devices);
+                if (success)
+                {
+                    UpdateLastDevice(devices);
+                }
+
+                //bool success = false;
+
+                //foreach (var item in devices)
+                //{
+                //    // Create SHDR string to send
+                //    var shdrLine = item.ToString(MultilineDevices);
+                //    success = WriteLine(shdrLine);
+                //    if (!success) break;
+                //}
+
+                return success;
+            }
+            else
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+
+        /// <summary>
+        /// Remove the specified Device using the SHDR command @REMOVE_ASSET@
+        /// </summary>
+        /// <param name="deviceId">The DeviceId of the Device to remove</param>
+        /// <param name="timestamp">The timestamp to send as part of the SHDR command</param>
+        public void RemoveDevice(string deviceId, long timestamp = 0)
+        {
+            //// Create SHDR string to send
+            //var shdrLine = ShdrDevice.Remove(deviceId, timestamp);
+
+            //// Write line to stream
+            //WriteLine(shdrLine);
+        }
+
+        /// <summary>
+        /// Remove all Devices of the specified Type using the SHDR command @REMOVE_ALL_ASSETS@
+        /// </summary>
+        /// <param name="deviceType">The Type of the Devices to remove</param>
+        /// <param name="timestamp">The timestamp to send as part of the SHDR command</param>
+        public void RemoveAllDevices(string deviceType, long timestamp = 0)
+        {
+            //// Create SHDR string to send
+            //var shdrLine = ShdrDevice.RemoveAll(deviceType, timestamp);
 
             //// Write line to stream
             //WriteLine(shdrLine);

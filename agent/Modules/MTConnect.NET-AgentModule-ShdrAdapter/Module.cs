@@ -36,8 +36,8 @@ namespace MTConnect.Modules
         {
             if (_configuration != null)
             {
-                var devices = _mtconnectAgent.GetDevices();
-                if (devices != null)
+                var devices = _mtconnectAgent.GetDevices()?.Where(o => o.Type != Devices.Agent.TypeId);
+                if (!devices.IsNullOrEmpty())
                 {
                     if (_configuration.DeviceKey != ShdrClientConfiguration.DeviceKeyWildcard)
                     {
@@ -53,6 +53,13 @@ namespace MTConnect.Modules
                         //foreach (var device in devices) AddAdapter(adapter, device, initializeDataItems, device.Id);
                     }
                 }
+                //else if (_configuration.AllowShdrDevice) // Prevent accidental generic Adapter creation
+                else
+                {
+                    // Add a generic Adapter Client (no Device)
+                    // Typically used if the Device Model is sent using SHDR
+                    AddAdapter(_configuration, null);
+                }
             }
         }
 
@@ -63,16 +70,13 @@ namespace MTConnect.Modules
             {
                 foreach (var adapter in _adapters)
                 {
-                    //if (_verboseLogging)
-                    //{
-                        adapter.Connected -= AdapterConnected;
-                        adapter.Disconnected -= AdapterDisconnected;
-                        adapter.ConnectionError -= AdapterConnectionError;
-                        adapter.Listening -= AdapterListening;
-                        adapter.PingSent -= AdapterPingSent;
-                        adapter.PongReceived -= AdapterPongReceived;
-                        adapter.ProtocolReceived -= AdapterProtocolReceived;
-                    //}
+                    adapter.Connected -= AdapterConnected;
+                    adapter.Disconnected -= AdapterDisconnected;
+                    adapter.ConnectionError -= AdapterConnectionError;
+                    adapter.Listening -= AdapterListening;
+                    adapter.PingSent -= AdapterPingSent;
+                    adapter.PongReceived -= AdapterPongReceived;
+                    adapter.ProtocolReceived -= AdapterProtocolReceived;
 
                     adapter.Stop();
                 }
@@ -105,16 +109,13 @@ namespace MTConnect.Modules
                 var adapterClient = new ShdrAdapterClient(configuration, _mtconnectAgent, device, idSuffix);
                 _adapters.Add(adapterClient);
 
-                //if (_verboseLogging)
-                //{
-                    adapterClient.Connected += AdapterConnected;
-                    adapterClient.Disconnected += AdapterDisconnected;
-                    adapterClient.ConnectionError += AdapterConnectionError;
-                    adapterClient.Listening += AdapterListening;
-                    adapterClient.PingSent += AdapterPingSent;
-                    adapterClient.PongReceived += AdapterPongReceived;
-                    adapterClient.ProtocolReceived += AdapterProtocolReceived;
-                //}
+                adapterClient.Connected += AdapterConnected;
+                adapterClient.Disconnected += AdapterDisconnected;
+                adapterClient.ConnectionError += AdapterConnectionError;
+                adapterClient.Listening += AdapterListening;
+                adapterClient.PingSent += AdapterPingSent;
+                adapterClient.PongReceived += AdapterPongReceived;
+                adapterClient.ProtocolReceived += AdapterProtocolReceived;
 
                 // Start the Adapter Client
                 adapterClient.Start();

@@ -24,15 +24,18 @@ namespace MTConnect.Input
         /// </summary>
         public string AssetId { get; set; }
 
+        /// <summary>
+        /// The Asset to add
+        /// </summary>
         public IAsset Asset { get; set; }
 
         /// <summary>
-        /// The timestamp (UnixTime in Milliseconds) that the observation was recorded at
+        /// The timestamp (UnixTime in Milliseconds) that the Asset was recorded at
         /// </summary>
         public long Timestamp { get; set; }
 
         /// <summary>
-        /// An MD5 Hash of the Observation that can be used for comparison
+        /// An MD5 Hash of the Asset that can be used for comparison
         /// </summary>
         public byte[] ChangeId
         {
@@ -44,7 +47,7 @@ namespace MTConnect.Input
         }
 
         /// <summary>
-        /// An MD5 Hash of the Observation including the Timestamp that can be used for comparison
+        /// An MD5 Hash of the Asset including the Timestamp that can be used for comparison
         /// </summary>
         public byte[] ChangeIdWithTimestamp
         {
@@ -87,7 +90,7 @@ namespace MTConnect.Input
         }
 
 
-        private static byte[] CreateChangeId(AssetInput assetInput, bool includeTimestamp)
+        private static byte[] CreateChangeId(IAssetInput assetInput, bool includeTimestamp)
         {
             if (assetInput != null && assetInput.Asset != null)
             {

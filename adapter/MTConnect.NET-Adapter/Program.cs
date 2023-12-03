@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Reflection;
 using MTConnect.Assets.CuttingTools.Measurements;
 using MTConnect.Assets.CuttingTools;
+using MTConnect.Devices;
+using MTConnect.Devices.Xml;
 
 namespace MTConnect.Applications
 {
@@ -17,6 +19,7 @@ namespace MTConnect.Applications
         // Copyright statement for the application. If you are implementing this into your own application, you can change this to your own copyright, or set it to 'null'.
         // This is just what is shown in the console header.
         private const string ApplicationCopyright = "Copyright 2023";
+
 
         public static void Main(string[] args)
         {
@@ -41,6 +44,13 @@ namespace MTConnect.Applications
             // DEBUG !!!
             app.Run(args, false);
 
+
+            Console.ReadLine();
+
+            var device = XmlDevice.FromXml(System.IO.File.ReadAllBytes(@"D:\TrakHound\Source-Code\MTConnect.NET\agent\MTConnect.NET-Agent\bin\Debug\net8.0\devices\device-mazak.xml"));
+            app.DataSource.AddDevice(device);
+
+
             var x = 0;
             var i = 0;
             var j = 0d;
@@ -61,7 +71,7 @@ namespace MTConnect.Applications
                 for (var e = 0; e < 100; e++)
                 {
                     datasetEntries.Add(new DataSetEntry($"E{e.ToString("D3")}", rnd.NextDouble() * 100));
-                }           
+                }
                 var dataset = new DataSetObservationInput("testDataSet", datasetEntries);
                 app.DataSource.AddObservation(dataset);
 
@@ -92,8 +102,16 @@ namespace MTConnect.Applications
                 app.DataSource.AddObservation(timeSeries);
 
 
-                app.DataSource.AddAsset(CuttingTool(j));
+                app.DataSource.AddAsset(CuttingTool(device.Uuid, j));
                 j += 23.3455;
+
+
+
+
+                //Console.ReadLine();
+
+                //var device2 = XmlDevice.FromXml(System.IO.File.ReadAllBytes(@"D:\TrakHound\Source-Code\MTConnect.NET\agent\MTConnect.NET-Agent\bin\Debug\net8.0\devices\device-okuma.xml"));
+                //app.DataSource.AddDevice(device2);
 
 
                 //switch (i)
@@ -126,9 +144,10 @@ namespace MTConnect.Applications
 
         }
 
-        public static CuttingToolAsset CuttingTool(double toolLifeValue)
+        public static CuttingToolAsset CuttingTool(string deviceKey, double toolLifeValue)
         {
             var tool = new CuttingToolAsset();
+            tool.DeviceUuid = deviceKey;
             tool.SerialNumber = "12345678946";
             tool.AssetId = "5.12";
             tool.ToolId = "12";

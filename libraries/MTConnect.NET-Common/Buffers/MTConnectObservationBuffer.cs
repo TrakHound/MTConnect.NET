@@ -495,6 +495,7 @@ namespace MTConnect.Buffers
                         }
                     }
 
+                    //if (_archiveObservations.Size > 0 && toIndex <= _archiveObservations.Size && toIndex >= fromIndex)
                     if (_archiveObservations.Size > 0 && toIndex < _archiveObservations.Size && toIndex >= fromIndex)
                     {
                         bufferObservations = _archiveObservations;

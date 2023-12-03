@@ -131,7 +131,6 @@ namespace MTConnect.Shdr
                 Asset = asset;
                 Xml = XmlAsset.ToXml(asset);
                 Timestamp = asset.Timestamp.ToUnixTime();
-                //Timestamp = asset.Timestamp;
             }
         }
 
