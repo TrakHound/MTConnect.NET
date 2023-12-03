@@ -115,19 +115,62 @@ A preconfigured [Application](https://github.com/TrakHound/MTConnect.NET/tree/ve
 
 ## Nuget Packages
 The Nuget packages for the libraries in this repo are listed below:
-- [MTConnect.NET](https://www.nuget.org/packages/MTConnect.NET/)
-- [MTConnect.NET-Common](https://www.nuget.org/packages/MTConnect.NET-Common/)
-- [MTConnect.NET-HTTP](https://www.nuget.org/packages/MTConnect.NET-HTTP/)
-- [MTConnect.NET-HTTP-AspNetCore](https://www.nuget.org/packages/MTConnect.NET-HTTP-AspNetCore/)
-- [MTConnect.NET-XML](https://www.nuget.org/packages/MTConnect.NET-XML/)
-- [MTConnect.NET-JSON](https://www.nuget.org/packages/MTConnect.NET-JSON/)
-- [MTConnect.NET-SHDR](https://www.nuget.org/packages/MTConnect.NET-SHDR/)
-- [MTConnect.NET-MQTT](https://www.nuget.org/packages/MTConnect.NET-MQTT/)
-- [MTConnect.NET-Services](https://www.nuget.org/packages/MTConnect.NET-Services/)
-- [MTConnect.NET-DeviceFinder](https://www.nuget.org/packages/MTConnect.NET-DeviceFinder/)
-- [MTConnect.NET-Applications-Adaters](https://www.nuget.org/packages/MTConnect.NET-Applications-Adapters/)
-- [MTConnect.NET-Applications-Agents](https://www.nuget.org/packages/MTConnect.NET-Applications-Agents/)
-- [MTConnect.NET-Applications-Agents-MQTT](https://www.nuget.org/packages/MTConnect.NET-Applications-Agents-MQTT/)
+<table>
+    <thead>
+        <tr>
+            <th style="text-align: left;min-width: 100px;">Name</th>
+            <th style="text-align: center;min-width: 90px;">Downloads</th>
+            <th style="text-align: left;">Link</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>MTConnect.NET</td>
+            <td style="text-align: center;"><img src="https://img.shields.io/nuget/dt/MTConnect.NET?style=for-the-badge&logo=nuget&label=%20&color=%23333"/></td>
+            <td><a href="https://www.nuget.org/packages/MTConnect.NET">https://www.nuget.org/packages/MTConnect.NET</a></td>
+        </tr>
+        <tr>
+            <td>MTConnect.NET-Common</td>
+            <td style="text-align: center;"><img src="https://img.shields.io/nuget/dt/MTConnect.NET-Common?style=for-the-badge&logo=nuget&label=%20&color=%23333"/></td>
+            <td><a href="https://www.nuget.org/packages/MTConnect.NET-Common">https://www.nuget.org/packages/MTConnect.NET-Common</a></td>
+        </tr>
+        <tr>
+            <td>MTConnect.NET-HTTP</td>
+            <td style="text-align: center;"><img src="https://img.shields.io/nuget/dt/MTConnect.NET-HTTP?style=for-the-badge&logo=nuget&label=%20&color=%23333"/></td>
+            <td><a href="https://www.nuget.org/packages/MTConnect.NET-HTTP">https://www.nuget.org/packages/MTConnect.NET-HTTP</a></td>
+        </tr>
+        <tr>
+            <td>MTConnect.NET-SHDR</td>
+            <td style="text-align: center;"><img src="https://img.shields.io/nuget/dt/MTConnect.NET-SHDR?style=for-the-badge&logo=nuget&label=%20&color=%23333"/></td>
+            <td><a href="https://www.nuget.org/packages/MTConnect.NET-SHDR">https://www.nuget.org/packages/MTConnect.NET-SHDR</a></td>
+        </tr>
+        <tr>
+            <td>MTConnect.NET-MQTT</td>
+            <td style="text-align: center;"><img src="https://img.shields.io/nuget/dt/MTConnect.NET-MQTT?style=for-the-badge&logo=nuget&label=%20&color=%23333"/></td>
+            <td><a href="https://www.nuget.org/packages/MTConnect.NET-MQTT">https://www.nuget.org/packages/MTConnect.NET-MQTT</a></td>
+        </tr>
+        <tr>
+            <td>MTConnect.NET-XML</td>
+            <td style="text-align: center;"><img src="https://img.shields.io/nuget/dt/MTConnect.NET-XML?style=for-the-badge&logo=nuget&label=%20&color=%23333"/></td>
+            <td><a href="https://www.nuget.org/packages/MTConnect.NET-XML">https://www.nuget.org/packages/MTConnect.NET-XML</a></td>
+        </tr>
+        <tr>
+            <td>MTConnect.NET-JSON</td>
+            <td style="text-align: center;"><img src="https://img.shields.io/nuget/dt/MTConnect.NET-JSON?style=for-the-badge&logo=nuget&label=%20&color=%23333"/></td>
+            <td><a href="https://www.nuget.org/packages/MTConnect.NET-JSON">https://www.nuget.org/packages/MTConnect.NET-JSON</a></td>
+        </tr>
+        <tr>
+            <td>MTConnect.NET-Services</td>
+            <td style="text-align: center;"><img src="https://img.shields.io/nuget/dt/MTConnect.NET-Services?style=for-the-badge&logo=nuget&label=%20&color=%23333"/></td>
+            <td><a href="https://www.nuget.org/packages/MTConnect.NET-Services">https://www.nuget.org/packages/MTConnect.NET-Services</a></td>
+        </tr>
+        <tr>
+            <td>MTConnect.NET-DeviceFinder</td>
+            <td style="text-align: center;"><img src="https://img.shields.io/nuget/dt/MTConnect.NET-DeviceFinder?style=for-the-badge&logo=nuget&label=%20&color=%23333"/></td>
+            <td><a href="https://www.nuget.org/packages/MTConnect.NET-DeviceFinder">https://www.nuget.org/packages/MTConnect.NET-DeviceFinder</a></td>
+        </tr>
+    </tbody>
+</table>
 
 ## Supported Frameworks
 - .NET 8.0
