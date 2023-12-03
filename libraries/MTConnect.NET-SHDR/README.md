@@ -1,6 +1,17 @@
 # MTConnect.NET-SHDR
 Classes to handle the SHDR Agent Adapter Protocol associated with the MTConnect Standard.
 
+## Download
+<table>
+    <tbody>
+        <tr>
+            <td>Nuget</td>
+            <td><img src="https://img.shields.io/nuget/dt/MTConnect.NET-SHDR?style=for-the-badge&logo=nuget&label=%20&color=%23333"/></td>
+            <td><a href="https://www.nuget.org/packages/MTConnect.NET-SHDR">https://www.nuget.org/packages/MTConnect.NET-SHDR</a></td>
+        </tr>
+    </tbody>
+</table>
+
 ## Overview
 The ShdrAdapter classes handle the TCP connection to the Agent:
 

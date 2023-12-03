@@ -1,5 +1,18 @@
 # DeviceFinder
 
+## Download
+<table>
+    <tbody>
+        <tr>
+            <td>Nuget</td>
+            <td><img src="https://img.shields.io/nuget/dt/MTConnect.NET-DeviceFinder?style=for-the-badge&logo=nuget&label=%20&color=%23333"/></td>
+            <td><a href="https://www.nuget.org/packages/MTConnect.NET-DeviceFinder">https://www.nuget.org/packages/MTConnect.NET-DeviceFinder</a></td>
+        </tr>
+    </tbody>
+</table>
+
+
+## Overview
 The MTConnect.NET-DeviceFinder library is used to search a network to find MTConnect Devices. The MTConnectDeviceFinder class contains events for when a new MTConnect Device has been found as well as events for what IP addresses were reachable and what ports were open on those addresses.
 
 The sequence of operations is describe below:
@@ -8,7 +21,7 @@ The sequence of operations is describe below:
 - Test Ports : For each IP address that was successfully Pinged, a TCP connection is established based on the specified PortRange to test if the port is open and if there is an application listening on the port
 - Request MTConnect Probe : For each of the Ports that were found to be open in the previous test, an MTConnect Probe request is sent to attempt to connect to an MTConnect Agent. If any devices are found, each MTConnect Device is returned in a separate DeviceFound event that contains information about the MTConnect Device and the Network connection.
 
-### Usage
+## Usage
 ```c#
 using MTConnect.DeviceFinder;
 

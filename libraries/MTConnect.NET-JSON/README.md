@@ -1,6 +1,17 @@
 ﻿# MTConnect.NET-JSON
 MTConnect.NET-JSON is an extension library to MTConnect.NET that provides reading and writing as JSON formatted Response Documents
 
+## Download
+<table>
+    <tbody>
+        <tr>
+            <td>Nuget</td>
+            <td><img src="https://img.shields.io/nuget/dt/MTConnect.NET-JSON?style=for-the-badge&logo=nuget&label=%20&color=%23333"/></td>
+            <td><a href="https://www.nuget.org/packages/MTConnect.NET-JSON">https://www.nuget.org/packages/MTConnect.NET-JSON</a></td>
+        </tr>
+    </tbody>
+</table>
+
 ## Devices
 MTConnectDevicesResponse documents are formatted as shown below.
 

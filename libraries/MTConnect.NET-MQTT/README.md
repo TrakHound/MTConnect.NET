@@ -1,6 +1,17 @@
 ﻿# MTConnect.NET-MQTT
 MTConnect.NET-MQTT is an extension library to MTConnect.NET that provides an MQTT Broker & Client interface to an IMTConnectAgent interface.
 
+## Download
+<table>
+    <tbody>
+        <tr>
+            <td>Nuget</td>
+            <td><img src="https://img.shields.io/nuget/dt/MTConnect.NET-MQTT?style=for-the-badge&logo=nuget&label=%20&color=%23333"/></td>
+            <td><a href="https://www.nuget.org/packages/MTConnect.NET-MQTT">https://www.nuget.org/packages/MTConnect.NET-MQTT</a></td>
+        </tr>
+    </tbody>
+</table>
+
 ## Devices
 The **MTConnect/Devices** topics are used to send data that is in an MTConnectDevicesResponse document.
 

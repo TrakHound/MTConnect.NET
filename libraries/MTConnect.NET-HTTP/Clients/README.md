@@ -1,5 +1,5 @@
 # MTConnect Http REST Clients
-These client classes use the Http REST Api that is described in [MTConnect Standard](https://model.mtconnect.org/#Package__8082e379-d82e-4b0e-abad-83cdf92f7fe6).
+These client classes use the Http REST Api that is described in the [MTConnect Standard](https://model.mtconnect.org/#Package__8082e379-d82e-4b0e-abad-83cdf92f7fe6).
 
 ## MTConnectHttpClient
 The [MTConnectHttpClient](MTConnectHttpClient.cs) class is the primary class to use when wanting to implement the full MTConnect REST protocol. This class handles an initial Probe request to gather capabilities of the Agent, a Current request to read the initial values, and a Sample request (at the specified Interval) to read successive values.
