@@ -9,6 +9,7 @@
     <thead>
         <tr>
             <th style="text-align: left;min-width: 100px;">Name</th>
+            <th style="text-align: left;min-width: 100px;"></th>
             <th style="text-align: left;"></th>
             <th style="text-align: left;">Link</th>
         </tr>
@@ -16,10 +17,18 @@
     <tbody>
         <tr>
             <td>Agent</td>
+            <td>Installer</td>
             <td><img src="https://img.shields.io/github/downloads/TrakHound/MTConnect.NET/total?style=for-the-badge&logo=github&label=%20&color=%23333"/></td>
             <td><a href="https://github.com/TrakHound/MTConnect.NET/releases/download/v5.4.3/MTConnect-Agent-HTTP-5.4.3-Install.exe">https://github.com/TrakHound/MTConnect.NET/releases</a></td>
+        </tr>        
+        <tr>
+            <td>Agent</td>
+            <td>Docker</td>
+            <td><img src="https://img.shields.io/docker/pulls/trakhound/mtconnect.net-agent?style=for-the-badge&logo=docker&label=%20&color=%23333"/></td>
+            <td><a href="https://hub.docker.com/repository/docker/trakhound/mtconnect.net-agent">https://hub.docker.com/repository/docker/trakhound/mtconnect.net-agent</a></td>
         </tr>
         <tr>
+            <td>Client</td>
             <td>Nuget</td>
             <td><img src="https://img.shields.io/nuget/dt/MTConnect.NET?style=for-the-badge&logo=nuget&label=%20&color=%23333"/></td>
             <td><a href="https://www.nuget.org/packages/MTConnect.NET">https://www.nuget.org/packages/MTConnect.NET</a></td>
