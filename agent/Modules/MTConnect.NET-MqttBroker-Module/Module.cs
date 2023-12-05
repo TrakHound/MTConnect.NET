@@ -12,6 +12,7 @@ using MTConnect.Streams.Output;
 using System;
 using System.IO;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MTConnect.Modules
@@ -20,12 +21,10 @@ namespace MTConnect.Modules
     {
         public const string ConfigurationTypeId = "mqtt-broker";
 
-        //private readonly Logger _httpLogger = LogManager.GetLogger("http-logger");
-        //private readonly Logger _agentValidationLogger = LogManager.GetLogger("agent-validation-logger");
         private readonly ModuleConfiguration _configuration;
         private readonly MTConnectMqttServer _server;
-        //private IMTConnectAgentBroker _mtconnectAgent;
         private MqttServer _mqttServer;
+        private CancellationTokenSource _stop;
 
 
         public Module(IMTConnectAgentBroker mtconnectAgent, object configuration) : base(mtconnectAgent)
@@ -42,8 +41,10 @@ namespace MTConnect.Modules
 
         protected override void OnStartBeforeLoad()
         {
-            StartAsync().Wait();
-            //_ = Task.Run(StartAsync);
+            _stop = new CancellationTokenSource();
+
+            _ = Task.Run(StartAsync, _stop.Token);
+            Task.Delay(_configuration.InitialDelay).Wait();
         }
 
         protected override void OnStop()
@@ -54,43 +55,70 @@ namespace MTConnect.Modules
 
         private async Task StartAsync()
         {
-            var mqttServerOptionsBuilder = new MqttServerOptionsBuilder().WithDefaultEndpoint();
-
-            // Add Certificate & Private Key
-            if (!string.IsNullOrEmpty(_configuration.PemCertificate) && !string.IsNullOrEmpty(_configuration.PemPrivateKey))
+            do
             {
-                X509Certificate2 certificate = null;
+                try
+                {
+                    try
+                    {
+                        var mqttServerOptionsBuilder = new MqttServerOptionsBuilder().WithDefaultEndpoint();
+
+                        // Add Certificate & Private Key
+                        if (!string.IsNullOrEmpty(_configuration.PemCertificate) && !string.IsNullOrEmpty(_configuration.PemPrivateKey))
+                        {
+                            X509Certificate2 certificate = null;
 
 #if NET5_0_OR_GREATER
-                certificate = new X509Certificate2(X509Certificate2.CreateFromPemFile(GetFilePath(_configuration.PemCertificate), GetFilePath(_configuration.PemPrivateKey)).Export(X509ContentType.Pfx));
+                            certificate = new X509Certificate2(X509Certificate2.CreateFromPemFile(GetFilePath(_configuration.PemCertificate), GetFilePath(_configuration.PemPrivateKey)).Export(X509ContentType.Pfx));
 #endif
 
-                if (certificate != null)
-                {
-                    mqttServerOptionsBuilder.WithoutDefaultEndpoint();
-                    mqttServerOptionsBuilder.WithEncryptedEndpoint();
-                    mqttServerOptionsBuilder.WithEncryptedEndpointPort(_configuration.Port);
-                    mqttServerOptionsBuilder.WithEncryptionCertificate(certificate);
-                    mqttServerOptionsBuilder.WithEncryptionSslProtocol(System.Security.Authentication.SslProtocols.Tls12);
+                            if (certificate != null)
+                            {
+                                mqttServerOptionsBuilder.WithoutDefaultEndpoint();
+                                mqttServerOptionsBuilder.WithEncryptedEndpoint();
+                                mqttServerOptionsBuilder.WithEncryptedEndpointPort(_configuration.Port);
+                                mqttServerOptionsBuilder.WithEncryptionCertificate(certificate);
+                                mqttServerOptionsBuilder.WithEncryptionSslProtocol(System.Security.Authentication.SslProtocols.Tls12);
+                            }
+                        }
+
+                        var mqttServerOptions = mqttServerOptionsBuilder.Build();
+
+                        var mqttFactory = new MqttFactory();
+                        _mqttServer = mqttFactory.CreateMqttServer(mqttServerOptions);
+
+                        _mqttServer.ClientConnectedAsync += async (args) =>
+                        {
+                            Log(Logging.MTConnectLogLevel.Information, $"MQTT Server : Client Connected : {args.ClientId} : {args.Endpoint}");
+                        };
+                        _mqttServer.ClientDisconnectedAsync += async (args) =>
+                        {
+                            Log(Logging.MTConnectLogLevel.Information, $"MQTT Server : Client Disconnected : {args.ClientId} : {args.Endpoint}");
+                        };
+
+                        await _mqttServer.StartAsync();
+                        _server.Start();
+
+                        Log(Logging.MTConnectLogLevel.Information, "MQTT Server Started..");
+
+                        while (!_stop.Token.IsCancellationRequested && _mqttServer.IsStarted)
+                        {
+                            await Task.Delay(100);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Log(Logging.MTConnectLogLevel.Warning, $"MQTT Server Error : {ex.Message}");
+                    }
+
+                    Log(Logging.MTConnectLogLevel.Information, $"MQTT Server Stopped");
+
+                    await Task.Delay(_configuration.RestartInterval, _stop.Token);
                 }
-            }
+                catch (TaskCanceledException) { }
+                catch (Exception) { }
 
-            var mqttServerOptions = mqttServerOptionsBuilder.Build();
-
-            var mqttFactory = new MqttFactory();
-            _mqttServer = mqttFactory.CreateMqttServer(mqttServerOptions);
-
-            _mqttServer.ClientConnectedAsync += async (args) =>
-            {
-                //if (ClientConnected != null) ClientConnected.Invoke(this, new EventArgs());
-            };
-            _mqttServer.ClientDisconnectedAsync += async (args) =>
-            {
-                //if (ClientDisconnected != null) ClientDisconnected.Invoke(this, new EventArgs());
-            };
-
-            await _mqttServer.StartAsync();
-            _server.Start();
+            } while (!_stop.Token.IsCancellationRequested);
         }
 
 

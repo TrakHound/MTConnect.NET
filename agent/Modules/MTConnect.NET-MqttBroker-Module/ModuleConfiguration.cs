@@ -23,6 +23,10 @@ namespace MTConnect.Configurations
 
         public bool UseTls { get; set; }
 
+        public int InitialDelay { get; set; }
+
+        public int RestartInterval { get; set; }
+
 
         public int CurrentInterval { get; set; }
 
@@ -47,6 +51,8 @@ namespace MTConnect.Configurations
         {
             Server = "localhost";
             Port = 7878;
+            InitialDelay = 500;
+            RestartInterval = 5000;
 
             DocumentFormat = "JSON";
 
