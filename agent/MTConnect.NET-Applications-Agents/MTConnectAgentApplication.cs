@@ -362,6 +362,9 @@ namespace MTConnect.Applications
                     _mtconnectAgent.InvalidAssetAdded += InvalidAsset;
                 }
 
+                OnStartAgentBeforeLoad(null, initializeDataItems);
+                _modules.StartBeforeLoad();
+
                 // Read Device Configuration Files
                 var devicesPath = configuration.Devices;
                 if (string.IsNullOrEmpty(devicesPath)) devicesPath = "devices";
@@ -401,8 +404,12 @@ namespace MTConnect.Applications
                 _processors.Load();
                 _mtconnectAgent.ProcessObservationFunction = _processors.Process;
 
-                OnStartAgentBeforeLoad(devices, initializeDataItems);
-                _modules.StartBeforeLoad();
+
+
+
+                //OnStartAgentBeforeLoad(devices, initializeDataItems);
+                //_modules.StartBeforeLoad();
+
 
                 // Initialize Agent Current Observations/Conditions
                 // This updates the MTConnectAgent's cache used to determine duplicate observations
