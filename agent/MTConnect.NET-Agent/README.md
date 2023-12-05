@@ -4,6 +4,24 @@
 
 [![MTConnect.NET](https://github.com/TrakHound/MTConnect.NET/actions/workflows/dotnet.yml/badge.svg)](https://github.com/TrakHound/MTConnect.NET/actions/workflows/dotnet.yml)
 
+## Download
+<table>
+    <thead>
+        <tr>
+            <th style="text-align: left;min-width: 100px;">Name</th>
+            <th style="text-align: left;"></th>
+            <th style="text-align: left;">Link</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Agent</td>
+            <td><img src="https://img.shields.io/github/downloads/TrakHound/MTConnect.NET/total?style=for-the-badge&logo=github&label=%20&color=%23333"/></td>
+            <td><a href="https://github.com/TrakHound/MTConnect.NET/releases/download/v5.4.3/MTConnect-Agent-HTTP-5.4.3-Install.exe">https://github.com/TrakHound/MTConnect.NET/releases</a></td>
+        </tr>
+    </tbody>
+</table>
+
 ## Overview
 This project is a full implementation of an MTConnect Agent used to read data from industrial machine tools and devices. This MTConnect Agent application is fully compatible with the latest **Version 2.2 of the MTConnect Standard**.
 
@@ -18,11 +36,6 @@ This project is a full implementation of an MTConnect Agent used to read data fr
 - On-Demand MTConnect Versioning allowing for older clients to request the version of MTConnect they are compatible with using HTTP Url parameters
 - Configuration File monitoring to automatically restart the Agent upon configuration file changes
 - Flexible Logging using NLog which can be used to output log information to separate files for easier analysis
-
-## Download
-To download the latest release as a Windows Installer, use the link below:
-
-- [Download Latest Release Windows Installer](https://github.com/TrakHound/MTConnect.NET/releases/download/v5.1.0/TrakHound-MTConnect-Http-Agent-Install-v5.1.0.exe)
 
 ## Installation
 Follow the steps below to install the MTConnect Agent HTTP application.

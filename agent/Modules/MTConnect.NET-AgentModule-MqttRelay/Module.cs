@@ -22,8 +22,8 @@ namespace MTConnect
     {
         public const string ConfigurationTypeId = "mqtt-relay";
 
-        private readonly MTConnectMqttServer _server;
         private readonly ModuleConfiguration _configuration;
+        private readonly MTConnectMqttServer _server;
         private readonly MqttFactory _mqttFactory;
         private readonly IMqttClient _mqttClient;
         private CancellationTokenSource _stop;
