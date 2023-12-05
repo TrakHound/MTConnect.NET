@@ -32,7 +32,7 @@ namespace MTConnect.Modules
         }
 
 
-        protected override void OnStartBeforeLoad()
+        protected override void OnStartAfterLoad()
         {
             if (_configuration != null)
             {
