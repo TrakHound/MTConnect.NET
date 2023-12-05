@@ -3,11 +3,20 @@
 
 using MTConnect.Assets;
 using MTConnect.Input;
+using MTConnect.Logging;
 
 namespace MTConnect.Agents
 {
     public interface IMTConnectAgentProcessor
     {
+        string Id { get; }
+
+        string Description { get; }
+
+
+        public event MTConnectLogEventHandler LogReceived;
+
+
         IObservationInput Process(ProcessObservation observation);
 
         IAsset Process(IAsset asset);

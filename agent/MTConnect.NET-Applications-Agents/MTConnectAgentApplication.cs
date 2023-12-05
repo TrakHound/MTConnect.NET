@@ -34,6 +34,7 @@ namespace MTConnect.Applications
         protected readonly Logger _agentMetricLogger = LogManager.GetLogger("agent-metric-logger");
         protected readonly Logger _agentValidationLogger = LogManager.GetLogger("agent-validation-logger");
         protected readonly Logger _moduleLogger = LogManager.GetLogger("module-logger");
+        protected readonly Logger _processorLogger = LogManager.GetLogger("processor-logger");
 
         private readonly List<DeviceConfigurationFileWatcher> _deviceConfigurationWatchers = new List<DeviceConfigurationFileWatcher>();
 
@@ -401,6 +402,7 @@ namespace MTConnect.Applications
                 // Initilialize Processors
                 _processors = new MTConnectAgentProcessors(configuration);
                 _processors.ProcessorLoaded += ProcessorLoaded;
+                _processors.LogReceived += ProcessorLogReceived;
                 _processors.Load();
                 _mtconnectAgent.ProcessObservationFunction = _processors.Process;
 
@@ -656,6 +658,22 @@ namespace MTConnect.Applications
         private void ProcessorLoaded(object sender, IMTConnectAgentProcessor processor)
         {
             _applicationLogger.Info($"[Application] : Processor Loaded : " + processor.GetType().Name);
+        }
+
+        private void ProcessorLogReceived(object sender, MTConnectLogLevel logLevel, string message)
+        {
+            if (!string.IsNullOrEmpty(message))
+            {
+                switch (logLevel)
+                {
+                    case MTConnectLogLevel.Fatal: _processorLogger.Fatal(message); break;
+                    case MTConnectLogLevel.Error: _processorLogger.Error(message); break;
+                    case MTConnectLogLevel.Warning: _processorLogger.Warn(message); break;
+                    case MTConnectLogLevel.Information: _processorLogger.Info(message); break;
+                    case MTConnectLogLevel.Debug: _processorLogger.Debug(message); break;
+                    case MTConnectLogLevel.Trace: _processorLogger.Trace(message); break;
+                }
+            }
         }
 
         private void DevicesRequested(string deviceName)

@@ -4,6 +4,7 @@
 using MTConnect.Assets;
 using MTConnect.Configurations;
 using MTConnect.Input;
+using MTConnect.Logging;
 using System;
 using System.Collections.Generic;
 
@@ -20,6 +21,8 @@ namespace MTConnect.Agents
 
 
         public event EventHandler<IMTConnectAgentProcessor> ProcessorLoaded;
+
+        public event MTConnectLogEventHandler LogReceived;
 
 
         public MTConnectAgentProcessors(IAgentApplicationConfiguration configuration)
@@ -49,6 +52,7 @@ namespace MTConnect.Agents
                                 {
                                     // Create new Instance of the Controller and add to cached dictionary
                                     var processor = (IMTConnectAgentProcessor)Activator.CreateInstance(processorType, new object[] { processorConfiguration });
+                                    processor.LogReceived += HandleProcessorLogReceived;
 
                                     var processorId = Guid.NewGuid().ToString();
 
@@ -142,6 +146,11 @@ namespace MTConnect.Agents
                     catch { }
                 }
             }
+        }
+
+        private void HandleProcessorLogReceived(object sender, MTConnectLogLevel logLevel, string message)
+        {
+            if (LogReceived != null) LogReceived.Invoke(sender, logLevel, message);
         }
 
         private static string GetConfigurationTypeId(Type type)
