@@ -2,17 +2,15 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Agents;
-using MTConnect.Assets;
 using MTConnect.Configurations;
 using MTConnect.Input;
-using NLog;
 using System;
 using System.Collections.Generic;
 using System.IO;
 
 namespace MTConnect.Processors
 {
-    public class MTConnectPythonProcessor : IMTConnectAgentProcessor
+    public class Processor : MTConnectAgentProcessor
     {
         public const string ConfigurationTypeId = "python";
         private const int DefaultUpdateInterval = 2000;
@@ -21,10 +19,9 @@ namespace MTConnect.Processors
         private const string _defaultDirectory = "processors";
         private const string _defaultExtension = ".py";
 
-        private readonly Logger _logger = LogManager.GetLogger("python-processor-logger");
         private readonly Microsoft.Scripting.Hosting.ScriptEngine _pythonEngine;
         private readonly Dictionary<string, Func<ProcessObservation, ProcessObservation>> _functions = new Dictionary<string, Func<ProcessObservation, ProcessObservation>>();
-        private readonly PythonProcessorConfiguration _configuration;
+        private readonly ProcessorConfiguration _configuration;
         private readonly object _lock = new object();
 
         private FileSystemWatcher _watcher;
@@ -32,11 +29,11 @@ namespace MTConnect.Processors
         private bool _update = false;
 
 
-        public MTConnectPythonProcessor(object configuration)       
+        public Processor(object configuration)   
         {
             _pythonEngine = IronPython.Hosting.Python.CreateEngine();
-            _configuration = AgentApplicationConfiguration.GetConfiguration<PythonProcessorConfiguration>(configuration);
-            if (_configuration == null) _configuration = new PythonProcessorConfiguration();
+            _configuration = AgentApplicationConfiguration.GetConfiguration<ProcessorConfiguration>(configuration);
+            if (_configuration == null) _configuration = new ProcessorConfiguration();
 
             Load();
 
@@ -75,19 +72,19 @@ namespace MTConnect.Processors
                 var process = scope.GetVariable<Func<ProcessObservation, ProcessObservation>>(_functionName);
                 if (process != null)
                 {
-                    _logger.Info($"[Python-Processor] : Script Loaded : {file}");
+                    Log(Logging.MTConnectLogLevel.Information, $"[Python-Processor] : Script Loaded : {file}");
 
                     AddFunction(file, process);
                 }
             }
             catch (Exception ex)
             {
-                _logger.Error($"[Python-Processor] : Error Loading Script : {file} : {ex.Message}");
+                Log(Logging.MTConnectLogLevel.Error, $"[Python-Processor] : Error Loading Script : {file} : {ex.Message}");
             }
         }
 
 
-        public IObservationInput Process(ProcessObservation observation)
+        protected override IObservationInput OnProcess(ProcessObservation observation)
         {
             ProcessObservation outputObservation = observation;
 
@@ -111,7 +108,7 @@ namespace MTConnect.Processors
                             }
                             catch (Exception ex)
                             {
-                                _logger.Error($"[Python-Processor] : Process Error : {functionKey} : {ex.Message}");
+                                Log(Logging.MTConnectLogLevel.Error, $"[Python-Processor] : Process Error : {functionKey} : {ex.Message}");
                             }
                         }
                     }
@@ -121,7 +118,7 @@ namespace MTConnect.Processors
             }
             catch (Exception ex)
             {
-                _logger.Error($"[Python-Processor] : Error During Process : {ex.Message}");
+                Log(Logging.MTConnectLogLevel.Error, $"[Python-Processor] : Error During Process : {ex.Message}");
             }
 
             if (outputObservation != null)
@@ -137,11 +134,6 @@ namespace MTConnect.Processors
             {
                 return null;
             }
-        }
-
-        public IAsset Process(IAsset asset)
-        {
-            return asset;
         }
 
 

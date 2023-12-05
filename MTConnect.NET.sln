@@ -103,11 +103,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docker", "Docker", "{400652E9-7061-4D72-B2CF-F70280341B79}"
-	ProjectSection(SolutionItems) = preProject
-		docker\Dockerfile = docker\Dockerfile
-	EndProjectSection
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-AgentModule-MqttBroker", "agent\Modules\MTConnect.NET-MqttBroker-Module\MTConnect.NET-AgentModule-MqttBroker.csproj", "{8687FC7A-07E0-4377-9460-7C9261CCB656}"
 EndProject
 Global
@@ -422,7 +417,6 @@ Global
 		{04171268-E71D-45F5-9B14-C325AB522BD1} = {C3791CDD-9446-4584-AA80-0C41FCB63B88}
 		{3B6E6874-ADB2-4C59-9E65-C13693466920} = {4558F2F3-D5B7-49DE-AC9C-8E778C4D3585}
 		{619557F6-A8D5-4995-9D96-0E3174221FC6} = {4558F2F3-D5B7-49DE-AC9C-8E778C4D3585}
-		{400652E9-7061-4D72-B2CF-F70280341B79} = {0712EA0C-EC0D-42EE-9CDD-148893A018F8}
 		{8687FC7A-07E0-4377-9460-7C9261CCB656} = {0F01D2F5-0CFA-4DAE-A0FD-5733D291F6FB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution

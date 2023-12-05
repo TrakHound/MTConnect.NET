@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 
 namespace MTConnect.Processors
 {
-    public class PythonProcessorConfiguration
+    public class ProcessorConfiguration
     {
         [JsonPropertyName("directory")]
         public string Directory { get; set; }
