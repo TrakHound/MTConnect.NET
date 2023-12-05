@@ -38,7 +38,7 @@ namespace MTConnect.Servers.Http
             var document = mtconnectAgent.GetDevicesResponseDocument(mtconnectVersion, deviceType);
 
             stpw.Stop();
-            double duration = (double)stpw.ElapsedTicks / 10000;
+            double duration = stpw.GetElapsedMilliseconds();
 
             if (document != null)
             {
@@ -95,7 +95,7 @@ namespace MTConnect.Servers.Http
                 var document = mtconnectAgent.GetDevicesResponseDocument(deviceKey, mtconnectVersion);
 
                 stpw.Stop();
-                double duration = (double)stpw.ElapsedTicks / 10000;
+                double duration = stpw.GetElapsedMilliseconds();
 
                 if (document != null)
                 {
@@ -196,7 +196,7 @@ namespace MTConnect.Servers.Http
             else document = mtconnectAgent.GetDeviceStreamsResponseDocument(at, mtconnectVersion: mtconnectVersion, deviceType: deviceType);
 
             stpw.Stop();
-            double duration = (double)stpw.ElapsedTicks / 10000;
+            double duration = stpw.GetElapsedMilliseconds();
 
             if (document != null)
             {
@@ -294,7 +294,7 @@ namespace MTConnect.Servers.Http
                 else document = mtconnectAgent.GetDeviceStreamsResponseDocument(deviceKey, at, mtconnectVersion: mtconnectVersion);
 
                 stpw.Stop();
-                double duration = (double)stpw.ElapsedTicks / 10000;
+                double duration = stpw.GetElapsedMilliseconds();
 
                 if (document != null)
                 {
@@ -420,7 +420,7 @@ namespace MTConnect.Servers.Http
             else document = mtconnectAgent.GetDeviceStreamsResponseDocument(from, to, count, mtconnectVersion, deviceType);
 
             stpw.Stop();
-            double duration = (double)stpw.ElapsedTicks / 10000;
+            double duration = stpw.GetElapsedMilliseconds();
 
             if (document != null)
             {
@@ -540,7 +540,7 @@ namespace MTConnect.Servers.Http
                 else document = mtconnectAgent.GetDeviceStreamsResponseDocument(deviceKey, from, to, count, mtconnectVersion);
 
                 stpw.Stop();
-                double duration = (double)stpw.ElapsedTicks / 10000;
+                double duration = stpw.GetElapsedMilliseconds();
 
                 if (document != null)
                 {
@@ -614,7 +614,7 @@ namespace MTConnect.Servers.Http
             var document = mtconnectAgent.GetAssetsResponseDocument(deviceKey, type, removed, count, mtconnectVersion);
 
             stpw.Stop();
-            double duration = (double)stpw.ElapsedTicks / 10000;
+            double duration = stpw.GetElapsedMilliseconds();
 
             if (document != null)
             {
@@ -671,7 +671,7 @@ namespace MTConnect.Servers.Http
                 var document = mtconnectAgent.GetAssetsResponseDocument(assetIds, mtconnectVersion);
 
                 stpw.Stop();
-                double duration = (double)stpw.ElapsedTicks / 10000;
+                double duration = stpw.GetElapsedMilliseconds();
 
                 if (document != null)
                 {

@@ -114,7 +114,7 @@ namespace MTConnect.Servers.Http
             }
 
             stpw.Stop();
-            return (double)stpw.ElapsedTicks / 10000;
+            return stpw.GetElapsedMilliseconds();
         }
 
         /// <summary>
@@ -365,8 +365,6 @@ namespace MTConnect.Servers.Http
         }
 
 
-        //protected virtual List<KeyValuePair<string, string>> OnCreateFormatOptions(string requestType, string documentFormat, Version mtconnectVersion, int validationLevel = 0) { return null; }
-
         protected List<KeyValuePair<string, string>> CreateFormatOptions(string requestType, string documentFormat, Version mtconnectVersion, int validationLevel = 0)
         {
             List<KeyValuePair<string, string>> x = null;
@@ -382,25 +380,7 @@ namespace MTConnect.Servers.Http
                 x = CreateFormatOptionsFunction(formatOptions);
             }
 
-            //var x = OnCreateFormatOptions(requestType, documentFormat, mtconnectVersion, validationLevel);
-
             return !x.IsNullOrEmpty() ? x : new List<KeyValuePair<string, string>>();
         }
-
-        //protected override List<KeyValuePair<string, string>> OnCreateFormatOptions(string requestType, string documentFormat, Version mtconnectVersion, int validationLevel = 0)
-        //{
-        //    if (CreateFormatOptionsFunction != null)
-        //    {
-        //        var formatOptions = new MTConnectFormatOptionsArgs();
-        //        formatOptions.RequestType = requestType;
-        //        formatOptions.DocumentFormat = documentFormat;
-        //        formatOptions.MTConnectVersion = mtconnectVersion;
-        //        formatOptions.ValidationLevel = validationLevel;
-
-        //        return CreateFormatOptionsFunction(formatOptions);
-        //    }
-
-        //    return null;
-        //}
     }
 }

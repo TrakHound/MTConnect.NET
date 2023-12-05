@@ -47,7 +47,7 @@ namespace MTConnect.Formatters
             }
 
             stpw.Stop();
-            result.ResponseDuration = (double)stpw.ElapsedTicks / 10000;
+            result.ResponseDuration = stpw.GetElapsedMilliseconds();
 
             return result;
         }
@@ -67,7 +67,7 @@ namespace MTConnect.Formatters
             }
 
             stpw.Stop();
-            result.ResponseDuration = (double)stpw.ElapsedTicks / 10000;
+            result.ResponseDuration = stpw.GetElapsedMilliseconds();
 
             return result;
         }
@@ -87,7 +87,7 @@ namespace MTConnect.Formatters
             }
 
             stpw.Stop();
-            result.ResponseDuration = (double)stpw.ElapsedTicks / 10000;
+            result.ResponseDuration = stpw.GetElapsedMilliseconds();
 
             return result;
         }
@@ -107,7 +107,7 @@ namespace MTConnect.Formatters
             }
 
             stpw.Stop();
-            result.ResponseDuration = (double)stpw.ElapsedTicks / 10000;
+            result.ResponseDuration = stpw.GetElapsedMilliseconds();
 
             return result;
         }
