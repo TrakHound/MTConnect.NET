@@ -10,7 +10,6 @@ using MTConnect.Devices.Components;
 using MTConnect.Devices.DataItems;
 using MTConnect.Input;
 using MTConnect.Streams;
-using NLog;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -20,18 +19,17 @@ namespace MTConnect.Modules
     {
         public const string ConfigurationTypeId = "http-client";
 
-        private readonly Logger _clientLogger = LogManager.GetLogger("http-adapter-logger");
-        private readonly HttpClientConfiguration _configuration;
+        private readonly ModuleConfiguration _configuration;
         private readonly IMTConnectAgentBroker _mtconnectAgent;
-        private readonly Dictionary<string, MTConnectClientInformation> _clientInformations = new Dictionary<string, MTConnectClientInformation>();
         private MTConnectHttpClient _agentClient;
+        private readonly Dictionary<string, MTConnectClientInformation> _clientInformations = new Dictionary<string, MTConnectClientInformation>();
         private System.Timers.Timer _clientInformationTimer;
 
 
         public Module(IMTConnectAgentBroker mtconnectAgent, object configuration) : base(mtconnectAgent)
         {
             _mtconnectAgent = mtconnectAgent;
-            _configuration = AgentApplicationConfiguration.GetConfiguration<HttpClientConfiguration>(configuration);
+            _configuration = AgentApplicationConfiguration.GetConfiguration<ModuleConfiguration>(configuration);
         }
 
 
@@ -56,7 +54,7 @@ namespace MTConnect.Modules
                 }
 
 
-                _agentClient = new MTConnectHttpClient(baseUri, _configuration.DeviceKey);
+                _agentClient = new MTConnectHttpClient(baseUri, _configuration.ClientDeviceKey);
                 _agentClient.Id = _configuration.Id;
                 _agentClient.Interval = _configuration.Interval;
                 _agentClient.Heartbeat = _configuration.Heartbeat;
@@ -96,7 +94,7 @@ namespace MTConnect.Modules
                 var dataItemId = DataItem.CreateId(client.Id, ConnectionStatusDataItem.NameId);
                 _mtconnectAgent.AddObservation(_mtconnectAgent.Uuid, dataItemId, Observations.Events.ConnectionStatus.LISTEN);
 
-                _clientLogger.Info($"[HTTP-Adapter] : ID = {client.Id} : Client Started : {client.Authority}");
+                Log(Logging.MTConnectLogLevel.Information, $"[HTTP-Adapter] : ID = {client.Id} : Client Started : {client.Authority}");
             }
         }
 
@@ -107,7 +105,7 @@ namespace MTConnect.Modules
                 var dataItemId = DataItem.CreateId(client.Id, ConnectionStatusDataItem.NameId);
                 _mtconnectAgent.AddObservation(_mtconnectAgent.Uuid, dataItemId, Observations.Events.ConnectionStatus.CLOSED);
 
-                _clientLogger.Info($"[HTTP-Adapter] : ID = {client.Id} : Client Stopped : {client.Authority}");
+                Log(Logging.MTConnectLogLevel.Information, $"[HTTP-Adapter] : ID = {client.Id} : Client Stopped : {client.Authority}");
             }
         }
 
@@ -118,7 +116,7 @@ namespace MTConnect.Modules
                 var dataItemId = DataItem.CreateId(client.Id, ConnectionStatusDataItem.NameId);
                 _mtconnectAgent.AddObservation(_mtconnectAgent.Uuid, dataItemId, Observations.Events.ConnectionStatus.ESTABLISHED);
 
-                _clientLogger.Info($"[HTTP-Adapter] : ID = {client.Id} : Client Stream Started : {query}");
+                Log(Logging.MTConnectLogLevel.Information, $"[HTTP-Adapter] : ID = {client.Id} : Client Stream Started : {query}");
             }
         }
 
@@ -130,7 +128,7 @@ namespace MTConnect.Modules
                 _mtconnectAgent.AddObservation(_mtconnectAgent.Uuid, dataItemId, Observations.Events.ConnectionStatus.CLOSED);
                 _mtconnectAgent.AddObservation(_mtconnectAgent.Uuid, dataItemId, Observations.Events.ConnectionStatus.LISTEN);
 
-                _clientLogger.Info($"[HTTP-Adapter] : ID = {client.Id} : Client Stream Stopped");
+                Log(Logging.MTConnectLogLevel.Information, $"[HTTP-Adapter] : ID = {client.Id} : Client Stream Stopped");
             }
         }
 
@@ -138,7 +136,7 @@ namespace MTConnect.Modules
         {
             if (client != null && document != null && !document.Devices.IsNullOrEmpty())
             {
-                _clientLogger.Debug($"[HTTP-Adapter] : ID = {client.Id} : MTConnectDevices Received : " + document.Header.CreationTime);
+                Log(Logging.MTConnectLogLevel.Information, $"[HTTP-Adapter] : ID = {client.Id} : MTConnectDevices Received : " + document.Header.CreationTime);
 
                 foreach (var device in document.Devices)
                 {
@@ -151,7 +149,7 @@ namespace MTConnect.Modules
         {
             if (client != null && document != null && !document.Streams.IsNullOrEmpty())
             {
-                _clientLogger.Debug($"[HTTP-Adapter] : ID = {client.Id} : MTConnectStreams Received : " + document.Header.CreationTime);
+                Log(Logging.MTConnectLogLevel.Information, $"[HTTP-Adapter] : ID = {client.Id} : MTConnectStreams Received : " + document.Header.CreationTime);
 
                 foreach (var stream in document.Streams)
                 {
@@ -166,7 +164,7 @@ namespace MTConnect.Modules
                             input.Timestamp = observation.Timestamp.ToUnixTime();
                             input.Values = observation.Values;
 
-                            _mtconnectAgent.AddObservation(stream.Uuid, input);
+                            _mtconnectAgent.AddObservation(_configuration.DeviceKey, input);
                         }
                     }
                 }
@@ -177,11 +175,11 @@ namespace MTConnect.Modules
         {
             if (client != null && document != null && !document.Assets.IsNullOrEmpty())
             {
-                _clientLogger.Debug($"[HTTP-Adapter] : ID = {client.Id} : MTConnectAssets Received : " + document.Header.CreationTime);
+                Log(Logging.MTConnectLogLevel.Information, $"[HTTP-Adapter] : ID = {client.Id} : MTConnectAssets Received : " + document.Header.CreationTime);
 
                 foreach (var asset in document.Assets)
                 {
-                    _mtconnectAgent.AddAsset(asset.DeviceUuid, asset);
+                    _mtconnectAgent.AddAsset(_configuration.DeviceKey, asset);
                 }
             }
         }
