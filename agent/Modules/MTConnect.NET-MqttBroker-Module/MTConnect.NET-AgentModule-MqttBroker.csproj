@@ -1,16 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup Condition="'$(Configuration)'=='Debug'">
-		<TargetFrameworks>net6.0</TargetFrameworks>
+		<TargetFrameworks>net8.0</TargetFrameworks>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)'=='Release'">
-		<TargetFrameworks>net461;net462;net47;net471;net472;net48;netstandard2.0;netcoreapp3.1;net5.0;net6.0;net7.0</TargetFrameworks>
+		<TargetFrameworks>net461;net462;net47;net471;net472;net48;netstandard2.0;netcoreapp3.1;net5.0;net6.0;net7.0;net8.0</TargetFrameworks>
 		<DebugSymbols>false</DebugSymbols>
 		<DebugType>None</DebugType>
 		<Optimize>true</Optimize>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)'=='Package'">
-		<TargetFrameworks>net461;net462;net47;net471;net472;net48;netstandard2.0;netcoreapp3.1;net5.0;net6.0;net7.0</TargetFrameworks>
+		<TargetFrameworks>net461;net462;net47;net471;net472;net48;netstandard2.0;netcoreapp3.1;net5.0;net6.0;net7.0;net8.0</TargetFrameworks>
 		<Optimize>true</Optimize>
 	</PropertyGroup>
 
@@ -23,7 +23,7 @@
 		<Copyright>Copyright (c) 2023 TrakHound Inc., All Rights Reserved.</Copyright>
 		<RepositoryUrl>https://github.com/TrakHound/MTConnect.NET</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
-		<Description>MTConnect.NET-MqttBroker-Module implements an MQTT Broker for use with the MTConnectAgentApplication class in the MTConnect.NET-Applications-Agent library. Supports MTConnect Versions up to 2.2. Supports .NET Framework 4.6.1 up to .NET 7</Description>
+		<Description>MTConnect.NET-AgentModule-MqttBroker implements an MQTT Broker for use with the MTConnectAgentApplication class in the MTConnect.NET-Applications-Agent library. Supports MTConnect Versions up to 2.2. Supports .NET Framework 4.6.1 up to .NET 7</Description>
 		<PackageProjectUrl>https://www.TrakHound.com</PackageProjectUrl>
 		<PackageTags>mtconnect;iiot;iot;cnc;</PackageTags>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -42,11 +42,11 @@
 	</PropertyGroup>
 
 	<ItemGroup Condition="'$(Configuration)'=='Debug'">
-		<Compile Include="..\..\src\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
+		<Compile Include="..\..\..\build\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(Configuration)'=='Release'">
-		<Compile Include="..\..\src\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
+		<Compile Include="..\..\..\build\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
 	</ItemGroup>
 
 	<PropertyGroup Condition="'$(Configuration)'=='Package'">
@@ -58,7 +58,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\src\MTConnect.NET-MQTT\MTConnect.NET-MQTT.csproj" />
+		<ProjectReference Include="..\..\..\libraries\MTConnect.NET-MQTT\MTConnect.NET-MQTT.csproj" />
 	</ItemGroup>
 
 </Project>
