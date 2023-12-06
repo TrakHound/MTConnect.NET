@@ -1,5 +1,7 @@
 # MTConnect HTTP Server
-The HTTP interface for MTConnect Agents is provided by the MTConnectHttpServer class. This class runs an HttpListener and handles all MTConnect requests.
+The HTTP interface for MTConnect Agents is provided by the MTConnectHttpServer class. This class runs a CEEN Http Server and handles all MTConnect requests.
+
+> Updated for Version 6 : The HTTP server now uses the CEEN project. This allows for better control and better TLS implementation
 
 ## Requests
 

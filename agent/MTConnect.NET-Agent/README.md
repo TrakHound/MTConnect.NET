@@ -57,6 +57,7 @@ This project is a full implementation of an MTConnect Agent used to read data fr
 | Linux Supported                      | :white_check_mark: | XML Validation                       | :white_check_mark: |
 | Durable File Buffer                  | :white_check_mark: | JSON (MTConnect.NET v5)              | :white_check_mark: |
 | Debug Logging                        | :white_check_mark: | JSON (cppagent)                      | :white_check_mark: |
+| MTConnect Entity Validation          | :white_check_mark: | TLS (HTTP & MQTT)                    | :white_check_mark: |
 
 
 ## Installation

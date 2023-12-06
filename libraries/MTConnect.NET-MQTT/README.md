@@ -1,6 +1,8 @@
 ﻿# MTConnect.NET-MQTT
 MTConnect.NET-MQTT is an extension library to MTConnect.NET that provides an MQTT Broker & Client interface to an IMTConnectAgent interface.
 
+> Updated for Version 6
+
 ## Download
 <table>
     <tbody>

@@ -12,6 +12,11 @@ MTConnect.NET-JSON is an extension library to MTConnect.NET that provides readin
     </tbody>
 </table>
 
+## Document Format ID
+> json
+
+The above document format ID can be used to specify a ResponseDocumentFormatter or EntityFormatter to output using this library
+
 ## Devices
 MTConnectDevicesResponse documents are formatted as shown below.
 
