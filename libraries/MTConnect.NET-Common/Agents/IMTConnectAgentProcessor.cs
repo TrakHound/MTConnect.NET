@@ -14,7 +14,7 @@ namespace MTConnect.Agents
         string Description { get; }
 
 
-        public event MTConnectLogEventHandler LogReceived;
+        event MTConnectLogEventHandler LogReceived;
 
 
         IObservationInput Process(ProcessObservation observation);

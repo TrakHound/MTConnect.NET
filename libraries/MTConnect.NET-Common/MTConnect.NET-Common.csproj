@@ -23,7 +23,7 @@
 		<Copyright>Copyright (c) 2023 TrakHound Inc., All Rights Reserved.</Copyright>
 		<RepositoryUrl>https://github.com/TrakHound/MTConnect.NET</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
-		<Description>MTConnect.NET-Common contains common classes for MTConnect Agents, Adapters, and Clients. Supports MTConnect Versions up to 2.1. Supports .NET Framework 4.6.1 up to .NET 7</Description>
+		<Description>MTConnect.NET-Common contains common classes for MTConnect Agents, Adapters, and Clients. Supports MTConnect Versions up to 2.2. Supports .NET Framework 4.6.1 up to .NET 8</Description>
 		<PackageProjectUrl>https://www.TrakHound.com</PackageProjectUrl>
 		<PackageTags>mtconnect;iiot;iot;cnc;</PackageTags>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -106,16 +106,10 @@
 		<PackageReference Include="System.Text.Json" Version="6.0.1" />
 	</ItemGroup>
 	<ItemGroup>
-	  <Compile Remove="Adapters\MTConnectIntervalAdapter.cs" />
-	  <Compile Remove="Adapters\MTConnectIntervalQueueAdapter.cs" />
-	  <Compile Remove="Adapters\MTConnectQueueAdapter.cs" />
 	  <Compile Remove="Buffers\IMTConnectDeviceBuffer.cs" />
 	  <Compile Remove="Buffers\MTConnectDeviceBuffer.cs" />
 	</ItemGroup>
 	<ItemGroup>
-	  <None Include="Adapters\MTConnectIntervalAdapter.cs" />
-	  <None Include="Adapters\MTConnectIntervalQueueAdapter.cs" />
-	  <None Include="Adapters\MTConnectQueueAdapter.cs" />
 	  <None Include="Buffers\IMTConnectDeviceBuffer.cs" />
 	  <None Include="Buffers\MTConnectDeviceBuffer.cs" />
 	</ItemGroup>

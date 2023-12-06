@@ -6,7 +6,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+#if NET6_0_OR_GREATER
 using System.Text.Json.Nodes;
+#endif
 using System.Text.Json.Serialization;
 
 namespace MTConnect.NET_JSON_cppagent.Streams
@@ -37,16 +39,19 @@ namespace MTConnect.NET_JSON_cppagent.Streams
 
         public class JsonTimeSeriesSamplesConverter : JsonConverter<JsonTimeSeriesSamples>
         {
+#if NET5_0_OR_GREATER
             public override bool HandleNull => true;
-
+#endif
 
             public override JsonTimeSeriesSamples Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
             {
                 if (reader.TokenType == JsonTokenType.StartArray)
                 {
+#if NET6_0_OR_GREATER
                     var obj = JsonObject.Parse(ref reader);
                     var entries = obj.Deserialize<IEnumerable<double>>();
                     return new JsonTimeSeriesSamples(entries);
+#endif
                 }
                 else
                 {

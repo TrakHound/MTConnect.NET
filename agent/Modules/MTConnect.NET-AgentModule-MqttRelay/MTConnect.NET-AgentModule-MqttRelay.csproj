@@ -57,4 +57,11 @@
 		<ProjectReference Include="..\..\..\libraries\MTConnect.NET-MQTT\MTConnect.NET-MQTT.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+		<None Include="README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+
 </Project>
