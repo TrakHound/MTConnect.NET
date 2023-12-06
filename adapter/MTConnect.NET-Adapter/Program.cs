@@ -1,12 +1,11 @@
-﻿using MTConnect.Observations;
+﻿using MTConnect.Assets.CuttingTools;
+using MTConnect.Assets.CuttingTools.Measurements;
+using MTConnect.Devices.Xml;
 using MTConnect.Input;
+using MTConnect.Observations;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using MTConnect.Assets.CuttingTools.Measurements;
-using MTConnect.Assets.CuttingTools;
-using MTConnect.Devices;
-using MTConnect.Devices.Xml;
 
 namespace MTConnect.Applications
 {
@@ -26,7 +25,7 @@ namespace MTConnect.Applications
             // Print an application header to the console
             PrintConsoleHeader();
 
-            var dataSource = new PlcDataSource();
+            var dataSource = new DataSource();
 
             // Create a new MTConnect Adapter Application
             var app = new MTConnectAdapterApplication(dataSource);

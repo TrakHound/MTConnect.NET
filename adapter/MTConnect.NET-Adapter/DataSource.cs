@@ -11,7 +11,7 @@ namespace MTConnect.Applications
     // OnReadAsync() : Same as OnRead() but is an async method
 
 
-    internal class PlcDataSource : MTConnectDataSource
+    internal class DataSource : MTConnectDataSource
     {
         protected readonly Logger _engineLogger = LogManager.GetLogger("engine-logger");
         //private PlcSimulator _dataSource;

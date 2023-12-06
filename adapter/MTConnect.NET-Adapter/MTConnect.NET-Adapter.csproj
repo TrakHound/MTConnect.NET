@@ -27,16 +27,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Compile Remove="AdapterApplication.cs" />
-	  <Compile Remove="AdapterConfiguration.cs" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <None Include="AdapterApplication.cs" />
-	  <None Include="AdapterConfiguration.cs" />
-	</ItemGroup>
-
-	<ItemGroup>
 	  <ProjectReference Include="..\MTConnect.NET-Applications-Adapter\MTConnect.NET-Applications-Adapter.csproj" />
 	</ItemGroup>
 

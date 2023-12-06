@@ -20,7 +20,7 @@ namespace MTConnect.Modules
 
         private readonly Logger _adapterLogger = LogManager.GetLogger("adapter-logger");
         private readonly Logger _adapterShdrLogger = LogManager.GetLogger("adapter-shdr-logger");
-        private readonly ShdrAdapterClientConfiguration _configuration;
+        private readonly ModuleConfiguration _configuration;
         private readonly IMTConnectAgentBroker _mtconnectAgent;
         private readonly List<ShdrAdapterClient> _adapters = new List<ShdrAdapterClient>();
 
@@ -28,7 +28,7 @@ namespace MTConnect.Modules
         public Module(IMTConnectAgentBroker mtconnectAgent, object configuration) : base(mtconnectAgent)
         {
             _mtconnectAgent = mtconnectAgent;
-            _configuration = AgentApplicationConfiguration.GetConfiguration<ShdrAdapterClientConfiguration>(configuration);
+            _configuration = AgentApplicationConfiguration.GetConfiguration<ModuleConfiguration>(configuration);
         }
 
 
@@ -53,8 +53,7 @@ namespace MTConnect.Modules
                         //foreach (var device in devices) AddAdapter(adapter, device, initializeDataItems, device.Id);
                     }
                 }
-                //else if (_configuration.AllowShdrDevice) // Prevent accidental generic Adapter creation
-                else
+                else if (_configuration.AllowShdrDevice) // Prevent accidental generic Adapter creation
                 {
                     // Add a generic Adapter Client (no Device)
                     // Typically used if the Device Model is sent using SHDR
