@@ -43,30 +43,20 @@ This project is a full implementation of an MTConnect Agent used to read data fr
 - Flexible Logging using NLog which can be used to output log information to separate files for easier analysis
 
 ## Capabilites
-| Description                          | Supported          |
-| :----------------------------------- |:------------------:|
-| MTConnect Probe                      | :white_check_mark: |
-| MTConnect Current                    | :white_check_mark: |
-| MTConnect Sample                     | :white_check_mark: |
-| MTConnect Assets                     | :white_check_mark: |
-| MTConnect Interfaces                 | :white_check_mark: |
-| HTTP Server                          | :white_check_mark: |
-| MQTT Server (Internal Broker)        | :white_check_mark: |
-| MQTT Server (External Broker)        | :white_check_mark: |
-| SHDR Adapters (Input Data)           | :white_check_mark: |
-| HTTP Adapters (Input Data)           | :white_check_mark: |
-| MQTT Adapters (Input Data)           | :white_check_mark: |
-| Configuration File Monitoring        | :white_check_mark: |
-| Unit Conversion                      | :white_check_mark: |
-| Script Transformation (Python)       | :white_check_mark: |
-| Windows Service                      | :white_check_mark: |
-| Linux Supported                      | :white_check_mark: |
-| Durable File Buffer                  | :white_check_mark: |
-| Debug Logging                        | :white_check_mark: |
-| XML Stylesheets                      | :white_check_mark: |
-| XML Static Files                     | :white_check_mark: |
-| XML Schemas                          | :white_check_mark: |
-| XML Validation                       | :white_check_mark: |
+| Description                          | Supported          | Description                          | Supported          |
+| :----------------------------------- |:------------------:| :----------------------------------- |:------------------:|
+| MTConnect Probe                      | :white_check_mark: | HTTP Server                          | :white_check_mark: |
+| MTConnect Current                    | :white_check_mark: | MQTT Server (Internal Broker)        | :white_check_mark: |
+| MTConnect Sample                     | :white_check_mark: | MQTT Server (External Broker)        | :white_check_mark: |
+| MTConnect Assets                     | :white_check_mark: | SHDR Adapters (Input Data)           | :white_check_mark: |
+| MTConnect Interfaces                 | :white_check_mark: | HTTP Adapters (Input Data)           | :white_check_mark: |
+| Configuration File Monitoring        | :white_check_mark: | MQTT Adapters (Input Data)           | :white_check_mark: |
+| Unit Conversion                      | :white_check_mark: | XML Stylesheets                      | :white_check_mark: |
+| Script Transformation (Python)       | :white_check_mark: | XML Static Files                     | :white_check_mark: |
+| Windows Service                      | :white_check_mark: | XML Schemas                          | :white_check_mark: |
+| Linux Supported                      | :white_check_mark: | XML Validation                       | :white_check_mark: |
+| Durable File Buffer                  | :white_check_mark: | JSON (MTConnect.NET v5)              | :white_check_mark: |
+| Debug Logging                        | :white_check_mark: | JSON (cppagent)                      | :white_check_mark: |
 
 
 ## Installation
@@ -125,7 +115,7 @@ View the Probe and Current requests in a Web Browser
 ## Usage
 The Agent can be run from a command line prompt or as a Windows Service using the format below:
 ```
-agent [help|install|install-start|start|stop|remove|debug|run|run-service] [configuration_file] [http_port]
+agent [help|install|install-start|start|stop|remove|debug|run|run-service] [configuration_file]
 
 --------------------
 
@@ -146,9 +136,6 @@ Arguments :
 
   configuration_file  |  Specifies the Agent Configuration file to load
                          Default : agent.config.json
-
-           http_port  |  Specifies the TCP Port to use for the HTTP Server
-                         Note : This overrides what is read from the Configuration file
 ```
 #### Example 1:
 Install the Agent as a Windows Service (Note: requires Administrator Privileges)
@@ -162,9 +149,6 @@ Install the Agent as a Windows Service using the configuration file "agent-confi
 Starts the Windows Service (Note: requires Administrator Privileges)
 > agent start
 
-#### Example 4:
-Runs the Agent in the command line prompt using verbose logging and overrides the Http Port to 5001
-> agent debug "" 5001
 
 ## Configuration
 More information about [Configurations](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-Common/Configurations). The default configuration file is shown below :
@@ -233,6 +217,14 @@ durable: false
 defaultVersion: 2.2
 ```
 
+#### Device Configuration
+
+* `devices` - The Path to look for the file(s) that represent the Device Information Models to load into the Agent. The path can either be a single file or a directory. The path can be absolute or relative to the executable's directory
+
+#### Module Configuration
+
+* `modules` - Contains configurations for Agent Modules. These configurations are specific to the individual modules and may be customized for custom modules.
+
 #### Agent Configuration
 
 * `observationBufferSize` - The maximum number of Observations the agent can hold in its buffer
@@ -260,11 +252,6 @@ defaultVersion: 2.2
 * `enableMetrics` - Sets whether Agent Metrics are captured (ex. ObserationUpdateRate, AssetUpdateRate)
 
 
-#### Device Configuration
-
-* `devices` - The Path to look for the file(s) that represent the Device Information Models to load into the Agent. The path can either be a single file or a directory. The path can be absolute or relative to the executable's directory
-
-
 #### Windows Service Configuration
 
 * `serviceName` - Changes the service name when installing or removing the service. This allows multiple agents to run as services on the same machine.
@@ -284,60 +271,60 @@ The default [NLog Configuration File](https://github.com/TrakHound/MTConnect.NET
 <?xml version="1.0" encoding="utf-8" ?>
 <nlog xmlns="http://www.nlog-project.org/schemas/NLog.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
-    <!-- the targets to write to -->
-    <targets>
+	<!-- the targets to write to -->
+	<targets>
 
-        <!--Console-->
-        <target name="logconsole" xsi:type="Console" />
-        
-        <!--Agent Log File-->
-        <target xsi:type="File" name="agent-file" fileName="logs\agent-${shortdate}.log"
-            layout="${longdate}|${event-properties:item=EventId_Id:whenEmpty=0}|${uppercase:${level}}|${logger}|${message} ${exception:format=tostring}" />
+		<!--Console-->
+		<target name="logconsole" xsi:type="Console" />
 
-        <!--Agent Validation Log File-->
-        <target xsi:type="File" name="agent-validation-file" fileName="logs\agent-validation-${shortdate}.log"
-            layout="${longdate}|${event-properties:item=EventId_Id:whenEmpty=0}|${uppercase:${level}}|${logger}|${message} ${exception:format=tostring}" />
+		<!--Application Log File-->
+		<target xsi:type="File" name="application-file" fileName="logs\application-${shortdate}.log"
+			layout="${longdate}|${event-properties:item=EventId_Id:whenEmpty=0}|${uppercase:${level}}|${logger}|${message} ${exception:format=tostring}" />
+		
+		<!--Agent Log File-->
+		<target xsi:type="File" name="agent-file" fileName="logs\agent-${shortdate}.log"
+			layout="${longdate}|${event-properties:item=EventId_Id:whenEmpty=0}|${uppercase:${level}}|${logger}|${message} ${exception:format=tostring}" />
 
-        <!--Http Log File-->
-        <target xsi:type="File" name="http-file" fileName="logs\http-${shortdate}.log"
-            layout="${longdate}|${event-properties:item=EventId_Id:whenEmpty=0}|${uppercase:${level}}|${logger}|${message} ${exception:format=tostring}" />
+		<!--Agent Validation Log File-->
+		<target xsi:type="File" name="agent-validation-file" fileName="logs\agent-validation-${shortdate}.log"
+			layout="${longdate}|${event-properties:item=EventId_Id:whenEmpty=0}|${uppercase:${level}}|${logger}|${message} ${exception:format=tostring}" />
 
-        <!--Adapter Log File-->
-        <target xsi:type="File" name="adapter-file" fileName="logs\adapter-${shortdate}.log"
-                layout="${longdate}|${event-properties:item=EventId_Id:whenEmpty=0}|${uppercase:${level}}|${logger}|${message} ${exception:format=tostring}" />
+		<!--Module Log File-->
+		<target xsi:type="File" name="module-file" fileName="logs\module-${shortdate}.log"
+			layout="${longdate}|${event-properties:item=EventId_Id:whenEmpty=0}|${uppercase:${level}}|${logger}|${message} ${exception:format=tostring}" />
 
-        <!--Adapter SHDR Log File-->
-        <target xsi:type="File" name="adapter-shdr-file" fileName="logs\adapter-shdr-${shortdate}.log"
-                layout="${longdate}|${event-properties:item=EventId_Id:whenEmpty=0}|${uppercase:${level}}|${logger}|${message} ${exception:format=tostring}" />
-        
-    </targets>
+		<!--Processor Log File-->
+		<target xsi:type="File" name="processor-file" fileName="logs\processor-${shortdate}.log"
+			layout="${longdate}|${event-properties:item=EventId_Id:whenEmpty=0}|${uppercase:${level}}|${logger}|${message} ${exception:format=tostring}" />
 
-    <!-- rules to map from logger name to target -->
-    <rules>
+	</targets>
 
-        <!--Write to Console-->
-        <logger name="*" minlevel="Info" writeTo="logconsole" />
+	<!-- rules to map from logger name to target -->
+	<rules>
 
-        <!--Agent Logger-->
-        <logger name="agent-logger" minlevel="Info" writeTo="agent-file" final="true" />
-        
-        <!--Agent Validation Logger (Used to log Data Validation Errors)-->
-        <logger name="agent-validation-logger" minlevel="Warning" writeTo="agent-validation-file" final="true" />
-        
-        <!--Http Logger-->
-        <logger name="http-logger" minlevel="Info" writeTo="http-file" final="true" />
-        
-        <!--Adapter Logger-->
-        <logger name="adapter-logger" minlevel="Info" writeTo="adapter-file" final="true" />
-        
-        <!--Adapter SHDR Logger (used to log raw SHDR data coming from an adapter)-->
-        <logger name="adapter-shdr-logger" minlevel="Debug" writeTo="adapter-shdr-file" final="true" />
+		<!--Write to Console-->
+		<logger name="*" minlevel="Debug" writeTo="logconsole" />
 
-        <!--Skip non-critical Microsoft logs and so log only own logs (BlackHole) -->
-        <logger name="Microsoft.*" maxlevel="Info" final="true" />
-        <logger name="System.Net.Http.*" maxlevel="Info" final="true" />
+		<!--Application Logger-->
+		<logger name="application-logger" minlevel="Info" writeTo="application-file" final="true" />
 
-    </rules>
+		<!--Agent Logger-->
+		<logger name="agent-logger" minlevel="Info" writeTo="agent-file" final="true" />
+		
+		<!--Agent Validation Logger (Used to log Data Validation Errors)-->
+		<logger name="agent-validation-logger" minlevel="Warning" writeTo="agent-validation-file" final="true" />
+		
+		<!--Module Logger-->
+		<logger name="module-logger" minlevel="Info" writeTo="module-file" final="true" />
+
+		<!--Processor Logger-->
+		<logger name="processor-logger" minlevel="Info" writeTo="processor-file" final="true" />
+
+		<!--Skip non-critical Microsoft logs and so log only own logs (BlackHole) -->
+		<logger name="Microsoft.*" maxlevel="Info" final="true" />
+		<logger name="System.Net.Http.*" maxlevel="Info" final="true" />
+
+	</rules>
 </nlog>
 ```
 
