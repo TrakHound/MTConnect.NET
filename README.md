@@ -83,7 +83,7 @@ A live demo of the MTConnect Gateway HTTP Agent (AspNetCore) application is runn
 - [https://mtconnect.trakhound.com/sample](https://mtconnect.trakhound.com/sample?outputComments=true&indentOutput=true&version=2.1&count=500)
 - [https://mtconnect.trakhound.com/assets](https://mtconnect.trakhound.com/assets?outputComments=true&indentOutput=true)
 
-## Agents
+<!--## Agents
 Agents are implemented using the MTConnectAgent class and IMTConnectAgent interface. The MTConnectAgent class implements the MTConnect standard and is inteded to be full implemenation. More information about agents can be found at [Agents](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-Common/Agents) and Agent Applications can be found at [Agent Applications](https://github.com/TrakHound/MTConnect.NET/tree/master/applications/Agents).
 
 ### SHDR > HTTP Implementation
@@ -104,7 +104,36 @@ A SHDR to MQTT implementation uses MQTT to send and receive messages. The agent 
 ### Embedded Implementation
 An embedded implementation uses the MTConnect.NET library to implement an MTConnect Agent in the same application that is reading from the machine PLC. This creates a simple and compact solution that can be deployed as a single application/product. When compared to a SHDR to HTTP implementation, this eliminates the need to use the SHDR protocol as well as eliminates the TCP communication between the Adapter and the Agent. Implementation is simplified using the [MTConnect.NET-Applications-Agents](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-Applications-Agents) Library that can be as simple as a few lines of code and can be kept up to date using Nuget.
 
-![Traditional Agent Architecture](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/dev/img/mtconnect-agent-http-communication-white.png)
+![Traditional Agent Architecture](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/dev/img/mtconnect-agent-http-communication-white.png)-->
+
+## Clients
+
+### Client Interfaces
+- [IMTConnectClient](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-Common/Clients/IMTConnectClient.cs) : Interface used to read MTConnect response documents (Probe, Current, Sample, and Assets)
+- [IMTConnectEntityClient](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-Common/Clients/IMTConnectEntityClient.cs) : Interface used to read MTConnect entities (Device, Observation, Asset)
+
+### Client Classes
+- [MTConnectHttpClient](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-HTTP/Clients/MTConnectHttpClient.cs) : Reads from MTConnect Agents using the MTConnect HTTP REST Api. Supports both polling and streaming. Supports compression. Supports XML & JSON.
+- [MTConnectMqttClient](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-MQTT/Clients/MTConnectMqttClient.cs) : Reads MTConnect data from an MQTT Broker. Supports the latest MTConnect MQTT Protocol.
+
+## Agents
+
+### Module Agent Application
+A preconfigured [Application](https://github.com/TrakHound/MTConnect.NET/tree/version-6.0/agent/MTConnect.NET-Agent) & [Library](https://github.com/TrakHound/MTConnect.NET/tree/version-6.0/agent/MTConnect.NET-Applications-Agents) to build an Agent is available and supports:
+- Modular architecture
+    - HTTP Server Module
+    - SHDR Adapter Module(s)
+    - MQTT Broker Module
+    - MQTT Relay Module
+    - etc.
+- Easy Windows Installer
+- Linux Compatible
+- Run as a Windows Service
+- Extensible configuration file and monitors for changes
+
+### Agent Classes
+- [MTConnectAgent](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-Common/Agents/MTConnectAgent.cs) : Handles MTConnect Entities (Device, Observation, Asset), Unit Conversion, Filtering, etc.
+- [MTConnectAgentBroker](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-Common/Agents/MTConnectAgent.cs) : Handles MTConnect Requests to respond with Response Documents (Probe, Current, Sample, Assets) specified in the MTConnect Standard, Buffers, etc.
 
 ## Adapters
 
