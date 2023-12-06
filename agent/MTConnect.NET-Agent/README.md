@@ -15,9 +15,14 @@
     </thead>
     <tbody>
         <tr>
-            <td>Agent</td>
+            <td>Installer</td>
             <td><img src="https://img.shields.io/github/downloads/TrakHound/MTConnect.NET/total?style=for-the-badge&logo=github&label=%20&color=%23333"/></td>
             <td><a href="https://github.com/TrakHound/MTConnect.NET/releases/download/v5.4.3/MTConnect-Agent-HTTP-5.4.3-Install.exe">https://github.com/TrakHound/MTConnect.NET/releases</a></td>
+        </tr>
+        <tr>
+            <td>Docker</td>
+            <td><img src="https://img.shields.io/docker/pulls/trakhound/mtconnect.net-agent?style=for-the-badge&logo=docker&label=%20&color=%23333"/></td>
+            <td><a href="https://hub.docker.com/repository/docker/trakhound/mtconnect.net-agent">https://hub.docker.com/repository/docker/trakhound/mtconnect.net-agent</a></td>
         </tr>
     </tbody>
 </table>
@@ -36,6 +41,33 @@ This project is a full implementation of an MTConnect Agent used to read data fr
 - On-Demand MTConnect Versioning allowing for older clients to request the version of MTConnect they are compatible with using HTTP Url parameters
 - Configuration File monitoring to automatically restart the Agent upon configuration file changes
 - Flexible Logging using NLog which can be used to output log information to separate files for easier analysis
+
+## Capabilites
+| Description                          | Supported          |
+| :----------------------------------- |:------------------:|
+| MTConnect Probe                      | :white_check_mark: |
+| MTConnect Current                    | :white_check_mark: |
+| MTConnect Sample                     | :white_check_mark: |
+| MTConnect Assets                     | :white_check_mark: |
+| MTConnect Interfaces                 | :white_check_mark: |
+| HTTP Server                          | :white_check_mark: |
+| MQTT Server (Internal Broker)        | :white_check_mark: |
+| MQTT Server (External Broker)        | :white_check_mark: |
+| SHDR Adapters (Input Data)           | :white_check_mark: |
+| HTTP Adapters (Input Data)           | :white_check_mark: |
+| MQTT Adapters (Input Data)           | :white_check_mark: |
+| Configuration File Monitoring        | :white_check_mark: |
+| Unit Conversion                      | :white_check_mark: |
+| Script Transformation (Python)       | :white_check_mark: |
+| Windows Service                      | :white_check_mark: |
+| Linux Supported                      | :white_check_mark: |
+| Durable File Buffer                  | :white_check_mark: |
+| Debug Logging                        | :white_check_mark: |
+| XML Stylesheets                      | :white_check_mark: |
+| XML Static Files                     | :white_check_mark: |
+| XML Schemas                          | :white_check_mark: |
+| XML Validation                       | :white_check_mark: |
+
 
 ## Installation
 Follow the steps below to install the MTConnect Agent HTTP application.
@@ -309,10 +341,6 @@ The default [NLog Configuration File](https://github.com/TrakHound/MTConnect.NET
 </nlog>
 ```
 
-## Releases
-Releases for this application are located under the Releases tab. The current release is listed below:
-- [MTConnect Agent Current Release](https://github.com/TrakHound/MTConnect.NET/releases)
-
 ## Source Code
 This project uses the MTConnect.NET-Applications-Agents library (available on [Nuget](https://www.nuget.org/packages/MTConnect.NET-Applications-Agents)) to create an MTConnect Agent application. More information about this library can be found [Here](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-Applications-Agents). The MTConnect.NET-Applications-Agents library makes creating an MTConnect Agent application simple as well as makes it easy to keep updated using Nuget. A fully functionaly MTConnect Application can be created in just a few lines of code.
 
@@ -322,4 +350,4 @@ This project uses the MTConnect.NET-Applications-Agents library (available on [N
 - For any other questions or feedback, please contact TrakHound directly at **info@trakhound.com**.
 
 ## License
-This application and it's source code is licensed under the [MIT License](https://choosealicense.com/licenses/mit/) and is free to use.
+This application and it's source code is licensed under the [MIT License](https://choosealicense.com/licenses/mit/) and is free to use and distribute.

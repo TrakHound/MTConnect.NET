@@ -2,6 +2,8 @@
 
 # MTConnect.NET
 
+[![MTConnect.NET](https://github.com/TrakHound/MTConnect.NET/actions/workflows/dotnet.yml/badge.svg)](https://github.com/TrakHound/MTConnect.NET/actions/workflows/dotnet.yml)
+
 > 12/4/2023 : Version 6.0 Released with new Agent, Adapter, & SysML Import
 
 ## Download

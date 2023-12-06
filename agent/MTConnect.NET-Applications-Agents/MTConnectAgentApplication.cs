@@ -56,8 +56,6 @@ namespace MTConnect.Applications
 
         public string ServiceDescription { get; set; }
 
-        protected Type ConfigurationType { get; set; }
-
         public IMTConnectAgentBroker Agent => _mtconnectAgent;
 
 
@@ -69,8 +67,6 @@ namespace MTConnect.Applications
             ServiceName = DefaultServiceName;
             ServiceDisplayName = DefaultServiceDisplayName;
             ServiceDescription = DefaultServiceDescription;
-
-            if (ConfigurationType == null) ConfigurationType = typeof(AgentApplicationConfiguration);
         }
 
 
