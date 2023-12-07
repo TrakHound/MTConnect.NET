@@ -28,7 +28,7 @@
 		<PackageTags>mtconnect;iiot;iot;cnc;</PackageTags>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageIconUrl>https://static.trakhound.com/mtconnect-net-nuget.png</PackageIconUrl>
-		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageReadmeFile>README-Nuget.md</PackageReadmeFile>
 
 		<!-- Optional: Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
@@ -65,7 +65,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Include="README.md">
+		<None Include="README-Nuget.md">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
 		</None>

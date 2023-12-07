@@ -59,14 +59,14 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\..\..\libraries\MTConnect.NET-Common\MTConnect.NET-Common.csproj" />
+		<ProjectReference Include="..\..\..\libraries\MTConnect.NET-Common\MTConnect.NET-Common.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Update="README-Nuget.md">
-	    <PackagePath>\</PackagePath>
-	    <Pack>True</Pack>
-	  </None>
+		<None Include="README-Nuget.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
 	</ItemGroup>
 
 </Project>

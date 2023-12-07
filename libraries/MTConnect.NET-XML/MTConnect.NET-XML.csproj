@@ -28,6 +28,7 @@
 		<PackageTags>mtconnect;iiot;iot;cnc;</PackageTags>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageIconUrl>https://static.trakhound.com/mtconnect-net-nuget.png</PackageIconUrl>
+		<PackageReadmeFile>README-Nuget.md</PackageReadmeFile>
 
 		<!-- Optional: Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
@@ -53,28 +54,28 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Compile Remove="Streams\Serializers.cs" />
-	  <Compile Remove="Streams\XmlComponentStream - Copy (2).cs" />
-	  <Compile Remove="Streams\XmlComponentStream - Copy.cs" />
-	  <Compile Remove="Streams\XmlComponentStreamsContainer.cs" />
-	  <Compile Remove="Streams\XmlConditionObservation.cs" />
-	  <Compile Remove="Streams\XmlConditionsContainer.cs" />
-	  <Compile Remove="Streams\XmlDeviceStream - Copy %282%29.cs" />
-	  <Compile Remove="Streams\XmlDeviceStream - Copy.cs" />
-	  <Compile Remove="Streams\XmlEventObservation.cs" />
-	  <Compile Remove="Streams\XmlEventsContainer.cs" />
-	  <Compile Remove="Streams\XmlObservation - Copy %282%29.cs" />
-	  <Compile Remove="Streams\XmlObservation - Copy.cs" />
-	  <Compile Remove="Streams\XmlObservationContainer - Copy %282%29.cs" />
-	  <Compile Remove="Streams\XmlObservationContainer - Copy.cs" />
-	  <Compile Remove="Streams\XmlSampleObservation.cs" />
-	  <Compile Remove="Streams\XmlSamplesContainer - Copy.cs" />
-	  <Compile Remove="Streams\XmlSamplesContainer.cs" />
-	  <Compile Remove="Streams\XmlStreamsContainer.cs" />
-	  <Compile Remove="Streams\XmlStreamsResponseDocument - Copy %282%29.cs" />
-	  <Compile Remove="Streams\XmlStreamsResponseDocument - Copy %283%29.cs" />
-	  <Compile Remove="Streams\XmlStreamsResponseDocument - Copy %284%29.cs" />
-	  <Compile Remove="Streams\XmlStreamsResponseDocument - Copy.cs" />
+		<Compile Remove="Streams\Serializers.cs" />
+		<Compile Remove="Streams\XmlComponentStream - Copy (2).cs" />
+		<Compile Remove="Streams\XmlComponentStream - Copy.cs" />
+		<Compile Remove="Streams\XmlComponentStreamsContainer.cs" />
+		<Compile Remove="Streams\XmlConditionObservation.cs" />
+		<Compile Remove="Streams\XmlConditionsContainer.cs" />
+		<Compile Remove="Streams\XmlDeviceStream - Copy %282%29.cs" />
+		<Compile Remove="Streams\XmlDeviceStream - Copy.cs" />
+		<Compile Remove="Streams\XmlEventObservation.cs" />
+		<Compile Remove="Streams\XmlEventsContainer.cs" />
+		<Compile Remove="Streams\XmlObservation - Copy %282%29.cs" />
+		<Compile Remove="Streams\XmlObservation - Copy.cs" />
+		<Compile Remove="Streams\XmlObservationContainer - Copy %282%29.cs" />
+		<Compile Remove="Streams\XmlObservationContainer - Copy.cs" />
+		<Compile Remove="Streams\XmlSampleObservation.cs" />
+		<Compile Remove="Streams\XmlSamplesContainer - Copy.cs" />
+		<Compile Remove="Streams\XmlSamplesContainer.cs" />
+		<Compile Remove="Streams\XmlStreamsContainer.cs" />
+		<Compile Remove="Streams\XmlStreamsResponseDocument - Copy %282%29.cs" />
+		<Compile Remove="Streams\XmlStreamsResponseDocument - Copy %283%29.cs" />
+		<Compile Remove="Streams\XmlStreamsResponseDocument - Copy %284%29.cs" />
+		<Compile Remove="Streams\XmlStreamsResponseDocument - Copy.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -83,8 +84,16 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 	</ItemGroup>
+
 	<ItemGroup>
 		<ProjectReference Include="..\MTConnect.NET-Common\MTConnect.NET-Common.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="README-Nuget.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
 	</ItemGroup>
 
 </Project>
