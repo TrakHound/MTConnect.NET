@@ -3,24 +3,6 @@
 # MTConnect HTTP Server Agent Module
 This Agent Module implements a MTConnect REST Protocol Http server
 
-## Nuget
-<table>
-    <thead>
-        <tr>
-            <td style="font-weight: bold;">Package Name</td>
-            <td style="font-weight: bold;">Downloads</td>
-            <td style="font-weight: bold;">Link</td>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>MTConnect.NET-AgentModule-HttpServer</td>
-            <td><img src="https://img.shields.io/nuget/dt/MTConnect.NET-AgentModule-HttpServer?style=for-the-badge&logo=nuget&label=%20&color=%23333"/></td>
-            <td><a href="https://www.nuget.org/packages/MTConnect.NET-AgentModule-HttpServer">https://www.nuget.org/packages/MTConnect.NET-AgentModule-HttpServer</a></td>
-        </tr>
-    </tbody>
-</table>
-
 ## Configuration
 ```yaml
  - http-server:

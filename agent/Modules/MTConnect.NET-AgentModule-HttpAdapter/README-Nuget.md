@@ -3,24 +3,6 @@
 # MTConnect HTTP Adapter Agent Module
 This Agent Module implements an adapter to read from other MTConnect Agents using the MTConnect REST Protocol
 
-## Nuget
-<table>
-    <thead>
-        <tr>
-            <td style="font-weight: bold;">Package Name</td>
-            <td style="font-weight: bold;">Downloads</td>
-            <td style="font-weight: bold;">Link</td>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>MTConnect.NET-AgentModule-HttpAdapter</td>
-            <td><img src="https://img.shields.io/nuget/dt/MTConnect.NET-AgentModule-HttpAdapter?style=for-the-badge&logo=nuget&label=%20&color=%23333"/></td>
-            <td><a href="https://www.nuget.org/packages/MTConnect.NET-AgentModule-HttpAdapter">https://www.nuget.org/packages/MTConnect.NET-AgentModule-HttpAdapter</a></td>
-        </tr>
-    </tbody>
-</table>
-
 ## Configuration
 ```yaml
 - http-adapter:

@@ -3,24 +3,6 @@
 # MTConnect MQTT Broker Module
 This Agent Module serves data via an **Internal** MQTT Broker
 
-## Nuget
-<table>
-    <thead>
-        <tr>
-            <td style="font-weight: bold;">Package Name</td>
-            <td style="font-weight: bold;">Downloads</td>
-            <td style="font-weight: bold;">Link</td>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>MTConnect.NET-AgentModule-MqttBroker</td>
-            <td><img src="https://img.shields.io/nuget/dt/MTConnect.NET-AgentModule-MqttBroker?style=for-the-badge&logo=nuget&label=%20&color=%23333"/></td>
-            <td><a href="https://www.nuget.org/packages/MTConnect.NET-AgentModule-MqttBroker">https://www.nuget.org/packages/MTConnect.NET-AgentModule-MqttBroker</a></td>
-        </tr>
-    </tbody>
-</table>
-
 ## Configuration
 ```yaml
 - mqtt-relay:

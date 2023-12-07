@@ -3,24 +3,6 @@
 # MTConnect MQTT Adapter Agent Module
 This Agent Module implements an adapter to read from an MQTT broker
 
-## Nuget
-<table>
-    <thead>
-        <tr>
-            <td style="font-weight: bold;">Package Name</td>
-            <td style="font-weight: bold;">Downloads</td>
-            <td style="font-weight: bold;">Link</td>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>MTConnect.NET-AgentModule-MqttAdapter</td>
-            <td><img src="https://img.shields.io/nuget/dt/MTConnect.NET-AgentModule-MqttAdapter?style=for-the-badge&logo=nuget&label=%20&color=%23333"/></td>
-            <td><a href="https://www.nuget.org/packages/MTConnect.NET-AgentModule-MqttAdapter">https://www.nuget.org/packages/MTConnect.NET-AgentModule-MqttAdapter</a></td>
-        </tr>
-    </tbody>
-</table>
-
 ## Configuration
 ```yaml
 - mqtt-adapter:

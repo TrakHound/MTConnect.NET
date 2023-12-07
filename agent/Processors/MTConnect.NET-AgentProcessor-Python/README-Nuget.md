@@ -3,24 +3,6 @@
 # MTConnect Python Agent Processor
 This Agent Processor uses individual Python script files to transform input data
 
-## Nuget
-<table>
-    <thead>
-        <tr>
-            <td style="font-weight: bold;">Package Name</td>
-            <td style="font-weight: bold;">Downloads</td>
-            <td style="font-weight: bold;">Link</td>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>MTConnect.NET-AgentProcessor-Python</td>
-            <td><img src="https://img.shields.io/nuget/dt/MTConnect.NET-AgentProcessor-Python?style=for-the-badge&logo=nuget&label=%20&color=%23333"/></td>
-            <td><a href="https://www.nuget.org/packages/MTConnect.NET-AgentProcessor-Python">https://www.nuget.org/packages/MTConnect.NET-AgentProcessor-Python</a></td>
-        </tr>
-    </tbody>
-</table>
-
 ## Configuration
 ```yaml
 - python:

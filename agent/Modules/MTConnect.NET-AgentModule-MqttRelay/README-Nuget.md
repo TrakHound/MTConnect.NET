@@ -3,24 +3,6 @@
 # MTConnect MQTT Relay Module
 This Agent Module writes data to an **External** MQTT Broker
 
-## Nuget
-<table>
-    <thead>
-        <tr>
-            <td style="font-weight: bold;">Package Name</td>
-            <td style="font-weight: bold;">Downloads</td>
-            <td style="font-weight: bold;">Link</td>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>MTConnect.NET-AgentModule-MqttRelay</td>
-            <td><img src="https://img.shields.io/nuget/dt/MTConnect.NET-AgentModule-MqttRelay?style=for-the-badge&logo=nuget&label=%20&color=%23333"/></td>
-            <td><a href="https://www.nuget.org/packages/MTConnect.NET-AgentModule-MqttRelay">https://www.nuget.org/packages/MTConnect.NET-AgentModule-MqttRelay</a></td>
-        </tr>
-    </tbody>
-</table>
-
 ## Configuration
 ```yaml
 - mqtt-relay:

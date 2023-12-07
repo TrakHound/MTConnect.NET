@@ -3,24 +3,6 @@
 # MTConnect MQTT Adapter Module
 This Adapter Module sends input data to an MQTT Broker that can be read by an MTConnect Agent
 
-## Nuget
-<table>
-    <thead>
-        <tr>
-            <td style="font-weight: bold;">Package Name</td>
-            <td style="font-weight: bold;">Downloads</td>
-            <td style="font-weight: bold;">Link</td>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>MTConnect.NET-AdapterModule-MQTT</td>
-            <td><img src="https://img.shields.io/nuget/dt/MTConnect.NET-AdapterModule-MQTT?style=for-the-badge&logo=nuget&label=%20&color=%23333"/></td>
-            <td><a href="https://www.nuget.org/packages/MTConnect.NET-AdapterModule-MQTT">https://www.nuget.org/packages/MTConnect.NET-AdapterModule-MQTT</a></td>
-        </tr>
-    </tbody>
-</table>
-
 ## Configuration
 ```yaml
 - mqtt:

@@ -3,24 +3,6 @@
 # MTConnect SHDR Adapter Module
 This Adapter Module implements the SHDR Protocol to send data to an MTConnect Agent
 
-## Nuget
-<table>
-    <thead>
-        <tr>
-            <td style="font-weight: bold;">Package Name</td>
-            <td style="font-weight: bold;">Downloads</td>
-            <td style="font-weight: bold;">Link</td>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>MTConnect.NET-AdapterModule-SHDR</td>
-            <td><img src="https://img.shields.io/nuget/dt/MTConnect.NET-AdapterModule-SHDR?style=for-the-badge&logo=nuget&label=%20&color=%23333"/></td>
-            <td><a href="https://www.nuget.org/packages/MTConnect.NET-AdapterModule-SHDR">https://www.nuget.org/packages/MTConnect.NET-AdapterModule-SHDR</a></td>
-        </tr>
-    </tbody>
-</table>
-
 ## Configuration
 ```yaml
 - shdr:
