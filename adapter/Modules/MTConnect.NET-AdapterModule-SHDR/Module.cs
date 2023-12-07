@@ -3,12 +3,16 @@
 
 using MTConnect.Adapters;
 using MTConnect.Configurations;
-using MTConnect.Devices;
 using MTConnect.Input;
 using MTConnect.Logging;
 using MTConnect.Shdr;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MTConnect
 {

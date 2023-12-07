@@ -28,6 +28,7 @@
 		<PackageTags>mtconnect;iiot;iot;cnc;</PackageTags>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageIconUrl>https://static.trakhound.com/mtconnect-net-nuget.png</PackageIconUrl>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 
 		<!-- Optional: Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
@@ -61,10 +62,17 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Compile Update="MTConnectAdapterService.cs">
-	    <SubType>Component</SubType>
-	  </Compile>
-	  <Compile Update="MTConnectAgentService.cs" />
+		<Compile Update="MTConnectAdapterService.cs">
+			<SubType>Component</SubType>
+		</Compile>
+		<Compile Update="MTConnectAgentService.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
 	</ItemGroup>
 
 </Project>

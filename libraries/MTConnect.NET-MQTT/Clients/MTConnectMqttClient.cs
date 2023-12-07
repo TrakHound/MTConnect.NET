@@ -4,23 +4,16 @@
 using MQTTnet;
 using MQTTnet.Client;
 using MTConnect.Assets;
-using MTConnect.Assets.Json;
-using MTConnect.Configurations;
 using MTConnect.Devices;
-using MTConnect.Devices.DataItems;
-using MTConnect.Devices.Json;
 using MTConnect.Formatters;
 using MTConnect.Mqtt;
 using MTConnect.Observations;
-using MTConnect.Streams.Json;
+using MTConnect.Streams;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Net.Mime;
+using System.Linq;
 using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Text.Json;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -28,23 +21,13 @@ namespace MTConnect.Clients
 {
     public class MTConnectMqttClient : IMTConnectEntityClient, IDisposable
     {
-        private const string _defaultTopic = "MTConnect/#";
-        private const string _defaultAgentsTopic = "MTConnect/Agents/#";
-        private const string _defaultAgentTopicPattern = "MTConnect\\/Agents\\/([^\\/]*)\\/([^\\/]*)";
-        private const string _deviceUuidTopicPattern = "MTConnect\\/Devices\\/([^\\/]*)";
-        private const string _deviceTopicPattern = "MTConnect\\/Devices\\/([^\\/]*)\\/Device";
-        private const string _deviceAgentUuidTopicPattern = "MTConnect\\/Devices\\/([^\\/]*)\\/AgentUuid";
-        private const string _observationsTopicPattern = "MTConnect\\/Devices\\/([^\\/]*)\\/Observations";
-        private const string _conditionsTopicPattern = "MTConnect\\/Devices\\/(.*)\\/Observations\\/.*\\/Conditions";
-        private const string _assetTopicPattern = "MTConnect\\/Devices\\/([^\\/]*)\\/Assets";
+        private const string _defaultTopicPrefix = "MTConnect";
+        private const string _defaultDocumentFormat = "json-cppagent-mqtt";
 
-        private static readonly Regex _agentRegex = new Regex(_defaultAgentTopicPattern);
-        private static readonly Regex _deviceUuidRegex = new Regex(_deviceUuidTopicPattern);
-        private static readonly Regex _deviceAgentUuidRegex = new Regex(_deviceAgentUuidTopicPattern);
-        private static readonly Regex _deviceRegex = new Regex(_deviceTopicPattern);
-        private static readonly Regex _observationsRegex = new Regex(_observationsTopicPattern);
-        private static readonly Regex _conditionsRegex = new Regex(_conditionsTopicPattern);
-        private static readonly Regex _assetRegex = new Regex(_assetTopicPattern);
+        private const string _defaultProbeTopicPrefix = "Probe";
+        private const string _defaultCurrentTopicPrefix = "Current";
+        private const string _defaultSampleTopicPrefix = "Sample";
+        private const string _defaultAssetTopicPrefix = "Asset";
 
         private readonly MqttFactory _mqttFactory;
         private readonly IMqttClient _mqttClient;
@@ -53,6 +36,8 @@ namespace MTConnect.Clients
         private readonly int _qos;
         private readonly int _interval;
         private readonly string _deviceUuid;
+        private readonly string _topicPrefix;
+        private readonly string _documentFormat;
         private readonly string _username;
         private readonly string _password;
         private readonly string _clientId;
@@ -61,17 +46,23 @@ namespace MTConnect.Clients
         private readonly string _pemPrivateKeyPath;
         private readonly bool _allowUntrustedCertificates;
         private readonly bool _useTls;
-        private readonly IEnumerable<string> _topics;
         private readonly Dictionary<string, MTConnectMqttAgentInformation> _agents = new Dictionary<string, MTConnectMqttAgentInformation>(); // AgentUuid > AgentInformation
         private readonly Dictionary<string, string> _deviceAgentUuids = new Dictionary<string, string>(); // DeviceUuid > AgentUuid
         private readonly Dictionary<string, long> _agentInstanceIds = new Dictionary<string, long>(); // AgentUuid > InstanceId
         private readonly Dictionary<string, long> _agentHeartbeatTimestamps = new Dictionary<string, long>(); // AgentUuid > Last Heartbeat received (Unix milliseconds)
         private readonly Dictionary<string, System.Timers.Timer> _connectionTimers = new Dictionary<string, System.Timers.Timer>();
+        private readonly Dictionary<string, IDevice> _devices = new Dictionary<string, IDevice>();
+        private readonly Dictionary<string, long> _deviceLastSequence = new Dictionary<string, long>();
+        private readonly Dictionary<string, long> _deviceLastCurrentSequence = new Dictionary<string, long>();
         private readonly object _lock = new object();
 
 
         private CancellationTokenSource _stop;
         private MTConnectMqttConnectionStatus _connectionStatus;
+        //private long _lastInstanceId;
+        //private long _lastCurrentSequence;
+        //private long _lastSequence;
+        private long _lastResponse;
 
 
         public delegate void MTConnectMqttEventHandler<T>(string deviceUuid, T item);
@@ -90,7 +81,22 @@ namespace MTConnect.Clients
 
         public int Interval => _interval;
 
-        public IEnumerable<string> Topics => _topics;
+        public string TopicPrefix => _topicPrefix;
+
+        ///// <summary>
+        ///// Gets the Last Instance ID read from the MTConnect Agent
+        ///// </summary>
+        //public long LastInstanceId => _lastInstanceId;
+
+        ///// <summary>
+        ///// Gets the Last Sequence read from the MTConnect Agent
+        ///// </summary>
+        //public long LastSequence => _lastSequence;
+
+        /// <summary>
+        /// Gets the Unix Timestamp (in Milliseconds) since the last response from the MTConnect Agent
+        /// </summary>
+        public long LastResponse => _lastResponse;
 
         public MTConnectMqttConnectionStatus ConnectionStatus => _connectionStatus;
 
@@ -114,6 +120,31 @@ namespace MTConnect.Clients
         public event EventHandler<IAsset> AssetReceived;
 
         /// <summary>
+        /// Raised when an MTConnectDevices Document is received
+        /// </summary>
+        public event EventHandler<IDevicesResponseDocument> ProbeReceived;
+
+        /// <summary>
+        /// Raised when an MTConnectSreams Document is received from a Current Request
+        /// </summary>
+        public event EventHandler<IStreamsResponseDocument> CurrentReceived;
+
+        /// <summary>
+        /// Raised when an MTConnectSreams Document is received from the Samples Stream
+        /// </summary>
+        public event EventHandler<IStreamsResponseDocument> SampleReceived;
+
+        /// <summary>
+        /// Raised when an MTConnectAssets Document is received
+        /// </summary>
+        public event EventHandler<IAssetsResponseDocument> AssetsReceived;
+
+        /// <summary>
+        /// Raised when any Response from the Client is received
+        /// </summary>
+        public event EventHandler ResponseReceived;
+
+        /// <summary>
         /// Raised when the Client is Starting
         /// </summary>
         public event EventHandler ClientStarting;
@@ -134,64 +165,21 @@ namespace MTConnect.Clients
         public event EventHandler ClientStopped;
 
 
-        public MTConnectMqttClient(string server, int port = 1883, int interval = 0, string deviceUuid = null, IEnumerable<string> topics = null, int qos = 1)
+        public MTConnectMqttClient(string server, int port = 1883, string deviceUuid = null, string topicPrefix = _defaultTopicPrefix, string documentFormat = _defaultDocumentFormat, string clientId = null, int qos = 1)
         {
             ReconnectionInterval = 10000;
 
             _server = server;
             _port = port;
-            _topics = !topics.IsNullOrEmpty() ? topics : new List<string> { _defaultTopic };
-            _qos = qos;
-            _interval = interval;
             _deviceUuid = deviceUuid;
+            _topicPrefix = topicPrefix;
+            _documentFormat = documentFormat;
+            _clientId = clientId;
+            _qos = qos;
 
             _mqttFactory = new MqttFactory();
             _mqttClient = _mqttFactory.CreateMqttClient();
-
-            if (!string.IsNullOrEmpty(_deviceUuid))
-            {
-                _mqttClient.ApplicationMessageReceivedAsync += DeviceMessageReceived;
-            }
-            else
-            {
-                _mqttClient.ApplicationMessageReceivedAsync += AllDevicesMessageReceived;
-            }
-        }
-
-        public MTConnectMqttClient(IMTConnectMqttClientConfiguration configuration, IEnumerable<string> topics = null)
-        {
-            ReconnectionInterval = 10000;
-
-            if (configuration != null)
-            {
-                _server = configuration.Server;
-                _port = configuration.Port;
-                _interval = configuration.Interval;
-                _deviceUuid = configuration.DeviceUuid;
-                _qos = configuration.QoS;
-                _username = configuration.Username;
-                _password = configuration.Password;
-                _clientId = configuration.ClientId;
-                _caCertPath = configuration.CertificateAuthority;
-                _pemClientCertPath = configuration.PemCertificate;
-                _pemPrivateKeyPath = configuration.PemPrivateKey;
-                _allowUntrustedCertificates = configuration.AllowUntrustedCertificates;
-                _useTls = configuration.UseTls;
-            }
-
-            _topics = !topics.IsNullOrEmpty() ? topics : new List<string> { _defaultTopic };
-
-            _mqttFactory = new MqttFactory();
-            _mqttClient = _mqttFactory.CreateMqttClient();
-
-            if (!string.IsNullOrEmpty(_deviceUuid))
-            {
-                _mqttClient.ApplicationMessageReceivedAsync += DeviceMessageReceived;
-            }
-            else
-            {
-                _mqttClient.ApplicationMessageReceivedAsync += AllDevicesMessageReceived;
-            }
+            _mqttClient.ApplicationMessageReceivedAsync += MessageReceived;
         }
 
 
@@ -227,6 +215,8 @@ namespace MTConnect.Clients
                     {
                         // Declare new MQTT Client Options with Tcp Server
                         var clientOptionsBuilder = new MqttClientOptionsBuilder().WithTcpServer(_server, _port);
+
+                        clientOptionsBuilder.WithCleanSession(false);
 
                         // Set Client ID
                         if (!string.IsNullOrEmpty(_clientId))
@@ -330,423 +320,363 @@ namespace MTConnect.Clients
 
         private async Task StartAllDevicesProtocol()
         {
-            // Clear any previous subscriptions
-            await _mqttClient.UnsubscribeAsync("#");
-
-            // Subscribe to all Agents
-            await _mqttClient.SubscribeAsync("MTConnect/Agents/#");
+            await _mqttClient.SubscribeAsync("MTConnect/Probe/#");
+            await _mqttClient.SubscribeAsync("MTConnect/Current/#");
+            await _mqttClient.SubscribeAsync("MTConnect/Sample/#");
+            await _mqttClient.SubscribeAsync("MTConnect/Asset/#");
         }
 
         private async Task StartDeviceProtocol(string deviceUuid)
         {
-            // Clear any previous subscriptions
-            await _mqttClient.UnsubscribeAsync("#");
-
-            // Subscribe to the Agent UUID for the Device
-            await _mqttClient.SubscribeAsync($"MTConnect/Devices/{deviceUuid}/AgentUuid");
+            await _mqttClient.SubscribeAsync($"MTConnect/Probe/{deviceUuid}");
+            await _mqttClient.SubscribeAsync($"MTConnect/Current/{deviceUuid}");
+            await _mqttClient.SubscribeAsync($"MTConnect/Sample/{deviceUuid}");
+            await _mqttClient.SubscribeAsync($"MTConnect/Asset/{deviceUuid}");
         }
 
-        private async Task SubscribeToDeviceAgent(string agentUuid)
-        {
-            // Subscribe to both Agent Information and Heartbeat
-            await _mqttClient.SubscribeAsync($"MTConnect/Agents/{agentUuid}/#");
-        }
 
-        private async Task SubscribeToDeviceModel(string deviceUuid)
+        private async Task MessageReceived(MqttApplicationMessageReceivedEventArgs args)
         {
-            // Subscribe to the Device Model
-            await _mqttClient.SubscribeAsync($"MTConnect/Devices/{deviceUuid}/Device");
-        }
-
-        private async Task SubscribeToDevice(string deviceUuid, int interval = 0)
-        {
-            if (interval > 0)
+            if (args.ApplicationMessage.Payload != null && args.ApplicationMessage.Payload.Length > 0)
             {
-                // Subscribe to the Device Observations for the specified Interval
-                await _mqttClient.SubscribeAsync($"MTConnect/Devices/{deviceUuid}/Observations[{interval}]/#");
+                var topic = args.ApplicationMessage.Topic;
+
+                Console.WriteLine($"Message Received : {topic} : {args.ApplicationMessage.Payload.Length}");
+
+                if (IsSampleTopic(topic))
+                {
+                    ProcessSampleMessage(args.ApplicationMessage);
+                }
+                else if (IsCurrentTopic(topic))
+                {
+                    ProcessCurrentMessage(args.ApplicationMessage);
+                }
+                else if (IsAssetTopic(topic))
+                {
+                    ProcessAssetMessage(args.ApplicationMessage);
+                }
+                else if (IsProbeTopic(topic))
+                {
+                    ProcessProbeMessage(args.ApplicationMessage);
+                }
+            }
+        }
+
+
+        private bool IsProbeTopic(string topic)
+        {
+            if (topic != null)
+            {
+                var prefix = $"{_topicPrefix}/{_defaultProbeTopicPrefix}/";
+                return topic.StartsWith(prefix);
+            }
+
+            return false;
+        }
+
+        private bool IsCurrentTopic(string topic)
+        {
+            if (topic != null)
+            {
+                var prefix = $"{_topicPrefix}/{_defaultCurrentTopicPrefix}/";
+                return topic.StartsWith(prefix);
+            }
+
+            return false;
+        }
+
+        private bool IsSampleTopic(string topic)
+        {
+            if (topic != null)
+            {
+                var prefix = $"{_topicPrefix}/{_defaultSampleTopicPrefix}/";
+                return topic.StartsWith(prefix);
+            }
+
+            return false;
+        }
+
+        private bool IsAssetTopic(string topic)
+        {
+            if (topic != null)
+            {
+                var prefix = $"{_topicPrefix}/{_defaultAssetTopicPrefix}/";
+                return topic.StartsWith(prefix);
+            }
+
+            return false;
+        }
+
+
+        private void ProcessProbeMessage(MqttApplicationMessage message)
+        {
+            var result = EntityFormatter.CreateDevice(_documentFormat, message.Payload);
+            if (result.Success)
+            {
+                var device = result.Entity;
+                if (device != null && device.Uuid != null)
+                {
+                    // Add to cached list
+                    lock (_lock)
+                    {
+                        _devices.Remove(device.Uuid);
+                        _devices.Add(device.Uuid, device);
+                    }
+
+                    DeviceReceived?.Invoke(this, device);
+                }
+            }
+        }
+
+        private void ProcessCurrentMessage(MqttApplicationMessage message)
+        {
+            if (!message.Retain)
+            {
+                var result = ResponseDocumentFormatter.CreateStreamsResponseDocument(_documentFormat, message.Payload);
+                if (result.Success)
+                {
+                    ProcessCurrentDocument(result.Document);
+                }
             }
             else
             {
-                // Subscribe to the Device "Realtime" Observations
-                await _mqttClient.SubscribeAsync($"MTConnect/Devices/{deviceUuid}/Observations/#");
-            }
-
-            // Subscribe to the Device Assets
-            await _mqttClient.SubscribeAsync($"MTConnect/Devices/{deviceUuid}/Assets/#");
-        }
-
-
-        private async Task AllDevicesMessageReceived(MqttApplicationMessageReceivedEventArgs args)
-        {
-            if (args.ApplicationMessage.Payload != null && args.ApplicationMessage.Payload.Length > 0)
-            {
-                var topic = args.ApplicationMessage.Topic;
-
-                if (_conditionsRegex.IsMatch(topic))
-                {
-                    ProcessObservations(args.ApplicationMessage);
-                }
-                else if (_observationsRegex.IsMatch(topic))
-                {
-                    ProcessObservation(args.ApplicationMessage);
-                }
-                else if (_assetRegex.IsMatch(topic))
-                {
-                    ProcessAsset(args.ApplicationMessage);
-                }
-                else if (_deviceRegex.IsMatch(topic))
-                {
-                    ProcessDevice(args.ApplicationMessage);
-                }
-                else if (_deviceAgentUuidRegex.IsMatch(topic))
-                {
-                    await ProcessDeviceAgentUuid(args.ApplicationMessage);
-                }
-                else if (_agentRegex.IsMatch(topic))
-                {
-                    await ProcessAgent(args.ApplicationMessage, SubscribeToAllDevices);
-                }
+                Console.WriteLine("STALE CURRENT!!!");
             }
         }
 
-        private async Task DeviceMessageReceived(MqttApplicationMessageReceivedEventArgs args)
+        private void ProcessSampleMessage(MqttApplicationMessage message)
         {
-            if (args.ApplicationMessage.Payload != null && args.ApplicationMessage.Payload.Length > 0)
+            if (!message.Retain)
             {
-                var topic = args.ApplicationMessage.Topic;
+                var result = ResponseDocumentFormatter.CreateStreamsResponseDocument(_documentFormat, message.Payload);
+                if (result.Success)
+                {
+                    ProcessSampleDocument(result.Document);
+                }
+            }
+            else
+            {
+                Console.WriteLine("STALE SAMPLE!!!");
+            }
+        }
 
-                if (_conditionsRegex.IsMatch(topic))
-                {
-                    ProcessObservations(args.ApplicationMessage);
-                }
-                else if (_observationsRegex.IsMatch(topic))
-                {
-                    ProcessObservation(args.ApplicationMessage);
-                }
-                else if (_assetRegex.IsMatch(topic))
-                {
-                    ProcessAsset(args.ApplicationMessage);
-                }
-                else if (_deviceRegex.IsMatch(topic))
-                {
-                    ProcessDevice(args.ApplicationMessage);
-                }
-                else if (_deviceAgentUuidRegex.IsMatch(topic))
-                {
-                    await ProcessDeviceAgentUuid(args.ApplicationMessage);
-                }
-                else if (_agentRegex.IsMatch(topic))
-                {
-                    await ProcessAgent(args.ApplicationMessage, SubscribeToDevice);
-                }
+        private void ProcessAssetMessage(MqttApplicationMessage message)
+        {
+            var result = ResponseDocumentFormatter.CreateAssetsResponseDocument(_documentFormat, message.Payload);
+            if (result.Success)
+            {
+                ProcessAssetsDocument(result.Document);
             }
         }
 
 
-        private async void ProcessObservation(MqttApplicationMessage message)
+        private void ProcessCurrentDocument(IStreamsResponseDocument document)
         {
-            try
+            _lastResponse = UnixDateTime.Now;
+            ResponseReceived?.Invoke(this, new EventArgs());
+
+            if (document != null)
             {
-                // Read Device UUID
-                var deviceUuid = _deviceUuidRegex.Match(message.Topic).Groups[1].Value;
-
-                // Deserialize JSON to Observation
-                var jsonObservation = JsonSerializer.Deserialize<JsonObservation>(message.Payload);
-                if (jsonObservation != null)
+                if (!document.Streams.IsNullOrEmpty())
                 {
-                    var observation = new Observation();
-                    observation.DeviceUuid = deviceUuid;
-                    observation.InstanceId = jsonObservation.InstanceId;
-                    observation.DataItemId = jsonObservation.DataItemId;
-                    observation.Category = jsonObservation.Category.ConvertEnum<DataItemCategory>();
-                    observation.Name = jsonObservation.Name;
-                    observation.Type = jsonObservation.Type;
-                    observation.SubType = jsonObservation.SubType;
-                    observation.Sequence = jsonObservation.Sequence;
-                    observation.Timestamp = jsonObservation.Timestamp;
-                    observation.CompositionId = jsonObservation.CompositionId;
-                    //observation.Representation = jsonObservation.Representation.ConvertEnum<DataItemRepresentation>();
+                    IDeviceStream deviceStream = null;
 
-                    // Set Result
-                    if (jsonObservation.Result != null)
+                    // Get the DeviceStream for the Device or default to the first
+                    if (!string.IsNullOrEmpty(_deviceUuid)) deviceStream = document.Streams.FirstOrDefault(o => o.Uuid == _deviceUuid);
+                    else deviceStream = document.Streams.FirstOrDefault();
+
+                    var observations = deviceStream.Observations;
+                    if (deviceStream != null && deviceStream.Uuid != null && !observations.IsNullOrEmpty())
                     {
-                        observation.AddValue(ValueKeys.Result, jsonObservation.Result);
-                    }
+                        long lastSequence;
+                        lock (_lock) _deviceLastSequence.TryGetValue(deviceStream.Uuid, out lastSequence);
 
-                    // Get stored Agent Uuid for Device
-                    string agentUuid;
-                    lock (_lock) _deviceAgentUuids.TryGetValue(deviceUuid, out agentUuid);
-                    if (!string.IsNullOrEmpty(agentUuid))
-                    {
-                        // Verify Agent InstanceId
-                        long agentInstanceId;
-                        lock (_lock) _agentInstanceIds.TryGetValue(agentUuid, out agentInstanceId);
+                        // Recreate Response Document (to set DataItem property for Observations)
+                        var response = new StreamsResponseDocument();
+                        response.Header = document.Header;
 
-                        if (observation.InstanceId == agentInstanceId)
+                        var deviceStreams = new List<IDeviceStream>();
+                        foreach (var stream in document.Streams)
                         {
-                            if (ObservationReceived != null)
+                            deviceStreams.Add(ProcessDeviceStream(stream));
+                        }
+                        response.Streams = deviceStreams;
+
+                        //CheckAssetChanged(deviceStream.Observations, cancel);
+
+                        CurrentReceived?.Invoke(this, response);
+
+                        observations = response.GetObservations();
+                        if (!observations.IsNullOrEmpty())
+                        {
+                            foreach (var observation in observations)
                             {
-                                ObservationReceived.Invoke(deviceUuid, observation);
-                            }
-                        }
-                        else
-                        {
-                            // If InstanceId has changed, then restart protocol
-                            if (!string.IsNullOrEmpty(_deviceUuid))
-                            {
-                                await StartDeviceProtocol(_deviceUuid);
-                            }
-                            else
-                            {
-                                await StartAllDevicesProtocol();
-                            }
-                        }
-                    }
-                }
-            }
-            catch { }
-        }
-
-        private void ProcessObservations(MqttApplicationMessage message)
-        {
-            try
-            {
-                // Read Device UUID
-                var deviceUuid = _deviceUuidRegex.Match(message.Topic).Groups[1].Value;
-
-                // Deserialize JSON to Observation
-                var jsonObservations = JsonSerializer.Deserialize<IEnumerable<JsonObservation>>(message.Payload);
-                if (!jsonObservations.IsNullOrEmpty())
-                {
-                    foreach (var jsonObservation in jsonObservations)
-                    {
-                        var observation = new Observation();
-                        observation.DeviceUuid = deviceUuid;
-                        observation.InstanceId = jsonObservation.InstanceId;
-                        observation.DataItemId = jsonObservation.DataItemId;
-                        observation.Category = jsonObservation.Category.ConvertEnum<DataItemCategory>();
-                        observation.Name = jsonObservation.Name;
-                        observation.Type = jsonObservation.Type;
-                        observation.SubType = jsonObservation.SubType;
-                        observation.Sequence = jsonObservation.Sequence;
-                        observation.Timestamp = jsonObservation.Timestamp;
-                        observation.CompositionId = jsonObservation.CompositionId;
-                        //observation.Representation = jsonObservation.Representation.ConvertEnum<DataItemRepresentation>();
-
-                        // Set Result
-                        if (jsonObservation.Result != null)
-                        {
-                            observation.AddValue(ValueKeys.Result, jsonObservation.Result);
-                        }
-
-                        if (ObservationReceived != null)
-                        {
-                            ObservationReceived.Invoke(deviceUuid, observation);
-                        }
-                    }
-                }
-            }
-            catch { }
-        }
-
-        private async Task ProcessAgent(MqttApplicationMessage message, Func<MTConnectMqttAgentInformation, Task> onConnectedFunction)
-        {
-            try
-            {
-                var match = _agentRegex.Match(message.Topic);
-                if (match.Success && match.Groups.Count > 2)
-                {
-                    // Read Agent UUID
-                    var agentUuid = match.Groups[1].Value;
-
-                    // Read Agent Property
-                    var property = match.Groups[2].Value;
-
-                    if (!string.IsNullOrEmpty(agentUuid) && !string.IsNullOrEmpty(property))
-                    {
-                        // Decode UTF8 bytes to string
-                        var value = Encoding.UTF8.GetString(message.Payload);
-
-                        switch (property.ToLower())
-                        {
-                            case "information":
-
-                                var agentInformation = JsonSerializer.Deserialize<MTConnectMqttAgentInformation>(value);
-                                if (agentInformation != null)
+                                if (observation.Sequence > lastSequence)
                                 {
-                                    lock (_lock)
+                                    ObservationReceived?.Invoke(this, observation);
+                                }
+                            }
+
+                            var maxSequence = observations.Max(o => o.Sequence);
+
+                            // Save the most recent Sequence that was read
+                            lock (_lock)
+                            {
+                                _deviceLastCurrentSequence.Remove(deviceStream.Uuid);
+                                _deviceLastCurrentSequence.Add(deviceStream.Uuid, maxSequence);
+
+                                _deviceLastSequence.Remove(deviceStream.Uuid);
+                                _deviceLastSequence.Add(deviceStream.Uuid, maxSequence);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private void ProcessSampleDocument(IStreamsResponseDocument document)
+        {
+            _lastResponse = UnixDateTime.Now;
+            ResponseReceived?.Invoke(this, new EventArgs());
+
+            if (document != null)
+            {
+                // Set Agent Instance ID
+                //if (document.Header != null) _lastInstanceId = document.Header.InstanceId;
+
+                if (!document.Streams.IsNullOrEmpty())
+                {
+                    IDeviceStream deviceStream = null;
+
+                    // Get the DeviceStream for the Device or default to the first
+                    if (!string.IsNullOrEmpty(_deviceUuid)) deviceStream = document.Streams.FirstOrDefault(o => o.Uuid == _deviceUuid);
+                    else deviceStream = document.Streams.FirstOrDefault();
+
+                    if (deviceStream != null && deviceStream.Observations != null && deviceStream.Observations.Count() > 0)
+                    {
+                        long lastCurrentSequence;
+                        long lastSequence;
+                        lock (_lock)
+                        {
+                            _deviceLastCurrentSequence.TryGetValue(deviceStream.Uuid, out lastCurrentSequence);
+                            _deviceLastSequence.TryGetValue(deviceStream.Uuid, out lastSequence);
+                        }
+
+                        if (lastCurrentSequence > 0)
+                        {
+                            // Recreate Response Document (to set DataItem property for Observations)
+                            var response = new StreamsResponseDocument();
+                            response.Header = document.Header;
+
+                            var deviceStreams = new List<IDeviceStream>();
+                            foreach (var stream in document.Streams)
+                            {
+                                deviceStreams.Add(ProcessDeviceStream(stream));
+                            }
+                            response.Streams = deviceStreams;
+
+                            //CheckAssetChanged(deviceStream.Observations, cancel);
+
+                            SampleReceived?.Invoke(this, response);
+
+                            var observations = response.GetObservations();
+                            if (!observations.IsNullOrEmpty())
+                            {
+                                foreach (var observation in observations)
+                                {
+                                    if (observation.Sequence > lastSequence && observation.Sequence > lastCurrentSequence)
                                     {
-                                        // Update the stored Agent Information
-                                        _agents.Remove(agentUuid);
-                                        _agents.Add(agentUuid, agentInformation);
-
-                                        // Update the stored Agent InstanceId
-                                        _agentInstanceIds.Remove(agentUuid);
-                                        _agentInstanceIds.Add(agentUuid, agentInformation.InstanceId);
-
-                                        // Stop the existing Connection Timer
-                                        _connectionTimers.TryGetValue(agentUuid, out var connectionTimer);
-                                        if (connectionTimer != null) connectionTimer.Stop();
-
-                                        // Start new Connection Timer
-                                        _connectionTimers.Remove(agentUuid);
-                                        connectionTimer = new System.Timers.Timer();
-                                        connectionTimer.Interval = agentInformation.HeartbeatInterval;
-                                        connectionTimer.Elapsed += (s, a) => ConnectionTimerElapsed(agentUuid);
-                                        _connectionTimers.Add(agentUuid, connectionTimer);
-                                        connectionTimer.Start();
+                                        ObservationReceived?.Invoke(this, observation);
                                     }
                                 }
 
-                                break;
+                                //// Save the most recent Sequence that was read
+                                //_lastSequence = observations.Max(o => o.Sequence);
 
+                                var maxSequence = observations.Max(o => o.Sequence);
 
-                            case "heartbeattimestamp":
-
-                                var previousConnectionStatus = _connectionStatus;
-                                _connectionStatus = MTConnectMqttConnectionStatus.Connected;
-
+                                // Save the most recent Sequence that was read
                                 lock (_lock)
                                 {
-                                    _agentHeartbeatTimestamps.Remove(agentUuid);
-                                    _agentHeartbeatTimestamps.Add(agentUuid, value.ToLong());
+                                    _deviceLastSequence.Remove(deviceStream.Uuid);
+                                    _deviceLastSequence.Add(deviceStream.Uuid, maxSequence);
                                 }
-
-                                if (previousConnectionStatus == MTConnectMqttConnectionStatus.Disconnected)
-                                {
-                                    if (ConnectionStatusChanged != null) ConnectionStatusChanged.Invoke(this, _connectionStatus);
-
-                                    if (_agents.TryGetValue(agentUuid, out var agent))
-                                    {
-                                        if (onConnectedFunction != null) await onConnectedFunction(agent);
-                                    }
-                                }
-
-                                break;
+                            }
                         }
                     }
                 }
             }
-            catch { }
         }
 
-        private async void ProcessDevice(MqttApplicationMessage message)
+        private void ProcessAssetsDocument(IAssetsResponseDocument document)
         {
-            try
+            if (document != null && !document.Assets.IsNullOrEmpty())
             {
-                // Read Device UUID
-                var deviceUuid = _deviceUuidRegex.Match(message.Topic).Groups[1].Value;
+                AssetsReceived?.Invoke(this, document);
 
-                // Deserialize JSON to Device
-                var jsonDevice = JsonSerializer.Deserialize<JsonDevice>(message.Payload);
-                if (jsonDevice != null)
+                foreach (var asset in document.Assets)
                 {
-                    var device = jsonDevice.ToDevice();
-                    if (device != null)
-                    {
-                        if (DeviceReceived != null)
-                        {
-                            DeviceReceived.Invoke(deviceUuid, device);
-                        }
+                    AssetReceived?.Invoke(this, asset);
+                }
+            }
+        }
 
-                        await SubscribeToDevice(deviceUuid, _interval);
+
+        private IDeviceStream ProcessDeviceStream(IDeviceStream inputDeviceStream)
+        {
+            var outputDeviceStream = new DeviceStream();
+            outputDeviceStream.Name = inputDeviceStream.Name;
+            outputDeviceStream.Uuid = inputDeviceStream.Uuid;
+
+            var componentStreams = new List<IComponentStream>();
+            if (!inputDeviceStream.ComponentStreams.IsNullOrEmpty())
+            {
+                foreach (var componentStream in inputDeviceStream.ComponentStreams)
+                {
+                    componentStreams.Add(ProcessComponentStream(outputDeviceStream.Uuid, componentStream));
+                }
+            }
+            outputDeviceStream.ComponentStreams = componentStreams;
+
+            return outputDeviceStream;
+        }
+
+        private IComponentStream ProcessComponentStream(string deviceUuid, IComponentStream inputComponentStream)
+        {
+            var outputComponentStream = new ComponentStream();
+            outputComponentStream.Name = inputComponentStream.Name;
+            outputComponentStream.NativeName = inputComponentStream.NativeName;
+            outputComponentStream.Uuid = inputComponentStream.Uuid;
+            outputComponentStream.Component = GetCachedComponent(deviceUuid, inputComponentStream.ComponentId);
+
+            var observations = new List<IObservation>();
+            if (!inputComponentStream.Observations.IsNullOrEmpty())
+            {
+                foreach (var inputObservation in inputComponentStream.Observations)
+                {
+                    var dataItem = GetCachedDataItem(deviceUuid, inputObservation.DataItemId);
+                    if (dataItem != null)
+                    {
+                        var outputObservation = Observation.Create(dataItem);
+                        outputObservation.DeviceUuid = deviceUuid;
+                        outputObservation.DataItemId = inputObservation.DataItemId;
+                        outputObservation.DataItem = GetCachedDataItem(deviceUuid, inputObservation.DataItemId);
+                        outputObservation.CompositionId = inputObservation.CompositionId;
+                        outputObservation.Category = inputObservation.Category;
+                        outputObservation.Representation = inputObservation.Representation;
+                        outputObservation.Type = inputObservation.Type;
+                        outputObservation.SubType = inputObservation.SubType;
+                        outputObservation.Name = inputObservation.Name;
+                        outputObservation.Sequence = inputObservation.Sequence;
+                        outputObservation.Timestamp = inputObservation.Timestamp;
+                        outputObservation.AddValues(inputObservation.Values);
+                        observations.Add(outputObservation);
                     }
                 }
             }
-            catch { }
-        }
+            outputComponentStream.Observations = observations;
 
-        private async Task ProcessDeviceAgentUuid(MqttApplicationMessage message)
-        {
-            try
-            {             
-                var agentUuid = Encoding.UTF8.GetString(message.Payload);
-
-                await SubscribeToDeviceAgent(agentUuid);
-            }
-            catch { }
-        }
-
-        private void ProcessAsset(MqttApplicationMessage message)
-        {
-            try
-            {
-                // Read Device UUID
-                var deviceUuid = _deviceUuidRegex.Match(message.Topic).Groups[1].Value;
-
-                // Deserialize JSON to Device
-                var jsonAsset = JsonSerializer.Deserialize<JsonAsset>(message.Payload);
-                if (jsonAsset != null)
-                {
-                    var response = EntityFormatter.CreateAsset(DocumentFormat.JSON, jsonAsset.Type, message.Payload);
-                    if (response.Success)
-                    {
-                        if (AssetReceived != null)
-                        {
-                            AssetReceived.Invoke(deviceUuid, response.Entity);
-                        }
-                    }
-                }
-            }
-            catch { }
-        }
-
-
-        private async Task SubscribeToAllDevices(MTConnectMqttAgentInformation agent)
-        {
-            // Subscribe to Devices
-            if (!agent.Devices.IsNullOrEmpty())
-            {
-                foreach (var deviceUuid in agent.Devices)
-                {
-                    lock (_lock)
-                    {
-                        _deviceAgentUuids.Remove(deviceUuid);
-                        _deviceAgentUuids.Add(deviceUuid, agent.Uuid);
-                    }
-
-                    await SubscribeToDeviceModel(deviceUuid);
-                }
-            }
-        }
-
-        private async Task SubscribeToDevice(MTConnectMqttAgentInformation agent)
-        {
-            lock (_lock)
-            {
-                _deviceAgentUuids.Remove(_deviceUuid);
-                _deviceAgentUuids.Add(_deviceUuid, agent.Uuid);
-            }
-
-            // Subscribe to Device
-            await SubscribeToDeviceModel(_deviceUuid);
-        }
-
-
-        private void ConnectionTimerElapsed(string agentUuid)
-        {
-            MTConnectMqttAgentInformation agentInformation;
-            long timestamp = 0;
-            var now = UnixDateTime.Now / 10000;
-
-            lock (_lock)
-            {
-                _agents.TryGetValue(agentUuid, out agentInformation);
-                _agentHeartbeatTimestamps.TryGetValue(agentUuid, out timestamp);
-            }
-
-            if (agentInformation != null && timestamp > 0)
-            {
-                var diff = now - timestamp;
-
-                if (_connectionStatus == MTConnectMqttConnectionStatus.Connected && diff > agentInformation.HeartbeatInterval * 3)
-                {
-                    // Set Connection Status to Disconnected
-                    _connectionStatus = MTConnectMqttConnectionStatus.Disconnected;
-
-                    if (ConnectionStatusChanged != null) ConnectionStatusChanged.Invoke(this, _connectionStatus);
-                }
-            }
+            return outputComponentStream;
         }
 
 
@@ -760,5 +690,62 @@ namespace MTConnect.Clients
 
             return x;
         }
+
+        #region "Cache"
+
+        private IDevice GetCachedDevice(string deviceUuid)
+        {
+            if (!string.IsNullOrEmpty(deviceUuid))
+            {
+                lock (_lock)
+                {
+                    _devices.TryGetValue(deviceUuid, out var device);
+                    return device;
+                }
+            }
+
+            return null;
+        }
+
+        private IComponent GetCachedComponent(string deviceUuid, string componentId)
+        {
+            if (!string.IsNullOrEmpty(deviceUuid) && !string.IsNullOrEmpty(componentId))
+            {
+                lock (_lock)
+                {
+                    _devices.TryGetValue(deviceUuid, out var device);
+                    if (device != null && !device.Components.IsNullOrEmpty())
+                    {
+                        return device.Components.FirstOrDefault(o => o.Id == componentId);
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        private IDataItem GetCachedDataItem(string deviceUuid, string dataItemId)
+        {
+            if (!string.IsNullOrEmpty(deviceUuid) && !string.IsNullOrEmpty(dataItemId))
+            {
+                lock (_lock)
+                {
+                    _devices.TryGetValue(deviceUuid, out var device);
+                    if (device != null)
+                    {
+                        var dataItems = device.GetDataItems();
+                        if (!dataItems.IsNullOrEmpty())
+                        {
+                            return dataItems.FirstOrDefault(o => o.Id == dataItemId);
+                        }
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        #endregion
+
     }
 }

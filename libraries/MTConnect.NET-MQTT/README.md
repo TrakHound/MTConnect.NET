@@ -1,18 +1,40 @@
-﻿# MTConnect.NET-MQTT
-MTConnect.NET-MQTT is an extension library to MTConnect.NET that provides an MQTT Broker & Client interface to an IMTConnectAgent interface.
+﻿![MTConnect.NET Logo](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/dev/img/mtconnect-net-03-md.png) 
+
+# MTConnect.NET-MQTT
+MTConnect.NET-MQTT is an extension library to MTConnect.NET that provides an MQTT Broker & Client interface to an IMTConnectAgentBroker interface.
 
 > Updated for Version 6
 
-## Download
+## Nuget
 <table>
+    <thead>
+        <tr>
+            <td style="font-weight: bold;">Package Name</td>
+            <td style="font-weight: bold;">Downloads</td>
+            <td style="font-weight: bold;">Link</td>
+        </tr>
+    </thead>
     <tbody>
         <tr>
-            <td>Nuget</td>
+            <td>MTConnect.NET-MQTT</td>
             <td><img src="https://img.shields.io/nuget/dt/MTConnect.NET-MQTT?style=for-the-badge&logo=nuget&label=%20&color=%23333"/></td>
             <td><a href="https://www.nuget.org/packages/MTConnect.NET-MQTT">https://www.nuget.org/packages/MTConnect.NET-MQTT</a></td>
         </tr>
     </tbody>
 </table>
+
+# Topic Structures
+`Document` - Topics are the same as HTTP (Probe, Current, Sample, & Assets). Payloads are the corresponding MTConnect Response Documents. This provides a simple protocol that is performance based for applications with high frequency updates.
+
+`Entity` - Topics are expanded where each Entity has it's own topic. This provides an easy to read interface for tools such as NodeRed, etc.
+
+
+## Document Topic Structure
+
+
+## Entity Topic Structure
+
+
 
 ## Devices
 The **MTConnect/Devices** topics are used to send data that is in an MTConnectDevicesResponse document.

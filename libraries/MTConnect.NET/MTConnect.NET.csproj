@@ -52,13 +52,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<None Include="..\..\README.md">
-			<Pack>True</Pack>
-			<PackagePath>\</PackagePath>
-		</None>
-	</ItemGroup>
-
-	<ItemGroup>
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -68,10 +61,19 @@
 	<ItemGroup>
 		<ProjectReference Include="..\MTConnect.NET-Common\MTConnect.NET-Common.csproj" />
 		<ProjectReference Include="..\MTConnect.NET-HTTP\MTConnect.NET-HTTP.csproj" />
+		<ProjectReference Include="..\MTConnect.NET-JSON-cppagent\MTConnect.NET-JSON-cppagent.csproj" />
 		<ProjectReference Include="..\MTConnect.NET-JSON\MTConnect.NET-JSON.csproj" />
+		<ProjectReference Include="..\MTConnect.NET-MQTT\MTConnect.NET-MQTT.csproj" />
 		<ProjectReference Include="..\MTConnect.NET-Services\MTConnect.NET-Services.csproj" />
 		<ProjectReference Include="..\MTConnect.NET-SHDR\MTConnect.NET-SHDR.csproj" />
 		<ProjectReference Include="..\MTConnect.NET-XML\MTConnect.NET-XML.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
 	</ItemGroup>
 
 </Project>

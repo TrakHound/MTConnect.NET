@@ -20,6 +20,9 @@ namespace MTConnect.Configurations
         [JsonPropertyName("server")]
         public string Server { get; set; }
 
+        /// <summary>
+        /// Gets or Sets the TLS settings
+        /// </summary>
         [JsonPropertyName("tls")]
         public TlsConfiguration Tls { get; set; }
 
@@ -80,15 +83,9 @@ namespace MTConnect.Configurations
         [JsonPropertyName("allowPutFrom")]
         public IEnumerable<string> AllowPutFrom { get; set; }
 
-        /// <summary>
-        /// The maximum number of Threads to use for the Http Stream Requests
-        /// </summary>
-        [JsonPropertyName("maxStreamingThreads")]
-        public int MaxStreamingThreads { get; set; }
-
 
         /// <summary>
-        /// 
+        /// Gets or Sets the default MTConnect Version to respond to requests with
         /// </summary>
         [JsonPropertyName("defaultVersion")]
         public string DefaultVersion { get; set; }
@@ -132,7 +129,7 @@ namespace MTConnect.Configurations
             Port = 5000;
             AllowPut = false;
             AllowPutFrom = null;
-            MaxStreamingThreads = 5;
+            //MaxStreamingThreads = 5;
             IndentOutput = true;
             OutputComments = false;
             OutputValidationLevel = OutputValidationLevel.Ignore;

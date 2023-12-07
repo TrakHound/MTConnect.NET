@@ -54,7 +54,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Compile Remove="Clients\MTConnectMqtt2Client.cs" />
+	  <Compile Remove="Input\MTConnectMqttInputAsset.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -68,7 +68,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Include="Clients\MTConnectMqtt2Client.cs" />
+		<None Include="Input\MTConnectMqttInputAsset.cs" />
 		<None Include="README.md">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>

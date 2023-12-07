@@ -10,7 +10,7 @@ This Agent Module implements an adapter to read from an MQTT broker
 - mqtt-adapter:
     server: localhost
     port: 1883
-    topic: cnc-01
+    topic: cnc-01/input
     deviceKey: M12346
 ```
 

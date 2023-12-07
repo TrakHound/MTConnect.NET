@@ -72,9 +72,9 @@
 	  <ProjectReference Include="..\Modules\MTConnect.NET-AgentModule-HttpAdapter\MTConnect.NET-AgentModule-HttpAdapter.csproj" />
 	  <ProjectReference Include="..\Modules\MTConnect.NET-AgentModule-HttpServer\MTConnect.NET-AgentModule-HttpServer.csproj" />
 	  <ProjectReference Include="..\Modules\MTConnect.NET-AgentModule-MqttAdapter\MTConnect.NET-AgentModule-MqttAdapter.csproj" />
+	  <ProjectReference Include="..\Modules\MTConnect.NET-AgentModule-MqttBroker\MTConnect.NET-AgentModule-MqttBroker.csproj" />
 	  <ProjectReference Include="..\Modules\MTConnect.NET-AgentModule-MqttRelay\MTConnect.NET-AgentModule-MqttRelay.csproj" />
 	  <ProjectReference Include="..\Modules\MTConnect.NET-AgentModule-ShdrAdapter\MTConnect.NET-AgentModule-ShdrAdapter.csproj" />
-	  <ProjectReference Include="..\Modules\MTConnect.NET-MqttBroker-Module\MTConnect.NET-AgentModule-MqttBroker.csproj" />
 	  <ProjectReference Include="..\Processors\MTConnect.NET-AgentProcessor-Python\MTConnect.NET-AgentProcessor-Python.csproj" />
 	</ItemGroup>
 

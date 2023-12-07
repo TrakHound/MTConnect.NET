@@ -1,11 +1,20 @@
+![MTConnect.NET Logo](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/dev/img/mtconnect-net-03-md.png) 
+
 # MTConnect.NET-SHDR
 Classes to handle the SHDR Agent Adapter Protocol associated with the MTConnect Standard.
 
-## Download
+## Nuget
 <table>
+    <thead>
+        <tr>
+            <td style="font-weight: bold;">Package Name</td>
+            <td style="font-weight: bold;">Downloads</td>
+            <td style="font-weight: bold;">Link</td>
+        </tr>
+    </thead>
     <tbody>
         <tr>
-            <td>Nuget</td>
+            <td>MTConnect.NET-SHDR</td>
             <td><img src="https://img.shields.io/nuget/dt/MTConnect.NET-SHDR?style=for-the-badge&logo=nuget&label=%20&color=%23333"/></td>
             <td><a href="https://www.nuget.org/packages/MTConnect.NET-SHDR">https://www.nuget.org/packages/MTConnect.NET-SHDR</a></td>
         </tr>

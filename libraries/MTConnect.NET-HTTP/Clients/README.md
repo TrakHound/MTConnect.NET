@@ -1,3 +1,5 @@
+![MTConnect.NET Logo](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/dev/img/mtconnect-net-03-md.png) 
+
 # MTConnect Http REST Clients
 These client classes use the Http REST Api that is described in the [MTConnect Standard](https://model.mtconnect.org/#Package__8082e379-d82e-4b0e-abad-83cdf92f7fe6).
 

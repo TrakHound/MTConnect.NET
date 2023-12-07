@@ -1,7 +1,7 @@
 ![MTConnect.NET Logo](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/dev/img/mtconnect-net-03-md.png) 
 
-# MTConnect.NET
-Fully featured .NET library for MTConnect Agents, Adapters, and Clients
+# MTConnect.NET-HTTP
+Classes to implement HTTP Clients & Servers for MTConnect
 
 ## Nuget
 <table>
@@ -14,9 +14,9 @@ Fully featured .NET library for MTConnect Agents, Adapters, and Clients
     </thead>
     <tbody>
         <tr>
-            <td>MTConnect.NET</td>
-            <td><img src="https://img.shields.io/nuget/dt/MTConnect.NET?style=for-the-badge&logo=nuget&label=%20&color=%23333"/></td>
-            <td><a href="https://www.nuget.org/packages/MTConnect.NET">https://www.nuget.org/packages/MTConnect.NET</a></td>
+            <td>MTConnect.NET-HTTP</td>
+            <td><img src="https://img.shields.io/nuget/dt/MTConnect.NET-HTTP?style=for-the-badge&logo=nuget&label=%20&color=%23333"/></td>
+            <td><a href="https://www.nuget.org/packages/MTConnect.NET-HTTP">https://www.nuget.org/packages/MTConnect.NET-HTTP</a></td>
         </tr>
     </tbody>
 </table>

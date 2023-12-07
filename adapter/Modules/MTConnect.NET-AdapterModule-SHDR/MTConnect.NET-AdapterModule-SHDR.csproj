@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup Condition="'$(Configuration)'=='Debug'">
 		<TargetFrameworks>net8.0</TargetFrameworks>
@@ -23,11 +23,12 @@
 		<Copyright>Copyright (c) 2023 TrakHound Inc., All Rights Reserved.</Copyright>
 		<RepositoryUrl>https://github.com/TrakHound/MTConnect.NET</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
-		<Description>MTConnect.NET-AdapterModule-SHDR contains classes to fully implement an MTConnect SHDR Adapter application.  Supports MTConnect Versions up to 2.1. Supports .NET Framework 4.6.1 up to .NET 7</Description>
+		<Description>MTConnect.NET-AdapterModule-SHDR implements the MTConnect SHDR Protocol for Adapter Applications. Supports MTConnect Versions up to 2.2. Supports .NET Framework 4.6.1 up to .NET 8</Description>
 		<PackageProjectUrl>https://www.TrakHound.com</PackageProjectUrl>
 		<PackageTags>mtconnect;iiot;iot;cnc;</PackageTags>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageIconUrl>https://static.trakhound.com/mtconnect-net-nuget.png</PackageIconUrl>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 
 		<!-- Optional: Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
@@ -40,15 +41,34 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 	</PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\libraries\MTConnect.NET-SHDR\MTConnect.NET-SHDR.csproj" />
-  </ItemGroup>
+	<ItemGroup Condition="'$(Configuration)'=='Debug'">
+		<Compile Include="..\..\..\build\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Update="README.md">
-      <PackagePath>\</PackagePath>
-      <Pack>True</Pack>
-    </None>
-  </ItemGroup>
+	<ItemGroup Condition="'$(Configuration)'=='Release'">
+		<Compile Include="..\..\..\build\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
+	</ItemGroup>
+
+	<PropertyGroup Condition="'$(Configuration)'=='Package'">
+		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\..\libraries\MTConnect.NET-SHDR\MTConnect.NET-SHDR.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
 
 </Project>
