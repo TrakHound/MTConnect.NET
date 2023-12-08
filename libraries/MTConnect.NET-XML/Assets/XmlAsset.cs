@@ -140,7 +140,7 @@ namespace MTConnect.Assets.Xml
         }
 
 
-        public static string ToXml(IAsset asset, bool indent = false)
+        public static byte[] ToXml(IAsset asset, bool indent = false)
         {
             try
             {
@@ -171,63 +171,12 @@ namespace MTConnect.Assets.Xml
 
                         xmlWriter.Flush();
 
-                        var bytes = stream.ToArray();
-                        return Encoding.UTF8.GetString(bytes);
+                        //var bytes = stream.ToArray();
+                        //return Encoding.UTF8.GetString(bytes);
 
-                        //return stream.ToArray();
+                        return stream.ToArray();
                     }
                 }
-
-                //using (var writer = new StringWriter())
-                //{
-                //    var assetType = GetAssetType(asset.Type);
-                //    if (assetType != null)
-                //    {
-                //        var writeXmlMethod = assetType.GetMethod("WriteXml");
-                //        if (writeXmlMethod != null)
-                //        {
-                //            writeXmlMethod.Invoke(null, new object[] { writer, asset });
-                //        }
-                //        else
-                //        {
-                //            // Write Unknown ?
-                //        }
-                //    }
-
-                //    //XmlSerializer serializer = null;
-                //    //lock (_lock)
-                //    //{
-                //    //    var assetType = GetAssetType(asset.Type);
-                //    //    if (assetType != null)
-                //    //    {
-                //    //        _serializers.TryGetValue(assetType, out serializer);
-                //    //        //_serializers.TryGetValue(asset.GetType(), out serializer);
-                //    //        if (serializer == null)
-                //    //        {
-                //    //            serializer = new XmlSerializer(assetType);
-                //    //            _serializers.Add(assetType, serializer);
-                //    //        }
-                //    //    }
-                //    //}
-
-                //        //if (serializer != null)
-                //        //{
-
-
-                //        //    //serializer.Serialize(writer, asset, namespaces);
-
-                //        //    //var xml = writer.ToString();
-                //        //    //var regexPattern = $@"(<{asset.Type}[.\s\S]*(?:(?:<\/{asset.Type}>)|(?:\/>)))";
-                //        //    //var regex = new Regex(regexPattern);
-                //        //    //var match = regex.Match(xml);
-                //        //    //if (match.Success)
-                //        //    //{
-                //        //    //    xml = Namespaces.Clear(match.Groups[1].Value);
-
-                //        //    //    return XmlFunctions.FormatXml(xml, indent, false, true);
-                //        //    //}
-                //        //}
-                //}
             }
             catch { }
 

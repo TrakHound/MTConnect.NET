@@ -23,11 +23,17 @@ namespace MTConnect.Devices.Json
             {
                 if (!document.Devices.IsNullOrEmpty())
                 {
+                    var agents = new List<JsonDevice>();
                     var devices = new List<JsonDevice>();
 
-                    foreach (var device in document.Devices) devices.Add(new JsonDevice(device));
+                    foreach (var device in document.Devices)
+                    {
+                        if (device.Type == Agent.TypeId) agents.Add(new JsonDevice(device));
+                        else devices.Add(new JsonDevice(device));
+                    }
 
-                    Devices = devices;
+                    Agents = !agents.IsNullOrEmpty() ? agents : null;
+                    Devices = !devices.IsNullOrEmpty() ? devices : null;
                 }
             }
         }

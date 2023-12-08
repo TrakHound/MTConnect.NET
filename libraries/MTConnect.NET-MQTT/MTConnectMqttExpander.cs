@@ -235,12 +235,12 @@ namespace MTConnect.Clients
             {
                 var topic = $"{_configuration.TopicPrefix}/Devices/{device.Uuid}/Device";
 
-                var output = EntityFormatter.Format(_configuration.DocumentFormat, device);
-                if (output != null)
+                var formatResponse = EntityFormatter.Format(_configuration.DocumentFormat, device);
+                if (formatResponse.Success && formatResponse.Content != null)
                 {
                     var message = new MqttApplicationMessage();
                     message.Topic = topic;
-                    message.Payload = System.Text.Encoding.UTF8.GetBytes(output);
+                    message.Payload = formatResponse.Content;
                     message.Retain = true;
 
                     var result = await _mqttClient.PublishAsync(message);

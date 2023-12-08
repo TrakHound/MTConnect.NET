@@ -22,7 +22,7 @@ namespace MTConnect.Formatters.Xml
         public string ContentType => "application/xml";
 
 
-        public string Format(IDevice device, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormattedEntityWriteResult Format(IDevice device, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             if (device != null)
             {
@@ -31,150 +31,183 @@ namespace MTConnect.Formatters.Xml
 
                 try
                 {
-                    using (var writer = new StringWriter())
+                    using (var outputStream = new MemoryStream())
                     {
                         // Use XmlWriter to write XML to stream
-                        using (var xmlWriter = XmlWriter.Create(writer, settings))
+                        using (var xmlWriter = XmlWriter.Create(outputStream, settings))
                         {
                             XmlDevice.WriteXml(xmlWriter, device);
                             xmlWriter.Flush();
-                            return writer.ToString();
+                            
+                            var bytes = outputStream.ToArray();
+                            if (bytes != null)
+                            {
+                                return FormattedEntityWriteResult.Successful(bytes, ContentType);
+                            }
                         }
                     }
+
+                    //using (var writer = new StringWriter())
+                    //{
+                    //    // Use XmlWriter to write XML to stream
+                    //    using (var xmlWriter = XmlWriter.Create(writer, settings))
+                    //    {
+                    //        XmlDevice.WriteXml(xmlWriter, device);
+                    //        xmlWriter.Flush();
+                    //        return writer.ToString();
+                    //    }
+                    //}
                 }
                 catch { }
             }
 
-            return null;
+            return FormattedEntityWriteResult.Error();
         }
 
-        public string Format(IComponent component, IEnumerable<KeyValuePair<string, string>> options = null)
-        {
-            if (component != null)
-            {
-                try
-                {
-                    using (var writer = new StringWriter())
-                    {
-                        // Use XmlWriter to write XML to stream
-                        var xmlWriter = XmlWriter.Create(writer, XmlFunctions.XmlWriterSettings);
-                        XmlComponent.WriteXml(xmlWriter, component);
-                        xmlWriter.Flush();
-                        return writer.ToString();
-                    }
-                }
-                catch { }
-            }
+        //public FormattedEntityWriteResult Format(IComponent component, IEnumerable<KeyValuePair<string, string>> options = null)
+        //{
+        //    if (component != null)
+        //    {
+        //        try
+        //        {
+        //            using (var writer = new StringWriter())
+        //            {
+        //                // Use XmlWriter to write XML to stream
+        //                var xmlWriter = XmlWriter.Create(writer, XmlFunctions.XmlWriterSettings);
+        //                XmlComponent.WriteXml(xmlWriter, component);
+        //                xmlWriter.Flush();
+        //                return writer.ToString();
+        //            }
+        //        }
+        //        catch { }
+        //    }
 
-            return null;
-        }
+        //    return FormattedEntityWriteResult.Error();
+        //}
 
-        public string Format(IComposition composition, IEnumerable<KeyValuePair<string, string>> options = null)
-        {
-            if (composition != null)
-            {
-                try
-                {
-                    using (var writer = new StringWriter())
-                    {
-                        // Use XmlWriter to write XML to stream
-                        var xmlWriter = XmlWriter.Create(writer, XmlFunctions.XmlWriterSettings);
-                        XmlComposition.WriteXml(xmlWriter, composition);
-                        xmlWriter.Flush();
-                        return writer.ToString();
-                    }
-                }
-                catch { }
-            }
+        //public FormattedEntityWriteResult Format(IComposition composition, IEnumerable<KeyValuePair<string, string>> options = null)
+        //{
+        //    if (composition != null)
+        //    {
+        //        try
+        //        {
+        //            using (var writer = new StringWriter())
+        //            {
+        //                // Use XmlWriter to write XML to stream
+        //                var xmlWriter = XmlWriter.Create(writer, XmlFunctions.XmlWriterSettings);
+        //                XmlComposition.WriteXml(xmlWriter, composition);
+        //                xmlWriter.Flush();
+        //                return writer.ToString();
+        //            }
+        //        }
+        //        catch { }
+        //    }
 
-            return null;
-        }
+        //    return FormattedEntityWriteResult.Error();
+        //}
 
-        public string Format(IDataItem dataItem, IEnumerable<KeyValuePair<string, string>> options = null)
-        {
-            if (dataItem != null)
-            {
-                try
-                {
-                    var indentOuput = GetFormatterOption<bool>(options, "indentOutput");
+        //public FormattedEntityWriteResult Format(IDataItem dataItem, IEnumerable<KeyValuePair<string, string>> options = null)
+        //{
+        //    if (dataItem != null)
+        //    {
+        //        try
+        //        {
+        //            var indentOuput = GetFormatterOption<bool>(options, "indentOutput");
 
-                    using (var writer = new StringWriter())
-                    {
-                        // Use XmlWriter to write XML to stream
-                        using (var xmlWriter = XmlWriter.Create(writer, XmlFunctions.XmlWriterSettings))
-                        {
-                            XmlDataItem.WriteXml(xmlWriter, dataItem);
-                            xmlWriter.Flush();
-                            return XmlFunctions.FormatXml(writer.ToString(), indentOuput, false, true);
-                        }
-                    }
-                }
-                catch { }
-            }
+        //            using (var writer = new StringWriter())
+        //            {
+        //                // Use XmlWriter to write XML to stream
+        //                using (var xmlWriter = XmlWriter.Create(writer, XmlFunctions.XmlWriterSettings))
+        //                {
+        //                    XmlDataItem.WriteXml(xmlWriter, dataItem);
+        //                    xmlWriter.Flush();
+        //                    return XmlFunctions.FormatXml(writer.ToString(), indentOuput, false, true);
+        //                }
+        //            }
+        //        }
+        //        catch { }
+        //    }
 
-            return null;
-        }
+        //    return FormattedEntityWriteResult.Error();
+        //}
 
-        public string Format(IObservation observation, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormattedEntityWriteResult Format(IObservation observation, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             if (observation != null)
             {
                 try
                 {
-                    using (var writer = new StringWriter())
+                    using (var outputStream = new MemoryStream())
                     {
                         // Use XmlWriter to write XML to stream
-                        var xmlWriter = XmlWriter.Create(writer, XmlFunctions.XmlWriterSettings);
+                        var xmlWriter = XmlWriter.Create(outputStream, XmlFunctions.XmlWriterSettings);
                         XmlObservation.WriteXml(xmlWriter, observation);
-                        return writer.ToString();
+
+                        var bytes = outputStream.ToArray();
+                        if (bytes != null)
+                        {
+                            return FormattedEntityWriteResult.Successful(bytes, ContentType);
+                        }
+                    }
+
+
+                    //using (var writer = new StringWriter())
+                    //{
+                    //    // Use XmlWriter to write XML to stream
+                    //    var xmlWriter = XmlWriter.Create(writer, XmlFunctions.XmlWriterSettings);
+                    //    XmlObservation.WriteXml(xmlWriter, observation);
+
+                    //    writer.
+
+                    //    //return writer.ToString();
+                    //}
+                }
+                catch { }
+            }
+
+            return FormattedEntityWriteResult.Error();
+        }
+
+        public FormattedEntityWriteResult Format(IEnumerable<IObservation> observations, IEnumerable<KeyValuePair<string, string>> options = null)
+        {
+            if (!observations.IsNullOrEmpty())
+            {
+                try
+                {
+                    using (var outputStream = new MemoryStream())
+                    {
+                        foreach (var observation in observations)
+                        {
+                            // Use XmlWriter to write XML to stream
+                            var xmlWriter = XmlWriter.Create(outputStream, XmlFunctions.XmlWriterSettings);
+                            XmlObservation.WriteXml(xmlWriter, observation);
+                        }
+
+                        var bytes = outputStream.ToArray();
+                        if (bytes != null)
+                        {
+                            return FormattedEntityWriteResult.Successful(bytes, ContentType);
+                        }
                     }
                 }
                 catch { }
             }
 
-            return null;
+            return FormattedEntityWriteResult.Error();
         }
 
-        public string Format(IEnumerable<IObservation> observations, IEnumerable<KeyValuePair<string, string>> options = null)
-        {
-            if (!observations.IsNullOrEmpty())
-            {
-                var s = "";
-
-                foreach (var observation in observations)
-                {
-                    try
-                    {
-                        using (var writer = new StringWriter())
-                        {
-                            // Use XmlWriter to write XML to stream
-                            var xmlWriter = XmlWriter.Create(writer, XmlFunctions.XmlWriterSettings);
-                            XmlObservation.WriteXml(xmlWriter, observation);
-                            var x = writer.ToString();
-                            if (!string.IsNullOrEmpty(x))
-                            {
-                                if (string.IsNullOrEmpty(x)) s += x;
-                                else s += "\r\n" + x;
-                            }
-                        }
-                    }
-                    catch { }
-                }
-
-                return !string.IsNullOrEmpty(s) ? s : null;
-            }
-
-            return null;
-        }
-
-        public string Format(IAsset asset, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormattedEntityWriteResult Format(IAsset asset, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             if (asset != null)
             {
-                return XmlAsset.ToXml(asset, true);
+                var bytes = XmlAsset.ToXml(asset, true);
+                if (bytes != null)
+                {
+                    return FormattedEntityWriteResult.Successful(bytes, ContentType);
+                }
             }
 
-            return null;
+            return FormattedEntityWriteResult.Error();
         }
 
 

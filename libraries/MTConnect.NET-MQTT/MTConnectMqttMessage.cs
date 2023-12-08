@@ -29,6 +29,21 @@ namespace MTConnect.Mqtt
             return null;
         }
 
+        private static MqttApplicationMessage CreateMessage(string topic, byte[] payload, bool retain = false)
+        {
+            try
+            {
+                var messageBuilder = new MqttApplicationMessageBuilder();
+                messageBuilder.WithTopic(topic);
+                messageBuilder.WithPayload(payload);
+                messageBuilder.WithRetainFlag(retain);
+                return messageBuilder.Build();
+            }
+            catch { }
+
+            return null;
+        }
+
         public static IEnumerable<MqttApplicationMessage> Create(IMTConnectAgent agent, IEnumerable<int> observationIntervals, int heartbeat, bool retain = false)
         {
             if (agent != null)
@@ -173,10 +188,10 @@ namespace MTConnect.Mqtt
 
                 // Create Device Message
                 topic = $"MTConnect/Devices/{device.Uuid}/Device";
-                var payload = Formatters.EntityFormatter.Format(documentFormatterId, device);
-                if (!string.IsNullOrEmpty(payload))
+                var formatResponse = Formatters.EntityFormatter.Format(documentFormatterId, device);
+                if (formatResponse.Success && formatResponse.Content != null)
                 {
-                    messages.Add(CreateMessage(topic, payload, retain));
+                    messages.Add(CreateMessage(topic, formatResponse.Content, retain));
                 }
 
                 return messages;
@@ -191,11 +206,11 @@ namespace MTConnect.Mqtt
             {
                 var messages = new List<MqttApplicationMessage>();
 
-                var payload = Formatters.EntityFormatter.Format(documentFormatterId, asset);
-                if (!string.IsNullOrEmpty(payload))
+                var formatResponse = Formatters.EntityFormatter.Format(documentFormatterId, asset);
+                if (formatResponse.Success && formatResponse.Content != null)
                 {
-                    messages.Add(CreateMessage($"MTConnect/Assets/{asset.Type}/{asset.AssetId}", payload, retain));
-                    messages.Add(CreateMessage($"MTConnect/Devices/{asset.DeviceUuid}/Assets/{asset.Type}/{asset.AssetId}", payload, retain));
+                    messages.Add(CreateMessage($"MTConnect/Assets/{asset.Type}/{asset.AssetId}", formatResponse.Content, retain));
+                    messages.Add(CreateMessage($"MTConnect/Devices/{asset.DeviceUuid}/Assets/{asset.Type}/{asset.AssetId}", formatResponse.Content, retain));
                 }
 
                 return messages;
@@ -216,10 +231,10 @@ namespace MTConnect.Mqtt
                     new KeyValuePair<string, string>("instanceIdOutput", "true")
                 };
 
-                var payload = Formatters.EntityFormatter.Format(documentFormatterId, observation, formatOptions);
-                if (!string.IsNullOrEmpty(payload))
+                var formatResponse = Formatters.EntityFormatter.Format(documentFormatterId, observation, formatOptions);
+                if (formatResponse.Success && formatResponse.Content != null)
                 {
-                    return CreateMessage(topic, payload, retain);
+                    return CreateMessage(topic, formatResponse.Content, retain);
                 }
             }
 
@@ -242,10 +257,10 @@ namespace MTConnect.Mqtt
                         new KeyValuePair<string, string>("instanceIdOutput", "true")
                     };
 
-                    var payload = Formatters.EntityFormatter.Format(documentFormatterId, observations, formatOptions);
-                    if (!string.IsNullOrEmpty(payload))
+                    var formatResponse = Formatters.EntityFormatter.Format(documentFormatterId, observations, formatOptions);
+                    if (formatResponse.Success && formatResponse.Content != null)
                     {
-                        return CreateMessage(topic, payload, retain);
+                        return CreateMessage(topic, formatResponse.Content, retain);
                     }
                 }
             }

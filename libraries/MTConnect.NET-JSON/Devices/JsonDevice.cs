@@ -126,6 +126,9 @@ namespace MTConnect.Devices.Json
 
         public string ToString(bool indent = false) => JsonFunctions.Convert(this, indented: indent);
 
+        public byte[] ToBytes(bool indent = false) => JsonFunctions.ConvertBytes(this, indented: indent);
+
+
         public Device ToDevice()
         {
             var device = new Device();

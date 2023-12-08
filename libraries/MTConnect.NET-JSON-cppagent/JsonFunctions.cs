@@ -69,5 +69,32 @@ namespace MTConnect
 
             return null;
         }
+
+        public static byte[] ConvertBytes(object obj, JsonConverter converter = null, bool indented = false)
+        {
+            if (obj != null)
+            {
+                try
+                {
+                    var options = new JsonSerializerOptions
+                    {
+                        WriteIndented = indented,
+#if NET5_0_OR_GREATER
+                        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
+                        NumberHandling = JsonNumberHandling.AllowReadingFromString,
+#endif
+                        PropertyNameCaseInsensitive = true,
+                        MaxDepth = 1000
+                    };
+
+                    if (converter != null) options.Converters.Add(converter);
+
+                    return JsonSerializer.SerializeToUtf8Bytes(obj, options);
+                }
+                catch { }
+            }
+
+            return null;
+        }
     }
 }

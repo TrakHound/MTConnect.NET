@@ -4,6 +4,7 @@
 using MTConnect.Assets;
 using MTConnect.Assets.CuttingTools;
 using MTConnect.Assets.Files;
+using MTConnect.Assets.Json;
 using MTConnect.Assets.Json.CuttingTools;
 using MTConnect.Assets.Json.Files;
 using MTConnect.Assets.Json.QIF;
@@ -28,162 +29,84 @@ namespace MTConnect.Formatters
         public virtual string ContentType => "application/json";
 
 
-        public string Format(IDevice device, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormattedEntityWriteResult Format(IDevice device, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             if (device != null)
             {
                 var indentOuput = GetFormatterOption<bool>(options, "indentOutput");
 
-                return new JsonDevice(device).ToString(indentOuput);
-            }
-
-            return null;
-        }
-
-        public string Format(IComponent component, IEnumerable<KeyValuePair<string, string>> options = null)
-        {
-            if (component != null)
-            {
-                return new JsonComponent(component).ToString();
-            }
-
-            return null;
-        }
-
-        public string Format(IComposition composition, IEnumerable<KeyValuePair<string, string>> options = null)
-        {
-            if (composition != null)
-            {
-                return new JsonComposition(composition).ToString();
-            }
-
-            return null;
-        }
-
-        public string Format(IDataItem dataItem, IEnumerable<KeyValuePair<string, string>> options = null)
-        {
-            if (dataItem != null)
-            {
-                var indentOuput = GetFormatterOption<bool>(options, "indentOutput");
-
-                return JsonFunctions.Convert(new JsonDataItem(dataItem), indented:indentOuput);
-            }
-
-            return null;
-        }
-
-        public string Format(IObservation observation, IEnumerable<KeyValuePair<string, string>> options = null)
-        {
-            if (observation != null)
-            {
-                // Get Option for 'Category' output
-                var categoryOutput = GetFormatterOption<bool>(options, "categoryOutput");
-
-                // Get Option for 'InstanceId' output
-                var instanceIdOutput = GetFormatterOption<bool>(options, "instanceIdOutput");
-
-                //switch (observation.Category)
-                //{
-                //    // Sample
-                //    case Devices.DataItemCategory.SAMPLE:
-                //        var sampleObservation = SampleObservation.Create(observation);
-                //        if (sampleObservation != null)
-                //        {
-                //            return JsonFunctions.Convert(new JsonSample(sampleObservation, categoryOutput, instanceIdOutput));
-                //        }
-                //        break;
-
-                //    // Event
-                //    case Devices.DataItemCategory.EVENT:
-                //        var eventObservation = EventObservation.Create(observation);
-                //        if (eventObservation != null)
-                //        {
-                //            return JsonFunctions.Convert(new JsonEvent(eventObservation, categoryOutput, instanceIdOutput));
-                //        }
-                //        break;
-
-                //    // Condition
-                //    case Devices.DataItemCategory.CONDITION:
-                //        var conditionObservation = ConditionObservation.Create(observation);
-                //        if (conditionObservation != null)
-                //        {
-                //            return JsonFunctions.Convert(new JsonCondition(conditionObservation, categoryOutput, instanceIdOutput));
-                //        }
-                //        break;
-                //}
-            }
-
-            return null;
-        }
-
-        public string Format(IEnumerable<IObservation> observations, IEnumerable<KeyValuePair<string, string>> options = null)
-        {
-            if (!observations.IsNullOrEmpty())
-            {
-                // Get Option for 'Category' output
-                var categoryOutput = GetFormatterOption<bool>(options, "categoryOutput");
-
-                // Get Option for 'InstanceId' output
-                var instanceIdOutput = GetFormatterOption<bool>(options, "instanceIdOutput");
-
-                var x = new List<object>();
-
-                //foreach (var observation in observations)
-                //{
-                //    switch (observation.Category)
-                //    {
-                //        // Sample
-                //        case Devices.DataItemCategory.SAMPLE:
-                //            var sampleObservation = SampleObservation.Create(observation);
-                //            if (sampleObservation != null)
-                //            {
-                //                x.Add(new JsonSample(sampleObservation, categoryOutput, instanceIdOutput));
-                //            }
-                //            break;
-
-                //        // Event
-                //        case Devices.DataItemCategory.EVENT:
-                //            var eventObservation = EventObservation.Create(observation);
-                //            if (eventObservation != null)
-                //            {
-                //                x.Add(new JsonEvent(eventObservation, categoryOutput, instanceIdOutput));
-                //            }
-                //            break;
-
-                //        // Condition
-                //        case Devices.DataItemCategory.CONDITION:
-                //            var conditionObservation = ConditionObservation.Create(observation);
-                //            if (conditionObservation != null)
-                //            {
-                //                x.Add(new JsonCondition(conditionObservation, categoryOutput, instanceIdOutput));
-                //            }
-                //            break;
-                //    }
-
-                //}
-
-                return JsonFunctions.Convert(x);
-            }
-
-            return null;
-        }
-
-        public string Format(IAsset asset, IEnumerable<KeyValuePair<string, string>> options = null)
-        {
-            if (asset != null)
-            {
-                switch (asset.Type)
+                var bytes = new JsonDevice(device).ToBytes(indentOuput);
+                if (bytes != null)
                 {
-                    case "CuttingTool": return JsonFunctions.Convert(new JsonCuttingToolAsset(asset as CuttingToolAsset));
-                    case "File": return JsonFunctions.Convert(new JsonFileAsset(asset as FileAsset));
-                    case "QIFDocumentWrapper": return JsonFunctions.Convert(new JsonQIFDocumentWrapperAsset(asset as QIFDocumentWrapperAsset));
-                    case "RawMaterial": return JsonFunctions.Convert(new JsonRawMaterialAsset(asset as RawMaterialAsset));
-
-                    default: return JsonFunctions.Convert(asset);
+                    return FormattedEntityWriteResult.Successful(bytes, ContentType);
                 }
             }
 
-            return null;
+            return FormattedEntityWriteResult.Error();
+        }
+
+        public FormattedEntityWriteResult Format(IObservation observation, IEnumerable<KeyValuePair<string, string>> options = null)
+        {
+            return FormattedEntityWriteResult.Error();
+        }
+
+        public FormattedEntityWriteResult Format(IEnumerable<IObservation> observations, IEnumerable<KeyValuePair<string, string>> options = null)
+        {
+            return FormattedEntityWriteResult.Error();
+        }
+
+        public FormattedEntityWriteResult Format(IAsset asset, IEnumerable<KeyValuePair<string, string>> options = null)
+        {
+            if (asset != null)
+            {
+                var assets = new JsonAssets();
+
+                switch (asset.Type)
+                {
+                    case "CuttingTool":
+                        assets.CuttingTools = new List<JsonCuttingToolAsset>();
+                        assets.CuttingTools.Add(new JsonCuttingToolAsset(asset as CuttingToolAsset)); 
+                        break;
+
+                    case "File":
+                        assets.Files = new List<JsonFileAsset>();
+                        assets.Files.Add(new JsonFileAsset(asset as FileAsset));
+                        break;
+
+                    //case "QIFDocumentWrapper":
+                    //    assets. = new List<JsonCuttingToolAsset>();
+                    //    assets.CuttingTools.Add(new JsonCuttingToolAsset(asset as CuttingToolAsset));
+                    //    bytes = JsonFunctions.ConvertBytes(new JsonQIFDocumentWrapperAsset(asset as QIFDocumentWrapperAsset));
+                    //    break;
+
+                    case "RawMaterial":
+                        assets.RawMaterials = new List<JsonRawMaterialAsset>();
+                        assets.RawMaterials.Add(new JsonRawMaterialAsset(asset as RawMaterialAsset));
+                        break;
+
+                    //default:
+                    //    bytes = JsonFunctions.ConvertBytes(asset);
+                    //    break;
+                }
+
+                //switch (asset.Type)
+                //{
+                //    case "CuttingTool": bytes = JsonFunctions.ConvertBytes(new JsonCuttingToolAsset(asset as CuttingToolAsset)); break;
+                //    case "File": bytes = JsonFunctions.ConvertBytes(new JsonFileAsset(asset as FileAsset)); break;
+                //    case "QIFDocumentWrapper": bytes = JsonFunctions.ConvertBytes(new JsonQIFDocumentWrapperAsset(asset as QIFDocumentWrapperAsset)); break;
+                //    case "RawMaterial": bytes = JsonFunctions.ConvertBytes(new JsonRawMaterialAsset(asset as RawMaterialAsset)); break;
+
+                //    default: bytes = JsonFunctions.ConvertBytes(asset); break;
+                //}
+
+                var bytes = JsonFunctions.ConvertBytes(assets);
+                if (bytes != null)
+                {
+                    return FormattedEntityWriteResult.Successful(bytes, ContentType);
+                }
+            }
+
+            return FormattedEntityWriteResult.Error();
         }
 
 

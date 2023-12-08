@@ -8,6 +8,7 @@ using MTConnect.Observations;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace MTConnect.Formatters
@@ -31,95 +32,144 @@ namespace MTConnect.Formatters
         }
 
 
-        public static string Format(string documentFormatterId, IDevice device, IEnumerable<KeyValuePair<string, string>> options = null)
+        public static FormattedEntityWriteResult Format(string documentFormatterId, IDevice device, IEnumerable<KeyValuePair<string, string>> options = null)
         {
+            var stpw = Stopwatch.StartNew();
+
+            FormattedEntityWriteResult result = FormattedEntityWriteResult.Error();
+
             // Get the Formatter with the specified ID
             var formatter = GetFormatter(documentFormatterId);
             if (formatter != null)
             {
                 // Create the string representation of the Entity using the Formatter
-                return formatter.Format(device, options);
+                result = formatter.Format(device, options);
             }
 
-            return null;
+            stpw.Stop();
+            result.ResponseDuration = stpw.GetElapsedMilliseconds();
+
+            return result;
         }
 
-        public static string Format(string documentFormatterId, IComponent component, IEnumerable<KeyValuePair<string, string>> options = null)
+        //public static FormattedEntityWriteResult Format(string documentFormatterId, IComponent component, IEnumerable<KeyValuePair<string, string>> options = null)
+        //{
+        //    var stpw = Stopwatch.StartNew();
+
+        //    FormattedEntityWriteResult result = FormattedEntityWriteResult.Error();
+
+        //    // Get the Formatter with the specified ID
+        //    var formatter = GetFormatter(documentFormatterId);
+        //    if (formatter != null)
+        //    {
+        //        // Create the string representation of the Entity using the Formatter
+        //        result = formatter.Format(component, options);
+        //    }
+
+        //    stpw.Stop();
+        //    result.ResponseDuration = stpw.GetElapsedMilliseconds();
+
+        //    return result;
+        //}
+
+        //public static FormattedEntityWriteResult Format(string documentFormatterId, IComposition composition, IEnumerable<KeyValuePair<string, string>> options = null)
+        //{
+        //    var stpw = Stopwatch.StartNew();
+
+        //    FormattedEntityWriteResult result = FormattedEntityWriteResult.Error();
+
+        //    // Get the Formatter with the specified ID
+        //    var formatter = GetFormatter(documentFormatterId);
+        //    if (formatter != null)
+        //    {
+        //        // Create the string representation of the Entity using the Formatter
+        //        result = formatter.Format(composition, options);
+        //    }
+
+        //    stpw.Stop();
+        //    result.ResponseDuration = stpw.GetElapsedMilliseconds();
+
+        //    return result;
+        //}
+
+        //public static FormattedEntityWriteResult Format(string documentFormatterId, IDataItem dataItem, IEnumerable<KeyValuePair<string, string>> options = null)
+        //{
+        //    var stpw = Stopwatch.StartNew();
+
+        //    FormattedEntityWriteResult result = FormattedEntityWriteResult.Error();
+
+        //    // Get the Formatter with the specified ID
+        //    var formatter = GetFormatter(documentFormatterId);
+        //    if (formatter != null)
+        //    {
+        //        // Create the string representation of the Entity using the Formatter
+        //        result = formatter.Format(dataItem, options);
+        //    }
+
+        //    stpw.Stop();
+        //    result.ResponseDuration = stpw.GetElapsedMilliseconds();
+
+        //    return result;
+        //}
+
+        public static FormattedEntityWriteResult Format(string documentFormatterId, IObservation observation, IEnumerable<KeyValuePair<string, string>> options = null)
         {
+            var stpw = Stopwatch.StartNew();
+
+            FormattedEntityWriteResult result = FormattedEntityWriteResult.Error();
+
             // Get the Formatter with the specified ID
             var formatter = GetFormatter(documentFormatterId);
             if (formatter != null)
             {
                 // Create the string representation of the Entity using the Formatter
-                return formatter.Format(component, options);
+                result = formatter.Format(observation, options);
             }
 
-            return null;
+            stpw.Stop();
+            result.ResponseDuration = stpw.GetElapsedMilliseconds();
+
+            return result;
         }
 
-        public static string Format(string documentFormatterId, IComposition composition, IEnumerable<KeyValuePair<string, string>> options = null)
+        public static FormattedEntityWriteResult Format(string documentFormatterId, IEnumerable<IObservation> observations, IEnumerable<KeyValuePair<string, string>> options = null)
         {
+            var stpw = Stopwatch.StartNew();
+
+            FormattedEntityWriteResult result = FormattedEntityWriteResult.Error();
+
             // Get the Formatter with the specified ID
             var formatter = GetFormatter(documentFormatterId);
             if (formatter != null)
             {
                 // Create the string representation of the Entity using the Formatter
-                return formatter.Format(composition, options);
+                result = formatter.Format(observations, options);
             }
 
-            return null;
+            stpw.Stop();
+            result.ResponseDuration = stpw.GetElapsedMilliseconds();
+
+            return result;
         }
 
-        public static string Format(string documentFormatterId, IDataItem dataItem, IEnumerable<KeyValuePair<string, string>> options = null)
+        public static FormattedEntityWriteResult Format(string documentFormatterId, IAsset asset, IEnumerable<KeyValuePair<string, string>> options = null)
         {
+            var stpw = Stopwatch.StartNew();
+
+            FormattedEntityWriteResult result = FormattedEntityWriteResult.Error();
+
             // Get the Formatter with the specified ID
             var formatter = GetFormatter(documentFormatterId);
             if (formatter != null)
             {
                 // Create the string representation of the Entity using the Formatter
-                return formatter.Format(dataItem, options);
+                result = formatter.Format(asset, options);
             }
 
-            return null;
-        }
+            stpw.Stop();
+            result.ResponseDuration = stpw.GetElapsedMilliseconds();
 
-        public static string Format(string documentFormatterId, IObservation observation, IEnumerable<KeyValuePair<string, string>> options = null)
-        {
-            // Get the Formatter with the specified ID
-            var formatter = GetFormatter(documentFormatterId);
-            if (formatter != null)
-            {
-                // Create the string representation of the Entity using the Formatter
-                return formatter.Format(observation, options);
-            }
-
-            return null;
-        }
-
-        public static string Format(string documentFormatterId, IEnumerable<IObservation> observations, IEnumerable<KeyValuePair<string, string>> options = null)
-        {
-            // Get the Formatter with the specified ID
-            var formatter = GetFormatter(documentFormatterId);
-            if (formatter != null)
-            {
-                // Create the string representation of the Entity using the Formatter
-                return formatter.Format(observations, options);
-            }
-
-            return null;
-        }
-
-        public static string Format(string documentFormatterId, IAsset asset, IEnumerable<KeyValuePair<string, string>> options = null)
-        {
-            // Get the Formatter with the specified ID
-            var formatter = GetFormatter(documentFormatterId);
-            if (formatter != null)
-            {
-                // Create the string representation of the Entity using the Formatter
-                return formatter.Format(asset, options);
-            }
-
-            return null;
+            return result;
         }
 
 
