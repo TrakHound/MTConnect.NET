@@ -1,14 +1,14 @@
-; MTConnect HTTP Agent Installer
+; MTConnect.NET Agent Installer
 ; ------------------------------
 
-#define MyAppName "MTConnect HTTP Agent"
+#define MyAppName "MTConnect.NET Agent"
 #define MyAppVersion "1.0.0"
-#define MyAppPublisher "MTConnect"
+#define MyAppPublisher ""
 #define MyAppURL ""
 #define MyAppVerName MyAppName + " " + MyAppVersion
 
 ; File Names
-#define ExeName "MTConnect-HTTP-Agent.exe"
+#define ExeName "MTConnect-Agent.exe"
 
 
 [Setup]
@@ -45,6 +45,8 @@ UninstallDisplayName={#MyAppName} v{#MyAppVersion}
 UninstallFilesDir={app}\Uninstall
 
 [Types]
+Name: "win64net8"; Description: "Windows x64 .NET 8"
+Name: "win86net8"; Description: "Windows x86 .NET 8"
 Name: "win64net7"; Description: "Windows x64 .NET 7"
 Name: "win86net7"; Description: "Windows x86 .NET 7"
 Name: "win64net6"; Description: "Windows x64 .NET 6"
@@ -55,6 +57,8 @@ Name: "win64net461"; Description: "Windows x64 .NET 4.6.1 Framework"
 Name: "win86net461"; Description: "Windows x86 .NET 4.6.1 Framework"
 
 [Components]
+Name: "win64net8"; Description: "{#MyAppVerName}"; Types: win64net8
+Name: "win86net8"; Description: "{#MyAppVerName}"; Types: win86net8
 Name: "win64net7"; Description: "{#MyAppVerName}"; Types: win64net7
 Name: "win86net7"; Description: "{#MyAppVerName}"; Types: win86net7
 Name: "win64net6"; Description: "{#MyAppVerName}"; Types: win64net6
@@ -78,6 +82,8 @@ Name: "{app}\styles"; Permissions: everyone-full
 [Files]
 
 ; Program Files
+Source: "bin\release\net8.0\win-x64\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs; Permissions: everyone-full; Components: win64net8;
+Source: "bin\release\net8.0\win-x86\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs; Permissions: everyone-full; Components: win86net8;
 Source: "bin\release\net7.0\win-x64\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs; Permissions: everyone-full; Components: win64net7;
 Source: "bin\release\net7.0\win-x86\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs; Permissions: everyone-full; Components: win86net7;
 Source: "bin\release\net6.0\win-x64\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs; Permissions: everyone-full; Components: win64net6;
