@@ -138,7 +138,7 @@ namespace MTConnect
 
         private void AssetAdded(object sender, IAsset asset)
         {
-            var response = _mtconnectAgent.GetAssetsResponseDocument(new string[] { asset.Uuid });
+            var response = _mtconnectAgent.GetAssetsResponseDocument(new string[] { asset.AssetId });
             if (response != null)
             {
                 if (!response.Assets.IsNullOrEmpty())
