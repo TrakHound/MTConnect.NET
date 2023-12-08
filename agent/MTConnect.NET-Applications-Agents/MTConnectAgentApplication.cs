@@ -632,7 +632,7 @@ namespace MTConnect.Applications
 
         private void ModuleLoaded(object sender, IMTConnectAgentModule module)
         {
-            _applicationLogger.Info($"[Application] : Module Loaded : " + module.GetType().Name);
+            _applicationLogger.Info($"[Application] : Module Loaded : " + module.Id);
         }
 
         private void ModuleLogReceived(object sender, MTConnectLogLevel logLevel, string message)
