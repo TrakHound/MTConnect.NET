@@ -338,7 +338,9 @@ namespace MTConnect.Agents
             var deviceUuid = GetDeviceUuid(deviceKey);
             if (deviceUuid != null)
             {
-                _devices.TryGetValue(deviceUuid, out var device);
+                IDevice device = null;
+                if (deviceUuid == _agent.Uuid) device = _agent;
+                if (device == null) _devices.TryGetValue(deviceUuid, out device);
                 if (device != null)
                 {
                     return Device.Process(device, mtconnectVersion != null ? mtconnectVersion : MTConnectVersion);
