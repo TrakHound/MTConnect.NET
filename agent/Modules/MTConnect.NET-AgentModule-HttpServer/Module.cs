@@ -15,6 +15,7 @@ namespace MTConnect.Modules.Http
     public class Module : MTConnectAgentModule
     {
         public const string ConfigurationTypeId = "http-server";
+        private const string ModuleId = "HTTP Server";
 
         private readonly Logger _httpLogger = LogManager.GetLogger("http-server-logger");
         private readonly Logger _agentValidationLogger = LogManager.GetLogger("agent-validation-logger");
@@ -24,6 +25,8 @@ namespace MTConnect.Modules.Http
 
         public Module(IMTConnectAgentBroker mtconnectAgent, object controllerConfiguration) : base(mtconnectAgent)
         {
+            Id = ModuleId;
+
             _mtconnectAgent = mtconnectAgent;
             _configuration = AgentApplicationConfiguration.GetConfiguration<ModuleConfiguration>(controllerConfiguration);
         }

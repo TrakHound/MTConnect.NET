@@ -20,6 +20,7 @@ namespace MTConnect.Modules
     public class Module : MTConnectAgentModule
     {
         public const string ConfigurationTypeId = "mqtt-broker";
+        private const string ModuleId = "MQTT Broker";
 
         private readonly ModuleConfiguration _configuration;
         private readonly MTConnectMqttServer _server;
@@ -29,6 +30,8 @@ namespace MTConnect.Modules
 
         public Module(IMTConnectAgentBroker mtconnectAgent, object configuration) : base(mtconnectAgent)
         {
+            Id = ModuleId;
+
             _configuration = AgentApplicationConfiguration.GetConfiguration<ModuleConfiguration>(configuration);
 
             _server = new MTConnectMqttServer(mtconnectAgent, _configuration);
@@ -129,7 +132,7 @@ namespace MTConnect.Modules
                 var formatResult = ResponseDocumentFormatter.Format(_configuration.DocumentFormat, responseDocument);
                 if (formatResult.Success)
                 {
-                    var topic = $"{_configuration.TopicPrefix}/{device.Uuid}/{_configuration.ProbeTopic}";
+                    var topic = $"{_configuration.TopicPrefix}/{_configuration.ProbeTopic}/{device.Uuid}";
 
                     var message = new MqttApplicationMessage();
                     message.Retain = true;
@@ -151,7 +154,7 @@ namespace MTConnect.Modules
                 var formatResult = ResponseDocumentFormatter.Format(_configuration.DocumentFormat, ref responseDocument);
                 if (formatResult.Success)
                 {
-                    var topic = $"{_configuration.TopicPrefix}/{device.Uuid}/{_configuration.CurrentTopic}";
+                    var topic = $"{_configuration.TopicPrefix}/{_configuration.CurrentTopic}/{device.Uuid}";
 
                     var message = new MqttApplicationMessage();
                     message.Retain = true;
@@ -173,7 +176,7 @@ namespace MTConnect.Modules
                 var formatResult = ResponseDocumentFormatter.Format(_configuration.DocumentFormat, ref responseDocument);
                 if (formatResult.Success)
                 {
-                    var topic = $"{_configuration.TopicPrefix}/{device.Uuid}/{_configuration.SampleTopic}";
+                    var topic = $"{_configuration.TopicPrefix}/{_configuration.SampleTopic}/{device.Uuid}";
 
                     var message = new MqttApplicationMessage();
                     //message.Retain = true;
@@ -195,7 +198,7 @@ namespace MTConnect.Modules
                 var formatResult = ResponseDocumentFormatter.Format(_configuration.DocumentFormat, responseDocument);
                 if (formatResult.Success)
                 {
-                    var topic = $"{_configuration.TopicPrefix}/{device.Uuid}/{_configuration.AssetTopic}";
+                    var topic = $"{_configuration.TopicPrefix}/{_configuration.AssetTopic}/{device.Uuid}";
 
                     var message = new MqttApplicationMessage();
                     message.Retain = true;

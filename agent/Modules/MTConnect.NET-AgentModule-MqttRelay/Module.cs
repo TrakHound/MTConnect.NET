@@ -8,6 +8,7 @@ using MTConnect.Assets;
 using MTConnect.Configurations;
 using MTConnect.Devices;
 using MTConnect.Formatters;
+using MTConnect.Logging;
 using MTConnect.Streams.Output;
 using System;
 using System.Collections.Generic;
@@ -21,6 +22,7 @@ namespace MTConnect
     public class Module : MTConnectAgentModule
     {
         public const string ConfigurationTypeId = "mqtt-relay";
+        private const string ModuleId = "MQTT Relay";
 
         private readonly ModuleConfiguration _configuration;
         private readonly MTConnectMqttServer _server;
@@ -31,6 +33,8 @@ namespace MTConnect
 
         public Module(IMTConnectAgentBroker mtconnectAgent, object configuration) : base(mtconnectAgent)
         {
+            Id = ModuleId;
+
             _configuration = AgentApplicationConfiguration.GetConfiguration<ModuleConfiguration>(configuration);
 
             _server = new MTConnectMqttServer(mtconnectAgent, _configuration);
@@ -132,7 +136,7 @@ namespace MTConnect
 
                         await _mqttClient.ConnectAsync(clientOptions, CancellationToken.None);
 
-                        Log(Logging.MTConnectLogLevel.Information, $"MQTT Relay Connected to External Broker ({_configuration.Server}:{_configuration.Port})");
+                        Log(MTConnectLogLevel.Information, $"MQTT Relay Connected to External Broker ({_configuration.Server}:{_configuration.Port})");
 
                         _server.Start();
 
@@ -143,10 +147,10 @@ namespace MTConnect
                     }
                     catch (Exception ex)
                     {
-                        Log(Logging.MTConnectLogLevel.Warning, $"MQTT Relay Connection Error : {ex.Message}");
+                        Log(MTConnectLogLevel.Warning, $"MQTT Relay Connection Error : {ex.Message}");
                     }
 
-                    Log(Logging.MTConnectLogLevel.Information, $"MQTT Relay Disconnected from External Broker ({_configuration.Server}:{_configuration.Port})");
+                    Log(MTConnectLogLevel.Information, $"MQTT Relay Disconnected from External Broker ({_configuration.Server}:{_configuration.Port})");
 
                     await Task.Delay(_configuration.ReconnectInterval, _stop.Token);
                 }
@@ -165,7 +169,7 @@ namespace MTConnect
                 var formatResult = ResponseDocumentFormatter.Format(_configuration.DocumentFormat, responseDocument);
                 if (formatResult.Success)
                 {
-                    var topic = $"{_configuration.TopicPrefix}/{device.Uuid}/{_configuration.ProbeTopic}";
+                    var topic = $"{_configuration.TopicPrefix}/{_configuration.ProbeTopic}/{device.Uuid}";
 
                     var message = new MqttApplicationMessage();
                     message.Retain = true;
@@ -173,10 +177,21 @@ namespace MTConnect
                     message.QualityOfServiceLevel = MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce;
                     message.Payload = formatResult.Content;
 
-                    var publishResult = await _mqttClient.PublishAsync(message);
-                    if (publishResult.IsSuccess)
+                    try
                     {
-
+                        var publishResult = await _mqttClient.PublishAsync(message);
+                        if (publishResult.IsSuccess)
+                        {
+                            Log(MTConnectLogLevel.Debug, $"[MQTT-Relay] : Probe : Published to Topic ({topic})");
+                        }
+                        else
+                        {
+                            Log(MTConnectLogLevel.Warning, $"[MQTT-Relay] : Probe : Error Publishing to Topic ({topic}) : {publishResult.ReasonCode} : {publishResult.ReasonString}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Log(MTConnectLogLevel.Warning, $"[MQTT-Relay] : Probe : Error Publishing to Topic ({topic}) : {ex.Message}");
                     }
                 }
             }
@@ -189,18 +204,29 @@ namespace MTConnect
                 var formatResult = ResponseDocumentFormatter.Format(_configuration.DocumentFormat, ref responseDocument);
                 if (formatResult.Success)
                 {
-                    var topic = $"{_configuration.TopicPrefix}/{device.Uuid}/{_configuration.CurrentTopic}";
+                    var topic = $"{_configuration.TopicPrefix}/{_configuration.CurrentTopic}/{device.Uuid}";
 
                     var message = new MqttApplicationMessage();
-                    message.Retain = true;
+                    //message.Retain = true;
                     message.Topic = topic;
                     message.QualityOfServiceLevel = MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce;
                     message.Payload = formatResult.Content;
 
-                    var publishResult = await _mqttClient.PublishAsync(message);
-                    if (publishResult.IsSuccess)
+                    try
                     {
-
+                        var publishResult = await _mqttClient.PublishAsync(message);
+                        if (publishResult.IsSuccess)
+                        {
+                            Log(MTConnectLogLevel.Debug, $"[MQTT-Relay] : Current : Published to Topic ({topic})");
+                        }
+                        else
+                        {
+                            Log(MTConnectLogLevel.Warning, $"[MQTT-Relay] : Current : Error Publishing to Topic ({topic}) : {publishResult.ReasonCode} : {publishResult.ReasonString}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Log(MTConnectLogLevel.Warning, $"[MQTT-Relay] : Current : Error Publishing to Topic ({topic}) : {ex.Message}");
                     }
                 }
             }
@@ -213,7 +239,7 @@ namespace MTConnect
                 var formatResult = ResponseDocumentFormatter.Format(_configuration.DocumentFormat, ref responseDocument);
                 if (formatResult.Success)
                 {
-                    var topic = $"{_configuration.TopicPrefix}/{device.Uuid}/{_configuration.SampleTopic}";
+                    var topic = $"{_configuration.TopicPrefix}/{_configuration.SampleTopic}/{device.Uuid}";
 
                     var message = new MqttApplicationMessage();
                     //message.Retain = true;
@@ -221,10 +247,21 @@ namespace MTConnect
                     message.QualityOfServiceLevel = MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce;
                     message.Payload = formatResult.Content;
 
-                    var publishResult = await _mqttClient.PublishAsync(message);
-                    if (publishResult.IsSuccess)
+                    try
                     {
-
+                        var publishResult = await _mqttClient.PublishAsync(message);
+                        if (publishResult.IsSuccess)
+                        {
+                            Log(MTConnectLogLevel.Debug, $"[MQTT-Relay] : Sample : Published to Topic ({topic})");
+                        }
+                        else
+                        {
+                            Log(MTConnectLogLevel.Warning, $"[MQTT-Relay] : Sample : Error Publishing to Topic ({topic}) : {publishResult.ReasonCode} : {publishResult.ReasonString}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Log(MTConnectLogLevel.Warning, $"[MQTT-Relay] : Sample : Error Publishing to Topic ({topic}) : {ex.Message}");
                     }
                 }
             }
@@ -232,23 +269,37 @@ namespace MTConnect
 
         private async void AssetReceived(IDevice device, IAssetsResponseDocument responseDocument)
         {
-            if (_mqttClient != null && _mqttClient.IsConnected)
+            if (_mqttClient != null && _mqttClient.IsConnected && responseDocument != null && !responseDocument.Assets.IsNullOrEmpty())
             {
-                var formatResult = ResponseDocumentFormatter.Format(_configuration.DocumentFormat, responseDocument);
-                if (formatResult.Success)
+                foreach (var asset in responseDocument.Assets)
                 {
-                    var topic = $"{_configuration.TopicPrefix}/{device.Uuid}/{_configuration.AssetTopic}";
-
-                    var message = new MqttApplicationMessage();
-                    message.Retain = true;
-                    message.Topic = topic;
-                    message.QualityOfServiceLevel = MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce;
-                    message.Payload = formatResult.Content;
-
-                    var publishResult = await _mqttClient.PublishAsync(message);
-                    if (publishResult.IsSuccess)
+                    var formatResult = EntityFormatter.Format(_configuration.DocumentFormat, asset);
+                    if (formatResult.Success)
                     {
+                        var topic = $"{_configuration.TopicPrefix}/{_configuration.AssetTopic}/{device.Uuid}/{asset.AssetId}";
 
+                        var message = new MqttApplicationMessage();
+                        message.Retain = true;
+                        message.Topic = topic;
+                        message.QualityOfServiceLevel = MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce;
+                        message.Payload = formatResult.Content;
+
+                        try
+                        {
+                            var publishResult = await _mqttClient.PublishAsync(message);
+                            if (publishResult.IsSuccess)
+                            {
+                                Log(MTConnectLogLevel.Debug, $"[MQTT-Relay] : Asset : Published to Topic ({topic})");
+                            }
+                            else
+                            {
+                                Log(MTConnectLogLevel.Warning, $"[MQTT-Relay] : Asset : Error Publishing to Topic ({topic}) : {publishResult.ReasonCode} : {publishResult.ReasonString}");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Log(MTConnectLogLevel.Warning, $"[MQTT-Relay] : Asset : Error Publishing to Topic ({topic}) : {ex.Message}");
+                        }
                     }
                 }
             }

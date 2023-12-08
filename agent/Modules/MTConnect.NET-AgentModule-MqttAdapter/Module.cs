@@ -22,6 +22,7 @@ namespace MTConnect.Modules
     public class Module : MTConnectAgentModule
     {
         public const string ConfigurationTypeId = "mqtt-adapter";
+        private const string ModuleId = "MQTT Adapter";
 
         private readonly Logger _clientLogger = LogManager.GetLogger("mqtt-adapter-logger");
         private readonly ModuleConfiguration _configuration;
@@ -50,6 +51,8 @@ namespace MTConnect.Modules
 
         public Module(IMTConnectAgentBroker mtconnectAgent, object configuration) : base(mtconnectAgent)
         {
+            Id = ModuleId;
+
             _mtconnectAgent = mtconnectAgent;
             _mqttFactory = new MqttFactory();
             _mqttClient = _mqttFactory.CreateMqttClient();
