@@ -1,4 +1,4 @@
-![MTConnect.NET Logo](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/dev/img/mtconnect-net-03-md.png) 
+![MTConnect.NET Logo](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/mtconnect-net-03-md.png) 
 
 # MTConnect HTTP Server
 The HTTP interface for MTConnect Agents is provided by the MTConnectHttpServer class. This class runs a CEEN Http Server and handles all MTConnect requests.

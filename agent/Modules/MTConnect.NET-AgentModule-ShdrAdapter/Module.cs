@@ -17,6 +17,7 @@ namespace MTConnect.Modules
     public class Module : MTConnectAgentModule
     {
         public const string ConfigurationTypeId = "shdr-adapter";
+        private const string ModuleId = "SHDR Adapter";
 
         private readonly Logger _adapterLogger = LogManager.GetLogger("adapter-logger");
         private readonly Logger _adapterShdrLogger = LogManager.GetLogger("adapter-shdr-logger");
@@ -27,6 +28,8 @@ namespace MTConnect.Modules
 
         public Module(IMTConnectAgentBroker mtconnectAgent, object configuration) : base(mtconnectAgent)
         {
+            Id = ModuleId;
+
             _mtconnectAgent = mtconnectAgent;
             _configuration = AgentApplicationConfiguration.GetConfiguration<ModuleConfiguration>(configuration);
         }

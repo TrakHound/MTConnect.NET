@@ -1,4 +1,4 @@
-﻿![MTConnect.NET Logo](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/dev/img/mtconnect-net-03-md.png) 
+﻿![MTConnect.NET Logo](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/mtconnect-net-03-md.png) 
 
 # MTConnect.NET-XML
 MTConnect.NET-XML is an extension library to MTConnect.NET that provides reading and writing as the XML format specified in the MTConnect Standard

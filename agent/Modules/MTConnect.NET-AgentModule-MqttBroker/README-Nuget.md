@@ -1,11 +1,11 @@
-![MTConnect.NET Logo](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/dev/img/mtconnect-net-03-md.png) 
+![MTConnect.NET Logo](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/mtconnect-net-03-md.png) 
 
 # MTConnect MQTT Broker Module
 This Agent Module serves data via an **Internal** MQTT Broker
 
 ## Configuration
 ```yaml
-- mqtt-relay:
+- mqtt-broker:
     server: localhost
     port: 7878
     topic: MTConnect
