@@ -29,6 +29,54 @@ This Agent Module writes data to an **External** MQTT Broker
     topic: enterprise/site/area/line/cell/MTConnect
 ```
 
+### AWS IoT Configuration Example
+```yaml
+- mqtt-relay:
+    server: akljadkfjdlsf-ats.iot.us-east-1.amazonaws.com
+    port: 8883
+    tls:
+      pem:
+        certificateAuthority: certs/AmazonRootCA1.pem
+        certificatePath: certs/asfdslkafjdslkfjdklsdjf-certificate.pem.crt
+        privateKeyPath: certs/sdlkajlksdajfldskjfdldlskfjdslkaj-private.pem.key
+    documentFormat: json-cppagent
+    currentInterval: 5000
+    sampleInterval: 500
+    topicPrefix: enterprise/site/area/line/cell/MTConnect
+```
+
+### AWS Greengrass Moquette Configuration Example
+```yaml
+- mqtt-relay:
+    server: localhost
+    port: 8883
+    clientId: mtconnect-test # Set the ClientId to the AWS Thing ID
+    tls:
+      verifyClientCertificate: false
+      pem:
+        certificateAuthority: certs/AmazonRootCA1.pem
+        certificatePath: certs/2316549874654321654984984158961634984794-certificate.pem.crt
+        privateKeyPath: certs/2316549874654321654984984158961634984794-private.pem.key
+    documentFormat: json-cppagent
+    currentInterval: 5000
+    sampleInterval: 500
+    topicPrefix: enterprise/site/area/line/cell/MTConnect
+```
+
+### HiveMQ Configuration Example
+```yaml
+- mqtt-relay:
+    server: 5679887d308d402888f32.s1.eu.hivemq.cloud
+    port: 8883
+    username: mtconnect
+    password: mtconnect
+    useTls: true
+    documentFormat: json-cppagent
+    currentInterval: 5000
+    sampleInterval: 500
+    topicPrefix: enterprise/site/area/line/cell/MTConnect
+```
+
 ## Contribution / Feedback
 - Please use the [Issues](https://github.com/TrakHound/MTConnect.NET/issues) tab to create issues for specific problems that you may encounter 
 - Please feel free to use the [Pull Requests](https://github.com/TrakHound/MTConnect.NET/pulls) tab for any suggested improvements to the source code

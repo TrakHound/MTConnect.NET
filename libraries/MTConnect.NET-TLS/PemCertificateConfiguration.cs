@@ -4,6 +4,9 @@ namespace MTConnect.Tls
 {
     public class PemCertificateConfiguration
     {
+        [JsonPropertyName("certificateAuthority")]
+        public string CertificateAuthority { get; set; }
+
         [JsonPropertyName("certificatePath")]
         public string CertificatePath { get; set; }
 
