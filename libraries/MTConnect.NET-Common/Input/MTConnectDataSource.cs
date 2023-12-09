@@ -4,6 +4,7 @@
 using MTConnect.Assets;
 using MTConnect.Configurations;
 using MTConnect.Devices;
+using MTConnect.Logging;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,6 +28,8 @@ namespace MTConnect.Input
         public event EventHandler<IAssetInput> AssetAdded;
 
         public event EventHandler<IDeviceInput> DeviceAdded;
+
+        public event MTConnectLogEventHandler LogReceived;
 
 
         protected virtual void OnStart() { }
@@ -136,6 +139,12 @@ namespace MTConnect.Input
         public void AddDevice(IDeviceInput device)
         {
             if (DeviceAdded != null) DeviceAdded.Invoke(this, device);
+        }
+
+
+        protected void Log(MTConnectLogLevel logLevel, string message)
+        {
+            if (LogReceived != null) LogReceived.Invoke(this, logLevel, message);
         }
     }
 }
