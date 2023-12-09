@@ -78,7 +78,6 @@ namespace MTConnect.Assets.Json.CuttingTools
             var asset = new CuttingToolAsset();
 
             asset.AssetId = AssetId;
-            asset.Type = Type;
             asset.Timestamp = Timestamp;
             asset.DeviceUuid = DeviceUuid;
             asset.Removed = Removed;
