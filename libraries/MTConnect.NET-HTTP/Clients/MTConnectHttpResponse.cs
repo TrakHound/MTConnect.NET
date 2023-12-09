@@ -26,7 +26,7 @@ namespace MTConnect.Clients
 
         public static byte[] HandleContentEncoding(string contentEncoding, byte[] bytes)
         {
-            if (!string.IsNullOrEmpty(contentEncoding) && bytes != null && bytes.Length > 0)
+            if (bytes != null && bytes.Length > 0)
             {
                 try
                 {
