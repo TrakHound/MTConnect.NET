@@ -11,7 +11,7 @@ using System.Xml;
 
 namespace MTConnect
 {
-	internal static class Namespaces
+    internal static class Namespaces
     {      
         internal const string DefaultXmlSchemaInstance = "http://www.w3.org/2001/XMLSchema-instance";
         
@@ -253,13 +253,10 @@ namespace MTConnect
         {
             var output = xml;
 
-            //string regex = @"xmlns(:\w+)?=""(urn:mtconnect[^""]+)""|xsi(:\w+)?=""(urn:mtconnect[^""]+)""";
-
-            string regex = @"xmlns(:\w+)?=""(.+)""";
+            string regex = @"xmlns(:\w+)?=""([^""]*)""";
             output = Regex.Replace(output, regex, "");
 
-            regex = @"xsi:schemaLocation=""(.+)""";
-            //regex = @"xsi(:\w+)?=""(.+)""";
+            regex = @"xsi:schemaLocation=""([^""]*)""";
             output = Regex.Replace(output, regex, "");
 
             return output;
