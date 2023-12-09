@@ -279,7 +279,19 @@ namespace MTConnect.Clients
         /// <summary>
         /// Starts the MTConnectClient
         /// </summary>
-        public void Start(string path = null)
+        public void Start()
+        {
+            _stop = new CancellationTokenSource();
+
+            ClientStarting?.Invoke(this, new EventArgs());
+
+            _ = Task.Run(Worker, _stop.Token);
+        }
+
+        /// <summary>
+        /// Starts the MTConnectClient
+        /// </summary>
+        public void Start(string path)
         {
             _stop = new CancellationTokenSource();
 

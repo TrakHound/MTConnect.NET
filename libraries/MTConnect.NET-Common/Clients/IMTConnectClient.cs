@@ -6,7 +6,6 @@ using MTConnect.Devices;
 using MTConnect.Errors;
 using MTConnect.Streams;
 using System;
-using System.Threading;
 
 namespace MTConnect.Clients
 {
@@ -16,58 +15,10 @@ namespace MTConnect.Clients
     public interface IMTConnectClient
     {
         /// <summary>
-        /// If present, specifies that only the Equipment Metadata for the piece of equipment represented by the name or uuid will be published.
-        /// If not present, Metadata for all pieces of equipment associated with the Agent will be published.
-        /// </summary>
-        string Device { get; }
-
-        /// <summary>
-        /// Gets or Sets the Document Format to use
-        /// </summary>
-        string DocumentFormat { get; }
-
-        /// <summary>
-        /// Gets or Sets the Interval in Milliseconds for the Sample Stream
-        /// </summary>
-        int Interval { get; set; }
-
-        /// <summary>
-        /// Gets or Sets the MTConnect Agent Heartbeat for the request
-        /// </summary>
-        int Heartbeat { get; set; }
-
-        /// <summary>
-        /// Gets or Sets the Interval in Milliseconds that the Client will attempt to reconnect if the connection fails
-        /// </summary>
-        int ReconnectionInterval { get; set; }
-
-        /// <summary>
-        /// Gets or Sets the Maximum Number of Samples returned per interval from the Sample Stream
-        /// </summary>
-        int MaximumSampleCount { get; set; }
-
-        /// <summary>
-        /// Gets the Last Instance ID read from the MTConnect Agent
-        /// </summary>
-        long LastInstanceId { get; }
-
-        /// <summary>
-        /// Gets the Last Sequence read from the MTConnect Agent
-        /// </summary>
-        long LastSequence { get; }
-
-        /// <summary>
         /// Gets the Unix Timestamp (in Milliseconds) since the last response from the MTConnect Agent
         /// </summary>
         long LastResponse { get; }
 
-        /// <summary>
-        /// Gets or Sets whether the stream requests a Current (true) or a Sample (false)
-        /// </summary>
-        bool CurrentOnly { get; set; }
-
-
-        #region "Events"
 
         /// <summary>
         /// Raised when an MTConnectDevices Document is received
@@ -119,67 +70,15 @@ namespace MTConnect.Clients
         /// </summary>
         event EventHandler ClientStopped;
 
-        /// <summary>
-        /// Raised when the Stream is Starting
-        /// </summary>
-        event EventHandler<string> StreamStarting;
-
-        /// <summary>
-        /// Raised when the Stream is Started
-        /// </summary>
-        event EventHandler<string> StreamStarted;
-
-        /// <summary>
-        /// Raised when the Stream is Stopped
-        /// </summary>
-        event EventHandler<string> StreamStopping;
-
-        /// <summary>
-        /// Raised when the Stream is Stopped
-        /// </summary>
-        event EventHandler<string> StreamStopped;
-
-        #endregion
-
 
         /// <summary>
         /// Starts the MTConnectClient
         /// </summary>
-        void Start(string path = null);
-
-        /// <summary>
-        /// Starts the MTConnectClient
-        /// </summary>
-        void Start(CancellationToken cancellationToken, string path = null);
-
-        /// <summary>
-        /// Starts the MTConnectClient from the specified Sequence
-        /// </summary>
-        void StartFromSequence(long instanceId, long sequence, string path = null);
-
-        /// <summary>
-        /// Starts the MTConnectClient from the specified Sequence
-        /// </summary>
-        void StartFromSequence(long instanceId, long sequence, CancellationToken cancellationToken, string path = null);
-
-        /// <summary>
-        /// Starts the MTConnectClient from the beginning of the MTConnect Agent's Buffer
-        /// </summary>
-        void StartFromBuffer(string path = null);
-
-        /// <summary>
-        /// Starts the MTConnectClient from the beginning of the MTConnect Agent's Buffer
-        /// </summary>
-        void StartFromBuffer(CancellationToken cancellationToken, string path = null);
+        void Start();
 
         /// <summary>
         /// Stops the MTConnectClient
         /// </summary>
         void Stop();
-
-        /// <summary>
-        /// Resets the MTConnect Client to read from the beginning of the Agent Buffer
-        /// </summary>
-        void Reset();
     }
 }
