@@ -13,6 +13,7 @@ namespace MTConnect.Processors
     public class Processor : MTConnectAgentProcessor
     {
         public const string ConfigurationTypeId = "python";
+        private const string ProcessorId = "Python Scripts";
         private const int DefaultUpdateInterval = 2000;
 
         private const string _functionName = "process";
@@ -31,6 +32,8 @@ namespace MTConnect.Processors
 
         public Processor(object configuration)   
         {
+            Id = ProcessorId;
+
             _pythonEngine = IronPython.Hosting.Python.CreateEngine();
             _configuration = AgentApplicationConfiguration.GetConfiguration<ProcessorConfiguration>(configuration);
             if (_configuration == null) _configuration = new ProcessorConfiguration();

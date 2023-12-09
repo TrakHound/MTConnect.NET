@@ -653,7 +653,7 @@ namespace MTConnect.Applications
 
         private void ProcessorLoaded(object sender, IMTConnectAgentProcessor processor)
         {
-            _applicationLogger.Info($"[Application] : Processor Loaded : " + processor.GetType().Name);
+            _applicationLogger.Info($"[Application] : Processor Loaded : " + processor.Id);
         }
 
         private void ProcessorLogReceived(object sender, MTConnectLogLevel logLevel, string message)
