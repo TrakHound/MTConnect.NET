@@ -1,4 +1,6 @@
-﻿namespace MTConnect.Clients.HTTP
+﻿using MTConnect.Formatters;
+
+namespace MTConnect.Clients.HTTP
 {
     internal class Program
     {
@@ -12,10 +14,11 @@
 
         static void DocumentClient()
         {
-            var client = new MTConnectHttpClient("localhost", 5001);
-            client.Interval = 100;
+            var client = new MTConnectMqttClient("localhost", 1883);
             client.ClientStarted += (s, args) => { Console.WriteLine("Client Started"); };
             client.ClientStopped += (s, args) => { Console.WriteLine("Client Stopped"); };
+
+            //client.MessageReceived += (topic, payload) => Console.WriteLine($"Message Received : {topic} : {payload.Length}");
 
             client.ProbeReceived += (s, response) =>
             {
@@ -52,7 +55,11 @@
 
             client.AssetsReceived += (s, response) =>
             {
-                Console.WriteLine(response.Assets.Count());
+                foreach (var asset in response.Assets)
+                {
+                    var result = EntityFormatter.Format("XML", asset);
+                    if (result.Success) Console.WriteLine(System.Text.Encoding.UTF8.GetString(result.Content));
+                }
             };
 
             client.Start();
@@ -60,7 +67,9 @@
 
         static void EntityClient()
         {
-            var client = new MTConnectHttpClient("localhost", 5000);
+            var client = new MTConnectMqttClient("localhost", 1883);
+            client.ClientStarted += (s, args) => { Console.WriteLine("Client Started"); };
+            client.ClientStopped += (s, args) => { Console.WriteLine("Client Stopped"); };
 
             client.DeviceReceived += (s, device) =>
             {
