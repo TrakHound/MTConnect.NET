@@ -76,7 +76,7 @@ namespace MTConnect.Modules.Http
 
         private void HttpServerCertificateLoaded(object sender, X509Certificate2 certificate)
         {
-            _httpLogger.Info($"[HTTP-Server] : TLS Certificate Loaded : {certificate.ToString()}");
+            _httpLogger.Debug($"[HTTP-Server] : TLS Certificate Loaded : {certificate.ToString()}");
         }
 
         private void HttpListenerException(object sender, Exception exception)
@@ -112,7 +112,7 @@ namespace MTConnect.Modules.Http
             logResponseMessage.Add($"Format Time {response.FormatDuration.ToString("N3")}ms");
             logResponseMessage.Add($"Write Time {response.WriteDuration.ToString("N3")}ms");
             logResponseMessage.Add($"Total Time {totalTime.ToString("N3")}ms");
-            _httpLogger.Info(string.Join(" : ", logResponseMessage));
+            _httpLogger.Debug(string.Join(" : ", logResponseMessage));
 
             // Format Messages
             if (!response.FormatMessages.IsNullOrEmpty())
