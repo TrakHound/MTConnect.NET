@@ -200,14 +200,14 @@ namespace MTConnect.Devices.Json
                 dataItem.Relationships = relationships;
             }
 
-            dataItem.Representation = Representation.ConvertEnum<DataItemRepresentation>();
-            dataItem.ResetTrigger = ResetTrigger.ConvertEnum<DataItemResetTrigger>();
-            dataItem.CoordinateSystem = CoordinateSystem.ConvertEnum<DataItemCoordinateSystem>();
+            dataItem.Representation = !string.IsNullOrEmpty(Representation) ? Representation.ConvertEnum<DataItemRepresentation>() : DataItemRepresentation.VALUE;
+            dataItem.ResetTrigger = !string.IsNullOrEmpty(ResetTrigger) ? ResetTrigger.ConvertEnum<DataItemResetTrigger>() : null;
+            dataItem.CoordinateSystem = !string.IsNullOrEmpty(CoordinateSystem) ? CoordinateSystem.ConvertEnum<DataItemCoordinateSystem>() : DataItemCoordinateSystem.MACHINE;
             dataItem.CoordinateSystemIdRef = CoordinateSystemIdRef;
             if (Constraints != null) dataItem.Constraints = Constraints.ToConstraints();
             if (Definition != null) dataItem.Definition = Definition.ToDefinition();
             dataItem.Units = Units;
-            dataItem.Statistic = Statistic.ConvertEnum<DataItemStatistic>();
+            dataItem.Statistic = !string.IsNullOrEmpty(Statistic) ? Statistic.ConvertEnum<DataItemStatistic>() : null;
             dataItem.SignificantDigits = SignificantDigits.HasValue ? SignificantDigits.Value : 0;
 
             // Filters
