@@ -4,9 +4,10 @@
 using MQTTnet;
 using MQTTnet.Client;
 using MTConnect.Assets;
+using MTConnect.Configurations;
 using MTConnect.Devices;
+using MTConnect.Errors;
 using MTConnect.Formatters;
-using MTConnect.Mqtt;
 using MTConnect.Observations;
 using MTConnect.Streams;
 using System;
@@ -19,7 +20,10 @@ using System.Threading.Tasks;
 
 namespace MTConnect.Clients
 {
-    public class MTConnectMqttClient : IMTConnectEntityClient, IDisposable
+    /// <summary>
+    /// Client that implements the full MTConnect MQTT Protocol (Probe, Current, Sample, and Assets)
+    /// </summary>
+    public class MTConnectMqttClient : IMTConnectClient, IMTConnectEntityClient, IDisposable
     {
         private const string _defaultTopicPrefix = "MTConnect";
         private const string _defaultDocumentFormat = "json-cppagent-mqtt";
@@ -31,81 +35,58 @@ namespace MTConnect.Clients
 
         private readonly MqttFactory _mqttFactory;
         private readonly IMqttClient _mqttClient;
-        private readonly string _server;
-        private readonly int _port;
-        private readonly int _qos;
-        private readonly int _interval;
-        private readonly string _deviceUuid;
-        private readonly string _topicPrefix;
+        private readonly IMTConnectMqttClientConfiguration _configuration;
         private readonly string _documentFormat;
-        private readonly string _username;
-        private readonly string _password;
-        private readonly string _clientId;
-        private readonly string _caCertPath;
-        private readonly string _pemClientCertPath;
-        private readonly string _pemPrivateKeyPath;
-        private readonly bool _allowUntrustedCertificates;
-        private readonly bool _useTls;
-        private readonly Dictionary<string, MTConnectMqttAgentInformation> _agents = new Dictionary<string, MTConnectMqttAgentInformation>(); // AgentUuid > AgentInformation
-        private readonly Dictionary<string, string> _deviceAgentUuids = new Dictionary<string, string>(); // DeviceUuid > AgentUuid
-        private readonly Dictionary<string, long> _agentInstanceIds = new Dictionary<string, long>(); // AgentUuid > InstanceId
-        private readonly Dictionary<string, long> _agentHeartbeatTimestamps = new Dictionary<string, long>(); // AgentUuid > Last Heartbeat received (Unix milliseconds)
-        private readonly Dictionary<string, System.Timers.Timer> _connectionTimers = new Dictionary<string, System.Timers.Timer>();
+
         private readonly Dictionary<string, IDevice> _devices = new Dictionary<string, IDevice>();
         private readonly Dictionary<string, long> _deviceLastSequence = new Dictionary<string, long>();
         private readonly Dictionary<string, long> _deviceLastCurrentSequence = new Dictionary<string, long>();
+        private readonly Dictionary<string, long> _deviceInstanceId = new Dictionary<string, long>();
         private readonly object _lock = new object();
 
 
         private CancellationTokenSource _stop;
         private MTConnectMqttConnectionStatus _connectionStatus;
-        //private long _lastInstanceId;
-        //private long _lastCurrentSequence;
-        //private long _lastSequence;
         private long _lastResponse;
 
 
+        public delegate void MTConnectMqttEventHandler(string topic, byte[] payload);
+
         public delegate void MTConnectMqttEventHandler<T>(string deviceUuid, T item);
 
-
         /// <summary>
-        /// Gets or Sets the Interval in Milliseconds that the Client will attempt to reconnect if the connection fails
+        /// Gets the Client Configuration
         /// </summary>
-        public int ReconnectionInterval { get; set; }
-
-        public string Server => _server;
-
-        public int Port => _port;
-
-        public int QoS => _qos;
-
-        public int Interval => _interval;
-
-        public string TopicPrefix => _topicPrefix;
-
-        ///// <summary>
-        ///// Gets the Last Instance ID read from the MTConnect Agent
-        ///// </summary>
-        //public long LastInstanceId => _lastInstanceId;
-
-        ///// <summary>
-        ///// Gets the Last Sequence read from the MTConnect Agent
-        ///// </summary>
-        //public long LastSequence => _lastSequence;
+        public IMTConnectMqttClientConfiguration Configuration => _configuration;
 
         /// <summary>
         /// Gets the Unix Timestamp (in Milliseconds) since the last response from the MTConnect Agent
         /// </summary>
         public long LastResponse => _lastResponse;
 
+        /// <summary>
+        /// Gets the status of the connection to the MQTT broker
+        /// </summary>
         public MTConnectMqttConnectionStatus ConnectionStatus => _connectionStatus;
 
+        /// <summary>
+        /// Raised when the connection to the MQTT broker is established
+        /// </summary>
         public event EventHandler Connected;
 
+        /// <summary>
+        /// Raised when the connection to the MQTT broker is disconnected 
+        /// </summary>
         public event EventHandler Disconnected;
 
+        /// <summary>
+        /// Raised when the status of the connection to the MQTT broker has changed
+        /// </summary>
         public event EventHandler<MTConnectMqttConnectionStatus> ConnectionStatusChanged;
 
+        /// <summary>
+        /// Raised when an error occurs during connection to the MQTT broker
+        /// </summary>
         public event EventHandler<Exception> ConnectionError;
 
         /// <summary>
@@ -113,10 +94,19 @@ namespace MTConnect.Clients
         /// </summary>
         public event EventHandler<Exception> InternalError;
 
+        /// <summary>
+        /// Raised when a Device is received
+        /// </summary>
         public event EventHandler<IDevice> DeviceReceived;
 
+        /// <summary>
+        /// Raised when an Observation is received
+        /// </summary>
         public event EventHandler<IObservation> ObservationReceived;
 
+        /// <summary>
+        /// Raised when an Asset is received
+        /// </summary>
         public event EventHandler<IAsset> AssetReceived;
 
         /// <summary>
@@ -138,6 +128,16 @@ namespace MTConnect.Clients
         /// Raised when an MTConnectAssets Document is received
         /// </summary>
         public event EventHandler<IAssetsResponseDocument> AssetsReceived;
+
+        /// <summary>
+        /// Raised when an MTConnectError Document is received
+        /// </summary>
+        public event EventHandler<IErrorResponseDocument> MTConnectError;
+
+        /// <summary>
+        /// Raised when any MQTT Message is received
+        /// </summary>
+        public event MTConnectMqttEventHandler MessageReceived;
 
         /// <summary>
         /// Raised when any Response from the Client is received
@@ -165,21 +165,40 @@ namespace MTConnect.Clients
         public event EventHandler ClientStopped;
 
 
+        /// <summary>
+        /// Initializes a new instance of the MTConnectMqttClient class that is used to perform
+        /// the full protocol from an MTConnect Agent using the MTConnect MQTT Api protocol
+        /// </summary>
         public MTConnectMqttClient(string server, int port = 1883, string deviceUuid = null, string topicPrefix = _defaultTopicPrefix, string documentFormat = _defaultDocumentFormat, string clientId = null, int qos = 1)
         {
-            ReconnectionInterval = 10000;
-
-            _server = server;
-            _port = port;
-            _deviceUuid = deviceUuid;
-            _topicPrefix = topicPrefix;
+            var configuration = new MTConnectMqttClientConfiguration();
+            configuration.Server = server;
+            configuration.Port = port;
+            configuration.DeviceUuid = deviceUuid;
+            configuration.TopicPrefix = topicPrefix;
+            configuration.ClientId = clientId;
+            configuration.QoS = qos;
+            _configuration = configuration;
             _documentFormat = documentFormat;
-            _clientId = clientId;
-            _qos = qos;
 
             _mqttFactory = new MqttFactory();
             _mqttClient = _mqttFactory.CreateMqttClient();
-            _mqttClient.ApplicationMessageReceivedAsync += MessageReceived;
+            _mqttClient.ApplicationMessageReceivedAsync += ProcessMessage;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the MTConnectMqttClient class that is used to perform
+        /// the full protocol from an MTConnect Agent using the MTConnect MQTT Api protocol
+        /// </summary>
+        public MTConnectMqttClient(IMTConnectMqttClientConfiguration configuration, string documentFormat = _defaultDocumentFormat)
+        {
+            _configuration = configuration;
+            if (_configuration == null) _configuration = new MTConnectMqttClientConfiguration();
+            _documentFormat = documentFormat;
+
+            _mqttFactory = new MqttFactory();
+            _mqttClient = _mqttFactory.CreateMqttClient();
+            _mqttClient.ApplicationMessageReceivedAsync += ProcessMessage;
         }
 
 
@@ -214,30 +233,30 @@ namespace MTConnect.Clients
                     try
                     {
                         // Declare new MQTT Client Options with Tcp Server
-                        var clientOptionsBuilder = new MqttClientOptionsBuilder().WithTcpServer(_server, _port);
+                        var clientOptionsBuilder = new MqttClientOptionsBuilder().WithTcpServer(_configuration.Server, _configuration.Port);
 
                         clientOptionsBuilder.WithCleanSession(false);
 
                         // Set Client ID
-                        if (!string.IsNullOrEmpty(_clientId))
+                        if (!string.IsNullOrEmpty(_configuration.ClientId))
                         {
-                            clientOptionsBuilder.WithClientId(_clientId);
+                            clientOptionsBuilder.WithClientId(_configuration.ClientId);
                         }
 
                         var certificates = new List<X509Certificate2>();
 
                         // Add CA (Certificate Authority)
-                        if (!string.IsNullOrEmpty(_caCertPath))
+                        if (!string.IsNullOrEmpty(_configuration.CertificateAuthority))
                         {
-                            certificates.Add(new X509Certificate2(GetFilePath(_caCertPath)));
+                            certificates.Add(new X509Certificate2(GetFilePath(_configuration.CertificateAuthority)));
                         }
 
                         // Add Client Certificate & Private Key
-                        if (!string.IsNullOrEmpty(_pemClientCertPath) && !string.IsNullOrEmpty(_pemPrivateKeyPath))
+                        if (!string.IsNullOrEmpty(_configuration.PemCertificate) && !string.IsNullOrEmpty(_configuration.PemPrivateKey))
                         {
 
 #if NET5_0_OR_GREATER
-                            certificates.Add(new X509Certificate2(X509Certificate2.CreateFromPemFile(GetFilePath(_pemClientCertPath), GetFilePath(_pemPrivateKeyPath)).Export(X509ContentType.Pfx)));
+                            certificates.Add(new X509Certificate2(X509Certificate2.CreateFromPemFile(GetFilePath(_configuration.PemCertificate), GetFilePath(_configuration.PemPrivateKey)).Export(X509ContentType.Pfx)));
 #else
                     throw new Exception("PEM Certificates Not Supported in .NET Framework 4.8 or older");
 #endif
@@ -246,23 +265,23 @@ namespace MTConnect.Clients
                             {
                                 UseTls = true,
                                 SslProtocol = System.Security.Authentication.SslProtocols.Tls12,
-                                IgnoreCertificateRevocationErrors = _allowUntrustedCertificates,
-                                IgnoreCertificateChainErrors = _allowUntrustedCertificates,
-                                AllowUntrustedCertificates = _allowUntrustedCertificates,
+                                IgnoreCertificateRevocationErrors = _configuration.AllowUntrustedCertificates,
+                                IgnoreCertificateChainErrors = _configuration.AllowUntrustedCertificates,
+                                AllowUntrustedCertificates = _configuration.AllowUntrustedCertificates,
                                 Certificates = certificates
                             });
                         }
 
                         // Add Credentials
-                        if (!string.IsNullOrEmpty(_username) && !string.IsNullOrEmpty(_password))
+                        if (!string.IsNullOrEmpty(_configuration.Username) && !string.IsNullOrEmpty(_configuration.Password))
                         {
-                            if (_useTls)
+                            if (_configuration.UseTls)
                             {
-                                clientOptionsBuilder.WithCredentials(_username, _password).WithTls();
+                                clientOptionsBuilder.WithCredentials(_configuration.Username, _configuration.Password).WithTls();
                             }
                             else
                             {
-                                clientOptionsBuilder.WithCredentials(_username, _password);
+                                clientOptionsBuilder.WithCredentials(_configuration.Username, _configuration.Password);
                             }
                         }
 
@@ -272,10 +291,10 @@ namespace MTConnect.Clients
                         // Connect to the MQTT Client
                         _mqttClient.ConnectAsync(clientOptions).Wait();
 
-                        if (!string.IsNullOrEmpty(_deviceUuid))
+                        if (!string.IsNullOrEmpty(_configuration.DeviceUuid))
                         {
                             // Start protocol for a single Device
-                            StartDeviceProtocol(_deviceUuid).Wait();
+                            StartDeviceProtocol(_configuration.DeviceUuid).Wait();
                         }
                         else
                         {
@@ -295,7 +314,7 @@ namespace MTConnect.Clients
                         if (ConnectionError != null) ConnectionError.Invoke(this, ex);
                     }
 
-                    await Task.Delay(ReconnectionInterval, _stop.Token);
+                    await Task.Delay(_configuration.RetryInterval, _stop.Token);
                 }
                 catch (TaskCanceledException) { }
                 catch (Exception ex)
@@ -331,17 +350,17 @@ namespace MTConnect.Clients
             await _mqttClient.SubscribeAsync($"MTConnect/Probe/{deviceUuid}");
             await _mqttClient.SubscribeAsync($"MTConnect/Current/{deviceUuid}");
             await _mqttClient.SubscribeAsync($"MTConnect/Sample/{deviceUuid}");
-            await _mqttClient.SubscribeAsync($"MTConnect/Asset/{deviceUuid}");
+            await _mqttClient.SubscribeAsync($"MTConnect/Asset/{deviceUuid}/#");
         }
 
 
-        private async Task MessageReceived(MqttApplicationMessageReceivedEventArgs args)
+        private Task ProcessMessage(MqttApplicationMessageReceivedEventArgs args)
         {
             if (args.ApplicationMessage.Payload != null && args.ApplicationMessage.Payload.Length > 0)
             {
                 var topic = args.ApplicationMessage.Topic;
 
-                Console.WriteLine($"Message Received : {topic} : {args.ApplicationMessage.Payload.Length}");
+                if (MessageReceived != null) MessageReceived.Invoke(topic, args.ApplicationMessage.Payload);
 
                 if (IsSampleTopic(topic))
                 {
@@ -360,6 +379,8 @@ namespace MTConnect.Clients
                     ProcessProbeMessage(args.ApplicationMessage);
                 }
             }
+
+            return Task.CompletedTask;
         }
 
 
@@ -367,7 +388,7 @@ namespace MTConnect.Clients
         {
             if (topic != null)
             {
-                var prefix = $"{_topicPrefix}/{_defaultProbeTopicPrefix}/";
+                var prefix = $"{_configuration.TopicPrefix}/{_defaultProbeTopicPrefix}/";
                 return topic.StartsWith(prefix);
             }
 
@@ -378,7 +399,7 @@ namespace MTConnect.Clients
         {
             if (topic != null)
             {
-                var prefix = $"{_topicPrefix}/{_defaultCurrentTopicPrefix}/";
+                var prefix = $"{_configuration.TopicPrefix}/{_defaultCurrentTopicPrefix}/";
                 return topic.StartsWith(prefix);
             }
 
@@ -389,7 +410,7 @@ namespace MTConnect.Clients
         {
             if (topic != null)
             {
-                var prefix = $"{_topicPrefix}/{_defaultSampleTopicPrefix}/";
+                var prefix = $"{_configuration.TopicPrefix}/{_defaultSampleTopicPrefix}/";
                 return topic.StartsWith(prefix);
             }
 
@@ -400,7 +421,7 @@ namespace MTConnect.Clients
         {
             if (topic != null)
             {
-                var prefix = $"{_topicPrefix}/{_defaultAssetTopicPrefix}/";
+                var prefix = $"{_configuration.TopicPrefix}/{_defaultAssetTopicPrefix}/";
                 return topic.StartsWith(prefix);
             }
 
@@ -438,10 +459,10 @@ namespace MTConnect.Clients
                     ProcessCurrentDocument(result.Document);
                 }
             }
-            else
-            {
-                Console.WriteLine("STALE CURRENT!!!");
-            }
+            //else
+            //{
+            //    Console.WriteLine("STALE CURRENT!!!");
+            //}
         }
 
         private void ProcessSampleMessage(MqttApplicationMessage message)
@@ -454,10 +475,10 @@ namespace MTConnect.Clients
                     ProcessSampleDocument(result.Document);
                 }
             }
-            else
-            {
-                Console.WriteLine("STALE SAMPLE!!!");
-            }
+            //else
+            //{
+            //    Console.WriteLine("STALE SAMPLE!!!");
+            //}
         }
 
         private void ProcessAssetMessage(MqttApplicationMessage message)
@@ -482,51 +503,62 @@ namespace MTConnect.Clients
                     IDeviceStream deviceStream = null;
 
                     // Get the DeviceStream for the Device or default to the first
-                    if (!string.IsNullOrEmpty(_deviceUuid)) deviceStream = document.Streams.FirstOrDefault(o => o.Uuid == _deviceUuid);
+                    if (!string.IsNullOrEmpty(_configuration.DeviceUuid)) deviceStream = document.Streams.FirstOrDefault(o => o.Uuid == _configuration.DeviceUuid);
                     else deviceStream = document.Streams.FirstOrDefault();
 
                     var observations = deviceStream.Observations;
                     if (deviceStream != null && deviceStream.Uuid != null && !observations.IsNullOrEmpty())
                     {
                         long lastSequence;
-                        lock (_lock) _deviceLastSequence.TryGetValue(deviceStream.Uuid, out lastSequence);
+                        long lastInstanceId;
+                        lock (_lock)
+                        {
+                            _deviceLastSequence.TryGetValue(deviceStream.Uuid, out lastSequence);
+                            _deviceInstanceId.TryGetValue(deviceStream.Uuid, out lastInstanceId);
+                        }
 
                         // Recreate Response Document (to set DataItem property for Observations)
                         var response = new StreamsResponseDocument();
                         response.Header = document.Header;
 
-                        var deviceStreams = new List<IDeviceStream>();
-                        foreach (var stream in document.Streams)
+                        if (lastInstanceId < 1 || response.Header.InstanceId != lastInstanceId)
                         {
-                            deviceStreams.Add(ProcessDeviceStream(stream));
-                        }
-                        response.Streams = deviceStreams;
-
-                        //CheckAssetChanged(deviceStream.Observations, cancel);
-
-                        CurrentReceived?.Invoke(this, response);
-
-                        observations = response.GetObservations();
-                        if (!observations.IsNullOrEmpty())
-                        {
-                            foreach (var observation in observations)
+                            var deviceStreams = new List<IDeviceStream>();
+                            foreach (var stream in document.Streams)
                             {
-                                if (observation.Sequence > lastSequence)
-                                {
-                                    ObservationReceived?.Invoke(this, observation);
-                                }
+                                deviceStreams.Add(ProcessDeviceStream(stream));
                             }
+                            response.Streams = deviceStreams;
 
-                            var maxSequence = observations.Max(o => o.Sequence);
+                            //CheckAssetChanged(deviceStream.Observations, cancel);
 
-                            // Save the most recent Sequence that was read
-                            lock (_lock)
+                            CurrentReceived?.Invoke(this, response);
+
+                            observations = response.GetObservations();
+                            if (!observations.IsNullOrEmpty())
                             {
-                                _deviceLastCurrentSequence.Remove(deviceStream.Uuid);
-                                _deviceLastCurrentSequence.Add(deviceStream.Uuid, maxSequence);
+                                foreach (var observation in observations)
+                                {
+                                    if (observation.Sequence > lastSequence)
+                                    {
+                                        ObservationReceived?.Invoke(this, observation);
+                                    }
+                                }
 
-                                _deviceLastSequence.Remove(deviceStream.Uuid);
-                                _deviceLastSequence.Add(deviceStream.Uuid, maxSequence);
+                                var maxSequence = observations.Max(o => o.Sequence);
+
+                                // Save the most recent Sequence that was read
+                                lock (_lock)
+                                {
+                                    _deviceLastCurrentSequence.Remove(deviceStream.Uuid);
+                                    _deviceLastCurrentSequence.Add(deviceStream.Uuid, maxSequence);
+
+                                    _deviceLastSequence.Remove(deviceStream.Uuid);
+                                    _deviceLastSequence.Add(deviceStream.Uuid, maxSequence);
+
+                                    _deviceInstanceId.Remove(deviceStream.Uuid);
+                                    _deviceInstanceId.Add(deviceStream.Uuid, response.Header.InstanceId);
+                                }
                             }
                         }
                     }
@@ -549,7 +581,7 @@ namespace MTConnect.Clients
                     IDeviceStream deviceStream = null;
 
                     // Get the DeviceStream for the Device or default to the first
-                    if (!string.IsNullOrEmpty(_deviceUuid)) deviceStream = document.Streams.FirstOrDefault(o => o.Uuid == _deviceUuid);
+                    if (!string.IsNullOrEmpty(_configuration.DeviceUuid)) deviceStream = document.Streams.FirstOrDefault(o => o.Uuid == _configuration.DeviceUuid);
                     else deviceStream = document.Streams.FirstOrDefault();
 
                     if (deviceStream != null && deviceStream.Observations != null && deviceStream.Observations.Count() > 0)
@@ -592,7 +624,6 @@ namespace MTConnect.Clients
 
                                 //// Save the most recent Sequence that was read
                                 //_lastSequence = observations.Max(o => o.Sequence);
-
                                 var maxSequence = observations.Max(o => o.Sequence);
 
                                 // Save the most recent Sequence that was read

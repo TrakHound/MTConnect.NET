@@ -39,6 +39,8 @@ namespace MTConnect.Configurations
 
         public string DocumentFormat { get; set; }
 
+        public bool IndentOutput { get; set; }
+
 
         public string TopicPrefix { get; set; }
 

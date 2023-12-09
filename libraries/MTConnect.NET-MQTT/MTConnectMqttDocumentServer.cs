@@ -11,12 +11,13 @@ using System.Threading.Tasks;
 
 namespace MTConnect
 {
-    public class MTConnectMqttServer
+    public class MTConnectMqttDocumentServer
     {
         private readonly IMTConnectAgentBroker _mtconnectAgent;
         private readonly IMTConnectMqttServerConfiguration _configuration;
         private CancellationTokenSource _stop;
         private long _lastSequence;
+        private bool _sampleStarted = false;
 
 
         public event MTConnectMqttResponseHandler<IDevicesResponseDocument> ProbeReceived;
@@ -28,7 +29,7 @@ namespace MTConnect
         public event MTConnectMqttResponseHandler<IAssetsResponseDocument> AssetReceived;
 
 
-        public MTConnectMqttServer(IMTConnectAgentBroker mtconnectAgent, IMTConnectMqttServerConfiguration configuration)
+        public MTConnectMqttDocumentServer(IMTConnectAgentBroker mtconnectAgent, IMTConnectMqttServerConfiguration configuration)
         {
             _mtconnectAgent = mtconnectAgent;
             _mtconnectAgent.DeviceAdded += DeviceAdded;
@@ -57,7 +58,7 @@ namespace MTConnect
             }
 
             _ = Task.Run(CurrentWorker, _stop.Token);
-            _ = Task.Run(SampleWorker, _stop.Token);
+            //_ = Task.Run(SampleWorker, _stop.Token);
         }
 
         public void Stop()
@@ -80,10 +81,15 @@ namespace MTConnect
                             var response = _mtconnectAgent.GetDeviceStreamsResponseDocument(device.Uuid);
                             if (response != null)
                             {
+                                if (_lastSequence < 1) _lastSequence = response.LastObservationSequence;
+
                                 if (CurrentReceived != null) CurrentReceived.Invoke(device, response);
                             }
                         }
                     }
+
+
+                    _ = Task.Run(SampleWorker, _stop.Token);
 
                     await Task.Delay(_configuration.CurrentInterval, _stop.Token);
                 }
@@ -95,34 +101,39 @@ namespace MTConnect
 
         private async Task SampleWorker()
         {
-            do
+            if (!_sampleStarted)
             {
-                try
-                {
-                    var devices = _mtconnectAgent.GetDevices();
-                    if (!devices.IsNullOrEmpty())
-                    {
-                        var lastSequence = _lastSequence;
+                _sampleStarted = true;
 
-                        foreach (var device in devices)
+                do
+                {
+                    try
+                    {
+                        var devices = _mtconnectAgent.GetDevices();
+                        if (!devices.IsNullOrEmpty())
                         {
-                            var response = _mtconnectAgent.GetDeviceStreamsResponseDocument(device.Uuid, _lastSequence, -1, 1000); // COUNT = 1000 ??
-                            if (response != null && response.ObservationCount > 0)
+                            var lastSequence = _lastSequence;
+
+                            foreach (var device in devices)
                             {
-                                if (SampleReceived != null) SampleReceived.Invoke(device, response);
-                                if (response.LastObservationSequence >= lastSequence) lastSequence = response.LastObservationSequence + 1;
+                                var response = _mtconnectAgent.GetDeviceStreamsResponseDocument(device.Uuid, _lastSequence, -1, 1000); // COUNT = 1000 ??
+                                if (response != null && response.ObservationCount > 0)
+                                {
+                                    if (SampleReceived != null) SampleReceived.Invoke(device, response);
+                                    if (response.LastObservationSequence >= lastSequence) lastSequence = response.LastObservationSequence + 1;
+                                }
                             }
+
+                            _lastSequence = lastSequence;
                         }
 
-                        _lastSequence = lastSequence;
+                        await Task.Delay(_configuration.SampleInterval, _stop.Token);
                     }
+                    catch (TaskCanceledException) { }
+                    catch (Exception ex) { }
 
-                    await Task.Delay(_configuration.SampleInterval, _stop.Token);
-                }
-                catch (TaskCanceledException) { }
-                catch (Exception ex) { }
-
-            } while (!_stop.Token.IsCancellationRequested);
+                } while (!_stop.Token.IsCancellationRequested);
+            }
         }
 
 

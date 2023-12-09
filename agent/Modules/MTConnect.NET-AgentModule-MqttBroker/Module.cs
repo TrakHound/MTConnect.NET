@@ -23,7 +23,7 @@ namespace MTConnect.Modules
         private const string ModuleId = "MQTT Broker";
 
         private readonly ModuleConfiguration _configuration;
-        private readonly MTConnectMqttServer _server;
+        private readonly MTConnectMqttDocumentServer _server;
         private MqttServer _mqttServer;
         private CancellationTokenSource _stop;
 
@@ -34,7 +34,7 @@ namespace MTConnect.Modules
 
             _configuration = AgentApplicationConfiguration.GetConfiguration<ModuleConfiguration>(configuration);
 
-            _server = new MTConnectMqttServer(mtconnectAgent, _configuration);
+            _server = new MTConnectMqttDocumentServer(mtconnectAgent, _configuration);
             _server.ProbeReceived += ProbeReceived;
             _server.CurrentReceived += CurrentReceived;
             _server.SampleReceived += SampleReceived;

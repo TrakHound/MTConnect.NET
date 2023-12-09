@@ -25,7 +25,7 @@ namespace MTConnect
         private const string ModuleId = "MQTT Relay";
 
         private readonly ModuleConfiguration _configuration;
-        private readonly MTConnectMqttServer _server;
+        private readonly MTConnectMqttDocumentServer _server;
         private readonly MqttFactory _mqttFactory;
         private readonly IMqttClient _mqttClient;
         private CancellationTokenSource _stop;
@@ -37,7 +37,7 @@ namespace MTConnect
 
             _configuration = AgentApplicationConfiguration.GetConfiguration<ModuleConfiguration>(configuration);
 
-            _server = new MTConnectMqttServer(mtconnectAgent, _configuration);
+            _server = new MTConnectMqttDocumentServer(mtconnectAgent, _configuration);
             _server.ProbeReceived += ProbeReceived;
             _server.CurrentReceived += CurrentReceived;
             _server.SampleReceived += SampleReceived;
@@ -166,7 +166,10 @@ namespace MTConnect
         {
             if (_mqttClient != null && _mqttClient.IsConnected)
             {
-                var formatResult = ResponseDocumentFormatter.Format(_configuration.DocumentFormat, responseDocument);
+                var x = new List<KeyValuePair<string, string>>();
+                x.Add(new KeyValuePair<string, string>("indentOutput", _configuration.IndentOutput.ToString()));
+
+                var formatResult = ResponseDocumentFormatter.Format(_configuration.DocumentFormat, responseDocument, x);
                 if (formatResult.Success)
                 {
                     var topic = $"{_configuration.TopicPrefix}/{_configuration.ProbeTopic}/{device.Uuid}";
@@ -174,7 +177,7 @@ namespace MTConnect
                     var message = new MqttApplicationMessage();
                     message.Retain = true;
                     message.Topic = topic;
-                    message.QualityOfServiceLevel = MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce;
+                    message.QualityOfServiceLevel = (MQTTnet.Protocol.MqttQualityOfServiceLevel)_configuration.QoS;
                     message.Payload = formatResult.Content;
 
                     try
@@ -201,7 +204,10 @@ namespace MTConnect
         {
             if (_mqttClient != null && _mqttClient.IsConnected)
             {
-                var formatResult = ResponseDocumentFormatter.Format(_configuration.DocumentFormat, ref responseDocument);
+                var x = new List<KeyValuePair<string, string>>();
+                x.Add(new KeyValuePair<string, string>("indentOutput", _configuration.IndentOutput.ToString()));
+
+                var formatResult = ResponseDocumentFormatter.Format(_configuration.DocumentFormat, ref responseDocument, x);
                 if (formatResult.Success)
                 {
                     var topic = $"{_configuration.TopicPrefix}/{_configuration.CurrentTopic}/{device.Uuid}";
@@ -209,7 +215,7 @@ namespace MTConnect
                     var message = new MqttApplicationMessage();
                     //message.Retain = true;
                     message.Topic = topic;
-                    message.QualityOfServiceLevel = MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce;
+                    message.QualityOfServiceLevel = (MQTTnet.Protocol.MqttQualityOfServiceLevel)_configuration.QoS;
                     message.Payload = formatResult.Content;
 
                     try
@@ -236,7 +242,10 @@ namespace MTConnect
         {
             if (_mqttClient != null && _mqttClient.IsConnected)
             {
-                var formatResult = ResponseDocumentFormatter.Format(_configuration.DocumentFormat, ref responseDocument);
+                var x = new List<KeyValuePair<string, string>>();
+                x.Add(new KeyValuePair<string, string>("indentOutput", _configuration.IndentOutput.ToString()));
+
+                var formatResult = ResponseDocumentFormatter.Format(_configuration.DocumentFormat, ref responseDocument, x);
                 if (formatResult.Success)
                 {
                     var topic = $"{_configuration.TopicPrefix}/{_configuration.SampleTopic}/{device.Uuid}";
@@ -244,7 +253,7 @@ namespace MTConnect
                     var message = new MqttApplicationMessage();
                     //message.Retain = true;
                     message.Topic = topic;
-                    message.QualityOfServiceLevel = MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce;
+                    message.QualityOfServiceLevel = (MQTTnet.Protocol.MqttQualityOfServiceLevel)_configuration.QoS;
                     message.Payload = formatResult.Content;
 
                     try
@@ -281,7 +290,7 @@ namespace MTConnect
                         var message = new MqttApplicationMessage();
                         message.Retain = true;
                         message.Topic = topic;
-                        message.QualityOfServiceLevel = MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce;
+                        message.QualityOfServiceLevel = (MQTTnet.Protocol.MqttQualityOfServiceLevel)_configuration.QoS;
                         message.Payload = formatResult.Content;
 
                         try
