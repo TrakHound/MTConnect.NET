@@ -816,7 +816,7 @@ namespace MTConnect.Buffers
 
         private void WriteObservation(ref BufferObservation observation)
         {
-            _archiveObservations.Add(ref observation);
+            if (_archiveObservations != null) _archiveObservations.Add(ref observation);
         }
 
         #endregion
