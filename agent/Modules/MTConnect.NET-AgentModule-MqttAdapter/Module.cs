@@ -6,14 +6,12 @@ using MQTTnet.Client;
 using MQTTnet.Server;
 using MTConnect.Agents;
 using MTConnect.Configurations;
-using MTConnect.Mqtt;
-using NLog;
+using MTConnect.Formatters;
+using MTConnect.Input;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Compression;
 using System.Security.Cryptography.X509Certificates;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -24,7 +22,6 @@ namespace MTConnect.Modules
         public const string ConfigurationTypeId = "mqtt-adapter";
         private const string ModuleId = "MQTT Adapter";
 
-        private readonly Logger _clientLogger = LogManager.GetLogger("mqtt-adapter-logger");
         private readonly ModuleConfiguration _configuration;
         private readonly IMTConnectAgentBroker _mtconnectAgent;
         private readonly MqttFactory _mqttFactory;
@@ -205,78 +202,58 @@ namespace MTConnect.Modules
             catch { }
         }
 
-        private async Task MessageReceived(MqttApplicationMessageReceivedEventArgs args)
+        private Task MessageReceived(MqttApplicationMessageReceivedEventArgs args)
         {
             if (args.ApplicationMessage.Payload != null && args.ApplicationMessage.Payload.Length > 0)
             {
                 var topic = args.ApplicationMessage.Topic;
 
-                var dataModels = ProcessPayload(args.ApplicationMessage.Payload);
-                if (!dataModels.IsNullOrEmpty())
+                var observations = ProcessPayload(args.ApplicationMessage.Payload);
+                if (!observations.IsNullOrEmpty())
                 {
-                    //Console.WriteLine(topic);
-                    //Console.WriteLine(JsonSerializer.Serialize(dataModels));
-
-                    foreach (var dataModel in dataModels)
-                    {
-                        _mtconnectAgent.AddObservations(_deviceKey, dataModel.ToObservationInputs());
-                    }
+                    _mtconnectAgent.AddObservations(_deviceKey, observations);
                 }
-
-                //try
-                //{
-                //    //var json = System.Text.Encoding.UTF8.GetString(args.ApplicationMessage.Payload);
-                //    //if (!string.IsNullOrEmpty(json))
-                //    //{
-                //    //    //var dataModels = JsonSerializer.Deserialize<IEnumerable<DataModel>>(json);
-                //    //    //if (!dataModels.IsNullOrEmpty())
-                //    //    //{
-                //    //    //    Console.WriteLine(topic);
-                //    //    //    Console.WriteLine(JsonSerializer.Serialize(dataModels));
-
-                //    //    //    foreach (var dataModel in dataModels)
-                //    //    //    {
-                //    //    //        _mtconnectAgent.AddObservations(_deviceKey, dataModel.ToObservationInputs());
-                //    //    //    }
-                //    //    //}
-                //    //}
-                //}
-                //catch (Exception ex)
-                //{
-
-                //}
             }
+
+            return Task.CompletedTask;
         }
 
-        public static IEnumerable<MTConnectMqttInputModel> ProcessPayload(byte[] payload)
+        private IEnumerable<IObservationInput> ProcessPayload(byte[] payload)
         {
             if (!payload.IsNullOrEmpty())
             {
                 try
                 {
-                    // Decompress from gzip
-                    byte[] uncompressedBytes;
-                    using (var inputStream = new MemoryStream(payload))
-                    using (var outputStream = new MemoryStream())
-                    using (var encodingStream = new GZipStream(inputStream, CompressionMode.Decompress, true))
-                    {
-                        encodingStream.CopyTo(outputStream);
-                        uncompressedBytes = outputStream.ToArray();
-                    }
+                    //// Decompress from gzip
+                    //byte[] uncompressedBytes;
+                    //using (var inputStream = new MemoryStream(payload))
+                    //using (var outputStream = new MemoryStream())
+                    //using (var encodingStream = new GZipStream(inputStream, CompressionMode.Decompress, true))
+                    //{
+                    //    encodingStream.CopyTo(outputStream);
+                    //    uncompressedBytes = outputStream.ToArray();
+                    //}
 
+                    var uncompressedBytes = payload;
                     if (!uncompressedBytes.IsNullOrEmpty())
                     {
-                        // Convert JSON bytes to Mqtt PayloadModel
-                        IEnumerable<MTConnectMqttInputModel> payloadModel = null;
-                        using (var inputStream2 = new MemoryStream(uncompressedBytes))
+                        var readResult = InputFormatter.CreateObservations(_configuration.DocumentFormat, uncompressedBytes);
+                        if (readResult.Success)
                         {
-                            payloadModel = JsonSerializer.Deserialize<IEnumerable<MTConnectMqttInputModel>>(inputStream2);
+                            return readResult.Content;
                         }
 
-                        if (payloadModel != null)
-                        {
-                            return payloadModel;
-                        }
+                        //// Convert JSON bytes to Mqtt PayloadModel
+                        //IEnumerable<MTConnectMqttInputObservations> payloadModel = null;
+                        //using (var inputStream2 = new MemoryStream(uncompressedBytes))
+                        //{
+                        //    payloadModel = JsonSerializer.Deserialize<IEnumerable<MTConnectMqttInputObservations>>(inputStream2);
+                        //}
+
+                        //if (payloadModel != null)
+                        //{
+                        //    return payloadModel;
+                        //}
                     }
                 }
                 catch (Exception ex)

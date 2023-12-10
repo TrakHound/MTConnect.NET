@@ -52,6 +52,9 @@ namespace MTConnect.Configurations
         [JsonPropertyName("deviceKey")]
         public string DeviceKey { get; set; }
 
+        [JsonPropertyName("documentFormat")]
+        public string DocumentFormat { get; set; }
+
 
         public ModuleConfiguration()
         {
@@ -59,6 +62,7 @@ namespace MTConnect.Configurations
             Port = 1883;
             QoS = 1;
             RetryInterval = 5000;
+            DocumentFormat = "json";
         }
     }
 }
