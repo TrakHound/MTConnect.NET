@@ -5,8 +5,8 @@ namespace MTConnect.Mqtt
 {
     public class MTConnectMqttInputObservation
     {
-        [JsonPropertyName("dataItemKey")]
-        public string DataItemKey { get; set; }
+        [JsonPropertyName("dataItem")]
+        public string DataItem { get; set; }
 
         [JsonPropertyName("values")]
         public Dictionary<string, string> Values { get; set; }
@@ -16,7 +16,7 @@ namespace MTConnect.Mqtt
 
         public MTConnectMqttInputObservation(string dataItemKey, Dictionary<string, string> values)
         {
-            DataItemKey = dataItemKey;
+            DataItem = dataItemKey;
             Values = values;
         }
     }

@@ -8,7 +8,7 @@ using System.Text.Json.Serialization;
 
 namespace MTConnect.Mqtt
 {
-    public class MTConnectMqttInputModel
+    public class MTConnectMqttInputObservations
     {
         [JsonPropertyName("timestamp")]
         public DateTime Timestamp { get; set; }
@@ -34,10 +34,10 @@ namespace MTConnect.Mqtt
 
                 foreach (var mqttObservation in mqttObservations)
                 {
-                    if (!string.IsNullOrEmpty(mqttObservation.DataItemKey) && !mqttObservation.Values.IsNullOrEmpty())
+                    if (!string.IsNullOrEmpty(mqttObservation.DataItem) && !mqttObservation.Values.IsNullOrEmpty())
                     {
                         var observation = new ObservationInput();
-                        observation.DataItemKey = mqttObservation.DataItemKey;
+                        observation.DataItemKey = mqttObservation.DataItem;
                         observation.Timestamp = ts;
 
                         foreach (var value in mqttObservation.Values)
