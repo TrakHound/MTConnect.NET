@@ -31,7 +31,7 @@ namespace MTConnect.Observations
                             var keyValues = entryValues.Where(o => ValueKeys.GetTableKey(o.Key) == key);
                             if (!keyValues.IsNullOrEmpty())
                             {
-                                var removed = keyValues.Any(o => o.Value == EntryRemovedValue);
+                                var removed = keyValues.Select(o => o.Value).Contains(EntryRemovedValue);
                                 if (removed)
                                 {
                                     entries.Add(new TableEntry(key, true));

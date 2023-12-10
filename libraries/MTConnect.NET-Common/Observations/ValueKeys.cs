@@ -33,6 +33,14 @@ namespace MTConnect.Observations
         private static readonly ConcurrentDictionary<string, string> _pascalKeys = new ConcurrentDictionary<string, string>();
         private static readonly ConcurrentDictionary<string, string> _camelKeys = new ConcurrentDictionary<string, string>();
 
+        private static readonly Regex _timeseriesIndexRegex = new Regex($@"{TimeSeriesPrefix}\[(\d*)\]", RegexOptions.Compiled);
+
+        private static readonly Regex _datasetKeyRegex = new Regex($@"{DataSetPrefix}\[(.*)\]", RegexOptions.Compiled);
+
+        private static readonly Regex _tableKeyRegex = new Regex($@"{TablePrefix}\[([^\[\]]*)\](?:\[[^\[\]]*\])?", RegexOptions.Compiled);
+        private static readonly Regex _tableCellKeyRegex = new Regex($@"{TablePrefix}\[([^\[\]]*)\]\[([^\[\]]*)\]", RegexOptions.Compiled);
+        private static readonly Regex _tableValueRegex = new Regex($@"{TablePrefix}\[.*\]\[(.*)\]", RegexOptions.Compiled);
+
 
         #region "TimeSeries"
 
@@ -42,7 +50,7 @@ namespace MTConnect.Observations
         {
             if (!string.IsNullOrEmpty(valueKey))
             {
-                var match = new Regex($@"{TimeSeriesPrefix}\[(\d*)\]").Match(valueKey);
+                var match = _timeseriesIndexRegex.Match(valueKey);
                 if (match.Success && match.Groups.Count > 0)
                 {
                     return match.Groups[1].Value.ToInt();
@@ -72,7 +80,7 @@ namespace MTConnect.Observations
         {
             if (!string.IsNullOrEmpty(valueKey))
             {
-                var match = new Regex($@"{DataSetPrefix}\[(.*)\]").Match(valueKey);
+                var match = _datasetKeyRegex.Match(valueKey);
                 if (match.Success && match.Groups.Count > 0)
                 {
                     return match.Groups[1].Value;
@@ -122,7 +130,7 @@ namespace MTConnect.Observations
         {
             if (!string.IsNullOrEmpty(valueKey))
             {
-                var match = new Regex($@"{TablePrefix}\[([^\[\]]*)\](?:\[[^\[\]]*\])?").Match(valueKey);
+                var match = _tableKeyRegex.Match(valueKey);
                 if (match.Success && match.Groups.Count > 0)
                 {
                     return match.Groups[1].Value;
@@ -136,7 +144,7 @@ namespace MTConnect.Observations
         {
             if (!string.IsNullOrEmpty(valueKey))
             {
-                var match = new Regex($@"{TablePrefix}\[([^\[\]]*)\]\[([^\[\]]*)\]").Match(valueKey);
+                var match = _tableCellKeyRegex.Match(valueKey);
                 if (match.Success && match.Groups.Count > 1)
                 {
                     return match.Groups[2].Value;
@@ -150,7 +158,7 @@ namespace MTConnect.Observations
         {
             if (!string.IsNullOrEmpty(valueKey) && !string.IsNullOrEmpty(cellKey))
             {
-                var match = new Regex($@"{TablePrefix}\[.*\]\[(.*)\]").Match(valueKey);
+                var match = _tableValueRegex.Match(valueKey);
                 if (match.Success && match.Groups.Count > 0)
                 {
                     return match.Groups[1].Value;
