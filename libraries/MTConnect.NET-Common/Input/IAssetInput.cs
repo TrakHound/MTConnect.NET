@@ -18,6 +18,11 @@ namespace MTConnect.Input
         string AssetId { get; }
 
         /// <summary>
+        /// The Type of the Asset (ex. CuttingTool, File, RawMaterial, etc.)
+        /// </summary>
+        string Type { get; }
+
+        /// <summary>
         /// The Asset to add
         /// </summary>
         IAsset Asset { get; }
