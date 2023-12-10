@@ -100,7 +100,7 @@ namespace MTConnect.Modules.Http
                 var result = EntityFormatter.CreateAsset(args.DocumentFormat, args.AssetType, ReadRequestBody(args.RequestBody));
                 if (result.Success)
                 {
-                    var asset = (Asset)result.Entity;
+                    var asset = (Asset)result.Content;
                     asset.AssetId = args.AssetId;
                     asset.Timestamp = asset.Timestamp > DateTime.MinValue ? asset.Timestamp : DateTime.Now;
                     return _mtconnectAgent.AddAsset(args.DeviceKey, asset);

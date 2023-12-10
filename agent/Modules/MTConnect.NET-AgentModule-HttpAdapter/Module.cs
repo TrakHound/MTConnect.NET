@@ -22,7 +22,8 @@ namespace MTConnect.Modules
 
         private readonly ModuleConfiguration _configuration;
         private readonly IMTConnectAgentBroker _mtconnectAgent;
-        private MTConnectHttpClient _agentClient;
+        //private MTConnectHttpClient _agentClient;
+        private readonly List<MTConnectHttpClient> _clients = new List<MTConnectHttpClient>();
         private readonly Dictionary<string, MTConnectClientInformation> _clientInformations = new Dictionary<string, MTConnectClientInformation>();
         private System.Timers.Timer _clientInformationTimer;
 
@@ -56,35 +57,76 @@ namespace MTConnect.Modules
                     }
                 }
 
-
-                _agentClient = new MTConnectHttpClient(baseUri, _configuration.ClientDeviceKey);
-                _agentClient.Id = _configuration.Id;
-                _agentClient.Interval = _configuration.Interval;
-                _agentClient.Heartbeat = _configuration.Heartbeat;
-                _agentClient.CurrentOnly = _configuration.CurrentOnly;
-                _agentClient.UseStreaming = _configuration.UseStreaming;
-
-                // Subscribe to the Events to receive the MTConnect documents
-                _agentClient.ClientStarted += (s, e) => AgentClientStarted(_agentClient);
-                _agentClient.ClientStopped += (s, e) => AgentClientStopped(_agentClient);
-                _agentClient.StreamStarted += (s, query) => AgentClientStreamStarted(_agentClient, query);
-                _agentClient.StreamStopped += (s, e) => AgentClientStreamStopped(_agentClient);
-                _agentClient.CurrentReceived += (s, doc) => StreamsDocumentReceived(_agentClient, doc);
-                _agentClient.SampleReceived += (s, doc) => StreamsDocumentReceived(_agentClient, doc);
-                _agentClient.AssetsReceived += (s, doc) => AssetsDocumentReceived(_agentClient, doc);
-
-                if (_mtconnectAgent.GetDevice(_agentClient.Device) == null)
+                if (!_configuration.Devices.IsNullOrEmpty())
                 {
-                    _agentClient.ProbeReceived += (s, doc) => DevicesDocumentReceived(_agentClient, doc);
+                    foreach (var deviceMapping in _configuration.Devices)
+                    {
+                        var inputDevice = deviceMapping.Key;
+                        var outputDevice = !string.IsNullOrEmpty(deviceMapping.Value.Uuid) ? deviceMapping.Value.Uuid : deviceMapping.Value.Name;
+
+                        var client = new MTConnectHttpClient(baseUri, inputDevice);
+                        client.Id = _configuration.Id;
+                        client.Interval = _configuration.Interval;
+                        client.Heartbeat = _configuration.Heartbeat;
+                        client.CurrentOnly = _configuration.CurrentOnly;
+                        client.UseStreaming = _configuration.UseStreaming;
+
+                        // Subscribe to the Events to receive the MTConnect documents
+                        client.ClientStarted += (s, e) => AgentClientStarted(client);
+                        client.ClientStopped += (s, e) => AgentClientStopped(client);
+                        client.StreamStarted += (s, query) => AgentClientStreamStarted(client, query);
+                        client.StreamStopped += (s, e) => AgentClientStreamStopped(client);
+                        client.CurrentReceived += (s, doc) => StreamsDocumentReceived(client, doc, outputDevice);
+                        client.SampleReceived += (s, doc) => StreamsDocumentReceived(client, doc, outputDevice);
+                        client.AssetsReceived += (s, doc) => AssetsDocumentReceived(client, doc, outputDevice);
+
+                        if (_mtconnectAgent.GetDevice(client.Device) == null)
+                        {
+                            client.ProbeReceived += (s, doc) => DevicesDocumentReceived(client, doc, deviceMapping.Value);
+                        }
+
+                        client.Start();
+
+                        _clients.Add(client);
+                    }
+                }
+                else
+                {
+                    var client = new MTConnectHttpClient(baseUri);
+                    client.Id = _configuration.Id;
+                    client.Interval = _configuration.Interval;
+                    client.Heartbeat = _configuration.Heartbeat;
+                    client.CurrentOnly = _configuration.CurrentOnly;
+                    client.UseStreaming = _configuration.UseStreaming;
+
+                    // Subscribe to the Events to receive the MTConnect documents
+                    client.ClientStarted += (s, e) => AgentClientStarted(client);
+                    client.ClientStopped += (s, e) => AgentClientStopped(client);
+                    client.StreamStarted += (s, query) => AgentClientStreamStarted(client, query);
+                    client.StreamStopped += (s, e) => AgentClientStreamStopped(client);
+                    client.CurrentReceived += (s, doc) => StreamsDocumentReceived(client, doc);
+                    client.SampleReceived += (s, doc) => StreamsDocumentReceived(client, doc);
+                    client.AssetsReceived += (s, doc) => AssetsDocumentReceived(client, doc);
+
+                    if (_mtconnectAgent.GetDevice(client.Device) == null)
+                    {
+                        client.ProbeReceived += (s, doc) => DevicesDocumentReceived(client, doc);
+                    }
+
+                    client.Start();
+
+                    _clients.Add(client);
                 }
 
-                _agentClient.Start();
+
             }
         }
 
         protected override void OnStop()
         {
-            if (_agentClient != null) _agentClient.Stop();
+            //if (_agentClient != null) _agentClient.Stop();
+
+            if (!_clients.IsNullOrEmpty()) foreach (var client in _clients) client.Stop();
         }
 
 
@@ -97,7 +139,7 @@ namespace MTConnect.Modules
                 var dataItemId = DataItem.CreateId(client.Id, ConnectionStatusDataItem.NameId);
                 _mtconnectAgent.AddObservation(_mtconnectAgent.Uuid, dataItemId, Observations.Events.ConnectionStatus.LISTEN);
 
-                Log(Logging.MTConnectLogLevel.Information, $"[HTTP-Adapter] : ID = {client.Id} : Client Started : {client.Authority}");
+                Log(Logging.MTConnectLogLevel.Information, $"ID = {client.Id} : Client Started : {client.Authority}");
             }
         }
 
@@ -108,7 +150,7 @@ namespace MTConnect.Modules
                 var dataItemId = DataItem.CreateId(client.Id, ConnectionStatusDataItem.NameId);
                 _mtconnectAgent.AddObservation(_mtconnectAgent.Uuid, dataItemId, Observations.Events.ConnectionStatus.CLOSED);
 
-                Log(Logging.MTConnectLogLevel.Information, $"[HTTP-Adapter] : ID = {client.Id} : Client Stopped : {client.Authority}");
+                Log(Logging.MTConnectLogLevel.Information, $"ID = {client.Id} : Client Stopped : {client.Authority}");
             }
         }
 
@@ -119,7 +161,7 @@ namespace MTConnect.Modules
                 var dataItemId = DataItem.CreateId(client.Id, ConnectionStatusDataItem.NameId);
                 _mtconnectAgent.AddObservation(_mtconnectAgent.Uuid, dataItemId, Observations.Events.ConnectionStatus.ESTABLISHED);
 
-                Log(Logging.MTConnectLogLevel.Information, $"[HTTP-Adapter] : ID = {client.Id} : Client Stream Started : {query}");
+                Log(Logging.MTConnectLogLevel.Information, $"ID = {client.Id} : Client Stream Started : {query}");
             }
         }
 
@@ -131,31 +173,42 @@ namespace MTConnect.Modules
                 _mtconnectAgent.AddObservation(_mtconnectAgent.Uuid, dataItemId, Observations.Events.ConnectionStatus.CLOSED);
                 _mtconnectAgent.AddObservation(_mtconnectAgent.Uuid, dataItemId, Observations.Events.ConnectionStatus.LISTEN);
 
-                Log(Logging.MTConnectLogLevel.Information, $"[HTTP-Adapter] : ID = {client.Id} : Client Stream Stopped");
+                Log(Logging.MTConnectLogLevel.Information, $"ID = {client.Id} : Client Stream Stopped");
             }
         }
 
-        private void DevicesDocumentReceived(MTConnectHttpClient client, IDevicesResponseDocument document)
+        private void DevicesDocumentReceived(MTConnectHttpClient client, IDevicesResponseDocument document, DeviceMappingConfiguration deviceMapping = null)
         {
             if (client != null && document != null && !document.Devices.IsNullOrEmpty())
             {
-                Log(Logging.MTConnectLogLevel.Information, $"[HTTP-Adapter] : ID = {client.Id} : MTConnectDevices Received : " + document.Header.CreationTime);
+                Log(Logging.MTConnectLogLevel.Information, $"ID = {client.Id} : MTConnectDevices Received : " + document.Header.CreationTime);
 
                 foreach (var device in document.Devices)
                 {
-                    _mtconnectAgent.AddDevice(device);
+                    var outputDevice = Device.Process(device, device.MTConnectVersion);
+
+                    if (deviceMapping != null)
+                    {
+                        if (!string.IsNullOrEmpty(deviceMapping.Uuid)) outputDevice.Uuid = deviceMapping.Uuid;
+                        if (!string.IsNullOrEmpty(deviceMapping.Id)) outputDevice.Id = deviceMapping.Id;
+                        if (!string.IsNullOrEmpty(deviceMapping.Name)) outputDevice.Name = deviceMapping.Name;
+                    }
+
+                    _mtconnectAgent.AddDevice(outputDevice);
                 }
             }
         }
 
-        private void StreamsDocumentReceived(MTConnectHttpClient client, IStreamsResponseDocument document)
+        private void StreamsDocumentReceived(MTConnectHttpClient client, IStreamsResponseDocument document, string outputDeviceKey = null)
         {
             if (client != null && document != null && !document.Streams.IsNullOrEmpty())
             {
-                Log(Logging.MTConnectLogLevel.Information, $"[HTTP-Adapter] : ID = {client.Id} : MTConnectStreams Received : " + document.Header.CreationTime);
+                Log(Logging.MTConnectLogLevel.Information, $"ID = {client.Id} : MTConnectStreams Received : " + document.Header.CreationTime);
 
                 foreach (var stream in document.Streams)
                 {
+                    var deviceKey = !string.IsNullOrEmpty(outputDeviceKey) ? outputDeviceKey : stream.Uuid;
+
                     var observations = stream.Observations;
                     if (!observations.IsNullOrEmpty())
                     {
@@ -167,22 +220,24 @@ namespace MTConnect.Modules
                             input.Timestamp = observation.Timestamp.ToUnixTime();
                             input.Values = observation.Values;
 
-                            _mtconnectAgent.AddObservation(_configuration.DeviceKey, input);
+                            _mtconnectAgent.AddObservation(deviceKey, input);
                         }
                     }
                 }
             }
         }
 
-        private void AssetsDocumentReceived(MTConnectHttpClient client, IAssetsResponseDocument document)
+        private void AssetsDocumentReceived(MTConnectHttpClient client, IAssetsResponseDocument document, string outputDeviceKey = null)
         {
             if (client != null && document != null && !document.Assets.IsNullOrEmpty())
             {
-                Log(Logging.MTConnectLogLevel.Information, $"[HTTP-Adapter] : ID = {client.Id} : MTConnectAssets Received : " + document.Header.CreationTime);
+                Log(Logging.MTConnectLogLevel.Information, $"ID = {client.Id} : MTConnectAssets Received : " + document.Header.CreationTime);
 
                 foreach (var asset in document.Assets)
                 {
-                    _mtconnectAgent.AddAsset(_configuration.DeviceKey, asset);
+                    var deviceKey = !string.IsNullOrEmpty(outputDeviceKey) ? outputDeviceKey : asset.DeviceUuid;
+
+                    _mtconnectAgent.AddAsset(deviceKey, asset);
                 }
             }
         }
