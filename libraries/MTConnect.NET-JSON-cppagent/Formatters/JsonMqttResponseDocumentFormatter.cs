@@ -15,7 +15,7 @@ namespace MTConnect.Formatters
         public override string ContentType => "application/json";
 
 
-        public override FormattedDocumentWriteResult Format(IAssetsResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
+        public override FormatWriteResult Format(IAssetsResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read Indent Option passed to Formatter
             var indentOutput = GetFormatterOption<bool>(options, "indentOutput");
@@ -24,19 +24,19 @@ namespace MTConnect.Formatters
             var json = JsonSerializer.SerializeToUtf8Bytes(new JsonAssetsResponseDocument(document), jsonOptions);
             if (!json.IsNullOrEmpty())
             {
-                return FormattedDocumentWriteResult.Successful(json, ContentType);
+                return FormatWriteResult.Successful(json, ContentType);
             }
 
-            return FormattedDocumentWriteResult.Error();
+            return FormatWriteResult.Error();
         }
 
-        public override FormattedDocumentReadResult<IAssetsResponseDocument> CreateAssetsResponseDocument(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
+        public override FormatReadResult<IAssetsResponseDocument> CreateAssetsResponseDocument(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read Document
             var document = JsonSerializer.Deserialize<JsonAssetContainer>(content);
             var success = document != null;
 
-            return new FormattedDocumentReadResult<IAssetsResponseDocument>(document.ToAssetsDocument(), success);
+            return new FormatReadResult<IAssetsResponseDocument>(document.ToAssetsDocument(), success);
         }
     }
 }

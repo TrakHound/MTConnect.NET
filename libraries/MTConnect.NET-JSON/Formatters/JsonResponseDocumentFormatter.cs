@@ -23,7 +23,7 @@ namespace MTConnect.Formatters
         public string ContentType => "application/json";
 
 
-        public FormattedDocumentWriteResult Format(IDevicesResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatWriteResult Format(IDevicesResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read Indent Option passed to Formatter
             var indentOutput = GetFormatterOption<bool>(options, "indentOutput");
@@ -32,13 +32,13 @@ namespace MTConnect.Formatters
             var json = JsonSerializer.SerializeToUtf8Bytes(new JsonDevicesDocument(document), jsonOptions);
             if (!json.IsNullOrEmpty())
             {
-                return FormattedDocumentWriteResult.Successful(json, ContentType);
+                return FormatWriteResult.Successful(json, ContentType);
             }
 
-            return FormattedDocumentWriteResult.Error();
+            return FormatWriteResult.Error();
         }
 
-        public FormattedDocumentWriteResult Format(ref IStreamsResponseOutputDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatWriteResult Format(ref IStreamsResponseOutputDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read Indent Option passed to Formatter
             var indentOutput = GetFormatterOption<bool>(options, "indentOutput");
@@ -47,13 +47,13 @@ namespace MTConnect.Formatters
             var json = JsonSerializer.SerializeToUtf8Bytes(new JsonStreamsDocument(document), jsonOptions);
             if (!json.IsNullOrEmpty())
             {
-                return FormattedDocumentWriteResult.Successful(json, ContentType);
+                return FormatWriteResult.Successful(json, ContentType);
             }
 
-            return FormattedDocumentWriteResult.Error();
+            return FormatWriteResult.Error();
         }
 
-        public FormattedDocumentWriteResult Format(IAssetsResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatWriteResult Format(IAssetsResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read Indent Option passed to Formatter
             var indentOutput = GetFormatterOption<bool>(options, "indentOutput");
@@ -62,13 +62,13 @@ namespace MTConnect.Formatters
             var json = JsonSerializer.SerializeToUtf8Bytes(new JsonAssetsDocument(document), jsonOptions);
             if (!json.IsNullOrEmpty())
             {
-                return FormattedDocumentWriteResult.Successful(json, ContentType);
+                return FormatWriteResult.Successful(json, ContentType);
             }
 
-            return FormattedDocumentWriteResult.Error();
+            return FormatWriteResult.Error();
         }
 
-        public FormattedDocumentWriteResult Format(IErrorResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatWriteResult Format(IErrorResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read Indent Option passed to Formatter
             var indentOutput = GetFormatterOption<bool>(options, "indentOutput");
@@ -77,47 +77,47 @@ namespace MTConnect.Formatters
             var json = JsonSerializer.SerializeToUtf8Bytes(document, jsonOptions);
             if (!json.IsNullOrEmpty())
             {
-                return FormattedDocumentWriteResult.Successful(json, ContentType);
+                return FormatWriteResult.Successful(json, ContentType);
             }
 
-            return FormattedDocumentWriteResult.Error();
+            return FormatWriteResult.Error();
         }
 
 
-        public FormattedDocumentReadResult<IDevicesResponseDocument> CreateDevicesResponseDocument(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatReadResult<IDevicesResponseDocument> CreateDevicesResponseDocument(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read Document
             var document = JsonSerializer.Deserialize<JsonDevicesDocument>(content);
             var success = document != null;
 
-            return new FormattedDocumentReadResult<IDevicesResponseDocument>(document.ToDocument(), success);
+            return new FormatReadResult<IDevicesResponseDocument>(document.ToDocument(), success);
         }
 
-        public FormattedDocumentReadResult<IStreamsResponseDocument> CreateStreamsResponseDocument(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatReadResult<IStreamsResponseDocument> CreateStreamsResponseDocument(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read Document
             var document = JsonSerializer.Deserialize<JsonStreamsDocument>(content);
             var success = document != null;
 
-            return new FormattedDocumentReadResult<IStreamsResponseDocument>(document.ToStreamsDocument(), success);
+            return new FormatReadResult<IStreamsResponseDocument>(document.ToStreamsDocument(), success);
         }
 
-        public FormattedDocumentReadResult<IAssetsResponseDocument> CreateAssetsResponseDocument(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatReadResult<IAssetsResponseDocument> CreateAssetsResponseDocument(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read Document
             var document = JsonSerializer.Deserialize<AssetsResponseDocument>(content);
             var success = document != null;
 
-            return new FormattedDocumentReadResult<IAssetsResponseDocument>(document, success);
+            return new FormatReadResult<IAssetsResponseDocument>(document, success);
         }
 
-        public FormattedDocumentReadResult<IErrorResponseDocument> CreateErrorResponseDocument(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatReadResult<IErrorResponseDocument> CreateErrorResponseDocument(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read Document
             var document = JsonSerializer.Deserialize<ErrorResponseDocument>(content);
             var success = document != null;
 
-            return new FormattedDocumentReadResult<IErrorResponseDocument>(document, success);
+            return new FormatReadResult<IErrorResponseDocument>(document, success);
         }
 
 

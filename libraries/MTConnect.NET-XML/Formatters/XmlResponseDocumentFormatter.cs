@@ -24,7 +24,7 @@ namespace MTConnect.Formatters.Xml
         public string ContentType => "application/xml";
 
 
-        public FormattedDocumentWriteResult Format(IDevicesResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatWriteResult Format(IDevicesResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read XSD Schema
             var schemas = GetFormatterOptions<string>(options, "schema");
@@ -50,25 +50,25 @@ namespace MTConnect.Formatters.Xml
                     var validationResponse = XmlValidator.Validate(xml, schemas);
                     if (validationResponse.Success)
                     {
-                        return FormattedDocumentWriteResult.Successful(xml, ContentType, "XML Validation Successful");
+                        return FormatWriteResult.Successful(xml, ContentType, "XML Validation Successful");
                     }
                     else
                     {
                         // Return Successful if ValidationLevel set to Warning
-                        if (validationLevel < 2) return FormattedDocumentWriteResult.Warning(xml, ContentType, validationResponse.Errors);
-                        else return FormattedDocumentWriteResult.Error(validationResponse.Errors);
+                        if (validationLevel < 2) return FormatWriteResult.Warning(xml, ContentType, validationResponse.Errors);
+                        else return FormatWriteResult.Error(validationResponse.Errors);
                     }
                 }
                 else
                 {
-                    return FormattedDocumentWriteResult.Successful(xml, ContentType);
+                    return FormatWriteResult.Successful(xml, ContentType);
                 }
             }
 
-            return FormattedDocumentWriteResult.Error();
+            return FormatWriteResult.Error();
         }
 
-        public FormattedDocumentWriteResult Format(ref IStreamsResponseOutputDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatWriteResult Format(ref IStreamsResponseOutputDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read XSD Schema
             var schemas = GetFormatterOptions<string>(options, "schema");
@@ -97,25 +97,25 @@ namespace MTConnect.Formatters.Xml
                     var validationResponse = XmlValidator.Validate(xml, schemas);
                     if (validationResponse.Success)
                     {
-                        return FormattedDocumentWriteResult.Successful(xml, ContentType, "XML Validation Successful");
+                        return FormatWriteResult.Successful(xml, ContentType, "XML Validation Successful");
                     }
                     else
                     {
                         // Return Successful if ValidationLevel set to Warning
-                        if (validationLevel < 2) return FormattedDocumentWriteResult.Warning(xml, ContentType, validationResponse.Errors);
-                        else return FormattedDocumentWriteResult.Error(validationResponse.Errors);
+                        if (validationLevel < 2) return FormatWriteResult.Warning(xml, ContentType, validationResponse.Errors);
+                        else return FormatWriteResult.Error(validationResponse.Errors);
                     }
                 }
                 else
                 {
-                    return FormattedDocumentWriteResult.Successful(xml, ContentType);
+                    return FormatWriteResult.Successful(xml, ContentType);
                 }
             }
 
-            return FormattedDocumentWriteResult.Error();
+            return FormatWriteResult.Error();
         }
 
-        public FormattedDocumentWriteResult Format(IAssetsResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatWriteResult Format(IAssetsResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read XSD Schema
             var schemas = GetFormatterOptions<string>(options, "schema");
@@ -141,25 +141,25 @@ namespace MTConnect.Formatters.Xml
                     var validationResponse = XmlValidator.Validate(xml, schemas);
                     if (validationResponse.Success)
                     {
-                        return FormattedDocumentWriteResult.Successful(xml, ContentType, "XML Validation Successful");
+                        return FormatWriteResult.Successful(xml, ContentType, "XML Validation Successful");
                     }
                     else
                     {
                         // Return Successful if ValidationLevel set to Warning
-                        if (validationLevel < 2) return FormattedDocumentWriteResult.Warning(xml, ContentType, validationResponse.Errors);
-                        else return FormattedDocumentWriteResult.Error(validationResponse.Errors);
+                        if (validationLevel < 2) return FormatWriteResult.Warning(xml, ContentType, validationResponse.Errors);
+                        else return FormatWriteResult.Error(validationResponse.Errors);
                     }
                 }
                 else
                 {
-                    return FormattedDocumentWriteResult.Successful(xml, ContentType);
+                    return FormatWriteResult.Successful(xml, ContentType);
                 }
             }
 
-            return FormattedDocumentWriteResult.Error();
+            return FormatWriteResult.Error();
         }
 
-        public FormattedDocumentWriteResult Format(IErrorResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatWriteResult Format(IErrorResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read XSD Schema
             var schemas = GetFormatterOptions<string>(options, "schema");
@@ -185,25 +185,25 @@ namespace MTConnect.Formatters.Xml
                     var validationResponse = XmlValidator.Validate(xml, schemas);
                     if (validationResponse.Success)
                     {
-                        return FormattedDocumentWriteResult.Successful(xml, ContentType, "XML Validation Successful");
+                        return FormatWriteResult.Successful(xml, ContentType, "XML Validation Successful");
                     }
                     else
                     {
                         // Return Successful if ValidationLevel set to Warning
-                        return FormattedDocumentWriteResult.Warning(xml, ContentType, validationResponse.Errors);
+                        return FormatWriteResult.Warning(xml, ContentType, validationResponse.Errors);
                     }
                 }
                 else
                 {
-                    return FormattedDocumentWriteResult.Successful(xml, ContentType);
+                    return FormatWriteResult.Successful(xml, ContentType);
                 }
             }
 
-            return FormattedDocumentWriteResult.Error();
+            return FormatWriteResult.Error();
         }
 
 
-        public FormattedDocumentReadResult<IDevicesResponseDocument> CreateDevicesResponseDocument(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatReadResult<IDevicesResponseDocument> CreateDevicesResponseDocument(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var messages = new List<string>();
             var warnings = new List<string>();
@@ -240,10 +240,10 @@ namespace MTConnect.Formatters.Xml
             var document = XmlDevicesResponseDocument.FromXml(content);
             var success = document != null;
 
-            return new FormattedDocumentReadResult<IDevicesResponseDocument>(document, success, messages, warnings, errors);
+            return new FormatReadResult<IDevicesResponseDocument>(document, success, messages, warnings, errors);
         }
 
-        public FormattedDocumentReadResult<IStreamsResponseDocument> CreateStreamsResponseDocument(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatReadResult<IStreamsResponseDocument> CreateStreamsResponseDocument(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var messages = new List<string>();
             var warnings = new List<string>();
@@ -280,10 +280,10 @@ namespace MTConnect.Formatters.Xml
             var document = XmlStreamsResponseDocument.FromXml(content);
             var success = document != null;
 
-            return new FormattedDocumentReadResult<IStreamsResponseDocument>(document, success, messages, warnings, errors);
+            return new FormatReadResult<IStreamsResponseDocument>(document, success, messages, warnings, errors);
         }
 
-        public FormattedDocumentReadResult<IAssetsResponseDocument> CreateAssetsResponseDocument(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatReadResult<IAssetsResponseDocument> CreateAssetsResponseDocument(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var messages = new List<string>();
             var warnings = new List<string>();
@@ -320,10 +320,10 @@ namespace MTConnect.Formatters.Xml
             var document = XmlAssetsResponseDocument.FromXml(content);
             var success = document != null;
 
-            return new FormattedDocumentReadResult<IAssetsResponseDocument>(document, success, messages, warnings, errors);
+            return new FormatReadResult<IAssetsResponseDocument>(document, success, messages, warnings, errors);
         }
 
-        public FormattedDocumentReadResult<IErrorResponseDocument> CreateErrorResponseDocument(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatReadResult<IErrorResponseDocument> CreateErrorResponseDocument(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var messages = new List<string>();
             var warnings = new List<string>();
@@ -360,7 +360,7 @@ namespace MTConnect.Formatters.Xml
             var document = XmlErrorResponseDocument.FromXml(content);
             var success = document != null;
 
-            return new FormattedDocumentReadResult<IErrorResponseDocument>(document, success, messages, warnings, errors);
+            return new FormatReadResult<IErrorResponseDocument>(document, success, messages, warnings, errors);
         }
 
 

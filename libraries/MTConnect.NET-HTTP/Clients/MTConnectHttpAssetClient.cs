@@ -384,7 +384,7 @@ namespace MTConnect.Clients
                 var bytes = MTConnectHttpResponse.HandleContentEncoding(contentEncoding, documentBytes);
 
                 // Process MTConnectAssets Document
-                var document = Formatters.ResponseDocumentFormatter.CreateAssetsResponseDocument(DocumentFormat.ToString(), bytes).Document;
+                var document = Formatters.ResponseDocumentFormatter.CreateAssetsResponseDocument(DocumentFormat.ToString(), bytes).Content;
                 if (document != null)
                 {
                     return document;
@@ -392,7 +392,7 @@ namespace MTConnect.Clients
                 else
                 {
                     // Process MTConnectError Document (if MTConnectAssets fails)
-                    var errorDocument = Formatters.ResponseDocumentFormatter.CreateErrorResponseDocument(DocumentFormat.ToString(), bytes).Document;
+                    var errorDocument = Formatters.ResponseDocumentFormatter.CreateErrorResponseDocument(DocumentFormat.ToString(), bytes).Content;
                     if (errorDocument != null)
                     {
                         MTConnectError?.Invoke(this, errorDocument);

@@ -29,7 +29,7 @@ namespace MTConnect.Formatters
         public string ContentType => "application/json";
 
 
-        public FormattedEntityWriteResult Format(IDevice device, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatWriteResult Format(IDevice device, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             if (device != null)
             {
@@ -38,14 +38,14 @@ namespace MTConnect.Formatters
                 var bytes = new JsonDevice(device).ToBytes(indentOuput);
                 if (bytes != null)
                 {
-                    return FormattedEntityWriteResult.Successful(bytes, ContentType);
+                    return FormatWriteResult.Successful(bytes, ContentType);
                 }
             }
 
-            return FormattedEntityWriteResult.Error();
+            return FormatWriteResult.Error();
         }
 
-        public FormattedEntityWriteResult Format(IObservation observation, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatWriteResult Format(IObservation observation, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             if (observation != null)
             {
@@ -89,14 +89,14 @@ namespace MTConnect.Formatters
 
                 if (bytes != null)
                 {
-                    return FormattedEntityWriteResult.Successful(bytes, ContentType);
+                    return FormatWriteResult.Successful(bytes, ContentType);
                 }
             }
 
-            return FormattedEntityWriteResult.Error();
+            return FormatWriteResult.Error();
         }
 
-        public FormattedEntityWriteResult Format(IEnumerable<IObservation> observations, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatWriteResult Format(IEnumerable<IObservation> observations, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             if (!observations.IsNullOrEmpty())
             {
@@ -145,14 +145,14 @@ namespace MTConnect.Formatters
                 var bytes = JsonFunctions.ConvertBytes(x);
                 if (bytes != null)
                 {
-                    return FormattedEntityWriteResult.Successful(bytes, ContentType);
+                    return FormatWriteResult.Successful(bytes, ContentType);
                 }
             }
 
-            return FormattedEntityWriteResult.Error();
+            return FormatWriteResult.Error();
         }
 
-        public FormattedEntityWriteResult Format(IAsset asset, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatWriteResult Format(IAsset asset, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             if (asset != null)
             {
@@ -170,15 +170,15 @@ namespace MTConnect.Formatters
 
                 if (bytes != null)
                 {
-                    return FormattedEntityWriteResult.Successful(bytes, ContentType);
+                    return FormatWriteResult.Successful(bytes, ContentType);
                 }
             }
 
-            return FormattedEntityWriteResult.Error();
+            return FormatWriteResult.Error();
         }
 
 
-        public FormattedEntityReadResult<IDevice> CreateDevice(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatReadResult<IDevice> CreateDevice(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var messages = new List<string>();
             var warnings = new List<string>();
@@ -190,14 +190,14 @@ namespace MTConnect.Formatters
                 var entity = jsonEntity.ToDevice();
                 var success = entity != null;
 
-                return new FormattedEntityReadResult<IDevice>(entity, success, messages, warnings, errors);
+                return new FormatReadResult<IDevice>(entity, success, messages, warnings, errors);
             }
             catch { }
 
-            return new FormattedEntityReadResult<IDevice>();
+            return new FormatReadResult<IDevice>();
         }
 
-        public FormattedEntityReadResult<IComponent> CreateComponent(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatReadResult<IComponent> CreateComponent(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var messages = new List<string>();
             var warnings = new List<string>();
@@ -209,14 +209,14 @@ namespace MTConnect.Formatters
                 var entity = jsonEntity.ToComponent();
                 var success = entity != null;
 
-                return new FormattedEntityReadResult<IComponent>(entity, success, messages, warnings, errors);
+                return new FormatReadResult<IComponent>(entity, success, messages, warnings, errors);
             }
             catch { }
 
-            return new FormattedEntityReadResult<IComponent>();
+            return new FormatReadResult<IComponent>();
         }
 
-        public FormattedEntityReadResult<IComposition> CreateComposition(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatReadResult<IComposition> CreateComposition(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var messages = new List<string>();
             var warnings = new List<string>();
@@ -228,14 +228,14 @@ namespace MTConnect.Formatters
                 var entity = jsonEntity.ToComposition();
                 var success = entity != null;
 
-                return new FormattedEntityReadResult<IComposition>(entity, success, messages, warnings, errors);
+                return new FormatReadResult<IComposition>(entity, success, messages, warnings, errors);
             }
             catch { }
 
-            return new FormattedEntityReadResult<IComposition>();
+            return new FormatReadResult<IComposition>();
         }
 
-        public FormattedEntityReadResult<IDataItem> CreateDataItem(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatReadResult<IDataItem> CreateDataItem(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var messages = new List<string>();
             var warnings = new List<string>();
@@ -247,14 +247,14 @@ namespace MTConnect.Formatters
                 var entity = jsonEntity.ToDataItem();
                 var success = entity != null;
 
-                return new FormattedEntityReadResult<IDataItem>(entity, success, messages, warnings, errors);
+                return new FormatReadResult<IDataItem>(entity, success, messages, warnings, errors);
             }
             catch { }
 
-            return new FormattedEntityReadResult<IDataItem>();
+            return new FormatReadResult<IDataItem>();
         }
 
-        public FormattedEntityReadResult<IAsset> CreateAsset(string assetType, byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatReadResult<IAsset> CreateAsset(string assetType, byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var messages = new List<string>();
             var warnings = new List<string>();
@@ -299,7 +299,7 @@ namespace MTConnect.Formatters
 
             var success = asset != null;
 
-            return new FormattedEntityReadResult<IAsset>(asset, success, messages, warnings, errors);
+            return new FormatReadResult<IAsset>(asset, success, messages, warnings, errors);
         }
 
 

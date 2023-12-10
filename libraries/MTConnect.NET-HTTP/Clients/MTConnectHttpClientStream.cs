@@ -347,7 +347,7 @@ namespace MTConnect.Clients
                 var bytes = MTConnectHttpResponse.HandleContentEncoding(contentEncoding, responseBody);
 
                 // Process MTConnectDevices Document
-                var document = Formatters.ResponseDocumentFormatter.CreateStreamsResponseDocument(_documentFormat, bytes).Document;
+                var document = Formatters.ResponseDocumentFormatter.CreateStreamsResponseDocument(_documentFormat, bytes).Content;
                 if (document != null)
                 {
                     DocumentReceived?.Invoke(this, document);
@@ -355,7 +355,7 @@ namespace MTConnect.Clients
                 else
                 {
                     // Process MTConnectError Document (if MTConnectStreams fails)
-                    var errorDocument = Formatters.ResponseDocumentFormatter.CreateErrorResponseDocument(_documentFormat, bytes).Document;
+                    var errorDocument = Formatters.ResponseDocumentFormatter.CreateErrorResponseDocument(_documentFormat, bytes).Content;
                     if (errorDocument != null) ErrorReceived?.Invoke(this, errorDocument);
                 }
             }

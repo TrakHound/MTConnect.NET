@@ -22,7 +22,7 @@ namespace MTConnect.Formatters.Xml
         public string ContentType => "application/xml";
 
 
-        public FormattedEntityWriteResult Format(IDevice device, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatWriteResult Format(IDevice device, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             if (device != null)
             {
@@ -42,96 +42,18 @@ namespace MTConnect.Formatters.Xml
                             var bytes = outputStream.ToArray();
                             if (bytes != null)
                             {
-                                return FormattedEntityWriteResult.Successful(bytes, ContentType);
+                                return FormatWriteResult.Successful(bytes, ContentType);
                             }
                         }
                     }
-
-                    //using (var writer = new StringWriter())
-                    //{
-                    //    // Use XmlWriter to write XML to stream
-                    //    using (var xmlWriter = XmlWriter.Create(writer, settings))
-                    //    {
-                    //        XmlDevice.WriteXml(xmlWriter, device);
-                    //        xmlWriter.Flush();
-                    //        return writer.ToString();
-                    //    }
-                    //}
                 }
                 catch { }
             }
 
-            return FormattedEntityWriteResult.Error();
+            return FormatWriteResult.Error();
         }
 
-        //public FormattedEntityWriteResult Format(IComponent component, IEnumerable<KeyValuePair<string, string>> options = null)
-        //{
-        //    if (component != null)
-        //    {
-        //        try
-        //        {
-        //            using (var writer = new StringWriter())
-        //            {
-        //                // Use XmlWriter to write XML to stream
-        //                var xmlWriter = XmlWriter.Create(writer, XmlFunctions.XmlWriterSettings);
-        //                XmlComponent.WriteXml(xmlWriter, component);
-        //                xmlWriter.Flush();
-        //                return writer.ToString();
-        //            }
-        //        }
-        //        catch { }
-        //    }
-
-        //    return FormattedEntityWriteResult.Error();
-        //}
-
-        //public FormattedEntityWriteResult Format(IComposition composition, IEnumerable<KeyValuePair<string, string>> options = null)
-        //{
-        //    if (composition != null)
-        //    {
-        //        try
-        //        {
-        //            using (var writer = new StringWriter())
-        //            {
-        //                // Use XmlWriter to write XML to stream
-        //                var xmlWriter = XmlWriter.Create(writer, XmlFunctions.XmlWriterSettings);
-        //                XmlComposition.WriteXml(xmlWriter, composition);
-        //                xmlWriter.Flush();
-        //                return writer.ToString();
-        //            }
-        //        }
-        //        catch { }
-        //    }
-
-        //    return FormattedEntityWriteResult.Error();
-        //}
-
-        //public FormattedEntityWriteResult Format(IDataItem dataItem, IEnumerable<KeyValuePair<string, string>> options = null)
-        //{
-        //    if (dataItem != null)
-        //    {
-        //        try
-        //        {
-        //            var indentOuput = GetFormatterOption<bool>(options, "indentOutput");
-
-        //            using (var writer = new StringWriter())
-        //            {
-        //                // Use XmlWriter to write XML to stream
-        //                using (var xmlWriter = XmlWriter.Create(writer, XmlFunctions.XmlWriterSettings))
-        //                {
-        //                    XmlDataItem.WriteXml(xmlWriter, dataItem);
-        //                    xmlWriter.Flush();
-        //                    return XmlFunctions.FormatXml(writer.ToString(), indentOuput, false, true);
-        //                }
-        //            }
-        //        }
-        //        catch { }
-        //    }
-
-        //    return FormattedEntityWriteResult.Error();
-        //}
-
-        public FormattedEntityWriteResult Format(IObservation observation, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatWriteResult Format(IObservation observation, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             if (observation != null)
             {
@@ -146,29 +68,17 @@ namespace MTConnect.Formatters.Xml
                         var bytes = outputStream.ToArray();
                         if (bytes != null)
                         {
-                            return FormattedEntityWriteResult.Successful(bytes, ContentType);
+                            return FormatWriteResult.Successful(bytes, ContentType);
                         }
                     }
-
-
-                    //using (var writer = new StringWriter())
-                    //{
-                    //    // Use XmlWriter to write XML to stream
-                    //    var xmlWriter = XmlWriter.Create(writer, XmlFunctions.XmlWriterSettings);
-                    //    XmlObservation.WriteXml(xmlWriter, observation);
-
-                    //    writer.
-
-                    //    //return writer.ToString();
-                    //}
                 }
                 catch { }
             }
 
-            return FormattedEntityWriteResult.Error();
+            return FormatWriteResult.Error();
         }
 
-        public FormattedEntityWriteResult Format(IEnumerable<IObservation> observations, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatWriteResult Format(IEnumerable<IObservation> observations, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             if (!observations.IsNullOrEmpty())
             {
@@ -186,32 +96,32 @@ namespace MTConnect.Formatters.Xml
                         var bytes = outputStream.ToArray();
                         if (bytes != null)
                         {
-                            return FormattedEntityWriteResult.Successful(bytes, ContentType);
+                            return FormatWriteResult.Successful(bytes, ContentType);
                         }
                     }
                 }
                 catch { }
             }
 
-            return FormattedEntityWriteResult.Error();
+            return FormatWriteResult.Error();
         }
 
-        public FormattedEntityWriteResult Format(IAsset asset, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatWriteResult Format(IAsset asset, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             if (asset != null)
             {
                 var bytes = XmlAsset.ToXml(asset, true);
                 if (bytes != null)
                 {
-                    return FormattedEntityWriteResult.Successful(bytes, ContentType);
+                    return FormatWriteResult.Successful(bytes, ContentType);
                 }
             }
 
-            return FormattedEntityWriteResult.Error();
+            return FormatWriteResult.Error();
         }
 
 
-        public FormattedEntityReadResult<IDevice> CreateDevice(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatReadResult<IDevice> CreateDevice(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var messages = new List<string>();
             var warnings = new List<string>();
@@ -221,10 +131,10 @@ namespace MTConnect.Formatters.Xml
             var entity = XmlDevice.FromXml(content);
             var success = entity != null;
 
-            return new FormattedEntityReadResult<IDevice>(entity, success, messages, warnings, errors);
+            return new FormatReadResult<IDevice>(entity, success, messages, warnings, errors);
         }
 
-        public FormattedEntityReadResult<IComponent> CreateComponent(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatReadResult<IComponent> CreateComponent(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var messages = new List<string>();
             var warnings = new List<string>();
@@ -234,10 +144,10 @@ namespace MTConnect.Formatters.Xml
             var entity = XmlComponent.FromXml(content);
             var success = entity != null;
 
-            return new FormattedEntityReadResult<IComponent>(entity, success, messages, warnings, errors);
+            return new FormatReadResult<IComponent>(entity, success, messages, warnings, errors);
         }
 
-        public FormattedEntityReadResult<IComposition> CreateComposition(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatReadResult<IComposition> CreateComposition(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var messages = new List<string>();
             var warnings = new List<string>();
@@ -247,10 +157,10 @@ namespace MTConnect.Formatters.Xml
             var entity = XmlComposition.FromXml(content);
             var success = entity != null;
 
-            return new FormattedEntityReadResult<IComposition>(entity, success, messages, warnings, errors);
+            return new FormatReadResult<IComposition>(entity, success, messages, warnings, errors);
         }
 
-        public FormattedEntityReadResult<IDataItem> CreateDataItem(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatReadResult<IDataItem> CreateDataItem(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var messages = new List<string>();
             var warnings = new List<string>();
@@ -260,10 +170,10 @@ namespace MTConnect.Formatters.Xml
             var entity = XmlDataItem.FromXml(content);
             var success = entity != null;
 
-            return new FormattedEntityReadResult<IDataItem>(entity, success, messages, warnings, errors);
+            return new FormatReadResult<IDataItem>(entity, success, messages, warnings, errors);
         }
 
-        public FormattedEntityReadResult<IAsset> CreateAsset(string assetType, byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatReadResult<IAsset> CreateAsset(string assetType, byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var messages = new List<string>();
             var warnings = new List<string>();
@@ -273,7 +183,7 @@ namespace MTConnect.Formatters.Xml
             var entity = XmlAsset.FromXml(assetType, content);
             var success = entity != null;
 
-            return new FormattedEntityReadResult<IAsset>(entity, success, messages, warnings, errors);
+            return new FormatReadResult<IAsset>(entity, success, messages, warnings, errors);
         }
 
 

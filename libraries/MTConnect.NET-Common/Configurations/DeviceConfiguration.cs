@@ -78,7 +78,7 @@ namespace MTConnect.Configurations
                         if (contents != null)
                         {
                             // Read ResponseDocument Format
-                            var devicesDocument = Formatters.ResponseDocumentFormatter.CreateDevicesResponseDocument(documentFormatterId, contents).Document;
+                            var devicesDocument = Formatters.ResponseDocumentFormatter.CreateDevicesResponseDocument(documentFormatterId, contents).Content;
                             if (devicesDocument != null && devicesDocument.Devices != null && devicesDocument.Devices.Count() > 0)
                             {
                                 var devices = new List<DeviceConfiguration>();
@@ -93,7 +93,7 @@ namespace MTConnect.Configurations
                             else
                             {
                                 // Read Single Entity Format
-                                var device = Formatters.EntityFormatter.CreateDevice(documentFormatterId, contents).Entity;
+                                var device = Formatters.EntityFormatter.CreateDevice(documentFormatterId, contents).Content;
                                 if (device != null)
                                 {
                                     return new List<DeviceConfiguration> { new DeviceConfiguration(device, rootPath) };
@@ -136,7 +136,7 @@ namespace MTConnect.Configurations
                         if (contents != null)
                         {
                             // Read ResponseDocument Format
-                            var devicesDocument = Formatters.ResponseDocumentFormatter.CreateDevicesResponseDocument(documentFormatterId, contents).Document;
+                            var devicesDocument = Formatters.ResponseDocumentFormatter.CreateDevicesResponseDocument(documentFormatterId, contents).Content;
                             if (devicesDocument != null && devicesDocument.Devices != null && devicesDocument.Devices.Count() > 0)
                             {
                                 var devices = new List<DeviceConfiguration>();
@@ -151,7 +151,7 @@ namespace MTConnect.Configurations
                             else
                             {
                                 // Read Single Entity Format
-                                var device = Formatters.EntityFormatter.CreateDevice(documentFormatterId, contents).Entity;
+                                var device = Formatters.EntityFormatter.CreateDevice(documentFormatterId, contents).Content;
                                 if (device != null)
                                 {
                                     return new List<DeviceConfiguration> { new DeviceConfiguration(device, rootPath) };

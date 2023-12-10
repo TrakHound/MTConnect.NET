@@ -4,15 +4,16 @@
 using MTConnect.Assets;
 using MTConnect.Assets.CuttingTools;
 using MTConnect.Assets.Files;
-using MTConnect.Assets.Json;
 using MTConnect.Assets.Json.CuttingTools;
 using MTConnect.Assets.Json.Files;
 using MTConnect.Assets.Json.QIF;
 using MTConnect.Assets.Json.RawMaterials;
+using MTConnect.Assets.QIF;
 using MTConnect.Assets.RawMaterials;
 using MTConnect.Devices;
 using MTConnect.Devices.Json;
-using MTConnect.Observations;
+using MTConnect.Input;
+using MTConnect.Mqtt;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,20 +22,18 @@ using System.Text.Json;
 
 namespace MTConnect.Formatters
 {
-    public class JsonHttpEntityFormatter : IEntityFormatter
+    public class JsonInputFormatter : IInputFormatter
     {
-        public virtual string Id => "JSON-cppagent";
+        public string Id => "JSON";
 
-        public virtual string ContentType => "application/json";
+        public string ContentType => "application/json";
 
 
-        public FormatWriteResult Format(IDevice device, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatWriteResult Format(IDeviceInput device, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             if (device != null)
             {
-                var indentOuput = GetFormatterOption<bool>(options, "indentOutput");
-
-                var bytes = new JsonDevice(device).ToBytes(indentOuput);
+                var bytes = new JsonDevice(device.Device).ToBytes();
                 if (bytes != null)
                 {
                     return FormatWriteResult.Successful(bytes, ContentType);
@@ -44,61 +43,36 @@ namespace MTConnect.Formatters
             return FormatWriteResult.Error();
         }
 
-        public FormatWriteResult Format(IObservation observation, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatWriteResult Format(IEnumerable<IObservationInput> observations, IEnumerable<KeyValuePair<string, string>> options = null)
         {
+            if (!observations.IsNullOrEmpty())
+            {
+                var bytes = JsonFunctions.ConvertBytes(JsonInputObservationGroup.Create(observations));
+                if (bytes != null)
+                {
+                    return FormatWriteResult.Successful(bytes, ContentType);
+                }
+            }
+
             return FormatWriteResult.Error();
         }
 
-        public FormatWriteResult Format(IEnumerable<IObservation> observations, IEnumerable<KeyValuePair<string, string>> options = null)
-        {
-            return FormatWriteResult.Error();
-        }
-
-        public FormatWriteResult Format(IAsset asset, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatWriteResult Format(IAssetInput asset, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             if (asset != null)
             {
-                var assets = new JsonAssets();
+                byte[] bytes;
 
                 switch (asset.Type)
                 {
-                    case "CuttingTool":
-                        assets.CuttingTools = new List<JsonCuttingToolAsset>();
-                        assets.CuttingTools.Add(new JsonCuttingToolAsset(asset as CuttingToolAsset)); 
-                        break;
+                    case "CuttingTool": bytes = JsonFunctions.ConvertBytes(new JsonCuttingToolAsset(asset as CuttingToolAsset)); break;
+                    case "File": bytes = JsonFunctions.ConvertBytes(new JsonFileAsset(asset as FileAsset)); break;
+                    case "QIFDocumentWrapper": bytes = JsonFunctions.ConvertBytes(new JsonQIFDocumentWrapperAsset(asset as QIFDocumentWrapperAsset)); break;
+                    case "RawMaterial": bytes = JsonFunctions.ConvertBytes(new JsonRawMaterialAsset(asset as RawMaterialAsset)); break;
 
-                    case "File":
-                        assets.Files = new List<JsonFileAsset>();
-                        assets.Files.Add(new JsonFileAsset(asset as FileAsset));
-                        break;
-
-                    //case "QIFDocumentWrapper":
-                    //    assets. = new List<JsonCuttingToolAsset>();
-                    //    assets.CuttingTools.Add(new JsonCuttingToolAsset(asset as CuttingToolAsset));
-                    //    bytes = JsonFunctions.ConvertBytes(new JsonQIFDocumentWrapperAsset(asset as QIFDocumentWrapperAsset));
-                    //    break;
-
-                    case "RawMaterial":
-                        assets.RawMaterials = new List<JsonRawMaterialAsset>();
-                        assets.RawMaterials.Add(new JsonRawMaterialAsset(asset as RawMaterialAsset));
-                        break;
-
-                    //default:
-                    //    bytes = JsonFunctions.ConvertBytes(asset);
-                    //    break;
+                    default: bytes = JsonFunctions.ConvertBytes(asset); break;
                 }
 
-                //switch (asset.Type)
-                //{
-                //    case "CuttingTool": bytes = JsonFunctions.ConvertBytes(new JsonCuttingToolAsset(asset as CuttingToolAsset)); break;
-                //    case "File": bytes = JsonFunctions.ConvertBytes(new JsonFileAsset(asset as FileAsset)); break;
-                //    case "QIFDocumentWrapper": bytes = JsonFunctions.ConvertBytes(new JsonQIFDocumentWrapperAsset(asset as QIFDocumentWrapperAsset)); break;
-                //    case "RawMaterial": bytes = JsonFunctions.ConvertBytes(new JsonRawMaterialAsset(asset as RawMaterialAsset)); break;
-
-                //    default: bytes = JsonFunctions.ConvertBytes(asset); break;
-                //}
-
-                var bytes = JsonFunctions.ConvertBytes(assets);
                 if (bytes != null)
                 {
                     return FormatWriteResult.Successful(bytes, ContentType);
@@ -117,7 +91,7 @@ namespace MTConnect.Formatters
 
             try
             {
-                var jsonEntity = JsonSerializer.Deserialize<JsonDeviceContainer>(content);
+                var jsonEntity = JsonSerializer.Deserialize<JsonDevice>(content);
                 var entity = jsonEntity.ToDevice();
                 var success = entity != null;
 
@@ -128,7 +102,7 @@ namespace MTConnect.Formatters
             return new FormatReadResult<IDevice>();
         }
 
-        public FormatReadResult<IComponent> CreateComponent(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatReadResult<IEnumerable<IObservationInput>> CreateObservations(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var messages = new List<string>();
             var warnings = new List<string>();
@@ -136,53 +110,20 @@ namespace MTConnect.Formatters
 
             try
             {
-                //var jsonEntity = JsonSerializer.Deserialize<JsonComponent>(content);
-                //var entity = jsonEntity.ToComponent();
-                //var success = entity != null;
+                var jsonObservationGroups = JsonSerializer.Deserialize<IEnumerable<JsonInputObservationGroup>>(content);
+                var observationInputs = new List<IObservationInput>();
+                foreach (var jsonObservationGroup in jsonObservationGroups.OrderBy(o => o.Timestamp))
+                {
+                    observationInputs.AddRange(jsonObservationGroup.ToObservationInputs());
+                }
 
-                //return new FormattedEntityReadResult<IComponent>(entity, success, messages, warnings, errors);
+                var success = !observationInputs.IsNullOrEmpty();
+
+                return new FormatReadResult<IEnumerable<IObservationInput>>(observationInputs, success, messages, warnings, errors);
             }
             catch { }
 
-            return new FormatReadResult<IComponent>();
-        }
-
-        public FormatReadResult<IComposition> CreateComposition(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
-        {
-            var messages = new List<string>();
-            var warnings = new List<string>();
-            var errors = new List<string>();
-
-            try
-            {
-                var jsonEntity = JsonSerializer.Deserialize<JsonComposition>(content);
-                var entity = jsonEntity.ToComposition();
-                var success = entity != null;
-
-                return new FormatReadResult<IComposition>(entity, success, messages, warnings, errors);
-            }
-            catch { }
-
-            return new FormatReadResult<IComposition>();
-        }
-
-        public FormatReadResult<IDataItem> CreateDataItem(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
-        {
-            var messages = new List<string>();
-            var warnings = new List<string>();
-            var errors = new List<string>();
-
-            try
-            {
-                var jsonEntity = JsonSerializer.Deserialize<JsonDataItem>(content);
-                var entity = jsonEntity.ToDataItem();
-                var success = entity != null;
-
-                return new FormatReadResult<IDataItem>(entity, success, messages, warnings, errors);
-            }
-            catch { }
-
-            return new FormatReadResult<IDataItem>();
+            return new FormatReadResult<IEnumerable<IObservationInput>>();
         }
 
         public FormatReadResult<IAsset> CreateAsset(string assetType, byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)

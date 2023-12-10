@@ -15,29 +15,23 @@ namespace MTConnect.Formatters
         string ContentType { get; }
 
 
-        FormattedEntityWriteResult Format(IDevice device, IEnumerable<KeyValuePair<string, string>> options = null);
+        FormatWriteResult Format(IDevice device, IEnumerable<KeyValuePair<string, string>> options = null);
 
-        //FormattedEntityWriteResult Format(IComponent component, IEnumerable<KeyValuePair<string, string>> options = null);
+        FormatWriteResult Format(IObservation observation, IEnumerable<KeyValuePair<string, string>> options = null);
 
-        //FormattedEntityWriteResult Format(IComposition composition, IEnumerable<KeyValuePair<string, string>> options = null);
+        FormatWriteResult Format(IEnumerable<IObservation> observations, IEnumerable<KeyValuePair<string, string>> options = null);
 
-        //FormattedEntityWriteResult Format(IDataItem dataItem, IEnumerable<KeyValuePair<string, string>> options = null);
-
-        FormattedEntityWriteResult Format(IObservation observation, IEnumerable<KeyValuePair<string, string>> options = null);
-
-        FormattedEntityWriteResult Format(IEnumerable<IObservation> observations, IEnumerable<KeyValuePair<string, string>> options = null);
-
-        FormattedEntityWriteResult Format(IAsset asset, IEnumerable<KeyValuePair<string, string>> options = null);
+        FormatWriteResult Format(IAsset asset, IEnumerable<KeyValuePair<string, string>> options = null);
 
 
-        FormattedEntityReadResult<IDevice> CreateDevice(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null);
+        FormatReadResult<IDevice> CreateDevice(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null);
 
-        FormattedEntityReadResult<IComponent> CreateComponent(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null);
+        FormatReadResult<IComponent> CreateComponent(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null);
 
-        FormattedEntityReadResult<IComposition> CreateComposition(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null);
+        FormatReadResult<IComposition> CreateComposition(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null);
 
-        FormattedEntityReadResult<IDataItem> CreateDataItem(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null);
+        FormatReadResult<IDataItem> CreateDataItem(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null);
 
-        FormattedEntityReadResult<IAsset> CreateAsset(string assetType, byte[] content, IEnumerable<KeyValuePair<string, string>> options = null);
+        FormatReadResult<IAsset> CreateAsset(string assetType, byte[] content, IEnumerable<KeyValuePair<string, string>> options = null);
     }
 }

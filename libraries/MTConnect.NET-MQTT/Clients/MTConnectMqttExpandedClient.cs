@@ -681,7 +681,7 @@ namespace MTConnect.Clients
                     {
                         if (AssetReceived != null)
                         {
-                            AssetReceived.Invoke(deviceUuid, response.Entity);
+                            AssetReceived.Invoke(deviceUuid, response.Content);
                         }
                     }
                 }

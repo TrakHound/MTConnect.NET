@@ -434,7 +434,7 @@ namespace MTConnect.Clients
             var result = EntityFormatter.CreateDevice(_documentFormat, message.Payload);
             if (result.Success)
             {
-                var device = result.Entity;
+                var device = result.Content;
                 if (device != null && device.Uuid != null)
                 {
                     // Add to cached list
@@ -456,7 +456,7 @@ namespace MTConnect.Clients
                 var result = ResponseDocumentFormatter.CreateStreamsResponseDocument(_documentFormat, message.Payload);
                 if (result.Success)
                 {
-                    ProcessCurrentDocument(result.Document);
+                    ProcessCurrentDocument(result.Content);
                 }
             }
             //else
@@ -472,7 +472,7 @@ namespace MTConnect.Clients
                 var result = ResponseDocumentFormatter.CreateStreamsResponseDocument(_documentFormat, message.Payload);
                 if (result.Success)
                 {
-                    ProcessSampleDocument(result.Document);
+                    ProcessSampleDocument(result.Content);
                 }
             }
             //else
@@ -486,7 +486,7 @@ namespace MTConnect.Clients
             var result = ResponseDocumentFormatter.CreateAssetsResponseDocument(_documentFormat, message.Payload);
             if (result.Success)
             {
-                ProcessAssetsDocument(result.Document);
+                ProcessAssetsDocument(result.Content);
             }
         }
 
