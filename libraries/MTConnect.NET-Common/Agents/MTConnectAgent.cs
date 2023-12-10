@@ -753,11 +753,11 @@ namespace MTConnect.Agents
                 {
                     existingHash = StringFunctions.ToMD5HashBytes(existingObservations.Select(o => o.ChangeId).ToArray());
 
-                    var conditionLevel = observation.GetValue(ValueKeys.Level);
+                    var conditionLevelValue = observation.GetValue(ValueKeys.Level);
+                    var conditionLevel = conditionLevelValue.ConvertEnum<ConditionLevel>();
                     var nativeCode = observation.GetValue(ValueKeys.NativeCode);
 
-                    if (!(conditionLevel == ConditionLevel.NORMAL.ToString() && string.IsNullOrEmpty(nativeCode)) &&
-                        conditionLevel != ConditionLevel.UNAVAILABLE.ToString())
+                    if (!(conditionLevel == ConditionLevel.NORMAL && string.IsNullOrEmpty(nativeCode)) && conditionLevel != ConditionLevel.UNAVAILABLE)
                     {
                         var i = 0;
                         foreach (var existingObservation in existingObservations)
