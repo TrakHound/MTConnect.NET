@@ -529,7 +529,7 @@ namespace MTConnect.Applications
             _applicationLogger.Debug($"[Application] : Module Loaded : " + module.GetType().Name);
         }
 
-        private void ModuleLogReceived(object sender, MTConnectLogLevel logLevel, string message)
+        private void ModuleLogReceived(object sender, MTConnectLogLevel logLevel, string message, string logId = null)
         {
             if (!string.IsNullOrEmpty(message))
             {

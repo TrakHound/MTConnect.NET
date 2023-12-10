@@ -137,9 +137,9 @@ namespace MTConnect.Agents
             }
         }
 
-        private void HandleModuleLogReceived(object sender, MTConnectLogLevel logLevel, string message)
+        private void HandleModuleLogReceived(object sender, MTConnectLogLevel logLevel, string message, string logId = null)
         {
-            if (LogReceived != null) LogReceived.Invoke(sender, logLevel, message);
+            if (LogReceived != null) LogReceived.Invoke(sender, logLevel, message, logId);
         }
 
         private static string GetConfigurationTypeId(Type type)

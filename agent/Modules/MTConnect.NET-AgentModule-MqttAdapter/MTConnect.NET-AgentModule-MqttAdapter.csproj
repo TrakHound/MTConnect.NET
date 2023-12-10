@@ -58,11 +58,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="NLog" Version="5.1.0" />
-		<PackageReference Include="protobuf-net" Version="3.2.26" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<ProjectReference Include="..\..\..\libraries\MTConnect.NET-MQTT\MTConnect.NET-MQTT.csproj" />
 	</ItemGroup>
 

@@ -49,9 +49,9 @@ namespace MTConnect.Agents
         protected virtual void OnStop() { }
 
 
-        protected void Log(MTConnectLogLevel logLevel, string message)
+        protected void Log(MTConnectLogLevel logLevel, string message, string logId = null)
         {
-            if (LogReceived != null) LogReceived.Invoke(this, logLevel, message);
+            if (LogReceived != null) LogReceived.Invoke(this, logLevel, message, logId);
         }
     }
 }

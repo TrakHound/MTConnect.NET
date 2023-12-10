@@ -29,14 +29,16 @@ namespace MTConnect.Applications
         private const string DefaultServiceDisplayName = "MTConnect Agent";
         private const string DefaultServiceDescription = "MTConnect Agent to provide access to device information using the MTConnect Standard";
 
-        protected readonly Logger _applicationLogger = LogManager.GetLogger("application-logger");
-        protected readonly Logger _agentLogger = LogManager.GetLogger("agent-logger");
-        protected readonly Logger _agentMetricLogger = LogManager.GetLogger("agent-metric-logger");
-        protected readonly Logger _agentValidationLogger = LogManager.GetLogger("agent-validation-logger");
-        protected readonly Logger _moduleLogger = LogManager.GetLogger("module-logger");
-        protected readonly Logger _processorLogger = LogManager.GetLogger("processor-logger");
+        protected readonly Logger _applicationLogger = LogManager.GetLogger("application");
+        protected readonly Logger _agentLogger = LogManager.GetLogger("agent");
+        protected readonly Logger _agentMetricLogger = LogManager.GetLogger("agent-metrics");
+        protected readonly Logger _agentValidationLogger = LogManager.GetLogger("agent-validation");
+        protected readonly Logger _moduleLogger = LogManager.GetLogger("module");
+        protected readonly Logger _processorLogger = LogManager.GetLogger("processor");
 
         private readonly List<DeviceConfigurationFileWatcher> _deviceConfigurationWatchers = new List<DeviceConfigurationFileWatcher>();
+        private readonly Dictionary<string, Logger> _loggers = new Dictionary<string, Logger>();
+        private readonly object _lock = new object();
 
         protected LogLevel _logLevel = LogLevel.Debug;
         private MTConnectAgentBroker _mtconnectAgent;
@@ -364,7 +366,7 @@ namespace MTConnect.Applications
 
                 // Read Device Configuration Files
                 var devicesPath = configuration.Devices;
-                if (string.IsNullOrEmpty(devicesPath)) devicesPath = "devices";
+                //if (string.IsNullOrEmpty(devicesPath)) devicesPath = "devices";
                 var devices = DeviceConfiguration.FromFiles(devicesPath, DocumentFormat.XML);
                 if (!devices.IsNullOrEmpty())
                 {
@@ -632,31 +634,55 @@ namespace MTConnect.Applications
 
         private void ModuleLoaded(object sender, IMTConnectAgentModule module)
         {
-            _applicationLogger.Info($"[Application] : Module Loaded : " + module.Id);
+            _applicationLogger.Info($"Module Loaded : " + module.Id);
         }
 
-        private void ModuleLogReceived(object sender, MTConnectLogLevel logLevel, string message)
+        private void ModuleLogReceived(object sender, MTConnectLogLevel logLevel, string message, string logId = null)
         {
             if (!string.IsNullOrEmpty(message))
             {
+                var module = (IMTConnectAgentModule)sender;
+
+                var loggerId = logId;
+                if (string.IsNullOrEmpty(loggerId)) loggerId = module.Id;
+                loggerId = $"modules.{loggerId.Replace(' ', '-')}".ToLower();
+
+                Logger logger;
+                lock (_lock)
+                {
+                    _loggers.TryGetValue(loggerId, out logger);
+                    if (logger == null)
+                    {
+                        logger = LogManager.GetLogger(loggerId);
+                        _loggers.Add(loggerId, logger);
+                    }
+                }
+
+                var logEvent = new LogEventInfo();
+                logEvent.LoggerName = loggerId;
+                //logEvent.Properties["logId"] = loggerId;
+                logEvent.Message = message;
+
                 switch (logLevel)
                 {
-                    case MTConnectLogLevel.Fatal: _moduleLogger.Fatal(message); break;
-                    case MTConnectLogLevel.Error: _moduleLogger.Error(message); break;
-                    case MTConnectLogLevel.Warning: _moduleLogger.Warn(message); break;
-                    case MTConnectLogLevel.Information: _moduleLogger.Info(message); break;
-                    case MTConnectLogLevel.Debug: _moduleLogger.Debug(message); break;
-                    case MTConnectLogLevel.Trace: _moduleLogger.Trace(message); break;
+                    case MTConnectLogLevel.Fatal: logEvent.Level = LogLevel.Fatal; break;
+                    case MTConnectLogLevel.Error: logEvent.Level = LogLevel.Error; break;
+                    case MTConnectLogLevel.Warning: logEvent.Level = LogLevel.Warn; break;
+                    case MTConnectLogLevel.Information: logEvent.Level = LogLevel.Info; break;
+                    case MTConnectLogLevel.Debug: logEvent.Level = LogLevel.Debug; break;
+                    case MTConnectLogLevel.Trace: logEvent.Level = LogLevel.Trace; break;
                 }
+
+                logger.Log(logEvent);
             }
         }
 
         private void ProcessorLoaded(object sender, IMTConnectAgentProcessor processor)
         {
-            _applicationLogger.Info($"[Application] : Processor Loaded : " + processor.Id);
+            _applicationLogger.Info($"Processor Loaded : " + processor.Id);
         }
 
-        private void ProcessorLogReceived(object sender, MTConnectLogLevel logLevel, string message)
+        private void ProcessorLogReceived(object sender, MTConnectLogLevel logLevel, string message, string logId = null)
         {
             if (!string.IsNullOrEmpty(message))
             {
@@ -674,25 +700,25 @@ namespace MTConnect.Applications
 
         private void DevicesRequested(string deviceName)
         {
-            _agentLogger.Debug($"[Agent] : MTConnectDevices Requested : " + deviceName);
+            _agentLogger.Debug($"MTConnectDevices Requested : " + deviceName);
         }
 
         private void DevicesSent(IDevicesResponseDocument document)
         {
             if (document != null && document.Header != null)
             {
-                _agentLogger.Log(_logLevel, $"[Agent] : MTConnectDevices Sent : " + document.Header.CreationTime);
+                _agentLogger.Log(_logLevel, $"MTConnectDevices Sent : " + document.Header.CreationTime);
             }
         }
 
         private void StreamsRequested(string deviceName)
         {
-            _agentLogger.Debug($"[Agent] : MTConnectStreams Requested : " + deviceName);
+            _agentLogger.Debug($"MTConnectStreams Requested : " + deviceName);
         }
 
         private void StreamsSent(object sender, EventArgs args)
         {
-            _agentLogger.Log(_logLevel, "[Agent] : MTConnectStreams Sent");
+            _agentLogger.Log(_logLevel, "MTConnectStreams Sent");
         }
 
         private void AssetsRequested(IEnumerable<string> assetIds)
@@ -703,12 +729,12 @@ namespace MTConnect.Applications
                 string.Join(";", assetIds.ToArray());
             }
 
-            _agentLogger.Debug($"[Agent] : MTConnectAssets Requested : AssetIds = " + ids);
+            _agentLogger.Debug($"MTConnectAssets Requested : AssetIds = {ids}");
         }
 
         private void DeviceAssetsRequested(string deviceUuid)
         {
-            _agentLogger.Debug($"[Agent] : MTConnectAssets Requested : DeviceUuid = " + deviceUuid);
+            _agentLogger.Debug($"MTConnectAssets Requested : DeviceUuid = {deviceUuid}");
         }
 
 
@@ -716,18 +742,18 @@ namespace MTConnect.Applications
         {
             if (document != null && document.Header != null)
             {
-                _agentLogger.Log(_logLevel, $"[Agent] : MTConnectAssets Sent : " + document.Header.CreationTime);
+                _agentLogger.Log(_logLevel, $"MTConnectAssets Sent : {document.Header.CreationTime}");
             }
         }
 
         private void AssetBufferStarted(object sender, EventArgs args)
         {
-            _agentLogger.Info($"[Agent] : Loading Assets from File Buffer...");
+            _agentLogger.Info($"Loading Assets from File Buffer...");
         }
 
         private void AssetBufferCompleted(object sender, AssetBufferLoadArgs args)
         {
-            _agentLogger.Info($"[Agent] : {args.Count} Assets Loaded from File Buffer in ({TimeSpan.FromMilliseconds(args.Duration).TotalSeconds}s)");
+            _agentLogger.Info($"{args.Count} Assets Loaded from File Buffer in ({TimeSpan.FromMilliseconds(args.Duration).TotalSeconds}s)");
         }
 
 
@@ -737,55 +763,55 @@ namespace MTConnect.Applications
             {
                 foreach (var value in observation.Values)
                 {
-                    _agentLogger.Debug($"[Agent] : Observation Added Successfully : {observation.DeviceUuid} : {observation.DataItemId} : {value.Key} = {value.Value}");
+                    _agentLogger.Debug($"Observation Added Successfully : {observation.DeviceUuid} : {observation.DataItemId} : {value.Key} = {value.Value}");
                 }
             }
         }
 
         private void ObservationBufferStarted(object sender, EventArgs args)
         {
-            _agentLogger.Info($"[Agent] : Loading Observations from File Buffer...");
+            _agentLogger.Info($"Loading Observations from File Buffer...");
         }
 
         private void ObservationBufferCompleted(object sender, ObservationBufferLoadArgs args)
         {
-            _agentLogger.Info($"[Agent] : {args.Count} Observations Loaded from File Buffer in ({TimeSpan.FromMilliseconds(args.Duration).TotalSeconds}s)");
+            _agentLogger.Info($"{args.Count} Observations Loaded from File Buffer in ({TimeSpan.FromMilliseconds(args.Duration).TotalSeconds}s)");
         }
 
         private void ObservationBufferRetentionCompleted(object sender, ObservationBufferRetentionArgs args)
         {
-            _agentLogger.Debug($"[Agent] : Observations File Buffer Retention : Removing ({args.From} - {args.To})");
+            _agentLogger.Debug($"Observations File Buffer Retention : Removing ({args.From} - {args.To})");
 
             if (args.Count > 0)
             {
-                _agentLogger.Debug($"[Agent] : Observations File Buffer Retention : {args.Count} Buffer Files Removed in ({TimeSpan.FromMilliseconds(args.Duration).TotalSeconds}s)");
+                _agentLogger.Debug($"Observations File Buffer Retention : {args.Count} Buffer Files Removed in ({TimeSpan.FromMilliseconds(args.Duration).TotalSeconds}s)");
             }
         }
 
 
         private void InvalidComponent(string deviceUuid, IComponent component, ValidationResult result)
         {
-            _agentValidationLogger.Warn($"[Agent-Validation] : {deviceUuid} : ComponentId = {component.Id} : {result.Message}");
+            _agentValidationLogger.Warn($"{deviceUuid} : ComponentId = {component.Id} : {result.Message}");
         }
 
         private void InvalidComposition(string deviceUuid, IComposition composition, ValidationResult result)
         {
-            _agentValidationLogger.Warn($"[Agent-Validation] : {deviceUuid} : CompositionId = {composition.Id} : {result.Message}");
+            _agentValidationLogger.Warn($"{deviceUuid} : CompositionId = {composition.Id} : {result.Message}");
         }
 
         private void InvalidDataItem(string deviceUuid, IDataItem dataItem, ValidationResult result)
         {
-            _agentValidationLogger.Warn($"[Agent-Validation] : {deviceUuid} : DataItemId = {dataItem.Id} : {result.Message}");
+            _agentValidationLogger.Warn($"{deviceUuid} : DataItemId = {dataItem.Id} : {result.Message}");
         }
 
         private void InvalidObservation(string deviceUuid, string dataItemKey, ValidationResult result)
         {
-            _agentValidationLogger.Warn($"[Agent-Validation] : {deviceUuid} : DataItemKey = {dataItemKey} : {result.Message}");
+            _agentValidationLogger.Warn($"{deviceUuid} : DataItemKey = {dataItemKey} : {result.Message}");
         }
 
         private void InvalidAsset(IAsset asset, AssetValidationResult result)
         {
-            _agentValidationLogger.Warn($"[Agent-Validation] : {result.Message}");
+            _agentValidationLogger.Warn($"{result.Message}");
         }
 
         #endregion

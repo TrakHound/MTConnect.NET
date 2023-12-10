@@ -7,7 +7,7 @@ using MTConnect.Configurations;
 using MTConnect.Devices;
 using MTConnect.Devices.Components;
 using MTConnect.Devices.DataItems;
-using NLog;
+using MTConnect.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,8 +19,6 @@ namespace MTConnect.Modules
         public const string ConfigurationTypeId = "shdr-adapter";
         private const string ModuleId = "SHDR Adapter";
 
-        private readonly Logger _adapterLogger = LogManager.GetLogger("adapter-logger");
-        private readonly Logger _adapterShdrLogger = LogManager.GetLogger("adapter-shdr-logger");
         private readonly ModuleConfiguration _configuration;
         private readonly IMTConnectAgentBroker _mtconnectAgent;
         private readonly List<ShdrAdapterClient> _adapters = new List<ShdrAdapterClient>();
@@ -132,7 +130,7 @@ namespace MTConnect.Modules
             var dataItemId = DataItem.CreateId(adapterClient.Id, ConnectionStatusDataItem.NameId);
             _mtconnectAgent.AddObservation(_mtconnectAgent.Uuid, dataItemId, Observations.Events.ConnectionStatus.ESTABLISHED);
 
-            _adapterLogger.Info($"[SHDR-Adapter] : ID = " + adapterClient.Id + " : " + message);
+            Log(MTConnectLogLevel.Information, $"ID = " + adapterClient.Id + " : " + message);
         }
 
         private void AdapterDisconnected(object sender, string message)
@@ -142,13 +140,13 @@ namespace MTConnect.Modules
             var dataItemId = DataItem.CreateId(adapterClient.Id, ConnectionStatusDataItem.NameId);
             _mtconnectAgent.AddObservation(_mtconnectAgent.Uuid, dataItemId, Observations.Events.ConnectionStatus.CLOSED);
 
-            _adapterLogger.Info($"[SHDR-Adapter] : ID = " + adapterClient.Id + " : " + message);
+            Log(MTConnectLogLevel.Information, $"ID = " + adapterClient.Id + " : " + message);
         }
 
         private void AdapterConnectionError(object sender, Exception exception)
         {
             var adapterClient = (ShdrAdapterClient)sender;
-            _adapterLogger.Info($"[SHDR-Adapter] : ID = " + adapterClient.Id + " : " + exception.Message);
+            Log(MTConnectLogLevel.Information, $"ID = " + adapterClient.Id + " : " + exception.Message);
         }
 
         private void AdapterListening(object sender, string message)
@@ -158,25 +156,25 @@ namespace MTConnect.Modules
             var dataItemId = DataItem.CreateId(adapterClient.Id, ConnectionStatusDataItem.NameId);
             _mtconnectAgent.AddObservation(_mtconnectAgent.Uuid, dataItemId, Observations.Events.ConnectionStatus.LISTEN);
 
-            _adapterLogger.Info($"[SHDR-Adapter] : ID = " + adapterClient.Id + " : " + message);
+            Log(MTConnectLogLevel.Information, $"ID = " + adapterClient.Id + " : " + message);
         }
 
         private void AdapterPingSent(object sender, string message)
         {
             var adapterClient = (ShdrAdapterClient)sender;
-            _adapterLogger.Info($"[SHDR-Adapter] : ID = " + adapterClient.Id + " : " + message);
+            Log(MTConnectLogLevel.Debug, $"ID = " + adapterClient.Id + " : " + message);
         }
 
         private void AdapterPongReceived(object sender, string message)
         {
             var adapterClient = (ShdrAdapterClient)sender;
-            _adapterLogger.Info($"[SHDR-Adapter] : ID = " + adapterClient.Id + " : " + message);
+            Log(MTConnectLogLevel.Debug, $"ID = " + adapterClient.Id + " : " + message);
         }
 
         private void AdapterProtocolReceived(object sender, string message)
         {
             var adapterClient = (ShdrAdapterClient)sender;
-            _adapterShdrLogger.Trace($"[SHDR-Adapter] : ID = " + adapterClient.Id + " : " + message);
+            Log(MTConnectLogLevel.Trace, $"ID = " + adapterClient.Id + " : " + message);
         }
     }
 }

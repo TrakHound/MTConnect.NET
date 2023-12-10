@@ -185,16 +185,16 @@ namespace MTConnect
                         var publishResult = await _mqttClient.PublishAsync(message);
                         if (publishResult.IsSuccess)
                         {
-                            Log(MTConnectLogLevel.Debug, $"[MQTT-Relay] : Probe : Published to Topic ({topic})");
+                            Log(MTConnectLogLevel.Debug, $"Probe : Published to Topic ({topic})");
                         }
                         else
                         {
-                            Log(MTConnectLogLevel.Warning, $"[MQTT-Relay] : Probe : Error Publishing to Topic ({topic}) : {publishResult.ReasonCode} : {publishResult.ReasonString}");
+                            Log(MTConnectLogLevel.Warning, $"Probe : Error Publishing to Topic ({topic}) : {publishResult.ReasonCode} : {publishResult.ReasonString}");
                         }
                     }
                     catch (Exception ex)
                     {
-                        Log(MTConnectLogLevel.Warning, $"[MQTT-Relay] : Probe : Error Publishing to Topic ({topic}) : {ex.Message}");
+                        Log(MTConnectLogLevel.Warning, $"Probe : Error Publishing to Topic ({topic}) : {ex.Message}");
                     }
                 }
             }
@@ -223,16 +223,16 @@ namespace MTConnect
                         var publishResult = await _mqttClient.PublishAsync(message);
                         if (publishResult.IsSuccess)
                         {
-                            Log(MTConnectLogLevel.Debug, $"[MQTT-Relay] : Current : Published to Topic ({topic})");
+                            Log(MTConnectLogLevel.Debug, $"Current : Published to Topic ({topic})");
                         }
                         else
                         {
-                            Log(MTConnectLogLevel.Warning, $"[MQTT-Relay] : Current : Error Publishing to Topic ({topic}) : {publishResult.ReasonCode} : {publishResult.ReasonString}");
+                            Log(MTConnectLogLevel.Warning, $"Current : Error Publishing to Topic ({topic}) : {publishResult.ReasonCode} : {publishResult.ReasonString}");
                         }
                     }
                     catch (Exception ex)
                     {
-                        Log(MTConnectLogLevel.Warning, $"[MQTT-Relay] : Current : Error Publishing to Topic ({topic}) : {ex.Message}");
+                        Log(MTConnectLogLevel.Warning, $"Current : Error Publishing to Topic ({topic}) : {ex.Message}");
                     }
                 }
             }
@@ -261,16 +261,16 @@ namespace MTConnect
                         var publishResult = await _mqttClient.PublishAsync(message);
                         if (publishResult.IsSuccess)
                         {
-                            Log(MTConnectLogLevel.Debug, $"[MQTT-Relay] : Sample : Published to Topic ({topic})");
+                            Log(MTConnectLogLevel.Debug, $"Sample : Published to Topic ({topic})");
                         }
                         else
                         {
-                            Log(MTConnectLogLevel.Warning, $"[MQTT-Relay] : Sample : Error Publishing to Topic ({topic}) : {publishResult.ReasonCode} : {publishResult.ReasonString}");
+                            Log(MTConnectLogLevel.Warning, $"Sample : Error Publishing to Topic ({topic}) : {publishResult.ReasonCode} : {publishResult.ReasonString}");
                         }
                     }
                     catch (Exception ex)
                     {
-                        Log(MTConnectLogLevel.Warning, $"[MQTT-Relay] : Sample : Error Publishing to Topic ({topic}) : {ex.Message}");
+                        Log(MTConnectLogLevel.Warning, $"Sample : Error Publishing to Topic ({topic}) : {ex.Message}");
                     }
                 }
             }
@@ -298,16 +298,16 @@ namespace MTConnect
                             var publishResult = await _mqttClient.PublishAsync(message);
                             if (publishResult.IsSuccess)
                             {
-                                Log(MTConnectLogLevel.Debug, $"[MQTT-Relay] : Asset : Published to Topic ({topic})");
+                                Log(MTConnectLogLevel.Debug, $"Asset : Published to Topic ({topic})");
                             }
                             else
                             {
-                                Log(MTConnectLogLevel.Warning, $"[MQTT-Relay] : Asset : Error Publishing to Topic ({topic}) : {publishResult.ReasonCode} : {publishResult.ReasonString}");
+                                Log(MTConnectLogLevel.Warning, $"Asset : Error Publishing to Topic ({topic}) : {publishResult.ReasonCode} : {publishResult.ReasonString}");
                             }
                         }
                         catch (Exception ex)
                         {
-                            Log(MTConnectLogLevel.Warning, $"[MQTT-Relay] : Asset : Error Publishing to Topic ({topic}) : {ex.Message}");
+                            Log(MTConnectLogLevel.Warning, $"Asset : Error Publishing to Topic ({topic}) : {ex.Message}");
                         }
                     }
                 }

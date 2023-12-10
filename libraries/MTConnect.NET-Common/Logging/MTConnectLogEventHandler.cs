@@ -3,5 +3,5 @@
 
 namespace MTConnect.Logging
 {
-    public delegate void MTConnectLogEventHandler(object sender, MTConnectLogLevel logLevel, string message);
+    public delegate void MTConnectLogEventHandler(object sender, MTConnectLogLevel logLevel, string message, string logId = null);
 }
