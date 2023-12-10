@@ -23,174 +23,76 @@ MTConnect.NET-MQTT is an extension library to MTConnect.NET that provides an MQT
     </tbody>
 </table>
 
-# Topic Structures
-`Document` - Topics are the same as HTTP (Probe, Current, Sample, & Assets). Payloads are the corresponding MTConnect Response Documents. This provides a simple protocol that is performance based for applications with high frequency updates.
+## Protocols
 
-`Entity` - Topics are expanded where each Entity has it's own topic. This provides an easy to read interface for tools such as NodeRed, etc.
+[Output](https://github.com/TrakHound/MTConnect.NET/tree/master/libraries/MTConnect.NET-MQTT/README.md#Output) - Protocol for reading the output of an MTConnect Agent
+
+[Input](https://github.com/TrakHound/MTConnect.NET/tree/master/libraries/MTConnect.NET-MQTT/README.md#Input) - Protocol for publishing data from a Data Source to an MTConnect Agent
+
+# Output
+
+## Topic Structures
+
+The **Document Topic Structure** uses the standard MTConnect Response documents as message payload and the standard MTConnect API endpoints as topics.
+
+`[TOPIC_PREFIX]/Probe/[DEVICE_UUID]` - The topic where MTConnectDevices Response documents are published
+
+`[TOPIC_PREFIX]/Current/[DEVICE_UUID]` - The topic where MTConnectStreams Response documents are published at the configured **CurrentInterval**
+
+`[TOPIC_PREFIX]/Sample/[DEVICE_UUID]` - The topic where MTConnectStreams Response documents are published at the the configured **SampleInterval** when new data is added to the Agent
+
+`[TOPIC_PREFIX]/Asset/[DEVICE_UUID]/[ASSET_ID]` - The topic where MTConnectAssets Response documents are published
 
 
-## Document Topic Structure
+## Protocol
 
+### Probe
+Each device is sent in an MTConnectDevices Response document. The message is published upon Agent start/restart or when a Device is changed or a new Device is added. 
 
-## Entity Topic Structure
-
-
-
-## Devices
-The **MTConnect/Devices** topics are used to send data that is in an MTConnectDevicesResponse document.
-
+#### Topic
 ```
-MTConnect/Devices/[DEVICE_UUID]/Device
-```
-
-### Device Observations
-Observations may use the **MTConnectMqttFormat.Flat** or **MTConnectMqttFormat.Hierarchy** option to specify how the topics are structured.
-
-MTConnectMqttFormat.Flat Format:
-```
-MTConnect/Devices/[DEVICE_UUID]/Observations/[DATA_ITEM_ID]
-```
-
-MTConnectMqttFormat.Hierarchy Format:
-```
-MTConnect/Devices/[DEVICE_UUID]/Observations/[COMPONENT_TYPE]/[COMPONENT_ID]/[DATA_ITEM_CATEGORY]/[DATA_ITEM_TYPE]/[DATA_ITEM_ID]
-MTConnect/Devices/[DEVICE_UUID]/Observations/[COMPONENT_TYPE]/[COMPONENT_ID]/[DATA_ITEM_CATEGORY]/[DATA_ITEM_TYPE]/SubTypes/[DATA_ITEM_SUBTYPE]/[DATA_ITEM_ID]
+[TOPIC_PREFIX]/Probe/[DEVICE_UUID]
 ```
 
-The "Flat" format is typically used for brokers that limit the topic depth (number of forward slash "/" characters). For example, AWS IoT Core.
+#### Payload
+The payload currently defaults to use the **json-cppagent** Document Format ID.
 
-#### Device Condition Observations
-Condition messages are sent as an array of Observations since a Condition may have multiple Fault States. This is similar to how the Current request functions in an HTTP Agent.
+> See example MTConnectDevices Response Document Payload: (https://github.com/TrakHound/MTConnect.NET/tree/master/libraries/MTConnect.NET-JSON-cppagent/Examples/MTConnectDevicesResponseDocument.json)
 
-### Device Assets
+
+### Current
+
+#### Topic
 ```
-MTConnect/Devices/[DEVICE_UUID]/Assets/[ASSET_TYPE]/[ASSET_ID]
-```
-
-### Topic Structure (MTConnectMqttFormat.Flat)
-
-> [Node] = (Payload)
-
-```bash
-- MTConnect
-   ─ Devices
-      ─ [DEVICE_UUID]
-        - Device = (JSON)
-        - Observations
-          - [DATA_ITEM_ID] = (JSON Array)
-          - [DATA_ITEM_ID] = (JSON Array)
-          - [DATA_ITEM_ID] = (JSON Array)
-        - Assets
-          - [ASSET_TYPE]
-            - [ASSET_ID] = (JSON)
+[TOPIC_PREFIX]/Current/[DEVICE_UUID]
 ```
 
-### Example
-```bash
-- MTConnect
-   ─ Devices
-      ─ OKUMA.Lathe.123456
-        - Device
-        - Observations
-          - L2avail = {"dataItemId":"L2avail","name":"avail","type":"AVAILABILITY","timestamp":"2023-02-07T20:02:26.8978653Z","result":"AVAILABLE"}
-          - L2estop = {"dataItemId":"L2estop","name":"estop","type":"EMERGENCY_STOP","timestamp":"2023-02-07T20:02:26.8978653Z","result":"ARMED"}
-          - L2p1execution = {"dataItemId":"L2p1execution","name":"p1execution","type":"EXECUTION","timestamp":"2023-02-07T20:02:26.7671421Z","result":"UNAVAILABLE"}
-          - L2p1system = [{"level":"WARNING","dataItemId":"L2p1system","name":"p1system","type":"SYSTEM","timestamp":"2023-02-07T20:30:16.8639659Z","result":"Not Found","nativeCode":"404"},{"level":"FAULT","dataItemId":"L2p1system","name":"p1system","type":"SYSTEM","timestamp":"2023-02-07T20:30:38.9662297Z","result":"Interval Error","nativeCode":"500"}]         
-        - Assets
-          - CuttingTool
-            - 5.12 = {"assetId":"5.12","type":"CuttingTool","timestamp":"2023-02-07T13:36:04.7288143Z","deviceUuid":"OKUMA.Lathe.123456","serialNumber":"12345678946","toolId":"12","cuttingToolLifeCycle":{"cutterStatus":["AVAILABLE","NEW","MEASURED"],"location":{"type":"SPINDLE"},"programToolGroup":"5","programToolNumber":"12","measurements":[{"type":"FunctionalLength","value":7.6543,"units":"MILLIMETER","code":"LF"},{"type":"CuttingDiameterMax","value":0.375,"units":"MILLIMETER","code":"DC"}]}}
+#### Payload
+The payload currently defaults to use the **json-cppagent** Document Format ID.
+
+> See example MTConnectDevices Response Document Payload: (https://github.com/TrakHound/MTConnect.NET/tree/master/libraries/MTConnect.NET-JSON-cppagent/Examples/MTConnectStreamsResponseDocument.json)
+
+### Sample
+
+#### Topic
+```
+[TOPIC_PREFIX]/Sample/[DEVICE_UUID]
 ```
 
-### Topic Structure (MTConnectMqttFormat.Hierarchy)
+#### Payload
+The payload currently defaults to use the **json-cppagent** Document Format ID.
 
-> [Node] = (Payload)
+> See example MTConnectDevices Response Document Payload: (https://github.com/TrakHound/MTConnect.NET/tree/master/libraries/MTConnect.NET-JSON-cppagent/Examples/MTConnectStreamsResponseDocument.json)
 
-```bash
-- MTConnect
-   ─ Devices
-      ─ [DEVICE_UUID]
-        - Device = (JSON)
-        - Observations
-          - [COMPONENT_TYPE]
-            - [COMPONENT_ID]
-              - Events
-                - [DATA_ITEM_TYPE]
-                  - [DATA_ITEM_ID] = (JSON)
-                  - SubTypes
-                    - [DATA_ITEM_SUBTYPE]
-                      - [DATA_ITEM_ID] = (JSON)
-              - Samples
-                - [DATA_ITEM_TYPE]
-                  - [DATA_ITEM_ID] = (JSON)
-              - Conditions
-                - [DATA_ITEM_TYPE]
-                  - [DATA_ITEM_ID] = (JSON Array)
-        - Assets
-          - [ASSET_TYPE]
-            - [ASSET_ID] = (JSON)
+### Asset
+```
+[TOPIC_PREFIX]/Asset/[DEVICE_UUID]/[ASSET_ID]
 ```
 
-### Example
-```bash
-- MTConnect
-   ─ Devices
-      ─ OKUMA.Lathe.123456
-        - Device
-        - Observations
-          - Device
-            - OKUMA.Lathe
-              - Events
-                - AVAILABILITY
-                  - L2avail = {"dataItemId":"L2avail","name":"avail","type":"AVAILABILITY","timestamp":"2023-02-07T20:02:26.8978653Z","result":"AVAILABLE"}
-                - ASSET_CHANGED
-                  - OKUMA.Lathe_assetCount = {"dataItemId":"OKUMA.Lathe_assetCount","name":"assetCount","type":"ASSET_COUNT","timestamp":"2023-02-07T20:02:26.7671421Z","result":"UNAVAILABLE","count":0}
-          - Controller
-            - L2ct1
-              - Events
-                - EMERGENCY_STOP
-                  - L2estop = {"dataItemId":"L2estop","name":"estop","type":"EMERGENCY_STOP","timestamp":"2023-02-07T20:02:26.8978653Z","result":"ARMED"}
-          - Path
-            - L2p1
-              - Events
-                - EXECUTION
-                  - L2p1execution = {"dataItemId":"L2p1execution","name":"p1execution","type":"EXECUTION","timestamp":"2023-02-07T20:02:26.7671421Z","result":"UNAVAILABLE"}
-              - Conditions
-                - SYSTEM
-                  - L2p1system = [{"level":"WARNING","dataItemId":"L2p1system","name":"p1system","type":"SYSTEM","timestamp":"2023-02-07T20:30:16.8639659Z","result":"Not Found","nativeCode":"404"},{"level":"FAULT","dataItemId":"L2p1system","name":"p1system","type":"SYSTEM","timestamp":"2023-02-07T20:30:38.9662297Z","result":"Interval Error","nativeCode":"500"}]
-              - Samples
-                - PATH_FEEDRATE
-                  - SubTypes
-                    - ACTUAL
-                      - L2p1Fact = {"dataItemId":"L2p1Fact","name":"p1Fact","type":"PATH_FEEDRATE","subType":"ACTUAL","timestamp":"2023-02-07T20:02:26.7671421Z","result":"UNAVAILABLE"}
-        - Assets
-          - CuttingTool
-            - 5.12 = {"assetId":"5.12","type":"CuttingTool","timestamp":"2023-02-07T13:36:04.7288143Z","deviceUuid":"OKUMA.Lathe.123456","serialNumber":"12345678946","toolId":"12","cuttingToolLifeCycle":{"cutterStatus":["AVAILABLE","NEW","MEASURED"],"location":{"type":"SPINDLE"},"programToolGroup":"5","programToolNumber":"12","measurements":[{"type":"FunctionalLength","value":7.6543,"units":"MILLIMETER","code":"LF"},{"type":"CuttingDiameterMax","value":0.375,"units":"MILLIMETER","code":"DC"}]}}
-```
+#### Payload
+The payload currently defaults to use the **json-cppagent** Document Format ID.
 
-## Assets
-```
-MTConnect/Assets/[ASSET_TYPE]/[ASSET_ID]
-```
-> Note: Assets are sent to two topics. One for the "Global" assets and one for the Device that the Asset was added to
+> See example MTConnectDevices Response Document Payload: (https://github.com/TrakHound/MTConnect.NET/tree/master/libraries/MTConnect.NET-JSON-cppagent/Examples/MTConnectStreamsResponseDocument.json)
 
-### Topic Structure
-
-> [Node] = (Payload)
-
-```bash
-- MTConnect
-   ─ Assets
-      ─ [ASSET_TYPE]
-        - [ASSET_ID] = (JSON)
-```
-
-### Example
-```bash
-- MTConnect
-  - Assets
-      - CuttingTool
-      - 5.12 = {"assetId":"5.12","type":"CuttingTool","timestamp":"2023-02-07T13:36:04.7288143Z","deviceUuid":"OKUMA.Lathe.123456","serialNumber":"12345678946","toolId":"12","cuttingToolLifeCycle":{"cutterStatus":["AVAILABLE","NEW","MEASURED"],"location":{"type":"SPINDLE"},"programToolGroup":"5","programToolNumber":"12","measurements":[{"type":"FunctionalLength","value":7.6543,"units":"MILLIMETER","code":"LF"},{"type":"CuttingDiameterMax","value":0.375,"units":"MILLIMETER","code":"DC"}]}}
-```
-
-## More Information
-More information can be found in the MQTT-Protocol document (https://github.com/TrakHound/MTConnect.NET/blob/master/docs/MQTT-Protocol.md).
+# Input
+The input protocol is used to publish data to an MTConnect Agent using MQTT. This can be either publishing to an external MQTT broker or to the internal MQTT broker (using the MqttBroker Agent Module).
