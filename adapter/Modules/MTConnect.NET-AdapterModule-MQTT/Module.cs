@@ -5,16 +5,14 @@ using MQTTnet;
 using MQTTnet.Client;
 using MTConnect.Adapters;
 using MTConnect.Configurations;
+using MTConnect.Formatters;
 using MTConnect.Input;
 using MTConnect.Logging;
-using MTConnect.Mqtt;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using System.Linq;
 using System.Security.Cryptography.X509Certificates;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -24,7 +22,7 @@ namespace MTConnect
     {
         public const string ConfigurationTypeId = "mqtt";
 
-        private readonly MqttAdapterModuleConfiguration _configuration;
+        private readonly ModuleConfiguration _configuration;
         private readonly MqttFactory _mqttFactory;
         private readonly IMqttClient _mqttClient;
         private CancellationTokenSource _stop;
@@ -35,8 +33,8 @@ namespace MTConnect
             _mqttFactory = new MqttFactory();
             _mqttClient = _mqttFactory.CreateMqttClient();
 
-            _configuration = AdapterApplicationConfiguration.GetConfiguration<MqttAdapterModuleConfiguration>(moduleConfiguration);
-            if (_configuration == null) _configuration = new MqttAdapterModuleConfiguration();
+            _configuration = AdapterApplicationConfiguration.GetConfiguration<ModuleConfiguration>(moduleConfiguration);
+            if (_configuration == null) _configuration = new ModuleConfiguration();
         }
 
 
@@ -154,48 +152,20 @@ namespace MTConnect
         {
             if (_mqttClient != null && !observations.IsNullOrEmpty())
             {
-                var mqttModels = new List<MTConnectMqttInputModel>();
-
-                var timestamps = observations.Select(o => o.Timestamp).Distinct();
-                foreach (var timestamp in timestamps)
+                var formatResult = InputFormatter.Format(_configuration.DocumentFormat, observations);
+                if (formatResult.Success)
                 {
-                    var timestampObservations = observations.Where(o => o.Timestamp == timestamp);
+                    var payload = formatResult.Content;
+                    Console.WriteLine($"JSON = {(double)payload.Length / 1000}kb");
 
-                    var mqttModel = new MTConnectMqttInputModel();
-                    mqttModel.Timestamp = timestamp.ToDateTime();
-                    
-                    foreach (var observation in timestampObservations)
-                    {
-                        var mqttObservation = new MTConnectMqttInputObservation(observation.DataItemKey, observation.Values.ToDictionary(o => o.Key, o => o.Value));
-                        mqttModel.Observations.Add(mqttObservation);
+                    //var payload = CompressPayload(formatResult.Content);
+                    //Console.WriteLine($"JSON-gzip = {(double)payload.Length / 1000}kb");
 
-                        //mqttModel.Observations.Add(observation.DataItemKey, observation.Values.ToDictionary(o => o.Key, o => o.Value));
-                    }
-
-                    mqttModels.Add(mqttModel);
+                    var message = new MqttApplicationMessage();
+                    message.Topic = $"{_configuration.Topic}/{_configuration.DeviceKey}/observations-gzip";
+                    message.Payload = payload;
+                    _mqttClient.PublishAsync(message);
                 }
-
-
-                var json = JsonSerializer.Serialize(mqttModels);
-                //Console.WriteLine(json);
-
-                var utf8 = System.Text.Encoding.UTF8.GetBytes(json);
-                Console.WriteLine($"JSON = {(double)utf8.Length / 1000}kb");
-                //Console.WriteLine($"JSON = {utf8.Length / 1000}");
-
-                var payload = CompressPayload(utf8);
-                Console.WriteLine($"JSON-gzip = {(double)payload.Length / 1000}kb");
-                //Console.WriteLine($"JSON-gzip = {payload.Length / 1000}");
-
-                var message = new MqttApplicationMessage();
-                message.Topic = $"{_configuration.Topic}/{_configuration.DeviceKey}/observations-gzip";
-                message.Payload = payload;
-                _mqttClient.PublishAsync(message);
-
-                //var message2 = new MqttApplicationMessage();
-                //message2.Topic = $"{_configuration.Topic}/{_configuration.DeviceKey}/observations";
-                //message2.Payload = utf8;
-                //_mqttClient.PublishAsync(message2);
             }
 
             return true;

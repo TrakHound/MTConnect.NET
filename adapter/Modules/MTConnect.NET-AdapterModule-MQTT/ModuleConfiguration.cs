@@ -3,7 +3,7 @@
 
 namespace MTConnect.Configurations
 {
-    public class MqttAdapterModuleConfiguration
+    public class ModuleConfiguration
     {
         public string Server { get; set; }
 
@@ -35,13 +35,16 @@ namespace MTConnect.Configurations
 
         public string DeviceKey { get; set; }
 
+        public string DocumentFormat { get; set; }
 
-        public MqttAdapterModuleConfiguration()
+
+        public ModuleConfiguration()
         {
             Server = "localhost";
             Port = 7878;
             ConnectionTimeout = 5000;
             ReconnectInterval = 10000;
+            DocumentFormat = "json";
         }
     }
 }
