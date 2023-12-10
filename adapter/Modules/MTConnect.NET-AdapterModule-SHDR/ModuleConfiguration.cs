@@ -3,7 +3,7 @@
 
 namespace MTConnect.Configurations
 {
-    public class ShdrAdapterModuleConfiguration
+    public class ModuleConfiguration
     {
         /// <summary>
         /// The host the adapter is located on.
@@ -33,7 +33,7 @@ namespace MTConnect.Configurations
         public int ReconnectInterval { get; set; }
 
 
-        public ShdrAdapterModuleConfiguration()
+        public ModuleConfiguration()
         {
             Hostname = "localhost";
             Port = 7878;

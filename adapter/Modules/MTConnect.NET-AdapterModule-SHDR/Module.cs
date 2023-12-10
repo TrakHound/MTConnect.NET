@@ -21,7 +21,7 @@ namespace MTConnect
         public const string ConfigurationTypeId = "shdr";
 
         private readonly object _lock = new object();
-        private readonly ShdrAdapterModuleConfiguration _configuration;
+        private readonly ModuleConfiguration _configuration;
         private readonly AgentClientConnectionListener _connectionListener;
         private readonly Dictionary<string, AgentClient> _clients = new Dictionary<string, AgentClient>();
         private CancellationTokenSource _stop;
@@ -29,8 +29,8 @@ namespace MTConnect
 
         public Module(string id, object moduleConfiguration) : base(id)
         {
-            _configuration = AdapterApplicationConfiguration.GetConfiguration<ShdrAdapterModuleConfiguration>(moduleConfiguration);
-            if (_configuration == null) _configuration = new ShdrAdapterModuleConfiguration();
+            _configuration = AdapterApplicationConfiguration.GetConfiguration<ModuleConfiguration>(moduleConfiguration);
+            if (_configuration == null) _configuration = new ModuleConfiguration();
 
             _connectionListener = new AgentClientConnectionListener(_configuration.Port, _configuration.Heartbeat);
             _connectionListener.ClientConnected += AgentClientConnected;
