@@ -17,6 +17,9 @@ namespace MTConnect.Agents
         public event MTConnectLogEventHandler LogReceived;
 
 
+        public virtual void Load() { }
+
+
         public IObservationInput Process(ProcessObservation observation) => OnProcess(observation);
 
         public IAsset Process(IAsset asset) => OnProcess(asset);

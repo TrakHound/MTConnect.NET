@@ -122,7 +122,7 @@ namespace MTConnect.Applications
             var configuration = OnConfigurationFileRead(configFile);
             if (configuration != null)
             {
-                _agentLogger.Info($"Configuration File Read Successfully from: {configuration.Path}");
+                _applicationLogger.Info($"Configuration File Read Successfully from: {configuration.Path}");
 
                 // Set Service Name
                 if (!string.IsNullOrEmpty(configuration.ServiceName)) serviceDisplayName = configuration.ServiceName;
@@ -132,7 +132,7 @@ namespace MTConnect.Applications
             }
             else
             {
-                _agentLogger.Warn("Error Reading Configuration File. Default Configuration is loaded.");
+                _applicationLogger.Warn("Error Reading Configuration File. Default Configuration is loaded.");
 
                 configuration = new AgentApplicationConfiguration();
             }
@@ -561,16 +561,16 @@ namespace MTConnect.Applications
                     var observationAverage = _mtconnectAgent.Metrics.ObservationAverage;
                     observationDelta = observationCount - observationLastCount;
 
-                    _agentMetricLogger.Info("[Agent] : Observations - Delta for last " + updateInterval + " seconds: " + observationDelta);
-                    _agentMetricLogger.Info("[Agent] : Observations - Average for last " + windowInterval + " minutes: " + Math.Round(observationAverage, 5));
+                    _agentMetricLogger.Debug("Observations - Delta for last " + updateInterval + " seconds: " + observationDelta);
+                    _agentMetricLogger.Debug("Observations - Average for last " + windowInterval + " minutes: " + Math.Round(observationAverage, 5));
 
                     // Assets
                     var assetCount = _mtconnectAgent.Metrics.GetAssetCount();
                     var assetAverage = _mtconnectAgent.Metrics.AssetAverage;
                     assetDelta = assetCount - assetLastCount;
 
-                    _agentMetricLogger.Info("[Agent] : Assets - Delta for last " + updateInterval + " seconds: " + assetDelta);
-                    _agentMetricLogger.Info("[Agent] : Assets - Average for last " + windowInterval + " minutes: " + Math.Round(assetAverage, 5));
+                    _agentMetricLogger.Debug("Assets - Delta for last " + updateInterval + " seconds: " + assetDelta);
+                    _agentMetricLogger.Debug("Assets - Average for last " + windowInterval + " minutes: " + Math.Round(assetAverage, 5));
 
                     observationLastCount = observationCount;
                     assetLastCount = assetCount;
@@ -660,7 +660,6 @@ namespace MTConnect.Applications
 
                 var logEvent = new LogEventInfo();
                 logEvent.LoggerName = loggerId;
-                //logEvent.Properties["logId"] = loggerId;
                 logEvent.Message = message;
 
                 switch (logLevel)
@@ -686,15 +685,38 @@ namespace MTConnect.Applications
         {
             if (!string.IsNullOrEmpty(message))
             {
+                var processor = (IMTConnectAgentProcessor)sender;
+
+                var loggerId = logId;
+                if (string.IsNullOrEmpty(loggerId)) loggerId = processor.Id;
+                loggerId = $"processors.{loggerId.Replace(' ', '-')}".ToLower();
+
+                Logger logger;
+                lock (_lock)
+                {
+                    _loggers.TryGetValue(loggerId, out logger);
+                    if (logger == null)
+                    {
+                        logger = LogManager.GetLogger(loggerId);
+                        _loggers.Add(loggerId, logger);
+                    }
+                }
+
+                var logEvent = new LogEventInfo();
+                logEvent.LoggerName = loggerId;
+                logEvent.Message = message;
+
                 switch (logLevel)
                 {
-                    case MTConnectLogLevel.Fatal: _processorLogger.Fatal(message); break;
-                    case MTConnectLogLevel.Error: _processorLogger.Error(message); break;
-                    case MTConnectLogLevel.Warning: _processorLogger.Warn(message); break;
-                    case MTConnectLogLevel.Information: _processorLogger.Info(message); break;
-                    case MTConnectLogLevel.Debug: _processorLogger.Debug(message); break;
-                    case MTConnectLogLevel.Trace: _processorLogger.Trace(message); break;
+                    case MTConnectLogLevel.Fatal: logEvent.Level = LogLevel.Fatal; break;
+                    case MTConnectLogLevel.Error: logEvent.Level = LogLevel.Error; break;
+                    case MTConnectLogLevel.Warning: logEvent.Level = LogLevel.Warn; break;
+                    case MTConnectLogLevel.Information: logEvent.Level = LogLevel.Info; break;
+                    case MTConnectLogLevel.Debug: logEvent.Level = LogLevel.Debug; break;
+                    case MTConnectLogLevel.Trace: logEvent.Level = LogLevel.Trace; break;
                 }
+
+                logger.Log(logEvent);
             }
         }
 

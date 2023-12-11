@@ -53,6 +53,7 @@ namespace MTConnect.Agents
                                     // Create new Instance of the Controller and add to cached dictionary
                                     var processor = (IMTConnectAgentProcessor)Activator.CreateInstance(processorType, new object[] { processorConfiguration });
                                     processor.LogReceived += HandleProcessorLogReceived;
+                                    processor.Load();
 
                                     var processorId = Guid.NewGuid().ToString();
 

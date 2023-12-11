@@ -17,6 +17,9 @@ namespace MTConnect.Agents
         event MTConnectLogEventHandler LogReceived;
 
 
+        void Load();
+
+
         IObservationInput Process(ProcessObservation observation);
 
         IAsset Process(IAsset asset);

@@ -38,13 +38,11 @@ namespace MTConnect.Processors
             _configuration = AgentApplicationConfiguration.GetConfiguration<ProcessorConfiguration>(configuration);
             if (_configuration == null) _configuration = new ProcessorConfiguration();
 
-            Load();
-
             StartWatcher();
         }
 
 
-        private void Load()
+        public override void Load()
         {
             lock (_lock) _functions.Clear();
 
@@ -75,14 +73,14 @@ namespace MTConnect.Processors
                 var process = scope.GetVariable<Func<ProcessObservation, ProcessObservation>>(_functionName);
                 if (process != null)
                 {
-                    Log(Logging.MTConnectLogLevel.Information, $"[Python-Processor] : Script Loaded : {file}");
+                    Log(Logging.MTConnectLogLevel.Debug, $"Python Script Loaded : {file}");
 
                     AddFunction(file, process);
                 }
             }
             catch (Exception ex)
             {
-                Log(Logging.MTConnectLogLevel.Error, $"[Python-Processor] : Error Loading Script : {file} : {ex.Message}");
+                Log(Logging.MTConnectLogLevel.Error, $"Error Loading Python Script : {file} : {ex.Message}");
             }
         }
 
@@ -111,7 +109,7 @@ namespace MTConnect.Processors
                             }
                             catch (Exception ex)
                             {
-                                Log(Logging.MTConnectLogLevel.Error, $"[Python-Processor] : Process Error : {functionKey} : {ex.Message}");
+                                Log(Logging.MTConnectLogLevel.Error, $"Process Error : {functionKey} : {ex.Message}");
                             }
                         }
                     }
@@ -121,7 +119,7 @@ namespace MTConnect.Processors
             }
             catch (Exception ex)
             {
-                Log(Logging.MTConnectLogLevel.Error, $"[Python-Processor] : Error During Process : {ex.Message}");
+                Log(Logging.MTConnectLogLevel.Error, $"Error During Process : {ex.Message}");
             }
 
             if (outputObservation != null)
