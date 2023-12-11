@@ -29,6 +29,9 @@ This Agent Module implements a MTConnect REST Protocol Http server
     allowPut: true
     indentOutput: true
     documentFormat: xml
+    accept:
+      text/xml: xml
+      application/json: json-cppagent
     responseCompression:
     - gzip
     - br
@@ -44,6 +47,8 @@ This Agent Module implements a MTConnect REST Protocol Http server
 * `hostname` - The server IP Address or Hostname to bind to.
 
 * `port` - The port number the agent binds to for requests.
+
+* `accept` - Maps HTTP Accept Headers to the corresponding Document Format ID
 
 * `responseCompression` - Sets the List of Encodings (ex. gzip, br, deflate) to pass to the Accept-Encoding HTTP Header
 
@@ -114,6 +119,15 @@ Specify the port and hostname with TLS (PFX Certificate)
       pfx:
         certificatePath: c:\certs\mtconnect-testing.pfx
         certificatePassword: mtconnect
+```
+
+### Example 5
+Specify with custom Accept headers
+```yaml
+ - http-server:
+    accept:
+      text/xml: xml
+      application/json: json-cppagent
 ```
 
 

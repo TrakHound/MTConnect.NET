@@ -1,7 +1,9 @@
-﻿using MTConnect.Http;
+﻿// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// TrakHound Inc. licenses this file to you under the MIT license.
+
+using MTConnect.Http;
 using MTConnect.Tls;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
 
 namespace MTConnect.Configurations
 {
@@ -17,7 +19,15 @@ namespace MTConnect.Configurations
         /// </summary>
         string Server { get; set; }
 
+        /// <summary>
+        /// Gets or Sets the TLS settings
+        /// </summary>
         TlsConfiguration Tls { get; set; }
+
+        /// <summary>
+        /// Maps HTTP Accept Headers to the corresponding Document Format ID
+        /// </summary>
+        Dictionary<string, string> Accept { get; set; }
 
         /// <summary>
         /// Gets or Sets the List of Encodings (ex. gzip, br, deflate) to pass to the Accept-Encoding HTTP Header
@@ -33,11 +43,6 @@ namespace MTConnect.Configurations
         /// Allow HTTP PUT or POST from a specific host or list of hosts. 
         /// </summary>
         IEnumerable<string> AllowPutFrom { get; set; }
-
-        ///// <summary>
-        ///// The maximum number of Threads to use for the Http Stream Requests
-        ///// </summary>
-        //int MaxStreamingThreads { get; set; }
 
 
         /// <summary>

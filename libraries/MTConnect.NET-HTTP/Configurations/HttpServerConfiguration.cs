@@ -1,4 +1,7 @@
-﻿using MTConnect.Http;
+﻿// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// TrakHound Inc. licenses this file to you under the MIT license.
+
+using MTConnect.Http;
 using MTConnect.Tls;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
@@ -25,6 +28,12 @@ namespace MTConnect.Configurations
         /// </summary>
         [JsonPropertyName("tls")]
         public TlsConfiguration Tls { get; set; }
+
+        /// <summary>
+        /// Maps HTTP Accept Headers to the corresponding Document Format ID
+        /// </summary>
+        [JsonPropertyName("accept")]
+        public Dictionary<string, string> Accept { get; set; }
 
         /// <summary>
         /// Gets or Sets the List of Encodings (ex. gzip, br, deflate) to pass to the Accept-Encoding HTTP Header
@@ -127,9 +136,14 @@ namespace MTConnect.Configurations
         {
             Server = null;
             Port = 5000;
+
+            Accept = new Dictionary<string, string>();
+            Accept["text/xml"] = "XML";
+            Accept["application/xml"] = "XML";
+            Accept["application/json"] = "JSON";
+
             AllowPut = false;
             AllowPutFrom = null;
-            //MaxStreamingThreads = 5;
             IndentOutput = true;
             OutputComments = false;
             OutputValidationLevel = OutputValidationLevel.Ignore;

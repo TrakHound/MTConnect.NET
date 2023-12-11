@@ -36,9 +36,12 @@ namespace MTConnect.Servers.Http
                 if (version == null) version = _mtconnectAgent.MTConnectVersion;
 
                 // Read DocumentFormat from Query string
-                var documentFormatString = httpRequest.QueryString["documentFormat"];
-                var documentFormat = _serverConfiguration.DocumentFormat;
-                if (!string.IsNullOrEmpty(documentFormatString)) documentFormat = documentFormatString;
+                var documentFormat = httpRequest.QueryString["documentFormat"];
+                if (string.IsNullOrEmpty(documentFormat) && !_serverConfiguration.Accept.IsNullOrEmpty() && httpRequest.Headers["Accept"] != null)
+                {
+                    if (_serverConfiguration.Accept.ContainsKey(httpRequest.Headers["Accept"])) documentFormat = _serverConfiguration.Accept[httpRequest.Headers["Accept"]];
+                }
+                if (string.IsNullOrEmpty(documentFormat)) documentFormat = _serverConfiguration.DocumentFormat;
 
                 // Read ValidationLevel from Query string
                 int validationLevel = (int)_serverConfiguration.OutputValidationLevel;
