@@ -23,30 +23,53 @@ namespace MTConnect.Observations
                 var entryValues = values.Where(o => o.Key != null && o.Key.StartsWith(ValueKeys.TablePrefix));
                 if (!entryValues.IsNullOrEmpty())
                 {
-                    var keys = entryValues.Select(o => ValueKeys.GetTableKey(o.Key)).Distinct();
-                    if (!keys.IsNullOrEmpty())
-                    {
-                        foreach (var key in keys)
-                        {
-                            var keyValues = entryValues.Where(o => ValueKeys.GetTableKey(o.Key) == key);
-                            if (!keyValues.IsNullOrEmpty())
-                            {
-                                var removed = keyValues.Select(o => o.Value).Contains(EntryRemovedValue);
-                                if (removed)
-                                {
-                                    entries.Add(new TableEntry(key, true));
-                                }
-                                else
-                                {
-                                    var cells = new List<TableCell>();
-                                    foreach (var keyValue in keyValues)
-                                    {
-                                        cells.Add(new TableCell(ValueKeys.GetTableValue(keyValue.Key, key), keyValue.Value));
-                                    }
+                    var tempEntries = new Dictionary<string, Dictionary<string, string>>();
+                    var emptyKeys = new List<string>();
 
-                                    entries.Add(new TableEntry(key, cells));
-                                }
+                    foreach (var entryValue in entryValues)
+                    {
+                        var tableKey = ValueKeys.GetTableKey(entryValue.Key);
+                        var tableCellKey = ValueKeys.GetTableCellKey(entryValue.Key);
+
+                        if (tableKey != null && tableCellKey != null)
+                        {
+                            Dictionary<string, string> entry;
+                            if (tempEntries.ContainsKey(tableKey)) entry = tempEntries[tableKey];
+                            else
+                            {
+                                entry = new Dictionary<string, string>();
+                                tempEntries[tableKey] = entry;
                             }
+
+                            if (!entry.ContainsKey(tableCellKey))
+                            {
+                                entry[tableCellKey] = entryValue.Value;
+                            }
+                        }
+                        else if (tableKey != null)
+                        {
+                            if (entryValue.Value == EntryRemovedValue && !emptyKeys.Contains(tableKey)) emptyKeys.Add(tableKey);
+                        }
+                    }
+
+                    foreach (var tempEntry in tempEntries)
+                    {
+                        var tableKey = tempEntry.Key;
+                        var removed = emptyKeys.Contains(tempEntry.Key);
+
+                        if (removed)
+                        {
+                            entries.Add(new TableEntry(tableKey, true));
+                        }
+                        else
+                        {
+                            var cells = new List<ITableCell>();
+                            foreach (var cell in tempEntry.Value)
+                            {
+                                cells.Add(new TableCell(cell.Key, cell.Value));
+                            }
+
+                            entries.Add(new TableEntry(tableKey, cells));
                         }
                     }
                 }

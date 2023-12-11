@@ -10,6 +10,9 @@ namespace MTConnect.Observations
     /// </summary>
     public class SampleTableObservation : SampleObservation, ISampleTableObservation
     {
+        private IEnumerable<ITableEntry> _entries;
+
+
         /// <summary>
         /// The number of Entry elements for the observation.
         /// </summary>
@@ -20,7 +23,11 @@ namespace MTConnect.Observations
         /// </summary>
         public IEnumerable<ITableEntry> Entries
         {
-            get => TableObservation.GetEntries(Values);
+            get
+            {
+                if (_entries == null) _entries = TableObservation.GetEntries(Values);
+                return _entries;
+            }
             set => AddValues(TableObservation.SetEntries(value));
         }
 
@@ -28,6 +35,12 @@ namespace MTConnect.Observations
         public SampleTableObservation() : base()
         {
             _representation = Devices.DataItemRepresentation.TABLE;
+        }
+
+
+        protected override void OnValueAdded(ObservationValue observationValue)
+        {
+            _entries = null;
         }
     }
 }

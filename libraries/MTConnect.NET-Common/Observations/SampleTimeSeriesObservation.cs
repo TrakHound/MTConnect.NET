@@ -11,6 +11,9 @@ namespace MTConnect.Observations
     /// </summary>
     public class SampleTimeSeriesObservation : SampleObservation, ISampleTimeSeriesObservation
     {
+        private IEnumerable<double> _entries;
+
+
         /// <summary>
         /// The number of readings of the value of a data item provided in the data returned when the representation attribute for teh data item is TIME_SERIES.
         /// SampleCount is not provided for data items unless the representation attribute is TIME_SERIES and it MUST be specified when the attribute is TIME_SERIES.
@@ -22,12 +25,25 @@ namespace MTConnect.Observations
         /// At minimum, one of DataItem or observation MUST specify the sampleRate in hertz (values/second); fractional rates are permitted.
         /// When the observation and the DataItem specify the sampleRate, the observation sampleRate supersedes the DataItem.
         /// </summary>
-        public IEnumerable<double> Samples => TimeSeriesObservation.GetSamples(Values);
+        public IEnumerable<double> Samples
+        {
+            get
+            {
+                if (_entries == null) _entries = TimeSeriesObservation.GetSamples(Values);
+                return _entries;
+            }
+        }
 
 
         public SampleTimeSeriesObservation() : base()
         {
             _representation = Devices.DataItemRepresentation.TIME_SERIES;
+        }
+
+
+        protected override void OnValueAdded(ObservationValue observationValue)
+        {
+            _entries = null;
         }
     }
 }

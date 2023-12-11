@@ -35,12 +35,6 @@ namespace MTConnect.Observations
 
         private static readonly Regex _timeseriesIndexRegex = new Regex($@"{TimeSeriesPrefix}\[(\d*)\]", RegexOptions.Compiled);
 
-        private static readonly Regex _datasetKeyRegex = new Regex($@"{DataSetPrefix}\[(.*)\]", RegexOptions.Compiled);
-
-        private static readonly Regex _tableKeyRegex = new Regex($@"{TablePrefix}\[([^\[\]]*)\](?:\[[^\[\]]*\])?", RegexOptions.Compiled);
-        private static readonly Regex _tableCellKeyRegex = new Regex($@"{TablePrefix}\[([^\[\]]*)\]\[([^\[\]]*)\]", RegexOptions.Compiled);
-        private static readonly Regex _tableValueRegex = new Regex($@"{TablePrefix}\[.*\]\[(.*)\]", RegexOptions.Compiled);
-
 
         #region "TimeSeries"
 
@@ -78,12 +72,24 @@ namespace MTConnect.Observations
 
         public static string GetDataSetKey(string valueKey)
         {
-            if (!string.IsNullOrEmpty(valueKey))
+            if (!string.IsNullOrEmpty(valueKey) && valueKey.Length > DataSetPrefix.Length)
             {
-                var match = _datasetKeyRegex.Match(valueKey);
-                if (match.Success && match.Groups.Count > 0)
+                var s = 0;
+                var e = 0;
+
+                for (var i = DataSetPrefix.Length; i < valueKey.Length; i++)
                 {
-                    return match.Groups[1].Value;
+                    if (valueKey[i] == '[') s = i + 1;
+                    if (valueKey[i] == ']')
+                    {
+                        e = i;
+                        break;
+                    }
+                }
+
+                if (s > 0 && e > s)
+                {
+                    return valueKey.Substring(s, e - s);
                 }
             }
 
@@ -128,12 +134,24 @@ namespace MTConnect.Observations
 
         public static string GetTableKey(string valueKey)
         {
-            if (!string.IsNullOrEmpty(valueKey))
+            if (!string.IsNullOrEmpty(valueKey) && valueKey.Length > TablePrefix.Length)
             {
-                var match = _tableKeyRegex.Match(valueKey);
-                if (match.Success && match.Groups.Count > 0)
+                var s = 0;
+                var e = 0;
+
+                for (var i = TablePrefix.Length; i < valueKey.Length; i++)
                 {
-                    return match.Groups[1].Value;
+                    if (valueKey[i] == '[') s = i + 1;
+                    if (valueKey[i] == ']')
+                    {
+                        e = i;
+                        break;
+                    }
+                }
+
+                if (s > 0 && e > s)
+                {
+                    return valueKey.Substring(s, e - s);
                 }
             }
 
@@ -142,26 +160,26 @@ namespace MTConnect.Observations
 
         public static string GetTableCellKey(string valueKey)
         {
-            if (!string.IsNullOrEmpty(valueKey))
+            if (!string.IsNullOrEmpty(valueKey) && valueKey.Length > TablePrefix.Length)
             {
-                var match = _tableCellKeyRegex.Match(valueKey);
-                if (match.Success && match.Groups.Count > 1)
+                var s = 0;
+                var e = 0;
+                var keyRead = false;
+
+                for (var i = TablePrefix.Length; i < valueKey.Length; i++)
                 {
-                    return match.Groups[2].Value;
+                    if (valueKey[i] == '[') s = i + 1;
+                    if (valueKey[i] == ']')
+                    {
+                        e = i;
+                        if (keyRead) break;
+                        else keyRead = true;
+                    }
                 }
-            }
 
-            return null;
-        }
-
-        public static string GetTableValue(string valueKey, string cellKey)
-        {
-            if (!string.IsNullOrEmpty(valueKey) && !string.IsNullOrEmpty(cellKey))
-            {
-                var match = _tableValueRegex.Match(valueKey);
-                if (match.Success && match.Groups.Count > 0)
+                if (s > 0 && e > s)
                 {
-                    return match.Groups[1].Value;
+                    return valueKey.Substring(s, e - s);
                 }
             }
 

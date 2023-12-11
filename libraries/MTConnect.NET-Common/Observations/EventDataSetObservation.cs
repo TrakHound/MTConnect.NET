@@ -10,6 +10,9 @@ namespace MTConnect.Observations
     /// </summary>
     public class EventDataSetObservation : EventObservation, IEventDataSetObservation
     {
+        private IEnumerable<IDataSetEntry> _entries;
+
+
         /// <summary>
         /// The number of Entry elements for the observation.
         /// </summary>
@@ -20,7 +23,11 @@ namespace MTConnect.Observations
         /// </summary>
         public IEnumerable<IDataSetEntry> Entries
         {
-            get => DataSetObservation.GetEntries(Values);
+            get
+            {
+                if (_entries == null) _entries = DataSetObservation.GetEntries(Values);
+                return _entries;
+            }
             set => AddValues(DataSetObservation.SetEntries(value));
         }
 
@@ -28,6 +35,12 @@ namespace MTConnect.Observations
         public EventDataSetObservation() : base()
         {
             _representation = Devices.DataItemRepresentation.DATA_SET;
+        }
+
+
+        protected override void OnValueAdded(ObservationValue observationValue)
+        {
+            _entries = null;
         }
     }
 }

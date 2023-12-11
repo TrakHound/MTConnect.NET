@@ -238,6 +238,8 @@ namespace MTConnect.Observations
                         _values.Remove(observationValue.Key);
                         _values.Add(observationValue.Key, observationValue);
                     }
+
+                    OnValueAdded(observationValue);
                 }
                 catch { }
             }
@@ -253,6 +255,9 @@ namespace MTConnect.Observations
                 }
             }
         }
+
+
+        protected virtual void OnValueAdded(ObservationValue observationValue) { }
 
 
         public static string GetDescriptionText(DataItemCategory category, string type, string subType, string value)
