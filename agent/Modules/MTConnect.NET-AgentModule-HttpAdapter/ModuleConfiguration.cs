@@ -7,8 +7,6 @@ namespace MTConnect.Configurations
 {
     public class ModuleConfiguration : HttpClientConfiguration
     {
-        //public string ClientDeviceKey { get; set; }
-
         public Dictionary<string, DeviceMappingConfiguration> Devices { get; set; }
     }
 }

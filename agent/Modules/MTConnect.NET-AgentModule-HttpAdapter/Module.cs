@@ -22,7 +22,6 @@ namespace MTConnect.Modules
 
         private readonly ModuleConfiguration _configuration;
         private readonly IMTConnectAgentBroker _mtconnectAgent;
-        //private MTConnectHttpClient _agentClient;
         private readonly List<MTConnectHttpClient> _clients = new List<MTConnectHttpClient>();
         private readonly Dictionary<string, MTConnectClientInformation> _clientInformations = new Dictionary<string, MTConnectClientInformation>();
         private System.Timers.Timer _clientInformationTimer;
@@ -117,15 +116,11 @@ namespace MTConnect.Modules
 
                     _clients.Add(client);
                 }
-
-
             }
         }
 
         protected override void OnStop()
         {
-            //if (_agentClient != null) _agentClient.Stop();
-
             if (!_clients.IsNullOrEmpty()) foreach (var client in _clients) client.Stop();
         }
 
