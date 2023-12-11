@@ -17,6 +17,7 @@ namespace MTConnect.Configurations
 
         public int QoS { get; set; }
 
+
         public string CertificateAuthority { get; set; }
 
         public string PemCertificate { get; set; }
@@ -27,9 +28,11 @@ namespace MTConnect.Configurations
 
         public bool UseTls { get; set; }
 
+
         public int ConnectionTimeout { get; set; }
 
         public int ReconnectInterval { get; set; }
+
 
         public string Topic { get; set; }
 

@@ -80,7 +80,13 @@ namespace MTConnect
                     try
                     {
                         // Declare new MQTT Client Options with Tcp Server
-                        var clientOptionsBuilder = new MqttClientOptionsBuilder().WithTcpServer(_configuration.Server, _configuration.Port);
+                        var clientOptionsBuilder = new MqttClientOptionsBuilder();
+
+                        // Add TCP Server
+                        clientOptionsBuilder.WithTcpServer(_configuration.Server, _configuration.Port);
+
+                        // Publish Only so use Clean Session = true
+                        clientOptionsBuilder.WithCleanSession();
 
                         // Set Client ID
                         if (!string.IsNullOrEmpty(_configuration.ClientId))
@@ -99,14 +105,12 @@ namespace MTConnect
                         // Add Client Certificate & Private Key
                         if (!string.IsNullOrEmpty(_configuration.PemCertificate) && !string.IsNullOrEmpty(_configuration.PemPrivateKey))
                         {
-
 #if NET5_0_OR_GREATER
                             certificates.Add(new X509Certificate2(X509Certificate2.CreateFromPemFile(GetFilePath(_configuration.PemCertificate), GetFilePath(_configuration.PemPrivateKey)).Export(X509ContentType.Pfx)));
 #else
                             throw new Exception("PEM Certificates Not Supported in .NET Framework 4.8 or older");
 #endif
 
-                            clientOptionsBuilder.WithCleanSession();
                             clientOptionsBuilder.WithTls(new MqttClientOptionsBuilderTlsParameters()
                             {
                                 UseTls = true,

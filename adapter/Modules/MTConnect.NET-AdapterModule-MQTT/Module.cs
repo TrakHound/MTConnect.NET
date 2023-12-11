@@ -79,11 +79,10 @@ namespace MTConnect
                         // Add Client Certificate & Private Key
                         if (!string.IsNullOrEmpty(_configuration.PemCertificate) && !string.IsNullOrEmpty(_configuration.PemPrivateKey))
                         {
-
 #if NET5_0_OR_GREATER
                             certificates.Add(new X509Certificate2(X509Certificate2.CreateFromPemFile(GetFilePath(_configuration.PemCertificate), GetFilePath(_configuration.PemPrivateKey)).Export(X509ContentType.Pfx)));
 #else
-                    throw new Exception("PEM Certificates Not Supported in .NET Framework 4.8 or older");
+                            throw new Exception("PEM Certificates Not Supported in .NET Framework 4.8 or older");
 #endif
 
                             clientOptionsBuilder.WithTls(new MqttClientOptionsBuilderTlsParameters()
@@ -114,7 +113,7 @@ namespace MTConnect
                         var clientOptions = clientOptionsBuilder.Build();
 
                         // Connect to the MQTT Client
-                        _mqttClient.ConnectAsync(clientOptions).Wait();
+                        await _mqttClient.ConnectAsync(clientOptions);
 
                         Log(MTConnectLogLevel.Information, "MQTT Client Connected");
 
