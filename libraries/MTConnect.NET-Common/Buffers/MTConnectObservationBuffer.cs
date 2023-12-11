@@ -462,7 +462,7 @@ namespace MTConnect.Buffers
         /// <returns>An object that implements the IStreamingResults interface containing the query results</returns>
         public IObservationBufferResults GetObservations(IEnumerable<int> bufferKeys, long from = -1, long to = -1, int count = 100)
         {
-            if (!bufferKeys.IsNullOrEmpty())
+            if (_archiveObservations != null && !bufferKeys.IsNullOrEmpty())
             {
                 long now = UnixDateTime.Now;
                 long firstSequence = 0;
