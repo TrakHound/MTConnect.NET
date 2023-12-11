@@ -314,6 +314,10 @@ namespace MTConnect.Applications
 
                     _observationBuffer = observationBuffer;
                 }
+                else
+                {
+                    _observationBuffer = new MTConnectObservationBuffer(configuration);
+                }
 
                 if (!configuration.Durable || initializeDataItems)
                 {

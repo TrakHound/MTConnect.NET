@@ -181,12 +181,13 @@ namespace MTConnect.Agents
             long instanceId = 0,
             long deviceModelChangeTime = 0,
             bool initializeAgentDevice = true
-            ) : base(uuid, instanceId, deviceModelChangeTime, initializeAgentDevice)
+            ) : base(uuid, instanceId, deviceModelChangeTime, false)
         {
             var config = new AgentConfiguration();
             _observationBuffer = observationBuffer != null ? observationBuffer : new MTConnectObservationBuffer(config);
             _assetBuffer = assetBuffer != null ? assetBuffer : new MTConnectAssetBuffer(config);
             _assetBuffer.AssetRemoved += AssetRemovedFromBuffer;
+            InitializeAgentDevice(initializeAgentDevice);
         }
 
         public MTConnectAgentBroker(
@@ -197,12 +198,13 @@ namespace MTConnect.Agents
             long instanceId = 0,
             long deviceModelChangeTime = 0,
             bool initializeAgentDevice = true
-            ) : base(configuration, uuid, instanceId, deviceModelChangeTime, initializeAgentDevice)
+            ) : base(configuration, uuid, instanceId, deviceModelChangeTime, false)
         {
             var config = configuration != null ? configuration : new AgentConfiguration();
             _observationBuffer = observationBuffer != null ? observationBuffer : new MTConnectObservationBuffer(config);
             _assetBuffer = assetBuffer != null ? assetBuffer : new MTConnectAssetBuffer(config);
             _assetBuffer.AssetRemoved += AssetRemovedFromBuffer;
+            InitializeAgentDevice(initializeAgentDevice);
         }
 
         #endregion
