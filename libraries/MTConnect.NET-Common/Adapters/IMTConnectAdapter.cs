@@ -3,7 +3,6 @@
 
 using MTConnect.Input;
 using System;
-using System.Collections.Generic;
 
 namespace MTConnect.Adapters
 {

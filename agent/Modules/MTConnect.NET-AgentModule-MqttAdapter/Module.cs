@@ -26,23 +26,6 @@ namespace MTConnect.Modules
         private readonly IMTConnectAgentBroker _mtconnectAgent;
         private readonly MqttFactory _mqttFactory;
         private readonly IMqttClient _mqttClient;
-
-        private readonly string _server;
-        private readonly int _port;
-        private readonly int _qos;
-        private readonly int _interval;
-        private readonly int _retryInterval;
-        private readonly string _username;
-        private readonly string _password;
-        private readonly string _clientId;
-        private readonly string _caCertPath;
-        private readonly string _pemClientCertPath;
-        private readonly string _pemPrivateKeyPath;
-        private readonly bool _allowUntrustedCertificates;
-        private readonly bool _useTls;
-        private readonly string _topic;
-        private readonly string _deviceKey;
-
         private CancellationTokenSource _stop;
 
 
@@ -56,24 +39,6 @@ namespace MTConnect.Modules
             _mqttClient.ApplicationMessageReceivedAsync += MessageReceived;
 
             _configuration = AgentApplicationConfiguration.GetConfiguration<ModuleConfiguration>(configuration);
-            if (_configuration != null)
-            {
-                _server = _configuration.Server;
-                _port = _configuration.Port;
-                _interval = _configuration.Interval;
-                _retryInterval = _configuration.RetryInterval;
-                _qos = _configuration.QoS;
-                _username = _configuration.Username;
-                _password = _configuration.Password;
-                _clientId = _configuration.ClientId;
-                _caCertPath = _configuration.CertificateAuthority;
-                _pemClientCertPath = _configuration.PemCertificate;
-                _pemPrivateKeyPath = _configuration.PemPrivateKey;
-                _allowUntrustedCertificates = _configuration.AllowUntrustedCertificates;
-                _useTls = _configuration.UseTls;
-                _topic = _configuration.Topic;
-                _deviceKey = _configuration.DeviceKey;
-            }
         }
 
 
@@ -104,28 +69,28 @@ namespace MTConnect.Modules
                     try
                     {
                         // Declare new MQTT Client Options with Tcp Server
-                        var clientOptionsBuilder = new MqttClientOptionsBuilder().WithTcpServer(_server, _port);
+                        var clientOptionsBuilder = new MqttClientOptionsBuilder().WithTcpServer(_configuration.Server, _configuration.Port);
 
                         // Set Client ID
-                        if (!string.IsNullOrEmpty(_clientId))
+                        if (!string.IsNullOrEmpty(_configuration.ClientId))
                         {
-                            clientOptionsBuilder.WithClientId(_clientId);
+                            clientOptionsBuilder.WithClientId(_configuration.ClientId);
                         }
 
                         var certificates = new List<X509Certificate2>();
 
                         // Add CA (Certificate Authority)
-                        if (!string.IsNullOrEmpty(_caCertPath))
+                        if (!string.IsNullOrEmpty(_configuration.CertificateAuthority))
                         {
-                            certificates.Add(new X509Certificate2(GetFilePath(_caCertPath)));
+                            certificates.Add(new X509Certificate2(GetFilePath(_configuration.CertificateAuthority)));
                         }
 
                         // Add Client Certificate & Private Key
-                        if (!string.IsNullOrEmpty(_pemClientCertPath) && !string.IsNullOrEmpty(_pemPrivateKeyPath))
+                        if (!string.IsNullOrEmpty(_configuration.PemCertificate) && !string.IsNullOrEmpty(_configuration.PemPrivateKey))
                         {
 
 #if NET5_0_OR_GREATER
-                            certificates.Add(new X509Certificate2(X509Certificate2.CreateFromPemFile(GetFilePath(_pemClientCertPath), GetFilePath(_pemPrivateKeyPath)).Export(X509ContentType.Pfx)));
+                            certificates.Add(new X509Certificate2(X509Certificate2.CreateFromPemFile(GetFilePath(_configuration.PemCertificate), GetFilePath(_configuration.PemPrivateKey)).Export(X509ContentType.Pfx)));
 #else
                     throw new Exception("PEM Certificates Not Supported in .NET Framework 4.8 or older");
 #endif
@@ -134,23 +99,23 @@ namespace MTConnect.Modules
                             {
                                 UseTls = true,
                                 SslProtocol = System.Security.Authentication.SslProtocols.Tls12,
-                                IgnoreCertificateRevocationErrors = _allowUntrustedCertificates,
-                                IgnoreCertificateChainErrors = _allowUntrustedCertificates,
-                                AllowUntrustedCertificates = _allowUntrustedCertificates,
+                                IgnoreCertificateRevocationErrors = _configuration.AllowUntrustedCertificates,
+                                IgnoreCertificateChainErrors = _configuration.AllowUntrustedCertificates,
+                                AllowUntrustedCertificates = _configuration.AllowUntrustedCertificates,
                                 Certificates = certificates
                             });
                         }
 
                         // Add Credentials
-                        if (!string.IsNullOrEmpty(_username) && !string.IsNullOrEmpty(_password))
+                        if (!string.IsNullOrEmpty(_configuration.Username) && !string.IsNullOrEmpty(_configuration.Password))
                         {
-                            if (_useTls)
+                            if (_configuration.UseTls)
                             {
-                                clientOptionsBuilder.WithCredentials(_username, _password).WithTls();
+                                clientOptionsBuilder.WithCredentials(_configuration.Username, _configuration.Password).WithTls();
                             }
                             else
                             {
-                                clientOptionsBuilder.WithCredentials(_username, _password);
+                                clientOptionsBuilder.WithCredentials(_configuration.Username, _configuration.Password);
                             }
                         }
 
@@ -161,9 +126,9 @@ namespace MTConnect.Modules
                         _mqttClient.ConnectAsync(clientOptions).Wait();
 
 
-                        if (!string.IsNullOrEmpty(_topic))
+                        if (!string.IsNullOrEmpty(_configuration.Topic))
                         {
-                            await _mqttClient.SubscribeAsync($"{_topic}/#");
+                            await _mqttClient.SubscribeAsync($"{_configuration.Topic}/#");
                         }
                         else
                         {
@@ -183,7 +148,7 @@ namespace MTConnect.Modules
                         //if (ConnectionError != null) ConnectionError.Invoke(this, ex);
                     }
 
-                    await Task.Delay(_retryInterval, _stop.Token);
+                    await Task.Delay(_configuration.RetryInterval, _stop.Token);
                 }
                 catch (TaskCanceledException) { }
                 catch (Exception ex)
@@ -211,7 +176,7 @@ namespace MTConnect.Modules
                 var observations = ProcessPayload(args.ApplicationMessage.Payload);
                 if (!observations.IsNullOrEmpty())
                 {
-                    _mtconnectAgent.AddObservations(_deviceKey, observations);
+                    _mtconnectAgent.AddObservations(_configuration.DeviceKey, observations);
                 }
             }
 

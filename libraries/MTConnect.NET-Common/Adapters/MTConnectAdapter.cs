@@ -168,13 +168,6 @@ namespace MTConnect.Adapters
         public void SetUnavailable(long timestamp = 0)
         {
             SetObservationsUnavailable(timestamp);
-            //SetConditionObservationsUnavailable(timestamp);
-            //SetDataItemsUnavailable(timestamp);
-            //SetMessagesUnavailable(timestamp);
-            //SetConditionsUnavailable(timestamp);
-            //SetTimeSeriesUnavailable(timestamp);
-            //SetDataSetsUnavailable(timestamp);
-            //SetTablesUnavailable(timestamp);
         }
 
 
@@ -200,27 +193,6 @@ namespace MTConnect.Adapters
             return true;
         }
 
-
-        //protected bool Write(IConditionObservationInput observation)
-        //{
-        //    if (observation != null)
-        //    {
-        //        return Write(new List<IConditionObservationInput> { observation });
-        //    }
-
-        //    return false;
-        //}
-
-        //protected bool Write(IEnumerable<IConditionObservationInput> observations)
-        //{
-        //    if (WriteObservationsFunction != null)
-        //    {
-        //        return WriteConditionObservationsFunction(observations);
-        //    }
-
-        //    return true;
-        //}
-
         #endregion
 
         #region "Send"
@@ -232,18 +204,8 @@ namespace MTConnect.Adapters
         {
             bool success;
             success = WriteChangedObservations();
-            //WriteChangedConditionObservations();
-            //WriteChangedDataItems();
-            //WriteChangedMessages();
-            //WriteChangedConditions();
-            //WriteChangedTimeSeries();
-            //WriteChangedDataSets();
-            //WriteChangedTables();
             if (success) WriteChangedAssets();
             if (success) WriteChangedDevices();
-
-            // Call Overridable Method
-            //OnChangedSent();
 
             return success;
         }
@@ -255,19 +217,8 @@ namespace MTConnect.Adapters
         {
             bool success;
             success = WriteLastObservations(timestamp);
-            //WriteLastConditionObservations(timestamp);
-            //WriteLastDataItems(timestamp);
-            //WriteLastMessages(timestamp);
-            //WriteLastConditions(timestamp);
-            //WriteLastTimeSeries(timestamp);
-            //WriteLastDataSets(timestamp);
-            //WriteLastTables(timestamp);
             if (success) WriteAllAssets();
             if (success) WriteAllDevices();
-            //WriteAllDevices();
-
-            // Call Overridable Method
-            //OnLastSent();
 
             return success;
         }
@@ -277,20 +228,8 @@ namespace MTConnect.Adapters
         {
             bool success;
             success = WriteBufferObservations();
-            //WriteBufferConditionObservations();
-            //WriteChangedDataItems();
-            //WriteChangedMessages();
-            //WriteChangedConditions();
-            //WriteChangedTimeSeries();
-            //WriteChangedDataSets();
-            //WriteChangedTables();
-            //WriteChangedAssets();
-
             if (success) success = WriteChangedAssets();
             if (success) success = WriteChangedDevices();
-
-            //// Call Overridable Method
-            //OnChangedSent();
 
             return success;
         }
@@ -415,11 +354,6 @@ namespace MTConnect.Adapters
                 // Call Overridable Method
                 OnObservationAdd(newObservation);
 
-                //// Create SHDR string to send
-                //var sendItem = new ShdrDataItem(newObservation);
-                //if (!OutputTimestamps) sendItem.Timestamp = 0;
-                //var shdrLine = sendItem.ToString();
-
                 var success = Write(newObservation);
                 if (success)
                 {
@@ -450,8 +384,6 @@ namespace MTConnect.Adapters
             {
                 return true;
             }
-
-            return false;
         }
 
 
@@ -509,11 +441,11 @@ namespace MTConnect.Adapters
             if (!dataItems.IsNullOrEmpty())
             {
                 var success = Write(dataItems);
-                //if (success)
-                //{
-                // Update Last Sent DataItems
-                UpdateLastObservations(dataItems);
-                //}
+                if (success)
+                {
+                    // Update Last Sent DataItems
+                    UpdateLastObservations(dataItems);
+                }
 
                 return success;
             }
@@ -521,8 +453,6 @@ namespace MTConnect.Adapters
             {
                 return true;
             }
-
-            return false;
         }
 
         protected bool WriteLastObservations(long timestamp = 0)
@@ -541,14 +471,12 @@ namespace MTConnect.Adapters
                     sendItems.Add(sendItem);
                 }
 
-                // Create SHDR string to send
-                //var shdrLine = ShdrDataItem.ToString(sendItems);
                 var success = Write(sendItems);
-                //if (success)
-                //{
-                // Update Last Sent DataItems
-                UpdateLastObservations(dataItems);
-                //}
+                if (success)
+                {
+                    // Update Last Sent DataItems
+                    UpdateLastObservations(dataItems);
+                }
 
                 return success;
             }
@@ -556,8 +484,6 @@ namespace MTConnect.Adapters
             {
                 return true;
             }
-
-            return false;
         }
 
         public bool WriteBufferObservations(int count = 1000)
@@ -659,9 +585,6 @@ namespace MTConnect.Adapters
                         _lastAssets.Add(asset.AssetId, asset);
                     }
                 }
-
-                //var shdrLine = asset.ToString(MultilineAssets);
-                //WriteLine(shdrLine);
             }
         }
 
@@ -714,9 +637,6 @@ namespace MTConnect.Adapters
                         _currentAssets.Remove(newAsset.AssetId);
                         _currentAssets.Add(newAsset.AssetId, newAsset);
                     }
-
-                    // Call Overridable Method
-                    //OnAssetAdd(newAsset);
                 }
             }
         }
@@ -797,8 +717,6 @@ namespace MTConnect.Adapters
             {
                 return true;
             }
-
-            return false;
         }
 
         protected bool WriteAllAssets()
@@ -815,24 +733,12 @@ namespace MTConnect.Adapters
                     UpdateLastAsset(assets);
                 }
 
-                //bool success = false;
-
-                //foreach (var item in assets)
-                //{
-                //    // Create SHDR string to send
-                //    var shdrLine = item.ToString(MultilineAssets);
-                //    success = WriteLine(shdrLine);
-                //    if (!success) break;
-                //}
-
                 return success;
             }
             else
             {
                 return true;
             }
-
-            return false;
         }
 
 
@@ -946,9 +852,6 @@ namespace MTConnect.Adapters
                         _currentDevices.Remove(newDevice.DeviceKey);
                         _currentDevices.Add(newDevice.DeviceKey, newDevice);
                     }
-
-                    // Call Overridable Method
-                    //OnDeviceAdd(newDevice);
                 }
             }
         }
@@ -1029,8 +932,6 @@ namespace MTConnect.Adapters
             {
                 return true;
             }
-
-            return false;
         }
 
         protected bool WriteAllDevices()
@@ -1047,24 +948,12 @@ namespace MTConnect.Adapters
                     UpdateLastDevice(devices);
                 }
 
-                //bool success = false;
-
-                //foreach (var item in devices)
-                //{
-                //    // Create SHDR string to send
-                //    var shdrLine = item.ToString(MultilineDevices);
-                //    success = WriteLine(shdrLine);
-                //    if (!success) break;
-                //}
-
                 return success;
             }
             else
             {
                 return true;
             }
-
-            return false;
         }
 
 
@@ -1097,421 +986,6 @@ namespace MTConnect.Adapters
         }
 
         #endregion
-
-        //#region "Devices"
-
-        ///// <summary>
-        ///// Add the specified MTConnect Device to the queue to be written to the adapter stream
-        ///// </summary>
-        ///// <param name="device">The Device to add</param>
-        //public void AddDevice(Devices.IDevice device)
-        //{
-        //    AddDevice(new ShdrDevice(device));
-        //}
-
-        ///// <summary>
-        ///// Add the specified MTConnect Device to the queue to be written to the adapter stream
-        ///// </summary>
-        ///// <param name="device">The Device to add</param>
-        //private void AddDevice(ShdrDevice device)
-        //{
-        //    if (device != null)
-        //    {
-        //        lock (_lock)
-        //        {
-        //            // Check to see if Device already exists in list
-        //            var existing = _devices.FirstOrDefault(o => o.Key == device.DeviceUuid).Value;
-        //            if (existing == null)
-        //            {
-        //                _devices.Add(device.DeviceUuid, device);
-        //            }
-        //            else
-        //            {
-        //                if (existing.ChangeId != device.ChangeId)
-        //                {
-        //                    _devices.Remove(device.DeviceUuid);
-        //                    _devices.Add(device.DeviceUuid, device);
-        //                }
-        //            }
-        //        }
-
-        //        var shdrLine = device.ToString();
-        //        WriteLine(shdrLine);
-        //    }
-        //}
-
-        ///// <summary>
-        ///// Add the specified MTConnect Devices to the queue to be written to the adapter stream
-        ///// </summary>
-        ///// <param name="devices">The Devices to add</param>
-        //public void AddDevices(IEnumerable<Devices.IDevice> devices)
-        //{
-        //    if (!devices.IsNullOrEmpty())
-        //    {
-        //        var items = new List<ShdrDevice>();
-        //        foreach (var item in devices)
-        //        {
-        //            items.Add(new ShdrDevice(item));
-        //        }
-
-        //        AddDevices(items);
-        //    }
-        //}
-
-        ///// <summary>
-        ///// Add the specified MTConnect Devices to the queue to be written to the adapter stream
-        ///// </summary>
-        ///// <param name="devices">The Devices to add</param>
-        //private void AddDevices(IEnumerable<ShdrDevice> devices)
-        //{
-        //    if (!devices.IsNullOrEmpty())
-        //    {
-        //        foreach (var item in devices)
-        //        {
-        //            AddDevice(item);
-        //        }
-        //    }
-        //}
-
-        //protected bool WriteAllDevices()
-        //{
-        //    // Get a list of all Devices
-        //    IEnumerable<ShdrDevice> devices;
-        //    lock (_lock) devices = _devices.Values.ToList();
-
-        //    if (!devices.IsNullOrEmpty())
-        //    {
-        //        bool success = false;
-
-        //        foreach (var item in devices)
-        //        {
-        //            // Create SHDR string to send
-        //            var shdrLine = item.ToString();
-        //            success = WriteLine(shdrLine);
-        //            if (!success) break;
-        //        }
-
-        //        return success;
-        //    }
-
-        //    return false;
-        //}
-
-
-        ///// <summary>
-        ///// Remove the specified Device using the SHDR command @REMOVE_ASSET@
-        ///// </summary>
-        ///// <param name="deviceId">The DeviceId of the Device to remove</param>
-        ///// <param name="timestamp">The timestamp to send as part of the SHDR command</param>
-        //public void RemoveDevice(string deviceId, long timestamp = 0)
-        //{
-        //    // Create SHDR string to send
-        //    var shdrLine = ShdrDevice.Remove(deviceId, timestamp);
-
-        //    // Write line to stream
-        //    WriteLine(shdrLine);
-        //}
-
-        ///// <summary>
-        ///// Remove all Devices of the specified Type using the SHDR command @REMOVE_ALL_ASSETS@
-        ///// </summary>
-        ///// <param name="deviceType">The Type of the Devices to remove</param>
-        ///// <param name="timestamp">The timestamp to send as part of the SHDR command</param>
-        //public void RemoveAllDevices(string deviceType, long timestamp = 0)
-        //{
-        //    // Create SHDR string to send
-        //    var shdrLine = ShdrDevice.RemoveAll(deviceType, timestamp);
-
-        //    // Write line to stream
-        //    WriteLine(shdrLine);
-        //}
-
-        //#endregion
-
-
-
-
-        //#region "Conditions"
-
-        //protected virtual void OnConditionObservationAdd(IConditionObservationInput observation) { }
-
-
-        //public void AddConditionObservation(IConditionObservationInput observation)
-        //{
-        //    if (observation != null)
-        //    {
-        //        var newObservation = new ConditionObservationInput(observation);
-
-        //        // Set the DeviceKey
-        //        newObservation.DeviceKey = DeviceKey;
-
-        //        // Set Timestamp (if not already set)
-        //        //if (newObservation.Timestamp <= 0) newObservation.Timestamp = UnixDateTime.Now;
-
-        //        // Get the Current Condition Observation (if exists)
-        //        IConditionObservationInput currentObservation;
-        //        lock (_lock) _currentConditionObservations.TryGetValue(newObservation.DataItemKey, out currentObservation);
-
-        //        // Check to see if new Observation is the same as the Current
-        //        var add = true;
-        //        if (currentObservation != null && FilterDuplicates)
-        //        {
-        //            add = !ObjectExtensions.ByteArraysEqual(newObservation.ChangeId, currentObservation.ChangeId);
-        //        }
-
-        //        if (add)
-        //        {
-        //            // Add to Current
-        //            lock (_lock)
-        //            {
-        //                _currentConditionObservations.Remove(newObservation.DataItemKey);
-        //                _currentConditionObservations.Add(newObservation.DataItemKey, newObservation);
-        //            }
-
-        //            // If using Buffer, Add to Buffer
-
-
-        //            // -- Need to add Mode property?
-
-
-        //            _conditionObservationsBuffer.Add(CreateUniqueId(newObservation), newObservation);
-
-        //            // Call Overridable Method
-        //            OnConditionObservationAdd(newObservation);
-        //        }
-        //    }
-        //}
-
-        //public void AddConditionObservations(IEnumerable<IConditionObservationInput> observations)
-        //{
-        //    if (!observations.IsNullOrEmpty())
-        //    {
-        //        foreach (var observation in observations)
-        //        {
-        //            AddConditionObservation(observation);
-        //        }
-        //    }
-        //}
-
-
-        //public bool SendConditionObservation(IConditionObservationInput observation)
-        //{
-        //    if (observation != null)
-        //    {
-        //        var newObservation = new ConditionObservationInput(observation);
-
-        //        // Set the DeviceKey
-        //        newObservation.DeviceKey = DeviceKey;
-
-        //        // Set Timestamp (if not already set)
-        //        //if (newObservation.Timestamp <= 0) newObservation.Timestamp = UnixDateTime.Now;
-        //        //if (!OutputTimestamps) newDataItem.Timestamp = 0;
-        //        //else /*if (newDataItem.Timestamp <= 0) newDataItem.Timestamp = UnixDateTime.Now;*/
-
-        //        // Remove from Current
-        //        lock (_lock) _currentConditionObservations.Remove(newObservation.DataItemKey);
-
-        //        // Call Overridable Method
-        //        OnConditionObservationAdd(newObservation);
-
-        //        //// Create SHDR string to send
-        //        //var sendItem = new ShdrDataItem(newObservation);
-        //        //if (!OutputTimestamps) sendItem.Timestamp = 0;
-        //        //var shdrLine = sendItem.ToString();
-
-        //        var success = Write(newObservation);
-        //        if (success)
-        //        {
-        //            // Update Last Sent DataItems
-        //            UpdateLastConditionObservations(new List<IConditionObservationInput> { newObservation });
-        //        }
-
-        //        return success;
-        //    }
-
-        //    return false;
-        //}
-
-        //public bool SendConditionObservations(IEnumerable<IConditionObservationInput> dataItems)
-        //{
-        //    var success = true;
-
-        //    if (!dataItems.IsNullOrEmpty())
-        //    {
-        //        foreach (var dataItem in dataItems)
-        //        {
-        //            if (!SendConditionObservation(dataItem)) success = false;
-        //        }
-
-        //        return success;
-        //    }
-
-        //    return false;
-        //}
-
-
-        //protected void UpdateLastConditionObservations(IEnumerable<IConditionObservationInput> observations)
-        //{
-        //    //if (!observations.IsNullOrEmpty())
-        //    //{
-        //    //    // Find the most recent Observation for each DataItemKey
-        //    //    var dataItemKeys = observations.Select(o => o.DataItemKey).Distinct();
-        //    //    foreach (var dataItemKey in dataItemKeys)
-        //    //    {
-        //    //        var keyObservations = observations.Where(o => o.DataItemKey == dataItemKey);
-        //    //        var mostRecent = keyObservations.OrderByDescending(o => o.Timestamp).FirstOrDefault();
-        //    //        if (mostRecent != null)
-        //    //        {
-        //    //            var lastObservation = new ConditionObservationInput(mostRecent);
-
-        //    //            lock (_lock)
-        //    //            {
-        //    //                _lastConditionObservations.Remove(lastObservation.DataItemKey);
-        //    //                _lastConditionObservations.Add(lastObservation.DataItemKey, lastObservation);
-        //    //            }
-        //    //        }
-        //    //    }
-        //    //}
-        //}
-
-
-        //protected bool WriteChangedConditionObservations()
-        //{
-        //    //// Get a list of all Current Condition Observations
-        //    //List<IConditionObservationInput> dataItems;
-        //    //lock (_lock)
-        //    //{
-        //    //    // Get List of DataItems that need to be Updated
-        //    //    dataItems = new List<IConditionObservationInput>();
-        //    //    var items = _currentConditionObservations.Values;
-        //    //    foreach (var item in items)
-        //    //    {
-        //    //        var isSent = false;
-        //    //        if (_sentConditionObservations.ContainsKey(item.ChangeId)) isSent = _sentConditionObservations[item.ChangeId];
-
-        //    //        if (!isSent)
-        //    //        {
-        //    //            _sentConditionObservations.Remove(item.ChangeId);
-        //    //            _sentConditionObservations.Add(item.ChangeId, true);
-
-        //    //            var sendItem = new ConditionObservationInput(item);
-        //    //            if (!OutputTimestamps) sendItem.Timestamp = 0;
-        //    //            dataItems.Add(sendItem);
-        //    //        }
-        //    //    }
-        //    //}
-
-        //    //if (!dataItems.IsNullOrEmpty())
-        //    //{
-        //    //    var success = Write(dataItems);
-        //    //    //if (success)
-        //    //    //{
-        //    //    // Update Last Sent DataItems
-        //    //    UpdateLastConditionObservations(dataItems);
-        //    //    //}
-
-        //    //    return success;
-        //    //}
-
-        //    return false;
-        //}
-
-        //protected bool WriteLastConditionObservations(long timestamp = 0)
-        //{
-        //    // Get a list of all Last Condition Obserations
-        //    IEnumerable<IConditionObservationInput> dataItems;
-        //    lock (_lock) dataItems = _lastConditionObservations.Values.ToList();
-
-        //    if (!dataItems.IsNullOrEmpty())
-        //    {
-        //        var sendItems = new List<IConditionObservationInput>();
-        //        foreach (var dataItem in dataItems)
-        //        {
-        //            var sendItem = new ConditionObservationInput(dataItem);
-        //            //if (!OutputTimestamps) sendItem.Timestamp = 0;
-        //            sendItems.Add(sendItem);
-        //        }
-
-        //        // Create SHDR string to send
-        //        //var shdrLine = ShdrDataItem.ToString(sendItems);
-        //        var success = Write(sendItems);
-        //        //if (success)
-        //        //{
-        //        // Update Last Sent DataItems
-        //        UpdateLastConditionObservations(dataItems);
-        //        //}
-
-        //        return success;
-        //    }
-
-        //    return false;
-        //}
-
-        //public bool WriteBufferConditionObservations(int count = 1000)
-        //{
-        //    var observations = _conditionObservationsBuffer.Take(count);
-        //    if (!observations.IsNullOrEmpty())
-        //    {
-        //        var sendObservations = new List<IConditionObservationInput>();
-        //        foreach (var observation in observations)
-        //        {
-        //            var sendObservation = new ConditionObservationInput(observation);
-        //            //if (!OutputTimestamps) sendObservation.Timestamp = 0;
-        //            sendObservations.Add(sendObservation);
-        //        }
-
-        //        var success = Write(sendObservations);
-        //        if (success)
-        //        {
-        //            // Update Last Sent DataItems
-        //            UpdateLastConditionObservations(sendObservations);
-        //        }
-        //    }
-
-        //    return false;
-        //}
-
-
-        //private void SetConditionObservationsUnavailable(long timestamp = 0)
-        //{
-        //    // Get a list of all Current Condition Observations
-        //    IEnumerable<IConditionObservationInput> dataItems;
-        //    lock (_lock) dataItems = _currentConditionObservations.Values.ToList();
-
-        //    if (!dataItems.IsNullOrEmpty())
-        //    {
-        //        var unavailableObservations = new List<IConditionObservationInput>();
-        //        var ts = timestamp > 0 ? timestamp : UnixDateTime.Now;
-
-        //        // Set each Observation to Unavailable
-        //        foreach (var item in dataItems)
-        //        {
-        //            // Create new Unavailable Observation
-        //            var unavailableObservation = new ConditionObservationInput();
-        //            unavailableObservation.DeviceKey = item.DeviceKey;
-        //            unavailableObservation.DataItemKey = item.DataItemKey;
-        //            unavailableObservation.Unavailable();
-        //            unavailableObservations.Add(unavailableObservation);
-        //        }
-
-        //        // Add Observations (only will add those that are changed)
-        //        AddConditionObservations(unavailableObservations);
-        //    }
-        //}
-
-        //private static ulong CreateUniqueId(IConditionObservationInput observationInput)
-        //{
-        //    if (observationInput != null)
-        //    {
-        //        var hashBytes = observationInput.ChangeIdWithTimestamp;
-        //        var hash = string.Concat(hashBytes.Select(b => b.ToString("x2")));
-        //        return hash.GetUInt64Hash();
-        //    }
-
-        //    return 0;
-        //}
-
-        //#endregion
 
     }
 }
