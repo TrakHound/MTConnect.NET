@@ -3,11 +3,13 @@
 
 using MQTTnet;
 using MQTTnet.Client;
+using MQTTnet.Protocol;
 using MQTTnet.Server;
 using MTConnect.Agents;
 using MTConnect.Configurations;
 using MTConnect.Formatters;
 using MTConnect.Input;
+using MTConnect.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -69,12 +71,23 @@ namespace MTConnect.Modules
                     try
                     {
                         // Declare new MQTT Client Options with Tcp Server
-                        var clientOptionsBuilder = new MqttClientOptionsBuilder().WithTcpServer(_configuration.Server, _configuration.Port);
+                        var clientOptionsBuilder = new MqttClientOptionsBuilder();
+
+                        // Set TCP Server
+                        clientOptionsBuilder.WithTcpServer(_configuration.Server, _configuration.Port);
+
+                        // Publish Only so use Clean Session = true
+                        clientOptionsBuilder.WithCleanSession(_configuration.CleanSession);
 
                         // Set Client ID
                         if (!string.IsNullOrEmpty(_configuration.ClientId))
                         {
                             clientOptionsBuilder.WithClientId(_configuration.ClientId);
+                        }
+                        else
+                        {
+                            // Generate default Client ID (Agent UUID & DeviceKey)
+                            clientOptionsBuilder.WithClientId($"{Agent.Uuid}::{_configuration.DeviceKey}".ToSHA1Hash());
                         }
 
                         var certificates = new List<X509Certificate2>();
@@ -88,7 +101,6 @@ namespace MTConnect.Modules
                         // Add Client Certificate & Private Key
                         if (!string.IsNullOrEmpty(_configuration.PemCertificate) && !string.IsNullOrEmpty(_configuration.PemPrivateKey))
                         {
-
 #if NET5_0_OR_GREATER
                             certificates.Add(new X509Certificate2(X509Certificate2.CreateFromPemFile(GetFilePath(_configuration.PemCertificate), GetFilePath(_configuration.PemPrivateKey)).Export(X509ContentType.Pfx)));
 #else
@@ -123,20 +135,30 @@ namespace MTConnect.Modules
                         var clientOptions = clientOptionsBuilder.Build();
 
                         // Connect to the MQTT Client
-                        _mqttClient.ConnectAsync(clientOptions).Wait();
+                        await _mqttClient.ConnectAsync(clientOptions);
 
+                        Log(MTConnectLogLevel.Information, $"MQTT Adapter Connected to External Broker ({_configuration.Server}:{_configuration.Port})");
 
                         if (!string.IsNullOrEmpty(_configuration.Topic))
                         {
-                            await _mqttClient.SubscribeAsync($"{_configuration.Topic}/#");
+                            // Set QoS
+                            MqttQualityOfServiceLevel qos;
+                            switch (_configuration.QoS)
+                            {
+                                case 1: qos = MqttQualityOfServiceLevel.AtLeastOnce; break;
+                                case 2: qos = MqttQualityOfServiceLevel.ExactlyOnce; break;
+                                default: qos = MqttQualityOfServiceLevel.AtMostOnce; break;
+                            }
+
+                            // Subscribe to Topic
+                            await _mqttClient.SubscribeAsync($"{_configuration.Topic}/#", qos);
+
+                            Log(MTConnectLogLevel.Information, $"MQTT Adapter Subscribed to ({_configuration.Topic} @ QoS = {qos})");
                         }
                         else
                         {
                             // ERROR ?
                         }
-
-
-                        //ClientStarted?.Invoke(this, new EventArgs());
 
                         while (_mqttClient.IsConnected && !_stop.IsCancellationRequested)
                         {
@@ -145,16 +167,15 @@ namespace MTConnect.Modules
                     }
                     catch (Exception ex)
                     {
-                        //if (ConnectionError != null) ConnectionError.Invoke(this, ex);
+                        Log(MTConnectLogLevel.Warning, $"MQTT Adapter Connection Error : {ex.Message}");
                     }
+
+                    Log(MTConnectLogLevel.Information, $"MQTT Adapter Disconnected from External Broker ({_configuration.Server}:{_configuration.Port})");
 
                     await Task.Delay(_configuration.RetryInterval, _stop.Token);
                 }
                 catch (TaskCanceledException) { }
-                catch (Exception ex)
-                {
-                    //InternalError?.Invoke(this, ex);
-                }
+                catch (Exception) { }
 
             } while (!_stop.Token.IsCancellationRequested);
 
