@@ -6,7 +6,9 @@ using MQTTnet.Client;
 using MQTTnet.Protocol;
 using MQTTnet.Server;
 using MTConnect.Agents;
+using MTConnect.Assets;
 using MTConnect.Configurations;
+using MTConnect.Devices;
 using MTConnect.Formatters;
 using MTConnect.Input;
 using MTConnect.Logging;
@@ -23,6 +25,9 @@ namespace MTConnect.Modules
     {
         public const string ConfigurationTypeId = "mqtt-adapter";
         private const string ModuleId = "MQTT Adapter";
+        private const string ObservationTopic = "observations";
+        private const string AssetTopic = "assets";
+        private const string DeviceTopic = "device";
 
         private readonly ModuleConfiguration _configuration;
         private readonly IMTConnectAgentBroker _mtconnectAgent;
@@ -78,6 +83,9 @@ namespace MTConnect.Modules
 
                         // Publish Only so use Clean Session = true
                         clientOptionsBuilder.WithCleanSession(_configuration.CleanSession);
+
+                        // Sets the Timeout
+                        clientOptionsBuilder.WithTimeout(TimeSpan.FromMilliseconds(_configuration.Timeout));
 
                         // Set Client ID
                         if (!string.IsNullOrEmpty(_configuration.ClientId))
@@ -139,7 +147,7 @@ namespace MTConnect.Modules
 
                         Log(MTConnectLogLevel.Information, $"MQTT Adapter Connected to External Broker ({_configuration.Server}:{_configuration.Port})");
 
-                        if (!string.IsNullOrEmpty(_configuration.Topic))
+                        if (!string.IsNullOrEmpty(_configuration.TopicPrefix))
                         {
                             // Set QoS
                             MqttQualityOfServiceLevel qos;
@@ -151,9 +159,9 @@ namespace MTConnect.Modules
                             }
 
                             // Subscribe to Topic
-                            await _mqttClient.SubscribeAsync($"{_configuration.Topic}/#", qos);
+                            await _mqttClient.SubscribeAsync($"{_configuration.TopicPrefix}/#", qos);
 
-                            Log(MTConnectLogLevel.Information, $"MQTT Adapter Subscribed to ({_configuration.Topic} @ QoS = {qos})");
+                            Log(MTConnectLogLevel.Information, $"MQTT Adapter Subscribed to ({_configuration.TopicPrefix} @ QoS = {qos})");
                         }
                         else
                         {
@@ -172,7 +180,7 @@ namespace MTConnect.Modules
 
                     Log(MTConnectLogLevel.Information, $"MQTT Adapter Disconnected from External Broker ({_configuration.Server}:{_configuration.Port})");
 
-                    await Task.Delay(_configuration.RetryInterval, _stop.Token);
+                    await Task.Delay(_configuration.ReconnectInterval, _stop.Token);
                 }
                 catch (TaskCanceledException) { }
                 catch (Exception) { }
@@ -194,32 +202,86 @@ namespace MTConnect.Modules
             {
                 var topic = args.ApplicationMessage.Topic;
 
-                var observations = ProcessPayload(args.ApplicationMessage.Payload);
-                if (!observations.IsNullOrEmpty())
+                if (IsObservationTopic(topic))
                 {
-                    _mtconnectAgent.AddObservations(_configuration.DeviceKey, observations);
+                    var observations = ProcessObservationPayload(args.ApplicationMessage.Payload);
+                    if (!observations.IsNullOrEmpty())
+                    {
+                        _mtconnectAgent.AddObservations(_configuration.DeviceKey, observations);
+                    }
+                }
+                else if (IsAssetTopic(topic))
+                {
+                    var assets = ProcessAssetPayload(args.ApplicationMessage.Payload);
+                    if (!assets.IsNullOrEmpty())
+                    {
+                        _mtconnectAgent.AddAssets(_configuration.DeviceKey, assets);
+                    }
+                }
+                else if (IsDeviceTopic(topic))
+                {
+                    var device = ProcessDevicePayload(args.ApplicationMessage.Payload);
+                    if (device != null && !string.IsNullOrEmpty(device.Uuid) && !string.IsNullOrEmpty(device.Name))
+                    {
+                        if (!string.IsNullOrEmpty(_configuration.DeviceKey))
+                        {
+                            if (_configuration.DeviceKey.ToLower() == device.Uuid.ToLower() ||
+                                _configuration.DeviceKey.ToLower() == device.Name.ToLower())
+                            {
+                                _mtconnectAgent.AddDevice(device);
+                            }
+                        }
+                        else
+                        {
+                            _mtconnectAgent.AddDevice(device);
+                        }
+                    }
                 }
             }
 
             return Task.CompletedTask;
         }
 
-        private IEnumerable<IObservationInput> ProcessPayload(byte[] payload)
+        private bool IsObservationTopic(string topic)
+        {
+            if (topic != null)
+            {
+                var prefix = $"{_configuration.TopicPrefix}/{ObservationTopic}";
+                return topic.StartsWith(prefix);
+            }
+
+            return false;
+        }
+
+        private bool IsAssetTopic(string topic)
+        {
+            if (topic != null)
+            {
+                var prefix = $"{_configuration.TopicPrefix}/{AssetTopic}";
+                return topic.StartsWith(prefix);
+            }
+
+            return false;
+        }
+
+        private bool IsDeviceTopic(string topic)
+        {
+            if (topic != null)
+            {
+                var prefix = $"{_configuration.TopicPrefix}/{DeviceTopic}";
+                return topic.StartsWith(prefix);
+            }
+
+            return false;
+        }
+
+
+        private IEnumerable<IObservationInput> ProcessObservationPayload(byte[] payload)
         {
             if (!payload.IsNullOrEmpty())
             {
                 try
                 {
-                    //// Decompress from gzip
-                    //byte[] uncompressedBytes;
-                    //using (var inputStream = new MemoryStream(payload))
-                    //using (var outputStream = new MemoryStream())
-                    //using (var encodingStream = new GZipStream(inputStream, CompressionMode.Decompress, true))
-                    //{
-                    //    encodingStream.CopyTo(outputStream);
-                    //    uncompressedBytes = outputStream.ToArray();
-                    //}
-
                     var uncompressedBytes = payload;
                     if (!uncompressedBytes.IsNullOrEmpty())
                     {
@@ -228,18 +290,6 @@ namespace MTConnect.Modules
                         {
                             return readResult.Content;
                         }
-
-                        //// Convert JSON bytes to Mqtt PayloadModel
-                        //IEnumerable<MTConnectMqttInputObservations> payloadModel = null;
-                        //using (var inputStream2 = new MemoryStream(uncompressedBytes))
-                        //{
-                        //    payloadModel = JsonSerializer.Deserialize<IEnumerable<MTConnectMqttInputObservations>>(inputStream2);
-                        //}
-
-                        //if (payloadModel != null)
-                        //{
-                        //    return payloadModel;
-                        //}
                     }
                 }
                 catch (Exception ex)
@@ -251,41 +301,55 @@ namespace MTConnect.Modules
             return null;
         }
 
-        //public static byte[] CreatePayload(TrakHoundEntityCollection collection)
-        //{
-        //    if (collection != null)
-        //    {
-        //        try
-        //        {
-        //            // Convert to Mqtt Collection (serializable to Protobuf)
-        //            var mqttCollection = new TrakHoundMqttEntityCollection(collection);
+        private IEnumerable<IAsset> ProcessAssetPayload(byte[] payload)
+        {
+            if (!payload.IsNullOrEmpty())
+            {
+                try
+                {
+                    var uncompressedBytes = payload;
+                    if (!uncompressedBytes.IsNullOrEmpty())
+                    {
+                        var readResult = InputFormatter.CreateAssets(_configuration.DocumentFormat, uncompressedBytes);
+                        if (readResult.Success)
+                        {
+                            return readResult.Content;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
 
-        //            // Convert to Protobuf
-        //            byte[] protobufBytes;
-        //            using (var inputStream1 = new MemoryStream())
-        //            {
-        //                Serializer.Serialize(inputStream1, mqttCollection);
-        //                protobufBytes = inputStream1.ToArray();
-        //            }
+                }
+            }
 
-        //            // Compress to gzip
-        //            byte[] compressedBytes;
-        //            using (var inputStream2 = new MemoryStream())
-        //            {
-        //                using (var zip = new GZipStream(inputStream2, CompressionMode.Compress, true))
-        //                {
-        //                    zip.Write(protobufBytes, 0, protobufBytes.Length);
-        //                }
-        //                compressedBytes = inputStream2.ToArray();
-        //            }
+            return null;
+        }
 
-        //            return compressedBytes;
-        //        }
-        //        catch { }
-        //    }
+        private IDevice ProcessDevicePayload(byte[] payload)
+        {
+            if (!payload.IsNullOrEmpty())
+            {
+                try
+                {
+                    var uncompressedBytes = payload;
+                    if (!uncompressedBytes.IsNullOrEmpty())
+                    {
+                        var readResult = InputFormatter.CreateDevice(_configuration.DocumentFormat, uncompressedBytes);
+                        if (readResult.Success)
+                        {
+                            return readResult.Content;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
 
-        //    return null;
-        //}
+                }
+            }
+
+            return null;
+        }
 
 
         private static string GetFilePath(string path)
