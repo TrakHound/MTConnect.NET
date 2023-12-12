@@ -39,7 +39,10 @@ namespace MTConnect.Assets.Json.QIF
         public string QIFDocument { get; set; }
 
 
-        public JsonQIFDocumentWrapperAsset() { }
+        public JsonQIFDocumentWrapperAsset() 
+        {
+            Type = QIFDocumentWrapperAsset.TypeId;
+        }
 
         public JsonQIFDocumentWrapperAsset(IQIFDocumentWrapperAsset asset)
         {
@@ -65,7 +68,6 @@ namespace MTConnect.Assets.Json.QIF
             var asset = new QIFDocumentWrapperAsset();
 
             asset.AssetId = AssetId;
-            asset.Type = Type;
             asset.Timestamp = Timestamp;
             asset.DeviceUuid = DeviceUuid;
             asset.Removed = Removed;

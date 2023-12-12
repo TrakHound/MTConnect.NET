@@ -80,7 +80,10 @@ namespace MTConnect.Assets.Json.Files
         public DateTime? ModificationTime { get; set; }
 
 
-        public JsonFileAsset() { }
+        public JsonFileAsset() 
+        {
+            Type = FileAsset.TypeId;
+        }
 
         public JsonFileAsset(IFileAsset asset)
         {
@@ -139,7 +142,6 @@ namespace MTConnect.Assets.Json.Files
             var asset = new FileAsset();
 
             asset.AssetId = AssetId;
-            asset.Type = Type;
             asset.Timestamp = Timestamp;
             asset.DeviceUuid = DeviceUuid;
             asset.Removed = Removed;

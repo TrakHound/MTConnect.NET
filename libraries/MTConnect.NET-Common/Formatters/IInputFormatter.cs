@@ -19,13 +19,13 @@ namespace MTConnect.Formatters
 
         FormatWriteResult Format(IEnumerable<IObservationInput> observations, IEnumerable<KeyValuePair<string, string>> options = null);
 
-        FormatWriteResult Format(IAssetInput asset, IEnumerable<KeyValuePair<string, string>> options = null);
+        FormatWriteResult Format(IEnumerable<IAssetInput> assets, IEnumerable<KeyValuePair<string, string>> options = null);
 
 
         FormatReadResult<IDevice> CreateDevice(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null);
 
         FormatReadResult<IEnumerable<IObservationInput>> CreateObservations(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null);
 
-        FormatReadResult<IAsset> CreateAsset(string assetType, byte[] content, IEnumerable<KeyValuePair<string, string>> options = null);
+        FormatReadResult<IEnumerable<IAsset>> CreateAssets(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null);
     }
 }

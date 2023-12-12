@@ -81,7 +81,10 @@ namespace MTConnect.Assets.Json.RawMaterials
         public JsonMaterial Material { get; set; }
 
 
-        public JsonRawMaterialAsset() { }
+        public JsonRawMaterialAsset() 
+        {
+            Type = RawMaterialAsset.TypeId;
+        }
 
         public JsonRawMaterialAsset(IRawMaterialAsset asset)
         {
@@ -122,7 +125,6 @@ namespace MTConnect.Assets.Json.RawMaterials
             var asset = new RawMaterialAsset();
 
             asset.AssetId = AssetId;
-            asset.Type = Type;
             asset.Timestamp = Timestamp;
             asset.DeviceUuid = DeviceUuid;
             asset.Removed = Removed;

@@ -32,7 +32,10 @@ namespace MTConnect.Assets.Json.ComponentConfigurationParameters
         public IEnumerable<JsonParameterSet> ParameterSets { get; set; }
 
 
-        public JsonComponentConfigurationParametersAsset() { }
+        public JsonComponentConfigurationParametersAsset() 
+        {
+            Type = ComponentConfigurationParametersAsset.TypeId;
+        }
 
         public JsonComponentConfigurationParametersAsset(IComponentConfigurationParametersAsset asset)
         {
@@ -59,7 +62,6 @@ namespace MTConnect.Assets.Json.ComponentConfigurationParameters
             var asset = new ComponentConfigurationParametersAsset();
 
             asset.AssetId = AssetId;
-            asset.Type = Type;
             asset.Timestamp = Timestamp;
             asset.DeviceUuid = DeviceUuid;
             asset.Removed = Removed;

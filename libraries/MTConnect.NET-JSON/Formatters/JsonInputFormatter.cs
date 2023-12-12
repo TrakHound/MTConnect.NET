@@ -2,14 +2,6 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Assets;
-using MTConnect.Assets.CuttingTools;
-using MTConnect.Assets.Files;
-using MTConnect.Assets.Json.CuttingTools;
-using MTConnect.Assets.Json.Files;
-using MTConnect.Assets.Json.QIF;
-using MTConnect.Assets.Json.RawMaterials;
-using MTConnect.Assets.QIF;
-using MTConnect.Assets.RawMaterials;
 using MTConnect.Devices;
 using MTConnect.Devices.Json;
 using MTConnect.Input;
@@ -17,7 +9,6 @@ using MTConnect.Mqtt;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.Json;
 
 namespace MTConnect.Formatters
@@ -57,25 +48,18 @@ namespace MTConnect.Formatters
             return FormatWriteResult.Error();
         }
 
-        public FormatWriteResult Format(IAssetInput asset, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatWriteResult Format(IEnumerable<IAssetInput> assets, IEnumerable<KeyValuePair<string, string>> options = null)
         {
-            if (asset != null)
+            if (!assets.IsNullOrEmpty())
             {
-                byte[] bytes;
-
-                switch (asset.Type)
+                var jsonAssetGroup = new JsonInputAssetGroup(assets);
+                if (jsonAssetGroup != null)
                 {
-                    case "CuttingTool": bytes = JsonFunctions.ConvertBytes(new JsonCuttingToolAsset(asset as CuttingToolAsset)); break;
-                    case "File": bytes = JsonFunctions.ConvertBytes(new JsonFileAsset(asset as FileAsset)); break;
-                    case "QIFDocumentWrapper": bytes = JsonFunctions.ConvertBytes(new JsonQIFDocumentWrapperAsset(asset as QIFDocumentWrapperAsset)); break;
-                    case "RawMaterial": bytes = JsonFunctions.ConvertBytes(new JsonRawMaterialAsset(asset as RawMaterialAsset)); break;
-
-                    default: bytes = JsonFunctions.ConvertBytes(asset); break;
-                }
-
-                if (bytes != null)
-                {
-                    return FormatWriteResult.Successful(bytes, ContentType);
+                    var bytes = JsonFunctions.ConvertBytes(jsonAssetGroup);
+                    if (bytes != null)
+                    {
+                        return FormatWriteResult.Successful(bytes, ContentType);
+                    }
                 }
             }
 
@@ -126,52 +110,34 @@ namespace MTConnect.Formatters
             return new FormatReadResult<IEnumerable<IObservationInput>>();
         }
 
-        public FormatReadResult<IAsset> CreateAsset(string assetType, byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatReadResult<IEnumerable<IAsset>> CreateAssets(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var messages = new List<string>();
             var warnings = new List<string>();
             var errors = new List<string>();
 
-            IAsset asset = null;
+            IEnumerable<IAsset> assets = null;
 
             // Read Document
-            if (!string.IsNullOrEmpty(assetType) && content != null)
+            if (content != null)
             {
                 try
                 {
-                    // Convert from UTF8 bytes
-                    var json = Encoding.UTF8.GetString(content);
-                    if (!string.IsNullOrEmpty(json))
+                    var jsonAssetGroup = JsonSerializer.Deserialize<JsonInputAssetGroup>(content);
+                    if (jsonAssetGroup != null)
                     {
-                        switch (assetType)
-                        {
-                            case "CuttingTool": 
-                                asset = JsonSerializer.Deserialize<JsonCuttingToolAsset>(json).ToCuttingToolAsset();
-                                break;
-
-                            case "File":
-                                asset = JsonSerializer.Deserialize<JsonFileAsset>(json).ToFileAsset();
-                                break;
-
-                            case "QIFDocumentWrapper":
-                                asset = JsonSerializer.Deserialize<JsonQIFDocumentWrapperAsset>(json).ToQIFDocumentWrapperAsset();
-                                break;
-
-                            case "RawMaterial":
-                                asset = JsonSerializer.Deserialize<JsonRawMaterialAsset>(json).ToRawMaterialAsset();
-                                break;
-                        }
+                        assets = JsonInputAssetGroup.ToAssets(jsonAssetGroup);
                     }
                 }
                 catch (Exception ex)
                 {
-                    errors.Add(ex.Message);
+
                 }
             }
 
-            var success = asset != null;
+            var success = assets != null;
 
-            return new FormatReadResult<IAsset>(asset, success, messages, warnings, errors);
+            return new FormatReadResult<IEnumerable<IAsset>>(assets, success, messages, warnings, errors);
         }
 
 

@@ -49,7 +49,10 @@ namespace MTConnect.Assets.Json.CuttingTools
         public JsonCuttingToolArchetypeReference CuttingToolArchetypeReference { get; set; }
 
 
-        public JsonCuttingToolAsset() { }
+        public JsonCuttingToolAsset() 
+        {
+            Type = CuttingToolAsset.TypeId;
+        }
 
         public JsonCuttingToolAsset(ICuttingToolAsset asset)
         {
@@ -78,7 +81,6 @@ namespace MTConnect.Assets.Json.CuttingTools
             var asset = new CuttingToolAsset();
 
             asset.AssetId = AssetId;
-            asset.Type = Type;
             asset.Timestamp = Timestamp;
             asset.DeviceUuid = DeviceUuid;
             asset.Removed = Removed;

@@ -72,7 +72,7 @@ namespace MTConnect.Formatters
             return result;
         }
 
-        public static FormatWriteResult Format(string documentFormatterId, IAssetInput asset, IEnumerable<KeyValuePair<string, string>> options = null)
+        public static FormatWriteResult Format(string documentFormatterId, IEnumerable<IAssetInput> assets, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var stpw = Stopwatch.StartNew();
 
@@ -83,7 +83,7 @@ namespace MTConnect.Formatters
             if (formatter != null)
             {
                 // Create the string representation of the Entity using the Formatter
-                result = formatter.Format(asset, options);
+                result = formatter.Format(assets, options);
             }
 
             stpw.Stop();
@@ -119,17 +119,17 @@ namespace MTConnect.Formatters
             return FormatReadResult<IEnumerable<IObservationInput>>.Error(null, $"Input Formatter Not found for \"{documentFormatterId}\"");
         }
 
-        public static FormatReadResult<IAsset> CreateAsset(string documentFormatterId, string assetType, byte[] content)
+        public static FormatReadResult<IEnumerable<IAsset>> CreateAssets(string documentFormatterId, byte[] content)
         {
             // Get the Formatter with the specified ID
             var formatter = GetFormatter(documentFormatterId);
             if (formatter != null)
             {
                 // Create the Entity using the Formatter
-                return formatter.CreateAsset(assetType, content);
+                return formatter.CreateAssets(content);
             }
 
-            return FormatReadResult<IAsset>.Error(null, $"Input Formatter Not found for \"{documentFormatterId}\"");
+            return FormatReadResult<IEnumerable<IAsset>>.Error(null, $"Input Formatter Not found for \"{documentFormatterId}\"");
         }
 
 
