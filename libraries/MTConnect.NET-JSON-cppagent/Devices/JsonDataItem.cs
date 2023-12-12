@@ -142,13 +142,6 @@ namespace MTConnect.Devices.Json
                 if (!dataItem.Filters.IsNullOrEmpty())
                 {
                     Filters = new JsonFilters(dataItem.Filters);
-
-                    //var filters = new List<JsonFilter>();
-                    //foreach (var filter in dataItem.Filters)
-                    //{
-                    //    filters.Add(new JsonFilter(filter));
-                    //}
-                    //Filters = filters;
                 }
 
                 InitialValue = dataItem.InitialValue;
@@ -200,14 +193,14 @@ namespace MTConnect.Devices.Json
                 dataItem.Relationships = relationships;
             }
 
-            dataItem.Representation = !string.IsNullOrEmpty(Representation) ? Representation.ConvertEnum<DataItemRepresentation>() : DataItemRepresentation.VALUE;
-            dataItem.ResetTrigger = !string.IsNullOrEmpty(ResetTrigger) ? ResetTrigger.ConvertEnum<DataItemResetTrigger>() : null;
-            dataItem.CoordinateSystem = !string.IsNullOrEmpty(CoordinateSystem) ? CoordinateSystem.ConvertEnum<DataItemCoordinateSystem>() : DataItemCoordinateSystem.MACHINE;
+            if (!string.IsNullOrEmpty(Representation)) dataItem.Representation = Representation.ConvertEnum<DataItemRepresentation>();
+            if (!string.IsNullOrEmpty(ResetTrigger)) dataItem.ResetTrigger = ResetTrigger.ConvertEnum<DataItemResetTrigger>();
+            if (!string.IsNullOrEmpty(CoordinateSystem)) dataItem.CoordinateSystem = CoordinateSystem.ConvertEnum<DataItemCoordinateSystem>();
             dataItem.CoordinateSystemIdRef = CoordinateSystemIdRef;
             if (Constraints != null) dataItem.Constraints = Constraints.ToConstraints();
             if (Definition != null) dataItem.Definition = Definition.ToDefinition();
             dataItem.Units = Units;
-            dataItem.Statistic = !string.IsNullOrEmpty(Statistic) ? Statistic.ConvertEnum<DataItemStatistic>() : null;
+            if (!string.IsNullOrEmpty(Statistic)) dataItem.Statistic = Statistic.ConvertEnum<DataItemStatistic>();
             dataItem.SignificantDigits = SignificantDigits.HasValue ? SignificantDigits.Value : 0;
 
             // Filters
