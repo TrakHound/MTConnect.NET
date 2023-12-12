@@ -88,6 +88,9 @@ namespace MTConnect
                         // Publish Only so use Clean Session = true
                         clientOptionsBuilder.WithCleanSession();
 
+                        // Sets the Timeout
+                        clientOptionsBuilder.WithTimeout(TimeSpan.FromMilliseconds(_configuration.Timeout));
+
                         // Set Client ID
                         if (!string.IsNullOrEmpty(_configuration.ClientId))
                         {
@@ -176,7 +179,7 @@ namespace MTConnect
                 var formatResult = ResponseDocumentFormatter.Format(_configuration.DocumentFormat, responseDocument, x);
                 if (formatResult.Success)
                 {
-                    var topic = $"{_configuration.TopicPrefix}/{_configuration.ProbeTopic}/{device.Uuid}";
+                    var topic = $"{_configuration.TopicPrefix}/{MTConnectMqttDocumentServer.ProbeTopic}/{device.Uuid}";
 
                     var message = new MqttApplicationMessage();
                     message.Retain = true;
@@ -214,7 +217,7 @@ namespace MTConnect
                 var formatResult = ResponseDocumentFormatter.Format(_configuration.DocumentFormat, ref responseDocument, x);
                 if (formatResult.Success)
                 {
-                    var topic = $"{_configuration.TopicPrefix}/{_configuration.CurrentTopic}/{device.Uuid}";
+                    var topic = $"{_configuration.TopicPrefix}/{MTConnectMqttDocumentServer.CurrentTopic}/{device.Uuid}";
 
                     var message = new MqttApplicationMessage();
                     //message.Retain = true;
@@ -252,7 +255,7 @@ namespace MTConnect
                 var formatResult = ResponseDocumentFormatter.Format(_configuration.DocumentFormat, ref responseDocument, x);
                 if (formatResult.Success)
                 {
-                    var topic = $"{_configuration.TopicPrefix}/{_configuration.SampleTopic}/{device.Uuid}";
+                    var topic = $"{_configuration.TopicPrefix}/{MTConnectMqttDocumentServer.SampleTopic}/{device.Uuid}";
 
                     var message = new MqttApplicationMessage();
                     //message.Retain = true;
@@ -284,12 +287,15 @@ namespace MTConnect
         {
             if (_mqttClient != null && _mqttClient.IsConnected && responseDocument != null && !responseDocument.Assets.IsNullOrEmpty())
             {
+                var x = new List<KeyValuePair<string, string>>();
+                x.Add(new KeyValuePair<string, string>("indentOutput", _configuration.IndentOutput.ToString()));
+
                 foreach (var asset in responseDocument.Assets)
                 {
-                    var formatResult = EntityFormatter.Format(_configuration.DocumentFormat, asset);
+                    var formatResult = EntityFormatter.Format(_configuration.DocumentFormat, asset, x);
                     if (formatResult.Success)
                     {
-                        var topic = $"{_configuration.TopicPrefix}/{_configuration.AssetTopic}/{device.Uuid}/{asset.AssetId}";
+                        var topic = $"{_configuration.TopicPrefix}/{MTConnectMqttDocumentServer.AssetTopic}/{device.Uuid}/{asset.AssetId}";
 
                         var message = new MqttApplicationMessage();
                         message.Retain = true;

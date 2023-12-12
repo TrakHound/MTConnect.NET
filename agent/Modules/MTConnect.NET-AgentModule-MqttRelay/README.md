@@ -29,6 +29,36 @@ This Agent Module writes data to an **External** MQTT Broker
     topic: enterprise/site/area/line/cell/MTConnect
 ```
 
+* `server` - The MQTT broker hostname
+
+* `port` - The MQTT broker port number
+
+* `timeout` - The UUID or Name of the Device to read data for
+
+* `reconnectInterval` - The UUID or Name of the Device to read data for
+
+* `username` - Sets the Username to use for authentication
+ 
+* `password` - Sets the Password to use for authentication
+ 
+* `clientId` - Sets the Client ID to use for the connection
+
+* `qos` - Sets the Quality Of Service (QoS) to use. 0 = At Most Once, 1 = At least Once, 2 = Exactly Once
+
+* `certificateAuthority` - The path to the Certificate Authority file
+
+* `pemCertificatePath` - The path to the PEM Certificate (.pem) file
+
+* `pemPrivateKey` - The path to the PEM Private Key file
+
+* `allowUntrustedCertificates` - Sets whether to validate the certificate chain (true or false)
+
+* `useTls` - Sets whether to use TLS or not (true or false)
+
+* `topicPrefix` - The prefix to add to the MQTT topics that are published
+
+* `DocumentFormat` - The Document Format ID to use to format the payload
+
 ### AWS IoT Configuration Example
 ```yaml
 - mqtt-relay:
