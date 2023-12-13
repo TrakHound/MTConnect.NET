@@ -116,13 +116,15 @@ namespace MTConnect.Modules
                         var mqttFactory = new MqttFactory();
                         _mqttServer = mqttFactory.CreateMqttServer(mqttServerOptions);
 
-                        _mqttServer.ClientConnectedAsync += async (args) =>
+                        _mqttServer.ClientConnectedAsync += (args) =>
                         {
                             Log(MTConnectLogLevel.Debug, $"MQTT Server : Client Connected : {args.ClientId} : {args.Endpoint}");
+                            return Task.CompletedTask;
                         };
-                        _mqttServer.ClientDisconnectedAsync += async (args) =>
+                        _mqttServer.ClientDisconnectedAsync += (args) =>
                         {
                             Log(MTConnectLogLevel.Debug, $"MQTT Server : Client Disconnected : {args.ClientId} : {args.Endpoint}");
+                            return Task.CompletedTask;
                         };
 
                         await _mqttServer.StartAsync();

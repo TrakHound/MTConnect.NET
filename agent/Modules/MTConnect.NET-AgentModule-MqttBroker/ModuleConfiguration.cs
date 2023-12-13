@@ -17,17 +17,6 @@ namespace MTConnect.Configurations
 
 
         /// <summary>
-        /// Sets the Username to use for authentication
-        /// </summary>
-        public string Username { get; set; }
-
-        /// <summary>
-        /// Sets the Password to use for authentication
-        /// </summary>
-        public string Password { get; set; }
-
-
-        /// <summary>
         /// The path to the Certificate Authority file
         /// </summary>
         public string CertificateAuthority { get; set; }
@@ -47,15 +36,21 @@ namespace MTConnect.Configurations
         /// </summary>
         public bool AllowUntrustedCertificates { get; set; }
 
-        public bool UseTls { get; set; }
+        //public bool UseTls { get; set; }
 
         /// <summary>
         /// The timeout (in milliseconds) to use for connection and read/write
         /// </summary>
         public int Timeout { get; set; }
 
+        /// <summary>
+        /// The time (in milliseconds) to delay after initial Module start (to allow for TCP binding)
+        /// </summary>
         public int InitialDelay { get; set; }
 
+        /// <summary>
+        /// The time (in milliseconds) to delay between server start errors
+        /// </summary>
         public int RestartInterval { get; set; }
 
         /// <summary>

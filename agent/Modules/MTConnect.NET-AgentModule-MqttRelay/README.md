@@ -57,6 +57,10 @@ This Agent Module writes data to an **External** MQTT Broker
 
 * `topicPrefix` - The prefix to add to the MQTT topics that are published
 
+* `currentInterval` - Sets the Interval (in milliseconds) to send Current messages at
+
+* `sampleInterval` - Sets the Interval (in milliseconds) to send Sample messages at
+
 * `DocumentFormat` - The Document Format ID to use to format the payload
 
 ### AWS IoT Configuration Example
