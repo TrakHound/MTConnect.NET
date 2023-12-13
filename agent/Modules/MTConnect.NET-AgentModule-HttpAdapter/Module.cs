@@ -134,7 +134,7 @@ namespace MTConnect.Modules
                 var dataItemId = DataItem.CreateId(client.Id, ConnectionStatusDataItem.NameId);
                 _mtconnectAgent.AddObservation(_mtconnectAgent.Uuid, dataItemId, Observations.Events.ConnectionStatus.LISTEN);
 
-                Log(Logging.MTConnectLogLevel.Information, $"ID = {client.Id} : Client Started : {client.Authority}");
+                Log(Logging.MTConnectLogLevel.Information, $"Client ID = {client.Id} : Client Started : {client.Authority}");
             }
         }
 
@@ -145,7 +145,7 @@ namespace MTConnect.Modules
                 var dataItemId = DataItem.CreateId(client.Id, ConnectionStatusDataItem.NameId);
                 _mtconnectAgent.AddObservation(_mtconnectAgent.Uuid, dataItemId, Observations.Events.ConnectionStatus.CLOSED);
 
-                Log(Logging.MTConnectLogLevel.Information, $"ID = {client.Id} : Client Stopped : {client.Authority}");
+                Log(Logging.MTConnectLogLevel.Information, $"Client ID = {client.Id} : Client Stopped : {client.Authority}");
             }
         }
 
@@ -156,7 +156,7 @@ namespace MTConnect.Modules
                 var dataItemId = DataItem.CreateId(client.Id, ConnectionStatusDataItem.NameId);
                 _mtconnectAgent.AddObservation(_mtconnectAgent.Uuid, dataItemId, Observations.Events.ConnectionStatus.ESTABLISHED);
 
-                Log(Logging.MTConnectLogLevel.Information, $"ID = {client.Id} : Client Stream Started : {query}");
+                Log(Logging.MTConnectLogLevel.Debug, $"Client ID = {client.Id} : Client Stream Started : {query}");
             }
         }
 
@@ -168,7 +168,7 @@ namespace MTConnect.Modules
                 _mtconnectAgent.AddObservation(_mtconnectAgent.Uuid, dataItemId, Observations.Events.ConnectionStatus.CLOSED);
                 _mtconnectAgent.AddObservation(_mtconnectAgent.Uuid, dataItemId, Observations.Events.ConnectionStatus.LISTEN);
 
-                Log(Logging.MTConnectLogLevel.Information, $"ID = {client.Id} : Client Stream Stopped");
+                Log(Logging.MTConnectLogLevel.Debug, $"Client ID = {client.Id} : Client Stream Stopped");
             }
         }
 
@@ -176,7 +176,7 @@ namespace MTConnect.Modules
         {
             if (client != null && document != null && !document.Devices.IsNullOrEmpty())
             {
-                Log(Logging.MTConnectLogLevel.Information, $"ID = {client.Id} : MTConnectDevices Received : " + document.Header.CreationTime);
+                Log(Logging.MTConnectLogLevel.Debug, $"Client ID = {client.Id} : MTConnectDevices Received : " + document.Header.CreationTime);
 
                 foreach (var device in document.Devices)
                 {
@@ -198,7 +198,7 @@ namespace MTConnect.Modules
         {
             if (client != null && document != null && !document.Streams.IsNullOrEmpty())
             {
-                Log(Logging.MTConnectLogLevel.Information, $"ID = {client.Id} : MTConnectStreams Received : " + document.Header.CreationTime);
+                Log(Logging.MTConnectLogLevel.Debug, $"Client ID = {client.Id} : MTConnectStreams Received : " + document.Header.CreationTime);
 
                 foreach (var stream in document.Streams)
                 {
@@ -226,7 +226,7 @@ namespace MTConnect.Modules
         {
             if (client != null && document != null && !document.Assets.IsNullOrEmpty())
             {
-                Log(Logging.MTConnectLogLevel.Information, $"ID = {client.Id} : MTConnectAssets Received : " + document.Header.CreationTime);
+                Log(Logging.MTConnectLogLevel.Debug, $"Client ID = {client.Id} : MTConnectAssets Received : " + document.Header.CreationTime);
 
                 foreach (var asset in document.Assets)
                 {
