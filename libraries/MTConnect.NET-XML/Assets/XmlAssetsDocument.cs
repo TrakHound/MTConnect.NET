@@ -1,10 +1,17 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
+using MTConnect.Assets.ComponentConfigurationParameters;
+using MTConnect.Assets.CuttingTools;
+using MTConnect.Assets.Files;
+using MTConnect.Assets.QIF;
+using MTConnect.Assets.RawMaterials;
+using MTConnect.Assets.Xml.CuttingTools;
+using MTConnect.Assets.Xml.Files;
+using MTConnect.Assets.Xml.RawMaterials;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
@@ -20,8 +27,17 @@ namespace MTConnect.Assets.Xml
         [XmlElement("Header")]
         public XmlAssetsHeader Header { get; set; }
 
-        [XmlElement("Assets")]
-        public XmlAssetCollection AssetCollection { get; set; }
+
+        [XmlArray("Assets")]
+        [XmlArrayItem(typeof(XmlComponentConfigurationParametersAsset), ElementName = ComponentConfigurationParametersAsset.TypeId)]
+        [XmlArrayItem(typeof(XmlCuttingToolAsset), ElementName = CuttingToolAsset.TypeId)]
+        [XmlArrayItem(typeof(XmlFileAsset), ElementName = FileAsset.TypeId)]
+        [XmlArrayItem(typeof(XmlQIFDocumentWrapperAsset), ElementName = QIFDocumentWrapperAsset.TypeId)]
+        [XmlArrayItem(typeof(XmlRawMaterialAsset), ElementName = RawMaterialAsset.TypeId)]
+        public List<object> Assets { get; set; }
+
+        //[XmlElement("Assets")]
+        //public XmlAssetCollection AssetCollection { get; set; }
 
         [XmlIgnore]
         public Version Version { get; set; }
@@ -32,13 +48,59 @@ namespace MTConnect.Assets.Xml
             var assetsDocument = new AssetsResponseDocument();
             assetsDocument.Header = Header.ToErrorHeader();
             assetsDocument.Version = Version;
+            //assetsDocument.Assets = Assets;
 
-            // Add Assets
-            if (AssetCollection != null && !AssetCollection.Assets.IsNullOrEmpty())
+            if (!Assets.IsNullOrEmpty())
             {
-                assetsDocument.Assets = AssetCollection.Assets.ToList();
+                var assets = new List<IAsset>();
+
+                foreach (var asset in Assets)
+                {
+                    // ComponentConfigurationParameters
+                    if (asset.GetType() ==  typeof(XmlComponentConfigurationParametersAsset))
+                    {
+                        var componentConfigurationParametersAsset = ((XmlComponentConfigurationParametersAsset)asset).ToAsset();
+                        if (componentConfigurationParametersAsset != null) assets.Add(componentConfigurationParametersAsset);
+                    }
+
+                    // CuttingTool
+                    if (asset.GetType() == typeof(XmlCuttingToolAsset))
+                    {
+                        var cuttingToolAsset = ((XmlCuttingToolAsset)asset).ToAsset();
+                        if (cuttingToolAsset != null) assets.Add(cuttingToolAsset);
+                    }
+
+                    // File
+                    if (asset.GetType() == typeof(XmlFileAsset))
+                    {
+                        var fileAsset = ((XmlFileAsset)asset).ToAsset();
+                        if (fileAsset != null) assets.Add(fileAsset);
+                    }
+
+                    // QIF
+                    if (asset.GetType() == typeof(XmlQIFDocumentWrapperAsset))
+                    {
+                        var qifAsset = ((XmlQIFDocumentWrapperAsset)asset).ToAsset();
+                        if (qifAsset != null) assets.Add(qifAsset);
+                    }
+
+                    // RawMaterial
+                    if (asset.GetType() == typeof(XmlRawMaterialAsset))
+                    {
+                        var rawMaterialAsset = ((XmlRawMaterialAsset)asset).ToAsset();
+                        if (rawMaterialAsset != null) assets.Add(rawMaterialAsset);
+                    }
+                }
+
+                assetsDocument.Assets = assets;
             }
-            else assetsDocument.Assets = new List<IAsset>();
+
+            //// Add Assets
+            //if (AssetCollection != null && !AssetCollection.Assets.IsNullOrEmpty())
+            //{
+            //    assetsDocument.Assets = AssetCollection.Assets.ToList();
+            //}
+            //else assetsDocument.Assets = new List<IAsset>();
 
             return assetsDocument;
         }
@@ -54,11 +116,12 @@ namespace MTConnect.Assets.Xml
                     var bytes = XmlFunctions.SanitizeBytes(xmlBytes);
 
                     var xml = Encoding.UTF8.GetString(bytes);
-                    xml = xml.Trim();
-
                     var version = MTConnectVersion.Get(xml);
 
-                    using (var textReader = new StringReader(Namespaces.Clear(xml)))
+                    xml = xml.Trim();
+                    xml = Namespaces.Clear(xml);
+
+                    using (var textReader = new StringReader(xml))
                     {
                         using (var xmlReader = XmlReader.Create(textReader))
                         {
