@@ -142,7 +142,7 @@ namespace MTConnect.Mqtt
             {
                 if (_mqttClient != null)
                 {
-                    _mqttClient.DisconnectAsync(MqttClientDisconnectReason.NormalDisconnection);
+                    _mqttClient.DisconnectAsync(MqttClientDisconnectOptionsReason.NormalDisconnection);
                 }
             }
             catch { }

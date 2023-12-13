@@ -8,9 +8,13 @@ using MTConnect.Assets;
 using MTConnect.Configurations;
 using MTConnect.Devices;
 using MTConnect.Formatters;
+using MTConnect.Logging;
 using MTConnect.Streams.Output;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
@@ -64,7 +68,29 @@ namespace MTConnect.Modules
                 {
                     try
                     {
-                        var mqttServerOptionsBuilder = new MqttServerOptionsBuilder().WithDefaultEndpoint();
+                        var mqttServerOptionsBuilder = new MqttServerOptionsBuilder();
+
+                        // Set the Timeout
+                        mqttServerOptionsBuilder.WithDefaultCommunicationTimeout(TimeSpan.FromSeconds(_configuration.Timeout));
+
+                        // Get the IP Address (in case configuration specifies a Hostname)
+                        IPAddress address = null;
+                        if (!string.IsNullOrEmpty(_configuration.Server))
+                        {
+                            var hostEntry = Dns.GetHostEntry(_configuration.Server);
+                            if (hostEntry != null && !hostEntry.AddressList.IsNullOrEmpty())
+                            {
+                                address = hostEntry.AddressList.FirstOrDefault(o => o.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
+                            }
+                        }
+                        else address = IPAddress.Any;
+
+                        // Set the IP Address
+                        mqttServerOptionsBuilder.WithDefaultEndpointBoundIPAddress(address);
+
+                        // Set the Port
+                        mqttServerOptionsBuilder.WithDefaultEndpointPort(_configuration.Port);
+
 
                         // Add Certificate & Private Key
                         if (!string.IsNullOrEmpty(_configuration.PemCertificate) && !string.IsNullOrEmpty(_configuration.PemPrivateKey))
@@ -92,17 +118,17 @@ namespace MTConnect.Modules
 
                         _mqttServer.ClientConnectedAsync += async (args) =>
                         {
-                            Log(Logging.MTConnectLogLevel.Information, $"MQTT Server : Client Connected : {args.ClientId} : {args.Endpoint}");
+                            Log(MTConnectLogLevel.Debug, $"MQTT Server : Client Connected : {args.ClientId} : {args.Endpoint}");
                         };
                         _mqttServer.ClientDisconnectedAsync += async (args) =>
                         {
-                            Log(Logging.MTConnectLogLevel.Information, $"MQTT Server : Client Disconnected : {args.ClientId} : {args.Endpoint}");
+                            Log(MTConnectLogLevel.Debug, $"MQTT Server : Client Disconnected : {args.ClientId} : {args.Endpoint}");
                         };
 
                         await _mqttServer.StartAsync();
                         _server.Start();
 
-                        Log(Logging.MTConnectLogLevel.Information, "MQTT Server Started..");
+                        Log(MTConnectLogLevel.Information, "MQTT Server Started..");
 
                         while (!_stop.Token.IsCancellationRequested && _mqttServer.IsStarted)
                         {
@@ -111,10 +137,10 @@ namespace MTConnect.Modules
                     }
                     catch (Exception ex)
                     {
-                        Log(Logging.MTConnectLogLevel.Warning, $"MQTT Server Error : {ex.Message}");
+                        Log(MTConnectLogLevel.Warning, $"MQTT Server Error : {ex.Message}");
                     }
 
-                    Log(Logging.MTConnectLogLevel.Information, $"MQTT Server Stopped");
+                    Log(MTConnectLogLevel.Information, $"MQTT Server Stopped");
 
                     await Task.Delay(_configuration.RestartInterval, _stop.Token);
                 }
@@ -132,7 +158,7 @@ namespace MTConnect.Modules
                 var formatResult = ResponseDocumentFormatter.Format(_configuration.DocumentFormat, responseDocument);
                 if (formatResult.Success)
                 {
-                    var topic = $"{_configuration.TopicPrefix}/{_configuration.ProbeTopic}/{device.Uuid}";
+                    var topic = $"{_configuration.TopicPrefix}/{MTConnectMqttDocumentServer.ProbeTopic}/{device.Uuid}";
 
                     var message = new MqttApplicationMessage();
                     message.Retain = true;
@@ -154,7 +180,7 @@ namespace MTConnect.Modules
                 var formatResult = ResponseDocumentFormatter.Format(_configuration.DocumentFormat, ref responseDocument);
                 if (formatResult.Success)
                 {
-                    var topic = $"{_configuration.TopicPrefix}/{_configuration.CurrentTopic}/{device.Uuid}";
+                    var topic = $"{_configuration.TopicPrefix}/{MTConnectMqttDocumentServer.CurrentTopic}/{device.Uuid}";
 
                     var message = new MqttApplicationMessage();
                     message.Retain = true;
@@ -176,7 +202,7 @@ namespace MTConnect.Modules
                 var formatResult = ResponseDocumentFormatter.Format(_configuration.DocumentFormat, ref responseDocument);
                 if (formatResult.Success)
                 {
-                    var topic = $"{_configuration.TopicPrefix}/{_configuration.SampleTopic}/{device.Uuid}";
+                    var topic = $"{_configuration.TopicPrefix}/{MTConnectMqttDocumentServer.SampleTopic}/{device.Uuid}";
 
                     var message = new MqttApplicationMessage();
                     //message.Retain = true;
@@ -195,20 +221,26 @@ namespace MTConnect.Modules
         {
             if (_mqttServer != null && _mqttServer.IsStarted)
             {
-                var formatResult = ResponseDocumentFormatter.Format(_configuration.DocumentFormat, responseDocument);
-                if (formatResult.Success)
+                var x = new List<KeyValuePair<string, string>>();
+                x.Add(new KeyValuePair<string, string>("indentOutput", _configuration.IndentOutput.ToString()));
+
+                foreach (var asset in responseDocument.Assets)
                 {
-                    var topic = $"{_configuration.TopicPrefix}/{_configuration.AssetTopic}/{device.Uuid}";
+                    var formatResult = EntityFormatter.Format(_configuration.DocumentFormat, asset, x);
+                    if (formatResult.Success)
+                    {
+                        var topic = $"{_configuration.TopicPrefix}/{MTConnectMqttDocumentServer.AssetTopic}/{device.Uuid}/{asset.AssetId}";
 
-                    var message = new MqttApplicationMessage();
-                    message.Retain = true;
-                    message.Topic = topic;
-                    message.QualityOfServiceLevel = MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce;
-                    message.Payload = formatResult.Content;
+                        var message = new MqttApplicationMessage();
+                        message.Retain = true;
+                        message.Topic = topic;
+                        message.QualityOfServiceLevel = (MQTTnet.Protocol.MqttQualityOfServiceLevel)_configuration.QoS;
+                        message.Payload = formatResult.Content;
 
-                    var injectMessage = new InjectedMqttApplicationMessage(message);
+                        var injectMessage = new InjectedMqttApplicationMessage(message);
 
-                    await _mqttServer.InjectApplicationMessage(injectMessage);
+                        await _mqttServer.InjectApplicationMessage(injectMessage);
+                    }
                 }
             }
         }

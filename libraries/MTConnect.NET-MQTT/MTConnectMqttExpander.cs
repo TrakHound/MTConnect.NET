@@ -215,7 +215,7 @@ namespace MTConnect.Clients
             try
             {
                 // Disconnect from the MQTT Client
-                if (_mqttClient != null) _mqttClient.DisconnectAsync(MqttClientDisconnectReason.NormalDisconnection).Wait();
+                if (_mqttClient != null) _mqttClient.DisconnectAsync(MqttClientDisconnectOptionsReason.NormalDisconnection).Wait();
             }
             catch { }
 

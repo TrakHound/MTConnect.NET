@@ -317,7 +317,7 @@ namespace MTConnect.Clients
             try
             {
                 // Disconnect from the MQTT Client
-                if (_mqttClient != null) _mqttClient.DisconnectAsync(MqttClientDisconnectReason.NormalDisconnection).Wait();
+                if (_mqttClient != null) await _mqttClient.DisconnectAsync(MqttClientDisconnectOptionsReason.NormalDisconnection);
             }
             catch { }
 
@@ -376,7 +376,7 @@ namespace MTConnect.Clients
 
         private async Task AllDevicesMessageReceived(MqttApplicationMessageReceivedEventArgs args)
         {
-            if (args.ApplicationMessage.Payload != null && args.ApplicationMessage.Payload.Length > 0)
+            if (args.ApplicationMessage.PayloadSegment != null && args.ApplicationMessage.PayloadSegment.Array != null && args.ApplicationMessage.PayloadSegment.Array.Length > 0)
             {
                 var topic = args.ApplicationMessage.Topic;
 
@@ -409,7 +409,7 @@ namespace MTConnect.Clients
 
         private async Task DeviceMessageReceived(MqttApplicationMessageReceivedEventArgs args)
         {
-            if (args.ApplicationMessage.Payload != null && args.ApplicationMessage.Payload.Length > 0)
+            if (args.ApplicationMessage.PayloadSegment != null && args.ApplicationMessage.PayloadSegment.Array != null && args.ApplicationMessage.PayloadSegment.Array.Length > 0)
             {
                 var topic = args.ApplicationMessage.Topic;
 

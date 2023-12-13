@@ -13,6 +13,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{0957974A-CA4D-45DD-A0CB-2C4A9CD03350}"
 	ProjectSection(SolutionItems) = preProject
 		docs\InfluxDB.md = docs\InfluxDB.md
+		docs\Json.md = docs\Json.md
 		docs\MQTT-AWS-Greengrass-Moquette.md = docs\MQTT-AWS-Greengrass-Moquette.md
 		docs\MQTT-AWS-Greengrass-Mqtt-Bridge.md = docs\MQTT-AWS-Greengrass-Mqtt-Bridge.md
 		docs\MQTT-AWS-IoT.md = docs\MQTT-AWS-IoT.md

@@ -289,17 +289,17 @@ namespace MTConnect.Clients
                         var clientOptions = clientOptionsBuilder.Build();
 
                         // Connect to the MQTT Client
-                        _mqttClient.ConnectAsync(clientOptions).Wait();
+                        await _mqttClient.ConnectAsync(clientOptions);
 
                         if (!string.IsNullOrEmpty(_configuration.DeviceUuid))
                         {
                             // Start protocol for a single Device
-                            StartDeviceProtocol(_configuration.DeviceUuid).Wait();
+                            await StartDeviceProtocol(_configuration.DeviceUuid);
                         }
                         else
                         {
                             // Start protocol for all devices
-                            StartAllDevicesProtocol().Wait();
+                            await StartAllDevicesProtocol();
                         }
 
                         ClientStarted?.Invoke(this, new EventArgs());
@@ -328,7 +328,7 @@ namespace MTConnect.Clients
             try
             {
                 // Disconnect from the MQTT Client
-                if (_mqttClient != null) _mqttClient.DisconnectAsync(MqttClientDisconnectReason.NormalDisconnection).Wait();
+                if (_mqttClient != null) await _mqttClient.DisconnectAsync(MqttClientDisconnectOptionsReason.NormalDisconnection);
             }
             catch { }
 
@@ -356,11 +356,11 @@ namespace MTConnect.Clients
 
         private Task ProcessMessage(MqttApplicationMessageReceivedEventArgs args)
         {
-            if (args.ApplicationMessage.Payload != null && args.ApplicationMessage.Payload.Length > 0)
+            if (args.ApplicationMessage.PayloadSegment != null && args.ApplicationMessage.PayloadSegment.Array != null && args.ApplicationMessage.PayloadSegment.Array.Length > 0)
             {
                 var topic = args.ApplicationMessage.Topic;
 
-                if (MessageReceived != null) MessageReceived.Invoke(topic, args.ApplicationMessage.Payload);
+                if (MessageReceived != null) MessageReceived.Invoke(topic, args.ApplicationMessage.PayloadSegment.Array);
 
                 if (IsSampleTopic(topic))
                 {

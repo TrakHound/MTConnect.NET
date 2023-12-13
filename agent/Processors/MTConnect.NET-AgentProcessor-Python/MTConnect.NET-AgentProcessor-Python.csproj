@@ -55,7 +55,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="IronPython" Version="3.4.1" />
-		<PackageReference Include="NLog" Version="5.1.0" />
+		<PackageReference Include="NLog" Version="5.2.7" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -191,20 +191,20 @@ namespace MTConnect.Modules
             try
             {
                 // Disconnect from the MQTT Client
-                if (_mqttClient != null) _mqttClient.DisconnectAsync(MqttClientDisconnectReason.NormalDisconnection).Wait();
+                if (_mqttClient != null) _mqttClient.DisconnectAsync(MqttClientDisconnectOptionsReason.NormalDisconnection).Wait();
             }
             catch { }
         }
 
         private Task MessageReceived(MqttApplicationMessageReceivedEventArgs args)
         {
-            if (args.ApplicationMessage.Payload != null && args.ApplicationMessage.Payload.Length > 0)
+            if (args.ApplicationMessage.PayloadSegment != null && args.ApplicationMessage.PayloadSegment.Array != null && args.ApplicationMessage.PayloadSegment.Array.Length > 0)
             {
                 var topic = args.ApplicationMessage.Topic;
 
                 if (IsObservationTopic(topic))
                 {
-                    var observations = ProcessObservationPayload(args.ApplicationMessage.Payload);
+                    var observations = ProcessObservationPayload(args.ApplicationMessage.PayloadSegment.Array);
                     if (!observations.IsNullOrEmpty())
                     {
                         _mtconnectAgent.AddObservations(_configuration.DeviceKey, observations);
@@ -212,7 +212,7 @@ namespace MTConnect.Modules
                 }
                 else if (IsAssetTopic(topic))
                 {
-                    var assets = ProcessAssetPayload(args.ApplicationMessage.Payload);
+                    var assets = ProcessAssetPayload(args.ApplicationMessage.PayloadSegment.Array);
                     if (!assets.IsNullOrEmpty())
                     {
                         _mtconnectAgent.AddAssets(_configuration.DeviceKey, assets);
@@ -220,7 +220,7 @@ namespace MTConnect.Modules
                 }
                 else if (IsDeviceTopic(topic))
                 {
-                    var device = ProcessDevicePayload(args.ApplicationMessage.Payload);
+                    var device = ProcessDevicePayload(args.ApplicationMessage.PayloadSegment.Array);
                     if (device != null && !string.IsNullOrEmpty(device.Uuid) && !string.IsNullOrEmpty(device.Name))
                     {
                         if (!string.IsNullOrEmpty(_configuration.DeviceKey))

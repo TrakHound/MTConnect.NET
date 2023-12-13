@@ -141,7 +141,7 @@ namespace MTConnect
             try
             {
                 // Disconnect from the MQTT Client
-                if (_mqttClient != null) _mqttClient.DisconnectAsync(MqttClientDisconnectReason.NormalDisconnection).Wait();
+                if (_mqttClient != null) await _mqttClient.DisconnectAsync(MqttClientDisconnectOptionsReason.NormalDisconnection);
             }
             catch { }
         }
@@ -154,15 +154,9 @@ namespace MTConnect
                 var formatResult = InputFormatter.Format(_configuration.DocumentFormat, observations);
                 if (formatResult.Success)
                 {
-                    var payload = formatResult.Content;
-                    Console.WriteLine($"JSON = {(double)payload.Length / 1000}kb");
-
-                    //var payload = CompressPayload(formatResult.Content);
-                    //Console.WriteLine($"JSON-gzip = {(double)payload.Length / 1000}kb");
-
                     var message = new MqttApplicationMessage();
-                    message.Topic = $"{_configuration.Topic}/{_configuration.DeviceKey}/observations-gzip";
-                    message.Payload = payload;
+                    message.Topic = $"{_configuration.Topic}/{_configuration.DeviceKey}/observations";
+                    message.PayloadSegment = formatResult.Content;
                     _mqttClient.PublishAsync(message);
                 }
             }
