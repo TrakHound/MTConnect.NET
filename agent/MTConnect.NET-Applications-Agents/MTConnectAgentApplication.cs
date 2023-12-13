@@ -25,8 +25,8 @@ namespace MTConnect.Applications
     /// </summary>
     public class MTConnectAgentApplication : IMTConnectAgentApplication
     {
-        private const string DefaultServiceName = "MTConnect-Agent";
-        private const string DefaultServiceDisplayName = "MTConnect Agent";
+        private const string DefaultServiceName = "MTConnect.NET-Agent";
+        private const string DefaultServiceDisplayName = "MTConnect.NET Agent";
         private const string DefaultServiceDescription = "MTConnect Agent to provide access to device information using the MTConnect Standard";
 
         protected readonly Logger _applicationLogger = LogManager.GetLogger("application");
