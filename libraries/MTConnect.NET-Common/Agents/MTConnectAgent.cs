@@ -126,8 +126,15 @@ namespace MTConnect.Agents
         /// </summary>
         public DateTime DeviceModelChangeTime => _deviceModelChangeTime.ToDateTime();
 
+
+        /// <summary>
+        /// The Function to use to Process Observations. This can be used to transform values or trigger custom actions
+        /// </summary>
         public Func<ProcessObservation, IObservationInput> ProcessObservationFunction { get; set; }
 
+        /// <summary>
+        /// The Function to use to Process Assets. This can be used to transform values or trigger custom actions
+        /// </summary>
         public Func<IAsset, IAsset> ProcessAssetFunction { get; set; }
 
         #endregion
@@ -333,7 +340,24 @@ namespace MTConnect.Agents
         }
 
 
-        public IDevice GetDevice(string deviceKey, Version mtconnectVersion = null)
+        public IDevice GetDevice(string deviceKey)
+        {
+            var deviceUuid = GetDeviceUuid(deviceKey);
+            if (deviceUuid != null)
+            {
+                IDevice device = null;
+                if (deviceUuid == _agent.Uuid) device = _agent;
+                if (device == null) _devices.TryGetValue(deviceUuid, out device);
+                if (device != null)
+                {
+                    return device;
+                }
+            }
+
+            return null;
+        }
+
+        public IDevice GetDevice(string deviceKey, Version mtconnectVersion)
         {
             var deviceUuid = GetDeviceUuid(deviceKey);
             if (deviceUuid != null)
@@ -350,7 +374,22 @@ namespace MTConnect.Agents
             return null;
         }
 
-        public IEnumerable<IDevice> GetDevices(Version mtconnectVersion = null)
+        public IEnumerable<IDevice> GetDevices()
+        {
+            var allDevices = new List<IDevice>();
+            allDevices.Add(_agent);
+            var devices = _devices.Select(o => o.Value).ToList();
+            if (!devices.IsNullOrEmpty()) allDevices.AddRange(devices);
+
+            if (!allDevices.IsNullOrEmpty())
+            {
+                return allDevices;
+            }
+
+            return null;
+        }
+
+        public IEnumerable<IDevice> GetDevices(Version mtconnectVersion)
         {
             var allDevices = new List<IDevice>();
             allDevices.Add(_agent);
@@ -365,7 +404,22 @@ namespace MTConnect.Agents
             return null;
         }
 
-        public IEnumerable<IDevice> GetDevices(string deviceType, Version mtconnectVersion = null)
+        public IEnumerable<IDevice> GetDevices(string deviceType)
+        {
+            var allDevices = new List<IDevice>();
+            if (string.IsNullOrEmpty(deviceType) || deviceType.ToLower() == "agent") allDevices.Add(Agent);
+            var devices = _devices.Select(o => o.Value).ToList();
+            if (!devices.IsNullOrEmpty()) allDevices.AddRange(devices);
+
+            if (!allDevices.IsNullOrEmpty())
+            {
+                return allDevices;
+            }
+
+            return null;
+        }
+
+        public IEnumerable<IDevice> GetDevices(string deviceType, Version mtconnectVersion)
         {
             var allDevices = new List<IDevice>();
             if (string.IsNullOrEmpty(deviceType) || deviceType.ToLower() == "agent") allDevices.Add(Agent);

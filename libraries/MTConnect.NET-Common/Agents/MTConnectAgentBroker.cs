@@ -1103,7 +1103,11 @@ namespace MTConnect.Agents
                     {
                         // Get All DataItems (Component Root DataItems and Composition DataItems)
                         var dataItems = new List<IDataItem>();
+
+                        // Add DataItems
                         if (!component.DataItems.IsNullOrEmpty()) dataItems.AddRange(component.DataItems);
+
+                        // Add Composition DataItems
                         if (!component.Compositions.IsNullOrEmpty())
                         {
                             foreach (var composition in component.Compositions)
@@ -1127,19 +1131,6 @@ namespace MTConnect.Agents
                     }
                 }
             }
-
-            //// Add ComponentStream for Device
-            //var deviceComponentStream = new ComponentStreamOutput();
-            //deviceComponentStream.ComponentId = device.Id;
-            //deviceComponentStream.ComponentType = device.Type;
-            //deviceComponentStream.Component = device;
-            //deviceComponentStream.Name = device.Name;
-            //deviceComponentStream.Uuid = device.Uuid;
-            //deviceComponentStream.Observations = GetObservations(device.Uuid, ref dataItemResults, device.DataItems, mtconnectVersion);
-            //if (deviceComponentStream.Observations != null && deviceComponentStream.Observations.Length > 0)
-            //{
-            //    componentStreams.Add(deviceComponentStream);
-            //}
 
             if (componentStreams.Count > 0)
             {
@@ -1751,5 +1742,6 @@ namespace MTConnect.Agents
         }
 
         #endregion
+
     }
 }

@@ -138,9 +138,17 @@ namespace MTConnect.Agents
 
         #region "Entities"
 
-        IDevice GetDevice(string deviceKey, Version mtconnectVersion = null);
+        IDevice GetDevice(string deviceKey);
 
-        IEnumerable<IDevice> GetDevices(Version mtconnectVersion = null);
+        IDevice GetDevice(string deviceKey, Version mtconnectVersion);
+
+        IEnumerable<IDevice> GetDevices();
+
+        IEnumerable<IDevice> GetDevices(Version mtconnectVersion);
+
+        IEnumerable<IDevice> GetDevices(string deviceType);
+
+        IEnumerable<IDevice> GetDevices(string deviceType, Version mtconnectVersion);
 
 
         IDataItem GetDataItem(string deviceKey, string dataItemKey);
@@ -340,5 +348,6 @@ namespace MTConnect.Agents
         // Task<Interfaces.InterfaceResponseState> GetResponseState(string deviceName, string interfaceId);
 
         #endregion
+
     }
 }
