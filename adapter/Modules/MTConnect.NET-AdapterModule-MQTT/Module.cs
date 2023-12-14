@@ -60,7 +60,10 @@ namespace MTConnect
                     try
                     {
                         // Declare new MQTT Client Options with Tcp Server
-                        var clientOptionsBuilder = new MqttClientOptionsBuilder().WithTcpServer(_configuration.Server, _configuration.Port);
+                        var clientOptionsBuilder = new MqttClientOptionsBuilder();
+
+                        // Set TCP Settings
+                        clientOptionsBuilder.WithTcpServer(_configuration.Server, _configuration.Port);
 
                         // Set Client ID
                         if (!string.IsNullOrEmpty(_configuration.ClientId))
@@ -155,9 +158,13 @@ namespace MTConnect
                 if (formatResult.Success)
                 {
                     var message = new MqttApplicationMessage();
-                    message.Topic = $"{_configuration.Topic}/{_configuration.DeviceKey}/observations";
+                    message.Retain = true;
+                    message.QualityOfServiceLevel = (MQTTnet.Protocol.MqttQualityOfServiceLevel)_configuration.QoS;
+                    message.Topic = $"{_configuration.Topic}/observations";
                     message.PayloadSegment = formatResult.Content;
                     _mqttClient.PublishAsync(message);
+
+                    Log(MTConnectLogLevel.Debug, $"MQTT Observations Message Published to {message.Topic}");
                 }
             }
 
@@ -166,11 +173,46 @@ namespace MTConnect
 
         public override bool AddAssets(IEnumerable<IAssetInput> assets)
         {
+            if (_mqttClient != null && !assets.IsNullOrEmpty())
+            {
+                var formatResult = InputFormatter.Format(_configuration.DocumentFormat, assets);
+                if (formatResult.Success)
+                {
+                    var message = new MqttApplicationMessage();
+                    message.Retain = true;
+                    message.QualityOfServiceLevel = (MQTTnet.Protocol.MqttQualityOfServiceLevel)_configuration.QoS;
+                    message.Topic = $"{_configuration.Topic}/assets";
+                    message.PayloadSegment = formatResult.Content;
+                    _mqttClient.PublishAsync(message);
+
+                    Log(MTConnectLogLevel.Debug, $"MQTT Assets Message Published to {message.Topic}");
+                }
+            }
+
             return true;
         }
 
         public override bool AddDevices(IEnumerable<IDeviceInput> devices)
         {
+            if (_mqttClient != null && !devices.IsNullOrEmpty())
+            {
+                foreach (var device in devices)
+                {
+                    var formatResult = InputFormatter.Format(_configuration.DocumentFormat, device);
+                    if (formatResult.Success)
+                    {
+                        var message = new MqttApplicationMessage();
+                        message.Retain = true;
+                        message.QualityOfServiceLevel = (MQTTnet.Protocol.MqttQualityOfServiceLevel)_configuration.QoS;
+                        message.Topic = $"{_configuration.Topic}/device";
+                        message.PayloadSegment = formatResult.Content;
+                        _mqttClient.PublishAsync(message);
+
+                        Log(MTConnectLogLevel.Debug, $"MQTT Device Message Published to {message.Topic}");
+                    }
+                }
+            }
+
             return true;
         }
 

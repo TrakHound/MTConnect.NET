@@ -3,6 +3,8 @@
 # MTConnect MQTT Adapter Module
 This Adapter Module sends input data to an MQTT Broker that can be read by an MTConnect Agent
 
+>This Module is still under development. Please feel free to leave feedback or create Issues on GitHub.
+
 ## Nuget
 <table>
     <thead>
