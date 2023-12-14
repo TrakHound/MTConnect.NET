@@ -161,7 +161,7 @@ namespace MTConnect
                     message.Retain = true;
                     message.QualityOfServiceLevel = (MQTTnet.Protocol.MqttQualityOfServiceLevel)_configuration.QoS;
                     message.Topic = $"{_configuration.Topic}/observations";
-                    message.PayloadSegment = formatResult.Content;
+                    message.Payload = formatResult.Content;
                     _mqttClient.PublishAsync(message);
 
                     Log(MTConnectLogLevel.Debug, $"MQTT Observations Message Published to {message.Topic}");
@@ -182,7 +182,7 @@ namespace MTConnect
                     message.Retain = true;
                     message.QualityOfServiceLevel = (MQTTnet.Protocol.MqttQualityOfServiceLevel)_configuration.QoS;
                     message.Topic = $"{_configuration.Topic}/assets";
-                    message.PayloadSegment = formatResult.Content;
+                    message.Payload = formatResult.Content;
                     _mqttClient.PublishAsync(message);
 
                     Log(MTConnectLogLevel.Debug, $"MQTT Assets Message Published to {message.Topic}");
@@ -205,7 +205,7 @@ namespace MTConnect
                         message.Retain = true;
                         message.QualityOfServiceLevel = (MQTTnet.Protocol.MqttQualityOfServiceLevel)_configuration.QoS;
                         message.Topic = $"{_configuration.Topic}/device";
-                        message.PayloadSegment = formatResult.Content;
+                        message.Payload = formatResult.Content;
                         _mqttClient.PublishAsync(message);
 
                         Log(MTConnectLogLevel.Debug, $"MQTT Device Message Published to {message.Topic}");
