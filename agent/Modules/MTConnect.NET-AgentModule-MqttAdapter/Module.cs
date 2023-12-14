@@ -165,7 +165,7 @@ namespace MTConnect.Modules
                         }
                         else
                         {
-                            // ERROR ?
+                            Log(MTConnectLogLevel.Information, $"MQTT Adapter : TopicPrefix Configuration Parameter Required");
                         }
 
                         while (_mqttClient.IsConnected && !_stop.IsCancellationRequested)
@@ -201,6 +201,9 @@ namespace MTConnect.Modules
             if (args.ApplicationMessage.PayloadSegment != null && args.ApplicationMessage.PayloadSegment.Array != null && args.ApplicationMessage.PayloadSegment.Array.Length > 0)
             {
                 var topic = args.ApplicationMessage.Topic;
+
+                Log(MTConnectLogLevel.Debug, $"MQTT Message Received : Topic = {topic}");
+                Log(MTConnectLogLevel.Trace, $"MQTT Message Received : Topic = {topic} : {System.Text.Encoding.UTF8.GetString(args.ApplicationMessage.PayloadSegment.Array)}");
 
                 if (IsObservationTopic(topic))
                 {
@@ -293,8 +296,8 @@ namespace MTConnect.Modules
                     }
                 }
                 catch (Exception ex)
-                { 
-
+                {
+                    Log(MTConnectLogLevel.Error, $"MQTT Observation Payload Error : {ex.Message}");
                 }
             }
 
@@ -319,7 +322,7 @@ namespace MTConnect.Modules
                 }
                 catch (Exception ex)
                 {
-
+                    Log(MTConnectLogLevel.Error, $"MQTT Asset Payload Error : {ex.Message}");
                 }
             }
 
@@ -344,7 +347,7 @@ namespace MTConnect.Modules
                 }
                 catch (Exception ex)
                 {
-
+                    Log(MTConnectLogLevel.Error, $"MQTT Observation Device Error : {ex.Message}");
                 }
             }
 

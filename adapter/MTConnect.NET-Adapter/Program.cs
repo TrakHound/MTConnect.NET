@@ -13,11 +13,11 @@ namespace MTConnect.Applications
     {
         // This is the Application Name shown in the Console header information
         // If you are implementing this into your own application, you can change this to be more specific (ex. Fanuc MTConnect Adapter, Mazak MTConnect Adapter, etc.)
-        private const string ApplicationName = "MTConnect Adapter";
+        private const string ApplicationName = "MTConnect.NET Adapter";
 
         // Copyright statement for the application. If you are implementing this into your own application, you can change this to your own copyright, or set it to 'null'.
         // This is just what is shown in the console header.
-        private const string ApplicationCopyright = "Copyright 2023";
+        private const string ApplicationCopyright = "Copyright 2023 TrakHound Inc., All Rights Reserved";
 
 
         public static void Main(string[] args)

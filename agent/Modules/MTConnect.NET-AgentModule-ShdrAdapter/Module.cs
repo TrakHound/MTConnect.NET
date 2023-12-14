@@ -146,7 +146,7 @@ namespace MTConnect.Modules
         private void AdapterConnectionError(object sender, Exception exception)
         {
             var adapterClient = (ShdrAdapterClient)sender;
-            Log(MTConnectLogLevel.Information, $"ID = " + adapterClient.Id + " : " + exception.Message);
+            Log(MTConnectLogLevel.Debug, $"ID = " + adapterClient.Id + " : " + exception.Message);
         }
 
         private void AdapterListening(object sender, string message)
@@ -156,7 +156,7 @@ namespace MTConnect.Modules
             var dataItemId = DataItem.CreateId(adapterClient.Id, ConnectionStatusDataItem.NameId);
             _mtconnectAgent.AddObservation(_mtconnectAgent.Uuid, dataItemId, Observations.Events.ConnectionStatus.LISTEN);
 
-            Log(MTConnectLogLevel.Information, $"ID = " + adapterClient.Id + " : " + message);
+            Log(MTConnectLogLevel.Debug, $"ID = " + adapterClient.Id + " : " + message);
         }
 
         private void AdapterPingSent(object sender, string message)

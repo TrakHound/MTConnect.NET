@@ -3,6 +3,8 @@
 # MTConnect MQTT Adapter Agent Module
 This Agent Module implements an adapter to read from an MQTT broker
 
+>This Module is still under development. Please feel free to leave feedback or create Issues on GitHub.
+
 ## Configuration
 ```yaml
 - mqtt-adapter:

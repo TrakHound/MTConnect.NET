@@ -6,6 +6,7 @@ using MTConnect.Configurations;
 using MTConnect.Input;
 using MTConnect.Logging;
 using NLog;
+using NLog.Config;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -21,8 +22,8 @@ namespace MTConnect.Applications
     public class MTConnectAdapterApplication : IMTConnectAdapterApplication
     {
         private const string DefaultServiceLabel = "";
-        private const string DefaultServiceName = "MTConnect-Adapter";
-        private const string DefaultServiceDisplayName = "MTConnect Adapter";
+        private const string DefaultServiceName = "MTConnect.NET-Adapter";
+        private const string DefaultServiceDisplayName = "MTConnect.NET Adapter";
         private const string DefaultServiceDescription = "MTConnect Adapter to transfer data to an MTConnect Agent";
 
         protected readonly Logger _applicationLogger = LogManager.GetLogger("application-logger");
@@ -157,8 +158,17 @@ namespace MTConnect.Applications
                     break;
 
                 case "debug":
-                    _verboseLogging = true;
-                    StartAdapter(configuration, _verboseLogging);
+
+                    if (LogManager.Configuration != null)
+                    {
+                        var consoleTarget = LogManager.Configuration.FindTargetByName("logConsole");
+                        if (consoleTarget != null)
+                        {
+                            LogManager.Configuration.AddRule(new LoggingRule("*", LogLevel.Debug, consoleTarget));
+                        }
+                    }
+
+                    StartAdapter(configuration);
 
                     if (isBlocking) while (true) Thread.Sleep(100); // Block (exit console by 'Ctrl + C')
                     else break;

@@ -10,6 +10,7 @@ using MTConnect.Devices.DataItems;
 using MTConnect.Logging;
 using MTConnect.Observations;
 using NLog;
+using NLog.Config;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -165,8 +166,33 @@ namespace MTConnect.Applications
                     break;
 
                 case "debug":
-                    _verboseLogging = true;
-                    StartAgent(configuration, _verboseLogging);
+
+                    if (LogManager.Configuration != null)
+                    {
+                        var consoleTarget = LogManager.Configuration.FindTargetByName("logConsole");
+                        if (consoleTarget != null)
+                        {
+                            LogManager.Configuration.AddRule(new LoggingRule("*", LogLevel.Debug, consoleTarget));
+                        }
+                    }
+
+                    StartAgent(configuration, true);
+
+                    if (isBlocking) while (true) Thread.Sleep(100); // Block (exit console by 'Ctrl + C')
+                    else break;
+
+                case "trace":
+
+                    if (LogManager.Configuration != null)
+                    {
+                        var consoleTarget = LogManager.Configuration.FindTargetByName("logConsole");
+                        if (consoleTarget != null)
+                        {
+                            LogManager.Configuration.AddRule(new LoggingRule("*", LogLevel.Trace, consoleTarget));
+                        }
+                    }
+
+                    StartAgent(configuration, true);
 
                     if (isBlocking) while (true) Thread.Sleep(100); // Block (exit console by 'Ctrl + C')
                     else break;
