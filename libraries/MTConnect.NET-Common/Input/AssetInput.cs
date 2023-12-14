@@ -69,6 +69,7 @@ namespace MTConnect.Input
             if (asset != null)
             {
                 AssetId = asset.AssetId;
+                Type = asset.Type;
                 Asset = asset;
             }
         }
@@ -79,6 +80,7 @@ namespace MTConnect.Input
             {
                 DeviceKey = deviceKey;
                 AssetId = asset.AssetId;
+                Type = asset.Type;
                 Asset = asset;
             }
         }
@@ -89,6 +91,7 @@ namespace MTConnect.Input
             {
                 DeviceKey = asset.DeviceKey;
                 AssetId = asset.AssetId;
+                Type = asset.Type;
                 Asset = asset.Asset;
                 Timestamp = asset.Timestamp;
             }

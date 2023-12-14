@@ -39,12 +39,12 @@ namespace MTConnect.Mqtt
             {
                 foreach (var asset in assets)
                 {
-                    if (asset != null)
+                    if (asset != null && asset.Asset != null)
                     {
                         switch (asset.Type)
                         {
                             case ComponentConfigurationParametersAsset.TypeId:
-                                var componentConfigurationParametersAsset = new JsonComponentConfigurationParametersAsset(asset as IComponentConfigurationParametersAsset);
+                                var componentConfigurationParametersAsset = new JsonComponentConfigurationParametersAsset(asset.Asset as IComponentConfigurationParametersAsset);
                                 if (componentConfigurationParametersAsset != null)
                                 {
                                     if (ComponentConfigurationParameters == null) ComponentConfigurationParameters = new List<JsonComponentConfigurationParametersAsset>();
@@ -53,7 +53,7 @@ namespace MTConnect.Mqtt
                                 break;
 
                             case CuttingToolAsset.TypeId:
-                                var cuttingToolAsset = new JsonCuttingToolAsset(asset as ICuttingToolAsset);
+                                var cuttingToolAsset = new JsonCuttingToolAsset(asset.Asset as ICuttingToolAsset);
                                 if (cuttingToolAsset != null)
                                 {
                                     if (CuttingTools == null) CuttingTools = new List<JsonCuttingToolAsset>();
@@ -62,7 +62,7 @@ namespace MTConnect.Mqtt
                                 break;
 
                             case FileAsset.TypeId:
-                                var fileAsset = new JsonFileAsset(asset as IFileAsset);
+                                var fileAsset = new JsonFileAsset(asset.Asset as IFileAsset);
                                 if (fileAsset != null)
                                 {
                                     if (Files == null) Files = new List<JsonFileAsset>();
@@ -71,7 +71,7 @@ namespace MTConnect.Mqtt
                                 break;
 
                             case RawMaterialAsset.TypeId:
-                                var rawMaterialAsset = new JsonRawMaterialAsset(asset as IRawMaterialAsset);
+                                var rawMaterialAsset = new JsonRawMaterialAsset(asset.Asset as IRawMaterialAsset);
                                 if (rawMaterialAsset != null)
                                 {
                                     if (RawMaterials == null) RawMaterials = new List<JsonRawMaterialAsset>();
