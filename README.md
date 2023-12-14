@@ -6,7 +6,10 @@
 [![GitHub all releases](https://img.shields.io/github/downloads/TrakHound/MTConnect.NET/total?label=Release%20Downloads)](https://github.com/TrakHound/MTConnect.NET/releases/latest)
 [![Nuget](https://img.shields.io/nuget/dt/MTConnect.NET?label=Nuget%20Downloads)](https://www.nuget.org/packages/MTConnect.NET)
 
->9/5/2023 Updated for MTConnect v2.2
+## Version 6 Beta
+The Version 6 beta is now available in the [version-6](https://github.com/TrakHound/MTConnect.NET/tree/version-6.0) branch and available for download:
+- Agent Installer: https://github.com/TrakHound/MTConnect.NET/releases/tag/v6.0.5-beta
+- Agent Docker: https://hub.docker.com/repository/docker/trakhound/mtconnect.net-agent/general
 
 ## Overview
 MTConnect.NET is a fully featured .NET library for MTConnect to develop Agents, Adapters, and Clients. Supports MTConnect Versions up to 2.2.
