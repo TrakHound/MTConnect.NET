@@ -6,6 +6,8 @@ using MTConnect.Observations;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MTConnect.Applications
 {
@@ -44,10 +46,10 @@ namespace MTConnect.Applications
             app.Run(args, false);
 
 
-            Console.ReadLine();
+            //Console.ReadLine();
 
-            var device = XmlDevice.FromXml(System.IO.File.ReadAllBytes(@"D:\TrakHound\Source-Code\MTConnect.NET\agent\MTConnect.NET-Agent\bin\Debug\net8.0\devices\device-mazak.xml"));
-            app.DataSource.AddDevice(device);
+            //var device = XmlDevice.FromXml(System.IO.File.ReadAllBytes(@"D:\TrakHound\Source-Code\MTConnect.NET\agent\MTConnect.NET-Agent\bin\Debug\net8.0\devices\device-mazak.xml"));
+            //app.DataSource.AddDevice(device);
 
 
             var x = 0;
@@ -56,7 +58,7 @@ namespace MTConnect.Applications
 
             while (true)
             {
-                Console.ReadLine();
+                //Console.ReadLine();
 
                 var rnd = new Random();
                 var ts = DateTime.Now;
@@ -101,7 +103,7 @@ namespace MTConnect.Applications
                 app.DataSource.AddObservation(timeSeries);
 
 
-                app.DataSource.AddAsset(CuttingTool(device.Uuid, j));
+                //app.DataSource.AddAsset(CuttingTool(device.Uuid, j));
                 j += 23.3455;
 
 
@@ -139,6 +141,8 @@ namespace MTConnect.Applications
                 x++;
                 i++;
                 if (i > 2) i = 0;
+
+                Thread.Sleep(1000);
             }
 
         }

@@ -21,6 +21,7 @@ namespace MTConnect
     public class Module : MTConnectAdapterModule
     {
         public const string ConfigurationTypeId = "mqtt";
+        private const string ModuleId = "MQTT";
 
         private readonly ModuleConfiguration _configuration;
         private readonly MqttFactory _mqttFactory;
@@ -30,6 +31,8 @@ namespace MTConnect
 
         public Module(string id, object moduleConfiguration) : base(id)
         {
+            Id = ModuleId;
+
             _mqttFactory = new MqttFactory();
             _mqttClient = _mqttFactory.CreateMqttClient();
 

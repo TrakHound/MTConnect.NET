@@ -2,6 +2,7 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Adapters;
+using MTConnect.Agents;
 using MTConnect.Configurations;
 using MTConnect.Input;
 using MTConnect.Logging;
@@ -27,9 +28,10 @@ namespace MTConnect.Applications
         private const string DefaultServiceDescription = "MTConnect Adapter to transfer data to an MTConnect Agent";
 
         protected readonly Logger _applicationLogger = LogManager.GetLogger("application-logger");
-        protected readonly Logger _adapterLogger = LogManager.GetLogger("adapter-logger");
-        protected readonly Logger _moduleLogger = LogManager.GetLogger("module-logger");
+        //protected readonly Logger _adapterLogger = LogManager.GetLogger("adapter-logger");
+        //protected readonly Logger _moduleLogger = LogManager.GetLogger("module-logger");
         private readonly Dictionary<string, IMTConnectAdapter> _adapters = new Dictionary<string, IMTConnectAdapter>();
+        private readonly Dictionary<string, Logger> _loggers = new Dictionary<string, Logger>();
         private readonly object _lock = new object();
 
         private MTConnectAdapterModules _modules;
@@ -96,7 +98,7 @@ namespace MTConnect.Applications
                 if (args.Length > 1)
                 {
                     configFile = args[1];
-                    _applicationLogger.Info($"[Application] : Adapter Configuration Path = {configFile}");
+                    _applicationLogger.Info($"Adapter Configuration Path = {configFile}");
                 }
             }
 
@@ -115,7 +117,7 @@ namespace MTConnect.Applications
             var configuration = AdapterApplicationConfiguration.Read<AdapterApplicationConfiguration>(configFile);
             if (configuration != null)
             {
-                _adapterLogger.Info($"[Application] : Configuration File Read Successfully from: {configuration.Path}");
+                _applicationLogger.Info($"Configuration File Read Successfully from: {configuration.Path}");
 
                 // Set Service Name
                 if (!string.IsNullOrEmpty(configuration.ServiceName)) serviceDisplayName = configuration.ServiceName;
@@ -125,7 +127,7 @@ namespace MTConnect.Applications
             }
             else
             {
-                _adapterLogger.Warn("[Application] : Error Reading Configuration File. Default Configuration is loaded.");
+                _applicationLogger.Warn("Error Reading Configuration File. Default Configuration is loaded.");
 
                 configuration = new AdapterApplicationConfiguration();
             }
@@ -416,7 +418,7 @@ namespace MTConnect.Applications
             var applicationConfiguration = configuration as IAdapterApplicationConfiguration;
             if (applicationConfiguration != null)
             {
-                _applicationLogger.Info($"[Application] : Adapter Configuration File Updated ({configuration.Path})");
+                _applicationLogger.Info($"Adapter Configuration File Updated ({configuration.Path})");
 
                 StopAdapter();
 
@@ -432,7 +434,7 @@ namespace MTConnect.Applications
 
         private void AdapterConfigurationFileError(object sender, string message)
         {
-            _applicationLogger.Error($"[Application] : Adapter Configuration File Error : {message}");
+            _applicationLogger.Error($"Adapter Configuration File Error : {message}");
         }
 
         #endregion
@@ -536,24 +538,63 @@ namespace MTConnect.Applications
 
         private void ModuleLoaded(object sender, IMTConnectAdapterModule module)
         {
-            _applicationLogger.Debug($"[Application] : Module Loaded : " + module.GetType().Name);
+            _applicationLogger.Debug($"Module Loaded : " + module.GetType().Name);
         }
 
         private void ModuleLogReceived(object sender, MTConnectLogLevel logLevel, string message, string logId = null)
         {
             if (!string.IsNullOrEmpty(message))
             {
+                var module = (IMTConnectAdapterModule)sender;
+
+                var loggerId = logId;
+                if (string.IsNullOrEmpty(loggerId)) loggerId = module.Id;
+                loggerId = $"modules.{loggerId.Replace(' ', '-')}".ToLower();
+
+                Logger logger;
+                lock (_lock)
+                {
+                    _loggers.TryGetValue(loggerId, out logger);
+                    if (logger == null)
+                    {
+                        logger = LogManager.GetLogger(loggerId);
+                        _loggers.Add(loggerId, logger);
+                    }
+                }
+
+                var logEvent = new LogEventInfo();
+                logEvent.LoggerName = loggerId;
+                logEvent.Message = message;
+
                 switch (logLevel)
                 {
-                    case MTConnectLogLevel.Fatal: _moduleLogger.Fatal(message); break;
-                    case MTConnectLogLevel.Error: _moduleLogger.Error(message); break;
-                    case MTConnectLogLevel.Warning: _moduleLogger.Warn(message); break;
-                    case MTConnectLogLevel.Information: _moduleLogger.Info(message); break;
-                    case MTConnectLogLevel.Debug: _moduleLogger.Debug(message); break;
-                    case MTConnectLogLevel.Trace: _moduleLogger.Trace(message); break;
+                    case MTConnectLogLevel.Fatal: logEvent.Level = LogLevel.Fatal; break;
+                    case MTConnectLogLevel.Error: logEvent.Level = LogLevel.Error; break;
+                    case MTConnectLogLevel.Warning: logEvent.Level = LogLevel.Warn; break;
+                    case MTConnectLogLevel.Information: logEvent.Level = LogLevel.Info; break;
+                    case MTConnectLogLevel.Debug: logEvent.Level = LogLevel.Debug; break;
+                    case MTConnectLogLevel.Trace: logEvent.Level = LogLevel.Trace; break;
                 }
+
+                logger.Log(logEvent);
             }
         }
+
+        //private void ModuleLogReceived(object sender, MTConnectLogLevel logLevel, string message, string logId = null)
+        //{
+        //    if (!string.IsNullOrEmpty(message))
+        //    {
+        //        switch (logLevel)
+        //        {
+        //            case MTConnectLogLevel.Fatal: _moduleLogger.Fatal(message); break;
+        //            case MTConnectLogLevel.Error: _moduleLogger.Error(message); break;
+        //            case MTConnectLogLevel.Warning: _moduleLogger.Warn(message); break;
+        //            case MTConnectLogLevel.Information: _moduleLogger.Info(message); break;
+        //            case MTConnectLogLevel.Debug: _moduleLogger.Debug(message); break;
+        //            case MTConnectLogLevel.Trace: _moduleLogger.Trace(message); break;
+        //        }
+        //    }
+        //}
 
         #endregion
 

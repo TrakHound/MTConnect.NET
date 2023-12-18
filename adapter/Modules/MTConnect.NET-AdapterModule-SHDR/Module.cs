@@ -19,6 +19,7 @@ namespace MTConnect
     public class Module : MTConnectAdapterModule
     {
         public const string ConfigurationTypeId = "shdr";
+        private const string ModuleId = "SDHR";
 
         private readonly object _lock = new object();
         private readonly ModuleConfiguration _configuration;
@@ -29,6 +30,8 @@ namespace MTConnect
 
         public Module(string id, object moduleConfiguration) : base(id)
         {
+            Id = ModuleId;
+
             _configuration = AdapterApplicationConfiguration.GetConfiguration<ModuleConfiguration>(moduleConfiguration);
             if (_configuration == null) _configuration = new ModuleConfiguration();
 
@@ -67,7 +70,6 @@ namespace MTConnect
                 foreach (var x in dataItems) shdrDataItems.Add(new ShdrDataItem(x));
                 var shdrLine = ShdrDataItem.ToString(shdrDataItems);
                 WriteLine(shdrLine);
-                Console.WriteLine(shdrLine);
             }
 
             // Messages
@@ -79,7 +81,6 @@ namespace MTConnect
                     var shdrModel = new ShdrMessage(x);
                     var shdrLine = shdrModel.ToString();
                     WriteLine(shdrLine);
-                    Console.WriteLine(shdrLine);
                 }
             }
 
@@ -92,7 +93,6 @@ namespace MTConnect
                     var shdrModel = new ShdrFaultState(new ConditionFaultStateObservationInput(x));
                     var shdrLine = shdrModel.ToString();
                     WriteLine(shdrLine);
-                    Console.WriteLine(shdrLine);
                 }
             }
 
@@ -105,7 +105,6 @@ namespace MTConnect
                     var shdrModel = new ShdrDataSet(new DataSetObservationInput(x));
                     var shdrLine = shdrModel.ToString();
                     WriteLine(shdrLine);
-                    Console.WriteLine(shdrLine);
                 }
             }
 
@@ -118,7 +117,6 @@ namespace MTConnect
                     var shdrModel = new ShdrTable(new TableObservationInput(x));
                     var shdrLine = shdrModel.ToString();
                     WriteLine(shdrLine);
-                    Console.WriteLine(shdrLine);
                 }
             }
 
@@ -131,7 +129,6 @@ namespace MTConnect
                     var shdrModel = new ShdrTimeSeries(new TimeSeriesObservationInput(x));
                     var shdrLine = shdrModel.ToString();
                     WriteLine(shdrLine);
-                    Console.WriteLine(shdrLine);
                 }
             }
 
@@ -145,7 +142,6 @@ namespace MTConnect
                 var shdrModel = new ShdrAsset(asset.Asset);
                 var shdrLine = shdrModel.ToString();
                 WriteLine(shdrLine);
-                Console.WriteLine(shdrLine);
             }
 
             return true;
@@ -158,7 +154,6 @@ namespace MTConnect
                 var shdrModel = new ShdrDevice(device.Device);
                 var shdrLine = shdrModel.ToString();
                 WriteLine(shdrLine);
-                Console.WriteLine(shdrLine);
             }
 
             return true;
@@ -272,55 +267,6 @@ namespace MTConnect
             return false;
         }
 
-        private bool WriteLine(string clientId, string line)
-        {
-            if (!string.IsNullOrEmpty(line))
-            {
-                var client = GetAgentClient(clientId);
-                if (client != null)
-                {
-                    return WriteLineToClient(client, line);
-                }
-            }
-
-            return false;
-        }
-
-        private async Task<bool> WriteLineAsync(string line)
-        {
-            if (!string.IsNullOrEmpty(line))
-            {
-                // Write Line to each client in stored client list
-                var clients = GetAgentClients();
-                if (!clients.IsNullOrEmpty())
-                {
-                    foreach (var client in clients)
-                    {
-                        await WriteLineToClientAsync(client, line);
-                    }
-
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        private async Task<bool> WriteLineAsync(string clientId, string line)
-        {
-            if (!string.IsNullOrEmpty(line))
-            {
-                var client = GetAgentClient(clientId);
-                if (client != null)
-                {
-                    return await WriteLineToClientAsync(client, line);
-                }
-            }
-
-            return false;
-        }
-
-
         private bool WriteLineToClient(AgentClient client, string line)
         {
             if (client != null && !string.IsNullOrEmpty(line))
@@ -343,11 +289,12 @@ namespace MTConnect
                             // Write the line (in bytes) to the Stream
                             stream.Write(bytes, 0, bytes.Length);
 
-                            //LineSent?.Invoke(this, new AdapterEventArgs(client.Id, singleLine));
+                            Log(MTConnectLogLevel.Debug, $"SHDR line written to stream : Client ID = {client.Id} : {bytes.Length} bytes");
+                            Log(MTConnectLogLevel.Trace, $"SHDR line written to stream : Client ID = {client.Id} : {singleLine}");
                         }
                         catch (Exception ex)
                         {
-                            //SendError?.Invoke(this, new AdapterEventArgs(client.Id, ex.Message));
+                            Log(MTConnectLogLevel.Error, $"SHDR Write ERROR : {ex.Message}");
                             return false;
                         }
                     }
@@ -358,37 +305,6 @@ namespace MTConnect
 
             return false;
         }
-
-        private async Task<bool> WriteLineToClientAsync(AgentClient client, string line)
-        {
-            if (client != null)
-            {
-                try
-                {
-                    // Convert string to ASCII bytes and add line terminator
-                    var bytes = Encoding.ASCII.GetBytes(line + "\n");
-
-                    // Get the TcpClient Stream
-                    var stream = client.TcpClient.GetStream();
-                    stream.ReadTimeout = _configuration.ConnectionTimeout;
-                    stream.WriteTimeout = _configuration.ConnectionTimeout;
-
-                    // Write the line (in bytes) to the Stream
-                    await stream.WriteAsync(bytes, 0, bytes.Length);
-
-                    //LineSent?.Invoke(this, new AdapterEventArgs(client.Id, line));
-
-                    return true;
-                }
-                catch (Exception ex)
-                {
-                    //SendError?.Invoke(this, new AdapterEventArgs(client.Id, ex.Message));
-                }
-            }
-
-            return false;
-        }
-
 
         // Split Lines by \r\n
         // Can't use string.Split(string, StringSplitOptions.TrimEntries since
