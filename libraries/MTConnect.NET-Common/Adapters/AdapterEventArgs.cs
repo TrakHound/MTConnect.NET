@@ -3,17 +3,17 @@
 
 namespace MTConnect.Adapters
 {
-    public struct AdapterEventArgs
+    public struct AdapterEventArgs<T>
     {
         public string ClientId { get; set; }
 
-        public string Message { get; set; }
+        public T Data { get; set; }
 
 
-        public AdapterEventArgs(string clientId, string message)
+        public AdapterEventArgs(string clientId, T data)
         {
             ClientId = clientId;
-            Message = message;
+            Data = data;
         }
     }
 }

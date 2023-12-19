@@ -32,12 +32,12 @@ namespace MTConnect.Adapters
         /// <summary>
         /// Raised when new data is sent to the Agent. Includes the AgentClient ID and the Data sent as an argument.
         /// </summary>
-        event EventHandler<AdapterEventArgs> DataSent;
+        event EventHandler<AdapterEventArgs<string>> DataSent;
 
         /// <summary>
         /// Raised when an error occurs when sending a new line to the Agent. Includes the AgentClient ID and the Error message as an argument.
         /// </summary>
-        event EventHandler<AdapterEventArgs> SendError;
+        event EventHandler<AdapterEventArgs<string>> SendError;
 
 
         /// <summary>

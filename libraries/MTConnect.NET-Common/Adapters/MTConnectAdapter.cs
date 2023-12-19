@@ -69,12 +69,12 @@ namespace MTConnect.Adapters
         /// <summary>
         /// Raised when new data is sent to the Agent. Includes the AgentClient ID and the Line sent as an argument.
         /// </summary>
-        public event EventHandler<AdapterEventArgs> DataSent;
+        public event EventHandler<AdapterEventArgs<string>> DataSent;
 
         /// <summary>
         /// Raised when an error occurs when sending a new line to the Agent. Includes the AgentClient ID and the Error message as an argument.
         /// </summary>
-        public event EventHandler<AdapterEventArgs> SendError;
+        public event EventHandler<AdapterEventArgs<string>> SendError;
 
 
         public MTConnectAdapter(int? interval = null, bool bufferEnabled = false)
