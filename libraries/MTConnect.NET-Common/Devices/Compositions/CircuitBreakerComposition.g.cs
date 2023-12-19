@@ -6,7 +6,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a mechanism that interrupts an electric circuit.
     /// </summary>
-    public class CircuitBreakerCompositionComposition : Composition 
+    public class CircuitBreakerComposition : Composition 
     {
         public const string TypeId = "CIRCUIT_BREAKER";
         public const string NameId = "circuitBreakerComposition";
@@ -17,6 +17,6 @@ namespace MTConnect.Devices.Compositions
         public override System.Version MinimumVersion => MTConnectVersions.Version14; 
 
 
-        public CircuitBreakerCompositionComposition()  { Type = TypeId; }
+        public CircuitBreakerComposition()  { Type = TypeId; }
     }
 }

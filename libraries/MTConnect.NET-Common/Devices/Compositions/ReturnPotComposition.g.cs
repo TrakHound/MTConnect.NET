@@ -6,7 +6,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Pot for a tool removed from spindle or Turret and awaiting for return to a ToolMagazine.
     /// </summary>
-    public class ReturnPotCompositionComposition : Composition 
+    public class ReturnPotComposition : Composition 
     {
         public const string TypeId = "RETURN_POT";
         public const string NameId = "returnPotComposition";
@@ -17,6 +17,6 @@ namespace MTConnect.Devices.Compositions
         public override System.Version MinimumVersion => MTConnectVersions.Version17; 
 
 
-        public ReturnPotCompositionComposition()  { Type = TypeId; }
+        public ReturnPotComposition()  { Type = TypeId; }
     }
 }

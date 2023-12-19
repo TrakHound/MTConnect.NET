@@ -6,7 +6,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Pot for a tool to be removed from a ToolMagazine or Turret to a location outside of the piece of equipment.
     /// </summary>
-    public class RemovalPotCompositionComposition : Composition 
+    public class RemovalPotComposition : Composition 
     {
         public const string TypeId = "REMOVAL_POT";
         public const string NameId = "removalPotComposition";
@@ -17,6 +17,6 @@ namespace MTConnect.Devices.Compositions
         public override System.Version MinimumVersion => MTConnectVersions.Version17; 
 
 
-        public RemovalPotCompositionComposition()  { Type = TypeId; }
+        public RemovalPotComposition()  { Type = TypeId; }
     }
 }

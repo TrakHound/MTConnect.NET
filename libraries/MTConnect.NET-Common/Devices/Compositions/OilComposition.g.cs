@@ -6,7 +6,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a viscous liquid.
     /// </summary>
-    public class OilCompositionComposition : Composition 
+    public class OilComposition : Composition 
     {
         public const string TypeId = "OIL";
         public const string NameId = "oilComposition";
@@ -17,6 +17,6 @@ namespace MTConnect.Devices.Compositions
         public override System.Version MinimumVersion => MTConnectVersions.Version14; 
 
 
-        public OilCompositionComposition()  { Type = TypeId; }
+        public OilComposition()  { Type = TypeId; }
     }
 }

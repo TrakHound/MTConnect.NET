@@ -6,7 +6,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of an apparatus that raises, drives, exhausts, or compresses fluids or gases by means of a piston, plunger, or set of rotating vanes.
     /// </summary>
-    public class PumpCompositionComposition : Composition 
+    public class PumpComposition : Composition 
     {
         public const string TypeId = "PUMP";
         public const string NameId = "pumpComposition";
@@ -17,6 +17,6 @@ namespace MTConnect.Devices.Compositions
         public override System.Version MinimumVersion => MTConnectVersions.Version14; 
 
 
-        public PumpCompositionComposition()  { Type = TypeId; }
+        public PumpComposition()  { Type = TypeId; }
     }
 }

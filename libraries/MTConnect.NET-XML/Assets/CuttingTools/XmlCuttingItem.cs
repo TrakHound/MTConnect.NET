@@ -22,20 +22,20 @@ namespace MTConnect.Assets.Xml.CuttingTools
         [XmlAttribute("grade")]
         public string Grade { get; set; }
 
-        [XmlAttribute("description")]
+        [XmlElement("Description")]
         public string Description { get; set; }
 
-        [XmlAttribute("locus")]
+        [XmlElement("Locus")]
         public string Locus { get; set; }
+
+        [XmlElement("ProgramToolGroup")]
+        public string ProgramToolGroup { get; set; }
 
         [XmlElement("CutterStatus")]
         public List<XmlCutterStatus> CutterStatus { get; set; }
 
         [XmlElement("ItemLife")]
         public List<XmlItemLife> ItemLife { get; set; }
-
-        [XmlAttribute("programToolGroup")]
-        public string ProgramToolGroup { get; set; }
 
 
         public ICuttingItem ToCuttingItem()
@@ -102,8 +102,22 @@ namespace MTConnect.Assets.Xml.CuttingTools
                     if (!string.IsNullOrEmpty(cuttingItem.ItemId)) writer.WriteAttributeString("itemId", cuttingItem.ItemId);
                     if (!string.IsNullOrEmpty(cuttingItem.Indices)) writer.WriteAttributeString("indices", cuttingItem.Indices);
                     if (!string.IsNullOrEmpty(cuttingItem.Grade)) writer.WriteAttributeString("grade", cuttingItem.Grade);
-                    if (!string.IsNullOrEmpty(cuttingItem.Description)) writer.WriteAttributeString("description", cuttingItem.Description);
-                    if (!string.IsNullOrEmpty(cuttingItem.Locus)) writer.WriteAttributeString("locus", cuttingItem.Locus);
+
+                    // Write Description
+                    if (!string.IsNullOrEmpty(cuttingItem.Description))
+                    {
+                        writer.WriteStartElement("Description");
+                        writer.WriteString(cuttingItem.Description);
+                        writer.WriteEndElement();
+                    }
+
+                    // Write Locus
+                    if (!string.IsNullOrEmpty(cuttingItem.Locus))
+                    {
+                        writer.WriteStartElement("Locus");
+                        writer.WriteString(cuttingItem.Locus);
+                        writer.WriteEndElement();
+                    }
 
                     // Write Manufacturers
                     if (!cuttingItem.Manufacturers.IsNullOrEmpty())

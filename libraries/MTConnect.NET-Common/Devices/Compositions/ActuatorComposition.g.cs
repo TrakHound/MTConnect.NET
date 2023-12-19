@@ -6,7 +6,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a mechanism that moves or controls a mechanical part of a piece of equipment.It takes energy usually provided by air, electric current, or liquid and converts the energy into some kind of motion.
     /// </summary>
-    public class ActuatorCompositionComposition : Composition 
+    public class ActuatorComposition : Composition 
     {
         public const string TypeId = "ACTUATOR";
         public const string NameId = "actuatorComposition";
@@ -17,6 +17,6 @@ namespace MTConnect.Devices.Compositions
         public override System.Version MinimumVersion => MTConnectVersions.Version14; 
 
 
-        public ActuatorCompositionComposition()  { Type = TypeId; }
+        public ActuatorComposition()  { Type = TypeId; }
     }
 }

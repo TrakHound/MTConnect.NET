@@ -6,7 +6,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a pump or other mechanism that reduces volume and increases pressure of gases in order to condense the gases to drive pneumatically powered pieces of equipment.
     /// </summary>
-    public class CompressorCompositionComposition : Composition 
+    public class CompressorComposition : Composition 
     {
         public const string TypeId = "COMPRESSOR";
         public const string NameId = "compressorComposition";
@@ -17,6 +17,6 @@ namespace MTConnect.Devices.Compositions
         public override System.Version MinimumVersion => MTConnectVersions.Version14; 
 
 
-        public CompressorCompositionComposition()  { Type = TypeId; }
+        public CompressorComposition()  { Type = TypeId; }
     }
 }

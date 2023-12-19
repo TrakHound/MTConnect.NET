@@ -6,7 +6,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a surface that holds an object or material.
     /// </summary>
-    public class TableCompositionComposition : Composition 
+    public class TableComposition : Composition 
     {
         public const string TypeId = "TABLE";
         public const string NameId = "tableComposition";
@@ -17,6 +17,6 @@ namespace MTConnect.Devices.Compositions
         public override System.Version MinimumVersion => MTConnectVersions.Version15; 
 
 
-        public TableCompositionComposition()  { Type = TypeId; }
+        public TableComposition()  { Type = TypeId; }
     }
 }

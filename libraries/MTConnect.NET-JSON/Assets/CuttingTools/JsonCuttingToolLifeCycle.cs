@@ -91,7 +91,11 @@ namespace MTConnect.Assets.Json.CuttingTools
                     Measurements = measurements;
                 }
 
-                if (CuttingItems != null) CuttingItems = new JsonCuttingItemCollection(cuttingToolLifeCycle.CuttingItems);
+                // CuttingItems
+                if (cuttingToolLifeCycle.CuttingItems != null)
+                {
+                    CuttingItems = new JsonCuttingItemCollection(cuttingToolLifeCycle.CuttingItems);
+                }
             }
         }
 

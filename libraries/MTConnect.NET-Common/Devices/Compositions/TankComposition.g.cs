@@ -6,7 +6,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a receptacle or container that holds material.
     /// </summary>
-    public class TankCompositionComposition : Composition 
+    public class TankComposition : Composition 
     {
         public const string TypeId = "TANK";
         public const string NameId = "tankComposition";
@@ -17,6 +17,6 @@ namespace MTConnect.Devices.Compositions
         public override System.Version MinimumVersion => MTConnectVersions.Version14; 
 
 
-        public TankCompositionComposition()  { Type = TypeId; }
+        public TankComposition()  { Type = TypeId; }
     }
 }

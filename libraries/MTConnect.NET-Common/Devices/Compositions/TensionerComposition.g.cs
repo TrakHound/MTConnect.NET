@@ -6,7 +6,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a mechanism that provides or applies a stretch or strain to another mechanism.
     /// </summary>
-    public class TensionerCompositionComposition : Composition 
+    public class TensionerComposition : Composition 
     {
         public const string TypeId = "TENSIONER";
         public const string NameId = "tensionerComposition";
@@ -17,6 +17,6 @@ namespace MTConnect.Devices.Compositions
         public override System.Version MinimumVersion => MTConnectVersions.Version14; 
 
 
-        public TensionerCompositionComposition()  { Type = TypeId; }
+        public TensionerComposition()  { Type = TypeId; }
     }
 }

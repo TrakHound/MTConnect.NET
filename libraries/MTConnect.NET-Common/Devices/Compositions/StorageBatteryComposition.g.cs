@@ -6,7 +6,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of one or more cells that converts chemical energy to electricity and serves as a source of power.
     /// </summary>
-    public class StorageBatteryCompositionComposition : Composition 
+    public class StorageBatteryComposition : Composition 
     {
         public const string TypeId = "STORAGE_BATTERY";
         public const string NameId = "storageBatteryComposition";
@@ -17,6 +17,6 @@ namespace MTConnect.Devices.Compositions
         public override System.Version MinimumVersion => MTConnectVersions.Version14; 
 
 
-        public StorageBatteryCompositionComposition()  { Type = TypeId; }
+        public StorageBatteryComposition()  { Type = TypeId; }
     }
 }

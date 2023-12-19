@@ -6,7 +6,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of an interconnected series of objects that band together and transmit motion for a piece of equipment or to convey materials and objects.
     /// </summary>
-    public class ChainCompositionComposition : Composition 
+    public class ChainComposition : Composition 
     {
         public const string TypeId = "CHAIN";
         public const string NameId = "chainComposition";
@@ -17,6 +17,6 @@ namespace MTConnect.Devices.Compositions
         public override System.Version MinimumVersion => MTConnectVersions.Version14; 
 
 
-        public ChainCompositionComposition()  { Type = TypeId; }
+        public ChainComposition()  { Type = TypeId; }
     }
 }

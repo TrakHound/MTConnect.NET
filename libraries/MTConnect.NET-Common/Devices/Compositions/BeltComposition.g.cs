@@ -6,7 +6,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of an endless flexible band that transmits motion for a piece of equipment or conveys materials and objects.
     /// </summary>
-    public class BeltCompositionComposition : Composition 
+    public class BeltComposition : Composition 
     {
         public const string TypeId = "BELT";
         public const string NameId = "beltComposition";
@@ -17,6 +17,6 @@ namespace MTConnect.Devices.Compositions
         public override System.Version MinimumVersion => MTConnectVersions.Version14; 
 
 
-        public BeltCompositionComposition()  { Type = TypeId; }
+        public BeltComposition()  { Type = TypeId; }
     }
 }

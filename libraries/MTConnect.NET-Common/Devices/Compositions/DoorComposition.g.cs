@@ -6,7 +6,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a mechanical mechanism or closure that covers a physical access portal into a piece of equipment allowing or restricting access to other parts of the equipment.
     /// </summary>
-    public class DoorCompositionComposition : Composition 
+    public class DoorComposition : Composition 
     {
         public const string TypeId = "DOOR";
         public const string NameId = "doorComposition";
@@ -17,6 +17,6 @@ namespace MTConnect.Devices.Compositions
         public override System.Version MinimumVersion => MTConnectVersions.Version14; 
 
 
-        public DoorCompositionComposition()  { Type = TypeId; }
+        public DoorComposition()  { Type = TypeId; }
     }
 }

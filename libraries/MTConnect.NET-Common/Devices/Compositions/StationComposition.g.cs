@@ -6,7 +6,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a storage or mounting location for a tool associated with a Turret, GangToolBar, or ToolRack.
     /// </summary>
-    public class StationCompositionComposition : Composition 
+    public class StationComposition : Composition 
     {
         public const string TypeId = "STATION";
         public const string NameId = "stationComposition";
@@ -17,6 +17,6 @@ namespace MTConnect.Devices.Compositions
         public override System.Version MinimumVersion => MTConnectVersions.Version17; 
 
 
-        public StationCompositionComposition()  { Type = TypeId; }
+        public StationComposition()  { Type = TypeId; }
     }
 }

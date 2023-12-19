@@ -6,7 +6,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a mechanism that holds a part, stock material, or any other item in place.
     /// </summary>
-    public class ChuckCompositionComposition : Composition 
+    public class ChuckComposition : Composition 
     {
         public const string TypeId = "CHUCK";
         public const string NameId = "chuckComposition";
@@ -17,6 +17,6 @@ namespace MTConnect.Devices.Compositions
         public override System.Version MinimumVersion => MTConnectVersions.Version14; 
 
 
-        public ChuckCompositionComposition()  { Type = TypeId; }
+        public ChuckComposition()  { Type = TypeId; }
     }
 }

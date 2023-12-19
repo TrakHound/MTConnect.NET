@@ -6,7 +6,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a tool storage location associated with a ToolMagazine or AutomaticToolChanger.
     /// </summary>
-    public class PotCompositionComposition : Composition 
+    public class PotComposition : Composition 
     {
         public const string TypeId = "POT";
         public const string NameId = "potComposition";
@@ -17,6 +17,6 @@ namespace MTConnect.Devices.Compositions
         public override System.Version MinimumVersion => MTConnectVersions.Version17; 
 
 
-        public PotCompositionComposition()  { Type = TypeId; }
+        public PotComposition()  { Type = TypeId; }
     }
 }

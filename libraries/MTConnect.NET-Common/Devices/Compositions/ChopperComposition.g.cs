@@ -6,7 +6,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a mechanism that breaks material into smaller pieces.
     /// </summary>
-    public class ChopperCompositionComposition : Composition 
+    public class ChopperComposition : Composition 
     {
         public const string TypeId = "CHOPPER";
         public const string NameId = "chopperComposition";
@@ -17,6 +17,6 @@ namespace MTConnect.Devices.Compositions
         public override System.Version MinimumVersion => MTConnectVersions.Version14; 
 
 
-        public ChopperCompositionComposition()  { Type = TypeId; }
+        public ChopperComposition()  { Type = TypeId; }
     }
 }

@@ -6,7 +6,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a mechanism that allows material to flow for the purpose of drainage from, for example, a vessel or tank.
     /// </summary>
-    public class DrainCompositionComposition : Composition 
+    public class DrainComposition : Composition 
     {
         public const string TypeId = "DRAIN";
         public const string NameId = "drainComposition";
@@ -17,6 +17,6 @@ namespace MTConnect.Devices.Compositions
         public override System.Version MinimumVersion => MTConnectVersions.Version14; 
 
 
-        public DrainCompositionComposition()  { Type = TypeId; }
+        public DrainComposition()  { Type = TypeId; }
     }
 }

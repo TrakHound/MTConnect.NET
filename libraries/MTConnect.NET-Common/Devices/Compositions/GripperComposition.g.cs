@@ -6,7 +6,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a mechanism that holds a part, stock material, or any other item in place.
     /// </summary>
-    public class GripperCompositionComposition : Composition 
+    public class GripperComposition : Composition 
     {
         public const string TypeId = "GRIPPER";
         public const string NameId = "gripperComposition";
@@ -17,6 +17,6 @@ namespace MTConnect.Devices.Compositions
         public override System.Version MinimumVersion => MTConnectVersions.Version14; 
 
 
-        public GripperCompositionComposition()  { Type = TypeId; }
+        public GripperComposition()  { Type = TypeId; }
     }
 }

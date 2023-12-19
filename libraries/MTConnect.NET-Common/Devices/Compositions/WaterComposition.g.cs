@@ -6,7 +6,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a fluid.
     /// </summary>
-    public class WaterCompositionComposition : Composition 
+    public class WaterComposition : Composition 
     {
         public const string TypeId = "WATER";
         public const string NameId = "waterComposition";
@@ -17,6 +17,6 @@ namespace MTConnect.Devices.Compositions
         public override System.Version MinimumVersion => MTConnectVersions.Version14; 
 
 
-        public WaterCompositionComposition()  { Type = TypeId; }
+        public WaterComposition()  { Type = TypeId; }
     }
 }

@@ -6,7 +6,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of an inclined channel that conveys material.
     /// </summary>
-    public class ChuteCompositionComposition : Composition 
+    public class ChuteComposition : Composition 
     {
         public const string TypeId = "CHUTE";
         public const string NameId = "chuteComposition";
@@ -17,6 +17,6 @@ namespace MTConnect.Devices.Compositions
         public override System.Version MinimumVersion => MTConnectVersions.Version14; 
 
 
-        public ChuteCompositionComposition()  { Type = TypeId; }
+        public ChuteComposition()  { Type = TypeId; }
     }
 }

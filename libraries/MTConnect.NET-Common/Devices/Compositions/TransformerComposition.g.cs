@@ -6,7 +6,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a mechanism that transforms electric energy from a source to a secondary circuit.
     /// </summary>
-    public class TransformerCompositionComposition : Composition 
+    public class TransformerComposition : Composition 
     {
         public const string TypeId = "TRANSFORMER";
         public const string NameId = "transformerComposition";
@@ -17,6 +17,6 @@ namespace MTConnect.Devices.Compositions
         public override System.Version MinimumVersion => MTConnectVersions.Version15; 
 
 
-        public TransformerCompositionComposition()  { Type = TypeId; }
+        public TransformerComposition()  { Type = TypeId; }
     }
 }

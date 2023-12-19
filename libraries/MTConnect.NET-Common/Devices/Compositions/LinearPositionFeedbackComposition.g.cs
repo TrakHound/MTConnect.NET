@@ -6,7 +6,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a mechanism that measures linear motion or position.
     /// </summary>
-    public class LinearPositionFeedbackCompositionComposition : Composition 
+    public class LinearPositionFeedbackComposition : Composition 
     {
         public const string TypeId = "LINEAR_POSITION_FEEDBACK";
         public const string NameId = "linearPositionFeedbackComposition";
@@ -17,6 +17,6 @@ namespace MTConnect.Devices.Compositions
         public override System.Version MinimumVersion => MTConnectVersions.Version14; 
 
 
-        public LinearPositionFeedbackCompositionComposition()  { Type = TypeId; }
+        public LinearPositionFeedbackComposition()  { Type = TypeId; }
     }
 }

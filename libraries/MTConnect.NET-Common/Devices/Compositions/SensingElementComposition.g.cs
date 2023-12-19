@@ -6,7 +6,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a mechanism that provides a signal or measured value.
     /// </summary>
-    public class SensingElementCompositionComposition : Composition 
+    public class SensingElementComposition : Composition 
     {
         public const string TypeId = "SENSING_ELEMENT";
         public const string NameId = "sensingElementComposition";
@@ -17,6 +17,6 @@ namespace MTConnect.Devices.Compositions
         public override System.Version MinimumVersion => MTConnectVersions.Version14; 
 
 
-        public SensingElementCompositionComposition()  { Type = TypeId; }
+        public SensingElementComposition()  { Type = TypeId; }
     }
 }

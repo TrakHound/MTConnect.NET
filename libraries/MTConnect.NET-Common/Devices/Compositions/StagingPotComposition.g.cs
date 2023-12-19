@@ -6,7 +6,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Pot for a tool awaiting transfer to a ToolMagazine or Turret from outside of the piece of equipment.
     /// </summary>
-    public class StagingPotCompositionComposition : Composition 
+    public class StagingPotComposition : Composition 
     {
         public const string TypeId = "STAGING_POT";
         public const string NameId = "stagingPotComposition";
@@ -17,6 +17,6 @@ namespace MTConnect.Devices.Compositions
         public override System.Version MinimumVersion => MTConnectVersions.Version17; 
 
 
-        public StagingPotCompositionComposition()  { Type = TypeId; }
+        public StagingPotComposition()  { Type = TypeId; }
     }
 }

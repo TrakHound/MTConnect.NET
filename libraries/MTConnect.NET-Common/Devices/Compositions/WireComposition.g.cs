@@ -6,7 +6,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a string like piece or filament of relatively rigid or flexible material provided in a variety of diameters.
     /// </summary>
-    public class WireCompositionComposition : Composition 
+    public class WireComposition : Composition 
     {
         public const string TypeId = "WIRE";
         public const string NameId = "wireComposition";
@@ -17,6 +17,6 @@ namespace MTConnect.Devices.Compositions
         public override System.Version MinimumVersion => MTConnectVersions.Version14; 
 
 
-        public WireCompositionComposition()  { Type = TypeId; }
+        public WireComposition()  { Type = TypeId; }
     }
 }

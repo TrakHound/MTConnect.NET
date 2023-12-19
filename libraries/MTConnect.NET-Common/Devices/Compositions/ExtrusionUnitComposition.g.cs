@@ -6,7 +6,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a mechanism that dispenses liquid or powered materials.
     /// </summary>
-    public class ExtrusionUnitCompositionComposition : Composition 
+    public class ExtrusionUnitComposition : Composition 
     {
         public const string TypeId = "EXTRUSION_UNIT";
         public const string NameId = "extrusionUnitComposition";
@@ -17,6 +17,6 @@ namespace MTConnect.Devices.Compositions
         public override System.Version MinimumVersion => MTConnectVersions.Version15; 
 
 
-        public ExtrusionUnitCompositionComposition()  { Type = TypeId; }
+        public ExtrusionUnitComposition()  { Type = TypeId; }
     }
 }

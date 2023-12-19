@@ -6,7 +6,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a mechanism that produces a current of air.
     /// </summary>
-    public class FanCompositionComposition : Composition 
+    public class FanComposition : Composition 
     {
         public const string TypeId = "FAN";
         public const string NameId = "fanComposition";
@@ -17,6 +17,6 @@ namespace MTConnect.Devices.Compositions
         public override System.Version MinimumVersion => MTConnectVersions.Version14; 
 
 
-        public FanCompositionComposition()  { Type = TypeId; }
+        public FanComposition()  { Type = TypeId; }
     }
 }

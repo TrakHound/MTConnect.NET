@@ -6,7 +6,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a mechanism that physically moves a tool from one location to another.
     /// </summary>
-    public class TransferArmCompositionComposition : Composition 
+    public class TransferArmComposition : Composition 
     {
         public const string TypeId = "TRANSFER_ARM";
         public const string NameId = "transferArmComposition";
@@ -17,6 +17,6 @@ namespace MTConnect.Devices.Compositions
         public override System.Version MinimumVersion => MTConnectVersions.Version17; 
 
 
-        public TransferArmCompositionComposition()  { Type = TypeId; }
+        public TransferArmComposition()  { Type = TypeId; }
     }
 }

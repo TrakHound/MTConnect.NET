@@ -6,7 +6,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a mechanism that measures rotary position.
     /// </summary>
-    public class EncoderCompositionComposition : Composition 
+    public class EncoderComposition : Composition 
     {
         public const string TypeId = "ENCODER";
         public const string NameId = "encoderComposition";
@@ -17,6 +17,6 @@ namespace MTConnect.Devices.Compositions
         public override System.Version MinimumVersion => MTConnectVersions.Version14; 
 
 
-        public EncoderCompositionComposition()  { Type = TypeId; }
+        public EncoderComposition()  { Type = TypeId; }
     }
 }

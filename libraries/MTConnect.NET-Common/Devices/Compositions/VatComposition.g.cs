@@ -6,7 +6,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a container for liquid or powdered materials.
     /// </summary>
-    public class VatCompositionComposition : Composition 
+    public class VatComposition : Composition 
     {
         public const string TypeId = "VAT";
         public const string NameId = "vatComposition";
@@ -17,6 +17,6 @@ namespace MTConnect.Devices.Compositions
         public override System.Version MinimumVersion => MTConnectVersions.Version15; 
 
 
-        public VatCompositionComposition()  { Type = TypeId; }
+        public VatComposition()  { Type = TypeId; }
     }
 }

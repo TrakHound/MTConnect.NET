@@ -6,7 +6,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of an object or material on which a form of work is performed.
     /// </summary>
-    public class WorkpieceCompositionComposition : Composition 
+    public class WorkpieceComposition : Composition 
     {
         public const string TypeId = "WORKPIECE";
         public const string NameId = "workpieceComposition";
@@ -17,6 +17,6 @@ namespace MTConnect.Devices.Compositions
         public override System.Version MinimumVersion => MTConnectVersions.Version16; 
 
 
-        public WorkpieceCompositionComposition()  { Type = TypeId; }
+        public WorkpieceComposition()  { Type = TypeId; }
     }
 }

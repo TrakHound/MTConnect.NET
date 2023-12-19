@@ -6,7 +6,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a mechanism that strengthens, supports, or fastens objects in place.
     /// </summary>
-    public class ClampCompositionComposition : Composition 
+    public class ClampComposition : Composition 
     {
         public const string TypeId = "CLAMP";
         public const string NameId = "clampComposition";
@@ -17,6 +17,6 @@ namespace MTConnect.Devices.Compositions
         public override System.Version MinimumVersion => MTConnectVersions.Version14; 
 
 
-        public ClampCompositionComposition()  { Type = TypeId; }
+        public ClampComposition()  { Type = TypeId; }
     }
 }

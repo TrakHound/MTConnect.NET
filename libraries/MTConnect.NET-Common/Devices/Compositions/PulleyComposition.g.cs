@@ -6,7 +6,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a mechanism or wheel that turns in a frame or block and serves to change the direction of or to transmit force.
     /// </summary>
-    public class PulleyCompositionComposition : Composition 
+    public class PulleyComposition : Composition 
     {
         public const string TypeId = "PULLEY";
         public const string NameId = "pulleyComposition";
@@ -17,6 +17,6 @@ namespace MTConnect.Devices.Compositions
         public override System.Version MinimumVersion => MTConnectVersions.Version14; 
 
 
-        public PulleyCompositionComposition()  { Type = TypeId; }
+        public PulleyComposition()  { Type = TypeId; }
     }
 }

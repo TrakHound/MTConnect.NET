@@ -6,7 +6,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// {{description}}
     /// </summary>
-    public class {{name}}Composition : {{ if (parent_type) }}{{parent_type}}{{else}}Composition{{ end }} 
+    public class {{name}} : {{ if (parent_type) }}{{parent_type}}{{else}}Composition{{ end }} 
     {
         public const string TypeId = "{{type}}";
         public const string NameId = "{{default_name}}";
@@ -17,6 +17,6 @@ namespace MTConnect.Devices.Compositions
         {{ if (minimum_version_enum) }}public override System.Version MinimumVersion => {{minimum_version_enum}};{{ end }} 
 
 
-        public {{name}}Composition()  { Type = TypeId; }
+        public {{name}}()  { Type = TypeId; }
     }
 }

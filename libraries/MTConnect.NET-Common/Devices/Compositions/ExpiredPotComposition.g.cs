@@ -6,7 +6,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Pot for a tool that is no longer usable for removal from a ToolMagazine or Turret.
     /// </summary>
-    public class ExpiredPotCompositionComposition : Composition 
+    public class ExpiredPotComposition : Composition 
     {
         public const string TypeId = "EXPIRED_POT";
         public const string NameId = "expiredPotComposition";
@@ -17,6 +17,6 @@ namespace MTConnect.Devices.Compositions
         public override System.Version MinimumVersion => MTConnectVersions.Version17; 
 
 
-        public ExpiredPotCompositionComposition()  { Type = TypeId; }
+        public ExpiredPotComposition()  { Type = TypeId; }
     }
 }

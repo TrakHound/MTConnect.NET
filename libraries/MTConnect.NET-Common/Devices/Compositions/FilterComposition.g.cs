@@ -6,7 +6,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a substance or structure that allows liquids or gases to pass through to remove suspended impurities or to recover solids.
     /// </summary>
-    public class FilterCompositionComposition : Composition 
+    public class FilterComposition : Composition 
     {
         public const string TypeId = "FILTER";
         public const string NameId = "filterComposition";
@@ -17,6 +17,6 @@ namespace MTConnect.Devices.Compositions
         public override System.Version MinimumVersion => MTConnectVersions.Version14; 
 
 
-        public FilterCompositionComposition()  { Type = TypeId; }
+        public FilterComposition()  { Type = TypeId; }
     }
 }

@@ -6,7 +6,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a mechanism that emits a type of radiation.
     /// </summary>
-    public class ExposureUnitCompositionComposition : Composition 
+    public class ExposureUnitComposition : Composition 
     {
         public const string TypeId = "EXPOSURE_UNIT";
         public const string NameId = "exposureUnitComposition";
@@ -17,6 +17,6 @@ namespace MTConnect.Devices.Compositions
         public override System.Version MinimumVersion => MTConnectVersions.Version15; 
 
 
-        public ExposureUnitCompositionComposition()  { Type = TypeId; }
+        public ExposureUnitComposition()  { Type = TypeId; }
     }
 }

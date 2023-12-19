@@ -6,7 +6,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a rotary storage unit for material.
     /// </summary>
-    public class ReelCompositionComposition : Composition 
+    public class ReelComposition : Composition 
     {
         public const string TypeId = "REEL";
         public const string NameId = "reelComposition";
@@ -17,6 +17,6 @@ namespace MTConnect.Devices.Compositions
         public override System.Version MinimumVersion => MTConnectVersions.Version15; 
 
 
-        public ReelCompositionComposition()  { Type = TypeId; }
+        public ReelComposition()  { Type = TypeId; }
     }
 }

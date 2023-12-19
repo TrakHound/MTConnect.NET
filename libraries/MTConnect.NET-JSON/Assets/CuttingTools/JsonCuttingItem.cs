@@ -28,14 +28,14 @@ namespace MTConnect.Assets.Json.CuttingTools
         [JsonPropertyName("locus")]
         public string Locus { get; set; }
 
+        [JsonPropertyName("programToolGroup")]
+        public string ProgramToolGroup { get; set; }
+
         [JsonPropertyName("itemLife")]
         public IEnumerable<JsonItemLife> ItemLife { get; set; }
 
         [JsonPropertyName("cutterStatus")]
         public IEnumerable<string> CutterStatus { get; set; }
-
-        [JsonPropertyName("programToolGroup")]
-        public string ProgramToolGroup { get; set; }
 
         [JsonPropertyName("measurements")]
         public IEnumerable<JsonMeasurement> Measurements { get; set; }

@@ -6,7 +6,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a mechanism that halts or controls the flow of a liquid, gas, or other material through a passage, pipe, inlet, or outlet.
     /// </summary>
-    public class ValveCompositionComposition : Composition 
+    public class ValveComposition : Composition 
     {
         public const string TypeId = "VALVE";
         public const string NameId = "valveComposition";
@@ -17,6 +17,6 @@ namespace MTConnect.Devices.Compositions
         public override System.Version MinimumVersion => MTConnectVersions.Version14; 
 
 
-        public ValveCompositionComposition()  { Type = TypeId; }
+        public ValveComposition()  { Type = TypeId; }
     }
 }

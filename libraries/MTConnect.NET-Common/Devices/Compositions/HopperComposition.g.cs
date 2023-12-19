@@ -6,7 +6,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a chamber or bin that stores materials temporarily, typically being filled through the top and dispensed through the bottom.
     /// </summary>
-    public class HopperCompositionComposition : Composition 
+    public class HopperComposition : Composition 
     {
         public const string TypeId = "HOPPER";
         public const string NameId = "hopperComposition";
@@ -17,6 +17,6 @@ namespace MTConnect.Devices.Compositions
         public override System.Version MinimumVersion => MTConnectVersions.Version14; 
 
 
-        public HopperCompositionComposition()  { Type = TypeId; }
+        public HopperComposition()  { Type = TypeId; }
     }
 }

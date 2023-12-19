@@ -6,7 +6,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a unit that provides power to electric mechanisms.
     /// </summary>
-    public class PowerSupplyCompositionComposition : Composition 
+    public class PowerSupplyComposition : Composition 
     {
         public const string TypeId = "POWER_SUPPLY";
         public const string NameId = "powerSupplyComposition";
@@ -17,6 +17,6 @@ namespace MTConnect.Devices.Compositions
         public override System.Version MinimumVersion => MTConnectVersions.Version14; 
 
 
-        public PowerSupplyCompositionComposition()  { Type = TypeId; }
+        public PowerSupplyComposition()  { Type = TypeId; }
     }
 }

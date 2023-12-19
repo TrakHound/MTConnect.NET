@@ -6,7 +6,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a mechanism that turns on or off an electric current or makes or breaks a circuit.
     /// </summary>
-    public class SwitchCompositionComposition : Composition 
+    public class SwitchComposition : Composition 
     {
         public const string TypeId = "SWITCH";
         public const string NameId = "switchComposition";
@@ -17,6 +17,6 @@ namespace MTConnect.Devices.Compositions
         public override System.Version MinimumVersion => MTConnectVersions.Version14; 
 
 
-        public SwitchCompositionComposition()  { Type = TypeId; }
+        public SwitchComposition()  { Type = TypeId; }
     }
 }

@@ -6,7 +6,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of an electronic component or circuit that amplifies power, electric current, or voltage.
     /// </summary>
-    public class AmplifierCompositionComposition : Composition 
+    public class AmplifierComposition : Composition 
     {
         public const string TypeId = "AMPLIFIER";
         public const string NameId = "amplifierComposition";
@@ -17,6 +17,6 @@ namespace MTConnect.Devices.Compositions
         public override System.Version MinimumVersion => MTConnectVersions.Version14; 
 
 
-        public AmplifierCompositionComposition()  { Type = TypeId; }
+        public AmplifierComposition()  { Type = TypeId; }
     }
 }

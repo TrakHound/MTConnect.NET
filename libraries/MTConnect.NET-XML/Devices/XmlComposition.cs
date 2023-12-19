@@ -50,7 +50,7 @@ namespace MTConnect.Devices.Xml
 
         public Composition ToComposition(IDevice device = null)
         {
-            var composition = Composition.Create(Type);
+            var composition = Composition.Create(Type.ToPascalCase());
             if (composition == null) composition = new Composition();
 
             composition.Id = Id;

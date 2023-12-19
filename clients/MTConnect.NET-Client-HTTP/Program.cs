@@ -12,7 +12,8 @@
 
         static void DocumentClient()
         {
-            var client = new MTConnectHttpClient("localhost", 5001);
+            var client = new MTConnectHttpClient("http://mtconnect.mazakcorp.com/", 5719);
+            //var client = new MTConnectHttpClient("localhost", 5001);
             client.Interval = 100;
             client.ClientStarted += (s, args) => { Console.WriteLine("Client Started"); };
             client.ClientStopped += (s, args) => { Console.WriteLine("Client Stopped"); };

@@ -6,7 +6,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a mechanism that flattens or spreads materials.
     /// </summary>
-    public class SpreaderCompositionComposition : Composition 
+    public class SpreaderComposition : Composition 
     {
         public const string TypeId = "SPREADER";
         public const string NameId = "spreaderComposition";
@@ -17,6 +17,6 @@ namespace MTConnect.Devices.Compositions
         public override System.Version MinimumVersion => MTConnectVersions.Version15; 
 
 
-        public SpreaderCompositionComposition()  { Type = TypeId; }
+        public SpreaderComposition()  { Type = TypeId; }
     }
 }

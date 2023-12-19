@@ -6,7 +6,7 @@ namespace MTConnect.Devices.Compositions
     /// <summary>
     /// Composition composed of a mechanical structure that transforms rotary motion into linear motion.
     /// </summary>
-    public class BallscrewCompositionComposition : Composition 
+    public class BallscrewComposition : Composition 
     {
         public const string TypeId = "BALLSCREW";
         public const string NameId = "ballscrewComposition";
@@ -17,6 +17,6 @@ namespace MTConnect.Devices.Compositions
         public override System.Version MinimumVersion => MTConnectVersions.Version14; 
 
 
-        public BallscrewCompositionComposition()  { Type = TypeId; }
+        public BallscrewComposition()  { Type = TypeId; }
     }
 }
