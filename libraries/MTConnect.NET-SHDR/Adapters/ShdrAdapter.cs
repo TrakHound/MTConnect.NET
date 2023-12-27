@@ -556,55 +556,6 @@ namespace MTConnect.Adapters
             return false;
         }
 
-        //private bool WriteLine(string clientId, string line)
-        //{
-        //    if (!string.IsNullOrEmpty(line))
-        //    {
-        //        var client = GetAgentClient(clientId);
-        //        if (client != null)
-        //        {
-        //            return WriteLineToClient(client, line);
-        //        }
-        //    }
-
-        //    return false;
-        //}
-
-        //private async Task<bool> WriteLineAsync(string line)
-        //{
-        //    if (!string.IsNullOrEmpty(line))
-        //    {
-        //        // Write Line to each client in stored client list
-        //        var clients = GetAgentClients();
-        //        if (!clients.IsNullOrEmpty())
-        //        {
-        //            foreach (var client in clients)
-        //            {
-        //                await WriteLineToClientAsync(client, line);
-        //            }
-
-        //            return true;
-        //        }
-        //    }
-
-        //    return false;
-        //}
-
-        //private async Task<bool> WriteLineAsync(string clientId, string line)
-        //{
-        //    if (!string.IsNullOrEmpty(line))
-        //    {
-        //        var client = GetAgentClient(clientId);
-        //        if (client != null)
-        //        {
-        //            return await WriteLineToClientAsync(client, line);
-        //        }
-        //    }
-
-        //    return false;
-        //}
-
-
         private bool WriteLineToClient(AgentClient client, string line)
         {
             if (client != null && !string.IsNullOrEmpty(line))
