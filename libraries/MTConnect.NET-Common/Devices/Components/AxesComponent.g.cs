@@ -6,13 +6,13 @@
 namespace MTConnect.Devices.Components
 {
     /// <summary>
-    /// Component that organize Component Types::Axis types.
+    /// Component that organize Component Axis types.
     /// </summary>
     public class AxesComponent : Component, IOrganizerComponent
     {
         public const string TypeId = "Axes";
         public const string NameId = "axesComponent";
-        public new const string DescriptionText = "Component that organize Component Types::Axis types.";
+        public new const string DescriptionText = "Component that organize Component Axis types.";
 
         public override string TypeDescription => DescriptionText;
         

@@ -301,6 +301,7 @@ namespace MTConnect.SysML
                 result = result.Replace("\n", "");
                 result = result.Replace("\r", "");
                 result = result.Replace("\"", "'");
+                result = result.Replace("Types::", "");
                 result = UppercaseFirstWord(result);
 
 

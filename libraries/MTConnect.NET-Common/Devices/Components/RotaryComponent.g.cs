@@ -6,13 +6,13 @@
 namespace MTConnect.Devices.Components
 {
     /// <summary>
-    /// Component Types::Axis that provides rotation about a fixed axis.
+    /// Component Axis that provides rotation about a fixed axis.
     /// </summary>
     public class RotaryComponent : Component
     {
         public const string TypeId = "Rotary";
         public const string NameId = "rotaryComponent";
-        public new const string DescriptionText = "Component Types::Axis that provides rotation about a fixed axis.";
+        public new const string DescriptionText = "Component Axis that provides rotation about a fixed axis.";
 
         public override string TypeDescription => DescriptionText;
         

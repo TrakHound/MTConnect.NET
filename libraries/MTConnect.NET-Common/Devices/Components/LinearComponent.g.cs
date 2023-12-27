@@ -6,13 +6,13 @@
 namespace MTConnect.Devices.Components
 {
     /// <summary>
-    /// Component Types::Axis that provides prismatic motion along a fixed axis.
+    /// Component Axis that provides prismatic motion along a fixed axis.
     /// </summary>
     public class LinearComponent : Component
     {
         public const string TypeId = "Linear";
         public const string NameId = "linearComponent";
-        public new const string DescriptionText = "Component Types::Axis that provides prismatic motion along a fixed axis.";
+        public new const string DescriptionText = "Component Axis that provides prismatic motion along a fixed axis.";
 
         public override string TypeDescription => DescriptionText;
         
