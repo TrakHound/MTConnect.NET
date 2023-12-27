@@ -2,7 +2,6 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Adapters;
-using MTConnect.Agents;
 using MTConnect.Configurations;
 using MTConnect.Input;
 using MTConnect.Logging;
@@ -28,8 +27,6 @@ namespace MTConnect.Applications
         private const string DefaultServiceDescription = "MTConnect Adapter to transfer data to an MTConnect Agent";
 
         protected readonly Logger _applicationLogger = LogManager.GetLogger("application-logger");
-        //protected readonly Logger _adapterLogger = LogManager.GetLogger("adapter-logger");
-        //protected readonly Logger _moduleLogger = LogManager.GetLogger("module-logger");
         private readonly Dictionary<string, IMTConnectAdapter> _adapters = new Dictionary<string, IMTConnectAdapter>();
         private readonly Dictionary<string, Logger> _loggers = new Dictionary<string, Logger>();
         private readonly object _lock = new object();
@@ -318,91 +315,17 @@ namespace MTConnect.Applications
             }
         }
 
-        //public void StartAdapter(IAdapterApplicationConfiguration configuration, bool verboseLogging = false)
-        //{
-        //    if (!_started && configuration != null)
-        //    {               
-        //        // Create MTConnectAgentBroker
-        //        if (configuration.EnableBuffer)
-        //        {
-        //            _adapter = new ShdrIntervalQueueAdapter(configuration.DeviceKey, configuration.Port, configuration.Heartbeat, configuration.WriteInterval);
-        //        }
-        //        else
-        //        {
-        //            _adapter = new ShdrIntervalAdapter(configuration.DeviceKey, configuration.Port, configuration.Heartbeat, configuration.WriteInterval);
-        //        }
-
-        //        _adapter.Timeout = configuration.Timeout;
-        //        _adapter.MultilineAssets = configuration.MultilineAssets;
-        //        _adapter.MultilineDevices = configuration.MultilineDevices;
-        //        _adapter.FilterDuplicates = configuration.FilterDuplicates;
-        //        _adapter.OutputTimestamps = configuration.OutputTimestamps;
-
-        //        if (!string.IsNullOrEmpty(_adapter.DeviceKey))
-        //        {
-        //            _adapterLogger.Info($"[Adapter] : Listening on TCP Port {_adapter.Port} for Device ({_adapter.DeviceKey})...");
-        //        }
-        //        else
-        //        {
-        //            _adapterLogger.Info($"[Adapter] : Listening on TCP Port {_adapter.Port}...");
-        //        }
-
-        //        if (verboseLogging)
-        //        {
-        //            _adapter.AgentConnected += AgentConnected;
-        //            _adapter.AgentDisconnected += AgentDisconnected;
-        //            _adapter.AgentConnectionError += AgentConnectionError;
-        //            _adapter.LineSent += LineSent;
-        //            _adapter.PingReceived += PingReceived;
-        //            _adapter.PongSent += PongSent;
-        //            _adapter.SendError += SendError;
-        //        }
-
-        //        // Set Engine Adapter
-        //        if (_engine != null) _engine.Adapter = _adapter;
-
-        //        OnStartAdapter();
-
-        //        // Start Adapter
-        //        _adapter.Start();
-
-        //        if (configuration.MonitorConfigurationFiles)
-        //        {
-        //            // Set the Adapter Configuration File Watcher
-        //            if (_adapterConfigurationWatcher != null) _adapterConfigurationWatcher.Dispose();
-        //            OnAdapterConfigurationWatcherInitialize(configuration);
-        //            _adapterConfigurationWatcher.ConfigurationUpdated += AdapterConfigurationFileUpdated;
-        //            _adapterConfigurationWatcher.ErrorReceived += AdapterConfigurationFileError;
-        //        }
-
-        //        _started = true;
-        //    }
-        //}
-
-        //public void StopAdapter()
-        //{
-        //    if (_started)
-        //    {
-        //        if (_adapter != null) _adapter.Stop();
-        //        if (_adapterConfigurationWatcher != null) _adapterConfigurationWatcher.Dispose();
-
-        //        OnStopAdapter();
-
-        //        _started = false;
-        //    }
-        //}
-
 
         protected virtual void OnStartAdapter() 
         {
             // Start DataSource
-            //if (_dataSource != null) _dataSource.Start();
+            if (_dataSource != null) _dataSource.Start();
         }
 
         protected virtual void OnStopAdapter() 
         {
             // Stop DataSource
-            //if (_dataSource != null) _dataSource.Stop();
+            if (_dataSource != null) _dataSource.Stop();
         }
 
 
@@ -579,22 +502,6 @@ namespace MTConnect.Applications
                 logger.Log(logEvent);
             }
         }
-
-        //private void ModuleLogReceived(object sender, MTConnectLogLevel logLevel, string message, string logId = null)
-        //{
-        //    if (!string.IsNullOrEmpty(message))
-        //    {
-        //        switch (logLevel)
-        //        {
-        //            case MTConnectLogLevel.Fatal: _moduleLogger.Fatal(message); break;
-        //            case MTConnectLogLevel.Error: _moduleLogger.Error(message); break;
-        //            case MTConnectLogLevel.Warning: _moduleLogger.Warn(message); break;
-        //            case MTConnectLogLevel.Information: _moduleLogger.Info(message); break;
-        //            case MTConnectLogLevel.Debug: _moduleLogger.Debug(message); break;
-        //            case MTConnectLogLevel.Trace: _moduleLogger.Trace(message); break;
-        //        }
-        //    }
-        //}
 
         #endregion
 
