@@ -8,6 +8,7 @@ using MTConnect.Input;
 using MTConnect.Shdr;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -18,7 +19,7 @@ namespace MTConnect.Adapters
     /// <summary>
     /// An Adapter class for communicating with an MTConnect Agent using the SHDR protocol.
     /// Supports multiple concurrent Agent connections.
-    /// Uses a queue to collect changes to Observations and sends the most recent changes at the specified interval.
+    /// Uses a queue to collect changes to Observations and Assets and sends the most recent changes at the specified interval.
     /// </summary>
     public class ShdrAdapter
     {
@@ -134,7 +135,10 @@ namespace MTConnect.Adapters
             Timeout = 5000;
 
             var adapter = new MTConnectAdapter(null, false);
-            adapter.WriteObservationsFunction = WriteDataItems;
+            adapter.OutputTimestamps = OutputTimestamps;
+            adapter.WriteObservationsFunction = WriteObservations;
+            adapter.WriteAssetsFunction = WriteAssets;
+            adapter.WriteDevicesFunction = WriteDevices;
             _adapter = adapter;
 
             _connectionListener = new AgentClientConnectionListener(Port, heartbeat);
@@ -155,7 +159,10 @@ namespace MTConnect.Adapters
             Timeout = 5000;
 
             var adapter = new MTConnectAdapter(null, false);
-            adapter.WriteObservationsFunction = WriteDataItems;
+            adapter.OutputTimestamps = OutputTimestamps;
+            adapter.WriteObservationsFunction = WriteObservations;
+            adapter.WriteAssetsFunction = WriteAssets;
+            adapter.WriteDevicesFunction = WriteDevices;
             _adapter = adapter;
 
             _connectionListener = new AgentClientConnectionListener(Port, heartbeat);
@@ -179,7 +186,11 @@ namespace MTConnect.Adapters
                 Timeout = 5000;
 
                 var adapter = new MTConnectAdapter(null, false);
-                adapter.WriteObservationsFunction = WriteDataItems;
+                adapter.IgnoreTimestamps = configuration.IgnoreTimestamps;
+                adapter.OutputTimestamps = OutputTimestamps;
+                adapter.WriteObservationsFunction = WriteObservations;
+                adapter.WriteAssetsFunction = WriteAssets;
+                adapter.WriteDevicesFunction = WriteDevices;
                 _adapter = adapter;
 
                 _connectionListener = new AgentClientConnectionListener(Port, Heartbeat);
@@ -200,7 +211,10 @@ namespace MTConnect.Adapters
             Timeout = 5000;
 
             var adapter = new MTConnectAdapter(interval, bufferEnabled);
-            adapter.WriteObservationsFunction = WriteDataItems;
+            adapter.OutputTimestamps = OutputTimestamps;
+            adapter.WriteObservationsFunction = WriteObservations;
+            adapter.WriteAssetsFunction = WriteAssets;
+            adapter.WriteDevicesFunction = WriteDevices;
             _adapter = adapter;
 
             _connectionListener = new AgentClientConnectionListener(Port, heartbeat);
@@ -221,7 +235,10 @@ namespace MTConnect.Adapters
             Timeout = 5000;
 
             var adapter = new MTConnectAdapter(interval, bufferEnabled);
-            adapter.WriteObservationsFunction = WriteDataItems;
+            adapter.OutputTimestamps = OutputTimestamps;
+            adapter.WriteObservationsFunction = WriteObservations;
+            adapter.WriteAssetsFunction = WriteAssets;
+            adapter.WriteDevicesFunction = WriteDevices;
             _adapter = adapter;
 
             _connectionListener = new AgentClientConnectionListener(Port, heartbeat);
@@ -245,7 +262,10 @@ namespace MTConnect.Adapters
                 Timeout = 5000;
 
                 var adapter = new MTConnectAdapter(interval, bufferEnabled);
-                adapter.WriteObservationsFunction = WriteDataItems;
+                adapter.IgnoreTimestamps = configuration.IgnoreTimestamps;
+                adapter.WriteObservationsFunction = WriteObservations;
+                adapter.WriteAssetsFunction = WriteAssets;
+                adapter.WriteDevicesFunction = WriteDevices;
                 _adapter = adapter;
 
                 _connectionListener = new AgentClientConnectionListener(Port, Heartbeat);
@@ -410,6 +430,106 @@ namespace MTConnect.Adapters
 
         #region "Write"
 
+        private bool WriteObservations(IEnumerable<IObservationInput> observations)
+        {
+            // DataItems
+            var dataItems = observations.Where(o => ShdrObservation.GetObservationType(o) == ShdrObservationType.DataItem);
+            if (!dataItems.IsNullOrEmpty())
+            {
+                var shdrDataItems = new List<ShdrDataItem>();
+                foreach (var x in dataItems) shdrDataItems.Add(new ShdrDataItem(x));
+                var shdrLine = ShdrDataItem.ToString(shdrDataItems, !OutputTimestamps);
+                if (!WriteLine(shdrLine)) return false;
+            }
+
+            // Messages
+            var messages = observations.Where(o => ShdrObservation.GetObservationType(o) == ShdrObservationType.Message);
+            if (!messages.IsNullOrEmpty())
+            {
+                foreach (var x in messages)
+                {
+                    var shdrModel = new ShdrMessage(x);
+                    var shdrLine = shdrModel.ToString();
+                    if (!WriteLine(shdrLine)) return false;
+                }
+            }
+
+            // Conditions
+            var conditions = observations.Where(o => ShdrObservation.GetObservationType(o) == ShdrObservationType.Condition);
+            if (!conditions.IsNullOrEmpty())
+            {
+                foreach (var x in conditions)
+                {
+                    var shdrModel = new ShdrFaultState(new ConditionFaultStateObservationInput(x));
+                    var shdrLine = shdrModel.ToString();
+                    if (!WriteLine(shdrLine)) return false;
+                }
+            }
+
+            // DataSets
+            var dataSets = observations.Where(o => ShdrObservation.GetObservationType(o) == ShdrObservationType.DataSet);
+            if (!dataSets.IsNullOrEmpty())
+            {
+                foreach (var x in dataSets)
+                {
+                    var shdrModel = new ShdrDataSet(new DataSetObservationInput(x));
+                    var shdrLine = shdrModel.ToString();
+                    if (!WriteLine(shdrLine)) return false;
+                }
+            }
+
+            // Tables
+            var tables = observations.Where(o => ShdrObservation.GetObservationType(o) == ShdrObservationType.Table);
+            if (!tables.IsNullOrEmpty())
+            {
+                foreach (var x in tables)
+                {
+                    var shdrModel = new ShdrTable(new TableObservationInput(x));
+                    var shdrLine = shdrModel.ToString();
+                    if (!WriteLine(shdrLine)) return false;
+                }
+            }
+
+            // TimeSeries
+            var timeSeries = observations.Where(o => ShdrObservation.GetObservationType(o) == ShdrObservationType.TimeSeries);
+            if (!timeSeries.IsNullOrEmpty())
+            {
+                foreach (var x in timeSeries)
+                {
+                    var shdrModel = new ShdrTimeSeries(new TimeSeriesObservationInput(x));
+                    var shdrLine = shdrModel.ToString();
+                    if (!WriteLine(shdrLine)) return false;
+                }
+            }
+
+            return true;
+        }
+
+        private bool WriteAssets(IEnumerable<IAssetInput> assets)
+        {
+            foreach (var asset in assets)
+            {
+                var shdrModel = new ShdrAsset(asset.Asset);
+                var shdrLine = shdrModel.ToString(MultilineAssets);
+                if (!WriteLine(shdrLine)) return false;
+            }
+
+            return true;
+        }
+
+        private bool WriteDevices(IEnumerable<IDeviceInput> devices)
+        {
+            foreach (var device in devices)
+            {
+                var shdrModel = new ShdrDevice(device.Device);
+                var shdrLine = shdrModel.ToString(MultilineDevices);
+                if (!WriteLine(shdrLine)) return false;
+            }
+
+            return true;
+        }
+
+
         protected bool WriteLine(string line)
         {
             if (!string.IsNullOrEmpty(line))
@@ -436,53 +556,53 @@ namespace MTConnect.Adapters
             return false;
         }
 
-        private bool WriteLine(string clientId, string line)
-        {
-            if (!string.IsNullOrEmpty(line))
-            {
-                var client = GetAgentClient(clientId);
-                if (client != null)
-                {
-                    return WriteLineToClient(client, line);
-                }
-            }
+        //private bool WriteLine(string clientId, string line)
+        //{
+        //    if (!string.IsNullOrEmpty(line))
+        //    {
+        //        var client = GetAgentClient(clientId);
+        //        if (client != null)
+        //        {
+        //            return WriteLineToClient(client, line);
+        //        }
+        //    }
 
-            return false;
-        }
+        //    return false;
+        //}
 
-        private async Task<bool> WriteLineAsync(string line)
-        {
-            if (!string.IsNullOrEmpty(line))
-            {
-                // Write Line to each client in stored client list
-                var clients = GetAgentClients();
-                if (!clients.IsNullOrEmpty())
-                {
-                    foreach (var client in clients)
-                    {
-                        await WriteLineToClientAsync(client, line);
-                    }
+        //private async Task<bool> WriteLineAsync(string line)
+        //{
+        //    if (!string.IsNullOrEmpty(line))
+        //    {
+        //        // Write Line to each client in stored client list
+        //        var clients = GetAgentClients();
+        //        if (!clients.IsNullOrEmpty())
+        //        {
+        //            foreach (var client in clients)
+        //            {
+        //                await WriteLineToClientAsync(client, line);
+        //            }
 
-                    return true;
-                }
-            }
+        //            return true;
+        //        }
+        //    }
 
-            return false;
-        }
+        //    return false;
+        //}
 
-        private async Task<bool> WriteLineAsync(string clientId, string line)
-        {
-            if (!string.IsNullOrEmpty(line))
-            {
-                var client = GetAgentClient(clientId);
-                if (client != null)
-                {
-                    return await WriteLineToClientAsync(client, line);
-                }
-            }
+        //private async Task<bool> WriteLineAsync(string clientId, string line)
+        //{
+        //    if (!string.IsNullOrEmpty(line))
+        //    {
+        //        var client = GetAgentClient(clientId);
+        //        if (client != null)
+        //        {
+        //            return await WriteLineToClientAsync(client, line);
+        //        }
+        //    }
 
-            return false;
-        }
+        //    return false;
+        //}
 
 
         private bool WriteLineToClient(AgentClient client, string line)
@@ -691,12 +811,6 @@ namespace MTConnect.Adapters
         public bool SendDataItem(IObservationInput observation)
         {
             return _adapter.SendObservation(observation);
-        }
-
-
-        private bool WriteDataItems(IEnumerable<IObservationInput> observations)
-        {
-            return true;
         }
 
         #endregion

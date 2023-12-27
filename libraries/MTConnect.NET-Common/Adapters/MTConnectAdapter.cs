@@ -59,6 +59,9 @@ namespace MTConnect.Adapters
         /// </summary>
         public bool OutputTimestamps { get; set; }
 
+        public bool IgnoreTimestamps { get; set; }
+
+
         public Func<IEnumerable<IObservationInput>, bool> WriteObservationsFunction { get; set; }
 
         public Func<IEnumerable<IAssetInput>, bool> WriteAssetsFunction { get; set; }
@@ -271,7 +274,7 @@ namespace MTConnect.Adapters
                 newObservation.DeviceKey = DeviceKey;
 
                 // Set Timestamp (if not already set)
-                if (newObservation.Timestamp <= 0) newObservation.Timestamp = UnixDateTime.Now;
+                if (newObservation.Timestamp <= 0 && !IgnoreTimestamps) newObservation.Timestamp = UnixDateTime.Now;
 
                 // Get the Current Observation (if exists)
                 IObservationInput currentObservation;
@@ -414,6 +417,8 @@ namespace MTConnect.Adapters
 
         protected bool WriteChangedObservations()
         {
+            var now = UnixDateTime.Now;
+
             // Get a list of all Current Observations
             List<IObservationInput> dataItems;
             lock (_lock)
@@ -433,6 +438,7 @@ namespace MTConnect.Adapters
 
                         var sendItem = new ObservationInput(item);
                         if (!OutputTimestamps) sendItem.Timestamp = 0;
+                        else if (IgnoreTimestamps) sendItem.Timestamp = now;
                         dataItems.Add(sendItem);
                     }
                 }
