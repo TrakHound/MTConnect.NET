@@ -23,8 +23,8 @@ namespace MTConnect.Devices.Json
         [JsonPropertyName("uuid")]
         public string Uuid { get; set; }
 
-        [JsonPropertyName("instanceId")]
-        public long InstanceId { get; set; }
+        [JsonPropertyName("hash")]
+        public string Hash { get; set; }
 
         [JsonPropertyName("iso841Class")]
         public string Iso841Class { get; set; }
@@ -74,7 +74,7 @@ namespace MTConnect.Devices.Json
                 Name = device.Name;
                 NativeName = device.NativeName;
                 Uuid = device.Uuid;
-                InstanceId = device.InstanceId;
+                Hash = device.Hash;
                 if (device.SampleRate > 0) SampleRate = device.SampleRate;
                 if (device.SampleInterval > 0) SampleInterval = device.SampleInterval;
                 Iso841Class = device.Iso841Class;
@@ -137,7 +137,7 @@ namespace MTConnect.Devices.Json
             device.Name = Name;
             device.NativeName = NativeName;
             device.Uuid = Uuid;
-            device.InstanceId = InstanceId;
+            device.Hash = Hash;
             device.SampleRate = SampleRate.HasValue ? SampleRate.Value : 0;
             device.SampleInterval = SampleInterval.HasValue ? SampleInterval.Value : 0;
             device.Iso841Class = Iso841Class;

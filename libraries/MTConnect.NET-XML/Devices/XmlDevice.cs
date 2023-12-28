@@ -85,7 +85,7 @@ namespace MTConnect.Devices.Xml
             device.SampleInterval = SampleInterval;
             device.Iso841Class = Iso841Class;
             device.CoordinateSystemIdRef = CoordinateSystemIdRef;
-            device.Hash = device.Hash;
+            device.Hash = Hash;
             if (Version.TryParse(MTConnectVersion, out var mtconnectVersion))
             {
                 device.MTConnectVersion = mtconnectVersion;
@@ -236,7 +236,7 @@ namespace MTConnect.Devices.Xml
                 if (device.SampleRate > 0) writer.WriteAttributeString("sampleRate", device.SampleRate.ToString());
                 if (!string.IsNullOrEmpty(device.CoordinateSystemIdRef)) writer.WriteAttributeString("coordinateSystemIdRef", device.CoordinateSystemIdRef);
                 if (device.MTConnectVersion != null) writer.WriteAttributeString("mtconnectVersion", device.MTConnectVersion.ToString());
-                if (device.MTConnectVersion != null && device.MTConnectVersion >= MTConnectVersions.Version22) writer.WriteAttributeString("hash", device.Hash);
+                if (!string.IsNullOrEmpty(device.Hash)) writer.WriteAttributeString("hash", device.Hash);
 
 				// Write Description
 				XmlDescription.WriteXml(writer, device.Description);
