@@ -184,7 +184,7 @@ modules:
     - path: styles/favicon.ico
     location: favicon.ico
 
-- mqtt2-relay: # - Add MQTT Relay module
+- mqtt-relay: # - Add MQTT Relay module
     server: localhost
     port: 1883
     currentInterval: 5000
