@@ -8,7 +8,7 @@
 
 ## Version 6 Beta
 The Version 6 beta is now available in the [version-6](https://github.com/TrakHound/MTConnect.NET/tree/version-6.0) branch and available for download:
-- Agent Installer: https://github.com/TrakHound/MTConnect.NET/releases/tag/v6.0.5-beta
+- Agent Installer: https://github.com/TrakHound/MTConnect.NET/releases/tag/v6.0.8-beta
 - Agent Docker: https://hub.docker.com/repository/docker/trakhound/mtconnect.net-agent/general
 
 ## Overview
