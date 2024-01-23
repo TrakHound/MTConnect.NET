@@ -169,7 +169,7 @@ modules:
   
 - http-server: # - Add HTTP Server module
     hostname: localhost
-    port: 7878
+    port: 5000
     allowPut: true
     indentOutput: true
     documentFormat: xml
