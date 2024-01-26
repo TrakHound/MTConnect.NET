@@ -49,24 +49,6 @@ namespace MTConnect.Configurations
         [JsonPropertyName("deviceKey")]
         public string DeviceKey { get; set; }
 
-        ///// <summary>
-        ///// The TCP Port used for communication
-        ///// </summary>
-        //[JsonPropertyName("port")]
-        //public int Port { get; set; }
-
-        ///// <summary>
-        ///// The heartbeat used to maintain a connection between the Adapter and the Agent
-        ///// </summary>
-        //[JsonPropertyName("heartbeat")]
-        //public int Heartbeat { get; set; }
-
-        ///// <summary>
-        ///// The amount of time (in milliseconds) to allow for a connection attempt to the Agent
-        ///// </summary>
-        //[JsonPropertyName("timeout")]
-        //public int Timeout { get; set; }
-
         /// <summary>
         /// The interval (in milliseconds) at which new data is read from the Data Source
         /// </summary>
@@ -78,18 +60,6 @@ namespace MTConnect.Configurations
         /// </summary>
         [JsonPropertyName("writeInterval")]
         public int WriteInterval { get; set; }
-
-        ///// <summary>
-        ///// Use multiline Assets
-        ///// </summary>
-        //[JsonPropertyName("multilineAssets")]
-        //public bool MultilineAssets { get; set; }
-
-        ///// <summary>
-        ///// Use multiline Devices
-        ///// </summary>
-        //[JsonPropertyName("multilineDevices")]
-        //public bool MultilineDevices { get; set; }
 
         /// <summary>
         /// Determines whether to filter out duplicate data
@@ -147,9 +117,6 @@ namespace MTConnect.Configurations
         public AdapterApplicationConfiguration()
         {
             Id = StringFunctions.RandomString(6);
-            //Port = 7878;
-            //Heartbeat = 5000;
-            //Timeout = 5000;
             ReadInterval = 100;
             WriteInterval = 100;
             FilterDuplicates = true;

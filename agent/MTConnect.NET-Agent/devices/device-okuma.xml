@@ -112,6 +112,11 @@
 						<DataItem category="SAMPLE" id="L2p1Sensor" type="VARIABLE" representation="TIME_SERIES"/>
 						<DataItem category="EVENT" id="L2p1Variables" type="TOOL_OFFSET" representation="DATA_SET"/>
 						<DataItem category="EVENT" id="L2p1ToolTable" type="WORK_OFFSET" representation="TABLE"/>
+						
+												<DataItem category="SAMPLE" id="testTimeSeries" type="VARIABLE" representation="TIME_SERIES"/>
+						<DataItem category="EVENT" id="testDataSet" type="TOOL_OFFSET" representation="DATA_SET"/>
+						<DataItem category="EVENT" id="testTable" type="WORK_OFFSET" representation="TABLE"/>
+						
 					</DataItems>
 				</Path>
 				<Path id="L2p2" name="path2">

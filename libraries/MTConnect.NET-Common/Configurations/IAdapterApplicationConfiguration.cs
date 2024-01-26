@@ -8,7 +8,7 @@ namespace MTConnect.Configurations
     /// <summary>
     /// Configuration for an MTConnect Adapter
     /// </summary>
-    public interface IAdapterApplicationConfiguration
+    public interface IAdapterApplicationConfiguration : IDataSourceConfiguration
     {
         string ChangeToken { get; }
 
@@ -25,40 +25,12 @@ namespace MTConnect.Configurations
         /// </summary>
         string DeviceKey { get; set; }
 
-        ///// <summary>
-        ///// The TCP Port used for communication
-        ///// </summary>
-        //int Port { get; set; }
-
-        ///// <summary>
-        ///// The heartbeat used to maintain a connection between the Adapter and the Agent
-        ///// </summary>
-        //int Heartbeat { get; set; }
-
-        ///// <summary>
-        ///// The amount of time (in milliseconds) to allow for a connection attempt to the Agent
-        ///// </summary>
-        //int Timeout { get; set; }
-
-        /// <summary>
-        /// The interval (in milliseconds) at which new data is read from the Data Source
-        /// </summary>
-        int ReadInterval { get; set; }
 
         /// <summary>
         /// The interval (in milliseconds) at which new data is sent to the Agent
         /// </summary>
         int WriteInterval { get; set; }
 
-        ///// <summary>
-        ///// Use multiline Assets
-        ///// </summary>
-        //bool MultilineAssets { get; set; }
-
-        ///// <summary>
-        ///// Use multiline Devices
-        ///// </summary>
-        //bool MultilineDevices { get; set; }
 
         /// <summary>
         /// Determines whether to filter out duplicate data

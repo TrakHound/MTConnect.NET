@@ -13,7 +13,7 @@ namespace MTConnect.Input
     /// </summary>
     public interface IMTConnectDataSource
     {
-        IAdapterApplicationConfiguration Configuration { get; set; }
+        IDataSourceConfiguration Configuration { get; set; }
 
 
         event EventHandler<IObservationInput> ObservationAdded;

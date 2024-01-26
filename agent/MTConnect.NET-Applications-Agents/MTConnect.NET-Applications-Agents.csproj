@@ -83,8 +83,15 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Update="NLog.config">
+	  <None Include="agent.config.default.yaml">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		<Pack>True</Pack>
+		<PackagePath>\</PackagePath>
+	  </None>
+	  <None Include="NLog.config">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		  <Pack>True</Pack>
+		  <PackagePath>\</PackagePath>
 	  </None>
 	</ItemGroup>
 

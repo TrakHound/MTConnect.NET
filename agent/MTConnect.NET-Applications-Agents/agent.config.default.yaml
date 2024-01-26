@@ -1,0 +1,54 @@
+﻿# - Modules -
+modules:
+  
+- http-server: # - Add HTTP Server module
+    # hostname: localhost
+    port: 5000
+    # allowPut: true
+    indentOutput: true
+    documentFormat: xml
+    responseCompression:
+    - gzip
+    - br
+    # files:
+    # - path: schemas
+    #   location: schemas
+    # - path: styles
+    #   location: styles
+    # - path: styles/favicon.ico
+    #   location: favicon.ico
+
+# - mqtt-relay: # - Add MQTT Relay module
+#     server: localhost
+#     port: 1883
+#     currentInterval: 5000
+#     sampleInterval: 500
+
+# - shdr-adapter: # - Add SHDR Adapter module for Device = M12346 and Port = 7878
+#     deviceKey: M12346
+#     hostname: localhost
+#     port: 7878
+
+# - shdr-adapter: # - Add SHDR Adapter module for Device = OKUMA-Lathe and Port = 7879
+#     deviceKey: OKUMA-Lathe
+#     hostname: localhost
+#     port: 7879
+
+# - mqtt-adapter: # - Add MQTT Adapter module for Device = M12346 and Topic = cnc-01
+#     deviceKey: M12346
+#     server: localhost
+#     port: 1883
+#     topic: cnc-01
+
+
+# The maximum number of Observations the agent can hold in its buffer
+observationBufferSize: 150000
+
+# The maximum number of assets the agent can hold in its buffer
+assetBufferSize: 1000
+
+# Sets whether the Agent buffers are durable and retain state after restart
+durable: false
+
+# Sets the default MTConnect version to output response documents for.
+defaultVersion: 2.2

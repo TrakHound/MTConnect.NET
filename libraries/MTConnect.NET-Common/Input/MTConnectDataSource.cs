@@ -20,7 +20,7 @@ namespace MTConnect.Input
         private bool _isStarted;
 
 
-        public IAdapterApplicationConfiguration Configuration { get; set; }
+        public IDataSourceConfiguration Configuration { get; set; }
 
 
         public event EventHandler<IObservationInput> ObservationAdded;

@@ -16,7 +16,8 @@ namespace MTConnect.Devices.Components
 
         public override string TypeDescription => DescriptionText;
         
-        public override System.Version MinimumVersion => MTConnectVersions.Version20; 
+        public override System.Version MinimumVersion => MTConnectVersions.Version10; 
+        //public override System.Version MinimumVersion => MTConnectVersions.Version20; 
 
 
         public ControllersComponent() { Type = TypeId; }
