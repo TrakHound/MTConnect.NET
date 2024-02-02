@@ -383,8 +383,8 @@ namespace MTConnect
             if (hashBytes != null && hashBytes.Length > 0)
             {
                 var x1 = hashBytes[0];
-                var x2 = x1;
-                byte[] a1;
+                byte[] x2;
+                byte[] a1 = x1;
 
                 for (int i = 1; i < hashBytes.Length; i++)
                 {
@@ -399,7 +399,7 @@ namespace MTConnect
                     }
                 }
 
-                return x2;
+                return a1;
             }
 
             return null;

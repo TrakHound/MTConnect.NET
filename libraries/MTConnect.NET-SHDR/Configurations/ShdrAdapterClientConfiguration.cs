@@ -11,7 +11,7 @@ namespace MTConnect.Configurations
     public class ShdrAdapterClientConfiguration : ShdrClientConfiguration, IShdrAdapterClientConfiguration
     {
         /// <summary>
-        /// For devices that do not have the ability to provide available events, if yes, this sets the Availability to AVAILABLE upon connection.
+        /// For devices that do not have the ability to provide available events, if TRUE, this sets the Availability to AVAILABLE upon connection.
         /// </summary>
         [JsonPropertyName("availableOnConnection")]
         public bool AvailableOnConnection { get; set; }

@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+﻿// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Adapters;
@@ -8,13 +8,14 @@ using MTConnect.Devices;
 using MTConnect.Devices.Components;
 using MTConnect.Devices.DataItems;
 using MTConnect.Logging;
+using MTConnect.Observations.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace MTConnect.Modules
 {
-    public class Module : MTConnectAgentModule
+	public class Module : MTConnectAgentModule
     {
         public const string ConfigurationTypeId = "shdr-adapter";
         private const string ModuleId = "SHDR Adapter";
@@ -33,7 +34,7 @@ namespace MTConnect.Modules
         }
 
 
-        protected override void OnStartAfterLoad()
+        protected override void OnStartAfterLoad(bool initializeDataItems)
         {
             if (_configuration != null)
             {
@@ -44,14 +45,12 @@ namespace MTConnect.Modules
                     {
                         // Find Device matching DeviceKey
                         var device = devices.FirstOrDefault(o => o.Uuid == _configuration.DeviceKey || o.Name == _configuration.DeviceKey);
-                        if (device != null) AddAdapter(_configuration, device);
-                        //if (device != null) AddAdapter(_configuration, device, initializeDataItems);
+                        if (device != null) AddAdapter(_configuration, device, initializeDataItems);
                     }
                     else
                     {
                         // Add Adapter for each Device (every device reads from the same adapter)
-                        foreach (var device in devices) AddAdapter(_configuration, device, true, device.Id);
-                        //foreach (var device in devices) AddAdapter(adapter, device, initializeDataItems, device.Id);
+                        foreach (var device in devices) AddAdapter(_configuration, device, initializeDataItems, device.Id);
                     }
                 }
                 else if (_configuration.AllowShdrDevice) // Prevent accidental generic Adapter creation
@@ -90,20 +89,20 @@ namespace MTConnect.Modules
         {
             if (configuration != null)
             {
-                var adapterComponent = new ShdrAdapterComponent(configuration, idSuffix, device, device);
+                var adapterComponent = new ShdrAdapterComponent(configuration, idSuffix, _mtconnectAgent.Agent, _mtconnectAgent.Agent);
 
                 // Add Adapter Component to Agent Device
                 _mtconnectAgent.Agent.AddAdapterComponent(adapterComponent);
 
-                if (!adapterComponent.DataItems.IsNullOrEmpty())
+                if (configuration.OutputConnectionInformation)
                 {
-                    // Initialize Adapter URI Observation
-                    var adapterUriDataItem = adapterComponent.DataItems.FirstOrDefault(o => o.Type == AdapterUriDataItem.TypeId);
-                    if (adapterUriDataItem != null && initializeDataItems)
-                    {
-                        _mtconnectAgent.AddObservation(_mtconnectAgent.Uuid, adapterUriDataItem.Id, adapterComponent.Uri);
-                    }
-                }
+					// Initialize Adapter URI Observation
+					var adapterUriDataItem = adapterComponent.GetDataItemByType(AdapterUriDataItem.TypeId);
+					if (adapterUriDataItem != null && initializeDataItems)
+					{
+						_mtconnectAgent.AddObservation(adapterUriDataItem, adapterComponent.Uri);
+					}
+				}
 
                 // Create new SHDR Adapter Client to read from SHDR stream
                 var adapterClient = new ShdrAdapterClient(configuration, _mtconnectAgent, device, idSuffix);
@@ -117,9 +116,13 @@ namespace MTConnect.Modules
                 adapterClient.PongReceived += AdapterPongReceived;
                 adapterClient.ProtocolReceived += AdapterProtocolReceived;
 
-                // Start the Adapter Client
-                adapterClient.Start();
-            }
+				// Set ConnectionStatus DataItem
+				var connectionStatusDataItem = _mtconnectAgent.Agent.GetDataItemByKey(DataItem.CreateId(adapterClient.Id, ConnectionStatusDataItem.NameId));
+				_mtconnectAgent.AddObservation(connectionStatusDataItem, ConnectionStatus.LISTEN);
+
+				// Start the Adapter Client
+				adapterClient.Start();
+			}
         }
 
 
@@ -127,8 +130,16 @@ namespace MTConnect.Modules
         {
             var adapterClient = (ShdrAdapterClient)sender;
 
-            var dataItemId = DataItem.CreateId(adapterClient.Id, ConnectionStatusDataItem.NameId);
-            _mtconnectAgent.AddObservation(_mtconnectAgent.Uuid, dataItemId, Observations.Events.ConnectionStatus.ESTABLISHED);
+            // Set ConnectionStatus DataItem
+            var connectionStatusDataItem = _mtconnectAgent.Agent.GetDataItemByKey(DataItem.CreateId(adapterClient.Id, ConnectionStatusDataItem.NameId));
+            _mtconnectAgent.AddObservation(connectionStatusDataItem, ConnectionStatus.ESTABLISHED);
+
+            // Set Availability (if AvailableOnConnection = TRUE)
+            if (_configuration.AvailableOnConnection)
+            {
+                var availabilityDataItem = adapterClient.Device.GetDataItemByType(AvailabilityDataItem.TypeId);
+				_mtconnectAgent.AddObservation(availabilityDataItem, Availability.AVAILABLE);
+			}
 
             Log(MTConnectLogLevel.Information, $"ID = " + adapterClient.Id + " : " + message);
         }
@@ -137,10 +148,18 @@ namespace MTConnect.Modules
         {
             var adapterClient = (ShdrAdapterClient)sender;
 
-            var dataItemId = DataItem.CreateId(adapterClient.Id, ConnectionStatusDataItem.NameId);
-            _mtconnectAgent.AddObservation(_mtconnectAgent.Uuid, dataItemId, Observations.Events.ConnectionStatus.CLOSED);
+			// Set ConnectionStatus DataItem
+			var connectionStatusDataItem = _mtconnectAgent.Agent.GetDataItemByKey(DataItem.CreateId(adapterClient.Id, ConnectionStatusDataItem.NameId));
+			_mtconnectAgent.AddObservation(connectionStatusDataItem, ConnectionStatus.CLOSED);
 
-            Log(MTConnectLogLevel.Information, $"ID = " + adapterClient.Id + " : " + message);
+			// Set Availability (if AvailableOnConnection = TRUE)
+			if (_configuration.AvailableOnConnection)
+			{
+				var availabilityDataItem = adapterClient.Device.GetDataItemByType(AvailabilityDataItem.TypeId);
+				_mtconnectAgent.AddObservation(availabilityDataItem, Availability.UNAVAILABLE);
+			}
+
+			Log(MTConnectLogLevel.Information, $"ID = " + adapterClient.Id + " : " + message);
         }
 
         private void AdapterConnectionError(object sender, Exception exception)
@@ -153,8 +172,9 @@ namespace MTConnect.Modules
         {
             var adapterClient = (ShdrAdapterClient)sender;
 
-            var dataItemId = DataItem.CreateId(adapterClient.Id, ConnectionStatusDataItem.NameId);
-            _mtconnectAgent.AddObservation(_mtconnectAgent.Uuid, dataItemId, Observations.Events.ConnectionStatus.LISTEN);
+			// Set ConnectionStatus DataItem
+			var connectionStatusDataItem = _mtconnectAgent.Agent.GetDataItemByKey(DataItem.CreateId(adapterClient.Id, ConnectionStatusDataItem.NameId));
+			_mtconnectAgent.AddObservation(connectionStatusDataItem, ConnectionStatus.LISTEN);
 
             Log(MTConnectLogLevel.Debug, $"ID = " + adapterClient.Id + " : " + message);
         }

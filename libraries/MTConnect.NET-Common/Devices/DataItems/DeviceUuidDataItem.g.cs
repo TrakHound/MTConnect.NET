@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 namespace MTConnect.Devices.DataItems
@@ -12,6 +12,7 @@ namespace MTConnect.Devices.DataItems
         public const string TypeId = "DEVICE_UUID";
         public const string NameId = "deviceUuid";
              
+             
         public new const string DescriptionText = "Identifier of another piece of equipment that is temporarily associated with a component of this piece of equipment to perform a particular function.";
         
         public override string TypeDescription => DescriptionText;
@@ -23,6 +24,8 @@ namespace MTConnect.Devices.DataItems
         {
             Category = CategoryId;
             Type = TypeId;
+            Name = NameId;
+              
             
         }
 
@@ -32,6 +35,8 @@ namespace MTConnect.Devices.DataItems
             Category = CategoryId;
             Type = TypeId;
             Name = NameId;
+             
+            
         }
     }
 }

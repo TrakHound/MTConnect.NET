@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 // MTConnect SysML v2.2 : UML ID = _19_0_3_45f01b9_1580312106475_909781_44453
@@ -11,7 +11,7 @@ namespace MTConnect.Devices.Components
     public class SpreaderComponent : Component
     {
         public const string TypeId = "Spreader";
-        public const string NameId = "spreaderComponent";
+        public const string NameId = "spreader";
         public new const string DescriptionText = "Leaf Component that flattens or spreading materials.";
 
         public override string TypeDescription => DescriptionText;
@@ -19,6 +19,10 @@ namespace MTConnect.Devices.Components
         public override System.Version MinimumVersion => MTConnectVersions.Version15; 
 
 
-        public SpreaderComponent() { Type = TypeId; }
+        public SpreaderComponent() 
+        { 
+            Type = TypeId;
+            Name = NameId;
+        }
     }
 }

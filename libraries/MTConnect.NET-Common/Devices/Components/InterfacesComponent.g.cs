@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 // MTConnect SysML v2.2 : UML ID = _19_0_3_68e0225_1607345507474_877148_1773
@@ -11,7 +11,7 @@ namespace MTConnect.Devices.Components
     public class InterfacesComponent : Component, IOrganizerComponent
     {
         public const string TypeId = "Interfaces";
-        public const string NameId = "interfacesComponent";
+        public const string NameId = "interfaces";
         public new const string DescriptionText = "Component that organize Interface types.";
 
         public override string TypeDescription => DescriptionText;
@@ -19,6 +19,10 @@ namespace MTConnect.Devices.Components
         public override System.Version MinimumVersion => MTConnectVersions.Version13; 
 
 
-        public InterfacesComponent() { Type = TypeId; }
+        public InterfacesComponent() 
+        { 
+            Type = TypeId;
+            Name = NameId;
+        }
     }
 }

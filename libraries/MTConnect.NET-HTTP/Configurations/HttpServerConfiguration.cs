@@ -137,6 +137,8 @@ namespace MTConnect.Configurations
             Server = null;
             Port = 5000;
 
+            DocumentFormat = MTConnect.DocumentFormat.XML;
+
             Accept = new Dictionary<string, string>();
             Accept["text/xml"] = "XML";
             Accept["application/xml"] = "XML";

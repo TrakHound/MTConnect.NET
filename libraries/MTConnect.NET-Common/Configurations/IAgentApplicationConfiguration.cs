@@ -61,8 +61,10 @@ namespace MTConnect.Configurations
 
         IEnumerable<TConfiguration> GetModules<TConfiguration>(string key);
 
+        bool IsModuleConfigured(string key);
 
-        Dictionary<object, object> GetProcessors();
+
+		Dictionary<object, object> GetProcessors();
 
         IEnumerable<object> GetProcessors(string key);
 

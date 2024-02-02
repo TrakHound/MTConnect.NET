@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 namespace MTConnect.Devices.DataItems
@@ -11,6 +11,7 @@ namespace MTConnect.Devices.DataItems
         public const DataItemCategory CategoryId = DataItemCategory.{{category}};
         public const string TypeId = "{{type}}";
         public const string NameId = "{{default_name}}";
+        {{ if (representation) }}public const DataItemRepresentation DefaultRepresentation = DataItemRepresentation.{{representation}};{{ end }}     
         {{ if (units_enum) }}public const string DefaultUnits = {{units_enum}};{{ end }}     
         public new const string DescriptionText = "{{description}}";
         
@@ -36,6 +37,8 @@ namespace MTConnect.Devices.DataItems
         {
             Category = CategoryId;
             Type = TypeId;
+            Name = NameId;
+            {{ if (representation) }}Representation = DefaultRepresentation;{{ end }}  
             {{ if (units_enum) }}Units = DefaultUnits;{{ end }}
         }
 
@@ -51,6 +54,7 @@ namespace MTConnect.Devices.DataItems
             Type = TypeId;
             SubType = subType.ToString();
             Name = NameId;
+            {{ if (representation) }}Representation = DefaultRepresentation;{{ end }} 
             {{ if (units_enum) }}Units = DefaultUnits;{{ end }}
         }
 
@@ -93,6 +97,8 @@ namespace MTConnect.Devices.DataItems
             Category = CategoryId;
             Type = TypeId;
             Name = NameId;
+            {{ if (representation) }}Representation = DefaultRepresentation;{{ end }} 
+            {{ if (units_enum) }}Units = DefaultUnits;{{ end }}
         }
 {{- end }}
     }

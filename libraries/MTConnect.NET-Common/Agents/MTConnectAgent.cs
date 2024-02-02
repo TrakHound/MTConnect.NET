@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Agents.Metrics;
@@ -790,22 +790,27 @@ namespace MTConnect.Agents
             if (_currentConditions != null && observation != null && !string.IsNullOrEmpty(deviceUuid) && dataItem != null)
             {
                 var observations = new List<IObservationInput>();
+                var addedNew = false;
+                var i = 0;
 
                 // Get Existing Condition Observations for DataItem
                 var hash = $"{deviceUuid}:{dataItem.Id}";
 
                 _currentConditions.TryGetValue(hash, out var existingObservations);
 
-                if (existingObservations.IsNullOrEmpty() || !existingObservations.Any(o => o.ChangeId == observation.ChangeId))
+                if (existingObservations.IsNullOrEmpty() || !existingObservations.Any(o => ObjectExtensions.ByteArraysEqual(o.ChangeId, observation.ChangeId)))
                 {
+                    addedNew = true;
                     observations.Add(observation);
+                    i++;
                 }
+
 
                 // Add previous Condition Observations (if new Condition is not NORMAL or UNAVAILABLE)
                 byte[] existingHash = null;
-                if (observation != null && !existingObservations.IsNullOrEmpty())
+                if (!existingObservations.IsNullOrEmpty())
                 {
-                    existingHash = StringFunctions.ToMD5HashBytes(existingObservations.Select(o => o.ChangeId).ToArray());
+                    existingHash = StringFunctions.ToMD5HashBytes(existingObservations.OrderBy(o => o.GetValue(ValueKeys.NativeCode)).Select(o => o.ChangeId).ToArray());
 
                     var conditionLevelValue = observation.GetValue(ValueKeys.Level);
                     var conditionLevel = conditionLevelValue.ConvertEnum<ConditionLevel>();
@@ -813,7 +818,6 @@ namespace MTConnect.Agents
 
                     if (!(conditionLevel == ConditionLevel.NORMAL && string.IsNullOrEmpty(nativeCode)) && conditionLevel != ConditionLevel.UNAVAILABLE)
                     {
-                        var i = 0;
                         foreach (var existingObservation in existingObservations)
                         {
                             var existingLevel = existingObservation.GetValue(ValueKeys.Level);
@@ -824,16 +828,27 @@ namespace MTConnect.Agents
                                 observations.Insert(i, existingObservation);
                                 i++;
                             }
+                            else
+                            {
+                                if (!addedNew)
+                                {
+                                    observations.Insert(i, existingObservation);
+                                    i++;
+                                }
+                            }
                         }
                     }
                 }
 
-                // Compare Hashes. If different, then update current list
-                byte[] newHash = StringFunctions.ToMD5HashBytes(observations.Select(o => o.ChangeId).ToArray());
-                if (!ObjectExtensions.ByteArraysEqual(existingHash, newHash))
+                if (!observations.IsNullOrEmpty())
                 {
-                    _currentConditions.TryRemove(hash, out var _);
-                    return _currentConditions.TryAdd(hash, observations);
+                    // Compare Hashes. If different, then update current list
+                    byte[] newHash = StringFunctions.ToMD5HashBytes(observations.OrderBy(o => o.GetValue(ValueKeys.NativeCode)).Select(o => o.ChangeId).ToArray());
+                    if (!ObjectExtensions.ByteArraysEqual(existingHash, newHash))
+                    {
+                        _currentConditions.TryRemove(hash, out var _);
+                        return _currentConditions.TryAdd(hash, observations);
+                    }
                 }
             }
 
@@ -1281,7 +1296,7 @@ namespace MTConnect.Agents
         /// <summary>
         /// Add a new MTConnectDevice to the Agent's Buffer
         /// </summary>
-        public bool AddDevice(IDevice device, bool initializeDataItems = true)
+        public IDevice AddDevice(IDevice device, bool initializeDataItems = true)
         {
             if (device != null)
             {
@@ -1295,7 +1310,7 @@ namespace MTConnect.Agents
                     // Check if Device Already Exists in the Device Buffer and is changed
                     if (existingDevice != null && obj.Hash == existingDevice.Hash)
                     {
-                        return true;
+                        return existingDevice;
                     }
 
                     // Add the Device to the Buffer
@@ -1332,34 +1347,37 @@ namespace MTConnect.Agents
                         }
 
                         DeviceAdded?.Invoke(this, obj);
-                    }
 
-                    return success;
+                        return obj;
+                    }
                 }
             }
 
-            return false;
+            return null;
         }
 
         /// <summary>
         /// Add new MTConnectDevices to the Agent's Buffer
         /// </summary>
-        public bool AddDevices(IEnumerable<IDevice> devices, bool initializeDataItems = true)
+        public IEnumerable<IDevice> AddDevices(IEnumerable<IDevice> devices, bool initializeDataItems = true)
         {
             if (!devices.IsNullOrEmpty())
             {
-                bool success = false;
+                var addedDevices = new List<IDevice>();
+                bool success;
 
                 foreach (var device in devices)
                 {
-                    success = AddDevice(device, initializeDataItems);
+                    var addedDevice = AddDevice(device, initializeDataItems);
+                    success = addedDevice != null;
                     if (!success) break;
+                    else addedDevices.Add(addedDevice);
                 }
 
-                return success;
+                return addedDevices;
             }
 
-            return false;
+            return null;
         }
 
         #endregion
@@ -1471,42 +1489,97 @@ namespace MTConnect.Agents
             return s;
         }
 
-        #endregion
+		#endregion
 
 
-        /// <summary>
-        /// Add a new Observation to the Agent for the specified Device and DataItem
-        /// </summary>
-        /// <param name="deviceKey">The (Name or Uuid) of the Device</param>
-        /// <param name="dataItemKey">The (Name, ID, or Source) of the DataItem</param>
-        /// <param name="value">The Value of the Observation (equivalent to ValueKey = Value)</param>
-        /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
-        /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
-        /// <returns>True if the Observation was added successfully</returns>
-        public bool AddObservation(string deviceKey, string dataItemKey, object value, bool? convertUnits = null, bool? ignoreCase = null)
+		/// <summary>
+		/// Add a new Observation to the Agent for the specified DataItem
+		/// </summary>
+		/// <param name="dataItem">The DataItem to report</param>
+		/// <param name="value">The Value of the Observation (equivalent to ValueKey = Value)</param>
+		/// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
+		/// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+		/// <returns>True if the Observation was added successfully</returns>
+		public bool AddObservation(IDataItem dataItem, object value, bool? convertUnits = null, bool? ignoreCase = null)
+		{
+            if (dataItem != null && dataItem.Device != null && !string.IsNullOrEmpty(dataItem.Device.Uuid) && !string.IsNullOrEmpty(dataItem.Id))
+            {
+				var input = new ObservationInput
+				{
+					DeviceKey = dataItem.Device.Uuid,
+					DataItemKey = dataItem.Id,
+					Values = new List<ObservationValue> { new ObservationValue(ValueKeys.Result, value) },
+					Timestamp = UnixDateTime.Now
+				};
+
+				return AddObservation(input, convertUnits: convertUnits, ignoreCase: ignoreCase);
+			}
+
+            return false;
+		}
+
+		/// <summary>
+		/// Add a new Observation to the Agent for the specified Device and DataItem
+		/// </summary>
+		/// <param name="deviceKey">The (Name or Uuid) of the Device</param>
+		/// <param name="dataItemKey">The (Name, ID, or Source) of the DataItem</param>
+		/// <param name="value">The Value of the Observation (equivalent to ValueKey = Value)</param>
+		/// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
+		/// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+		/// <returns>True if the Observation was added successfully</returns>
+		public bool AddObservation(string deviceKey, string dataItemKey, object value, bool? convertUnits = null, bool? ignoreCase = null)
         {
-            return AddObservation(deviceKey, new ObservationInput
+            var input = new ObservationInput
             {
                 DeviceKey = deviceKey,
                 DataItemKey = dataItemKey,
                 Values = new List<ObservationValue> { new ObservationValue(ValueKeys.Result, value) },
                 Timestamp = UnixDateTime.Now
-            });
+            };
+
+			return AddObservation(input, convertUnits: convertUnits, ignoreCase: ignoreCase);
         }
 
-        /// <summary>
-        /// Add a new Observation to the Agent for the specified Device and DataItem
-        /// </summary>
-        /// <param name="deviceKey">The (Name or Uuid) of the Device</param>
-        /// <param name="dataItemKey">The (Name, ID, or Source) of the DataItem</param>
-        /// <param name="value">The Value of the Observation (equivalent to ValueKey = Value)</param>
-        /// <param name="timestamp">The Timestamp of the Observation in Unix Ticks (1/10,000 of a millisecond)</param>
-        /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
-        /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
-        /// <returns>True if the Observation was added successfully</returns>
-        public bool AddObservation(string deviceKey, string dataItemKey, object value, long timestamp, bool? convertUnits = null, bool? ignoreCase = null)
+		/// <summary>
+		/// Add a new Observation to the Agent for the specified DataItem
+		/// </summary>
+		/// <param name="dataItem">The DataItem to report</param>
+		/// <param name="value">The Value of the Observation (equivalent to ValueKey = Value)</param>
+		/// <param name="timestamp">The Timestamp of the Observation in Unix Ticks (1/10,000 of a millisecond)</param>
+		/// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
+		/// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+		/// <returns>True if the Observation was added successfully</returns>
+		public bool AddObservation(IDataItem dataItem, object value, long timestamp, bool? convertUnits = null, bool? ignoreCase = null)
+		{
+			if (dataItem != null && dataItem.Device != null && !string.IsNullOrEmpty(dataItem.Device.Uuid) && !string.IsNullOrEmpty(dataItem.Id))
+			{
+				var input = new ObservationInput
+				{
+					DeviceKey = dataItem.Device.Uuid,
+					DataItemKey = dataItem.Id,
+					Values = new List<ObservationValue> { new ObservationValue(ValueKeys.Result, value) },
+					Timestamp = timestamp
+				};
+
+				return AddObservation(input, convertUnits: convertUnits, ignoreCase: ignoreCase);
+			}
+
+			return false;
+		}
+
+		/// <summary>
+		/// Add a new Observation to the Agent for the specified Device and DataItem
+		/// </summary>
+		/// <param name="deviceKey">The (Name or Uuid) of the Device</param>
+		/// <param name="dataItemKey">The (Name, ID, or Source) of the DataItem</param>
+		/// <param name="value">The Value of the Observation (equivalent to ValueKey = Value)</param>
+		/// <param name="timestamp">The Timestamp of the Observation in Unix Ticks (1/10,000 of a millisecond)</param>
+		/// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
+		/// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+		/// <returns>True if the Observation was added successfully</returns>
+		public bool AddObservation(string deviceKey, string dataItemKey, object value, long timestamp, bool? convertUnits = null, bool? ignoreCase = null)
         {
-            return AddObservation(deviceKey, new ObservationInput
+            return AddObservation(new ObservationInput
             {
                 DeviceKey = deviceKey,
                 DataItemKey = dataItemKey,
@@ -1515,19 +1588,46 @@ namespace MTConnect.Agents
             });
         }
 
-        /// <summary>
-        /// Add a new Observation to the Agent for the specified Device and DataItem
-        /// </summary>
-        /// <param name="deviceKey">The (Name or Uuid) of the Device</param>
-        /// <param name="dataItemKey">The (Name, ID, or Source) of the DataItem</param>
-        /// <param name="value">The Value of the Observation (equivalent to ValueKey = Value)</param>
-        /// <param name="timestamp">The Timestamp of the Observation</param>
-        /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
-        /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
-        /// <returns>True if the Observation was added successfully</returns>
-        public bool AddObservation(string deviceKey, string dataItemKey, object value, DateTime timestamp, bool? convertUnits = null, bool? ignoreCase = null)
+		/// <summary>
+		/// Add a new Observation to the Agent for the specified DataItem
+		/// </summary>
+		/// <param name="dataItem">The DataItem to report</param>
+		/// <param name="value">The Value of the Observation (equivalent to ValueKey = Value)</param>
+		/// <param name="timestamp">The Timestamp of the Observation</param>
+		/// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
+		/// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+		/// <returns>True if the Observation was added successfully</returns>
+		public bool AddObservation(IDataItem dataItem, object value, DateTime timestamp, bool? convertUnits = null, bool? ignoreCase = null)
+		{
+			if (dataItem != null && dataItem.Device != null && !string.IsNullOrEmpty(dataItem.Device.Uuid) && !string.IsNullOrEmpty(dataItem.Id))
+			{
+				var input = new ObservationInput
+				{
+					DeviceKey = dataItem.Device.Uuid,
+					DataItemKey = dataItem.Id,
+					Values = new List<ObservationValue> { new ObservationValue(ValueKeys.Result, value) },
+					Timestamp = timestamp.ToUnixTime()
+				};
+
+				return AddObservation(input, convertUnits: convertUnits, ignoreCase: ignoreCase);
+			}
+
+			return false;
+		}
+
+		/// <summary>
+		/// Add a new Observation to the Agent for the specified Device and DataItem
+		/// </summary>
+		/// <param name="deviceKey">The (Name or Uuid) of the Device</param>
+		/// <param name="dataItemKey">The (Name, ID, or Source) of the DataItem</param>
+		/// <param name="value">The Value of the Observation (equivalent to ValueKey = Value)</param>
+		/// <param name="timestamp">The Timestamp of the Observation</param>
+		/// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
+		/// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+		/// <returns>True if the Observation was added successfully</returns>
+		public bool AddObservation(string deviceKey, string dataItemKey, object value, DateTime timestamp, bool? convertUnits = null, bool? ignoreCase = null)
         {
-            return AddObservation(deviceKey, new ObservationInput
+            return AddObservation(new ObservationInput
             {
                 DeviceKey = deviceKey,
                 DataItemKey = dataItemKey,
@@ -1535,7 +1635,6 @@ namespace MTConnect.Agents
                 Timestamp = timestamp.ToUnixTime()
             });
         }
-
 
         /// <summary>
         /// Add a new Observation to the Agent for the specified Device and DataItem
@@ -1549,7 +1648,7 @@ namespace MTConnect.Agents
         /// <returns>True if the Observation was added successfully</returns>
         public bool AddObservation(string deviceKey, string dataItemKey, string valueKey, object value, bool? convertUnits = null, bool? ignoreCase = null)
         {
-            return AddObservation(deviceKey, new ObservationInput
+            return AddObservation(new ObservationInput
             {
                 DeviceKey = deviceKey,
                 DataItemKey = dataItemKey,
@@ -1571,7 +1670,7 @@ namespace MTConnect.Agents
         /// <returns>True if the Observation was added successfully</returns>
         public bool AddObservation(string deviceKey, string dataItemKey, string valueKey, object value, long timestamp, bool? convertUnits = null, bool? ignoreCase = null)
         {
-            return AddObservation(deviceKey, new ObservationInput
+            return AddObservation(new ObservationInput
             {
                 DeviceKey = deviceKey,
                 DataItemKey = dataItemKey,
@@ -1593,7 +1692,7 @@ namespace MTConnect.Agents
         /// <returns>True if the Observation was added successfully</returns>
         public bool AddObservation(string deviceKey, string dataItemKey, string valueKey, object value, DateTime timestamp, bool? convertUnits = null, bool? ignoreCase = null)
         {
-            return AddObservation(deviceKey, new ObservationInput
+            return AddObservation(new ObservationInput
             {
                 DeviceKey = deviceKey,
                 DataItemKey = dataItemKey,
@@ -1605,138 +1704,156 @@ namespace MTConnect.Agents
         /// <summary>
         /// Add a new Observation to the Agent for the specified Device and DataItem
         /// </summary>
-        /// <param name="deviceKey">The (Name or Uuid) of the Device</param>
         /// <param name="observationInput">The Observation to add</param>
         /// <param name="ignoreTimestamp">Used to override the default configuration for the Agent to IgnoreTimestamp</param>
         /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
         /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
         /// <returns>True if the Observation was added successfully</returns>
-        public bool AddObservation(string deviceKey, IObservationInput observationInput, bool? ignoreTimestamp = null, bool? convertUnits = null, bool? ignoreCase = null)
+        public bool AddObservation(IObservationInput observationInput, bool? ignoreTimestamp = null, bool? convertUnits = null, bool? ignoreCase = null)
         {
-            if (observationInput != null)
+            if (observationInput != null && !string.IsNullOrEmpty(observationInput.DeviceKey))
             {
-                ObservationReceived?.Invoke(this, observationInput);
-
-                IObservationInput input = new ObservationInput();
-                input.DeviceKey = deviceKey;
-                input.DataItemKey = observationInput.DataItemKey;
-                input.IsUnavailable = observationInput.IsUnavailable;
-
-                // Convert Case (if Ignored)
-                if ((!ignoreCase.HasValue && _configuration.IgnoreObservationCase) || (ignoreCase.HasValue && ignoreCase.Value))
-                {
-                    input.Values = Observation.UppercaseValues(observationInput.Values);
-                }
-                else input.Values = observationInput.Values;
-
-                // Set Timestamp
-                if ((!ignoreTimestamp.HasValue && _configuration.IgnoreTimestamps) || (ignoreTimestamp.HasValue && ignoreTimestamp.Value))
-                {
-                    input.Timestamp = UnixDateTime.Now;
-                }
-                else input.Timestamp = observationInput.Timestamp > 0 ? observationInput.Timestamp : UnixDateTime.Now;
-
-                // Get Device UUID from deviceKey
-                var deviceUuid = GetDeviceUuid(deviceKey);
-
-                // Get DataItem based on Observation's Key
-                var dataItem = GetDataItem(deviceUuid, input.DataItemKey);
-                if (dataItem != null)
-                {
-                    // Add required properties
-                    switch (dataItem.Representation)
-                    {
-                        case DataItemRepresentation.DATA_SET: if (input.IsUnavailable) input.AddValue(ValueKeys.Count, 0); break;
-                        case DataItemRepresentation.TABLE: if (input.IsUnavailable) input.AddValue(ValueKeys.Count, 0); break;
-                        case DataItemRepresentation.TIME_SERIES: if (input.IsUnavailable) input.AddValue(ValueKeys.SampleCount, 0); break;
-                    }
-
-                    // Process Observation using Processers
-                    if (ProcessObservationFunction != null)
-                    {
-                        input = ProcessObservationFunction(new ProcessObservation(this, dataItem, input));
-                    }
-
-                    var success = false;
-                    var validationResult = new ValidationResult(true);
-
-                    if (_configuration.InputValidationLevel > InputValidationLevel.Ignore)
-                    {
-                        // Validate Observation Input with DataItem type
-                        validationResult = dataItem.IsValid(MTConnectVersion, input);
-                        if (!validationResult.IsValid) validationResult.Message = $"{dataItem.Type} : {dataItem.Id} : {validationResult.Message}";
-                    }
-
-                    if (validationResult.IsValid || _configuration.InputValidationLevel != InputValidationLevel.Strict)
-                    {
-                        // Convert Units (if needed)
-                        if ((!convertUnits.HasValue && _configuration.ConvertUnits) || (convertUnits.HasValue && convertUnits.Value))
-                        {
-                            input = ConvertObservationValue(dataItem, input);
-                            if (input == null) return false;
-                        }
-
-                        bool update;
-
-                        // Check if Observation Needs to be Updated
-                        if (dataItem.Category == DataItemCategory.CONDITION)
-                        {
-                            update = UpdateCurrentCondition(deviceUuid, dataItem, input);
-                        }
-                        else
-                        {
-                            update = UpdateCurrentObservation(deviceUuid, dataItem, input);
-                        }
-
-                        // Check if Observation Needs to be Updated
-                        if (update)
-                        {
-                            // Call Update to Observation Buffer - HERE
-                            success = OnAddObservation(deviceUuid, dataItem, input);
-                            if (success)
-                            {
-                                if (_metrics != null)
-                                {
-                                    if (dataItem.Type != ObservationUpdateRateDataItem.TypeId && dataItem.Type != AssetUpdateRateDataItem.TypeId)
-                                    {
-                                        // Update Agent Metrics
-                                        _metrics.UpdateObservation(deviceUuid, dataItem.Id);
-                                    }
-                                }
-
-                                var observation = Observation.Create(dataItem);
-                                observation.DeviceUuid = deviceUuid;
-                                observation.DataItem = dataItem;
-                                observation.InstanceId = _instanceId;
-                                observation.Timestamp = input.Timestamp.ToDateTime();
-                                observation.AddValues(input.Values);
-                                OnObservationAdded(observation);
-                            }
-                        }
-                        else success = true; // Return true if no update needed
-                    }
-
-                    if (!validationResult.IsValid && InvalidObservationAdded != null)
-                    {
-                        InvalidObservationAdded.Invoke(deviceUuid, input.DataItemKey, validationResult);
-                    }
-
-                    return success;
-                }
-                else if (InvalidObservationAdded != null)
-                {
-                    InvalidObservationAdded.Invoke(deviceUuid, input.DataItemKey, new ValidationResult(false, $"DataItemKey \"{input.DataItemKey}\" not Found in Device"));
-                }
+                return AddObservation(observationInput.DeviceKey, observationInput, ignoreTimestamp, convertUnits, ignoreCase);
             }
 
             return false;
         }
 
+		/// <summary>
+		/// Add a new Observation to the Agent for the specified Device and DataItem
+		/// </summary>
+		/// <param name="deviceKey">The (Name or Uuid) of the Device. This overrides what is set in the "observationInput" parameter</param>
+		/// <param name="observationInput">The Observation to add</param>
+		/// <param name="ignoreTimestamp">Used to override the default configuration for the Agent to IgnoreTimestamp</param>
+		/// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
+		/// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+		/// <returns>True if the Observation was added successfully</returns>
+		public bool AddObservation(string deviceKey, IObservationInput observationInput, bool? ignoreTimestamp = null, bool? convertUnits = null, bool? ignoreCase = null)
+		{
+			if (observationInput != null)
+			{
+				ObservationReceived?.Invoke(this, observationInput);
 
-        /// <summary>
-        /// Add new Observations for DataItems to the Agent
-        /// </summary>
-        public bool AddObservations(string deviceKey, IEnumerable<IObservationInput> observationInputs)
+				IObservationInput input = new ObservationInput();
+				input.DeviceKey = deviceKey;
+				input.DataItemKey = observationInput.DataItemKey;
+				input.IsUnavailable = observationInput.IsUnavailable;
+
+				// Convert Case (if Ignored)
+				if ((!ignoreCase.HasValue && _configuration.IgnoreObservationCase) || (ignoreCase.HasValue && ignoreCase.Value))
+				{
+					input.Values = Observation.UppercaseValues(observationInput.Values);
+				}
+				else input.Values = observationInput.Values;
+
+				// Set Timestamp
+				if ((!ignoreTimestamp.HasValue && _configuration.IgnoreTimestamps) || (ignoreTimestamp.HasValue && ignoreTimestamp.Value))
+				{
+					input.Timestamp = UnixDateTime.Now;
+				}
+				else input.Timestamp = observationInput.Timestamp > 0 ? observationInput.Timestamp : UnixDateTime.Now;
+
+				// Get Device UUID from deviceKey
+				var deviceUuid = GetDeviceUuid(deviceKey);
+
+				// Get DataItem based on Observation's Key
+				var dataItem = GetDataItem(deviceUuid, input.DataItemKey);
+				if (dataItem != null)
+				{
+					// Add required properties
+					switch (dataItem.Representation)
+					{
+						case DataItemRepresentation.DATA_SET: if (input.IsUnavailable) input.AddValue(ValueKeys.Count, 0); break;
+						case DataItemRepresentation.TABLE: if (input.IsUnavailable) input.AddValue(ValueKeys.Count, 0); break;
+						case DataItemRepresentation.TIME_SERIES: if (input.IsUnavailable) input.AddValue(ValueKeys.SampleCount, 0); break;
+					}
+
+					// Process Observation using Processers
+					if (ProcessObservationFunction != null)
+					{
+						input = ProcessObservationFunction(new ProcessObservation(this, dataItem, input));
+					}
+
+					var success = false;
+					var validationResult = new ValidationResult(true);
+
+					if (_configuration.InputValidationLevel > InputValidationLevel.Ignore)
+					{
+						// Validate Observation Input with DataItem type
+						validationResult = dataItem.IsValid(MTConnectVersion, input);
+						if (!validationResult.IsValid) validationResult.Message = $"{dataItem.Type} : {dataItem.Id} : {validationResult.Message}";
+					}
+
+					if (validationResult.IsValid || _configuration.InputValidationLevel != InputValidationLevel.Strict)
+					{
+						// Convert Units (if needed)
+						if ((!convertUnits.HasValue && _configuration.ConvertUnits) || (convertUnits.HasValue && convertUnits.Value))
+						{
+							input = ConvertObservationValue(dataItem, input);
+							if (input == null) return false;
+						}
+
+						bool update;
+
+						// Check if Observation Needs to be Updated
+						if (dataItem.Category == DataItemCategory.CONDITION)
+						{
+							update = UpdateCurrentCondition(deviceUuid, dataItem, input);
+						}
+						else
+						{
+							update = UpdateCurrentObservation(deviceUuid, dataItem, input);
+						}
+
+						// Check if Observation Needs to be Updated
+						if (update)
+						{
+							// Call Update to Observation Buffer - HERE
+							success = OnAddObservation(deviceUuid, dataItem, input);
+							if (success)
+							{
+								if (_metrics != null)
+								{
+									if (dataItem.Type != ObservationUpdateRateDataItem.TypeId && dataItem.Type != AssetUpdateRateDataItem.TypeId)
+									{
+										// Update Agent Metrics
+										_metrics.UpdateObservation(deviceUuid, dataItem.Id);
+									}
+								}
+
+								var observation = Observation.Create(dataItem);
+								observation.DeviceUuid = deviceUuid;
+								observation.DataItem = dataItem;
+								observation.InstanceId = _instanceId;
+								observation.Timestamp = input.Timestamp.ToDateTime();
+								observation.AddValues(input.Values);
+								OnObservationAdded(observation);
+							}
+						}
+						else success = true; // Return true if no update needed
+					}
+
+					if (!validationResult.IsValid && InvalidObservationAdded != null)
+					{
+						InvalidObservationAdded.Invoke(deviceUuid, input.DataItemKey, validationResult);
+					}
+
+					return success;
+				}
+				else if (InvalidObservationAdded != null)
+				{
+					InvalidObservationAdded.Invoke(deviceUuid, input.DataItemKey, new ValidationResult(false, $"DataItemKey \"{input.DataItemKey}\" not Found in Device"));
+				}
+			}
+
+			return false;
+		}
+
+
+		/// <summary>
+		/// Add new Observations for DataItems to the Agent
+		/// </summary>
+		public bool AddObservations(IEnumerable<IObservationInput> observationInputs)
         {
             if (!observationInputs.IsNullOrEmpty())
             {
@@ -1744,7 +1861,7 @@ namespace MTConnect.Agents
 
                 foreach (var observationInput in observationInputs)
                 {
-                    success = AddObservation(deviceKey, observationInput);
+                    success = AddObservation(observationInput);
                     if (!success) break;
                 }
 
@@ -1754,7 +1871,28 @@ namespace MTConnect.Agents
             return false;
         }
 
-        protected virtual bool OnAddObservation(string deviceUuid, IDataItem dataItem, IObservationInput observationInput)
+		/// <summary>
+		/// Add new Observations for DataItems to the Agent using the "deviceKey" property to override the DeviceKey set in each ObservationInput
+		/// </summary>
+		public bool AddObservations(string deviceKey, IEnumerable<IObservationInput> observationInputs)
+		{
+			if (!observationInputs.IsNullOrEmpty())
+			{
+				bool success = false;
+
+				foreach (var observationInput in observationInputs)
+				{
+					success = AddObservation(deviceKey, observationInput);
+					if (!success) break;
+				}
+
+				return success;
+			}
+
+			return false;
+		}
+
+		protected virtual bool OnAddObservation(string deviceUuid, IDataItem dataItem, IObservationInput observationInput)
         {
             return true;
         }

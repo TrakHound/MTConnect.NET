@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 namespace MTConnect.Devices.DataItems
@@ -11,6 +11,7 @@ namespace MTConnect.Devices.DataItems
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "ROTARY_VELOCITY_OVERRIDE";
         public const string NameId = "rotaryVelocityOverride";
+        public const DataItemRepresentation DefaultRepresentation = DataItemRepresentation.VALUE;     
              
         public new const string DescriptionText = "Percentage change to the velocity of the programmed velocity for a Rotary axis.";
         
@@ -23,6 +24,8 @@ namespace MTConnect.Devices.DataItems
         {
             Category = CategoryId;
             Type = TypeId;
+            Name = NameId;
+            Representation = DefaultRepresentation;  
             
         }
 
@@ -32,6 +35,8 @@ namespace MTConnect.Devices.DataItems
             Category = CategoryId;
             Type = TypeId;
             Name = NameId;
+            Representation = DefaultRepresentation; 
+            
         }
     }
 }

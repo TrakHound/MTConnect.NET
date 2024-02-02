@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 // MTConnect SysML v2.2 : UML ID = _19_0_3_68e0225_1605552258379_348093_2712
@@ -11,7 +11,7 @@ namespace MTConnect.Devices.Components
     public class ExpiredPotComponent : Component
     {
         public const string TypeId = "ExpiredPot";
-        public const string NameId = "expiredPotComponent";
+        public const string NameId = "expiredPot";
         public new const string DescriptionText = "Leaf Component that is a Pot for a tool that is no longer usable for removal from a ToolMagazine or Turret.";
 
         public override string TypeDescription => DescriptionText;
@@ -19,6 +19,10 @@ namespace MTConnect.Devices.Components
         public override System.Version MinimumVersion => MTConnectVersions.Version17; 
 
 
-        public ExpiredPotComponent() { Type = TypeId; }
+        public ExpiredPotComponent() 
+        { 
+            Type = TypeId;
+            Name = NameId;
+        }
     }
 }

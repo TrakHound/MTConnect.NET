@@ -36,7 +36,7 @@ namespace MTConnect.Modules
         }
 
 
-        protected override void OnStartAfterLoad()
+        protected override void OnStartAfterLoad(bool initializeDataItems)
         {
             if (_configuration != null && !string.IsNullOrEmpty(_configuration.Address))
             {

@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 namespace MTConnect.Devices.DataItems
@@ -11,6 +11,7 @@ namespace MTConnect.Devices.DataItems
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "PROGRAM_COMMENT";
         public const string NameId = "programComment";
+             
              
         public new const string DescriptionText = "Comment or non-executable statement in the control program.";
         
@@ -42,6 +43,8 @@ namespace MTConnect.Devices.DataItems
         {
             Category = CategoryId;
             Type = TypeId;
+            Name = NameId;
+              
             
         }
 
@@ -55,6 +58,7 @@ namespace MTConnect.Devices.DataItems
             Type = TypeId;
             SubType = subType.ToString();
             Name = NameId;
+             
             
         }
 

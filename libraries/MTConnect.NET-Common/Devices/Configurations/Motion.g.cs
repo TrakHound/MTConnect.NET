@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 // MTConnect SysML v2.2 : UML ID = EAID_1F084FBF_2AC7_41f6_8485_C356E6D7A9C1

@@ -44,7 +44,7 @@ namespace MTConnect.SysML.Models.Devices
                 Id = $"{idPrefix}.{name}";
                 Name = name;
                 Type = umlClass.Name;
-                DefaultName = name.ToCamelCase();
+                DefaultName = GetName(Type);
                 IsAbstract = umlClass.IsAbstract;
                 IsOrganizer = isOrganizer;
 
@@ -78,5 +78,16 @@ namespace MTConnect.SysML.Models.Devices
 
             return subClasses;
         }
+
+        private static string GetName(string type)
+        {
+            switch (type)
+            {
+                case "Controller": return "cont";        
+                case "Environment": return "env";        
+            }
+
+            return type.ToCamelCase();
+		}
     }
 }

@@ -1,6 +1,7 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
+using MTConnect.Devices.Configurations;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using YamlDotNet.Serialization;
@@ -178,9 +179,27 @@ namespace MTConnect.Configurations
             return null;
         }
 
+		public bool IsModuleConfigured(string key)
+		{
+			if (!string.IsNullOrEmpty(key) && !Modules.IsNullOrEmpty())
+			{
+				foreach (var configurationObj in Modules)
+				{
+					try
+					{
+						var rootDictionary = (Dictionary<object, object>)configurationObj;
+                        if (rootDictionary.ContainsKey(key)) return true;
+					}
+					catch { }
+				}
+			}
+
+			return false;
+		}
 
 
-        public Dictionary<object, object> GetProcessors()
+
+		public Dictionary<object, object> GetProcessors()
         {
             if (!Processors.IsNullOrEmpty())
             {

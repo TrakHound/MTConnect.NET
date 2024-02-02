@@ -67,5 +67,12 @@ namespace MTConnect.Devices
         /// The minimum MTConnect Version that this Component Type is valid 
         /// </summary>
         Version MinimumVersion { get; }
-    }
+
+
+		string DataItemIdFormat { get; }
+
+		string CompositionIdFormat { get; }
+
+		string ComponentIdFormat { get; }
+	}
 }

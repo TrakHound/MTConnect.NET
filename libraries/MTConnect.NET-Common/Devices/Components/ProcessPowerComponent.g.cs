@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 // MTConnect SysML v2.2 : UML ID = _19_0_3_45f01b9_1579572382012_290973_42279
@@ -11,7 +11,7 @@ namespace MTConnect.Devices.Components
     public class ProcessPowerComponent : Component
     {
         public const string TypeId = "ProcessPower";
-        public const string NameId = "processPowerComponent";
+        public const string NameId = "processPower";
         public new const string DescriptionText = "System composed of a power source associated with a piece of equipment that supplies energy to the manufacturing process separate from the Electric system.";
 
         public override string TypeDescription => DescriptionText;
@@ -19,6 +19,10 @@ namespace MTConnect.Devices.Components
         public override System.Version MinimumVersion => MTConnectVersions.Version14; 
 
 
-        public ProcessPowerComponent() { Type = TypeId; }
+        public ProcessPowerComponent() 
+        { 
+            Type = TypeId;
+            Name = NameId;
+        }
     }
 }

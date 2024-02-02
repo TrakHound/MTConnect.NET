@@ -75,7 +75,11 @@ namespace MTConnect.SysML.CSharp
                         if (typeof(MTConnectInterfaceDataItemType).IsAssignableFrom(type)) template = InterfaceDataItemType.Create((MTConnectInterfaceDataItemType)exportModel);
                         else if (typeof(MTConnectDataItemType).IsAssignableFrom(type)) template = DataItemType.Create((MTConnectDataItemType)exportModel);
                         else if (typeof(MTConnectCompositionType).IsAssignableFrom(type)) template = CompositionType.Create((MTConnectCompositionType)exportModel);
-                        else if (typeof(MTConnectComponentType).IsAssignableFrom(type)) template = ComponentType.Create((MTConnectComponentType)exportModel);
+                        else if (typeof(MTConnectComponentType).IsAssignableFrom(type))
+                        {
+                            if (((MTConnectComponentType)exportModel).Type == "Controllers") ((MTConnectComponentType)exportModel).MinimumVersion = new Version(1, 0);
+                            template = ComponentType.Create((MTConnectComponentType)exportModel);
+                        }
                         else if (typeof(MTConnectCuttingToolMeasurementModel).IsAssignableFrom(type)) template = CuttingToolMeasurementModel.Create((MTConnectCuttingToolMeasurementModel)exportModel);
                         else if (typeof(MTConnectClassModel).IsAssignableFrom(type)) template = ClassModel.Create((MTConnectClassModel)exportModel);
                         else if (typeof(MTConnectObservationModel).IsAssignableFrom(type)) template = ObservationModel.Create((MTConnectObservationModel)exportModel);
@@ -107,6 +111,9 @@ namespace MTConnect.SysML.CSharp
                                 case "Devices.References.ComponentReference": ((ClassModel)template).HasDescriptions = false; break;
                                 case "Devices.References.DataItemReference": ((ClassModel)template).HasDescriptions = false; break;
                                 case "Devices.Units": ((EnumStringModel)template).IsPartial = true; break;
+
+                                case "Devices.DataItems.ToolOffsetsDataItem": ((DataItemType)template).Representation = "TABLE"; break;
+                                case "Devices.DataItems.WorkOffsetsDataItem": ((DataItemType)template).Representation = "TABLE"; break;
 
                                 //case "Devices.DataItemResetTrigger": ((EnumModel)template).Values.Add(new MTConnectEnumValueModel { Name = "NONE" }); break;
                                 //case "Devices.DataItemStatistic": ((EnumModel)template).Values.Add(new MTConnectEnumValueModel { Name = "NONE" }); break;

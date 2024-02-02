@@ -62,9 +62,9 @@ namespace MTConnect.Devices.Xml
                 writer.WriteAttributeString("version", header.Version.ToString());
                 writer.WriteAttributeString("sender", header.Sender);
                 writer.WriteAttributeString("bufferSize", header.BufferSize.ToString());
-                writer.WriteAttributeString("assetBufferSize", header.AssetBufferSize.ToString());
-                writer.WriteAttributeString("assetCount", header.AssetCount.ToString());
-                writer.WriteAttributeString("deviceModelChangeTime", header.DeviceModelChangeTime);
+                if (header.AssetBufferSize >= 0) writer.WriteAttributeString("assetBufferSize", header.AssetBufferSize.ToString());
+                if (header.AssetCount >= 0) writer.WriteAttributeString("assetCount", header.AssetCount.ToString());
+                if (!string.IsNullOrEmpty(header.DeviceModelChangeTime)) writer.WriteAttributeString("deviceModelChangeTime", header.DeviceModelChangeTime);
                 if (header.TestIndicator) writer.WriteAttributeString("testIndicator", header.TestIndicator.ToString());
                 writer.WriteAttributeString("creationTime", header.CreationTime.ToString("o"));
                 writer.WriteEndElement();

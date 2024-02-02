@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 // MTConnect SysML v2.2 : UML ID = _19_0_3_68e0225_1605547261014_920934_161
@@ -11,7 +11,7 @@ namespace MTConnect.Devices.Components
     public abstract class ProcessComponent : Component
     {
         public const string TypeId = "Process";
-        public const string NameId = "processComponent";
+        public const string NameId = "process";
         public new const string DescriptionText = "Abstract Component composed of a manufacturing process being executed on a piece of equipment.";
 
         public override string TypeDescription => DescriptionText;
@@ -19,6 +19,10 @@ namespace MTConnect.Devices.Components
         public override System.Version MinimumVersion => MTConnectVersions.Version17; 
 
 
-        public ProcessComponent() { Type = TypeId; }
+        public ProcessComponent() 
+        { 
+            Type = TypeId;
+            Name = NameId;
+        }
     }
 }

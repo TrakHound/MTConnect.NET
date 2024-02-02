@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 namespace MTConnect.Devices.DataItems
@@ -11,6 +11,7 @@ namespace MTConnect.Devices.DataItems
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "PROCESS_TIMER";
         public const string NameId = "processTimer";
+             
         public const string DefaultUnits = Devices.Units.SECOND;     
         public new const string DescriptionText = "Amount of time a piece of equipment has performed different types of activities associated with the process being performed at that piece of equipment.";
         
@@ -37,6 +38,8 @@ namespace MTConnect.Devices.DataItems
         {
             Category = CategoryId;
             Type = TypeId;
+            Name = NameId;
+              
             Units = DefaultUnits;
         }
 
@@ -50,6 +53,7 @@ namespace MTConnect.Devices.DataItems
             Type = TypeId;
             SubType = subType.ToString();
             Name = NameId;
+             
             Units = DefaultUnits;
         }
 

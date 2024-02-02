@@ -32,6 +32,12 @@ namespace MTConnect.Input
         public event MTConnectLogEventHandler LogReceived;
 
 
+        public MTConnectDataSource()
+        {
+            Configuration = new DataSourceConfiguration();
+        }
+
+
         protected virtual void OnStart() { }
 
         protected virtual void OnStop() { }
@@ -90,7 +96,34 @@ namespace MTConnect.Input
         }
 
 
-        public void AddObservation(string dataItemKey, object resultValue)
+		public void AddObservation(IDataItem dataItem, object resultValue)
+		{
+            if (dataItem != null && !string.IsNullOrEmpty(dataItem.Id))
+            {
+				var observation = new ObservationInput(dataItem.Id, resultValue);
+				AddObservation(observation);
+			}
+		}
+
+		public void AddObservation(IDataItem dataItem, object resultValue, long? timestamp = null)
+		{
+			if (dataItem != null && !string.IsNullOrEmpty(dataItem.Id))
+			{
+				var observation = new ObservationInput(dataItem.Id, resultValue, timestamp.Value);
+				AddObservation(observation);
+			}
+		}
+
+		public void AddObservation(IDataItem dataItem, object resultValue, DateTime? timestamp = null)
+		{
+			if (dataItem != null && !string.IsNullOrEmpty(dataItem.Id))
+			{
+				var observation = new ObservationInput(dataItem.Id, resultValue, timestamp.Value);
+				AddObservation(observation);
+			}
+		}
+
+		public void AddObservation(string dataItemKey, object resultValue)
         {
             var observation = new ObservationInput(dataItemKey, resultValue);
             AddObservation(observation);

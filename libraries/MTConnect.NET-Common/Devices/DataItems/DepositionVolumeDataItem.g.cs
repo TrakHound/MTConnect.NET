@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 namespace MTConnect.Devices.DataItems
@@ -11,6 +11,7 @@ namespace MTConnect.Devices.DataItems
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "DEPOSITION_VOLUME";
         public const string NameId = "depositionVolume";
+             
         public const string DefaultUnits = Devices.Units.CUBIC_MILLIMETER;     
         public new const string DescriptionText = "Spatial volume of material to be deposited in an additive manufacturing process.";
         
@@ -37,6 +38,8 @@ namespace MTConnect.Devices.DataItems
         {
             Category = CategoryId;
             Type = TypeId;
+            Name = NameId;
+              
             Units = DefaultUnits;
         }
 
@@ -50,6 +53,7 @@ namespace MTConnect.Devices.DataItems
             Type = TypeId;
             SubType = subType.ToString();
             Name = NameId;
+             
             Units = DefaultUnits;
         }
 

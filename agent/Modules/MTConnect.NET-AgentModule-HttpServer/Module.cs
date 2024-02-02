@@ -32,7 +32,7 @@ namespace MTConnect.Modules.Http
         }
 
 
-        protected override void OnStartAfterLoad()
+        protected override void OnStartAfterLoad(bool initializeDataItems)
         {
             // Intialize the Http Server
             _httpServer = new MTConnectShdrHttpAgentServer(_configuration, _mtconnectAgent);

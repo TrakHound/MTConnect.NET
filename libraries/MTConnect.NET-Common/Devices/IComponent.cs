@@ -1,15 +1,10 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using System.Collections.Generic;
 
 namespace MTConnect.Devices
 {
-    /// <summary>
-    /// An abstract XML Element.
-    /// Replaced in the XML document by types of Component elements representing physical and logical parts of the Device.
-    /// There can be multiple types of Component XML Elements in the document.
-    /// </summary>
     public partial interface IComponent : IContainer
     {
         /// <summary>
@@ -18,6 +13,58 @@ namespace MTConnect.Devices
         string Type { get; }
 
         bool IsOrganizer { get; }
+
+
+        /// <summary>
+        /// Return a list of All Components
+        /// </summary>
+        IEnumerable<IComponent> GetComponents();
+
+        /// <summary>
+        /// Return the first Component matching the Type
+        /// </summary>
+        IComponent GetComponent(string type, string name = null, SearchType searchType = SearchType.AnyLevel);
+
+        /// <summary>
+        /// Return the first Component matching the Type
+        /// </summary>
+        IComponent GetComponent<TComponent>(string name = null, SearchType searchType = SearchType.AnyLevel) where TComponent : IComponent;
+
+        /// <summary>
+        /// Return All Components matching the Type
+        /// </summary>
+        IEnumerable<IComponent> GetComponents(string type, string name = null, SearchType searchType = SearchType.AnyLevel);
+
+        /// <summary>
+        /// Return All Components matching the Type
+        /// </summary>
+        IEnumerable<IComponent> GetComponents<TComponent>(string name = null, SearchType searchType = SearchType.AnyLevel) where TComponent : IComponent;
+
+
+        /// <summary>
+        /// Return a list of All Compositions
+        /// </summary>
+        IEnumerable<IComposition> GetCompositions();
+
+        /// <summary>
+        /// Return the first Composition matching the Type
+        /// </summary>
+        IComposition GetComposition(string type, string name = null, SearchType searchType = SearchType.AnyLevel);
+
+        /// <summary>
+        /// Return the first Composition matching the Type
+        /// </summary>
+        IComposition GetComposition<TComposition>(string name = null, SearchType searchType = SearchType.AnyLevel) where TComposition : IComposition;
+
+        /// <summary>
+        /// Return All Compositions matching the Type
+        /// </summary>
+        IEnumerable<IComposition> GetCompositions(string type, string name = null, SearchType searchType = SearchType.AnyLevel);
+
+        /// <summary>
+        /// Return All Compositions matching the Type
+        /// </summary>
+        IEnumerable<IComposition> GetCompositions<TComposition>(string name = null, SearchType searchType = SearchType.AnyLevel) where TComposition : IComposition;
 
 
         /// <summary>
@@ -31,13 +78,34 @@ namespace MTConnect.Devices
         IDataItem GetDataItemByKey(string dataItemKey);
 
         /// <summary>
-        /// Return a list of All Components
+        /// Return the first DataItem matching the Type
         /// </summary>
-        IEnumerable<IComponent> GetComponents();
+        IDataItem GetDataItemByType(string type, SearchType searchType = SearchType.Child);
+
+		/// <summary>
+		/// Return the first DataItem matching the Type and SubType
+		/// </summary>
+		IDataItem GetDataItemByType(string type, string subType, SearchType searchType = SearchType.Child);
 
         /// <summary>
-        /// Return a list of All Compositions
+        /// Return the first DataItem matching the Type and SubType
         /// </summary>
-        IEnumerable<IComposition> GetCompositions();
+        IDataItem GetDataItem<TDataItem>(string subType = null, SearchType searchType = SearchType.Child) where TDataItem : IDataItem;
+
+        /// <summary>
+        /// Return All DataItems matching the Type
+        /// </summary>
+        IEnumerable<IDataItem> GetDataItemsByType(string type, SearchType searchType = SearchType.Child);
+
+		/// <summary>
+		/// Return All DataItems matching the Type and SubType
+		/// </summary>
+		IEnumerable<IDataItem> GetDataItemsByType(string type, string subType, SearchType searchType = SearchType.Child);
+
+        /// <summary>
+		/// Return All DataItems matching the Type and SubType
+        /// </summary>
+        IEnumerable<IDataItem> GetDataItems<TDataItem>(string subType = null, SearchType searchType = SearchType.Child) where TDataItem : IDataItem;
+      
     }
 }

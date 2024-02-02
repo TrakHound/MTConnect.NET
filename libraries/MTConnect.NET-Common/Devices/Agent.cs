@@ -172,6 +172,8 @@ namespace MTConnect.Devices
 
                 // Update MTConnectAgent cache
                 _agent.UpdateAgentDevice();
+
+                _agent.InitializeDataItems(this);
             }
         }
     }

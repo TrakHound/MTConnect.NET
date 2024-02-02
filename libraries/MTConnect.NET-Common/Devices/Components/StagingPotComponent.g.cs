@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 // MTConnect SysML v2.2 : UML ID = _19_0_3_68e0225_1605552257626_405215_2680
@@ -11,7 +11,7 @@ namespace MTConnect.Devices.Components
     public class StagingPotComponent : Component
     {
         public const string TypeId = "StagingPot";
-        public const string NameId = "stagingPotComponent";
+        public const string NameId = "stagingPot";
         public new const string DescriptionText = "Leaf Component that is a Pot for a tool that is awaiting transfer to a ToolMagazine or Turret from outside of the piece of equipment.";
 
         public override string TypeDescription => DescriptionText;
@@ -19,6 +19,10 @@ namespace MTConnect.Devices.Components
         public override System.Version MinimumVersion => MTConnectVersions.Version17; 
 
 
-        public StagingPotComponent() { Type = TypeId; }
+        public StagingPotComponent() 
+        { 
+            Type = TypeId;
+            Name = NameId;
+        }
     }
 }

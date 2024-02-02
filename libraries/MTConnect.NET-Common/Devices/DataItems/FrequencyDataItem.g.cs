@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 namespace MTConnect.Devices.DataItems
@@ -11,6 +11,7 @@ namespace MTConnect.Devices.DataItems
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "FREQUENCY";
         public const string NameId = "frequency";
+             
         public const string DefaultUnits = Devices.Units.HERTZ;     
         public new const string DescriptionText = "Number of occurrences of a repeating event per unit time.";
         
@@ -23,6 +24,8 @@ namespace MTConnect.Devices.DataItems
         {
             Category = CategoryId;
             Type = TypeId;
+            Name = NameId;
+              
             Units = DefaultUnits;
         }
 
@@ -32,6 +35,8 @@ namespace MTConnect.Devices.DataItems
             Category = CategoryId;
             Type = TypeId;
             Name = NameId;
+             
+            Units = DefaultUnits;
         }
     }
 }

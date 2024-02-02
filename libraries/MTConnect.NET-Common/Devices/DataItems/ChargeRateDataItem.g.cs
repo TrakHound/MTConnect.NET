@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 namespace MTConnect.Devices.DataItems
@@ -11,6 +11,7 @@ namespace MTConnect.Devices.DataItems
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "CHARGE_RATE";
         public const string NameId = "chargeRate";
+             
         public const string DefaultUnits = Devices.Units.AMPERE;     
         public new const string DescriptionText = "Value of the current being supplied to the Component for the purpose of charging.";
         
@@ -37,6 +38,8 @@ namespace MTConnect.Devices.DataItems
         {
             Category = CategoryId;
             Type = TypeId;
+            Name = NameId;
+              
             Units = DefaultUnits;
         }
 
@@ -50,6 +53,7 @@ namespace MTConnect.Devices.DataItems
             Type = TypeId;
             SubType = subType.ToString();
             Name = NameId;
+             
             Units = DefaultUnits;
         }
 

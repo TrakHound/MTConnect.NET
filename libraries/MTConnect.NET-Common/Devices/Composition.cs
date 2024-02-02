@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Extensions;
@@ -83,11 +83,22 @@ namespace MTConnect.Devices
         public virtual Version MinimumVersion => DefaultMinimumVersion;
 
 
-        public Composition()
+		public string DataItemIdFormat { get; set; }
+
+		public string CompositionIdFormat { get; set; }
+
+		public string ComponentIdFormat { get; set; }
+
+
+		public Composition()
         {
-            Id = StringFunctions.RandomString(10);
+            //Id = StringFunctions.RandomString(10);
             DataItems = new List<IDataItem>();
-        }
+
+			DataItemIdFormat = Component._defaultDataItemIdFormat;
+			CompositionIdFormat = Component._defaultCompositionIdFormat;
+			ComponentIdFormat = Component._defaultComponentIdFormat;
+		}
 
 
         public string GenerateHash()
@@ -394,15 +405,54 @@ namespace MTConnect.Devices
             // Add Root DataItems
             if (!DataItems.IsNullOrEmpty()) l.AddRange(DataItems);
 
+            // Add Composition DataItems
+            if (!Compositions.IsNullOrEmpty())
+            {
+                foreach (var composition in Compositions)
+                {
+                    if (!composition.DataItems.IsNullOrEmpty()) l.AddRange(composition.DataItems);
+                }
+            }
+
+            // Add Component DataItems
+            if (!Components.IsNullOrEmpty())
+            {
+                foreach (var component in Components)
+                {
+                    var componentDataItems = GetDataItems(component);
+                    if (!componentDataItems.IsNullOrEmpty()) l.AddRange(componentDataItems);
+                }
+            }
+
             return !l.IsNullOrEmpty() ? l : null;
         }
 
-        private IEnumerable<IDataItem> GetDataItems(IComposition composition)
+        private IEnumerable<IDataItem> GetDataItems(IComponent component)
         {
             var l = new List<IDataItem>();
 
             // Add Root DataItems
-            if (!composition.DataItems.IsNullOrEmpty()) l.AddRange(composition.DataItems);
+            if (!component.DataItems.IsNullOrEmpty()) l.AddRange(component.DataItems);
+
+            // Add Composition DataItems
+            if (!component.Compositions.IsNullOrEmpty())
+            {
+                foreach (var composition in component.Compositions)
+                {
+                    if (!composition.DataItems.IsNullOrEmpty()) l.AddRange(composition.DataItems);
+                }
+            }
+
+            // Add SubComponent DataItems
+            if (!component.Components.IsNullOrEmpty())
+            {
+                // Get SubComponent DataItems
+                foreach (var subComponent in component.Components)
+                {
+                    var componentDataItems = GetDataItems(subComponent);
+                    if (!componentDataItems.IsNullOrEmpty()) l.AddRange(componentDataItems);
+                }
+            }
 
             return !l.IsNullOrEmpty() ? l : null;
         }
@@ -426,11 +476,139 @@ namespace MTConnect.Devices
                     // Check DataItem Source DataItemId
                     if (dataItem == null) dataItem = dataItems.FirstOrDefault(o => o.Source != null && o.Source.DataItemId == dataItemKey);
 
-                    // Check DataItem Source Value
+                    // Check DataItem Source Result
                     if (dataItem == null) dataItem = dataItems.FirstOrDefault(o => o.Source != null && o.Source.Value == dataItemKey);
 
                     // Return DataItem
                     return dataItem;
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Return the first DataItem matching the Type
+        /// </summary>
+        public IDataItem GetDataItemByType(string type, SearchType searchType = SearchType.Child)
+        {
+            if (!string.IsNullOrEmpty(type))
+            {
+                IEnumerable<IDataItem> dataItems = null;
+                switch (searchType)
+                {
+                    case SearchType.Child: dataItems = DataItems; break;
+                    case SearchType.AnyLevel: dataItems = GetDataItems(); break;
+                }
+
+                if (!dataItems.IsNullOrEmpty())
+                {
+                    return dataItems.FirstOrDefault(o => o.Type == type);
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Return the first DataItem matching the Type and SubType
+        /// </summary>
+        public IDataItem GetDataItemByType(string type, string subType, SearchType searchType = SearchType.Child)
+        {
+            if (!string.IsNullOrEmpty(type))
+            {
+                IEnumerable<IDataItem> dataItems = null;
+                switch (searchType)
+                {
+                    case SearchType.Child: dataItems = DataItems; break;
+                    case SearchType.AnyLevel: dataItems = GetDataItems(); break;
+                }
+
+                if (!dataItems.IsNullOrEmpty())
+                {
+                    return dataItems.FirstOrDefault(o => o.Type == type && o.SubType == subType);
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Return the first DataItem matching the Type
+        /// </summary>
+        public IDataItem GetDataItem<TDataItem>(string subType = null, SearchType searchType = SearchType.Child) where TDataItem : IDataItem
+        {
+            var typeIdField = typeof(TDataItem).GetField("TypeId");
+            if (typeIdField != null)
+            {
+                var typeId = typeIdField.GetValue(null)?.ToString();
+                if (!string.IsNullOrEmpty(typeId))
+                {
+                    return GetDataItemByType(typeId, subType, searchType);
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Return All DataItems matching the Type
+        /// </summary>
+        public IEnumerable<IDataItem> GetDataItemsByType(string type, SearchType searchType = SearchType.Child)
+        {
+            if (!string.IsNullOrEmpty(type))
+            {
+                IEnumerable<IDataItem> dataItems = null;
+                switch (searchType)
+                {
+                    case SearchType.Child: dataItems = DataItems; break;
+                    case SearchType.AnyLevel: dataItems = GetDataItems(); break;
+                }
+
+                if (!dataItems.IsNullOrEmpty())
+                {
+                    return dataItems.Where(o => o.Type == type);
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Return All DataItems matching the Type and SubType
+        /// </summary>
+        public IEnumerable<IDataItem> GetDataItemsByType(string type, string subType, SearchType searchType = SearchType.Child)
+        {
+            if (!string.IsNullOrEmpty(type))
+            {
+                IEnumerable<IDataItem> dataItems = null;
+                switch (searchType)
+                {
+                    case SearchType.Child: dataItems = DataItems; break;
+                    case SearchType.AnyLevel: dataItems = GetDataItems(); break;
+                }
+
+                if (!dataItems.IsNullOrEmpty())
+                {
+                    return dataItems.Where(o => o.Type == type && o.SubType == subType);
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Return All DataItems matching the Type and SubType
+        /// </summary>
+        public IEnumerable<IDataItem> GetDataItems<TDataItem>(string subType = null, SearchType searchType = SearchType.Child) where TDataItem : IDataItem
+        {
+            var typeIdField = typeof(TDataItem).GetField("TypeId");
+            if (typeIdField != null)
+            {
+                var typeId = typeIdField.GetValue(null)?.ToString();
+                if (!string.IsNullOrEmpty(typeId))
+                {
+                    return GetDataItemsByType(typeId, subType, searchType);
                 }
             }
 
@@ -446,6 +624,11 @@ namespace MTConnect.Devices
         {
             if (dataItem != null)
             {
+                ((DataItem)dataItem).Container = this;
+                ((DataItem)dataItem).CompositionId = Id;
+
+                if (!string.IsNullOrEmpty(Id) && string.IsNullOrEmpty(dataItem.Id)) Component.ResetId(this, dataItem);
+
                 var dataItems = new List<IDataItem>();
 
                 if (!DataItems.IsNullOrEmpty())
@@ -455,6 +638,60 @@ namespace MTConnect.Devices
 
                 dataItems.Add(dataItem);
                 DataItems = dataItems;
+            }
+        }
+
+        /// <summary>
+        /// Add a DataItem to the Component
+        /// </summary>
+        public void AddDataItem<TDataItem>() where TDataItem : IDataItem
+        {
+            var constructor = typeof(TDataItem).GetConstructor(new Type[] { });
+            if (constructor != null)
+            {
+                try
+                {
+                    var dataItem = (DataItem)constructor.Invoke(null);
+                    AddDataItem(dataItem);
+                }
+                catch { }
+            }
+        }
+
+        /// <summary>
+        /// Add a DataItem to the Component
+        /// </summary>
+        public void AddDataItem<TDataItem>(string name, object subType = null) where TDataItem : IDataItem
+        {
+            var constructor = typeof(TDataItem).GetConstructor(new Type[] { });
+            if (constructor != null)
+            {
+                try
+                {
+                    var dataItem = (DataItem)constructor.Invoke(null);
+                    dataItem.Name = name;
+                    dataItem.SubType = subType?.ToString();
+                    AddDataItem(dataItem);
+                }
+                catch { }
+            }
+        }
+
+        /// <summary>
+        /// Add a DataItem to the Component
+        /// </summary>
+        public void AddDataItem<TDataItem>(object subType) where TDataItem : IDataItem
+        {
+            var constructor = typeof(TDataItem).GetConstructor(new Type[] { });
+            if (constructor != null)
+            {
+                try
+                {
+                    var dataItem = (DataItem)constructor.Invoke(null);
+                    dataItem.SubType = subType?.ToString();
+                    AddDataItem(dataItem);
+                }
+                catch { }
             }
         }
 
@@ -474,15 +711,10 @@ namespace MTConnect.Devices
         {
             if (!dataItems.IsNullOrEmpty())
             {
-                var newDataItems = new List<IDataItem>();
-
-                if (!DataItems.IsNullOrEmpty())
+                foreach (var dataItem in dataItems)
                 {
-                    newDataItems.AddRange(DataItems);
+                    AddDataItem(dataItem);
                 }
-
-                newDataItems.AddRange(dataItems);
-                DataItems = newDataItems;
             }
         }
 
@@ -503,5 +735,6 @@ namespace MTConnect.Devices
         }
 
         #endregion
+
     }
 }

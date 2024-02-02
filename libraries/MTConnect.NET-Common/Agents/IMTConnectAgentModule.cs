@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+﻿// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Logging;
@@ -15,9 +15,9 @@ namespace MTConnect.Agents
         event MTConnectLogEventHandler LogReceived;
 
 
-        void StartBeforeLoad();
+        void StartBeforeLoad(bool initializeDataItems);
 
-        void StartAfterLoad();
+        void StartAfterLoad(bool initializeDataItems);
 
         void Stop();
     }

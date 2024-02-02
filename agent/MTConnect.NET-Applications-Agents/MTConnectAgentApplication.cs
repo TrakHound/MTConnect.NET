@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Agents;
@@ -21,10 +21,10 @@ using System.Threading;
 
 namespace MTConnect.Applications
 {
-    /// <summary>
-    /// An MTConnect Agent Application base class supporting Command line arguments, Device management, Buffer management, Logging, Windows Service, and Configuration File management
-    /// </summary>
-    public class MTConnectAgentApplication : IMTConnectAgentApplication
+	/// <summary>
+	/// An MTConnect Agent Application base class supporting Command line arguments, Device management, Buffer management, Logging, Windows Service, and Configuration File management
+	/// </summary>
+	public class MTConnectAgentApplication : IMTConnectAgentApplication
     {
         private const string DefaultServiceName = "MTConnect.NET-Agent";
         private const string DefaultServiceDisplayName = "MTConnect.NET Agent";
@@ -392,7 +392,7 @@ namespace MTConnect.Applications
                 }
 
                 OnStartAgentBeforeLoad(null, initializeDataItems);
-                _modules.StartBeforeLoad();
+                _modules.StartBeforeLoad(initializeDataItems);
 
                 // Read Device Configuration Files
                 var devicesPath = configuration.Devices;
@@ -449,7 +449,7 @@ namespace MTConnect.Applications
                     _mtconnectAgent.InitializeCurrentObservations(_observationBuffer.CurrentConditions.SelectMany(o => o.Value));
                 }
 
-                _modules.StartAfterLoad();
+                _modules.StartAfterLoad(initializeDataItems);
                 OnStartAgentAfterLoad(devices, initializeDataItems);
 
                 // Save Indexes for Buffer

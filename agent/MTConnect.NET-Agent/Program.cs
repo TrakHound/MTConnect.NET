@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+﻿// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using System;
@@ -14,7 +14,7 @@ namespace MTConnect.Applications
 
         // Copyright statement for the application. If you are implementing this into your own application, you can change this to your own copyright.
         // This is just what is shown in the console header. If you want to show support for the MTConnect.NET project, you can reference it using the links in the default header
-        private const string ApplicationCopyright = "Copyright 2023 TrakHound Inc., All Rights Reserved";
+        private const string ApplicationCopyright = "Copyright 2024 TrakHound Inc., All Rights Reserved";
 
         public static void Main(string[] args)
         {

@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Agents;
@@ -12,14 +12,17 @@ using System.Linq;
 
 namespace MTConnect.Adapters
 {
-    /// <summary>
-    /// A client to connect to MTConnect Adapters using TCP and communicating using the SHDR Protocol
-    /// </summary>
-    public class ShdrAdapterClient : ShdrClient
+	/// <summary>
+	/// A client to connect to MTConnect Adapters using TCP and communicating using the SHDR Protocol
+	/// </summary>
+	public class ShdrAdapterClient : ShdrClient
     {
         private readonly IShdrAdapterClientConfiguration _configuration;
         private readonly IMTConnectAgent _agent;
         private IDevice _device;
+
+
+        public IDevice Device => _device;
 
 
         public ShdrAdapterClient(

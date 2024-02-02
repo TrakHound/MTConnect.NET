@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 // MTConnect SysML v2.2 : UML ID = _19_0_3_45f01b9_1580312106476_558459_44459
@@ -11,7 +11,7 @@ namespace MTConnect.Devices.Components
     public class SwitchComponent : Component
     {
         public const string TypeId = "Switch";
-        public const string NameId = "switchComponent";
+        public const string NameId = "switch";
         public new const string DescriptionText = "Leaf Component that turns on or off an electric current or makes or breaks a circuit.";
 
         public override string TypeDescription => DescriptionText;
@@ -19,6 +19,10 @@ namespace MTConnect.Devices.Components
         public override System.Version MinimumVersion => MTConnectVersions.Version14; 
 
 
-        public SwitchComponent() { Type = TypeId; }
+        public SwitchComponent() 
+        { 
+            Type = TypeId;
+            Name = NameId;
+        }
     }
 }

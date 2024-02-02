@@ -48,7 +48,7 @@ namespace MTConnect
         }
 
 
-        protected override void OnStartAfterLoad()
+        protected override void OnStartAfterLoad(bool initializeDataItems)
         {
             _stop = new CancellationTokenSource();
 

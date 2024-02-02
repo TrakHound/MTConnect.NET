@@ -108,6 +108,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-AgentModule-M
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-Client-MQTT", "clients\MTConnect.NET-Client-MQTT\MTConnect.NET-Client-MQTT.csproj", "{2844E2F1-8CC0-437B-A730-9045A25971F6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp41", "C:\temp\ConsoleApp41\ConsoleApp41.csproj", "{05289E74-4CBE-4B3C-BCCC-5B2BAD2D4825}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -388,6 +390,14 @@ Global
 		{2844E2F1-8CC0-437B-A730-9045A25971F6}.Package|Any CPU.Build.0 = Debug|Any CPU
 		{2844E2F1-8CC0-437B-A730-9045A25971F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2844E2F1-8CC0-437B-A730-9045A25971F6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{05289E74-4CBE-4B3C-BCCC-5B2BAD2D4825}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{05289E74-4CBE-4B3C-BCCC-5B2BAD2D4825}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{05289E74-4CBE-4B3C-BCCC-5B2BAD2D4825}.Docker|Any CPU.ActiveCfg = Debug|Any CPU
+		{05289E74-4CBE-4B3C-BCCC-5B2BAD2D4825}.Docker|Any CPU.Build.0 = Debug|Any CPU
+		{05289E74-4CBE-4B3C-BCCC-5B2BAD2D4825}.Package|Any CPU.ActiveCfg = Debug|Any CPU
+		{05289E74-4CBE-4B3C-BCCC-5B2BAD2D4825}.Package|Any CPU.Build.0 = Debug|Any CPU
+		{05289E74-4CBE-4B3C-BCCC-5B2BAD2D4825}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{05289E74-4CBE-4B3C-BCCC-5B2BAD2D4825}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 namespace MTConnect.Devices.DataItems
@@ -11,6 +11,7 @@ namespace MTConnect.Devices.DataItems
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
         public const string TypeId = "SETTLING_ERROR_LINEAR";
         public const string NameId = "settlingErrorLinear";
+             
         public const string DefaultUnits = Devices.Units.MILLIMETER;     
         public new const string DescriptionText = "Difference between the commanded encoder/resolver position, and the actual encoder/resolver position when motion is complete.";
         
@@ -32,6 +33,8 @@ namespace MTConnect.Devices.DataItems
         {
             Category = CategoryId;
             Type = TypeId;
+            Name = NameId;
+              
             Units = DefaultUnits;
         }
 
@@ -45,6 +48,7 @@ namespace MTConnect.Devices.DataItems
             Type = TypeId;
             SubType = subType.ToString();
             Name = NameId;
+             
             Units = DefaultUnits;
         }
 

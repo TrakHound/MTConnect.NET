@@ -7,10 +7,6 @@ using System;
 
 namespace MTConnect.Devices
 {
-    /// <summary>
-    /// An abstract XML Element. Replaced in the XML document by Elements representing various types of DataItem XML Elements.
-    /// There can be mulitple types of DataItem XML Elements in the document.
-    /// </summary>
     public partial interface IDataItem : IMTConnectEntity
     {
         /// <summary>

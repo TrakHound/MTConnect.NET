@@ -1,4 +1,4 @@
-﻿// Copyright(c) 2023 TrakHound Inc., All Rights Reserved.
+﻿// Copyright(c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Logging;
@@ -26,14 +26,14 @@ namespace MTConnect.Agents
         }
 
 
-        public void StartBeforeLoad()
+        public void StartBeforeLoad(bool initializeDataItems)
         {
-            OnStartBeforeLoad();
+            OnStartBeforeLoad(initializeDataItems);
         }
 
-        public void StartAfterLoad()
+        public void StartAfterLoad(bool initializeDataItems)
         {
-            OnStartAfterLoad();
+            OnStartAfterLoad(initializeDataItems);
         }
 
         public void Stop()
@@ -42,9 +42,9 @@ namespace MTConnect.Agents
         }
 
 
-        protected virtual void OnStartBeforeLoad() { }
+        protected virtual void OnStartBeforeLoad(bool initializeDataItems) { }
 
-        protected virtual void OnStartAfterLoad() { }
+        protected virtual void OnStartAfterLoad(bool initializeDataItems) { }
 
         protected virtual void OnStop() { }
 

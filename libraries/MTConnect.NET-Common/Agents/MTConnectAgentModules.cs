@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+﻿// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Configurations;
@@ -62,12 +62,31 @@ namespace MTConnect.Agents
                                 catch { }
                             }
                         }
+                        else
+                        {
+                            if (_configuration.IsModuleConfigured(configurationTypeId))
+                            {
+								try
+								{
+									// Create new Instance of the Controller and add to cached dictionary
+									var module = (IMTConnectAgentModule)Activator.CreateInstance(moduleType, new object[] { _mtconnectAgent, null });
+									module.LogReceived += HandleModuleLogReceived;
+
+									var moduleId = Guid.NewGuid().ToString();
+
+									if (ModuleLoaded != null) ModuleLoaded.Invoke(this, module);
+
+									lock (_lock) _modules.Add(moduleId, module);
+								}
+								catch { }
+							}
+                        }
                     }
                 }
             }
         }
 
-        public void StartBeforeLoad()
+        public void StartBeforeLoad(bool initializeDataItems)
         {
             Dictionary<string, IMTConnectAgentModule> modules;
             lock (_lock) modules = _modules;
@@ -75,12 +94,12 @@ namespace MTConnect.Agents
             {
                 foreach (var module in modules)
                 {
-                    module.Value.StartBeforeLoad();
+                    module.Value.StartBeforeLoad(initializeDataItems);
                 }
             }
         }
 
-        public void StartAfterLoad()
+        public void StartAfterLoad(bool initializeDataItems)
         {
             Dictionary<string, IMTConnectAgentModule> modules;
             lock (_lock) modules = _modules;
@@ -88,7 +107,7 @@ namespace MTConnect.Agents
             {
                 foreach (var module in modules)
                 {
-                    module.Value.StartAfterLoad();
+                    module.Value.StartAfterLoad(initializeDataItems);
                 }
             }
         }

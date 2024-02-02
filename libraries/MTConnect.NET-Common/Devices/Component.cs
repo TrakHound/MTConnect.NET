@@ -1,9 +1,6 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-using MTConnect.Devices.Configurations;
-using MTConnect.Devices.DataItems;
-using MTConnect.Devices.References;
 using MTConnect.Extensions;
 using System;
 using System.Collections.Generic;
@@ -14,6 +11,14 @@ namespace MTConnect.Devices
 {
     public partial class Component : IComponent
     {
+        internal const string _defaultComponentIdFormat = "{parent.id}_{component.name}";
+        internal const string _defaultCompositionIdFormat = "{parent.id}_{composition.type}";
+        internal const string _defaultDataItemIdFormat = "{component.id}_{dataitem.name}{?:_{dataitem.sub_type}}";
+
+        private const string _idFormatPattern = @"\{([^\{\.]+)\.([^\{\.]+)\}|\{\?\:(.*)\{([^\{\.]+)\.([^\{\.]+)\}(.*)\}";
+        private static readonly Regex _idFormatRegex = new Regex(_idFormatPattern, RegexOptions.Compiled);
+
+
         private static readonly Version DefaultMaximumVersion = null;
         private static readonly Version DefaultMinimumVersion = MTConnectVersions.Version10;
         private static readonly Dictionary<string, string> _typeIds = new Dictionary<string, string>();
@@ -21,6 +26,16 @@ namespace MTConnect.Devices
 
         private static Dictionary<string, Type> _types;
         private static Dictionary<string, string> _typeDescriptions;
+
+        private struct IdFormatConfiguration
+        {
+            public string Pattern { get; set; }
+            public string Prefix { get; set; }
+            public string Suffix { get; set; }
+            public string Object { get; set; }
+            public string Property { get; set; }
+            public bool IsOptional { get; set; }
+        }
 
 
         public MTConnectEntityType EntityType => MTConnectEntityType.Component;
@@ -97,12 +112,22 @@ namespace MTConnect.Devices
         public virtual Version MinimumVersion => DefaultMinimumVersion;
 
 
+        public string ComponentIdFormat { get; set; }
+
+        public string CompositionIdFormat { get; set; }
+
+        public string DataItemIdFormat { get; set; }
+
+
         public Component()
         {
-            Id = StringFunctions.RandomString(10);
             Components = new List<IComponent>();
             Compositions = new List<IComposition>();
             DataItems = new List<IDataItem>();
+
+			ComponentIdFormat = _defaultComponentIdFormat;
+			CompositionIdFormat = _defaultCompositionIdFormat;
+            DataItemIdFormat = _defaultDataItemIdFormat;
         }
 
 
@@ -233,7 +258,7 @@ namespace MTConnect.Devices
             return !l.IsNullOrEmpty() ? l : null;
         }
 
-        private IEnumerable<IComponent> GetComponents(IComponent component)
+		private IEnumerable<IComponent> GetComponents(IComponent component)
         {
             var l = new List<IComponent>();
 
@@ -251,6 +276,102 @@ namespace MTConnect.Devices
             return !l.IsNullOrEmpty() ? l : null;
         }
 
+		/// <summary>
+		/// Return the first Component matching the Type
+		/// </summary>
+		public IComponent GetComponent(string type, string name = null, SearchType searchType = SearchType.AnyLevel)
+		{
+			if (!string.IsNullOrEmpty(type))
+			{
+				IEnumerable<IComponent> components = null;
+				switch (searchType)
+				{
+					case SearchType.Child: components = Components; break;
+					case SearchType.AnyLevel: components = GetComponents(); break;
+				}
+
+				if (!components.IsNullOrEmpty())
+				{
+					if (!string.IsNullOrEmpty(name))
+					{
+						return components.FirstOrDefault(o => o.Type == type && o.Name == name);
+					}
+					else
+					{
+						return components.FirstOrDefault(o => o.Type == type);
+					}
+				}
+			}
+
+			return null;
+		}
+
+        /// <summary>
+        /// Return the first Component matching the Type
+        /// </summary>
+        public IComponent GetComponent<TComponent>(string name = null, SearchType searchType = SearchType.AnyLevel) where TComponent : IComponent
+        {
+            var typeIdField = typeof(TComponent).GetField("TypeId");
+            if (typeIdField != null)
+            {
+                var typeId = typeIdField.GetValue(null)?.ToString();
+                if (!string.IsNullOrEmpty(typeId))
+                {
+                    return GetComponent(typeId, name, searchType);
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Return All Components matching the Type
+        /// </summary>
+        public IEnumerable<IComponent> GetComponents(string type, string name = null, SearchType searchType = SearchType.AnyLevel)
+		{
+			if (!string.IsNullOrEmpty(type))
+			{
+				IEnumerable<IComponent> components = null;
+				switch (searchType)
+				{
+					case SearchType.Child: components = Components; break;
+					case SearchType.AnyLevel: components = GetComponents(); break;
+				}
+
+				if (!components.IsNullOrEmpty())
+				{
+                    if (!string.IsNullOrEmpty(name))
+                    {
+						return components.Where(o => o.Type == type && o.Name == name);
+					}
+                    else
+                    {
+						return components.Where(o => o.Type == type);
+					}
+				}
+			}
+
+			return null;
+		}
+
+        /// <summary>
+        /// Return All Components matching the Type
+        /// </summary>
+        public IEnumerable<IComponent> GetComponents<TComponent>(string name = null, SearchType searchType = SearchType.AnyLevel) where TComponent : IComponent
+        {
+            var typeIdField = typeof(TComponent).GetField("TypeId");
+            if (typeIdField != null)
+            {
+                var typeId = typeIdField.GetValue(null)?.ToString();
+                if (!string.IsNullOrEmpty(typeId))
+                {
+                    return GetComponents(typeId, name, searchType);
+                }
+            }
+
+            return null;
+        }
+
 
         /// <summary>
         /// Add a Component to the Component
@@ -260,6 +381,14 @@ namespace MTConnect.Devices
         {
             if (component != null)
             {
+                component.Parent = this;
+
+                // Set ID
+                if (!string.IsNullOrEmpty(Id) && string.IsNullOrEmpty(component.Id))
+                {
+                    ResetIds(component);
+				}
+
                 var components = new List<IComponent>();
 
                 if (!Components.IsNullOrEmpty())
@@ -280,16 +409,11 @@ namespace MTConnect.Devices
         {
             if (!components.IsNullOrEmpty())
             {
-                var newComponents = new List<IComponent>();
-
-                if (!Components.IsNullOrEmpty())
-                {
-                    newComponents.AddRange(Components);
-                }
-
-                newComponents.AddRange(components);
-                Components = newComponents;
-            }
+				foreach (var component in components)
+				{
+					AddComponent(component);
+				}
+			}
         }
 
 
@@ -343,83 +467,215 @@ namespace MTConnect.Devices
         {
             var l = new List<IComposition>();
 
-            var components = GetComponents();
-            if (!components.IsNullOrEmpty())
+            if (!Compositions.IsNullOrEmpty())
             {
-                foreach (var component in components)
+                foreach (var composition in Compositions)
                 {
-                    if (!component.Compositions.IsNullOrEmpty())
-                    {
-                        l.AddRange(component.Compositions);
-                    }
+                    l.Add(composition);
+                }
+            }
+
+            if (!Components.IsNullOrEmpty())
+            {
+                foreach (var subComponent in Components)
+                {
+                    var components = GetCompositions(subComponent);
+                    if (!components.IsNullOrEmpty()) l.AddRange(components);
+                }
+            }
+            return !l.IsNullOrEmpty() ? l : null;
+        }
+
+        private IEnumerable<IComposition> GetCompositions(IComponent component)
+        {
+            var l = new List<IComposition>();
+
+            if (!component.Compositions.IsNullOrEmpty())
+            {
+                foreach (var composition in component.Compositions)
+                {
+                    l.Add(composition);
+                }
+            }
+
+            if (!component.Components.IsNullOrEmpty())
+            {
+                foreach (var subComponent in component.Components)
+                {
+                    var compositions = GetCompositions(subComponent);
+                    if (!compositions.IsNullOrEmpty()) l.AddRange(compositions);
                 }
             }
 
             return !l.IsNullOrEmpty() ? l : null;
         }
 
+        /// <summary>
+        /// Return the first Composition matching the Type
+        /// </summary>
+        public IComposition GetComposition(string type, string name = null, SearchType searchType = SearchType.AnyLevel)
+        {
+            if (!string.IsNullOrEmpty(type))
+            {
+                IEnumerable<IComposition> components = null;
+                switch (searchType)
+                {
+                    case SearchType.Child: components = Compositions; break;
+                    case SearchType.AnyLevel: components = GetCompositions(); break;
+                }
+
+                if (!components.IsNullOrEmpty())
+                {
+                    if (!string.IsNullOrEmpty(name))
+                    {
+                        return components.FirstOrDefault(o => o.Type == type && o.Name == name);
+                    }
+                    else
+                    {
+                        return components.FirstOrDefault(o => o.Type == type);
+                    }
+                }
+            }
+
+            return null;
+        }
 
         /// <summary>
-        /// Add a Composition to the Component
+        /// Return the first Composition matching the Type
+        /// </summary>
+        public IComposition GetComposition<TComposition>(string name = null, SearchType searchType = SearchType.AnyLevel) where TComposition : IComposition
+        {
+            var typeIdField = typeof(TComposition).GetField("TypeId");
+            if (typeIdField != null)
+            {
+                var typeId = typeIdField.GetValue(null)?.ToString();
+                if (!string.IsNullOrEmpty(typeId))
+                {
+                    return GetComposition(typeId, name, searchType);
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Return All Compositions matching the Type
+        /// </summary>
+        public IEnumerable<IComposition> GetCompositions(string type, string name = null, SearchType searchType = SearchType.AnyLevel)
+        {
+            if (!string.IsNullOrEmpty(type))
+            {
+                IEnumerable<IComposition> components = null;
+                switch (searchType)
+                {
+                    case SearchType.Child: components = Compositions; break;
+                    case SearchType.AnyLevel: components = GetCompositions(); break;
+                }
+
+                if (!components.IsNullOrEmpty())
+                {
+                    if (!string.IsNullOrEmpty(name))
+                    {
+                        return components.Where(o => o.Type == type && o.Name == name);
+                    }
+                    else
+                    {
+                        return components.Where(o => o.Type == type);
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Return All Compositions matching the Type
+        /// </summary>
+        public IEnumerable<IComposition> GetCompositions<TComposition>(string name = null, SearchType searchType = SearchType.AnyLevel) where TComposition : IComposition
+        {
+            var typeIdField = typeof(TComposition).GetField("TypeId");
+            if (typeIdField != null)
+            {
+                var typeId = typeIdField.GetValue(null)?.ToString();
+                if (!string.IsNullOrEmpty(typeId))
+                {
+                    return GetCompositions(typeId, name, searchType);
+                }
+            }
+
+            return null;
+        }
+
+
+        /// <summary>
+        /// Add a Composition to the Composition
         /// </summary>
         /// <param name="composition">The Composition to add</param>
         public void AddComposition(IComposition composition)
         {
             if (composition != null)
             {
-                var compositions = new List<IComposition>();
+                composition.Parent = this;
+
+                // Set ID
+                if (!string.IsNullOrEmpty(Id) && string.IsNullOrEmpty(composition.Id))
+                {
+                    ResetIds(composition);
+                }
+
+                var components = new List<IComposition>();
 
                 if (!Compositions.IsNullOrEmpty())
                 {
-                    compositions.AddRange(Compositions);
+                    components.AddRange(Compositions);
                 }
 
-                compositions.Add(composition);
-                Compositions = compositions;
+                components.Add(composition);
+                Compositions = components;
             }
         }
 
         /// <summary>
-        /// Add Compositions to the Component
+        /// Add Compositions to the Composition
         /// </summary>
         /// <param name="compositions">The Compositions to add</param>
         public void AddCompositions(IEnumerable<IComposition> compositions)
         {
             if (!compositions.IsNullOrEmpty())
             {
-                var newCompositions = new List<IComposition>();
-
-                if (!Compositions.IsNullOrEmpty())
+                foreach (var component in compositions)
                 {
-                    newCompositions.AddRange(Compositions);
+                    AddComposition(component);
                 }
-
-                newCompositions.AddRange(compositions);
-                Compositions = newCompositions;
             }
         }
 
 
         /// <summary>
-        /// Remove a Composition from the Component
+        /// Remove a Composition from the Composition
         /// </summary>
         /// <param name="compositionId">The ID of the Composition to remove</param>
         public void RemoveComposition(string compositionId)
         {
-            var components = GetComponents();
-            if (!components.IsNullOrEmpty())
+            if (!Compositions.IsNullOrEmpty())
             {
-                foreach (var component in components)
-                {
-                    if (!component.Compositions.IsNullOrEmpty())
-                    {
-                        var compositions = new List<IComposition>();
-                        compositions.AddRange(component.Compositions);
-                        compositions.RemoveAll(o => o.Id == compositionId);
-                        ((Component)component).AddCompositions(compositions);
-                        //component.Compositions = compositions;
-                    }
-                }
+                var compositions = new List<IComposition>();
+                compositions.AddRange(Compositions);
+                compositions.RemoveAll(o => o.Id == compositionId);
+
+                Compositions = compositions;
+            }
+        }
+
+        private void RemoveComposition(IComponent component, string compositionId)
+        {
+            if (component != null && !component.Compositions.IsNullOrEmpty())
+            {
+                var compositions = new List<IComposition>();
+                compositions.AddRange(component.Compositions);
+                compositions.RemoveAll(o => o.Id == compositionId);
+
+                ((Component)component).AddCompositions(compositions);
             }
         }
 
@@ -519,6 +775,134 @@ namespace MTConnect.Devices
             return null;
         }
 
+		/// <summary>
+		/// Return the first DataItem matching the Type
+		/// </summary>
+		public IDataItem GetDataItemByType(string type, SearchType searchType = SearchType.Child)
+		{
+			if (!string.IsNullOrEmpty(type))
+			{
+				IEnumerable<IDataItem> dataItems = null;
+				switch (searchType)
+				{
+					case SearchType.Child: dataItems = DataItems; break;
+					case SearchType.AnyLevel: dataItems = GetDataItems(); break;
+				}
+
+				if (!dataItems.IsNullOrEmpty())
+				{
+					return dataItems.FirstOrDefault(o => o.Type == type);
+				}
+			}
+
+			return null;
+		}
+
+        /// <summary>
+        /// Return the first DataItem matching the Type and SubType
+        /// </summary>
+        public IDataItem GetDataItemByType(string type, string subType, SearchType searchType = SearchType.Child)
+		{
+			if (!string.IsNullOrEmpty(type))
+			{
+				IEnumerable<IDataItem> dataItems = null;
+				switch (searchType)
+				{
+					case SearchType.Child: dataItems = DataItems; break;
+					case SearchType.AnyLevel: dataItems = GetDataItems(); break;
+				}
+
+				if (!dataItems.IsNullOrEmpty())
+				{
+					return dataItems.FirstOrDefault(o => o.Type == type && o.SubType == subType);
+				}
+			}
+
+			return null;
+		}
+
+        /// <summary>
+        /// Return the first DataItem matching the Type
+        /// </summary>
+        public IDataItem GetDataItem<TDataItem>(string subType = null, SearchType searchType = SearchType.Child) where TDataItem : IDataItem
+        {
+            var typeIdField = typeof(TDataItem).GetField("TypeId");
+            if (typeIdField != null)
+            {
+                var typeId = typeIdField.GetValue(null)?.ToString();
+                if (!string.IsNullOrEmpty(typeId))
+                {
+                    return GetDataItemByType(typeId, subType, searchType);
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Return All DataItems matching the Type
+        /// </summary>
+        public IEnumerable<IDataItem> GetDataItemsByType(string type, SearchType searchType = SearchType.Child)
+		{
+			if (!string.IsNullOrEmpty(type))
+			{
+				IEnumerable<IDataItem> dataItems = null;
+				switch (searchType)
+				{
+					case SearchType.Child: dataItems = DataItems; break;
+					case SearchType.AnyLevel: dataItems = GetDataItems(); break;
+				}
+
+				if (!dataItems.IsNullOrEmpty())
+				{
+					return dataItems.Where(o => o.Type == type);
+				}
+			}
+
+			return null;
+		}
+
+		/// <summary>
+		/// Return All DataItems matching the Type and SubType
+		/// </summary>
+		public IEnumerable<IDataItem> GetDataItemsByType(string type, string subType, SearchType searchType = SearchType.Child)
+		{
+			if (!string.IsNullOrEmpty(type))
+			{
+				IEnumerable<IDataItem> dataItems = null;
+				switch (searchType)
+				{
+					case SearchType.Child: dataItems = DataItems; break;
+					case SearchType.AnyLevel: dataItems = GetDataItems(); break;
+				}
+
+				if (!dataItems.IsNullOrEmpty())
+				{
+					return dataItems.Where(o => o.Type == type && o.SubType == subType);
+				}
+			}
+
+			return null;
+		}
+
+        /// <summary>
+        /// Return All DataItems matching the Type and SubType
+        /// </summary>
+        public IEnumerable<IDataItem> GetDataItems<TDataItem>(string subType = null, SearchType searchType = SearchType.Child) where TDataItem : IDataItem
+        {
+            var typeIdField = typeof(TDataItem).GetField("TypeId");
+            if (typeIdField != null)
+            {
+                var typeId = typeIdField.GetValue(null)?.ToString();
+                if (!string.IsNullOrEmpty(typeId))
+                {
+                    return GetDataItemsByType(typeId, subType, searchType);
+                }
+            }
+
+            return null;
+        }
+
 
         /// <summary>
         /// Add a DataItem to the Component
@@ -528,6 +912,10 @@ namespace MTConnect.Devices
         {
             if (dataItem != null)
             {
+                ((DataItem)dataItem).Container = this;
+
+                if (!string.IsNullOrEmpty(Id) && string.IsNullOrEmpty(dataItem.Id)) ResetId(this, dataItem);
+
                 var dataItems = new List<IDataItem>();
 
                 if (!DataItems.IsNullOrEmpty())
@@ -537,6 +925,60 @@ namespace MTConnect.Devices
 
                 dataItems.Add(dataItem);
                 DataItems = dataItems;
+            }
+        }
+
+        /// <summary>
+        /// Add a DataItem to the Component
+        /// </summary>
+        public void AddDataItem<TDataItem>() where TDataItem : IDataItem
+        {
+            var constructor = typeof(TDataItem).GetConstructor(new Type[] { });
+            if (constructor != null)
+            {
+                try
+                {
+                    var dataItem = (DataItem)constructor.Invoke(null);
+                    AddDataItem(dataItem);
+                }
+                catch { }
+            }
+        }
+
+        /// <summary>
+        /// Add a DataItem to the Component
+        /// </summary>
+        public void AddDataItem<TDataItem>(string name, object subType = null) where TDataItem : IDataItem
+        {
+            var constructor = typeof(TDataItem).GetConstructor(new Type[] { });
+            if (constructor != null)
+            {
+                try
+                {
+                    var dataItem = (DataItem)constructor.Invoke(null);
+                    dataItem.Name = name;
+                    dataItem.SubType = subType?.ToString();
+                    AddDataItem(dataItem);
+                }
+                catch { }
+            }
+        }
+
+        /// <summary>
+        /// Add a DataItem to the Component
+        /// </summary>
+        public void AddDataItem<TDataItem>(object subType) where TDataItem : IDataItem
+        {
+            var constructor = typeof(TDataItem).GetConstructor(new Type[] { });
+            if (constructor != null)
+            {
+                try
+                {
+                    var dataItem = (DataItem)constructor.Invoke(null);
+                    dataItem.SubType = subType?.ToString();
+                    AddDataItem(dataItem);
+                }
+                catch { }
             }
         }
 
@@ -556,15 +998,10 @@ namespace MTConnect.Devices
         {
             if (!dataItems.IsNullOrEmpty())
             {
-                var newDataItems = new List<IDataItem>();
-
-                if (!DataItems.IsNullOrEmpty())
+                foreach (var dataItem in dataItems)
                 {
-                    newDataItems.AddRange(DataItems);
+                    AddDataItem(dataItem);
                 }
-
-                newDataItems.AddRange(dataItems);
-                DataItems = newDataItems;
             }
         }
 
@@ -575,6 +1012,14 @@ namespace MTConnect.Devices
         /// <param name="dataItemId">The ID of the DataItem to remove</param>
         public void RemoveDataItem(string dataItemId)
         {
+            if (!DataItems.IsNullOrEmpty())
+            {
+                var dataItems = new List<IDataItem>();
+                dataItems.AddRange(DataItems);
+                dataItems.RemoveAll(o => o.Id == dataItemId);
+                DataItems = dataItems;
+            }
+
             var components = GetComponents();
             if (!components.IsNullOrEmpty())
             {
@@ -591,11 +1036,73 @@ namespace MTConnect.Devices
             }
         }
 
-        #endregion
+		#endregion
 
-        #region "ID"
+		#region "ID"
 
-        public static string CreateId(string parentId, string name)
+		internal static void ResetIds(IComponent component)
+		{
+            if (component != null)
+            {
+				((Component)component).Id = CreateContainerId(component, component.ComponentIdFormat);
+
+				// Set Child Component IDs
+				if (!component.Components.IsNullOrEmpty())
+				{
+					foreach (var subcomponent in component.Components)
+					{
+                        ResetIds(subcomponent);
+					}
+				}
+
+                // Set Child Composition IDs
+                if (!component.Compositions.IsNullOrEmpty())
+                {
+                    foreach (var composition in component.Compositions)
+                    {
+                        ResetIds(composition);
+                    }
+                }
+
+                // Set Child DataItem IDs
+                if (!component.DataItems.IsNullOrEmpty())
+				{
+					foreach (var dataItem in component.DataItems)
+					{
+                        ResetId(component, dataItem);
+					}
+				}
+			}
+		}
+
+        internal static void ResetIds(IComposition composition)
+        {
+            if (composition != null)
+            {
+                ((Composition)composition).Id = CreateContainerId(composition, composition.CompositionIdFormat);
+
+                // Set Child DataItem IDs
+                if (!composition.DataItems.IsNullOrEmpty())
+                {
+                    foreach (var dataItem in composition.DataItems)
+                    {
+                        ((DataItem)dataItem).CompositionId = composition.Id;
+                        ResetId(composition, dataItem);
+                    }
+                }
+            }
+        }
+
+        internal static void ResetId(IContainer container, IDataItem dataItem)
+		{
+			if (container != null && dataItem != null)
+			{
+				((DataItem)dataItem).Id = CreateDataItemId(container, dataItem, container.DataItemIdFormat);
+			}
+		}
+
+
+		public static string CreateId(string parentId, string name)
         {
             return $"{parentId}_{name}";
         }
@@ -610,6 +1117,162 @@ namespace MTConnect.Devices
             {
                 return $"{parentId}_{name}";
             }
+        }
+
+
+		public static string CreateContainerId(IContainer container, string pattern)
+		{
+			if (container != null)
+			{
+                var result = pattern;
+
+                var configurations = GetIdFormatConfigurations(pattern);
+                if (configurations != null)
+                {
+                    foreach (var configuration in configurations)
+                    {
+                        var obj = GetIdFormatObject(container, configuration);
+                        var value = GetPropertyValue(obj, configuration.Property);
+                        result = result.Replace(configuration.Pattern, value);
+                    }
+                }
+
+                return result;
+			}
+
+			return null;
+		}
+
+		public static string CreateDataItemId(IContainer container, IDataItem dataItem, string pattern)
+        {
+            if (container != null && dataItem != null)
+            {
+				var result = pattern;
+
+				var configurations = GetIdFormatConfigurations(pattern);
+				if (configurations != null)
+				{
+					foreach (var configuration in configurations)
+					{
+						var obj = GetIdFormatObject(container, dataItem, configuration);
+						var value = GetPropertyValue(obj, configuration.Property);
+                        if (value != null)
+                        {
+                            result = result.Replace(configuration.Pattern, $"{configuration.Prefix}{value}{configuration.Suffix}");
+                        }
+                        else if (configuration.IsOptional)
+                        {
+                            result = result.Replace(configuration.Pattern, "");
+                        }
+					}
+				}
+
+				return result;
+			}
+
+            return null;
+        }
+
+        private static object GetIdFormatObject(IContainer container, IdFormatConfiguration configuration)
+        { 
+            if (container != null)
+            {
+                switch (configuration.Object.ToLower())
+                {
+                    case "parent": return container.Parent;
+                    case "device": return container;
+                    case "component": return container;
+                    case "composition": return container;
+                }
+            }
+
+            return null;
+        }
+
+		private static object GetIdFormatObject(IContainer container, IDataItem dataItem, IdFormatConfiguration configuration)
+		{
+			if (container != null && dataItem != null)
+			{
+				switch (configuration.Object.ToLower())
+				{
+					case "parent": return container.Parent;
+					case "device": return container;
+					case "component": return container;
+					case "composition": return container;
+					case "dataitem": return dataItem;
+				}
+			}
+
+			return null;
+		}
+
+		private static IEnumerable<IdFormatConfiguration> GetIdFormatConfigurations(string pattern)
+		{
+			if (!string.IsNullOrEmpty(pattern))
+			{
+                try
+                {
+                    var configurations = new List<IdFormatConfiguration>();
+
+                    var matches = _idFormatRegex.Matches(pattern);
+                    if (matches != null)
+                    {
+                        foreach (Match match in matches)
+                        {
+                            if (match.Groups != null && match.Groups.Count > 4)
+                            {
+                                var configuration = new IdFormatConfiguration();
+                                configuration.Pattern = match.Groups[0].Value;
+
+                                // Required
+                                if (!string.IsNullOrEmpty(match.Groups[1].Value)) configuration.Object = match.Groups[1].Value;
+                                if (!string.IsNullOrEmpty(match.Groups[2].Value)) configuration.Property = match.Groups[2].Value;
+
+                                // Optional
+                                if (!string.IsNullOrEmpty(match.Groups[4].Value) && !string.IsNullOrEmpty(match.Groups[5].Value))
+                                {
+                                    configuration.Prefix = match.Groups[3].Value;
+                                    configuration.Object = match.Groups[4].Value;
+                                    configuration.Property = match.Groups[5].Value;
+                                    configuration.Suffix = match.Groups[6].Value;
+                                    configuration.IsOptional = true;
+                                }                              
+
+                                configurations.Add(configuration);
+                            }
+                        }
+                    }
+
+                    return configurations;
+                }
+                catch { }
+			}
+
+			return null;
+		}
+
+		private static string GetPropertyValue(object obj, string propertyName)
+        {
+            if (obj != null && !string.IsNullOrEmpty(propertyName))
+            {
+                var objType = obj.GetType();
+
+                var property = objType.GetProperty(propertyName.ToTitleCase());
+                if (property != null)
+                {
+                    var val = property.GetValue(obj)?.ToString();
+
+                    switch (property.Name)
+                    {
+                        case "Type": val = val.ToCamelCase(); break;
+                        case "SubType": val = val.ToCamelCase(); break;
+                    }
+
+                    return val;
+                }
+            }
+
+            return null;
         }
 
         #endregion

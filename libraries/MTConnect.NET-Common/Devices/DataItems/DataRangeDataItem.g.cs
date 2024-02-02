@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 namespace MTConnect.Devices.DataItems
@@ -12,6 +12,7 @@ namespace MTConnect.Devices.DataItems
         public const string TypeId = "DATA_RANGE";
         public const string NameId = "dataRange";
              
+             
         public new const string DescriptionText = "Indication that the value of the data associated with a measured value or a calculation is outside of an expected range.";
         
         public override string TypeDescription => DescriptionText;
@@ -23,6 +24,8 @@ namespace MTConnect.Devices.DataItems
         {
             Category = CategoryId;
             Type = TypeId;
+            Name = NameId;
+              
             
         }
 
@@ -32,6 +35,8 @@ namespace MTConnect.Devices.DataItems
             Category = CategoryId;
             Type = TypeId;
             Name = NameId;
+             
+            
         }
     }
 }

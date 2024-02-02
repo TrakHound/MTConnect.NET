@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Assets;
@@ -11,7 +11,7 @@ using System.Collections.Generic;
 namespace MTConnect.Agents
 {
     /// <summary>
-    /// Publishes MTConnect information in the form of a Response Document to client software applications.
+    /// Retrieve MTConnect information in the form of MTConnect Response Documents.
     /// </summary>
     public interface IMTConnectAgentBroker : IMTConnectAgent
     {
