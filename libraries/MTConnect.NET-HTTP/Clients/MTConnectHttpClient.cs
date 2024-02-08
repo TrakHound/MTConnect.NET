@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Assets;
@@ -285,6 +285,11 @@ namespace MTConnect.Clients
 
             ClientStarting?.Invoke(this, new EventArgs());
 
+            _initializeFromBuffer = false;
+            _lastInstanceId = 0;
+            _lastSequence = 0;
+            _streamPath = null;
+
             _ = Task.Run(Worker, _stop.Token);
         }
 
@@ -297,6 +302,9 @@ namespace MTConnect.Clients
 
             ClientStarting?.Invoke(this, new EventArgs());
 
+            _initializeFromBuffer = false;
+            _lastInstanceId = 0;
+            _lastSequence = 0;
             _streamPath = path;
 
             _ = Task.Run(Worker, _stop.Token);
@@ -312,6 +320,9 @@ namespace MTConnect.Clients
 
             ClientStarting?.Invoke(this, new EventArgs());
 
+            _initializeFromBuffer = false;
+            _lastInstanceId = 0;
+            _lastSequence = 0;
             _streamPath = path;
 
             _ = Task.Run(Worker, _stop.Token);
@@ -326,6 +337,7 @@ namespace MTConnect.Clients
 
             ClientStarting?.Invoke(this, new EventArgs());
 
+            _initializeFromBuffer = true;
             _lastInstanceId = instanceId;
             _lastSequence = sequence;
             _streamPath = path;
@@ -343,6 +355,7 @@ namespace MTConnect.Clients
 
             ClientStarting?.Invoke(this, new EventArgs());
 
+            _initializeFromBuffer = true;
             _lastInstanceId = instanceId;
             _lastSequence = sequence;
             _streamPath = path;
@@ -360,6 +373,8 @@ namespace MTConnect.Clients
             ClientStarting?.Invoke(this, new EventArgs());
 
             _initializeFromBuffer = true;
+            _lastInstanceId = 0;
+            _lastSequence = 0;
             _streamPath = path;
 
             _ = Task.Run(Worker, _stop.Token);
@@ -376,6 +391,8 @@ namespace MTConnect.Clients
             ClientStarting?.Invoke(this, new EventArgs());
 
             _initializeFromBuffer = true;
+            _lastInstanceId = 0;
+            _lastSequence = 0;
             _streamPath = path;
 
             _ = Task.Run(Worker, _stop.Token);
@@ -605,7 +622,7 @@ namespace MTConnect.Clients
         private async Task Worker()
         {
             var initialRequest = true;
-            _lastInstanceId = 0;
+            //_lastInstanceId = 0;
 
             ClientStarted?.Invoke(this, new EventArgs());
 
@@ -1056,11 +1073,13 @@ namespace MTConnect.Clients
             // Check for http
             if (!url.StartsWith("http://") && !url.StartsWith("https://")) url = "http://" + url;
 
-            if (from > 0) url = Url.AddQueryParameter(url, "from", from);
+            if (from >= 0) url = Url.AddQueryParameter(url, "from", from);
             if (count > 0) url = Url.AddQueryParameter(url, "count", count);
             if (interval > -1) url = Url.AddQueryParameter(url, "interval", interval);
             if (heartbeat > 0) url = Url.AddQueryParameter(url, "heartbeat", heartbeat);
             if (!string.IsNullOrEmpty(path)) url = Url.AddQueryParameter(url, "path", path);
+
+            Console.WriteLine(url);
 
             return url;
         }
