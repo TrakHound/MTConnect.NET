@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Errors;
@@ -298,7 +298,7 @@ namespace MTConnect.Clients
             return null;
         }
 
-        private static byte[] ReadBody(Stream stream, int length)
+        private static Stream ReadBody(Stream stream, int length)
         {
             if (stream != null && length > 0)
             {
@@ -307,7 +307,7 @@ namespace MTConnect.Clients
 
                 // Create a buffer to contain body of the response
                 // based on the size of the content-length received in the Http Headers
-                var body = new byte[size];
+                var body = new MemoryStream(size);
 
                 // Read New Line characters
                 // These always appear after the Http Header
@@ -327,7 +327,7 @@ namespace MTConnect.Clients
                     if (j > size - i) j = size - i;
 
                     // Add the chunk bytes to the body buffer
-                    Array.Copy(chunk, 0, body, i, j);
+                    body.Write(chunk, 0, j);
 
                     // Increment the index of the body buffer based on the number of bytes read in this chunk
                     i += j;
@@ -339,15 +339,16 @@ namespace MTConnect.Clients
             return null;
         }
 
-        protected virtual void ProcessResponseBody(byte[] responseBody, string contentEncoding = null)
+        protected virtual void ProcessResponseBody(Stream responseBody, string contentEncoding = null)
         {
             if (responseBody != null && responseBody.Length > 0)
             {
                 // Handle Compression Encoding
-                var bytes = MTConnectHttpResponse.HandleContentEncoding(contentEncoding, responseBody);
+                var stream = MTConnectHttpResponse.HandleContentEncoding(contentEncoding, responseBody);
+                if (stream.Position > 0) stream.Seek(0, SeekOrigin.Begin);
 
                 // Process MTConnectDevices Document
-                var document = Formatters.ResponseDocumentFormatter.CreateStreamsResponseDocument(_documentFormat, bytes).Content;
+                var document = Formatters.ResponseDocumentFormatter.CreateStreamsResponseDocument(_documentFormat, stream).Content;
                 if (document != null)
                 {
                     DocumentReceived?.Invoke(this, document);
@@ -355,11 +356,10 @@ namespace MTConnect.Clients
                 else
                 {
                     // Process MTConnectError Document (if MTConnectStreams fails)
-                    var errorDocument = Formatters.ResponseDocumentFormatter.CreateErrorResponseDocument(_documentFormat, bytes).Content;
+                    var errorDocument = Formatters.ResponseDocumentFormatter.CreateErrorResponseDocument(_documentFormat, stream).Content;
                     if (errorDocument != null) ErrorReceived?.Invoke(this, errorDocument);
                 }
             }
         }
-
     }
 }

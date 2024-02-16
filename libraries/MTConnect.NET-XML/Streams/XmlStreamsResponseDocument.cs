@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Configurations;
@@ -427,7 +427,7 @@ namespace MTConnect.Streams.Xml
 
         #region "Write"
 
-        public static byte[] ToXmlBytes(
+        public static Stream ToXmlStream(
             ref IStreamsResponseOutputDocument document,
             IEnumerable<NamespaceConfiguration> extendedSchemas = null,
             string styleSheet = null,
@@ -441,17 +441,16 @@ namespace MTConnect.Streams.Xml
                 {
                     var mtconnectStreamsNamespace = Namespaces.GetStreams(document.Version.Major, document.Version.Minor);
 
-                    using (var stream = new MemoryStream())
-                    {
-                        // Set the XmlWriterSettings to use
-                        var xmlWriterSettings = indent ? XmlFunctions.XmlWriterSettingsIndent : XmlFunctions.XmlWriterSettings;
+                    var outputStream = new MemoryStream();
 
-                        // Use XmlWriter to write XML to stream
-                        using (var xmlWriter = XmlWriter.Create(stream, xmlWriterSettings))
-                        {
-                            WriteXml(xmlWriter, ref document, extendedSchemas, styleSheet, indent, outputComments);
-                            return stream.ToArray();
-                        }
+                    // Set the XmlWriterSettings to use
+                    var xmlWriterSettings = indent ? XmlFunctions.XmlWriterSettingsIndent : XmlFunctions.XmlWriterSettings;
+
+                    // Use XmlWriter to write XML to stream
+                    using (var xmlWriter = XmlWriter.Create(outputStream, xmlWriterSettings))
+                    {
+                        WriteXml(xmlWriter, ref document, extendedSchemas, styleSheet, indent, outputComments);
+                        return outputStream;
                     }
                 }
                 catch { }

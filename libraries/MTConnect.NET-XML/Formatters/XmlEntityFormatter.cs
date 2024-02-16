@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Assets;
@@ -38,12 +38,8 @@ namespace MTConnect.Formatters.Xml
                         {
                             XmlDevice.WriteXml(xmlWriter, device);
                             xmlWriter.Flush();
-                            
-                            var bytes = outputStream.ToArray();
-                            if (bytes != null)
-                            {
-                                return FormatWriteResult.Successful(bytes, ContentType);
-                            }
+
+                            return FormatWriteResult.Successful(outputStream, ContentType);
                         }
                     }
                 }
@@ -65,11 +61,7 @@ namespace MTConnect.Formatters.Xml
                         var xmlWriter = XmlWriter.Create(outputStream, XmlFunctions.XmlWriterSettings);
                         XmlObservation.WriteXml(xmlWriter, observation);
 
-                        var bytes = outputStream.ToArray();
-                        if (bytes != null)
-                        {
-                            return FormatWriteResult.Successful(bytes, ContentType);
-                        }
+                        return FormatWriteResult.Successful(outputStream, ContentType);
                     }
                 }
                 catch { }
@@ -93,11 +85,7 @@ namespace MTConnect.Formatters.Xml
                             XmlObservation.WriteXml(xmlWriter, observation);
                         }
 
-                        var bytes = outputStream.ToArray();
-                        if (bytes != null)
-                        {
-                            return FormatWriteResult.Successful(bytes, ContentType);
-                        }
+                        return FormatWriteResult.Successful(outputStream, ContentType);
                     }
                 }
                 catch { }
@@ -110,77 +98,109 @@ namespace MTConnect.Formatters.Xml
         {
             if (asset != null)
             {
-                var bytes = XmlAsset.ToXml(asset, true);
-                if (bytes != null)
-                {
-                    return FormatWriteResult.Successful(bytes, ContentType);
-                }
+                var stream = XmlAsset.ToXml(asset, true);
+                return FormatWriteResult.Successful(stream, ContentType);
             }
 
             return FormatWriteResult.Error();
         }
 
 
-        public FormatReadResult<IDevice> CreateDevice(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatReadResult<IDevice> CreateDevice(Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var messages = new List<string>();
             var warnings = new List<string>();
             var errors = new List<string>();
 
+            byte[] bytes;
+            using (var memoryStream = new MemoryStream())
+            {
+                content.CopyTo(memoryStream);
+                bytes = memoryStream.ToArray();
+            }
+
             // Read Entity
-            var entity = XmlDevice.FromXml(content);
+            var entity = XmlDevice.FromXml(bytes);
             var success = entity != null;
 
             return new FormatReadResult<IDevice>(entity, success, messages, warnings, errors);
         }
 
-        public FormatReadResult<IComponent> CreateComponent(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatReadResult<IComponent> CreateComponent(Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var messages = new List<string>();
             var warnings = new List<string>();
             var errors = new List<string>();
 
+            byte[] bytes;
+            using (var memoryStream = new MemoryStream())
+            {
+                content.CopyTo(memoryStream);
+                bytes = memoryStream.ToArray();
+            }
+
             // Read Entity
-            var entity = XmlComponent.FromXml(content);
+            var entity = XmlComponent.FromXml(bytes);
             var success = entity != null;
 
             return new FormatReadResult<IComponent>(entity, success, messages, warnings, errors);
         }
 
-        public FormatReadResult<IComposition> CreateComposition(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatReadResult<IComposition> CreateComposition(Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var messages = new List<string>();
             var warnings = new List<string>();
             var errors = new List<string>();
 
+            byte[] bytes;
+            using (var memoryStream = new MemoryStream())
+            {
+                content.CopyTo(memoryStream);
+                bytes = memoryStream.ToArray();
+            }
+
             // Read Entity
-            var entity = XmlComposition.FromXml(content);
+            var entity = XmlComposition.FromXml(bytes);
             var success = entity != null;
 
             return new FormatReadResult<IComposition>(entity, success, messages, warnings, errors);
         }
 
-        public FormatReadResult<IDataItem> CreateDataItem(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatReadResult<IDataItem> CreateDataItem(Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var messages = new List<string>();
             var warnings = new List<string>();
             var errors = new List<string>();
 
+            byte[] bytes;
+            using (var memoryStream = new MemoryStream())
+            {
+                content.CopyTo(memoryStream);
+                bytes = memoryStream.ToArray();
+            }
+
             // Read Entity
-            var entity = XmlDataItem.FromXml(content);
+            var entity = XmlDataItem.FromXml(bytes);
             var success = entity != null;
 
             return new FormatReadResult<IDataItem>(entity, success, messages, warnings, errors);
         }
 
-        public FormatReadResult<IAsset> CreateAsset(string assetType, byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatReadResult<IAsset> CreateAsset(string assetType, Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var messages = new List<string>();
             var warnings = new List<string>();
             var errors = new List<string>();
 
+            byte[] bytes;
+            using (var memoryStream = new MemoryStream())
+            {
+                content.CopyTo(memoryStream);
+                bytes = memoryStream.ToArray();
+            }
+
             // Read Entity
-            var entity = XmlAsset.FromXml(assetType, content);
+            var entity = XmlAsset.FromXml(assetType, bytes);
             var success = entity != null;
 
             return new FormatReadResult<IAsset>(entity, success, messages, warnings, errors);

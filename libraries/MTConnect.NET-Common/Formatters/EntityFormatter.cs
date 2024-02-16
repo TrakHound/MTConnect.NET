@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Assets;
@@ -9,6 +9,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 
 namespace MTConnect.Formatters
@@ -113,7 +114,7 @@ namespace MTConnect.Formatters
         }
 
 
-        public static FormatReadResult<IDevice> CreateDevice(string documentFormatterId, byte[] content)
+        public static FormatReadResult<IDevice> CreateDevice(string documentFormatterId, Stream content)
         {
             // Get the Formatter with the specified ID
             var formatter = GetFormatter(documentFormatterId);
@@ -126,7 +127,7 @@ namespace MTConnect.Formatters
             return FormatReadResult<IDevice>.Error(null, $"Entity Formatter Not found for \"{documentFormatterId}\"");
         }
 
-        public static FormatReadResult<IComponent> CreateComponent(string documentFormatterId, byte[] content)
+        public static FormatReadResult<IComponent> CreateComponent(string documentFormatterId, Stream content)
         {
             // Get the Formatter with the specified ID
             var formatter = GetFormatter(documentFormatterId);
@@ -139,7 +140,7 @@ namespace MTConnect.Formatters
             return FormatReadResult<IComponent>.Error(null, $"Entity Formatter Not found for \"{documentFormatterId}\"");
         }
 
-        public static FormatReadResult<IComposition> CreateComposition(string documentFormatterId, byte[] content)
+        public static FormatReadResult<IComposition> CreateComposition(string documentFormatterId, Stream content)
         {
             // Get the Formatter with the specified ID
             var formatter = GetFormatter(documentFormatterId);
@@ -152,7 +153,7 @@ namespace MTConnect.Formatters
             return FormatReadResult<IComposition>.Error(null, $"Entity Formatter Not found for \"{documentFormatterId}\"");
         }
 
-        public static FormatReadResult<IDataItem> CreateDataItem(string documentFormatterId, byte[] content)
+        public static FormatReadResult<IDataItem> CreateDataItem(string documentFormatterId, Stream content)
         {
             // Get the Formatter with the specified ID
             var formatter = GetFormatter(documentFormatterId);
@@ -165,7 +166,7 @@ namespace MTConnect.Formatters
             return FormatReadResult<IDataItem>.Error(null, $"Entity Formatter Not found for \"{documentFormatterId}\"");
         }
 
-        public static FormatReadResult<IAsset> CreateAsset(string documentFormatterId, string assetType, byte[] content)
+        public static FormatReadResult<IAsset> CreateAsset(string documentFormatterId, string assetType, Stream content)
         {
             // Get the Formatter with the specified ID
             var formatter = GetFormatter(documentFormatterId);

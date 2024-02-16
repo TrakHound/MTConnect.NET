@@ -74,29 +74,35 @@ namespace MTConnect.Configurations
                 {
                     if (File.Exists(rootPath))
                     {
-                        var contents = File.ReadAllBytes(rootPath);
-                        if (contents != null)
+                        using (var contents = File.OpenRead(rootPath))
                         {
-                            // Read ResponseDocument Format
-                            var devicesDocument = Formatters.ResponseDocumentFormatter.CreateDevicesResponseDocument(documentFormatterId, contents).Content;
-                            if (devicesDocument != null && devicesDocument.Devices != null && devicesDocument.Devices.Count() > 0)
+                            if (contents != null)
                             {
-                                var devices = new List<DeviceConfiguration>();
+                                if (contents.Position > 0) contents.Seek(0, SeekOrigin.Begin);
 
-                                foreach (var device in devicesDocument.Devices)
+                                // Read ResponseDocument Format
+                                var devicesDocument = Formatters.ResponseDocumentFormatter.CreateDevicesResponseDocument(documentFormatterId, contents).Content;
+                                if (devicesDocument != null && devicesDocument.Devices != null && devicesDocument.Devices.Count() > 0)
                                 {
-                                    devices.Add(new DeviceConfiguration(device, rootPath));
+                                    var devices = new List<DeviceConfiguration>();
+
+                                    foreach (var device in devicesDocument.Devices)
+                                    {
+                                        devices.Add(new DeviceConfiguration(device, rootPath));
+                                    }
+
+                                    return devices;
                                 }
-
-                                return devices;
-                            }
-                            else
-                            {
-                                // Read Single Entity Format
-                                var device = Formatters.EntityFormatter.CreateDevice(documentFormatterId, contents).Content;
-                                if (device != null)
+                                else
                                 {
-                                    return new List<DeviceConfiguration> { new DeviceConfiguration(device, rootPath) };
+                                    if (contents.Position > 0) contents.Seek(0, SeekOrigin.Begin);
+
+                                    // Read Single Entity Format
+                                    var device = Formatters.EntityFormatter.CreateDevice(documentFormatterId, contents).Content;
+                                    if (device != null)
+                                    {
+                                        return new List<DeviceConfiguration> { new DeviceConfiguration(device, rootPath) };
+                                    }
                                 }
                             }
                         }
@@ -132,29 +138,35 @@ namespace MTConnect.Configurations
                 {
                     if (File.Exists(rootPath))
                     {
-                        var contents = await File.ReadAllBytesAsync(rootPath);
-                        if (contents != null)
+                        using (var contents = File.OpenRead(rootPath))
                         {
-                            // Read ResponseDocument Format
-                            var devicesDocument = Formatters.ResponseDocumentFormatter.CreateDevicesResponseDocument(documentFormatterId, contents).Content;
-                            if (devicesDocument != null && devicesDocument.Devices != null && devicesDocument.Devices.Count() > 0)
+                            if (contents != null)
                             {
-                                var devices = new List<DeviceConfiguration>();
+                                if (contents.Position > 0) contents.Seek(0, SeekOrigin.Begin);
 
-                                foreach (var device in devicesDocument.Devices)
+                                // Read ResponseDocument Format
+                                var devicesDocument = Formatters.ResponseDocumentFormatter.CreateDevicesResponseDocument(documentFormatterId, contents).Content;
+                                if (devicesDocument != null && devicesDocument.Devices != null && devicesDocument.Devices.Count() > 0)
                                 {
-                                    devices.Add(new DeviceConfiguration(device, rootPath));
+                                    var devices = new List<DeviceConfiguration>();
+
+                                    foreach (var device in devicesDocument.Devices)
+                                    {
+                                        devices.Add(new DeviceConfiguration(device, rootPath));
+                                    }
+
+                                    return devices;
                                 }
-
-                                return devices;
-                            }
-                            else
-                            {
-                                // Read Single Entity Format
-                                var device = Formatters.EntityFormatter.CreateDevice(documentFormatterId, contents).Content;
-                                if (device != null)
+                                else
                                 {
-                                    return new List<DeviceConfiguration> { new DeviceConfiguration(device, rootPath) };
+                                    if (contents.Position > 0) contents.Seek(0, SeekOrigin.Begin);
+
+                                    // Read Single Entity Format
+                                    var device = Formatters.EntityFormatter.CreateDevice(documentFormatterId, contents).Content;
+                                    if (device != null)
+                                    {
+                                        return new List<DeviceConfiguration> { new DeviceConfiguration(device, rootPath) };
+                                    }
                                 }
                             }
                         }

@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+﻿// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MQTTnet;
@@ -24,7 +24,7 @@ namespace MTConnect
         public const string ConfigurationTypeId = "mqtt-relay";
         private const string ModuleId = "MQTT Relay";
 
-        private readonly ModuleConfiguration _configuration;
+        private readonly MqttRelayModuleConfiguration _configuration;
         private readonly MTConnectMqttDocumentServer _server;
         private readonly MqttFactory _mqttFactory;
         private readonly IMqttClient _mqttClient;
@@ -35,7 +35,7 @@ namespace MTConnect
         {
             Id = ModuleId;
 
-            _configuration = AgentApplicationConfiguration.GetConfiguration<ModuleConfiguration>(configuration);
+            _configuration = AgentApplicationConfiguration.GetConfiguration<MqttRelayModuleConfiguration>(configuration);
 
             _server = new MTConnectMqttDocumentServer(mtconnectAgent, _configuration);
             _server.ProbeReceived += ProbeReceived;
@@ -181,11 +181,18 @@ namespace MTConnect
                 {
                     var topic = $"{_configuration.TopicPrefix}/{MTConnectMqttDocumentServer.ProbeTopic}/{device.Uuid}";
 
-                    var message = new MqttApplicationMessage();
-                    message.Retain = true;
-                    message.Topic = topic;
-                    message.QualityOfServiceLevel = (MQTTnet.Protocol.MqttQualityOfServiceLevel)_configuration.QoS;
-                    message.Payload = formatResult.Content;
+                    //var message = new MqttApplicationMessage();
+                    //message.Retain = true;
+                    //message.Topic = topic;
+                    //message.QualityOfServiceLevel = (MQTTnet.Protocol.MqttQualityOfServiceLevel)_configuration.QoS;
+                    //message.Payload = formatResult.Content;
+
+                    var messageBuilder = new MqttApplicationMessageBuilder();
+                    messageBuilder.WithRetainFlag(true);
+                    messageBuilder.WithTopic(topic);
+                    messageBuilder.WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce);
+                    messageBuilder.WithPayload(formatResult.Content);
+                    var message = messageBuilder.Build();
 
                     try
                     {
@@ -219,11 +226,18 @@ namespace MTConnect
                 {
                     var topic = $"{_configuration.TopicPrefix}/{MTConnectMqttDocumentServer.CurrentTopic}/{device.Uuid}";
 
-                    var message = new MqttApplicationMessage();
-                    //message.Retain = true;
-                    message.Topic = topic;
-                    message.QualityOfServiceLevel = (MQTTnet.Protocol.MqttQualityOfServiceLevel)_configuration.QoS;
-                    message.Payload = formatResult.Content;
+                    //var message = new MqttApplicationMessage();
+                    ////message.Retain = true;
+                    //message.Topic = topic;
+                    //message.QualityOfServiceLevel = (MQTTnet.Protocol.MqttQualityOfServiceLevel)_configuration.QoS;
+                    //message.Payload = formatResult.Content;
+
+                    var messageBuilder = new MqttApplicationMessageBuilder();
+                    //messageBuilder.WithRetainFlag(true);
+                    messageBuilder.WithTopic(topic);
+                    messageBuilder.WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce);
+                    messageBuilder.WithPayload(formatResult.Content);
+                    var message = messageBuilder.Build();
 
                     try
                     {
@@ -257,11 +271,18 @@ namespace MTConnect
                 {
                     var topic = $"{_configuration.TopicPrefix}/{MTConnectMqttDocumentServer.SampleTopic}/{device.Uuid}";
 
-                    var message = new MqttApplicationMessage();
-                    //message.Retain = true;
-                    message.Topic = topic;
-                    message.QualityOfServiceLevel = (MQTTnet.Protocol.MqttQualityOfServiceLevel)_configuration.QoS;
-                    message.Payload = formatResult.Content;
+                    //var message = new MqttApplicationMessage();
+                    ////message.Retain = true;
+                    //message.Topic = topic;
+                    //message.QualityOfServiceLevel = (MQTTnet.Protocol.MqttQualityOfServiceLevel)_configuration.QoS;
+                    //message.Payload = formatResult.Content;
+
+                    var messageBuilder = new MqttApplicationMessageBuilder();
+                    //messageBuilder.WithRetainFlag(true);
+                    messageBuilder.WithTopic(topic);
+                    messageBuilder.WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce);
+                    messageBuilder.WithPayload(formatResult.Content);
+                    var message = messageBuilder.Build();
 
                     try
                     {
@@ -297,11 +318,18 @@ namespace MTConnect
                     {
                         var topic = $"{_configuration.TopicPrefix}/{MTConnectMqttDocumentServer.AssetTopic}/{device.Uuid}/{asset.AssetId}";
 
-                        var message = new MqttApplicationMessage();
-                        message.Retain = true;
-                        message.Topic = topic;
-                        message.QualityOfServiceLevel = (MQTTnet.Protocol.MqttQualityOfServiceLevel)_configuration.QoS;
-                        message.Payload = formatResult.Content;
+                        //var message = new MqttApplicationMessage();
+                        //message.Retain = true;
+                        //message.Topic = topic;
+                        //message.QualityOfServiceLevel = (MQTTnet.Protocol.MqttQualityOfServiceLevel)_configuration.QoS;
+                        //message.Payload = formatResult.Content;
+
+                        var messageBuilder = new MqttApplicationMessageBuilder();
+                        messageBuilder.WithRetainFlag(true);
+                        messageBuilder.WithTopic(topic);
+                        messageBuilder.WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce);
+                        messageBuilder.WithPayload(formatResult.Content);
+                        var message = messageBuilder.Build();
 
                         try
                         {

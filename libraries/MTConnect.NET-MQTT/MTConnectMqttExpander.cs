@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MQTTnet;
@@ -11,7 +11,6 @@ using MTConnect.Observations;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
@@ -238,10 +237,11 @@ namespace MTConnect.Clients
                 var formatResponse = EntityFormatter.Format(_configuration.DocumentFormat, device);
                 if (formatResponse.Success && formatResponse.Content != null)
                 {
-                    var message = new MqttApplicationMessage();
-                    message.Topic = topic;
-                    message.Payload = formatResponse.Content;
-                    message.Retain = true;
+                    var messageBuilder = new MqttApplicationMessageBuilder();
+                    messageBuilder.WithTopic(topic);
+                    messageBuilder.WithPayload(formatResponse.Content);
+                    messageBuilder.WithRetainFlag(true);
+                    var message = messageBuilder.Build();
 
                     var result = await _mqttClient.PublishAsync(message);
                     if (result.IsSuccess)

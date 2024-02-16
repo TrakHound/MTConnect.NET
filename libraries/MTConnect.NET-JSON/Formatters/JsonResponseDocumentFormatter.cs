@@ -11,6 +11,7 @@ using MTConnect.Streams.Json;
 using MTConnect.Streams.Output;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text.Json;
 
@@ -29,10 +30,11 @@ namespace MTConnect.Formatters
             var indentOutput = GetFormatterOption<bool>(options, "indentOutput");
             var jsonOptions = indentOutput ? JsonFunctions.IndentOptions : JsonFunctions.DefaultOptions;
 
-            var json = JsonSerializer.SerializeToUtf8Bytes(new JsonDevicesDocument(document), jsonOptions);
-            if (!json.IsNullOrEmpty())
+            var outputStream = new MemoryStream();
+            JsonSerializer.Serialize(outputStream, new JsonDevicesDocument(document), jsonOptions);
+            if (outputStream != null && outputStream.Length > 0)
             {
-                return FormatWriteResult.Successful(json, ContentType);
+                return FormatWriteResult.Successful(outputStream, ContentType);
             }
 
             return FormatWriteResult.Error();
@@ -44,10 +46,11 @@ namespace MTConnect.Formatters
             var indentOutput = GetFormatterOption<bool>(options, "indentOutput");
             var jsonOptions = indentOutput ? JsonFunctions.IndentOptions : JsonFunctions.DefaultOptions;
 
-            var json = JsonSerializer.SerializeToUtf8Bytes(new JsonStreamsDocument(document), jsonOptions);
-            if (!json.IsNullOrEmpty())
+            var outputStream = new MemoryStream();
+            JsonSerializer.Serialize(outputStream, new JsonStreamsDocument(document), jsonOptions);
+            if (outputStream != null && outputStream.Length > 0)
             {
-                return FormatWriteResult.Successful(json, ContentType);
+                return FormatWriteResult.Successful(outputStream, ContentType);
             }
 
             return FormatWriteResult.Error();
@@ -59,10 +62,11 @@ namespace MTConnect.Formatters
             var indentOutput = GetFormatterOption<bool>(options, "indentOutput");
             var jsonOptions = indentOutput ? JsonFunctions.IndentOptions : JsonFunctions.DefaultOptions;
 
-            var json = JsonSerializer.SerializeToUtf8Bytes(new JsonAssetsDocument(document), jsonOptions);
-            if (!json.IsNullOrEmpty())
+            var outputStream = new MemoryStream();
+            JsonSerializer.Serialize(outputStream, new JsonAssetsDocument(document), jsonOptions);
+            if (outputStream != null && outputStream.Length > 0)
             {
-                return FormatWriteResult.Successful(json, ContentType);
+                return FormatWriteResult.Successful(outputStream, ContentType);
             }
 
             return FormatWriteResult.Error();
@@ -74,17 +78,18 @@ namespace MTConnect.Formatters
             var indentOutput = GetFormatterOption<bool>(options, "indentOutput");
             var jsonOptions = indentOutput ? JsonFunctions.IndentOptions : JsonFunctions.DefaultOptions;
 
-            var json = JsonSerializer.SerializeToUtf8Bytes(document, jsonOptions);
-            if (!json.IsNullOrEmpty())
+            var outputStream = new MemoryStream();
+            JsonSerializer.Serialize(outputStream, document, jsonOptions);
+            if (outputStream != null && outputStream.Length > 0)
             {
-                return FormatWriteResult.Successful(json, ContentType);
+                return FormatWriteResult.Successful(outputStream, ContentType);
             }
 
             return FormatWriteResult.Error();
         }
 
 
-        public FormatReadResult<IDevicesResponseDocument> CreateDevicesResponseDocument(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatReadResult<IDevicesResponseDocument> CreateDevicesResponseDocument(Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read Document
             var document = JsonSerializer.Deserialize<JsonDevicesDocument>(content);
@@ -93,7 +98,7 @@ namespace MTConnect.Formatters
             return new FormatReadResult<IDevicesResponseDocument>(document.ToDocument(), success);
         }
 
-        public FormatReadResult<IStreamsResponseDocument> CreateStreamsResponseDocument(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatReadResult<IStreamsResponseDocument> CreateStreamsResponseDocument(Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read Document
             var document = JsonSerializer.Deserialize<JsonStreamsDocument>(content);
@@ -102,7 +107,7 @@ namespace MTConnect.Formatters
             return new FormatReadResult<IStreamsResponseDocument>(document.ToStreamsDocument(), success);
         }
 
-        public FormatReadResult<IAssetsResponseDocument> CreateAssetsResponseDocument(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatReadResult<IAssetsResponseDocument> CreateAssetsResponseDocument(Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read Document
             var document = JsonSerializer.Deserialize<AssetsResponseDocument>(content);
@@ -111,7 +116,7 @@ namespace MTConnect.Formatters
             return new FormatReadResult<IAssetsResponseDocument>(document, success);
         }
 
-        public FormatReadResult<IErrorResponseDocument> CreateErrorResponseDocument(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatReadResult<IErrorResponseDocument> CreateErrorResponseDocument(Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read Document
             var document = JsonSerializer.Deserialize<ErrorResponseDocument>(content);

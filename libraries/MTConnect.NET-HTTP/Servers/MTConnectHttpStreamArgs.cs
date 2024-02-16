@@ -1,5 +1,7 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
+
+using System.IO;
 
 namespace MTConnect.Servers.Http
 {
@@ -7,12 +9,12 @@ namespace MTConnect.Servers.Http
     {
         public string StreamId { get; set; }
 
-        public byte[] Message { get; set; }
+        public Stream Message { get; set; }
 
         public double ResponseDuration { get; set; }
 
 
-        public MTConnectHttpStreamArgs(string streamId, byte[] message, double responseDuration)
+        public MTConnectHttpStreamArgs(string streamId, Stream message, double responseDuration)
         {
             StreamId = streamId;
             Message = message;

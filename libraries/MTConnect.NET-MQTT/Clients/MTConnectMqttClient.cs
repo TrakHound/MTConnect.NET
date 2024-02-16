@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MQTTnet;
@@ -431,7 +431,7 @@ namespace MTConnect.Clients
 
         private void ProcessProbeMessage(MqttApplicationMessage message)
         {
-            var result = EntityFormatter.CreateDevice(_documentFormat, message.Payload);
+            var result = EntityFormatter.CreateDevice(_documentFormat, new MemoryStream(message.Payload));
             if (result.Success)
             {
                 var device = result.Content;
@@ -453,37 +453,29 @@ namespace MTConnect.Clients
         {
             if (!message.Retain)
             {
-                var result = ResponseDocumentFormatter.CreateStreamsResponseDocument(_documentFormat, message.Payload);
+                var result = ResponseDocumentFormatter.CreateStreamsResponseDocument(_documentFormat, new MemoryStream(message.Payload));
                 if (result.Success)
                 {
                     ProcessCurrentDocument(result.Content);
                 }
             }
-            //else
-            //{
-            //    Console.WriteLine("STALE CURRENT!!!");
-            //}
         }
 
         private void ProcessSampleMessage(MqttApplicationMessage message)
         {
             if (!message.Retain)
             {
-                var result = ResponseDocumentFormatter.CreateStreamsResponseDocument(_documentFormat, message.Payload);
+                var result = ResponseDocumentFormatter.CreateStreamsResponseDocument(_documentFormat, new MemoryStream(message.Payload));
                 if (result.Success)
                 {
                     ProcessSampleDocument(result.Content);
                 }
             }
-            //else
-            //{
-            //    Console.WriteLine("STALE SAMPLE!!!");
-            //}
         }
 
         private void ProcessAssetMessage(MqttApplicationMessage message)
         {
-            var result = ResponseDocumentFormatter.CreateAssetsResponseDocument(_documentFormat, message.Payload);
+            var result = ResponseDocumentFormatter.CreateAssetsResponseDocument(_documentFormat, new MemoryStream(message.Payload));
             if (result.Success)
             {
                 ProcessAssetsDocument(result.Content);
@@ -622,8 +614,7 @@ namespace MTConnect.Clients
                                     }
                                 }
 
-                                //// Save the most recent Sequence that was read
-                                //_lastSequence = observations.Max(o => o.Sequence);
+                                // Save the most recent Sequence that was read
                                 var maxSequence = observations.Max(o => o.Sequence);
 
                                 // Save the most recent Sequence that was read

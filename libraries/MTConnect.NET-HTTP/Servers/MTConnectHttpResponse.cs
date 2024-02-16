@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Assets;
@@ -7,6 +7,7 @@ using MTConnect.Errors;
 using MTConnect.Formatters;
 using MTConnect.Streams.Output;
 using System.Collections.Generic;
+using System.IO;
 
 namespace MTConnect.Servers.Http
 {
@@ -14,7 +15,7 @@ namespace MTConnect.Servers.Http
     {
         public bool Success { get; set; }
 
-        public byte[] Content { get; set; }
+        public Stream Content { get; set; }
 
         public string ContentType { get; set; }
 

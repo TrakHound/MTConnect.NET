@@ -35,7 +35,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Update="agent.config.default.yaml">
+		<None Update="agent.config.yaml">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
 		<None Update="devices\device-mazak.xml">

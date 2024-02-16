@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using System.IO;
@@ -24,51 +24,51 @@ namespace MTConnect.Clients
             return null;
         }
 
-        public static byte[] HandleContentEncoding(string contentEncoding, byte[] bytes)
+        public static Stream HandleContentEncoding(string contentEncoding, Stream inputStream)
         {
-            if (bytes != null && bytes.Length > 0)
+            if (inputStream != null && inputStream.Length > 0)
             {
+                MemoryStream outputStream;
+                if (inputStream.CanSeek && inputStream.Position > 0) inputStream.Seek(0, SeekOrigin.Begin);
+
                 try
                 {
                     switch (contentEncoding)
                     {
                         case Http.HttpContentEncodings.Gzip:
 
-                            using (var inputStream = new MemoryStream(bytes))
-                            using (var outputStream = new MemoryStream())
                             using (var encodingStream = new GZipStream(inputStream, CompressionMode.Decompress, true))
                             {
+                                outputStream = new MemoryStream();
                                 encodingStream.CopyTo(outputStream);
-                                return outputStream.ToArray();
+                                return outputStream;
                             }
 
 #if NET5_0_OR_GREATER
                         case Http.HttpContentEncodings.Brotli:
 
-                            using (var inputStream = new MemoryStream(bytes))
-                            using (var outputStream = new MemoryStream())
                             using (var encodingStream = new BrotliStream(inputStream, CompressionMode.Decompress, true))
                             {
+                                outputStream = new MemoryStream();
                                 encodingStream.CopyTo(outputStream);
-                                return outputStream.ToArray();
+                                return outputStream;
                             }
 #endif
 
                         case Http.HttpContentEncodings.Deflate:
 
-                            using (var inputStream = new MemoryStream(bytes))
-                            using (var outputStream = new MemoryStream())
                             using (var encodingStream = new DeflateStream(inputStream, CompressionMode.Decompress, true))
                             {
+                                outputStream = new MemoryStream();
                                 encodingStream.CopyTo(outputStream);
-                                return outputStream.ToArray();
+                                return outputStream;
                             }
                     }
                 }
                 catch { }
             }
 
-            return bytes;
+            return inputStream;
         }
     }
 }

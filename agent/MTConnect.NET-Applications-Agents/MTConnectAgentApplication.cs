@@ -21,10 +21,10 @@ using System.Threading;
 
 namespace MTConnect.Applications
 {
-	/// <summary>
-	/// An MTConnect Agent Application base class supporting Command line arguments, Device management, Buffer management, Logging, Windows Service, and Configuration File management
-	/// </summary>
-	public class MTConnectAgentApplication : IMTConnectAgentApplication
+    /// <summary>
+    /// An MTConnect Agent Application base class supporting Command line arguments, Device management, Buffer management, Logging, Windows Service, and Configuration File management
+    /// </summary>
+    public class MTConnectAgentApplication : IMTConnectAgentApplication
     {
         private const string DefaultServiceName = "MTConnect.NET-Agent";
         private const string DefaultServiceDisplayName = "MTConnect.NET Agent";
@@ -47,6 +47,7 @@ namespace MTConnect.Applications
         private MTConnectAssetFileBuffer _assetBuffer;
         private MTConnectAgentModules _modules;
         private MTConnectAgentProcessors _processors;
+        private IAgentApplicationConfiguration _initialAgentConfiguration;
         protected IAgentConfigurationFileWatcher _agentConfigurationWatcher;
         private System.Timers.Timer _metricsTimer;
         private bool _started = false;
@@ -65,11 +66,12 @@ namespace MTConnect.Applications
         public event EventHandler<AgentConfiguration> OnRestart;
 
 
-        public MTConnectAgentApplication()
+        public MTConnectAgentApplication(IAgentApplicationConfiguration agentConfiguration = null)
         {
             ServiceName = DefaultServiceName;
             ServiceDisplayName = DefaultServiceDisplayName;
             ServiceDescription = DefaultServiceDescription;
+            _initialAgentConfiguration = agentConfiguration;
         }
 
 
@@ -103,6 +105,18 @@ namespace MTConnect.Applications
             OnCommandLineArgumentsRead(args);
 
 
+            // Copy Default NLog Configuration File
+            string logConfigPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "NLog.config");
+            string defaultLogConfigPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "NLog.default.config");
+            if (!File.Exists(logConfigPath) && File.Exists(defaultLogConfigPath))
+            {
+                File.Copy(defaultLogConfigPath, logConfigPath);
+
+                LogManager.Configuration = LogManager.Configuration.Reload();
+                LogManager.ReconfigExistingLoggers();
+            }
+
+
             // Convert Json Configuration File to YAML
             string jsonConfigPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AgentConfiguration.JsonFilename);
             if (File.Exists(jsonConfigPath))
@@ -113,18 +127,21 @@ namespace MTConnect.Applications
 
             // Copy Default Configuration File
             string yamlConfigPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AgentConfiguration.YamlFilename);
-            string defaultPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AgentConfiguration.DefaultYamlFilename);
-            if (!File.Exists(yamlConfigPath) && !File.Exists(jsonConfigPath) && File.Exists(defaultPath))
+            string defaultConfigPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AgentConfiguration.DefaultYamlFilename);
+            if (!File.Exists(yamlConfigPath) && !File.Exists(jsonConfigPath) && File.Exists(defaultConfigPath))
             {
-                File.Copy(defaultPath, yamlConfigPath);
+                File.Copy(defaultConfigPath, yamlConfigPath);
             }
 
             // Read the Agent Configuation File
-            var configuration = OnConfigurationFileRead(configFile);
+            var configuration = _initialAgentConfiguration;
+            if (configuration == null)
+            {
+                configuration = OnConfigurationFileRead(configFile);
+                if (configuration != null) _applicationLogger.Info($"Configuration File Read Successfully from: {configuration.Path}");
+            }
             if (configuration != null)
             {
-                _applicationLogger.Info($"Configuration File Read Successfully from: {configuration.Path}");
-
                 // Set Service Name
                 if (!string.IsNullOrEmpty(configuration.ServiceName)) serviceDisplayName = configuration.ServiceName;
 
@@ -395,37 +412,41 @@ namespace MTConnect.Applications
                 _modules.StartBeforeLoad(initializeDataItems);
 
                 // Read Device Configuration Files
+                IEnumerable<DeviceConfiguration> deviceConfigurations = null;
                 var devicesPath = configuration.Devices;
-                //if (string.IsNullOrEmpty(devicesPath)) devicesPath = "devices";
-                var devices = DeviceConfiguration.FromFiles(devicesPath, DocumentFormat.XML);
-                if (!devices.IsNullOrEmpty())
+                if (!string.IsNullOrEmpty(devicesPath))
                 {
-                    // Add Device(s) to Agent
-                    foreach (var device in devices)
+                    deviceConfigurations = DeviceConfiguration.FromFiles(devicesPath, DocumentFormat.XML);
+                    if (!deviceConfigurations.IsNullOrEmpty())
                     {
-                        _agentLogger.Info($"Device ({device.Name}) Read From File : {device.Path}");
-
-                        _mtconnectAgent.AddDevice(device, initializeDataItems);
-                    }
-
-                    if (configuration.MonitorConfigurationFiles)
-                    {
-                        // Set Device Configuration File Watcher
-                        var paths = devices.Select(o => o.Path).Distinct();
-                        foreach (var path in paths)
+                        // Add Device(s) to Agent
+                        foreach (var device in deviceConfigurations)
                         {
-                            // Create a Device Configuration File Watcher
-                            var deviceConfigurationWatcher = new DeviceConfigurationFileWatcher(path, configuration.ConfigurationFileRestartInterval * 1000);
-                            deviceConfigurationWatcher.ConfigurationUpdated += DeviceConfigurationFileUpdated;
-                            deviceConfigurationWatcher.ErrorReceived += DeviceConfigurationFileError;
-                            _deviceConfigurationWatchers.Add(deviceConfigurationWatcher);
+                            _agentLogger.Info($"Device ({device.Name}) Read From File : {device.Path}");
+
+                            _mtconnectAgent.AddDevice(device, initializeDataItems);
+                        }
+
+                        if (configuration.MonitorConfigurationFiles)
+                        {
+                            // Set Device Configuration File Watcher
+                            var paths = deviceConfigurations.Select(o => o.Path).Distinct();
+                            foreach (var path in paths)
+                            {
+                                // Create a Device Configuration File Watcher
+                                var deviceConfigurationWatcher = new DeviceConfigurationFileWatcher(path, configuration.ConfigurationFileRestartInterval * 1000);
+                                deviceConfigurationWatcher.ConfigurationUpdated += DeviceConfigurationFileUpdated;
+                                deviceConfigurationWatcher.ErrorReceived += DeviceConfigurationFileError;
+                                _deviceConfigurationWatchers.Add(deviceConfigurationWatcher);
+                            }
                         }
                     }
+                    else
+                    {
+                        _agentLogger.Warn($"No Devices Found : Reading from : {configuration.Devices}");
+                    }
                 }
-                else
-                {
-                    _agentLogger.Warn($"No Devices Found : Reading from : {configuration.Devices}");
-                }
+                
 
                 // Initilialize Processors
                 _processors = new MTConnectAgentProcessors(configuration);
@@ -433,12 +454,6 @@ namespace MTConnect.Applications
                 _processors.LogReceived += ProcessorLogReceived;
                 _processors.Load();
                 _mtconnectAgent.ProcessObservationFunction = _processors.Process;
-
-
-
-
-                //OnStartAgentBeforeLoad(devices, initializeDataItems);
-                //_modules.StartBeforeLoad();
 
 
                 // Initialize Agent Current Observations/Conditions
@@ -450,7 +465,7 @@ namespace MTConnect.Applications
                 }
 
                 _modules.StartAfterLoad(initializeDataItems);
-                OnStartAgentAfterLoad(devices, initializeDataItems);
+                OnStartAgentAfterLoad(deviceConfigurations, initializeDataItems);
 
                 // Save Indexes for Buffer
                 if (configuration.Durable)

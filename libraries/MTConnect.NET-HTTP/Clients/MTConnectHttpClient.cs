@@ -21,6 +21,8 @@ namespace MTConnect.Clients
     public class MTConnectHttpClient : IMTConnectClient, IMTConnectEntityClient
     {
         private readonly Dictionary<string, IDevice> _devices = new Dictionary<string, IDevice>();
+        private readonly Dictionary<string, IComponent> _cachedComponents = new Dictionary<string, IComponent>();
+        private readonly Dictionary<string, IDataItem> _cachedDataItems = new Dictionary<string, IDataItem>();
         private readonly object _lock = new object();
 
         private CancellationTokenSource _stop;
@@ -622,7 +624,6 @@ namespace MTConnect.Clients
         private async Task Worker()
         {
             var initialRequest = true;
-            //_lastInstanceId = 0;
 
             ClientStarted?.Invoke(this, new EventArgs());
 
@@ -650,6 +651,13 @@ namespace MTConnect.Clients
 
                                 AssetsReceived?.Invoke(this, assets);
                             }
+                        }
+
+                        // Clear Cached DataItems and Components
+                        lock (_lock)
+                        {
+                            _cachedComponents.Clear();
+                            _cachedDataItems.Clear();
                         }
 
                         // Add to cached list
@@ -1106,13 +1114,36 @@ namespace MTConnect.Clients
         {
             if (!string.IsNullOrEmpty(deviceUuid) && !string.IsNullOrEmpty(componentId))
             {
+                var key = $"{deviceUuid}:{componentId}";
+
                 lock (_lock)
                 {
-                    _devices.TryGetValue(deviceUuid, out var device);
-                    if (device != null && !device.Components.IsNullOrEmpty())
+                    _cachedComponents.TryGetValue(key, out var component);
+                    if (component == null)
                     {
-                        return device.Components.FirstOrDefault(o => o.Id == componentId);
+                        _devices.TryGetValue(deviceUuid, out var device);
+                        if (device != null)
+                        {
+                            if (device.Id == componentId)
+                            {
+                                _cachedComponents.Add(key, device);
+                            }
+                            else
+                            {
+                                var components = device.GetComponents();
+                                if (!components.IsNullOrEmpty())
+                                {
+                                    component = components.FirstOrDefault(o => o.Id == componentId);
+                                    if (component != null)
+                                    {
+                                        _cachedComponents.Add(key, component);
+                                    }
+                                }
+                            }
+                        }
                     }
+
+                    return component;
                 }
             }
 
@@ -1123,17 +1154,29 @@ namespace MTConnect.Clients
         {
             if (!string.IsNullOrEmpty(deviceUuid) && !string.IsNullOrEmpty(dataItemId))
             {
+                var key = $"{deviceUuid}:{dataItemId}";
+
                 lock (_lock)
                 {
-                    _devices.TryGetValue(deviceUuid, out var device);
-                    if (device != null)
+                    _cachedDataItems.TryGetValue(key, out var dataItem);
+                    if (dataItem == null)
                     {
-                        var dataItems = device.GetDataItems();
-                        if (!dataItems.IsNullOrEmpty())
+                        _devices.TryGetValue(deviceUuid, out var device);
+                        if (device != null)
                         {
-                            return dataItems.FirstOrDefault(o => o.Id == dataItemId);
+                            var dataItems = device.GetDataItems();
+                            if (!dataItems.IsNullOrEmpty())
+                            {
+                                dataItem = dataItems.FirstOrDefault(o => o.Id == dataItemId);
+                                if (dataItem != null)
+                                {
+                                    _cachedDataItems.Add(key, dataItem);
+                                }
+                            }
                         }
                     }
+
+                    return dataItem;
                 }
             }
 

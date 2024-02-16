@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+﻿// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using Ceen;
@@ -127,85 +127,86 @@ namespace MTConnect.Servers.Http
                 try
                 {
                     httpResponse.ContentType = contentType;
-                    httpResponse.StatusCode = (Ceen.HttpStatusCode)statusCode;
+                    httpResponse.StatusCode = statusCode;
 
-                    var bytes = Encoding.UTF8.GetBytes(content);
-                    await WriteToStream(bytes, httpResponse, acceptEncodings);
+                    var contentStream = new MemoryStream(Encoding.UTF8.GetBytes(content));
+                    await WriteToStream(contentStream, httpResponse, acceptEncodings);
                 }
                 catch { }
             }
         }
 
-        protected async Task WriteToStream(byte[] bytes, IHttpResponse httpResponse, IEnumerable<string> acceptEncodings = null)
+        protected async Task WriteToStream(Stream inputStream, IHttpResponse httpResponse, IEnumerable<string> acceptEncodings = null)
         {
-            if (httpResponse != null && !bytes.IsNullOrEmpty())
+            if (httpResponse != null && inputStream != null && inputStream.Length > 0)
             {
+                if (inputStream.Position > 0) inputStream.Seek(0, SeekOrigin.Begin);
+                MemoryStream outputStream;
+
                 try
                 {
                     // Gzip
                     if (!_serverConfiguration.ResponseCompression.IsNullOrEmpty() &&
-						_serverConfiguration.ResponseCompression.Contains(HttpResponseCompression.Gzip) &&
+                        _serverConfiguration.ResponseCompression.Contains(HttpResponseCompression.Gzip) &&
                         !acceptEncodings.IsNullOrEmpty() && acceptEncodings.Contains("gzip"))
                     {
                         httpResponse.AddHeader("Content-Encoding", "gzip");
 
-                        using (var ms = new MemoryStream())
+                        outputStream = new MemoryStream();
+                        using (var zip = new GZipStream(outputStream, CompressionMode.Compress, true))
                         {
-                            using (var zip = new GZipStream(ms, CompressionMode.Compress, true))
-                            {
-                                zip.Write(bytes, 0, bytes.Length);
-                            }
-                            bytes = ms.ToArray();
+                            inputStream.CopyTo(zip);
                         }
+                        outputStream.Seek(0, SeekOrigin.Begin);
+                        await httpResponse.WriteAllAsync(outputStream);
                     }
 
 #if NET5_0_OR_GREATER
                     else if (!_serverConfiguration.ResponseCompression.IsNullOrEmpty() &&
-						_serverConfiguration.ResponseCompression.Contains(HttpResponseCompression.Br) &&
+                        _serverConfiguration.ResponseCompression.Contains(HttpResponseCompression.Br) &&
                         !acceptEncodings.IsNullOrEmpty() && acceptEncodings.Contains("br"))
                     {
                         httpResponse.AddHeader("Content-Encoding", "br");
 
-                        using (var ms = new MemoryStream())
+                        outputStream = new MemoryStream();
+                        using (var zip = new BrotliStream(inputStream, CompressionMode.Compress, true))
                         {
-                            using (var zip = new BrotliStream(ms, CompressionMode.Compress, true))
-                            {
-                                zip.Write(bytes, 0, bytes.Length);
-                            }
-                            bytes = ms.ToArray();
+                            inputStream.CopyTo(zip);
                         }
+                        outputStream.Seek(0, SeekOrigin.Begin);
+                        await httpResponse.WriteAllAsync(outputStream);
                     }
 #endif
 
                     else if (!_serverConfiguration.ResponseCompression.IsNullOrEmpty() &&
-						_serverConfiguration.ResponseCompression.Contains(HttpResponseCompression.Deflate) &&
+                        _serverConfiguration.ResponseCompression.Contains(HttpResponseCompression.Deflate) &&
                         !acceptEncodings.IsNullOrEmpty() && acceptEncodings.Contains("deflate"))
                     {
                         httpResponse.AddHeader("Content-Encoding", "deflate");
 
-                        using (var ms = new MemoryStream())
+                        outputStream = new MemoryStream();
+                        using (var zip = new DeflateStream(inputStream, CompressionMode.Compress, true))
                         {
-                            using (var zip = new DeflateStream(ms, CompressionMode.Compress, true))
-                            {
-                                zip.Write(bytes, 0, bytes.Length);
-                            }
-                            bytes = ms.ToArray();
+                            inputStream.CopyTo(zip);
                         }
+                        outputStream.Seek(0, SeekOrigin.Begin);
+                        await httpResponse.WriteAllAsync(outputStream);
                     }
 
-
-                    await httpResponse.WriteAllAsync(bytes);
+                    else
+                    {
+                        await httpResponse.WriteAllAsync(inputStream);
+                    }
                 }
                 catch { }
             }
         }
-
 
         protected static async Task WriteToResponseStream(Stream responseStream, MTConnectHttpStreamArgs args)
         {
             if (responseStream != null)
             {
-                await responseStream.WriteAsync(args.Message, 0, args.Message.Length);
+                await args.Message.CopyToAsync(responseStream);
             }
         }
 
@@ -250,7 +251,6 @@ namespace MTConnect.Servers.Http
             {
                 var output = new List<string>();
 
-                // Gzip
                 if (_serverConfiguration.ResponseCompression.Contains(HttpResponseCompression.Gzip) &&
                     !acceptEncodings.IsNullOrEmpty() && acceptEncodings.Contains(HttpContentEncodings.Gzip))
                 {

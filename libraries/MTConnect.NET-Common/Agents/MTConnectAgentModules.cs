@@ -66,19 +66,26 @@ namespace MTConnect.Agents
                         {
                             if (_configuration.IsModuleConfigured(configurationTypeId))
                             {
-								try
-								{
-									// Create new Instance of the Controller and add to cached dictionary
-									var module = (IMTConnectAgentModule)Activator.CreateInstance(moduleType, new object[] { _mtconnectAgent, null });
-									module.LogReceived += HandleModuleLogReceived;
+                                var moduleCount = _configuration.GetModuleCount(configurationTypeId);
+                                if (moduleCount > 0)
+                                {
+                                    for (int i = 0; i < moduleCount; i++)
+                                    {
+                                        try
+                                        {
+                                            // Create new Instance of the Controller and add to cached dictionary
+                                            var module = (IMTConnectAgentModule)Activator.CreateInstance(moduleType, new object[] { _mtconnectAgent, null });
+                                            module.LogReceived += HandleModuleLogReceived;
 
-									var moduleId = Guid.NewGuid().ToString();
+                                            var moduleId = Guid.NewGuid().ToString();
 
-									if (ModuleLoaded != null) ModuleLoaded.Invoke(this, module);
+                                            if (ModuleLoaded != null) ModuleLoaded.Invoke(this, module);
 
-									lock (_lock) _modules.Add(moduleId, module);
-								}
-								catch { }
+                                            lock (_lock) _modules.Add(moduleId, module);
+                                        }
+                                        catch { }
+                                    }
+                                }
 							}
                         }
                     }

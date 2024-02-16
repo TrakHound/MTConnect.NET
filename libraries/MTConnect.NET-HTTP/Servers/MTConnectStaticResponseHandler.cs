@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+﻿// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using Ceen;
@@ -15,7 +15,7 @@ namespace MTConnect.Servers
 {
     class MTConnectStaticResponseHandler : MTConnectHttpResponseHandler
     {
-        public Func<MTConnectStaticFileRequest, byte[]> ProcessFunction { get; set; }
+        public Func<MTConnectStaticFileRequest, Stream> ProcessFunction { get; set; }
 
 
         public MTConnectStaticResponseHandler(IHttpServerConfiguration serverConfiguration, IMTConnectAgentBroker mtconnectAgent) : base(serverConfiguration, mtconnectAgent) { }
@@ -34,7 +34,7 @@ namespace MTConnect.Servers
                 {
                     var statusCode = 404;
                     var contentType = "text/plain";
-                    byte[] fileContents = null;
+                    Stream fileContents = null;
                     var requestedPath = httpRequest.Path.Trim('/');
                     var localPath = httpRequest.Path.TrimEnd('/');
 
@@ -109,7 +109,7 @@ namespace MTConnect.Servers
                             // If nothing found in the overridden method, then read directly from filePath
                             if (fileContents == null)
                             {
-                                fileContents = File.ReadAllBytes(filePath);
+                                fileContents = File.OpenRead(filePath);
                             }
 
                             statusCode = fileContents != null ? 200 : 500;

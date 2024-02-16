@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using System;
@@ -11,7 +11,7 @@ namespace MTConnect
 {
     internal static class XmlValidator
     {
-        public static XmlValidationResponse Validate(byte[] documentXml, IEnumerable<string> schemaXmls = null)
+        public static XmlValidationResponse Validate(Stream documentXml, IEnumerable<string> schemaXmls = null)
         {
             var success = false;
             var errors = new List<string>();
@@ -63,8 +63,7 @@ namespace MTConnect
                         };
 
                         // Set XML Reader Settings
-                        using (var reader = new MemoryStream(documentXml))
-                        using (var xmlReader = XmlReader.Create(reader, readerSettings))
+                        using (var xmlReader = XmlReader.Create(documentXml, readerSettings))
                         {
                             var document = new XmlDocument();
                             document.Load(xmlReader);

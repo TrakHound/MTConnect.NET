@@ -1,9 +1,9 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 namespace MTConnect.Configurations
 {
-    public class ModuleConfiguration : IMTConnectMqttServerConfiguration
+    public class MqttBrokerModuleConfiguration : IMTConnectMqttServerConfiguration
     {
         /// <summary>
         /// The MQTT broker hostname to bind to
@@ -86,7 +86,7 @@ namespace MTConnect.Configurations
         public int SampleInterval { get; set; }
 
 
-        public ModuleConfiguration()
+        public MqttBrokerModuleConfiguration()
         {
             Port = 1883;
             InitialDelay = 500;

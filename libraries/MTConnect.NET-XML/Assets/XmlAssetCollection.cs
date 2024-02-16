@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Assets.Xml.CuttingTools;
@@ -9,7 +9,6 @@ using System.Xml.Serialization;
 
 namespace MTConnect.Assets.Xml
 {
-    //public class XmlAssetCollection : IXmlSerializable
     public class XmlAssetCollection
     {
         private readonly bool _indentOutput = false;
@@ -18,9 +17,6 @@ namespace MTConnect.Assets.Xml
         [XmlArray("Assets")]
         [XmlArrayItem(typeof(XmlCuttingToolAsset), ElementName = "CuttingTool")]
         public List<IAsset> Assets { get; set; }
-
-        //[XmlIgnore]
-        //public List<IAsset> Assets { get; set; }
 
 
         public XmlAssetCollection() { Assets = new List<IAsset>(); }

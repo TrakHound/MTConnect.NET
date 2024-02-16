@@ -1,9 +1,6 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-using MTConnect.Assets.CuttingTools;
-using MTConnect.Devices;
-using MTConnect.Devices.Configurations;
 using MTConnect.Extensions;
 using System;
 using System.Collections.Generic;
@@ -54,7 +51,6 @@ namespace MTConnect.Assets.Xml
                 if (xmlType == null) xmlType = typeof(XmlUnknownAsset);
 
                 return FromXml(xmlType, xmlBytes);
-                //return FromXml(asset.GetType(), xmlBytes);
             }
 
             return default;
@@ -140,7 +136,7 @@ namespace MTConnect.Assets.Xml
         }
 
 
-        public static byte[] ToXml(IAsset asset, bool indent = false)
+        public static Stream ToXml(IAsset asset, bool indent = false)
         {
             try
             {
@@ -171,10 +167,7 @@ namespace MTConnect.Assets.Xml
 
                         xmlWriter.Flush();
 
-                        //var bytes = stream.ToArray();
-                        //return Encoding.UTF8.GetString(bytes);
-
-                        return stream.ToArray();
+                        return stream;
                     }
                 }
             }
@@ -182,33 +175,6 @@ namespace MTConnect.Assets.Xml
 
             return null;
         }
-
-
-        //public static IAsset Create(string type)
-        //{
-        //    if (!string.IsNullOrEmpty(type))
-        //    {
-        //        if (_types == null) _types = GetAllTypes();
-
-        //        if (!_types.IsNullOrEmpty())
-        //        {
-        //            if (_types.TryGetValue(type, out Type t))
-        //            {
-        //                var constructor = t.GetConstructor(System.Type.EmptyTypes);
-        //                if (constructor != null)
-        //                {
-        //                    try
-        //                    {
-        //                        return (IAsset)Activator.CreateInstance(t);
-        //                    }
-        //                    catch { }
-        //                }
-        //            }
-        //        }
-        //    }
-
-        //    return null;
-        //}
 
         public static Type GetAssetType(string type)
         {

@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Assets;
@@ -88,7 +88,7 @@ namespace MTConnect.Shdr
                         var xmlBytes = XmlAsset.ToXml(asset.Asset);
                         if (xmlBytes != null)
                         {
-                            asset.Xml = Encoding.UTF8.GetString(xmlBytes);
+                            //asset.Xml = Encoding.UTF8.GetString(xmlBytes);
                         }
                     }
 
@@ -139,7 +139,7 @@ namespace MTConnect.Shdr
                 var xmlBytes = XmlAsset.ToXml(asset);
                 if (xmlBytes != null)
                 {
-                    Xml = Encoding.UTF8.GetString(xmlBytes);
+                    //Xml = Encoding.UTF8.GetString(xmlBytes);
                 }
             }
         }

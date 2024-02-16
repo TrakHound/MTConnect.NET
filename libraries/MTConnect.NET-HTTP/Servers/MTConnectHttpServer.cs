@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using Ceen;
@@ -7,6 +7,7 @@ using MTConnect.Agents;
 using MTConnect.Configurations;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -97,7 +98,7 @@ namespace MTConnect.Servers.Http
         /// <summary>
         /// Method run on a Static File request
         /// </summary>
-        protected virtual byte[] OnProcessStatic(MTConnectStaticFileRequest request) { return null; }
+        protected virtual Stream OnProcessStatic(MTConnectStaticFileRequest request) { return null; }
 
         /// <summary>
         /// Method run when creating the Format Options after an MTConnect REST response is processed and before it is returned

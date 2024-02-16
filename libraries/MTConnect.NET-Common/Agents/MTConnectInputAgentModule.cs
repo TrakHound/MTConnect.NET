@@ -461,7 +461,7 @@ namespace MTConnect.Agents
 
         public void AddObservation(IObservationInput observation)
         {
-            Agent.AddObservation(observation);
+            Agent.AddObservation(_device.Uuid, observation);
         }
 
         

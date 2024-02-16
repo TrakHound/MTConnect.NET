@@ -64,18 +64,18 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\..\libraries\MTConnect.NET-Common\MTConnect.NET-Common.csproj" />
-	  <ProjectReference Include="..\..\libraries\MTConnect.NET-JSON-cppagent\MTConnect.NET-JSON-cppagent.csproj" />
-	  <ProjectReference Include="..\..\libraries\MTConnect.NET-JSON\MTConnect.NET-JSON.csproj" />
-	  <ProjectReference Include="..\..\libraries\MTConnect.NET-Services\MTConnect.NET-Services.csproj" />
-	  <ProjectReference Include="..\..\libraries\MTConnect.NET-XML\MTConnect.NET-XML.csproj" />
-	  <ProjectReference Include="..\Modules\MTConnect.NET-AgentModule-HttpAdapter\MTConnect.NET-AgentModule-HttpAdapter.csproj" />
-	  <ProjectReference Include="..\Modules\MTConnect.NET-AgentModule-HttpServer\MTConnect.NET-AgentModule-HttpServer.csproj" />
-	  <ProjectReference Include="..\Modules\MTConnect.NET-AgentModule-MqttAdapter\MTConnect.NET-AgentModule-MqttAdapter.csproj" />
-	  <ProjectReference Include="..\Modules\MTConnect.NET-AgentModule-MqttBroker\MTConnect.NET-AgentModule-MqttBroker.csproj" />
-	  <ProjectReference Include="..\Modules\MTConnect.NET-AgentModule-MqttRelay\MTConnect.NET-AgentModule-MqttRelay.csproj" />
-	  <ProjectReference Include="..\Modules\MTConnect.NET-AgentModule-ShdrAdapter\MTConnect.NET-AgentModule-ShdrAdapter.csproj" />
-	  <ProjectReference Include="..\Processors\MTConnect.NET-AgentProcessor-Python\MTConnect.NET-AgentProcessor-Python.csproj" />
+		<ProjectReference Include="..\..\libraries\MTConnect.NET-Common\MTConnect.NET-Common.csproj" />
+		<ProjectReference Include="..\..\libraries\MTConnect.NET-JSON-cppagent\MTConnect.NET-JSON-cppagent.csproj" />
+		<ProjectReference Include="..\..\libraries\MTConnect.NET-JSON\MTConnect.NET-JSON.csproj" />
+		<ProjectReference Include="..\..\libraries\MTConnect.NET-Services\MTConnect.NET-Services.csproj" />
+		<ProjectReference Include="..\..\libraries\MTConnect.NET-XML\MTConnect.NET-XML.csproj" />
+		<ProjectReference Include="..\Modules\MTConnect.NET-AgentModule-HttpAdapter\MTConnect.NET-AgentModule-HttpAdapter.csproj" />
+		<ProjectReference Include="..\Modules\MTConnect.NET-AgentModule-HttpServer\MTConnect.NET-AgentModule-HttpServer.csproj" />
+		<ProjectReference Include="..\Modules\MTConnect.NET-AgentModule-MqttAdapter\MTConnect.NET-AgentModule-MqttAdapter.csproj" />
+		<ProjectReference Include="..\Modules\MTConnect.NET-AgentModule-MqttBroker\MTConnect.NET-AgentModule-MqttBroker.csproj" />
+		<ProjectReference Include="..\Modules\MTConnect.NET-AgentModule-MqttRelay\MTConnect.NET-AgentModule-MqttRelay.csproj" />
+		<ProjectReference Include="..\Modules\MTConnect.NET-AgentModule-ShdrAdapter\MTConnect.NET-AgentModule-ShdrAdapter.csproj" />
+		<ProjectReference Include="..\Processors\MTConnect.NET-AgentProcessor-Python\MTConnect.NET-AgentProcessor-Python.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -83,16 +83,22 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Include="agent.config.default.yaml">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		<Pack>True</Pack>
-		<PackagePath>\</PackagePath>
-	  </None>
-	  <None Include="NLog.config">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		  <Pack>True</Pack>
-		  <PackagePath>\</PackagePath>
-	  </None>
+		<Content Include="agent.config.default.yaml">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+			<CopyToOutput>true</CopyToOutput>
+			<IncludeInPackage>true</IncludeInPackage>
+			<Pack>True</Pack>
+			<PackagePath>contentFiles\any\any;content</PackagePath>
+			<PackageCopyToOutput>true</PackageCopyToOutput>
+		</Content>
+		<Content Include="NLog.default.config">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+			<CopyToOutput>true</CopyToOutput>
+			<IncludeInPackage>true</IncludeInPackage>
+			<Pack>True</Pack>
+			<PackagePath>contentFiles\any\any;content</PackagePath>
+			<PackageCopyToOutput>true</PackageCopyToOutput>
+		</Content>
 	</ItemGroup>
 
 </Project>

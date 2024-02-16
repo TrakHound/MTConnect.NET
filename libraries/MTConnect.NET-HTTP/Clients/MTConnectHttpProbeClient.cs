@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Devices;
@@ -6,6 +6,7 @@ using MTConnect.Errors;
 using MTConnect.Http;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Sockets;
@@ -324,7 +325,6 @@ namespace MTConnect.Clients
 
                 // Replace 'localhost' with '127.0.0.1' (This is due to a performance issue with .NET Core's System.Net.Http.HttpClient)
                 if (url.Contains("localhost")) url = url.Replace("localhost", "127.0.0.1");
-                //if (url.Contains(Environment.MachineName)) url = url.Replace(Environment.MachineName, "127.0.0.1");
 
                 // Check for http
                 if (!url.StartsWith("http://") && !url.StartsWith("https://")) url = "http://" + url;
@@ -366,8 +366,8 @@ namespace MTConnect.Clients
                 }
                 else if (response.Content != null)
                 {
-                    var documentBytes = response.Content.ReadAsByteArrayAsync().Result;
-                    return ReadDocument(response, documentBytes);
+                    var documentStream = response.Content.ReadAsStreamAsync().Result;
+                    return ReadDocument(response, documentStream);
                 }
             }
 
@@ -385,28 +385,29 @@ namespace MTConnect.Clients
                 else if (response.Content != null)
                 {
 #if NET5_0_OR_GREATER
-                    var documentBytes = await response.Content.ReadAsByteArrayAsync(cancel);
+                    var documentStream = await response.Content.ReadAsStreamAsync(cancel);
 #else
-                    var documentBytes = await response.Content.ReadAsByteArrayAsync();
+                    var documentStream = await response.Content.ReadAsStreamAsync();
 #endif
 
-                    return ReadDocument(response, documentBytes);
+                    return ReadDocument(response, documentStream);
                 }
             }
 
             return null;
         }
 
-        private IDevicesResponseDocument ReadDocument(HttpResponseMessage response, byte[] documentBytes)
+        private IDevicesResponseDocument ReadDocument(HttpResponseMessage response, Stream documentStream)
         {
-            if (documentBytes != null && documentBytes.Length > 0)
+            if (documentStream != null && documentStream.Length > 0)
             {
                 // Handle Compression Encoding
                 var contentEncoding = MTConnectHttpResponse.GetContentHeaderValue(response, HttpHeaders.ContentEncoding);
-                var bytes = MTConnectHttpResponse.HandleContentEncoding(contentEncoding, documentBytes);
+                var stream = MTConnectHttpResponse.HandleContentEncoding(contentEncoding, documentStream);
+                if (stream != null && stream.Position > 0) stream.Seek(0, SeekOrigin.Begin);
 
                 // Process MTConnectDevices Document
-                var document = Formatters.ResponseDocumentFormatter.CreateDevicesResponseDocument(DocumentFormat.ToString(), bytes).Content;
+                var document = Formatters.ResponseDocumentFormatter.CreateDevicesResponseDocument(DocumentFormat.ToString(), stream).Content;
                 if (document != null)
                 {
                     return document;
@@ -414,7 +415,7 @@ namespace MTConnect.Clients
                 else
                 {
                     // Process MTConnectError Document (if MTConnectDevices fails)
-                    var errorDocument = Formatters.ResponseDocumentFormatter.CreateErrorResponseDocument(DocumentFormat.ToString(), bytes).Content;
+                    var errorDocument = Formatters.ResponseDocumentFormatter.CreateErrorResponseDocument(DocumentFormat.ToString(), stream).Content;
                     if (errorDocument != null)
                     {
                         MTConnectError?.Invoke(this, errorDocument);

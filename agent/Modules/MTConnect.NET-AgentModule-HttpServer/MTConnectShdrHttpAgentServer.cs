@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Agents;
@@ -9,6 +9,7 @@ using MTConnect.Formatters;
 using MTConnect.Servers;
 using MTConnect.Shdr;
 using System;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -19,7 +20,7 @@ namespace MTConnect.Modules.Http
     /// </summary>
     public class MTConnectShdrHttpAgentServer : MTConnectHttpAgentServer
     {
-        public MTConnectShdrHttpAgentServer(ModuleConfiguration configuration, IMTConnectAgentBroker mtconnectAgent) : base(configuration, mtconnectAgent) { }
+        public MTConnectShdrHttpAgentServer(HttpServerModuleConfiguration configuration, IMTConnectAgentBroker mtconnectAgent) : base(configuration, mtconnectAgent) { }
 
 
         protected override bool OnObservationInput(MTConnectObservationInputArgs args)
@@ -96,8 +97,8 @@ namespace MTConnect.Modules.Http
         {
             if (!string.IsNullOrEmpty(args.DeviceKey) && !string.IsNullOrEmpty(args.AssetType))
             {
-                //var asset = Assets.Xml.XmlAsset.FromXml(assetType, );
-                var result = EntityFormatter.CreateAsset(args.DocumentFormat, args.AssetType, ReadRequestBody(args.RequestBody));
+                var stream = new MemoryStream(args.RequestBody);
+                var result = EntityFormatter.CreateAsset(args.DocumentFormat, args.AssetType, ReadRequestBody(stream));
                 if (result.Success)
                 {
                     var asset = (Asset)result.Content;
@@ -110,18 +111,41 @@ namespace MTConnect.Modules.Http
             return false;
         }
 
-        private byte[] ReadRequestBody(byte[] bytes)
+        private Stream ReadRequestBody(Stream inputStream)
         {
-            if (bytes != null)
+            if (inputStream != null)
             {
                 try
                 {
-                    return Encoding.Convert(Encoding.ASCII, Encoding.UTF8, bytes);
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        // Probably a more efficient way to do this but this probably won't get called at a high frequency
+
+                        inputStream.CopyTo(memoryStream);
+                        var inputBytes = memoryStream.ToArray();
+                        var outputBytes = Encoding.Convert(Encoding.ASCII, Encoding.UTF8, inputBytes);
+                        return new MemoryStream(outputBytes);
+                    }
+                        
                 }
                 catch { }
             }
 
             return null;
         }
+
+        //private byte[] ReadRequestBody(byte[] bytes)
+        //{
+        //    if (bytes != null)
+        //    {
+        //        try
+        //        {
+        //            return Encoding.Convert(Encoding.ASCII, Encoding.UTF8, bytes);
+        //        }
+        //        catch { }
+        //    }
+
+        //    return null;
+        //}
     }
 }

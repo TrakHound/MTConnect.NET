@@ -1,10 +1,9 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-using MTConnect.Devices;
-using MTConnect.Devices.References;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text.Json.Serialization;
 
 namespace MTConnect.Devices.Json
@@ -127,6 +126,8 @@ namespace MTConnect.Devices.Json
         public string ToString(bool indent = false) => JsonFunctions.Convert(this, indented: indent);
 
         public byte[] ToBytes(bool indent = false) => JsonFunctions.ConvertBytes(this, indented: indent);
+
+        public Stream ToStream(bool indent = false) => JsonFunctions.ConvertStream(this, indented: indent);
 
 
         public Device ToDevice()

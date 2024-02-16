@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MQTTnet;
@@ -672,11 +672,13 @@ namespace MTConnect.Clients
                 // Read Device UUID
                 var deviceUuid = _deviceUuidRegex.Match(message.Topic).Groups[1].Value;
 
+                var stream = new MemoryStream(message.Payload);
+
                 // Deserialize JSON to Device
-                var jsonAsset = JsonSerializer.Deserialize<JsonAsset>(message.Payload);
+                var jsonAsset = JsonSerializer.Deserialize<JsonAsset>(stream);
                 if (jsonAsset != null)
                 {
-                    var response = EntityFormatter.CreateAsset(DocumentFormat.JSON, jsonAsset.Type, message.Payload);
+                    var response = EntityFormatter.CreateAsset(DocumentFormat.JSON, jsonAsset.Type, stream);
                     if (response.Success)
                     {
                         if (AssetReceived != null)

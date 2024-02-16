@@ -1,14 +1,11 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using System.Collections.Generic;
 
 namespace MTConnect.Configurations
 {
-    /// <summary>
-    /// Configuration for an MTConnect Http Agent Module
-    /// </summary>
-    public class ModuleConfiguration : HttpServerConfiguration
+    public class HttpServerModuleConfiguration : HttpServerConfiguration
     {
         public IEnumerable<NamespaceConfiguration> DevicesNamespaces { get; set; }
 

@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+﻿// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using Ceen;
@@ -19,7 +19,7 @@ namespace MTConnect.Modules.Http
         private const string HttpServerLogId = "HTTP-Server";
         private const string ValidationLogId = "Agent-Validation";
 
-        private readonly ModuleConfiguration _configuration;
+        private readonly HttpServerModuleConfiguration _configuration;
         private readonly IMTConnectAgentBroker _mtconnectAgent;
         private MTConnectHttpServer _httpServer;
 
@@ -28,7 +28,7 @@ namespace MTConnect.Modules.Http
             Id = ModuleId;
 
             _mtconnectAgent = mtconnectAgent;
-            _configuration = AgentApplicationConfiguration.GetConfiguration<ModuleConfiguration>(controllerConfiguration);
+            _configuration = AgentApplicationConfiguration.GetConfiguration<HttpServerModuleConfiguration>(controllerConfiguration);
         }
 
 

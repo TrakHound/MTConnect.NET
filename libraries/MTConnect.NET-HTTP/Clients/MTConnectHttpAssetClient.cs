@@ -6,6 +6,7 @@ using MTConnect.Errors;
 using MTConnect.Http;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -343,8 +344,8 @@ namespace MTConnect.Clients
                 }
                 else if (response.Content != null)
                 {
-                    var documentString = response.Content.ReadAsByteArrayAsync().Result;
-                    return ReadDocument(response, documentString);
+                    var documentStream = response.Content.ReadAsStreamAsync().Result;
+                    return ReadDocument(response, documentStream);
                 }
             }
 
@@ -362,12 +363,12 @@ namespace MTConnect.Clients
                 else if (response.Content != null)
                 {
 #if NET5_0_OR_GREATER
-                    var documentString = await response.Content.ReadAsByteArrayAsync(cancel);
+                    var documentStream = await response.Content.ReadAsStreamAsync(cancel);
 #else
-                    var documentString = await response.Content.ReadAsByteArrayAsync();
+                    var documentStream = await response.Content.ReadAsStreamAsync();
 #endif
 
-                    return ReadDocument(response, documentString);
+                    return ReadDocument(response, documentStream);
                 }
             }
 
@@ -375,16 +376,17 @@ namespace MTConnect.Clients
         }
 
 
-        private IAssetsResponseDocument ReadDocument(HttpResponseMessage response, byte[] documentBytes)
+        private IAssetsResponseDocument ReadDocument(HttpResponseMessage response, Stream documentStream)
         {
-            if (documentBytes != null && documentBytes.Length > 0)
+            if (documentStream != null && documentStream.Length > 0)
             {
                 // Handle Compression Encoding
                 var contentEncoding = MTConnectHttpResponse.GetContentHeaderValue(response, HttpHeaders.ContentEncoding);
-                var bytes = MTConnectHttpResponse.HandleContentEncoding(contentEncoding, documentBytes);
+                var stream = MTConnectHttpResponse.HandleContentEncoding(contentEncoding, documentStream);
+                if (stream != null && stream.Position > 0) stream.Seek(0, SeekOrigin.Begin);
 
                 // Process MTConnectAssets Document
-                var document = Formatters.ResponseDocumentFormatter.CreateAssetsResponseDocument(DocumentFormat.ToString(), bytes).Content;
+                var document = Formatters.ResponseDocumentFormatter.CreateAssetsResponseDocument(DocumentFormat.ToString(), stream).Content;
                 if (document != null)
                 {
                     return document;
@@ -392,7 +394,7 @@ namespace MTConnect.Clients
                 else
                 {
                     // Process MTConnectError Document (if MTConnectAssets fails)
-                    var errorDocument = Formatters.ResponseDocumentFormatter.CreateErrorResponseDocument(DocumentFormat.ToString(), bytes).Content;
+                    var errorDocument = Formatters.ResponseDocumentFormatter.CreateErrorResponseDocument(DocumentFormat.ToString(), stream).Content;
                     if (errorDocument != null)
                     {
                         MTConnectError?.Invoke(this, errorDocument);

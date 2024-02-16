@@ -59,6 +59,8 @@ namespace MTConnect.Configurations
 
         IEnumerable<object> GetModules(string key);
 
+        int GetModuleCount(string key);
+
         IEnumerable<TConfiguration> GetModules<TConfiguration>(string key);
 
         bool IsModuleConfigured(string key);

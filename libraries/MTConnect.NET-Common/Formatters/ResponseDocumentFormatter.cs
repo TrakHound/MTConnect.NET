@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Assets;
@@ -10,6 +10,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 
 namespace MTConnect.Formatters
 {
@@ -113,7 +114,7 @@ namespace MTConnect.Formatters
         }
 
 
-        public static FormatReadResult<IDevicesResponseDocument> CreateDevicesResponseDocument(string documentFormatterId, byte[] content)
+        public static FormatReadResult<IDevicesResponseDocument> CreateDevicesResponseDocument(string documentFormatterId, Stream content)
         {
             // Get the Formatter with the specified ID
             var formatter = GetFormatter(documentFormatterId);
@@ -126,7 +127,7 @@ namespace MTConnect.Formatters
             return FormatReadResult<IDevicesResponseDocument>.Error(null, $"Document Formatter Not found for \"{documentFormatterId}\"");
         }
 
-        public static FormatReadResult<IStreamsResponseDocument> CreateStreamsResponseDocument(string documentFormatterId, byte[] content)
+        public static FormatReadResult<IStreamsResponseDocument> CreateStreamsResponseDocument(string documentFormatterId, Stream content)
         {
             // Get the Formatter with the specified ID
             var formatter = GetFormatter(documentFormatterId);
@@ -139,7 +140,7 @@ namespace MTConnect.Formatters
             return FormatReadResult<IStreamsResponseDocument>.Error(null, $"Document Formatter Not found for \"{documentFormatterId}\"");
         }
 
-        public static FormatReadResult<IAssetsResponseDocument> CreateAssetsResponseDocument(string documentFormatterId, byte[] content)
+        public static FormatReadResult<IAssetsResponseDocument> CreateAssetsResponseDocument(string documentFormatterId, Stream content)
         {
             // Get the Formatter with the specified ID
             var formatter = GetFormatter(documentFormatterId);
@@ -152,7 +153,7 @@ namespace MTConnect.Formatters
             return FormatReadResult<IAssetsResponseDocument>.Error(null, $"Document Formatter Not found for \"{documentFormatterId}\"");
         }
 
-        public static FormatReadResult<IErrorResponseDocument> CreateErrorResponseDocument(string documentFormatterId, byte[] content)
+        public static FormatReadResult<IErrorResponseDocument> CreateErrorResponseDocument(string documentFormatterId, Stream content)
         {
             // Get the Formatter with the specified ID
             var formatter = GetFormatter(documentFormatterId);

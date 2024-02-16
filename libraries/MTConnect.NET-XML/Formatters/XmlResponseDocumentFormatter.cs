@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Assets;
@@ -12,6 +12,7 @@ using MTConnect.Streams.Output;
 using MTConnect.Streams.Xml;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text.Json;
 
@@ -41,7 +42,7 @@ namespace MTConnect.Formatters.Xml
             // Read Validation Level Option passed to Formatter (0 = Ignore, 1 = Warning, 2 = Strict)
             var validationLevel = GetFormatterOption<int>(options, "validationLevel");
 
-            var xml = XmlDevicesResponseDocument.ToXmlBytes(document, null, stylesheet, indentOutput, outputComments);
+            var xml = XmlDevicesResponseDocument.ToXmlStream(document, null, stylesheet, indentOutput, outputComments);
             if (xml != null && xml.Length > 0)
             {
                 if (validationLevel > 0)
@@ -88,7 +89,7 @@ namespace MTConnect.Formatters.Xml
             // Read Validation Level Option passed to Formatter (0 = Ignore, 1 = Warning, 2 = Strict)
             var validationLevel = GetFormatterOption<int>(options, "validationLevel");
 
-            var xml = XmlStreamsResponseDocument.ToXmlBytes(ref document, extendedNamespaces, stylesheet, indentOutput, outputComments);
+            var xml = XmlStreamsResponseDocument.ToXmlStream(ref document, extendedNamespaces, stylesheet, indentOutput, outputComments);
             if (xml != null && xml.Length > 0)
             {
                 if (validationLevel > 0)
@@ -132,7 +133,7 @@ namespace MTConnect.Formatters.Xml
             // Read Validation Level Option passed to Formatter (0 = Ignore, 1 = Warning, 2 = Strict)
             var validationLevel = GetFormatterOption<int>(options, "validationLevel");
 
-            var xml = XmlAssetsResponseDocument.ToXmlBytes(document, indentOutput, outputComments, stylesheet);
+            var xml = XmlAssetsResponseDocument.ToXmlStream(document, indentOutput, outputComments, stylesheet);
             if (xml != null && xml.Length > 0)
             {
                 if (validationLevel > 0)
@@ -176,7 +177,7 @@ namespace MTConnect.Formatters.Xml
             // Read Validation Level Option passed to Formatter (0 = Ignore, 1 = Warning, 2 = Strict)
             var validationLevel = GetFormatterOption<int>(options, "validationLevel");
 
-            var xml = XmlErrorResponseDocument.ToXmlBytes(document, indentOutput, outputComments, stylesheet);
+            var xml = XmlErrorResponseDocument.ToXmlStream(document, indentOutput, outputComments, stylesheet);
             if (xml != null)
             {
                 if (validationLevel > 0)
@@ -203,7 +204,7 @@ namespace MTConnect.Formatters.Xml
         }
 
 
-        public FormatReadResult<IDevicesResponseDocument> CreateDevicesResponseDocument(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatReadResult<IDevicesResponseDocument> CreateDevicesResponseDocument(Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var messages = new List<string>();
             var warnings = new List<string>();
@@ -236,14 +237,21 @@ namespace MTConnect.Formatters.Xml
                 }
             }
 
+            byte[] bytes;
+            using (var memoryStream = new MemoryStream())
+            {
+                content.CopyTo(memoryStream);
+                bytes = memoryStream.ToArray();
+            }
+
             // Read Document
-            var document = XmlDevicesResponseDocument.FromXml(content);
+            var document = XmlDevicesResponseDocument.FromXml(bytes);
             var success = document != null;
 
             return new FormatReadResult<IDevicesResponseDocument>(document, success, messages, warnings, errors);
         }
 
-        public FormatReadResult<IStreamsResponseDocument> CreateStreamsResponseDocument(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatReadResult<IStreamsResponseDocument> CreateStreamsResponseDocument(Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var messages = new List<string>();
             var warnings = new List<string>();
@@ -276,14 +284,21 @@ namespace MTConnect.Formatters.Xml
                 }
             }
 
+            byte[] bytes;
+            using (var memoryStream = new MemoryStream())
+            {
+                content.CopyTo(memoryStream);
+                bytes = memoryStream.ToArray();
+            }
+
             // Read Document
-            var document = XmlStreamsResponseDocument.FromXml(content);
+            var document = XmlStreamsResponseDocument.FromXml(bytes);
             var success = document != null;
 
             return new FormatReadResult<IStreamsResponseDocument>(document, success, messages, warnings, errors);
         }
 
-        public FormatReadResult<IAssetsResponseDocument> CreateAssetsResponseDocument(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatReadResult<IAssetsResponseDocument> CreateAssetsResponseDocument(Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var messages = new List<string>();
             var warnings = new List<string>();
@@ -294,7 +309,7 @@ namespace MTConnect.Formatters.Xml
 
             // Read Validation Level Option passed to Formatter (0 = Ignore, 1 = Warning, 2 = Strict)
             var validationLevel = GetFormatterOption<int>(options, "validationLevel");
-
+            
             if (validationLevel > 0)
             {
                 // Validate XML against XSD Schema
@@ -316,14 +331,21 @@ namespace MTConnect.Formatters.Xml
                 }
             }
 
+            byte[] bytes;
+            using (var memoryStream = new MemoryStream())
+            {
+                content.CopyTo(memoryStream);
+                bytes = memoryStream.ToArray();
+            }
+
             // Read Document
-            var document = XmlAssetsResponseDocument.FromXml(content);
+            var document = XmlAssetsResponseDocument.FromXml(bytes);
             var success = document != null;
 
             return new FormatReadResult<IAssetsResponseDocument>(document, success, messages, warnings, errors);
         }
 
-        public FormatReadResult<IErrorResponseDocument> CreateErrorResponseDocument(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatReadResult<IErrorResponseDocument> CreateErrorResponseDocument(Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var messages = new List<string>();
             var warnings = new List<string>();
@@ -356,8 +378,15 @@ namespace MTConnect.Formatters.Xml
                 }
             }
 
+            byte[] bytes;
+            using (var memoryStream = new MemoryStream())
+            {
+                content.CopyTo(memoryStream);
+                bytes = memoryStream.ToArray();
+            }
+
             // Read Document
-            var document = XmlErrorResponseDocument.FromXml(content);
+            var document = XmlErrorResponseDocument.FromXml(bytes);
             var success = document != null;
 
             return new FormatReadResult<IErrorResponseDocument>(document, success, messages, warnings, errors);

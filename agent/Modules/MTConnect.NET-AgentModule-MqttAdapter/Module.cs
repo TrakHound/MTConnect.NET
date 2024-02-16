@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+﻿// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MQTTnet;
@@ -29,7 +29,7 @@ namespace MTConnect.Modules
         private const string AssetTopic = "assets";
         private const string DeviceTopic = "device";
 
-        private readonly ModuleConfiguration _configuration;
+        private readonly MqttAdapterModuleConfiguration _configuration;
         private readonly IMTConnectAgentBroker _mtconnectAgent;
         private readonly MqttFactory _mqttFactory;
         private readonly IMqttClient _mqttClient;
@@ -45,7 +45,7 @@ namespace MTConnect.Modules
             _mqttClient = _mqttFactory.CreateMqttClient();
             _mqttClient.ApplicationMessageReceivedAsync += MessageReceived;
 
-            _configuration = AgentApplicationConfiguration.GetConfiguration<ModuleConfiguration>(configuration);
+            _configuration = AgentApplicationConfiguration.GetConfiguration<MqttAdapterModuleConfiguration>(configuration);
         }
 
 

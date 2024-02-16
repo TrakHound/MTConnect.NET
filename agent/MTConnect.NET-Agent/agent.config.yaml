@@ -1,4 +1,12 @@
-﻿# - Modules -
+﻿# - Device Configuration -
+devices: devices 
+
+# - Processors -
+processors:
+- python: # - Add Python Processor
+    directory: processors
+
+# - Modules -
 modules:
   
 - http-server: # - Add HTTP Server module
@@ -10,9 +18,9 @@ modules:
     accept:
       text/xml: xml
       application/json: json
-    responseCompression:
-    - gzip
-    - br
+    # responseCompression:
+    # - gzip
+    # - br
     # files:
     # - path: schemas
     #   location: schemas
@@ -31,11 +39,17 @@ modules:
 #     deviceKey: M12346
 #     hostname: localhost
 #     port: 7878
+#     heartbeat: 1000
+#     reconnectInterval: 1000
+#     connectionTimeout: 1000
 
-# - shdr-adapter: # - Add SHDR Adapter module for Device = OKUMA-Lathe and Port = 7879
-#     deviceKey: OKUMA-Lathe
-#     hostname: localhost
-#     port: 7879
+- shdr-adapter: # - Add SHDR Adapter module for Device = OKUMA-Lathe and Port = 7879
+    deviceKey: OKUMA-Lathe
+    hostname: localhost
+    port: 7878
+    heartbeat: 1000
+    reconnectInterval: 1000
+    connectionTimeout: 1000
 
 # - mqtt-adapter: # - Add MQTT Adapter module for Device = M12346 and Topic = cnc-01
 #     deviceKey: M12346

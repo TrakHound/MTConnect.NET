@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Assets;
@@ -24,7 +24,7 @@ namespace MTConnect.Formatters
         {
             if (device != null)
             {
-                var bytes = new JsonDevice(device.Device).ToBytes();
+                var bytes = new JsonDevice(device.Device).ToStream();
                 if (bytes != null)
                 {
                     return FormatWriteResult.Successful(bytes, ContentType);
@@ -38,7 +38,7 @@ namespace MTConnect.Formatters
         {
             if (!observations.IsNullOrEmpty())
             {
-                var bytes = JsonFunctions.ConvertBytes(JsonInputObservationGroup.Create(observations));
+                var bytes = JsonFunctions.ConvertStream(JsonInputObservationGroup.Create(observations));
                 if (bytes != null)
                 {
                     return FormatWriteResult.Successful(bytes, ContentType);
@@ -55,7 +55,7 @@ namespace MTConnect.Formatters
                 var jsonAssetGroup = new JsonInputAssetGroup(assets);
                 if (jsonAssetGroup != null)
                 {
-                    var bytes = JsonFunctions.ConvertBytes(jsonAssetGroup);
+                    var bytes = JsonFunctions.ConvertStream(jsonAssetGroup);
                     if (bytes != null)
                     {
                         return FormatWriteResult.Successful(bytes, ContentType);
@@ -129,10 +129,7 @@ namespace MTConnect.Formatters
                         assets = JsonInputAssetGroup.ToAssets(jsonAssetGroup);
                     }
                 }
-                catch (Exception ex)
-                {
-
-                }
+                catch { }
             }
 
             var success = assets != null;

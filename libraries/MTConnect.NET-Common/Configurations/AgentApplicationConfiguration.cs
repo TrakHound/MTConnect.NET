@@ -1,8 +1,9 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-using MTConnect.Devices.Configurations;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json.Serialization;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
@@ -132,6 +133,31 @@ namespace MTConnect.Configurations
             return null;
         }
 
+        public int GetModuleCount(string key)
+        {
+            if (!string.IsNullOrEmpty(key) && !Modules.IsNullOrEmpty())
+            {
+                var count = 0;
+
+                foreach (var configurationObj in Modules)
+                {
+                    try
+                    {
+                        var rootDictionary = (Dictionary<object, object>)configurationObj;
+                        if (rootDictionary.ContainsKey(key))
+                        {
+                            count++;
+                        }
+                    }
+                    catch { }
+                }
+
+                return count;
+            }
+
+            return 0;
+        }
+
         public IEnumerable<TConfiguration> GetModules<TConfiguration>(string key)
         {
             if (!string.IsNullOrEmpty(key) && !Modules.IsNullOrEmpty())
@@ -168,6 +194,15 @@ namespace MTConnect.Configurations
                                     }
                                 }
                             }
+                            else
+                            {
+                                var constructor = typeof(TConfiguration).GetConstructor(new Type[] { });
+                                var configuration = constructor.Invoke(new object[] { });
+                                if (configuration != null)
+                                {
+                                    configurations.Add((TConfiguration)configuration);
+                                }
+                            }
                         }
                     }
                     catch { }
@@ -179,7 +214,21 @@ namespace MTConnect.Configurations
             return null;
         }
 
-		public bool IsModuleConfigured(string key)
+        public void AddModule(string key, object moduleConfiguration)
+        {
+            if (!string.IsNullOrEmpty(key))
+            {
+                var rootDictionary = new Dictionary<object, object>();
+                rootDictionary.Add(key, moduleConfiguration);
+
+                var modules = Modules?.ToList();
+                if (modules == null) modules = new List<object>();
+                modules.Add(rootDictionary);
+                Modules = modules;
+            }
+        }
+
+        public bool IsModuleConfigured(string key)
 		{
 			if (!string.IsNullOrEmpty(key) && !Modules.IsNullOrEmpty())
 			{
@@ -323,6 +372,19 @@ namespace MTConnect.Configurations
                         var deserializer = deserializerBuilder.Build();
 
                         return deserializer.Deserialize<TConfiguration>(yaml);
+                    }
+                }
+                catch { }
+            }
+            else
+            {
+                try
+                {
+                    var constructor = typeof(TConfiguration).GetConstructor(new Type[] { });
+                    var configuration = constructor.Invoke(new object[] { });
+                    if (configuration != null)
+                    {
+                        return (TConfiguration)configuration;
                     }
                 }
                 catch { }

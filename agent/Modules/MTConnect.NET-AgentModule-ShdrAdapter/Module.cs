@@ -20,7 +20,7 @@ namespace MTConnect.Modules
         public const string ConfigurationTypeId = "shdr-adapter";
         private const string ModuleId = "SHDR Adapter";
 
-        private readonly ModuleConfiguration _configuration;
+        private readonly ShdrAdapterModuleConfiguration _configuration;
         private readonly IMTConnectAgentBroker _mtconnectAgent;
         private readonly List<ShdrAdapterClient> _adapters = new List<ShdrAdapterClient>();
 
@@ -30,7 +30,7 @@ namespace MTConnect.Modules
             Id = ModuleId;
 
             _mtconnectAgent = mtconnectAgent;
-            _configuration = AgentApplicationConfiguration.GetConfiguration<ModuleConfiguration>(configuration);
+            _configuration = AgentApplicationConfiguration.GetConfiguration<ShdrAdapterModuleConfiguration>(configuration);
         }
 
 

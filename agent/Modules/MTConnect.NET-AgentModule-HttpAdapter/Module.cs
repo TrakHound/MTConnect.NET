@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+﻿// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Agents;
@@ -20,7 +20,7 @@ namespace MTConnect.Modules
         public const string ConfigurationTypeId = "http-client";
         private const string ModuleId = "HTTP Adapter";
 
-        private readonly ModuleConfiguration _configuration;
+        private readonly HttpAdapterModuleConfiguration _configuration;
         private readonly IMTConnectAgentBroker _mtconnectAgent;
         private readonly List<MTConnectHttpClient> _clients = new List<MTConnectHttpClient>();
         private readonly Dictionary<string, MTConnectClientInformation> _clientInformations = new Dictionary<string, MTConnectClientInformation>();
@@ -32,7 +32,7 @@ namespace MTConnect.Modules
             Id = ModuleId;
 
             _mtconnectAgent = mtconnectAgent;
-            _configuration = AgentApplicationConfiguration.GetConfiguration<ModuleConfiguration>(configuration);
+            _configuration = AgentApplicationConfiguration.GetConfiguration<HttpAdapterModuleConfiguration>(configuration);
         }
 
 

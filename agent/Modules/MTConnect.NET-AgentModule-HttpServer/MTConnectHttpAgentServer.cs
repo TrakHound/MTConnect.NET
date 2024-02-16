@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using Ceen.Httpd;
@@ -27,10 +27,10 @@ namespace MTConnect.Modules.Http
         private static readonly Dictionary<string, string> _commonSchemas = new Dictionary<string, string>();
         private static readonly object _lock = new object();
 
-        private readonly ModuleConfiguration _moduleConfiguration;
+        private readonly HttpServerModuleConfiguration _moduleConfiguration;
 
 
-        public MTConnectHttpAgentServer(ModuleConfiguration configuration, IMTConnectAgentBroker mtconnectAgent) : base(configuration, mtconnectAgent)
+        public MTConnectHttpAgentServer(HttpServerModuleConfiguration configuration, IMTConnectAgentBroker mtconnectAgent) : base(configuration, mtconnectAgent)
         {
             _moduleConfiguration = configuration;
         }
@@ -41,7 +41,7 @@ namespace MTConnect.Modules.Http
             base.OnConfigureServer(serverConfig);
         }
 
-        protected override byte[] OnProcessStatic(MTConnectStaticFileRequest request)
+        protected override Stream OnProcessStatic(MTConnectStaticFileRequest request)
         {
             if (request.LocalPath != null)
             {
@@ -142,7 +142,7 @@ namespace MTConnect.Modules.Http
 
         #region "Stylesheets"
 
-        private static byte[] ReadDevicesStylesheet(string filePath, Version mtconnectVersion)
+        private static Stream ReadDevicesStylesheet(string filePath, Version mtconnectVersion)
         {
             if (filePath != null)
             {
@@ -173,7 +173,7 @@ namespace MTConnect.Modules.Http
                         }
                         catch { }
 
-                        return Encoding.UTF8.GetBytes(s);
+                        return new MemoryStream(Encoding.UTF8.GetBytes(s));
                     }
                 }
                 catch { }
@@ -182,7 +182,7 @@ namespace MTConnect.Modules.Http
             return null;
         }
 
-        private static byte[] ReadStreamsStylesheet(string filePath, Version mtconnectVersion)
+        private static Stream ReadStreamsStylesheet(string filePath, Version mtconnectVersion)
         {
             if (filePath != null)
             {
@@ -199,7 +199,7 @@ namespace MTConnect.Modules.Http
                             fileContents = Regex.Replace(fileContents, pattern, replace);
                         }
 
-                        return Encoding.UTF8.GetBytes(fileContents);
+                        return new MemoryStream(Encoding.UTF8.GetBytes(fileContents));
                     }
                 }
                 catch { }

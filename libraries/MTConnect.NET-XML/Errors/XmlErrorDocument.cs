@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using System;
@@ -80,7 +80,7 @@ namespace MTConnect.Errors.Xml
         }
 
 
-        public static byte[] ToXmlBytes(
+        public static Stream ToXmlStream(
             IErrorResponseDocument document,
             bool indentOutput = true,
             bool outputComments = false,
@@ -93,17 +93,16 @@ namespace MTConnect.Errors.Xml
                 {
                     var mtconnectStreamsNamespace = Namespaces.GetStreams(document.Version.Major, document.Version.Minor);
 
-                    using (var stream = new MemoryStream())
-                    {
-                        // Set the XmlWriterSettings to use
-                        var xmlWriterSettings = indentOutput ? XmlFunctions.XmlWriterSettingsIndent : XmlFunctions.XmlWriterSettings;
+                    var outputStream = new MemoryStream();
 
-                        // Use XmlWriter to write XML to stream
-                        using (var xmlWriter = XmlWriter.Create(stream, xmlWriterSettings))
-                        {
-                            WriteXml(xmlWriter, document, indentOutput, outputComments, stylesheet);
-                            return stream.ToArray();
-                        }
+                    // Set the XmlWriterSettings to use
+                    var xmlWriterSettings = indentOutput ? XmlFunctions.XmlWriterSettingsIndent : XmlFunctions.XmlWriterSettings;
+
+                    // Use XmlWriter to write XML to stream
+                    using (var xmlWriter = XmlWriter.Create(outputStream, xmlWriterSettings))
+                    {
+                        WriteXml(xmlWriter, document, indentOutput, outputComments, stylesheet);
+                        return outputStream;
                     }
                 }
                 catch { }

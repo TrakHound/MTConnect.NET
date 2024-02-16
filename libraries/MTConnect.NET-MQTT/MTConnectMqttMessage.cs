@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+﻿// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MQTTnet;
@@ -7,6 +7,7 @@ using MTConnect.Assets;
 using MTConnect.Devices;
 using MTConnect.Observations;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text.Json;
 
@@ -29,7 +30,7 @@ namespace MTConnect.Mqtt
             return null;
         }
 
-        private static MqttApplicationMessage CreateMessage(string topic, byte[] payload, bool retain = false)
+        private static MqttApplicationMessage CreateMessage(string topic, Stream payload, bool retain = false)
         {
             try
             {

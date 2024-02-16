@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Assets;
@@ -15,6 +15,7 @@ using MTConnect.Devices.Json;
 using MTConnect.Observations;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
@@ -34,7 +35,7 @@ namespace MTConnect.Formatters
             {
                 var indentOuput = GetFormatterOption<bool>(options, "indentOutput");
 
-                var bytes = new JsonDevice(device).ToBytes(indentOuput);
+                var bytes = new JsonDevice(device).ToStream(indentOuput);
                 if (bytes != null)
                 {
                     return FormatWriteResult.Successful(bytes, ContentType);
@@ -88,17 +89,7 @@ namespace MTConnect.Formatters
                     //    break;
                 }
 
-                //switch (asset.Type)
-                //{
-                //    case "CuttingTool": bytes = JsonFunctions.ConvertBytes(new JsonCuttingToolAsset(asset as CuttingToolAsset)); break;
-                //    case "File": bytes = JsonFunctions.ConvertBytes(new JsonFileAsset(asset as FileAsset)); break;
-                //    case "QIFDocumentWrapper": bytes = JsonFunctions.ConvertBytes(new JsonQIFDocumentWrapperAsset(asset as QIFDocumentWrapperAsset)); break;
-                //    case "RawMaterial": bytes = JsonFunctions.ConvertBytes(new JsonRawMaterialAsset(asset as RawMaterialAsset)); break;
-
-                //    default: bytes = JsonFunctions.ConvertBytes(asset); break;
-                //}
-
-                var bytes = JsonFunctions.ConvertBytes(assets);
+                var bytes = JsonFunctions.ConvertStream(assets);
                 if (bytes != null)
                 {
                     return FormatWriteResult.Successful(bytes, ContentType);
@@ -109,7 +100,7 @@ namespace MTConnect.Formatters
         }
 
 
-        public FormatReadResult<IDevice> CreateDevice(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatReadResult<IDevice> CreateDevice(Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var messages = new List<string>();
             var warnings = new List<string>();
@@ -128,7 +119,7 @@ namespace MTConnect.Formatters
             return new FormatReadResult<IDevice>();
         }
 
-        public FormatReadResult<IComponent> CreateComponent(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatReadResult<IComponent> CreateComponent(Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var messages = new List<string>();
             var warnings = new List<string>();
@@ -147,7 +138,7 @@ namespace MTConnect.Formatters
             return new FormatReadResult<IComponent>();
         }
 
-        public FormatReadResult<IComposition> CreateComposition(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatReadResult<IComposition> CreateComposition(Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var messages = new List<string>();
             var warnings = new List<string>();
@@ -166,7 +157,7 @@ namespace MTConnect.Formatters
             return new FormatReadResult<IComposition>();
         }
 
-        public FormatReadResult<IDataItem> CreateDataItem(byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatReadResult<IDataItem> CreateDataItem(Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var messages = new List<string>();
             var warnings = new List<string>();
@@ -185,7 +176,7 @@ namespace MTConnect.Formatters
             return new FormatReadResult<IDataItem>();
         }
 
-        public FormatReadResult<IAsset> CreateAsset(string assetType, byte[] content, IEnumerable<KeyValuePair<string, string>> options = null)
+        public FormatReadResult<IAsset> CreateAsset(string assetType, Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             var messages = new List<string>();
             var warnings = new List<string>();
@@ -198,8 +189,15 @@ namespace MTConnect.Formatters
             {
                 try
                 {
+                    byte[] bytes;
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        content.CopyTo(memoryStream);
+                        bytes = memoryStream.ToArray();
+                    }
+
                     // Convert from UTF8 bytes
-                    var json = Encoding.UTF8.GetString(content);
+                    var json = Encoding.UTF8.GetString(bytes);
                     if (!string.IsNullOrEmpty(json))
                     {
                         switch (assetType)

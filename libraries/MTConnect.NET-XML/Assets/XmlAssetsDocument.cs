@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Assets.ComponentConfigurationParameters;
@@ -36,9 +36,6 @@ namespace MTConnect.Assets.Xml
         [XmlArrayItem(typeof(XmlRawMaterialAsset), ElementName = RawMaterialAsset.TypeId)]
         public List<object> Assets { get; set; }
 
-        //[XmlElement("Assets")]
-        //public XmlAssetCollection AssetCollection { get; set; }
-
         [XmlIgnore]
         public Version Version { get; set; }
 
@@ -48,7 +45,6 @@ namespace MTConnect.Assets.Xml
             var assetsDocument = new AssetsResponseDocument();
             assetsDocument.Header = Header.ToErrorHeader();
             assetsDocument.Version = Version;
-            //assetsDocument.Assets = Assets;
 
             if (!Assets.IsNullOrEmpty())
             {
@@ -95,13 +91,6 @@ namespace MTConnect.Assets.Xml
                 assetsDocument.Assets = assets;
             }
 
-            //// Add Assets
-            //if (AssetCollection != null && !AssetCollection.Assets.IsNullOrEmpty())
-            //{
-            //    assetsDocument.Assets = AssetCollection.Assets.ToList();
-            //}
-            //else assetsDocument.Assets = new List<IAsset>();
-
             return assetsDocument;
         }
 
@@ -139,7 +128,7 @@ namespace MTConnect.Assets.Xml
             return null;
         }
 
-        public static byte[] ToXmlBytes(
+        public static Stream ToXmlStream(
             IAssetsResponseDocument document,
             bool indentOutput = false,
             bool outputComments = false,
@@ -152,17 +141,16 @@ namespace MTConnect.Assets.Xml
                 {
                     var mtconnectStreamsNamespace = Namespaces.GetStreams(document.Version.Major, document.Version.Minor);
 
-                    using (var stream = new MemoryStream())
-                    {
-                        // Set the XmlWriterSettings to use
-                        var xmlWriterSettings = indentOutput ? XmlFunctions.XmlWriterSettingsIndent : XmlFunctions.XmlWriterSettings;
+                    var outputStream = new MemoryStream();
 
-                        // Use XmlWriter to write XML to stream
-                        using (var xmlWriter = XmlWriter.Create(stream, xmlWriterSettings))
-                        {
-                            WriteXml(xmlWriter, document, indentOutput, outputComments, stylesheet);
-                            return stream.ToArray();
-                        }
+                    // Set the XmlWriterSettings to use
+                    var xmlWriterSettings = indentOutput ? XmlFunctions.XmlWriterSettingsIndent : XmlFunctions.XmlWriterSettings;
+
+                    // Use XmlWriter to write XML to stream
+                    using (var xmlWriter = XmlWriter.Create(outputStream, xmlWriterSettings))
+                    {
+                        WriteXml(xmlWriter, document, indentOutput, outputComments, stylesheet);
+                        return outputStream;
                     }
                 }
                 catch { }

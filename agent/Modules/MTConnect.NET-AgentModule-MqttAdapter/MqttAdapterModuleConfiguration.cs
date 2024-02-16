@@ -1,9 +1,9 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 namespace MTConnect.Configurations
 {
-    public class ModuleConfiguration
+    public class MqttAdapterModuleConfiguration
     {
         /// <summary>
         /// The MQTT broker hostname
@@ -94,7 +94,7 @@ namespace MTConnect.Configurations
         public string DocumentFormat { get; set; }
 
 
-        public ModuleConfiguration()
+        public MqttAdapterModuleConfiguration()
         {
             Server = "localhost";
             Port = 1883;
