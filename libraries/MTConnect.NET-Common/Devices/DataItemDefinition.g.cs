@@ -1,16 +1,16 @@
 // Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-// MTConnect SysML v2.2 : UML ID = _19_0_3_45f01b9_1581433165009_756087_158
+// MTConnect SysML v2.3 : UML ID = _19_0_3_45f01b9_1581433165009_756087_158
 
 namespace MTConnect.Devices
 {
     /// <summary>
-    /// Defines the meaning of Entry and Cell elements associated with the DataItem when the representation is either `DATA` or `TABLE`.
+    /// Representation is either `DATA_SET` or `TABLE`.
     /// </summary>
     public class DataItemDefinition : IDataItemDefinition
     {
-        public const string DescriptionText = "Defines the meaning of Entry and Cell elements associated with the DataItem when the representation is either `DATA` or `TABLE`.";
+        public const string DescriptionText = "Representation is either `DATA_SET` or `TABLE`.";
 
 
         /// <summary>

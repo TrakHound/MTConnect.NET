@@ -1,7 +1,7 @@
 // Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-// MTConnect SysML v2.2 : UML ID = EAID_C09F377D_8946_421b_B746_E23C01D97EAC
+// MTConnect SysML v2.3 : UML ID = EAID_C09F377D_8946_421b_B746_E23C01D97EAC
 
 namespace MTConnect.Assets.CuttingTools
 {
@@ -14,7 +14,7 @@ namespace MTConnect.Assets.CuttingTools
 
 
         /// <summary>
-        /// Shop specific code for the measurement. ISO 13399 codes **MAY** be used for these codes as well. See Cutting Tool Measurement Subtypes and Cutting Item Measurement Subtypes for details on Measurement types and their respective code values.
+        /// Shop specific code for the measurement. ISO 13399 codes **MAY** be used for these codes as well. code values.
         /// </summary>
         public string Code { get; set; }
         
@@ -29,7 +29,7 @@ namespace MTConnect.Assets.CuttingTools
         public double? Minimum { get; set; }
         
         /// <summary>
-        /// Units the measurement was originally recorded in. See Device Information Model for the complete list of nativeUnits.
+        /// NativeUnits.
         /// </summary>
         public string NativeUnits { get; set; }
         
@@ -44,7 +44,7 @@ namespace MTConnect.Assets.CuttingTools
         public int? SignificantDigits { get; set; }
         
         /// <summary>
-        /// Units for the measurements. See Device Information Model for the complete list of units.
+        /// Units.
         /// </summary>
         public string Units { get; set; }
         

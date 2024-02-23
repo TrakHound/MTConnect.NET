@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using System;
@@ -7,7 +7,7 @@ namespace MTConnect
 {
     public static class MTConnectVersions
     {
-        public static Version Max => Version22;
+        public static Version Max => Version23;
 
         public static readonly Version Version10 = new Version(1, 0);
         public static readonly Version Version11 = new Version(1, 1);
@@ -21,5 +21,6 @@ namespace MTConnect
         public static readonly Version Version20 = new Version(2, 0);
         public static readonly Version Version21 = new Version(2, 1);
         public static readonly Version Version22 = new Version(2, 2);
+        public static readonly Version Version23 = new Version(2, 3);
     }
 }

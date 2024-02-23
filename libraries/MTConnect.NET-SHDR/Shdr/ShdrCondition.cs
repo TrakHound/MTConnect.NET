@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Input;
@@ -162,16 +162,6 @@ namespace MTConnect.Shdr
             }
         }
 
-        //public ShdrCondition(ShdrCondition condition)
-        //{
-        //    if (condition != null)
-        //    {
-        //        DeviceKey = condition.DeviceKey;
-        //        DataItemKey = condition.DataItemKey;
-        //        FaultStates = condition.FaultStates?.ToList();
-        //    }
-        //}
-
 
         /// <summary>
         /// Set the FaultState of the Condition to UNAVAILABLE and clear any other FaultStates
@@ -239,11 +229,12 @@ namespace MTConnect.Shdr
             string text = null,
             string nativeCode = null,
             string nativeSeverity = null,
-            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED
+            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED,
+            string conditionId = null
             )
         {
             ClearFaultStates();
-            AddFaultState(new ShdrFaultState(ConditionLevel.WARNING, text, nativeCode, nativeSeverity, qualifier));
+            AddFaultState(new ShdrFaultState(ConditionLevel.WARNING, text, nativeCode, nativeSeverity, qualifier, conditionId));
         }
 
         /// <summary>
@@ -254,11 +245,12 @@ namespace MTConnect.Shdr
             string text = null,
             string nativeCode = null,
             string nativeSeverity = null,
-            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED
+            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED,
+            string conditionId = null
             )
         {
             ClearFaultStates();
-            AddFaultState(new ShdrFaultState(timestamp, ConditionLevel.WARNING, text, nativeCode, nativeSeverity, qualifier));
+            AddFaultState(new ShdrFaultState(timestamp, ConditionLevel.WARNING, text, nativeCode, nativeSeverity, qualifier, conditionId));
         }
 
         /// <summary>
@@ -269,11 +261,12 @@ namespace MTConnect.Shdr
             string text = null,
             string nativeCode = null,
             string nativeSeverity = null,
-            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED
+            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED,
+            string conditionId = null
             )
         {
             ClearFaultStates();
-            AddFaultState(new ShdrFaultState(timestamp, ConditionLevel.WARNING, text, nativeCode, nativeSeverity, qualifier));
+            AddFaultState(new ShdrFaultState(timestamp, ConditionLevel.WARNING, text, nativeCode, nativeSeverity, qualifier, conditionId));
         }
 
 
@@ -284,11 +277,12 @@ namespace MTConnect.Shdr
             string text = null,
             string nativeCode = null,
             string nativeSeverity = null,
-            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED
+            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED,
+            string conditionId = null
             )
         {
             ClearFaultStates();
-            AddFaultState(new ShdrFaultState(ConditionLevel.FAULT, text, nativeCode, nativeSeverity, qualifier));
+            AddFaultState(new ShdrFaultState(ConditionLevel.FAULT, text, nativeCode, nativeSeverity, qualifier, conditionId));
         }
 
         /// <summary>
@@ -299,11 +293,12 @@ namespace MTConnect.Shdr
             string text = null,
             string nativeCode = null,
             string nativeSeverity = null,
-            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED
+            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED,
+            string conditionId = null
             )
         {
             ClearFaultStates();
-            AddFaultState(new ShdrFaultState(timestamp, ConditionLevel.FAULT, text, nativeCode, nativeSeverity, qualifier));
+            AddFaultState(new ShdrFaultState(timestamp, ConditionLevel.FAULT, text, nativeCode, nativeSeverity, qualifier, conditionId));
         }
 
         /// <summary>
@@ -314,36 +309,37 @@ namespace MTConnect.Shdr
             string text = null,
             string nativeCode = null,
             string nativeSeverity = null,
-            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED
+            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED,
+            string conditionId = null
             )
         {
             ClearFaultStates();
-            AddFaultState(new ShdrFaultState(timestamp, ConditionLevel.FAULT, text, nativeCode, nativeSeverity, qualifier));
+            AddFaultState(new ShdrFaultState(timestamp, ConditionLevel.FAULT, text, nativeCode, nativeSeverity, qualifier, conditionId));
         }
 
 
         /// <summary>
         /// Add a FaultState to the Condition of NORMAL while retaining any other FaultStates that do not match the specified NativeCode
         /// </summary>
-        public void AddNormal(string nativeCode, string text = null)
+        public void AddNormal(string nativeCode, string text = null, string conditionId = null)
         {
-            AddFaultState(new ShdrFaultState(ConditionLevel.NORMAL, text, nativeCode));
+            AddFaultState(new ShdrFaultState(ConditionLevel.NORMAL, text, nativeCode, conditionId));
         }
 
         /// <summary>
         /// Add a FaultState to the Condition of NORMAL while retaining any other FaultStates that do not match the specified NativeCode
         /// </summary>
-        public void AddNormal(string nativeCode, long timestamp, string text = null)
+        public void AddNormal(string nativeCode, long timestamp, string text = null, string conditionId = null)
         {
-            AddFaultState(new ShdrFaultState(timestamp, ConditionLevel.NORMAL, text, nativeCode));
+            AddFaultState(new ShdrFaultState(timestamp, ConditionLevel.NORMAL, text, nativeCode, conditionId));
         }
 
         /// <summary>
         /// Add a FaultState to the Condition of NORMAL while retaining any other FaultStates that do not match the specified NativeCode
         /// </summary>
-        public void AddNormal(string nativeCode, DateTime timestamp, string text = null)
+        public void AddNormal(string nativeCode, DateTime timestamp, string text = null, string conditionId = null)
         {
-            AddFaultState(new ShdrFaultState(timestamp, ConditionLevel.NORMAL, text, nativeCode));
+            AddFaultState(new ShdrFaultState(timestamp, ConditionLevel.NORMAL, text, nativeCode, conditionId));
         }
 
 
@@ -354,10 +350,11 @@ namespace MTConnect.Shdr
             string text = null,
             string nativeCode = null,
             string nativeSeverity = null,
-            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED
+            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED,
+            string conditionId = null
             )
         {
-            AddFaultState(new ShdrFaultState(ConditionLevel.WARNING, text, nativeCode, nativeSeverity, qualifier));
+            AddFaultState(new ShdrFaultState(ConditionLevel.WARNING, text, nativeCode, nativeSeverity, qualifier, conditionId));
         }
 
         /// <summary>
@@ -368,10 +365,11 @@ namespace MTConnect.Shdr
             string text = null,
             string nativeCode = null,
             string nativeSeverity = null,
-            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED
+            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED,
+            string conditionId = null
             )
         {
-            AddFaultState(new ShdrFaultState(timestamp, ConditionLevel.WARNING, text, nativeCode, nativeSeverity, qualifier));
+            AddFaultState(new ShdrFaultState(timestamp, ConditionLevel.WARNING, text, nativeCode, nativeSeverity, qualifier, conditionId));
         }
 
         /// <summary>
@@ -382,10 +380,11 @@ namespace MTConnect.Shdr
             string text = null,
             string nativeCode = null,
             string nativeSeverity = null,
-            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED
+            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED,
+            string conditionId = null
             )
         {
-            AddFaultState(new ShdrFaultState(timestamp, ConditionLevel.WARNING, text, nativeCode, nativeSeverity, qualifier));
+            AddFaultState(new ShdrFaultState(timestamp, ConditionLevel.WARNING, text, nativeCode, nativeSeverity, qualifier, conditionId));
         }
 
 
@@ -396,10 +395,11 @@ namespace MTConnect.Shdr
             string text = null,
             string nativeCode = null,
             string nativeSeverity = null,
-            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED
+            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED,
+            string conditionId = null
             )
         {
-            AddFaultState(new ShdrFaultState(ConditionLevel.FAULT, text, nativeCode, nativeSeverity, qualifier));
+            AddFaultState(new ShdrFaultState(ConditionLevel.FAULT, text, nativeCode, nativeSeverity, qualifier, conditionId));
         }
 
         /// <summary>
@@ -410,10 +410,11 @@ namespace MTConnect.Shdr
             string text = null,
             string nativeCode = null,
             string nativeSeverity = null,
-            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED
+            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED,
+            string conditionId = null
             )
         {
-            AddFaultState(new ShdrFaultState(timestamp, ConditionLevel.FAULT, text, nativeCode, nativeSeverity, qualifier));
+            AddFaultState(new ShdrFaultState(timestamp, ConditionLevel.FAULT, text, nativeCode, nativeSeverity, qualifier, conditionId));
         }
 
         /// <summary>
@@ -424,10 +425,11 @@ namespace MTConnect.Shdr
             string text = null,
             string nativeCode = null,
             string nativeSeverity = null,
-            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED
+            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED,
+            string conditionId = null
             )
         {
-            AddFaultState(new ShdrFaultState(timestamp, ConditionLevel.FAULT, text, nativeCode, nativeSeverity, qualifier));
+            AddFaultState(new ShdrFaultState(timestamp, ConditionLevel.FAULT, text, nativeCode, nativeSeverity, qualifier, conditionId));
         }
 
 

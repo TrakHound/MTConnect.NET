@@ -11,9 +11,9 @@ namespace MTConnect.Devices
         public const string ATTACHMENT = "Reference to a DataItem that associates the values with an external entity.";
         
         /// <summary>
-        /// Referenced DataItem provides the id of the effective Coordinate System.
+        /// Referenced DataItem provides the `id` of the effective Coordinate System.
         /// </summary>
-        public const string COORDINATE_SYSTEM = "Referenced DataItem provides the id of the effective Coordinate System.";
+        public const string COORDINATE_SYSTEM = "Referenced DataItem provides the `id` of the effective Coordinate System.";
         
         /// <summary>
         /// Referenced DataItem provides process limits.
@@ -31,7 +31,7 @@ namespace MTConnect.Devices
             switch (value)
             {
                 case DataItemRelationshipType.ATTACHMENT: return "Reference to a DataItem that associates the values with an external entity.";
-                case DataItemRelationshipType.COORDINATE_SYSTEM: return "Referenced DataItem provides the id of the effective Coordinate System.";
+                case DataItemRelationshipType.COORDINATE_SYSTEM: return "Referenced DataItem provides the `id` of the effective Coordinate System.";
                 case DataItemRelationshipType.LIMIT: return "Referenced DataItem provides process limits.";
                 case DataItemRelationshipType.OBSERVATION: return "Referenced DataItem provides the observed values.";
             }

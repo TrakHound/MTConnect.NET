@@ -3,6 +3,7 @@
 
 using MTConnect.Agents;
 using System;
+using System.Text.Json.Serialization;
 
 namespace MTConnect.Configurations
 {
@@ -54,6 +55,11 @@ namespace MTConnect.Configurations
         /// </summary>
         InputValidationLevel InputValidationLevel { get; }
 
+
+        /// <summary>
+        /// Gets or Sets whether the Agent Device is output
+        /// </summary>
+        bool EnableAgentDevice { get; }
 
         /// <summary>
         /// Gets whether Metrics are captured (ex. ObserationUpdateRate, AssetUpdateRate)

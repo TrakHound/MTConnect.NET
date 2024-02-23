@@ -15,6 +15,7 @@ namespace MTConnect.SysML
                     case 2:
                         switch (version.Minor)
                         {
+                            case 3: return "MTConnectVersions.Version23";
                             case 2: return "MTConnectVersions.Version22";
                             case 1: return "MTConnectVersions.Version21";
                             case 0: return "MTConnectVersions.Version20";
@@ -48,10 +49,15 @@ namespace MTConnect.SysML
                 var x = xmiDocument.NormativeIntroductions?.FirstOrDefault(o => o.BaseElement == id);
                 if (x != null)
                 {
-                    if (Version.TryParse(x.Version, out var version))
+                    if (Version.TryParse(x.Introduced, out var version))
                     {
                         return version;
                     }
+
+                    //if (Version.TryParse(x.Version, out var version))
+                    //{
+                    //    return version;
+                    //}
                 }
             }
 

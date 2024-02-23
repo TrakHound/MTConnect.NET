@@ -1,4 +1,5 @@
-﻿using MTConnect.SysML.Models.Devices;
+﻿using MTConnect.NET_SysML_Import.CSharp;
+using MTConnect.SysML.Models.Devices;
 using MTConnect.SysML.Xmi;
 using MTConnect.SysML.Xmi.UML;
 using Scriban;
@@ -43,6 +44,8 @@ namespace MTConnect.SysML.CSharp
 
                     exportModel.Id += "DataItem";
                     exportModel.Name += "DataItem";
+                    exportModel.Description = DescriptionHelper.GetTextDescription(importModel.Description);
+                    exportModel.XmlDescription = DescriptionHelper.GetXmlDescription(importModel.Description);
                     if (exportModel.ParentName != null && exportModel.ParentName != "DataItem") exportModel.ParentName += "DataItem";
 
                     return exportModel;

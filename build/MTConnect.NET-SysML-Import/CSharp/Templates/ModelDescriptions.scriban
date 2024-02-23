@@ -7,7 +7,7 @@ namespace {{namespace}}
     {
 {{- i = 0 }}{{- for property in properties }}{{ i = i + 1 }}
         /// <summary>
-        /// {{property.description}}
+        /// {{property.xml_description}}
         /// </summary>
         public const string {{property.name}} = "{{property.description}}";
         {{- if (i < (properties | array.size)) }}

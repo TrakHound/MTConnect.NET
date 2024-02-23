@@ -19,7 +19,13 @@ namespace MTConnect.SysML.Xmi.Profile
         /// <summary>
         /// <c>version</c> attribute
         /// </summary>
-        [XmlAttribute(AttributeName = XmiHelper.XmiStructure.version, Namespace = "")]
-        public string? Version { get; set; }
+        [XmlAttribute(AttributeName = XmiHelper.XmiStructure.introduced, Namespace = "")]
+        public string? Introduced { get; set; }
+
+        ///// <summary>
+        ///// <c>version</c> attribute
+        ///// </summary>
+        //[XmlAttribute(AttributeName = XmiHelper.XmiStructure.version, Namespace = "")]
+        //public string? Version { get; set; }
     }
 }

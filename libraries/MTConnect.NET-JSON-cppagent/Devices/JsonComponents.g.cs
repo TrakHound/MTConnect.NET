@@ -22,6 +22,10 @@ namespace MTConnect.Devices.Json
         public IEnumerable<JsonComponent> Adapters { get; set; }
 
 
+        [JsonPropertyName("AirHandler")]
+        public IEnumerable<JsonComponent> AirHandler { get; set; }
+
+
         [JsonPropertyName("Amplifier")]
         public IEnumerable<JsonComponent> Amplifier { get; set; }
 
@@ -479,6 +483,8 @@ namespace MTConnect.Devices.Json
 
                 Adapters = GetComponents(components, AdaptersComponent.TypeId);
 
+                AirHandler = GetComponents(components, AirHandlerComponent.TypeId);
+
                 Amplifier = GetComponents(components, AmplifierComponent.TypeId);
 
                 AutomaticToolChanger = GetComponents(components, AutomaticToolChangerComponent.TypeId);
@@ -729,6 +735,8 @@ namespace MTConnect.Devices.Json
             if (!Adapter.IsNullOrEmpty()) foreach (var component in Adapter) components.Add(component.ToComponent(AdapterComponent.TypeId));
 
             if (!Adapters.IsNullOrEmpty()) foreach (var component in Adapters) components.Add(component.ToComponent(AdaptersComponent.TypeId));
+
+            if (!AirHandler.IsNullOrEmpty()) foreach (var component in AirHandler) components.Add(component.ToComponent(AirHandlerComponent.TypeId));
 
             if (!Amplifier.IsNullOrEmpty()) foreach (var component in Amplifier) components.Add(component.ToComponent(AmplifierComponent.TypeId));
 

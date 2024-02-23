@@ -1,16 +1,16 @@
 // Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-// MTConnect SysML v2.2 : UML ID = EAID_A012A42B_DBEC_4334_891D_5B45D7A7E340
+// MTConnect SysML v2.3 : UML ID = EAID_A012A42B_DBEC_4334_891D_5B45D7A7E340
 
 namespace MTConnect.Assets.CuttingTools
 {
     /// <summary>
-    /// Location of the pot or spindle the cutting tool currently resides in.If negativeOverlap or positiveOverlap is provided, the tool reserves additional locations on either side, otherwise if they are not given, no additional locations are required for this tool.If the pot occupies the first or last location, a rollover to the beginning or the end of the indexable values may occur. For example, if there are 64 pots and the tool is in pot 64 with a positiveOverlap of 1, the first pot **MAY** be occupied as well.
+    /// Location of the pot or spindle the cutting tool currently resides in.positiveOverlap is provided, the tool reserves additional locations on either side, otherwise if they are not given, no additional locations are required for this tool.positiveOverlap of 1, the first pot **MAY** be occupied as well.
     /// </summary>
     public class Location : ILocation
     {
-        public const string DescriptionText = "Location of the pot or spindle the cutting tool currently resides in.If negativeOverlap or positiveOverlap is provided, the tool reserves additional locations on either side, otherwise if they are not given, no additional locations are required for this tool.If the pot occupies the first or last location, a rollover to the beginning or the end of the indexable values may occur. For example, if there are 64 pots and the tool is in pot 64 with a positiveOverlap of 1, the first pot **MAY** be occupied as well.";
+        public const string DescriptionText = "Location of the pot or spindle the cutting tool currently resides in.positiveOverlap is provided, the tool reserves additional locations on either side, otherwise if they are not given, no additional locations are required for this tool.positiveOverlap of 1, the first pot **MAY** be occupied as well.";
 
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace MTConnect.Assets.CuttingTools
         public string Turret { get; set; }
         
         /// <summary>
-        /// Type of location being identified. When a `POT` or `STATION` type is used, value of Location **MUST** be a numeric value.
+        /// Type of location being identified. value**MUST** be a numeric value.
         /// </summary>
         public MTConnect.Assets.CuttingTools.LocationType Type { get; set; }
         

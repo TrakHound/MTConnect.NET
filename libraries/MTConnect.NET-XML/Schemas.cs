@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 namespace MTConnect
@@ -31,6 +31,8 @@ namespace MTConnect
                     {
                         case 0: return Version20.Devices;
                         case 1: return Version21.Devices;
+                        case 2: return Version22.Devices;
+                        case 3: return Version23.Devices;
                     }
 
                     break;
@@ -65,6 +67,8 @@ namespace MTConnect
                     {
                         case 0: return Version20.Streams;
                         case 1: return Version21.Streams;
+                        case 2: return Version22.Streams;
+                        case 3: return Version23.Streams;
                     }
 
                     break;
@@ -98,6 +102,8 @@ namespace MTConnect
                     {
                         case 0: return Version20.Assets;
                         case 1: return Version21.Assets;
+                        case 2: return Version22.Assets;
+                        case 3: return Version23.Assets;
                     }
 
                     break;
@@ -130,12 +136,42 @@ namespace MTConnect
                     {
                         case 0: return Version20.Error;
                         case 1: return Version21.Error;
+                        case 2: return Version22.Error;
+                        case 3: return Version23.Error;
                     }
 
                     break;
             }
 
             return null;
+        }
+
+
+        static class Version23
+        {
+            public const string Assets = "urn:mtconnect.org:MTConnectAssets:2.3 /schemas/MTConnectAssets_2.3.xsd";
+            public const string Devices = "urn:mtconnect.org:MTConnectDevices:2.3 /schemas/MTConnectDevices_2.3.xsd";
+            public const string Error = "urn:mtconnect.org:MTConnectError:2.3 /schemas/MTConnectError_2.3.xsd";
+            public const string Streams = "urn:mtconnect.org:MTConnectStreams:2.3 /schemas/MTConnectStreams_2.3.xsd";
+
+            public static bool Match(string ns)
+            {
+                return ns == Assets || ns == Devices || ns == Error || ns == Streams;
+            }
+        }
+
+
+        static class Version22
+        {
+            public const string Assets = "urn:mtconnect.org:MTConnectAssets:2.2 /schemas/MTConnectAssets_2.2.xsd";
+            public const string Devices = "urn:mtconnect.org:MTConnectDevices:2.2 /schemas/MTConnectDevices_2.2.xsd";
+            public const string Error = "urn:mtconnect.org:MTConnectError:2.2 /schemas/MTConnectError_2.2.xsd";
+            public const string Streams = "urn:mtconnect.org:MTConnectStreams:2.2 /schemas/MTConnectStreams_2.2.xsd";
+
+            public static bool Match(string ns)
+            {
+                return ns == Assets || ns == Devices || ns == Error || ns == Streams;
+            }
         }
 
 

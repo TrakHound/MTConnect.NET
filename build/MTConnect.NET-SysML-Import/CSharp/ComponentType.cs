@@ -1,4 +1,5 @@
-﻿using MTConnect.SysML.Models.Devices;
+﻿using MTConnect.NET_SysML_Import.CSharp;
+using MTConnect.SysML.Models.Devices;
 using MTConnect.SysML.Xmi;
 using MTConnect.SysML.Xmi.UML;
 using Scriban;
@@ -11,6 +12,8 @@ namespace MTConnect.SysML.CSharp
     public class ComponentType : MTConnectComponentType, ITemplateModel
     {
         public string Namespace => NamespaceHelper.GetNamespace(Id);
+
+        public string XmlDescription { get; set; }
 
         public string MaximumVersionEnum => MTConnectVersion.GetVersionEnum(MaximumVersion);
 
@@ -45,6 +48,9 @@ namespace MTConnect.SysML.CSharp
                             exportProperty.SetValue(exportModel, propertyValue);
                         }
                     }
+
+                    exportModel.Description = DescriptionHelper.GetTextDescription(importModel.Description);
+                    exportModel.XmlDescription = DescriptionHelper.GetXmlDescription(importModel.Description);
 
                     return exportModel;
                 }

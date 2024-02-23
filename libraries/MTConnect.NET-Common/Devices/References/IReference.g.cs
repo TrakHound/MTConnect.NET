@@ -9,12 +9,12 @@ namespace MTConnect.Devices.References
     public partial interface IReference
     {
         /// <summary>
-        /// Pointer to the id of a DataItem that contains the information to be associated with this entity.
+        /// Id that contains the information to be associated with this entity.
         /// </summary>
         string DataItemId { get; }
         
         /// <summary>
-        /// Pointer to the id of an entity that contains the information to be associated with this entity.
+        /// Pointer to the `id` of an entity that contains the information to be associated with this entity.
         /// </summary>
         string IdRef { get; }
         
@@ -24,7 +24,7 @@ namespace MTConnect.Devices.References
         string Name { get; }
         
         /// <summary>
-        /// Pointer to the id of a DataItem that contains the information to be associated with this entity.
+        /// Id that contains the information to be associated with this entity.
         /// </summary>
         string RefDataItemId { get; }
     }

@@ -14,7 +14,7 @@ namespace MTConnect.Devices.Configurations
         string CoordinateSystemIdRef { get; }
         
         /// <summary>
-        /// URL giving the location of the SolidModel. If not present, the model referenced in the solidModelIdRef,SolidModel is used.href,SolidModel is of type `xlink:href` from the W3C XLink specification.
+        /// URL giving the location of the SolidModel. solidModelIdRef is used.href is of type `xlink:href` from the W3C XLink specification.
         /// </summary>
         string Href { get; }
         
@@ -24,7 +24,7 @@ namespace MTConnect.Devices.Configurations
         string Id { get; }
         
         /// <summary>
-        /// Reference to the item within the model within the related geometry. A solidModelIdRef,SolidModel **MUST** be given. > Note: `Item` defined in ASME Y14.100 - A nonspecific term used to denote any unit or product, including materials, parts, assemblies, equipment, accessories, and computer software.
+        /// SolidModelIdRef **MUST** be given. > Note: `Item` defined in ASME Y14.100 - A nonspecific term used to denote any unit or product, including materials, parts, assemblies, equipment, accessories, and computer software.
         /// </summary>
         string ItemRef { get; }
         
@@ -34,7 +34,7 @@ namespace MTConnect.Devices.Configurations
         MTConnect.Devices.Configurations.MediaType MediaType { get; }
         
         /// <summary>
-        /// Same as DataItem DataItem::nativeUnits. See DataItem.
+        /// NativeUnits. See DataItem.
         /// </summary>
         string NativeUnits { get; }
         
@@ -54,7 +54,7 @@ namespace MTConnect.Devices.Configurations
         MTConnect.Devices.Configurations.ITransformation Transformation { get; }
         
         /// <summary>
-        /// Same as DataItem DataItem::units. See DataItem.
+        /// Units. See DataItem.
         /// </summary>
         string Units { get; }
     }

@@ -6,9 +6,9 @@ namespace MTConnect.Devices.Configurations
     public static class DeviceRelationshipDescriptions
     {
         /// <summary>
-        /// Reference to the uuid attribute of the Device element of the associated piece of equipment.
+        /// Uuid of the associated piece of equipment.
         /// </summary>
-        public const string DeviceUuidRef = "Reference to the uuid attribute of the Device element of the associated piece of equipment.";
+        public const string DeviceUuidRef = "Uuid of the associated piece of equipment.";
         
         /// <summary>
         /// URI identifying the agent that is publishing information for the associated piece of equipment.

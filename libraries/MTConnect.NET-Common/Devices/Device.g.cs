@@ -1,7 +1,7 @@
 // Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-// MTConnect SysML v2.2 : UML ID = _19_0_3_68e0225_1620240839406_285612_1596
+// MTConnect SysML v2.3 : UML ID = _19_0_3_68e0225_1620240839406_285612_1596
 
 namespace MTConnect.Devices
 {
@@ -74,12 +74,12 @@ namespace MTConnect.Devices
         public System.Collections.Generic.IEnumerable<MTConnect.Devices.References.IReference> References { get; set; }
         
         /// <summary>
-        /// Interval in milliseconds between the completion of the reading of the data associated with the Component until the beginning of the next sampling of that data.This information may be used by client software applications to understand how often information from a Component is expected to be refreshed.The refresh rate for data from all child Component entities will be thesame as for the parent Component element unless specifically overridden by another sampleInterval provided for the childComponent.
+        /// Interval in milliseconds between the completion of the reading of the data associated with the Component until the beginning of the next sampling of that data.This information may be used by client software applications to understand how often information from a Component is expected to be refreshed.The refresh rate for data from all child Component entities will be thesampleInterval provided for the child Component.
         /// </summary>
         public double SampleInterval { get; set; }
         
         /// <summary>
-        /// **DEPRECATED** in *MTConnect Version 1.2*. Replaced by sampleInterval,Component.
+        /// SampleInterval.
         /// </summary>
         public double SampleRate { get; set; }
     }

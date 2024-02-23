@@ -1,4 +1,4 @@
-﻿// Copyright(c) 2023 TrakHound Inc., All Rights Reserved.
+﻿// Copyright(c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MQTTnet;
@@ -160,11 +160,13 @@ namespace MTConnect
                 var formatResult = InputFormatter.Format(_configuration.DocumentFormat, observations);
                 if (formatResult.Success)
                 {
-                    var message = new MqttApplicationMessage();
-                    message.Retain = true;
-                    message.QualityOfServiceLevel = (MQTTnet.Protocol.MqttQualityOfServiceLevel)_configuration.QoS;
-                    message.Topic = $"{_configuration.Topic}/observations";
-                    message.Payload = formatResult.Content;
+                    var messageBuilder = new MqttApplicationMessageBuilder();
+                    messageBuilder.WithTopic($"{_configuration.Topic}/observations");
+                    messageBuilder.WithQualityOfServiceLevel((MQTTnet.Protocol.MqttQualityOfServiceLevel)_configuration.QoS);
+                    messageBuilder.WithPayload(formatResult.Content);
+                    messageBuilder.WithRetainFlag(true);
+
+                    var message = messageBuilder.Build();
                     _mqttClient.PublishAsync(message);
 
                     Log(MTConnectLogLevel.Debug, $"MQTT Observations Message Published to {message.Topic}");
@@ -181,11 +183,13 @@ namespace MTConnect
                 var formatResult = InputFormatter.Format(_configuration.DocumentFormat, assets);
                 if (formatResult.Success)
                 {
-                    var message = new MqttApplicationMessage();
-                    message.Retain = true;
-                    message.QualityOfServiceLevel = (MQTTnet.Protocol.MqttQualityOfServiceLevel)_configuration.QoS;
-                    message.Topic = $"{_configuration.Topic}/assets";
-                    message.Payload = formatResult.Content;
+                    var messageBuilder = new MqttApplicationMessageBuilder();
+                    messageBuilder.WithTopic($"{_configuration.Topic}/assets");
+                    messageBuilder.WithQualityOfServiceLevel((MQTTnet.Protocol.MqttQualityOfServiceLevel)_configuration.QoS);
+                    messageBuilder.WithPayload(formatResult.Content);
+                    messageBuilder.WithRetainFlag(true);
+
+                    var message = messageBuilder.Build();
                     _mqttClient.PublishAsync(message);
 
                     Log(MTConnectLogLevel.Debug, $"MQTT Assets Message Published to {message.Topic}");
@@ -204,11 +208,13 @@ namespace MTConnect
                     var formatResult = InputFormatter.Format(_configuration.DocumentFormat, device);
                     if (formatResult.Success)
                     {
-                        var message = new MqttApplicationMessage();
-                        message.Retain = true;
-                        message.QualityOfServiceLevel = (MQTTnet.Protocol.MqttQualityOfServiceLevel)_configuration.QoS;
-                        message.Topic = $"{_configuration.Topic}/device";
-                        message.Payload = formatResult.Content;
+                        var messageBuilder = new MqttApplicationMessageBuilder();
+                        messageBuilder.WithTopic($"{_configuration.Topic}/device");
+                        messageBuilder.WithQualityOfServiceLevel((MQTTnet.Protocol.MqttQualityOfServiceLevel)_configuration.QoS);
+                        messageBuilder.WithPayload(formatResult.Content);
+                        messageBuilder.WithRetainFlag(true);
+
+                        var message = messageBuilder.Build();
                         _mqttClient.PublishAsync(message);
 
                         Log(MTConnectLogLevel.Debug, $"MQTT Device Message Published to {message.Topic}");

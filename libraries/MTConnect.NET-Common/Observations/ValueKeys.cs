@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using System.Collections.Concurrent;
@@ -13,6 +13,7 @@ namespace MTConnect.Observations
     {
         public const string Result = "Result";
         public const string Level = "Level";
+        public const string ConditionId = "ConditionId";
         public const string NativeCode = "NativeCode";
         public const string NativeSeverity = "NativeSeverity";
         public const string Qualifier = "Qualifier";

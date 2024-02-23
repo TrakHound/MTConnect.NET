@@ -36,6 +36,31 @@ namespace MTConnect.DeviceFinder
         /// </summary>
         public string Name { get; set; }
 
+        /// <summary>
+        /// The Description of the MTConnect Device
+        /// </summary>
+        public string Description { get; set; }
+
+        /// <summary>
+        /// The Manufacturer of the MTConnect Device
+        /// </summary>
+        public string Manufacturer { get; set; }
+
+        /// <summary>
+        /// The Model of the MTConnect Device
+        /// </summary>
+        public string Model { get; set; }
+
+        /// <summary>
+        /// The SerialNumber of the MTConnect Device
+        /// </summary>
+        public string SerialNumber { get; set; }
+
+        /// <summary>
+        /// The Station of the MTConnect Device
+        /// </summary>
+        public string Station { get; set; }
+
 
         public MTConnectDevice(
             IPAddress ipAddress,

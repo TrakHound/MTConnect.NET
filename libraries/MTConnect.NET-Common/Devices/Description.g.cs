@@ -1,7 +1,7 @@
 // Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-// MTConnect SysML v2.2 : UML ID = EAID_64352755_7251_46af_846D_937E5A1E3949
+// MTConnect SysML v2.3 : UML ID = EAID_64352755_7251_46af_846D_937E5A1E3949
 
 namespace MTConnect.Devices
 {
@@ -29,7 +29,7 @@ namespace MTConnect.Devices
         public string SerialNumber { get; set; }
         
         /// <summary>
-        /// Station where the physical part or logical function of a piece of equipment is located when it is part of a manufacturing unit or cell with multiple stations.
+        /// Identifier where a manufacturing function takes place.
         /// </summary>
         public string Station { get; set; }
         

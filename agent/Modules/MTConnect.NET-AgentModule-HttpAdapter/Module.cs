@@ -44,7 +44,10 @@ namespace MTConnect.Modules
                 var adapterComponent = new HttpAdapterComponent(_configuration);
 
                 // Add Adapter Component to Agent Device
-                _mtconnectAgent.Agent.AddAdapterComponent(adapterComponent);
+                if (_mtconnectAgent.Agent != null)
+                {
+                    _mtconnectAgent.Agent.AddAdapterComponent(adapterComponent);
+                }
 
                 if (!adapterComponent.DataItems.IsNullOrEmpty())
                 {

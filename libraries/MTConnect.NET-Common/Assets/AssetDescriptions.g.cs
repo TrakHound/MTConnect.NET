@@ -21,9 +21,9 @@ namespace MTConnect.Assets
         public const string Description = "Description can contain any descriptive content about the Asset.";
         
         /// <summary>
-        /// Associated piece of equipment's UUID that supplied the Asset's data.It references to the uuid property of the Device defined in Device Information Model.
+        /// Associated piece of equipment's UUID that supplied the Asset's data.uuid defined in Device Information Model.
         /// </summary>
-        public const string DeviceUuid = "Associated piece of equipment's UUID that supplied the Asset's data.It references to the uuid property of the Device defined in Device Information Model.";
+        public const string DeviceUuid = "Associated piece of equipment's UUID that supplied the Asset's data.uuid defined in Device Information Model.";
         
         /// <summary>
         /// Condensed message digest from a secure one-way hash function. FIPS PUB 180-4

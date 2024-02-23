@@ -1,0 +1,24 @@
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
+// TrakHound Inc. licenses this file to you under the MIT license.
+
+namespace {{namespace}}
+{
+    /// <summary>
+    /// {{description}}
+    /// </summary>
+    public class {{name}} : EventDataSetObservation
+    {
+{{ i = 0 }}{{- for property in properties }}{{ i = i + 1 }}
+        /// <summary>
+        /// {{property.description}}
+        /// </summary>
+        public {{property.data_type}} {{property.name}} 
+        { 
+            get => GetValue<{{property.data_type}}>("DataSet[{{property.name}}]");
+            set => AddValue("DataSet[{{property.name}}]", value);
+        }
+        {{- if (i < (properties | array.size)) }}
+        {{ end }}
+{{- end }}
+    }
+}

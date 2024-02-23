@@ -4,7 +4,7 @@
 namespace MTConnect.Assets.CuttingTools
 {
     /// <summary>
-    /// Reference information about the assetId and/or the URL of the data source of CuttingToolArchetype.
+    /// AssetId and/or the URL of the data source of CuttingToolArchetype.
     /// </summary>
     public interface ICuttingToolArchetypeReference
     {
@@ -14,7 +14,7 @@ namespace MTConnect.Assets.CuttingTools
         string Source { get; }
         
         /// <summary>
-        /// AssetId of the related CuttingToolArchetype.
+        /// `assetId` of the related CuttingToolArchetype.
         /// </summary>
         string Value { get; }
     }

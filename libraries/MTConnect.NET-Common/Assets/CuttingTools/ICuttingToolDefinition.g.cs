@@ -14,7 +14,7 @@ namespace MTConnect.Assets.CuttingTools
         MTConnect.Assets.CuttingTools.FormatType Format { get; }
         
         /// <summary>
-        /// Text of the CuttingToolDefinition in format defined by format.
+        /// Format.
         /// </summary>
         string Value { get; }
     }

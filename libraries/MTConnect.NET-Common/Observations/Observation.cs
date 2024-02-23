@@ -219,6 +219,17 @@ namespace MTConnect.Observations
             return null;
         }
 
+        public TValue GetValue<TValue>(string valueKey)
+        {
+            var value = GetValue(valueKey);
+            if (value != null)
+            {
+                return (TValue)ChangeType(value, typeof(TValue));
+            }
+
+            return default;
+        }
+
         public void AddValue(string valueKey, object value)
         {
             if (!string.IsNullOrEmpty(valueKey) && value != null)
@@ -312,6 +323,34 @@ namespace MTConnect.Observations
             }
 
             return null;
+        }
+
+        private static object ChangeType(object obj, Type type)
+        {
+            if (obj != null)
+            {
+                try
+                {
+                    if (type == typeof(DateTime))
+                    {
+                        return obj.ToString().ToDateTime();
+                    }
+                    else if (typeof(Enum).IsAssignableFrom(type) && obj.GetType() == typeof(string))
+                    {
+                        if (Enum.TryParse(type, (string)obj, true, out var result))
+                        {
+                            return result;
+                        }
+                    }
+                    else
+                    {
+                        return Convert.ChangeType(obj, type);
+                    }
+                }
+                catch { }
+            }
+
+            return default;
         }
 
 

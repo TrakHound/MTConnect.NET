@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Devices;
@@ -7,8 +7,7 @@ using System;
 namespace MTConnect.Observations
 {
     /// <summary>
-    /// An abstract XML Element. Replaced in the XML document by type(s) of Condition type Data Elements representing CONDITION category data items defined for a Device in the Device Information Model.
-    /// There can be multiple types of Condition type XML Elements in a Condition container.
+    /// Observation that provides the condition of a piece of equipment or a Component.
     /// </summary>
     public class ConditionObservation : Observation, IConditionObservation
     {
@@ -17,6 +16,15 @@ namespace MTConnect.Observations
         /// </summary>
         public override string Type => base.Type;
 
+
+        /// <summary>
+        /// Identifier of an individual condition activation provided by a piece of equipment.
+        /// </summary>
+        public string ConditionId
+        {
+            get => GetValue(ValueKeys.ConditionId);
+            set => AddValue(ValueKeys.ConditionId, value);
+        }
 
         /// <summary>
         /// Level of the Condition (Normal, Warning, Fault, or Unavailable)

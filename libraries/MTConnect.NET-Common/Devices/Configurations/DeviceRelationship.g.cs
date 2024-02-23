@@ -1,7 +1,7 @@
 // Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-// MTConnect SysML v2.2 : UML ID = EAID_E20AAF35_BE17_40e8_8701_D2D7676EDC69
+// MTConnect SysML v2.3 : UML ID = EAID_E20AAF35_BE17_40e8_8701_D2D7676EDC69
 
 namespace MTConnect.Devices.Configurations
 {
@@ -14,7 +14,7 @@ namespace MTConnect.Devices.Configurations
 
 
         /// <summary>
-        /// Reference to the uuid attribute of the Device element of the associated piece of equipment.
+        /// Uuid of the associated piece of equipment.
         /// </summary>
         public string DeviceUuidRef { get; set; }
         

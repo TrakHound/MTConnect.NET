@@ -11,8 +11,8 @@ namespace MTConnect.Assets.CuttingTools
         public const string Source = "URL of the CuttingToolArchetype information model.";
         
         /// <summary>
-        /// AssetId of the related CuttingToolArchetype.
+        /// `assetId` of the related CuttingToolArchetype.
         /// </summary>
-        public const string Value = "AssetId of the related CuttingToolArchetype.";
+        public const string Value = "`assetId` of the related CuttingToolArchetype.";
     }
 }

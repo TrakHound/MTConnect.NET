@@ -26,17 +26,8 @@ namespace MTConnect.Applications
             // an HTTP server, SHDR Adapters, Command line arguments, Device management, Buffer management, Logging, Windows Service, and Configuration File management
             var agentApplication = new MTConnectAgentApplication();
 
-            // Use the regular MTConnectHttpAgentApplication if you are not using SHDR Adapters
-            ///var agentApplication = new MTConnectHttpAgentApplication();
-            
             // Run the Agent ('true' parameter blocks the call so the application does not continue)
             agentApplication.Run(args, true);
-
-            // Use the 'false' parameter if you are implementing this into an existing application or are handling blocking elsewhere
-            //agentApplication.Run(args, false);
-
-            // ** This is where the rest of your application can go. **
-            // For example, if you are developing the Agent to read directly from a PLC, this would be where you can place the PLC reading code 
         }
 
 

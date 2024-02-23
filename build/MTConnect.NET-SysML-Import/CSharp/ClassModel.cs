@@ -1,4 +1,5 @@
-﻿using MTConnect.SysML.Xmi;
+﻿using MTConnect.NET_SysML_Import.CSharp;
+using MTConnect.SysML.Xmi;
 using MTConnect.SysML.Xmi.UML;
 using Scriban;
 using System;
@@ -11,6 +12,8 @@ namespace MTConnect.SysML.CSharp
     internal class ClassModel : MTConnectClassModel, ITemplateModel
     {
         public string Namespace => NamespaceHelper.GetNamespace(Id);
+
+        public string XmlDescription { get; set; }
 
         public bool IsPartial { get; set; }
 
@@ -69,6 +72,9 @@ namespace MTConnect.SysML.CSharp
 
                         exportModel.Properties.Add(exportPropertyModel);
                     }
+
+                    exportModel.Description = DescriptionHelper.GetTextDescription(importModel.Description);
+                    exportModel.XmlDescription = DescriptionHelper.GetXmlDescription(importModel.Description);
 
                     return exportModel;
                 }

@@ -1,10 +1,10 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 namespace MTConnect.Observations
 {
     /// <summary>
-    /// A key-value pair published as part of a Data Set observation.
+    /// A key-value pair published as part of an Observation with a DataItemRepresentation of <see cref="Devices.DataItemRepresentation.DATA_SET">DATA_SET</see>.
     /// </summary>
     public class DataSetEntry : IDataSetEntry
     {

@@ -1,7 +1,7 @@
 // Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-// MTConnect SysML v2.2 : UML ID = EAID_002C94B7_1257_49be_8EAA_CE7FCD7AFF8A
+// MTConnect SysML v2.3 : UML ID = EAID_002C94B7_1257_49be_8EAA_CE7FCD7AFF8A
 
 namespace MTConnect.Devices
 {
@@ -29,7 +29,7 @@ namespace MTConnect.Devices
         public MTConnect.Devices.IConstraints Constraints { get; set; }
         
         /// <summary>
-        /// For measured values relative to a coordinate system like Position, the coordinate system used may be reported.**DEPRECATED** in *Version 2.0*. Replaced by coordinateSystemIdRef.
+        /// For measured values relative to a coordinate system like Position, the coordinate system used may be reported.coordinateSystemIdRef.
         /// </summary>
         public MTConnect.Devices.DataItemCoordinateSystem CoordinateSystem { get; set; }
         
@@ -39,12 +39,12 @@ namespace MTConnect.Devices
         public string CoordinateSystemIdRef { get; set; }
         
         /// <summary>
-        /// Defines the meaning of Entry and Cell elements associated with the DataItem when the representation is either `DATA` or `TABLE`.
+        /// Representation is either `DATA_SET` or `TABLE`.
         /// </summary>
         public MTConnect.Devices.IDataItemDefinition Definition { get; set; }
         
         /// <summary>
-        /// Indication signifying whether each value reported for the Observation is significant and whether duplicate values are to be suppressed.If a value is not defined for discrete, the default value **MUST** be `false`.
+        /// Indication signifying whether each value reported for the Observation is significant and whether duplicate values are to be suppressed.discrete, the default value **MUST** be `false`.
         /// </summary>
         public bool Discrete { get; set; }
         
@@ -84,7 +84,7 @@ namespace MTConnect.Devices
         public System.Collections.Generic.IEnumerable<MTConnect.Devices.IAbstractDataItemRelationship> Relationships { get; set; }
         
         /// <summary>
-        /// Description of a means to interpret data consisting of multiple data points or samples reported as a single value.  If representation is not specified, it **MUST** be determined to be `VALUE`.
+        /// Description of a means to interpret data consisting of multiple data points or samples reported as a single value.  representation is not specified, it **MUST** be determined to be `VALUE`.
         /// </summary>
         public MTConnect.Devices.DataItemRepresentation Representation { get; set; }
         
@@ -114,7 +114,7 @@ namespace MTConnect.Devices
         public MTConnect.Devices.DataItemStatistic? Statistic { get; set; }
         
         /// <summary>
-        /// Sub-categorization of the data item type.
+        /// Type.
         /// </summary>
         public string SubType { get; set; }
         

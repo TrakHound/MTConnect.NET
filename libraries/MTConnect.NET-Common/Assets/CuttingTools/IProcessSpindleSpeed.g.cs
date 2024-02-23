@@ -4,7 +4,7 @@
 namespace MTConnect.Assets.CuttingTools
 {
     /// <summary>
-    /// Constrained process spindle speed for the tool in revolutions/minute.The value **MAY** contain the nominal process target spindle speed if available. If ProcessSpindleSpeed is provided, at least one value of maximum, nominal, or minimum **MUST** be specified.
+    /// Constrained process spindle speed for the tool in revolutions/minute.minimum **MUST** be specified.
     /// </summary>
     public interface IProcessSpindleSpeed
     {

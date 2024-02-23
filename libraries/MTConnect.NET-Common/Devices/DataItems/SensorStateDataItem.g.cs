@@ -1,6 +1,8 @@
 // Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
+// MTConnect SysML v2.3 : UML ID = _19_0_3_68e0225_1677588817278_345680_780
+
 namespace MTConnect.Devices.DataItems
 {
     /// <summary>
@@ -23,22 +25,22 @@ namespace MTConnect.Devices.DataItems
         public enum SubTypes
         {
             /// <summary>
-            /// EventEnum:SENSOR_STATE where the state is DataItemSubTypeEnum::BINARY
+            /// BINARY
             /// </summary>
             BINARY,
             
             /// <summary>
-            /// EventEnum:SENSOR_STATE where the state is DataItemSubTypeEnum::BOOLEAN
+            /// BOOLEAN
             /// </summary>
             BOOLEAN,
             
             /// <summary>
-            /// EventEnum:SENSOR_STATE where the state is DataItemSubTypeEnum::ENUMERATED
+            /// ENUMERATED
             /// </summary>
             ENUMERATED,
             
             /// <summary>
-            /// EventEnum:SENSOR_STATE where the state is DataItemSubTypeEnum::DETECT
+            /// DETECT
             /// </summary>
             DETECT
         }
@@ -74,10 +76,10 @@ namespace MTConnect.Devices.DataItems
             var s = subType.ConvertEnum<SubTypes>();
             switch (s)
             {
-                case SubTypes.BINARY: return "EventEnum:SENSOR_STATE where the state is DataItemSubTypeEnum::BINARY";
-                case SubTypes.BOOLEAN: return "EventEnum:SENSOR_STATE where the state is DataItemSubTypeEnum::BOOLEAN";
-                case SubTypes.ENUMERATED: return "EventEnum:SENSOR_STATE where the state is DataItemSubTypeEnum::ENUMERATED";
-                case SubTypes.DETECT: return "EventEnum:SENSOR_STATE where the state is DataItemSubTypeEnum::DETECT";
+                case SubTypes.BINARY: return "BINARY";
+                case SubTypes.BOOLEAN: return "BOOLEAN";
+                case SubTypes.ENUMERATED: return "ENUMERATED";
+                case SubTypes.DETECT: return "DETECT";
             }
 
             return null;

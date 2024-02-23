@@ -75,6 +75,7 @@
             public const string type = "type";
             public const string name = "name";
             public const string version = "version";
+            public const string introduced = "introduced";
             public const string baseElement = "base_Element";
             public const string baseClass = "base_Class";
             public const string baseComment = "base_Comment";

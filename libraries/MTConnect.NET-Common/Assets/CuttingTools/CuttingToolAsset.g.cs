@@ -1,7 +1,7 @@
 // Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-// MTConnect SysML v2.2 : UML ID = EAID_614061EF_1D50_4989_A935_02492044833A
+// MTConnect SysML v2.3 : UML ID = EAID_614061EF_1D50_4989_A935_02492044833A
 
 namespace MTConnect.Assets.CuttingTools
 {
@@ -14,7 +14,7 @@ namespace MTConnect.Assets.CuttingTools
 
 
         /// <summary>
-        /// Reference information about the assetId and/or the URL of the data source of CuttingToolArchetype.
+        /// AssetId and/or the URL of the data source of CuttingToolArchetype.
         /// </summary>
         public MTConnect.Assets.CuttingTools.ICuttingToolArchetypeReference CuttingToolArchetypeReference { get; set; }
         

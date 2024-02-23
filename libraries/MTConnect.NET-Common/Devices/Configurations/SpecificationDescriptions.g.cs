@@ -6,9 +6,9 @@ namespace MTConnect.Devices.Configurations
     public static class SpecificationDescriptions
     {
         /// <summary>
-        /// Reference to the id attribute of the Composition associated with this element.
+        /// Id associated with this entity.
         /// </summary>
-        public const string CompositionIdRef = "Reference to the id attribute of the Composition associated with this element.";
+        public const string CompositionIdRef = "Id associated with this entity.";
         
         /// <summary>
         /// References the CoordinateSystem for geometric Specification elements.
@@ -16,9 +16,9 @@ namespace MTConnect.Devices.Configurations
         public const string CoordinateSystemIdRef = "References the CoordinateSystem for geometric Specification elements.";
         
         /// <summary>
-        /// Reference to the id attribute of the DataItem associated with this element.
+        /// Id associated with this entity.
         /// </summary>
-        public const string DataItemIdRef = "Reference to the id attribute of the DataItem associated with this element.";
+        public const string DataItemIdRef = "Id associated with this entity.";
         
         /// <summary>
         /// Unique identifier for this Specification.
@@ -46,9 +46,9 @@ namespace MTConnect.Devices.Configurations
         public const string Minimum = "Numeric lower constraint.";
         
         /// <summary>
-        /// Name provides additional meaning and differentiates between Specification elements.
+        /// Name provides additional meaning and differentiates between Specification entities.
         /// </summary>
-        public const string Name = "Name provides additional meaning and differentiates between Specification elements.";
+        public const string Name = "Name provides additional meaning and differentiates between Specification entities.";
         
         /// <summary>
         /// Numeric target or expected value.
@@ -61,19 +61,19 @@ namespace MTConnect.Devices.Configurations
         public const string Originator = "Reference to the creator of the Specification.";
         
         /// <summary>
-        /// Same as DataItem DataItem::subType. See DataItem.
+        /// SubType. See DataItem.
         /// </summary>
-        public const string SubType = "Same as DataItem DataItem::subType. See DataItem.";
+        public const string SubType = "SubType. See DataItem.";
         
         /// <summary>
-        /// Same as DataItem type. See DataItem Types.
+        /// Type. See DataItem Types.
         /// </summary>
-        public const string Type = "Same as DataItem type. See DataItem Types.";
+        public const string Type = "Type. See DataItem Types.";
         
         /// <summary>
-        /// Same as DataItem DataItem::units. See DataItem.
+        /// Units. See DataItem.
         /// </summary>
-        public const string Units = "Same as DataItem DataItem::units. See DataItem.";
+        public const string Units = "Units. See DataItem.";
         
         /// <summary>
         /// Upper conformance boundary for a variable.> Note: immediate concern or action may be required.

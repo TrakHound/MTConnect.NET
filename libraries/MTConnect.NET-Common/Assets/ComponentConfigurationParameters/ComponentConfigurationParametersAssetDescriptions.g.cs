@@ -6,8 +6,8 @@ namespace MTConnect.Assets.ComponentConfigurationParameters
     public static class ComponentConfigurationParametersAssetDescriptions
     {
         /// <summary>
-        /// Set of parameters defining the configuration of a Component.
+        /// Set of Parameters.
         /// </summary>
-        public const string ParameterSets = "Set of parameters defining the configuration of a Component.";
+        public const string ParameterSets = "Set of Parameters.";
     }
 }

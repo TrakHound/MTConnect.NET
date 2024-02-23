@@ -34,7 +34,7 @@ namespace MTConnect.Assets.ComponentConfigurationParameters
         double? Nominal { get; }
         
         /// <summary>
-        /// Engineering units.units **SHOULD** be SI or MTConnect Units (See UnitEnum).
+        /// Engineering units.units **SHOULD** be SI or MTConnect Units.
         /// </summary>
         string Units { get; }
         

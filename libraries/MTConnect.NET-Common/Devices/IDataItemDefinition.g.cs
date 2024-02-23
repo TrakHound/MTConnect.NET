@@ -4,7 +4,7 @@
 namespace MTConnect.Devices
 {
     /// <summary>
-    /// Defines the meaning of Entry and Cell elements associated with the DataItem when the representation is either `DATA` or `TABLE`.
+    /// Representation is either `DATA_SET` or `TABLE`.
     /// </summary>
     public interface IDataItemDefinition
     {

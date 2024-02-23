@@ -1,7 +1,7 @@
 // Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-// MTConnect SysML v2.2 : UML ID = EAID_8548C620_467A_4f50_9A22_58D84B7E8779
+// MTConnect SysML v2.3 : UML ID = EAID_8548C620_467A_4f50_9A22_58D84B7E8779
 
 namespace MTConnect.Devices
 {
@@ -44,7 +44,7 @@ namespace MTConnect.Devices
         public string Id { get; set; }
         
         /// <summary>
-        /// Name of the Component.When provided, name **MUST** be unique for all child Component entities of a parent Component.
+        /// Name of the Component.name **MUST** be unique for all child Component entities of a parent Component.
         /// </summary>
         public string Name { get; set; }
         
@@ -59,12 +59,12 @@ namespace MTConnect.Devices
         public System.Collections.Generic.IEnumerable<MTConnect.Devices.References.IReference> References { get; set; }
         
         /// <summary>
-        /// Interval in milliseconds between the completion of the reading of the data associated with the Component until the beginning of the next sampling of that data.This information may be used by client software applications to understand how often information from a Component is expected to be refreshed.The refresh rate for data from all child Component entities will be thesame as for the parent Component element unless specifically overridden by another sampleInterval provided for the childComponent.
+        /// Interval in milliseconds between the completion of the reading of the data associated with the Component until the beginning of the next sampling of that data.This information may be used by client software applications to understand how often information from a Component is expected to be refreshed.The refresh rate for data from all child Component entities will be thesampleInterval provided for the child Component.
         /// </summary>
         public double SampleInterval { get; set; }
         
         /// <summary>
-        /// **DEPRECATED** in *MTConnect Version 1.2*. Replaced by sampleInterval,Component.
+        /// SampleInterval.
         /// </summary>
         public double SampleRate { get; set; }
         

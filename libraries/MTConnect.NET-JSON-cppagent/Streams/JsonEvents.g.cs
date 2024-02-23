@@ -27,6 +27,10 @@ namespace MTConnect.Streams.Json
                 if (!ActiveAxesDataSet.IsNullOrEmpty()) foreach (var x in ActiveAxesDataSet) l.Add(x.ToObservation(ActiveAxesDataItem.TypeId));
                 if (!ActiveAxesTable.IsNullOrEmpty()) foreach (var x in ActiveAxesTable) l.Add(x.ToObservation(ActiveAxesDataItem.TypeId));
 
+                if (!ActivePowerSource.IsNullOrEmpty()) foreach (var x in ActivePowerSource) l.Add(x.ToObservation(ActivePowerSourceDataItem.TypeId));
+                if (!ActivePowerSourceDataSet.IsNullOrEmpty()) foreach (var x in ActivePowerSourceDataSet) l.Add(x.ToObservation(ActivePowerSourceDataItem.TypeId));
+                if (!ActivePowerSourceTable.IsNullOrEmpty()) foreach (var x in ActivePowerSourceTable) l.Add(x.ToObservation(ActivePowerSourceDataItem.TypeId));
+
                 if (!ActuatorState.IsNullOrEmpty()) foreach (var x in ActuatorState) l.Add(x.ToObservation(ActuatorStateDataItem.TypeId));
                 if (!ActuatorStateDataSet.IsNullOrEmpty()) foreach (var x in ActuatorStateDataSet) l.Add(x.ToObservation(ActuatorStateDataItem.TypeId));
                 if (!ActuatorStateTable.IsNullOrEmpty()) foreach (var x in ActuatorStateTable) l.Add(x.ToObservation(ActuatorStateDataItem.TypeId));
@@ -46,6 +50,10 @@ namespace MTConnect.Streams.Json
                 if (!AlarmLimit.IsNullOrEmpty()) foreach (var x in AlarmLimit) l.Add(x.ToObservation(AlarmLimitDataItem.TypeId));
                 if (!AlarmLimitDataSet.IsNullOrEmpty()) foreach (var x in AlarmLimitDataSet) l.Add(x.ToObservation(AlarmLimitDataItem.TypeId));
                 if (!AlarmLimitTable.IsNullOrEmpty()) foreach (var x in AlarmLimitTable) l.Add(x.ToObservation(AlarmLimitDataItem.TypeId));
+
+                if (!AlarmLimits.IsNullOrEmpty()) foreach (var x in AlarmLimits) l.Add(x.ToObservation(AlarmLimitsDataItem.TypeId));
+                if (!AlarmLimitsDataSet.IsNullOrEmpty()) foreach (var x in AlarmLimitsDataSet) l.Add(x.ToObservation(AlarmLimitsDataItem.TypeId));
+                if (!AlarmLimitsTable.IsNullOrEmpty()) foreach (var x in AlarmLimitsTable) l.Add(x.ToObservation(AlarmLimitsDataItem.TypeId));
 
                 if (!Application.IsNullOrEmpty()) foreach (var x in Application) l.Add(x.ToObservation(ApplicationDataItem.TypeId));
                 if (!ApplicationDataSet.IsNullOrEmpty()) foreach (var x in ApplicationDataSet) l.Add(x.ToObservation(ApplicationDataItem.TypeId));
@@ -134,6 +142,10 @@ namespace MTConnect.Streams.Json
                 if (!ControlLimit.IsNullOrEmpty()) foreach (var x in ControlLimit) l.Add(x.ToObservation(ControlLimitDataItem.TypeId));
                 if (!ControlLimitDataSet.IsNullOrEmpty()) foreach (var x in ControlLimitDataSet) l.Add(x.ToObservation(ControlLimitDataItem.TypeId));
                 if (!ControlLimitTable.IsNullOrEmpty()) foreach (var x in ControlLimitTable) l.Add(x.ToObservation(ControlLimitDataItem.TypeId));
+
+                if (!ControlLimits.IsNullOrEmpty()) foreach (var x in ControlLimits) l.Add(x.ToObservation(ControlLimitsDataItem.TypeId));
+                if (!ControlLimitsDataSet.IsNullOrEmpty()) foreach (var x in ControlLimitsDataSet) l.Add(x.ToObservation(ControlLimitsDataItem.TypeId));
+                if (!ControlLimitsTable.IsNullOrEmpty()) foreach (var x in ControlLimitsTable) l.Add(x.ToObservation(ControlLimitsDataItem.TypeId));
 
                 if (!ControllerMode.IsNullOrEmpty()) foreach (var x in ControllerMode) l.Add(x.ToObservation(ControllerModeDataItem.TypeId));
                 if (!ControllerModeDataSet.IsNullOrEmpty()) foreach (var x in ControllerModeDataSet) l.Add(x.ToObservation(ControllerModeDataItem.TypeId));
@@ -250,6 +262,10 @@ namespace MTConnect.Streams.Json
                 if (!LoadCount.IsNullOrEmpty()) foreach (var x in LoadCount) l.Add(x.ToObservation(LoadCountDataItem.TypeId));
                 if (!LoadCountDataSet.IsNullOrEmpty()) foreach (var x in LoadCountDataSet) l.Add(x.ToObservation(LoadCountDataItem.TypeId));
                 if (!LoadCountTable.IsNullOrEmpty()) foreach (var x in LoadCountTable) l.Add(x.ToObservation(LoadCountDataItem.TypeId));
+
+                if (!LocationAddress.IsNullOrEmpty()) foreach (var x in LocationAddress) l.Add(x.ToObservation(LocationAddressDataItem.TypeId));
+                if (!LocationAddressDataSet.IsNullOrEmpty()) foreach (var x in LocationAddressDataSet) l.Add(x.ToObservation(LocationAddressDataItem.TypeId));
+                if (!LocationAddressTable.IsNullOrEmpty()) foreach (var x in LocationAddressTable) l.Add(x.ToObservation(LocationAddressDataItem.TypeId));
 
                 if (!LockState.IsNullOrEmpty()) foreach (var x in LockState) l.Add(x.ToObservation(LockStateDataItem.TypeId));
                 if (!LockStateDataSet.IsNullOrEmpty()) foreach (var x in LockStateDataSet) l.Add(x.ToObservation(LockStateDataItem.TypeId));
@@ -447,6 +463,10 @@ namespace MTConnect.Streams.Json
                 if (!SpecificationLimitDataSet.IsNullOrEmpty()) foreach (var x in SpecificationLimitDataSet) l.Add(x.ToObservation(SpecificationLimitDataItem.TypeId));
                 if (!SpecificationLimitTable.IsNullOrEmpty()) foreach (var x in SpecificationLimitTable) l.Add(x.ToObservation(SpecificationLimitDataItem.TypeId));
 
+                if (!SpecificationLimits.IsNullOrEmpty()) foreach (var x in SpecificationLimits) l.Add(x.ToObservation(SpecificationLimitsDataItem.TypeId));
+                if (!SpecificationLimitsDataSet.IsNullOrEmpty()) foreach (var x in SpecificationLimitsDataSet) l.Add(x.ToObservation(SpecificationLimitsDataItem.TypeId));
+                if (!SpecificationLimitsTable.IsNullOrEmpty()) foreach (var x in SpecificationLimitsTable) l.Add(x.ToObservation(SpecificationLimitsDataItem.TypeId));
+
                 if (!SpindleInterlock.IsNullOrEmpty()) foreach (var x in SpindleInterlock) l.Add(x.ToObservation(SpindleInterlockDataItem.TypeId));
                 if (!SpindleInterlockDataSet.IsNullOrEmpty()) foreach (var x in SpindleInterlockDataSet) l.Add(x.ToObservation(SpindleInterlockDataItem.TypeId));
                 if (!SpindleInterlockTable.IsNullOrEmpty()) foreach (var x in SpindleInterlockTable) l.Add(x.ToObservation(SpindleInterlockDataItem.TypeId));
@@ -454,6 +474,10 @@ namespace MTConnect.Streams.Json
                 if (!ToolAssetId.IsNullOrEmpty()) foreach (var x in ToolAssetId) l.Add(x.ToObservation(ToolAssetIdDataItem.TypeId));
                 if (!ToolAssetIdDataSet.IsNullOrEmpty()) foreach (var x in ToolAssetIdDataSet) l.Add(x.ToObservation(ToolAssetIdDataItem.TypeId));
                 if (!ToolAssetIdTable.IsNullOrEmpty()) foreach (var x in ToolAssetIdTable) l.Add(x.ToObservation(ToolAssetIdDataItem.TypeId));
+
+                if (!ToolCuttingItem.IsNullOrEmpty()) foreach (var x in ToolCuttingItem) l.Add(x.ToObservation(ToolCuttingItemDataItem.TypeId));
+                if (!ToolCuttingItemDataSet.IsNullOrEmpty()) foreach (var x in ToolCuttingItemDataSet) l.Add(x.ToObservation(ToolCuttingItemDataItem.TypeId));
+                if (!ToolCuttingItemTable.IsNullOrEmpty()) foreach (var x in ToolCuttingItemTable) l.Add(x.ToObservation(ToolCuttingItemDataItem.TypeId));
 
                 if (!ToolGroup.IsNullOrEmpty()) foreach (var x in ToolGroup) l.Add(x.ToObservation(ToolGroupDataItem.TypeId));
                 if (!ToolGroupDataSet.IsNullOrEmpty()) foreach (var x in ToolGroupDataSet) l.Add(x.ToObservation(ToolGroupDataItem.TypeId));
@@ -551,6 +575,16 @@ namespace MTConnect.Streams.Json
         public IEnumerable<JsonEventTable> ActiveAxesTable { get; set; }
 
 
+        [JsonPropertyName("ActivePowerSource")]
+        public IEnumerable<JsonEventValue> ActivePowerSource { get; set; }
+
+        [JsonPropertyName("ActivePowerSourceDataSet")]
+        public IEnumerable<JsonEventDataSet> ActivePowerSourceDataSet { get; set; }
+
+        [JsonPropertyName("ActivePowerSourceTable")]
+        public IEnumerable<JsonEventTable> ActivePowerSourceTable { get; set; }
+
+
         [JsonPropertyName("ActuatorState")]
         public IEnumerable<JsonEventValue> ActuatorState { get; set; }
 
@@ -599,6 +633,16 @@ namespace MTConnect.Streams.Json
 
         [JsonPropertyName("AlarmLimitTable")]
         public IEnumerable<JsonEventTable> AlarmLimitTable { get; set; }
+
+
+        [JsonPropertyName("AlarmLimits")]
+        public IEnumerable<JsonEventValue> AlarmLimits { get; set; }
+
+        [JsonPropertyName("AlarmLimitsDataSet")]
+        public IEnumerable<JsonEventDataSet> AlarmLimitsDataSet { get; set; }
+
+        [JsonPropertyName("AlarmLimitsTable")]
+        public IEnumerable<JsonEventTable> AlarmLimitsTable { get; set; }
 
 
         [JsonPropertyName("Application")]
@@ -819,6 +863,16 @@ namespace MTConnect.Streams.Json
 
         [JsonPropertyName("ControlLimitTable")]
         public IEnumerable<JsonEventTable> ControlLimitTable { get; set; }
+
+
+        [JsonPropertyName("ControlLimits")]
+        public IEnumerable<JsonEventValue> ControlLimits { get; set; }
+
+        [JsonPropertyName("ControlLimitsDataSet")]
+        public IEnumerable<JsonEventDataSet> ControlLimitsDataSet { get; set; }
+
+        [JsonPropertyName("ControlLimitsTable")]
+        public IEnumerable<JsonEventTable> ControlLimitsTable { get; set; }
 
 
         [JsonPropertyName("ControllerMode")]
@@ -1109,6 +1163,16 @@ namespace MTConnect.Streams.Json
 
         [JsonPropertyName("LoadCountTable")]
         public IEnumerable<JsonEventTable> LoadCountTable { get; set; }
+
+
+        [JsonPropertyName("LocationAddress")]
+        public IEnumerable<JsonEventValue> LocationAddress { get; set; }
+
+        [JsonPropertyName("LocationAddressDataSet")]
+        public IEnumerable<JsonEventDataSet> LocationAddressDataSet { get; set; }
+
+        [JsonPropertyName("LocationAddressTable")]
+        public IEnumerable<JsonEventTable> LocationAddressTable { get; set; }
 
 
         [JsonPropertyName("LockState")]
@@ -1601,6 +1665,16 @@ namespace MTConnect.Streams.Json
         public IEnumerable<JsonEventTable> SpecificationLimitTable { get; set; }
 
 
+        [JsonPropertyName("SpecificationLimits")]
+        public IEnumerable<JsonEventValue> SpecificationLimits { get; set; }
+
+        [JsonPropertyName("SpecificationLimitsDataSet")]
+        public IEnumerable<JsonEventDataSet> SpecificationLimitsDataSet { get; set; }
+
+        [JsonPropertyName("SpecificationLimitsTable")]
+        public IEnumerable<JsonEventTable> SpecificationLimitsTable { get; set; }
+
+
         [JsonPropertyName("SpindleInterlock")]
         public IEnumerable<JsonEventValue> SpindleInterlock { get; set; }
 
@@ -1619,6 +1693,16 @@ namespace MTConnect.Streams.Json
 
         [JsonPropertyName("ToolAssetIdTable")]
         public IEnumerable<JsonEventTable> ToolAssetIdTable { get; set; }
+
+
+        [JsonPropertyName("ToolCuttingItem")]
+        public IEnumerable<JsonEventValue> ToolCuttingItem { get; set; }
+
+        [JsonPropertyName("ToolCuttingItemDataSet")]
+        public IEnumerable<JsonEventDataSet> ToolCuttingItemDataSet { get; set; }
+
+        [JsonPropertyName("ToolCuttingItemTable")]
+        public IEnumerable<JsonEventTable> ToolCuttingItemTable { get; set; }
 
 
         [JsonPropertyName("ToolGroup")]
@@ -1885,6 +1969,43 @@ namespace MTConnect.Streams.Json
                     }
 
 
+                    // Add ActivePowerSource
+                    typeObservations = observations.Where(o => o.Type == ActivePowerSourceDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventValue>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventValue(observation));
+                        }
+                        ActivePowerSource = jsonObservations;
+                    }
+
+                    // Add ActivePowerSourceDataSet
+                    typeObservations = observations.Where(o => o.Type == ActivePowerSourceDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventDataSet>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventDataSet(observation));
+                        }
+                        ActivePowerSourceDataSet = jsonObservations;
+                    }
+
+                    // Add ActivePowerSourceTable
+                    typeObservations = observations.Where(o => o.Type == ActivePowerSourceDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventTable>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventTable(observation));
+                        }
+                        ActivePowerSourceTable = jsonObservations;
+                    }
+
+
                     // Add ActuatorState
                     typeObservations = observations.Where(o => o.Type == ActuatorStateDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
@@ -2067,6 +2188,43 @@ namespace MTConnect.Streams.Json
                             jsonObservations.Add(new JsonEventTable(observation));
                         }
                         AlarmLimitTable = jsonObservations;
+                    }
+
+
+                    // Add AlarmLimits
+                    typeObservations = observations.Where(o => o.Type == AlarmLimitsDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventValue>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventValue(observation));
+                        }
+                        AlarmLimits = jsonObservations;
+                    }
+
+                    // Add AlarmLimitsDataSet
+                    typeObservations = observations.Where(o => o.Type == AlarmLimitsDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventDataSet>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventDataSet(observation));
+                        }
+                        AlarmLimitsDataSet = jsonObservations;
+                    }
+
+                    // Add AlarmLimitsTable
+                    typeObservations = observations.Where(o => o.Type == AlarmLimitsDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventTable>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventTable(observation));
+                        }
+                        AlarmLimitsTable = jsonObservations;
                     }
 
 
@@ -2881,6 +3039,43 @@ namespace MTConnect.Streams.Json
                             jsonObservations.Add(new JsonEventTable(observation));
                         }
                         ControlLimitTable = jsonObservations;
+                    }
+
+
+                    // Add ControlLimits
+                    typeObservations = observations.Where(o => o.Type == ControlLimitsDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventValue>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventValue(observation));
+                        }
+                        ControlLimits = jsonObservations;
+                    }
+
+                    // Add ControlLimitsDataSet
+                    typeObservations = observations.Where(o => o.Type == ControlLimitsDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventDataSet>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventDataSet(observation));
+                        }
+                        ControlLimitsDataSet = jsonObservations;
+                    }
+
+                    // Add ControlLimitsTable
+                    typeObservations = observations.Where(o => o.Type == ControlLimitsDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventTable>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventTable(observation));
+                        }
+                        ControlLimitsTable = jsonObservations;
                     }
 
 
@@ -3954,6 +4149,43 @@ namespace MTConnect.Streams.Json
                             jsonObservations.Add(new JsonEventTable(observation));
                         }
                         LoadCountTable = jsonObservations;
+                    }
+
+
+                    // Add LocationAddress
+                    typeObservations = observations.Where(o => o.Type == LocationAddressDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventValue>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventValue(observation));
+                        }
+                        LocationAddress = jsonObservations;
+                    }
+
+                    // Add LocationAddressDataSet
+                    typeObservations = observations.Where(o => o.Type == LocationAddressDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventDataSet>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventDataSet(observation));
+                        }
+                        LocationAddressDataSet = jsonObservations;
+                    }
+
+                    // Add LocationAddressTable
+                    typeObservations = observations.Where(o => o.Type == LocationAddressDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventTable>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventTable(observation));
+                        }
+                        LocationAddressTable = jsonObservations;
                     }
 
 
@@ -5770,6 +6002,43 @@ namespace MTConnect.Streams.Json
                     }
 
 
+                    // Add SpecificationLimits
+                    typeObservations = observations.Where(o => o.Type == SpecificationLimitsDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventValue>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventValue(observation));
+                        }
+                        SpecificationLimits = jsonObservations;
+                    }
+
+                    // Add SpecificationLimitsDataSet
+                    typeObservations = observations.Where(o => o.Type == SpecificationLimitsDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventDataSet>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventDataSet(observation));
+                        }
+                        SpecificationLimitsDataSet = jsonObservations;
+                    }
+
+                    // Add SpecificationLimitsTable
+                    typeObservations = observations.Where(o => o.Type == SpecificationLimitsDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventTable>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventTable(observation));
+                        }
+                        SpecificationLimitsTable = jsonObservations;
+                    }
+
+
                     // Add SpindleInterlock
                     typeObservations = observations.Where(o => o.Type == SpindleInterlockDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
@@ -5841,6 +6110,43 @@ namespace MTConnect.Streams.Json
                             jsonObservations.Add(new JsonEventTable(observation));
                         }
                         ToolAssetIdTable = jsonObservations;
+                    }
+
+
+                    // Add ToolCuttingItem
+                    typeObservations = observations.Where(o => o.Type == ToolCuttingItemDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventValue>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventValue(observation));
+                        }
+                        ToolCuttingItem = jsonObservations;
+                    }
+
+                    // Add ToolCuttingItemDataSet
+                    typeObservations = observations.Where(o => o.Type == ToolCuttingItemDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventDataSet>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventDataSet(observation));
+                        }
+                        ToolCuttingItemDataSet = jsonObservations;
+                    }
+
+                    // Add ToolCuttingItemTable
+                    typeObservations = observations.Where(o => o.Type == ToolCuttingItemDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventTable>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventTable(observation));
+                        }
+                        ToolCuttingItemTable = jsonObservations;
                     }
 
 

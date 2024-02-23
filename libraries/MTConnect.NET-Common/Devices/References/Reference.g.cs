@@ -1,7 +1,7 @@
 // Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-// MTConnect SysML v2.2 : UML ID = EAID_25A13743_B12C_4c6c_B1DA_8E2EFDD156EF
+// MTConnect SysML v2.3 : UML ID = EAID_25A13743_B12C_4c6c_B1DA_8E2EFDD156EF
 
 namespace MTConnect.Devices.References
 {
@@ -14,12 +14,12 @@ namespace MTConnect.Devices.References
 
 
         /// <summary>
-        /// Pointer to the id of a DataItem that contains the information to be associated with this entity.
+        /// Id that contains the information to be associated with this entity.
         /// </summary>
         public string DataItemId { get; set; }
         
         /// <summary>
-        /// Pointer to the id of an entity that contains the information to be associated with this entity.
+        /// Pointer to the `id` of an entity that contains the information to be associated with this entity.
         /// </summary>
         public string IdRef { get; set; }
         
@@ -29,7 +29,7 @@ namespace MTConnect.Devices.References
         public string Name { get; set; }
         
         /// <summary>
-        /// Pointer to the id of a DataItem that contains the information to be associated with this entity.
+        /// Id that contains the information to be associated with this entity.
         /// </summary>
         public string RefDataItemId { get; set; }
     }

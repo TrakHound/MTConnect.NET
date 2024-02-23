@@ -1,16 +1,16 @@
 // Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-// MTConnect SysML v2.2 : UML ID = _19_0_3_68e0225_1678197254209_96040_17915
+// MTConnect SysML v2.3 : UML ID = _19_0_3_68e0225_1678197254209_96040_17915
 
 namespace MTConnect.Assets.ComponentConfigurationParameters
 {
     /// <summary>
-    /// Set of parameters defining the configuration of a Component.
+    /// Set of Parameters.
     /// </summary>
     public class ParameterSet : IParameterSet
     {
-        public const string DescriptionText = "Set of parameters defining the configuration of a Component.";
+        public const string DescriptionText = "Set of Parameters.";
 
 
         /// <summary>

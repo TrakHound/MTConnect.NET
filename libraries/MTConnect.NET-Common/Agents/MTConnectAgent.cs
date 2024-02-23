@@ -268,35 +268,41 @@ namespace MTConnect.Agents
 
         protected void InitializeAgentDevice(bool initializeDataItems = true)
         {
-            _agent = new Agent(this);
-            _agent.InitializeDataItems();
-            _agent.Hash = _agent.GenerateHash();
-
-            // Add Name and UUID to DeviceKey dictionary
-            _deviceKeys.TryRemove(_agent.Name.ToLower(), out _);
-            _deviceKeys.TryAdd(_agent.Name.ToLower(), _agent.Uuid);
-            _deviceKeys.TryRemove(_agent.Uuid, out _);
-            _deviceKeys.TryAdd(_agent.Uuid, _agent.Uuid);
-
-            // Update Cached DataItems
-            _deviceDataItems.TryRemove(_agent.Uuid, out _);
-            _deviceDataItems.TryAdd(_agent.Uuid, _agent.GetDataItems());
-            _deviceDataItemIds.TryRemove(_agent.Uuid, out _);
-            _deviceDataItemIds.TryAdd(_agent.Uuid, _agent.GetDataItems().Select(o => o.Id));
-
-            if (initializeDataItems)
+            if (_configuration.EnableAgentDevice)
             {
-                _agent.InitializeObservations();
+                _agent = new Agent(this);
+                _agent.InitializeDataItems();
+                _agent.Hash = _agent.GenerateHash();
+
+                // Add Name and UUID to DeviceKey dictionary
+                _deviceKeys.TryRemove(_agent.Name.ToLower(), out _);
+                _deviceKeys.TryAdd(_agent.Name.ToLower(), _agent.Uuid);
+                _deviceKeys.TryRemove(_agent.Uuid, out _);
+                _deviceKeys.TryAdd(_agent.Uuid, _agent.Uuid);
+
+                // Update Cached DataItems
+                _deviceDataItems.TryRemove(_agent.Uuid, out _);
+                _deviceDataItems.TryAdd(_agent.Uuid, _agent.GetDataItems());
+                _deviceDataItemIds.TryRemove(_agent.Uuid, out _);
+                _deviceDataItemIds.TryAdd(_agent.Uuid, _agent.GetDataItems().Select(o => o.Id));
+
+                if (initializeDataItems)
+                {
+                    _agent.InitializeObservations();
+                }
             }
         }
 
         internal void UpdateAgentDevice()
         {
-            // Update Cached DataItems
-            _deviceDataItems.TryRemove(_agent.Uuid, out _);
-            _deviceDataItems.TryAdd(_agent.Uuid, _agent.GetDataItems());
-            _deviceDataItemIds.TryRemove(_agent.Uuid, out _);
-            _deviceDataItemIds.TryAdd(_agent.Uuid, _agent.GetDataItems().Select(o => o.Id));
+            if (_agent != null)
+            {
+                // Update Cached DataItems
+                _deviceDataItems.TryRemove(_agent.Uuid, out _);
+                _deviceDataItems.TryAdd(_agent.Uuid, _agent.GetDataItems());
+                _deviceDataItemIds.TryRemove(_agent.Uuid, out _);
+                _deviceDataItemIds.TryAdd(_agent.Uuid, _agent.GetDataItems().Select(o => o.Id));
+            }
         }
 
         #endregion
@@ -346,7 +352,7 @@ namespace MTConnect.Agents
             if (deviceUuid != null)
             {
                 IDevice device = null;
-                if (deviceUuid == _agent.Uuid) device = _agent;
+                if (_agent != null && deviceUuid == _agent.Uuid) device = _agent;
                 if (device == null) _devices.TryGetValue(deviceUuid, out device);
                 if (device != null)
                 {
@@ -363,7 +369,7 @@ namespace MTConnect.Agents
             if (deviceUuid != null)
             {
                 IDevice device = null;
-                if (deviceUuid == _agent.Uuid) device = _agent;
+                if (_agent != null && deviceUuid == _agent.Uuid) device = _agent;
                 if (device == null) _devices.TryGetValue(deviceUuid, out device);
                 if (device != null)
                 {
@@ -377,7 +383,7 @@ namespace MTConnect.Agents
         public IEnumerable<IDevice> GetDevices()
         {
             var allDevices = new List<IDevice>();
-            allDevices.Add(_agent);
+            if (_agent != null) allDevices.Add(_agent);
             var devices = _devices.Select(o => o.Value).ToList();
             if (!devices.IsNullOrEmpty()) allDevices.AddRange(devices);
 
@@ -392,7 +398,7 @@ namespace MTConnect.Agents
         public IEnumerable<IDevice> GetDevices(Version mtconnectVersion)
         {
             var allDevices = new List<IDevice>();
-            allDevices.Add(_agent);
+            if (_agent != null) allDevices.Add(_agent);
             var devices = _devices.Select(o => o.Value).ToList();
             if (!devices.IsNullOrEmpty()) allDevices.AddRange(devices);
 
@@ -407,9 +413,27 @@ namespace MTConnect.Agents
         public IEnumerable<IDevice> GetDevices(string deviceType)
         {
             var allDevices = new List<IDevice>();
-            if (string.IsNullOrEmpty(deviceType) || deviceType.ToLower() == "agent") allDevices.Add(Agent);
-            var devices = _devices.Select(o => o.Value).ToList();
-            if (!devices.IsNullOrEmpty()) allDevices.AddRange(devices);
+
+            if (!string.IsNullOrEmpty(deviceType))
+            {
+                switch (deviceType)
+                {
+                    case Agent.TypeId:
+                        if (_agent != null) allDevices.Add(_agent); 
+                        break;
+
+                    case Device.TypeId:
+                        var devices = _devices.Select(o => o.Value).ToList();
+                        if (!devices.IsNullOrEmpty()) allDevices.AddRange(devices);
+                        break;
+                }
+            }
+            else
+            {
+                if (_agent != null) allDevices.Add(_agent);
+                var devices = _devices.Select(o => o.Value).ToList();
+                if (!devices.IsNullOrEmpty()) allDevices.AddRange(devices);
+            }
 
             if (!allDevices.IsNullOrEmpty())
             {
@@ -422,9 +446,27 @@ namespace MTConnect.Agents
         public IEnumerable<IDevice> GetDevices(string deviceType, Version mtconnectVersion)
         {
             var allDevices = new List<IDevice>();
-            if (string.IsNullOrEmpty(deviceType) || deviceType.ToLower() == "agent") allDevices.Add(Agent);
-            var devices = _devices.Select(o => o.Value).ToList();
-            if (!devices.IsNullOrEmpty()) allDevices.AddRange(devices);
+
+            if (!string.IsNullOrEmpty(deviceType))
+            {
+                switch (deviceType)
+                {
+                    case Agent.TypeId:
+                        if (_agent != null) allDevices.Add(_agent);
+                        break;
+
+                    case Device.TypeId:
+                        var devices = _devices.Select(o => o.Value).ToList();
+                        if (!devices.IsNullOrEmpty()) allDevices.AddRange(devices);
+                        break;
+                }             
+            }
+            else
+            {
+                if (_agent != null) allDevices.Add(_agent);
+                var devices = _devices.Select(o => o.Value).ToList();
+                if (!devices.IsNullOrEmpty()) allDevices.AddRange(devices);
+            }
 
             if (!allDevices.IsNullOrEmpty())
             {
@@ -536,7 +578,7 @@ namespace MTConnect.Agents
             var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersion;
 
             var allDevices = new List<IDevice>();
-            allDevices.Add(_agent);
+            if (_agent != null) allDevices.Add(_agent);
             var devices = GetDevices(version);
             if (!devices.IsNullOrEmpty()) allDevices.AddRange(devices);
 

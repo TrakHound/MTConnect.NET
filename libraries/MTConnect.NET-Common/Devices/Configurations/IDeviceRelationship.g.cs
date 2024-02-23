@@ -9,7 +9,7 @@ namespace MTConnect.Devices.Configurations
     public interface IDeviceRelationship : IConfigurationRelationship
     {
         /// <summary>
-        /// Reference to the uuid attribute of the Device element of the associated piece of equipment.
+        /// Uuid of the associated piece of equipment.
         /// </summary>
         string DeviceUuidRef { get; }
         

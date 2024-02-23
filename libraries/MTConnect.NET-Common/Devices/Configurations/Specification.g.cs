@@ -1,7 +1,7 @@
 // Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-// MTConnect SysML v2.2 : UML ID = _19_0_3_45f01b9_1580315898400_607214_47155
+// MTConnect SysML v2.3 : UML ID = _19_0_3_45f01b9_1580315898400_607214_47155
 
 namespace MTConnect.Devices.Configurations
 {
@@ -14,7 +14,7 @@ namespace MTConnect.Devices.Configurations
 
 
         /// <summary>
-        /// Reference to the id attribute of the Composition associated with this element.
+        /// Id associated with this entity.
         /// </summary>
         public string CompositionIdRef { get; set; }
         
@@ -24,7 +24,7 @@ namespace MTConnect.Devices.Configurations
         public string CoordinateSystemIdRef { get; set; }
         
         /// <summary>
-        /// Reference to the id attribute of the DataItem associated with this element.
+        /// Id associated with this entity.
         /// </summary>
         public string DataItemIdRef { get; set; }
         
@@ -54,7 +54,7 @@ namespace MTConnect.Devices.Configurations
         public double? Minimum { get; set; }
         
         /// <summary>
-        /// Name provides additional meaning and differentiates between Specification elements.
+        /// Name provides additional meaning and differentiates between Specification entities.
         /// </summary>
         public string Name { get; set; }
         
@@ -69,17 +69,17 @@ namespace MTConnect.Devices.Configurations
         public MTConnect.Devices.Configurations.Originator Originator { get; set; }
         
         /// <summary>
-        /// Same as DataItem DataItem::subType. See DataItem.
+        /// SubType. See DataItem.
         /// </summary>
         public string SubType { get; set; }
         
         /// <summary>
-        /// Same as DataItem type. See DataItem Types.
+        /// Type. See DataItem Types.
         /// </summary>
         public string Type { get; set; }
         
         /// <summary>
-        /// Same as DataItem DataItem::units. See DataItem.
+        /// Units. See DataItem.
         /// </summary>
         public string Units { get; set; }
         

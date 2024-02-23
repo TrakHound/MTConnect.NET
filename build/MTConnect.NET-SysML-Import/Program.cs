@@ -4,7 +4,8 @@ using MTConnect.SysML.Json_cppagent;
 using MTConnect.SysML.Xml;
 using System.Text.Json;
 
-var xmlPath = @"D:\TrakHound\MTConnect\MTConnectSysMLModel.xml";
+//var xmlPath = @"D:\TrakHound\MTConnect\MTConnectSysMLModel.xml";
+var xmlPath = @"D:\TrakHound\MTConnect\Standard\v2.3\MTConnectSysMLModel.xml";
 
 var mtconnectModel = MTConnectModel.Parse(xmlPath);
 

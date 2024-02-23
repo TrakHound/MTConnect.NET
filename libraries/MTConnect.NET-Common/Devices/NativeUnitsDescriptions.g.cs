@@ -21,6 +21,16 @@ namespace MTConnect.Devices
         public const string CENTIPOISE = "Measure of viscosity.";
         
         /// <summary>
+        /// Change of geometric volume in cubic foot per hour.
+        /// </summary>
+        public const string CUBIC_FOOT_PER_HOUR = "Change of geometric volume in cubic foot per hour.";
+        
+        /// <summary>
+        /// Change of geometric volume in cubic foot per minute.
+        /// </summary>
+        public const string CUBIC_FOOT_PER_MINUTE = "Change of geometric volume in cubic foot per minute.";
+        
+        /// <summary>
         /// Rotational velocity in degrees per minute.
         /// </summary>
         public const string DEGREE_PER_MINUTE = "Rotational velocity in degrees per minute.";
@@ -193,6 +203,8 @@ namespace MTConnect.Devices
                 case NativeUnits.AMPERE_HOUR: return "Electric charge in ampere hour.";
                 case NativeUnits.BAR: return "Pressure in Bar.";
                 case NativeUnits.CENTIPOISE: return "Measure of viscosity.";
+                case NativeUnits.CUBIC_FOOT_PER_HOUR: return "Change of geometric volume in cubic foot per hour.";
+                case NativeUnits.CUBIC_FOOT_PER_MINUTE: return "Change of geometric volume in cubic foot per minute.";
                 case NativeUnits.DEGREE_PER_MINUTE: return "Rotational velocity in degrees per minute.";
                 case NativeUnits.FAHRENHEIT: return "Temperature in Fahrenheit.";
                 case NativeUnits.FOOT: return "Feet.";

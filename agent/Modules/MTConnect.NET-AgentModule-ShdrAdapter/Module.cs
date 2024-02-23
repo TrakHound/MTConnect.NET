@@ -15,7 +15,7 @@ using System.Linq;
 
 namespace MTConnect.Modules
 {
-	public class Module : MTConnectAgentModule
+    public class Module : MTConnectAgentModule
     {
         public const string ConfigurationTypeId = "shdr-adapter";
         private const string ModuleId = "SHDR Adapter";
@@ -92,7 +92,7 @@ namespace MTConnect.Modules
                 var adapterComponent = new ShdrAdapterComponent(configuration, idSuffix, _mtconnectAgent.Agent, _mtconnectAgent.Agent);
 
                 // Add Adapter Component to Agent Device
-                _mtconnectAgent.Agent.AddAdapterComponent(adapterComponent);
+                if (_mtconnectAgent.Agent != null) _mtconnectAgent.Agent.AddAdapterComponent(adapterComponent);
 
                 if (configuration.OutputConnectionInformation)
                 {
@@ -116,9 +116,12 @@ namespace MTConnect.Modules
                 adapterClient.PongReceived += AdapterPongReceived;
                 adapterClient.ProtocolReceived += AdapterProtocolReceived;
 
-				// Set ConnectionStatus DataItem
-				var connectionStatusDataItem = _mtconnectAgent.Agent.GetDataItemByKey(DataItem.CreateId(adapterClient.Id, ConnectionStatusDataItem.NameId));
-				_mtconnectAgent.AddObservation(connectionStatusDataItem, ConnectionStatus.LISTEN);
+                // Set ConnectionStatus DataItem
+                if (_mtconnectAgent.Agent != null)
+                {
+                    var connectionStatusDataItem = _mtconnectAgent.Agent.GetDataItemByKey(DataItem.CreateId(adapterClient.Id, ConnectionStatusDataItem.NameId));
+                    _mtconnectAgent.AddObservation(connectionStatusDataItem, ConnectionStatus.LISTEN);
+                }
 
 				// Start the Adapter Client
 				adapterClient.Start();
@@ -131,8 +134,11 @@ namespace MTConnect.Modules
             var adapterClient = (ShdrAdapterClient)sender;
 
             // Set ConnectionStatus DataItem
-            var connectionStatusDataItem = _mtconnectAgent.Agent.GetDataItemByKey(DataItem.CreateId(adapterClient.Id, ConnectionStatusDataItem.NameId));
-            _mtconnectAgent.AddObservation(connectionStatusDataItem, ConnectionStatus.ESTABLISHED);
+            if (_mtconnectAgent.Agent != null)
+            {
+                var connectionStatusDataItem = _mtconnectAgent.Agent.GetDataItemByKey(DataItem.CreateId(adapterClient.Id, ConnectionStatusDataItem.NameId));
+                _mtconnectAgent.AddObservation(connectionStatusDataItem, ConnectionStatus.ESTABLISHED);
+            }
 
             // Set Availability (if AvailableOnConnection = TRUE)
             if (_configuration.AvailableOnConnection)
@@ -148,9 +154,12 @@ namespace MTConnect.Modules
         {
             var adapterClient = (ShdrAdapterClient)sender;
 
-			// Set ConnectionStatus DataItem
-			var connectionStatusDataItem = _mtconnectAgent.Agent.GetDataItemByKey(DataItem.CreateId(adapterClient.Id, ConnectionStatusDataItem.NameId));
-			_mtconnectAgent.AddObservation(connectionStatusDataItem, ConnectionStatus.CLOSED);
+            // Set ConnectionStatus DataItem
+            if (_mtconnectAgent.Agent != null)
+            {
+                var connectionStatusDataItem = _mtconnectAgent.Agent.GetDataItemByKey(DataItem.CreateId(adapterClient.Id, ConnectionStatusDataItem.NameId));
+                _mtconnectAgent.AddObservation(connectionStatusDataItem, ConnectionStatus.CLOSED);
+            }
 
 			// Set Availability (if AvailableOnConnection = TRUE)
 			if (_configuration.AvailableOnConnection)
@@ -172,9 +181,12 @@ namespace MTConnect.Modules
         {
             var adapterClient = (ShdrAdapterClient)sender;
 
-			// Set ConnectionStatus DataItem
-			var connectionStatusDataItem = _mtconnectAgent.Agent.GetDataItemByKey(DataItem.CreateId(adapterClient.Id, ConnectionStatusDataItem.NameId));
-			_mtconnectAgent.AddObservation(connectionStatusDataItem, ConnectionStatus.LISTEN);
+            // Set ConnectionStatus DataItem
+            if (_mtconnectAgent.Agent != null)
+            {
+                var connectionStatusDataItem = _mtconnectAgent.Agent.GetDataItemByKey(DataItem.CreateId(adapterClient.Id, ConnectionStatusDataItem.NameId));
+                _mtconnectAgent.AddObservation(connectionStatusDataItem, ConnectionStatus.LISTEN);
+            }
 
             Log(MTConnectLogLevel.Debug, $"ID = " + adapterClient.Id + " : " + message);
         }

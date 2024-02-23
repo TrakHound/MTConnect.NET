@@ -50,48 +50,48 @@ namespace MTConnect.Applications
                 var rnd = new Random();
                 var ts = DateTime.Now;
 
-                AddObservation("Xload", x, ts);
-                AddObservation("Yload", x, ts);
-                AddObservation("Zload", x, ts);
+                //AddObservation("Xload", x, ts);
+                //AddObservation("Yload", x, ts);
+                //AddObservation("Zload", x, ts);
 
 
-                var datasetEntries = new List<IDataSetEntry>();
-                for (var e = 0; e < 100; e++)
-                {
-                    datasetEntries.Add(new DataSetEntry($"E{e.ToString("D3")}", rnd.NextDouble() * 100));
-                }
-                var dataset = new DataSetObservationInput("testDataSet", datasetEntries);
-                AddObservation(dataset);
+                //var datasetEntries = new List<IDataSetEntry>();
+                //for (var e = 0; e < 100; e++)
+                //{
+                //    datasetEntries.Add(new DataSetEntry($"E{e.ToString("D3")}", rnd.NextDouble() * 100));
+                //}
+                //var dataset = new DataSetObservationInput("testDataSet", datasetEntries);
+                //AddObservation(dataset);
 
 
-                var tableEntries = new List<ITableEntry>();
+                //var tableEntries = new List<ITableEntry>();
 
-                var tableCells1 = new List<ITableCell>();
-                tableCells1.Add(new TableCell("Length", 102.310));
-                tableCells1.Add(new TableCell("Diameter", 12.493));
-                tableEntries.Add(new TableEntry("T1", tableCells1));
+                //var tableCells1 = new List<ITableCell>();
+                //tableCells1.Add(new TableCell("Length", 102.310));
+                //tableCells1.Add(new TableCell("Diameter", 12.493));
+                //tableEntries.Add(new TableEntry("T1", tableCells1));
 
-                var tableCells2 = new List<ITableCell>();
-                tableCells2.Add(new TableCell("Length", 128.942));
-                tableCells2.Add(new TableCell("Diameter", 6.500));
-                tableEntries.Add(new TableEntry("T2", tableCells2));
+                //var tableCells2 = new List<ITableCell>();
+                //tableCells2.Add(new TableCell("Length", 128.942));
+                //tableCells2.Add(new TableCell("Diameter", 6.500));
+                //tableEntries.Add(new TableEntry("T2", tableCells2));
 
-                var table = new TableObservationInput("testTable", tableEntries);
-                AddObservation(table);
-
-
-                var samples = new List<double>();
-                samples.Add(1);
-                samples.Add(2);
-                samples.Add(3);
-                samples.Add(4);
-                samples.Add(5);
-                var timeSeries = new TimeSeriesObservationInput("testTimeSeries", samples, 100);
-                AddObservation(timeSeries);
+                //var table = new TableObservationInput("testTable", tableEntries);
+                //AddObservation(table);
 
 
-                //app.DataSource.AddAsset(CuttingTool(device.Uuid, j));
-                j += 23.3455;
+                //var samples = new List<double>();
+                //samples.Add(1);
+                //samples.Add(2);
+                //samples.Add(3);
+                //samples.Add(4);
+                //samples.Add(5);
+                //var timeSeries = new TimeSeriesObservationInput("testTimeSeries", samples, 100);
+                //AddObservation(timeSeries);
+
+
+                ////app.DataSource.AddAsset(CuttingTool(device.Uuid, j));
+                //j += 23.3455;
 
 
 
@@ -101,6 +101,13 @@ namespace MTConnect.Applications
                 //var device2 = XmlDevice.FromXml(System.IO.File.ReadAllBytes(@"D:\TrakHound\Source-Code\MTConnect.NET\agent\MTConnect.NET-Agent\bin\Debug\net8.0\devices\device-okuma.xml"));
                 //app.DataSource.AddDevice(device2);
 
+
+                var warning = new ConditionFaultStateObservationInput("L2p1system", Observations.ConditionLevel.WARNING, ts);
+                warning.ConditionId = "asdfjkl";
+                warning.NativeCode = "404";
+                warning.Message = "Not Found";
+                warning.Qualifier = Observations.ConditionQualifier.LOW;
+                AddObservation(warning);
 
                 //switch (i)
                 //{

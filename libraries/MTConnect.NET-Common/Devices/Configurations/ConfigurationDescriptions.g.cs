@@ -21,6 +21,11 @@ namespace MTConnect.Devices.Configurations
         public const string Motion = "Movement of the component relative to a coordinate system.";
         
         /// <summary>
+        /// Potential energy sources for the Component.
+        /// </summary>
+        public const string PowerSource = "Potential energy sources for the Component.";
+        
+        /// <summary>
         /// Association between two pieces of equipment that function independently but together perform a manufacturing operation.
         /// </summary>
         public const string Relationships = "Association between two pieces of equipment that function independently but together perform a manufacturing operation.";

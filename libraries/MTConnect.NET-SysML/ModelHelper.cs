@@ -283,10 +283,26 @@ namespace MTConnect.SysML
         {
             if (!string.IsNullOrEmpty(text))
             {
-                var regex = new Regex("\\{\\{.*?\\((.*?)\\)\\}\\}");
                 var result = text;
 
-                var matches = regex.Matches(text);
+
+                // Replace {{asdf(asdfdsf)}} with asdfdsf
+                var regex = new Regex("\\{\\{.*?\\((.*?)\\)\\}\\}");
+                var matches = regex.Matches(result);
+                if (matches != null)
+                {
+                    foreach (Match match in matches)
+                    {
+                        var original = match.Groups[0].Value;
+                        var replace = match.Groups[1].Value;
+
+                        result = result.Replace(original, replace);
+                    }
+                }
+
+                // Replace asdf::asdfdsf with asdfdsf
+                regex = new Regex(".+::(.+)");
+                matches = regex.Matches(result);
                 if (matches != null)
                 {
                     foreach (Match match in matches)
@@ -301,14 +317,10 @@ namespace MTConnect.SysML
                 result = result.Replace("\n", "");
                 result = result.Replace("\r", "");
                 result = result.Replace("\"", "'");
-                result = result.Replace("Types::", "");
+
                 result = UppercaseFirstWord(result);
 
 
-                //result = result.Replace(".", ". ");
-                //result = result.UppercaseFirstCharacter();
-
-                
                 result = result.Replace("Mtconnect", "MTConnect");
                 result = result.Replace("mtconnect", "MTConnect");
                 result = result.Trim();
@@ -534,8 +546,6 @@ namespace MTConnect.SysML
                     var valueProperty = umlProperties.FirstOrDefault();
                     if (valueProperty != null)
                     {
-                        System.Console.WriteLine(valueProperty.Name);
-
                         return true;
                     }
 

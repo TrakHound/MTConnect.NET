@@ -6,9 +6,9 @@ namespace MTConnect.Assets.CuttingTools
     public static class MeasurementDescriptions
     {
         /// <summary>
-        /// Shop specific code for the measurement. ISO 13399 codes **MAY** be used for these codes as well. See Cutting Tool Measurement Subtypes and Cutting Item Measurement Subtypes for details on Measurement types and their respective code values.
+        /// Shop specific code for the measurement. ISO 13399 codes **MAY** be used for these codes as well. code values.
         /// </summary>
-        public const string Code = "Shop specific code for the measurement. ISO 13399 codes **MAY** be used for these codes as well. See Cutting Tool Measurement Subtypes and Cutting Item Measurement Subtypes for details on Measurement types and their respective code values.";
+        public const string Code = "Shop specific code for the measurement. ISO 13399 codes **MAY** be used for these codes as well. code values.";
         
         /// <summary>
         /// Maximum value for the measurement.
@@ -21,9 +21,9 @@ namespace MTConnect.Assets.CuttingTools
         public const string Minimum = "Minimum value for the measurement.";
         
         /// <summary>
-        /// Units the measurement was originally recorded in. See Device Information Model for the complete list of nativeUnits.
+        /// NativeUnits.
         /// </summary>
-        public const string NativeUnits = "Units the measurement was originally recorded in. See Device Information Model for the complete list of nativeUnits.";
+        public const string NativeUnits = "NativeUnits.";
         
         /// <summary>
         /// As advertised value for the measurement.
@@ -36,9 +36,9 @@ namespace MTConnect.Assets.CuttingTools
         public const string SignificantDigits = "Number of significant digits in the reported value.";
         
         /// <summary>
-        /// Units for the measurements. See Device Information Model for the complete list of units.
+        /// Units.
         /// </summary>
-        public const string Units = "Units for the measurements. See Device Information Model for the complete list of units.";
+        public const string Units = "Units.";
         
         /// <summary>
         /// 

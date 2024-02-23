@@ -39,7 +39,7 @@ namespace MTConnect.Devices.Configurations
         MTConnect.UnitVector3D Origin { get; }
         
         /// <summary>
-        /// Pointer to the id attribute of the parent Motion.The kinematic chain connects all components using the parent relations. All motion is connected to the motion of the parent. The first node in the chain will not have a parent.
+        /// Id.The kinematic chain connects all components using the parent relations. All motion is connected to the motion of the parent. The first node in the chain will not have a parent.
         /// </summary>
         string ParentIdRef { get; }
         

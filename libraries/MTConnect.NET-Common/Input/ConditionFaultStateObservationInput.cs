@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Observations;
@@ -18,6 +18,19 @@ namespace MTConnect.Input
         {
             get => GetValue(ValueKeys.Level).ConvertEnum<ConditionLevel>();
             set => AddValue(new ObservationValue(ValueKeys.Level, value));
+        }
+
+        /// <summary>
+        /// Identifier of an individual condition activation provided by a piece of equipment.
+        /// </summary>
+        public string ConditionId
+        {
+            get => GetValue(ValueKeys.ConditionId);
+            set
+            {
+                var val = !string.IsNullOrEmpty(value) ? value : null;
+                AddValue(new ObservationValue(ValueKeys.ConditionId, val));
+            }
         }
 
         /// <summary>

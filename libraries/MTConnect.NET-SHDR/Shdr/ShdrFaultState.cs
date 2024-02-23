@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Input;
@@ -23,6 +23,19 @@ namespace MTConnect.Shdr
         {
             get => GetValue(ValueKeys.Level).ConvertEnum<ConditionLevel>();
             set => AddValue(new ObservationValue(ValueKeys.Level, value));
+        }
+
+        /// <summary>
+        /// Identifier of an individual condition activation provided by a piece of equipment.
+        /// </summary>
+        public string ConditionId
+        {
+            get => GetValue(ValueKeys.ConditionId);
+            set
+            {
+                var val = !string.IsNullOrEmpty(value) ? value : null;
+                AddValue(new ObservationValue(ValueKeys.ConditionId, val));
+            }
         }
 
         /// <summary>
@@ -94,10 +107,12 @@ namespace MTConnect.Shdr
             string message = null,
             string nativeCode = null,
             string nativeSeverity = null,
-            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED
+            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED,
+            string conditionId = null
             )
         {
             Level = level;
+            if (!string.IsNullOrEmpty(nativeCode)) ConditionId = conditionId;
             if (!string.IsNullOrEmpty(nativeCode)) NativeCode = nativeCode;
             if (!string.IsNullOrEmpty(nativeSeverity)) NativeSeverity = nativeSeverity;
             Qualifier = qualifier;
@@ -110,10 +125,12 @@ namespace MTConnect.Shdr
             string message = null,
             string nativeCode = null,
             string nativeSeverity = null,
-            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED
+            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED,
+            string conditionId = null
             )
         {
             Level = level;
+            if (!string.IsNullOrEmpty(nativeCode)) ConditionId = conditionId;
             if (!string.IsNullOrEmpty(nativeCode)) NativeCode = nativeCode;
             if (!string.IsNullOrEmpty(nativeSeverity)) NativeSeverity = nativeSeverity;
             Qualifier = qualifier;
@@ -127,10 +144,12 @@ namespace MTConnect.Shdr
             string message = null,
             string nativeCode = null,
             string nativeSeverity = null,
-            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED
+            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED,
+            string conditionId = null
             )
         {
             Level = level;
+            if (!string.IsNullOrEmpty(nativeCode)) ConditionId = conditionId;
             if (!string.IsNullOrEmpty(nativeCode)) NativeCode = nativeCode;
             if (!string.IsNullOrEmpty(nativeSeverity)) NativeSeverity = nativeSeverity;
             Qualifier = qualifier;
@@ -145,6 +164,7 @@ namespace MTConnect.Shdr
                 DeviceKey = conditionObservation.DeviceKey;
                 DataItemKey = conditionObservation.DataItemKey;
                 Level = conditionObservation.Level;
+                if (!string.IsNullOrEmpty(conditionObservation.ConditionId)) ConditionId = conditionObservation.ConditionId;
                 if (!string.IsNullOrEmpty(conditionObservation.NativeCode)) NativeCode = conditionObservation.NativeCode;
                 if (!string.IsNullOrEmpty(conditionObservation.NativeSeverity)) NativeSeverity = conditionObservation.NativeSeverity;
                 Qualifier = conditionObservation.Qualifier;
@@ -165,6 +185,20 @@ namespace MTConnect.Shdr
                 var target = DataItemKey;
                 if (!string.IsNullOrEmpty(DeviceKey)) target = $"{DeviceKey}:{target}";
 
+                
+                string identifier;
+                if (!string.IsNullOrEmpty(NativeCode))
+                {
+                    identifier = !string.IsNullOrEmpty(ConditionId) ? $"{NativeCode}:{ConditionId}" : NativeCode;
+                }
+                else
+                {
+                    identifier = ConditionId;
+                }
+
+                // If no ConditionId or NativeCode specified, then create hash of Message
+                if (string.IsNullOrEmpty(identifier)) identifier = Message?.ToMD5Hash();
+                
                 var message = !string.IsNullOrEmpty(Message) ? Message.Replace("|", @"\|") : "";
                 var qualifier = Qualifier != ConditionQualifier.NOT_SPECIFIED ? Qualifier.ToString() : "";
 
@@ -174,7 +208,7 @@ namespace MTConnect.Shdr
                 {
                     if (Level != ConditionLevel.UNAVAILABLE)
                     {
-                        line = $"{Timestamp.ToDateTime().ToString("o")}|{target}|{Level}|{NativeCode}|{NativeSeverity}|{qualifier}|{message}";
+                        line = $"{Timestamp.ToDateTime().ToString("o")}|{target}|{Level}|{identifier}|{NativeSeverity}|{qualifier}|{message}";
                     }
                     else
                     {
@@ -185,7 +219,7 @@ namespace MTConnect.Shdr
                 {
                     if (Level != ConditionLevel.UNAVAILABLE)
                     {
-                        line = $"|{target}|{Level}|{NativeCode}|{NativeSeverity}|{qualifier}|{message}";
+                        line = $"|{target}|{Level}|{identifier}|{NativeSeverity}|{qualifier}|{message}";
                     }
                     else
                     {
@@ -264,10 +298,27 @@ namespace MTConnect.Shdr
 
                     if (y != null)
                     {
+                        string identifier = null;
+
                         // Set NativeCode
                         x = ShdrLine.GetNextValue(y);
                         y = ShdrLine.GetNextSegment(y);
-                        if (!string.IsNullOrEmpty(x)) condition.NativeCode = x;
+                        if (!string.IsNullOrEmpty(x)) identifier = x;
+
+                        if (identifier != null)
+                        {
+                            var i = identifier.IndexOf(':');
+                            if (i > 0 && i + 1 < identifier.Length)
+                            {
+                                condition.NativeCode = identifier.Substring(0, i);
+                                condition.ConditionId = identifier.Substring(i + 1);
+                            }
+                            else
+                            {
+                                condition.NativeCode = identifier;
+                                condition.ConditionId = identifier;
+                            }
+                        }
 
                         if (y != null)
                         {

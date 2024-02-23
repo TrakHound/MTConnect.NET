@@ -1,7 +1,7 @@
 // Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-// MTConnect SysML v2.2 : UML ID = EAID_C04DCC77_16E8_4cef_92D4_B777AFC52570
+// MTConnect SysML v2.3 : UML ID = EAID_C04DCC77_16E8_4cef_92D4_B777AFC52570
 
 namespace MTConnect.Devices.Configurations
 {
@@ -27,6 +27,11 @@ namespace MTConnect.Devices.Configurations
         /// Movement of the component relative to a coordinate system.
         /// </summary>
         public MTConnect.Devices.Configurations.IMotion Motion { get; set; }
+        
+        /// <summary>
+        /// Potential energy sources for the Component.
+        /// </summary>
+        public MTConnect.Devices.Configurations.IPowerSource PowerSource { get; set; }
         
         /// <summary>
         /// Association between two pieces of equipment that function independently but together perform a manufacturing operation.

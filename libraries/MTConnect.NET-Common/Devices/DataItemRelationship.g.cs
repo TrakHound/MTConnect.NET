@@ -1,16 +1,16 @@
 // Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-// MTConnect SysML v2.2 : UML ID = _19_0_3_68e0225_1605645474430_802116_2875
+// MTConnect SysML v2.3 : UML ID = _19_0_3_68e0225_1605645474430_802116_2875
 
 namespace MTConnect.Devices
 {
     /// <summary>
-    /// AbstractDataItemRelationship that provides a semantic reference to another DataItem described by the type property.
+    /// Type.
     /// </summary>
     public class DataItemRelationship : AbstractDataItemRelationship, IDataItemRelationship
     {
-        public new const string DescriptionText = "AbstractDataItemRelationship that provides a semantic reference to another DataItem described by the type property.";
+        public new const string DescriptionText = "Type.";
 
 
         /// <summary>

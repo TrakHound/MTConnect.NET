@@ -1,4 +1,5 @@
-﻿using MTConnect.SysML.Xmi;
+﻿using MTConnect.NET_SysML_Import.CSharp;
+using MTConnect.SysML.Xmi;
 using MTConnect.SysML.Xmi.UML;
 using System.Linq;
 
@@ -6,6 +7,8 @@ namespace MTConnect.SysML.CSharp
 {
     public class PropertyModel : MTConnectPropertyModel
     {
+        public string XmlDescription { get; set; }
+
         public bool ExportToModel { get; set; } = true;
 
         public bool ExportToInterface { get; set; } = true;
@@ -39,6 +42,9 @@ namespace MTConnect.SysML.CSharp
                             exportProperty.SetValue(exportModel, propertyValue);
                         }
                     }
+
+                    exportModel.Description = DescriptionHelper.GetTextDescription(importModel.Description);
+                    exportModel.XmlDescription = DescriptionHelper.GetXmlDescription(importModel.Description);
 
                     return exportModel;
                 }

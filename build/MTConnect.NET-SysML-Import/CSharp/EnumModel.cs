@@ -1,4 +1,5 @@
-﻿using MTConnect.SysML.Xmi;
+﻿using MTConnect.NET_SysML_Import.CSharp;
+using MTConnect.SysML.Xmi;
 using MTConnect.SysML.Xmi.UML;
 using Scriban;
 using System;
@@ -10,6 +11,8 @@ namespace MTConnect.SysML.CSharp
     internal class EnumModel : MTConnectEnumModel, ITemplateModel
     {
         public string Namespace => NamespaceHelper.GetNamespace(Id);
+
+        public string XmlDescription { get; set; }
 
 
         public EnumModel() { }
@@ -43,7 +46,8 @@ namespace MTConnect.SysML.CSharp
 
                     exportModel.Id = ModelHelper.RemoveEnumSuffix(exportModel.Id);
                     exportModel.Name = ModelHelper.RemoveEnumSuffix(exportModel.Name);
-                    //exportModel.Name = UnitsHelper.Get(exportModel.Name);
+                    exportModel.Description = DescriptionHelper.GetTextDescription(importModel.Description);
+                    exportModel.XmlDescription = DescriptionHelper.GetXmlDescription(importModel.Description);
 
                     if (exportModel.Values != null)
                     {

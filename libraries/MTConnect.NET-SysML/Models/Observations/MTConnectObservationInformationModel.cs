@@ -1,5 +1,4 @@
-﻿using MTConnect.SysML.Models.Devices;
-using MTConnect.SysML.Xmi;
+﻿using MTConnect.SysML.Xmi;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -7,7 +6,9 @@ namespace MTConnect.SysML.Models.Observations
 {
     public class MTConnectObservationInformationModel
     {
-        public List<MTConnectObservationModel> Models { get; set; } = new();
+        public List<MTConnectObservationModel> Types { get; set; } = new();
+
+        public List<MTConnectClassModel> Results { get; set; } = new();
 
 
         public MTConnectObservationInformationModel() { }
@@ -34,17 +35,17 @@ namespace MTConnect.SysML.Models.Observations
                         // Conditions
                         var conditionEnum = umlModel.Profiles.FirstOrDefault().Packages.FirstOrDefault().Enumerations.FirstOrDefault(o => o.Name == "ConditionEnum");
                         var conditionValues = observationTypesPackage.Packages.FirstOrDefault(o => o.Name == "Condition Types");
-                        Models.AddRange(MTConnectObservationModel.Parse(xmiDocument, "Condition", "Observations.Conditions", conditionValues.Classes, conditionEnum));
+                        Types.AddRange(MTConnectObservationModel.Parse(xmiDocument, "Condition", "Observations.Conditions", conditionValues.Classes, conditionEnum));
 
                         // Events
                         var eventEnum = umlModel.Profiles.FirstOrDefault().Packages.FirstOrDefault().Enumerations.FirstOrDefault(o => o.Name == "EventEnum");
                         var eventValues = observationTypesPackage.Packages.FirstOrDefault(o => o.Name == "Event Types");
-                        Models.AddRange(MTConnectObservationModel.Parse(xmiDocument, "Event", "Observations.Events", eventValues.Classes, eventEnum));
+                        Types.AddRange(MTConnectObservationModel.Parse(xmiDocument, "Event", "Observations.Events", eventValues.Classes, eventEnum));
 
                         // Samples
                         var sampleEnum = umlModel.Profiles.FirstOrDefault().Packages.FirstOrDefault().Enumerations.FirstOrDefault(o => o.Name == "SampleEnum");
                         var sampleValues = observationTypesPackage.Packages.FirstOrDefault(o => o.Name == "Sample Types");
-                        Models.AddRange(MTConnectObservationModel.Parse(xmiDocument, "Sample", "Observations.Samples", sampleValues.Classes, sampleEnum));
+                        Types.AddRange(MTConnectObservationModel.Parse(xmiDocument, "Sample", "Observations.Samples", sampleValues.Classes, sampleEnum));
                     }
                 }
 
@@ -58,7 +59,18 @@ namespace MTConnect.SysML.Models.Observations
                     {
                         // Event Observations
                         var eventEnum = umlModel.Profiles.FirstOrDefault().Packages.FirstOrDefault().Enumerations.FirstOrDefault(o => o.Name == "InterfaceEventEnum");
-                        Models.AddRange(MTConnectObservationModel.Parse(xmiDocument, "Event", "Observations.Events", interfaceDataItems.Classes, eventEnum));
+                        Types.AddRange(MTConnectObservationModel.Parse(xmiDocument, "Event", "Observations.Events", interfaceDataItems.Classes, eventEnum));
+                    }
+                }
+
+                // Find Observatoin Result Model in the UML
+                var dataTypes = umlModel.Profiles.FirstOrDefault().Packages.FirstOrDefault(o => o.Name == "DataTypes");
+                if (dataTypes != null)
+                {
+                    var resultDataTypes = dataTypes.Classes.Where(o => o.Name.EndsWith("Result"));
+                    if (!resultDataTypes.IsNullOrEmpty())
+                    {
+                        Results.AddRange(MTConnectClassModel.Parse(xmiDocument, "Observations.Events", resultDataTypes));
                     }
                 }
             }

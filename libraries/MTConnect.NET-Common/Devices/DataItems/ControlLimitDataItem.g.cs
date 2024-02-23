@@ -1,10 +1,12 @@
 // Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
+// MTConnect SysML v2.3 : UML ID = _19_0_3_68e0225_1605646894483_607516_3273
+
 namespace MTConnect.Devices.DataItems
 {
     /// <summary>
-    /// Set of limits used to indicate whether a process variable is stable and in control.
+    /// Set of limits used to indicate whether a process variable is stable and in control.**DEPRECATION WARNING**. Recommend using `CONTROL_LIMITS`.
     /// </summary>
     public class ControlLimitDataItem : DataItem
     {
@@ -13,7 +15,7 @@ namespace MTConnect.Devices.DataItems
         public const string NameId = "controlLimit";
         public const DataItemRepresentation DefaultRepresentation = DataItemRepresentation.TABLE;     
              
-        public new const string DescriptionText = "Set of limits used to indicate whether a process variable is stable and in control.";
+        public new const string DescriptionText = "Set of limits used to indicate whether a process variable is stable and in control.**DEPRECATION WARNING**. Recommend using `CONTROL_LIMITS`.";
         
         public override string TypeDescription => DescriptionText;
         

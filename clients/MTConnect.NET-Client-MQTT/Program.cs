@@ -58,7 +58,7 @@ namespace MTConnect.Clients.HTTP
                 foreach (var asset in response.Assets)
                 {
                     var result = EntityFormatter.Format("XML", asset);
-                    if (result.Success) Console.WriteLine(System.Text.Encoding.UTF8.GetString(result.Content));
+                    //if (result.Success) Console.WriteLine(System.Text.Encoding.UTF8.GetString(result.Content));
                 }
             };
 

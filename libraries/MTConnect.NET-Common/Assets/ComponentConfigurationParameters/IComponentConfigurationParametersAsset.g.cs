@@ -4,12 +4,12 @@
 namespace MTConnect.Assets.ComponentConfigurationParameters
 {
     /// <summary>
-    /// Set of parameters that govern the functionality of the related Component.
+    /// Set of ParameterSets that govern the functionality of the related Component.
     /// </summary>
     public partial interface IComponentConfigurationParametersAsset : IAsset
     {
         /// <summary>
-        /// Set of parameters defining the configuration of a Component.
+        /// Set of Parameters.
         /// </summary>
         System.Collections.Generic.IEnumerable<MTConnect.Assets.ComponentConfigurationParameters.IParameterSet> ParameterSets { get; }
     }

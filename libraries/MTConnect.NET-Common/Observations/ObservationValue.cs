@@ -1,10 +1,10 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 namespace MTConnect.Observations
 {
     /// <summary>
-    /// A Value of a Property associated with an Observation at a point in time
+    /// A Value of a Property associated with an <see cref="Observation"></see> at a point in time
     /// </summary>
     public struct ObservationValue
     {

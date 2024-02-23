@@ -81,6 +81,10 @@ namespace MTConnect.SysML.CSharp
                             template = ComponentType.Create((MTConnectComponentType)exportModel);
                         }
                         else if (typeof(MTConnectCuttingToolMeasurementModel).IsAssignableFrom(type)) template = CuttingToolMeasurementModel.Create((MTConnectCuttingToolMeasurementModel)exportModel);
+                        else if (exportModel.Id.EndsWith("Result"))
+                        {
+                            template = DataSetResultModel.Create((MTConnectClassModel)exportModel);
+                        }
                         else if (typeof(MTConnectClassModel).IsAssignableFrom(type)) template = ClassModel.Create((MTConnectClassModel)exportModel);
                         else if (typeof(MTConnectObservationModel).IsAssignableFrom(type)) template = ObservationModel.Create((MTConnectObservationModel)exportModel);
                         else if (typeof(MTConnectEnumModel).IsAssignableFrom(type))
@@ -93,6 +97,7 @@ namespace MTConnect.SysML.CSharp
                                 default: template = EnumModel.Create((MTConnectEnumModel)exportModel); break;
                             }
                         }
+
 
                         if (template != null)
                         {

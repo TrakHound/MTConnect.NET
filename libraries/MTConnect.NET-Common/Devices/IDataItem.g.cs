@@ -24,7 +24,7 @@ namespace MTConnect.Devices
         MTConnect.Devices.IConstraints Constraints { get; }
         
         /// <summary>
-        /// For measured values relative to a coordinate system like Position, the coordinate system used may be reported.**DEPRECATED** in *Version 2.0*. Replaced by coordinateSystemIdRef.
+        /// For measured values relative to a coordinate system like Position, the coordinate system used may be reported.coordinateSystemIdRef.
         /// </summary>
         MTConnect.Devices.DataItemCoordinateSystem CoordinateSystem { get; }
         
@@ -34,12 +34,12 @@ namespace MTConnect.Devices
         string CoordinateSystemIdRef { get; }
         
         /// <summary>
-        /// Defines the meaning of Entry and Cell elements associated with the DataItem when the representation is either `DATA` or `TABLE`.
+        /// Representation is either `DATA_SET` or `TABLE`.
         /// </summary>
         MTConnect.Devices.IDataItemDefinition Definition { get; }
         
         /// <summary>
-        /// Indication signifying whether each value reported for the Observation is significant and whether duplicate values are to be suppressed.If a value is not defined for discrete, the default value **MUST** be `false`.
+        /// Indication signifying whether each value reported for the Observation is significant and whether duplicate values are to be suppressed.discrete, the default value **MUST** be `false`.
         /// </summary>
         bool Discrete { get; }
         
@@ -79,7 +79,7 @@ namespace MTConnect.Devices
         System.Collections.Generic.IEnumerable<MTConnect.Devices.IAbstractDataItemRelationship> Relationships { get; }
         
         /// <summary>
-        /// Description of a means to interpret data consisting of multiple data points or samples reported as a single value.  If representation is not specified, it **MUST** be determined to be `VALUE`.
+        /// Description of a means to interpret data consisting of multiple data points or samples reported as a single value.  representation is not specified, it **MUST** be determined to be `VALUE`.
         /// </summary>
         MTConnect.Devices.DataItemRepresentation Representation { get; }
         
@@ -109,7 +109,7 @@ namespace MTConnect.Devices
         MTConnect.Devices.DataItemStatistic? Statistic { get; }
         
         /// <summary>
-        /// Sub-categorization of the data item type.
+        /// Type.
         /// </summary>
         string SubType { get; }
         

@@ -1,10 +1,12 @@
 // Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
+// MTConnect SysML v2.3 : UML ID = _19_0_3_45f01b9_1580378218306_196644_1821
+
 namespace MTConnect.Devices.DataItems
 {
     /// <summary>
-    /// Execution status of the Component.
+    /// Operating state of a Component.
     /// </summary>
     public class ExecutionDataItem : DataItem
     {
@@ -13,7 +15,7 @@ namespace MTConnect.Devices.DataItems
         public const string NameId = "exec";
         public const DataItemRepresentation DefaultRepresentation = DataItemRepresentation.VALUE;     
              
-        public new const string DescriptionText = "Execution status of the Component.";
+        public new const string DescriptionText = "Operating state of a Component.";
         
         public override string TypeDescription => DescriptionText;
         

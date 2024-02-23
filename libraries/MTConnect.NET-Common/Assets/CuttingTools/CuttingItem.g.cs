@@ -1,7 +1,7 @@
 // Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-// MTConnect SysML v2.2 : UML ID = EAID_99183806_F570_4387_BA6D_34929C20F954
+// MTConnect SysML v2.3 : UML ID = EAID_99183806_F570_4387_BA6D_34929C20F954
 
 namespace MTConnect.Assets.CuttingTools
 {
@@ -44,7 +44,7 @@ namespace MTConnect.Assets.CuttingTools
         public System.Collections.Generic.IEnumerable<MTConnect.Assets.CuttingTools.IItemLife> ItemLife { get; set; }
         
         /// <summary>
-        /// Free form description of the location on the cutting tool.For clarity, the words `FLUTE`, `INSERT`, and `CARTRIDGE` **SHOULD** be used to assist in noting the location of a CuttingItem. Locus **MAY** be any free form string, but **SHOULD** adhere to the following rules:* The location numbering **SHOULD** start at the furthest CuttingItem and work it’s way back to the CuttingItem closest to the gauge line.* Flutes **SHOULD** be identified as such using the word `FLUTE`:. For example: `FLUTE`: 1, `INSERT`: 2 - would indicate the first flute and the second furthest insert from the end of the tool on that flute.* Other designations such as `CARTRIDGE` **MAY** be included, but should be identified using upper case and followed by a colon (:).
+        /// Free form description of the location on the cutting tool.Locus **MAY** be any free form string, but **SHOULD** adhere to the following rules:* The location numbering **SHOULD** start at the furthest CuttingItem and work it’s way back to the CuttingItem closest to the gauge line.* Flutes **SHOULD** be identified as such using the word `FLUTE`:. For example: `FLUTE`: 1, `INSERT`: 2 - would indicate the first flute and the second furthest insert from the end of the tool on that flute.* Other designations such as `CARTRIDGE` **MAY** be included, but should be identified using upper case and followed by a colon (:).
         /// </summary>
         public string Locus { get; set; }
         

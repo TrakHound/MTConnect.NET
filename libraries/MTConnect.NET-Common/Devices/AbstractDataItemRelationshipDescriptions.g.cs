@@ -6,9 +6,9 @@ namespace MTConnect.Devices
     public static class AbstractDataItemRelationshipDescriptions
     {
         /// <summary>
-        /// Reference to the related entity's id.
+        /// Reference to the related entity's `id`.
         /// </summary>
-        public const string IdRef = "Reference to the related entity's id.";
+        public const string IdRef = "Reference to the related entity's `id`.";
         
         /// <summary>
         /// Descriptive name associated with this AbstractDataItemRelationship.

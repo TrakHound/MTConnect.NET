@@ -34,7 +34,7 @@ namespace MTConnect.Devices.Configurations
         MTConnect.UnitVector3D Origin { get; }
         
         /// <summary>
-        /// Pointer to the id attribute of the parent CoordinateSystem.
+        /// Id.
         /// </summary>
         string ParentIdRef { get; }
         

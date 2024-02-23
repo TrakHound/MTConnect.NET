@@ -288,8 +288,8 @@ namespace MTConnect
                             // Write the line (in bytes) to the Stream
                             stream.Write(bytes, 0, bytes.Length);
 
-                            Log(MTConnectLogLevel.Debug, $"SHDR line written to stream : Client ID = {client.Id} : {bytes.Length} bytes");
-                            Log(MTConnectLogLevel.Trace, $"SHDR line written to stream : Client ID = {client.Id} : {singleLine}");
+                            //Log(MTConnectLogLevel.Debug, $"SHDR line written to stream : Client ID = {client.Id} : {bytes.Length} bytes");
+                            Log(MTConnectLogLevel.Debug, $"SHDR line written to stream : Client ID = {client.Id} : {singleLine}");
                         }
                         catch (Exception ex)
                         {

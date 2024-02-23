@@ -1,7 +1,7 @@
 // Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-// MTConnect SysML v2.2 : UML ID = EAID_C7D39183_23CB_416b_A62D_F60815E08B1A
+// MTConnect SysML v2.3 : UML ID = EAID_C7D39183_23CB_416b_A62D_F60815E08B1A
 
 namespace MTConnect.Assets
 {
@@ -29,7 +29,7 @@ namespace MTConnect.Assets
         public MTConnect.Devices.IDescription Description { get; set; }
         
         /// <summary>
-        /// Associated piece of equipment's UUID that supplied the Asset's data.It references to the uuid property of the Device defined in Device Information Model.
+        /// Associated piece of equipment's UUID that supplied the Asset's data.uuid defined in Device Information Model.
         /// </summary>
         public string DeviceUuid { get; set; }
         

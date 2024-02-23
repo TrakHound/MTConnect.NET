@@ -1,7 +1,7 @@
 // Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-// MTConnect SysML v2.2 : UML ID = EAID_1F084FBF_2AC7_41f6_8485_C356E6D7A9C1
+// MTConnect SysML v2.3 : UML ID = EAID_1F084FBF_2AC7_41f6_8485_C356E6D7A9C1
 
 namespace MTConnect.Devices.Configurations
 {
@@ -44,7 +44,7 @@ namespace MTConnect.Devices.Configurations
         public MTConnect.UnitVector3D Origin { get; set; }
         
         /// <summary>
-        /// Pointer to the id attribute of the parent Motion.The kinematic chain connects all components using the parent relations. All motion is connected to the motion of the parent. The first node in the chain will not have a parent.
+        /// Id.The kinematic chain connects all components using the parent relations. All motion is connected to the motion of the parent. The first node in the chain will not have a parent.
         /// </summary>
         public string ParentIdRef { get; set; }
         

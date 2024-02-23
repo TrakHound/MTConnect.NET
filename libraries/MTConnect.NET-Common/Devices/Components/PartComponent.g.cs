@@ -1,7 +1,7 @@
 // Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-// MTConnect SysML v2.2 : UML ID = _19_0_3_68e0225_1622456766067_72580_282
+// MTConnect SysML v2.3 : UML ID = _19_0_3_68e0225_1622456766067_72580_282
 
 namespace MTConnect.Devices.Components
 {

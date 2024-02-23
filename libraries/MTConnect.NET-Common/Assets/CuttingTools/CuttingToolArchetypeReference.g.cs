@@ -1,16 +1,16 @@
 // Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-// MTConnect SysML v2.2 : UML ID = EAID_D4CAAB4A_DE00_489d_ACCA_F00FC7296F0C
+// MTConnect SysML v2.3 : UML ID = EAID_D4CAAB4A_DE00_489d_ACCA_F00FC7296F0C
 
 namespace MTConnect.Assets.CuttingTools
 {
     /// <summary>
-    /// Reference information about the assetId and/or the URL of the data source of CuttingToolArchetype.
+    /// AssetId and/or the URL of the data source of CuttingToolArchetype.
     /// </summary>
     public class CuttingToolArchetypeReference : ICuttingToolArchetypeReference
     {
-        public const string DescriptionText = "Reference information about the assetId and/or the URL of the data source of CuttingToolArchetype.";
+        public const string DescriptionText = "AssetId and/or the URL of the data source of CuttingToolArchetype.";
 
 
         /// <summary>
@@ -19,7 +19,7 @@ namespace MTConnect.Assets.CuttingTools
         public string Source { get; set; }
         
         /// <summary>
-        /// AssetId of the related CuttingToolArchetype.
+        /// `assetId` of the related CuttingToolArchetype.
         /// </summary>
         public string Value { get; set; }
     }

@@ -9,7 +9,7 @@ namespace MTConnect.Devices
     public partial interface IAbstractDataItemRelationship
     {
         /// <summary>
-        /// Reference to the related entity's id.
+        /// Reference to the related entity's `id`.
         /// </summary>
         string IdRef { get; }
         

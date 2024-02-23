@@ -1,4 +1,5 @@
-﻿using MTConnect.SysML.Models.Assets;
+﻿using MTConnect.NET_SysML_Import.CSharp;
+using MTConnect.SysML.Models.Assets;
 using MTConnect.SysML.Models.Observations;
 using Scriban;
 using System;
@@ -10,6 +11,8 @@ namespace MTConnect.SysML.CSharp
     public class CuttingToolMeasurementModel : MTConnectCuttingToolMeasurementModel, ITemplateModel
     {
         public string Namespace => NamespaceHelper.GetNamespace(Id);
+
+        public string XmlDescription { get; set; }
 
 
         public static CuttingToolMeasurementModel Create(MTConnectCuttingToolMeasurementModel importModel)
@@ -35,6 +38,9 @@ namespace MTConnect.SysML.CSharp
                             exportProperty.SetValue(exportModel, propertyValue);
                         }
                     }
+
+                    exportModel.Description = DescriptionHelper.GetTextDescription(importModel.Description);
+                    exportModel.XmlDescription = DescriptionHelper.GetXmlDescription(importModel.Description);
 
                     return exportModel;
                 }

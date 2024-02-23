@@ -21,9 +21,9 @@ namespace MTConnect.Devices
         public const string SerialNumber = "Serial number associated with a piece of equipment.";
         
         /// <summary>
-        /// Station where the physical part or logical function of a piece of equipment is located when it is part of a manufacturing unit or cell with multiple stations.
+        /// Identifier where a manufacturing function takes place.
         /// </summary>
-        public const string Station = "Station where the physical part or logical function of a piece of equipment is located when it is part of a manufacturing unit or cell with multiple stations.";
+        public const string Station = "Identifier where a manufacturing function takes place.";
         
         /// <summary>
         /// Description of the element.

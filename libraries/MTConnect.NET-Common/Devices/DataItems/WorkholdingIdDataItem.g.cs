@@ -1,10 +1,12 @@
 // Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
+// MTConnect SysML v2.3 : UML ID = _19_0_3_45f01b9_1580378218487_830191_2313
+
 namespace MTConnect.Devices.DataItems
 {
     /// <summary>
-    /// Identifier for the current workholding or part clamp in use by a piece of equipment.
+    /// Identifier for the current workholding or part clamp in use by a piece of equipment.**DEPRECATION WARNING**: Recommend using `FIXTURE_ID` instead.
     /// </summary>
     public class WorkholdingIdDataItem : DataItem
     {
@@ -13,7 +15,7 @@ namespace MTConnect.Devices.DataItems
         public const string NameId = "workholdingId";
              
              
-        public new const string DescriptionText = "Identifier for the current workholding or part clamp in use by a piece of equipment.";
+        public new const string DescriptionText = "Identifier for the current workholding or part clamp in use by a piece of equipment.**DEPRECATION WARNING**: Recommend using `FIXTURE_ID` instead.";
         
         public override string TypeDescription => DescriptionText;
         

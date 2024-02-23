@@ -1,7 +1,7 @@
 // Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-// MTConnect SysML v2.2 : UML ID = EAID_37B8CFD0_D728_4841_9A07_B6CF819EC895
+// MTConnect SysML v2.3 : UML ID = EAID_37B8CFD0_D728_4841_9A07_B6CF819EC895
 
 namespace MTConnect.Assets.CuttingTools
 {
@@ -19,7 +19,7 @@ namespace MTConnect.Assets.CuttingTools
         public MTConnect.Assets.CuttingTools.FormatType Format { get; set; }
         
         /// <summary>
-        /// Text of the CuttingToolDefinition in format defined by format.
+        /// Format.
         /// </summary>
         public string Value { get; set; }
     }

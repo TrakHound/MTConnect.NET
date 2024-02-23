@@ -11,7 +11,7 @@ namespace MTConnect.Devices
         ATTACHMENT,
         
         /// <summary>
-        /// Referenced DataItem provides the id of the effective Coordinate System.
+        /// Referenced DataItem provides the `id` of the effective Coordinate System.
         /// </summary>
         COORDINATE_SYSTEM,
         

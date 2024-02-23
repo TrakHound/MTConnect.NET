@@ -11,8 +11,8 @@ namespace MTConnect.Assets.CuttingTools
         public const string MaximumCount = "Maximum number of times the tool may be reconditioned.";
         
         /// <summary>
-        /// 
+        /// CuttingToolLifeCycle.
         /// </summary>
-        public const string Value = "";
+        public const string Value = "CuttingToolLifeCycle.";
     }
 }

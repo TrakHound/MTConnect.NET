@@ -6,9 +6,9 @@ namespace MTConnect.Assets.CuttingTools
     public static class CuttingToolAssetDescriptions
     {
         /// <summary>
-        /// Reference information about the assetId and/or the URL of the data source of CuttingToolArchetype.
+        /// AssetId and/or the URL of the data source of CuttingToolArchetype.
         /// </summary>
-        public const string CuttingToolArchetypeReference = "Reference information about the assetId and/or the URL of the data source of CuttingToolArchetype.";
+        public const string CuttingToolArchetypeReference = "AssetId and/or the URL of the data source of CuttingToolArchetype.";
         
         /// <summary>
         /// Detailed structure of the cutting tool which is static during its lifecycle. ISO 13399.

@@ -4,7 +4,7 @@
 namespace MTConnect.Assets.ComponentConfigurationParameters
 {
     /// <summary>
-    /// Set of parameters defining the configuration of a Component.
+    /// Set of Parameters.
     /// </summary>
     public interface IParameterSet
     {

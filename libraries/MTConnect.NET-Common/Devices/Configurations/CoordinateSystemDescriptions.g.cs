@@ -31,9 +31,9 @@ namespace MTConnect.Devices.Configurations
         public const string Origin = "Coordinates of the origin position of a coordinate system.";
         
         /// <summary>
-        /// Pointer to the id attribute of the parent CoordinateSystem.
+        /// Id.
         /// </summary>
-        public const string ParentIdRef = "Pointer to the id attribute of the parent CoordinateSystem.";
+        public const string ParentIdRef = "Id.";
         
         /// <summary>
         /// Process of transforming to the origin position of the coordinate system from a parent coordinate system using Translation and Rotation.

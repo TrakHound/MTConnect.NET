@@ -4,7 +4,7 @@
 namespace MTConnect.Assets.CuttingTools
 {
     /// <summary>
-    /// Constrained process feed rate for the tool in mm/s.The value **MAY** contain the nominal process target feed rate if available. If ProcessFeedRate is provided, at least one value of maximum, nominal, or minimum **MUST** be specified.
+    /// Constrained process feed rate for the tool in mm/s.minimum **MUST** be specified.
     /// </summary>
     public interface IProcessFeedRate
     {

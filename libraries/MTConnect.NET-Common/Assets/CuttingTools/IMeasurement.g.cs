@@ -9,7 +9,7 @@ namespace MTConnect.Assets.CuttingTools
     public partial interface IMeasurement
     {
         /// <summary>
-        /// Shop specific code for the measurement. ISO 13399 codes **MAY** be used for these codes as well. See Cutting Tool Measurement Subtypes and Cutting Item Measurement Subtypes for details on Measurement types and their respective code values.
+        /// Shop specific code for the measurement. ISO 13399 codes **MAY** be used for these codes as well. code values.
         /// </summary>
         string Code { get; }
         
@@ -24,7 +24,7 @@ namespace MTConnect.Assets.CuttingTools
         double? Minimum { get; }
         
         /// <summary>
-        /// Units the measurement was originally recorded in. See Device Information Model for the complete list of nativeUnits.
+        /// NativeUnits.
         /// </summary>
         string NativeUnits { get; }
         
@@ -39,7 +39,7 @@ namespace MTConnect.Assets.CuttingTools
         int? SignificantDigits { get; }
         
         /// <summary>
-        /// Units for the measurements. See Device Information Model for the complete list of units.
+        /// Units.
         /// </summary>
         string Units { get; }
         

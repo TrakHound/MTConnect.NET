@@ -29,11 +29,11 @@ modules:
     # - path: styles/favicon.ico
     #   location: favicon.ico
 
-# - mqtt-relay: # - Add MQTT Relay module
-#     server: localhost
-#     port: 1883
-#     currentInterval: 5000
-#     sampleInterval: 500
+- mqtt-relay: # - Add MQTT Relay module
+    server: localhost
+    port: 1883
+    currentInterval: 10000
+    sampleInterval: 500
 
 # - shdr-adapter: # - Add SHDR Adapter module for Device = M12346 and Port = 7878
 #     deviceKey: M12346
@@ -67,5 +67,7 @@ assetBufferSize: 1000
 # Sets whether the Agent buffers are durable and retain state after restart
 durable: false
 
+# enableAgentDevice: false
+
 # Sets the default MTConnect version to output response documents for.
-defaultVersion: 2.2
+defaultVersion: 2.3

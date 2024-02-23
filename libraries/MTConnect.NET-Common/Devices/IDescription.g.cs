@@ -24,7 +24,7 @@ namespace MTConnect.Devices
         string SerialNumber { get; }
         
         /// <summary>
-        /// Station where the physical part or logical function of a piece of equipment is located when it is part of a manufacturing unit or cell with multiple stations.
+        /// Identifier where a manufacturing function takes place.
         /// </summary>
         string Station { get; }
         

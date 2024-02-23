@@ -1,10 +1,10 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 namespace MTConnect.Observations
 {
     /// <summary>
-    /// A Cell represents a Column within a Row of a tabular data.
+    /// A Cell represents a Column within a <see cref="ITableEntry"></see>.
     /// </summary>
     public class TableCell : ITableCell
     {

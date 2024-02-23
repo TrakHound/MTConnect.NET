@@ -102,6 +102,12 @@ namespace MTConnect.Configurations
 
 
         /// <summary>
+        /// Gets or Sets whether the Agent Device is output
+        /// </summary>
+        [JsonPropertyName("enableAgentDevice")]
+        public bool EnableAgentDevice { get; set; }
+
+        /// <summary>
         /// Gets or Sets whether Metrics are captured (ex. ObserationUpdateRate, AssetUpdateRate)
         /// </summary>
         [JsonPropertyName("enableMetrics")]
@@ -115,7 +121,8 @@ namespace MTConnect.Configurations
             DefaultVersion = MTConnectVersions.Max;
             InputValidationLevel = InputValidationLevel.Warning;
             ConvertUnits = true;
-            IgnoreObservationCase = true;
+            IgnoreObservationCase = false;
+            EnableAgentDevice = true;
             EnableMetrics = true;
         }
 

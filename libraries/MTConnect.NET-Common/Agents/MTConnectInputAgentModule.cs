@@ -258,6 +258,7 @@ namespace MTConnect.Agents
             string message = null,
             string nativeSeverity = null,
             ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED,
+            string conditionId = null,
             string subType = null
             )
             where TDataItem : IDataItem
@@ -271,6 +272,7 @@ namespace MTConnect.Agents
                     observationInput.DeviceKey = Device.Uuid;
                     observationInput.DataItemKey = dataItem.Id;
                     observationInput.Level = level;
+                    observationInput.ConditionId = conditionId;
                     observationInput.NativeCode = nativeCode;
                     observationInput.Message = message;
                     observationInput.NativeSeverity = nativeSeverity;
@@ -287,6 +289,7 @@ namespace MTConnect.Agents
             string message = null,
             string nativeSeverity = null,
             ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED,
+            string conditionId = null,
             string componentName = null,
             string subType = null
             )
@@ -302,6 +305,7 @@ namespace MTConnect.Agents
                     observationInput.DeviceKey = Device.Uuid;
                     observationInput.DataItemKey = dataItem.Id;
                     observationInput.Level = level;
+                    observationInput.ConditionId = conditionId;
                     observationInput.NativeCode = nativeCode;
                     observationInput.Message = message;
                     observationInput.NativeSeverity = nativeSeverity;

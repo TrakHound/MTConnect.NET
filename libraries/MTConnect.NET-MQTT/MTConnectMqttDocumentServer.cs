@@ -64,7 +64,6 @@ namespace MTConnect
             }
 
             _ = Task.Run(CurrentWorker, _stop.Token);
-            //_ = Task.Run(SampleWorker, _stop.Token);
         }
 
         public void Stop()

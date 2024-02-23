@@ -14,7 +14,7 @@ namespace MTConnect.Assets.CuttingTools
         int? MaximumCount { get; }
         
         /// <summary>
-        /// 
+        /// CuttingToolLifeCycle.
         /// </summary>
         int? Value { get; }
     }

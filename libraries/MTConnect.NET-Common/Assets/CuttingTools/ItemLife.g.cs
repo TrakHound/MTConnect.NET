@@ -1,7 +1,7 @@
 // Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-// MTConnect SysML v2.2 : UML ID = EAID_CC4F8633_BAAC_47e8_9EFB_2BFC62215FC8
+// MTConnect SysML v2.3 : UML ID = EAID_CC4F8633_BAAC_47e8_9EFB_2BFC62215FC8
 
 namespace MTConnect.Assets.CuttingTools
 {

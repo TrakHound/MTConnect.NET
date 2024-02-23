@@ -1,7 +1,7 @@
 // Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-// MTConnect SysML v2.2 : UML ID = _19_0_3_68e0225_1658942187874_859516_1061
+// MTConnect SysML v2.3 : UML ID = _19_0_3_68e0225_1658942187874_859516_1061
 
 namespace MTConnect.Devices
 {
@@ -14,7 +14,7 @@ namespace MTConnect.Devices
 
 
         /// <summary>
-        /// Reference to the related entity's id.
+        /// Reference to the related entity's `id`.
         /// </summary>
         public string IdRef { get; set; }
         

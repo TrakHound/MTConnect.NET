@@ -1,4 +1,5 @@
-﻿using MTConnect.SysML.Models.Observations;
+﻿using MTConnect.NET_SysML_Import.CSharp;
+using MTConnect.SysML.Models.Observations;
 using Scriban;
 using System;
 using System.IO;
@@ -9,6 +10,8 @@ namespace MTConnect.SysML.CSharp
     public class ObservationModel : MTConnectObservationModel, ITemplateModel
     {
         public string Namespace => NamespaceHelper.GetNamespace(Id);
+
+        public string XmlDescription { get; set; }
 
 
         public static ObservationModel Create(MTConnectObservationModel importModel)
@@ -34,6 +37,9 @@ namespace MTConnect.SysML.CSharp
                             exportProperty.SetValue(exportModel, propertyValue);
                         }
                     }
+
+                    exportModel.Description = DescriptionHelper.GetTextDescription(importModel.Description);
+                    exportModel.XmlDescription = DescriptionHelper.GetXmlDescription(importModel.Description);
 
                     return exportModel;
                 }

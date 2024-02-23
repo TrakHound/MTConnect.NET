@@ -1,7 +1,7 @@
 // Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-// MTConnect SysML v2.2 : UML ID = _19_0_3_45f01b9_1581433195808_917937_222
+// MTConnect SysML v2.3 : UML ID = _19_0_3_45f01b9_1581433195808_917937_222
 
 namespace MTConnect.Devices
 {
@@ -19,27 +19,27 @@ namespace MTConnect.Devices
         public MTConnect.Devices.IDescription Description { get; set; }
         
         /// <summary>
-        /// Unique identification of the Cell in the Definition. The description applies to all Cell observation having this key.
+        /// Unique identification of the Cell in the Definition. key.
         /// </summary>
         public string Key { get; set; }
         
         /// <summary>
-        /// DataItem type that defines the meaning of the key.
+        /// Key.
         /// </summary>
         public string KeyType { get; set; }
         
         /// <summary>
-        /// Same as DataItem DataItem::subType. See DataItem.
+        /// SubType. See DataItem.
         /// </summary>
         public string SubType { get; set; }
         
         /// <summary>
-        /// Same as DataItem DataItem::type. See DataItem Types.
+        /// Type. See DataItem Types.
         /// </summary>
         public string Type { get; set; }
         
         /// <summary>
-        /// Same as DataItem DataItem::units. See Value Properties of DataItem.
+        /// Units. See Value Properties of DataItem.
         /// </summary>
         public string Units { get; set; }
     }

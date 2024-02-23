@@ -24,7 +24,7 @@ namespace MTConnect.Assets
         MTConnect.Devices.IDescription Description { get; }
         
         /// <summary>
-        /// Associated piece of equipment's UUID that supplied the Asset's data.It references to the uuid property of the Device defined in Device Information Model.
+        /// Associated piece of equipment's UUID that supplied the Asset's data.uuid defined in Device Information Model.
         /// </summary>
         string DeviceUuid { get; }
         

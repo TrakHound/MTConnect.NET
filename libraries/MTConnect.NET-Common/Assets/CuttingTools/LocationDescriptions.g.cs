@@ -41,9 +41,9 @@ namespace MTConnect.Assets.CuttingTools
         public const string Turret = "Turret associated with a tool.";
         
         /// <summary>
-        /// Type of location being identified. When a `POT` or `STATION` type is used, value of Location **MUST** be a numeric value.
+        /// Type of location being identified. value**MUST** be a numeric value.
         /// </summary>
-        public const string Type = "Type of location being identified. When a `POT` or `STATION` type is used, value of Location **MUST** be a numeric value.";
+        public const string Type = "Type of location being identified. value**MUST** be a numeric value.";
         
         /// <summary>
         /// 

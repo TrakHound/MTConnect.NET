@@ -180,12 +180,7 @@ namespace MTConnect
                 if (formatResult.Success)
                 {
                     var topic = $"{_configuration.TopicPrefix}/{MTConnectMqttDocumentServer.ProbeTopic}/{device.Uuid}";
-
-                    //var message = new MqttApplicationMessage();
-                    //message.Retain = true;
-                    //message.Topic = topic;
-                    //message.QualityOfServiceLevel = (MQTTnet.Protocol.MqttQualityOfServiceLevel)_configuration.QoS;
-                    //message.Payload = formatResult.Content;
+                    if (formatResult.Content != null && formatResult.Content.Position > 0) formatResult.Content.Seek(0, SeekOrigin.Begin);
 
                     var messageBuilder = new MqttApplicationMessageBuilder();
                     messageBuilder.WithRetainFlag(true);
@@ -225,12 +220,7 @@ namespace MTConnect
                 if (formatResult.Success)
                 {
                     var topic = $"{_configuration.TopicPrefix}/{MTConnectMqttDocumentServer.CurrentTopic}/{device.Uuid}";
-
-                    //var message = new MqttApplicationMessage();
-                    ////message.Retain = true;
-                    //message.Topic = topic;
-                    //message.QualityOfServiceLevel = (MQTTnet.Protocol.MqttQualityOfServiceLevel)_configuration.QoS;
-                    //message.Payload = formatResult.Content;
+                    if (formatResult.Content != null && formatResult.Content.Position > 0) formatResult.Content.Seek(0, SeekOrigin.Begin);
 
                     var messageBuilder = new MqttApplicationMessageBuilder();
                     //messageBuilder.WithRetainFlag(true);
@@ -270,12 +260,7 @@ namespace MTConnect
                 if (formatResult.Success)
                 {
                     var topic = $"{_configuration.TopicPrefix}/{MTConnectMqttDocumentServer.SampleTopic}/{device.Uuid}";
-
-                    //var message = new MqttApplicationMessage();
-                    ////message.Retain = true;
-                    //message.Topic = topic;
-                    //message.QualityOfServiceLevel = (MQTTnet.Protocol.MqttQualityOfServiceLevel)_configuration.QoS;
-                    //message.Payload = formatResult.Content;
+                    if (formatResult.Content != null && formatResult.Content.Position > 0) formatResult.Content.Seek(0, SeekOrigin.Begin);
 
                     var messageBuilder = new MqttApplicationMessageBuilder();
                     //messageBuilder.WithRetainFlag(true);
@@ -317,12 +302,7 @@ namespace MTConnect
                     if (formatResult.Success)
                     {
                         var topic = $"{_configuration.TopicPrefix}/{MTConnectMqttDocumentServer.AssetTopic}/{device.Uuid}/{asset.AssetId}";
-
-                        //var message = new MqttApplicationMessage();
-                        //message.Retain = true;
-                        //message.Topic = topic;
-                        //message.QualityOfServiceLevel = (MQTTnet.Protocol.MqttQualityOfServiceLevel)_configuration.QoS;
-                        //message.Payload = formatResult.Content;
+                        if (formatResult.Content != null && formatResult.Content.Position > 0) formatResult.Content.Seek(0, SeekOrigin.Begin);
 
                         var messageBuilder = new MqttApplicationMessageBuilder();
                         messageBuilder.WithRetainFlag(true);

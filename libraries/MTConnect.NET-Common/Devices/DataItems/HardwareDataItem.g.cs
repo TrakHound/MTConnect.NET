@@ -1,6 +1,8 @@
 // Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
+// MTConnect SysML v2.3 : UML ID = _19_0_3_91b028d_1587751253562_643001_2625
+
 namespace MTConnect.Devices.DataItems
 {
     /// <summary>
@@ -45,7 +47,12 @@ namespace MTConnect.Devices.DataItems
             /// <summary>
             /// Date the hardware or software was installed.
             /// </summary>
-            INSTALL_DATE
+            INSTALL_DATE,
+            
+            /// <summary>
+            /// Model info of the hardware or software.
+            /// </summary>
+            MODEL
         }
 
 
@@ -84,6 +91,7 @@ namespace MTConnect.Devices.DataItems
                 case SubTypes.MANUFACTURER: return "Corporate identity for the maker of the hardware or software.";
                 case SubTypes.LICENSE: return "License code to validate or activate the hardware or software.";
                 case SubTypes.INSTALL_DATE: return "Date the hardware or software was installed.";
+                case SubTypes.MODEL: return "Model info of the hardware or software.";
             }
 
             return null;
@@ -98,6 +106,7 @@ namespace MTConnect.Devices.DataItems
                 case SubTypes.MANUFACTURER: return "MANUFACTURER";
                 case SubTypes.LICENSE: return "LICENSE";
                 case SubTypes.INSTALL_DATE: return "INSTALL_DATE";
+                case SubTypes.MODEL: return "MODEL";
             }
 
             return null;

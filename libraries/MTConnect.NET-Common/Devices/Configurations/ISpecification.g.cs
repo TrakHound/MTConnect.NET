@@ -9,7 +9,7 @@ namespace MTConnect.Devices.Configurations
     public interface ISpecification
     {
         /// <summary>
-        /// Reference to the id attribute of the Composition associated with this element.
+        /// Id associated with this entity.
         /// </summary>
         string CompositionIdRef { get; }
         
@@ -19,7 +19,7 @@ namespace MTConnect.Devices.Configurations
         string CoordinateSystemIdRef { get; }
         
         /// <summary>
-        /// Reference to the id attribute of the DataItem associated with this element.
+        /// Id associated with this entity.
         /// </summary>
         string DataItemIdRef { get; }
         
@@ -49,7 +49,7 @@ namespace MTConnect.Devices.Configurations
         double? Minimum { get; }
         
         /// <summary>
-        /// Name provides additional meaning and differentiates between Specification elements.
+        /// Name provides additional meaning and differentiates between Specification entities.
         /// </summary>
         string Name { get; }
         
@@ -64,17 +64,17 @@ namespace MTConnect.Devices.Configurations
         MTConnect.Devices.Configurations.Originator Originator { get; }
         
         /// <summary>
-        /// Same as DataItem DataItem::subType. See DataItem.
+        /// SubType. See DataItem.
         /// </summary>
         string SubType { get; }
         
         /// <summary>
-        /// Same as DataItem type. See DataItem Types.
+        /// Type. See DataItem Types.
         /// </summary>
         string Type { get; }
         
         /// <summary>
-        /// Same as DataItem DataItem::units. See DataItem.
+        /// Units. See DataItem.
         /// </summary>
         string Units { get; }
         

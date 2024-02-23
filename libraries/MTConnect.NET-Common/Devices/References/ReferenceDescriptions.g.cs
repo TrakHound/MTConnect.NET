@@ -6,14 +6,14 @@ namespace MTConnect.Devices.References
     public static class ReferenceDescriptions
     {
         /// <summary>
-        /// Pointer to the id of a DataItem that contains the information to be associated with this entity.
+        /// Id that contains the information to be associated with this entity.
         /// </summary>
-        public const string DataItemId = "Pointer to the id of a DataItem that contains the information to be associated with this entity.";
+        public const string DataItemId = "Id that contains the information to be associated with this entity.";
         
         /// <summary>
-        /// Pointer to the id of an entity that contains the information to be associated with this entity.
+        /// Pointer to the `id` of an entity that contains the information to be associated with this entity.
         /// </summary>
-        public const string IdRef = "Pointer to the id of an entity that contains the information to be associated with this entity.";
+        public const string IdRef = "Pointer to the `id` of an entity that contains the information to be associated with this entity.";
         
         /// <summary>
         /// name of an element or a piece of equipment.
@@ -21,8 +21,8 @@ namespace MTConnect.Devices.References
         public const string Name = "name of an element or a piece of equipment.";
         
         /// <summary>
-        /// Pointer to the id of a DataItem that contains the information to be associated with this entity.
+        /// Id that contains the information to be associated with this entity.
         /// </summary>
-        public const string RefDataItemId = "Pointer to the id of a DataItem that contains the information to be associated with this entity.";
+        public const string RefDataItemId = "Id that contains the information to be associated with this entity.";
     }
 }

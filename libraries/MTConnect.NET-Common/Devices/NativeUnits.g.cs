@@ -21,6 +21,16 @@ namespace MTConnect.Devices
         public const string CENTIPOISE = "CENTIPOISE";
         
         /// <summary>
+        /// Change of geometric volume in cubic foot per hour.
+        /// </summary>
+        public const string CUBIC_FOOT_PER_HOUR = "CUBIC_FOOT/HOUR";
+        
+        /// <summary>
+        /// Change of geometric volume in cubic foot per minute.
+        /// </summary>
+        public const string CUBIC_FOOT_PER_MINUTE = "CUBIC_FOOT/MINUTE";
+        
+        /// <summary>
         /// Rotational velocity in degrees per minute.
         /// </summary>
         public const string DEGREE_PER_MINUTE = "DEGREE/MINUTE";

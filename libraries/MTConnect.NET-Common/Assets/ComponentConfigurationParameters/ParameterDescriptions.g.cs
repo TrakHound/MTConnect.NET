@@ -31,9 +31,9 @@ namespace MTConnect.Assets.ComponentConfigurationParameters
         public const string Nominal = "Nominal value.";
         
         /// <summary>
-        /// Engineering units.units **SHOULD** be SI or MTConnect Units (See UnitEnum).
+        /// Engineering units.units **SHOULD** be SI or MTConnect Units.
         /// </summary>
-        public const string Units = "Engineering units.units **SHOULD** be SI or MTConnect Units (See UnitEnum).";
+        public const string Units = "Engineering units.units **SHOULD** be SI or MTConnect Units.";
         
         /// <summary>
         /// Configured value.

@@ -36,9 +36,9 @@ namespace MTConnect.Devices.Configurations
         public const string Origin = "Coordinates of the origin position of a coordinate system.";
         
         /// <summary>
-        /// Pointer to the id attribute of the parent Motion.The kinematic chain connects all components using the parent relations. All motion is connected to the motion of the parent. The first node in the chain will not have a parent.
+        /// Id.The kinematic chain connects all components using the parent relations. All motion is connected to the motion of the parent. The first node in the chain will not have a parent.
         /// </summary>
-        public const string ParentIdRef = "Pointer to the id attribute of the parent Motion.The kinematic chain connects all components using the parent relations. All motion is connected to the motion of the parent. The first node in the chain will not have a parent.";
+        public const string ParentIdRef = "Id.The kinematic chain connects all components using the parent relations. All motion is connected to the motion of the parent. The first node in the chain will not have a parent.";
         
         /// <summary>
         /// Process of transforming to the origin position of the coordinate system from a parent coordinate system using Translation and Rotation.

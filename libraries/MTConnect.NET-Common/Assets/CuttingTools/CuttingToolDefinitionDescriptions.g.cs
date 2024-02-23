@@ -11,8 +11,8 @@ namespace MTConnect.Assets.CuttingTools
         public const string Format = "Identifies the expected representation of the enclosed data.";
         
         /// <summary>
-        /// Text of the CuttingToolDefinition in format defined by format.
+        /// Format.
         /// </summary>
-        public const string Value = "Text of the CuttingToolDefinition in format defined by format.";
+        public const string Value = "Format.";
     }
 }

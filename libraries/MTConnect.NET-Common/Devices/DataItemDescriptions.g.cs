@@ -21,9 +21,9 @@ namespace MTConnect.Devices
         public const string Constraints = "Organize a set of expected values that can be reported for a DataItem.";
         
         /// <summary>
-        /// For measured values relative to a coordinate system like Position, the coordinate system used may be reported.**DEPRECATED** in *Version 2.0*. Replaced by coordinateSystemIdRef.
+        /// For measured values relative to a coordinate system like Position, the coordinate system used may be reported.coordinateSystemIdRef.
         /// </summary>
-        public const string CoordinateSystem = "For measured values relative to a coordinate system like Position, the coordinate system used may be reported.**DEPRECATED** in *Version 2.0*. Replaced by coordinateSystemIdRef.";
+        public const string CoordinateSystem = "For measured values relative to a coordinate system like Position, the coordinate system used may be reported.coordinateSystemIdRef.";
         
         /// <summary>
         /// Associated CoordinateSystem context for the DataItem.
@@ -31,14 +31,14 @@ namespace MTConnect.Devices
         public const string CoordinateSystemIdRef = "Associated CoordinateSystem context for the DataItem.";
         
         /// <summary>
-        /// Defines the meaning of Entry and Cell elements associated with the DataItem when the representation is either `DATA` or `TABLE`.
+        /// Representation is either `DATA_SET` or `TABLE`.
         /// </summary>
-        public const string Definition = "Defines the meaning of Entry and Cell elements associated with the DataItem when the representation is either `DATA` or `TABLE`.";
+        public const string Definition = "Representation is either `DATA_SET` or `TABLE`.";
         
         /// <summary>
-        /// Indication signifying whether each value reported for the Observation is significant and whether duplicate values are to be suppressed.If a value is not defined for discrete, the default value **MUST** be `false`.
+        /// Indication signifying whether each value reported for the Observation is significant and whether duplicate values are to be suppressed.discrete, the default value **MUST** be `false`.
         /// </summary>
-        public const string Discrete = "Indication signifying whether each value reported for the Observation is significant and whether duplicate values are to be suppressed.If a value is not defined for discrete, the default value **MUST** be `false`.";
+        public const string Discrete = "Indication signifying whether each value reported for the Observation is significant and whether duplicate values are to be suppressed.discrete, the default value **MUST** be `false`.";
         
         /// <summary>
         /// Provides a means to control when an agent records updated information for a DataItem.
@@ -76,9 +76,9 @@ namespace MTConnect.Devices
         public const string Relationships = "Association between a DataItem and another entity.";
         
         /// <summary>
-        /// Description of a means to interpret data consisting of multiple data points or samples reported as a single value.  If representation is not specified, it **MUST** be determined to be `VALUE`.
+        /// Description of a means to interpret data consisting of multiple data points or samples reported as a single value.  representation is not specified, it **MUST** be determined to be `VALUE`.
         /// </summary>
-        public const string Representation = "Description of a means to interpret data consisting of multiple data points or samples reported as a single value.  If representation is not specified, it **MUST** be determined to be `VALUE`.";
+        public const string Representation = "Description of a means to interpret data consisting of multiple data points or samples reported as a single value.  representation is not specified, it **MUST** be determined to be `VALUE`.";
         
         /// <summary>
         /// Type of event that may cause a reset to occur.
@@ -106,9 +106,9 @@ namespace MTConnect.Devices
         public const string Statistic = "Type of statistical calculation performed on a series of data samples to provide the reported data value.";
         
         /// <summary>
-        /// Sub-categorization of the data item type.
+        /// Type.
         /// </summary>
-        public const string SubType = "Sub-categorization of the data item type.";
+        public const string SubType = "Type.";
         
         /// <summary>
         /// Type of data being measured. See DataItem Types.

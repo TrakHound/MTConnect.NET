@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using System;
@@ -23,6 +23,8 @@ namespace MTConnect
         {
             if (ns != null)
             {
+                if (Namespaces.Version23.Match(ns)) return MTConnectVersions.Version23;
+                if (Namespaces.Version22.Match(ns)) return MTConnectVersions.Version22;
                 if (Namespaces.Version21.Match(ns)) return MTConnectVersions.Version21;
                 if (Namespaces.Version20.Match(ns)) return MTConnectVersions.Version20;
                 if (Namespaces.Version18.Match(ns)) return MTConnectVersions.Version18;

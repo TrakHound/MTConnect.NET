@@ -323,8 +323,24 @@ namespace MTConnect.DeviceFinder
 
                     foreach (var device in document.Devices)
                     {
+                        var foundDevice = new MTConnectDevice();
+                        foundDevice.IpAddress = address;
+                        foundDevice.Port = port;
+                        foundDevice.MacAddress = macAddress;
+                        foundDevice.Name = device.Name;
+                        foundDevice.Uuid = device.Uuid;
+                        
+                        if (device.Description != null)
+                        {
+                            foundDevice.Manufacturer = device.Description.Manufacturer;
+                            foundDevice.Model = device.Description.Model;
+                            foundDevice.SerialNumber = device.Description.SerialNumber;
+                            foundDevice.Station = device.Description.Station;
+                            foundDevice.Description = device.Description.Value;
+                        }
+
                         // Notify that a Device was found
-                        DeviceFound?.Invoke(this, new MTConnectDevice(address, port, macAddress, device.Uuid, device.Name));
+                        DeviceFound?.Invoke(this, foundDevice);
                     }
 
                     // Notify that the Probe reqeuest was successful

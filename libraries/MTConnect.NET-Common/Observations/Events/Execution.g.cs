@@ -4,7 +4,7 @@
 namespace MTConnect.Observations.Events
 {
     /// <summary>
-    /// Execution status of the Component.
+    /// Operating state of a Component.
     /// </summary>
     public enum Execution
     {

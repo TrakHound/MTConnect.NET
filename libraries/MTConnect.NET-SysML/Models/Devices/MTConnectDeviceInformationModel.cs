@@ -249,6 +249,7 @@ namespace MTConnect.SysML.Models.Devices
                         Configurations.Enums.Add(new MTConnectEnumModel(xmiDocument, "Devices.Configurations", dataTypes?.Enumerations.FirstOrDefault(o => o.Name == "MediaTypeEnum")));
                         Configurations.Enums.Add(new MTConnectEnumModel(xmiDocument, "Devices.Configurations", dataTypes?.Enumerations.FirstOrDefault(o => o.Name == "MotionActuationTypeEnum")));
                         Configurations.Enums.Add(new MTConnectEnumModel(xmiDocument, "Devices.Configurations", dataTypes?.Enumerations.FirstOrDefault(o => o.Name == "MotionTypeEnum")));
+                        Configurations.Enums.Add(new MTConnectEnumModel(xmiDocument, "Devices.Configurations", dataTypes?.Enumerations.FirstOrDefault(o => o.Name == "PowerSourceTypeEnum")));
                         Configurations.Enums.Add(new MTConnectEnumModel(xmiDocument, "Devices.Configurations", dataTypes?.Enumerations.FirstOrDefault(o => o.Name == "RelationshipTypeEnum")));
                         Configurations.Enums.Add(new MTConnectEnumModel(xmiDocument, "Devices.Configurations", dataTypes?.Enumerations.FirstOrDefault(o => o.Name == "CriticalityTypeEnum")));
                         Configurations.Enums.Add(new MTConnectEnumModel(xmiDocument, "Devices.Configurations", dataTypes?.Enumerations.FirstOrDefault(o => o.Name == "RoleTypeEnum")));

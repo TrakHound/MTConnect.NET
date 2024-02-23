@@ -11,28 +11,28 @@ namespace MTConnect.Devices
         public const string Description = "Descriptive content.";
         
         /// <summary>
-        /// Unique identification of the Cell in the Definition. The description applies to all Cell observation having this key.
+        /// Unique identification of the Cell in the Definition. key.
         /// </summary>
-        public const string Key = "Unique identification of the Cell in the Definition. The description applies to all Cell observation having this key.";
+        public const string Key = "Unique identification of the Cell in the Definition. key.";
         
         /// <summary>
-        /// DataItem type that defines the meaning of the key.
+        /// Key.
         /// </summary>
-        public const string KeyType = "DataItem type that defines the meaning of the key.";
+        public const string KeyType = "Key.";
         
         /// <summary>
-        /// Same as DataItem DataItem::subType. See DataItem.
+        /// SubType. See DataItem.
         /// </summary>
-        public const string SubType = "Same as DataItem DataItem::subType. See DataItem.";
+        public const string SubType = "SubType. See DataItem.";
         
         /// <summary>
-        /// Same as DataItem DataItem::type. See DataItem Types.
+        /// Type. See DataItem Types.
         /// </summary>
-        public const string Type = "Same as DataItem DataItem::type. See DataItem Types.";
+        public const string Type = "Type. See DataItem Types.";
         
         /// <summary>
-        /// Same as DataItem DataItem::units. See Value Properties of DataItem.
+        /// Units. See Value Properties of DataItem.
         /// </summary>
-        public const string Units = "Same as DataItem DataItem::units. See Value Properties of DataItem.";
+        public const string Units = "Units. See Value Properties of DataItem.";
     }
 }
