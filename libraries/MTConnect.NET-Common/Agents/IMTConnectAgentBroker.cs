@@ -18,32 +18,32 @@ namespace MTConnect.Agents
         /// <summary>
         /// Get the configured size of the Buffer in the number of maximum number of DataItems the buffer can hold at one time.
         /// </summary>
-        long BufferSize { get; }
+        ulong BufferSize { get; }
 
         /// <summary>
         /// Get the configured size of the Asset Buffer in the number of maximum number of Assets the buffer can hold at one time.
         /// </summary>
-        long AssetBufferSize { get; }
+        ulong AssetBufferSize { get; }
 
         /// <summary>
         /// A number representing the current number of Asset Documents that are currently stored in the Agent.
         /// </summary>
-        long AssetCount { get; }
+        ulong AssetCount { get; }
 
         /// <summary>
         /// A number representing the sequence number assigned to the oldest piece of Streaming Data stored in the buffer
         /// </summary>
-        long FirstSequence { get; }
+        ulong FirstSequence { get; }
 
         /// <summary>
         /// A number representing the sequence number assigned to the last piece of Streaming Data that was added to the buffer
         /// </summary>
-        long LastSequence { get; }
+        ulong LastSequence { get; }
 
         /// <summary>
         /// A number representing the sequence number of the piece of Streaming Data that is the next piece of data to be retrieved from the buffer
         /// </summary>
-        long NextSequence { get; }
+        ulong NextSequence { get; }
 
 
         Dictionary<string, int> DeviceIndexes { get; }
@@ -119,7 +119,7 @@ namespace MTConnect.Agents
         /// </summary>
         /// <param name="count">The Maximum Number of DataItems to return</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(int count = 0, Version mtconnectVersion = null, string deviceType = null);
+        IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(uint count = 0, Version mtconnectVersion = null, string deviceType = null);
 
         /// <summary>
         /// Get a MTConnectStreams Document containing all devices.
@@ -127,7 +127,7 @@ namespace MTConnect.Agents
         /// <param name="at">The sequence number to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(long at, int count = 0, Version mtconnectVersion = null, string deviceType = null);
+        IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(ulong at, uint count = 0, Version mtconnectVersion = null, string deviceType = null);
 
         /// <summary>
         /// Get a MTConnectStreams Document containing all devices.
@@ -136,7 +136,7 @@ namespace MTConnect.Agents
         /// <param name="at">The sequence number to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(IEnumerable<string> dataItemIds, long at, int count = 0, Version mtconnectVersion = null, string deviceType = null);
+        IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(IEnumerable<string> dataItemIds, ulong at, uint count = 0, Version mtconnectVersion = null, string deviceType = null);
 
         /// <summary>
         /// Get a MTConnectStreams Document containing all devices.
@@ -145,7 +145,7 @@ namespace MTConnect.Agents
         /// <param name="to">The sequence number of the last observation to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(long from, long to, int count = 0, Version mtconnectVersion = null, string deviceType = null);
+        IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(ulong from, ulong to, uint count = 0, Version mtconnectVersion = null, string deviceType = null);
 
         /// <summary>
         /// Get a MTConnectStreams Document containing all devices.
@@ -155,7 +155,7 @@ namespace MTConnect.Agents
         /// <param name="to">The sequence number of the last observation to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(IEnumerable<string> dataItemIds, long from, long to, int count = 0, Version mtconnectVersion = null, string deviceType = null);
+        IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(IEnumerable<string> dataItemIds, ulong from, ulong to, uint count = 0, Version mtconnectVersion = null, string deviceType = null);
 
 
         /// <summary>
@@ -164,7 +164,7 @@ namespace MTConnect.Agents
         /// <param name="deviceKey">The (name or uuid) of the requested Device</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(string deviceKey, int count = 0, Version mtconnectVersion = null);
+        IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(string deviceKey, uint count = 0, Version mtconnectVersion = null);
 
         /// <summary>
         /// Get a MTConnectStreams Document containing the specified Device.
@@ -173,7 +173,7 @@ namespace MTConnect.Agents
         /// <param name="dataItemIds">A list of DataItemId's to specify what observations to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(string deviceKey, IEnumerable<string> dataItemIds, int count = 0, Version mtconnectVersion = null);
+        IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(string deviceKey, IEnumerable<string> dataItemIds, uint count = 0, Version mtconnectVersion = null);
 
         /// <summary>
         /// Get a MTConnectStreams Document containing the specified Device.
@@ -182,7 +182,7 @@ namespace MTConnect.Agents
         /// <param name="at">The sequence number to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(string deviceKey, long at, int count = 0, Version mtconnectVersion = null);
+        IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(string deviceKey, ulong at, uint count = 0, Version mtconnectVersion = null);
 
         /// <summary>
         /// Get a MTConnectStreams Document containing the specified Device.
@@ -192,7 +192,7 @@ namespace MTConnect.Agents
         /// <param name="at">The sequence number to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(string deviceKey, IEnumerable<string> dataItemIds, long at, int count = 0, Version mtconnectVersion = null);
+        IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(string deviceKey, IEnumerable<string> dataItemIds, ulong at, uint count = 0, Version mtconnectVersion = null);
 
         /// <summary>
         /// Get a MTConnectStreams Document containing the specified Device.
@@ -202,7 +202,7 @@ namespace MTConnect.Agents
         /// <param name="to">The sequence number of the last observation to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(string deviceKey, long from, long to, int count = 0, Version mtconnectVersion = null);
+        IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(string deviceKey, ulong from, ulong to, uint count = 0, Version mtconnectVersion = null);
 
         /// <summary>
         /// Get a MTConnectStreams Document containing the specified Device.
@@ -213,7 +213,7 @@ namespace MTConnect.Agents
         /// <param name="to">The sequence number of the last observation to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(string deviceKey, IEnumerable<string> dataItemIds, long from, long to, int count = 0, Version mtconnectVersion = null);
+        IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(string deviceKey, IEnumerable<string> dataItemIds, ulong from, ulong to, uint count = 0, Version mtconnectVersion = null);
 
         #endregion
 
@@ -231,7 +231,7 @@ namespace MTConnect.Agents
         /// </param>
         /// <param name="count">Defines the maximum number of Asset Documents to return in an MTConnectAssets Response Document.</param>
         /// <returns>MTConnectAssets Response Document</returns>
-        IAssetsResponseDocument GetAssetsResponseDocument(string deviceKey = null, string type = null, bool removed = false, int count = 100, Version mtconnectVersion = null);
+        IAssetsResponseDocument GetAssetsResponseDocument(string deviceKey = null, string type = null, bool removed = false, uint count = 100, Version mtconnectVersion = null);
 
         /// <summary>
         /// Get a MTConnectAssets Document containing the specified Asset

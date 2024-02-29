@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Assets;
@@ -35,11 +35,11 @@ namespace MTConnect.Buffers
         /// <summary>
         /// Take (n) number of IAssets and remove from the Queue
         /// </summary>
-        public IEnumerable<AssetQueueItem> Take(int count = 1)
+        public IEnumerable<AssetQueueItem> Take(uint count = 1)
         {
             lock (_lock)
             {
-                var items = _items.Take(count);
+                var items = _items.Take((int)count);
                 if (!items.IsNullOrEmpty())
                 {
                     var x = new List<AssetQueueItem>();
@@ -59,7 +59,7 @@ namespace MTConnect.Buffers
             return null;
         }
 
-        public bool Add(int index, IAsset asset, int originalIndex)
+        public bool Add(uint index, IAsset asset, uint originalIndex)
         {
             if (asset != null)
             {

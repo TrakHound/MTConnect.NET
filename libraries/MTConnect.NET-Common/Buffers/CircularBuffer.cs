@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using System;
@@ -15,11 +15,11 @@ namespace MTConnect.Buffers
         private bool _full;
 
 
-        public int Capacity
+        public uint Capacity
         {
             get 
             {
-                lock (_lock) return _buffer.Length;
+                lock (_lock) return (uint)_buffer.Length;
             }
         }
 
@@ -32,7 +32,7 @@ namespace MTConnect.Buffers
         }
 
 
-        public CircularBuffer(int capacity)
+        public CircularBuffer(uint capacity)
         {
             _buffer = new BufferObservation[capacity];
             _start = 0;

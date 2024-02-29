@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Assets;
@@ -28,13 +28,13 @@ namespace MTConnect.Buffers
         private CancellationTokenSource stop;
         private bool _isStarted;
         private bool _isLoading;
-        private long _pageIndex = 0;
+        private ulong _pageIndex = 0;
 
         public int WriteInterval { get; set; } = 1000;
 
         public int RetentionInterval { get; set; } = 10000;
 
-        public int MaxItemsPerWrite { get; set; } = 1000;
+        public uint MaxItemsPerWrite { get; set; } = 1000;
 
         public long QueuedItemCount => _items.Count;
 
@@ -59,7 +59,7 @@ namespace MTConnect.Buffers
             Start();
         }
 
-        protected override void OnAssetAdd(int bufferIndex, IAsset asset, int originalIndex)
+        protected override void OnAssetAdd(uint bufferIndex, IAsset asset, uint originalIndex)
         {
             if (!_isLoading)
             {
@@ -120,7 +120,7 @@ namespace MTConnect.Buffers
         }
 
 
-        public bool Add(int index, IAsset asset, int originalIndex)
+        public bool Add(uint index, IAsset asset, uint originalIndex)
         {
             // Add to internal Queue
             return _items.Add(index, asset, originalIndex);
@@ -274,7 +274,7 @@ namespace MTConnect.Buffers
              });
         }
 
-        private async Task WriteItems(int maxItems)
+        private async Task WriteItems(uint maxItems)
         {
             var queueItems = _items.Take(maxItems);
             if (!queueItems.IsNullOrEmpty())
@@ -286,7 +286,7 @@ namespace MTConnect.Buffers
             }
         }
 
-        private void UpdateFileIndexes(int index)
+        private void UpdateFileIndexes(uint index)
         {
             var dir = GetDirectory();
             var files = Directory.GetFiles(dir);
@@ -321,7 +321,7 @@ namespace MTConnect.Buffers
             }
         }
 
-        private async Task<bool> WriteToFile(int index, IAsset asset, int originalIndex)
+        private async Task<bool> WriteToFile(uint index, IAsset asset, uint originalIndex)
         {
             if (asset != null && !string.IsNullOrEmpty(asset.AssetId) && !string.IsNullOrEmpty(asset.Type))
             {

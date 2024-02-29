@@ -37,32 +37,32 @@ namespace MTConnect.Agents
         /// <summary>
         /// Get the configured size of the Buffer in the number of maximum number of Observations the buffer can hold at one time.
         /// </summary>
-        public long BufferSize => _observationBuffer != null ? _observationBuffer.BufferSize : 0;
+        public ulong BufferSize => _observationBuffer != null ? _observationBuffer.BufferSize : 0;
 
         /// <summary>
         /// Get the configured size of the Asset Buffer in the number of maximum number of Assets the buffer can hold at one time.
         /// </summary>
-        public long AssetBufferSize => _assetBuffer != null ? _assetBuffer.BufferSize : 0;
+        public ulong AssetBufferSize => _assetBuffer != null ? _assetBuffer.BufferSize : 0;
 
         /// <summary>
         /// A number representing the current number of Asset Documents that are currently stored in the Agent.
         /// </summary>
-        public long AssetCount => _assetBuffer != null ? _assetBuffer.AssetCount : 0;
+        public ulong AssetCount => _assetBuffer != null ? _assetBuffer.AssetCount : 0;
 
         /// <summary>
         /// A number representing the sequence number assigned to the oldest Observation stored in the buffer
         /// </summary>
-        public long FirstSequence => _observationBuffer != null ? _observationBuffer.FirstSequence : 0;
+        public ulong FirstSequence => _observationBuffer != null ? _observationBuffer.FirstSequence : 0;
 
         /// <summary>
         /// A number representing the sequence number assigned to the last Observation that was added to the buffer
         /// </summary>
-        public long LastSequence => _observationBuffer != null ? _observationBuffer.LastSequence : 0;
+        public ulong LastSequence => _observationBuffer != null ? _observationBuffer.LastSequence : 0;
 
         /// <summary>
         /// A number representing the sequence number of the next Observation that will be added to the buffer
         /// </summary>
-        public long NextSequence => _observationBuffer != null ? _observationBuffer.NextSequence : 0;
+        public ulong NextSequence => _observationBuffer != null ? _observationBuffer.NextSequence : 0;
 
 
         public Dictionary<string, int> DeviceIndexes
@@ -145,7 +145,7 @@ namespace MTConnect.Agents
 
         public MTConnectAgentBroker(
             string uuid = null,
-            long instanceId = 0,
+            ulong instanceId = 0,
             long deviceModelChangeTime = 0,
             bool initializeAgentDevice = true
             ) : base(uuid, instanceId, deviceModelChangeTime, false)
@@ -161,7 +161,7 @@ namespace MTConnect.Agents
         public MTConnectAgentBroker(
             IAgentConfiguration configuration,
             string uuid = null,
-            long instanceId = 0,
+            ulong instanceId = 0,
             long deviceModelChangeTime = 0,
             bool initializeAgentDevice = true
             ) : base(configuration, uuid, instanceId, deviceModelChangeTime, false)
@@ -178,7 +178,7 @@ namespace MTConnect.Agents
             IMTConnectObservationBuffer observationBuffer,
             IMTConnectAssetBuffer assetBuffer,
             string uuid = null,
-            long instanceId = 0,
+            ulong instanceId = 0,
             long deviceModelChangeTime = 0,
             bool initializeAgentDevice = true
             ) : base(uuid, instanceId, deviceModelChangeTime, false)
@@ -195,7 +195,7 @@ namespace MTConnect.Agents
             IMTConnectObservationBuffer observationBuffer,
             IMTConnectAssetBuffer assetBuffer,
             string uuid = null,
-            long instanceId = 0,
+            ulong instanceId = 0,
             long deviceModelChangeTime = 0,
             bool initializeAgentDevice = true
             ) : base(configuration, uuid, instanceId, deviceModelChangeTime, false)
@@ -469,8 +469,8 @@ namespace MTConnect.Agents
             };
 
             if (version < MTConnectVersions.Version17) header.DeviceModelChangeTime = null;
-            if (version < MTConnectVersions.Version12) header.AssetBufferSize = -1;
-            if (version < MTConnectVersions.Version12) header.AssetCount = -1;
+            if (version < MTConnectVersions.Version12) header.AssetBufferSize = 0;
+            if (version < MTConnectVersions.Version12) header.AssetCount = 0;
 
             return header;
         }
@@ -606,7 +606,7 @@ namespace MTConnect.Agents
 
         #region "Internal"
 
-        private IObservationBufferResults GetObservations(IEnumerable<int> bufferKeys, long from = -1, long to = -1, long at = -1, int count = 0)
+        private IObservationBufferResults GetObservations(IEnumerable<int> bufferKeys, ulong from = 0, ulong to = 0, ulong at = 0, uint count = 0)
         {
             IObservationBufferResults results;
             if (from > 0 || to > 0)
@@ -637,7 +637,7 @@ namespace MTConnect.Agents
         /// </summary>
         /// <param name="count">The Maximum Number of DataItems to return</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(int count = 0, Version mtconnectVersion = null, string deviceType = null)
+        public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(uint count = 0, Version mtconnectVersion = null, string deviceType = null)
         {
             StreamsRequestReceived?.Invoke(null);
 
@@ -671,7 +671,7 @@ namespace MTConnect.Agents
         /// <param name="at">The sequence number to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(long at, int count = 0, Version mtconnectVersion = null, string deviceType = null)
+        public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(ulong at, uint count = 0, Version mtconnectVersion = null, string deviceType = null)
         {
             StreamsRequestReceived?.Invoke(null);
 
@@ -706,7 +706,7 @@ namespace MTConnect.Agents
         /// <param name="at">The sequence number to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(IEnumerable<string> dataItemIds, long at, int count = 0, Version mtconnectVersion = null, string deviceType = null)
+        public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(IEnumerable<string> dataItemIds, ulong at, uint count = 0, Version mtconnectVersion = null, string deviceType = null)
         {
             StreamsRequestReceived?.Invoke(null);
 
@@ -746,7 +746,7 @@ namespace MTConnect.Agents
         /// <param name="to">The sequence number of the last observation to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(long from, long to, int count = 0, Version mtconnectVersion = null, string deviceType = null)
+        public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(ulong from, ulong to, uint count = 0, Version mtconnectVersion = null, string deviceType = null)
         {
             StreamsRequestReceived?.Invoke(null);
 
@@ -782,7 +782,7 @@ namespace MTConnect.Agents
         /// <param name="to">The sequence number of the last observation to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(IEnumerable<string> dataItemIds, long from, long to, int count = 0, Version mtconnectVersion = null, string deviceType = null)
+        public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(IEnumerable<string> dataItemIds, ulong from, ulong to, uint count = 0, Version mtconnectVersion = null, string deviceType = null)
         {
             StreamsRequestReceived?.Invoke(null);
 
@@ -817,7 +817,7 @@ namespace MTConnect.Agents
         /// <param name="deviceKey">The (name or uuid) of the requested Device</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(string deviceKey, int count = 0, Version mtconnectVersion = null)
+        public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(string deviceKey, uint count = 0, Version mtconnectVersion = null)
         {
             StreamsRequestReceived?.Invoke(deviceKey);
 
@@ -852,7 +852,7 @@ namespace MTConnect.Agents
         /// <param name="at">The sequence number to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(string deviceKey, long at, int count = 0, Version mtconnectVersion = null)
+        public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(string deviceKey, ulong at, uint count = 0, Version mtconnectVersion = null)
         {
             StreamsRequestReceived?.Invoke(deviceKey);
 
@@ -887,7 +887,7 @@ namespace MTConnect.Agents
         /// <param name="dataItemIds">A list of DataItemId's to specify what observations to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(string deviceKey, IEnumerable<string> dataItemIds, int count = 0, Version mtconnectVersion = null)
+        public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(string deviceKey, IEnumerable<string> dataItemIds, uint count = 0, Version mtconnectVersion = null)
         {
             StreamsRequestReceived?.Invoke(deviceKey);
 
@@ -923,7 +923,7 @@ namespace MTConnect.Agents
         /// <param name="at">The sequence number to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(string deviceKey, IEnumerable<string> dataItemIds, long at, int count = 0, Version mtconnectVersion = null)
+        public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(string deviceKey, IEnumerable<string> dataItemIds, ulong at, uint count = 0, Version mtconnectVersion = null)
         {
             StreamsRequestReceived?.Invoke(deviceKey);
 
@@ -959,7 +959,7 @@ namespace MTConnect.Agents
         /// <param name="to">The sequence number of the last observation to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(string deviceKey, long from, long to, int count = 0, Version mtconnectVersion = null)
+        public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(string deviceKey, ulong from, ulong to, uint count = 0, Version mtconnectVersion = null)
         {
             StreamsRequestReceived?.Invoke(deviceKey);
 
@@ -996,7 +996,7 @@ namespace MTConnect.Agents
         /// <param name="to">The sequence number of the last observation to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>
-        public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(string deviceKey, IEnumerable<string> dataItemIds, long from, long to, int count = 0, Version mtconnectVersion = null)
+        public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(string deviceKey, IEnumerable<string> dataItemIds, ulong from, ulong to, uint count = 0, Version mtconnectVersion = null)
         {
             StreamsRequestReceived?.Invoke(deviceKey);
 
@@ -1229,7 +1229,7 @@ namespace MTConnect.Agents
         /// </param>
         /// <param name="count">Defines the maximum number of Asset Documents to return in an MTConnectAssets Response Document.</param>
         /// <returns>MTConnectAssets Response Document</returns>
-        public IAssetsResponseDocument GetAssetsResponseDocument(string deviceKey = null, string type = null, bool removed = false, int count = 0, Version mtconnectVersion = null)
+        public IAssetsResponseDocument GetAssetsResponseDocument(string deviceKey = null, string type = null, bool removed = false, uint count = 0, Version mtconnectVersion = null)
         {
             DeviceAssetsRequestReceived?.Invoke(deviceKey);
 

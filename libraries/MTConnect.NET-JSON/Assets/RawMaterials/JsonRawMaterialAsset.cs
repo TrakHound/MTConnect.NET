@@ -20,7 +20,7 @@ namespace MTConnect.Assets.Json.RawMaterials
         public DateTime Timestamp { get; set; }
 
         [JsonPropertyName("instanceId")]
-        public long InstanceId { get; set; }
+        public ulong InstanceId { get; set; }
 
         [JsonPropertyName("deviceUuid")]
         public string DeviceUuid { get; set; }

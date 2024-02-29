@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+﻿// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using Ceen;
@@ -76,7 +76,7 @@ namespace MTConnect.Servers
 
 
                 // Get MTConnectAssets document from the MTConnectAgent
-                return MTConnectHttpRequests.GetAssetsRequest(_mtconnectAgent, deviceKey, type, removed, count, version, documentFormat, formatOptions);
+                return MTConnectHttpRequests.GetAssetsRequest(_mtconnectAgent, deviceKey, type, removed, (uint)count, version, documentFormat, formatOptions);
             }
 
             return new MTConnectHttpResponse();

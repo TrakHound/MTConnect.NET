@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Assets;
@@ -16,9 +16,9 @@ namespace MTConnect.Buffers
     {       
         private readonly string _id = Guid.NewGuid().ToString();
         private readonly IAsset[] _storedAssets;
-        private readonly Dictionary<string, int> _assetIds = new Dictionary<string, int>();
+        private readonly Dictionary<string, uint> _assetIds = new Dictionary<string, uint>();
         private readonly object _lock = new object();
-        private int _bufferIndex = 0;
+        private uint _bufferIndex = 0;
 
 
         /// <summary>
@@ -29,14 +29,14 @@ namespace MTConnect.Buffers
         /// <summary>
         /// Get the configured size of the Buffer in the number of maximum number of Assets the buffer can hold at one time.
         /// </summary>
-        public long BufferSize { get; set; } = 1024;
+        public ulong BufferSize { get; set; } = 1024;
 
         /// <summary>
         /// Get the total number of Assets that are currently in the Buffer
         /// </summary>
-        public long AssetCount
+        public ulong AssetCount
         {
-            get { return _assetIds.Keys.Count(); }
+            get { return (ulong)_assetIds.Keys.Count(); }
         }
 
         /// <summary>
@@ -66,7 +66,7 @@ namespace MTConnect.Buffers
         }
 
 
-        protected virtual void OnAssetAdd(int bufferIndex, IAsset asset, int originalIndex) { }
+        protected virtual void OnAssetAdd(uint bufferIndex, IAsset asset, uint originalIndex) { }
 
         protected virtual void OnAssetRemoved(IAsset asset) { }
 
@@ -88,7 +88,7 @@ namespace MTConnect.Buffers
         /// <summary>
         /// Get a list of all Assets from the Buffer
         /// </summary>
-        public IEnumerable<IAsset> GetAssets(string deviceUuid = null, string type = null, bool removed = false, int count = 100)
+        public IEnumerable<IAsset> GetAssets(string deviceUuid = null, string type = null, bool removed = false, uint count = 100)
         {
             IEnumerable<IAsset> assets;
             lock (_lock) assets = _storedAssets.ToList();
@@ -111,7 +111,7 @@ namespace MTConnect.Buffers
                 assets = assets.Where(o => o != null && !o.Removed).ToList();
             }
 
-            return assets?.Take(count);
+            return assets?.Take((int)count);
         }
 
         /// <summary>
@@ -128,7 +128,7 @@ namespace MTConnect.Buffers
                 {
                     lock (_lock)
                     {
-                        if (_assetIds.TryGetValue(assetId, out int index))
+                        if (_assetIds.TryGetValue(assetId, out uint index))
                         {
                             assets.Add(_storedAssets[index]);
                         }
@@ -149,7 +149,7 @@ namespace MTConnect.Buffers
         {
             lock (_lock)
             {
-                if (_assetIds.TryGetValue(assetId, out int index))
+                if (_assetIds.TryGetValue(assetId, out uint index))
                 {
                     return _storedAssets[index];
                 }
@@ -169,9 +169,9 @@ namespace MTConnect.Buffers
             {
                 if (!string.IsNullOrEmpty(asset.AssetId))
                 {
-                    int addIndex = 0;
-                    int originalIndex = -1;
-                    int index;
+                    uint addIndex = 0;
+                    uint originalIndex = 0;
+                    uint index;
 
                     lock (_lock)
                     {
@@ -201,7 +201,7 @@ namespace MTConnect.Buffers
                                 var a = _storedAssets;
                                 Array.Copy(a, 1, _storedAssets, 0, a.Length - 1);
                                 _storedAssets[_storedAssets.Length - 1] = asset;
-                                addIndex = _storedAssets.Length - 1;
+                                addIndex = (uint)_storedAssets.Length - 1;
                             }
                             else
                             {
@@ -214,7 +214,7 @@ namespace MTConnect.Buffers
 
                         // Reset AssetId References
                         _assetIds.Clear();
-                        for (var i = 0; i <= _bufferIndex - 1; i++)
+                        for (uint i = 0; i <= _bufferIndex - 1; i++)
                         {
                             var a = _storedAssets[i];
                             _assetIds.Add(a.AssetId, i);

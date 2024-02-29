@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using System;
@@ -14,7 +14,7 @@ namespace MTConnect.Headers
         /// <summary>
         /// A number indicating a specific instantiation of the buffer associated with the Agent that published the Response Document.   
         /// </summary>
-        long InstanceId { get; }
+        ulong InstanceId { get; }
 
         /// <summary>
         /// The major, minor, and revision number of the MTConnect Standard that defines the semantic data model that represents the content of the Response Document.
@@ -30,12 +30,12 @@ namespace MTConnect.Headers
         /// <summary>
         /// A value representing the maximum number of Asset Documents that can be stored in the Agent that published the Response Document.   
         /// </summary>
-        long AssetBufferSize { get; }
+        ulong AssetBufferSize { get; }
 
         /// <summary>
         /// A number representing the current number of Asset Documents that are currently stored in the Agent as of the creationTime that the Agent published the Response Document.
         /// </summary>
-        long AssetCount { get; }
+        ulong AssetCount { get; }
 
         /// <summary>
         /// A timestamp in 8601 format of the last update of the Device information for any device.

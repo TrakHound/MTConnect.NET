@@ -46,7 +46,7 @@ namespace MTConnect.Agents
         private readonly List<string> _assetIds = new List<string>();
         private MTConnectAgentMetrics _metrics;
         private readonly string _uuid;
-        private readonly long _instanceId;
+        private readonly ulong _instanceId;
         private long _deviceModelChangeTime;
         private Version _version;
         private Version _mtconnectVersion;
@@ -61,7 +61,7 @@ namespace MTConnect.Agents
         /// <summary>
         /// Gets a representation of the specific instance of the Agent.
         /// </summary>
-        public long InstanceId => _instanceId;
+        public ulong InstanceId => _instanceId;
 
         /// <summary>
         /// Gets the Configuration associated with the Agent
@@ -198,7 +198,7 @@ namespace MTConnect.Agents
 
         public MTConnectAgent(
             string uuid = null,
-            long instanceId = 0,
+            ulong instanceId = 0,
             long deviceModelChangeTime = 0,
             bool initializeAgentDevice = true
             )
@@ -216,7 +216,7 @@ namespace MTConnect.Agents
         public MTConnectAgent(
             IAgentConfiguration configuration,
             string uuid = null,
-            long instanceId = 0,
+            ulong instanceId = 0,
             long deviceModelChangeTime = 0,
             bool initializeAgentDevice = true
             )
@@ -2164,9 +2164,9 @@ namespace MTConnect.Agents
         #endregion
 
 
-        private static long CreateInstanceId()
+        private static ulong CreateInstanceId()
         {
-            return UnixDateTime.Now / 1000 / 10000;
+            return (ulong)(UnixDateTime.Now / 1000 / 10000);
         }
 
         private static Version GetAgentVersion()

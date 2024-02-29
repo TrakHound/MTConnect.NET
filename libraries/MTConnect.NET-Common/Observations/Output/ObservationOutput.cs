@@ -64,8 +64,8 @@ namespace MTConnect.Observations.Output
         /// <summary>
         /// The Agent Instance ID that produced the Observation
         /// </summary>
-        internal long _instanceId;
-        public long InstanceId
+        internal ulong _instanceId;
+        public ulong InstanceId
         {
             get => _instanceId;
             set => _instanceId = value;
@@ -75,8 +75,8 @@ namespace MTConnect.Observations.Output
         /// A number representing the sequential position of an occurence of the DataItem in the data buffer of the Agent.
         /// The value MUST be represented as an unsigned 64 bit with valid values from 1 to 2^64-1.
         /// </summary>
-        internal long _sequence;
-        public long Sequence
+        internal ulong _sequence;
+        public ulong Sequence
         {
             get => _sequence;
             set => _sequence = value;

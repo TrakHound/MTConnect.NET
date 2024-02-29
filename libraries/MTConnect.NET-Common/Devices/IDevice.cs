@@ -8,7 +8,7 @@ namespace MTConnect.Devices
 		/// <summary>
 		/// The Agent InstanceId that produced this Device
 		/// </summary>
-		long InstanceId { get; }
+		ulong InstanceId { get; }
 
         /// <summary>
         /// DEPRECATED IN REL. 1.1

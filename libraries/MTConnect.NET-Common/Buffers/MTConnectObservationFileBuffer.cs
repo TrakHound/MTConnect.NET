@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Configurations;
@@ -20,7 +20,7 @@ namespace MTConnect.Buffers
     /// </summary>
     public class MTConnectObservationFileBuffer : MTConnectObservationBuffer, IDisposable
     {
-        private const int DefaultPageSize = 100;
+        private const uint DefaultPageSize = 100;
         private const string DirectoryBuffer = "buffer";
         private const string DirectoryObservations = "observations";
         private const string DirectoryCurrent = "current";
@@ -38,7 +38,7 @@ namespace MTConnect.Buffers
 
         public int RetentionInterval { get; set; } = 10000;
 
-        public int PageSize { get; set; } = DefaultPageSize;
+        public uint PageSize { get; set; } = DefaultPageSize;
 
         public int MaxItemsPerWrite { get; set; } = 50000;
 
@@ -318,14 +318,14 @@ namespace MTConnect.Buffers
         }
 
 
-        private static long GetSequenceTop(long n, int pageSize = DefaultPageSize)
+        private static ulong GetSequenceTop(ulong n, uint pageSize = DefaultPageSize)
         {
             if (pageSize > 0)
             {
-                var x = n / pageSize;
+                ulong x = n / pageSize;
                 x = x * pageSize;
 
-                var y = 0;
+                uint y = 0;
                 if (n % pageSize > 0) y = pageSize;
 
                 return x + y;
@@ -334,7 +334,7 @@ namespace MTConnect.Buffers
             return 0;
         }
 
-        private static long GetSequenceBottom(long n, int pageSize = DefaultPageSize)
+        private static ulong GetSequenceBottom(ulong n, uint pageSize = DefaultPageSize)
         {
             var top = GetSequenceTop(n, pageSize);
             if (top > 0)
@@ -346,7 +346,7 @@ namespace MTConnect.Buffers
         }
 
 
-        private IEnumerable<string> GetFiles(long from, long to, int pageSize = DefaultPageSize)
+        private IEnumerable<string> GetFiles(ulong from, ulong to, uint pageSize = DefaultPageSize)
         {
             var found = new List<string>();
 
@@ -357,14 +357,14 @@ namespace MTConnect.Buffers
             var files = Directory.GetFiles(dir);
             if (!files.IsNullOrEmpty())
             {
-                var x = new ConcurrentDictionary<long, string>();
+                var x = new ConcurrentDictionary<ulong, string>();
                 Parallel.ForEach(files, file =>
                 {
-                    var sequence = long.Parse(Path.GetFileName(file));
+                    var sequence = ulong.Parse(Path.GetFileName(file));
                     x.TryAdd(sequence, file);
                 });
 
-                long m = GetSequenceTop(from);
+                ulong m = GetSequenceTop(from);
                 var n = GetSequenceTop(to);
 
                 string s;
@@ -552,8 +552,8 @@ namespace MTConnect.Buffers
             if (FirstSequence > 1)
             {
                 var stpw = System.Diagnostics.Stopwatch.StartNew();
-                var from = 0;
-                var to = GetSequenceBottom(FirstSequence - 1);
+                ulong from = 0;
+                ulong to = GetSequenceBottom(FirstSequence - 1);
 
                 var sequenceFiles = GetFiles(from, to);
                 if (!sequenceFiles.IsNullOrEmpty())
@@ -565,7 +565,7 @@ namespace MTConnect.Buffers
                 }
 
                 stpw.Stop();
-                if (BufferRetentionCompleted != null) BufferRetentionCompleted.Invoke(this, new ObservationBufferRetentionArgs(from, to, sequenceFiles.Count(), stpw.ElapsedMilliseconds));
+                if (BufferRetentionCompleted != null) BufferRetentionCompleted.Invoke(this, new ObservationBufferRetentionArgs(from, to, (ulong)sequenceFiles.Count(), stpw.ElapsedMilliseconds));
             }
         }
 

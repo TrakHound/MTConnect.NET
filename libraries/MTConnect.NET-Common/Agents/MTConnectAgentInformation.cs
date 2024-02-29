@@ -21,7 +21,7 @@ namespace MTConnect.Agents
         public string Uuid { get; set; }
 
         [JsonPropertyName("instanceId")]
-        public long InstanceId { get; set; }
+        public ulong InstanceId { get; set; }
 
         [JsonPropertyName("deviceModelChangeTime")]
         public long DeviceModelChangeTime { get; set; }
@@ -36,10 +36,10 @@ namespace MTConnect.Agents
         public MTConnectAgentInformation()
         {
             Uuid = Guid.NewGuid().ToString();
-            InstanceId = UnixDateTime.Now;
+            InstanceId = (ulong)UnixDateTime.Now;
         }
 
-        public MTConnectAgentInformation(string uuid, long instanceId = 0, long deviceModelChangeTime = 0)
+        public MTConnectAgentInformation(string uuid, ulong instanceId = 0, long deviceModelChangeTime = 0)
         {
             Uuid = uuid;
             InstanceId = instanceId;

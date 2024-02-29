@@ -1,20 +1,20 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 namespace MTConnect.Buffers
 {
     public struct ObservationBufferRetentionArgs
     {
-        public long From { get; }
+        public ulong From { get; }
 
-        public long To { get; }
+        public ulong To { get; }
 
-        public long Count { get; }
+        public ulong Count { get; }
 
         public long Duration { get; }
 
 
-        public ObservationBufferRetentionArgs(long from, long to, long count, long duration)
+        public ObservationBufferRetentionArgs(ulong from, ulong to, ulong count, long duration)
         {
             From = from;
             To = to;

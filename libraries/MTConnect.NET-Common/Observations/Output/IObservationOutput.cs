@@ -23,9 +23,9 @@ namespace MTConnect.Observations.Output
 
         string Name { get; }
 
-        long InstanceId { get; }
+        ulong InstanceId { get; }
 
-        long Sequence { get; }
+        ulong Sequence { get; }
 
         DateTime Timestamp { get; }
 

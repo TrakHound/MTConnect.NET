@@ -11,7 +11,7 @@ namespace MTConnect.Streams.Xml
     internal class XmlStreamsHeader
     {
         [XmlAttribute("instanceId")]
-        public long InstanceId { get; set; }
+        public ulong InstanceId { get; set; }
 
         [XmlAttribute("version")]
         public string Version { get; set; }
@@ -20,16 +20,16 @@ namespace MTConnect.Streams.Xml
         public string Sender { get; set; }
 
         [XmlAttribute("bufferSize")]
-        public long BufferSize { get; set; }
+        public ulong BufferSize { get; set; }
 
         [XmlAttribute("firstSequence")]
-        public long FirstSequence { get; set; }
+        public ulong FirstSequence { get; set; }
 
         [XmlAttribute("lastSequence")]
-        public long LastSequence { get; set; }
+        public ulong LastSequence { get; set; }
 
         [XmlAttribute("nextSequence")]
-        public long NextSequence { get; set; }
+        public ulong NextSequence { get; set; }
 
         [XmlAttribute("deviceModelChangeTime")]
         public string DeviceModelChangeTime { get; set; }
@@ -61,13 +61,13 @@ namespace MTConnect.Streams.Xml
         public static IMTConnectStreamsHeader ReadXml(XmlReader reader)
         {
             var header = new MTConnectStreamsHeader();
-            header.InstanceId = reader.GetAttribute("instanceId").ToLong();
+            header.InstanceId = reader.GetAttribute("instanceId").ToULong();
             header.Version = reader.GetAttribute("version");
             header.Sender = reader.GetAttribute("sender");
-            header.BufferSize = reader.GetAttribute("bufferSize").ToLong();
-            header.FirstSequence = reader.GetAttribute("firstSequence").ToLong();
-            header.LastSequence = reader.GetAttribute("lastSequence").ToLong();
-            header.NextSequence = reader.GetAttribute("nextSequence").ToLong();
+            header.BufferSize = reader.GetAttribute("bufferSize").ToULong();
+            header.FirstSequence = reader.GetAttribute("firstSequence").ToULong();
+            header.LastSequence = reader.GetAttribute("lastSequence").ToULong();
+            header.NextSequence = reader.GetAttribute("nextSequence").ToULong();
             header.DeviceModelChangeTime = reader.GetAttribute("deviceModelChangeTime");
             header.TestIndicator = reader.GetAttribute("testIndicator").ToBoolean();
             header.CreationTime = reader.GetAttribute("creationTime").ToDateTime();

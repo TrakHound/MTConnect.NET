@@ -39,7 +39,7 @@ namespace MTConnect.Assets
         /// <summary>
         /// The Agent InstanceId that produced this Asset
         /// </summary>
-        public long InstanceId { get; set; }
+        public ulong InstanceId { get; set; }
 
 
         public static IAsset Create(string type)

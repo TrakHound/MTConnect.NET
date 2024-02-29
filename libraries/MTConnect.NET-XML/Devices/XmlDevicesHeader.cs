@@ -11,7 +11,7 @@ namespace MTConnect.Devices.Xml
     public class XmlDevicesHeader
     {
         [XmlAttribute("instanceId")]
-        public long InstanceId { get; set; }
+        public ulong InstanceId { get; set; }
 
         [XmlAttribute("version")]
         public string Version { get; set; }
@@ -20,13 +20,13 @@ namespace MTConnect.Devices.Xml
         public string Sender { get; set; }
 
         [XmlAttribute("bufferSize")]
-        public long BufferSize { get; set; }
+        public ulong BufferSize { get; set; }
 
         [XmlAttribute("assetBufferSize")]
-        public long AssetBufferSize { get; set; }
+        public ulong AssetBufferSize { get; set; }
 
         [XmlAttribute("assetCount")]
-        public long AssetCount { get; set; }
+        public ulong AssetCount { get; set; }
 
         [XmlAttribute("deviceModelChangeTime")]
         public string DeviceModelChangeTime { get; set; }

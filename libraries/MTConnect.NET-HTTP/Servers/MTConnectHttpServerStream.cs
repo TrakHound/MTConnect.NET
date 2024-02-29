@@ -26,8 +26,8 @@ namespace MTConnect.Servers.Http
         private readonly IMTConnectAgentBroker _mtconnectAgent;
         private readonly string _deviceKey;
         private readonly IEnumerable<string> _dataItemIds;
-        private readonly long _from;
-        private readonly int _count;
+        private readonly ulong _from;
+        private readonly uint _count;
         private readonly int _interval;
         private readonly int _heartbeat;
         private readonly string _documentFormat;
@@ -66,8 +66,8 @@ namespace MTConnect.Servers.Http
             IMTConnectAgentBroker mtconnectAgent,
             string deviceKey,
             IEnumerable<string> dataItemIds = null,
-            long from = -1,
-            int count = 0,
+            ulong from = 0,
+            uint count = 0,
             int interval = 500,
             int heartbeat = 10000,
             string documentFormat = DocumentFormat.XML,
@@ -156,8 +156,8 @@ namespace MTConnect.Servers.Http
                 {
                     var stpw = new System.Diagnostics.Stopwatch();
 
-                    long lastSequence = Math.Max(0, _from);
-                    long nextSequence = lastSequence;
+                    ulong lastSequence = Math.Max(0, _from);
+                    ulong nextSequence = lastSequence;
                     long lastDocumentSent = 0;
                     long lastHeartbeatSent = 0;
                     long now = UnixDateTime.Now;
@@ -178,13 +178,13 @@ namespace MTConnect.Servers.Http
                             else
                             {
                                 if (!_dataItemIds.IsNullOrEmpty()) document = _mtconnectAgent.GetDeviceStreamsResponseDocument(_deviceKey, _dataItemIds, nextSequence, long.MaxValue, _count);
-                                else document = _mtconnectAgent.GetDeviceStreamsResponseDocument(_deviceKey, nextSequence, long.MaxValue, _count);
+                                else document = _mtconnectAgent.GetDeviceStreamsResponseDocument(_deviceKey, nextSequence, ulong.MaxValue, _count);
                             }
                         }
                         else
                         {
                             if (_currentOnly) document = _mtconnectAgent.GetDeviceStreamsResponseDocument();
-                            else document = _mtconnectAgent.GetDeviceStreamsResponseDocument(nextSequence, long.MaxValue, _count);
+                            else document = _mtconnectAgent.GetDeviceStreamsResponseDocument(nextSequence, ulong.MaxValue, _count);
                         }
 
                         if (document != null)

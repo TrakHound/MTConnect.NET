@@ -1,9 +1,8 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Agents;
 using System;
-using System.Text.Json.Serialization;
 
 namespace MTConnect.Configurations
 {
@@ -20,12 +19,12 @@ namespace MTConnect.Configurations
         /// <summary>
         /// The maximum number of Observations the agent can hold in its buffer
         /// </summary>
-        int ObservationBufferSize { get; }
+        uint ObservationBufferSize { get; }
 
         /// <summary>
         /// The maximum number of assets the agent can hold in its buffer
         /// </summary>
-        int AssetBufferSize { get; }
+        uint AssetBufferSize { get; }
 
 
         /// <summary>

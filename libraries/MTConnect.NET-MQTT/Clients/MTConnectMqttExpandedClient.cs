@@ -62,7 +62,7 @@ namespace MTConnect.Clients
         private readonly IEnumerable<string> _topics;
         private readonly Dictionary<string, MTConnectMqttAgentInformation> _agents = new Dictionary<string, MTConnectMqttAgentInformation>(); // AgentUuid > AgentInformation
         private readonly Dictionary<string, string> _deviceAgentUuids = new Dictionary<string, string>(); // DeviceUuid > AgentUuid
-        private readonly Dictionary<string, long> _agentInstanceIds = new Dictionary<string, long>(); // AgentUuid > InstanceId
+        private readonly Dictionary<string, ulong> _agentInstanceIds = new Dictionary<string, ulong>(); // AgentUuid > InstanceId
         private readonly Dictionary<string, long> _agentHeartbeatTimestamps = new Dictionary<string, long>(); // AgentUuid > Last Heartbeat received (Unix milliseconds)
         private readonly Dictionary<string, System.Timers.Timer> _connectionTimers = new Dictionary<string, System.Timers.Timer>();
         private readonly object _lock = new object();
@@ -477,7 +477,7 @@ namespace MTConnect.Clients
                     if (!string.IsNullOrEmpty(agentUuid))
                     {
                         // Verify Agent InstanceId
-                        long agentInstanceId;
+                        ulong agentInstanceId;
                         lock (_lock) _agentInstanceIds.TryGetValue(agentUuid, out agentInstanceId);
 
                         if (observation.InstanceId == agentInstanceId)

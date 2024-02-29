@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+﻿// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using Ceen;
@@ -42,15 +42,15 @@ namespace MTConnect.Servers
                 var path = httpRequest.QueryString["path"];
 
                 // Read "from" parameter from Query string
-                var from = httpRequest.QueryString["from"].ToLong();
+                var from = httpRequest.QueryString["from"].ToULong();
                 if (from < 1) from = 0;
 
                 // Read "to" parameter from Query string
-                var to = httpRequest.QueryString["to"].ToLong();
+                var to = httpRequest.QueryString["to"].ToULong();
                 if (to < 1) to = 0;
 
                 // Read "count" parameter from Query string
-                var count = httpRequest.QueryString["count"].ToInt();
+                var count = httpRequest.QueryString["count"].ToUInt();
                 if (count < 1) count = 100;
 
                 // Read "interval" parameter from Query string

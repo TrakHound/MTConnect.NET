@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 namespace MTConnect.Buffers
@@ -11,28 +11,28 @@ namespace MTConnect.Buffers
         /// <summary>
         /// Gets the First Sequence available when the result set was processed
         /// </summary>
-        long FirstSequence { get; }
+        ulong FirstSequence { get; }
 
         /// <summary>
         /// Gets the Last Sequence available when the result set was processed
         /// </summary>
-        long LastSequence { get; }
+        ulong LastSequence { get; }
 
         /// <summary>
         /// Gets the Next Sequence available when the result set was processed
         /// </summary>
-        long NextSequence { get; }
+        ulong NextSequence { get; }
 
         /// <summary>
         /// Gets the List of Stored Observations contained in the result set
         /// </summary>
         BufferObservation[] Observations { get; }
 
-        long FirstObservationSequence { get; }
+        ulong FirstObservationSequence { get; }
 
-        long LastObservationSequence { get; }
+        ulong LastObservationSequence { get; }
 
-        int ObservationCount { get; }
+        uint ObservationCount { get; }
 
         bool IsValid { get; }
     }

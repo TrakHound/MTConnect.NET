@@ -35,10 +35,10 @@ namespace MTConnect.Streams.Json
         public DateTime Timestamp { get; set; }
 
         [JsonPropertyName("sequence")]
-        public long Sequence { get; set; }
+        public ulong Sequence { get; set; }
 
         [JsonPropertyName("instanceId")]
-        public long InstanceId { get; set; }
+        public ulong InstanceId { get; set; }
 
         [JsonPropertyName("resetTriggered")]
         public string ResetTriggered { get; set; }

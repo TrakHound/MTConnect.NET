@@ -13,7 +13,7 @@ namespace MTConnect.Mqtt
         public string Uuid { get; set; }
 
         [JsonPropertyName("instanceId")]
-        public long InstanceId { get; set; }
+        public ulong InstanceId { get; set; }
 
         [JsonPropertyName("sender")]
         public string Sender { get; set; }

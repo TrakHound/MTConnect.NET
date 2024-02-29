@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Observations;
@@ -14,7 +14,7 @@ namespace MTConnect.Buffers
 
         public IEnumerable<object[]> Values { get; set; }
 
-        public long Sequence { get; set; }
+        public ulong Sequence { get; set; }
 
         public long Timestamp { get; set; }
 
@@ -69,7 +69,7 @@ namespace MTConnect.Buffers
                 }
                 fileObservation.Values = values;
 
-                fileObservation.Sequence = a[2].ToLong();
+                fileObservation.Sequence = a[2].ToULong();
                 fileObservation.Timestamp = a[3].ToLong();
             }
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Devices;
@@ -12,7 +12,7 @@ namespace MTConnect.Buffers
     {
         internal int _key;
         internal ObservationValue[] _values;
-        internal long _sequence;
+        internal ulong _sequence;
         internal long _timestamp;
         internal byte _category;
         internal byte _representation;
@@ -33,7 +33,7 @@ namespace MTConnect.Buffers
             set => _values = value;
         }
 
-        public long Sequence
+        public ulong Sequence
         {
             get => _sequence;
             set => _sequence = value;
@@ -106,7 +106,7 @@ namespace MTConnect.Buffers
             else _values = null;
         }
 
-        public BufferObservation(int bufferKey, long sequence, IObservation observation)
+        public BufferObservation(int bufferKey, ulong sequence, IObservation observation)
         {
             _key = bufferKey;
             _sequence = sequence;
@@ -127,7 +127,7 @@ namespace MTConnect.Buffers
             DataItemCategory category,
             DataItemRepresentation representation, 
             IEnumerable<ObservationValue> values,
-            long sequence,
+            ulong sequence,
             long timestamp
             )
         {
@@ -146,9 +146,9 @@ namespace MTConnect.Buffers
         }
 
 
-        public long CreateHash() => CreateHash(Key, Sequence);
+        public ulong CreateHash() => CreateHash(Key, Sequence);
 
-        public static long CreateHash(int key, long sequence)
+        public static ulong CreateHash(int key, ulong sequence)
         {
             // [DeviceIndex] [DataItemIndex] [Sequence]
             // {3} {4} {12}
@@ -163,7 +163,7 @@ namespace MTConnect.Buffers
             // Max DataItemIndex can be 9999
             // Max Sequence can be 999,999,999,999
 
-            return (key * 1000000000000) + sequence;
+            return (ulong)(key * 1000000000000) + sequence;
         }
 
 

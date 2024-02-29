@@ -33,10 +33,10 @@ namespace MTConnect.Streams.Output
         /// </summary>
         IEnumerable<IObservationOutput> GetObservations();
 
-        long FirstObservationSequence { get; }
+        ulong FirstObservationSequence { get; }
 
-        long LastObservationSequence { get; }
+        ulong LastObservationSequence { get; }
 
-        int ObservationCount { get; }
+        uint ObservationCount { get; }
     }
 }

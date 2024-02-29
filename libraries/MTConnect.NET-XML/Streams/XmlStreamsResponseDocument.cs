@@ -285,7 +285,7 @@ namespace MTConnect.Streams.Xml
                             break;
 
                         case "sequence":
-                            observation.Sequence = reader.Value.ToLong();
+                            observation.Sequence = reader.Value.ToULong();
                             break;
 
                         case "timestamp":

@@ -39,9 +39,9 @@ namespace MTConnect.Clients
         private readonly string _documentFormat;
 
         private readonly Dictionary<string, IDevice> _devices = new Dictionary<string, IDevice>();
-        private readonly Dictionary<string, long> _deviceLastSequence = new Dictionary<string, long>();
-        private readonly Dictionary<string, long> _deviceLastCurrentSequence = new Dictionary<string, long>();
-        private readonly Dictionary<string, long> _deviceInstanceId = new Dictionary<string, long>();
+        private readonly Dictionary<string, ulong> _deviceLastSequence = new Dictionary<string, ulong>();
+        private readonly Dictionary<string, ulong> _deviceLastCurrentSequence = new Dictionary<string, ulong>();
+        private readonly Dictionary<string, ulong> _deviceInstanceId = new Dictionary<string, ulong>();
         private readonly object _lock = new object();
 
 
@@ -501,8 +501,8 @@ namespace MTConnect.Clients
                     var observations = deviceStream.Observations;
                     if (deviceStream != null && deviceStream.Uuid != null && !observations.IsNullOrEmpty())
                     {
-                        long lastSequence;
-                        long lastInstanceId;
+                        ulong lastSequence;
+                        ulong lastInstanceId;
                         lock (_lock)
                         {
                             _deviceLastSequence.TryGetValue(deviceStream.Uuid, out lastSequence);
@@ -578,8 +578,8 @@ namespace MTConnect.Clients
 
                     if (deviceStream != null && deviceStream.Observations != null && deviceStream.Observations.Count() > 0)
                     {
-                        long lastCurrentSequence;
-                        long lastSequence;
+                        ulong lastCurrentSequence;
+                        ulong lastSequence;
                         lock (_lock)
                         {
                             _deviceLastCurrentSequence.TryGetValue(deviceStream.Uuid, out lastCurrentSequence);

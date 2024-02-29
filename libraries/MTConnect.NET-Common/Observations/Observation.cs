@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Devices;
@@ -101,22 +101,22 @@ namespace MTConnect.Observations
             set => _name = value;
         }
 
-        internal long _instanceId;
+        internal ulong _instanceId;
         /// <summary>
         /// The Agent Instance ID that produced the Observation
         /// </summary>
-        public long InstanceId
+        public ulong InstanceId
         {
             get => _instanceId;
             set => _instanceId = value;
         }
 
-        internal long _sequence;
+        internal ulong _sequence;
         /// <summary>
         /// A number representing the sequential position of an occurence of the DataItem in the data buffer of the Agent.
         /// The value MUST be represented as an unsigned 64 bit with valid values from 1 to 2^64-1.
         /// </summary>
-        public long Sequence
+        public ulong Sequence
         {
             get => _sequence;
             set => _sequence = value;

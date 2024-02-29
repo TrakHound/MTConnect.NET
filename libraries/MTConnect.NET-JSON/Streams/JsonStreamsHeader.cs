@@ -10,7 +10,7 @@ namespace MTConnect.Streams.Json
     public class JsonStreamsHeader
     {
         [JsonPropertyName("instanceId")]
-        public long InstanceId { get; set; }
+        public ulong InstanceId { get; set; }
 
         [JsonPropertyName("version")]
         public string Version { get; set; }
@@ -19,16 +19,16 @@ namespace MTConnect.Streams.Json
         public string Sender { get; set; }
 
         [JsonPropertyName("bufferSize")]
-        public long BufferSize { get; set; }
+        public ulong BufferSize { get; set; }
 
         [JsonPropertyName("firstSequence")]
-        public long FirstSequence { get; set; }
+        public ulong FirstSequence { get; set; }
 
         [JsonPropertyName("lastSequence")]
-        public long LastSequence { get; set; }
+        public ulong LastSequence { get; set; }
 
         [JsonPropertyName("nextSequence")]
-        public long NextSequence { get; set; }
+        public ulong NextSequence { get; set; }
 
         [JsonPropertyName("deviceModelChangeTime")]
         public string DeviceModelChangeTime { get; set; }

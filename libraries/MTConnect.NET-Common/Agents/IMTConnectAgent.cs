@@ -43,7 +43,7 @@ namespace MTConnect.Agents
         /// <summary>
         /// Gets a representation of the specific instance of the Agent.
         /// </summary>
-        long InstanceId { get; }
+        ulong InstanceId { get; }
 
         /// <summary>
         /// Gets the Agent Version

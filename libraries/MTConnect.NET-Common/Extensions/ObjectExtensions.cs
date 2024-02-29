@@ -1,11 +1,10 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace MTConnect
 {
@@ -40,6 +39,15 @@ namespace MTConnect
             else return -1;
         }
 
+        public static uint ToUInt(this object o)
+        {
+            if (o is uint) return (uint)o;
+
+            var s = o?.ToString();
+            if (!string.IsNullOrEmpty(s) && uint.TryParse(s, out var x)) return x;
+            else return 0;
+        }
+
         public static long ToLong(this object o)
         {
             if (o is long) return (long)o;
@@ -47,6 +55,15 @@ namespace MTConnect
             var s = o?.ToString();
             if (!string.IsNullOrEmpty(s) && long.TryParse(s, out var x)) return x;
             else return -1;
+        }
+
+        public static ulong ToULong(this object o)
+        {
+            if (o is ulong) return (ulong)o;
+
+            var s = o?.ToString();
+            if (!string.IsNullOrEmpty(s) && ulong.TryParse(s, out var x)) return x;
+            else return 0;
         }
 
         public static double ToDouble(this object o)

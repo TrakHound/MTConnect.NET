@@ -14,12 +14,12 @@ namespace MTConnect.Streams.Output
     public class StreamsResponseOutputDocument : IStreamsResponseOutputDocument
     {
         /// <summary>
-        /// Contains the Header information in an MTConnect Streams XML document
+        /// Contains the Header information in an MTConnect Streams Response document
         /// </summary>
         public IMTConnectStreamsHeader Header { get; set; }
 
         /// <summary>
-        /// Streams is a container type XML element used to group the data reported from one or more pieces of equipment into a single XML document.
+        /// Streams is a container type Response element used to group the data reported from one or more pieces of equipment into a single Response document.
         /// </summary>
         public IDeviceStreamOutput[] Streams { get; set; }
 
@@ -28,11 +28,11 @@ namespace MTConnect.Streams.Output
         /// </summary>
         public Version Version { get; set; }
 
-        public long FirstObservationSequence { get; set; }
+        public ulong FirstObservationSequence { get; set; }
 
-        public long LastObservationSequence { get; set; }
+        public ulong LastObservationSequence { get; set; }
 
-        public int ObservationCount { get; set; }
+        public uint ObservationCount { get; set; }
 
 
         public StreamsResponseOutputDocument() { }

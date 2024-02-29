@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using System;
@@ -14,7 +14,7 @@ namespace MTConnect.Headers
         /// <summary>
         /// A number indicating a specific instantiation of the buffer associated with the Agent that published the Response Document.   
         /// </summary>
-        long InstanceId { get; }
+        ulong InstanceId { get; }
 
         /// <summary>
         /// The major, minor, and revision number of the MTConnect Standard that defines the semantic data model that represents the content of the Response Document.
@@ -30,25 +30,25 @@ namespace MTConnect.Headers
         /// <summary>
         /// A value representing the maximum number of Data Entities that MAY be retained in the Agent that published the Response Document at any point in time.
         /// </summary>
-        long BufferSize { get; }
+        ulong BufferSize { get; }
 
         /// <summary>
         /// A number representing the sequence number assigned to the oldest piece of Streaming Data stored
         /// in the buffer of the Agent immediately prior to the time that the Agent published the Response Document.
         /// </summary>
-        long FirstSequence { get; }
+        ulong FirstSequence { get; }
 
         /// <summary>
         /// A number representing the sequence number assigned to the last piece of Streaming Data that was added
         /// to the buffer of the Agent immediately prior to the time that the Agent published the Response Document.
         /// </summary>
-        long LastSequence { get; }
+        ulong LastSequence { get; }
 
         /// <summary>
         /// A number representing the sequence number of the piece of Streaming Data that is the next piece of data to be retrieved
         /// from the buffer of the Agent that was not included in the Response Document published by the Agent.
         /// </summary>
-        long NextSequence { get; }
+        ulong NextSequence { get; }
 
         /// <summary>
         /// A timestamp in 8601 format of the last update of the Device information for any device.

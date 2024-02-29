@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using System.Collections.Generic;
@@ -8,7 +8,7 @@ namespace MTConnect.Buffers
 {
     internal class MTConnectObservationQueue
     {
-        private readonly Dictionary<long, BufferObservation> _items = new Dictionary<long, BufferObservation>();
+        private readonly Dictionary<ulong, BufferObservation> _items = new Dictionary<ulong, BufferObservation>();
         private readonly object _lock = new object();
         private readonly int _limit;
 

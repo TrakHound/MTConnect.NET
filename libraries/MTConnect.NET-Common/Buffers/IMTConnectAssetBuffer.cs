@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Assets;
@@ -20,12 +20,12 @@ namespace MTConnect.Buffers
         /// <summary>
         /// Get the configured size of the Asset Buffer in the number of maximum number of Assets the buffer can hold at one time.
         /// </summary>
-        long BufferSize { get; }
+        ulong BufferSize { get; }
 
         /// <summary>
         /// Get the total number of Assets that are currently in the Buffer
         /// </summary>
-        long AssetCount { get; }
+        ulong AssetCount { get; }
 
         /// <summary>
         /// Get a list of AssetId's that are currently in the Buffer
@@ -49,7 +49,7 @@ namespace MTConnect.Buffers
         /// <summary>
         /// Get a list of all Assets from the Buffer
         /// </summary>
-        IEnumerable<IAsset> GetAssets(string deviceUuid = null, string type = null, bool removed = false, int count = 0);
+        IEnumerable<IAsset> GetAssets(string deviceUuid = null, string type = null, bool removed = false, uint count = 0);
 
         /// <summary>
         /// Get the specified Assets from the Buffer

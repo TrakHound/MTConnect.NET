@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Configurations;
@@ -20,7 +20,7 @@ namespace MTConnect.Buffers
 
         private readonly string _id = Guid.NewGuid().ToString();
         private readonly object _lock = new object();
-        private long _sequence = 1;
+        private ulong _sequence = 1;
 
         private readonly IDictionary<int, BufferObservation> _currentObservations = new Dictionary<int, BufferObservation>();
         private readonly IDictionary<int, IEnumerable<BufferObservation>> _currentConditions = new Dictionary<int, IEnumerable<BufferObservation>>();
@@ -34,12 +34,12 @@ namespace MTConnect.Buffers
         /// <summary>
         /// Get the configured size of the Buffer in the number of maximum number of Observations the buffer can hold at one time.
         /// </summary>
-        public int BufferSize { get; set; } = 150000;
+        public uint BufferSize { get; set; } = 150000;
 
         /// <summary>
         /// A number representing the sequence number assigned to the oldest Observation stored in the buffer
         /// </summary>
-        public long FirstSequence
+        public ulong FirstSequence
         {
             get
             {
@@ -50,7 +50,7 @@ namespace MTConnect.Buffers
         /// <summary>
         /// A number representing the sequence number assigned to the last Observation that was added to the buffer
         /// </summary>
-        public long LastSequence
+        public ulong LastSequence
         {
             get
             {
@@ -61,7 +61,7 @@ namespace MTConnect.Buffers
         /// <summary>
         /// A number representing the sequence number of the Observation that is the next piece of data to be retrieved from the buffer
         /// </summary>
-        public long NextSequence
+        public ulong NextSequence
         {
             get
             {
@@ -125,7 +125,7 @@ namespace MTConnect.Buffers
         /// <summary>
         /// Sets the Agent's Sequence to the specified value
         /// </summary>
-        protected void SetSequence(long sequence)
+        protected void SetSequence(ulong sequence)
         {
             lock (_lock)
             {
@@ -147,7 +147,7 @@ namespace MTConnect.Buffers
         /// <summary>
         /// Increment the Agent's Sequence number by the specified count
         /// </summary>
-        public void IncrementSequence(int count)
+        public void IncrementSequence(uint count)
         {
             lock (_lock)
             {
@@ -190,15 +190,15 @@ namespace MTConnect.Buffers
             return x;
         }
 
-        private static int[] GetIndexes(ref CircularBuffer observations, int[] keys, int fromIndex, int toIndex, int count = 0)
+        private static int[] GetIndexes(ref CircularBuffer observations, int[] keys, int fromIndex, int toIndex, uint count = 0)
         {
             if (observations != null && observations.Capacity > 0 && keys != null && keys.Length > 0)
             {
-                int totalCount = 0; // Total number of Observations that were matched
+                uint totalCount = 0; // Total number of Observations that were matched
                 int oi = fromIndex; // Observations Iterator
                 var oil = Math.Min(toIndex, observations.Capacity - 1);
 
-                int max = observations.Capacity; // Max Observations length
+                uint max = observations.Capacity; // Max Observations length
                 if (count > 0) max = Math.Min(count, max); // Ensure max length doesn't exceed array length
 
                 int bki; // BufferKey Iterator
@@ -321,9 +321,9 @@ namespace MTConnect.Buffers
                 // Order Buffer Keys (this effects the order of the resulting array and should always be in Ascending order)
                 var oBufferKeys = bufferKeys.OrderBy(o => o).ToArray();
 
-                long firstSequence = 0;
-                long lastSequence = 0;
-                long nextSequence = 0;
+                ulong firstSequence = 0;
+                ulong lastSequence = 0;
+                ulong nextSequence = 0;
 
                 var observations = new List<BufferObservation>();
 
@@ -361,7 +361,7 @@ namespace MTConnect.Buffers
                     Observations = aObservations,
                     FirstObservationSequence = firstObservationSequence,
                     LastObservationSequence = lastObservationSequence,
-                    ObservationCount = aObservations.Length,
+                    ObservationCount = (uint)aObservations.Length,
                     IsValid = true
                 };
             }
@@ -375,16 +375,16 @@ namespace MTConnect.Buffers
         /// <param name="bufferKeys">A list of Keys (DeviceUuid and DataItemId) to match observations in the buffer</param>
         /// <param name="at">The sequence number to include in the results</param>
         /// <returns>An object that implements the IStreamingResults interface containing the query results</returns>
-        public IObservationBufferResults GetCurrentObservations(IEnumerable<int> bufferKeys, long at)
+        public IObservationBufferResults GetCurrentObservations(IEnumerable<int> bufferKeys, ulong at)
         {
             if (!bufferKeys.IsNullOrEmpty())
             {
                 // Order Buffer Keys (this effects the order of the resulting array and should always be in Ascending order)
                 var oBufferKeys = bufferKeys.OrderBy(o => o).ToArray();
 
-                long firstSequence = 0;
-                long lastSequence = 0;
-                long nextSequence = 0;
+                ulong firstSequence = 0;
+                ulong lastSequence = 0;
+                ulong nextSequence = 0;
                 var observations = new BufferObservation[bufferKeys.Count()];
                 CircularBuffer bufferObservations = null;
 
@@ -445,7 +445,7 @@ namespace MTConnect.Buffers
                     Observations = aObservations,
                     FirstObservationSequence = firstObservationSequence,
                     LastObservationSequence = lastObservationSequence,
-                    ObservationCount = aObservations.Length
+                    ObservationCount = (uint)aObservations.Length
                 };
             }
 
@@ -460,30 +460,31 @@ namespace MTConnect.Buffers
         /// <param name="to">The maximum sequence number to include in the results</param>
         /// <param name="count">The maximum number of Observations to include in the result</param>
         /// <returns>An object that implements the IStreamingResults interface containing the query results</returns>
-        public IObservationBufferResults GetObservations(IEnumerable<int> bufferKeys, long from = -1, long to = -1, int count = 100)
+        public IObservationBufferResults GetObservations(IEnumerable<int> bufferKeys, ulong from = 0, ulong to = 0, uint count = 100)
         {
             if (_archiveObservations != null && !bufferKeys.IsNullOrEmpty())
             {
                 long now = UnixDateTime.Now;
-                long firstSequence = 0;
-                long lastSequence = 0;
-                long nextSequence = 0;
-                int observationCount = 0;
+                ulong firstSequence = 0;
+                ulong lastSequence = 0;
+                ulong nextSequence = 0;
+                uint observationCount = 0;
                 BufferObservation[] observations = null;
                 CircularBuffer bufferObservations = null;
-                long firstObservationSequence = 0;
-                long lastObservationSequence = 0;
+                ulong firstObservationSequence = 0;
+                ulong lastObservationSequence = 0;
                 int lowestIndex = int.MaxValue;
                 int highestIndex = 0;
 
                 lock (_lock)
                 {
-                    firstSequence = Math.Max(1, _sequence - BufferSize);
+                    firstSequence = _sequence > BufferSize ? _sequence - BufferSize : 1;
                     lastSequence = _sequence > 1 ? _sequence - 1 : 1;
                     nextSequence = _sequence;
 
                     // Determine Indexes
-                    var fromIndex = (int)Math.Max(0, from - firstSequence);
+                    //var fromIndex = (int)Math.Max(0, from - firstSequence);
+                    int fromIndex = from > firstSequence ? (int)(from - firstSequence) : 0;
                     int toIndex = (int)(lastSequence - firstSequence);
                     if (to > 0)
                     {
@@ -558,7 +559,7 @@ namespace MTConnect.Buffers
 
         #region "Internal"
 
-        protected void AddCurrentObservation(int bufferKey, long sequence, IObservation observation)
+        protected void AddCurrentObservation(int bufferKey, ulong sequence, IObservation observation)
         {
             var bufferObservation = new BufferObservation(bufferKey, sequence, observation);
             AddCurrentObservation(bufferObservation);
@@ -619,7 +620,7 @@ namespace MTConnect.Buffers
             }
         }
 
-        protected void AddCurrentCondition(int bufferKey, long sequence, IObservation observation)
+        protected void AddCurrentCondition(int bufferKey, ulong sequence, IObservation observation)
         {
             var bufferObservation = new BufferObservation(bufferKey, sequence, observation);
             AddCurrentCondition(bufferObservation);
@@ -786,7 +787,7 @@ namespace MTConnect.Buffers
         }
 
 
-        protected void AddBufferObservation(int bufferKey, long sequence, IObservation observation)
+        protected void AddBufferObservation(int bufferKey, ulong sequence, IObservation observation)
         {
             var bufferObservation = new BufferObservation(bufferKey, sequence, observation);
             AddBufferObservation(ref bufferObservation);
@@ -832,7 +833,7 @@ namespace MTConnect.Buffers
             if (observation._key >= 0 && !observation._values.IsNullOrEmpty() && observation._timestamp > 0)
             {
                 // Get the Sequence to Add Observation at
-                long sequence;
+                ulong sequence;
                 lock (_lock) sequence = _sequence++;
 
                 observation._sequence = sequence;

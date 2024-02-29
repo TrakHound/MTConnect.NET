@@ -27,8 +27,8 @@ namespace MTConnect.Clients
 
         private CancellationTokenSource _stop;
         private MTConnectHttpClientStream _stream;
-        private long _lastInstanceId;
-        private long _lastSequence;
+        private ulong _lastInstanceId;
+        private ulong _lastSequence;
         private long _lastResponse;
         private bool _initializeFromBuffer;
         private string _streamPath;
@@ -155,12 +155,12 @@ namespace MTConnect.Clients
         /// <summary>
         /// Gets the Last Instance ID read from the MTConnect Agent
         /// </summary>
-        public long LastInstanceId => _lastInstanceId;
+        public ulong LastInstanceId => _lastInstanceId;
 
         /// <summary>
         /// Gets the Last Sequence read from the MTConnect Agent
         /// </summary>
-        public long LastSequence => _lastSequence;
+        public ulong LastSequence => _lastSequence;
 
         /// <summary>
         /// Gets the Unix Timestamp (in Milliseconds) since the last response from the MTConnect Agent
@@ -333,7 +333,7 @@ namespace MTConnect.Clients
         /// <summary>
         /// Starts the MTConnectClient from the specified Sequence
         /// </summary>
-        public void StartFromSequence(long instanceId, long sequence, string path = null)
+        public void StartFromSequence(ulong instanceId, ulong sequence, string path = null)
         {
             _stop = new CancellationTokenSource();
 
@@ -350,7 +350,7 @@ namespace MTConnect.Clients
         /// <summary>
         /// Starts the MTConnectClient from the specified Sequence
         /// </summary>
-        public void StartFromSequence(long instanceId, long sequence, CancellationToken cancellationToken, string path = null)
+        public void StartFromSequence(ulong instanceId, ulong sequence, CancellationToken cancellationToken, string path = null)
         {
             _stop = new CancellationTokenSource();
             cancellationToken.Register(() => { Stop(); });
@@ -558,7 +558,7 @@ namespace MTConnect.Clients
         /// <summary>
         /// Execute a Assets Request to return an MTConnectAssets Response Document
         /// </summary>
-        public async Task<IAssetsResponseDocument> GetAssetsAsync(long count = 100)
+        public async Task<IAssetsResponseDocument> GetAssetsAsync(ulong count = 100)
         {
             return await GetAssetsAsync(CancellationToken.None, count);
         }
@@ -566,9 +566,9 @@ namespace MTConnect.Clients
         /// <summary>
         /// Execute a Assets Request to return an MTConnectAssets Response Document
         /// </summary>
-        public async Task<IAssetsResponseDocument> GetAssetsAsync(CancellationToken cancellationToken, long count = 100)
+        public async Task<IAssetsResponseDocument> GetAssetsAsync(CancellationToken cancellationToken, ulong count = 100)
         {
-            var client = new MTConnectHttpAssetClient(Authority, count, null, null, DocumentFormat);
+            var client = new MTConnectHttpAssetClient(Authority, (long)count, null, null, DocumentFormat);
             client.Timeout = Timeout;
             client.ContentEncodings = ContentEncodings;
             client.ContentType = ContentType;
@@ -1069,7 +1069,7 @@ namespace MTConnect.Clients
             return url;
         }
 
-        private static string CreateSampleUrl(string baseUrl, string deviceKey, long from, int interval, int heartbeat, long count, string path = null)
+        private static string CreateSampleUrl(string baseUrl, string deviceKey, ulong from, int interval, int heartbeat, long count, string path = null)
         {
             var url = baseUrl;
             if (!string.IsNullOrEmpty(deviceKey)) url = Url.Combine(url, deviceKey + "/sample");
@@ -1086,8 +1086,6 @@ namespace MTConnect.Clients
             if (interval > -1) url = Url.AddQueryParameter(url, "interval", interval);
             if (heartbeat > 0) url = Url.AddQueryParameter(url, "heartbeat", heartbeat);
             if (!string.IsNullOrEmpty(path)) url = Url.AddQueryParameter(url, "path", path);
-
-            Console.WriteLine(url);
 
             return url;
         }

@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using System;
@@ -14,7 +14,7 @@ namespace MTConnect.Headers
         /// <summary>
         /// A number indicating a specific instantiation of the buffer associated with the Agent that published the Response Document.   
         /// </summary>
-        public long InstanceId { get; set; }
+        public ulong InstanceId { get; set; }
 
         /// <summary>
         /// The major, minor, and revision number of the MTConnect Standard that defines the semantic data model that represents the content of the Response Document.
@@ -30,25 +30,25 @@ namespace MTConnect.Headers
         /// <summary>
         /// A value representing the maximum number of Data Entities that MAY be retained in the Agent that published the Response Document at any point in time.
         /// </summary>
-        public long BufferSize { get; set; }
+        public ulong BufferSize { get; set; }
 
         /// <summary>
         /// A number representing the sequence number assigned to the oldest piece of Streaming Data stored
         /// in the buffer of the Agent immediately prior to the time that the Agent published the Response Document.
         /// </summary>
-        public long FirstSequence { get; set; }
+        public ulong FirstSequence { get; set; }
 
         /// <summary>
         /// A number representing the sequence number assigned to the last piece of Streaming Data that was added
         /// to the buffer of the Agent immediately prior to the time that the Agent published the Response Document.
         /// </summary>
-        public long LastSequence { get; set; }
+        public ulong LastSequence { get; set; }
 
         /// <summary>
         /// A number representing the sequence number of the piece of Streaming Data that is the next piece of data to be retrieved
         /// from the buffer of the Agent that was not included in the Response Document published by the Agent.
         /// </summary>
-        public long NextSequence { get; set; }
+        public ulong NextSequence { get; set; }
 
         /// <summary>
         /// A timestamp in 8601 format of the last update of the Device information for any device.

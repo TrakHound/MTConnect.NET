@@ -10,7 +10,7 @@ namespace MTConnect.Assets.Json
     public class JsonAssetsHeader
     {
         [JsonPropertyName("instanceId")]
-        public long InstanceId { get; set; }
+        public ulong InstanceId { get; set; }
 
         [JsonPropertyName("version")]
         public string Version { get; set; }
@@ -19,10 +19,10 @@ namespace MTConnect.Assets.Json
         public string Sender { get; set; }
 
         [JsonPropertyName("assetBufferSize")]
-        public long AssetBufferSize { get; set; }
+        public ulong AssetBufferSize { get; set; }
 
         [JsonPropertyName("assetCount")]
-        public long AssetCount { get; set; }
+        public ulong AssetCount { get; set; }
 
         [JsonPropertyName("deviceModelChangeTime")]
         public string DeviceModelChangeTime { get; set; }

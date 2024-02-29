@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+﻿// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Agents;
@@ -22,7 +22,7 @@ namespace MTConnect
         private readonly IMTConnectAgentBroker _mtconnectAgent;
         private readonly IMTConnectMqttServerConfiguration _configuration;
         private CancellationTokenSource _stop;
-        private long _lastSequence;
+        private ulong _lastSequence;
         private bool _sampleStarted = false;
 
 
@@ -121,7 +121,7 @@ namespace MTConnect
 
                             foreach (var device in devices)
                             {
-                                var response = _mtconnectAgent.GetDeviceStreamsResponseDocument(device.Uuid, _lastSequence, -1, 1000); // COUNT = 1000 ??
+                                var response = _mtconnectAgent.GetDeviceStreamsResponseDocument(device.Uuid, _lastSequence, 0, 1000); // COUNT = 1000 ??
                                 if (response != null && response.ObservationCount > 0)
                                 {
                                     if (SampleReceived != null) SampleReceived.Invoke(device, response);

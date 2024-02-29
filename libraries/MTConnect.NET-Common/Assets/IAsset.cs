@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using System;
@@ -15,7 +15,7 @@ namespace MTConnect.Assets
         /// <summary>
         /// The Agent InstanceId of the Agent that produced this Asset
         /// </summary>
-        long InstanceId { get; set; }
+        ulong InstanceId { get; set; }
 
 
 		IAsset Process(Version mtconnectVersion);

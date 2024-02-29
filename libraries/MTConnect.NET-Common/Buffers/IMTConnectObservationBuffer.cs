@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using System;
@@ -19,22 +19,22 @@ namespace MTConnect.Buffers
         /// <summary>
         /// Get the configured size of the Buffer in the number of maximum number of DataItems the buffer can hold at one time.
         /// </summary>
-        int BufferSize { get; }
+        uint BufferSize { get; }
 
         /// <summary>
         /// A number representing the sequence number assigned to the oldest piece of Streaming Data stored in the buffer
         /// </summary>
-        long FirstSequence { get; }
+        ulong FirstSequence { get; }
 
         /// <summary>
         /// A number representing the sequence number assigned to the last piece of Streaming Data that was added to the buffer
         /// </summary>
-        long LastSequence { get; }
+        ulong LastSequence { get; }
 
         /// <summary>
         /// A number representing the sequence number of the piece of Streaming Data that is the next piece of data to be retrieved from the buffer
         /// </summary>
-        long NextSequence { get; }
+        ulong NextSequence { get; }
 
 
         IDictionary<int, BufferObservation> CurrentObservations { get; }
@@ -50,7 +50,7 @@ namespace MTConnect.Buffers
         /// <summary>
         /// Increment the Agent's Sequence number by the specified count
         /// </summary>
-        void IncrementSequence(int count);
+        void IncrementSequence(uint count);
 
 
         /// <summary>
@@ -66,7 +66,7 @@ namespace MTConnect.Buffers
         /// <param name="bufferKeys">A list of Keys (DeviceUuid and DataItemId) to match observations in the buffer</param>
         /// <param name="at">The sequence number to include in the results</param>
         /// <returns>An object that implements the IStreamingResults interface containing the query results</returns>
-        IObservationBufferResults GetCurrentObservations(IEnumerable<int> bufferKeys, long at);
+        IObservationBufferResults GetCurrentObservations(IEnumerable<int> bufferKeys, ulong at);
 
         /// <summary>
         /// Get a list of Observations based on the specified search parameters
@@ -76,7 +76,7 @@ namespace MTConnect.Buffers
         /// <param name="to">The maximum sequence number to include in the results</param>
         /// <param name="count">The maximum number of Observations to include in the result</param>
         /// <returns>An object that implements the IStreamingResults interface containing the query results</returns>
-        IObservationBufferResults GetObservations(IEnumerable<int> bufferKeys, long from = -1, long to = -1, int count = 0);
+        IObservationBufferResults GetObservations(IEnumerable<int> bufferKeys, ulong from = 0, ulong to = 0, uint count = 0);
 
 
         /// <summary>

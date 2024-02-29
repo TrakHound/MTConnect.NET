@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Agents;
@@ -149,7 +149,7 @@ namespace MTConnect.Servers.Http
             IMTConnectAgentBroker mtconnectAgent,
             string deviceType = null,
             string path = null,
-            long at = 0,
+            ulong at = 0,
             int interval = 0,
             Version mtconnectVersion = null,
             string documentFormat = DocumentFormat.XML,
@@ -245,7 +245,7 @@ namespace MTConnect.Servers.Http
             IMTConnectAgentBroker mtconnectAgent,
             string deviceKey,
             string path = null,
-            long at = 0,
+            ulong at = 0,
             int interval = -1,
             Version mtconnectVersion = null,
             string documentFormat = DocumentFormat.XML,
@@ -351,9 +351,9 @@ namespace MTConnect.Servers.Http
             IMTConnectAgentBroker mtconnectAgent,
             string deviceType = null,
             string path = null,
-            long from = 0,
-            long to = 0,
-            int count = 100,
+            ulong from = 0,
+            ulong to = 0,
+            uint count = 100,
             Version mtconnectVersion = null,
             string documentFormat = DocumentFormat.XML,
             IEnumerable<KeyValuePair<string, string>> formatOptions = null
@@ -469,9 +469,9 @@ namespace MTConnect.Servers.Http
             IMTConnectAgentBroker mtconnectAgent,
             string deviceKey,
             string path = null,
-            long from = 0,
-            long to = 0,
-            int count = 100,
+            ulong from = 0,
+            ulong to = 0,
+            uint count = 100,
             Version mtconnectVersion = null,
             string documentFormat = DocumentFormat.XML,
             IEnumerable<KeyValuePair<string, string>> formatOptions = null
@@ -602,7 +602,7 @@ namespace MTConnect.Servers.Http
             string deviceKey = null,
             string type = null,
             bool removed = false,
-            int count = 100,
+            uint count = 100,
             Version mtconnectVersion = null,
             string documentFormat = DocumentFormat.XML,
             IEnumerable<KeyValuePair<string, string>> formatOptions = null

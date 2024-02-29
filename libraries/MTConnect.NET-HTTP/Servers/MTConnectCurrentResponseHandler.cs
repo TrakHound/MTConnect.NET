@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+﻿// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using Ceen;
@@ -41,7 +41,7 @@ namespace MTConnect.Servers.Http
                 var path = httpRequest.QueryString["path"];
 
                 // Read "at" parameter from Query string
-                var at = httpRequest.QueryString["at"].ToLong();
+                var at = httpRequest.QueryString["at"].ToULong();
                 if (at < 1) at = 0;
 
                 // Read "interval" parameter from Query string
@@ -105,20 +105,6 @@ namespace MTConnect.Servers.Http
                         acceptEncodings,
                         formatOptions
                         );
-
-                    //              var sampleStream = new MTConnectHttpServerStream(
-                    //_agentConfiguration,
-                    //                  _mtconnectAgent,
-                    //                  deviceKey,
-                    //                  dataItemIds,
-                    //                  0,
-                    //                  0,
-                    //                  interval,
-                    //                  heartbeat,
-                    //                  documentFormat,
-                    //                  acceptEncodings,
-                    //                  formatOptions
-                    //                  );
 
                     try
                     {
