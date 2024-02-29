@@ -1822,7 +1822,7 @@ namespace MTConnect.Agents
 					if (_configuration.InputValidationLevel > InputValidationLevel.Ignore)
 					{
 						// Validate Observation Input with DataItem type
-						validationResult = dataItem.IsValid(MTConnectVersion, input);
+						validationResult = dataItem.Validate(MTConnectVersion, input);
 						if (!validationResult.IsValid) validationResult.Message = $"{dataItem.Type} : {dataItem.Id} : {validationResult.Message}";
 					}
 

@@ -2,6 +2,7 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Devices;
+using MTConnect.Devices.DataItems;
 using System;
 using System.Collections.Generic;
 
@@ -95,5 +96,8 @@ namespace MTConnect.Observations
         /// Gets the Value with the specified ValueKey
         /// </summary>
         string GetValue(string valueKey);
+
+
+        ValidationResult Validate();
     }
 }

@@ -1,4 +1,7 @@
-﻿namespace MTConnect.Clients.HTTP
+﻿using MTConnect.Input;
+using MTConnect.Observations;
+
+namespace MTConnect.Clients.HTTP
 {
     internal class Program
     {
@@ -13,8 +16,8 @@
         static void DocumentClient()
         {
             //var client = new MTConnectHttpClient("http://mtconnect.mazakcorp.com/", 5719);
-            var client = new MTConnectHttpClient("localhost", 5000);
-            //var client = new MTConnectHttpClient("localhost", 5001);
+            //var client = new MTConnectHttpClient("localhost", 5000);
+            var client = new MTConnectHttpClient("localhost", 5001);
             client.Interval = 100;
             //client.Heartbeat = 0;
             client.ClientStarted += (s, args) => { Console.WriteLine("Client Started"); };
@@ -48,6 +51,9 @@
                         foreach (var observation in componentStream.Observations)
                         {
                             Console.WriteLine($"Observation Received : {observation.DataItemId} : {string.Join(";", observation.Values.Select(o => o.Value))}");
+
+                            var validationResult = observation.Validate();
+                            Console.WriteLine($"Observation Validation : {observation.DataItemId} : {validationResult.IsValid} : {validationResult.Message}");
                         }
                     }
                 }

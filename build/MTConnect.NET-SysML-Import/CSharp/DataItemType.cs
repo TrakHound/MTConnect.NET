@@ -24,6 +24,8 @@ namespace MTConnect.SysML.CSharp
 
         public string MinimumVersionEnum => MTConnectVersion.GetVersionEnum(MinimumVersion);
 
+        public string ResultType { get; set; }
+
 
         public DataItemType() { }
 
@@ -60,6 +62,11 @@ namespace MTConnect.SysML.CSharp
                         exportModel.Units = exportModel.Units.Replace("NativeUnitsEnum", "NativeUnits");
                         exportModel.Units = exportModel.Units.Replace("UnitsEnum", "Units");
                         exportModel.Units = UnitsHelper.Get(exportModel.Units);
+                    }
+
+                    if (importModel.Result != null)
+                    {
+                        exportModel.ResultType = ModelHelper.RemoveEnumSuffix(importModel.Result);
                     }
 
                     exportModel.Id += "DataItem";

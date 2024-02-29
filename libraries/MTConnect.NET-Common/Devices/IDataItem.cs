@@ -3,6 +3,7 @@
 
 using MTConnect.Devices.DataItems;
 using MTConnect.Input;
+using MTConnect.Observations;
 using System;
 
 namespace MTConnect.Devices
@@ -76,6 +77,14 @@ namespace MTConnect.Devices
         /// <param name="mtconnectVersion">The Version of the MTConnect Standard</param>
         /// <param name="observation">The Observation to validate</param>
         /// <returns>A DataItemValidationResult indicating if Validation was successful and a Message</returns>
-        ValidationResult IsValid(Version mtconnectVersion, IObservationInput observation);
+        ValidationResult Validate(Version mtconnectVersion, IObservationInput observation);
+
+        /// <summary>
+        /// Determine if the DataItem with the specified Observation is valid in the specified MTConnectVersion
+        /// </summary>
+        /// <param name="mtconnectVersion">The Version of the MTConnect Standard</param>
+        /// <param name="observation">The Observation to validate</param>
+        /// <returns>A DataItemValidationResult indicating if Validation was successful and a Message</returns>
+        ValidationResult Validate(Version mtconnectVersion, IObservation observation);
     }
 }

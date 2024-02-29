@@ -3,6 +3,11 @@
 
 // MTConnect SysML v2.3 : UML ID = _19_0_3_45f01b9_1580378218430_336265_2127
 
+using System;
+using MTConnect.Observations;
+using MTConnect.Input;
+using MTConnect.Observations.Events;
+
 namespace MTConnect.Devices.DataItems
 {
     /// <summary>
@@ -91,5 +96,74 @@ namespace MTConnect.Devices.DataItems
             return null;
         }
 
+        /// <summary>
+        /// Determine if the DataItem with the specified Observation is valid in the specified MTConnectVersion
+        /// </summary>
+        /// <param name="mtconnectVersion">The Version of the MTConnect Standard</param>
+        /// <param name="observation">The Observation to validate</param>
+        /// <returns>A DataItemValidationResult indicating if Validation was successful and a Message</returns>
+        protected override ValidationResult OnValidation(Version mtconnectVersion, IObservationInput observation)
+        {
+            if (observation != null && !observation.Values.IsNullOrEmpty())
+            {
+                // Get the Result Value for the Observation
+                var result = observation.GetValue(ValueKeys.Result);
+                if (result != null)
+                {
+                    // Check Valid values in Enum
+                    var validValues = Enum.GetValues(typeof(ProgramLocationType));
+                    foreach (var validValue in validValues)
+                    {
+                        if (result == validValue.ToString())
+                        {
+                            return new ValidationResult(true);
+                        }
+                    }
+
+                    return new ValidationResult(false, "'" + result + "' is not a valid value for PROGRAM_LOCATION_TYPE");
+                }
+                else
+                {
+                    return new ValidationResult(false, "No Result is specified for the Observation");
+                }
+            }
+
+            return new ValidationResult(false, "No Observation is Specified");
+        }
+
+        /// <summary>
+        /// Determine if the DataItem with the specified Observation is valid in the specified MTConnectVersion
+        /// </summary>
+        /// <param name="mtconnectVersion">The Version of the MTConnect Standard</param>
+        /// <param name="observation">The Observation to validate</param>
+        /// <returns>A DataItemValidationResult indicating if Validation was successful and a Message</returns>
+        protected override ValidationResult OnValidation(Version mtconnectVersion, IObservation observation)
+        {
+            if (observation != null && !observation.Values.IsNullOrEmpty())
+            {
+                // Get the Result Value for the Observation
+                var result = observation.GetValue(ValueKeys.Result);
+                if (result != null)
+                {
+                    // Check Valid values in Enum
+                    var validValues = Enum.GetValues(typeof(ProgramLocationType));
+                    foreach (var validValue in validValues)
+                    {
+                        if (result == validValue.ToString())
+                        {
+                            return new ValidationResult(true);
+                        }
+                    }
+
+                    return new ValidationResult(false, "'" + result + "' is not a valid value for PROGRAM_LOCATION_TYPE");
+                }
+                else
+                {
+                    return new ValidationResult(false, "No Result is specified for the Observation");
+                }
+            }
+
+            return new ValidationResult(false, "No Observation is Specified");
+        }
     }
 }

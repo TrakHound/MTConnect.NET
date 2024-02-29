@@ -275,7 +275,7 @@ namespace MTConnect.Devices
         /// <param name="mtconnectVersion">The Version of the MTConnect Standard</param>
         /// <param name="observation">The Observation to validate</param>
         /// <returns>A DataItemValidationResult indicating if Validation was successful and a Message</returns>
-        public ValidationResult IsValid(Version mtconnectVersion, IObservationInput observation)
+        public ValidationResult Validate(Version mtconnectVersion, IObservationInput observation)
         {
             var result = new ValidationResult(true);
 
@@ -303,7 +303,66 @@ namespace MTConnect.Devices
             return result;
         }
 
+        /// <summary>
+        /// Determine if the DataItem with the specified Observation is valid in the specified MTConnectVersion
+        /// </summary>
+        /// <param name="mtconnectVersion">The Version of the MTConnect Standard</param>
+        /// <param name="observation">The Observation to validate</param>
+        /// <returns>A DataItemValidationResult indicating if Validation was successful and a Message</returns>
+        public ValidationResult Validate(Version mtconnectVersion, IObservation observation)
+        {
+            var result = new ValidationResult(false);
+
+            if (observation != null)
+            {
+                result = new ValidationResult(true);
+
+                // Check for valid Sequence number
+                if (observation.Sequence < 1)
+                {
+                    result = new ValidationResult(false, "Invalid Sequence Number : Sequence MUST be greater than or equal to \"1\"");
+                    return result;
+                }
+
+                switch (Category)
+                {
+                    // Validate Sample
+                    case DataItemCategory.SAMPLE:
+                        var sampleValidation = ValidateSample(mtconnectVersion, observation);
+                        if (!sampleValidation.IsValid) result = sampleValidation;
+                        break;
+
+                    // Validate Event
+                    case DataItemCategory.EVENT:
+                        var eventValidation = ValidateEvent(mtconnectVersion, observation);
+                        if (!eventValidation.IsValid) result = eventValidation;
+                        break;
+
+                    // Validate Condition
+                    case DataItemCategory.CONDITION:
+                        var conditionValidation = ValidateCondition(mtconnectVersion, observation);
+                        if (!conditionValidation.IsValid) result = conditionValidation;
+                        break;
+                }
+            }           
+
+            return result;
+        }
+
         private ValidationResult ValidateSample(Version mtconnectVersion, IObservationInput observation)
+        {
+            // Get the Result Value for the Observation
+            var result = observation.GetValue(ValueKeys.Result);
+            if (result != null)
+            {
+                // Check if Unavailable
+                if (result == Observation.Unavailable) return new ValidationResult(true);
+            }
+
+            return OnValidation(mtconnectVersion, observation);
+        }
+
+        private ValidationResult ValidateSample(Version mtconnectVersion, IObservation observation)
         {
             // Get the Result Value for the Observation
             var result = observation.GetValue(ValueKeys.Result);
@@ -329,6 +388,19 @@ namespace MTConnect.Devices
             return OnValidation(mtconnectVersion, observation);
         }
 
+        private ValidationResult ValidateEvent(Version mtconnectVersion, IObservation observation)
+        {
+            // Get the Result Value for the Observation
+            var result = observation.GetValue(ValueKeys.Result);
+            if (result != null)
+            {
+                // Check if Unavailable
+                if (result == Observation.Unavailable) return new ValidationResult(true);
+            }
+
+            return OnValidation(mtconnectVersion, observation);
+        }
+
         private ValidationResult ValidateCondition(Version mtconnectVersion, IObservationInput observation)
         {
             // Get the Level Value for the Observation
@@ -340,7 +412,23 @@ namespace MTConnect.Devices
             return OnValidation(mtconnectVersion, observation);
         }
 
+        private ValidationResult ValidateCondition(Version mtconnectVersion, IObservation observation)
+        {
+            // Get the Level Value for the Observation
+            var level = observation.GetValue(ValueKeys.Level).ConvertEnum<ConditionLevel>();
+
+            // Check if Unavailable
+            if (level == ConditionLevel.UNAVAILABLE) return new ValidationResult(true);
+
+            return OnValidation(mtconnectVersion, observation);
+        }
+
         protected virtual ValidationResult OnValidation(Version mtconnectVerion, IObservationInput observation)
+        {
+            return new ValidationResult(true);
+        }
+
+        protected virtual ValidationResult OnValidation(Version mtconnectVerion, IObservation observation)
         {
             return new ValidationResult(true);
         }

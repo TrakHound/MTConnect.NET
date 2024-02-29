@@ -2,6 +2,7 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Devices;
+using MTConnect.Devices.DataItems;
 using MTConnect.Extensions;
 using System;
 using System.Collections.Generic;
@@ -185,6 +186,19 @@ namespace MTConnect.Observations
         /// Returns whether the Observation is Unavailable meaning a valid value cannot be determined
         /// </summary>
         public virtual bool IsUnavailable => GetValue(ValueKeys.Result) == Unavailable;
+
+
+        public ValidationResult Validate()
+        {
+            var result = new ValidationResult(false);
+
+            if (DataItem != null && DataItem.Device != null)
+            {
+                return DataItem.Validate(DataItem.Device.MTConnectVersion, this);
+            }
+
+            return result;
+        }
 
 
         public static Observation Create(IDataItem dataItem)
