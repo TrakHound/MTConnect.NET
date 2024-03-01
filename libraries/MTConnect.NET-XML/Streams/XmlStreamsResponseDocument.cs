@@ -16,29 +16,6 @@ namespace MTConnect.Streams.Xml
 
         #region "Read"
 
-        public static IStreamsResponseDocument FromXml(byte[] xmlBytes)
-        {
-            if (xmlBytes != null && xmlBytes.Length > 0)
-            {
-                try
-                {
-                    // Clean whitespace and Encoding Marks (BOM)
-                    var bytes = XmlFunctions.SanitizeBytes(xmlBytes);
-
-                    using (var memoryReader = new MemoryStream(bytes))
-                    {
-                        using (var xmlReader = XmlReader.Create(memoryReader))
-                        {
-                            return ReadXml(xmlReader);
-                        }
-                    }
-                }
-                catch { }
-            }
-
-            return null;
-        }
-
         public static IStreamsResponseDocument ReadXml(XmlReader reader)
         {
             var document = new StreamsResponseDocument();

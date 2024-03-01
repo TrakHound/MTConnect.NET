@@ -3,6 +3,7 @@
 
 using MTConnect.Devices;
 using MTConnect.Errors;
+using MTConnect.Formatters;
 using MTConnect.Http;
 using System;
 using System.Collections.Generic;
@@ -166,6 +167,11 @@ namespace MTConnect.Clients
         /// Raised when an MTConnectError Document is received
         /// </summary>
         public event EventHandler<IErrorResponseDocument> MTConnectError;
+
+        /// <summary>
+        /// Raised when a Document Formatting Error is received
+        /// </summary>
+        public event EventHandler<IFormatReadResult> FormatError;
 
         /// <summary>
         /// Raised when an Connection Error occurs
@@ -406,20 +412,35 @@ namespace MTConnect.Clients
                 var stream = MTConnectHttpResponse.HandleContentEncoding(contentEncoding, documentStream);
                 if (stream != null && stream.Position > 0) stream.Seek(0, SeekOrigin.Begin);
 
-                // Process MTConnectDevices Document
-                var document = Formatters.ResponseDocumentFormatter.CreateDevicesResponseDocument(DocumentFormat.ToString(), stream).Content;
-                if (document != null)
+                var formatResult = ResponseDocumentFormatter.CreateDevicesResponseDocument(DocumentFormat, stream);
+                if (formatResult.Success)
                 {
-                    return document;
+                    // Process MTConnectDevices Document
+                    var document = formatResult.Content;
+                    if (document != null)
+                    {
+                        return document;
+                    }
+                    else
+                    {
+                        // Process MTConnectError Document (if MTConnectStreams fails)
+                        var errorFormatResult = ResponseDocumentFormatter.CreateErrorResponseDocument(DocumentFormat, stream);
+                        if (errorFormatResult.Success)
+                        {
+                            var errorDocument = errorFormatResult.Content;
+                            if (errorDocument != null) MTConnectError?.Invoke(this, errorDocument);
+                        }
+                        else
+                        {
+                            // Raise Format Error
+                            if (FormatError != null) FormatError.Invoke(this, errorFormatResult);
+                        }
+                    }
                 }
                 else
                 {
-                    // Process MTConnectError Document (if MTConnectDevices fails)
-                    var errorDocument = Formatters.ResponseDocumentFormatter.CreateErrorResponseDocument(DocumentFormat.ToString(), stream).Content;
-                    if (errorDocument != null)
-                    {
-                        MTConnectError?.Invoke(this, errorDocument);
-                    }
+                    // Raise Format Error
+                    if (FormatError != null) FormatError.Invoke(this, formatResult);
                 }
             }
 

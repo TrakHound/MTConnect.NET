@@ -1,4 +1,5 @@
-﻿using MTConnect.Input;
+﻿using MTConnect.Formatters;
+using MTConnect.Input;
 using MTConnect.Observations;
 
 namespace MTConnect.Clients.HTTP
@@ -16,12 +17,13 @@ namespace MTConnect.Clients.HTTP
         static void DocumentClient()
         {
             //var client = new MTConnectHttpClient("http://mtconnect.mazakcorp.com/", 5719);
-            //var client = new MTConnectHttpClient("localhost", 5000);
-            var client = new MTConnectHttpClient("localhost", 5001);
+            var client = new MTConnectHttpClient("localhost", 5000);
+            //var client = new MTConnectHttpClient("localhost", 5001);
             client.Interval = 100;
             //client.Heartbeat = 0;
             client.ClientStarted += (s, args) => { Console.WriteLine("Client Started"); };
             client.ClientStopped += (s, args) => { Console.WriteLine("Client Stopped"); };
+            client.FormatError += (s, args) => { Console.WriteLine($"Format Error : {args.ContentType.Name} : {args.Messages?.FirstOrDefault()}"); };
 
             client.ProbeReceived += (s, response) =>
             {
@@ -37,6 +39,9 @@ namespace MTConnect.Clients.HTTP
                         foreach (var observation in componentStream.Observations)
                         {
                             Console.WriteLine($"Observation Received : {observation.DataItemId} : {string.Join(";", observation.Values.Select(o => o.Value))}");
+
+                            var validationResult = observation.Validate();
+                            Console.WriteLine($"Observation Validation : {observation.DataItemId} : {validationResult.IsValid} : {validationResult.Message}");
                         }
                     }
                 }
@@ -61,7 +66,10 @@ namespace MTConnect.Clients.HTTP
 
             client.AssetsReceived += (s, response) =>
             {
-                Console.WriteLine(response.Assets.Count());
+                foreach (var asset in response.Assets)
+                {
+                    Console.WriteLine($"Asset Received : {asset.AssetId}");
+                }
             };
 
             client.Start();

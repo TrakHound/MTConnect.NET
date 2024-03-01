@@ -2,6 +2,7 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Errors;
+using MTConnect.Formatters;
 using MTConnect.Http;
 using MTConnect.Streams;
 using System;
@@ -154,6 +155,11 @@ namespace MTConnect.Clients
         public event EventHandler<IErrorResponseDocument> MTConnectError;
 
         /// <summary>
+        /// Raised when a Document Formatting Error is received
+        /// </summary>
+        public event EventHandler<IFormatReadResult> FormatError;
+
+        /// <summary>
         /// Raised when an Connection Error occurs
         /// </summary>
         public event EventHandler<Exception> ConnectionError;
@@ -178,7 +184,7 @@ namespace MTConnect.Clients
                     request.RequestUri = CreateUri();
 
                     // Add 'Accept' HTTP Header
-                    var contentType = Formatters.ResponseDocumentFormatter.GetContentType(DocumentFormat);
+                    var contentType = ResponseDocumentFormatter.GetContentType(DocumentFormat);
                     if (!string.IsNullOrEmpty(contentType))
                     {
                         request.Headers.Add(HttpHeaders.Accept, contentType);
@@ -236,7 +242,7 @@ namespace MTConnect.Clients
                     request.RequestUri = CreateUri();
 
                     // Add 'Accept' HTTP Header
-                    var contentType = Formatters.ResponseDocumentFormatter.GetContentType(DocumentFormat);
+                    var contentType = ResponseDocumentFormatter.GetContentType(DocumentFormat);
                     if (!string.IsNullOrEmpty(contentType))
                     {
                         request.Headers.Add(HttpHeaders.Accept, contentType);
@@ -404,20 +410,35 @@ namespace MTConnect.Clients
                 var stream = MTConnectHttpResponse.HandleContentEncoding(contentEncoding, documentStream);
                 if (stream != null && stream.Position > 0) stream.Seek(0, SeekOrigin.Begin);
 
-                // Process MTConnectDevices Document
-                var document = Formatters.ResponseDocumentFormatter.CreateStreamsResponseDocument(DocumentFormat.ToString(), stream).Content;
-                if (document != null)
+                var formatResult = ResponseDocumentFormatter.CreateStreamsResponseDocument(DocumentFormat, stream);
+                if (formatResult.Success)
                 {
-                    return document;
+                    // Process MTConnectDevices Document
+                    var document = formatResult.Content;
+                    if (document != null)
+                    {
+                        return document;
+                    }
+                    else
+                    {
+                        // Process MTConnectError Document (if MTConnectStreams fails)
+                        var errorFormatResult = ResponseDocumentFormatter.CreateErrorResponseDocument(DocumentFormat, stream);
+                        if (errorFormatResult.Success)
+                        {
+                            var errorDocument = errorFormatResult.Content;
+                            if (errorDocument != null) MTConnectError?.Invoke(this, errorDocument);
+                        }
+                        else
+                        {
+                            // Raise Format Error
+                            if (FormatError != null) FormatError.Invoke(this, errorFormatResult);
+                        }
+                    }
                 }
                 else
                 {
-                    // Process MTConnectError Document (if MTConnectDevices fails)
-                    var errorDocument = Formatters.ResponseDocumentFormatter.CreateErrorResponseDocument(DocumentFormat.ToString(), stream).Content;
-                    if (errorDocument != null)
-                    {
-                        MTConnectError?.Invoke(this, errorDocument);
-                    }
+                    // Raise Format Error
+                    if (FormatError != null) FormatError.Invoke(this, formatResult);
                 }
             }
 

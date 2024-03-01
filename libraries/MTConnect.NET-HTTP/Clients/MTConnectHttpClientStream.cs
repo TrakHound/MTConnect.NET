@@ -2,6 +2,7 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Errors;
+using MTConnect.Formatters;
 using MTConnect.Http;
 using MTConnect.Streams;
 using System;
@@ -75,6 +76,8 @@ namespace MTConnect.Clients
         public event EventHandler<IStreamsResponseDocument> DocumentReceived;
 
         public event EventHandler<IErrorResponseDocument> ErrorReceived;
+
+        public event EventHandler<IFormatReadResult> FormatError;
 
         public event EventHandler<Exception> InternalError;
 
@@ -347,17 +350,35 @@ namespace MTConnect.Clients
                 var stream = MTConnectHttpResponse.HandleContentEncoding(contentEncoding, responseBody);
                 if (stream.Position > 0) stream.Seek(0, SeekOrigin.Begin);
 
-                // Process MTConnectDevices Document
-                var document = Formatters.ResponseDocumentFormatter.CreateStreamsResponseDocument(_documentFormat, stream).Content;
-                if (document != null)
+                var formatResult = ResponseDocumentFormatter.CreateStreamsResponseDocument(_documentFormat, stream);
+                if (formatResult.Success)
                 {
-                    DocumentReceived?.Invoke(this, document);
+                    // Process MTConnectDevices Document
+                    var document = formatResult.Content;
+                    if (document != null)
+                    {
+                        DocumentReceived?.Invoke(this, document);
+                    }
+                    else
+                    {
+                        // Process MTConnectError Document (if MTConnectStreams fails)
+                        var errorFormatResult = ResponseDocumentFormatter.CreateErrorResponseDocument(_documentFormat, stream);
+                        if (errorFormatResult.Success)
+                        {
+                            var errorDocument = errorFormatResult.Content;
+                            if (errorDocument != null) ErrorReceived?.Invoke(this, errorDocument);
+                        }
+                        else
+                        {
+                            // Raise Format Error
+                            if (FormatError != null) FormatError.Invoke(this, errorFormatResult);
+                        }
+                    }
                 }
                 else
                 {
-                    // Process MTConnectError Document (if MTConnectStreams fails)
-                    var errorDocument = Formatters.ResponseDocumentFormatter.CreateErrorResponseDocument(_documentFormat, stream).Content;
-                    if (errorDocument != null) ErrorReceived?.Invoke(this, errorDocument);
+                    // Raise Format Error
+                    if (FormatError != null) FormatError.Invoke(this, formatResult);
                 }
             }
         }

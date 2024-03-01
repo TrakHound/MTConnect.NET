@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Xml;
 
 namespace MTConnect.Formatters.Xml
 {
@@ -253,6 +254,8 @@ namespace MTConnect.Formatters.Xml
 
         public FormatReadResult<IStreamsResponseDocument> CreateStreamsResponseDocument(Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
+            IStreamsResponseDocument document = null;
+            var success = false;
             var messages = new List<string>();
             var warnings = new List<string>();
             var errors = new List<string>();
@@ -284,17 +287,22 @@ namespace MTConnect.Formatters.Xml
                 }
             }
 
-            byte[] bytes;
-            using (var memoryStream = new MemoryStream())
+            try
             {
-                content.CopyTo(memoryStream);
-                bytes = memoryStream.ToArray();
+                if (content != null && content.Length > 0)
+                {
+                    using (var xmlReader = XmlReader.Create(content))
+                    {
+                        document = XmlStreamsResponseDocument.ReadXml(xmlReader);
+                        success = document != null;
+                    }
+                }
             }
-
-            // Read Document
-            var document = XmlStreamsResponseDocument.FromXml(bytes);
-            var success = document != null;
-
+            catch (Exception ex)
+            {
+                messages.Add(ex.Message);
+            }
+            
             return new FormatReadResult<IStreamsResponseDocument>(document, success, messages, warnings, errors);
         }
 
