@@ -39,7 +39,7 @@
 </table>
 
 ## Overview
-MTConnect.NET is a fully featured and fully Open Source .NET library for MTConnect to develop Agents, Adapters, and Clients. Supports MTConnect Versions up to 2.2. A pre-compiled Agent application is available to download as well as an Adapter application that can be easily customized.
+MTConnect.NET is a fully featured and fully Open Source .NET library for MTConnect to develop Agents, Adapters, and Clients. Supports MTConnect Versions up to 2.3. A pre-compiled Agent application is available to download as well as an Adapter application that can be easily customized.
 
 - .NET Native MTConnect Agent
 - Adapter framework used to send data to an MTConnect Agent
@@ -49,7 +49,7 @@ MTConnect.NET is a fully featured and fully Open Source .NET library for MTConne
 - Module based Agent & Adapter architecture
     - Supports running as Windows Service with easy to use command line arguments
     - Presistent Agent Buffers that are backed up on the File System. Retains state after Agent is restarted
-- Fully compatible up to the latest MTConnect v2.2
+- Fully compatible up to the latest MTConnect v2.3
     - Kept up to date by utilizing the MTConnect SysML Model to generate source files
     - Supports multiple MTConnect Version output. Automatically removes data that is not compatible with the requested version
 - Full client support for requesting data from any MTConnect Agent (Probe, Current, Sample Stream, Assets, etc.).

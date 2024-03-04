@@ -351,10 +351,7 @@ namespace MTConnect.Observations
                     }
                     else if (typeof(Enum).IsAssignableFrom(type) && obj.GetType() == typeof(string))
                     {
-                        if (Enum.TryParse(type, (string)obj, true, out var result))
-                        {
-                            return result;
-                        }
+                        return Enum.Parse(type, (string)obj);
                     }
                     else
                     {
