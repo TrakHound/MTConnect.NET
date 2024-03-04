@@ -116,7 +116,22 @@ namespace IntegrationTests
                     {
                         var adapterClient = new ShdrAdapterClient(adapterConfiguration, _agent, device);
 
+                        // Adapter client initialized all its data items, setting them to UNAVAILABLE
+                        // Lest creating race condition we should wait until all items are initialized in OnConnect (see ShdrClient.ListenForAdapter) 
+                        // The essence of race condition was that a data item might be sent via adapter EARLIER than adapter client initialized the same data item to UNAVAILABLE.
+                        // As a result MTConnectAgent.FilterPeriod was discarding new value coming via adapter due to older timestamp assigned on sending.
+                        // I have chosen ShdrClient.PingSent event, since ShdrClient.Listening was not called.
+                        var waiter = new AutoResetEvent(false);
+                        void DataItemsInitialized(object? sender, string msg)
+                        {
+                            adapterClient.PingSent -= DataItemsInitialized;
+                            waiter.Set();
+                        }
+
+                        adapterClient.PingSent += DataItemsInitialized;
                         adapterClient.Start();
+
+                        Assert.True(waiter.WaitOne(10000));
                     }
                 }
             }
