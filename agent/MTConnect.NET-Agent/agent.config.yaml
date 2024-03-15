@@ -30,8 +30,8 @@ modules:
     #   location: favicon.ico
 
 - mqtt-relay: # - Add MQTT Relay module
-    server: localhost
-    port: 1883
+    server: 192.168.1.128
+    port: 8883
     currentInterval: 10000
     sampleInterval: 500
 
@@ -70,4 +70,4 @@ durable: false
 # enableAgentDevice: false
 
 # Sets the default MTConnect version to output response documents for.
-defaultVersion: 2.3
+# defaultVersion: 2.3

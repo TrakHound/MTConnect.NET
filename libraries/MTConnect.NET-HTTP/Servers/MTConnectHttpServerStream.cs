@@ -333,7 +333,7 @@ namespace MTConnect.Servers.Http
         private static Stream CreateMultipartChunk(ref Stream body, string boundary, string contentType, string contentEncoding)
         {
             var outputStream = new MemoryStream();
-            using (var writer = new StreamWriter(outputStream, leaveOpen: true))
+            using (var writer = new StreamWriter(outputStream, System.Text.Encoding.UTF8, (int)body.Length + 1000, leaveOpen: true))
             {
                 writer.NewLine = "\r\n";
 

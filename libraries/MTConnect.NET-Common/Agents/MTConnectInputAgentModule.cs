@@ -4,6 +4,7 @@
 using MTConnect.Assets;
 using MTConnect.Configurations;
 using MTConnect.Devices;
+using MTConnect.Devices.DataItems;
 using MTConnect.Input;
 using MTConnect.Logging;
 using MTConnect.Observations;
@@ -137,6 +138,42 @@ namespace MTConnect.Agents
             }
         }
 
+        public void SetUnavailable(string dataItemKey)
+        {
+            if (!string.IsNullOrEmpty(dataItemKey))
+            {
+                var dataItem = Device.GetDataItemByKey(dataItemKey);
+                if (dataItem != null)
+                {
+                    SetUnavailable(dataItem);
+                }
+            }
+        }
+
+        public void SetUnavailable(string dataItemKey, DateTime timestamp)
+        {
+            if (!string.IsNullOrEmpty(dataItemKey))
+            {
+                var dataItem = Device.GetDataItemByKey(dataItemKey);
+                if (dataItem != null)
+                {
+                    SetUnavailable(dataItem, timestamp);
+                }
+            }
+        }
+
+        public void SetUnavailable(string dataItemKey, long timestamp)
+        {
+            if (!string.IsNullOrEmpty(dataItemKey))
+            {
+                var dataItem = Device.GetDataItemByKey(dataItemKey);
+                if (dataItem != null)
+                {
+                    SetUnavailable(dataItem, timestamp);
+                }
+            }
+        }
+
         public void SetUnavailable(IDataItem dataItem)
         {
             var timestamp = UnixDateTime.Now;
@@ -183,20 +220,20 @@ namespace MTConnect.Agents
             }
         }
 
-        public void AddValueObservation(IDataItem dataItem, object resultValue, long? timestamp = null)
+        public void AddValueObservation(IDataItem dataItem, object resultValue, long timestamp)
         {
             if (dataItem != null && !string.IsNullOrEmpty(dataItem.Id))
             {
-                var observation = new ObservationInput(dataItem.Id, resultValue, timestamp.Value);
+                var observation = new ObservationInput(dataItem.Id, resultValue, timestamp);
                 AddObservation(observation);
             }
         }
 
-        public void AddValueObservation(IDataItem dataItem, object resultValue, DateTime? timestamp = null)
+        public void AddValueObservation(IDataItem dataItem, object resultValue, DateTime timestamp)
         {
             if (dataItem != null && !string.IsNullOrEmpty(dataItem.Id))
             {
-                var observation = new ObservationInput(dataItem.Id, resultValue, timestamp.Value);
+                var observation = new ObservationInput(dataItem.Id, resultValue, timestamp);
                 AddObservation(observation);
             }
         }
@@ -207,15 +244,15 @@ namespace MTConnect.Agents
             AddObservation(observation);
         }
 
-        public void AddValueObservation(string dataItemKey, object resultValue, long? timestamp = null)
+        public void AddValueObservation(string dataItemKey, object resultValue, long timestamp)
         {
-            var observation = new ObservationInput(dataItemKey, resultValue, timestamp.Value);
+            var observation = new ObservationInput(dataItemKey, resultValue, timestamp);
             AddObservation(observation);
         }
 
-        public void AddValueObservation(string dataItemKey, object resultValue, DateTime? timestamp = null)
+        public void AddValueObservation(string dataItemKey, object resultValue, DateTime timestamp)
         {
-            var observation = new ObservationInput(dataItemKey, resultValue, timestamp.Value);
+            var observation = new ObservationInput(dataItemKey, resultValue, timestamp);
             AddObservation(observation);
         }
 
@@ -251,6 +288,61 @@ namespace MTConnect.Agents
         #endregion
 
         #region "Condition Observations"
+
+        public void AddConditionObservation(
+            string dataItemKey,
+            ConditionLevel level,
+            string nativeCode = null,
+            string message = null,
+            string nativeSeverity = null,
+            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED,
+            string conditionId = null
+            )
+        {
+            AddConditionObservation(dataItemKey, level, UnixDateTime.Now, nativeCode, message, nativeSeverity, qualifier, conditionId);
+        }
+
+        public void AddConditionObservation(
+            string dataItemKey,
+            ConditionLevel level,
+            DateTime timestamp,
+            string nativeCode = null,
+            string message = null,
+            string nativeSeverity = null,
+            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED,
+            string conditionId = null
+            )
+        {
+            AddConditionObservation(dataItemKey, level, timestamp.ToUnixTime(), nativeCode, message, nativeSeverity, qualifier, conditionId);
+        }
+
+        public void AddConditionObservation(
+            string dataItemKey,
+            ConditionLevel level,
+            long timestamp,
+            string nativeCode = null,
+            string message = null,
+            string nativeSeverity = null,
+            ConditionQualifier qualifier = ConditionQualifier.NOT_SPECIFIED,
+            string conditionId = null
+            )
+        {
+            if (Agent != null && Device != null && !string.IsNullOrEmpty(dataItemKey))
+            {
+                var observationInput = new ConditionFaultStateObservationInput();
+                observationInput.DeviceKey = Device.Uuid;
+                observationInput.DataItemKey = dataItemKey;
+                observationInput.Level = level;
+                observationInput.ConditionId = conditionId;
+                observationInput.NativeCode = nativeCode;
+                observationInput.Message = message;
+                observationInput.NativeSeverity = nativeSeverity;
+                observationInput.Qualifier = qualifier;
+                observationInput.Timestamp = timestamp;
+
+                Agent.AddObservation(observationInput);
+            }
+        }
 
         public void AddConditionObservation<TDataItem>(
             ConditionLevel level,
@@ -320,6 +412,45 @@ namespace MTConnect.Agents
 
         #region "DataSet Observations"
 
+        public void AddDataSetObservation(string dataItemKey, string entryKey, object value)
+        {
+            if (Agent != null && Device != null && !string.IsNullOrEmpty(dataItemKey) && !string.IsNullOrEmpty(entryKey) && value != null)
+            {
+                var observationInput = new DataSetObservationInput();
+                observationInput.DeviceKey = Device.Uuid;
+                observationInput.DataItemKey = dataItemKey;
+                observationInput.Entries = new IDataSetEntry[] { new DataSetEntry(entryKey, value) };
+
+                Agent.AddObservation(observationInput);
+            }
+        }
+
+        public void AddDataSetObservation(string dataItemKey, IDataSetEntry entry)
+        {
+            if (Agent != null && Device != null && !string.IsNullOrEmpty(dataItemKey) && entry != null)
+            {
+                var observationInput = new DataSetObservationInput();
+                observationInput.DeviceKey = Device.Uuid;
+                observationInput.DataItemKey = dataItemKey;
+                observationInput.Entries = new IDataSetEntry[] { entry };
+
+                Agent.AddObservation(observationInput);
+            }
+        }
+
+        public void AddDataSetObservation(string dataItemKey, IEnumerable<IDataSetEntry> entries)
+        {
+            if (Agent != null && Device != null && !string.IsNullOrEmpty(dataItemKey) && !entries.IsNullOrEmpty())
+            {
+                var observationInput = new DataSetObservationInput();
+                observationInput.DeviceKey = Device.Uuid;
+                observationInput.DataItemKey = dataItemKey;
+                observationInput.Entries = entries;
+
+                Agent.AddObservation(observationInput);
+            }
+        }
+
         public void AddDataSetObservation<TDataItem>(
             IEnumerable<IDataSetEntry> entries,
             string subType = null
@@ -368,6 +499,32 @@ namespace MTConnect.Agents
 
         #region "Table Observations"
 
+        public void AddTableObservation(string dataItemKey, ITableEntry entry)
+        {
+            if (Agent != null && Device != null && !string.IsNullOrEmpty(dataItemKey) && entry != null)
+            {
+                var observationInput = new TableObservationInput();
+                observationInput.DeviceKey = Device.Uuid;
+                observationInput.DataItemKey = dataItemKey;
+                observationInput.Entries = new ITableEntry[] { entry };
+
+                Agent.AddObservation(observationInput);
+            }
+        }
+
+        public void AddTableObservation(string dataItemKey, IEnumerable<ITableEntry> entries)
+        {
+            if (Agent != null && Device != null && !string.IsNullOrEmpty(dataItemKey) && !entries.IsNullOrEmpty())
+            {
+                var observationInput = new TableObservationInput();
+                observationInput.DeviceKey = Device.Uuid;
+                observationInput.DataItemKey = dataItemKey;
+                observationInput.Entries = entries;
+
+                Agent.AddObservation(observationInput);
+            }
+        }
+
         public void AddTableObservation<TDataItem>(
             IEnumerable<ITableEntry> entries,
             string subType = null
@@ -415,6 +572,19 @@ namespace MTConnect.Agents
         #endregion
 
         #region "TimeSeries Observations"
+
+        public void AddTimeSeriesObservation(string dataItemKey, IEnumerable<double> samples)
+        {
+            if (Agent != null && Device != null && !string.IsNullOrEmpty(dataItemKey) && !samples.IsNullOrEmpty())
+            {
+                var observationInput = new TimeSeriesObservationInput();
+                observationInput.DeviceKey = Device.Uuid;
+                observationInput.DataItemKey = dataItemKey;
+                observationInput.Samples = samples;
+
+                Agent.AddObservation(observationInput);
+            }
+        }
 
         public void AddTimeSeriesObservation<TDataItem>(
             IEnumerable<double> samples,

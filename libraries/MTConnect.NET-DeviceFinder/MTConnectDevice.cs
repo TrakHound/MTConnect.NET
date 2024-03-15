@@ -75,6 +75,11 @@ namespace MTConnect.DeviceFinder
             MacAddress = macAddress;
             Uuid = deviceUuid;
             Name = deviceName;
+            Description = null;
+            Manufacturer = null;
+            Model = null;
+            SerialNumber = null;
+            Station = null;
         }
     }
 }

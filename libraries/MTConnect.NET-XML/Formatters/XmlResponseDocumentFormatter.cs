@@ -207,6 +207,8 @@ namespace MTConnect.Formatters.Xml
 
         public FormatReadResult<IDevicesResponseDocument> CreateDevicesResponseDocument(Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
+            IDevicesResponseDocument document = null;
+            var success = false;
             var messages = new List<string>();
             var warnings = new List<string>();
             var errors = new List<string>();
@@ -238,16 +240,23 @@ namespace MTConnect.Formatters.Xml
                 }
             }
 
-            byte[] bytes;
-            using (var memoryStream = new MemoryStream())
+            try
             {
-                content.CopyTo(memoryStream);
-                bytes = memoryStream.ToArray();
-            }
+                byte[] bytes;
+                using (var memoryStream = new MemoryStream())
+                {
+                    content.CopyTo(memoryStream);
+                    bytes = memoryStream.ToArray();
+                }
 
-            // Read Document
-            var document = XmlDevicesResponseDocument.FromXml(bytes);
-            var success = document != null;
+                // Read Document
+                document = XmlDevicesResponseDocument.FromXml(bytes);
+                success = document != null;
+            }
+            catch (Exception ex)
+            {
+                messages.Add(ex.Message);
+            }
 
             return new FormatReadResult<IDevicesResponseDocument>(document, success, messages, warnings, errors);
         }
