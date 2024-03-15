@@ -329,7 +329,7 @@ namespace MTConnect.Buffers
 
                 lock (_lock)
                 {
-                    firstSequence = Math.Max(1, _sequence - BufferSize);
+                    firstSequence = _sequence > BufferSize ? _sequence - BufferSize : 1;
                     lastSequence = _sequence > 1 ? _sequence - 1 : 1;
                     nextSequence = _sequence;
 
