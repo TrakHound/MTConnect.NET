@@ -1,6 +1,8 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
+using MTConnect.Tls;
+
 namespace MTConnect.Configurations
 {
     public interface IMTConnectMqttClientConfiguration
@@ -20,6 +22,8 @@ namespace MTConnect.Configurations
         string ClientId { get; set; }
 
         int QoS { get; set; }
+
+        TlsConfiguration Tls { get; set; }
 
         string CertificateAuthority { get; set; }
 

@@ -37,6 +37,17 @@ namespace MTConnect.Tls
             return new CertificateLoadResult();
         }
 
+        public CertificateLoadResult GetCertificateAuthority()
+        {
+            // Load PEM Certificate
+            if (Pem != null)
+            {
+                return GetPemCertificateAuthority();
+            }
+
+            return new CertificateLoadResult();
+        }
+
         private CertificateLoadResult GetPfxCertificate()
         {
             if (!string.IsNullOrEmpty(Pfx.CertificatePath))
@@ -69,8 +80,48 @@ namespace MTConnect.Tls
 
 #if NET5_0_OR_GREATER
                     // Read from PEM file(s)
-                    if (!string.IsNullOrEmpty(Pem.PrivateKeyPath)) certificate = X509Certificate2.CreateFromPemFile(Pem.CertificatePath, Pem.PrivateKeyPath);
-                    else certificate = X509Certificate2.CreateFromPemFile(Pem.CertificatePath);
+                    if (!string.IsNullOrEmpty(Pem.PrivateKeyPath) && !string.IsNullOrEmpty(Pem.PrivateKeyPassword))
+                    {
+                        certificate = X509Certificate2.CreateFromEncryptedPemFile(Pem.CertificatePath, Pem.PrivateKeyPassword, Pem.PrivateKeyPath);
+                    }
+                    else if (!string.IsNullOrEmpty(Pem.PrivateKeyPath))
+                    {
+                        certificate = X509Certificate2.CreateFromPemFile(Pem.CertificatePath, Pem.PrivateKeyPath);
+                    }
+                    else
+                    {
+                        certificate = X509Certificate2.CreateFromPemFile(Pem.CertificatePath);
+                    }
+#else
+                    certificate = null;
+#endif
+
+                    // Export to Pkcs12
+                    var pfxPassword = Guid.NewGuid().ToString();
+                    var pkcsCert = certificate.Export(X509ContentType.Pkcs12, pfxPassword);
+                    certificate = new X509Certificate2(pkcsCert, pfxPassword);
+
+                    return CertificateLoadResult.Ok(certificate);
+                }
+                catch (Exception ex)
+                {
+                    return CertificateLoadResult.Error(ex);
+                }
+            }
+
+            return new CertificateLoadResult();
+        }
+
+        private CertificateLoadResult GetPemCertificateAuthority()
+        {
+            if (!string.IsNullOrEmpty(Pem.CertificateAuthority))
+            {
+                try
+                {
+                    X509Certificate2 certificate;
+
+#if NET5_0_OR_GREATER
+                    certificate = new X509Certificate2(Pem.CertificateAuthority);
 #else
                     certificate = null;
 #endif

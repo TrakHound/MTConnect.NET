@@ -77,6 +77,7 @@ This Agent Module implements a MTConnect REST Protocol Http server
         * `certificatePath` - The path to the (.pem) file
         * `privateKeyPath` - The path to the key containing the private key
         * `privateKeyPassword` - The certificate password
+        * `certificateAuthority` - The path to the (.pem) file containing the Certificate Authority
 
     * `verifyClientCertificate` - Toggles whether Client Certificate chains are verified ("true" or "false")
 
@@ -122,6 +123,20 @@ Specify the port and hostname with TLS (PFX Certificate)
 ```
 
 ### Example 5
+Specify the port and hostname with TLS (PEM Certificate)
+```yaml
+ - http-server:
+    hostname: DESKTOP-HV74M4N
+    port: 5001
+    tls:
+      pem:
+        certificateAuthority: c:\certs\rootCA.crt
+        certificatePath: c:\certs\mtconnect-testing.crt
+        privateKeyPath: c:\certs\mtconnect-testing.key
+        privateKeyPassword: mtconnect
+```
+
+### Example 6
 Specify with custom Accept headers
 ```yaml
  - http-server:

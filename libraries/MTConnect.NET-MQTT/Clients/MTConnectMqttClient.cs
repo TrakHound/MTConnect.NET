@@ -243,33 +243,53 @@ namespace MTConnect.Clients
                             clientOptionsBuilder.WithClientId(_configuration.ClientId);
                         }
 
-                        var certificates = new List<X509Certificate2>();
-
-                        // Add CA (Certificate Authority)
-                        if (!string.IsNullOrEmpty(_configuration.CertificateAuthority))
+                        if (_configuration.Tls != null)
                         {
-                            certificates.Add(new X509Certificate2(GetFilePath(_configuration.CertificateAuthority)));
-                        }
+                            var certificateResults = _configuration.Tls.GetCertificate();
+                            if (certificateResults.Success && certificateResults.Certificate != null)
+                            {
+                                var certificateAuthorityResults = _configuration.Tls.GetCertificateAuthority();
 
-                        // Add Client Certificate & Private Key
-                        if (!string.IsNullOrEmpty(_configuration.PemCertificate) && !string.IsNullOrEmpty(_configuration.PemPrivateKey))
-                        {
+                                var certificates = new List<X509Certificate2>();
+                                if (certificateAuthorityResults.Certificate != null)
+                                {
+                                    certificates.Add(certificateAuthorityResults.Certificate);
+                                }
+                                certificates.Add(certificateResults.Certificate);
+
+                                var tlsOptionsBuilder = new MqttClientTlsOptionsBuilder();
+
+                                // Set Client Certificate
+                                tlsOptionsBuilder.WithClientCertificates(certificates);
+
+                                // Set VerifyClientCertificate option
+                                tlsOptionsBuilder.WithAllowUntrustedCertificates(!_configuration.Tls.VerifyClientCertificate);
 
 #if NET5_0_OR_GREATER
-                            certificates.Add(new X509Certificate2(X509Certificate2.CreateFromPemFile(GetFilePath(_configuration.PemCertificate), GetFilePath(_configuration.PemPrivateKey)).Export(X509ContentType.Pfx)));
-#else
-                    throw new Exception("PEM Certificates Not Supported in .NET Framework 4.8 or older");
+                                if (certificateAuthorityResults.Certificate != null)
+                                {
+                                    tlsOptionsBuilder.WithCertificateValidationHandler((certContext) =>
+                                    {
+                                        var chain = new X509Chain();
+                                        chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
+                                        chain.ChainPolicy.RevocationFlag = X509RevocationFlag.ExcludeRoot;
+                                        chain.ChainPolicy.VerificationFlags = X509VerificationFlags.NoFlag;
+                                        chain.ChainPolicy.VerificationTime = DateTime.Now;
+                                        chain.ChainPolicy.UrlRetrievalTimeout = new TimeSpan(0, 0, 0);
+                                        chain.ChainPolicy.CustomTrustStore.Add(certificateAuthorityResults.Certificate);
+
+                                        chain.ChainPolicy.TrustMode = X509ChainTrustMode.CustomRootTrust;
+
+                                        // convert provided X509Certificate to X509Certificate2
+                                        var x5092 = new X509Certificate2(certContext.Certificate);
+
+                                        return chain.Build(x5092);
+                                    });
+                                }
 #endif
 
-                            clientOptionsBuilder.WithTls(new MqttClientOptionsBuilderTlsParameters()
-                            {
-                                UseTls = true,
-                                SslProtocol = System.Security.Authentication.SslProtocols.Tls12,
-                                IgnoreCertificateRevocationErrors = _configuration.AllowUntrustedCertificates,
-                                IgnoreCertificateChainErrors = _configuration.AllowUntrustedCertificates,
-                                AllowUntrustedCertificates = _configuration.AllowUntrustedCertificates,
-                                Certificates = certificates
-                            });
+                                clientOptionsBuilder.WithTlsOptions(tlsOptionsBuilder.Build());
+                            }
                         }
 
                         // Add Credentials
@@ -277,7 +297,11 @@ namespace MTConnect.Clients
                         {
                             if (_configuration.UseTls)
                             {
-                                clientOptionsBuilder.WithCredentials(_configuration.Username, _configuration.Password).WithTls();
+                                var tlsOptionsBuilder = new MqttClientTlsOptionsBuilder();
+                                tlsOptionsBuilder.WithSslProtocols(System.Security.Authentication.SslProtocols.Tls12);
+                                clientOptionsBuilder.WithTlsOptions(tlsOptionsBuilder.Build());
+
+                                clientOptionsBuilder.WithCredentials(_configuration.Username, _configuration.Password);
                             }
                             else
                             {
@@ -702,19 +726,6 @@ namespace MTConnect.Clients
         }
 
 
-        private static string GetFilePath(string path)
-        {
-            var x = path;
-            if (!Path.IsPathRooted(x))
-            {
-                x = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, x);
-            }
-
-            return x;
-        }
-
-        #region "Cache"
-
         private IDevice GetCachedDevice(string deviceUuid)
         {
             if (!string.IsNullOrEmpty(deviceUuid))
@@ -766,8 +777,6 @@ namespace MTConnect.Clients
 
             return null;
         }
-
-        #endregion
 
     }
 }

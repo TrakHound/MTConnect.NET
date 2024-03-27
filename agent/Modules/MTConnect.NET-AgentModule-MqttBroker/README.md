@@ -36,14 +36,6 @@ This Agent Module serves data via an **Internal** MQTT Broker
 
 * `qos` - Sets the Quality Of Service (QoS) to use. 0 = At Most Once, 1 = At least Once, 2 = Exactly Once
 
-* `certificateAuthority` - The path to the Certificate Authority file
-
-* `pemCertificatePath` - The path to the PEM Certificate (.pem) file
-
-* `pemPrivateKey` - The path to the PEM Private Key file
-
-* `allowUntrustedCertificates` - Sets whether to validate the certificate chain (true or false)
-
 * `initialDelay` - The time (in milliseconds) to delay after initial Module start (to allow for TCP binding)
 
 * `restartInterval` - The time (in milliseconds) to delay between server start errors
@@ -57,6 +49,20 @@ This Agent Module serves data via an **Internal** MQTT Broker
 * `DocumentFormat` - The Document Format ID to use to format the payload
 
 * `indentOutput` - Sets whether to indent the output in each payload
+
+* `tls` - Sets the TLS settings
+
+    * `pfx` - The PFX certificate settings
+        * `certificatePath` - The path to the (.pfx) file
+        * `certificatePassword` - The certificate password
+
+    * `pem` - The PEM certificate settings
+        * `certificatePath` - The path to the (.pem) file
+        * `privateKeyPath` - The path to the key containing the private key
+        * `privateKeyPassword` - The certificate password
+        * `certificateAuthority` - The path to the (.pem) file containing the Certificate Authority
+
+    * `verifyClientCertificate` - Toggles whether Client Certificate chains are verified ("true" or "false")
 
 ## Contribution / Feedback
 - Please use the [Issues](https://github.com/TrakHound/MTConnect.NET/issues) tab to create issues for specific problems that you may encounter 

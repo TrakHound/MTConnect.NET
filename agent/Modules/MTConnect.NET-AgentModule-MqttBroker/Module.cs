@@ -2,6 +2,7 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MQTTnet;
+using MQTTnet.Certificates;
 using MQTTnet.Server;
 using MTConnect.Agents;
 using MTConnect.Assets;
@@ -15,7 +16,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -68,10 +68,10 @@ namespace MTConnect.Modules
                 {
                     try
                     {
-                        var mqttServerOptionsBuilder = new MqttServerOptionsBuilder();
+                        var mqttServerOptions = new MqttServerOptions();
 
                         // Set the Timeout
-                        mqttServerOptionsBuilder.WithDefaultCommunicationTimeout(TimeSpan.FromSeconds(_configuration.Timeout));
+                        mqttServerOptions.DefaultCommunicationTimeout = TimeSpan.FromMilliseconds(_configuration.Timeout);
 
                         // Get the IP Address (in case configuration specifies a Hostname)
                         IPAddress address = null;
@@ -85,33 +85,28 @@ namespace MTConnect.Modules
                         }
                         else address = IPAddress.Any;
 
-                        // Set the IP Address
-                        mqttServerOptionsBuilder.WithDefaultEndpointBoundIPAddress(address);
-
-                        // Set the Port
-                        mqttServerOptionsBuilder.WithDefaultEndpointPort(_configuration.Port);
-
 
                         // Add Certificate & Private Key
-                        if (!string.IsNullOrEmpty(_configuration.PemCertificate) && !string.IsNullOrEmpty(_configuration.PemPrivateKey))
+                        if (_configuration.Tls != null)
                         {
-                            X509Certificate2 certificate = null;
+                            mqttServerOptions.TlsEndpointOptions.IsEnabled = true;
+                            mqttServerOptions.TlsEndpointOptions.BoundInterNetworkAddress = address;
+                            mqttServerOptions.TlsEndpointOptions.Port = _configuration.Port;
 
-#if NET5_0_OR_GREATER
-                            certificate = new X509Certificate2(X509Certificate2.CreateFromPemFile(GetFilePath(_configuration.PemCertificate), GetFilePath(_configuration.PemPrivateKey)).Export(X509ContentType.Pfx));
-#endif
-
-                            if (certificate != null)
+                            var certificate = _configuration.Tls.GetCertificate();
+                            if (certificate.Success && certificate.Certificate != null)
                             {
-                                mqttServerOptionsBuilder.WithoutDefaultEndpoint();
-                                mqttServerOptionsBuilder.WithEncryptedEndpoint();
-                                mqttServerOptionsBuilder.WithEncryptedEndpointPort(_configuration.Port);
-                                mqttServerOptionsBuilder.WithEncryptionCertificate(certificate);
-                                mqttServerOptionsBuilder.WithEncryptionSslProtocol(System.Security.Authentication.SslProtocols.Tls12);
+                                mqttServerOptions.TlsEndpointOptions.CertificateProvider = new X509CertificateProvider(certificate.Certificate);
+                                mqttServerOptions.TlsEndpointOptions.SslProtocol = System.Security.Authentication.SslProtocols.Tls12;
                             }
                         }
+                        else
+                        {
+                            mqttServerOptions.DefaultEndpointOptions.IsEnabled = true;
+                            mqttServerOptions.DefaultEndpointOptions.BoundInterNetworkAddress = address;
+                            mqttServerOptions.DefaultEndpointOptions.Port = _configuration.Port;
+                        }
 
-                        var mqttServerOptions = mqttServerOptionsBuilder.Build();
 
                         var mqttFactory = new MqttFactory();
                         _mqttServer = mqttFactory.CreateMqttServer(mqttServerOptions);
@@ -124,6 +119,11 @@ namespace MTConnect.Modules
                         _mqttServer.ClientDisconnectedAsync += (args) =>
                         {
                             Log(MTConnectLogLevel.Debug, $"MQTT Server : Client Disconnected : {args.ClientId} : {args.Endpoint}");
+                            return Task.CompletedTask;
+                        };
+                        _mqttServer.ValidatingConnectionAsync += (args) =>
+                        {
+                            Log(MTConnectLogLevel.Debug, $"MQTT Server : Validating Client Connection : {args.ClientId} : {args.Endpoint} : {args.ReasonString}");
                             return Task.CompletedTask;
                         };
 
@@ -161,12 +161,7 @@ namespace MTConnect.Modules
                 if (formatResult.Success)
                 {
                     var topic = $"{_configuration.TopicPrefix}/{MTConnectMqttDocumentServer.ProbeTopic}/{device.Uuid}";
-
-                    //var message = new MqttApplicationMessage();
-                    //message.Retain = true;
-                    //message.Topic = topic;
-                    //message.QualityOfServiceLevel = MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce;
-                    //message.Payload = formatResult.Content;
+                    formatResult.Content.Seek(0, SeekOrigin.Begin);
 
                     var messageBuilder = new MqttApplicationMessageBuilder();
                     messageBuilder.WithRetainFlag(true);
@@ -190,12 +185,7 @@ namespace MTConnect.Modules
                 if (formatResult.Success)
                 {
                     var topic = $"{_configuration.TopicPrefix}/{MTConnectMqttDocumentServer.CurrentTopic}/{device.Uuid}";
-
-                    //var message = new MqttApplicationMessage();
-                    //message.Retain = true;
-                    //message.Topic = topic;
-                    //message.QualityOfServiceLevel = MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce;
-                    //message.Payload = formatResult.Content;
+                    formatResult.Content.Seek(0, SeekOrigin.Begin);
 
                     var messageBuilder = new MqttApplicationMessageBuilder();
                     messageBuilder.WithRetainFlag(true);
@@ -219,12 +209,7 @@ namespace MTConnect.Modules
                 if (formatResult.Success)
                 {
                     var topic = $"{_configuration.TopicPrefix}/{MTConnectMqttDocumentServer.SampleTopic}/{device.Uuid}";
-
-                    //var message = new MqttApplicationMessage();
-                    ////message.Retain = true;
-                    //message.Topic = topic;
-                    //message.QualityOfServiceLevel = MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce;
-                    //message.Payload = formatResult.Content;
+                    formatResult.Content.Seek(0, SeekOrigin.Begin);
 
                     var messageBuilder = new MqttApplicationMessageBuilder();
                     messageBuilder.WithRetainFlag(true);
@@ -253,12 +238,7 @@ namespace MTConnect.Modules
                     if (formatResult.Success)
                     {
                         var topic = $"{_configuration.TopicPrefix}/{MTConnectMqttDocumentServer.AssetTopic}/{device.Uuid}/{asset.AssetId}";
-
-                        //var message = new MqttApplicationMessage();
-                        //message.Retain = true;
-                        //message.Topic = topic;
-                        //message.QualityOfServiceLevel = (MQTTnet.Protocol.MqttQualityOfServiceLevel)_configuration.QoS;
-                        //message.Payload = formatResult.Content;
+                        formatResult.Content.Seek(0, SeekOrigin.Begin);
 
                         var messageBuilder = new MqttApplicationMessageBuilder();
                         messageBuilder.WithRetainFlag(true);
@@ -273,18 +253,6 @@ namespace MTConnect.Modules
                     }
                 }
             }
-        }
-
-
-        private static string GetFilePath(string path)
-        {
-            var x = path;
-            if (!Path.IsPathRooted(x))
-            {
-                x = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, x);
-            }
-
-            return x;
         }
     }
 }

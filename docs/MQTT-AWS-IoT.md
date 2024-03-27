@@ -30,12 +30,12 @@ server: akljadkfjdlsf-ats.iot.us-east-1.amazonaws.com
 # The port number of the MQTT broker to publish messages to
 port: 8883
 
-certificateAuthority: certs/AmazonRootCA1.pem
-pemCertificate: certs/asfdslkafjdslkfjdklsdjf-certificate.pem.crt
-pemPrivateKey: certs/sdlkajlksdajfldskjfdldlskfjdslkaj-private.pem.key
-
-mqttFormat: Flat
-retainMessage: true
+# Set TLS configuration
+tls:
+  pem:
+    certificateAuthority: certs/AmazonRootCA1.pem
+    certificatePath: certs/asfdslkafjdslkfjdklsdjf-certificate.pem.crt
+    privateKeyPath: certs/sdlkajlksdajfldskjfdldlskfjdslkaj-private.pem.key
 
 ...
 ```

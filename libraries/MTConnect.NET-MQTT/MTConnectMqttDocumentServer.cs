@@ -18,7 +18,6 @@ namespace MTConnect
         public const string SampleTopic = "Sample";
         public const string AssetTopic = "Asset";
 
-
         private readonly IMTConnectAgentBroker _mtconnectAgent;
         private readonly IMTConnectMqttServerConfiguration _configuration;
         private CancellationTokenSource _stop;

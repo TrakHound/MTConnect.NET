@@ -1,6 +1,8 @@
 // Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
+using MTConnect.Tls;
+
 namespace MTConnect.Configurations
 {
     public class MqttBrokerModuleConfiguration : IMTConnectMqttServerConfiguration
@@ -17,26 +19,10 @@ namespace MTConnect.Configurations
 
 
         /// <summary>
-        /// The path to the Certificate Authority file
+        /// Gets or Sets the TLS settings
         /// </summary>
-        public string CertificateAuthority { get; set; }
+        public TlsConfiguration Tls { get; set; }
 
-        /// <summary>
-        /// The path to the PEM Certificate (.pem) file
-        /// </summary>
-        public string PemCertificate { get; set; }
-
-        /// <summary>
-        /// The path to the PEM Private Key file
-        /// </summary>
-        public string PemPrivateKey { get; set; }
-
-        /// <summary>
-        /// Sets whether to validate the certificate chain (true or false)
-        /// </summary>
-        public bool AllowUntrustedCertificates { get; set; }
-
-        //public bool UseTls { get; set; }
 
         /// <summary>
         /// The timeout (in milliseconds) to use for connection and read/write
@@ -88,13 +74,14 @@ namespace MTConnect.Configurations
 
         public MqttBrokerModuleConfiguration()
         {
+            Server = null;
             Port = 1883;
             InitialDelay = 500;
             RestartInterval = 5000;
             Timeout = 5000;
 
             TopicPrefix = "MTConnect";
-            DocumentFormat = "JSON";
+            DocumentFormat = "json-cppagent";
 
             CurrentInterval = 5000;
             SampleInterval = 500;

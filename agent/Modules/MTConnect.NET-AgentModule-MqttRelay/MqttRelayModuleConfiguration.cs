@@ -1,6 +1,8 @@
 // Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
+using MTConnect.Tls;
+
 namespace MTConnect.Configurations
 {
     public class MqttRelayModuleConfiguration : IMTConnectMqttServerConfiguration
@@ -37,6 +39,11 @@ namespace MTConnect.Configurations
         public string Password { get; set; }
 
         /// <summary>
+        /// Sets whether to use TLS or not (true or false)
+        /// </summary>
+        public bool UseTls { get; set; }
+
+        /// <summary>
         /// Sets the Client ID to use for the connection
         /// </summary>
         public string ClientId { get; set; }
@@ -51,31 +58,10 @@ namespace MTConnect.Configurations
         /// </summary>
         public int QoS { get; set; }
 
-
         /// <summary>
-        /// The path to the Certificate Authority file
+        /// Gets or Sets the TLS settings
         /// </summary>
-        public string CertificateAuthority { get; set; }
-
-        /// <summary>
-        /// The path to the PEM Certificate (.pem) file
-        /// </summary>
-        public string PemCertificate { get; set; }
-
-        /// <summary>
-        /// The path to the PEM Private Key file
-        /// </summary>
-        public string PemPrivateKey { get; set; }
-
-        /// <summary>
-        /// Sets whether to validate the certificate chain (true or false)
-        /// </summary>
-        public bool AllowUntrustedCertificates { get; set; }
-
-        /// <summary>
-        /// Sets whether to use TLS or not (true or false)
-        /// </summary>
-        public bool UseTls { get; set; }
+        public TlsConfiguration Tls { get; set; }
 
 
         /// <summary>
@@ -108,12 +94,12 @@ namespace MTConnect.Configurations
         public MqttRelayModuleConfiguration()
         {
             Server = "localhost";
-            Port = 7878;
+            Port = 1883;
             Timeout = 5000;
             ReconnectInterval = 10000;
 
             TopicPrefix = "MTConnect";
-            DocumentFormat = "JSON";
+            DocumentFormat = "json-cppAgent";
 
             CurrentInterval = 5000;
             SampleInterval = 500;

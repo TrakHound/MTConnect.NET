@@ -9,6 +9,7 @@ using MTConnect.Configurations;
 using MTConnect.Devices;
 using MTConnect.Formatters;
 using MTConnect.Logging;
+using MTConnect.Observations.Events;
 using MTConnect.Streams.Output;
 using System;
 using System.Collections.Generic;
@@ -91,38 +92,66 @@ namespace MTConnect
                         // Sets the Timeout
                         clientOptionsBuilder.WithTimeout(TimeSpan.FromMilliseconds(_configuration.Timeout));
 
+                        // Set LWT (Agent Available)
+                        clientOptionsBuilder.WithWillTopic(GetAgentAvailableTopic());
+                        clientOptionsBuilder.WithWillPayload(System.Text.Encoding.UTF8.GetBytes(Availability.UNAVAILABLE.ToString()));
+                        clientOptionsBuilder.WithWillQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce);
+                        clientOptionsBuilder.WithWillRetain(true);
+
                         // Set Client ID
                         if (!string.IsNullOrEmpty(_configuration.ClientId))
                         {
                             clientOptionsBuilder.WithClientId(_configuration.ClientId);
                         }
 
-                        var certificates = new List<X509Certificate2>();
-
-                        // Add CA (Certificate Authority)
-                        if (!string.IsNullOrEmpty(_configuration.CertificateAuthority))
+                        // Set TLS Certificate
+                        if (_configuration.Tls != null)
                         {
-                            certificates.Add(new X509Certificate2(GetFilePath(_configuration.CertificateAuthority)));
-                        }
+                            var certificateResults = _configuration.Tls.GetCertificate();
+                            if (certificateResults.Success && certificateResults.Certificate != null)
+                            {
+                                var certificateAuthorityResults = _configuration.Tls.GetCertificateAuthority();
 
-                        // Add Client Certificate & Private Key
-                        if (!string.IsNullOrEmpty(_configuration.PemCertificate) && !string.IsNullOrEmpty(_configuration.PemPrivateKey))
-                        {
+                                var certificates = new List<X509Certificate2>();
+                                if (certificateAuthorityResults.Certificate != null)
+                                {
+                                    certificates.Add(certificateAuthorityResults.Certificate);
+                                }
+                                certificates.Add(certificateResults.Certificate);
+
+                                var tlsOptionsBuilder = new MqttClientTlsOptionsBuilder();
+
+                                // Set Client Certificate
+                                tlsOptionsBuilder.WithClientCertificates(certificates);
+
+                                // Set VerifyClientCertificate option
+                                tlsOptionsBuilder.WithAllowUntrustedCertificates(!_configuration.Tls.VerifyClientCertificate);
+
 #if NET5_0_OR_GREATER
-                            certificates.Add(new X509Certificate2(X509Certificate2.CreateFromPemFile(GetFilePath(_configuration.PemCertificate), GetFilePath(_configuration.PemPrivateKey)).Export(X509ContentType.Pfx)));
-#else
-                            throw new Exception("PEM Certificates Not Supported in .NET Framework 4.8 or older");
+                                // Setup CA Certificate
+                                if (certificateAuthorityResults.Certificate != null)
+                                {
+                                    tlsOptionsBuilder.WithCertificateValidationHandler((certContext) =>
+                                    {
+                                        var chain = new X509Chain();
+                                        chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
+                                        chain.ChainPolicy.RevocationFlag = X509RevocationFlag.ExcludeRoot;
+                                        chain.ChainPolicy.VerificationFlags = X509VerificationFlags.NoFlag;
+                                        chain.ChainPolicy.VerificationTime = DateTime.Now;
+                                        chain.ChainPolicy.UrlRetrievalTimeout = new TimeSpan(0, 0, 0);
+                                        chain.ChainPolicy.CustomTrustStore.Add(certificateAuthorityResults.Certificate);
+                                        chain.ChainPolicy.TrustMode = X509ChainTrustMode.CustomRootTrust;
+
+                                        // convert provided X509Certificate to X509Certificate2
+                                        var x5092 = new X509Certificate2(certContext.Certificate);
+
+                                        return chain.Build(x5092);
+                                    });
+                                }
 #endif
 
-                            clientOptionsBuilder.WithTls(new MqttClientOptionsBuilderTlsParameters()
-                            {
-                                UseTls = true,
-                                SslProtocol = System.Security.Authentication.SslProtocols.Tls12,
-                                IgnoreCertificateRevocationErrors = _configuration.AllowUntrustedCertificates,
-                                IgnoreCertificateChainErrors = _configuration.AllowUntrustedCertificates,
-                                AllowUntrustedCertificates = _configuration.AllowUntrustedCertificates,
-                                Certificates = certificates
-                            });
+                                clientOptionsBuilder.WithTlsOptions(tlsOptionsBuilder.Build());
+                            }
                         }
 
                         // Add Credentials
@@ -130,7 +159,11 @@ namespace MTConnect
                         {
                             if (_configuration.UseTls)
                             {
-                                clientOptionsBuilder.WithCredentials(_configuration.Username, _configuration.Password).WithTls();
+                                var tlsOptionsBuilder = new MqttClientTlsOptionsBuilder();
+                                tlsOptionsBuilder.WithSslProtocols(System.Security.Authentication.SslProtocols.Tls12);
+                                clientOptionsBuilder.WithTlsOptions(tlsOptionsBuilder.Build());
+
+                                clientOptionsBuilder.WithCredentials(_configuration.Username, _configuration.Password);
                             }
                             else
                             {
@@ -182,15 +215,15 @@ namespace MTConnect
                     var topic = $"{_configuration.TopicPrefix}/{MTConnectMqttDocumentServer.ProbeTopic}/{device.Uuid}";
                     if (formatResult.Content != null && formatResult.Content.Position > 0) formatResult.Content.Seek(0, SeekOrigin.Begin);
 
-                    var messageBuilder = new MqttApplicationMessageBuilder();
-                    messageBuilder.WithRetainFlag(true);
-                    messageBuilder.WithTopic(topic);
-                    messageBuilder.WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce);
-                    messageBuilder.WithPayload(formatResult.Content);
-                    var message = messageBuilder.Build();
-
                     try
                     {
+                        var messageBuilder = new MqttApplicationMessageBuilder();
+                        messageBuilder.WithRetainFlag(true);
+                        messageBuilder.WithTopic(topic);
+                        messageBuilder.WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce);
+                        messageBuilder.WithPayload(formatResult.Content);
+                        var message = messageBuilder.Build();
+
                         var publishResult = await _mqttClient.PublishAsync(message);
                         if (publishResult.IsSuccess)
                         {
@@ -204,6 +237,42 @@ namespace MTConnect
                     catch (Exception ex)
                     {
                         Log(MTConnectLogLevel.Warning, $"Probe : Error Publishing to Topic ({topic}) : {ex.Message}");
+                    }
+
+
+                    // Write Available (for Agent Device)
+                    if (device.Type == Devices.Agent.TypeId)
+                    {
+                        var availableTopic = GetAgentAvailableTopic();
+                        var availablePayload = System.Text.Encoding.UTF8.GetBytes(Availability.AVAILABLE.ToString());
+
+                        try
+                        {
+                            var messageBuilder = new MqttApplicationMessageBuilder();
+                            messageBuilder.WithRetainFlag(true);
+                            messageBuilder.WithTopic(availableTopic);
+                            messageBuilder.WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce);
+#if NET5_0_OR_GREATER
+                            messageBuilder.WithPayloadSegment(availablePayload);
+#else
+                            messageBuilder.WithPayload(availablePayload);
+#endif
+                            var message = messageBuilder.Build();
+
+                            var publishResult = await _mqttClient.PublishAsync(message);
+                            if (publishResult.IsSuccess)
+                            {
+                                Log(MTConnectLogLevel.Debug, $"Agent Available : Published to Topic ({availableTopic})");
+                            }
+                            else
+                            {
+                                Log(MTConnectLogLevel.Warning, $"Agent Available : Error Publishing to Topic ({availableTopic}) : {publishResult.ReasonCode} : {publishResult.ReasonString}");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Log(MTConnectLogLevel.Warning, $"Agent Available : Error Publishing to Topic ({availableTopic}) : {ex.Message}");
+                        }
                     }
                 }
             }
@@ -332,16 +401,14 @@ namespace MTConnect
             }
         }
 
-
-        private static string GetFilePath(string path)
+        private string GetAgentAvailableTopic()
         {
-            var x = path;
-            if (!Path.IsPathRooted(x))
+            if (Agent != null && _configuration != null)
             {
-                x = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, x);
+                return $"{_configuration.TopicPrefix}/{MTConnectMqttDocumentServer.ProbeTopic}/{Agent.Uuid}/Available"; ;
             }
 
-            return x;
+            return null;
         }
     }
 }

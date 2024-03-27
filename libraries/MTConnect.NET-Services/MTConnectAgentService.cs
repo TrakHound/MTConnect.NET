@@ -14,9 +14,9 @@ namespace MTConnect.Services
     /// </summary>
     public abstract class MTConnectAgentService : ServiceBase
     {
-        private const string DefaultServiceName = "MTConnect-Agent";
-        private const string DefaultServiceDisplayName = "MTConnect Agent";
-        private const string DefaultServiceDescription = "MTConnect Agent to provide access to device information";
+        private const string DefaultServiceName = "MTConnect.NET-Agent";
+        private const string DefaultServiceDisplayName = "MTConnect.NET Agent";
+        private const string DefaultServiceDescription = ".NET MTConnect Agent to provide access to equipment information";
         private const bool DefaultServiceStart = true;
 
         private string _serviceName = DefaultServiceName;

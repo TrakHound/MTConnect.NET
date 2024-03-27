@@ -27,14 +27,6 @@ This Agent Module writes data to an **External** MQTT Broker
 
 * `qos` - Sets the Quality Of Service (QoS) to use. 0 = At Most Once, 1 = At least Once, 2 = Exactly Once
 
-* `certificateAuthority` - The path to the Certificate Authority file
-
-* `pemCertificatePath` - The path to the PEM Certificate (.pem) file
-
-* `pemPrivateKey` - The path to the PEM Private Key file
-
-* `allowUntrustedCertificates` - Sets whether to validate the certificate chain (true or false)
-
 * `useTls` - Sets whether to use TLS or not (true or false)
 
 * `topicPrefix` - The prefix to add to the MQTT topics that are published
@@ -44,6 +36,20 @@ This Agent Module writes data to an **External** MQTT Broker
 * `sampleInterval` - Sets the Interval (in milliseconds) to send Sample messages at
 
 * `DocumentFormat` - The Document Format ID to use to format the payload
+
+* `tls` - Sets the TLS settings
+
+    * `pfx` - The PFX certificate settings
+        * `certificatePath` - The path to the (.pfx) file
+        * `certificatePassword` - The certificate password
+
+    * `pem` - The PEM certificate settings
+        * `certificatePath` - The path to the (.pem) file
+        * `privateKeyPath` - The path to the key containing the private key
+        * `privateKeyPassword` - The certificate password
+        * `certificateAuthority` - The path to the (.pem) file containing the Certificate Authority
+
+    * `verifyClientCertificate` - Toggles whether Client Certificate chains are verified ("true" or "false")
 
 ### AWS IoT Configuration Example
 ```yaml

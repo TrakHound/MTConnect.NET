@@ -1,6 +1,7 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
+using MTConnect.Tls;
 using System.Text.Json.Serialization;
 
 namespace MTConnect.Configurations
@@ -30,6 +31,9 @@ namespace MTConnect.Configurations
 
         [JsonPropertyName("qos")]
         public int QoS { get; set; }
+
+        [JsonPropertyName("tls")]
+        public TlsConfiguration Tls { get; set; }
 
         [JsonPropertyName("certificateAuthority")]
         public string CertificateAuthority { get; set; }

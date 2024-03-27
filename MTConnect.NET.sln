@@ -18,6 +18,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{0957974A-C
 		docs\MQTT-AWS-Greengrass-Mqtt-Bridge.md = docs\MQTT-AWS-Greengrass-Mqtt-Bridge.md
 		docs\MQTT-AWS-IoT.md = docs\MQTT-AWS-IoT.md
 		docs\MQTT-HiveMQ.md = docs\MQTT-HiveMQ.md
+		docs\OpenSSL.md = docs\OpenSSL.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Modules", "Modules", "{0F01D2F5-0CFA-4DAE-A0FD-5733D291F6FB}"

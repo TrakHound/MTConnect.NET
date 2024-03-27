@@ -73,6 +73,7 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\MTConnect.NET-JSON\MTConnect.NET-JSON.csproj" />
+	  <ProjectReference Include="..\MTConnect.NET-TLS\MTConnect.NET-TLS.csproj" />
 	</ItemGroup>
 
 </Project>

@@ -10,30 +10,84 @@ processors:
 modules:
   
 - http-server: # - Add HTTP Server module
-    # hostname: localhost
     port: 5000
-    # allowPut: true
     indentOutput: true
     documentFormat: xml
     accept:
       text/xml: xml
       application/json: json
-    # responseCompression:
-    # - gzip
-    # - br
-    # files:
-    # - path: schemas
-    #   location: schemas
-    # - path: styles
-    #   location: styles
-    # - path: styles/favicon.ico
-    #   location: favicon.ico
+    responseCompression:
+    - gzip
+    - br
+    files:
+    - path: schemas
+      location: schemas
+    - path: styles
+      location: styles
+    - path: styles/favicon.ico
+      location: favicon.ico
 
-- mqtt-relay: # - Add MQTT Relay module
-    server: 192.168.1.128
+- http-server: # - Add HTTP Server module
+    port: 5001
+    indentOutput: true
+    documentFormat: xml
+    accept:
+      text/xml: xml
+      application/json: json
+    responseCompression:
+    - gzip
+    - br
+    tls:
+      # pfx:
+      #   certificatePath: c:\test-cert\trakhound.pfx
+      #   certificatePassword: trakhound
+      pem:
+        certificateAuthority: c:\test-cert\rootCA.crt
+        certificatePath: c:\test-cert\trakhound.crt
+        privateKeyPath: c:\test-cert\trakhound.key
+        privateKeyPassword: trakhound
+    files:
+    - path: schemas
+      location: schemas
+    - path: styles
+      location: styles
+    - path: styles/favicon.ico
+      location: favicon.ico
+
+- mqtt-broker: # - Add MQTT Broker module
+    port: 1883
+    currentInterval: 10000
+    sampleInterval: 500
+
+- mqtt-broker: # - Add MQTT Broker module
     port: 8883
     currentInterval: 10000
     sampleInterval: 500
+    tls:
+      pem:
+        certificateAuthority: c:\test-cert\rootCA.crt
+        certificatePath: c:\test-cert\trakhound.crt
+        privateKeyPath: c:\test-cert\trakhound.key
+        privateKeyPassword: trakhound
+
+- mqtt-relay: # - Add MQTT Relay module
+    server: localhost  
+    port: 1883
+    currentInterval: 10000
+    sampleInterval: 500
+
+- mqtt-relay: # - Add MQTT Relay module
+    server: localhost
+    port: 8883
+    currentInterval: 10000
+    sampleInterval: 500
+    tls:
+      pem:
+        certificateAuthority: c:\test-cert\rootCA.crt
+        certificatePath: c:\test-cert\trakhound.crt
+        privateKeyPath: c:\test-cert\trakhound.key
+        privateKeyPassword: trakhound
+
 
 # - shdr-adapter: # - Add SHDR Adapter module for Device = M12346 and Port = 7878
 #     deviceKey: M12346
@@ -65,8 +119,9 @@ observationBufferSize: 150000
 assetBufferSize: 1000
 
 # Sets whether the Agent buffers are durable and retain state after restart
-durable: false
+# durable: true
 
+# Disables the Agent Device
 # enableAgentDevice: false
 
 # Sets the default MTConnect version to output response documents for.
