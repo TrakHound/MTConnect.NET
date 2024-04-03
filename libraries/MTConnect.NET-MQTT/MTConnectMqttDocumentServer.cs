@@ -19,7 +19,7 @@ namespace MTConnect
         public const string AssetTopic = "Asset";
 
         private readonly IMTConnectAgentBroker _mtconnectAgent;
-        private readonly IMTConnectMqttServerConfiguration _configuration;
+        private readonly IMTConnectMqttDocumentServerConfiguration _configuration;
         private CancellationTokenSource _stop;
         private ulong _lastSequence;
         private bool _sampleStarted = false;
@@ -34,14 +34,14 @@ namespace MTConnect
         public event MTConnectMqttResponseHandler<IAssetsResponseDocument> AssetReceived;
 
 
-        public MTConnectMqttDocumentServer(IMTConnectAgentBroker mtconnectAgent, IMTConnectMqttServerConfiguration configuration)
+        public MTConnectMqttDocumentServer(IMTConnectAgentBroker mtconnectAgent, IMTConnectMqttDocumentServerConfiguration configuration)
         {
             _mtconnectAgent = mtconnectAgent;
             _mtconnectAgent.DeviceAdded += DeviceAdded;
             _mtconnectAgent.AssetAdded += AssetAdded;
 
             _configuration = configuration;
-            if (_configuration == null) _configuration = new MTConnectMqttServerConfiguration();
+            if (_configuration == null) _configuration = new MTConnectMqttDocumentServerConfiguration();
         }
 
 

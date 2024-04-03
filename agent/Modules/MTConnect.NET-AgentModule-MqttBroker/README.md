@@ -26,6 +26,7 @@ This Agent Module serves data via an **Internal** MQTT Broker
 - mqtt-broker:
     port: 1883
     topicPrefix: MTConnect
+    topicStructure: Document
 ```
 
 * `server` - The MQTT broker hostname to bind to
@@ -41,12 +42,14 @@ This Agent Module serves data via an **Internal** MQTT Broker
 * `restartInterval` - The time (in milliseconds) to delay between server start errors
 
 * `topicPrefix` - The prefix to add to the MQTT topics that are published
+ 
+* `topicStructure` - (Document or Entity) Sets how MQTT topics and messages are stuctured
 
 * `currentInterval` - Sets the Interval (in milliseconds) to send Current messages at
 
 * `sampleInterval` - Sets the Interval (in milliseconds) to send Sample messages at
 
-* `DocumentFormat` - The Document Format ID to use to format the payload
+* `documentFormat` - The Document Format ID to use to format the payload
 
 * `indentOutput` - Sets whether to indent the output in each payload
 

@@ -1,0 +1,7 @@
+modules:
+  
+- demo:
+    readInterval: 1000
+
+- http-server:
+    port: 5000

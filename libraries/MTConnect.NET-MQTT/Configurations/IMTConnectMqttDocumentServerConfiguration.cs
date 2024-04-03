@@ -3,7 +3,7 @@
 
 namespace MTConnect.Configurations
 {
-    public interface IMTConnectMqttServerConfiguration
+    public interface IMTConnectMqttDocumentServerConfiguration
     {
         /// <summary>
         /// Sets the Interval (in milliseconds) to send Current messages at

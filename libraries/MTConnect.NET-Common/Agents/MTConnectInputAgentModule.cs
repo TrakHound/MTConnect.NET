@@ -256,32 +256,32 @@ namespace MTConnect.Agents
             AddObservation(observation);
         }
 
-        public void AddValueObservation<TDataItem>(object result, string subType = null) where TDataItem : IDataItem
+        public void AddValueObservation<TDataItem>(object result, object subType = null) where TDataItem : IDataItem
         {
             if (Agent != null && Device != null)
             {
-                Agent.AddObservation(Device.GetDataItem<TDataItem>(subType), result);
+                Agent.AddObservation(Device.GetDataItem<TDataItem>(subType?.ToString()), result);
             }
         }
 
-        public void AddValueObservation<TComponent, TDataItem>(object result, string componentName = null, string subType = null)
+        public void AddValueObservation<TComponent, TDataItem>(object result, string componentName = null, object subType = null)
             where TComponent : IComponent
             where TDataItem : IDataItem
         {
             if (Agent != null && Device != null)
             {
-                Agent.AddObservation(Device.GetComponent<TComponent>(componentName)?.GetDataItem<TDataItem>(subType), result);
+                Agent.AddObservation(Device.GetComponent<TComponent>(componentName)?.GetDataItem<TDataItem>(subType?.ToString()), result);
             }
         }
 
-        public void AddValueObservation<TComponent, TComposition, TDataItem>(object result, string componentName = null, string subType = null)
+        public void AddValueObservation<TComponent, TComposition, TDataItem>(object result, string componentName = null, object subType = null)
             where TComponent : IComponent
             where TComposition : IComposition
             where TDataItem : IDataItem
         {
             if (Agent != null && Device != null)
             {
-                Agent.AddObservation(Device.GetComponent<TComponent>(componentName)?.GetComposition<TComposition>()?.GetDataItem<TDataItem>(subType), result);
+                Agent.AddObservation(Device.GetComponent<TComponent>(componentName)?.GetComposition<TComposition>()?.GetDataItem<TDataItem>(subType?.ToString()), result);
             }
         }
 

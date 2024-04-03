@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// TrakHound Inc. licenses this file to you under the MIT license.
 
 namespace MTConnect.Configurations
 {
-    public class MTConnectMqttServerConfiguration : IMTConnectMqttServerConfiguration
+    public class MTConnectMqttDocumentServerConfiguration : IMTConnectMqttDocumentServerConfiguration
     {
         public int CurrentInterval { get; set; }
 
@@ -24,7 +21,7 @@ namespace MTConnect.Configurations
         public string AssetTopic { get; set; }
 
 
-        public MTConnectMqttServerConfiguration()
+        public MTConnectMqttDocumentServerConfiguration()
         {
             CurrentInterval = 5000;
             SampleInterval = 500;

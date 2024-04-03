@@ -5,6 +5,7 @@ using MQTTnet;
 using MQTTnet.Client;
 using MTConnect.Agents;
 using MTConnect.Assets;
+using MTConnect.Clients;
 using MTConnect.Configurations;
 using MTConnect.Devices;
 using MTConnect.Formatters;
@@ -26,7 +27,8 @@ namespace MTConnect
         private const string ModuleId = "MQTT Relay";
 
         private readonly MqttRelayModuleConfiguration _configuration;
-        private readonly MTConnectMqttDocumentServer _server;
+        private readonly MTConnectMqttDocumentServer _documentServer;
+        private readonly MTConnectMqttEntityServer _entityServer;
         private readonly MqttFactory _mqttFactory;
         private readonly IMqttClient _mqttClient;
         private CancellationTokenSource _stop;
@@ -38,11 +40,26 @@ namespace MTConnect
 
             _configuration = AgentApplicationConfiguration.GetConfiguration<MqttRelayModuleConfiguration>(configuration);
 
-            _server = new MTConnectMqttDocumentServer(mtconnectAgent, _configuration);
-            _server.ProbeReceived += ProbeReceived;
-            _server.CurrentReceived += CurrentReceived;
-            _server.SampleReceived += SampleReceived;
-            _server.AssetReceived += AssetReceived;
+            switch (_configuration.TopicStructure)
+            {
+                case MqttTopicStructure.Document:
+
+                    _documentServer = new MTConnectMqttDocumentServer(mtconnectAgent, _configuration);
+                    _documentServer.ProbeReceived += ProbeReceived;
+                    _documentServer.CurrentReceived += CurrentReceived;
+                    _documentServer.SampleReceived += SampleReceived;
+                    _documentServer.AssetReceived += AssetReceived;
+                    break;
+
+
+                case MqttTopicStructure.Entity:
+
+                    _entityServer = new MTConnectMqttEntityServer(_configuration.TopicPrefix, _configuration.DocumentFormat);
+                    Agent.DeviceAdded += AgentDeviceAdded;
+                    Agent.ObservationAdded += AgentObservationAdded;
+                    Agent.AssetAdded += AgentAssetAdded;
+                    break;
+            }
 
             _mqttFactory = new MqttFactory();
             _mqttClient = _mqttFactory.CreateMqttClient();
@@ -58,7 +75,7 @@ namespace MTConnect
 
         protected override void OnStop()
         {
-            _server.Stop();
+            _documentServer.Stop();
 
             if (_stop != null) _stop.Cancel();
 
@@ -178,7 +195,16 @@ namespace MTConnect
 
                         Log(MTConnectLogLevel.Information, $"MQTT Relay Connected to External Broker ({_configuration.Server}:{_configuration.Port})");
 
-                        _server.Start();
+                        // Start Document Server (if configured)
+                        if (_documentServer != null) _documentServer.Start();
+
+                        // Initialize Entity Server (if configured)
+                        if (_entityServer != null)
+                        {
+                            await PublishDevices();
+                            await PublishCurrentObservations();
+                            await PublishAssets();
+                        }
 
                         while (!_stop.Token.IsCancellationRequested && _mqttClient.IsConnected)
                         {
@@ -188,6 +214,10 @@ namespace MTConnect
                     catch (Exception ex)
                     {
                         Log(MTConnectLogLevel.Warning, $"MQTT Relay Connection Error : {ex.Message}");
+                    }
+                    finally
+                    {
+                        if (_documentServer != null) _documentServer.Stop();
                     }
 
                     Log(MTConnectLogLevel.Information, $"MQTT Relay Disconnected from External Broker ({_configuration.Server}:{_configuration.Port})");
@@ -400,6 +430,84 @@ namespace MTConnect
                 }
             }
         }
+
+
+        private async Task PublishDevices()
+        {
+            if (_entityServer != null)
+            {
+                var devices = Agent.GetDevices();
+                if (!devices.IsNullOrEmpty())
+                {
+                    foreach (var device in devices)
+                    {
+                        await _entityServer.PublishDevice(_mqttClient, device);
+                    }
+                }
+            }
+        }
+
+        private async Task PublishCurrentObservations()
+        {
+            if (_entityServer != null)
+            {
+                var observations = Agent.GetCurrentObservations();
+                if (!observations.IsNullOrEmpty())
+                {
+                    foreach (var observation in observations)
+                    {
+                        var x = new Observations.Observation();
+                        x.DeviceUuid = observation.DeviceUuid;
+                        x.DataItemId = observation.DataItemId;
+                        x.DataItem = observation.DataItem;
+                        x.Name = observation.Name;
+                        x.Category = observation.Category;
+                        x.Type = observation.Type;
+                        x.SubType = observation.SubType;
+                        x.Representation = observation.Representation;
+                        x.CompositionId = observation.CompositionId;
+                        x.InstanceId = observation.InstanceId;
+                        x.Sequence = observation.Sequence;
+                        x.Timestamp = observation.Timestamp;
+                        x.AddValues(observation.Values);
+
+                        await _entityServer.PublishObservation(_mqttClient, x);
+                    }
+                }
+            }
+        }
+
+        private async Task PublishAssets()
+        {
+            if (_entityServer != null)
+            {
+                var assets = Agent.GetAssets();
+                if (!assets.IsNullOrEmpty())
+                {
+                    foreach (var asset in assets)
+                    {
+                        await _entityServer.PublishAsset(_mqttClient, asset);
+                    }
+                }
+            }
+        }
+
+
+        private async void AgentDeviceAdded(object sender, IDevice device)
+        {
+            if (_entityServer != null) await _entityServer.PublishDevice(_mqttClient, device);
+        }
+
+        private async void AgentObservationAdded(object sender, Observations.IObservation observation)
+        {
+            if (_entityServer != null) await _entityServer.PublishObservation(_mqttClient, observation);
+        }
+
+        private async void AgentAssetAdded(object sender, IAsset asset)
+        {
+            if (_entityServer != null) await _entityServer.PublishAsset(_mqttClient, asset);
+        }
+
 
         private string GetAgentAvailableTopic()
         {

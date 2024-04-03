@@ -50,7 +50,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="Configurations\IMTConnectMqttExpanderConfiguration.cs" />
+	  <Compile Remove="Configurations\MTConnectMqttExpanderConfiguration.cs" />
 	  <Compile Remove="Input\MTConnectMqttInputAsset.cs" />
+	  <Compile Remove="MTConnectMqttExpander - Copy.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -64,7 +67,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<None Include="Configurations\IMTConnectMqttExpanderConfiguration.cs" />
+		<None Include="Configurations\MTConnectMqttExpanderConfiguration.cs" />
 		<None Include="Input\MTConnectMqttInputAsset.cs" />
+		<None Include="MTConnectMqttExpander - Copy.cs" />
 		<None Include="README-Nuget.md">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>

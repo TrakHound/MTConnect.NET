@@ -27,6 +27,7 @@ This Agent Module writes data to an **External** MQTT Broker
     server: localhost
     port: 7878
     topic: enterprise/site/area/line/cell/MTConnect
+    topicStructure: Document
 ```
 
 * `server` - The MQTT broker hostname
@@ -48,12 +49,14 @@ This Agent Module writes data to an **External** MQTT Broker
 * `useTls` - Sets whether to use TLS or not (true or false)
 
 * `topicPrefix` - The prefix to add to the MQTT topics that are published
+ 
+* `topicStructure` - (Document or Entity) Sets how MQTT topics and messages are stuctured
 
 * `currentInterval` - Sets the Interval (in milliseconds) to send Current messages at
 
 * `sampleInterval` - Sets the Interval (in milliseconds) to send Sample messages at
 
-* `DocumentFormat` - The Document Format ID to use to format the payload
+* `documentFormat` - The Document Format ID to use to format the payload
 
 * `tls` - Sets the TLS settings
 

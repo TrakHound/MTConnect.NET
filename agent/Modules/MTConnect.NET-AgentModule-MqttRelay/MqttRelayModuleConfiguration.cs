@@ -5,7 +5,7 @@ using MTConnect.Tls;
 
 namespace MTConnect.Configurations
 {
-    public class MqttRelayModuleConfiguration : IMTConnectMqttServerConfiguration
+    public class MqttRelayModuleConfiguration : IMTConnectMqttDocumentServerConfiguration
     {
         /// <summary>
         /// The MQTT broker hostname
@@ -70,6 +70,11 @@ namespace MTConnect.Configurations
         public string TopicPrefix { get; set; }
 
         /// <summary>
+        /// Sets whether to structure topics and messages around Documents or Entities
+        /// </summary>
+        public MqttTopicStructure TopicStructure { get; set; }
+
+        /// <summary>
         /// The Document Format ID to use to format the payload
         /// </summary>
         public string DocumentFormat { get; set; }
@@ -99,6 +104,7 @@ namespace MTConnect.Configurations
             ReconnectInterval = 10000;
 
             TopicPrefix = "MTConnect";
+            TopicStructure = MqttTopicStructure.Document;
             DocumentFormat = "json-cppAgent";
 
             CurrentInterval = 5000;

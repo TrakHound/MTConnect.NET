@@ -54,39 +54,62 @@ modules:
     - path: styles/favicon.ico
       location: favicon.ico
 
-- mqtt-broker: # - Add MQTT Broker module
+# - mqtt-broker: # - Add MQTT Broker module (Document Structure)
+#     port: 1883
+#     currentInterval: 10000
+#     sampleInterval: 500
+#     documentFormat: JSON-CPPAGENT
+#     topicPrefix: MTConnect/Document
+#     topicStructure: Document
+
+- mqtt-broker: # - Add MQTT Broker module (Entity Structure)
     port: 1883
     currentInterval: 10000
     sampleInterval: 500
+    documentFormat: JSON
+    topicPrefix: MTConnect/Entity
+    topicStructure: Entity
 
-- mqtt-broker: # - Add MQTT Broker module
-    port: 8883
-    currentInterval: 10000
-    sampleInterval: 500
-    tls:
-      pem:
-        certificateAuthority: c:\test-cert\rootCA.crt
-        certificatePath: c:\test-cert\trakhound.crt
-        privateKeyPath: c:\test-cert\trakhound.key
-        privateKeyPassword: trakhound
+# - mqtt-broker: # - Add MQTT Broker module (TLS)
+#     port: 8883
+#     currentInterval: 10000
+#     sampleInterval: 500
+#     tls:
+#       pem:
+#         certificateAuthority: c:\test-cert\rootCA.crt
+#         certificatePath: c:\test-cert\trakhound.crt
+#         privateKeyPath: c:\test-cert\trakhound.key
+#         privateKeyPassword: trakhound
 
-- mqtt-relay: # - Add MQTT Relay module
-    server: localhost  
-    port: 1883
-    currentInterval: 10000
-    sampleInterval: 500
+# - mqtt-relay: # - Add MQTT Relay module (Document Structure)
+#     server: localhost  
+#     port: 1883
+#     currentInterval: 10000
+#     sampleInterval: 500
+#     documentFormat: JSON-CPPAGENT
+#     topicPrefix: MTConnect/Document
+#     topicStructure: Document
 
-- mqtt-relay: # - Add MQTT Relay module
-    server: localhost
-    port: 8883
-    currentInterval: 10000
-    sampleInterval: 500
-    tls:
-      pem:
-        certificateAuthority: c:\test-cert\rootCA.crt
-        certificatePath: c:\test-cert\trakhound.crt
-        privateKeyPath: c:\test-cert\trakhound.key
-        privateKeyPassword: trakhound
+# - mqtt-relay: # - Add MQTT Relay module (Entity Structure)
+#     server: localhost  
+#     port: 1883
+#     currentInterval: 10000
+#     sampleInterval: 500
+#     documentFormat: JSON
+#     topicPrefix: MTConnect/Entity
+#     topicStructure: Entity
+
+# - mqtt-relay: # - Add MQTT Relay module (TLS)
+#     server: localhost
+#     port: 8883
+#     currentInterval: 10000
+#     sampleInterval: 500
+#     tls:
+#       pem:
+#         certificateAuthority: c:\test-cert\rootCA.crt
+#         certificatePath: c:\test-cert\trakhound.crt
+#         privateKeyPath: c:\test-cert\trakhound.key
+#         privateKeyPassword: trakhound
 
 
 # - shdr-adapter: # - Add SHDR Adapter module for Device = M12346 and Port = 7878
