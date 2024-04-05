@@ -827,8 +827,8 @@ namespace MTConnect.Buffers
         /// Add a new Observation to the Buffer
         /// </summary>
         /// <param name="observation">The Observation to Add</param>
-        /// <returns>A boolean value indicating whether the Observation was added to the Buffer successfully (true) or not (false)</returns>
-        public virtual bool AddObservation(ref BufferObservation observation)
+        /// <returns>The Sequence number that the Observation was added to the Buffer at. A zero is returned if the Observation failed to be added</returns>
+        public virtual ulong AddObservation(ref BufferObservation observation)
         {
             if (observation._key >= 0 && !observation._values.IsNullOrEmpty() && observation._timestamp > 0)
             {
@@ -852,10 +852,10 @@ namespace MTConnect.Buffers
                 // Add to Buffer                   
                 AddBufferObservation(ref observation);
 
-                return true;
+                return sequence;
             }
 
-            return false;
+            return 0;
         }
 
         #endregion

@@ -70,7 +70,6 @@
 		<None Include="Configurations\IMTConnectMqttExpanderConfiguration.cs" />
 		<None Include="Configurations\MTConnectMqttExpanderConfiguration.cs" />
 		<None Include="Input\MTConnectMqttInputAsset.cs" />
-		<None Include="MTConnectMqttExpander - Copy.cs" />
 		<None Include="README-Nuget.md">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>

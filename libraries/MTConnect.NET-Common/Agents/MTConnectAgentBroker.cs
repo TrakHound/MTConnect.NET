@@ -211,32 +211,34 @@ namespace MTConnect.Agents
 
         #region "Initialization"
 
-        public void InitializeCurrentObservations(IEnumerable<BufferObservation> observations)
+        public void InitializeCurrentObservations(IEnumerable<BufferObservation> bufferObservations)
         {
-            if (!observations.IsNullOrEmpty())
+            if (!bufferObservations.IsNullOrEmpty())
             {
-                var lObservations = observations.ToList();
-                foreach (var observation in lObservations)
+                var lBufferObservations = bufferObservations.ToList();
+                foreach (var bufferObservation in lBufferObservations)
                 {
-                    var deviceUuid = GetDeviceUuid(observation.DeviceIndex);
-                    var dataItemId = GetDataItemId(observation.DataItemIndex);
+                    var deviceUuid = GetDeviceUuid(bufferObservation.DeviceIndex);
+                    var dataItemId = GetDataItemId(bufferObservation.DataItemIndex);
 
                     var dataItem = GetDataItem(deviceUuid, dataItemId);
                     if (dataItem != null)
                     {
-                        var input = new ObservationInput();
-                        input.DeviceKey = deviceUuid;
-                        input.DataItemKey = dataItemId;
-                        input.Timestamp = observation.Timestamp;
-                        input.Values = observation.Values;
+                        var observation = Observation.Create(dataItem);
+                        observation.DeviceUuid = deviceUuid;
+                        observation.DataItem = dataItem;
+                        observation.Sequence = bufferObservation.Sequence;
+                        observation.InstanceId = InstanceId;
+                        observation.Timestamp = bufferObservation.Timestamp.ToDateTime();
+                        observation.AddValues(bufferObservation.Values);
 
                         if (dataItem.Category == DataItemCategory.CONDITION)
                         {
-                            UpdateCurrentCondition(deviceUuid, dataItem, input);
+                            UpdateCurrentCondition(deviceUuid, dataItem, observation);
                         }
                         else
                         {
-                            UpdateCurrentObservation(deviceUuid, dataItem, input);
+                            UpdateCurrentObservation(deviceUuid, dataItem, observation);
                         }
                     }
                 }
@@ -1681,26 +1683,27 @@ namespace MTConnect.Agents
                                 case DataItemRepresentation.TIME_SERIES: observation.AddValue(ValueKeys.SampleCount, 0); break;
                             }
 
+                            var bufferObservation = new BufferObservation(bufferKey, observation);
+                            var sequence = _observationBuffer.AddObservation(ref bufferObservation);
+                            observation.Sequence = sequence;
+
                             if (dataItem.Category == DataItemCategory.CONDITION)
                             {
-                                UpdateCurrentCondition(device.Uuid, dataItem, new ObservationInput(observation));
+                                UpdateCurrentCondition(device.Uuid, dataItem, observation);
                             }
                             else
                             {
-                                UpdateCurrentObservation(device.Uuid, dataItem, new ObservationInput(observation));
+                                UpdateCurrentObservation(device.Uuid, dataItem, observation);
                             }
 
-                            var bufferObservation = new BufferObservation(bufferKey, observation);
-                            _observationBuffer.AddObservation(ref bufferObservation);
                             OnObservationAdded(observation);
-                            //base.ObservationAdded?.Invoke(this, observation);
                         }
                     }
                 }
             }
         }
 
-        protected override bool OnAddObservation(string deviceUuid, IDataItem dataItem, IObservationInput observationInput)
+        protected override ulong OnAddObservation(string deviceUuid, IDataItem dataItem, IObservationInput observationInput)
         {
             if (_observationBuffer != null && dataItem != null && observationInput != null)
             {
@@ -1716,13 +1719,10 @@ namespace MTConnect.Agents
                     );
 
                 // Add Observation to Streaming Buffer
-                if (_observationBuffer.AddObservation(ref bufferObservation))
-                {
-                    return true;
-                }
+                return _observationBuffer.AddObservation(ref bufferObservation);
             }
 
-            return false;
+            return 0;
         }
 
         protected override bool OnAssetUpdate(IAsset asset)

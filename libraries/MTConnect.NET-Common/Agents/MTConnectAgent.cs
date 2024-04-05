@@ -41,8 +41,10 @@ namespace MTConnect.Agents
         protected readonly ConcurrentDictionary<string, string> _dataItemKeys = new ConcurrentDictionary<string, string>(); // Caches DeviceUuid:DataItemKey to DeviceUuid:DataItemId
         protected readonly ConcurrentDictionary<string, IDataItem> _dataItems = new ConcurrentDictionary<string, IDataItem>(); // Key = DeviceUuid:DataItemId
 
-        private readonly ConcurrentDictionary<string, IObservationInput> _currentObservations = new ConcurrentDictionary<string, IObservationInput>();
-        private readonly ConcurrentDictionary<string, IEnumerable<IObservationInput>> _currentConditions = new ConcurrentDictionary<string, IEnumerable<IObservationInput>>();
+        private readonly ConcurrentDictionary<string, IObservation> _currentObservations = new ConcurrentDictionary<string, IObservation>();
+        private readonly ConcurrentDictionary<string, IEnumerable<IObservation>> _currentConditions = new ConcurrentDictionary<string, IEnumerable<IObservation>>();
+        //private readonly ConcurrentDictionary<string, IObservationInput> _currentObservations = new ConcurrentDictionary<string, IObservationInput>();
+        //private readonly ConcurrentDictionary<string, IEnumerable<IObservationInput>> _currentConditions = new ConcurrentDictionary<string, IEnumerable<IObservationInput>>();
         private readonly List<string> _assetIds = new List<string>();
         private MTConnectAgentMetrics _metrics;
         private readonly string _uuid;
@@ -676,23 +678,23 @@ namespace MTConnect.Agents
             return observations;
         }
 
-        private IObservationOutput CreateObservation(IDataItem dataItem, IObservationInput observationInput)
+        private IObservationOutput CreateObservation(IDataItem dataItem, IObservation observation)
         {
-            var observation = new ObservationOutput();
-            observation._dataItem = dataItem;
-            if (dataItem.Device != null) observation._deviceUuid = dataItem.Device.Uuid;
-            observation._dataItemId = dataItem.Id;
-            observation._category = dataItem.Category;
-            observation._representation = dataItem.Representation;
-            observation._type = dataItem.Type;
-            observation._subType = dataItem.SubType;
-            observation._name = dataItem.Name;
-            observation._compositionId = dataItem.CompositionId;
-            observation._instanceId = _instanceId;
-            //observation._sequence = observationInput.Sequence; // No Sequence in IObservationInput
-            observation._timestamp = observationInput.Timestamp.ToDateTime();
-            observation._values = observationInput.Values?.ToArray();
-            return observation;
+            var observationOutput = new ObservationOutput();
+            observationOutput._dataItem = dataItem;
+            if (dataItem.Device != null) observationOutput._deviceUuid = dataItem.Device.Uuid;
+            observationOutput._dataItemId = dataItem.Id;
+            observationOutput._category = dataItem.Category;
+            observationOutput._representation = dataItem.Representation;
+            observationOutput._type = dataItem.Type;
+            observationOutput._subType = dataItem.SubType;
+            observationOutput._name = dataItem.Name;
+            observationOutput._compositionId = dataItem.CompositionId;
+            observationOutput._instanceId = _instanceId;
+            observationOutput._sequence = observation.Sequence;
+            observationOutput._timestamp = observation.Timestamp;
+            observationOutput._values = observation.Values?.ToArray();
+            return observationOutput;
         }
 
 
@@ -797,7 +799,8 @@ namespace MTConnect.Agents
             }
         }
 
-        protected bool UpdateCurrentObservation(string deviceUuid, IDataItem dataItem, IObservationInput observation)
+
+        protected bool CheckCurrentObservation(string deviceUuid, IDataItem dataItem, IObservationInput observation)
         {
             if (_currentObservations != null && observation != null && !string.IsNullOrEmpty(deviceUuid) && dataItem != null)
             {
@@ -806,28 +809,31 @@ namespace MTConnect.Agents
                 _currentObservations.TryGetValue(hash, out var existingObservation);
                 if (observation != null && existingObservation != null)
                 {
+                    var timestamp = observation.Timestamp;
+                    var existingTimestamp = existingObservation.Timestamp.ToUnixTime();
+
+                    var existingObservationInput = new ObservationInput(existingObservation);
+
                     // Check Filters
-                    var update = FilterPeriod(dataItem, observation.Timestamp, existingObservation.Timestamp);
-                    if (update) update = FilterDelta(dataItem, observation, existingObservation);
+                    var update = FilterPeriod(dataItem, timestamp, existingTimestamp);
+                    if (update) update = FilterDelta(dataItem, observation, existingObservationInput);
 
                     // Update if Filters are passed or if the DataItem is set to Discrete
                     if (update || dataItem.Discrete)
                     {
-                        _currentObservations.TryRemove(hash, out var _);
-                        return _currentObservations.TryAdd(hash, observation);
+                        return true;
                     }
                 }
                 else
                 {
-                    _currentObservations.TryRemove(hash, out var _);
-                    return _currentObservations.TryAdd(hash, observation);
+                    return true;
                 }
             }
 
             return false;
         }
 
-        protected bool UpdateCurrentCondition(string deviceUuid, IDataItem dataItem, IObservationInput observation)
+        protected bool CheckCurrentCondition(string deviceUuid, IDataItem dataItem, IObservationInput observation)
         {
             if (_currentConditions != null && observation != null && !string.IsNullOrEmpty(deviceUuid) && dataItem != null)
             {
@@ -840,7 +846,13 @@ namespace MTConnect.Agents
 
                 _currentConditions.TryGetValue(hash, out var existingObservations);
 
-                if (existingObservations.IsNullOrEmpty() || !existingObservations.Any(o => ObjectExtensions.ByteArraysEqual(o.ChangeId, observation.ChangeId)))
+                var existingObsevationInputs = new List<IObservationInput>();
+                if (!existingObservations.IsNullOrEmpty())
+                {
+                    foreach (var existingObsevation in existingObservations) existingObsevationInputs.Add(new ObservationInput(existingObsevation));
+                }
+
+                if (existingObsevationInputs.IsNullOrEmpty() || !existingObsevationInputs.Any(o => ObjectExtensions.ByteArraysEqual(o.ChangeId, observation.ChangeId)))
                 {
                     addedNew = true;
                     observations.Add(observation);
@@ -850,9 +862,9 @@ namespace MTConnect.Agents
 
                 // Add previous Condition Observations (if new Condition is not NORMAL or UNAVAILABLE)
                 byte[] existingHash = null;
-                if (!existingObservations.IsNullOrEmpty())
+                if (!existingObsevationInputs.IsNullOrEmpty())
                 {
-                    existingHash = StringFunctions.ToMD5HashBytes(existingObservations.OrderBy(o => o.GetValue(ValueKeys.NativeCode)).Select(o => o.ChangeId).ToArray());
+                    existingHash = StringFunctions.ToMD5HashBytes(existingObsevationInputs.OrderBy(o => o.GetValue(ValueKeys.NativeCode)).Select(o => o.ChangeId).ToArray());
 
                     var conditionLevelValue = observation.GetValue(ValueKeys.Level);
                     var conditionLevel = conditionLevelValue.ConvertEnum<ConditionLevel>();
@@ -860,21 +872,21 @@ namespace MTConnect.Agents
 
                     if (!(conditionLevel == ConditionLevel.NORMAL && string.IsNullOrEmpty(nativeCode)) && conditionLevel != ConditionLevel.UNAVAILABLE)
                     {
-                        foreach (var existingObservation in existingObservations)
+                        foreach (var existingObsevationInput in existingObsevationInputs)
                         {
-                            var existingLevel = existingObservation.GetValue(ValueKeys.Level);
-                            var existingNativeCode = existingObservation.GetValue(ValueKeys.NativeCode);
+                            var existingLevel = existingObsevationInput.GetValue(ValueKeys.Level);
+                            var existingNativeCode = existingObsevationInput.GetValue(ValueKeys.NativeCode);
 
                             if (!string.IsNullOrEmpty(existingNativeCode) && existingNativeCode != nativeCode && existingLevel != ConditionLevel.UNAVAILABLE.ToString())
                             {
-                                observations.Insert(i, existingObservation);
+                                observations.Insert(i, existingObsevationInput);
                                 i++;
                             }
                             else
                             {
                                 if (!addedNew)
                                 {
-                                    observations.Insert(i, existingObservation);
+                                    observations.Insert(i, existingObsevationInput);
                                     i++;
                                 }
                             }
@@ -888,13 +900,109 @@ namespace MTConnect.Agents
                     byte[] newHash = StringFunctions.ToMD5HashBytes(observations.OrderBy(o => o.GetValue(ValueKeys.NativeCode)).Select(o => o.ChangeId).ToArray());
                     if (!ObjectExtensions.ByteArraysEqual(existingHash, newHash))
                     {
-                        _currentConditions.TryRemove(hash, out var _);
-                        return _currentConditions.TryAdd(hash, observations);
+                        return true;
                     }
                 }
             }
 
             return false;
+        }
+
+
+        protected bool UpdateCurrentObservation(string deviceUuid, IDataItem dataItem, IObservation observation)
+        {
+            if (_currentObservations != null && observation != null && !string.IsNullOrEmpty(deviceUuid) && dataItem != null)
+            {
+                var hash = $"{deviceUuid}:{dataItem.Id}";
+
+                _currentObservations.TryRemove(hash, out var _);
+                return _currentObservations.TryAdd(hash, observation);
+            }
+
+            return false;
+        }
+
+        protected bool UpdateCurrentCondition(string deviceUuid, IDataItem dataItem, IObservation observation)
+        {
+            if (_currentConditions != null && observation != null && !string.IsNullOrEmpty(deviceUuid) && dataItem != null)
+            {
+                var observations = new List<IObservation>();
+                var addedNew = false;
+                var i = 0;
+
+                // Get Existing Condition Observations for DataItem
+                var hash = $"{deviceUuid}:{dataItem.Id}";
+
+                _currentConditions.TryGetValue(hash, out var existingObservations);
+
+                var observationInput = new ObservationInput(observation);
+
+                var dExistingObservations = existingObservations?.ToDictionary(o => GetConditionObservationKey(o.GetValue(ValueKeys.ConditionId)));
+
+                var existingObservationInputs = new List<IObservationInput>();
+                if (!existingObservations.IsNullOrEmpty())
+                {
+                    foreach (var existingObsevation in existingObservations) existingObservationInputs.Add(new ObservationInput(existingObsevation));
+                }
+
+                if (existingObservationInputs.IsNullOrEmpty() || !existingObservationInputs.Any(o => ObjectExtensions.ByteArraysEqual(o.ChangeId, observationInput.ChangeId)))
+                {
+                    addedNew = true;
+                    observations.Add(observation);
+                    i++;
+                }
+
+
+                // Add previous Condition Observations (if new Condition is not NORMAL or UNAVAILABLE)
+                byte[] existingHash = null;
+                if (!existingObservationInputs.IsNullOrEmpty())
+                {
+                    existingHash = StringFunctions.ToMD5HashBytes(existingObservationInputs.OrderBy(o => o.GetValue(ValueKeys.NativeCode)).Select(o => o.ChangeId).ToArray());
+
+                    var conditionLevelValue = observation.GetValue(ValueKeys.Level);
+                    var conditionLevel = conditionLevelValue.ConvertEnum<ConditionLevel>();
+                    var conditionId = observation.GetValue(ValueKeys.ConditionId);
+
+                    if (!(conditionLevel == ConditionLevel.NORMAL && string.IsNullOrEmpty(conditionId)) && conditionLevel != ConditionLevel.UNAVAILABLE)
+                    {
+                        foreach (var existingObservationInput in existingObservationInputs)
+                        {
+                            var existingLevel = existingObservationInput.GetValue(ValueKeys.Level);
+                            var existingConditionId = existingObservationInput.GetValue(ValueKeys.ConditionId);
+
+                            if (!string.IsNullOrEmpty(existingConditionId) && existingConditionId != conditionId && existingLevel != ConditionLevel.UNAVAILABLE.ToString())
+                            {
+                                var existingObservation = dExistingObservations[GetConditionObservationKey(existingConditionId)];
+                                observations.Insert(i, existingObservation);
+                                i++;
+                            }
+                            else
+                            {
+                                if (!addedNew)
+                                {
+                                    var existingObservation = dExistingObservations[GetConditionObservationKey(existingConditionId)];
+                                    observations.Insert(i, existingObservation);
+                                    i++;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (!observations.IsNullOrEmpty())
+                {
+                    _currentConditions.TryRemove(hash, out var _);
+                    return _currentConditions.TryAdd(hash, observations);
+                }
+            }
+
+            return false;
+        }
+
+        private static string GetConditionObservationKey(string conditionId)
+        {
+            if (conditionId != null) return conditionId;
+            else return string.Empty;
         }
 
 
@@ -1761,7 +1869,7 @@ namespace MTConnect.Agents
             return false;
         }
 
-		/// <summary>
+        /// <summary>
 		/// Add a new Observation to the Agent for the specified Device and DataItem
 		/// </summary>
 		/// <param name="deviceKey">The (Name or Uuid) of the Device. This overrides what is set in the "observationInput" parameter</param>
@@ -1771,131 +1879,137 @@ namespace MTConnect.Agents
 		/// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
 		/// <returns>True if the Observation was added successfully</returns>
 		public bool AddObservation(string deviceKey, IObservationInput observationInput, bool? ignoreTimestamp = null, bool? convertUnits = null, bool? ignoreCase = null)
-		{
-			if (observationInput != null)
-			{
-				ObservationReceived?.Invoke(this, observationInput);
+        {
+            if (observationInput != null)
+            {
+                ObservationReceived?.Invoke(this, observationInput);
 
-				IObservationInput input = new ObservationInput();
-				input.DeviceKey = deviceKey;
-				input.DataItemKey = observationInput.DataItemKey;
-				input.IsUnavailable = observationInput.IsUnavailable;
+                IObservationInput input = new ObservationInput();
+                input.DeviceKey = deviceKey;
+                input.DataItemKey = observationInput.DataItemKey;
+                input.IsUnavailable = observationInput.IsUnavailable;
 
-				// Convert Case (if Ignored)
-				if ((!ignoreCase.HasValue && _configuration.IgnoreObservationCase) || (ignoreCase.HasValue && ignoreCase.Value))
-				{
-					input.Values = Observation.UppercaseValues(observationInput.Values);
-				}
-				else input.Values = observationInput.Values;
+                // Convert Case (if Ignored)
+                if ((!ignoreCase.HasValue && _configuration.IgnoreObservationCase) || (ignoreCase.HasValue && ignoreCase.Value))
+                {
+                    input.Values = Observation.UppercaseValues(observationInput.Values);
+                }
+                else input.Values = observationInput.Values;
 
-				// Set Timestamp
-				if ((!ignoreTimestamp.HasValue && _configuration.IgnoreTimestamps) || (ignoreTimestamp.HasValue && ignoreTimestamp.Value))
-				{
-					input.Timestamp = UnixDateTime.Now;
-				}
-				else input.Timestamp = observationInput.Timestamp > 0 ? observationInput.Timestamp : UnixDateTime.Now;
+                // Set Timestamp
+                if ((!ignoreTimestamp.HasValue && _configuration.IgnoreTimestamps) || (ignoreTimestamp.HasValue && ignoreTimestamp.Value))
+                {
+                    input.Timestamp = UnixDateTime.Now;
+                }
+                else input.Timestamp = observationInput.Timestamp > 0 ? observationInput.Timestamp : UnixDateTime.Now;
 
-				// Get Device UUID from deviceKey
-				var deviceUuid = GetDeviceUuid(deviceKey);
+                // Get Device UUID from deviceKey
+                var deviceUuid = GetDeviceUuid(deviceKey);
 
-				// Get DataItem based on Observation's Key
-				var dataItem = GetDataItem(deviceUuid, input.DataItemKey);
-				if (dataItem != null)
-				{
-					// Add required properties
-					switch (dataItem.Representation)
-					{
-						case DataItemRepresentation.DATA_SET: if (input.IsUnavailable) input.AddValue(ValueKeys.Count, 0); break;
-						case DataItemRepresentation.TABLE: if (input.IsUnavailable) input.AddValue(ValueKeys.Count, 0); break;
-						case DataItemRepresentation.TIME_SERIES: if (input.IsUnavailable) input.AddValue(ValueKeys.SampleCount, 0); break;
-					}
+                // Get DataItem based on Observation's Key
+                var dataItem = GetDataItem(deviceUuid, input.DataItemKey);
+                if (dataItem != null)
+                {
+                    // Add required properties
+                    switch (dataItem.Representation)
+                    {
+                        case DataItemRepresentation.DATA_SET: if (input.IsUnavailable) input.AddValue(ValueKeys.Count, 0); break;
+                        case DataItemRepresentation.TABLE: if (input.IsUnavailable) input.AddValue(ValueKeys.Count, 0); break;
+                        case DataItemRepresentation.TIME_SERIES: if (input.IsUnavailable) input.AddValue(ValueKeys.SampleCount, 0); break;
+                    }
 
-					// Process Observation using Processers
-					if (ProcessObservationFunction != null)
-					{
-						input = ProcessObservationFunction(new ProcessObservation(this, dataItem, input));
-					}
+                    // Process Observation using Processers
+                    if (ProcessObservationFunction != null)
+                    {
+                        input = ProcessObservationFunction(new ProcessObservation(this, dataItem, input));
+                    }
 
-					var success = false;
-					var validationResult = new ValidationResult(true);
+                    var success = false;
+                    var validationResult = new ValidationResult(true);
 
-					if (_configuration.InputValidationLevel > InputValidationLevel.Ignore)
-					{
-						// Validate Observation Input with DataItem type
-						validationResult = dataItem.Validate(MTConnectVersion, input);
-						if (!validationResult.IsValid) validationResult.Message = $"{dataItem.Type} : {dataItem.Id} : {validationResult.Message}";
-					}
+                    if (_configuration.InputValidationLevel > InputValidationLevel.Ignore)
+                    {
+                        // Validate Observation Input with DataItem type
+                        validationResult = dataItem.Validate(MTConnectVersion, input);
+                        if (!validationResult.IsValid) validationResult.Message = $"{dataItem.Type} : {dataItem.Id} : {validationResult.Message}";
+                    }
 
-					if (validationResult.IsValid || _configuration.InputValidationLevel != InputValidationLevel.Strict)
-					{
-						// Convert Units (if needed)
-						if ((!convertUnits.HasValue && _configuration.ConvertUnits) || (convertUnits.HasValue && convertUnits.Value))
-						{
-							input = ConvertObservationValue(dataItem, input);
-							if (input == null) return false;
-						}
+                    if (validationResult.IsValid || _configuration.InputValidationLevel != InputValidationLevel.Strict)
+                    {
+                        // Convert Units (if needed)
+                        if ((!convertUnits.HasValue && _configuration.ConvertUnits) || (convertUnits.HasValue && convertUnits.Value))
+                        {
+                            input = ConvertObservationValue(dataItem, input);
+                            if (input == null) return false;
+                        }
 
-						bool update;
+                        bool update;
 
-						// Check if Observation Needs to be Updated
-						if (dataItem.Category == DataItemCategory.CONDITION)
-						{
-							update = UpdateCurrentCondition(deviceUuid, dataItem, input);
-						}
-						else
-						{
-							update = UpdateCurrentObservation(deviceUuid, dataItem, input);
-						}
+                        // Check if Observation Needs to be Updated
+                        if (dataItem.Category == DataItemCategory.CONDITION)
+                        {
+                            update = CheckCurrentCondition(deviceUuid, dataItem, input);
+                        }
+                        else
+                        {
+                            update = CheckCurrentObservation(deviceUuid, dataItem, input);
+                        }
 
-						// Check if Observation Needs to be Updated
-						if (update)
-						{
-							// Call Update to Observation Buffer - HERE
-							success = OnAddObservation(deviceUuid, dataItem, input);
-							if (success)
-							{
-								if (_metrics != null)
-								{
-									if (dataItem.Type != ObservationUpdateRateDataItem.TypeId && dataItem.Type != AssetUpdateRateDataItem.TypeId)
-									{
-										// Update Agent Metrics
-										_metrics.UpdateObservation(deviceUuid, dataItem.Id);
-									}
-								}
+                        // Check if Observation Needs to be Updated
+                        if (update)
+                        {
+                            // Call Update to Observation Buffer - HERE
+                            var sequence = OnAddObservation(deviceUuid, dataItem, input);
+                            if (sequence > 0)
+                            {
+                                if (_metrics != null)
+                                {
+                                    if (dataItem.Type != ObservationUpdateRateDataItem.TypeId && dataItem.Type != AssetUpdateRateDataItem.TypeId)
+                                    {
+                                        // Update Agent Metrics
+                                        _metrics.UpdateObservation(deviceUuid, dataItem.Id);
+                                    }
+                                }
 
-								var observation = Observation.Create(dataItem);
-								observation.DeviceUuid = deviceUuid;
-								observation.DataItem = dataItem;
-								observation.InstanceId = _instanceId;
-								observation.Timestamp = input.Timestamp.ToDateTime();
-								observation.AddValues(input.Values);
-								OnObservationAdded(observation);
-							}
-						}
-						else success = true; // Return true if no update needed
-					}
+                                var observation = Observation.Create(dataItem);
+                                observation.DeviceUuid = deviceUuid;
+                                observation.DataItem = dataItem;
+                                observation.Sequence = sequence;
+                                observation.InstanceId = _instanceId;
+                                observation.Timestamp = input.Timestamp.ToDateTime();
+                                observation.AddValues(input.Values);
 
-					if (!validationResult.IsValid && InvalidObservationAdded != null)
-					{
-						InvalidObservationAdded.Invoke(deviceUuid, input.DataItemKey, validationResult);
-					}
+                                // Update Current Observations
+                                if (dataItem.Category == DataItemCategory.CONDITION) UpdateCurrentCondition(deviceUuid, dataItem, observation);
+                                else UpdateCurrentObservation(deviceUuid, dataItem, observation);
 
-					return success;
-				}
-				else if (InvalidObservationAdded != null)
-				{
-					InvalidObservationAdded.Invoke(deviceUuid, input.DataItemKey, new ValidationResult(false, $"DataItemKey \"{input.DataItemKey}\" not Found in Device"));
-				}
-			}
+                                OnObservationAdded(observation);
+                            }
+                        }
+                        else success = true; // Return true if no update needed
+                    }
 
-			return false;
-		}
+                    if (!validationResult.IsValid && InvalidObservationAdded != null)
+                    {
+                        InvalidObservationAdded.Invoke(deviceUuid, input.DataItemKey, validationResult);
+                    }
+
+                    return success;
+                }
+                else if (InvalidObservationAdded != null)
+                {
+                    InvalidObservationAdded.Invoke(deviceUuid, input.DataItemKey, new ValidationResult(false, $"DataItemKey \"{input.DataItemKey}\" not Found in Device"));
+                }
+            }
+
+            return false;
+        }
 
 
-		/// <summary>
-		/// Add new Observations for DataItems to the Agent
-		/// </summary>
-		public bool AddObservations(IEnumerable<IObservationInput> observationInputs)
+        /// <summary>
+        /// Add new Observations for DataItems to the Agent
+        /// </summary>
+        public bool AddObservations(IEnumerable<IObservationInput> observationInputs)
         {
             if (!observationInputs.IsNullOrEmpty())
             {
@@ -1934,9 +2048,9 @@ namespace MTConnect.Agents
 			return false;
 		}
 
-		protected virtual bool OnAddObservation(string deviceUuid, IDataItem dataItem, IObservationInput observationInput)
+		protected virtual ulong OnAddObservation(string deviceUuid, IDataItem dataItem, IObservationInput observationInput)
         {
-            return true;
+            return 0;
         }
 
         public void OnObservationAdded(IObservation observation)

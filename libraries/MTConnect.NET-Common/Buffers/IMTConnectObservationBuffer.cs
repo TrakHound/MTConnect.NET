@@ -83,7 +83,7 @@ namespace MTConnect.Buffers
         /// Add a new Observation to the Buffer
         /// </summary>
         /// <param name="observation">The Observation to Add</param>
-        /// <returns>A boolean value indicating whether the Observation was added to the Buffer successfully (true) or not (false)</returns>
-        bool AddObservation(ref BufferObservation observation);
+        /// <returns>The Sequence number that the Observation was added to the Buffer at. A zero is returned if the Observation failed to be added</returns>
+        ulong AddObservation(ref BufferObservation observation);
     }
 }

@@ -11,6 +11,8 @@ using MTConnect.Configurations;
 using MTConnect.Devices;
 using MTConnect.Formatters;
 using MTConnect.Logging;
+using MTConnect.Observations;
+using MTConnect.Observations.Output;
 using MTConnect.Streams.Output;
 using System;
 using System.Collections.Generic;
@@ -308,11 +310,51 @@ namespace MTConnect.Modules
             if (_entityServer != null)
             {
                 var observations = Agent.GetCurrentObservations();
-                if (!observations.IsNullOrEmpty())
+                await PublishObservations(observations);
+            }
+        }
+
+        private async Task PublishObservations(IEnumerable<IObservationOutput> observations)
+        {
+            if (!observations.IsNullOrEmpty())
+            {
+                var dataItemIds = observations.Select(o => o.DataItemId).Distinct();
+                foreach (var dataItemId in dataItemIds)
                 {
-                    foreach (var observation in observations)
+                    var dataItemObservations = observations.Where(o => o.DataItemId == dataItemId);
+                    var dataItemObservation = dataItemObservations.FirstOrDefault();
+
+                    if (dataItemObservation.Category == DataItemCategory.CONDITION)
                     {
-                        var x = new Observations.Observation();
+                        // Conditions have multiple observations
+                        var multipleObservations = new List<IObservation>();
+                        foreach (var observation in dataItemObservations)
+                        {
+                            var x = new Observation();
+                            x.DeviceUuid = observation.DeviceUuid;
+                            x.DataItemId = observation.DataItemId;
+                            x.DataItem = observation.DataItem;
+                            x.Name = observation.Name;
+                            x.Category = observation.Category;
+                            x.Type = observation.Type;
+                            x.SubType = observation.SubType;
+                            x.Representation = observation.Representation;
+                            x.CompositionId = observation.CompositionId;
+                            x.InstanceId = observation.InstanceId;
+                            x.Sequence = observation.Sequence;
+                            x.Timestamp = observation.Timestamp;
+                            x.AddValues(observation.Values);
+
+                            multipleObservations.Add(x);
+                        }
+
+                        await _entityServer.PublishObservations(_mqttServer, multipleObservations);
+                    }
+                    else
+                    {
+                        var observation = dataItemObservations.FirstOrDefault();
+
+                        var x = new Observation();
                         x.DeviceUuid = observation.DeviceUuid;
                         x.DataItemId = observation.DataItemId;
                         x.DataItem = observation.DataItem;
@@ -332,6 +374,7 @@ namespace MTConnect.Modules
                 }
             }
         }
+
 
         private async Task PublishAssets()
         {
@@ -354,9 +397,20 @@ namespace MTConnect.Modules
             if (_entityServer != null) await _entityServer.PublishDevice(_mqttServer, device);
         }
 
-        private async void AgentObservationAdded(object sender, Observations.IObservation observation)
+        private async void AgentObservationAdded(object sender, IObservation observation)
         {
-            if (_entityServer != null) await _entityServer.PublishObservation(_mqttServer, observation);
+            if (_entityServer != null)
+            {
+                if (observation.Category == DataItemCategory.CONDITION)
+                {
+                    var conditionObservations = Agent.GetCurrentObservations(observation.DeviceUuid, observation.DataItemId);
+                    await PublishObservations(conditionObservations);
+                }
+                else
+                {
+                    await _entityServer.PublishObservation(_mqttServer, observation);
+                }
+            }
         }
 
         private async void AgentAssetAdded(object sender, IAsset asset)

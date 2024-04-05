@@ -10,7 +10,10 @@ using MTConnect.Configurations;
 using MTConnect.Devices;
 using MTConnect.Formatters;
 using MTConnect.Observations;
+using MTConnect.Observations.Output;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace MTConnect.Clients
@@ -105,11 +108,39 @@ namespace MTConnect.Clients
             }
         }
 
+        public async Task PublishObservations(IMqttClient mqttClient, IEnumerable<IObservation> observations)
+        {
+            if (mqttClient != null && mqttClient.IsConnected && !observations.IsNullOrEmpty())
+            {
+                var message = CreateMessage(observations);
+                var result = await mqttClient.PublishAsync(message);
+                if (result.IsSuccess)
+                {
+
+                }
+                else
+                {
+
+                }
+            }
+        }
+
         public async Task PublishObservation(MqttServer mqttServer, IObservation observation)
         {
             if (mqttServer != null && observation != null)
             {
                 var message = CreateMessage(observation);
+                var injectedMessage = new InjectedMqttApplicationMessage(message);
+
+                await mqttServer.InjectApplicationMessage(injectedMessage);
+            }
+        }
+
+        public async Task PublishObservations(MqttServer mqttServer, IEnumerable<IObservation> observations)
+        {
+            if (mqttServer != null && !observations.IsNullOrEmpty())
+            {
+                var message = CreateMessage(observations);
                 var injectedMessage = new InjectedMqttApplicationMessage(message);
 
                 await mqttServer.InjectApplicationMessage(injectedMessage);
@@ -125,7 +156,42 @@ namespace MTConnect.Clients
                 {
                     var topic = $"{_configuration.TopicPrefix}/Devices/{device.Uuid}/Observations/{observation.DataItemId}";
 
-                    var formatResult = EntityFormatter.Format(_configuration.DocumentFormat, observation);
+                    var formatOptions = new Dictionary<string, string>();
+                    formatOptions.Add("categoryOutput", "true");
+                    formatOptions.Add("instanceIdOutput", "true");
+
+                    var formatResult = EntityFormatter.Format(_configuration.DocumentFormat, observation, formatOptions);
+                    if (formatResult.Success)
+                    {
+                        if (formatResult.Content.Position > 0) formatResult.Content.Seek(0, SeekOrigin.Begin);
+
+                        var messageBuilder = new MqttApplicationMessageBuilder();
+                        messageBuilder.WithTopic(topic);
+                        messageBuilder.WithPayload(formatResult.Content);
+                        messageBuilder.WithRetainFlag(true);
+                        return messageBuilder.Build();
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        private MqttApplicationMessage CreateMessage(IEnumerable<IObservation> observations)
+        {
+            if (!observations.IsNullOrEmpty())
+            {
+                var observation = observations.FirstOrDefault();
+                var device = observation.DataItem?.Device;
+                if (device != null)
+                {
+                    var topic = $"{_configuration.TopicPrefix}/Devices/{device.Uuid}/Observations/{observation.DataItemId}";
+
+                    var formatOptions = new Dictionary<string, string>();
+                    formatOptions.Add("categoryOutput", "true");
+                    formatOptions.Add("instanceIdOutput", "true");
+
+                    var formatResult = EntityFormatter.Format(_configuration.DocumentFormat, observations, formatOptions);
                     if (formatResult.Success)
                     {
                         if (formatResult.Content.Position > 0) formatResult.Content.Seek(0, SeekOrigin.Begin);
