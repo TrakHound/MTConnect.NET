@@ -595,19 +595,16 @@ namespace MTConnect.Devices
         {
             if (!string.IsNullOrEmpty(type))
             {
-                if (_types == null) _types = GetAllTypes();
-
-                if (_types != null)
+                lock (_lock)
                 {
-                    string typeId;
-                    lock (_lock)
+                    // Initialize Type List
+                    if (_types == null) _types = GetAllTypes();
+
+                    _typeIds.TryGetValue(type, out string typeId);
+                    if (typeId == null)
                     {
-                        _typeIds.TryGetValue(type, out typeId);
-                        if (typeId == null)
-                        {
-                            typeId = type.ToPascalCase();
-                            _typeIds.Add(type, typeId);
-                        }
+                        typeId = type.ToPascalCase();
+                        _typeIds.Add(type, typeId);
                     }
 
                     if (_types.TryGetValue(typeId, out Type t))

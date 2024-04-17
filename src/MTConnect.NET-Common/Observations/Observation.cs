@@ -24,11 +24,12 @@ namespace MTConnect.Observations
         private const string UppercaseValuePattern = "^[a-zA-Z_]*$";
 
         private static readonly Regex _uppercaseValueRegex = new Regex(UppercaseValuePattern);
+
         protected static readonly Dictionary<string, string> _typeIds = new Dictionary<string, string>();
-
         protected static Dictionary<string, Type> _types;
+        protected static readonly object _typeLock = new object();
 
-        private readonly object _lock = new object();
+        protected readonly object _valueLock = new object();
         protected readonly Dictionary<string, ObservationValue> _values = new Dictionary<string, ObservationValue>();
 
 
@@ -195,7 +196,7 @@ namespace MTConnect.Observations
                 try
                 {
                     ObservationValue value;
-                    lock (_lock) _values.TryGetValue(valueKey, out value);
+                    lock (_valueLock) _values.TryGetValue(valueKey, out value);
                     return value.Value;
                 }
                 catch { }
@@ -218,7 +219,7 @@ namespace MTConnect.Observations
             {
                 try
                 {
-                    lock (_lock)
+                    lock (_valueLock)
                     {
                         _values.Remove(observationValue.Key);
                         _values.Add(observationValue.Key, observationValue);

@@ -130,38 +130,45 @@ namespace MTConnect.Observations
         {
             if (!string.IsNullOrEmpty(type))
             {
-                if (_types == null) _types = GetAllTypes();
-
-                if (!_types.IsNullOrEmpty())
+                Type dataItemType = null;
+                lock (_typeLock)
                 {
-                    var key = string.Intern(type + ":" + (int)representation);
+                    // Initialize Type List
+                    if (_types == null) _types = GetAllTypes();
 
-                    // Lookup Type ID (Type as PascalCase)
-                    _typeIds.TryGetValue(key, out var typeId);
-                    if (typeId == null)
+                    if (!_types.IsNullOrEmpty())
                     {
-                        typeId = $"{type.ToPascalCase()}{representation.ToString().ToPascalCase()}";
-                        _typeIds.Add(key, typeId);
+                        var key = string.Intern(type + ":" + (int)representation);
+
+                        // Lookup Type ID (Type as PascalCase)
+                        _typeIds.TryGetValue(key, out string typeId);
+                        if (typeId == null)
+                        {
+                            typeId = $"{type.ToPascalCase()}{representation.ToString().ToPascalCase()}";
+                            _typeIds.Add(key, typeId);
+                        }
+
+                        _types.TryGetValue(key, out dataItemType);
                     }
+                }
 
-                    if (_types.TryGetValue(typeId, out Type t))
+                if (dataItemType != null)
+                {
+                    try
                     {
-                        var constructor = t.GetConstructor(System.Type.EmptyTypes);
+                        var constructor = dataItemType.GetConstructor(System.Type.EmptyTypes);
                         if (constructor != null)
                         {
-                            try
+                            switch (representation)
                             {
-                                switch (representation)
-                                {
-                                    case DataItemRepresentation.VALUE: return (SampleValueObservation)Activator.CreateInstance(t);
-                                    case DataItemRepresentation.DATA_SET: return (SampleDataSetObservation)Activator.CreateInstance(t);
-                                    case DataItemRepresentation.TABLE: return (SampleTableObservation)Activator.CreateInstance(t);
-                                    case DataItemRepresentation.TIME_SERIES: return (SampleTimeSeriesObservation)Activator.CreateInstance(t);
-                                }
+                                case DataItemRepresentation.VALUE: return (SampleValueObservation)Activator.CreateInstance(dataItemType);
+                                case DataItemRepresentation.DATA_SET: return (SampleDataSetObservation)Activator.CreateInstance(dataItemType);
+                                case DataItemRepresentation.TABLE: return (SampleTableObservation)Activator.CreateInstance(dataItemType);
+                                case DataItemRepresentation.TIME_SERIES: return (SampleTimeSeriesObservation)Activator.CreateInstance(dataItemType);
                             }
-                            catch { }
                         }
                     }
+                    catch { }
                 }
             }
 
