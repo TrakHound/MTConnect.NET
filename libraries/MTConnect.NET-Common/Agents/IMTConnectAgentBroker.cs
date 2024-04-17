@@ -133,6 +133,15 @@ namespace MTConnect.Agents
         /// Get a MTConnectStreams Document containing all devices.
         /// </summary>
         /// <param name="dataItemIds">A list of DataItemId's to specify what observations to include in the response</param>
+        /// <param name="count">The maximum number of observations to include in the response</param>
+        /// <returns>MTConnectStreams Response Document</returns>
+        IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(IEnumerable<string> dataItemIds, uint count = 0, Version mtconnectVersion = null, string deviceType = null);
+
+
+        /// <summary>
+        /// Get a MTConnectStreams Document containing all devices.
+        /// </summary>
+        /// <param name="dataItemIds">A list of DataItemId's to specify what observations to include in the response</param>
         /// <param name="at">The sequence number to include in the response</param>
         /// <param name="count">The maximum number of observations to include in the response</param>
         /// <returns>MTConnectStreams Response Document</returns>

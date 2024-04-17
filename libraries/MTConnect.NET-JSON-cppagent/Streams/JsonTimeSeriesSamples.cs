@@ -55,7 +55,7 @@ namespace MTConnect.NET_JSON_cppagent.Streams
                 }
                 else
                 {
-                    reader.Skip(); // Unavailable
+                    reader.TrySkip(); // Unavailable
                 }
 
                 return null;

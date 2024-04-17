@@ -390,12 +390,14 @@ namespace MTConnect.Buffers
 
                 lock (_lock)
                 {
-                    firstSequence = Math.Max(1, _sequence - BufferSize);
+                    firstSequence = _sequence > BufferSize ? _sequence - BufferSize : 1;
                     lastSequence = _sequence > 1 ? _sequence - 1 : 1;
                     nextSequence = _sequence;
 
                     // Determine Indexes
-                    var atIndex = (int)(at - firstSequence);
+                    int atIndex;
+                    if (at < 1) atIndex = 0;
+                    else atIndex = (int)(at - firstSequence);
 
                     if (_archiveObservations.Size > 0)
                     {
@@ -420,13 +422,21 @@ namespace MTConnect.Buffers
                                 // Get From Current Observations
                                 if (_currentObservations.TryGetValue(oBufferKeys[i], out var observation))
                                 {
-                                    observations[i] = observation;
+                                    if (observation.IsValid)
+                                    {
+                                        if (at < 1 && observation.Sequence <= firstSequence) observations[i] = observation;
+                                        else if (observation.Sequence <= at) observations[i] = observation;
+                                    }
                                 }
 
                                 // Get From Current Observations
                                 if (_currentConditions.TryGetValue(oBufferKeys[i], out var conditions))
                                 {
-                                    observations[i] = observation;
+                                    if (observation.IsValid)
+                                    {
+                                        if (at < 1 && observation.Sequence <= firstSequence) observations[i] = observation;
+                                        else if (observation.Sequence <= at) observations[i] = observation;
+                                    }
                                 }
                             }
                         }
@@ -483,7 +493,6 @@ namespace MTConnect.Buffers
                     nextSequence = _sequence;
 
                     // Determine Indexes
-                    //var fromIndex = (int)Math.Max(0, from - firstSequence);
                     int fromIndex = from > firstSequence ? (int)(from - firstSequence) : 0;
                     int toIndex = (int)(lastSequence - firstSequence);
                     if (to > 0)

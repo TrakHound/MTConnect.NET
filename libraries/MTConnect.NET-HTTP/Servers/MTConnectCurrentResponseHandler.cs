@@ -41,8 +41,8 @@ namespace MTConnect.Servers.Http
                 var path = httpRequest.QueryString["path"];
 
                 // Read "at" parameter from Query string
-                var at = httpRequest.QueryString["at"].ToULong();
-                if (at < 1) at = 0;
+                ulong? at = null;
+                if (httpRequest.QueryString.ContainsKey("at")) at = httpRequest.QueryString["at"].ToULong();
 
                 // Read "interval" parameter from Query string
                 var interval = httpRequest.QueryString["interval"].ToInt();

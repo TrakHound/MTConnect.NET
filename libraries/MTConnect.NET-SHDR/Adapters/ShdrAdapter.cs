@@ -33,6 +33,9 @@ namespace MTConnect.Adapters
         protected CancellationTokenSource StopToken => _stop;
 
 
+        protected IMTConnectAdapter Adapter => _adapter;
+
+
         /// <summary>
         /// Get a unique identifier for the Adapter
         /// </summary>

@@ -17,7 +17,9 @@ namespace MTConnect.Clients.HTTP
         static void DocumentClient()
         {
             //var client = new MTConnectHttpClient("http://mtconnect.mazakcorp.com/", 5719);
-            var client = new MTConnectHttpClient("localhost", 5000);
+            //var client = new MTConnectHttpClient("localhost", 5006, "OKUMA-Lathe");
+            //var client = new MTConnectHttpClient("localhost", 5006);
+            var client = new MTConnectHttpClient("localhost", 5000, "Okuma-Lathe");
             //var client = new MTConnectHttpClient("localhost", 5001);
             client.Interval = 100;
             //client.Heartbeat = 0;
@@ -40,8 +42,8 @@ namespace MTConnect.Clients.HTTP
                         {
                             Console.WriteLine($"Observation Received : {observation.DataItemId} : {string.Join(";", observation.Values.Select(o => o.Value))}");
 
-                            var validationResult = observation.Validate();
-                            Console.WriteLine($"Observation Validation : {observation.DataItemId} : {validationResult.IsValid} : {validationResult.Message}");
+                            //var validationResult = observation.Validate();
+                            //Console.WriteLine($"Observation Validation : {observation.DataItemId} : {validationResult.IsValid} : {validationResult.Message}");
                         }
                     }
                 }
@@ -57,8 +59,8 @@ namespace MTConnect.Clients.HTTP
                         {
                             Console.WriteLine($"Observation Received : {observation.DataItemId} : {string.Join(";", observation.Values.Select(o => o.Value))}");
 
-                            var validationResult = observation.Validate();
-                            Console.WriteLine($"Observation Validation : {observation.DataItemId} : {validationResult.IsValid} : {validationResult.Message}");
+                            //var validationResult = observation.Validate();
+                            //Console.WriteLine($"Observation Validation : {observation.DataItemId} : {validationResult.IsValid} : {validationResult.Message}");
                         }
                     }
                 }
@@ -72,7 +74,8 @@ namespace MTConnect.Clients.HTTP
                 }
             };
 
-            client.Start();
+            client.StartFromBuffer();
+            //client.Start();
         }
 
         static void EntityClient()

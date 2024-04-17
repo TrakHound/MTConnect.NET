@@ -43,8 +43,6 @@ namespace MTConnect.Agents
 
         private readonly ConcurrentDictionary<string, IObservation> _currentObservations = new ConcurrentDictionary<string, IObservation>();
         private readonly ConcurrentDictionary<string, IEnumerable<IObservation>> _currentConditions = new ConcurrentDictionary<string, IEnumerable<IObservation>>();
-        //private readonly ConcurrentDictionary<string, IObservationInput> _currentObservations = new ConcurrentDictionary<string, IObservationInput>();
-        //private readonly ConcurrentDictionary<string, IEnumerable<IObservationInput>> _currentConditions = new ConcurrentDictionary<string, IEnumerable<IObservationInput>>();
         private readonly List<string> _assetIds = new List<string>();
         private MTConnectAgentMetrics _metrics;
         private readonly string _uuid;

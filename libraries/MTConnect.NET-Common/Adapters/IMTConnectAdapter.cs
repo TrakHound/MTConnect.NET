@@ -60,6 +60,8 @@ namespace MTConnect.Adapters
         /// </summary>
         bool SendLast(long timestamp = 0);
 
+        bool SendBuffer();
+
 
         /// <summary>
         /// Set all items to Unavailable

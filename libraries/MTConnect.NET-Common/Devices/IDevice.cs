@@ -5,11 +5,6 @@ namespace MTConnect.Devices
 {
     public partial interface IDevice : IComponent, IContainer
     {
-		/// <summary>
-		/// The Agent InstanceId that produced this Device
-		/// </summary>
-		ulong InstanceId { get; }
-
         /// <summary>
         /// DEPRECATED IN REL. 1.1
         /// </summary>

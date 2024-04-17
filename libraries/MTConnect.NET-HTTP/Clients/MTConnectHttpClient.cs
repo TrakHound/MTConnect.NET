@@ -5,6 +5,7 @@ using MTConnect.Assets;
 using MTConnect.Devices;
 using MTConnect.Errors;
 using MTConnect.Formatters;
+using MTConnect.Headers;
 using MTConnect.Http;
 using MTConnect.Observations;
 using MTConnect.Streams;
@@ -669,26 +670,6 @@ namespace MTConnect.Clients
                             }
                         }
 
-                        // Clear Cached DataItems and Components
-                        lock (_lock)
-                        {
-                            _cachedComponents.Clear();
-                            _cachedDataItems.Clear();
-                        }
-
-                        // Add to cached list
-                        if (!probe.Devices.IsNullOrEmpty())
-                        {
-                            foreach (var device in probe.Devices)
-                            {
-                                lock (_lock)
-                                {
-                                    _devices.Remove(device.Uuid);
-                                    _devices.Add(device.Uuid, device);
-                                }
-                            }
-                        }
-
                         if (UseStreaming)
                         {
                             // Run Current Request
@@ -843,14 +824,30 @@ namespace MTConnect.Clients
 
         private void ProcessProbeDocument(IDevicesResponseDocument document)
         {
-            // Raise ProbeReceived Event
-            ProbeReceived?.Invoke(this, document);
-
             if (document != null && !document.Devices.IsNullOrEmpty())
             {
+                // Clear Cached DataItems and Components
+                lock (_lock)
+                {
+                    _cachedComponents.Clear();
+                    _cachedDataItems.Clear();
+                }
+
+                // Raise ProbeReceived Event
+                ProbeReceived?.Invoke(this, document);
+
                 foreach (var device in document.Devices)
                 {
-                    DeviceReceived?.Invoke(this, device);
+                    var outputDevice = ProcessDevice(document.Header, device);
+
+                    // Add to cached list
+                    lock (_lock)
+                    {
+                        _devices.Remove(outputDevice.Uuid);
+                        _devices.Add(outputDevice.Uuid, outputDevice);
+                    }
+
+                    DeviceReceived?.Invoke(this, outputDevice);
                 }
             }
         }
@@ -862,33 +859,31 @@ namespace MTConnect.Clients
 
             if (document != null)
             {
-                if (!document.Streams.IsNullOrEmpty())
+                if (document.Header != null && !document.Streams.IsNullOrEmpty())
                 {
-                    IDeviceStream deviceStream = null;
+                    // Recreate Response Document (to set DataItem property for Observations)
+                    var response = new StreamsResponseDocument();
+                    response.Header = document.Header;
 
-                    // Get the DeviceStream for the Device or default to the first
-                    if (!string.IsNullOrEmpty(Device)) deviceStream = document.Streams.FirstOrDefault(o => o.Uuid == Device || o.Name == Device);
-                    else deviceStream = document.Streams.FirstOrDefault();
-
-                    var observations = deviceStream.Observations;
-                    if (deviceStream != null && !observations.IsNullOrEmpty())
+                    var deviceStreams = new List<IDeviceStream>();
+                    foreach (var stream in document.Streams)
                     {
-                        // Recreate Response Document (to set DataItem property for Observations)
-                        var response = new StreamsResponseDocument();
-                        response.Header = document.Header;
+                        deviceStreams.Add(ProcessDeviceStream(response.Header, stream));
+                    }
+                    response.Streams = deviceStreams;
 
-                        var deviceStreams = new List<IDeviceStream>();
-                        foreach (var stream in document.Streams)
-                        {
-                            deviceStreams.Add(ProcessDeviceStream(stream));
-                        }
-                        response.Streams = deviceStreams;
 
+                    CurrentReceived?.Invoke(this, response);
+
+
+                    // Process Device Streams
+                    foreach (var deviceStream in response.Streams)
+                    {
+                        // Check to see if any Assets have changed
                         CheckAssetChanged(deviceStream.Observations, cancel);
 
-                        CurrentReceived?.Invoke(this, response);
-
-                        observations = response.GetObservations();
+                        // Get Observations from Device Stream
+                        var observations = response.GetObservations();
                         if (!observations.IsNullOrEmpty())
                         {
                             foreach (var observation in observations)
@@ -908,37 +903,36 @@ namespace MTConnect.Clients
 
             if (document != null)
             {
-                // Set Agent Instance ID
-                if (document.Header != null) _lastInstanceId = document.Header.InstanceId;
-
-                if (!document.Streams.IsNullOrEmpty())
+                if (document.Header != null && !document.Streams.IsNullOrEmpty())
                 {
-                    IDeviceStream deviceStream = null;
+                    // Set Agent Instance ID
+                    _lastInstanceId = document.Header.InstanceId;
 
-                    // Get the DeviceStream for the Device or default to the first
-                    if (!string.IsNullOrEmpty(Device)) deviceStream = document.Streams.FirstOrDefault(o => o.Uuid == Device || o.Name == Device);
-                    else deviceStream = document.Streams.FirstOrDefault();
+                    // Recreate Response Document (to set DataItem property for Observations)
+                    var response = new StreamsResponseDocument();
+                    response.Header = document.Header;
 
-                    if (deviceStream != null && deviceStream.Observations != null && deviceStream.Observations.Count() > 0)
+                    var deviceStreams = new List<IDeviceStream>();
+                    foreach (var stream in document.Streams)
                     {
-                        // Recreate Response Document (to set DataItem property for Observations)
-                        var response = new StreamsResponseDocument();
-                        response.Header = document.Header;
+                        deviceStreams.Add(ProcessDeviceStream(response.Header, stream));
+                    }
+                    response.Streams = deviceStreams;
 
-                        var deviceStreams = new List<IDeviceStream>();
-                        foreach (var stream in document.Streams)
-                        {
-                            deviceStreams.Add(ProcessDeviceStream(stream));
-                        }
-                        response.Streams = deviceStreams;
 
-                        CheckAssetChanged(deviceStream.Observations, cancel);
+                    SampleReceived?.Invoke(this, response);
 
+
+                    // Process Device Streams
+                    foreach (var deviceStream in response.Streams)
+                    {
                         // Save the most recent Sequence that was read
                         _lastSequence = deviceStream.Observations.Max(o => o.Sequence);
 
-                        SampleReceived?.Invoke(this, response);
+                        // Check to see if any Assets have changed
+                        CheckAssetChanged(deviceStream.Observations, cancel);
 
+                        // Get Observations from Device Stream
                         var observations = response.GetObservations();
                         if (!observations.IsNullOrEmpty())
                         {
@@ -952,7 +946,116 @@ namespace MTConnect.Clients
             }
         }
 
-        private IDeviceStream ProcessDeviceStream(IDeviceStream inputDeviceStream)
+        private static IDevice ProcessDevice(IMTConnectDevicesHeader header, IDevice inputDevice)
+        {
+            var outputDevice = (Device)inputDevice;
+            outputDevice.InstanceId = header.InstanceId;
+
+            // Add DataItems
+            if (!inputDevice.DataItems.IsNullOrEmpty())
+            {
+                var outputDataItems = new List<IDataItem>();
+                foreach (var inputDataItem in inputDevice.DataItems)
+                {
+                    outputDataItems.Add(ProcessDataItem(header, inputDataItem));
+                }
+                outputDevice.DataItems = outputDataItems;
+            }
+
+            // Add Compositions
+            if (!inputDevice.Compositions.IsNullOrEmpty())
+            {
+                var outputCompositions = new List<IComposition>();
+                foreach (var inputComposition in inputDevice.Compositions)
+                {
+                    outputCompositions.Add(ProcessComposition(header, inputComposition));
+                }
+                outputDevice.Compositions = outputCompositions;
+            }
+
+            // Add Components
+            if (!inputDevice.Components.IsNullOrEmpty())
+            {
+                var outputSubComponents = new List<IComponent>();
+                foreach (var inputSubComponent in inputDevice.Components)
+                {
+                    outputSubComponents.Add(ProcessComponent(header, inputSubComponent));
+                }
+                outputDevice.Components = outputSubComponents;
+            }
+
+            return outputDevice;
+        }
+
+        private static IComponent ProcessComponent(IMTConnectDevicesHeader header, IComponent inputComponent)
+        {
+            var outputComponent = (Component)inputComponent;
+            outputComponent.InstanceId = header.InstanceId;
+
+            // Add DataItems
+            if (!inputComponent.DataItems.IsNullOrEmpty())
+            {
+                var outputDataItems = new List<IDataItem>();
+                foreach (var inputDataItem in inputComponent.DataItems)
+                {
+                    outputDataItems.Add(ProcessDataItem(header, inputDataItem));
+                }
+                outputComponent.DataItems = outputDataItems;
+            }
+
+            // Add Compositions
+            if (!inputComponent.Compositions.IsNullOrEmpty())
+            {
+                var outputCompositions = new List<IComposition>();
+                foreach (var inputComposition in inputComponent.Compositions)
+                {
+                    outputCompositions.Add(ProcessComposition(header, inputComposition));
+                }
+                outputComponent.Compositions = outputCompositions;
+            }
+
+            // Add Components
+            if (!inputComponent.Components.IsNullOrEmpty())
+            {
+                var outputSubComponents = new List<IComponent>();
+                foreach (var inputSubComponent in inputComponent.Components)
+                {
+                    outputSubComponents.Add(ProcessComponent(header, inputSubComponent));
+                }
+                outputComponent.Components = outputSubComponents;
+            }
+
+            return outputComponent;
+        }
+
+        private static IComposition ProcessComposition(IMTConnectDevicesHeader header, IComposition inputComposition)
+        {
+            var outputComposition = (Composition)inputComposition;
+            outputComposition.InstanceId = header.InstanceId;
+
+            // Add DataItems
+            if (!inputComposition.DataItems.IsNullOrEmpty())
+            {
+                var outputDataItems = new List<IDataItem>();
+                foreach (var inputDataItem in inputComposition.DataItems)
+                {
+                    outputDataItems.Add(ProcessDataItem(header, inputDataItem));
+                }
+                outputComposition.DataItems = outputDataItems;
+            }
+
+            return outputComposition;
+        }
+
+        private static IDataItem ProcessDataItem(IMTConnectDevicesHeader header, IDataItem inputDataItem)
+        {
+            var outputDataItem = (DataItem)inputDataItem;
+            outputDataItem.InstanceId = header.InstanceId;
+            return outputDataItem;
+        }
+
+
+        private IDeviceStream ProcessDeviceStream(IMTConnectStreamsHeader header, IDeviceStream inputDeviceStream)
         {
             var outputDeviceStream = new DeviceStream();
             outputDeviceStream.Name = inputDeviceStream.Name;
@@ -963,7 +1066,7 @@ namespace MTConnect.Clients
             {
                 foreach (var componentStream in inputDeviceStream.ComponentStreams)
                 {
-                    componentStreams.Add(ProcessComponentStream(outputDeviceStream.Uuid, componentStream));
+                    componentStreams.Add(ProcessComponentStream(header, outputDeviceStream.Uuid, componentStream));
                 }
             }
             outputDeviceStream.ComponentStreams = componentStreams;
@@ -971,13 +1074,23 @@ namespace MTConnect.Clients
             return outputDeviceStream;
         }
 
-        private IComponentStream ProcessComponentStream(string deviceUuid, IComponentStream inputComponentStream)
+        private IComponentStream ProcessComponentStream(IMTConnectStreamsHeader header, string deviceUuid, IComponentStream inputComponentStream)
         {
             var outputComponentStream = new ComponentStream();
+            outputComponentStream.ComponentId = inputComponentStream.ComponentId;
+            outputComponentStream.ComponentType = inputComponentStream.ComponentType;
             outputComponentStream.Name = inputComponentStream.Name;
             outputComponentStream.NativeName = inputComponentStream.NativeName;
             outputComponentStream.Uuid = inputComponentStream.Uuid;
-            outputComponentStream.Component = GetCachedComponent(deviceUuid, inputComponentStream.ComponentId);
+
+            if (inputComponentStream.ComponentType == Agent.TypeId || inputComponentStream.ComponentType == Devices.Device.TypeId)
+            {
+                outputComponentStream.Component = GetCachedDevice(deviceUuid);
+            }
+            else
+            {
+                outputComponentStream.Component = GetCachedComponent(deviceUuid, inputComponentStream.ComponentId);
+            }
 
             var observations = new List<IObservation>();
             if (!inputComponentStream.Observations.IsNullOrEmpty())
@@ -997,6 +1110,7 @@ namespace MTConnect.Clients
                         outputObservation.Type = inputObservation.Type;
                         outputObservation.SubType = inputObservation.SubType;
                         outputObservation.Name = inputObservation.Name;
+                        outputObservation.InstanceId = header.InstanceId;
                         outputObservation.Sequence = inputObservation.Sequence;
                         outputObservation.Timestamp = inputObservation.Timestamp;
                         outputObservation.AddValues(inputObservation.Values);

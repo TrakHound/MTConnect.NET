@@ -108,7 +108,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-Client-MQTT",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-Client-SHDR", "examples\MTConnect.NET-Client-SHDR\MTConnect.NET-Client-SHDR.csproj", "{A9DF36FC-4EF7-4BFB-B47D-F1C10227631A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MTConnect.NET-Agent-Embedded", "examples\MTConnect.NET-Agent-Embedded\MTConnect.NET-Agent-Embedded.csproj", "{24C98CF3-CC93-4696-A036-8FD1E16F2E7E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-Agent-Embedded", "examples\MTConnect.NET-Agent-Embedded\MTConnect.NET-Agent-Embedded.csproj", "{24C98CF3-CC93-4696-A036-8FD1E16F2E7E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

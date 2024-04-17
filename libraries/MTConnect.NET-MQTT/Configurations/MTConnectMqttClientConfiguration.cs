@@ -63,6 +63,7 @@ namespace MTConnect.Configurations
             Port = 1883;
             QoS = 1;
             RetryInterval = 5000;
+            TopicPrefix = "MTConnect";
         }
     }
 }

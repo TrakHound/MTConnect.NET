@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Observations;
@@ -7,22 +7,22 @@ using System.Collections.Generic;
 namespace MTConnect.Streams
 {
     /// <summary>
-    /// DeviceStream is a XML container that organizes data reported from a single piece of equipment.A DeviceStream element MUST be provided for each piece of equipment reporting data in an MTConnectStreams document.
+    /// Organizes data reported from a Device.
     /// </summary>
     public class DeviceStream : IDeviceStream
     {
         /// <summary>
-        /// The name of an element or a piece of equipment. The name associated with the piece of equipment reporting the data contained in this DeviceStream container.
+        /// Name of the Device.
         /// </summary>
         public string Name { get; set; }
 
         /// <summary>
-        /// The uuid associated with the piece of equipment reporting the data contained in this DeviceStream container.
+        /// Uuid of the Device.
         /// </summary>
         public string Uuid { get; set; }
 
         /// <summary>
-        /// An XML container type element that organizes data returned from an Agent in response to a current or sample HTTP request.
+        /// Organizes the data associated with each Component entity defined for a Device in the associated MTConnectDevices Response Document.
         /// </summary>
         public IEnumerable<IComponentStream> ComponentStreams { get; set; }
 

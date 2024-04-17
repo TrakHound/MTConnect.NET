@@ -53,8 +53,13 @@ namespace MTConnect.Devices
         /// </summary>
         public IContainer Parent { get; set; }
 
+        /// <summary>
+        /// The Agent InstanceId that produced this Device
+        /// </summary>
+        public ulong InstanceId { get; set; }
 
-		private string _hash;
+
+        private string _hash;
 		/// <summary>
 		/// Condensed message digest from a secure one-way hash function. FIPS PUB 180-4
 		/// </summary>
@@ -1461,12 +1466,14 @@ namespace MTConnect.Devices
             return false;
         }
 
-        public static IComponent Process(IComponent component, Version mtconnectVersion)
+        public static Component Process(IComponent component, Version mtconnectVersion = null)
         {
             if (component != null)
             {
+                var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersions.Max;
+
                 // Check Version Compatibilty
-                if (component.MinimumVersion != null && mtconnectVersion < component.MinimumVersion) return null;
+                if (component.MinimumVersion != null && version < component.MinimumVersion) return null;
 
                 // Create a new Instance of the Component that will instantiate a new Derived class (if found)
                 var obj = Create(component.Type);
@@ -1482,18 +1489,18 @@ namespace MTConnect.Devices
                 {
                     var description = new Description();
                     description.Manufacturer = component.Description.Manufacturer;
-                    if (mtconnectVersion >= MTConnectVersions.Version12) description.Model = component.Description.Model;
+                    if (version >= MTConnectVersions.Version12) description.Model = component.Description.Model;
                     description.SerialNumber = component.Description.SerialNumber;
                     description.Station = component.Description.Station;
                     description.Value = component.Description.Value;
                     obj.Description = description;
                 }
 
-                if (mtconnectVersion < MTConnectVersions.Version12) obj.SampleRate = component.SampleRate;
-                if (mtconnectVersion >= MTConnectVersions.Version12) obj.SampleInterval = component.SampleInterval;
-                if (mtconnectVersion >= MTConnectVersions.Version13) obj.References = component.References;
-                if (mtconnectVersion >= MTConnectVersions.Version17) obj.Configuration = component.Configuration;
-                if (mtconnectVersion >= MTConnectVersions.Version18) obj.CoordinateSystemIdRef = component.CoordinateSystemIdRef;
+                if (version < MTConnectVersions.Version12) obj.SampleRate = component.SampleRate;
+                if (version >= MTConnectVersions.Version12) obj.SampleInterval = component.SampleInterval;
+                if (version >= MTConnectVersions.Version13) obj.References = component.References;
+                if (version >= MTConnectVersions.Version17) obj.Configuration = component.Configuration;
+                if (version >= MTConnectVersions.Version18) obj.CoordinateSystemIdRef = component.CoordinateSystemIdRef;
 
                 // Add DataItems
                 if (!component.DataItems.IsNullOrEmpty())
@@ -1502,7 +1509,7 @@ namespace MTConnect.Devices
 
                     foreach (var dataItem in component.DataItems)
                     {
-                        var dataItemObj = DataItem.Process(dataItem, mtconnectVersion);
+                        var dataItemObj = DataItem.Process(dataItem, version);
                         if (dataItemObj != null) dataItems.Add(dataItemObj);
                     }
 
@@ -1516,7 +1523,7 @@ namespace MTConnect.Devices
 
                     foreach (var composition in component.Compositions)
                     {
-                        var compositionObj = Composition.Process(composition, mtconnectVersion);
+                        var compositionObj = Composition.Process(composition, version);
                         if (compositionObj != null) compositions.Add(compositionObj);
                     }
 
@@ -1530,7 +1537,7 @@ namespace MTConnect.Devices
 
                     foreach (var subcomponent in component.Components)
                     {
-                        var subcomponentObj = Process(subcomponent, mtconnectVersion);
+                        var subcomponentObj = Process(subcomponent, version);
                         if (subcomponentObj != null) subcomponents.Add(subcomponentObj);
                     }
 

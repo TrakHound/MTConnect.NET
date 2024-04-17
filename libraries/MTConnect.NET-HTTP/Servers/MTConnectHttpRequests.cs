@@ -149,7 +149,7 @@ namespace MTConnect.Servers.Http
             IMTConnectAgentBroker mtconnectAgent,
             string deviceType = null,
             string path = null,
-            ulong at = 0,
+            ulong? at = null,
             int interval = 0,
             Version mtconnectVersion = null,
             string documentFormat = DocumentFormat.XML,
@@ -192,8 +192,16 @@ namespace MTConnect.Servers.Http
             IStreamsResponseOutputDocument document;
 
             // Get MTConnectStreams document from the MTConnectAgent
-            if (dataItemIds != null) document = mtconnectAgent.GetDeviceStreamsResponseDocument(dataItemIds, at, mtconnectVersion: mtconnectVersion, deviceType: deviceType);
-            else document = mtconnectAgent.GetDeviceStreamsResponseDocument(at, mtconnectVersion: mtconnectVersion, deviceType: deviceType);
+            if (dataItemIds != null)
+            {
+                if (at.HasValue) document = mtconnectAgent.GetDeviceStreamsResponseDocument(dataItemIds, at.Value, mtconnectVersion: mtconnectVersion, deviceType: deviceType);
+                else document = mtconnectAgent.GetDeviceStreamsResponseDocument(dataItemIds, mtconnectVersion: mtconnectVersion, deviceType: deviceType);
+            }
+            else
+            {
+                if (at.HasValue) document = mtconnectAgent.GetDeviceStreamsResponseDocument(at.Value, mtconnectVersion: mtconnectVersion, deviceType: deviceType);
+                else document = mtconnectAgent.GetDeviceStreamsResponseDocument(mtconnectVersion: mtconnectVersion, deviceType: deviceType);
+            }
 
             stpw.Stop();
             double duration = stpw.GetElapsedMilliseconds();
@@ -245,7 +253,7 @@ namespace MTConnect.Servers.Http
             IMTConnectAgentBroker mtconnectAgent,
             string deviceKey,
             string path = null,
-            ulong at = 0,
+            ulong? at = null,
             int interval = -1,
             Version mtconnectVersion = null,
             string documentFormat = DocumentFormat.XML,
@@ -290,8 +298,16 @@ namespace MTConnect.Servers.Http
                 IStreamsResponseOutputDocument document;
 
                 // Get MTConnectStreams document from the MTConnectAgent
-                if (dataItemIds != null) document = mtconnectAgent.GetDeviceStreamsResponseDocument(deviceKey, dataItemIds, at, mtconnectVersion: mtconnectVersion);
-                else document = mtconnectAgent.GetDeviceStreamsResponseDocument(deviceKey, at, mtconnectVersion: mtconnectVersion);
+                if (dataItemIds != null)
+                {
+                    if (at.HasValue) document = mtconnectAgent.GetDeviceStreamsResponseDocument(deviceKey, dataItemIds, at.Value, mtconnectVersion: mtconnectVersion);
+                    else document = mtconnectAgent.GetDeviceStreamsResponseDocument(deviceKey, dataItemIds, mtconnectVersion: mtconnectVersion);
+                }
+                else
+                {
+                    if (at.HasValue) document = mtconnectAgent.GetDeviceStreamsResponseDocument(deviceKey, at.Value, mtconnectVersion: mtconnectVersion);
+                    else document = mtconnectAgent.GetDeviceStreamsResponseDocument(deviceKey, mtconnectVersion: mtconnectVersion);
+                }
 
                 stpw.Stop();
                 double duration = stpw.GetElapsedMilliseconds();

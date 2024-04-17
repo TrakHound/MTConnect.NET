@@ -43,11 +43,16 @@ namespace MTConnect.Devices
 			}
 		}
 
+        /// <summary>
+        /// The Agent InstanceId that produced this Device
+        /// </summary>
+        public ulong InstanceId { get; set; }
 
-		/// <summary>
-		/// The text description that describes what the Composition Type represents
-		/// </summary>
-		public virtual string TypeDescription => DescriptionText;
+
+        /// <summary>
+        /// The text description that describes what the Composition Type represents
+        /// </summary>
+        public virtual string TypeDescription => DescriptionText;
 
 
         /// <summary>
@@ -338,12 +343,14 @@ namespace MTConnect.Devices
         }
 
 
-        public static IComposition Process(IComposition composition, Version mtconnectVersion)
+        public static Composition Process(IComposition composition, Version mtconnectVersion = null)
         {
             if (composition != null)
             {
+                var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersions.Max;
+
                 // Check Version Compatibilty
-                if (composition.MinimumVersion != null && mtconnectVersion < composition.MinimumVersion) return null;
+                if (composition.MinimumVersion != null && version < composition.MinimumVersion) return null;
 
                 // Create a new Instance of the Composition that will instantiate a new Derived class (if found)
                 var obj = Create(composition.Type);
@@ -359,18 +366,18 @@ namespace MTConnect.Devices
                 {
                     var description = new Description();
                     description.Manufacturer = composition.Description.Manufacturer;
-                    if (mtconnectVersion >= MTConnectVersions.Version12) description.Model = composition.Description.Model;
+                    if (version >= MTConnectVersions.Version12) description.Model = composition.Description.Model;
                     description.SerialNumber = composition.Description.SerialNumber;
                     description.Station = composition.Description.Station;
                     description.Value = composition.Description.Value;
                     obj.Description = description;
                 }
 
-                if (mtconnectVersion < MTConnectVersions.Version12) obj.SampleRate = composition.SampleRate;
-                if (mtconnectVersion >= MTConnectVersions.Version12) obj.SampleInterval = composition.SampleInterval;
-                if (mtconnectVersion >= MTConnectVersions.Version13) obj.References = composition.References;
-                if (mtconnectVersion >= MTConnectVersions.Version17) obj.Configuration = composition.Configuration;
-                if (mtconnectVersion >= MTConnectVersions.Version18) obj.CoordinateSystemIdRef = composition.CoordinateSystemIdRef;
+                if (version < MTConnectVersions.Version12) obj.SampleRate = composition.SampleRate;
+                if (version >= MTConnectVersions.Version12) obj.SampleInterval = composition.SampleInterval;
+                if (version >= MTConnectVersions.Version13) obj.References = composition.References;
+                if (version >= MTConnectVersions.Version17) obj.Configuration = composition.Configuration;
+                if (version >= MTConnectVersions.Version18) obj.CoordinateSystemIdRef = composition.CoordinateSystemIdRef;
 
                 // Add DataItems
                 if (!composition.DataItems.IsNullOrEmpty())
@@ -379,7 +386,7 @@ namespace MTConnect.Devices
 
                     foreach (var dataItem in composition.DataItems)
                     {
-                        var dataItemObj = DataItem.Process(dataItem, mtconnectVersion);
+                        var dataItemObj = DataItem.Process(dataItem, version);
                         if (dataItemObj != null) dataItems.Add(dataItemObj);
                     }
 

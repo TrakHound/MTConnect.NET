@@ -24,7 +24,7 @@ namespace MTConnect.Formatters
         public virtual string ContentType => "application/json";
 
 
-        public FormatWriteResult Format(IDevicesResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
+        public virtual FormatWriteResult Format(IDevicesResponseDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read Indent Option passed to Formatter
             var indentOutput = GetFormatterOption<bool>(options, "indentOutput");
@@ -40,7 +40,7 @@ namespace MTConnect.Formatters
             return FormatWriteResult.Error();
         }
 
-        public FormatWriteResult Format(ref IStreamsResponseOutputDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
+        public virtual FormatWriteResult Format(ref IStreamsResponseOutputDocument document, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read Indent Option passed to Formatter
             var indentOutput = GetFormatterOption<bool>(options, "indentOutput");
@@ -89,7 +89,7 @@ namespace MTConnect.Formatters
         }
 
 
-        public FormatReadResult<IDevicesResponseDocument> CreateDevicesResponseDocument(Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
+        public virtual FormatReadResult<IDevicesResponseDocument> CreateDevicesResponseDocument(Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read Document
             var document = JsonSerializer.Deserialize<JsonDevicesResponseDocument>(content);
@@ -98,7 +98,7 @@ namespace MTConnect.Formatters
             return new FormatReadResult<IDevicesResponseDocument>(document.ToDocument(), success);
         }
 
-        public FormatReadResult<IStreamsResponseDocument> CreateStreamsResponseDocument(Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
+        public virtual FormatReadResult<IStreamsResponseDocument> CreateStreamsResponseDocument(Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
             // Read Document
             var document = JsonSerializer.Deserialize<JsonStreamsResponseDocument>(content);

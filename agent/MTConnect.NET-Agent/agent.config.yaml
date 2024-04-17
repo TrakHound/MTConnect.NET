@@ -81,23 +81,23 @@ modules:
 #         privateKeyPath: c:\test-cert\trakhound.key
 #         privateKeyPassword: trakhound
 
-# - mqtt-relay: # - Add MQTT Relay module (Document Structure)
-#     server: localhost  
-#     port: 1883
-#     currentInterval: 10000
-#     sampleInterval: 500
-#     documentFormat: JSON-CPPAGENT
-#     topicPrefix: MTConnect/Document
-#     topicStructure: Document
-
-- mqtt-relay: # - Add MQTT Relay module (Entity Structure)
+- mqtt-relay: # - Add MQTT Relay module (Document Structure)
     server: localhost  
     port: 1883
     currentInterval: 10000
     sampleInterval: 500
-    documentFormat: JSON
-    topicPrefix: MTConnect/Entity
-    topicStructure: Entity
+    documentFormat: JSON-CPPAGENT-MQTT
+    topicPrefix: MTConnect/Document
+    topicStructure: Document
+
+# - mqtt-relay: # - Add MQTT Relay module (Entity Structure)
+#     server: localhost  
+#     port: 1883
+#     currentInterval: 10000
+#     sampleInterval: 500
+#     documentFormat: JSON
+#     topicPrefix: MTConnect/Entity
+#     topicStructure: Entity
 
 # - mqtt-relay: # - Add MQTT Relay module (TLS)
 #     server: localhost

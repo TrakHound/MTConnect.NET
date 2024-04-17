@@ -18,11 +18,15 @@ namespace MTConnect.Devices
         /// </summary>
         IContainer Parent { get; set; }
 
+        /// <summary>
+        /// The Agent InstanceId that produced this Device
+        /// </summary>
+        ulong InstanceId { get; }
 
-		/// <summary>
-		/// Condensed message digest from a secure one-way hash function. FIPS PUB 180-4
-		/// </summary>
-		string Hash { get; }
+        /// <summary>
+        /// Condensed message digest from a secure one-way hash function. FIPS PUB 180-4
+        /// </summary>
+        string Hash { get; }
 
         /// <summary>
         /// 

@@ -608,7 +608,7 @@ namespace MTConnect.Agents
 
         #region "Internal"
 
-        private IObservationBufferResults GetObservations(IEnumerable<int> bufferKeys, ulong from = 0, ulong to = 0, ulong at = 0, uint count = 0)
+        private IObservationBufferResults GetObservations(IEnumerable<int> bufferKeys, ulong from = 0, ulong to = 0, ulong? at = null, uint count = 0)
         {
             IObservationBufferResults results;
             if (from > 0 || to > 0)
@@ -619,9 +619,9 @@ namespace MTConnect.Agents
             {
                 results = _observationBuffer.GetObservations(bufferKeys, count: count);
             }
-            else if (at > 0)
+            else if (at.HasValue)
             {
-                results = _observationBuffer.GetCurrentObservations(bufferKeys, at);
+                results = _observationBuffer.GetCurrentObservations(bufferKeys, at.Value);
             }
             else
             {
@@ -687,6 +687,45 @@ namespace MTConnect.Agents
 
                     // Query the Observation Buffer 
                     var results = GetObservations(bufferKeys, at: at, count: count);
+
+                    // Create Response Document
+                    var document = CreateDeviceStreamsDocument(devices, ref results, mtconnectVersion);
+                    if (document != null)
+                    {
+                        StreamsResponseSent?.Invoke(this, new EventArgs());
+                        return document;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Get a MTConnectStreams Document containing all devices.
+        /// </summary>
+        /// <param name="dataItemIds">A list of DataItemId's to specify what observations to include in the response</param>
+        /// <param name="count">The maximum number of observations to include in the response</param>
+        /// <returns>MTConnectStreams Response Document</returns>
+        public IStreamsResponseOutputDocument GetDeviceStreamsResponseDocument(IEnumerable<string> dataItemIds, uint count = 0, Version mtconnectVersion = null, string deviceType = null)
+        {
+            StreamsRequestReceived?.Invoke(null);
+
+            if (_observationBuffer != null)
+            {
+                var devices = GetDevices(deviceType);
+                if (!devices.IsNullOrEmpty())
+                {
+                    // Create list of BufferKeys
+                    var bufferKeys = new List<int>();
+                    foreach (var device in devices)
+                    {
+                        var deviceBufferKeys = GenerateBufferKeys(device.Uuid, dataItemIds);
+                        if (!deviceBufferKeys.IsNullOrEmpty()) bufferKeys.AddRange(deviceBufferKeys);
+                    }
+
+                    // Query the Observation Buffer 
+                    var results = GetObservations(bufferKeys, count: count);
 
                     // Create Response Document
                     var document = CreateDeviceStreamsDocument(devices, ref results, mtconnectVersion);

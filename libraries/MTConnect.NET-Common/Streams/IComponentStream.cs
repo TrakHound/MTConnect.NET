@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Devices;
@@ -8,7 +8,7 @@ using System.Collections.Generic;
 namespace MTConnect.Streams
 {
     /// <summary>
-    /// ComponentStream is a XML container that organizes the data associated with each Structural Element defined for that piece of equipment in the associated MTConnectDevices XML document
+    /// Organizes the data associated with each Component entity defined for a Device in the associated MTConnectDevices Response Document.
     /// </summary>
     public interface IComponentStream
     {

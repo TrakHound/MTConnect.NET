@@ -18,6 +18,7 @@ public class ModuleConfiguration
 {
     public string DeviceUuid { get; set; }
     public string DeviceName { get; set; }
+    public string SerialNumber { get; set; }
 }
 
 
@@ -46,12 +47,14 @@ public class Module : MTConnectInputAgentModule
     protected override IDevice OnAddDevice()
     {
         var device = new Device();
-        device.Uuid = "7E647B2D-C6A3-40BF-9CE9-FB09834850C9";
-        device.Id = "dev-001";
+        device.Uuid = _configuration.DeviceUuid;
+        device.Id = _configuration.DeviceName;
+        device.Name = _configuration.DeviceName;
         device.Description = new Description()
         {
             Manufacturer = "ACME",
-            Model = "dm-500"
+            Model = "dm-500",
+            SerialNumber = _configuration.SerialNumber
         };
 
         // Add an Availability DataItem to the Device

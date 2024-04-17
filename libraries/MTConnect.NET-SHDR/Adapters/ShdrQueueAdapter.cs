@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Configurations;
@@ -17,5 +17,11 @@ namespace MTConnect.Adapters
         public ShdrQueueAdapter(string deviceKey, int port = 7878, int heartbeat = 10000) : base(deviceKey, port, heartbeat, null, true) { }
 
         public ShdrQueueAdapter(ShdrAdapterClientConfiguration configuration) : base(configuration, null, true) { }
+
+
+        public bool SendBuffer()
+        {
+            return Adapter.SendBuffer();
+        }
     }
 }

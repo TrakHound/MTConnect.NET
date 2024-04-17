@@ -127,8 +127,10 @@ namespace MTConnect.Observations
 
         public static SampleObservation Create(string type, DataItemRepresentation representation)
         {
-            if (!string.IsNullOrEmpty(type))
+            Type dataItemType = null;
+            lock (_typeLock)
             {
+                // Initialize Type List
                 if (_types == null) _types = GetAllTypes();
 
                 if (!_types.IsNullOrEmpty())
@@ -136,32 +138,34 @@ namespace MTConnect.Observations
                     var key = string.Intern(type + ":" + (int)representation);
 
                     // Lookup Type ID (Type as PascalCase)
-                    _typeIds.TryGetValue(key, out var typeId);
+                    _typeIds.TryGetValue(key, out string typeId);
                     if (typeId == null)
                     {
                         typeId = $"{type.ToPascalCase()}{representation.ToString().ToPascalCase()}";
                         _typeIds.Add(key, typeId);
                     }
 
-                    if (_types.TryGetValue(typeId, out Type t))
+                    _types.TryGetValue(key, out dataItemType);
+                }
+            }
+
+            if (dataItemType != null)
+            {
+                try
+                {
+                    var constructor = dataItemType.GetConstructor(System.Type.EmptyTypes);
+                    if (constructor != null)
                     {
-                        var constructor = t.GetConstructor(System.Type.EmptyTypes);
-                        if (constructor != null)
+                        switch (representation)
                         {
-                            try
-                            {
-                                switch (representation)
-                                {
-                                    case DataItemRepresentation.VALUE: return (SampleValueObservation)Activator.CreateInstance(t);
-                                    case DataItemRepresentation.DATA_SET: return (SampleDataSetObservation)Activator.CreateInstance(t);
-                                    case DataItemRepresentation.TABLE: return (SampleTableObservation)Activator.CreateInstance(t);
-                                    case DataItemRepresentation.TIME_SERIES: return (SampleTimeSeriesObservation)Activator.CreateInstance(t);
-                                }
-                            }
-                            catch { }
+                            case DataItemRepresentation.VALUE: return (SampleValueObservation)Activator.CreateInstance(dataItemType);
+                            case DataItemRepresentation.DATA_SET: return (SampleDataSetObservation)Activator.CreateInstance(dataItemType);
+                            case DataItemRepresentation.TABLE: return (SampleTableObservation)Activator.CreateInstance(dataItemType);
+                            case DataItemRepresentation.TIME_SERIES: return (SampleTimeSeriesObservation)Activator.CreateInstance(dataItemType);
                         }
                     }
                 }
+                catch { }
             }
 
             switch (representation)

@@ -996,17 +996,19 @@ namespace MTConnect.Devices
         #endregion
 
 
-        public static Device Process(IDevice device, Version mtconnectVersion)
+        public static Device Process(IDevice device, Version mtconnectVersion = null)
         {
             if (device != null)
             {
+                var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersions.Max;
+
                 Device obj = null;
 
                 if (device.Type == TypeId) obj = new Device();
                 else if (device.Type == Agent.TypeId) obj = new Agent();
 
                 // Don't Ouput Agent Device if Version < 1.7
-                if (device.Type == Agent.TypeId && mtconnectVersion < MTConnectVersions.Version17) return null;
+                if (device.Type == Agent.TypeId && version < MTConnectVersions.Version17) return null;
 
                 if (obj != null)
                 {
@@ -1023,21 +1025,21 @@ namespace MTConnect.Devices
                     {
                         var description = new Description();
                         description.Manufacturer = device.Description.Manufacturer;
-                        if (mtconnectVersion >= MTConnectVersions.Version12) description.Model = device.Description.Model;
+                        if (version >= MTConnectVersions.Version12) description.Model = device.Description.Model;
                         description.SerialNumber = device.Description.SerialNumber;
                         description.Station = device.Description.Station;
                         description.Value = device.Description.Value;
                         obj.Description = description;
                     }
 
-                    if (mtconnectVersion < MTConnectVersions.Version12) obj.Iso841Class = device.Iso841Class;
-                    if (mtconnectVersion < MTConnectVersions.Version12) obj.SampleRate = device.SampleRate;
-                    if (mtconnectVersion >= MTConnectVersions.Version12) obj.SampleInterval = device.SampleInterval;
-                    if (mtconnectVersion >= MTConnectVersions.Version13) obj.References = device.References;
-                    if (mtconnectVersion >= MTConnectVersions.Version17) obj.Configuration = device.Configuration;
-                    if (mtconnectVersion >= MTConnectVersions.Version18) obj.CoordinateSystemIdRef = device.CoordinateSystemIdRef;
-                    if (mtconnectVersion >= MTConnectVersions.Version17) obj.MTConnectVersion = device.MTConnectVersion != null ? device.MTConnectVersion : mtconnectVersion;
-                    if (mtconnectVersion >= MTConnectVersions.Version22) obj.Hash = device.Hash;
+                    if (version < MTConnectVersions.Version12) obj.Iso841Class = device.Iso841Class;
+                    if (version < MTConnectVersions.Version12) obj.SampleRate = device.SampleRate;
+                    if (version >= MTConnectVersions.Version12) obj.SampleInterval = device.SampleInterval;
+                    if (version >= MTConnectVersions.Version13) obj.References = device.References;
+                    if (version >= MTConnectVersions.Version17) obj.Configuration = device.Configuration;
+                    if (version >= MTConnectVersions.Version18) obj.CoordinateSystemIdRef = device.CoordinateSystemIdRef;
+                    if (version >= MTConnectVersions.Version17) obj.MTConnectVersion = device.MTConnectVersion != null ? device.MTConnectVersion : version;
+                    if (version >= MTConnectVersions.Version22) obj.Hash = device.Hash;
 
                     // Add DataItems
                     if (!device.DataItems.IsNullOrEmpty())
@@ -1046,7 +1048,7 @@ namespace MTConnect.Devices
 
                         foreach (var dataItem in device.DataItems)
                         {
-                            var dataItemObj = DataItem.Process(dataItem, mtconnectVersion);
+                            var dataItemObj = DataItem.Process(dataItem, version);
                             if (dataItemObj != null) dataItems.Add(dataItemObj);
                         }
 
@@ -1060,7 +1062,7 @@ namespace MTConnect.Devices
 
                         foreach (var composition in device.Compositions)
                         {
-                            var compositionObj = Composition.Process(composition, mtconnectVersion);
+                            var compositionObj = Composition.Process(composition, version);
                             if (compositionObj != null) compositions.Add(compositionObj);
                         }
 
@@ -1074,7 +1076,7 @@ namespace MTConnect.Devices
 
                         foreach (var component in device.Components)
                         {
-                            var componentObj = Component.Process(component, mtconnectVersion);
+                            var componentObj = Component.Process(component, version);
                             if (componentObj != null) components.Add(componentObj);
                         }
 

@@ -58,8 +58,13 @@ namespace MTConnect.Devices
         /// </summary>
         public IContainer Container { get; set; }
 
+        /// <summary>
+        /// The Agent InstanceId that produced this Device
+        /// </summary>
+        public ulong InstanceId { get; set; }
 
-		private string _hash;
+
+        private string _hash;
 		/// <summary>
 		/// Condensed message digest from a secure one-way hash function. FIPS PUB 180-4
 		/// </summary>
@@ -258,12 +263,12 @@ namespace MTConnect.Devices
         }
 
 
-        public IDataItem Process(Version mtconnectVersion)
+        public DataItem Process(Version mtconnectVersion)
         {
             return Process(this, mtconnectVersion);
         }
 
-        protected virtual IDataItem OnProcess(IDataItem dataItem, Version mtconnectVersion)
+        protected virtual DataItem OnProcess(DataItem dataItem, Version mtconnectVersion)
         {
             return dataItem;
         }
@@ -484,12 +489,12 @@ namespace MTConnect.Devices
 
                 switch (type)
                 {
-                    case Devices.DataItems.AdapterUriDataItem.TypeId: return "AdapterURI";
-                    case Devices.DataItems.MTConnectVersionDataItem.TypeId: return "MTConnectVersion";
-                    case Devices.DataItems.AmperageACDataItem.TypeId: return "AmperageAC";
-                    case Devices.DataItems.AmperageDCDataItem.TypeId: return "AmperageDC";
-                    case Devices.DataItems.VoltageACDataItem.TypeId: return "VoltageAC";
-                    case Devices.DataItems.VoltageDCDataItem.TypeId: return "VoltageDC";
+                    case AdapterUriDataItem.TypeId: return "AdapterURI";
+                    case MTConnectVersionDataItem.TypeId: return "MTConnectVersion";
+                    case AmperageACDataItem.TypeId: return "AmperageAC";
+                    case AmperageDCDataItem.TypeId: return "AmperageDC";
+                    case VoltageACDataItem.TypeId: return "VoltageAC";
+                    case VoltageDCDataItem.TypeId: return "VoltageDC";
                 }
 
                 lock (_lock)
@@ -554,25 +559,29 @@ namespace MTConnect.Devices
         {
             if (type != null)
             {
-                var constructor = type.GetConstructor(System.Type.EmptyTypes);
-                if (constructor != null)
+                try
                 {
-                    try
+                    var constructor = type.GetConstructor(System.Type.EmptyTypes);
+                    if (constructor != null)
                     {
+
                         return (DataItem)Activator.CreateInstance(type);
                     }
-                    catch { }
                 }
-            }          
+                catch { }
+            }
 
             return new DataItem();
         }
 
         public static IEnumerable<string> GetTypes()
         {
-            if (_types == null) _types = GetAllTypes();
+            lock (_lock)
+            {
+                if (_types == null) _types = GetAllTypes();
 
-            return _types.Keys;
+                return _types.Keys;
+            }
         }
 
         public static IEnumerable<string> GetConditionTypes()
@@ -718,9 +727,14 @@ namespace MTConnect.Devices
         {
             if (_subtypeDescriptions == null)
             {
-                if (_types == null) _types = GetAllTypes();
+                bool typesFound;
+                lock (_lock)
+                {
+                    if (_types == null) _types = GetAllTypes();
+                    typesFound = !_types.IsNullOrEmpty();
+                }
 
-                if (!_types.IsNullOrEmpty())
+                if (typesFound)
                 {
                     _subtypeDescriptions = new Dictionary<string, string>();
 
@@ -850,19 +864,16 @@ namespace MTConnect.Devices
         {
             if (!string.IsNullOrEmpty(type))
             {
-                if (_types == null) _types = GetAllTypes();
-
-                if (_types != null)
+                lock (_lock)
                 {
-                    string typeId;
-                    lock (_lock)
+                    // Initialize Type List
+                    if (_types == null) _types = GetAllTypes();
+
+                    _typeIds.TryGetValue(type, out string typeId);
+                    if (typeId == null)
                     {
-                        _typeIds.TryGetValue(type, out typeId);
-                        if (typeId == null)
-                        {
-                            typeId = type.ToPascalCase();
-                            _typeIds.Add(type, typeId);
-                        }
+                        typeId = type.ToPascalCase();
+                        _typeIds.Add(type, typeId);
                     }
 
                     if (_types.TryGetValue(typeId, out Type t))
@@ -1009,27 +1020,29 @@ namespace MTConnect.Devices
             return false;
         }
 
-        public static IDataItem Process(IDataItem dataItem, Version mtconnectVersion)
+        public static DataItem Process(IDataItem dataItem, Version mtconnectVersion = null)
         {
             if (dataItem != null)
             {
+                var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersions.Max;
+
                 // Check Version Compatibilty
-                if (dataItem.MinimumVersion != null && mtconnectVersion < dataItem.MinimumVersion) return null;
+                if (dataItem.MinimumVersion != null && version < dataItem.MinimumVersion) return null;
 
                 // Don't return if Condition and Version < 1.1
-                if (dataItem.Category == DataItemCategory.CONDITION && mtconnectVersion < MTConnectVersions.Version11) return null;
+                if (dataItem.Category == DataItemCategory.CONDITION && version < MTConnectVersions.Version11) return null;
 
                 // Don't return if TimeSeries and Version < 1.2
-                if (dataItem.Representation == DataItemRepresentation.TIME_SERIES && mtconnectVersion < MTConnectVersions.Version12) return null;
+                if (dataItem.Representation == DataItemRepresentation.TIME_SERIES && version < MTConnectVersions.Version12) return null;
 
                 // Don't return if Discrete and Version < 1.3 OR Version >= 1.5
-                if (dataItem.Representation == DataItemRepresentation.DISCRETE && (mtconnectVersion < MTConnectVersions.Version13 || mtconnectVersion >= MTConnectVersions.Version15)) return null;
+                if (dataItem.Representation == DataItemRepresentation.DISCRETE && (version < MTConnectVersions.Version13 || version >= MTConnectVersions.Version15)) return null;
 
                 // Don't return if DataSet and Version < 1.3
-                if (dataItem.Representation == DataItemRepresentation.DATA_SET && mtconnectVersion < MTConnectVersions.Version13) return null;
+                if (dataItem.Representation == DataItemRepresentation.DATA_SET && version < MTConnectVersions.Version13) return null;
 
                 // Don't return if Table and Version < 1.6
-                if (dataItem.Representation == DataItemRepresentation.TABLE && mtconnectVersion < MTConnectVersions.Version16) return null;
+                if (dataItem.Representation == DataItemRepresentation.TABLE && version < MTConnectVersions.Version16) return null;
 
                 // Create a new Instance of the DataItem that will instantiate a new Derived class (if found)
                 var obj = Create(dataItem.Type);
@@ -1048,14 +1061,14 @@ namespace MTConnect.Devices
                     obj.Device = dataItem.Device;
 
                     // Check SampleRate
-                    if (mtconnectVersion >= MTConnectVersions.Version12) obj.SampleRate = dataItem.SampleRate;
+                    if (version >= MTConnectVersions.Version12) obj.SampleRate = dataItem.SampleRate;
 
                     // Check Source
-                    if (dataItem.Source != null && mtconnectVersion >= MTConnectVersions.Version12)
+                    if (dataItem.Source != null && version >= MTConnectVersions.Version12)
                     {
                         var source = new Source();
                         source.ComponentId = dataItem.Source.ComponentId;
-                        if (mtconnectVersion >= MTConnectVersions.Version14) source.CompositionId = dataItem.Source.CompositionId;
+                        if (version >= MTConnectVersions.Version14) source.CompositionId = dataItem.Source.CompositionId;
                         source.DataItemId = dataItem.Source.DataItemId;
 
                         if (!string.IsNullOrEmpty(source.ComponentId) || !string.IsNullOrEmpty(source.CompositionId) || !string.IsNullOrEmpty(source.DataItemId))
@@ -1065,7 +1078,7 @@ namespace MTConnect.Devices
                     }
 
                     // Check Relationships
-                    if (dataItem.Relationships != null && mtconnectVersion >= MTConnectVersions.Version15)
+                    if (dataItem.Relationships != null && version >= MTConnectVersions.Version15)
                     {
                         var relationships = new List<IAbstractDataItemRelationship>();
                         foreach (var relationship in dataItem.Relationships)
@@ -1079,7 +1092,7 @@ namespace MTConnect.Devices
                             // DataItem Relationship
                             if (relationship.GetType() == typeof(DataItemRelationship))
                             {
-                                if (mtconnectVersion >= MTConnectVersions.Version17) relationships.Add(relationship);
+                                if (version >= MTConnectVersions.Version17) relationships.Add(relationship);
                             }
 
                             // Device Relationship
@@ -1091,7 +1104,7 @@ namespace MTConnect.Devices
                             // Specification Relationship
                             if (relationship.GetType() == typeof(SpecificationRelationship))
                             {
-                                if (mtconnectVersion >= MTConnectVersions.Version17) relationships.Add(relationship);
+                                if (version >= MTConnectVersions.Version17) relationships.Add(relationship);
                             }
                         }
 
@@ -1099,19 +1112,19 @@ namespace MTConnect.Devices
                     }
 
                     // Check Representation
-                    if (mtconnectVersion >= MTConnectVersions.Version12) obj.Representation = dataItem.Representation;
+                    if (version >= MTConnectVersions.Version12) obj.Representation = dataItem.Representation;
 
                     // Check ResetTrigger
-                    if (mtconnectVersion >= MTConnectVersions.Version14) obj.ResetTrigger = dataItem.ResetTrigger;
+                    if (version >= MTConnectVersions.Version14) obj.ResetTrigger = dataItem.ResetTrigger;
 
                     // Check CoordinateSystem
-                    if (mtconnectVersion < MTConnectVersions.Version20) obj.CoordinateSystem = dataItem.CoordinateSystem;
+                    if (version < MTConnectVersions.Version20) obj.CoordinateSystem = dataItem.CoordinateSystem;
 
                     // Check CoordinateSystemIdRef
-                    if (mtconnectVersion >= MTConnectVersions.Version15) obj.CoordinateSystemIdRef = dataItem.CoordinateSystemIdRef;
+                    if (version >= MTConnectVersions.Version15) obj.CoordinateSystemIdRef = dataItem.CoordinateSystemIdRef;
 
                     // Check CompositionId
-                    if (mtconnectVersion >= MTConnectVersions.Version14)
+                    if (version >= MTConnectVersions.Version14)
                     {                       
                         obj.CompositionId = dataItem.CompositionId;
                     }
@@ -1122,26 +1135,26 @@ namespace MTConnect.Devices
                     }
 
                     // Check Constraints
-                    if (mtconnectVersion >= MTConnectVersions.Version11) obj.Constraints = dataItem.Constraints;
+                    if (version >= MTConnectVersions.Version11) obj.Constraints = dataItem.Constraints;
 
                     // Check Definition
-                    if (mtconnectVersion >= MTConnectVersions.Version16) obj.Definition = dataItem.Definition;
+                    if (version >= MTConnectVersions.Version16) obj.Definition = dataItem.Definition;
 
                     // Check Statistic
-                    if (mtconnectVersion >= MTConnectVersions.Version12) obj.Statistic = dataItem.Statistic;
+                    if (version >= MTConnectVersions.Version12) obj.Statistic = dataItem.Statistic;
 
                     // Check Filters
-                    if (mtconnectVersion >= MTConnectVersions.Version13) obj.Filters = dataItem.Filters;
+                    if (version >= MTConnectVersions.Version13) obj.Filters = dataItem.Filters;
 
                     // Check InitialValue
-                    if (mtconnectVersion >= MTConnectVersions.Version14) obj.InitialValue = dataItem.InitialValue;
+                    if (version >= MTConnectVersions.Version14) obj.InitialValue = dataItem.InitialValue;
 
                     // Check Discrete
-                    if (mtconnectVersion >= MTConnectVersions.Version15) obj.Discrete = dataItem.Discrete;
+                    if (version >= MTConnectVersions.Version15) obj.Discrete = dataItem.Discrete;
                 }
 
                 // Call overridable method (used to process based on Type)
-                return obj.OnProcess(obj, mtconnectVersion);
+                return obj.OnProcess(obj, version);
             }
 
             return null;
