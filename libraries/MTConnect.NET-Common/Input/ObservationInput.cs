@@ -163,6 +163,7 @@ namespace MTConnect.Input
 
         public ObservationInput(IObservation observation)
         {
+            DeviceKey = observation.DeviceUuid;
             DataItemKey = observation.DataItemId;
             Timestamp = observation.Timestamp.ToUnixTime();
             Values = observation.Values;

@@ -120,11 +120,11 @@ namespace MTConnect
 
                             foreach (var device in devices)
                             {
-                                var response = _mtconnectAgent.GetDeviceStreamsResponseDocument(device.Uuid, _lastSequence, 0, 1000); // COUNT = 1000 ??
+                                var response = _mtconnectAgent.GetDeviceStreamsResponseDocument(device.Uuid, lastSequence + 1, 0, 1000); // COUNT = 1000 ??
                                 if (response != null && response.ObservationCount > 0)
                                 {
                                     if (SampleReceived != null) SampleReceived.Invoke(device, response);
-                                    if (response.LastObservationSequence >= lastSequence) lastSequence = response.LastObservationSequence + 1;
+                                    if (response.LastObservationSequence >= lastSequence) lastSequence = response.LastObservationSequence;
                                 }
                             }
 

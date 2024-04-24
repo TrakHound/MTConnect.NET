@@ -79,7 +79,7 @@ public class Module : MTConnectInputAgentModule
         AddValueObservation<AvailabilityDataItem>(Availability.AVAILABLE);
         AddValueObservation<ControllerComponent, EmergencyStopDataItem>(EmergencyStop.ARMED);
         AddValueObservation<PathComponent, ProgramDataItem>("BRACKET.NC");
-        AddValueObservation<PathComponent, DateCodeDataItem>(DateTime.Now);
+        AddValueObservation<PathComponent, DateCodeDataItem>(DateTime.Now.ToString("o"));
         AddConditionObservation<PathComponent, SystemDataItem>(MTConnect.Observations.ConditionLevel.WARNING, "404", "This is an Alarm");
 
 

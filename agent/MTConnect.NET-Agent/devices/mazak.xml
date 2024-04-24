@@ -1,4 +1,4 @@
-﻿<Device id="d1" name="M12346" uuid="5fd88408-7811-3c6b-5400-11f4026b6890">
+﻿<Device id="d1" name="Mazak" uuid="5fd88408-7811-3c6b-5400-11f4026b6890">
 	<Description manufacturer="Mazak_Corporation" serialNumber="304141">Mill w/SMooth-G</Description>
 	<Configuration>
 		<CoordinateSystems>

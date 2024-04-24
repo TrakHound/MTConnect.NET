@@ -8,3 +8,12 @@ modules:
 
 - http-server:
     port: 5000
+
+# - mqtt-relay: # - Add MQTT Relay module (Document Structure)
+#     server: localhost  
+#     port: 1883
+#     currentInterval: 10000
+#     sampleInterval: 500
+#     documentFormat: JSON-CPPAGENT-MQTT
+#     topicPrefix: MTConnect
+#     topicStructure: Document

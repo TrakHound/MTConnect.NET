@@ -19,7 +19,8 @@ namespace MTConnect.Clients.HTTP
             //var client = new MTConnectHttpClient("http://mtconnect.mazakcorp.com/", 5719);
             //var client = new MTConnectHttpClient("localhost", 5006, "OKUMA-Lathe");
             //var client = new MTConnectHttpClient("localhost", 5006);
-            var client = new MTConnectHttpClient("localhost", 5000, "Okuma-Lathe");
+            var client = new MTConnectHttpClient("localhost", 5000, "Okuma");
+            //var client = new MTConnectHttpClient("localhost", 5000, "Okuma-Lathe");
             //var client = new MTConnectHttpClient("localhost", 5001);
             client.Interval = 100;
             //client.Heartbeat = 0;

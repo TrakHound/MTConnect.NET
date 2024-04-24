@@ -112,27 +112,21 @@ modules:
 #         privateKeyPassword: trakhound
 
 
-# - shdr-adapter: # - Add SHDR Adapter module for Device = M12346 and Port = 7878
-#     deviceKey: M12346
-#     hostname: localhost
-#     port: 7878
-#     heartbeat: 1000
-#     reconnectInterval: 1000
-#     connectionTimeout: 1000
-
-- shdr-adapter: # - Add SHDR Adapter module for Device = OKUMA-Lathe and Port = 7879
-    deviceKey: OKUMA-Lathe
+- shdr-adapter: # - Add SHDR Adapter module for Device = Okuma and Port = 7878
+    deviceKey: Okuma
     hostname: localhost
     port: 7878
     heartbeat: 1000
     reconnectInterval: 1000
     connectionTimeout: 1000
 
-# - mqtt-adapter: # - Add MQTT Adapter module for Device = M12346 and Topic = cnc-01
-#     deviceKey: M12346
-#     server: localhost
-#     port: 1883
-#     topic: cnc-01
+- shdr-adapter: # - Add SHDR Adapter module for Device = Mazak and Port = 7879
+    deviceKey: Mazak
+    hostname: localhost
+    port: 7878
+    heartbeat: 1000
+    reconnectInterval: 1000
+    connectionTimeout: 1000
 
 
 # The maximum number of Observations the agent can hold in its buffer

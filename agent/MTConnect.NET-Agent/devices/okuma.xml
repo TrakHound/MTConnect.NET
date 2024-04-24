@@ -1,4 +1,4 @@
-﻿<Device uuid="OKUMA.Lathe.123456" name="OKUMA-Lathe" id="OKUMA.Lathe">
+﻿<Device uuid="OKUMA.Lathe.123456" name="Okuma" id="OKUMA.Lathe">
 	<Description manufacturer="OKUMA" model="LB3000" serialNumber="3216549771">
 		Okuma MT Connect Adapter - Lathe
 	</Description>

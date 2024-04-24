@@ -53,10 +53,10 @@
 		<None Update="agent.config.yaml">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
-		<None Update="devices\device-mazak.xml">
+		<None Update="devices\mazak.xml">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
-		<None Update="devices\device-okuma.xml">
+		<None Update="devices\okuma.xml">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
 		<None Update="README.md">

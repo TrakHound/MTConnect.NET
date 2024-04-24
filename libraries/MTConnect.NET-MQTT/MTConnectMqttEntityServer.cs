@@ -3,14 +3,12 @@
 
 using MQTTnet;
 using MQTTnet.Client;
-using MQTTnet.Extensions.ManagedClient;
 using MQTTnet.Server;
 using MTConnect.Assets;
 using MTConnect.Configurations;
 using MTConnect.Devices;
 using MTConnect.Formatters;
 using MTConnect.Observations;
-using MTConnect.Observations.Output;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
