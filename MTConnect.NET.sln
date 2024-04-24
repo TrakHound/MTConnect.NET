@@ -26,6 +26,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Processors", "Processors", "{98D838F5-2AEB-4F62-A803-115C57C1E982}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Agent", "Agent", "{C3791CDD-9446-4584-AA80-0C41FCB63B88}"
+	ProjectSection(SolutionItems) = preProject
+		agent\README.md = agent\README.md
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Adapter", "Adapter", "{5C1723BE-3FA0-4C64-AFEC-4343ADCEAE2B}"
 EndProject
