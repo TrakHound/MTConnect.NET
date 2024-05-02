@@ -1,0 +1,8 @@
+modules:
+
+- datasource:
+    readInterval: 5000
+    plcAddress: 0.0.0.1
+
+- http-server:
+    port: 5000

@@ -27,8 +27,8 @@ public class ModuleConfiguration
 // This is the module that runs your code
 public class Module : MTConnectInputAgentModule
 {
-    public const string ConfigurationTypeId = "demo"; // This must match the module section in the 'agent.config.yaml' file
-    public const string DefaultId = "Demo Module"; // The ID is mainly just used for logging.
+    public const string ConfigurationTypeId = "datasource"; // This must match the module section in the 'agent.config.yaml' file
+    public const string DefaultId = "DataSource Module"; // The ID is mainly just used for logging.
     private readonly ModuleConfiguration _configuration;
 
 

@@ -1,6 +1,6 @@
 modules:
   
-- demo:
+- datasource:
     deviceUuid: 7E647B2D-C6A3-40BF-9CE9-FB09834850C9
     deviceName: dev-001
     serialNumber: 123456

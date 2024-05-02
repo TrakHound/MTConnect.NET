@@ -4,7 +4,7 @@
 
 [![MTConnect.NET](https://github.com/TrakHound/MTConnect.NET/actions/workflows/dotnet.yml/badge.svg)](https://github.com/TrakHound/MTConnect.NET/actions/workflows/dotnet.yml)
 
-> 12/4/2023 : Version 6.0 Released with new Agent, Adapter, & SysML Import
+> 5/1/2024 : Version 6.4 Released with new Agent, Adapter, & SysML Import
 
 ## Download
 <table>
@@ -95,17 +95,31 @@ A live demo of the MTConnect Gateway HTTP Agent (AspNetCore) application is runn
 
 ## Agents
 
-#### Module Agent Application
-A preconfigured [Application](https://github.com/TrakHound/MTConnect.NET/tree/version-6.0/agent/MTConnect.NET-Agent) & [Library](https://github.com/TrakHound/MTConnect.NET/tree/version-6.0/agent/MTConnect.NET-Applications-Agents) to build an Agent is available and supports:
+#### Embedded Agent Application
+An MTConnect Agent can be embedded into an application where the DataSource(s) can be read and the MTConnect Agent can be combined into the same application. This eliminates the need to transfer data from an Adapter to an Agent (typically using the SHDR protocol).
+
+##### Option #1 : [DotNet Template](https://github.com/TrakHound/MTConnect.NET/tree/version-6.0)
+```
+dotnet new mtconnect.net-agent
+```
+
+##### Option #2 : [Nuget Package](https://github.com/TrakHound/MTConnect.NET/tree/version-6.0)
+```
+dotnet add package MTConnect.NET-Applications-Agents
+```
+
+#### Standalone Agent Application
+A standalone preconfigured [Application](https://github.com/TrakHound/MTConnect.NET/tree/version-6.0/agent/MTConnect.NET-Agent) ready to download is available and supports:
 - Modular architecture
     - HTTP Server Module
-    - SHDR Adapter Module(s)
+    - SHDR Adapter Module
     - MQTT Broker Module
     - MQTT Relay Module
     - etc.
 - Easy Windows Installer
 - Linux Compatible
 - Run as a Windows Service
+- Transform input data using Python scripts
 - Extensible configuration file and monitors for changes
 
 #### Agent Classes
@@ -114,7 +128,7 @@ A preconfigured [Application](https://github.com/TrakHound/MTConnect.NET/tree/ve
 
 ## Adapters
 
-#### Modular Adapter Application
+#### Standalone Modular Adapter Application
 A preconfigured [Application](https://github.com/TrakHound/MTConnect.NET/tree/version-6.0/adapter/MTConnect.NET-Adapter) & [Library](https://github.com/TrakHound/MTConnect.NET/tree/version-6.0/adapter/MTConnect.NET-Applications-Adapter) to build an Adapter is available and supports:
 - Modular architecture
     - SHDR Module (export data to an MTConnect Agent using the SHDR protocol)

@@ -7,7 +7,7 @@ This Agent Module writes data to an **External** MQTT Broker
 ```yaml
 - mqtt-relay:
     server: localhost
-    port: 7878
+    port: 1883
     topic: enterprise/site/area/line/cell/MTConnect
     topicStructure: Document
 ```

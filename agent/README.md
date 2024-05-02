@@ -1,6 +1,19 @@
 # Standalone MTConnect Agent
 > https://github.com/TrakHound/MTConnect.NET/tree/version-6.0/agent/MTConnect.NET-Agent
 
+A standalone preconfigured application ready to download is available and supports:
+- Modular architecture
+    - HTTP Server Module
+    - SHDR Adapter Module
+    - MQTT Broker Module
+    - MQTT Relay Module
+    - etc.
+- Easy Windows Installer
+- Linux Compatible
+- Run as a Windows Service
+- Transform input data using Python scripts
+- Extensible configuration file and monitors for changes
+
 # Embedded MTConnect Agent
 An MTConnect Agent can be embedded into an application where the DataSource(s) can be read and the MTConnect Agent can be combined into the same application. This eliminates the need to transfer data from an Adapter to an Agent (typically using the SHDR protocol).
 

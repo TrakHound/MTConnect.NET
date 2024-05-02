@@ -27,32 +27,32 @@ modules:
     - path: styles/favicon.ico
       location: favicon.ico
 
-- http-server: # - Add HTTP Server module
-    port: 5001
-    indentOutput: true
-    documentFormat: xml
-    accept:
-      text/xml: xml
-      application/json: json
-    responseCompression:
-    - gzip
-    - br
-    tls:
-      # pfx:
-      #   certificatePath: c:\test-cert\trakhound.pfx
-      #   certificatePassword: trakhound
-      pem:
-        certificateAuthority: c:\test-cert\rootCA.crt
-        certificatePath: c:\test-cert\trakhound.crt
-        privateKeyPath: c:\test-cert\trakhound.key
-        privateKeyPassword: trakhound
-    files:
-    - path: schemas
-      location: schemas
-    - path: styles
-      location: styles
-    - path: styles/favicon.ico
-      location: favicon.ico
+# - http-server: # - Add HTTP Server module
+#     port: 5001
+#     indentOutput: true
+#     documentFormat: xml
+#     accept:
+#       text/xml: xml
+#       application/json: json
+#     responseCompression:
+#     - gzip
+#     - br
+#     tls:
+#       # pfx:
+#       #   certificatePath: c:\test-cert\trakhound.pfx
+#       #   certificatePassword: trakhound
+#       pem:
+#         certificateAuthority: c:\test-cert\rootCA.crt
+#         certificatePath: c:\test-cert\trakhound.crt
+#         privateKeyPath: c:\test-cert\trakhound.key
+#         privateKeyPassword: trakhound
+#     files:
+#     - path: schemas
+#       location: schemas
+#     - path: styles
+#       location: styles
+#     - path: styles/favicon.ico
+#       location: favicon.ico
 
 # - mqtt-broker: # - Add MQTT Broker module (Document Structure)
 #     port: 1883
@@ -114,7 +114,7 @@ modules:
 
 - shdr-adapter: # - Add SHDR Adapter module for Device = Okuma and Port = 7878
     deviceKey: Okuma
-    hostname: localhost
+    # hostname: localhost
     port: 7878
     heartbeat: 1000
     reconnectInterval: 1000
@@ -122,8 +122,8 @@ modules:
 
 - shdr-adapter: # - Add SHDR Adapter module for Device = Mazak and Port = 7879
     deviceKey: Mazak
-    hostname: localhost
-    port: 7878
+    # hostname: localhost
+    port: 7879
     heartbeat: 1000
     reconnectInterval: 1000
     connectionTimeout: 1000
