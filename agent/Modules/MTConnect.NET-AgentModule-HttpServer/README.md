@@ -23,25 +23,26 @@ This Agent Module implements a MTConnect REST Protocol Http server
 
 ## Configuration
 ```yaml
- - http-server:
-    hostname: localhost
-    port: 5000
-    allowPut: true
-    indentOutput: true
-    documentFormat: xml
-    accept:
-      text/xml: xml
-      application/json: json-cppagent
-    responseCompression:
-    - gzip
-    - br
-    files:
-    - path: schemas
-      location: schemas
-    - path: styles
-      location: styles
-    - path: styles/favicon.ico
-      location: favicon.ico
+modules:
+  - http-server:
+      hostname: localhost
+      port: 5000
+      allowPut: true
+      indentOutput: true
+      documentFormat: xml
+      accept:
+        text/xml: xml
+        application/json: json-cppagent
+      responseCompression:
+      - gzip
+      - br
+      files:
+      - path: schemas
+        location: schemas
+      - path: styles
+        location: styles
+      - path: styles/favicon.ico
+        location: favicon.ico
 ```
 
 * `hostname` - The server IP Address or Hostname to bind to.
@@ -84,65 +85,72 @@ This Agent Module implements a MTConnect REST Protocol Http server
 ### Example 1
 Use defualt configuration
 ```yaml
- - http-server:
+modules:
+  - http-server:
 ```
 
 ### Example 2
 Specify the port
 ```yaml
- - http-server:
-    port: 5001
+modules:
+  - http-server:
+      port: 5001
 ```
 
 ### Example 3
 Specify the port and hostname to an IP Address
 ```yaml
- - http-server:
-    hostname: 192.168.1.145
-    port: 5001
+modules:
+  - http-server:
+      hostname: 192.168.1.145
+      port: 5001
 ```
 
 ### Example 4
 Specify the port and hostname
 ```yaml
- - http-server:
-    hostname: DESKTOP-HV74M4N
-    port: 5001
+modules:
+  - http-server:
+      hostname: DESKTOP-HV74M4N
+      port: 5001
 ```
 
 ### Example 4
 Specify the port and hostname with TLS (PFX Certificate)
 ```yaml
- - http-server:
-    hostname: DESKTOP-HV74M4N
-    port: 5001
-    tls:
-      pfx:
-        certificatePath: c:\certs\mtconnect-testing.pfx
-        certificatePassword: mtconnect
+modules:
+  - http-server:
+      hostname: DESKTOP-HV74M4N
+      port: 5001
+      tls:
+        pfx:
+          certificatePath: c:\certs\mtconnect-testing.pfx
+          certificatePassword: mtconnect
 ```
 
 ### Example 5
 Specify the port and hostname with TLS (PEM Certificate)
 ```yaml
- - http-server:
-    hostname: DESKTOP-HV74M4N
-    port: 5001
-    tls:
-      pem:
-        certificateAuthority: c:\certs\rootCA.crt
-        certificatePath: c:\certs\mtconnect-testing.crt
-        privateKeyPath: c:\certs\mtconnect-testing.key
-        privateKeyPassword: mtconnect
+modules:
+  - http-server:
+      hostname: DESKTOP-HV74M4N
+      port: 5001
+      tls:
+        pem:
+          certificateAuthority: c:\certs\rootCA.crt
+          certificatePath: c:\certs\mtconnect-testing.crt
+          privateKeyPath: c:\certs\mtconnect-testing.key
+          privateKeyPassword: mtconnect
 ```
 
 ### Example 6
 Specify with custom Accept headers
 ```yaml
- - http-server:
-    accept:
-      text/xml: xml
-      application/json: json-cppagent
+modules:
+  - http-server:
+      accept:
+        text/xml: xml
+        application/json: json-cppagent
 ```
 
 

@@ -4,7 +4,7 @@
 
 [![MTConnect.NET](https://github.com/TrakHound/MTConnect.NET/actions/workflows/dotnet.yml/badge.svg)](https://github.com/TrakHound/MTConnect.NET/actions/workflows/dotnet.yml)
 
-> 5/1/2024 : Version 6.4 Released with new Agent, Adapter, & SysML Import
+> **New Release 5/13/2024** : Version 6.4 Released with new Agent, Adapter, & SysML Import
 
 ## Download
 <table>
@@ -39,7 +39,7 @@
 </table>
 
 ## Overview
-MTConnect.NET is a fully featured and fully Open Source .NET library for MTConnect to develop Agents, Adapters, and Clients. Supports MTConnect Versions up to 2.3. A pre-compiled Agent application is available to download as well as an Adapter application that can be easily customized.
+MTConnect.NET is a fully featured and fully Open Source **[.NET](https://dotnet.microsoft.com/)** library for **[MTConnect](https://www.mtconnect.org/)** to develop Agents, Adapters, and Clients. Supports MTConnect Versions up to 2.3. A pre-compiled Agent application is available to download as well as an Adapter application that can be easily customized.
 
 - .NET Native MTConnect Agent
 - Adapter framework used to send data to an MTConnect Agent
@@ -72,44 +72,38 @@ MTConnect.NET is a fully featured and fully Open Source .NET library for MTConne
 - Embed an MTConnect Agent into your adapter (remove need for separate SHDR Adapter)
 
 #### MTConnect Version Compatibility
-MTConnect.NET is designed to be fully compatible for all versions of the MTConnect standard. This is done through processing by the [MTConnectAgent](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-Common/Agents/MTConnectAgent.cs) class before data is output. This allows the version to be a parameter when requesting data from the Agent. More information can be found in the [Devices README](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-Common/Devices/README.md).
+MTConnect.NET is designed to be fully compatible for all versions of the MTConnect standard. This is done through processing by the [MTConnectAgent](https://github.com/TrakHound/MTConnect.NET/tree/master/libraries/MTConnect.NET-Common/Agents/MTConnectAgent.cs) class before data is output. This allows the version to be a parameter when requesting data from the Agent. More information can be found in the [Devices README](https://github.com/TrakHound/MTConnect.NET/tree/master/libraries/MTConnect.NET-Common/Devices/README.md).
 
 #### Data Validation
-Validation is performed on a Device, Component, Composition, or DataItem level through the classes in [Devices](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-Common/Devices). This allows for validation without the need to use XML schemas (although XML Validation against XSD schemas is supported).
-
-### Live Demo
-A live demo of the MTConnect Gateway HTTP Agent (AspNetCore) application is running at [https://mtconnect.trakhound.com](https://mtconnect.trakhound.com?outputComments=true&indentOutput=true&version=2.1).
-- [https://mtconnect.trakhound.com/current](https://mtconnect.trakhound.com/current?outputComments=true&indentOutput=true&version=2.1)
-- [https://mtconnect.trakhound.com/sample](https://mtconnect.trakhound.com/sample?outputComments=true&indentOutput=true&version=2.1&count=500)
-- [https://mtconnect.trakhound.com/assets](https://mtconnect.trakhound.com/assets?outputComments=true&indentOutput=true)
+Validation is performed on a Device, Component, Composition, or DataItem level through the classes in [Devices](https://github.com/TrakHound/MTConnect.NET/tree/master/libraries/MTConnect.NET-Common/Devices). This allows for validation without the need to use XML schemas (although XML Validation against XSD schemas is supported).
 
 ## Clients
 
 #### Client Interfaces
-- [IMTConnectClient](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-Common/Clients/IMTConnectClient.cs) : Interface used to read MTConnect response documents (Probe, Current, Sample, and Assets)
-- [IMTConnectEntityClient](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-Common/Clients/IMTConnectEntityClient.cs) : Interface used to read MTConnect entities (Device, Observation, Asset)
+- [IMTConnectClient](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-Common/Clients/IMTConnectClient.cs) : Interface used to read MTConnect response documents (Probe, Current, Sample, and Assets)
+- [IMTConnectEntityClient](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-Common/Clients/IMTConnectEntityClient.cs) : Interface used to read MTConnect entities (Device, Observation, Asset)
 
 #### Client Classes
-- [MTConnectHttpClient](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-HTTP/Clients/MTConnectHttpClient.cs) : Reads from MTConnect Agents using the MTConnect HTTP REST Api. Supports both polling and streaming. Supports compression. Supports XML & JSON.
-- [MTConnectMqttClient](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-MQTT/Clients/MTConnectMqttClient.cs) : Reads MTConnect data from an MQTT Broker. Supports the latest MTConnect MQTT Protocol.
+- [MTConnectHttpClient](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-HTTP/Clients/MTConnectHttpClient.cs) : Reads from MTConnect Agents using the MTConnect HTTP REST Api. Supports both polling and streaming. Supports compression. Supports XML & JSON.
+- [MTConnectMqttClient](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-MQTT/Clients/MTConnectMqttClient.cs) : Reads MTConnect data from an MQTT Broker. Supports the latest MTConnect MQTT Protocol.
 
 ## Agents
 
 #### Embedded Agent Application
 An MTConnect Agent can be embedded into an application where the DataSource(s) can be read and the MTConnect Agent can be combined into the same application. This eliminates the need to transfer data from an Adapter to an Agent (typically using the SHDR protocol).
 
-##### Option #1 : [DotNet Template](https://github.com/TrakHound/MTConnect.NET/tree/version-6.0)
+##### Option #1 : [DotNet Template](https://github.com/TrakHound/MTConnect.NET/tree/master/templates/mtconnect.net-agent)
 ```
 dotnet new mtconnect.net-agent
 ```
 
-##### Option #2 : [Nuget Package](https://github.com/TrakHound/MTConnect.NET/tree/version-6.0)
+##### Option #2 : [Nuget Package](https://www.nuget.org/packages/MTConnect.NET-Applications-Agents)
 ```
 dotnet add package MTConnect.NET-Applications-Agents
 ```
 
 #### Standalone Agent Application
-A standalone preconfigured [Application](https://github.com/TrakHound/MTConnect.NET/tree/version-6.0/agent/MTConnect.NET-Agent) ready to download is available and supports:
+A standalone preconfigured [Application](https://github.com/TrakHound/MTConnect.NET/tree/master/agent/MTConnect.NET-Agent) ready to download is available and supports:
 - Modular architecture
     - HTTP Server Module
     - SHDR Adapter Module
@@ -123,13 +117,13 @@ A standalone preconfigured [Application](https://github.com/TrakHound/MTConnect.
 - Extensible configuration file and monitors for changes
 
 #### Agent Classes
-- [MTConnectAgent](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-Common/Agents/MTConnectAgent.cs) : Handles MTConnect Entities (Device, Observation, Asset), Unit Conversion, Filtering, etc.
-- [MTConnectAgentBroker](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-Common/Agents/MTConnectAgent.cs) : Handles MTConnect Requests to respond with Response Documents (Probe, Current, Sample, Assets) specified in the MTConnect Standard, Buffers, etc.
+- [MTConnectAgent](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-Common/Agents/MTConnectAgent.cs) : Handles MTConnect Entities (Device, Observation, Asset), Unit Conversion, Filtering, etc.
+- [MTConnectAgentBroker](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-Common/Agents/MTConnectAgent.cs) : Handles MTConnect Requests to respond with Response Documents (Probe, Current, Sample, Assets) specified in the MTConnect Standard, Buffers, etc.
 
 ## Adapters
 
 #### Standalone Modular Adapter Application
-A preconfigured [Application](https://github.com/TrakHound/MTConnect.NET/tree/version-6.0/adapter/MTConnect.NET-Adapter) & [Library](https://github.com/TrakHound/MTConnect.NET/tree/version-6.0/adapter/MTConnect.NET-Applications-Adapter) to build an Adapter is available and supports:
+A preconfigured [Application](https://github.com/TrakHound/MTConnect.NET/tree/master/adapter/MTConnect.NET-Adapter) & [Library](https://github.com/TrakHound/MTConnect.NET/tree/master/adapter/MTConnect.NET-Applications-Adapter) to build an Adapter is available and supports:
 - Modular architecture
     - SHDR Module (export data to an MTConnect Agent using the SHDR protocol)
     - MQTT Module (export data to an MQTT Broker to be read by an MTConnect Agent)
@@ -139,10 +133,10 @@ A preconfigured [Application](https://github.com/TrakHound/MTConnect.NET/tree/ve
 - Updated through a Nuget package (no source code copy & paste required when updating to new versions)
 
 #### SHDR Adapter Classes
-- [ShdrAdapter](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-SHDR/Adapters/Shdr/ShdrAdapter.cs) : Sends the most recent values On-Demand using the SendCurrent() method. This is used when full control of the communication is needed.
-- [ShdrIntervalAdapter](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-SHDR/Adapters/Shdr/ShdrIntervalAdapter.cs) : Sends the most recent values at the specified Interval. This is used when a set interval is adequate and the most recent value is all that is needed
-- [ShdrQueueAdapter](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-SHDR/Adapters/Shdr/ShdrQueueAdapter.cs) : Queues all values that are sent from the PLC and sends them all on demand using the SendBuffer() method. This is used when all values are needed and full control of the communication is needed.
-- [ShdrIntervalQueueAdapter](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-SHDR/Adapters/Shdr/ShdrIntervalQueueAdapter.cs) : Queues all values that are sent from the PLC and sends any queued values at the specified Interval. This is used when all values are needed but an interval is adequate.
+- [ShdrAdapter](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-SHDR/Adapters/ShdrAdapter.cs) : Sends the most recent values On-Demand using the SendCurrent() method. This is used when full control of the communication is needed.
+- [ShdrIntervalAdapter](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-SHDR/Adapters/ShdrIntervalAdapter.cs) : Sends the most recent values at the specified Interval. This is used when a set interval is adequate and the most recent value is all that is needed
+- [ShdrQueueAdapter](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-SHDR/Adapters/ShdrQueueAdapter.cs) : Queues all values that are sent from the PLC and sends them all on demand using the SendBuffer() method. This is used when all values are needed and full control of the communication is needed.
+- [ShdrIntervalQueueAdapter](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-SHDR/Adapters/ShdrIntervalQueueAdapter.cs) : Queues all values that are sent from the PLC and sends any queued values at the specified Interval. This is used when all values are needed but an interval is adequate.
 
 ## Nuget Packages
 The Nuget packages for the libraries in this repo are listed below:

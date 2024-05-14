@@ -23,8 +23,9 @@ This Agent Processor uses individual Python script files to transform input data
 
 ## Configuration
 ```yaml
-- python:
-    directory: processors
+processors:
+  - python:
+      directory: processors
 ```
 
 * `directory` - The directory to load and monitor for ".py" script files.

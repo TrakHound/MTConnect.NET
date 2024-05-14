@@ -3,7 +3,7 @@
 # MTConnect MQTT Adapter Agent Module
 This Agent Module implements an adapter to read from an MQTT broker
 
->This Module is still under development. Please feel free to leave feedback or create Issues on GitHub.
+>**Note:** This Module is still under development and may be deprecated in the future. Please feel free to leave feedback or create Issues on GitHub.
 
 ## Nuget
 <table>
@@ -25,11 +25,12 @@ This Agent Module implements an adapter to read from an MQTT broker
 
 ## Configuration
 ```yaml
-- mqtt-adapter:
-    server: localhost
-    port: 1883
-    topicPrefix: input
-    deviceKey: M12346
+modules:
+  - mqtt-adapter:
+      server: localhost
+      port: 1883
+      topicPrefix: input
+      deviceKey: M12346
 ```
 
 * `server` - The MQTT broker hostname

@@ -3,8 +3,6 @@
 # MTConnect.NET-MQTT
 MTConnect.NET-MQTT is an extension library to MTConnect.NET that provides an MQTT Broker & Client interface to an IMTConnectAgentBroker interface.
 
-> Updated for Version 6
-
 ## Nuget
 <table>
     <thead>
@@ -23,15 +21,16 @@ MTConnect.NET-MQTT is an extension library to MTConnect.NET that provides an MQT
     </tbody>
 </table>
 
-## Protocols
+# Topic Structures
+`Document` - Topics are the same as HTTP (Probe, Current, Sample, & Assets). Payloads are the corresponding MTConnect Response Documents. This provides a simple protocol that is performance based for applications with high frequency updates.
 
-[Output](https://github.com/TrakHound/MTConnect.NET/tree/master/libraries/MTConnect.NET-MQTT/README.md#Output) - Protocol for reading the output of an MTConnect Agent
+`Entity` - Topics are expanded where each Entity has it's own topic. This provides an easy to read interface for tools such as NodeRed, etc.
 
-[Input](https://github.com/TrakHound/MTConnect.NET/tree/master/libraries/MTConnect.NET-MQTT/README.md#Input) - Protocol for publishing data from a Data Source to an MTConnect Agent
 
-# Output
+## Document Topic Structure
+This topic structure is the official MQTT based protocol for MTConnect.
 
-## Topic Structures
+## Topics
 
 The **Document Topic Structure** uses the standard MTConnect Response documents as message payload and the standard MTConnect API endpoints as topics.
 
@@ -57,8 +56,7 @@ Each device is sent in an MTConnectDevices Response document. The message is pub
 #### Payload
 The payload currently defaults to use the **json-cppagent** Document Format ID.
 
-> See example MTConnectDevices Response Document Payload: (https://github.com/TrakHound/MTConnect.NET/tree/master/libraries/MTConnect.NET-JSON-cppagent/Examples/MTConnectDevicesResponseDocument.json)
-
+> **[Learn More](https://github.com/TrakHound/MTConnect.NET/tree/master/libraries/MTConnect.NET-JSON-cppagent/Examples/MTConnectDevicesResponseDocument.json)** : See example MTConnectDevices Response Document Payload
 
 ### Current
 
@@ -70,7 +68,7 @@ The payload currently defaults to use the **json-cppagent** Document Format ID.
 #### Payload
 The payload currently defaults to use the **json-cppagent** Document Format ID.
 
-> See example MTConnectDevices Response Document Payload: (https://github.com/TrakHound/MTConnect.NET/tree/master/libraries/MTConnect.NET-JSON-cppagent/Examples/MTConnectStreamsResponseDocument.json)
+> **[Learn More](https://github.com/TrakHound/MTConnect.NET/tree/master/libraries/MTConnect.NET-JSON-cppagent/Examples/MTConnectStreamsResponseDocument.json)** : See example MTConnectDevices Response Document Payload
 
 ### Sample
 
@@ -82,7 +80,7 @@ The payload currently defaults to use the **json-cppagent** Document Format ID.
 #### Payload
 The payload currently defaults to use the **json-cppagent** Document Format ID.
 
-> See example MTConnectDevices Response Document Payload: (https://github.com/TrakHound/MTConnect.NET/tree/master/libraries/MTConnect.NET-JSON-cppagent/Examples/MTConnectStreamsResponseDocument.json)
+> **[Learn More](https://github.com/TrakHound/MTConnect.NET/tree/master/libraries/MTConnect.NET-JSON-cppagent/Examples/MTConnectStreamsResponseDocument.json)** : See example MTConnectDevices Response Document Payload
 
 ### Asset
 ```
@@ -92,7 +90,74 @@ The payload currently defaults to use the **json-cppagent** Document Format ID.
 #### Payload
 The payload currently defaults to use the **json-cppagent** Document Format ID.
 
-> See example MTConnectDevices Response Document Payload: (https://github.com/TrakHound/MTConnect.NET/tree/master/libraries/MTConnect.NET-JSON-cppagent/Examples/MTConnectStreamsResponseDocument.json)
+> **[Learn More](https://github.com/TrakHound/MTConnect.NET/tree/master/libraries/MTConnect.NET-JSON-cppagent/Examples/MTConnectStreamsResponseDocument.json)** : See example MTConnectDevices Response Document Payload
 
-# Input
-The input protocol is used to publish data to an MTConnect Agent using MQTT. This can be either publishing to an external MQTT broker or to the internal MQTT broker (using the MqttBroker Agent Module).
+
+## Entity Topic Structure
+This topic structure is designed to supplement the Document topic structure and be used for use cases that may require a more simple protocol that requires less payload parsing or the ability to subscribe to specific DataItems.
+
+
+### Devices
+The **MTConnect/Devices** topics are used to send data that is in an MTConnectDevicesResponse document.
+
+```
+MTConnect/Devices/[DEVICE_UUID]/Device
+```
+
+### Observations
+Observations may use the **MTConnectMqttFormat.Flat** or **MTConnectMqttFormat.Hierarchy** option to specify how the topics are structured.
+
+MTConnectMqttFormat.Flat Format:
+```
+MTConnect/Devices/[DEVICE_UUID]/Observations/[DATA_ITEM_ID]
+```
+
+MTConnectMqttFormat.Hierarchy Format:
+```
+MTConnect/Devices/[DEVICE_UUID]/Observations/[COMPONENT_TYPE]/[COMPONENT_ID]/[DATA_ITEM_CATEGORY]/[DATA_ITEM_TYPE]/[DATA_ITEM_ID]
+MTConnect/Devices/[DEVICE_UUID]/Observations/[COMPONENT_TYPE]/[COMPONENT_ID]/[DATA_ITEM_CATEGORY]/[DATA_ITEM_TYPE]/SubTypes/[DATA_ITEM_SUBTYPE]/[DATA_ITEM_ID]
+```
+
+The "Flat" format is typically used for brokers that limit the topic depth (number of forward slash "/" characters). For example, AWS IoT Core.
+
+#### Device Condition Observations
+Condition messages are sent as an array of Observations since a Condition may have multiple Fault States. This is similar to how the Current request functions in an HTTP Agent.
+
+### Device Assets
+```
+MTConnect/Devices/[DEVICE_UUID]/Assets/[ASSET_TYPE]/[ASSET_ID]
+```
+
+### Topics
+
+> [Node] = (Payload)
+
+```
+- MTConnect
+   ─ Devices
+      ─ [DEVICE_UUID]
+        - Device = (JSON)
+        - Observations
+          - [DATA_ITEM_ID] = (JSON Array)
+          - [DATA_ITEM_ID] = (JSON Array)
+          - [DATA_ITEM_ID] = (JSON Array)
+        - Assets
+          - [ASSET_TYPE]
+            - [ASSET_ID] = (JSON)
+```
+
+### Example
+```
+- MTConnect
+   ─ Devices
+      ─ OKUMA.Lathe.123456
+        - Device
+        - Observations
+          - L2avail = {"dataItemId":"L2avail","name":"avail","type":"AVAILABILITY","timestamp":"2023-02-07T20:02:26.8978653Z","result":"AVAILABLE"}
+          - L2estop = {"dataItemId":"L2estop","name":"estop","type":"EMERGENCY_STOP","timestamp":"2023-02-07T20:02:26.8978653Z","result":"ARMED"}
+          - L2p1execution = {"dataItemId":"L2p1execution","name":"p1execution","type":"EXECUTION","timestamp":"2023-02-07T20:02:26.7671421Z","result":"UNAVAILABLE"}
+          - L2p1system = [{"level":"WARNING","dataItemId":"L2p1system","name":"p1system","type":"SYSTEM","timestamp":"2023-02-07T20:30:16.8639659Z","result":"Not Found","nativeCode":"404"},{"level":"FAULT","dataItemId":"L2p1system","name":"p1system","type":"SYSTEM","timestamp":"2023-02-07T20:30:38.9662297Z","result":"Interval Error","nativeCode":"500"}]         
+        - Assets
+          - CuttingTool
+            - 5.12 = {"assetId":"5.12","type":"CuttingTool","timestamp":"2023-02-07T13:36:04.7288143Z","deviceUuid":"OKUMA.Lathe.123456","serialNumber":"12345678946","toolId":"12","cuttingToolLifeCycle":{"cutterStatus":["AVAILABLE","NEW","MEASURED"],"location":{"type":"SPINDLE"},"programToolGroup":"5","programToolNumber":"12","measurements":[{"type":"FunctionalLength","value":7.6543,"units":"MILLIMETER","code":"LF"},{"type":"CuttingDiameterMax","value":0.375,"units":"MILLIMETER","code":"DC"}]}}
+```

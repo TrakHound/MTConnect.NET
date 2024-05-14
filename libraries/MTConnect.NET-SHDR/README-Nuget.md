@@ -6,20 +6,20 @@ Classes to handle the SHDR Agent Adapter Protocol associated with the MTConnect 
 ## Overview
 The ShdrAdapter classes handle the TCP connection to the Agent:
 
-- [ShdrAdapter](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-SHDR/Adapters/Shdr/ShdrAdapter.cs) : Sends the most recent values On-Demand using the SendChanged() method. This is used when full control of the communication is needed.
-- [ShdrIntervalAdapter](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-SHDR/Adapters/Shdr/ShdrIntervalAdapter.cs) : Sends the most recent values at the specified Interval. This is used when a set interval is adequate and the most recent value is all that is needed
-- [ShdrQueueAdapter](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-SHDR/Adapters/Shdr/ShdrQueueAdapter.cs) : Queues all values that are sent from the PLC and sends them all on demand using the SendBuffer() method. This is used when all values are needed and full control of the communication is needed.
-- [ShdrIntervalQueueAdapter](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-SHDR/Adapters/Shdr/ShdrIntervalQueueAdapter.cs) : Queues all values that are sent from the PLC and sends any queued values at the specified Interval. This is used when all values are needed but an interval is adequate.
+- [ShdrAdapter](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-SHDR/Adapters/ShdrAdapter.cs) : Sends the most recent values On-Demand using the SendChanged() method. This is used when full control of the communication is needed.
+- [ShdrIntervalAdapter](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-SHDR/Adapters/ShdrIntervalAdapter.cs) : Sends the most recent values at the specified Interval. This is used when a set interval is adequate and the most recent value is all that is needed
+- [ShdrQueueAdapter](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-SHDR/Adapters/ShdrQueueAdapter.cs) : Queues all values that are sent from the PLC and sends them all on demand using the SendBuffer() method. This is used when all values are needed and full control of the communication is needed.
+- [ShdrIntervalQueueAdapter](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-SHDR/Adapters/ShdrIntervalQueueAdapter.cs) : Queues all values that are sent from the PLC and sends any queued values at the specified Interval. This is used when all values are needed but an interval is adequate.
 
 SHDR conversion is handled in each individual class:
-- [ShdrDataItem](Shdr/ShdrDataItem.cs) : Handles converting Events and/or Samples with a Representation of VALUE to the appropriate SHDR format.
-- [ShdrCondition](Shdr/ShdrCondition.cs) : Handles converting Conditions to the appropriate SHDR format 
-- [ShdrTimeSeries](Shdr/ShdrTimeSeries.cs) : Handles converting Samples with a Representation of TIME_SERIES to the appropriate SHDR format
-- [ShdrDataSet](Shdr/ShdrDataSet.cs) : Handles converting Events and/or Samples with a Representation of DATA_SET to the appropriate SHDR format
-- [ShdrTable](Shdr/ShdrTable.cs) : Handles converting Events and/or Samples with a Representation of TABLE to the appropriate SHDR format
-- [ShdrAsset](Shdr/ShdrAsset.cs) : Handles converting Assets to the appropriate SHDR format
+- [ShdrDataItem](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-SHDR/Shdr/ShdrDataItem.cs) : Handles converting Events and/or Samples with a Representation of VALUE to the appropriate SHDR format.
+- [ShdrCondition](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-SHDR/Shdr/ShdrCondition.cs) : Handles converting Conditions to the appropriate SHDR format 
+- [ShdrTimeSeries](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-SHDR/Shdr/ShdrTimeSeries.cs) : Handles converting Samples with a Representation of TIME_SERIES to the appropriate SHDR format
+- [ShdrDataSet](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-SHDR/Shdr/ShdrDataSet.cs) : Handles converting Events and/or Samples with a Representation of DATA_SET to the appropriate SHDR format
+- [ShdrTable](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-SHDR/Shdr/ShdrTable.cs) : Handles converting Events and/or Samples with a Representation of TABLE to the appropriate SHDR format
+- [ShdrAsset](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-SHDR/Shdr/ShdrAsset.cs) : Handles converting Assets to the appropriate SHDR format
 
-The [ShdrAdapterClient](Adapters/Shdr/ShdrAdapterClient.cs) class handles the TCP connection to read from the Adapter and add data to an IMTConnectAgent class.
+The [ShdrAdapterClient](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-SHDR/Adapters/ShdrAdapterClient.cs) class handles the TCP connection to read from the Adapter and add data to an IMTConnectAgent class.
 
 ## Usage
 There are several different ways to setup and add data to the ShdrAdapter

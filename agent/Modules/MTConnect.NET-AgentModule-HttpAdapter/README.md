@@ -23,16 +23,33 @@ This Agent Module implements an adapter to read from other MTConnect Agents usin
 
 ## Configuration
 ```yaml
-- http-adapter:
-    address: localhost
-    port: 5000
-    deviceKey: M12346
-    interval: 100
+modules:
+  - http-adapter:
+      address: localhost
+      port: 5000
+      deviceKey: M12346
+      interval: 100
+      heartbeat: 10000
+      useSSL: false
+      currentOnly: false
+      useStreaming: true
 ```
 
 * `address` - The client Agent IP Address or Hostname to read from.
 
 * `port` - The port number to read from.
+
+* `deviceKey` - The Name or UUID of the Device to read
+
+* `interval` - The Interval (in milliseconds) to receive new data at
+
+* `heartbeat` - The Heartbeat (in milliseconds) to use to maintain a connection to the Agent
+
+* `useSSL` - Set to 'true' if using HTTPS
+
+* `currentOnly` - Gets or Sets whether the stream requests a Current (true) or a Sample (false)
+
+* `useStreaming` - Gets or Sets whether the client should use Streaming (true) or Polling (false)
 
 
 ## Contribution / Feedback

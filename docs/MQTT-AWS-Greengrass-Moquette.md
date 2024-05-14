@@ -14,27 +14,29 @@ Under the Deployment configuration for the `aws.greengrass.clientdevices.mqtt.Mo
 }
 ```
 
-## MTConnect Relay Agent
+## Relay Agent Module
 - [GitHub](https://github.com/TrakHound/MTConnect.NET/tree/master/applications/Agents/MTConnect-Agent-MQTT-Relay)
-- [Release](https://github.com/TrakHound/MTConnect.NET/releases/latest)
 
-### MTConnect Relay Agent Configuration
+### Example Configuration (agent.config.yaml)
 ```yaml
-# The hostname of the MQTT broker to publish messages to
-server: localhost
+modules:
+  - mqtt-relay:
 
-# The port number of the MQTT broker to publish messages to
-port: 8883
+    # The hostname of the MQTT broker to publish messages to
+    server: localhost
+    
+    # The port number of the MQTT broker to publish messages to
+    port: 8883
 
-# Set the ClientId to the AWS Thing ID
-clientId: trakhound-test
+    # Set the ClientId to the AWS Thing ID
+    clientId: trakhound-test
 
-# The cerficates to use are for the AWS Thing that is configured for the AWS Core Device
-tls:
-  pem:
-    certificateAuthority: C:\Users\patrick\Downloads\AmazonRootCA1.pem
-    certificatePath: C:\Users\patrick\Downloads\2316549874654321654984984158961634984794-certificate.pem.crt
-    privateKeyPath: C:\Users\patrick\Downloads\2316549874654321654984984158961634984794-private.pem.key
+    # The cerficates to use are for the AWS Thing that is configured for the AWS Core Device
+    tls:
+      pem:
+        certificateAuthority: C:\Users\patrick\Downloads\AmazonRootCA1.pem
+        certificatePath: C:\Users\patrick\Downloads\2316549874654321654984984158961634984794-certificate.pem.crt
+        privateKeyPath: C:\Users\patrick\Downloads\2316549874654321654984984158961634984794-private.pem.key
 ```
 
 ## Screenshots

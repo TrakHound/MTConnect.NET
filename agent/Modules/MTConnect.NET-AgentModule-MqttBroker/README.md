@@ -23,10 +23,11 @@ This Agent Module serves data via an **Internal** MQTT Broker
 
 ## Configuration
 ```yaml
-- mqtt-broker:
-    port: 1883
-    topicPrefix: MTConnect
-    topicStructure: Document
+modules:
+  - mqtt-broker:
+      port: 1883
+      topicPrefix: MTConnect
+      topicStructure: Document
 ```
 
 * `server` - The MQTT broker hostname to bind to

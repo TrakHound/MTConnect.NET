@@ -16,26 +16,25 @@
 The SSL cerfificates can be created in the AWS IoT console and should be downloaded to the PC/device the MTConnect Agent. 
 Files in this example are copied to the MTConnect Relay Agent's installation directory under the subdirectory "/certs".
 
-## MTConnect Relay Agent
+## Relay Agent Module
 - [GitHub](https://github.com/TrakHound/MTConnect.NET/tree/master/applications/Agents/MTConnect-Agent-MQTT-Relay)
-- [Release](https://github.com/TrakHound/MTConnect.NET/releases/latest)
 
-### Configuration
+### Example Configuration (agent.config.yaml)
 ```yaml
-...
+modules:
+  - mqtt-relay:
 
-# The hostname of the MQTT broker to publish messages to
-server: akljadkfjdlsf-ats.iot.us-east-1.amazonaws.com
+    # The hostname of the MQTT broker to publish messages to
+    server: akljadkfjdlsf-ats.iot.us-east-1.amazonaws.com
+    
+    # The port number of the MQTT broker to publish messages to
+    port: 8883
 
-# The port number of the MQTT broker to publish messages to
-port: 8883
+    # Set TLS configuration
+    tls:
+      pem:
+        certificateAuthority: certs/AmazonRootCA1.pem
+        certificatePath: certs/asfdslkafjdslkfjdklsdjf-certificate.pem.crt
+        privateKeyPath: certs/sdlkajlksdajfldskjfdldlskfjdslkaj-private.pem.key
 
-# Set TLS configuration
-tls:
-  pem:
-    certificateAuthority: certs/AmazonRootCA1.pem
-    certificatePath: certs/asfdslkafjdslkfjdklsdjf-certificate.pem.crt
-    privateKeyPath: certs/sdlkajlksdajfldskjfdldlskfjdslkaj-private.pem.key
-
-...
 ```

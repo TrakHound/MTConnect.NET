@@ -4,12 +4,12 @@ This is an example of an application that has an embedded MTConnect Agent. This 
 ## Create .NET Project
 Create a .NET Console project:
 
-![Visual-Studio-Create-Project](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/version-6.0/img/vs-create-console-project.png)
+![Visual-Studio-Create-Project](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/vs-create-console-project.png)
 
 ## Install Nuget Pacakge
-Install the [MTConnect.NET-Applications-Agents](https://www.nuget.org/packages/MTConnect.NET-Applications-Agents/6.2.2-beta) Nuget package:
+Install the [MTConnect.NET-Applications-Agents](https://www.nuget.org/packages/MTConnect.NET-Applications-Agents) Nuget package:
 ```
-dotnet add package MTConnect.NET-Applications-Agents --version 6.2.2-beta
+dotnet add package MTConnect.NET-Applications-Agents
 ```
 
 ## Edit Program.cs

@@ -36,10 +36,10 @@ namespace MTConnect.Modules.Http
         }
 
 
-        protected override void OnConfigureServer(ServerConfig serverConfig)
-        {
-            base.OnConfigureServer(serverConfig);
-        }
+        //protected override void OnConfigureServer(ServerConfig serverConfig)
+        //{
+        //    base.OnConfigureServer(serverConfig);
+        //}
 
         protected override Stream OnProcessStatic(MTConnectStaticFileRequest request)
         {

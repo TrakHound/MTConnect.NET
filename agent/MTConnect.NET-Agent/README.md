@@ -42,7 +42,7 @@ This project is a full implementation of an MTConnect Agent used to read data fr
 - Configuration File monitoring to automatically restart the Agent upon configuration file changes
 - Flexible Logging using NLog which can be used to output log information to separate files for easier analysis
 
-![Agent-Diagram](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/version-6.0/img/agent-diagram.png)
+![Agent-Diagram](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/agent-diagram.png)
 
 ## Capabilites
 | Description                          | Supported          | Description                          | Supported          |

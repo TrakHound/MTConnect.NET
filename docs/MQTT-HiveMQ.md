@@ -7,26 +7,21 @@
   - [Download](https://mqtt-explorer.com/) - Download the MQTT Explorer app to browse the MQTT broker
   - [GitHub](https://github.com/thomasnordquist/MQTT-Explorer)
 
-## MTConnect Relay Agent
+## Relay Agent Module
 - [GitHub](https://github.com/TrakHound/MTConnect.NET/tree/master/applications/Agents/MTConnect-Agent-MQTT-Relay)
-- [Release](https://github.com/TrakHound/MTConnect.NET/releases/latest)
 
-### Configuration
+### Example Configuration (agent.config.yaml)
 ```yaml
-...
+modules:
+  - mqtt-relay:
 
-# The hostname of the MQTT broker to publish messages to
-server: 56497654654651654654987.s1.eu.hivemq.cloud
+    # The hostname of the MQTT broker to publish messages to
+    server: 56497654654651654654987.s1.eu.hivemq.cloud
+    
+    # The port number of the MQTT broker to publish messages to
+    port: 8883
 
-# The port number of the MQTT broker to publish messages to
-port: 8883
-
-username: exampleuser
-password: examplepassword
-useTls: true
-
-mqttFormat: Hierarchy
-retainMessage: true
-
-...
+    username: exampleuser
+    password: examplepassword
+    useTls: true
 ```

@@ -4,6 +4,7 @@
 using Ceen;
 using MTConnect.Agents;
 using MTConnect.Configurations;
+using MTConnect.Http;
 using MTConnect.Logging;
 using MTConnect.Servers.Http;
 using System;

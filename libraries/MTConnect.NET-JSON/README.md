@@ -3,6 +3,8 @@
 # MTConnect.NET-JSON
 MTConnect.NET-JSON is an extension library to MTConnect.NET that provides reading and writing as JSON formatted Response Documents
 
+>**Note:** This Module is still under development and may be deprecated in the future. Please feel free to leave feedback or create Issues on GitHub.
+
 ## Nuget
 <table>
     <thead>

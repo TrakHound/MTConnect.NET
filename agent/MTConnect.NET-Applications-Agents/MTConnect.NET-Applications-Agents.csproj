@@ -78,23 +78,4 @@
 		<Compile Update="Service.cs" />
 	</ItemGroup>
 
-	<ItemGroup>
-		<Content Include="agent.config.default.yaml">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-			<CopyToOutput>true</CopyToOutput>
-			<IncludeInPackage>true</IncludeInPackage>
-			<Pack>True</Pack>
-			<PackagePath>contentFiles\any\any;content</PackagePath>
-			<PackageCopyToOutput>true</PackageCopyToOutput>
-		</Content>
-		<Content Include="NLog.default.config">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-			<CopyToOutput>true</CopyToOutput>
-			<IncludeInPackage>true</IncludeInPackage>
-			<Pack>True</Pack>
-			<PackagePath>contentFiles\any\any;content</PackagePath>
-			<PackageCopyToOutput>true</PackageCopyToOutput>
-		</Content>
-	</ItemGroup>
-
 </Project>
