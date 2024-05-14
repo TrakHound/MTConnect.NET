@@ -5,10 +5,10 @@ using System.Threading.Tasks;
 
 namespace Ceen.Httpd
 {
-	/// <summary>
-	/// Class that exposes part of the underlying stream to the reader
-	/// </summary>
-	public class DelimitedSubStream : Stream
+    /// <summary>
+    /// Class that exposes part of the underlying stream to the reader
+    /// </summary>
+    internal class DelimitedSubStream : Stream
 	{
 		/// <summary>
 		/// The underlying stream

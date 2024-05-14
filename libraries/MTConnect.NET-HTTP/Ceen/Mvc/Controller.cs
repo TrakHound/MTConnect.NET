@@ -8,19 +8,19 @@ using System.Text.Json;
 
 namespace Ceen.Mvc
 {
-	/// <summary>
-	/// A marker interface for setting routes on a controller.
-	/// Use this interface and place a RouteAttribute on it
-	/// </summary>
-	public interface IControllerPrefix
+    /// <summary>
+    /// A marker interface for setting routes on a controller.
+    /// Use this interface and place a RouteAttribute on it
+    /// </summary>
+    internal interface IControllerPrefix
 	{
 	}
 
-	/// <summary>
-	/// Interface for allowing a controller to reconfigure the static parts
-	/// from attributes to runtime values
-	/// </summary>
-    public interface IIDynamicConfiguredController
+    /// <summary>
+    /// Interface for allowing a controller to reconfigure the static parts
+    /// from attributes to runtime values
+    /// </summary>
+    internal interface IIDynamicConfiguredController
     {
 		/// <summary>
 		/// Change a statically parsed route at runtime
@@ -33,7 +33,7 @@ namespace Ceen.Mvc
     /// <summary>
     /// Implementation of support methods in a controller
     /// </summary>
-    public abstract class Controller
+    internal abstract class Controller
 	{
 		/// <summary>
 		/// Returns the result as JSON encoded with UTF-8

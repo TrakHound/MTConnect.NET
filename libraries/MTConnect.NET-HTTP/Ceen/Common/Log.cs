@@ -6,7 +6,7 @@ namespace Ceen
     /// <summary>
     /// Utility class for simple logging
     /// </summary>
-    public static class Log
+    internal static class Log
     {
         /// <summary>
         /// Logs an exception error

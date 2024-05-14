@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 
 namespace Ceen.Httpd
 {
-	/// <summary>
-	/// Configuration of a server instance
-	/// </summary>
-	public class ServerConfig : ILoadedModuleInfo
+    /// <summary>
+    /// Configuration of a server instance
+    /// </summary>
+    internal class ServerConfig : ILoadedModuleInfo
 	{
 		/// <summary>
 		/// The socket backlog.

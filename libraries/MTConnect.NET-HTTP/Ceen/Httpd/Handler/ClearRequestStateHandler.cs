@@ -3,10 +3,10 @@ using System.Threading.Tasks;
 
 namespace Ceen.Httpd.Handler
 {
-	/// <summary>
-	/// A handler that clears the request state
-	/// </summary>
-	public class ClearRequestStateHandler : IHttpModule
+    /// <summary>
+    /// A handler that clears the request state
+    /// </summary>
+    internal class ClearRequestStateHandler : IHttpModule
 	{
 		/// <summary>
 		/// Handles the request.

@@ -5,10 +5,10 @@ using System.Text.RegularExpressions;
 
 namespace Ceen.Mvc
 {
-	/// <summary>
-	/// The configuration for a controller router
-	/// </summary>
-	public class ControllerRouterConfig
+    /// <summary>
+    /// The configuration for a controller router
+    /// </summary>
+    internal class ControllerRouterConfig
 	{
 		/// <summary>
 		/// The default routing template

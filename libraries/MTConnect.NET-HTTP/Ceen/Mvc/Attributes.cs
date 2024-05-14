@@ -8,7 +8,7 @@ namespace Ceen.Mvc
 	/// Attribute for renaming an elements route
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, Inherited = true, AllowMultiple = true)]
-	public class RouteAttribute : Attribute
+    internal class RouteAttribute : Attribute
 	{
 		/// <summary>
 		/// Gets or sets the route.
@@ -30,7 +30,7 @@ namespace Ceen.Mvc
 	/// Attribute for renaming an elements route
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Parameter | AttributeTargets.Interface, Inherited = false, AllowMultiple = false)]
-	public class NameAttribute : Attribute 
+    internal class NameAttribute : Attribute 
 	{ 
 		/// <summary>
 		/// Gets or sets the name this routing entry uses
@@ -52,7 +52,7 @@ namespace Ceen.Mvc
 	/// Flags that describe the allowed sources for arguments
 	/// </summary>
 	[Flags]
-	public enum ParameterSource
+    internal enum ParameterSource
 	{
 		None = 0x0,
 		Url = 0x1,
@@ -66,7 +66,7 @@ namespace Ceen.Mvc
 	}
 
 	[AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
-	public class ParameterAttribute : Attribute
+    internal class ParameterAttribute : Attribute
 	{
 		/// <summary>
 		/// Gets or sets the allowed sources for the entry
@@ -100,7 +100,7 @@ namespace Ceen.Mvc
 	/// Base http verb filter attribute
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-	public class HttpVerbFilterAttribute : Attribute
+    internal class HttpVerbFilterAttribute : Attribute
 	{
 		/// <summary>
 		/// Gets or sets the verb this filter represents.
@@ -118,66 +118,66 @@ namespace Ceen.Mvc
 		}
 	}
 
-	/// <summary>
-	/// Http GET verb filter attribute.
-	/// </summary>
-	public class HttpGetAttribute : HttpVerbFilterAttribute
+    /// <summary>
+    /// Http GET verb filter attribute.
+    /// </summary>
+    internal class HttpGetAttribute : HttpVerbFilterAttribute
 	{
 		public HttpGetAttribute() : base("GET") { }
 	}
 
-	/// <summary>
-	/// Http POST verb filter attribute.
-	/// </summary>
-	public class HttpPostAttribute : HttpVerbFilterAttribute
+    /// <summary>
+    /// Http POST verb filter attribute.
+    /// </summary>
+    internal class HttpPostAttribute : HttpVerbFilterAttribute
 	{
 		public HttpPostAttribute() : base("POST") { }
 	}
 
-	/// <summary>
-	/// Http PUT verb filter attribute.
-	/// </summary>
-	public class HttpPutAttribute : HttpVerbFilterAttribute
+    /// <summary>
+    /// Http PUT verb filter attribute.
+    /// </summary>
+    internal class HttpPutAttribute : HttpVerbFilterAttribute
 	{
 		public HttpPutAttribute() : base("PUT") { }
 	}
 
-	/// <summary>
-	/// Http DELETE verb filter attribute.
-	/// </summary>
-	public class HttpDeleteAttribute : HttpVerbFilterAttribute
+    /// <summary>
+    /// Http DELETE verb filter attribute.
+    /// </summary>
+    internal class HttpDeleteAttribute : HttpVerbFilterAttribute
 	{
 		public HttpDeleteAttribute() : base("DELETE") { }
 	}
 
-	/// <summary>
-	/// Http HEAD verb filter attribute.
-	/// </summary>
-	public class HttpHeadAttribute : HttpVerbFilterAttribute
+    /// <summary>
+    /// Http HEAD verb filter attribute.
+    /// </summary>
+    internal class HttpHeadAttribute : HttpVerbFilterAttribute
 	{
 		public HttpHeadAttribute() : base("HEAD") { }
 	}
 
-	/// <summary>
-	/// Http PATCH verb filter attribute.
-	/// </summary>
-	public class HttpPatchAttribute : HttpVerbFilterAttribute
+    /// <summary>
+    /// Http PATCH verb filter attribute.
+    /// </summary>
+    internal class HttpPatchAttribute : HttpVerbFilterAttribute
 	{
 		public HttpPatchAttribute() : base("PATCH") { }
 	}
 
-	/// <summary>
-	/// Http MKCOL verb filter attribute.
-	/// </summary>
-	public class HttpMkColAttribute : HttpVerbFilterAttribute
+    /// <summary>
+    /// Http MKCOL verb filter attribute.
+    /// </summary>
+    internal class HttpMkColAttribute : HttpVerbFilterAttribute
 	{
 		public HttpMkColAttribute() : base("MKCOL") { }
 	}
 
-	/// <summary>
-	/// Http PROPFIND verb filter attribute.
-	/// </summary>
-	public class HttpPropFindAttribute : HttpVerbFilterAttribute
+    /// <summary>
+    /// Http PROPFIND verb filter attribute.
+    /// </summary>
+    internal class HttpPropFindAttribute : HttpVerbFilterAttribute
 	{
 		public HttpPropFindAttribute() : base("PROPFIND") { }
 	}

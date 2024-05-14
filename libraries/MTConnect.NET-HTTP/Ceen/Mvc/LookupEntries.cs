@@ -55,7 +55,7 @@ namespace Ceen.Mvc
 			ArgumentIndex = index;
 			Name = name;
 			Source = source;
-			IsContextParameter = par.ParameterType == typeof(IHttpContext) || par.ParameterType == typeof(IHttpRequest) || par.ParameterType == typeof(IHttpResponse);
+			IsContextParameter = par.ParameterType == typeof(IHttpContext) || par.ParameterType == typeof(IHttpRequestInternal) || par.ParameterType == typeof(IHttpResponse);
 			Required = required;
 		}
 	}

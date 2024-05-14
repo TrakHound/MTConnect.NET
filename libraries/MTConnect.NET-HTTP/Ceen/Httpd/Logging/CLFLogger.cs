@@ -6,10 +6,10 @@ using System.Globalization;
 
 namespace Ceen.Httpd.Logging
 {
-	/// <summary>
-	/// Implementation of a logger for the Combined Log Format
-	/// </summary>
-	public class CLFLogger : ILogger, IDisposable
+    /// <summary>
+    /// Implementation of a logger for the Combined Log Format
+    /// </summary>
+    internal class CLFLogger : ILogger, IDisposable
 	{
 		/// <summary>
 		/// The stream to write to

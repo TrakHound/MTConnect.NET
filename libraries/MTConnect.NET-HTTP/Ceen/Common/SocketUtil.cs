@@ -8,7 +8,7 @@ namespace Ceen
     /// <summary>
     /// Helper class for socket operations
     /// </summary>
-    public static class SocketUtil
+    internal static class SocketUtil
     {
         /// <summary>
         /// Creates a socket and binds it to the given address

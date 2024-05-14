@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace MTConnect.Servers.Http
 {
-    public abstract class MTConnectHttpResponseHandler : IHttpModule
+    internal abstract class MTConnectHttpResponseHandler : IHttpModule
     {
         protected readonly IMTConnectAgentBroker _mtconnectAgent;
         protected readonly IHttpServerConfiguration _serverConfiguration;
@@ -343,7 +343,7 @@ namespace MTConnect.Servers.Http
             return null;
         }
 
-        protected static IEnumerable<string> GetRequestHeaderValues(IHttpRequest request, string name)
+        protected static IEnumerable<string> GetRequestHeaderValues(IHttpRequestInternal request, string name)
         {
             if (request != null && request.Headers != null && !string.IsNullOrEmpty(name))
             {

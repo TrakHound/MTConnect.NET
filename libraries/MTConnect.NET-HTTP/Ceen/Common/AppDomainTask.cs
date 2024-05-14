@@ -6,7 +6,7 @@ namespace Ceen
 	/// <summary>
 	/// Implementation of a Task that works across app domains
 	/// </summary>
-	public class AppDomainTask : MarshalByRefObject
+	internal class AppDomainTask : MarshalByRefObject
 	{
 		/// <summary>
 		/// A task completion source

@@ -226,10 +226,10 @@ namespace Ceen.Httpd
 		}
 	}
 
-	/// <summary>
-	/// Wrapper helper to invoke methods across the AppDomain boundary
-	/// </summary>
-	public class StorageCreatorAccessor : IStorageCreator
+    /// <summary>
+    /// Wrapper helper to invoke methods across the AppDomain boundary
+    /// </summary>
+    internal class StorageCreatorAccessor : IStorageCreator
 	{
 		/// <summary>
 		/// The remote instance of the StorageCreator
@@ -439,10 +439,10 @@ namespace Ceen.Httpd
 		}
 	}
 
-	/// <summary>
-	/// A storage creator instance that uses simple in-memory dictionaries
-	/// </summary>
-	public class MemoryStorageCreator : MarshalByRefObject, IStorageCreator, IDisposable
+    /// <summary>
+    /// A storage creator instance that uses simple in-memory dictionaries
+    /// </summary>
+    internal class MemoryStorageCreator : MarshalByRefObject, IStorageCreator, IDisposable
 	{
 		/// <summary>
 		/// Synchronization lock

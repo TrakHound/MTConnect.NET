@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Ceen.Httpd.Handler
 {
-	public class SessionHandler : IHttpModule
+    internal class SessionHandler : IHttpModule
 	{
 		/// <summary>
 		/// The name of the storage module

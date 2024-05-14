@@ -3,18 +3,18 @@ using System.Threading.Tasks;
 
 namespace Ceen.Mvc
 {
-	/// <summary>
-	/// Interface for describing the result of an invocation.
-	/// </summary>
-	public interface IResult
+    /// <summary>
+    /// Interface for describing the result of an invocation.
+    /// </summary>
+    internal interface IResult
 	{
 		Task Execute(IHttpContext context);
 	}
 
-	/// <summary>
-	/// Interface for representing a simple status response without content
-	/// </summary>
-	public interface IStatusCodeResult : IResult
+    /// <summary>
+    /// Interface for representing a simple status response without content
+    /// </summary>
+    internal interface IStatusCodeResult : IResult
 	{
 		/// <summary>
 		/// Gets the status code.
@@ -27,10 +27,10 @@ namespace Ceen.Mvc
 		string StatusMessage { get; }
 	}
 
-	/// <summary>
-	/// Result wrapper for providing a status code result
-	/// </summary>
-	public struct StatusCodeResult : IStatusCodeResult
+    /// <summary>
+    /// Result wrapper for providing a status code result
+    /// </summary>
+    internal struct StatusCodeResult : IStatusCodeResult
 	{
 		/// <summary>
 		/// Gets the status code.

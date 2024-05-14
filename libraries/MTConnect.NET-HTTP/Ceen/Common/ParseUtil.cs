@@ -10,7 +10,7 @@ namespace Ceen
     /// <summary>
     /// Helper methods used to parse durations and sizes in a human readable format
     /// </summary>
-    public static class ParseUtil
+    internal static class ParseUtil
     {
         /// <summary>
         /// Parses a duration value

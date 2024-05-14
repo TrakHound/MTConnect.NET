@@ -3,10 +3,10 @@ using System.Threading.Tasks;
 
 namespace Ceen.Httpd.Logging
 {
-	/// <summary>
-	/// Outputs Common Log Format to STDOUT
-	/// </summary>
-	public sealed class CLFStdOut : CLFLogger
+    /// <summary>
+    /// Outputs Common Log Format to STDOUT
+    /// </summary>
+    internal sealed class CLFStdOut : CLFLogger
 	{
 		/// <summary>
 		/// Initializes a new instance of the <see cref="T:Ceen.Httpd.Logging.CFLStdOut"/> class.
@@ -17,10 +17,10 @@ namespace Ceen.Httpd.Logging
 		}
 	}
 
-	/// <summary>
-	/// Outputs Common Log Format to STDERR
-	/// </summary>
-	public sealed class CLFStdErr : CLFLogger
+    /// <summary>
+    /// Outputs Common Log Format to STDERR
+    /// </summary>
+    internal sealed class CLFStdErr : CLFLogger
 	{
 		/// <summary>
 		/// Initializes a new instance of the <see cref="T:Ceen.Httpd.Logging.CFLStdErr"/> class.
@@ -31,10 +31,10 @@ namespace Ceen.Httpd.Logging
 		}
 	}
 
-	/// <summary>
-	/// Logger that outputs exception messages to stdout
-	/// </summary>
-	public sealed class StdErrErrors : IMessageLogger
+    /// <summary>
+    /// Logger that outputs exception messages to stdout
+    /// </summary>
+    internal sealed class StdErrErrors : IMessageLogger
 	{
 		/// <summary>
 		/// A static cached instance of the StdErr stream
@@ -82,10 +82,10 @@ namespace Ceen.Httpd.Logging
         }
     }
 
-	/// <summary>
-	/// Logger that outputs exception messages to stdout
-	/// </summary>
-	public sealed class StdOutErrors : IMessageLogger
+    /// <summary>
+    /// Logger that outputs exception messages to stdout
+    /// </summary>
+    internal sealed class StdOutErrors : IMessageLogger
 	{
         /// <summary>
         /// Logs a message

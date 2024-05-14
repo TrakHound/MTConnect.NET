@@ -13,7 +13,7 @@ namespace Ceen.Httpd.Handler
     /// A request handler that mirrors an external HTTP source,
     /// using a local cache.
     /// </summary>
-    public class FileMirrorHandler : FileHandler
+    internal class FileMirrorHandler : FileHandler
     {
         /// <summary>
         /// Gets or sets the URL prefix being mirrored.
@@ -94,7 +94,7 @@ namespace Ceen.Httpd.Handler
         /// </summary>
         /// <param name="sourcefolder">The folder to server files from.</param>
         /// <param name="mimetypelookup">A mapping function to return the mime type for a given path.</param>
-        public FileMirrorHandler(string sourcefolder, Func<IHttpRequest, string, string> mimetypelookup)
+        public FileMirrorHandler(string sourcefolder, Func<IHttpRequestInternal, string, string> mimetypelookup)
             : base(sourcefolder, mimetypelookup)
         {
         }

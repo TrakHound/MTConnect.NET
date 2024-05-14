@@ -4,7 +4,7 @@ namespace Ceen
     /// Extension methods for providing responses from within
     /// an <see cref="IHttpResponse" /> instance
     /// </summary>
-    public static class ResponseUtility
+    internal static class ResponseUtility
     {
         /// <summary>
         /// Sets the status code and optional non-default message on the context's response instance

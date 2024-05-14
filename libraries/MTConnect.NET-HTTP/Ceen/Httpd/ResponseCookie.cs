@@ -4,10 +4,10 @@ using System.Globalization;
 
 namespace Ceen.Httpd
 {
-	/// <summary>
-	/// Representation of a response cookie
-	/// </summary>
-	public class ResponseCookie : IResponseCookie
+    /// <summary>
+    /// Representation of a response cookie
+    /// </summary>
+    internal class ResponseCookie : IResponseCookie
 	{
 		/// <summary>
 		/// List of settings attached to the cookie

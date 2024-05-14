@@ -3,10 +3,10 @@ using System.Threading.Tasks;
 
 namespace Ceen.Httpd.Handler
 {
-	/// <summary>
-	/// Simple handler that performs a redirect
-	/// </summary>
-	public class RedirectHandler : IHttpModule
+    /// <summary>
+    /// Simple handler that performs a redirect
+    /// </summary>
+    internal class RedirectHandler : IHttpModule
 	{
 		/// <summary>
 		/// Gets or sets the status code used to report the redirect.

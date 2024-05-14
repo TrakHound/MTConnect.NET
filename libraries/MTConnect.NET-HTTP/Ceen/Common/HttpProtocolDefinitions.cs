@@ -2,10 +2,10 @@
 
 namespace Ceen
 {
-	/// <summary>
-	/// List of supported HTTP status codes
-	/// </summary>
-	public enum HttpStatusCode
+    /// <summary>
+    /// List of supported HTTP status codes
+    /// </summary>
+    internal enum HttpStatusCode
 	{
 		Continue = 100,
 		SwitchingProtocols = 101,
@@ -72,10 +72,10 @@ namespace Ceen
 		NetworkAuthenticationRequired = 511,
 	}
 
-	/// <summary>
-	/// List of default messags to return for a HTTP status code
-	/// </summary>
-	public static class HttpStatusMessages
+    /// <summary>
+    /// List of default messags to return for a HTTP status code
+    /// </summary>
+    internal static class HttpStatusMessages
 	{
 		public static string DefaultMessage(HttpStatusCode code)
 		{

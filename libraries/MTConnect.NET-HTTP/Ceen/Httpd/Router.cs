@@ -6,10 +6,10 @@ using System.Linq;
 
 namespace Ceen.Httpd
 {
-	/// <summary>
-	/// Implementation of a simple regexp based router
-	/// </summary>
-	public class Router : IRouter
+    /// <summary>
+    /// Implementation of a simple regexp based router
+    /// </summary>
+    internal class Router : IRouter
 	{
 		/// <summary>
 		/// Regex for mathcing wildcard/globbing characters

@@ -5,6 +5,7 @@ using Ceen;
 using Ceen.Httpd;
 using MTConnect.Agents;
 using MTConnect.Configurations;
+using MTConnect.Http;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -93,7 +94,7 @@ namespace MTConnect.Servers.Http
         /// <summary>
         /// Method run after the initial ServerConfig is set but before the server is started. Used to edit the configuration and/or to add routes
         /// </summary>
-        protected virtual void OnConfigureServer(ServerConfig serverConfig) { }
+        internal virtual void OnConfigureServer(ServerConfig serverConfig) { }
 
         /// <summary>
         /// Method run on a Static File request

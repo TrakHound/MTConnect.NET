@@ -12,7 +12,7 @@ namespace Ceen.Httpd.Handler
     /// <summary>
     /// Basic implementation of a file-serving module
     /// </summary>
-    public class FileHandler : IHttpModuleWithSetup
+    internal class FileHandler : IHttpModuleWithSetup
     {
         /// <summary>
         /// Helper method to allow syntax similar to the Linq Any() call with async methods
@@ -235,7 +235,7 @@ namespace Ceen.Httpd.Handler
         /// <summary>
         /// Function that maps a request to a mime type
         /// </summary>
-        protected Func<IHttpRequest, string, string> m_mimetypelookup;
+        protected Func<IHttpRequestInternal, string, string> m_mimetypelookup;
         /// <summary>
         /// List of allowed index documents
         /// </summary>
@@ -332,7 +332,7 @@ namespace Ceen.Httpd.Handler
         /// </summary>
         /// <param name="sourcefolder">The folder to server files from.</param>
         /// <param name="mimetypelookup">A mapping function to return the mime type for a given path.</param>
-        public FileHandler(string sourcefolder, Func<IHttpRequest, string, string> mimetypelookup = null)
+        public FileHandler(string sourcefolder, Func<IHttpRequestInternal, string, string> mimetypelookup = null)
             : this(new FileSystem(), mimetypelookup)
         {
             SourceFolder = sourcefolder;
@@ -343,7 +343,7 @@ namespace Ceen.Httpd.Handler
         /// </summary>
         /// <param name="vfs">The virtual filesystem to use.</param>
         /// <param name="mimetypelookup">Mimetypelookup.</param>
-        public FileHandler(IVirtualFileSystem vfs, Func<IHttpRequest, string, string> mimetypelookup = null)
+        public FileHandler(IVirtualFileSystem vfs, Func<IHttpRequestInternal, string, string> mimetypelookup = null)
         {
             m_vfs = vfs ?? throw new ArgumentNullException(nameof(vfs));
             m_mimetypelookup = mimetypelookup ?? DefaultMimeTypes;
@@ -750,7 +750,7 @@ namespace Ceen.Httpd.Handler
         /// <returns>The mime type.</returns>
         /// <param name="request">The request.</param>
         /// <param name="mappedpath">The mapped filepath.</param>
-        public static string DefaultMimeTypes(IHttpRequest request, string mappedpath)
+        public static string DefaultMimeTypes(IHttpRequestInternal request, string mappedpath)
         {
             return DefaultMimeTypes(mappedpath);
         }

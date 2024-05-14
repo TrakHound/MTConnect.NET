@@ -6,10 +6,10 @@ using System.Reflection;
 
 namespace Ceen.Httpd.Logging
 {
-	/// <summary>
-	/// Implementation of a syslogger, using SyslogNet.Client by reflection
-	/// </summary>
-	public class SyslogLogger : CLFLogger
+    /// <summary>
+    /// Implementation of a syslogger, using SyslogNet.Client by reflection
+    /// </summary>
+    internal class SyslogLogger : CLFLogger
 	{
 		/// <summary>
 		/// The serializer instance

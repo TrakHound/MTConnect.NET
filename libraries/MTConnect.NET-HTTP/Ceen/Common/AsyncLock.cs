@@ -5,14 +5,14 @@ using System.Collections.Generic;
 
 namespace Ceen
 {
-	// Implementation based on: http://blogs.msdn.com/b/pfxteam/archive/2012/02/12/10266988.aspx
+    // Implementation based on: http://blogs.msdn.com/b/pfxteam/archive/2012/02/12/10266988.aspx
 
-	// Added support for cancellation tokens
+    // Added support for cancellation tokens
 
-	/// <summary>
-	/// Implementation of a Semaphore that is usable with await statements
-	/// </summary>
-	public class AsyncSemaphore
+    /// <summary>
+    /// Implementation of a Semaphore that is usable with await statements
+    /// </summary>
+    internal class AsyncSemaphore
 	{
 		/// <summary>
 		/// A task signaling completion

@@ -9,10 +9,10 @@ using System.Text.Json;
 
 namespace Ceen
 {
-	/// <summary>
-	/// Extension methods for the Mvc module
-	/// </summary>
-	public static class MvcExtensionMethods
+    /// <summary>
+    /// Extension methods for the Mvc module
+    /// </summary>
+    internal static class MvcExtensionMethods
 	{
 		/// <summary>
 		/// Creates a route instance from an assembly
@@ -94,10 +94,10 @@ namespace Ceen
 
 namespace Ceen.Mvc
 {
-	/// <summary>
-	/// Some common Linq methods
-	/// </summary>
-	public static class LinqHelpers
+    /// <summary>
+    /// Some common Linq methods
+    /// </summary>
+    internal static class LinqHelpers
 	{
 		/// <summary>
 		/// Builds a dictionary where the identical key values overwrite instead of throwing exceptions
@@ -339,10 +339,10 @@ namespace Ceen.Mvc
 		}
 	}
 
-	/// <summary>
-	/// Represents the parsed route before binding any variables
-	/// </summary>
-	public class PartialParsedRoute
+    /// <summary>
+    /// Represents the parsed route before binding any variables
+    /// </summary>
+    internal class PartialParsedRoute
 	{
 		/// <summary>
 		/// The controller instance to use
@@ -370,10 +370,10 @@ namespace Ceen.Mvc
 		public string[] Verbs;
 	}
 
-	/// <summary>
-	/// Router that can route to a set of controllers
-	/// </summary>
-	public class ControllerRouter : IRouter, IHttpModule
+    /// <summary>
+    /// Router that can route to a set of controllers
+    /// </summary>
+    internal class ControllerRouter : IRouter, IHttpModule
 	{
 		/// <summary>
 		/// The template used to locate controllers
@@ -789,7 +789,7 @@ namespace Ceen.Mvc
 
                 if (typeof(IHttpContext).IsAssignableFrom(e.Parameter.ParameterType))
                     values[ix] = context;
-                else if (typeof(IHttpRequest).IsAssignableFrom(e.Parameter.ParameterType))
+                else if (typeof(IHttpRequestInternal).IsAssignableFrom(e.Parameter.ParameterType))
                     values[ix] = context.Request;
                 else if (typeof(IHttpResponse).IsAssignableFrom(e.Parameter.ParameterType))
                     values[ix] = context.Response;

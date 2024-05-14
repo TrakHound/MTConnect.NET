@@ -8,7 +8,7 @@ namespace Ceen
     /// <summary>
     /// Helper class to serialize and deserialize an object into a query string
     /// </summary>
-	public static class QueryStringSerializer
+	internal static class QueryStringSerializer
 	{
 		/// <summary>
 		/// Decodes querystring values with &quot;+&quot; values as spaces

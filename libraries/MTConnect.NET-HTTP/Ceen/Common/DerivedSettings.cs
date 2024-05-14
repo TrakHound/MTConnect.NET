@@ -4,10 +4,10 @@ using System.Runtime.CompilerServices;
 
 namespace Ceen
 {
-	/// <summary>
-	/// A class that allows a base class to store common settings, that can then be overridden in the sub-classes
-	/// </summary>
-	public abstract class DerivedSettings<TBaseClass>
+    /// <summary>
+    /// A class that allows a base class to store common settings, that can then be overridden in the sub-classes
+    /// </summary>
+    internal abstract class DerivedSettings<TBaseClass>
 	{
 		/// <summary>
 		/// The base dictionary with all the settings

@@ -12,7 +12,7 @@ namespace Ceen.Httpd
     /// <summary>
     /// Representation of the values in a HTTP request
     /// </summary>
-    internal class HttpRequest : IHttpRequest, IDisposable
+    internal class HttpRequest : IHttpRequestInternal, IDisposable
     {
         /// <summary>
         /// The string indicating HTTP version 1.1

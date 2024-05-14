@@ -3,10 +3,10 @@ using System.Threading.Tasks;
 
 namespace Ceen.Httpd.Logging
 {
-	/// <summary>
-	/// Helper class for providing a logging method by a function delegate
-	/// </summary>
-	public class FunctionLogger : ILogger
+    /// <summary>
+    /// Helper class for providing a logging method by a function delegate
+    /// </summary>
+    internal class FunctionLogger : ILogger
 	{
 		/// <summary>
 		/// The logging function

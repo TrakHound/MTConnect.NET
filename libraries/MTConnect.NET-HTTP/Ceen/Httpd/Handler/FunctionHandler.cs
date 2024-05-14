@@ -3,10 +3,10 @@ using System.Threading.Tasks;
 
 namespace Ceen.Httpd.Handler
 {
-	/// <summary>
-	/// Implementation of a handler that operates on a lambda method or other delegate
-	/// </summary>
-	public class FunctionHandler : IHttpModule
+    /// <summary>
+    /// Implementation of a handler that operates on a lambda method or other delegate
+    /// </summary>
+    internal class FunctionHandler : IHttpModule
 	{
 		/// <summary>
 		/// The actual handler

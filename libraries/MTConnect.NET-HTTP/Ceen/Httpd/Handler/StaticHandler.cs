@@ -6,7 +6,7 @@ namespace Ceen.Httpd.Handler
     /// <summary>
     /// Handler module that returns a static response, such as redirect or 404
     /// </summary>
-    public class StaticHandler : IHttpModule
+    internal class StaticHandler : IHttpModule
     {
         /// <summary>
         /// Gets or sets the status code reported.

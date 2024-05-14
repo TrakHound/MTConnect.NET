@@ -4,10 +4,10 @@ using System.IO;
 
 namespace Ceen.Httpd
 {
-	/// <summary>
-	/// Interface for a multipart item
-	/// </summary>
-	public class MultipartItem : IMultipartItem
+    /// <summary>
+    /// Interface for a multipart item
+    /// </summary>
+    internal class MultipartItem : IMultipartItem
 	{
 		/// <summary>
 		/// The headers associated with the item

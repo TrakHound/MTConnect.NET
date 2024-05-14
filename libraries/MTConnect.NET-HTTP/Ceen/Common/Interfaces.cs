@@ -7,13 +7,14 @@ using System.Text;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Authentication;
 using System.Threading;
+using MTConnect.Http;
 
 namespace Ceen
 {
-	/// <summary>
-	/// Interface for a multipart-item, from a multi-part form request
-	/// </summary>
-	public interface IMultipartItem
+    /// <summary>
+    /// Interface for a multipart-item, from a multi-part form request
+    /// </summary>
+    internal interface IMultipartItem
 	{
 		/// <summary>
 		/// The headers associated with the item
@@ -96,121 +97,17 @@ namespace Ceen
 		bool HttpOnly { get; set; }
 	}
 
-	/// <summary>
-	/// Interface for a http request.
-	/// </summary>
-	public interface IHttpRequest
-	{
-		/// <summary>
-		/// Gets the HTTP Request line as sent by the client
-		/// </summary>
-		string RawHttpRequestLine { get; }
-		/// <summary>
-		/// The HTTP method or Verb
-		/// </summary>
-		string Method { get; }
-		/// <summary>
-		/// The path of the query, not including the query string
-		/// </summary>
-		string Path { get; }
-		/// <summary>
-		/// Gets the original path before internal rewrite.
-		/// </summary>
-		string OriginalPath { get; }
-		/// <summary>
-		/// The query string
-		/// </summary>
-		string RawQueryString { get; }
-		/// <summary>
-		/// Gets a parsed representation of the query string.
-		/// Duplicate values are not represented, instead only the latest is stored
-		/// </summary>
-		IDictionary<string, string> QueryString { get; }
-		/// <summary>
-		/// Gets the headers found in the request.
-		/// Duplicate values are not represented, instead only the latest is stored
-		/// </summary>
-		IDictionary<string, string> Headers { get; }
-		/// <summary>
-		/// Gets the form data, if any.
-		/// Duplicate values are not represented, instead only the latest is stored
-		/// </summary>
-		IDictionary<string, string> Form { get; }
-		/// <summary>
-		/// Gets the cookies supplied, if any.
-		/// Duplicate values are not represented, instead only the latest is stored
-		/// </summary>
-		IDictionary<string, string> Cookies { get; }
+    /// <summary>
+    /// Interface for a http request.
+    /// </summary>
+    internal interface IHttpRequestInternal : IHttpRequest
+    {
 		/// <summary>
 		/// Gets the posted files, if any.
 		/// Duplicate values are not represented, instead only the latest is stored
 		/// </summary>
 		IList<IMultipartItem> Files { get; }
-		/// <summary>
-		/// Gets the http version string.
-		/// </summary>
-		string HttpVersion { get; }
-		/// <summary>
-		/// Gets or sets a user identifier attached to the request.
-		/// This can be set by handlers processing the request to simplify dealing with logged in users.
-		/// Handlers should only set this is the user is authenticated.
-		/// This value can be logged.
-		/// </summary>
-		string UserID { get; set; }
-		/// <summary>
-		/// Gets or sets a session tracking ID.
-		/// This value can be logged and used to group requests from a single session
-		/// better than simply grouping by IP address
-		/// </summary>
-		string SessionID { get; set; }
-		/// <summary>
-		/// Gets a value indicating what connection security is used.
-		/// </summary>
-		SslProtocols SslProtocol { get; }
-		/// <summary>
-		/// Gets the remote endpoint
-		/// </summary>
-		EndPoint RemoteEndPoint { get; }
-		/// <summary>
-		/// Gets the client SSL certificate, if any
-		/// </summary>
-		X509Certificate ClientCertificate { get; }
-		/// <summary>
-		/// The taskid used for logging and tracing the connection
-		/// </summary>
-		string LogConnectionID { get; }
-        /// <summary>
-        /// The taskid used for logging and tracing the request
-        /// </summary>
-        string LogRequestID { get; }
-
-        /// <summary>
-        /// The stream representing the body of the request
-        /// </summary>
-        Stream Body { get; }
-
-		/// <summary>
-		/// Gets the HTTP Content-Type header value
-		/// </summary>
-		/// <value>The type of the content.</value>
-		string ContentType { get; }
-
-		/// <summary>
-		/// Gets the HTTP Content-Length header value
-		/// </summary>
-		/// <value>The length of the content.</value>
-		int ContentLength { get; }
-
-		/// <summary>
-		/// Gets the HTTP request hostname, can be null for a HTTP/1.0 request
-		/// </summary>
-		string Hostname { get; }
-
-		/// <summary>
-		/// Gets a dictionary with items attached to the current request.
-		/// </summary>
-		IDictionary<string, object> RequestState { get; }
-
+	
 		/// <summary>
 		/// Gets the handlers that have processed this request
 		/// </summary>
@@ -264,7 +161,7 @@ namespace Ceen
     /// <summary>
     /// Interface for a http response.
     /// </summary>
-    public interface IHttpResponse
+    internal interface IHttpResponse
 	{
 		/// <summary>
 		/// Gets or sets the HTTP version to report.
@@ -436,15 +333,15 @@ namespace Ceen
 		Stream GetResponseStream();
 	}
 
-	/// <summary>
-	/// Interface for a http handler
-	/// </summary>
-	public interface IHttpContext
+    /// <summary>
+    /// Interface for a http handler
+    /// </summary>
+    internal interface IHttpContext
 	{
 		/// <summary>
 		/// Gets the request.
 		/// </summary>
-		IHttpRequest Request { get; }
+		IHttpRequestInternal Request { get; }
 
 		/// <summary>
 		/// Gets the response
@@ -482,10 +379,10 @@ namespace Ceen
         Task LogMessageAsync(LogLevel level, string message, Exception ex);
 	}
 
-	/// <summary>
-	/// Interface for querying the current running server about the loaded modules
-	/// </summary>
-	public interface ILoadedModuleInfo
+    /// <summary>
+    /// Interface for querying the current running server about the loaded modules
+    /// </summary>
+    internal interface ILoadedModuleInfo
 	{
         /// <summary>
         /// The handlers loaded by the router
@@ -505,11 +402,11 @@ namespace Ceen
         IEnumerable<IPostProcessor> PostProcessors { get; }
     }
 
-	/// <summary>
-	/// Interface for giving a module a unique name,
-	/// allowing for easier access through the <see name="ILoadedModuleInfo" />
-	/// </summary>
-	public interface INamedModule
+    /// <summary>
+    /// Interface for giving a module a unique name,
+    /// allowing for easier access through the <see name="ILoadedModuleInfo" />
+    /// </summary>
+    internal interface INamedModule
 	{
 		/// <summary>
 		/// The name of the module
@@ -517,10 +414,10 @@ namespace Ceen
 		string Name { get; }
 	}
 
-	/// <summary>
-	/// Interface for implementing a routing provider
-	/// </summary>
-	public interface IRouter
+    /// <summary>
+    /// Interface for implementing a routing provider
+    /// </summary>
+    internal interface IRouter
 	{
 		/// <summary>
 		/// Process the request for the specified context.
@@ -530,10 +427,10 @@ namespace Ceen
 		Task<bool> Process(IHttpContext context);
 	}
 
-	/// <summary>
-	/// Shared interface for marking a module or logger as needing setup
-	/// </summary>
-	public interface IWithSetup
+    /// <summary>
+    /// Shared interface for marking a module or logger as needing setup
+    /// </summary>
+    internal interface IWithSetup
 	{
         /// <summary>
         /// Method called after module is configured
@@ -544,7 +441,7 @@ namespace Ceen
     /// <summary>
     /// Shared interface for marking a module or logger as needing to shutdown
     /// </summary>
-    public interface IWithShutdown
+    internal interface IWithShutdown
     {
         /// <summary>
         /// Method called when module needs to shut down
@@ -556,7 +453,7 @@ namespace Ceen
     /// <summary>
     /// Basic interface for a request handler
     /// </summary>
-    public interface IHttpModule
+    internal interface IHttpModule
 	{
 		/// <summary>
 		/// Process the request for the specified context.
@@ -570,14 +467,14 @@ namespace Ceen
     /// A module based on <see cref="IHttpModule"/> which is notified after being configured.
     /// Items that use this interface can do one-time setups in this call.
     /// </summary>
-    public interface IHttpModuleWithSetup : IHttpModule, IWithSetup
+    internal interface IHttpModuleWithSetup : IHttpModule, IWithSetup
     {
     }
 
-	/// <summary>
-	/// Interface for implementing a storage creator
-	/// </summary>
-	public interface IStorageCreator
+    /// <summary>
+    /// Interface for implementing a storage creator
+    /// </summary>
+    internal interface IStorageCreator
 	{
 		/// <summary>
 		/// Gets or creates a storage module with the given name
@@ -590,10 +487,10 @@ namespace Ceen
 		Task<IStorageEntry> GetStorageAsync(string name, string key, int ttl, bool autocreate);
 	}
 
-	/// <summary>
-	/// Interface for storing data
-	/// </summary>
-	public interface IStorageEntry : IDictionary<string, string>
+    /// <summary>
+    /// Interface for storing data
+    /// </summary>
+    internal interface IStorageEntry : IDictionary<string, string>
 	{
 		/// <summary>
 		/// Gets the name of the storage element
@@ -605,10 +502,10 @@ namespace Ceen
 		DateTime Expires { get; set; }
 	}
 
-	/// <summary>
-	/// The log levels
-	/// </summary>
-	public enum LogLevel
+    /// <summary>
+    /// The log levels
+    /// </summary>
+    internal enum LogLevel
 	{
 		/// <summary>The message is a debug message</summary>
 		Debug,
@@ -620,10 +517,10 @@ namespace Ceen
 		Error
 	}
 
-	/// <summary>
-	/// Interface for implementing a logging provider
-	/// </summary>
-	public interface ILogger
+    /// <summary>
+    /// Interface for implementing a logging provider
+    /// </summary>
+    internal interface ILogger
 	{
 		/// <summary>
 		/// Logs a completed request.
@@ -636,10 +533,10 @@ namespace Ceen
 		Task LogRequestCompletedAsync(IHttpContext context, Exception ex, DateTime started, TimeSpan duration);
 	}
 
-	/// <summary>
-	/// Interface for a logger that also accepts messages during requests
-	/// </summary>
-	public interface IMessageLogger : ILogger
+    /// <summary>
+    /// Interface for a logger that also accepts messages during requests
+    /// </summary>
+    internal interface IMessageLogger : ILogger
 	{
         /// <summary>
         /// Logs a message
@@ -654,44 +551,44 @@ namespace Ceen
 	}
 
 
-	/// <summary>
-	/// Interface for logging requests before they are processed
-	/// </summary>
-	public interface IStartLogger : ILogger
+    /// <summary>
+    /// Interface for logging requests before they are processed
+    /// </summary>
+    internal interface IStartLogger : ILogger
 	{
 		/// <summary>
 		/// Logs the start of a request.
 		/// </summary>
 		/// <returns>An awaitable task.</returns>
 		/// <param name="request">The request being started.</param>
-		Task LogRequestStartedAsync(IHttpRequest request);
+		Task LogRequestStartedAsync(IHttpRequestInternal request);
 	}
 
-	/// <summary>
-	/// Extensions to a logger module that requires configuration
-	/// </summary>
-	public interface ILoggerWithSetup : ILogger, IWithSetup
+    /// <summary>
+    /// Extensions to a logger module that requires configuration
+    /// </summary>
+    internal interface ILoggerWithSetup : ILogger, IWithSetup
 	{
     }
 
-	/// <summary>
-	/// Marker interface for a generic module
-	/// </summary>
-	public interface IModule
+    /// <summary>
+    /// Marker interface for a generic module
+    /// </summary>
+    internal interface IModule
 	{
 	}
 
     /// <summary>
     /// Extension to a generic module that requires configuration
     /// </summary>
-    public interface IModuleWithSetup : IModule, IWithSetup
+    internal interface IModuleWithSetup : IModule, IWithSetup
     {
     }
 
     /// <summary>
     /// Basic interface for a post-processing handler
     /// </summary>
-    public interface IPostProcessor
+    internal interface IPostProcessor
     {
         /// <summary>
         /// Process the request for the specified context.
@@ -704,7 +601,7 @@ namespace Ceen
     /// <summary>
     /// Extension for a post-processing handler that requires configuration
     /// </summary>
-    public interface IPostProcessorWithSetup : IPostProcessor, IWithSetup
+    internal interface IPostProcessorWithSetup : IPostProcessor, IWithSetup
 	{
 	}
 

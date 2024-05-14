@@ -7,7 +7,7 @@ namespace Ceen
 	/// as an HTTP error message
 	/// </summary>
 	[Serializable]
-	public class HttpException : Exception
+    internal class HttpException : Exception
 	{
 		/// <summary>
 		/// Gets the status code.

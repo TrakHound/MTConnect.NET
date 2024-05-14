@@ -12,10 +12,10 @@ using System.Collections.Generic;
 
 namespace Ceen.Httpd
 {
-	/// <summary>
-	/// The Http server implementation
-	/// </summary>
-	public static class HttpServer
+    /// <summary>
+    /// The Http server implementation
+    /// </summary>
+    internal static class HttpServer
 	{
         /// <summary>
         /// Handler class that encapsulates a configured server,

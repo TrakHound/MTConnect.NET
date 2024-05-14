@@ -7,7 +7,7 @@ namespace Ceen
     /// <summary>
     /// Implements a basic least-recently-used cache
     /// </summary>
-    public class LRUCache<T>
+    internal class LRUCache<T>
     {
         /// <summary>
         /// The lookup table giving O(1) access to the values

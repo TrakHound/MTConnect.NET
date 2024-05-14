@@ -6,7 +6,7 @@ using Ceen;
 
 namespace Ceen.Httpd.Handler
 {
-    public class CORSHandler : IHttpModuleWithSetup
+    internal class CORSHandler : IHttpModuleWithSetup
     {
         /// <summary>
         /// The allowed origins, use a wildcard (*) to allow any source

@@ -12,7 +12,7 @@ namespace Ceen
     /// <summary>
     /// The parsed language tag
     /// </summary>
-    public class LanguageTag
+    internal class LanguageTag
     {
         /// <summary>
         /// The primary language
@@ -77,7 +77,7 @@ namespace Ceen
     /// Helper methods for performing various common operations
     /// on a request instance
     /// </summary>
-    public static class RequestUtility
+    internal static class RequestUtility
     {
 		/// <summary>
 		/// Gets an encoding from a charset string
@@ -120,7 +120,7 @@ namespace Ceen
 		/// </summary>
 		/// <returns>The encoding for the charset.</returns>
 		/// <param name="request">The request instance.</param>
-		public static Encoding GetEncodingForCharset(this IHttpRequest request, string charset)
+		public static Encoding GetEncodingForCharset(this IHttpRequestInternal request, string charset)
             => GetEncodingForCharset(charset);
 
 		/// <summary>
@@ -128,7 +128,7 @@ namespace Ceen
 		/// </summary>
 		/// <returns>The encoding for the content-type.</returns>
 		/// <param name="request">The request instance.</param>
-		public static Encoding GetEncodingForContentType(this IHttpRequest request)
+		public static Encoding GetEncodingForContentType(this IHttpRequestInternal request)
             => GetEncodingForContentType(request.ContentType);
 
 		/// <summary>
@@ -156,7 +156,7 @@ namespace Ceen
 		/// <param name="request">The request to examine</param>
 		/// <param name="supportedLanguages">The list of supported languages</param>
 		/// <returns>The prefered language or null</returns>
-		public static LanguageTag GetAcceptLanguage(this IHttpRequest request, params string[] supportedLanguages)
+		public static LanguageTag GetAcceptLanguage(this IHttpRequestInternal request, params string[] supportedLanguages)
 		{
 			var lookup = supportedLanguages.ToLookup(x => x, StringComparer.InvariantCultureIgnoreCase);
 			return GetAcceptLanguages(request).FirstOrDefault(x => lookup.Contains(x.IANAName));
@@ -170,7 +170,7 @@ namespace Ceen
         /// <param name="request">The request to examine</param>
         /// <param name="supportedLanguages">The list of supported languages</param>
         /// <returns>The prefered language or null</returns>
-        public static LanguageTag GetAcceptMajorLanguage(this IHttpRequest request, params string[] supportedLanguages)
+        public static LanguageTag GetAcceptMajorLanguage(this IHttpRequestInternal request, params string[] supportedLanguages)
         {
             var lookup = supportedLanguages.ToLookup(x => x, StringComparer.InvariantCultureIgnoreCase);
             return GetAcceptLanguages(request)
@@ -182,7 +182,7 @@ namespace Ceen
         /// </summary>
         /// <param name="request">The request to examine</param>
         /// <returns>The ordered list of accepted languages</returns>
-        public static IOrderedEnumerable<LanguageTag> GetAcceptLanguages(this IHttpRequest request)
+        public static IOrderedEnumerable<LanguageTag> GetAcceptLanguages(this IHttpRequestInternal request)
 		{
 			return LANGUAGE_MATCHER
 				// Match the string
@@ -214,7 +214,7 @@ namespace Ceen
         /// </summary>
         /// <returns><c>true</c>, if multi-part was used, <c>false</c> otherwise.</returns>
         /// <param name="request">The request to examine.</param>
-        public static bool IsMultipartRequest(this IHttpRequest request)
+        public static bool IsMultipartRequest(this IHttpRequestInternal request)
         {
             return IsMultipartRequest(request.ContentType);
         }
@@ -235,7 +235,7 @@ namespace Ceen
         /// <param name="request">The request to evaluate the content type for</param>
         /// <param name="test">The type to test for</param>
         /// <returns><c>true</c> if the content-type matches the test type; <c>false</c> otherwise</returns>
-        public static bool IsContentType(this IHttpRequest request, string test)
+        public static bool IsContentType(this IHttpRequestInternal request, string test)
             => IsContentType(request.ContentType, test);
 
 
@@ -262,7 +262,7 @@ namespace Ceen
 		/// </summary>
 		/// <returns><c>true</c>, if the content type is json, <c>false</c> otherwise.</returns>
 		/// <param name="request">The request instance.</param>
-		public static bool IsJsonRequest(this IHttpRequest request)
+		public static bool IsJsonRequest(this IHttpRequestInternal request)
             => IsJsonRequest(request.ContentType);
 
 		/// <summary>
@@ -444,7 +444,7 @@ namespace Ceen
         /// </summary>
         /// <param name="self">The request instance</param>
         /// <returns>The remote IP</returns>
-        public static string GetRemoteIP(this Ceen.IHttpRequest self)
+        public static string GetRemoteIP(this Ceen.IHttpRequestInternal self)
             => (self.RemoteEndPoint as System.Net.IPEndPoint)?.Address.ToString();
 
         /// <summary>

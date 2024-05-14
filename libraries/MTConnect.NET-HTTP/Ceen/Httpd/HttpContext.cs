@@ -4,15 +4,15 @@ using System.Threading.Tasks;
 
 namespace Ceen.Httpd
 {
-	/// <summary>
-	/// A http context
-	/// </summary>
-	internal class HttpContext : IHttpContext
+    /// <summary>
+    /// A http context
+    /// </summary>
+    internal class HttpContext : IHttpContext
 	{
 		/// <summary>
 		/// Gets the HTTP request
 		/// </summary>
-		public IHttpRequest Request { get; private set; }
+		public IHttpRequestInternal Request { get; private set; }
 		/// <summary>
 		/// Gets the HTTP response.
 		/// </summary>

@@ -9,7 +9,7 @@ namespace Ceen.Common
     /// <summary>
     /// Helper class to provide synchronous waiting for asynchronous methods without deadlocking
     /// </summary>
-    public sealed class SyncAwaiter : SynchronizationContext, IDisposable
+    internal sealed class SyncAwaiter : SynchronizationContext, IDisposable
     {
         /// <summary>
         /// The queue keeping track of the waiters

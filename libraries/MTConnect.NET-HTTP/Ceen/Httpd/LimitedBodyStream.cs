@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Ceen.Httpd
 {
-    public class LimitedBodyStream : Stream
+    internal class LimitedBodyStream : Stream
     {
         /// <summary>
         /// The underlying stream

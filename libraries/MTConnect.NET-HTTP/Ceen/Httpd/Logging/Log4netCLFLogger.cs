@@ -8,10 +8,10 @@ using Ceen.Httpd.Logging;
 
 namespace Ceen.Httpd.Logging
 {
-	/// <summary>
-	/// Implementation of a logger that writes messages in the combined log format to log4net
-	/// </summary>
-	public class Log4netCLFLogger : CLFLogger
+    /// <summary>
+    /// Implementation of a logger that writes messages in the combined log format to log4net
+    /// </summary>
+    internal class Log4netCLFLogger : CLFLogger
 	{
 		/// <summary>
 		/// The log instance

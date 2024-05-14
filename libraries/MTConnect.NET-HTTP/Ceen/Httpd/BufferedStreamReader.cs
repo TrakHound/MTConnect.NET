@@ -5,14 +5,14 @@ using System.Threading;
 
 namespace Ceen.Httpd
 {
-	/// <summary>
-	/// Helper class that reads a stream,
-	/// but also provides a buffer to allow peek/read-ahead
-	/// It contains a special method to read data until the first 
-	/// CR LF CR LF entry (end of HTTP header), and leaves the rest of
-	/// the stream untouched.
-	/// </summary>
-	public class BufferedStreamReader : Stream
+    /// <summary>
+    /// Helper class that reads a stream,
+    /// but also provides a buffer to allow peek/read-ahead
+    /// It contains a special method to read data until the first 
+    /// CR LF CR LF entry (end of HTTP header), and leaves the rest of
+    /// the stream untouched.
+    /// </summary>
+    internal class BufferedStreamReader : Stream
 	{
 		/// <summary>
 		/// The underlying network stream

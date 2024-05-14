@@ -10,7 +10,7 @@ namespace Ceen.Mvc
     /// A controller that does not rely on attributes,
     /// but generates the routes at runtime
     /// </summary>
-    public class ManualRoutingController : Controller
+    internal class ManualRoutingController : Controller
     {
         /// <summary>
         /// The list of dynamic routes

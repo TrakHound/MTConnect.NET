@@ -4,11 +4,11 @@ using System.Threading.Tasks;
 
 namespace Ceen
 {
-	/// <summary>
-	/// Helper class that can run a task periodically
-	/// or when signalled explicitly
-	/// </summary>
-	public class PeriodicTask
+    /// <summary>
+    /// Helper class that can run a task periodically
+    /// or when signalled explicitly
+    /// </summary>
+    internal class PeriodicTask
 	{
 		/// <summary>
 		/// Gets or sets the expiration check interval.

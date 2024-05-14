@@ -8,7 +8,7 @@ namespace Ceen
     /// <summary>
     /// Helper class for providing a context for each run
     /// </summary>
-    public static class LoaderContext
+    internal static class LoaderContext
     {
         /// <summary>
         /// Interface for allowing the caller to freeze the scope
@@ -142,7 +142,7 @@ namespace Ceen
     /// <summary>
     /// Helper class for providing the current execution context via the call context
     /// </summary>
-    public static class Context
+    internal static class Context
     {
         /// <summary>
         /// The scope data, using AsyncLocal
@@ -166,7 +166,7 @@ namespace Ceen
         /// <summary>
         /// Gets the current active request
         /// </summary>
-        public static IHttpRequest Request => m_activeContext.Value?.Request;
+        public static IHttpRequestInternal Request => m_activeContext.Value?.Request;
         /// <summary>
         /// Gets the current active response
         /// </summary>

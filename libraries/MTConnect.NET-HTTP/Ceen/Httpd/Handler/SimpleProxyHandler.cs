@@ -10,7 +10,7 @@ namespace Ceen.Httpd.Handler
     /// <summary>
     /// A basic proxy handler that simply forwards all data from another http server
     /// </summary>
-    public class SimpleProxyHandler : IHttpModule
+    internal class SimpleProxyHandler : IHttpModule
     {
         /// <summary>
         /// The url we proxy requests for, should not end with a forward slash

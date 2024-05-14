@@ -22,10 +22,10 @@ using System.Collections.ObjectModel;
 
 namespace Ceen.Httpd
 {
-	/// <summary>
-	/// Implements default values for lookup in a standard dictionary
-	/// </summary>
-	public class DefaultableDictionary<TKey, TValue> : IDictionary<TKey, TValue>
+    /// <summary>
+    /// Implements default values for lookup in a standard dictionary
+    /// </summary>
+    internal class DefaultableDictionary<TKey, TValue> : IDictionary<TKey, TValue>
 	{
 		/// <summary>
 		/// The backing dictionary
