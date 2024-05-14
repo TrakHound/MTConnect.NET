@@ -142,19 +142,25 @@ Arguments :
 ```
 #### Example 1:
 Install the Agent as a Windows Service (Note: requires Administrator Privileges)
- > agent install
+ ```
+ agent install
+ ```
 
 #### Example 2:
 Install the Agent as a Windows Service using the configuration file "agent-config.json" and Starts the service (Note: requires Administrator Privileges)
-> agent install-start agent-config.json
+```
+agent install-start agent-config.json
+```
 
 #### Example 3:
 Starts the Windows Service (Note: requires Administrator Privileges)
-> agent start
+```
+agent start
+```
 
 
 ## Configuration
-More information about [Configurations](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-Common/Configurations). The default configuration file is shown below :
+More information about [Configurations](https://github.com/TrakHound/MTConnect.NET/tree/master/libraries/MTConnect.NET-Common/Configurations). The default configuration file is shown below :
 ```yaml
 # - Device Configuration -
 devices: devices
@@ -217,7 +223,7 @@ assetBufferSize: 1000
 durable: false
 
 # Sets the default MTConnect version to output response documents for.
-defaultVersion: 2.2
+defaultVersion: 2.3
 ```
 
 #### Device Configuration
@@ -268,7 +274,7 @@ Logging is done using [NLog](https://github.com/NLog/NLog) which allows for cust
 - **(agent-validation-logger)** MTConnect Data Validation Errors
 - **(module-logger)** Modules
 
-The default [NLog Configuration File](https://github.com/TrakHound/MTConnect.NET/blob/master/src/MTConnect.NET-Applications-Agents/NLog.config) is shown below:
+The default [NLog Configuration File](https://github.com/TrakHound/MTConnect.NET/blob/master/agent/MTConnect.NET-Applications-Agents/NLog.config) is shown below:
 
 ```xml
 <?xml version="1.0" encoding="utf-8" ?>
@@ -332,7 +338,7 @@ The default [NLog Configuration File](https://github.com/TrakHound/MTConnect.NET
 ```
 
 ## Source Code
-This project uses the MTConnect.NET-Applications-Agents library (available on [Nuget](https://www.nuget.org/packages/MTConnect.NET-Applications-Agents)) to create an MTConnect Agent application. More information about this library can be found [Here](https://github.com/TrakHound/MTConnect.NET/tree/master/src/MTConnect.NET-Applications-Agents). The MTConnect.NET-Applications-Agents library makes creating an MTConnect Agent application simple as well as makes it easy to keep updated using Nuget. A fully functionaly MTConnect Application can be created in just a few lines of code.
+This project uses the MTConnect.NET-Applications-Agents library (available on [Nuget](https://www.nuget.org/packages/MTConnect.NET-Applications-Agents)) to create an MTConnect Agent application. More information about this library can be found [Here](https://github.com/TrakHound/MTConnect.NET/tree/master/libraries/MTConnect.NET-Applications-Agents). The MTConnect.NET-Applications-Agents library makes creating an MTConnect Agent application simple as well as makes it easy to keep updated using Nuget. A fully functionaly MTConnect Application can be created in just a few lines of code.
 
 ## Contribution / Feedback
 - Please use the [Issues](https://github.com/TrakHound/MTConnect.NET/issues) tab to create issues for specific problems that you may encounter 
