@@ -73,35 +73,35 @@ Then click **"Next"** to proceed to the next page.
 *For more information about the MIT license click [Here](https://choosealicense.com/licenses/mit/)*
 
 
-![screenshot](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/MTConnect-Agent-HTTP/Installation/installer-license.png) 
+![screenshot](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/MTConnect-Agent/Installation/installer-license.png) 
 
 ### Step #2
 Select the directory to install the application in using the **"Browse"** button or accept the default.
 Then click **"Next"** to proceed to the next page.
 
 
-![screenshot](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/MTConnect-Agent-HTTP/Installation/installer-directory.png) 
+![screenshot](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/MTConnect-Agent/Installation/installer-directory.png) 
 
 ### Step #3
 Select the .NET version and Architecture (x64 or x86) to install the application for
 Then click **"Next"** to proceed to the next page.
 
 
-![screenshot](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/MTConnect-Agent-HTTP/Installation/installer-components.png) 
+![screenshot](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/MTConnect-Agent/Installation/installer-components.png) 
 
 ### Step #4
 Review the list of components that will be installed and if correct then click **"Install"** to begin 
 Then click **"Next"** to proceed to the next page.
 
 
-![screenshot](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/MTConnect-Agent-HTTP/Installation/installer-review.png) 
+![screenshot](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/MTConnect-Agent/Installation/installer-review.png) 
 
 ### Step #5
 Select the **"Open Probe in Web Browser"** and/or **"Open Current in Web Browser"** to view the Agent output and verify access 
 Then click **"Next"** to proceed to the next page.
 
 
-![screenshot](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/MTConnect-Agent-HTTP/Installation/installer-finish.png) 
+![screenshot](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/MTConnect-Agent/Installation/installer-finish.png) 
 
 ### Step #6
 View the Probe and Current requests in a Web Browser
@@ -109,10 +109,10 @@ View the Probe and Current requests in a Web Browser
 - [Current - http://localhost:5000/current](http://localhost:5000/current)
 
 #### Probe Request
-![screenshot](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/MTConnect-Agent-HTTP/Browser/probe-request-web-browser.png) 
+![screenshot](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/MTConnect-Agent/Browser/probe-request-web-browser.png) 
 
 #### Current Request
-![screenshot](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/MTConnect-Agent-HTTP/Browser/current-request-web-browser.png) 
+![screenshot](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/MTConnect-Agent/Browser/current-request-web-browser.png) 
 
 
 ## Usage
