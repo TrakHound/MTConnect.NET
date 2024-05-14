@@ -17,7 +17,7 @@
         <tr>
             <td>Installer</td>
             <td><img src="https://img.shields.io/github/downloads/TrakHound/MTConnect.NET/total?style=for-the-badge&logo=github&label=%20&color=%23333"/></td>
-            <td><a href="https://github.com/TrakHound/MTConnect.NET/releases/download/v5.4.3/MTConnect-Agent-HTTP-5.4.3-Install.exe">https://github.com/TrakHound/MTConnect.NET/releases</a></td>
+            <td><a href="https://github.com/TrakHound/MTConnect.NET/releases/latest">https://github.com/TrakHound/MTConnect.NET/releases/latest</a></td>
         </tr>
         <tr>
             <td>Docker</td>
