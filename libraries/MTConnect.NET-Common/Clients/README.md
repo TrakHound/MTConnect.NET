@@ -1,7 +1,9 @@
 # MTConnect Clients
 
-## Http REST Clients
-The [REST Clients](Rest) are the only clients that are currently available. The HTTP REST Api interface is the only interface described in the MTConnect standard
+#### Client Interfaces
+- [IMTConnectClient](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-Common/Clients/IMTConnectClient.cs) : Interface used to read MTConnect response documents (Probe, Current, Sample, and Assets)
+- [IMTConnectEntityClient](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-Common/Clients/IMTConnectEntityClient.cs) : Interface used to read MTConnect entities (Device, Observation, Asset)
 
-## Other Client Development
-Other clients such as an MQTT client *(coming soon)*
+#### Client Classes
+- [MTConnectHttpClient](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-HTTP/Clients/MTConnectHttpClient.cs) : Reads from MTConnect Agents using the MTConnect HTTP REST Api. Supports both polling and streaming. Supports compression. Supports XML & JSON.
+- [MTConnectMqttClient](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-MQTT/Clients/MTConnectMqttClient.cs) : Reads MTConnect data from an MQTT Broker. Supports the latest MTConnect MQTT Protocol.
