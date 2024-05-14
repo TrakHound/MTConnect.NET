@@ -5,7 +5,7 @@
 
 using NUnit.Framework;
 using MTConnect.Shdr;
-using MTConnect.Observations.Events.Values;
+using MTConnect.Observations.Events;
 using System.Collections.Generic;
 
 namespace MTConnect.Tests.Shdr

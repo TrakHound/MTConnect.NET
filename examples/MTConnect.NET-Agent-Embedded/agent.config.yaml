@@ -1,0 +1,19 @@
+modules:
+  
+- datasource:
+    deviceUuid: 7E647B2D-C6A3-40BF-9CE9-FB09834850C9
+    deviceName: dev-001
+    serialNumber: 123456
+    readInterval: 1000
+
+- http-server:
+    port: 5000
+
+# - mqtt-relay: # - Add MQTT Relay module (Document Structure)
+#     server: localhost  
+#     port: 1883
+#     currentInterval: 10000
+#     sampleInterval: 500
+#     documentFormat: JSON-CPPAGENT-MQTT
+#     topicPrefix: MTConnect
+#     topicStructure: Document

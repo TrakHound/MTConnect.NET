@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "MTConnect.NET-TLS": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:59479;http://localhost:59480"
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "MTConnect.NET-Adapter": {
+      "commandName": "Project",
+      "commandLineArgs": "debug"
+    }
+  }
+}

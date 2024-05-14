@@ -1,0 +1,13 @@
+{
+    "$schema": "http://json.schemastore.org/template",
+    "author": "TrakHound Inc.",
+    "classifications": [ "Common", "Console" ],
+    "identity": "MTConnect.NET-Agent-Template",
+    "name": "Template to create an embedded MTConnect Agent using the MTConnect.NET project",
+    "shortName": "mtconnect.net-agent",
+    "sourceName":"MTConnect.NET-Agent-Template",
+    "tags": {
+      "language": "C#",
+      "type": "project"
+    }
+  }

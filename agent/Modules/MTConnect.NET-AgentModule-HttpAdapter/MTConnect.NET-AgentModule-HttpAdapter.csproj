@@ -1,0 +1,63 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup Condition="'$(Configuration)'=='Debug'">
+		<TargetFrameworks>net8.0</TargetFrameworks>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)'=='Release'">
+		<TargetFrameworks>net461;net462;net47;net471;net472;net48;netstandard2.0;net6.0;net7.0;net8.0</TargetFrameworks>
+		<DebugSymbols>false</DebugSymbols>
+		<DebugType>None</DebugType>
+		<Optimize>true</Optimize>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)'=='Package'">
+		<TargetFrameworks>net461;net462;net47;net471;net472;net48;netstandard2.0;net6.0;net7.0;net8.0</TargetFrameworks>
+		<Optimize>true</Optimize>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<RootNamespace>MTConnect</RootNamespace>
+		<Configurations>Debug;Release;Package</Configurations>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+
+		<Copyright>Copyright (c) 2024 TrakHound Inc., All Rights Reserved.</Copyright>
+		<PackageTags>mtconnect;iiot;iot;cnc;</PackageTags>
+		<RepositoryUrl>https://github.com/TrakHound/MTConnect.NET</RepositoryUrl>
+
+		<Description>MTConnect.NET-AgentModule-HttpAdapter implements the MTConnect HTTP Client Protocol to read from other MTConnect Agents for use with the MTConnectAgentApplication class in the MTConnect.NET-Applications-Agent library. Supports MTConnect Versions up to 2.3. Supports .NET Framework 4.6.1 up to .NET 8</Description>
+		<PackageReadmeFile>README-Nuget.md</PackageReadmeFile>
+
+		<!-- Optional: Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+
+		<!-- Optional: Embed source files that are not tracked by the source control manager in the PDB -->
+		<EmbedUntrackedSources>true</EmbedUntrackedSources>
+
+		<!-- Optional: Build symbol package (.snupkg) to distribute the PDB containing Source Link -->
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+	</PropertyGroup>
+
+	<ItemGroup Condition="'$(Configuration)'=='Debug'">
+		<Compile Include="..\..\..\build\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(Configuration)'=='Release'">
+		<Compile Include="..\..\..\build\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
+	</ItemGroup>
+
+	<PropertyGroup Condition="'$(Configuration)'=='Package'">
+		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\..\libraries\MTConnect.NET-HTTP\MTConnect.NET-HTTP.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="README-Nuget.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+
+</Project>

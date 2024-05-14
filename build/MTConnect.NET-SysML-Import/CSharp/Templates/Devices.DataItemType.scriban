@@ -1,0 +1,188 @@
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
+// TrakHound Inc. licenses this file to you under the MIT license.
+
+// MTConnect SysML v2.3 : UML ID = {{uml_id}}
+
+{{- if (result_type && representation == "VALUE") }}
+
+using System;
+using MTConnect.Observations;
+using MTConnect.Input;
+using MTConnect.Observations.Events;
+{{- end }}
+
+namespace MTConnect.Devices.DataItems
+{
+    /// <summary>
+    /// {{description}}
+    /// </summary>
+    public class {{name}} : DataItem
+    {
+        public const DataItemCategory CategoryId = DataItemCategory.{{category}};
+        public const string TypeId = "{{type}}";
+        public const string NameId = "{{default_name}}";
+        {{ if (representation) }}public const DataItemRepresentation DefaultRepresentation = DataItemRepresentation.{{representation}};{{ end }}     
+        {{ if (units_enum) }}public const string DefaultUnits = {{units_enum}};{{ end }}     
+        public new const string DescriptionText = "{{description}}";
+        
+        public override string TypeDescription => DescriptionText;
+        {{ if (maximum_version_enum) }}public override System.Version MaximumVersion => {{maximum_version_enum}};{{ end }}
+        {{ if (minimum_version_enum) }}public override System.Version MinimumVersion => {{minimum_version_enum}};{{ end }}       
+
+{{ if ((sub_types | array.size) > 0) }}{{ i = 0 }}
+        public enum SubTypes
+        {
+{{- for sub_type in sub_types }}{{ i = i + 1 }}
+            /// <summary>
+            /// {{sub_type.description}}
+            /// </summary>
+            {{sub_type.name}}
+            {{- if (i < (sub_types | array.size)) }},
+            {{ end }}
+{{- end }}
+        }
+
+{{ end }}
+        public {{name}}()
+        {
+            Category = CategoryId;
+            Type = TypeId;
+            Name = NameId;
+            {{ if (representation) }}Representation = DefaultRepresentation;{{ end }}  
+            {{ if (units_enum) }}Units = DefaultUnits;{{ end }}
+        }
+
+{{- if ((sub_types | array.size) > 0) }}
+
+        public {{name}}(
+            string parentId,
+            SubTypes subType
+            )
+        {
+            Id = CreateId(parentId, NameId, GetSubTypeId(subType));
+            Category = CategoryId;
+            Type = TypeId;
+            SubType = subType.ToString();
+            Name = NameId;
+            {{ if (representation) }}Representation = DefaultRepresentation;{{ end }} 
+            {{ if (units_enum) }}Units = DefaultUnits;{{ end }}
+        }
+
+        public override string SubTypeDescription => GetSubTypeDescription(SubType);
+
+{{- if ((sub_types | array.size) > 0) }}{{ i = 0 }}
+
+        public static string GetSubTypeDescription(string subType)
+        {
+            var s = subType.ConvertEnum<SubTypes>();
+            switch (s)
+            {
+{{- for sub_type in sub_types }}{{ i = i + 1 }}
+                case SubTypes.{{sub_type.name}}: return "{{sub_type.description}}";
+{{- end }}
+            }
+
+            return null;
+        }
+{{- end }}
+{{- if ((sub_types | array.size) > 0) }}{{ i = 0 }}
+
+        public static string GetSubTypeId(SubTypes subType)
+        {
+            switch (subType)
+            {
+{{- for sub_type in sub_types }}{{ i = i + 1 }}
+                case SubTypes.{{sub_type.name}}: return "{{sub_type.name}}";
+{{- end }}
+            }
+
+            return null;
+        }
+{{- end }}
+{{ else }}
+
+        public {{name}}(string deviceId)
+        {
+            Id = CreateId(deviceId, NameId);
+            Category = CategoryId;
+            Type = TypeId;
+            Name = NameId;
+            {{ if (representation) }}Representation = DefaultRepresentation;{{ end }} 
+            {{ if (units_enum) }}Units = DefaultUnits;{{ end }}
+        }
+{{- end }}
+
+
+{{- if (result_type && representation == "VALUE") }}
+        /// <summary>
+        /// Determine if the DataItem with the specified Observation is valid in the specified MTConnectVersion
+        /// </summary>
+        /// <param name="mtconnectVersion">The Version of the MTConnect Standard</param>
+        /// <param name="observation">The Observation to validate</param>
+        /// <returns>A DataItemValidationResult indicating if Validation was successful and a Message</returns>
+        protected override ValidationResult OnValidation(Version mtconnectVersion, IObservationInput observation)
+        {
+            if (observation != null && !observation.Values.IsNullOrEmpty())
+            {
+                // Get the Result Value for the Observation
+                var result = observation.GetValue(ValueKeys.Result);
+                if (result != null)
+                {
+                    // Check Valid values in Enum
+                    var validValues = Enum.GetValues(typeof({{result_type}}));
+                    foreach (var validValue in validValues)
+                    {
+                        if (result == validValue.ToString())
+                        {
+                            return new ValidationResult(true);
+                        }
+                    }
+
+                    return new ValidationResult(false, "'" + result + "' is not a valid value for {{type}}");
+                }
+                else
+                {
+                    return new ValidationResult(false, "No Result is specified for the Observation");
+                }
+            }
+
+            return new ValidationResult(false, "No Observation is Specified");
+        }
+
+        /// <summary>
+        /// Determine if the DataItem with the specified Observation is valid in the specified MTConnectVersion
+        /// </summary>
+        /// <param name="mtconnectVersion">The Version of the MTConnect Standard</param>
+        /// <param name="observation">The Observation to validate</param>
+        /// <returns>A DataItemValidationResult indicating if Validation was successful and a Message</returns>
+        protected override ValidationResult OnValidation(Version mtconnectVersion, IObservation observation)
+        {
+            if (observation != null && !observation.Values.IsNullOrEmpty())
+            {
+                // Get the Result Value for the Observation
+                var result = observation.GetValue(ValueKeys.Result);
+                if (result != null)
+                {
+                    // Check Valid values in Enum
+                    var validValues = Enum.GetValues(typeof({{result_type}}));
+                    foreach (var validValue in validValues)
+                    {
+                        if (result == validValue.ToString())
+                        {
+                            return new ValidationResult(true);
+                        }
+                    }
+
+                    return new ValidationResult(false, "'" + result + "' is not a valid value for {{type}}");
+                }
+                else
+                {
+                    return new ValidationResult(false, "No Result is specified for the Observation");
+                }
+            }
+
+            return new ValidationResult(false, "No Observation is Specified");
+        }
+{{- end }}
+    }
+}

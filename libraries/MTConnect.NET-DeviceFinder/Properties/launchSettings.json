@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "MTConnect.NET-DeviceFinder": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:59469;http://localhost:59470"
+    }
+  }
+}

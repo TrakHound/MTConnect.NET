@@ -1,0 +1,168 @@
+﻿<Device uuid="OKUMA.Lathe.123456" name="Okuma" id="OKUMA.Lathe">
+	<Description manufacturer="OKUMA" model="LB3000" serialNumber="3216549771">
+		Okuma MT Connect Adapter - Lathe
+	</Description>
+	<DataItems>
+		<DataItem category="EVENT" id="L2avail" name="avail" type="AVAILABILITY"/>
+		<DataItem category="EVENT" id="dev1_asset_chg" type="ASSET_CHANGED"/>
+		<DataItem category="EVENT" id="dev1_asset_rem" type="ASSET_REMOVED"/>
+	</DataItems>
+	<Components>
+		<Axes id="L2axes1" name="Axes">
+			<Components>
+				<Rotary id="L2c1" name="C" nativeName="S">
+					<DataItems>
+						<DataItem category="SAMPLE" id="L2S1speed" name="S1speed" nativeUnits="REVOLUTION/MINUTE" subType="ACTUAL" type="ROTARY_VELOCITY" units="REVOLUTION/MINUTE"/>
+						<DataItem category="SAMPLE" id="L2S1cmd" name="S1cmd" nativeUnits="REVOLUTION/MINUTE" subType="COMMANDED" type="ROTARY_VELOCITY" units="REVOLUTION/MINUTE"/>
+						<DataItem category="EVENT" id="L2S1ovr" name="S1ovr" nativeUnits="PERCENT" subType="PROGRAMMED" type="ROTARY_VELOCITY_OVERRIDE" units="PERCENT"/>
+						<DataItem category="SAMPLE" id="L2S1load" name="S1load" nativeUnits="PERCENT" type="LOAD" units="PERCENT"/>
+						<DataItem category="EVENT" id="L2S1Mode" name="S1Mode" type="ROTARY_MODE">
+							<Constraints>
+								<Value>SPINDLE</Value>
+							</Constraints>
+						</DataItem>
+						<DataItem category="EVENT" id="L2S1ChuckState" name="S1ChuckState" type="CHUCK_STATE">
+						</DataItem>
+						<DataItem category="SAMPLE" id="L2S1SurfaceSpeed" name="S1SurfaceSpeed" nativeUnits="MILLIMETER/SECOND" type="e:SURFACE_SPEED" units="MILLIMETER/SECOND"/>
+					</DataItems>
+				</Rotary>
+				<Rotary id="L2c2" name="C2" nativeName="S">
+					<DataItems>
+						<DataItem category="SAMPLE" id="L2S2speed" name="S2speed" nativeUnits="REVOLUTION/MINUTE" subType="ACTUAL" type="ROTARY_VELOCITY" units="REVOLUTION/MINUTE"/>
+						<DataItem category="SAMPLE" id="L2S2cmd" name="S2cmd" nativeUnits="REVOLUTION/MINUTE" subType="PROGRAMMED" type="ROTARY_VELOCITY" units="REVOLUTION/MINUTE"/>
+						<DataItem category="EVENT" id="L2S2ovr" name="S2ovr" nativeUnits="PERCENT" subType="PROGRAMMED" type="ROTARY_VELOCITY_OVERRIDE" units="PERCENT"/>
+						<DataItem category="SAMPLE" id="L2S2load" name="S2load" nativeUnits="PERCENT" type="LOAD" units="PERCENT"/>
+						<DataItem category="EVENT" id="L2S2Mode" name="S2Mode" type="ROTARY_MODE">
+							<Constraints>
+								<Value>SPINDLE</Value>
+							</Constraints>
+						</DataItem>
+						<DataItem category="EVENT" id="L2S2ChuckState" name="S2ChuckState" type="CHUCK_STATE"/>
+						<!--<DataItem category="SAMPLE" id="L2S2SurfaceSpeed" name="S2SurfaceSpeed" nativeUnits="MILLIMETER/SECOND" type="e:SURFACE_SPEED" units="MILLIMETER/SECOND"/>-->
+					</DataItems>
+				</Rotary>
+				<Linear id="L2x1" name="X">
+					<DataItems>
+						<DataItem category="SAMPLE" coordinateSystem="MACHINE" id="L2X1actm" name="X1actm" nativeUnits="MILLIMETER" subType="ACTUAL" type="POSITION" units="MILLIMETER" significantDigits="5"/>
+						<DataItem category="SAMPLE" coordinateSystem="WORK" id="L2X1actw" name="X1actw" nativeUnits="MILLIMETER" subType="ACTUAL" type="POSITION" units="MILLIMETER"/>
+						<DataItem category="SAMPLE" id="L2X1load" name="X1load" nativeUnits="PERCENT" type="LOAD" units="PERCENT"/>
+					</DataItems>
+				</Linear>
+				<Linear id="L2x2" name="X2">
+					<DataItems>
+						<DataItem category="SAMPLE" coordinateSystem="MACHINE" id="L2X2actm" name="X2actm" nativeUnits="MILLIMETER" subType="ACTUAL" type="POSITION" units="MILLIMETER"/>
+						<DataItem category="SAMPLE" coordinateSystem="WORK" id="L2X2actw" name="X2actw" nativeUnits="MILLIMETER" subType="ACTUAL" type="POSITION" units="MILLIMETER"/>
+						<DataItem category="SAMPLE" id="L2X2load" name="X2load" nativeUnits="PERCENT" type="LOAD" units="PERCENT"/>
+					</DataItems>
+				</Linear>
+				<Linear id="L2z1" name="Z">
+					<DataItems>
+						<DataItem category="SAMPLE" coordinateSystem="MACHINE" id="L2Z1actm" name="Z1actm" nativeUnits="MILLIMETER" subType="ACTUAL" type="POSITION" units="MILLIMETER"/>
+						<DataItem category="SAMPLE" coordinateSystem="WORK" id="L2Z1actw" name="Z1actw" nativeUnits="MILLIMETER" subType="ACTUAL" type="POSITION" units="MILLIMETER"/>
+						<DataItem category="SAMPLE" id="L2Z1load" name="Z1load" nativeUnits="PERCENT" type="LOAD" units="PERCENT"/>
+					</DataItems>
+				</Linear>
+				<Linear id="L2z2" name="Z2">
+					<DataItems>
+						<DataItem category="SAMPLE" coordinateSystem="MACHINE" id="L2Z2actm" name="Z2actm" nativeUnits="MILLIMETER" subType="ACTUAL" type="POSITION" units="MILLIMETER"/>
+						<DataItem category="SAMPLE" coordinateSystem="WORK" id="L2Z2actw" name="Z2actw" nativeUnits="MILLIMETER" subType="ACTUAL" type="POSITION" units="MILLIMETER"/>
+						<DataItem category="SAMPLE" id="L2Z2load" name="Z2load" nativeUnits="PERCENT" type="LOAD" units="PERCENT"/>
+					</DataItems>
+				</Linear>
+			
+		</Components>
+		</Axes>
+		<Controller id="L2ct1" name="Controller">
+			<DataItems>
+				<DataItem category="EVENT" id="L2estop" name="estop" type="EMERGENCY_STOP"/>
+			</DataItems>
+			<Components>
+				<Path id="L2p1" name="path">
+					<DataItems>
+						<DataItem category="EVENT" id="L2f1mode" name="f1mode" type="FUNCTIONAL_MODE"/>
+						<DataItem category="CONDITION" id="L2p1system" name="p1system" type="SYSTEM"/>
+						<DataItem category="EVENT" id="L2p1mode" name="p1mode" type="CONTROLLER_MODE"/>
+						<DataItem category="EVENT" id="L2p1program" name="p1program" type="PROGRAM"/>
+						<DataItem category="EVENT" id="L2p1execution" name="p1execution" type="EXECUTION"/>
+						<DataItem category="EVENT" id="L2p1Fovr" name="p1Fovr" nativeUnits="PERCENT" subType="PROGRAMMED" type="PATH_FEEDRATE_OVERRIDE" units="PERCENT"/>
+						<DataItem category="EVENT" id="L2p1partcount" name="p1partcount" type="PART_COUNT"/>
+						<DataItem category="SAMPLE" id="L2p1Fact" name="p1Fact" nativeUnits="MILLIMETER/MINUTE" subType="ACTUAL" type="PATH_FEEDRATE" units="MILLIMETER/SECOND"/>
+						<DataItem category="EVENT" id="L2p1block" name="p1block" type="BLOCK"/>
+						<DataItem category="EVENT" id="L2p1line" name="p1line" type="LINE"/>
+						<DataItem category="SAMPLE" id="L2p1Fcmd" name="p1Fcmd" nativeUnits="MILLIMETER/MINUTE" subType="PROGRAMMED" type="PATH_FEEDRATE" units="MILLIMETER/SECOND"/>
+						<DataItem category="SAMPLE" coordinateSystem="WORK" id="L2p1LPathPos" name="p1LPathPos" nativeUnits="MILLIMETER_3D" subType="ACTUAL" type="PATH_POSITION" units="MILLIMETER_3D"/>
+						<DataItem category="SAMPLE" id="L2p1TotalOperatingTime" name="p1TotalOperatingTime" subType="x:TOTAL_OPERATING_TIME" type="ACCUMULATED_TIME"/>
+						<DataItem category="SAMPLE" id="L2p1TotalRunningTime" name="p1TotalRunningTime" subType="x:TOTAL_RUNNING_TIME" type="ACCUMULATED_TIME"/>
+						<DataItem category="SAMPLE" id="L2p1TotalCuttingTime" name="p1TotalCuttingTime" subType="x:TOTAL_CUTTING_TIME" type="ACCUMULATED_TIME"/>
+						<DataItem category="SAMPLE" id="L2p1TotalSpindleRunTime" name="p1TotalSpindleRunTime" subType="x:TOTAL_SPINDLE_RUN_TIME" type="ACCUMULATED_TIME"/>
+						<DataItem category="SAMPLE" id="L2p1OperatingTime" name="p1OperatingTime" subType="x:OPERATING_TIME" type="ACCUMULATED_TIME"/>
+						<DataItem category="SAMPLE" id="L2p1RunningTime" name="p1RunningTime" subType="x:RUNNING_TIME" type="ACCUMULATED_TIME"/>
+						<DataItem category="SAMPLE" id="L2p1CuttingTime" name="p1CuttingTime" subType="x:CUTTING_TIME" type="ACCUMULATED_TIME"/>
+						<DataItem category="SAMPLE" id="L2p1SpindleRunTime" name="p1SpindleRunTime" subType="x:SPINDLE_RUN_TIME" type="ACCUMULATED_TIME"/>
+						<!--<DataItem category="EVENT" id="L2p1CommonVariable" name="p1CommonVariable" subType="x:COMMON" type="e:VARIABLES"/>-->
+						<!--<DataItem category="EVENT" id="L2p1MacManPanelHistory" name="p1MacManPanelHistory" subType="x:PANEL_HISTORY" type="e:MACMAN"/>-->
+						<!--<DataItem category="EVENT" id="L2p1MachineOperationPanelOutputDryRun" name="p1MachineOperationPanelOutputDryRun" subType="x:DRY_RUN" type="e:OUTPUT_SIGNAL"/>-->
+						<!--<DataItem category="EVENT" id="L2p1MachineOperationPanelOutputMachineLock" name="p1MachineOperationPanelOutputMachineLock" subType="x:MACHINE_LOCK" type="e:OUTPUT_SIGNAL"/>-->
+						<DataItem category="EVENT" id="L2p1CurrentTool" name="p1CurrentTool" type="TOOL_NUMBER"/>
+						<DataItem category="EVENT" id="L2p1ToolAssetId" name="p1ToolAssetId" type="TOOL_ASSET_ID"/>
+						<DataItem category="EVENT" id="L2p1ProgramHeader" name="p1ProgramHeader" type="PROGRAM_HEADER"/>
+						<!--<DataItem category="EVENT" id="L2p1Variables" name="p1Variables" type="x:VARIABLES" representation="DATA_SET"/>-->
+						<!--<DataItem category="EVENT" id="L2p1ToolTable" name="p1ToolTable" type="TOOL_TABLE" representation="TABLE"/>-->
+						<!--<DataItem category="SAMPLE" id="L2p1Sensor" name="p1Sensor" type="x:TEMPERATURE" representation="TIME_SERIES"/>-->
+						<DataItem category="SAMPLE" id="L2p1Sensor" type="VARIABLE" representation="TIME_SERIES"/>
+						<DataItem category="EVENT" id="L2p1Variables" type="TOOL_OFFSET" representation="DATA_SET"/>
+						<DataItem category="EVENT" id="L2p1ToolTable" type="WORK_OFFSET" representation="TABLE"/>
+						
+												<DataItem category="SAMPLE" id="testTimeSeries" type="VARIABLE" representation="TIME_SERIES"/>
+						<DataItem category="EVENT" id="testDataSet" type="TOOL_OFFSET" representation="DATA_SET"/>
+						<DataItem category="EVENT" id="testTable" type="WORK_OFFSET" representation="TABLE"/>
+						
+					</DataItems>
+				</Path>
+				<Path id="L2p2" name="path2">
+					<DataItems>
+						<DataItem category="EVENT" id="L2f2mode" name="f2mode" type="FUNCTIONAL_MODE"/>
+						<DataItem category="CONDITION" id="L2p2system" name="p2system" type="SYSTEM"/>
+						<DataItem category="EVENT" id="L2p2mode" name="p2mode" type="CONTROLLER_MODE"/>
+						<DataItem category="EVENT" id="L2p2program" name="p2program" type="PROGRAM"/>
+						<DataItem category="EVENT" id="L2p2execution" name="p2execution" type="EXECUTION"/>
+						<DataItem category="EVENT" id="L2p2Fovr" name="p2Fovr" nativeUnits="PERCENT" subType="PROGRAMMED" type="PATH_FEEDRATE_OVERRIDE" units="PERCENT"/>
+						<DataItem category="EVENT" id="L2p2partcount" name="p2partcount" type="PART_COUNT"/>
+						<DataItem category="SAMPLE" id="L2p2Fact" name="p2Fact" nativeUnits="MILLIMETER/MINUTE" subType="ACTUAL" type="PATH_FEEDRATE" units="MILLIMETER/SECOND"/>
+						<DataItem category="EVENT" id="L2p2block" name="p2block" type="BLOCK"/>
+						<DataItem category="EVENT" id="L2p2line" name="p2line" type="LINE"/>
+						<DataItem category="SAMPLE" id="L2p2Fcmd" name="p2Fcmd" nativeUnits="MILLIMETER/MINUTE" subType="PROGRAMMED" type="PATH_FEEDRATE" units="MILLIMETER/SECOND"/>
+						<DataItem category="SAMPLE" coordinateSystem="WORK" id="L2p2LPathPos" name="p2LPathPos" nativeUnits="MILLIMETER_3D" subType="ACTUAL" type="PATH_POSITION" units="MILLIMETER_3D"/>
+						<DataItem category="SAMPLE" id="L2p2TotalOperatingTime" name="p2TotalOperatingTime" subType="x:TOTAL_OPERATING_TIME" type="ACCUMULATED_TIME"/>
+						<DataItem category="SAMPLE" id="L2p2TotalRunningTime" name="p2TotalRunningTime" subType="x:TOTAL_RUNNING_TIME" type="ACCUMULATED_TIME"/>
+						<DataItem category="SAMPLE" id="L2p2TotalCuttingTime" name="p2TotalCuttingTime" subType="x:TOTAL_CUTTING_TIME" type="ACCUMULATED_TIME"/>
+						<DataItem category="SAMPLE" id="L2p2TotalSpindleRunTime" name="p2TotalSpindleRunTime" subType="x:TOTAL_SPINDLE_RUN_TIME" type="ACCUMULATED_TIME"/>
+						<DataItem category="SAMPLE" id="L2p2OperatingTime" name="p2OperatingTime" subType="x:OPERATING_TIME" type="ACCUMULATED_TIME"/>
+						<DataItem category="SAMPLE" id="L2p2RunningTime" name="p2RunningTime" subType="x:RUNNING_TIME" type="ACCUMULATED_TIME"/>
+						<DataItem category="SAMPLE" id="L2p2CuttingTime" name="p2CuttingTime" subType="x:CUTTING_TIME" type="ACCUMULATED_TIME"/>
+						<DataItem category="SAMPLE" id="L2p2SpindleRunTime" name="p2SpindleRunTime" subType="x:SPINDLE_RUN_TIME" type="ACCUMULATED_TIME"/>
+						<!--<DataItem category="EVENT" id="L2p2CommonVariable" name="p2CommonVariable" subType="x:COMMON" type="e:VARIABLES"/>-->
+						<!--<DataItem category="EVENT" id="L2p2CommonVariableSet" name="p2CommonVariableSet" representation="DATA_SET" type="VARIABLE"/>-->
+						<!--<DataItem category="EVENT" id="L2p2CommonVariableTable" name="p2CommonVariableTable" representation="TABLE" type="VARIABLE"/>-->
+						<!--<DataItem category="EVENT" id="L2p2MacManPanelHistory" name="p2MacManPanelHistory" subType="x:PANEL_HISTORY" type="e:MACMAN"/>-->
+						<!--<DataItem category="EVENT" id="L2p2MachineOperationPanelOutputDryRun" name="p2MachineOperationPanelOutputDryRun" subType="x:DRY_RUN" type="e:OUTPUT_SIGNAL"/>
+								<DataItem category="EVENT" id="L2p2MachineOperationPanelOutputMachineLock" name="p2MachineOperationPanelOutputMachineLock" subType="x:MACHINE_LOCK" type="e:OUTPUT_SIGNAL"/>
+								<DataItem category="EVENT" id="L2PlcMonitorIO_1" name="PlcMonitorIO_1" subType="x:PLC_MONITOR_IO_1" type="e:INPUT_OUTPUT_SIGNAL"/>
+								<DataItem category="EVENT" id="L2PlcMonitorIO_2" name="PlcMonitorIO_2" subType="x:PLC_MONITOR_IO_2" type="e:INPUT_OUTPUT_SIGNAL"/>
+								<DataItem category="EVENT" id="L2PlcMonitorIO_3" name="PlcMonitorIO_3" subType="x:PLC_MONITOR_IO_3" type="e:INPUT_OUTPUT_SIGNAL"/>
+								<DataItem category="EVENT" id="L2PlcMonitorIO_4" name="PlcMonitorIO_4" subType="x:PLC_MONITOR_IO_4" type="e:INPUT_OUTPUT_SIGNAL"/>
+								<DataItem category="EVENT" id="L2PlcMonitorIO_5" name="PlcMonitorIO_5" subType="x:PLC_MONITOR_IO_5" type="e:INPUT_OUTPUT_SIGNAL"/>
+								<DataItem category="EVENT" id="L2PlcMonitorIO_6" name="PlcMonitorIO_6" subType="x:PLC_MONITOR_IO_6" type="e:INPUT_OUTPUT_SIGNAL"/>
+								<DataItem category="EVENT" id="L2PlcMonitorIO_7" name="PlcMonitorIO_7" subType="x:PLC_MONITOR_IO_7" type="e:INPUT_OUTPUT_SIGNAL"/>
+								<DataItem category="EVENT" id="L2PlcMonitorIO_8" name="PlcMonitorIO_8" subType="x:PLC_MONITOR_IO_8" type="e:INPUT_OUTPUT_SIGNAL"/>
+								<DataItem category="EVENT" id="L2PlcMonitorIO_9" name="PlcMonitorIO_9" subType="x:PLC_MONITOR_IO_9" type="e:INPUT_OUTPUT_SIGNAL"/>
+								<DataItem category="EVENT" id="L2PlcMonitorIO_10" name="PlcMonitorIO_10" subType="x:PLC_MONITOR_IO_10" type="e:INPUT_OUTPUT_SIGNAL"/>-->
+						<DataItem category="EVENT" id="L2p2CurrentTool" name="p2CurrentTool" type="TOOL_NUMBER"/>
+						<DataItem category="EVENT" id="L2p2ToolAssetId" name="p2ToolAssetId" type="TOOL_ASSET_ID"/>
+						<DataItem category="EVENT" id="L2p2ProgramHeader" name="p2ProgramHeader" type="PROGRAM_HEADER"/>
+					</DataItems>
+				</Path>
+			</Components>
+		</Controller>
+	</Components>
+</Device>

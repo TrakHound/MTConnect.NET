@@ -1,0 +1,17 @@
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
+// TrakHound Inc. licenses this file to you under the MIT license.
+
+namespace {{namespace}}
+{
+    public static {{- if (is_partial) }} partial{{ end }} class {{name}}
+    {
+{{- i = 0 }}{{ for value in values }}{{ i = i + 1 }}
+        /// <summary>
+        /// {{value.description}}
+        /// </summary>
+        public const string {{value.name}} = "{{value.value}}";
+        {{- if (i < (values | array.size)) }}
+        {{ end }}
+{{- end }}
+    }
+}

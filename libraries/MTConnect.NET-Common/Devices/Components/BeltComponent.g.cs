@@ -1,0 +1,28 @@
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
+// TrakHound Inc. licenses this file to you under the MIT license.
+
+// MTConnect SysML v2.3 : UML ID = _19_0_3_45f01b9_1580312106461_211983_44372
+
+namespace MTConnect.Devices.Components
+{
+    /// <summary>
+    /// Leaf Component composed of an endless flexible band that transmits motion for a piece of equipment or conveys materials and objects.
+    /// </summary>
+    public class BeltComponent : Component
+    {
+        public const string TypeId = "Belt";
+        public const string NameId = "belt";
+        public new const string DescriptionText = "Leaf Component composed of an endless flexible band that transmits motion for a piece of equipment or conveys materials and objects.";
+
+        public override string TypeDescription => DescriptionText;
+        
+        public override System.Version MinimumVersion => MTConnectVersions.Version14; 
+
+
+        public BeltComponent() 
+        { 
+            Type = TypeId;
+            Name = NameId;
+        }
+    }
+}

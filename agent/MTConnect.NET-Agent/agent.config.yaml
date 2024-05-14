@@ -1,0 +1,145 @@
+﻿# - Device Configuration -
+devices: devices 
+
+# - Processors -
+processors:
+- python: # - Add Python Processor
+    directory: processors
+
+# - Modules -
+modules:
+  
+- http-server: # - Add HTTP Server module
+    port: 5000
+    indentOutput: true
+    documentFormat: xml
+    accept:
+      text/xml: xml
+      application/json: json
+    responseCompression:
+    - gzip
+    - br
+    files:
+    - path: schemas
+      location: schemas
+    - path: styles
+      location: styles
+    - path: styles/favicon.ico
+      location: favicon.ico
+
+# - http-server: # - Add HTTP Server module
+#     port: 5001
+#     indentOutput: true
+#     documentFormat: xml
+#     accept:
+#       text/xml: xml
+#       application/json: json
+#     responseCompression:
+#     - gzip
+#     - br
+#     tls:
+#       # pfx:
+#       #   certificatePath: c:\test-cert\trakhound.pfx
+#       #   certificatePassword: trakhound
+#       pem:
+#         certificateAuthority: c:\test-cert\rootCA.crt
+#         certificatePath: c:\test-cert\trakhound.crt
+#         privateKeyPath: c:\test-cert\trakhound.key
+#         privateKeyPassword: trakhound
+#     files:
+#     - path: schemas
+#       location: schemas
+#     - path: styles
+#       location: styles
+#     - path: styles/favicon.ico
+#       location: favicon.ico
+
+# - mqtt-broker: # - Add MQTT Broker module (Document Structure)
+#     port: 1883
+#     currentInterval: 10000
+#     sampleInterval: 500
+#     documentFormat: JSON-CPPAGENT
+#     topicPrefix: MTConnect/Document
+#     topicStructure: Document
+
+# - mqtt-broker: # - Add MQTT Broker module (Entity Structure)
+#     port: 1883
+#     currentInterval: 10000
+#     sampleInterval: 500
+#     documentFormat: JSON
+#     topicPrefix: MTConnect/Entity
+#     topicStructure: Entity
+
+# - mqtt-broker: # - Add MQTT Broker module (TLS)
+#     port: 8883
+#     currentInterval: 10000
+#     sampleInterval: 500
+#     tls:
+#       pem:
+#         certificateAuthority: c:\test-cert\rootCA.crt
+#         certificatePath: c:\test-cert\trakhound.crt
+#         privateKeyPath: c:\test-cert\trakhound.key
+#         privateKeyPassword: trakhound
+
+- mqtt-relay: # - Add MQTT Relay module (Document Structure)
+    server: localhost  
+    port: 1883
+    currentInterval: 10000
+    sampleInterval: 500
+    documentFormat: JSON-CPPAGENT-MQTT
+    topicPrefix: MTConnect/Document
+    topicStructure: Document
+
+# - mqtt-relay: # - Add MQTT Relay module (Entity Structure)
+#     server: localhost  
+#     port: 1883
+#     currentInterval: 10000
+#     sampleInterval: 500
+#     documentFormat: JSON
+#     topicPrefix: MTConnect/Entity
+#     topicStructure: Entity
+
+# - mqtt-relay: # - Add MQTT Relay module (TLS)
+#     server: localhost
+#     port: 8883
+#     currentInterval: 10000
+#     sampleInterval: 500
+#     tls:
+#       pem:
+#         certificateAuthority: c:\test-cert\rootCA.crt
+#         certificatePath: c:\test-cert\trakhound.crt
+#         privateKeyPath: c:\test-cert\trakhound.key
+#         privateKeyPassword: trakhound
+
+
+- shdr-adapter: # - Add SHDR Adapter module for Device = Okuma and Port = 7878
+    deviceKey: Okuma
+    # hostname: localhost
+    port: 7878
+    heartbeat: 1000
+    reconnectInterval: 1000
+    connectionTimeout: 1000
+
+- shdr-adapter: # - Add SHDR Adapter module for Device = Mazak and Port = 7879
+    deviceKey: Mazak
+    # hostname: localhost
+    port: 7879
+    heartbeat: 1000
+    reconnectInterval: 1000
+    connectionTimeout: 1000
+
+
+# The maximum number of Observations the agent can hold in its buffer
+observationBufferSize: 150000
+
+# The maximum number of assets the agent can hold in its buffer
+assetBufferSize: 1000
+
+# Sets whether the Agent buffers are durable and retain state after restart
+# durable: true
+
+# Disables the Agent Device
+# enableAgentDevice: false
+
+# Sets the default MTConnect version to output response documents for.
+# defaultVersion: 2.3

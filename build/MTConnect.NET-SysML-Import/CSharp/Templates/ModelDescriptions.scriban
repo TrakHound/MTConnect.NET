@@ -1,0 +1,17 @@
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
+// TrakHound Inc. licenses this file to you under the MIT license.
+
+namespace {{namespace}}
+{
+    public static class {{name}}Descriptions
+    {
+{{- i = 0 }}{{- for property in properties }}{{ i = i + 1 }}
+        /// <summary>
+        /// {{property.xml_description}}
+        /// </summary>
+        public const string {{property.name}} = "{{property.description}}";
+        {{- if (i < (properties | array.size)) }}
+        {{ end }}
+{{- end }}
+    }
+}

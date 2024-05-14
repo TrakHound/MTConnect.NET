@@ -1,0 +1,66 @@
+{
+  "MTConnectAssets": {
+    "Header": {
+      "instanceId": 1702144894,
+      "version": "6.0.1.0",
+      "sender": "DESKTOP-HV74M4N",
+      "assetBufferSize": 1000,
+      "assetCount": 2,
+      "deviceModelChangeTime": "2023-12-09T18:01:38.0133172Z",
+      "creationTime": "2023-12-10T03:14:26.9570126Z"
+    },
+    "Assets": {
+      "CuttingTool": [
+        {
+          "assetId": "tool-test1",
+          "type": "CuttingTool",
+          "timestamp": "2023-12-09T22:13:49.8062257-05:00",
+          "instanceId": 1702144894,
+          "deviceUuid": "OKUMA.Lathe.123456",
+          "serialNumber": "0",
+          "toolId": "11105000",
+          "CuttingToolLifeCycle": {
+            "CutterStatus": {
+              "Status": [
+                {
+                  "value": "USED"
+                }
+              ]
+            },
+            "Location": {
+              "type": "POT",
+              "positiveOverlap": 0,
+              "negativeOverlap": 0
+            }
+          }
+        }
+      ],
+      "File": [
+        {
+          "assetId": "file-test",
+          "type": "File",
+          "timestamp": "2023-12-09T22:14:24.8950805-05:00",
+          "deviceUuid": "OKUMA.Lathe.123456",
+          "name": "TH-13208084870-OP3.EIA",
+          "mediaType": "text/plain",
+          "applicationCategory": "PROCESS",
+          "applicationType": "PRODUCTION_PROGRAM",
+          "size": 23973,
+          "versionId": "0",
+          "state": "PRODUCTION",
+          "FileLocation": {
+            "href": "file:///C:/ymw/M8Y/data/MC_Machine Programs/TH-13208084870-OP3.EIA"
+          },
+          "Destinations": {
+            "Destination": [
+              {
+                "value": "M12346"
+              }
+            ]
+          },
+          "CreationTime": "2023-11-01T11:11:05.2028-04:00"
+        }
+      ]
+    }
+  }
+}

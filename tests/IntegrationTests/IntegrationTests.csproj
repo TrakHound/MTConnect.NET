@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
 
     <IsPackable>false</IsPackable>
     <Nullable>enable</Nullable>
@@ -31,10 +31,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\MTConnect.NET-Common\MTConnect.NET-Common.csproj" />
-    <ProjectReference Include="..\..\src\MTConnect.NET-HTTP\MTConnect.NET-HTTP.csproj" />
-    <ProjectReference Include="..\..\src\MTConnect.NET-SHDR\MTConnect.NET-SHDR.csproj" />
-    <ProjectReference Include="..\..\src\MTConnect.NET-XML\MTConnect.NET-XML.csproj" />
+    <ProjectReference Include="..\..\libraries\MTConnect.NET-HTTP\MTConnect.NET-HTTP.csproj" />
+    <ProjectReference Include="..\..\libraries\MTConnect.NET-SHDR\MTConnect.NET-SHDR.csproj" />
+    <ProjectReference Include="..\..\libraries\MTConnect.NET-XML\MTConnect.NET-XML.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,11 @@
+// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// TrakHound Inc. licenses this file to you under the MIT license.
+
+using MTConnect.Assets.CuttingTools.Measurements;
+
+namespace MTConnect.Assets.Xml.CuttingTools
+{
+{{- for type in types }}
+    public class Xml{{type.name}} : XmlMeasurement { public Xml{{type.name}}() { Type = {{type.name}}.TypeId; } }
+{{ end }}
+}

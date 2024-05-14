@@ -1,0 +1,2399 @@
+{
+  "MTConnectStreams": {
+    "jsonVersion": 2,
+    "schemaVersion": "2.0",
+    "Header": {
+      "instanceId": 1702144894,
+      "version": "6.0.1.0",
+      "sender": "DESKTOP-HV74M4N",
+      "bufferSize": 150000,
+      "firstSequence": 1,
+      "lastSequence": 246,
+      "nextSequence": 247,
+      "deviceModelChangeTime": "2023-12-09T18:01:38.0133172Z",
+      "creationTime": "2023-12-10T03:06:48.4086283Z"
+    },
+    "Streams": {
+      "DeviceStream": [
+        {
+          "name": "agent",
+          "uuid": "b85fa5f1-bc29-40e0-9893-c8ef8eac6761",
+          "ComponentStream": [
+            {
+              "component": "Adapter",
+              "componentId": "adapter_shdr_56697b5624",
+              "name": "adapterShdr",
+              "Events": {
+                "AdapterUri": [
+                  {
+                    "value": "shdr://localhost:7878",
+                    "dataItemId": "adapter_shdr_56697b5624_adapterUri",
+                    "name": "adapterUri",
+                    "timestamp": "2023-12-09T18:01:39.8259158Z",
+                    "sequence": 243
+                  }
+                ],
+                "ConnectionStatus": [
+                  {
+                    "value": "LISTEN",
+                    "dataItemId": "adapter_shdr_56697b5624_connectionStatus",
+                    "name": "connectionStatus",
+                    "timestamp": "2023-12-09T18:01:52.1224823Z",
+                    "sequence": 246
+                  }
+                ]
+              }
+            },
+            {
+              "component": "Adapter",
+              "componentId": "adapter_shdr_d41cfb6a76",
+              "name": "adapterShdr",
+              "Events": {
+                "AdapterUri": [
+                  {
+                    "value": "shdr://localhost:7879",
+                    "dataItemId": "adapter_shdr_d41cfb6a76_adapterUri",
+                    "name": "adapterUri",
+                    "timestamp": "2023-12-09T18:01:39.8356907Z",
+                    "sequence": 244
+                  }
+                ],
+                "ConnectionStatus": [
+                  {
+                    "value": "LISTEN",
+                    "dataItemId": "adapter_shdr_d41cfb6a76_connectionStatus",
+                    "name": "connectionStatus",
+                    "timestamp": "2023-12-09T18:01:51.9610812Z",
+                    "sequence": 245
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "M12346",
+          "uuid": "5fd88408-7811-3c6b-5400-11f4026b6890",
+          "ComponentStream": [
+            {
+              "component": "Device",
+              "componentId": "d1",
+              "name": "M12346",
+              "uuid": "5fd88408-7811-3c6b-5400-11f4026b6890",
+              "Events": {
+                "Application": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "gui",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 11
+                  },
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "guimfg",
+                    "subType": "MANUFACTURER",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 12
+                  },
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "guiversion",
+                    "subType": "VERSION",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 13
+                  }
+                ],
+                "AssetChanged": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "d1_asset_chg",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 14
+                  }
+                ],
+                "AssetCount": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "d1_assetCount",
+                    "name": "assetCount",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 16
+                  }
+                ],
+                "AssetRemoved": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "d1_asset_rem",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 15
+                  }
+                ],
+                "Availability": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "avail",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 1
+                  }
+                ],
+                "EquipmentMode": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "emloaded",
+                    "subType": "LOADED",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 3
+                  },
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "emworking",
+                    "subType": "WORKING",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 4
+                  },
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "emoperating",
+                    "subType": "OPERATING",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 5
+                  },
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "empowered",
+                    "subType": "POWERED",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 6
+                  },
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "emdelay",
+                    "subType": "DELAY",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 7
+                  }
+                ],
+                "FunctionalMode": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "functionalmode",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 2
+                  }
+                ],
+                "OperatingSystem": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "operatingsystem",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 8
+                  },
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "osmfg",
+                    "subType": "MANUFACTURER",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 9
+                  },
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "osversion",
+                    "subType": "VERSION",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 10
+                  }
+                ]
+              }
+            },
+            {
+              "component": "Axes",
+              "componentId": "a",
+              "name": "base",
+              "Condition": {
+                "Unavailable": [
+                  {
+                    "type": "ACTUATOR",
+                    "dataItemId": "servo_cond",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 17
+                  },
+                  {
+                    "type": "SYSTEM",
+                    "dataItemId": "spindle_cond",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 18
+                  }
+                ]
+              }
+            },
+            {
+              "component": "Linear",
+              "componentId": "x",
+              "name": "X",
+              "Samples": {
+                "AxisFeedrate": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "Xfrt",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 23
+                  }
+                ],
+                "Load": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "Xload",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 22
+                  }
+                ],
+                "Position": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "Xabs",
+                    "subType": "ACTUAL",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 19
+                  },
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "Xpos",
+                    "subType": "ACTUAL",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 20
+                  }
+                ],
+                "Temperature": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "servotemp1",
+                    "compositionId": "Xmotor",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 24
+                  }
+                ]
+              },
+              "Events": {
+                "AxisState": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "xaxisstate",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 25
+                  }
+                ]
+              },
+              "Condition": {
+                "Unavailable": [
+                  {
+                    "type": "POSITION",
+                    "dataItemId": "Xtravel",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 21
+                  }
+                ]
+              }
+            },
+            {
+              "component": "Linear",
+              "componentId": "y",
+              "name": "Y",
+              "Samples": {
+                "AxisFeedrate": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "Yfrt",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 30
+                  }
+                ],
+                "Load": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "Yload",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 29
+                  }
+                ],
+                "Position": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "Yabs",
+                    "subType": "ACTUAL",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 26
+                  },
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "Ypos",
+                    "subType": "ACTUAL",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 27
+                  }
+                ],
+                "Temperature": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "servotemp2",
+                    "compositionId": "Ymotor",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 31
+                  }
+                ]
+              },
+              "Events": {
+                "AxisState": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "yaxisstate",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 32
+                  }
+                ]
+              },
+              "Condition": {
+                "Unavailable": [
+                  {
+                    "type": "POSITION",
+                    "dataItemId": "Ytravel",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 28
+                  }
+                ]
+              }
+            },
+            {
+              "component": "Linear",
+              "componentId": "z",
+              "name": "Z",
+              "Samples": {
+                "AxisFeedrate": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "Zfrt",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 37
+                  }
+                ],
+                "Load": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "Zload",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 36
+                  }
+                ],
+                "Position": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "Zabs",
+                    "subType": "ACTUAL",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 33
+                  },
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "Zpos",
+                    "subType": "ACTUAL",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 34
+                  }
+                ],
+                "Temperature": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "servotemp3",
+                    "compositionId": "Zmotor",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 38
+                  }
+                ]
+              },
+              "Events": {
+                "AxisState": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "zaxisstate",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 39
+                  }
+                ]
+              },
+              "Condition": {
+                "Unavailable": [
+                  {
+                    "type": "POSITION",
+                    "dataItemId": "Ztravel",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 35
+                  }
+                ]
+              }
+            },
+            {
+              "component": "Rotary",
+              "componentId": "ar",
+              "name": "B",
+              "Samples": {
+                "Angle": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "Babs",
+                    "subType": "ACTUAL",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 43
+                  },
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "Bpos",
+                    "subType": "ACTUAL",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 44
+                  }
+                ],
+                "AngularVelocity": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "Bfrt",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 41
+                  }
+                ],
+                "Load": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "Bload",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 40
+                  }
+                ]
+              },
+              "Events": {
+                "AxisState": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "baxisstate",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 46
+                  }
+                ],
+                "RotaryMode": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "arfunc",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 45
+                  }
+                ]
+              },
+              "Condition": {
+                "Unavailable": [
+                  {
+                    "type": "ANGLE",
+                    "dataItemId": "Btravel",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 42
+                  }
+                ]
+              }
+            },
+            {
+              "component": "Rotary",
+              "componentId": "c",
+              "name": "C",
+              "Samples": {
+                "Angle": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "Cabs",
+                    "subType": "ACTUAL",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 53
+                  },
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "Cpos",
+                    "subType": "ACTUAL",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 54
+                  }
+                ],
+                "AngularVelocity": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "Cfrt",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 50
+                  }
+                ],
+                "Load": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "Cload",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 47
+                  },
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "Sload",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 48
+                  }
+                ],
+                "RotaryVelocity": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "Srpm",
+                    "subType": "ACTUAL",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 51
+                  }
+                ],
+                "Temperature": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "Stemp",
+                    "compositionId": "Cmotor",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 52
+                  }
+                ]
+              },
+              "Events": {
+                "AxisState": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "caxisstate",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 58
+                  }
+                ],
+                "RotaryMode": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "crfunc",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 55
+                  }
+                ]
+              },
+              "Condition": {
+                "Unavailable": [
+                  {
+                    "type": "ANGLE",
+                    "dataItemId": "Ctravel",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 49
+                  },
+                  {
+                    "type": "LOAD",
+                    "dataItemId": "Sload_cond",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 56
+                  },
+                  {
+                    "type": "TEMPERATURE",
+                    "dataItemId": "Stemp_cond",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 57
+                  }
+                ]
+              }
+            },
+            {
+              "component": "Controller",
+              "componentId": "cont",
+              "name": "controller",
+              "Events": {
+                "EmergencyStop": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "estop",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 62
+                  }
+                ],
+                "PalletId": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "pallet_num",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 63
+                  }
+                ]
+              },
+              "Condition": {
+                "Unavailable": [
+                  {
+                    "type": "COMMUNICATIONS",
+                    "dataItemId": "comms_cond",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 59
+                  },
+                  {
+                    "type": "LOGIC_PROGRAM",
+                    "dataItemId": "logic_cond",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 60
+                  },
+                  {
+                    "type": "SYSTEM",
+                    "dataItemId": "system_cond",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 61
+                  }
+                ]
+              }
+            },
+            {
+              "component": "Path",
+              "componentId": "path1",
+              "name": "path",
+              "Samples": {
+                "CuttingSpeed": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "cspeed",
+                    "subType": "ACTUAL",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 90
+                  }
+                ],
+                "Orientation": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "orientation",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 96
+                  }
+                ],
+                "PathFeedrate": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "Fact",
+                    "subType": "ACTUAL",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 73
+                  }
+                ],
+                "PathPosition": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "pathpos",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 95
+                  }
+                ]
+              },
+              "Events": {
+                "ActiveAxes": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "activeaxes",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 94
+                  }
+                ],
+                "ChuckState": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "hd1chuckstate",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 66
+                  }
+                ],
+                "ControllerMode": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "mode",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 79
+                  }
+                ],
+                "ControllerModeOverride": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "cmomachineaxislock",
+                    "subType": "MACHINE_AXIS_LOCK",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 84
+                  },
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "cmosingleblock",
+                    "subType": "SINGLE_BLOCK",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 85
+                  },
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "cmodryrun",
+                    "subType": "DRY_RUN",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 86
+                  }
+                ],
+                "Execution": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "execution",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 76
+                  }
+                ],
+                "LineLabel": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "linelabel",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 87
+                  }
+                ],
+                "LineNumber": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "linenumber",
+                    "subType": "INCREMENTAL",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 88
+                  }
+                ],
+                "Message": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "message",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 77
+                  }
+                ],
+                "PartCount": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "PartCountAct",
+                    "subType": "ALL",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 72
+                  }
+                ],
+                "PartUniqueId": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "partnumber",
+                    "subType": "PART_NUMBER",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 97
+                  },
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "partserialnumber",
+                    "subType": "SERIAL_NUMBER",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 98
+                  }
+                ],
+                "PathFeedrateOverride": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "Frapidovr",
+                    "subType": "RAPID",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 67
+                  },
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "Fovr",
+                    "subType": "PROGRAMMED",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 68
+                  }
+                ],
+                "Program": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "program",
+                    "subType": "MAIN",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 70
+                  },
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "activeprog",
+                    "subType": "ACTIVE",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 71
+                  }
+                ],
+                "ProgramComment": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "program_cmt",
+                    "subType": "MAIN",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 80
+                  },
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "activeprogram_cmt",
+                    "subType": "ACTIVE",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 81
+                  }
+                ],
+                "ProgramEdit": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "peditmode",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 64
+                  }
+                ],
+                "ProgramEditName": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "peditname",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 65
+                  }
+                ],
+                "RotaryVelocityOverride": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "Sovr",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 69
+                  }
+                ],
+                "Rotation": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "workoffsetrot",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 92
+                  }
+                ],
+                "ToolGroup": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "Tool_group",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 75
+                  }
+                ],
+                "ToolNumber": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "Tool_number",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 74
+                  }
+                ],
+                "ToolOffsetDataSet": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "count": 0,
+                    "dataItemId": "testDataSet",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 100
+                  }
+                ],
+                "Translation": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "workoffsettrans",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 91
+                  }
+                ],
+                "VariableDataSet": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "count": 0,
+                    "dataItemId": "cvars",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 89
+                  }
+                ],
+                "WaitState": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "waitstate",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 78
+                  }
+                ],
+                "WorkOffset": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "woffset",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 93
+                  }
+                ],
+                "WorkOffsetTable": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "count": 0,
+                    "dataItemId": "testTable",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 101
+                  }
+                ]
+              },
+              "Condition": {
+                "Unavailable": [
+                  {
+                    "type": "MOTION_PROGRAM",
+                    "dataItemId": "motion_cond",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 82
+                  },
+                  {
+                    "type": "SYSTEM",
+                    "dataItemId": "path_system",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 83
+                  }
+                ]
+              }
+            },
+            {
+              "component": "Door",
+              "componentId": "door1",
+              "name": "door",
+              "Events": {
+                "DoorState": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "doorstate",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 103
+                  }
+                ]
+              }
+            },
+            {
+              "component": "WorkEnvelope",
+              "componentId": "workenvelope",
+              "name": "workenvelope",
+              "Condition": {
+                "Unavailable": [
+                  {
+                    "type": "SYSTEM",
+                    "dataItemId": "envelope_cond",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 104
+                  }
+                ]
+              }
+            },
+            {
+              "component": "Electric",
+              "componentId": "elec",
+              "name": "electric",
+              "Condition": {
+                "Unavailable": [
+                  {
+                    "type": "SYSTEM",
+                    "dataItemId": "electric_cond",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 105
+                  }
+                ]
+              }
+            },
+            {
+              "component": "Hydraulic",
+              "componentId": "hydraulic",
+              "name": "hydraulic",
+              "Condition": {
+                "Unavailable": [
+                  {
+                    "type": "SYSTEM",
+                    "dataItemId": "hydra_cond",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 106
+                  }
+                ]
+              }
+            },
+            {
+              "component": "Coolant",
+              "componentId": "coolant",
+              "name": "coolant",
+              "Samples": {
+                "Concentration": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "CONCENTRATION",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 109
+                  }
+                ],
+                "Temperature": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "cooltemp",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 108
+                  }
+                ]
+              },
+              "Condition": {
+                "Unavailable": [
+                  {
+                    "type": "SYSTEM",
+                    "dataItemId": "coolant_cond",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 107
+                  }
+                ]
+              }
+            },
+            {
+              "component": "Pneumatic",
+              "componentId": "pneumatic",
+              "name": "pneumatic",
+              "Condition": {
+                "Unavailable": [
+                  {
+                    "type": "SYSTEM",
+                    "dataItemId": "pneu_cond",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 110
+                  }
+                ]
+              }
+            },
+            {
+              "component": "Lubrication",
+              "componentId": "lubrication",
+              "name": "lubrication",
+              "Condition": {
+                "Unavailable": [
+                  {
+                    "type": "SYSTEM",
+                    "dataItemId": "lubrication_cond",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 111
+                  }
+                ]
+              }
+            },
+            {
+              "component": "Environmental",
+              "componentId": "room",
+              "name": "environmental",
+              "Samples": {
+                "Temperature": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "rmtmp1",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 112
+                  }
+                ]
+              }
+            },
+            {
+              "component": "Sensor",
+              "componentId": "sensor",
+              "name": "sensor",
+              "Samples": {
+                "Voltage": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "senv",
+                    "subType": "DIRECT",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 114
+                  }
+                ]
+              },
+              "Condition": {
+                "Unavailable": [
+                  {
+                    "type": "VOLTAGE",
+                    "dataItemId": "senvc",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 113
+                  }
+                ]
+              }
+            },
+            {
+              "component": "Personnel",
+              "componentId": "personnel",
+              "name": "personnel",
+              "Events": {
+                "User": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "operator",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 115
+                  }
+                ]
+              }
+            },
+            {
+              "component": "Stock",
+              "componentId": "procstock",
+              "name": "stock",
+              "Events": {
+                "Material": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "stock",
+                    "timestamp": "2023-12-09T18:01:37.7811108Z",
+                    "sequence": 116
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "VMC-3Axis",
+          "uuid": "000",
+          "ComponentStream": [
+            {
+              "component": "Device",
+              "componentId": "dev",
+              "name": "VMC-3Axis",
+              "uuid": "000",
+              "Events": {
+                "AssetChanged": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "dev_assetChanged",
+                    "name": "assetChanged",
+                    "timestamp": "2023-12-09T18:01:38.0313977Z",
+                    "sequence": 197
+                  }
+                ],
+                "AssetCount": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "dev_assetCount",
+                    "name": "assetCount",
+                    "timestamp": "2023-12-09T18:01:38.0313977Z",
+                    "sequence": 199
+                  }
+                ],
+                "AssetRemoved": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "dev_assetRemoved",
+                    "name": "assetRemoved",
+                    "timestamp": "2023-12-09T18:01:38.0313977Z",
+                    "sequence": 198
+                  }
+                ],
+                "Availability": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "avail",
+                    "timestamp": "2023-12-09T18:01:38.0313977Z",
+                    "sequence": 196
+                  }
+                ]
+              }
+            },
+            {
+              "component": "Rotary",
+              "componentId": "c1",
+              "name": "C",
+              "Samples": {
+                "Load": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "cl3",
+                    "name": "Cload",
+                    "timestamp": "2023-12-09T18:01:38.0313977Z",
+                    "sequence": 205
+                  }
+                ],
+                "SpindleSpeed": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "c2",
+                    "name": "Sspeed",
+                    "subType": "ACTUAL",
+                    "timestamp": "2023-12-09T18:01:38.0313977Z",
+                    "sequence": 200
+                  },
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "c3",
+                    "name": "Sovr",
+                    "subType": "OVERRIDE",
+                    "timestamp": "2023-12-09T18:01:38.0313977Z",
+                    "sequence": 201
+                  }
+                ]
+              },
+              "Events": {
+                "RotaryMode": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "cm",
+                    "name": "Cmode",
+                    "timestamp": "2023-12-09T18:01:38.0313977Z",
+                    "sequence": 202
+                  }
+                ]
+              },
+              "Condition": {
+                "Unavailable": [
+                  {
+                    "type": "LOAD",
+                    "dataItemId": "Cloadc",
+                    "timestamp": "2023-12-09T18:01:38.0313977Z",
+                    "sequence": 203
+                  },
+                  {
+                    "type": "SYSTEM",
+                    "dataItemId": "Csystem",
+                    "timestamp": "2023-12-09T18:01:38.0313977Z",
+                    "sequence": 204
+                  }
+                ]
+              }
+            },
+            {
+              "component": "Linear",
+              "componentId": "x1",
+              "name": "X",
+              "Samples": {
+                "Load": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "n3",
+                    "name": "Xload",
+                    "timestamp": "2023-12-09T18:01:38.0313977Z",
+                    "sequence": 208
+                  }
+                ],
+                "Position": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "x2",
+                    "name": "Xact",
+                    "subType": "ACTUAL",
+                    "timestamp": "2023-12-09T18:01:38.0313977Z",
+                    "sequence": 206
+                  },
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "x3",
+                    "name": "Xcom",
+                    "subType": "COMMANDED",
+                    "timestamp": "2023-12-09T18:01:38.0313977Z",
+                    "sequence": 207
+                  }
+                ]
+              },
+              "Condition": {
+                "Unavailable": [
+                  {
+                    "type": "LOAD",
+                    "dataItemId": "Xloadc",
+                    "timestamp": "2023-12-09T18:01:38.0313977Z",
+                    "sequence": 209
+                  },
+                  {
+                    "type": "SYSTEM",
+                    "dataItemId": "Xsystem",
+                    "timestamp": "2023-12-09T18:01:38.0313977Z",
+                    "sequence": 210
+                  }
+                ]
+              }
+            },
+            {
+              "component": "Linear",
+              "componentId": "y1",
+              "name": "Y",
+              "Samples": {
+                "Load": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "y4",
+                    "name": "Yload",
+                    "timestamp": "2023-12-09T18:01:38.0313977Z",
+                    "sequence": 213
+                  }
+                ],
+                "Position": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "y2",
+                    "name": "Yact",
+                    "subType": "ACTUAL",
+                    "timestamp": "2023-12-09T18:01:38.0313977Z",
+                    "sequence": 211
+                  },
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "y3",
+                    "name": "Ycom",
+                    "subType": "COMMANDED",
+                    "timestamp": "2023-12-09T18:01:38.0313977Z",
+                    "sequence": 212
+                  }
+                ]
+              },
+              "Condition": {
+                "Unavailable": [
+                  {
+                    "type": "LOAD",
+                    "dataItemId": "Yloadc",
+                    "timestamp": "2023-12-09T18:01:38.0313977Z",
+                    "sequence": 214
+                  },
+                  {
+                    "type": "SYSTEM",
+                    "dataItemId": "Ysystem",
+                    "timestamp": "2023-12-09T18:01:38.0313977Z",
+                    "sequence": 215
+                  }
+                ]
+              }
+            },
+            {
+              "component": "Linear",
+              "componentId": "z1",
+              "name": "Z",
+              "Samples": {
+                "Load": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "z4",
+                    "name": "Zload",
+                    "timestamp": "2023-12-09T18:01:38.0313977Z",
+                    "sequence": 218
+                  }
+                ],
+                "Position": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "z2",
+                    "name": "Zact",
+                    "subType": "ACTUAL",
+                    "timestamp": "2023-12-09T18:01:38.0313977Z",
+                    "sequence": 216
+                  },
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "z3",
+                    "name": "Zcom",
+                    "subType": "COMMANDED",
+                    "timestamp": "2023-12-09T18:01:38.0313977Z",
+                    "sequence": 217
+                  }
+                ]
+              },
+              "Condition": {
+                "Unavailable": [
+                  {
+                    "type": "LOAD",
+                    "dataItemId": "Zloadc",
+                    "timestamp": "2023-12-09T18:01:38.0313977Z",
+                    "sequence": 219
+                  },
+                  {
+                    "type": "SYSTEM",
+                    "dataItemId": "Zsystem",
+                    "timestamp": "2023-12-09T18:01:38.0313977Z",
+                    "sequence": 220
+                  }
+                ]
+              }
+            },
+            {
+              "component": "Controller",
+              "componentId": "cn1",
+              "name": "controller",
+              "Events": {
+                "EmergencyStop": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "estop",
+                    "timestamp": "2023-12-09T18:01:38.0313977Z",
+                    "sequence": 222
+                  }
+                ],
+                "Message": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "msg",
+                    "timestamp": "2023-12-09T18:01:38.0313977Z",
+                    "sequence": 221
+                  }
+                ]
+              },
+              "Condition": {
+                "Unavailable": [
+                  {
+                    "type": "LOGIC_PROGRAM",
+                    "dataItemId": "clp",
+                    "timestamp": "2023-12-09T18:01:38.0313977Z",
+                    "sequence": 223
+                  },
+                  {
+                    "type": "MOTION_PROGRAM",
+                    "dataItemId": "motion",
+                    "timestamp": "2023-12-09T18:01:38.0313977Z",
+                    "sequence": 224
+                  },
+                  {
+                    "type": "SYSTEM",
+                    "dataItemId": "system",
+                    "timestamp": "2023-12-09T18:01:38.0313977Z",
+                    "sequence": 225
+                  }
+                ]
+              }
+            },
+            {
+              "component": "Path",
+              "componentId": "pth",
+              "name": "path",
+              "Samples": {
+                "PathFeedrate": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "Frt",
+                    "timestamp": "2023-12-09T18:01:38.0313977Z",
+                    "sequence": 233
+                  },
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "Fovr",
+                    "timestamp": "2023-12-09T18:01:38.0313977Z",
+                    "sequence": 234
+                  }
+                ],
+                "PathPosition": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "Ppos",
+                    "subType": "ACTUAL",
+                    "timestamp": "2023-12-09T18:01:38.0313977Z",
+                    "sequence": 232
+                  }
+                ]
+              },
+              "Events": {
+                "Block": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "cn2",
+                    "name": "block",
+                    "timestamp": "2023-12-09T18:01:38.0313977Z",
+                    "sequence": 226
+                  }
+                ],
+                "ControllerMode": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "cn3",
+                    "name": "mode",
+                    "timestamp": "2023-12-09T18:01:38.0313977Z",
+                    "sequence": 227
+                  }
+                ],
+                "Execution": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "cn6",
+                    "name": "execution",
+                    "timestamp": "2023-12-09T18:01:38.0313977Z",
+                    "sequence": 230
+                  }
+                ],
+                "Line": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "cn4",
+                    "name": "line",
+                    "timestamp": "2023-12-09T18:01:38.0313977Z",
+                    "sequence": 228
+                  }
+                ],
+                "Program": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "cn5",
+                    "name": "program",
+                    "timestamp": "2023-12-09T18:01:38.0313977Z",
+                    "sequence": 229
+                  }
+                ],
+                "ToolId": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "cnt1",
+                    "name": "tool_id",
+                    "timestamp": "2023-12-09T18:01:38.0313977Z",
+                    "sequence": 231
+                  }
+                ]
+              }
+            },
+            {
+              "component": "Electric",
+              "componentId": "el",
+              "name": "electric",
+              "Events": {
+                "PowerState": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "p2",
+                    "name": "power",
+                    "timestamp": "2023-12-09T18:01:38.0313977Z",
+                    "sequence": 235
+                  }
+                ]
+              }
+            },
+            {
+              "component": "Coolant",
+              "componentId": "cool",
+              "name": "coolant",
+              "Condition": {
+                "Unavailable": [
+                  {
+                    "type": "LEVEL",
+                    "dataItemId": "clow",
+                    "timestamp": "2023-12-09T18:01:38.0313977Z",
+                    "sequence": 236
+                  },
+                  {
+                    "type": "PRESSURE",
+                    "dataItemId": "coolpres",
+                    "timestamp": "2023-12-09T18:01:38.0313977Z",
+                    "sequence": 237
+                  },
+                  {
+                    "type": "x:FILTER",
+                    "dataItemId": "filter",
+                    "timestamp": "2023-12-09T18:01:38.0313977Z",
+                    "sequence": 238
+                  },
+                  {
+                    "type": "ACTUATOR",
+                    "dataItemId": "coolantmotor",
+                    "timestamp": "2023-12-09T18:01:38.0313977Z",
+                    "sequence": 239
+                  }
+                ]
+              }
+            },
+            {
+              "component": "Hydraulic",
+              "componentId": "hsys",
+              "name": "hydrolic",
+              "Condition": {
+                "Unavailable": [
+                  {
+                    "type": "LEVEL",
+                    "dataItemId": "hlow",
+                    "timestamp": "2023-12-09T18:01:38.0313977Z",
+                    "sequence": 240
+                  },
+                  {
+                    "type": "PRESSURE",
+                    "dataItemId": "hpres",
+                    "timestamp": "2023-12-09T18:01:38.0313977Z",
+                    "sequence": 241
+                  },
+                  {
+                    "type": "TEMPERATURE",
+                    "dataItemId": "htemp",
+                    "timestamp": "2023-12-09T18:01:38.0313977Z",
+                    "sequence": 242
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "OKUMA-Lathe",
+          "uuid": "OKUMA.Lathe.123456",
+          "ComponentStream": [
+            {
+              "component": "Device",
+              "componentId": "OKUMA.Lathe",
+              "name": "OKUMA-Lathe",
+              "uuid": "OKUMA.Lathe.123456",
+              "Events": {
+                "AssetChanged": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "dev1_asset_chg",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 118
+                  }
+                ],
+                "AssetCount": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "OKUMA.Lathe_assetCount",
+                    "name": "assetCount",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 120
+                  }
+                ],
+                "AssetRemoved": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "dev1_asset_rem",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 119
+                  }
+                ],
+                "Availability": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2avail",
+                    "name": "avail",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 117
+                  }
+                ]
+              }
+            },
+            {
+              "component": "Rotary",
+              "componentId": "L2c1",
+              "name": "C",
+              "Samples": {
+                "Load": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2S1load",
+                    "name": "S1load",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 124
+                  }
+                ],
+                "RotaryVelocity": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2S1speed",
+                    "name": "S1speed",
+                    "subType": "ACTUAL",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 121
+                  },
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2S1cmd",
+                    "name": "S1cmd",
+                    "subType": "COMMANDED",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 122
+                  }
+                ]
+              },
+              "Events": {
+                "ChuckState": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2S1ChuckState",
+                    "name": "S1ChuckState",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 126
+                  }
+                ],
+                "RotaryMode": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2S1Mode",
+                    "name": "S1Mode",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 125
+                  }
+                ],
+                "RotaryVelocityOverride": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2S1ovr",
+                    "name": "S1ovr",
+                    "subType": "PROGRAMMED",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 123
+                  }
+                ]
+              }
+            },
+            {
+              "component": "Rotary",
+              "componentId": "L2c2",
+              "name": "C2",
+              "Samples": {
+                "Load": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2S2load",
+                    "name": "S2load",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 131
+                  }
+                ],
+                "RotaryVelocity": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2S2speed",
+                    "name": "S2speed",
+                    "subType": "ACTUAL",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 128
+                  },
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2S2cmd",
+                    "name": "S2cmd",
+                    "subType": "PROGRAMMED",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 129
+                  }
+                ]
+              },
+              "Events": {
+                "ChuckState": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2S2ChuckState",
+                    "name": "S2ChuckState",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 133
+                  }
+                ],
+                "RotaryMode": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2S2Mode",
+                    "name": "S2Mode",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 132
+                  }
+                ],
+                "RotaryVelocityOverride": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2S2ovr",
+                    "name": "S2ovr",
+                    "subType": "PROGRAMMED",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 130
+                  }
+                ]
+              }
+            },
+            {
+              "component": "Linear",
+              "componentId": "L2x1",
+              "name": "X",
+              "Samples": {
+                "Load": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2X1load",
+                    "name": "X1load",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 136
+                  }
+                ],
+                "Position": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2X1actm",
+                    "name": "X1actm",
+                    "subType": "ACTUAL",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 134
+                  },
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2X1actw",
+                    "name": "X1actw",
+                    "subType": "ACTUAL",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 135
+                  }
+                ]
+              }
+            },
+            {
+              "component": "Linear",
+              "componentId": "L2x2",
+              "name": "X2",
+              "Samples": {
+                "Load": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2X2load",
+                    "name": "X2load",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 139
+                  }
+                ],
+                "Position": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2X2actm",
+                    "name": "X2actm",
+                    "subType": "ACTUAL",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 137
+                  },
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2X2actw",
+                    "name": "X2actw",
+                    "subType": "ACTUAL",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 138
+                  }
+                ]
+              }
+            },
+            {
+              "component": "Linear",
+              "componentId": "L2z1",
+              "name": "Z",
+              "Samples": {
+                "Load": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2Z1load",
+                    "name": "Z1load",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 142
+                  }
+                ],
+                "Position": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2Z1actm",
+                    "name": "Z1actm",
+                    "subType": "ACTUAL",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 140
+                  },
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2Z1actw",
+                    "name": "Z1actw",
+                    "subType": "ACTUAL",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 141
+                  }
+                ]
+              }
+            },
+            {
+              "component": "Linear",
+              "componentId": "L2z2",
+              "name": "Z2",
+              "Samples": {
+                "Load": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2Z2load",
+                    "name": "Z2load",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 145
+                  }
+                ],
+                "Position": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2Z2actm",
+                    "name": "Z2actm",
+                    "subType": "ACTUAL",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 143
+                  },
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2Z2actw",
+                    "name": "Z2actw",
+                    "subType": "ACTUAL",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 144
+                  }
+                ]
+              }
+            },
+            {
+              "component": "Controller",
+              "componentId": "L2ct1",
+              "name": "Controller",
+              "Events": {
+                "EmergencyStop": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2estop",
+                    "name": "estop",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 146
+                  }
+                ]
+              }
+            },
+            {
+              "component": "Path",
+              "componentId": "L2p1",
+              "name": "path",
+              "Samples": {
+                "AccumulatedTime": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2p1TotalOperatingTime",
+                    "name": "p1TotalOperatingTime",
+                    "subType": "x:TOTAL_OPERATING_TIME",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 159
+                  },
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2p1TotalRunningTime",
+                    "name": "p1TotalRunningTime",
+                    "subType": "x:TOTAL_RUNNING_TIME",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 160
+                  },
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2p1TotalCuttingTime",
+                    "name": "p1TotalCuttingTime",
+                    "subType": "x:TOTAL_CUTTING_TIME",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 161
+                  },
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2p1TotalSpindleRunTime",
+                    "name": "p1TotalSpindleRunTime",
+                    "subType": "x:TOTAL_SPINDLE_RUN_TIME",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 162
+                  },
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2p1OperatingTime",
+                    "name": "p1OperatingTime",
+                    "subType": "x:OPERATING_TIME",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 163
+                  },
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2p1RunningTime",
+                    "name": "p1RunningTime",
+                    "subType": "x:RUNNING_TIME",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 164
+                  },
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2p1CuttingTime",
+                    "name": "p1CuttingTime",
+                    "subType": "x:CUTTING_TIME",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 165
+                  },
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2p1SpindleRunTime",
+                    "name": "p1SpindleRunTime",
+                    "subType": "x:SPINDLE_RUN_TIME",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 166
+                  }
+                ],
+                "PathFeedrate": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2p1Fact",
+                    "name": "p1Fact",
+                    "subType": "ACTUAL",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 154
+                  },
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2p1Fcmd",
+                    "name": "p1Fcmd",
+                    "subType": "PROGRAMMED",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 157
+                  }
+                ],
+                "PathPosition": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2p1LPathPos",
+                    "name": "p1LPathPos",
+                    "subType": "ACTUAL",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 158
+                  }
+                ]
+              },
+              "Events": {
+                "Block": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2p1block",
+                    "name": "p1block",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 155
+                  }
+                ],
+                "ControllerMode": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2p1mode",
+                    "name": "p1mode",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 149
+                  }
+                ],
+                "Execution": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2p1execution",
+                    "name": "p1execution",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 151
+                  }
+                ],
+                "FunctionalMode": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2f1mode",
+                    "name": "f1mode",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 147
+                  }
+                ],
+                "Line": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2p1line",
+                    "name": "p1line",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 156
+                  }
+                ],
+                "PartCount": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2p1partcount",
+                    "name": "p1partcount",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 153
+                  }
+                ],
+                "PathFeedrateOverride": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2p1Fovr",
+                    "name": "p1Fovr",
+                    "subType": "PROGRAMMED",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 152
+                  }
+                ],
+                "Program": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2p1program",
+                    "name": "p1program",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 150
+                  }
+                ],
+                "ProgramHeader": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2p1ProgramHeader",
+                    "name": "p1ProgramHeader",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 169
+                  }
+                ],
+                "ToolAssetId": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2p1ToolAssetId",
+                    "name": "p1ToolAssetId",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 168
+                  }
+                ],
+                "ToolNumber": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2p1CurrentTool",
+                    "name": "p1CurrentTool",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 167
+                  }
+                ],
+                "ToolOffsetDataSet": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "count": 0,
+                    "dataItemId": "L2p1Variables",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 171
+                  }
+                ],
+                "WorkOffsetTable": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "count": 0,
+                    "dataItemId": "L2p1ToolTable",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 172
+                  }
+                ]
+              },
+              "Condition": {
+                "Unavailable": [
+                  {
+                    "type": "SYSTEM",
+                    "dataItemId": "L2p1system",
+                    "name": "p1system",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 148
+                  }
+                ]
+              }
+            },
+            {
+              "component": "Path",
+              "componentId": "L2p2",
+              "name": "path2",
+              "Samples": {
+                "AccumulatedTime": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2p2TotalOperatingTime",
+                    "name": "p2TotalOperatingTime",
+                    "subType": "x:TOTAL_OPERATING_TIME",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 185
+                  },
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2p2TotalRunningTime",
+                    "name": "p2TotalRunningTime",
+                    "subType": "x:TOTAL_RUNNING_TIME",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 186
+                  },
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2p2TotalCuttingTime",
+                    "name": "p2TotalCuttingTime",
+                    "subType": "x:TOTAL_CUTTING_TIME",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 187
+                  },
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2p2TotalSpindleRunTime",
+                    "name": "p2TotalSpindleRunTime",
+                    "subType": "x:TOTAL_SPINDLE_RUN_TIME",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 188
+                  },
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2p2OperatingTime",
+                    "name": "p2OperatingTime",
+                    "subType": "x:OPERATING_TIME",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 189
+                  },
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2p2RunningTime",
+                    "name": "p2RunningTime",
+                    "subType": "x:RUNNING_TIME",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 190
+                  },
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2p2CuttingTime",
+                    "name": "p2CuttingTime",
+                    "subType": "x:CUTTING_TIME",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 191
+                  },
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2p2SpindleRunTime",
+                    "name": "p2SpindleRunTime",
+                    "subType": "x:SPINDLE_RUN_TIME",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 192
+                  }
+                ],
+                "PathFeedrate": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2p2Fact",
+                    "name": "p2Fact",
+                    "subType": "ACTUAL",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 180
+                  },
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2p2Fcmd",
+                    "name": "p2Fcmd",
+                    "subType": "PROGRAMMED",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 183
+                  }
+                ],
+                "PathPosition": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2p2LPathPos",
+                    "name": "p2LPathPos",
+                    "subType": "ACTUAL",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 184
+                  }
+                ]
+              },
+              "Events": {
+                "Block": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2p2block",
+                    "name": "p2block",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 181
+                  }
+                ],
+                "ControllerMode": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2p2mode",
+                    "name": "p2mode",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 175
+                  }
+                ],
+                "Execution": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2p2execution",
+                    "name": "p2execution",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 177
+                  }
+                ],
+                "FunctionalMode": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2f2mode",
+                    "name": "f2mode",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 173
+                  }
+                ],
+                "Line": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2p2line",
+                    "name": "p2line",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 182
+                  }
+                ],
+                "PartCount": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2p2partcount",
+                    "name": "p2partcount",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 179
+                  }
+                ],
+                "PathFeedrateOverride": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2p2Fovr",
+                    "name": "p2Fovr",
+                    "subType": "PROGRAMMED",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 178
+                  }
+                ],
+                "Program": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2p2program",
+                    "name": "p2program",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 176
+                  }
+                ],
+                "ProgramHeader": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2p2ProgramHeader",
+                    "name": "p2ProgramHeader",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 195
+                  }
+                ],
+                "ToolAssetId": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2p2ToolAssetId",
+                    "name": "p2ToolAssetId",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 194
+                  }
+                ],
+                "ToolNumber": [
+                  {
+                    "value": "UNAVAILABLE",
+                    "dataItemId": "L2p2CurrentTool",
+                    "name": "p2CurrentTool",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 193
+                  }
+                ]
+              },
+              "Condition": {
+                "Unavailable": [
+                  {
+                    "type": "SYSTEM",
+                    "dataItemId": "L2p2system",
+                    "name": "p2system",
+                    "timestamp": "2023-12-09T18:01:37.9329681Z",
+                    "sequence": 174
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

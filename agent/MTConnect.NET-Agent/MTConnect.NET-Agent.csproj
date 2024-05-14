@@ -1,0 +1,68 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup Condition="'$(Configuration)'=='Debug'">
+		<TargetFrameworks>net8.0</TargetFrameworks>
+		<DebugType>full</DebugType>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)'=='Release'">
+		<TargetFrameworks>net461;net48;net6.0;net7.0;net8.0</TargetFrameworks>
+		<DebugSymbols>false</DebugSymbols>
+		<DebugType>None</DebugType>
+		<Optimize>true</Optimize>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)'=='Docker'">
+		<TargetFrameworks>net461;net462;net47;net471;net472;net48;net6.0;net7.0;net8.0</TargetFrameworks>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<Configurations>Debug;Release;Docker</Configurations>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<AssemblyName>agent</AssemblyName>
+		<OutputType>Exe</OutputType>
+		<RootNamespace>MTConnect</RootNamespace>
+		<StartupObject>MTConnect.Applications.Program</StartupObject>
+		<Nullable>disable</Nullable>
+		<Company></Company>
+		<Copyright></Copyright>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <None Remove="NLog.config" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Compile Include="..\..\build\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Include="NLog.config">
+	    <PackagePath>contentFiles\any\any;content</PackagePath>
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	    <IncludeInPackage>true</IncludeInPackage>
+	    <PackageCopyToOutput>true</PackageCopyToOutput>
+	    <CopyToOutput>true</CopyToOutput>
+	    <Pack>True</Pack>
+	  </Content>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\MTConnect.NET-Applications-Agents\MTConnect.NET-Applications-Agents.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Update="agent.config.yaml">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="devices\mazak.xml">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="devices\okuma.xml">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="README.md">
+			<PackagePath>\</PackagePath>
+			<Pack>True</Pack>
+		</None>
+	</ItemGroup>
+
+</Project>

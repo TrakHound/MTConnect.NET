@@ -31,8 +31,8 @@ namespace MTConnect.Tests.Http.Clients
             _agentRunner.Start();
 
             _client = new MTConnectHttpClient(_hostname, _port, documentFormat: DocumentFormat.XML);
-            _client.OnCurrentReceived += SampleReceived;
-            _client.OnSampleReceived += SampleReceived;
+            _client.CurrentReceived += SampleReceived;
+            _client.SampleReceived += SampleReceived;
             _client.Start();
         }
 

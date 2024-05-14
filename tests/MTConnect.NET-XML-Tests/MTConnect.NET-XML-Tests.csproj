@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <RootNamespace>MTConnect.Tests.XML</RootNamespace>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\MTConnect.NET-XML\MTConnect.NET-XML.csproj" />
+    <ProjectReference Include="..\..\libraries\MTConnect.NET-XML\MTConnect.NET-XML.csproj" />
   </ItemGroup>
 
   <ItemGroup>

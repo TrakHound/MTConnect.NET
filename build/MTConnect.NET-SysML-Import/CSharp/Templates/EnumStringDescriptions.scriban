@@ -1,0 +1,33 @@
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
+// TrakHound Inc. licenses this file to you under the MIT license.
+
+namespace {{namespace}}
+{
+    public static class {{name}}Descriptions
+    {
+{{- i = 0 }}{{- for value in values }}{{ i = i + 1 }}
+        /// <summary>
+        /// {{value.description}}
+        /// </summary>
+        public const string {{value.name}} = "{{value.description}}";
+        {{- if (i < (values | array.size)) }}
+        {{ end }}
+{{- end }}
+
+{{- if ((values | array.size) > 0) }}{{ i = 0 }}
+
+
+        public static string Get(string value)
+        {
+            switch (value)
+            {
+{{- for value in values }}{{ i = i + 1 }}
+                case {{name}}.{{value.name}}: return "{{value.description}}";
+{{- end }}
+            }
+
+            return null;
+        }
+{{- end }}
+    }
+}

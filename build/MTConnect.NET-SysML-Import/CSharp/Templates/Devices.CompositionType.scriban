@@ -1,0 +1,24 @@
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
+// TrakHound Inc. licenses this file to you under the MIT license.
+
+// MTConnect SysML v2.3 : UML ID = {{uml_id}}
+
+namespace MTConnect.Devices.Compositions
+{
+    /// <summary>
+    /// {{description}}
+    /// </summary>
+    public class {{name}} : {{ if (parent_type) }}{{parent_type}}{{else}}Composition{{ end }} 
+    {
+        public const string TypeId = "{{type}}";
+        public const string NameId = "{{default_name}}";
+        public new const string DescriptionText = "{{description}}";
+
+        public override string TypeDescription => DescriptionText;
+        {{ if (maximum_version_enum) }}public override System.Version MaximumVersion => {{maximum_version_enum}};{{ end }}
+        {{ if (minimum_version_enum) }}public override System.Version MinimumVersion => {{minimum_version_enum}};{{ end }} 
+
+
+        public {{name}}()  { Type = TypeId; }
+    }
+}

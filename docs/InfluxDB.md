@@ -21,8 +21,8 @@ var influxClient = new InfluxDBClient(influxServer, influxToken);
 
 // Setup MTConnect Client (over HTTP)
 var mtconnectClient = new MTConnectHttpClient("http://localhost:5000");
-mtconnectClient.OnCurrentReceived += ObservationsReceived;
-mtconnectClient.OnSampleReceived += ObservationsReceived;
+mtconnectClient.CurrentReceived += ObservationsReceived;
+mtconnectClient.SampleReceived += ObservationsReceived;
 mtconnectClient.Start();
 
 Console.ReadLine();

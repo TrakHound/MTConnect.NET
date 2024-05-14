@@ -1,0 +1,11 @@
+﻿id: PatrickAdapter
+deviceKey: OKUMA-Lathe
+
+modules:
+
+- shdr:
+    port: 7878
+    
+- mqtt:
+    server: localhost
+    port: 1883
