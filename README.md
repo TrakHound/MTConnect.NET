@@ -185,6 +185,16 @@ The Nuget packages for the libraries in this repo are listed below:
             <td><a href="https://www.nuget.org/packages/MTConnect.NET-JSON">https://www.nuget.org/packages/MTConnect.NET-JSON</a></td>
         </tr>
         <tr>
+            <td>MTConnect.NET-JSON-cppagent</td>
+            <td style="text-align: center;"><img src="https://img.shields.io/nuget/dt/MTConnect.NET-JSON-cppagent?style=for-the-badge&logo=nuget&label=%20&color=%23333"/></td>
+            <td><a href="https://www.nuget.org/packages/MTConnect.NET-JSON">https://www.nuget.org/packages/MTConnect.NET-JSON-cppagent</a></td>
+        </tr>
+        <tr>
+            <td>MTConnect.NET-TLS</td>
+            <td style="text-align: center;"><img src="https://img.shields.io/nuget/dt/MTConnect.NET-TLS?style=for-the-badge&logo=nuget&label=%20&color=%23333"/></td>
+            <td><a href="https://www.nuget.org/packages/MTConnect.NET-TLS">https://www.nuget.org/packages/MTConnect.NET-TLS</a></td>
+        </tr>
+        <tr>
             <td>MTConnect.NET-Services</td>
             <td style="text-align: center;"><img src="https://img.shields.io/nuget/dt/MTConnect.NET-Services?style=for-the-badge&logo=nuget&label=%20&color=%23333"/></td>
             <td><a href="https://www.nuget.org/packages/MTConnect.NET-Services">https://www.nuget.org/packages/MTConnect.NET-Services</a></td>
@@ -193,6 +203,11 @@ The Nuget packages for the libraries in this repo are listed below:
             <td>MTConnect.NET-DeviceFinder</td>
             <td style="text-align: center;"><img src="https://img.shields.io/nuget/dt/MTConnect.NET-DeviceFinder?style=for-the-badge&logo=nuget&label=%20&color=%23333"/></td>
             <td><a href="https://www.nuget.org/packages/MTConnect.NET-DeviceFinder">https://www.nuget.org/packages/MTConnect.NET-DeviceFinder</a></td>
+        </tr>
+        <tr>
+            <td>MTConnect.NET-SysML</td>
+            <td style="text-align: center;"><img src="https://img.shields.io/nuget/dt/MTConnect.NET-SysML?style=for-the-badge&logo=nuget&label=%20&color=%23333"/></td>
+            <td><a href="https://www.nuget.org/packages/MTConnect.NET-SysML">https://www.nuget.org/packages/MTConnect.NET-SysML</a></td>
         </tr>
     </tbody>
 </table>
