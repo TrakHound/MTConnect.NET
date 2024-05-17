@@ -30,8 +30,8 @@ namespace MTConnect.Applications
         private const string DefaultServiceDisplayName = "MTConnect.NET Agent";
         private const string DefaultServiceDescription = "MTConnect Agent to provide access to device information using the MTConnect Standard";
 
-        protected readonly Logger _applicationLogger = LogManager.GetLogger("application");
-        protected readonly Logger _agentLogger = LogManager.GetLogger("agent");
+        protected readonly Logger _applicationLogger = LogManager.GetLogger("application-logger");
+        protected readonly Logger _agentLogger = LogManager.GetLogger("agent-logger");
         protected readonly Logger _agentMetricLogger = LogManager.GetLogger("agent-metrics");
         protected readonly Logger _agentValidationLogger = LogManager.GetLogger("agent-validation");
         protected readonly Logger _moduleLogger = LogManager.GetLogger("module");
@@ -68,9 +68,13 @@ namespace MTConnect.Applications
 
         public MTConnectAgentApplication(IAgentApplicationConfiguration agentConfiguration = null)
         {
-            ServiceName = DefaultServiceName;
-            ServiceDisplayName = DefaultServiceDisplayName;
-            ServiceDescription = DefaultServiceDescription;
+            if (agentConfiguration != null)
+            {
+                ServiceName = !string.IsNullOrEmpty(agentConfiguration.ServiceName) ? agentConfiguration.ServiceName : DefaultServiceName;
+                ServiceDisplayName = !string.IsNullOrEmpty(agentConfiguration.ServiceDisplayName) ? agentConfiguration.ServiceDisplayName : DefaultServiceDisplayName;
+                ServiceDescription = !string.IsNullOrEmpty(agentConfiguration.ServiceDescription) ? agentConfiguration.ServiceDescription : DefaultServiceDescription;
+            }
+
             _initialAgentConfiguration = agentConfiguration;
         }
 
@@ -146,160 +150,175 @@ namespace MTConnect.Applications
             if (configuration != null)
             {
                 // Set Service Name
-                if (!string.IsNullOrEmpty(configuration.ServiceName)) serviceDisplayName = configuration.ServiceName;
+                if (!string.IsNullOrEmpty(configuration.ServiceName)) serviceName = configuration.ServiceName;
+                if (!string.IsNullOrEmpty(configuration.ServiceDisplayName)) serviceDisplayName = configuration.ServiceDisplayName;
+                if (!string.IsNullOrEmpty(configuration.ServiceDescription)) serviceDescription = configuration.ServiceDescription;
 
                 // Set Service Auto Start
                 serviceStart = configuration.ServiceAutoStart;
             }
+
+
+            if (configuration != null)
+            {
+                // Declare a new Service (to use Service commands)
+                Service service = null;
+                if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
+                {
+                    service = new Service(this, serviceName, serviceDisplayName, serviceDescription, serviceStart);
+                    service.LogInformationReceived += ServiceLogInformationReceived;
+                }
+
+                switch (command)
+                {
+                    case "run":
+                        _verboseLogging = false;
+                        StartAgent(configuration, _verboseLogging);
+
+                        if (isBlocking) while (true) Thread.Sleep(100); // Block (exit console by 'Ctrl + C')
+                        else break;
+
+                    case "run-service":
+
+                        _verboseLogging = true;
+                        if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
+                        {
+                            ServiceBase.Run(service);
+                        }
+                        else _applicationLogger.Info($"'Run-Service' Command is not supported on this Operating System");
+
+                        break;
+
+                    case "debug":
+
+                        if (LogManager.Configuration != null)
+                        {
+                            var consoleTarget = LogManager.Configuration.FindTargetByName("logConsole");
+                            if (consoleTarget != null)
+                            {
+                                LogManager.Configuration.AddRule(new LoggingRule("*", LogLevel.Debug, consoleTarget));
+                            }
+                        }
+
+                        StartAgent(configuration, true);
+
+                        if (isBlocking) while (true) Thread.Sleep(100); // Block (exit console by 'Ctrl + C')
+                        else break;
+
+                    case "trace":
+
+                        if (LogManager.Configuration != null)
+                        {
+                            var consoleTarget = LogManager.Configuration.FindTargetByName("logConsole");
+                            if (consoleTarget != null)
+                            {
+                                LogManager.Configuration.AddRule(new LoggingRule("*", LogLevel.Trace, consoleTarget));
+                            }
+                        }
+
+                        StartAgent(configuration, true);
+
+                        if (isBlocking) while (true) Thread.Sleep(100); // Block (exit console by 'Ctrl + C')
+                        else break;
+
+                    case "install":
+
+                        if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
+                        {
+                            service.StopService();
+                            service.RemoveService();
+                            service.InstallService(configFile);
+                        }
+                        else _applicationLogger.Info($"'Install' Command is not supported on this Operating System");
+
+                        break;
+
+                    case "install-start":
+
+                        if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
+                        {
+                            service.StopService();
+                            service.RemoveService();
+                            service.InstallService(configFile);
+                            service.StartService();
+                        }
+                        else _applicationLogger.Info($"'Install-Start' Command is not supported on this Operating System");
+
+                        break;
+
+                    case "remove":
+
+                        if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
+                        {
+                            service.StopService();
+                            service.RemoveService();
+                        }
+                        else _applicationLogger.Info($"'Remove' Command is not supported on this Operating System");
+
+                        break;
+
+                    case "start":
+
+                        if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
+                        {
+                            service.StartService();
+                        }
+                        else _applicationLogger.Info($"'Start' Command is not supported on this Operating System");
+
+                        break;
+
+                    case "stop":
+
+                        if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
+                        {
+                            service.StopService();
+                        }
+                        else _applicationLogger.Info($"'Stop' Command is not supported on this Operating System");
+
+                        break;
+
+
+                    case "reset":
+
+                        _applicationLogger.Info("Reset Buffer requested..");
+
+                        // Clear the Observation Buffer
+                        MTConnectObservationFileBuffer.Reset();
+                        _applicationLogger.Info("Observation Buffer Reset Successfully");
+
+                        // Clear the Asset Buffer
+                        MTConnectAssetFileBuffer.Reset();
+                        _applicationLogger.Info("Asset Buffer Reset Successfully");
+
+                        // Clear the Index
+                        FileIndex.Reset();
+                        _applicationLogger.Info("Indexes Reset Successfully");
+
+                        break;
+
+                    case "help":
+                        PrintHelp();
+                        break;
+
+                    default:
+                        _applicationLogger.Info($"'{command}' : Command not recognized : See help for more information");
+                        PrintHelp();
+                        break;
+                }
+            }
             else
             {
-                _applicationLogger.Warn("Error Reading Configuration File. Default Configuration is loaded.");
+                var configurationPath = configFile;
+                if (!Path.IsPathRooted(configurationPath))
+                {
+                    configurationPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, configurationPath);
+                }
 
-                configuration = new AgentApplicationConfiguration();
-            }
+                _applicationLogger.Fatal($"Error Reading Configuration File. Path = {configurationPath}");
 
-            // Declare a new Service (to use Service commands)
-            Service service = null;
-            if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
-            {
-                service = new Service(this, serviceName, serviceDisplayName, serviceDescription, serviceStart);
-            }
+                //_applicationLogger.Warn("Error Reading Configuration File. Default Configuration is loaded.");
 
-            switch (command)
-            {
-                case "run":
-                    _verboseLogging = false;
-                    StartAgent(configuration, _verboseLogging);
-
-                    if (isBlocking) while (true) Thread.Sleep(100); // Block (exit console by 'Ctrl + C')
-                    else break;
-
-                case "run-service":
-
-                    _verboseLogging = true;
-                    if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
-                    {
-                        ServiceBase.Run(service);
-                    }
-                    else _applicationLogger.Info($"'Run-Service' Command is not supported on this Operating System");
-
-                    break;
-
-                case "debug":
-
-                    if (LogManager.Configuration != null)
-                    {
-                        var consoleTarget = LogManager.Configuration.FindTargetByName("logConsole");
-                        if (consoleTarget != null)
-                        {
-                            LogManager.Configuration.AddRule(new LoggingRule("*", LogLevel.Debug, consoleTarget));
-                        }
-                    }
-
-                    StartAgent(configuration, true);
-
-                    if (isBlocking) while (true) Thread.Sleep(100); // Block (exit console by 'Ctrl + C')
-                    else break;
-
-                case "trace":
-
-                    if (LogManager.Configuration != null)
-                    {
-                        var consoleTarget = LogManager.Configuration.FindTargetByName("logConsole");
-                        if (consoleTarget != null)
-                        {
-                            LogManager.Configuration.AddRule(new LoggingRule("*", LogLevel.Trace, consoleTarget));
-                        }
-                    }
-
-                    StartAgent(configuration, true);
-
-                    if (isBlocking) while (true) Thread.Sleep(100); // Block (exit console by 'Ctrl + C')
-                    else break;
-
-                case "install":
-
-                    if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
-                    {
-                        service.StopService();
-                        service.RemoveService();
-                        service.InstallService(configFile);
-                    }
-                    else _applicationLogger.Info($"'Install' Command is not supported on this Operating System");
-
-                    break;
-
-                case "install-start":
-
-                    if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
-                    {
-                        service.StopService();
-                        service.RemoveService();
-                        service.InstallService(configFile);
-                        service.StartService();
-                    }
-                    else _applicationLogger.Info($"'Install-Start' Command is not supported on this Operating System");
-
-                    break;
-
-                case "remove":
-
-                    if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
-                    {
-                        service.StopService();
-                        service.RemoveService();
-                    }
-                    else _applicationLogger.Info($"'Remove' Command is not supported on this Operating System");
-
-                    break;
-
-                case "start":
-
-                    if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
-                    {
-                        service.StartService();
-                    }
-                    else _applicationLogger.Info($"'Start' Command is not supported on this Operating System");
-
-                    break;
-
-                case "stop":
-
-                    if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
-                    {
-                        service.StopService();
-                    }
-                    else _applicationLogger.Info($"'Stop' Command is not supported on this Operating System");
-
-                    break;
-
-
-                case "reset":
-
-                    _applicationLogger.Info("Reset Buffer requested..");
-
-                    // Clear the Observation Buffer
-                    MTConnectObservationFileBuffer.Reset();
-                    _applicationLogger.Info("Observation Buffer Reset Successfully");
-
-                    // Clear the Asset Buffer
-                    MTConnectAssetFileBuffer.Reset();
-                    _applicationLogger.Info("Asset Buffer Reset Successfully");
-
-                    // Clear the Index
-                    FileIndex.Reset();
-                    _applicationLogger.Info("Indexes Reset Successfully");
-
-                    break;
-
-                case "help":
-                    PrintHelp();
-                    break;
-
-                default:
-                    _applicationLogger.Info($"'{command}' : Command not recognized : See help for more information");
-                    PrintHelp();
-                    break;
+                //configuration = new AgentApplicationConfiguration();
             }
         }
 
@@ -680,9 +699,15 @@ namespace MTConnect.Applications
 
         #region "Logging"
 
+        private void ServiceLogInformationReceived(object sender, string message)
+        {
+            _applicationLogger.Info("Windows Service : " + message);
+        }
+
+
         private void ModuleLoaded(object sender, IMTConnectAgentModule module)
         {
-            _applicationLogger.Info($"Module Loaded : " + module.Id);
+            _applicationLogger.Info("Module Loaded : " + module.Id);
         }
 
         private void ModuleLogReceived(object sender, MTConnectLogLevel logLevel, string message, string logId = null)

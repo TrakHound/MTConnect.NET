@@ -30,6 +30,18 @@ namespace MTConnect.Configurations
         public string ServiceName { get; set; }
 
         /// <summary>
+        /// Changes the display name of the service. This helps with identification when multiple agents on run as services on the same machine.
+        /// </summary>
+        [JsonPropertyName("serviceDisplayName")]
+        public string ServiceDisplayName { get; set; }
+
+        /// <summary>
+        /// Changes the description of the service. This helps with identification when multiple agents on run as services on the same machine.
+        /// </summary>
+        [JsonPropertyName("serviceDisplayName")]
+        public string ServiceDescription { get; set; }
+
+        /// <summary>
         /// Sets the Service Start Type. True = Auto | False = Manual
         /// </summary>
         [JsonPropertyName("serviceAutoStart")]
@@ -73,6 +85,8 @@ namespace MTConnect.Configurations
         {
             Devices = null;
             ServiceName = null;
+            ServiceDisplayName = null;
+            ServiceDescription = null;
             ServiceAutoStart = true;
             MonitorConfigurationFiles = true;
             ConfigurationFileRestartInterval = 2;

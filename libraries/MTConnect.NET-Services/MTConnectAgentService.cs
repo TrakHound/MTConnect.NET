@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using System;
@@ -43,13 +43,18 @@ namespace MTConnect.Services
 
         protected override void OnStart(string[] args)
         {
+            // Read Command Line Args manually (they are not passed in the args variable)
+            // unless specified in the Start Parameters when creating the Windows Service
+            // https://learn.microsoft.com/en-us/dotnet/api/system.serviceprocess.servicebase.onstart?view=net-8.0#remarks
+            var commandArgs = Environment.GetCommandLineArgs();
+
             // Configuration File Path
             string configFile = null;
-            if (args != null && args.Length > 0)
+            if (commandArgs != null && commandArgs.Length > 1)
             {
-                foreach (var arg in args) LogInformation($"MTConnectAgentService : OnStart (Arguments) : {arg}");
+                foreach (var arg in commandArgs) LogInformation($"MTConnectAgentService : OnStart (Arguments) : {arg}");
 
-                if (args.Length > 1) configFile = args[1];
+                if (commandArgs.Length > 2) configFile = commandArgs[2];
             }
 
             LogInformation("MTConnectAgentService : OnStart : Service Starting");
@@ -128,13 +133,25 @@ namespace MTConnect.Services
             if (WindowsService.IsUserAdministrator())
             {
                 var dir = AppDomain.CurrentDomain.BaseDirectory;
-                var filename = $"{Assembly.GetEntryAssembly().GetName().Name}.exe";
-                var path = Path.Combine(dir, filename);
+
+                // Set Executable Path
+                var exeFilename = $"{Assembly.GetEntryAssembly().GetName().Name}.exe";
+                var exePath = Path.Combine(dir, exeFilename);
+
+                // Set Configuration Path
+                var configPath = configurationPath;
+                if (!string.IsNullOrEmpty(configPath))
+                {
+                    if (!Path.IsPathRooted(configPath))
+                    {
+                        configPath = Path.Combine(dir, configPath);
+                    }
+                }
 
                 var start = _serviceStart ? "auto" : "demand";
 
                 // Create Service
-                var cmd = $"/c sc create {_serviceName} BinPath=\"\\\"{path}\\\" run-service \\\"{configurationPath}\\\"\" start= {start} DisplayName= \"{_serviceDisplayName}\"";
+                var cmd = $"/c sc create {_serviceName} BinPath= \"\\\"{exePath}\\\" run-service \\\"{configPath}\\\"\" start= {start} DisplayName= \"{_serviceDisplayName}\"";
                 if (RunWindowsCommand(cmd))
                 {
                     LogInformation($"Install Service : Windows : ({_serviceName}) Service Created Successfully");

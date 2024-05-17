@@ -1,7 +1,8 @@
 {
   "profiles": {
     "MTConnect.NET-Agent": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "commandLineArgs": "debug"
     }
   }
 }
