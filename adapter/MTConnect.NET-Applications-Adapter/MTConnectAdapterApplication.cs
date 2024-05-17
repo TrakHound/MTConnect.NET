@@ -110,7 +110,7 @@ namespace MTConnect.Applications
                 File.Copy(defaultPath, yamlConfigPath);
             }
 
-            // Read the Agent Configuation File
+            // Read the Adapter Configuation File
             var configuration = AdapterApplicationConfiguration.Read<AdapterApplicationConfiguration>(configFile);
             if (configuration != null)
             {
