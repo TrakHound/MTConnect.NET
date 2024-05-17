@@ -134,18 +134,30 @@ namespace MTConnect.Configurations
         public static AgentConfiguration ReadYaml(string path = null) => ReadYaml<AgentConfiguration>(path);
 
 
-
         public static T Read<T>(string path = null) where T : AgentConfiguration
         {
-            var jsonPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, JsonFilename);
+            if (!string.IsNullOrEmpty(path))
+            {
+                var configurationPath = path;
+                if (!System.IO.Path.IsPathRooted(configurationPath))
+                {
+                    configurationPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, configurationPath);
+                }
 
-            // Test for JSON Configuration File
-            if (File.Exists(jsonPath)) return ReadJson<T>(jsonPath);
+                return ReadYaml<T>(configurationPath);
+            }
             else
             {
-                var yamlPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, YamlFilename);
+                var jsonPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, JsonFilename);
 
-                return ReadYaml<T>(yamlPath);
+                // Test for JSON Configuration File
+                if (File.Exists(jsonPath)) return ReadJson<T>(jsonPath);
+                else
+                {
+                    var yamlPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, YamlFilename);
+
+                    return ReadYaml<T>(yamlPath);
+                }
             }
         }
 

@@ -117,20 +117,23 @@ namespace MTConnect.Applications
             }
 
 
-            // Convert Json Configuration File to YAML
-            string jsonConfigPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AgentConfiguration.JsonFilename);
-            if (File.Exists(jsonConfigPath))
+            if (string.IsNullOrEmpty(configFile))
             {
-                var dummyConfiguration = OnConfigurationFileRead(jsonConfigPath);
-                if (dummyConfiguration != null) dummyConfiguration.SaveYaml();
-            }
+                // Convert Json Configuration File to YAML
+                string jsonConfigPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AgentConfiguration.JsonFilename);
+                if (File.Exists(jsonConfigPath))
+                {
+                    var dummyConfiguration = OnConfigurationFileRead(jsonConfigPath);
+                    if (dummyConfiguration != null) dummyConfiguration.SaveYaml();
+                }
 
-            // Copy Default Configuration File
-            string yamlConfigPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AgentConfiguration.YamlFilename);
-            string defaultConfigPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AgentConfiguration.DefaultYamlFilename);
-            if (!File.Exists(yamlConfigPath) && !File.Exists(jsonConfigPath) && File.Exists(defaultConfigPath))
-            {
-                File.Copy(defaultConfigPath, yamlConfigPath);
+                // Copy Default Configuration File
+                string yamlConfigPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AgentConfiguration.YamlFilename);
+                string defaultConfigPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AgentConfiguration.DefaultYamlFilename);
+                if (!File.Exists(yamlConfigPath) && !File.Exists(jsonConfigPath) && File.Exists(defaultConfigPath))
+                {
+                    File.Copy(defaultConfigPath, yamlConfigPath);
+                }
             }
 
             // Read the Agent Configuation File
