@@ -159,7 +159,11 @@ namespace MTConnect.Clients
                     httpRequest.Method = HttpMethod.Get;
 
                     using (var response = await _httpClient.SendAsync(httpRequest, HttpCompletionOption.ResponseHeadersRead, stop.Token))
-                    using (var stream = response.Content.ReadAsStream())
+#if NET5_0_OR_GREATER
+                    using (var stream = await response.Content.ReadAsStreamAsync(stop.Token))
+#else
+                    using (var stream = await response.Content.ReadAsStreamAsync())
+#endif
                     {
                         var header = new List<byte>();
                         var headerActive = false;
