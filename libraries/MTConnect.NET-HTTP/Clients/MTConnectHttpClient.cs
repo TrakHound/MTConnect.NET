@@ -833,9 +833,7 @@ namespace MTConnect.Clients
                     _cachedDataItems.Clear();
                 }
 
-                // Raise ProbeReceived Event
-                ProbeReceived?.Invoke(this, document);
-
+                var outputDevices = new List<IDevice>();
                 foreach (var device in document.Devices)
                 {
                     var outputDevice = ProcessDevice(document.Header, device);
@@ -846,9 +844,15 @@ namespace MTConnect.Clients
                         _devices.Remove(outputDevice.Uuid);
                         _devices.Add(outputDevice.Uuid, outputDevice);
                     }
+                }
 
+                foreach (var outputDevice in outputDevices)
+                {
                     DeviceReceived?.Invoke(this, outputDevice);
                 }
+
+                // Raise ProbeReceived Event
+                ProbeReceived?.Invoke(this, document);
             }
         }
 
@@ -920,8 +924,7 @@ namespace MTConnect.Clients
                     response.Streams = deviceStreams;
 
 
-                    SampleReceived?.Invoke(this, response);
-
+                    var receivedObservations = new List<IObservation>();
 
                     // Process Device Streams
                     foreach (var deviceStream in response.Streams)
@@ -936,11 +939,15 @@ namespace MTConnect.Clients
                         var observations = response.GetObservations();
                         if (!observations.IsNullOrEmpty())
                         {
-                            foreach (var observation in observations)
-                            {
-                                ObservationReceived?.Invoke(this, observation);
-                            }
+                            receivedObservations.AddRange(observations);
                         }
+                    }
+
+                    SampleReceived?.Invoke(this, response);
+
+                    foreach (var observation in receivedObservations)
+                    {
+                        ObservationReceived?.Invoke(this, observation);
                     }
                 }
             }

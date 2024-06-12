@@ -25,6 +25,7 @@ namespace MTConnect.Clients
         private const byte CarriageReturn = 13;
         private const byte Dash = 45;
         private static readonly HttpClient _httpClient;
+        private static readonly byte[] _trimBytes = new byte[] { 10, 13 };
 
         private CancellationTokenSource _stop;
         private string _documentFormat = DocumentFormat.XML;
@@ -152,12 +153,13 @@ namespace MTConnect.Clients
                         }
                     }
 
-                    // Get the HTTP Stream 
-#if NET5_0_OR_GREATER
-                    using (var stream = await _httpClient.GetStreamAsync(Url, stop.Token))
-#else
-                    using (var stream = await _httpClient.GetStreamAsync(Url))
-#endif
+
+                    var httpRequest = new HttpRequestMessage();
+                    httpRequest.RequestUri = new Uri(Url);
+                    httpRequest.Method = HttpMethod.Get;
+
+                    using (var response = await _httpClient.SendAsync(httpRequest, HttpCompletionOption.ResponseHeadersRead, stop.Token))
+                    using (var stream = response.Content.ReadAsStream())
                     {
                         var header = new List<byte>();
                         var headerActive = false;
@@ -169,7 +171,6 @@ namespace MTConnect.Clients
                         var line = new List<byte>();
                         var contentLength = 0;
                         string contentEncoding = null;
-                        var trimBytes = new byte[] { 10, 13 };
                         string lineStr = null;
 
 
@@ -197,9 +198,6 @@ namespace MTConnect.Clients
 
                             if (cr && lf)
                             {
-                                // Trim CR and LF bytes from beginning and end
-                                //var lineBytes = ObjectExtensions.TrimBytes(line.ToArray(), trimBytes);
-
                                 // Get the current line as a UTF-8 string
                                 lineStr = Encoding.UTF8.GetString(line.ToArray());
 
@@ -246,7 +244,7 @@ namespace MTConnect.Clients
 
                             // Add byte to Line Buffer
                             line.Add((byte)b);
-                      
+
                             prevByte = b;
 
                             // Read the next Byte
@@ -307,15 +305,11 @@ namespace MTConnect.Clients
             {
                 var i = 0;
                 var size = length;
+                var isHeader = true;
 
                 // Create a buffer to contain body of the response
                 // based on the size of the content-length received in the Http Headers
                 var body = new MemoryStream(size);
-
-                // Read New Line characters
-                // These always appear after the Http Header
-                stream.ReadByte(); // 13
-                stream.ReadByte(); // 10
 
                 while (i < size)
                 {
@@ -325,15 +319,20 @@ namespace MTConnect.Clients
                     // Read from the Network stream and store in the chunk buffer
                     var j = stream.Read(chunk, 0, chunk.Length);
 
+                    // Remove blank lines before header (can cause XML deserialization error if Xml Declaration is not the first line)
+                    if (isHeader) chunk = ObjectExtensions.TrimStartBytes(chunk, _trimBytes);
+
                     // Verify bytes read doesn't exceed destination array
                     // (could be blank lines after document that gets read)
                     if (j > size - i) j = size - i;
 
                     // Add the chunk bytes to the body buffer
-                    body.Write(chunk, 0, j);
+                    body.Write(chunk, 0, Math.Min(j, chunk.Length));
 
                     // Increment the index of the body buffer based on the number of bytes read in this chunk
                     i += j;
+
+                    isHeader = false;
                 }
 
                 return body;
