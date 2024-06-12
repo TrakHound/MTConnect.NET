@@ -1982,6 +1982,8 @@ namespace MTConnect.Agents
                                 else UpdateCurrentObservation(deviceUuid, dataItem, observation);
 
                                 OnObservationAdded(observation);
+
+                                success = true;
                             }
                         }
                         else success = true; // Return true if no update needed
