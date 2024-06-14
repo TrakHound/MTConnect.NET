@@ -17,7 +17,7 @@ namespace MTConnect.Modules
 {
     public class Module : MTConnectAgentModule
     {
-        public const string ConfigurationTypeId = "http-client";
+        public const string ConfigurationTypeId = "http-adapter";
         private const string ModuleId = "HTTP Adapter";
 
         private readonly HttpAdapterModuleConfiguration _configuration;
