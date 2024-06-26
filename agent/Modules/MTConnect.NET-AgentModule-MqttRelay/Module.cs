@@ -214,9 +214,19 @@ namespace MTConnect
                             await Task.Delay(100);
                         }
                     }
-                    catch (Exception ex)
+                    catch (Exception exception)
                     {
-                        Log(MTConnectLogLevel.Warning, $"MQTT Relay Connection Error : {ex.Message}");
+                        Log(MTConnectLogLevel.Warning, $"MQTT Relay Connection Error : {exception.Message}");
+
+                        var innerException = exception.InnerException;
+
+                        while (innerException != null)
+                        {
+                            Log(MTConnectLogLevel.Warning, $"MQTT Relay Connection Error (InnerException) : {innerException.Message}");
+                            innerException = innerException.InnerException;
+                        }
+
+                        Log(MTConnectLogLevel.Warning, $"MQTT Relay Connection Error (BaseException) : {exception.GetBaseException().ToString()}");
                     }
                     finally
                     {
