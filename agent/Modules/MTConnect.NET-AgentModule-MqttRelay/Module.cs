@@ -219,7 +219,7 @@ namespace MTConnect
                         
                         Log(MTConnectLogLevel.Warning, $"MQTT Relay Connection Error : {ex.Message}");
 
-                        var current = current.InnerException;
+                        var current = ex.InnerException;
 
                         while( current != null )
                         {
