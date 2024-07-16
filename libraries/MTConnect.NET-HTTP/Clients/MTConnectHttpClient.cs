@@ -1219,7 +1219,7 @@ namespace MTConnect.Clients
             // Check for http
             if (!url.StartsWith("http://") && !url.StartsWith("https://")) url = "http://" + url;
 
-            if (from >= 0) url = Url.AddQueryParameter(url, "from", from);
+            if (from > 0) url = Url.AddQueryParameter(url, "from", from);
             if (count > 0) url = Url.AddQueryParameter(url, "count", count);
             if (interval > -1) url = Url.AddQueryParameter(url, "interval", interval);
             if (heartbeat > 0) url = Url.AddQueryParameter(url, "heartbeat", heartbeat);
