@@ -18,24 +18,18 @@ namespace MTConnect.Clients
     /// <summary>
     /// An Http Stream for reading MTConnect Sample or Current streams and returns MTConnectStreamsResponse documents
     /// </summary>
-    public class MTConnectHttpClientStream
+    public class MTConnectHttpClientStream : IDisposable
     {
         private const int DefaultTimeout = 300000;
         private const byte LineFeed = 10;
         private const byte CarriageReturn = 13;
         private const byte Dash = 45;
-        private static readonly HttpClient _httpClient;
         private static readonly byte[] _trimBytes = new byte[] { 10, 13 };
+        private readonly HttpClient _httpClient;
 
         private CancellationTokenSource _stop;
         private string _documentFormat = DocumentFormat.XML;
 
-
-        static MTConnectHttpClientStream()
-        {
-            _httpClient = new HttpClient();
-            _httpClient.Timeout = TimeSpan.FromMilliseconds(DefaultTimeout);
-        }
 
         public MTConnectHttpClientStream(string url, string documentFormat = DocumentFormat.XML)
         {
@@ -45,6 +39,14 @@ namespace MTConnect.Clients
             _documentFormat = documentFormat;
             ContentEncodings = HttpContentEncodings.DefaultAccept;
             ContentType = MimeTypes.Get(documentFormat);
+
+            _httpClient = new HttpClient();
+            _httpClient.Timeout = TimeSpan.FromMilliseconds(DefaultTimeout);
+        }
+
+        public void Dispose()
+        {
+            if (_httpClient != null) _httpClient.Dispose();
         }
 
 
@@ -157,6 +159,7 @@ namespace MTConnect.Clients
                     var httpRequest = new HttpRequestMessage();
                     httpRequest.RequestUri = new Uri(Url);
                     httpRequest.Method = HttpMethod.Get;
+
 
                     using (var response = await _httpClient.SendAsync(httpRequest, HttpCompletionOption.ResponseHeadersRead, stop.Token))
 #if NET5_0_OR_GREATER

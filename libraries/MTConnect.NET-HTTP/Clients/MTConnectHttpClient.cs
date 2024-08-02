@@ -717,23 +717,25 @@ namespace MTConnect.Clients
                                 if (CurrentOnly) url = CreateCurrentUrl(Authority, Device, Interval, _streamPath);
 
                                 // Create and Start the Stream
-                                _stream = new MTConnectHttpClientStream(url, DocumentFormat);
-                                _stream.Timeout = Heartbeat * 3;
-                                _stream.ContentEncodings = ContentEncodings;
-                                _stream.ContentType = ContentType;
-                                _stream.Starting += (s, o) => StreamStarting?.Invoke(this, url);
-                                _stream.Started += (s, o) => StreamStarted?.Invoke(this, url);
-                                _stream.Stopping += (s, o) => StreamStopping?.Invoke(this, url);
-                                _stream.Stopped += (s, o) => StreamStopped?.Invoke(this, url);
-                                _stream.DocumentReceived += (s, doc) => ProcessSampleDocument(doc, _stop.Token);
-                                _stream.ErrorReceived += (s, doc) => ProcessSampleError(doc);
-                                _stream.FormatError += (s, r) => FormatError?.Invoke(this, r);
-                                _stream.ConnectionError += (s, ex) => ConnectionError?.Invoke(this, ex);
-                                _stream.InternalError += (s, ex) => InternalError?.Invoke(this, ex);
+                                using (_stream = new MTConnectHttpClientStream(url, DocumentFormat))
+                                {
+                                    _stream.Timeout = Heartbeat * 3;
+                                    _stream.ContentEncodings = ContentEncodings;
+                                    _stream.ContentType = ContentType;
+                                    _stream.Starting += (s, o) => StreamStarting?.Invoke(this, url);
+                                    _stream.Started += (s, o) => StreamStarted?.Invoke(this, url);
+                                    _stream.Stopping += (s, o) => StreamStopping?.Invoke(this, url);
+                                    _stream.Stopped += (s, o) => StreamStopped?.Invoke(this, url);
+                                    _stream.DocumentReceived += (s, doc) => ProcessSampleDocument(doc, _stop.Token);
+                                    _stream.ErrorReceived += (s, doc) => ProcessSampleError(doc);
+                                    _stream.FormatError += (s, r) => FormatError?.Invoke(this, r);
+                                    _stream.ConnectionError += (s, ex) => ConnectionError?.Invoke(this, ex);
+                                    _stream.InternalError += (s, ex) => InternalError?.Invoke(this, ex);
 
-                                // Run Stream (Blocking call)
-                                await _stream.Run(_stop.Token);
-
+                                    // Run Stream (Blocking call)
+                                    await _stream.Run(_stop.Token);
+                                }
+                                    
                                 initialRequest = false;
 
                                 if (!_stop.Token.IsCancellationRequested)
