@@ -30,6 +30,7 @@ namespace MTConnect.Shdr
         private TcpClient _client;
         private long _lastHeartbeat = 0;
         private CancellationTokenSource _stop;
+        private int _heartbeat = DefaultPongHeartbeat;
 
         
         /// <summary>
@@ -195,7 +196,6 @@ namespace MTConnect.Shdr
             var reconnectInterval = Math.Max(ReconnectInterval, 100);
             var connected = false;
 
-            var heartbeat = DefaultPongHeartbeat;
             long lastResponse = 0;
             long now = UnixDateTime.Now;
 
@@ -254,7 +254,7 @@ namespace MTConnect.Shdr
                                 }
 
                                 // Send PING Heartbeat if needed
-                                if ((now - lastResponse) > heartbeat * 10000 && (now - _lastHeartbeat) > heartbeat * 10000)
+                                if (((now - lastResponse) > _heartbeat * 10000) && ((now - _lastHeartbeat) > _heartbeat * 10000))
                                 {
                                     messageBytes = Encoding.ASCII.GetBytes(PingMessage);
                                     stream.Write(messageBytes, 0, messageBytes.Length);
@@ -339,7 +339,6 @@ namespace MTConnect.Shdr
                 if (lines != null && lines.Length > 0)
                 {
                     var j = 0;
-                    int heartbeat;
 
                     bool multilineAsset = false;
                     long multilineAssetTimestamp = 0;
@@ -365,9 +364,9 @@ namespace MTConnect.Shdr
                             {
                                 if (line.StartsWith("* PONG"))
                                 {
-                                    heartbeat = GetPongHeartbeat(line);
+                                    _heartbeat = GetPongHeartbeat(line);
 
-                                    PongReceived?.Invoke(this, $"PONG Received from : {Hostname} on Port {Port} : Heartbeat = {heartbeat}ms");
+                                    PongReceived?.Invoke(this, $"PONG Received from : {Hostname} on Port {Port} : Heartbeat = {_heartbeat}ms");
                                 }
                                 else
                                 {
