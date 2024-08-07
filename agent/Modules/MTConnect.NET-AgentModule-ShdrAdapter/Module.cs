@@ -106,6 +106,7 @@ namespace MTConnect.Modules
 
                 // Create new SHDR Adapter Client to read from SHDR stream
                 var adapterClient = new ShdrAdapterClient(configuration, _mtconnectAgent, device, idSuffix);
+                adapterClient.IgnoreHeartbeatOnChange = configuration.IgnoreHeartbeatOnChange;
                 _adapters.Add(adapterClient);
 
                 adapterClient.Connected += AdapterConnected;

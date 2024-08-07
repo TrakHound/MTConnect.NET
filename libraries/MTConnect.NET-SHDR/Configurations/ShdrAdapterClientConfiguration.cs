@@ -41,6 +41,12 @@ namespace MTConnect.Configurations
         [JsonPropertyName("outputConnectionInformation")]
         public bool OutputConnectionInformation { get; set; }
 
+        /// <summary>
+        /// Gets or Sets whether Heartbeat PING requests are not sent if data has been received within the Heartbeat period
+        /// </summary>
+        [JsonPropertyName("ignoreHeartbeatOnChange")]
+        public bool IgnoreHeartbeatOnChange { get; set; }
+
 
         public ShdrAdapterClientConfiguration()
         {
@@ -49,6 +55,7 @@ namespace MTConnect.Configurations
             ConvertUnits = true;
             IgnoreObservationCase = true;
             OutputConnectionInformation = true;
+            IgnoreHeartbeatOnChange = true;
         }
     }
 }

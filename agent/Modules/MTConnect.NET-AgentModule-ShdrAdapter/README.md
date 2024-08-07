@@ -54,6 +54,8 @@ modules:
 
 * `outputConnectionInformation` - Gets or Sets whether the Connection Information (Host / Port) is output to the Agent to be collected by a client
 
+* `ignoreHeartbeatOnChange` - Gets or Sets whether Heartbeat PING requests are not sent if data has been received within the Heartbeat period. Default is TRUE
+
 
 ## Contribution / Feedback
 - Please use the [Issues](https://github.com/TrakHound/MTConnect.NET/issues) tab to create issues for specific problems that you may encounter 

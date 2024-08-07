@@ -33,5 +33,10 @@ namespace MTConnect.Configurations
         /// Gets or Sets whether the Connection Information (Host / Port) is output to the Agent to be collected by a client
         /// </summary>
         bool OutputConnectionInformation { get; }
+
+        /// <summary>
+        /// Gets or Sets whether Heartbeat PING requests are not sent if data has been received within the Heartbeat period
+        /// </summary>
+        bool IgnoreHeartbeatOnChange { get; }
     }
 }

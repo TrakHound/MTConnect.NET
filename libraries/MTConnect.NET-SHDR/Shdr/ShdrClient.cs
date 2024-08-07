@@ -64,6 +64,11 @@ namespace MTConnect.Shdr
         /// </summary>
         public int ReconnectInterval { get; set; }
 
+        /// <summary>
+        /// Gets or Sets whether Heartbeat PING requests are not sent if data has been received within the Heartbeat period
+        /// </summary>
+        public bool IgnoreHeartbeatOnChange { get; set; }
+
 
         /// <summary>
         /// Raised when a client connection is established
@@ -111,6 +116,7 @@ namespace MTConnect.Shdr
         public ShdrClient()
         {
             Id = StringFunctions.RandomString(10);
+            IgnoreHeartbeatOnChange = true;
         }
 
         public ShdrClient(string hostname, int port, int connectionTimeout = DefaultConnectionTimeout, int reconnectInterval = DefaultReconnectInterval)
@@ -120,6 +126,7 @@ namespace MTConnect.Shdr
             Port = port;
             ConnectionTimeout = connectionTimeout;
             ReconnectInterval = reconnectInterval;
+            IgnoreHeartbeatOnChange = true;
         }
 
         public ShdrClient(string hostname, int port, string deviceKey, int connectionTimeout = DefaultConnectionTimeout, int reconnectInterval = DefaultReconnectInterval)
@@ -130,11 +137,13 @@ namespace MTConnect.Shdr
             DeviceKey = deviceKey;
             ConnectionTimeout = connectionTimeout;
             ReconnectInterval = reconnectInterval;
+            IgnoreHeartbeatOnChange = true;
         }
 
         public ShdrClient(ShdrClientConfiguration configuration)
         {
             Id = StringFunctions.RandomString(10);
+            IgnoreHeartbeatOnChange = true;
 
             if (configuration != null)
             {
@@ -254,7 +263,7 @@ namespace MTConnect.Shdr
                                 }
 
                                 // Send PING Heartbeat if needed
-                                if (((now - lastResponse) > _heartbeat * 10000) && ((now - _lastHeartbeat) > _heartbeat * 10000))
+                                if ((!IgnoreHeartbeatOnChange || ((now - lastResponse) > _heartbeat * 10000)) && ((now - _lastHeartbeat) > _heartbeat * 10000))
                                 {
                                     messageBytes = Encoding.ASCII.GetBytes(PingMessage);
                                     stream.Write(messageBytes, 0, messageBytes.Length);
