@@ -221,6 +221,41 @@ namespace MTConnect
             return null;
         }
 
+        public static int TrimStartBytes(ref byte[] inputBytes, byte[] trimBytes)
+        {
+            if (inputBytes != null && inputBytes.Length > 0 && trimBytes != null && trimBytes.Length > 0)
+            {
+                // Look for Trim bytes
+                int i = 0;
+                bool found;
+
+                while (i < inputBytes.Length)
+                {
+                    found = false;
+                    for (var k = 0; k < trimBytes.Length; k++)
+                    {
+                        if (inputBytes[i] == trimBytes[k])
+                        {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) break;
+                    i++;
+                }
+
+                if (i > 0)
+                {
+                    // Shift Array over past the initial Whitespace bytes
+                    Array.Copy(inputBytes, i, inputBytes, 0, inputBytes.Length - i);
+                }
+
+                return i; // Return number of bytes shifted in array
+            }
+
+            return 0;
+        }
+
         public static byte[] TrimStartBytes(byte[] inputBytes, byte[] trimBytes)
         {
             if (inputBytes != null && inputBytes.Length > 0 && trimBytes != null && trimBytes.Length > 0)

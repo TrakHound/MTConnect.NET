@@ -256,6 +256,13 @@ namespace MTConnect.Formatters.Xml
             catch (Exception ex)
             {
                 messages.Add(ex.Message);
+
+                var innerException = ex.InnerException;
+                while (innerException != null)
+                {
+                    messages.Add(innerException.Message);
+                    innerException = innerException.InnerException;
+                }
             }
 
             return new FormatReadResult<IDevicesResponseDocument>(document, success, messages, warnings, errors);
@@ -310,6 +317,13 @@ namespace MTConnect.Formatters.Xml
             catch (Exception ex)
             {
                 messages.Add(ex.Message);
+
+                var innerException = ex.InnerException;
+                while (innerException != null)
+                {
+                    messages.Add(innerException.Message);
+                    innerException = innerException.InnerException;
+                }
             }
             
             return new FormatReadResult<IStreamsResponseDocument>(document, success, messages, warnings, errors);

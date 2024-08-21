@@ -24,7 +24,7 @@ namespace MTConnect.Clients
         private const byte LineFeed = 10;
         private const byte CarriageReturn = 13;
         private const byte Dash = 45;
-        private static readonly byte[] _trimBytes = new byte[] { 10, 13 };
+        private static readonly byte[] _trimBytes = new byte[] { LineFeed, CarriageReturn };
         private readonly HttpClient _httpClient;
 
         private CancellationTokenSource _stop;
@@ -310,31 +310,33 @@ namespace MTConnect.Clients
         {
             if (stream != null && length > 0)
             {
-                var i = 0;
-                var size = length;
-                var isHeader = true;
+                int i = 0;
+                int size = length;
+                bool isHeader = true;
+                int j;
+                int k;
 
                 // Create a buffer to contain body of the response
                 // based on the size of the content-length received in the Http Headers
-                var body = new MemoryStream(size);
+                var body = new MemoryStream();
+
+                // Create a 255 byte buffer
+                var chunk = new byte[255];
 
                 while (i < size)
                 {
-                    // Create a 512 byte buffer
-                    var chunk = new byte[512];
-
                     // Read from the Network stream and store in the chunk buffer
-                    var j = stream.Read(chunk, 0, chunk.Length);
+                    j = stream.Read(chunk, 0, chunk.Length);
 
                     // Remove blank lines before header (can cause XML deserialization error if Xml Declaration is not the first line)
-                    if (isHeader) chunk = ObjectExtensions.TrimStartBytes(chunk, _trimBytes);
-
-                    // Verify bytes read doesn't exceed destination array
-                    // (could be blank lines after document that gets read)
-                    if (j > size - i) j = size - i;
+                    if (isHeader)
+                    {
+                        k = ObjectExtensions.TrimStartBytes(ref chunk, _trimBytes);
+                        j -= k;
+                    }
 
                     // Add the chunk bytes to the body buffer
-                    body.Write(chunk, 0, Math.Min(j, chunk.Length));
+                    body.Write(chunk, 0, j);
 
                     // Increment the index of the body buffer based on the number of bytes read in this chunk
                     i += j;
