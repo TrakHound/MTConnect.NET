@@ -133,7 +133,7 @@ namespace MTConnect
                                 var certificateAuthorityResults = _configuration.Tls.GetCertificateAuthority();
 
                                 var certificates = new List<X509Certificate2>();
-                                if (certificateAuthorityResults.Certificate != null)
+                                if (certificateAuthorityResults.Certificate != null && _configuration.Tls.OmitCAValidation == false)
                                 {
                                     certificates.Add(certificateAuthorityResults.Certificate);
                                 }
