@@ -18,6 +18,8 @@ namespace MTConnect.Tls
         [JsonPropertyName("verifyClientCertificate")]
         public bool VerifyClientCertificate { get; set; }
 
+        [JsonPropertyName("omitCAValidation")]
+        public bool OmitCAValidation { get; set; }
 
 
         public CertificateLoadResult GetCertificate()
