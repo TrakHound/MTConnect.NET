@@ -81,6 +81,7 @@ namespace MTConnect.Clients
                     messageBuilder.WithTopic(topic);
                     messageBuilder.WithPayload(formatResult.Content);
                     messageBuilder.WithRetainFlag(true);
+                    messageBuilder.WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce);
                     return messageBuilder.Build();
                 }
             }
@@ -167,6 +168,7 @@ namespace MTConnect.Clients
                         messageBuilder.WithTopic(topic);
                         messageBuilder.WithPayload(formatResult.Content);
                         messageBuilder.WithRetainFlag(true);
+                        messageBuilder.WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce);
                         return messageBuilder.Build();
                     }
                 }
@@ -198,6 +200,7 @@ namespace MTConnect.Clients
                         messageBuilder.WithTopic(topic);
                         messageBuilder.WithPayload(formatResult.Content);
                         messageBuilder.WithRetainFlag(true);
+                        messageBuilder.WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce);
                         return messageBuilder.Build();
                     }
                 }
@@ -250,6 +253,7 @@ namespace MTConnect.Clients
                     messageBuilder.WithTopic(topic);
                     messageBuilder.WithPayload(formatResult.Content);
                     messageBuilder.WithRetainFlag(true);
+                    messageBuilder.WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce);
                     return messageBuilder.Build();
                 }
             }
