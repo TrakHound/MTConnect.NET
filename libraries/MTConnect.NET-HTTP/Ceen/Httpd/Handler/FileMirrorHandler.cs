@@ -113,7 +113,8 @@ namespace Ceen.Httpd.Handler
         /// </summary>
         /// <returns>An awaitable task.</returns>
         /// <param name="context">The request context.</param>
-        public override async Task<bool> HandleAsync(IHttpContext context)
+        /// <param name="cancellationToken">The token indicating to stop handling.</param>
+        public override async Task<bool> HandleAsync(IHttpContext context, CancellationToken cancellationToken)
         {
             if (!string.Equals(context.Request.Method, "GET", StringComparison.Ordinal) && !string.Equals(context.Request.Method, "HEAD", StringComparison.Ordinal))
             {
@@ -183,7 +184,7 @@ namespace Ceen.Httpd.Handler
                     // We hit a race here where the file is downloaded and exists,
                     // but the active tables have been cleared just after we checked the filecache
                     if (m_filecache.TryGetValue(localpath, out var v))
-                        return await base.HandleAsync(context);
+                        return await base.HandleAsync(context, cancellationToken);
                 }
 
                 // Download if we are the first process requesting it
@@ -195,7 +196,7 @@ namespace Ceen.Httpd.Handler
 
             }
 
-            return await base.HandleAsync(context);
+            return await base.HandleAsync(context, cancellationToken);
         }
         /// <summary>
         /// The predicate method for expiring a 404 entry

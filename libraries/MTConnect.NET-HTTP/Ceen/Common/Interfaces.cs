@@ -418,13 +418,14 @@ namespace Ceen
     /// Interface for implementing a routing provider
     /// </summary>
     internal interface IRouter
-	{
-		/// <summary>
-		/// Process the request for the specified context.
-		/// </summary>
-		/// <param name="context">The context to use.</param>
-		/// <returns>A value indicating if the request is now processed</returns>
-		Task<bool> Process(IHttpContext context);
+    {
+        /// <summary>
+        /// Process the request for the specified context.
+        /// </summary>
+        /// <param name="context">The context to use.</param>
+        /// <param name="cancellationToken">The token indicating to stop handling.</param>
+        /// <returns>A value indicating if the request is now processed</returns>
+        Task<bool> Process(IHttpContext context, CancellationToken cancellationToken);
 	}
 
     /// <summary>
@@ -459,8 +460,9 @@ namespace Ceen
 		/// Process the request for the specified context.
 		/// </summary>
 		/// <param name="context">The context to use.</param>
+		/// <param name="cancellationToken">The token indicating to stop handling.</param>
 		/// <returns>A value indicating if the request is now processed</returns>
-		Task<bool> HandleAsync(IHttpContext context);
+		Task<bool> HandleAsync(IHttpContext context, CancellationToken cancellationToken);
 	}
 
     /// <summary>

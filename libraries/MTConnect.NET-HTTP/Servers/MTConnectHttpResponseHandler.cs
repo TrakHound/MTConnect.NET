@@ -12,6 +12,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MTConnect.Servers.Http
@@ -52,7 +53,7 @@ namespace MTConnect.Servers.Http
         }
 
 
-        public async Task<bool> HandleAsync(IHttpContext context)
+        public async Task<bool> HandleAsync(IHttpContext context, CancellationToken cancellationToken)
         {
             try
             {
@@ -62,7 +63,7 @@ namespace MTConnect.Servers.Http
                 var acceptEncodings = GetRequestHeaderValues(context.Request, HttpHeaders.AcceptEncoding);
                 acceptEncodings = ProcessAcceptEncodings(acceptEncodings);
 
-                var mtconnectResponse = await OnRequestReceived(context);
+                var mtconnectResponse = await OnRequestReceived(context, cancellationToken);
                 mtconnectResponse.WriteDuration = await WriteResponse(mtconnectResponse, context.Response, acceptEncodings);
 
                 ResponseSent?.Invoke(this, mtconnectResponse);
@@ -88,7 +89,7 @@ namespace MTConnect.Servers.Http
             return false;
         }
 
-        protected async virtual Task<MTConnectHttpResponse> OnRequestReceived(IHttpContext context) { return new MTConnectHttpResponse(); }
+        protected async virtual Task<MTConnectHttpResponse> OnRequestReceived(IHttpContext context, CancellationToken cancellationToken) { return new MTConnectHttpResponse(); }
 
 
 

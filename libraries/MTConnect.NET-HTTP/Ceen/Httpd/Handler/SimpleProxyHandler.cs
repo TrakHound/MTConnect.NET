@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using Ceen;
 
@@ -47,8 +48,9 @@ namespace Ceen.Httpd.Handler
         /// Handles a proxy request
         /// </summary>
         /// <param name="context">The request content</param>
+        /// <param name="cancellationToken">The token indicating to stop handling.</param>
         /// <returns><c>true</c> if the request was handled; <c>false</c> otherwise</returns>
-        public async Task<bool> HandleAsync(IHttpContext context)
+        public async Task<bool> HandleAsync(IHttpContext context, CancellationToken cancellationToken)
         {
             var targeturl = RewriteUrl(context);
             if (targeturl == null)

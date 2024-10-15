@@ -8,6 +8,7 @@ using MTConnect.Errors;
 using MTConnect.Servers.Http;
 using System;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MTConnect.Servers
@@ -20,7 +21,7 @@ namespace MTConnect.Servers
         public MTConnectPostResponseHandler(IHttpServerConfiguration serverConfiguration, IMTConnectAgentBroker mtconnectAgent) : base(serverConfiguration, mtconnectAgent) { }
 
 
-        protected async override Task<MTConnectHttpResponse> OnRequestReceived(IHttpContext context)
+        protected async override Task<MTConnectHttpResponse> OnRequestReceived(IHttpContext context, CancellationToken cancellationToken)
         {
             var response = new MTConnectHttpResponse();
 

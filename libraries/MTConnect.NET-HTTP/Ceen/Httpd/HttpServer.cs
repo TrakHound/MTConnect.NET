@@ -540,7 +540,12 @@ namespace Ceen.Httpd
 		/// <param name="spawner">The method handling the new connection.</param>
 		public static Task ListenToSocketAsync(EndPoint addr, bool usessl, CancellationToken stoptoken, ServerConfig config, Action<Socket, EndPoint, string> spawner)
 		{
-			return ListenToSocketInternalAsync(addr, usessl, stoptoken, config, (client, remoteendpoint, logid, controller) => spawner(client, remoteendpoint, logid));
+			return ListenToSocketInternalAsync(
+                addr, 
+                usessl, 
+                stoptoken, 
+                config, 
+                (client, remoteendpoint, logid, controller) => spawner(client, remoteendpoint, logid));
 		}
 
         /// <summary>
@@ -626,7 +631,12 @@ namespace Ceen.Httpd
         /// <param name="stoptoken">The stoptoken.</param>
         /// <param name="config">The server configuration</param>
         /// <param name="spawner">The method handling the new connection.</param>
-		private static async Task ListenToSocketInternalAsync(EndPoint addr, bool usessl, CancellationToken stoptoken, ServerConfig config, Action<Socket, EndPoint, string, RunnerControl> spawner)
+		private static async Task ListenToSocketInternalAsync(
+            EndPoint addr, 
+            bool usessl, 
+            CancellationToken stoptoken, 
+            ServerConfig config, 
+            Action<Socket, EndPoint, string, RunnerControl> spawner)
         {
             var rc = new RunnerControl(stoptoken, usessl, config);
             var socket = SocketUtil.CreateAndBindSocket(addr, config.SocketBacklog);
@@ -825,7 +835,11 @@ namespace Ceen.Httpd
 		/// <param name="usessl">A flag indicating if this instance should use SSL</param>
 		/// <param name="config">The server configuration</param>
 		/// <param name="stoptoken">The stoptoken.</param>
-		public static Task ListenAsync(EndPoint addr, bool usessl, ServerConfig config, CancellationToken stoptoken = default(CancellationToken))
+		public static Task ListenAsync(
+            EndPoint addr, 
+            bool usessl, 
+            ServerConfig config,
+            CancellationToken stoptoken = default(CancellationToken))
 		{
 			if (usessl && (config.SSLCertificate as X509Certificate2 == null || !(config.SSLCertificate as X509Certificate2).HasPrivateKey))
 				throw new Exception("Certificate does not have a private key and cannot be used for signing");
@@ -833,7 +847,12 @@ namespace Ceen.Httpd
 			if (config.Storage == null)
 				config.Storage = new MemoryStorageCreator();
 
-			return ListenToSocketInternalAsync(addr, usessl, stoptoken, config, RunClient);
+			return ListenToSocketInternalAsync(
+                addr, 
+                usessl, 
+                stoptoken, 
+                config, 
+                RunClient);
 		}
 
 		/// <summary>
@@ -1052,7 +1071,7 @@ namespace Ceen.Httpd
                                     if (target != null)
                                         cur.Path = target;
 
-                                    if (!await config.Router.Process(context))
+                                    if (!await config.Router.Process(context, controller.StopToken))
                                         throw new HttpException(Ceen.HttpStatusCode.NotFound);
                                 }
                                 while (resp.IsRedirectingInternally);

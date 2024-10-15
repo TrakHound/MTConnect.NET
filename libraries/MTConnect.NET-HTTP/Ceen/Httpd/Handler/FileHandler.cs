@@ -692,7 +692,8 @@ namespace Ceen.Httpd.Handler
         /// </summary>
         /// <returns>The awaitable task.</returns>
         /// <param name="context">The http context.</param>
-        public virtual async Task<bool> HandleAsync(IHttpContext context)
+        /// <param name="cancellationToken">The token indicating to stop handling.</param>
+        public virtual async Task<bool> HandleAsync(IHttpContext context, CancellationToken cancellationToken)
         {
             if (!string.Equals(context.Request.Method, "GET", StringComparison.Ordinal) && !string.Equals(context.Request.Method, "HEAD", StringComparison.Ordinal))
             {

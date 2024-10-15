@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Ceen.Httpd.Handler
@@ -22,14 +23,15 @@ namespace Ceen.Httpd.Handler
 			m_handler = handler;			
 		}
 
-		#region IHttpModule implementation
+        #region IHttpModule implementation
 
-		/// <summary>
-		/// Handles the operation asynchronously.
-		/// </summary>
-		/// <returns>The awaitable task.</returns>
-		/// <param name="context">The request context.</param>
-		public Task<bool> HandleAsync(IHttpContext context)
+        /// <summary>
+        /// Handles the operation asynchronously.
+        /// </summary>
+        /// <returns>The awaitable task.</returns>
+        /// <param name="context">The request context.</param>
+        /// <param name="cancellationToken">The token indicating to stop handling.</param>
+        public Task<bool> HandleAsync(IHttpContext context, CancellationToken cancellationToken)
 		{
 			return m_handler(context);
 		}

@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Ceen;
@@ -61,8 +62,9 @@ namespace Ceen.Httpd.Handler
         /// Handles OPTIONS requests
         /// </summary>
         /// <param name="context">The request context</param>
+        /// <param name="cancellationToken">The token indicating to stop handling.</param>
         /// <returns>A value indicating if the request was handled</returns>
-        public Task<bool> HandleAsync(IHttpContext context)
+        public Task<bool> HandleAsync(IHttpContext context, CancellationToken cancellationToken)
         {
             var preflight = context.Request.Method == "OPTIONS";
             var origin = context.Request.Headers["Origin"];
