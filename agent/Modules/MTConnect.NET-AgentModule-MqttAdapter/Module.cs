@@ -149,9 +149,9 @@ namespace MTConnect.Modules
 
                         if (!string.IsNullOrEmpty(_configuration.TopicPrefix))
                         {
-                            // Set QoS
+                            // Set Qos
                             MqttQualityOfServiceLevel qos;
-                            switch (_configuration.QoS)
+                            switch (_configuration.Qos)
                             {
                                 case 1: qos = MqttQualityOfServiceLevel.AtLeastOnce; break;
                                 case 2: qos = MqttQualityOfServiceLevel.ExactlyOnce; break;
@@ -161,7 +161,7 @@ namespace MTConnect.Modules
                             // Subscribe to Topic
                             await _mqttClient.SubscribeAsync($"{_configuration.TopicPrefix}/#", qos);
 
-                            Log(MTConnectLogLevel.Information, $"MQTT Adapter Subscribed to ({_configuration.TopicPrefix} @ QoS = {qos})");
+                            Log(MTConnectLogLevel.Information, $"MQTT Adapter Subscribed to ({_configuration.TopicPrefix} @ Qos = {qos})");
                         }
                         else
                         {

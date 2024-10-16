@@ -18,6 +18,6 @@ namespace MTConnect.Configurations
         /// <summary>
         /// 
         /// </summary>
-        int QoS { get; set; }
+        int Qos { get; set; }
     }
 }

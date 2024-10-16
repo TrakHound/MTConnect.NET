@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MQTTnet;
@@ -57,7 +57,7 @@ namespace MTConnect
 
                 case MqttTopicStructure.Entity:
 
-                    _entityServer = new MTConnectMqttEntityServer(_configuration.TopicPrefix, _configuration.DocumentFormat, _configuration.QoS);
+                    _entityServer = new MTConnectMqttEntityServer(_configuration.TopicPrefix, _configuration.DocumentFormat, _configuration.Qos);
                     Agent.DeviceAdded += AgentDeviceAdded;
                     Agent.ObservationAdded += AgentObservationAdded;
                     Agent.AssetAdded += AgentAssetAdded;

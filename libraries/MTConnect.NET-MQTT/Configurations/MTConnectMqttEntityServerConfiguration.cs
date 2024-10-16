@@ -9,14 +9,14 @@ namespace MTConnect.Configurations
 
         public string DocumentFormat { get; set; }
 
-        public int QoS { get; set; }
+        public int Qos { get; set; }
 
 
         public MTConnectMqttEntityServerConfiguration()
         {
             TopicPrefix = "MTConnect";
             DocumentFormat = "JSON";
-            QoS = 0;
+            Qos = 0;
         }
     }
 }

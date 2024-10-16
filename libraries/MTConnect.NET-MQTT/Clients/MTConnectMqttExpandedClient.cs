@@ -84,7 +84,7 @@ namespace MTConnect.Clients
 
         public int Port => _port;
 
-        public int QoS => _qos;
+        public int Qos => _qos;
 
         public int Interval => _interval;
 
@@ -166,7 +166,7 @@ namespace MTConnect.Clients
                 _port = configuration.Port;
                 _interval = configuration.Interval;
                 _deviceUuid = configuration.DeviceUuid;
-                _qos = configuration.QoS;
+                _qos = configuration.Qos;
                 _username = configuration.Username;
                 _password = configuration.Password;
                 _clientId = configuration.ClientId;
@@ -657,7 +657,7 @@ namespace MTConnect.Clients
         private async Task ProcessDeviceAgentUuid(MqttApplicationMessage message)
         {
             try
-            {             
+            {
                 var agentUuid = Encoding.UTF8.GetString(message.Payload);
 
                 await SubscribeToDeviceAgent(agentUuid);

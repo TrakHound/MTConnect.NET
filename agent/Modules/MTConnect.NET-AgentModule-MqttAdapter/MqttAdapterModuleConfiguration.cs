@@ -47,9 +47,9 @@ namespace MTConnect.Configurations
         public bool CleanSession { get; set; }
 
         /// <summary>
-        /// Sets the Quality Of Service (QoS) to use. 0 = At Most Once, 1 = At least Once, 2 = Exactly Once
+        /// Sets the Quality Of Service (Qos) to use. 0 = At Most Once, 1 = At least Once, 2 = Exactly Once
         /// </summary>
-        public int QoS { get; set; }
+        public int Qos { get; set; }
 
 
         /// <summary>
@@ -98,7 +98,7 @@ namespace MTConnect.Configurations
         {
             Server = "localhost";
             Port = 1883;
-            QoS = 1;
+            Qos = 1;
             CleanSession = true;
             Timeout = 5000;
             ReconnectInterval = 10000;

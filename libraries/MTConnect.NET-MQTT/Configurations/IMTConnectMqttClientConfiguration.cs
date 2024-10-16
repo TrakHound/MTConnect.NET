@@ -21,7 +21,7 @@ namespace MTConnect.Configurations
 
         string ClientId { get; set; }
 
-        int QoS { get; set; }
+        int Qos { get; set; }
 
         TlsConfiguration Tls { get; set; }
 

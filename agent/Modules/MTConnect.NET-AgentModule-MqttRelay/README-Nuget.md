@@ -27,7 +27,7 @@ modules:
  
 * `clientId` - Sets the Client ID to use for the connection
 
-* `qos` - Sets the Quality Of Service (QoS) to use. 0 = At Most Once, 1 = At least Once, 2 = Exactly Once
+* `qos` - Sets the Quality Of Service (Qos) to use. 0 = At Most Once, 1 = At least Once, 2 = Exactly Once
 
 * `useTls` - Sets whether to use TLS or not (true or false)
 

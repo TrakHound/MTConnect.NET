@@ -30,7 +30,7 @@ namespace MTConnect.Configurations
         public string ClientId { get; set; }
 
         [JsonPropertyName("qos")]
-        public int QoS { get; set; }
+        public int Qos { get; set; }
 
         [JsonPropertyName("tls")]
         public TlsConfiguration Tls { get; set; }
@@ -61,7 +61,7 @@ namespace MTConnect.Configurations
         {
             Server = "localhost";
             Port = 1883;
-            QoS = 1;
+            Qos = 1;
             RetryInterval = 5000;
             TopicPrefix = "MTConnect";
         }
