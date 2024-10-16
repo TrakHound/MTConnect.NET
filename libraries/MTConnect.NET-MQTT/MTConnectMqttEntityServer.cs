@@ -23,11 +23,12 @@ namespace MTConnect.Clients
         public string TopicPrefix => _configuration.TopicPrefix;
 
 
-        public MTConnectMqttEntityServer(string topicPrefix = null, string documentFormat = DocumentFormat.JSON)
+        public MTConnectMqttEntityServer(string topicPrefix = null, string documentFormat = DocumentFormat.JSON, int qos = 0)
         {
             var configuration = new MTConnectMqttEntityServerConfiguration();
             configuration.TopicPrefix = topicPrefix;
             configuration.DocumentFormat = documentFormat;
+            configuration.QoS = qos;
             _configuration = configuration;
         }
 
@@ -81,6 +82,7 @@ namespace MTConnect.Clients
                     messageBuilder.WithTopic(topic);
                     messageBuilder.WithPayload(formatResult.Content);
                     messageBuilder.WithRetainFlag(true);
+                    messageBuilder.WithQualityOfServiceLevel(GetQualityOfService(_configuration.QoS));
                     return messageBuilder.Build();
                 }
             }
@@ -167,6 +169,7 @@ namespace MTConnect.Clients
                         messageBuilder.WithTopic(topic);
                         messageBuilder.WithPayload(formatResult.Content);
                         messageBuilder.WithRetainFlag(true);
+                        messageBuilder.WithQualityOfServiceLevel(GetQualityOfService(_configuration.QoS));
                         return messageBuilder.Build();
                     }
                 }
@@ -198,6 +201,7 @@ namespace MTConnect.Clients
                         messageBuilder.WithTopic(topic);
                         messageBuilder.WithPayload(formatResult.Content);
                         messageBuilder.WithRetainFlag(true);
+                        messageBuilder.WithQualityOfServiceLevel(GetQualityOfService(_configuration.QoS));
                         return messageBuilder.Build();
                     }
                 }
@@ -250,11 +254,19 @@ namespace MTConnect.Clients
                     messageBuilder.WithTopic(topic);
                     messageBuilder.WithPayload(formatResult.Content);
                     messageBuilder.WithRetainFlag(true);
+                    messageBuilder.WithQualityOfServiceLevel(GetQualityOfService(_configuration.QoS));
                     return messageBuilder.Build();
                 }
             }
 
             return null;
+        }
+
+        private static MQTTnet.Protocol.MqttQualityOfServiceLevel GetQualityOfService(int qos)
+        {
+            if (qos == 1) return MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce;
+            else if (qos == 2) return MQTTnet.Protocol.MqttQualityOfServiceLevel.ExactlyOnce;
+            else return MQTTnet.Protocol.MqttQualityOfServiceLevel.AtMostOnce;
         }
     }
 }
