@@ -14,5 +14,10 @@ namespace MTConnect.Configurations
         /// 
         /// </summary>
         string DocumentFormat { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        int QoS { get; set; }
     }
 }
