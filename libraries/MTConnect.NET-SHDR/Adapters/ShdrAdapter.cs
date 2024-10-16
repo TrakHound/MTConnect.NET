@@ -288,6 +288,8 @@ namespace MTConnect.Adapters
         {
             _stop = new CancellationTokenSource();
 
+            _adapter.Start();
+
             // Start Agent Connection Listener
             _connectionListener.Start(_stop.Token);
 
@@ -302,6 +304,7 @@ namespace MTConnect.Adapters
         {
             if (_stop != null) _stop.Cancel();
             _connectionListener.Stop();
+            _adapter.Stop();
 
             // Call Overridable Method
             OnStop();
