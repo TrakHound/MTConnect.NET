@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Xml;
 
 namespace MTConnect.Tests.XML.Streams
 {
@@ -19,9 +20,10 @@ namespace MTConnect.Tests.XML.Streams
             {
                 foreach (var file in files)
                 {
-                    var originalBytes = File.ReadAllBytes(file);
+                    using var fileStream = File.OpenRead(file);
+                    using var xmlReader = XmlReader.Create(fileStream);
 
-                    var doc = XmlStreamsResponseDocument.FromXml(originalBytes);
+                    var doc = XmlStreamsResponseDocument.ReadXml(xmlReader);
                     
                     Assert.That(doc != null, $"Read Original : {file}");
                 }

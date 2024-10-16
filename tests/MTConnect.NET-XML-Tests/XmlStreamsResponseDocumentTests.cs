@@ -1,6 +1,8 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Xml;
 using DeepEqual.Syntax;
 using MTConnect.Observations;
 using MTConnect.Streams.Xml;
@@ -28,7 +30,8 @@ namespace MTConnect.Tests.XML
   </Streams>
 </MTConnectStreams>";
 
-            var doc = XmlStreamsResponseDocument.FromXml(Encoding.UTF8.GetBytes(text));
+            using var xmlStream = XmlReader.Create(new MemoryStream(Encoding.UTF8.GetBytes(text)));
+            var doc = XmlStreamsResponseDocument.ReadXml(xmlStream);
 
             Assert.AreEqual(1, doc.Streams.Count());
             var stream = doc.Streams.Single();
