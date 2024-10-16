@@ -11,7 +11,7 @@ namespace Ceen
 		/// <summary>
 		/// A task completion source
 		/// </summary>
-		private TaskCompletionSource<object> m_tcs = new TaskCompletionSource<object>();
+		private TaskCompletionSource<object> m_tcs = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
 
 		/// <summary>
 		/// Marks the operation complete

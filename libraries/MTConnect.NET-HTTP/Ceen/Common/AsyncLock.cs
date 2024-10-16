@@ -48,9 +48,7 @@ namespace Ceen
 		{
 			if (token.IsCancellationRequested)
 			{
-				var tcs = new TaskCompletionSource<bool>();
-				tcs.SetCanceled();
-				return tcs.Task;
+				return Task.FromCanceled(token);
 			}
 
 			lock (m_waiters)
@@ -62,7 +60,7 @@ namespace Ceen
 				}
 				else
 				{
-					var waiter = new TaskCompletionSource<bool>();
+					var waiter = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 
 					// Make sure the waiter returns asap on cancellation
 					var registrar =
