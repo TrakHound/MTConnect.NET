@@ -31,6 +31,11 @@ namespace MTConnect.Devices
         public const string COUNT_PER_SECOND = "COUNT/SECOND";
         
         /// <summary>
+        /// Geometric volume in meters.
+        /// </summary>
+        public const string CUBIC_METER = "CUBIC_METER";
+        
+        /// <summary>
         /// Geometric volume in millimeters.
         /// </summary>
         public const string CUBIC_MILLIMETER = "CUBIC_MILLIMETER";
@@ -219,6 +224,11 @@ namespace MTConnect.Devices
         /// Measurement of electrical conductivity.
         /// </summary>
         public const string SIEMENS_PER_METER = "SIEMENS/METER";
+        
+        /// <summary>
+        /// Geometric area in millimeters.
+        /// </summary>
+        public const string SQUARE_MILLIMETER = "SQUARE_MILLIMETER";
         
         /// <summary>
         /// 3D Unit Vector.Space delimited list of three floating point numbers.

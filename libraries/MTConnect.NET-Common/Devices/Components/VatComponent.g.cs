@@ -6,13 +6,13 @@
 namespace MTConnect.Devices.Components
 {
     /// <summary>
-    /// Leaf Component composed of a container that holds liquid or powdered materials.
+    /// Leaf Component generally composed of an open container.
     /// </summary>
     public class VatComponent : Component
     {
         public const string TypeId = "Vat";
         public const string NameId = "vat";
-        public new const string DescriptionText = "Leaf Component composed of a container that holds liquid or powdered materials.";
+        public new const string DescriptionText = "Leaf Component generally composed of an open container.";
 
         public override string TypeDescription => DescriptionText;
         

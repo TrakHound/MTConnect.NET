@@ -267,6 +267,14 @@ namespace MTConnect.Streams.Json
                 if (!LocationAddressDataSet.IsNullOrEmpty()) foreach (var x in LocationAddressDataSet) l.Add(x.ToObservation(LocationAddressDataItem.TypeId));
                 if (!LocationAddressTable.IsNullOrEmpty()) foreach (var x in LocationAddressTable) l.Add(x.ToObservation(LocationAddressDataItem.TypeId));
 
+                if (!LocationNarrative.IsNullOrEmpty()) foreach (var x in LocationNarrative) l.Add(x.ToObservation(LocationNarrativeDataItem.TypeId));
+                if (!LocationNarrativeDataSet.IsNullOrEmpty()) foreach (var x in LocationNarrativeDataSet) l.Add(x.ToObservation(LocationNarrativeDataItem.TypeId));
+                if (!LocationNarrativeTable.IsNullOrEmpty()) foreach (var x in LocationNarrativeTable) l.Add(x.ToObservation(LocationNarrativeDataItem.TypeId));
+
+                if (!LocationSpatialGeographic.IsNullOrEmpty()) foreach (var x in LocationSpatialGeographic) l.Add(x.ToObservation(LocationSpatialGeographicDataItem.TypeId));
+                if (!LocationSpatialGeographicDataSet.IsNullOrEmpty()) foreach (var x in LocationSpatialGeographicDataSet) l.Add(x.ToObservation(LocationSpatialGeographicDataItem.TypeId));
+                if (!LocationSpatialGeographicTable.IsNullOrEmpty()) foreach (var x in LocationSpatialGeographicTable) l.Add(x.ToObservation(LocationSpatialGeographicDataItem.TypeId));
+
                 if (!LockState.IsNullOrEmpty()) foreach (var x in LockState) l.Add(x.ToObservation(LockStateDataItem.TypeId));
                 if (!LockStateDataSet.IsNullOrEmpty()) foreach (var x in LockStateDataSet) l.Add(x.ToObservation(LockStateDataItem.TypeId));
                 if (!LockStateTable.IsNullOrEmpty()) foreach (var x in LockStateTable) l.Add(x.ToObservation(LockStateDataItem.TypeId));
@@ -470,6 +478,10 @@ namespace MTConnect.Streams.Json
                 if (!SpindleInterlock.IsNullOrEmpty()) foreach (var x in SpindleInterlock) l.Add(x.ToObservation(SpindleInterlockDataItem.TypeId));
                 if (!SpindleInterlockDataSet.IsNullOrEmpty()) foreach (var x in SpindleInterlockDataSet) l.Add(x.ToObservation(SpindleInterlockDataItem.TypeId));
                 if (!SpindleInterlockTable.IsNullOrEmpty()) foreach (var x in SpindleInterlockTable) l.Add(x.ToObservation(SpindleInterlockDataItem.TypeId));
+
+                if (!Thickness.IsNullOrEmpty()) foreach (var x in Thickness) l.Add(x.ToObservation(ThicknessDataItem.TypeId));
+                if (!ThicknessDataSet.IsNullOrEmpty()) foreach (var x in ThicknessDataSet) l.Add(x.ToObservation(ThicknessDataItem.TypeId));
+                if (!ThicknessTable.IsNullOrEmpty()) foreach (var x in ThicknessTable) l.Add(x.ToObservation(ThicknessDataItem.TypeId));
 
                 if (!ToolAssetId.IsNullOrEmpty()) foreach (var x in ToolAssetId) l.Add(x.ToObservation(ToolAssetIdDataItem.TypeId));
                 if (!ToolAssetIdDataSet.IsNullOrEmpty()) foreach (var x in ToolAssetIdDataSet) l.Add(x.ToObservation(ToolAssetIdDataItem.TypeId));
@@ -1175,6 +1187,26 @@ namespace MTConnect.Streams.Json
         public IEnumerable<JsonEventTable> LocationAddressTable { get; set; }
 
 
+        [JsonPropertyName("LocationNarrative")]
+        public IEnumerable<JsonEventValue> LocationNarrative { get; set; }
+
+        [JsonPropertyName("LocationNarrativeDataSet")]
+        public IEnumerable<JsonEventDataSet> LocationNarrativeDataSet { get; set; }
+
+        [JsonPropertyName("LocationNarrativeTable")]
+        public IEnumerable<JsonEventTable> LocationNarrativeTable { get; set; }
+
+
+        [JsonPropertyName("LocationSpatialGeographic")]
+        public IEnumerable<JsonEventValue> LocationSpatialGeographic { get; set; }
+
+        [JsonPropertyName("LocationSpatialGeographicDataSet")]
+        public IEnumerable<JsonEventDataSet> LocationSpatialGeographicDataSet { get; set; }
+
+        [JsonPropertyName("LocationSpatialGeographicTable")]
+        public IEnumerable<JsonEventTable> LocationSpatialGeographicTable { get; set; }
+
+
         [JsonPropertyName("LockState")]
         public IEnumerable<JsonEventValue> LockState { get; set; }
 
@@ -1683,6 +1715,16 @@ namespace MTConnect.Streams.Json
 
         [JsonPropertyName("SpindleInterlockTable")]
         public IEnumerable<JsonEventTable> SpindleInterlockTable { get; set; }
+
+
+        [JsonPropertyName("Thickness")]
+        public IEnumerable<JsonEventValue> Thickness { get; set; }
+
+        [JsonPropertyName("ThicknessDataSet")]
+        public IEnumerable<JsonEventDataSet> ThicknessDataSet { get; set; }
+
+        [JsonPropertyName("ThicknessTable")]
+        public IEnumerable<JsonEventTable> ThicknessTable { get; set; }
 
 
         [JsonPropertyName("ToolAssetId")]
@@ -4189,6 +4231,80 @@ namespace MTConnect.Streams.Json
                     }
 
 
+                    // Add LocationNarrative
+                    typeObservations = observations.Where(o => o.Type == LocationNarrativeDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventValue>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventValue(observation));
+                        }
+                        LocationNarrative = jsonObservations;
+                    }
+
+                    // Add LocationNarrativeDataSet
+                    typeObservations = observations.Where(o => o.Type == LocationNarrativeDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventDataSet>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventDataSet(observation));
+                        }
+                        LocationNarrativeDataSet = jsonObservations;
+                    }
+
+                    // Add LocationNarrativeTable
+                    typeObservations = observations.Where(o => o.Type == LocationNarrativeDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventTable>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventTable(observation));
+                        }
+                        LocationNarrativeTable = jsonObservations;
+                    }
+
+
+                    // Add LocationSpatialGeographic
+                    typeObservations = observations.Where(o => o.Type == LocationSpatialGeographicDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventValue>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventValue(observation));
+                        }
+                        LocationSpatialGeographic = jsonObservations;
+                    }
+
+                    // Add LocationSpatialGeographicDataSet
+                    typeObservations = observations.Where(o => o.Type == LocationSpatialGeographicDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventDataSet>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventDataSet(observation));
+                        }
+                        LocationSpatialGeographicDataSet = jsonObservations;
+                    }
+
+                    // Add LocationSpatialGeographicTable
+                    typeObservations = observations.Where(o => o.Type == LocationSpatialGeographicDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventTable>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventTable(observation));
+                        }
+                        LocationSpatialGeographicTable = jsonObservations;
+                    }
+
+
                     // Add LockState
                     typeObservations = observations.Where(o => o.Type == LockStateDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
@@ -6073,6 +6189,43 @@ namespace MTConnect.Streams.Json
                             jsonObservations.Add(new JsonEventTable(observation));
                         }
                         SpindleInterlockTable = jsonObservations;
+                    }
+
+
+                    // Add Thickness
+                    typeObservations = observations.Where(o => o.Type == ThicknessDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventValue>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventValue(observation));
+                        }
+                        Thickness = jsonObservations;
+                    }
+
+                    // Add ThicknessDataSet
+                    typeObservations = observations.Where(o => o.Type == ThicknessDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventDataSet>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventDataSet(observation));
+                        }
+                        ThicknessDataSet = jsonObservations;
+                    }
+
+                    // Add ThicknessTable
+                    typeObservations = observations.Where(o => o.Type == ThicknessDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventTable>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventTable(observation));
+                        }
+                        ThicknessTable = jsonObservations;
                     }
 
 
