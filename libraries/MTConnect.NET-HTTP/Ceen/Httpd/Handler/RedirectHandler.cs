@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Ceen.Httpd.Handler
@@ -39,12 +40,13 @@ namespace Ceen.Httpd.Handler
 		/// <param name="target">The redirect target url.</param>
 		public RedirectHandler(string target) { RedirectTarget = target; }
 
-		/// <summary>
-		/// Handles the request by sending a redirect
-		/// </summary>
-		/// <returns>The awaitable task.</returns>
-		/// <param name="context">The http context.</param>
-		public Task<bool> HandleAsync(IHttpContext context)
+        /// <summary>
+        /// Handles the request by sending a redirect
+        /// </summary>
+        /// <returns>The awaitable task.</returns>
+        /// <param name="context">The http context.</param>
+        /// <param name="cancellationToken">The token indicating to stop handling.</param>
+        public Task<bool> HandleAsync(IHttpContext context, CancellationToken cancellationToken)
 		{
 			if (InternalRedirect)
 			{

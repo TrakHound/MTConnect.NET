@@ -9,6 +9,7 @@ using MTConnect.Servers.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MTConnect.Servers
@@ -21,7 +22,7 @@ namespace MTConnect.Servers
         public MTConnectPutResponseHandler(IHttpServerConfiguration serverConfiguration, IMTConnectAgentBroker mtconnectAgent) : base(serverConfiguration, mtconnectAgent) { }
 
 
-        protected async override Task<MTConnectHttpResponse> OnRequestReceived(IHttpContext context)
+        protected async override Task<MTConnectHttpResponse> OnRequestReceived(IHttpContext context, CancellationToken cancellationToken)
         {
             var response = new MTConnectHttpResponse();
 

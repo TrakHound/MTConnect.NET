@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Text.Json;
+using System.Threading;
 
 namespace Ceen
 {
@@ -718,21 +719,23 @@ namespace Ceen.Mvc
 			return merged;
 		}
 
-		/// <summary>
-		/// Handles a request
-		/// </summary>
-		/// <returns>The awaitable task.</returns>
-		/// <param name="context">The exexcution context.</param>
-		public Task<bool> HandleAsync(IHttpContext context)
+        /// <summary>
+        /// Handles a request
+        /// </summary>
+        /// <returns>The awaitable task.</returns>
+        /// <param name="context">The exexcution context.</param>
+        /// <param name="cancellationToken">The token indicating to stop handling.</param>
+        public Task<bool> HandleAsync(IHttpContext context, CancellationToken cancellationToken)
 		{
-			return Process(context);
+			return Process(context, cancellationToken);
 		}
 
-		/// <summary>
-		/// Attempts to route the request to a controller instance.
-		/// </summary>
-		/// <param name="context">The exexcution context.</param>
-		public async Task<bool> Process(IHttpContext context)
+        /// <summary>
+        /// Attempts to route the request to a controller instance.
+        /// </summary>
+        /// <param name="context">The exexcution context.</param>
+        /// <param name="cancellationToken">The token indicating to stop handling.</param>
+        public async Task<bool> Process(IHttpContext context, CancellationToken cancellationToken)
 		{
 			var anymatches = false;
 			var test = m_routeparser

@@ -178,7 +178,11 @@ namespace MTConnect.Servers.Http
 
                             if (ServerStarted != null) ServerStarted.Invoke(this, endpointId);
 
-                            await HttpServer.ListenAsync(endpoint, useSsl, config, cancellationToken);
+                            await HttpServer.ListenAsync(
+                                endpoint, 
+                                useSsl, 
+                                config, 
+                                cancellationToken);
                         }
                         catch (Exception ex)
                         {
@@ -318,7 +322,7 @@ namespace MTConnect.Servers.Http
                         var device = _mtconnectAgent.GetDevice(deviceKey);
                         if (device != null)
                         {
-                            await handler.HandleAsync(context);
+                            await handler.HandleAsync(context, CancellationToken.None);
 
                             return true;
                         }
@@ -338,7 +342,7 @@ namespace MTConnect.Servers.Http
             {
                 if (httpRequest.Method == HttpMethod.Put.Method)
                 {
-                    await handler.HandleAsync(context);
+                    await handler.HandleAsync(context, CancellationToken.None);
 
                     return true;
                 }
@@ -356,7 +360,7 @@ namespace MTConnect.Servers.Http
             {
                 if (httpRequest.Method == HttpMethod.Post.Method)
                 {
-                    await handler.HandleAsync(context);
+                    await handler.HandleAsync(context, CancellationToken.None);
 
                     return true;
                 }

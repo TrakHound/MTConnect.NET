@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Linq;
+using System.Threading;
 
 namespace Ceen.Httpd
 {
@@ -100,12 +101,13 @@ namespace Ceen.Httpd
 			Rules.Add(new KeyValuePair<Regex, IHttpModule>(route, handler));
 		}
 
-		/// <summary>
-		/// Process the specified request.
-		/// </summary>
-		/// <param name="context">The http context.</param>
-		/// <returns><c>True</c> if the processing was handled, false otherwise</returns>
-		public async Task<bool> Process(IHttpContext context)
+        /// <summary>
+        /// Process the specified request.
+        /// </summary>
+        /// <param name="context">The http context.</param>
+        /// <param name="cancellationToken">The token indicating to stop handling.</param>
+        /// <returns><c>True</c> if the processing was handled, false otherwise</returns>
+        public async Task<bool> Process(IHttpContext context, CancellationToken cancellationToken)
 		{
 			foreach (var rule in Rules)
 			{
@@ -118,7 +120,7 @@ namespace Ceen.Httpd
 
 				context.Request.RequireHandler(rule.Value.GetType().GetCustomAttributes(typeof(RequireHandlerAttribute), true).OfType<RequireHandlerAttribute>());
 
-				if (await rule.Value.HandleAsync(context))
+				if (await rule.Value.HandleAsync(context, cancellationToken))
 					return true;
 
 				context.Request.PushHandlerOnStack(rule.Value);

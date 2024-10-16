@@ -8,6 +8,7 @@ using MTConnect.Http;
 using MTConnect.Servers.Http;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MTConnect.Servers
@@ -21,7 +22,7 @@ namespace MTConnect.Servers
         public MTConnectSampleResponseHandler(IHttpServerConfiguration serverConfiguration, IMTConnectAgentBroker mtconnectAgent) : base(serverConfiguration, mtconnectAgent) { }
 
 
-        protected async override Task<MTConnectHttpResponse> OnRequestReceived(IHttpContext context)
+        protected async override Task<MTConnectHttpResponse> OnRequestReceived(IHttpContext context, CancellationToken cancellationToken)
         {
             var httpRequest = context.Request;
             var httpResponse = context.Response;
@@ -127,7 +128,7 @@ namespace MTConnect.Servers
                             sampleStream.DocumentReceived += async (s, args) => await WriteFromStream(sampleStream, responseStream, args);
 
                             // Run the MTConnectHttpStream
-                            sampleStream.RunSample();
+                            sampleStream.RunSample(cancellationToken);
                         }
                     }
                     catch { }

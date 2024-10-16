@@ -119,9 +119,10 @@ namespace MTConnect.Servers.Http
             _isConnected = false;
         }
 
-        public void RunSample()
+        public void RunSample(CancellationToken cancellationToken)
         {
             _stop = new CancellationTokenSource();
+            cancellationToken.Register(() => { Stop(); });
             _currentOnly = false;
 
             Worker();

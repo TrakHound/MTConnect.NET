@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Ceen.Httpd.Handler
@@ -32,12 +33,13 @@ namespace Ceen.Httpd.Handler
         /// </summary>
         public string SessionCookieSameSite { get; set; } = "Strict";
 
-		/// <summary>
-		/// Handles the request
-		/// </summary>
-		/// <returns>The awaitable task.</returns>
-		/// <param name="context">The requests context.</param>
-		public async Task<bool> HandleAsync(IHttpContext context)
+        /// <summary>
+        /// Handles the request
+        /// </summary>
+        /// <returns>The awaitable task.</returns>
+        /// <param name="context">The requests context.</param>
+        /// <param name="cancellationToken">The token indicating to stop handling.</param>
+        public async Task<bool> HandleAsync(IHttpContext context, CancellationToken cancellationToken)
 		{
 			if (context.Session != null)
 				return false;
