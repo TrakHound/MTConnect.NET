@@ -12,6 +12,8 @@ using System.IO.Compression;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using MTConnect.Logging;
 
 namespace MTConnect.Servers.Http
 {
@@ -33,6 +35,7 @@ namespace MTConnect.Servers.Http
         private readonly string _documentFormat;
         private readonly IEnumerable<string> _acceptEncodings;
         private readonly IEnumerable<KeyValuePair<string, string>> _formatOptions;
+        private readonly ILogger _logger;
 
         private CancellationTokenSource _stop;
         private bool _isConnected;
@@ -72,7 +75,8 @@ namespace MTConnect.Servers.Http
             int heartbeat = 10000,
             string documentFormat = DocumentFormat.XML,
             IEnumerable<string> acceptEncodings = null,
-            IEnumerable<KeyValuePair<string, string>> formatOptions = null
+            IEnumerable<KeyValuePair<string, string>> formatOptions = null,
+            ILogger logger = null
             )
         {
             _configuration = configuration;
@@ -86,6 +90,7 @@ namespace MTConnect.Servers.Http
             _documentFormat = documentFormat;
             _acceptEncodings = acceptEncodings;
             _formatOptions = formatOptions;
+            _logger = logger;
         }
 
 
@@ -99,6 +104,8 @@ namespace MTConnect.Servers.Http
             _= Task.Run(Worker, _stop.Token);
 
             _isConnected = true;
+
+            LogReporter.Report("Started server sample stream", _logger);
         }
 
         public void StartCurrent(CancellationToken cancellationToken)
@@ -110,12 +117,19 @@ namespace MTConnect.Servers.Http
 
             _ = Task.Run(Worker, _stop.Token);
 
+            LogReporter.Report("Started server current stream", _logger);
+
             _isConnected = true;
         }
 
         public void Stop()
         {
-            if (_stop != null) _stop.Cancel();
+            if (_stop != null)
+            {
+                _stop.Cancel();
+                var type = _currentOnly ? "current" : "sample";
+                LogReporter.Report($"Stopped server {type} stream", _logger);
+            }
             _isConnected = false;
         }
 
@@ -125,7 +139,11 @@ namespace MTConnect.Servers.Http
             cancellationToken.Register(() => { Stop(); });
             _currentOnly = false;
 
+            LogReporter.Report("Running server sample stream...", _logger);
+
             Worker();
+
+            LogReporter.Report("Finished server sample stream", _logger);
 
             _isConnected = true;
         }
@@ -135,7 +153,11 @@ namespace MTConnect.Servers.Http
             _stop = new CancellationTokenSource();
             _currentOnly = true;
 
+            LogReporter.Report("Running server current stream", _logger);
+
             Worker();
+
+            LogReporter.Report("Finished server current stream", _logger);
 
             _isConnected = true;
         }
