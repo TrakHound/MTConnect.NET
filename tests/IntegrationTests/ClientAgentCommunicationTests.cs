@@ -67,21 +67,6 @@ namespace IntegrationTests
             //_machineName = $"Machine{_fixture.CurrentAgentPort}";
 
             var devicesFile = "devices.xml";
-
-            var configuration = new ShdrAgentConfiguration
-            {
-                Port = _fixture.CurrentAgentPort,
-                Adapters = new List<ShdrAdapterClientConfiguration>()
-                {
-                    new()
-                    {
-                        DeviceKey = _machineName, 
-                        Hostname = "localhost", 
-                        Port = _fixture.CurrentAdapterPort
-                    }
-                }
-            };
-
             GenerateDevicesXml(
                 _machineId,
                 _machineName,
@@ -93,9 +78,19 @@ namespace IntegrationTests
 
             AddCuttingTools();
 
-            _agent = new MTConnectAgentBroker(configuration);
+            _agent = new MTConnectAgentBroker();
             //_agent.Version = new Version(1, 8);
             _agent.Start();
+
+            var adapters = new List<ShdrAdapterClientConfiguration>()
+            {
+                new()
+                {
+                    DeviceKey = _machineName,
+                    Hostname = "localhost",
+                    Port = _fixture.CurrentAdapterPort
+                }
+            };
 
             // Add Adapter Clients
             var devices = DeviceConfiguration.FromFile(devicesFile, DocumentFormat.XML).ToList();
@@ -107,7 +102,7 @@ namespace IntegrationTests
                     _agent.AddDevice(device);
                 }
 
-                foreach (var adapterConfiguration in configuration.Adapters)
+                foreach (var adapterConfiguration in adapters)
                 {
                     var device = devices.FirstOrDefault(o => o.Name == adapterConfiguration.DeviceKey);
                     if (device != null)
@@ -119,6 +114,10 @@ namespace IntegrationTests
                 }
             }
 
+            var configuration = new HttpServerConfiguration
+            {
+                Port = _fixture.CurrentAgentPort
+            };
             _server = new MTConnectHttpServer(configuration, _agent);
             _server.Start();
         }
