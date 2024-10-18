@@ -56,7 +56,7 @@ namespace MTConnect.Modules
 
                 case MqttTopicStructure.Entity:
 
-                    _entityServer = new MTConnectMqttEntityServer(_configuration.TopicPrefix, _configuration.DocumentFormat, _configuration.QoS);
+                    _entityServer = new MTConnectMqttEntityServer(_configuration.TopicPrefix, _configuration.DocumentFormat, _configuration.Qos);
                     Agent.DeviceAdded += AgentDeviceAdded;
                     Agent.ObservationAdded += AgentObservationAdded;
                     Agent.AssetAdded += AgentAssetAdded;

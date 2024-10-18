@@ -42,7 +42,7 @@ namespace MTConnect.Mqtt
 
         public int Port => _configuration.Port;
 
-        public int QoS => _configuration.QoS;
+        public int Qos => _configuration.Qos;
 
         /// <summary>
         /// Gets or Sets the Interval in Milliseconds that the Client will attempt to reconnect if the connection fails
@@ -405,8 +405,8 @@ namespace MTConnect.Mqtt
                     // Set the Topic Prefix
                     if (!string.IsNullOrEmpty(TopicPrefix)) message.Topic = $"{TopicPrefix}/{message.Topic}";
 
-                    // Set QoS for Message
-                    message.QualityOfServiceLevel = (MQTTnet.Protocol.MqttQualityOfServiceLevel)QoS;
+                    // Set Qos for Message
+                    message.QualityOfServiceLevel = (MQTTnet.Protocol.MqttQualityOfServiceLevel)Qos;
 
                     await _mqttClient.PublishAsync(message);
                 }
@@ -428,8 +428,8 @@ namespace MTConnect.Mqtt
                         // Set the Topic Prefix
                         if (!string.IsNullOrEmpty(TopicPrefix)) message.Topic = $"{TopicPrefix}/{message.Topic}";
 
-                        // Set QoS for Message
-                        message.QualityOfServiceLevel = (MQTTnet.Protocol.MqttQualityOfServiceLevel)QoS;
+                        // Set Qos for Message
+                        message.QualityOfServiceLevel = (MQTTnet.Protocol.MqttQualityOfServiceLevel)Qos;
 
                         await _mqttClient.PublishAsync(message);
                     }
@@ -487,7 +487,7 @@ namespace MTConnect.Mqtt
         {
             var x = path;
             if (!Path.IsPathRooted(x))
-            {              
+            {
                 x = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, x);
             }
 

@@ -15,7 +15,7 @@ namespace MTConnect.Configurations
 
         public string ClientId { get; set; }
 
-        public int QoS { get; set; }
+        public int Qos { get; set; }
 
 
         public string CertificateAuthority { get; set; }

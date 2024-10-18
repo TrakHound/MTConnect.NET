@@ -49,7 +49,7 @@ modules:
 
 * `cleanSession` - Sets the CleanSession flag (true or false)
 
-* `qos` - Sets the Quality Of Service (QoS) to use. 0 = At Most Once, 1 = At least Once, 2 = Exactly Once
+* `qos` - Sets the Quality Of Service (Qos) to use. 0 = At Most Once, 1 = At least Once, 2 = Exactly Once
 
 * `certificateAuthority` - The path to the Certificate Authority file
 

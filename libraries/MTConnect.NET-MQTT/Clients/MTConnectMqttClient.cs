@@ -178,7 +178,7 @@ namespace MTConnect.Clients
             configuration.DeviceUuid = deviceUuid;
             configuration.TopicPrefix = topicPrefix;
             configuration.ClientId = clientId;
-            configuration.QoS = qos;
+            configuration.Qos = qos;
             _configuration = configuration;
             _documentFormat = documentFormat;
 

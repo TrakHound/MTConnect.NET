@@ -18,7 +18,7 @@ modules:
 
 * `timeout` - The timeout (in milliseconds) to use for connection and read/write
 
-* `qos` - Sets the Quality Of Service (QoS) to use. 0 = At Most Once, 1 = At least Once, 2 = Exactly Once
+* `qos` - Sets the Quality Of Service (Qos) to use. 0 = At Most Once, 1 = At least Once, 2 = Exactly Once
 
 * `initialDelay` - The time (in milliseconds) to delay after initial Module start (to allow for TCP binding)
 

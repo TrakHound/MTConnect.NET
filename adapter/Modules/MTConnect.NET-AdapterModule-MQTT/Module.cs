@@ -162,7 +162,7 @@ namespace MTConnect
                 {
                     var messageBuilder = new MqttApplicationMessageBuilder();
                     messageBuilder.WithTopic($"{_configuration.Topic}/observations");
-                    messageBuilder.WithQualityOfServiceLevel((MQTTnet.Protocol.MqttQualityOfServiceLevel)_configuration.QoS);
+                    messageBuilder.WithQualityOfServiceLevel((MQTTnet.Protocol.MqttQualityOfServiceLevel)_configuration.Qos);
                     messageBuilder.WithPayload(formatResult.Content);
                     messageBuilder.WithRetainFlag(true);
 
@@ -185,7 +185,7 @@ namespace MTConnect
                 {
                     var messageBuilder = new MqttApplicationMessageBuilder();
                     messageBuilder.WithTopic($"{_configuration.Topic}/assets");
-                    messageBuilder.WithQualityOfServiceLevel((MQTTnet.Protocol.MqttQualityOfServiceLevel)_configuration.QoS);
+                    messageBuilder.WithQualityOfServiceLevel((MQTTnet.Protocol.MqttQualityOfServiceLevel)_configuration.Qos);
                     messageBuilder.WithPayload(formatResult.Content);
                     messageBuilder.WithRetainFlag(true);
 
@@ -210,7 +210,7 @@ namespace MTConnect
                     {
                         var messageBuilder = new MqttApplicationMessageBuilder();
                         messageBuilder.WithTopic($"{_configuration.Topic}/device");
-                        messageBuilder.WithQualityOfServiceLevel((MQTTnet.Protocol.MqttQualityOfServiceLevel)_configuration.QoS);
+                        messageBuilder.WithQualityOfServiceLevel((MQTTnet.Protocol.MqttQualityOfServiceLevel)_configuration.Qos);
                         messageBuilder.WithPayload(formatResult.Content);
                         messageBuilder.WithRetainFlag(true);
 

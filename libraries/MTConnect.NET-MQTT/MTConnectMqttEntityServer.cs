@@ -28,7 +28,7 @@ namespace MTConnect.Clients
             var configuration = new MTConnectMqttEntityServerConfiguration();
             configuration.TopicPrefix = topicPrefix;
             configuration.DocumentFormat = documentFormat;
-            configuration.QoS = qos;
+            configuration.Qos = qos;
             _configuration = configuration;
         }
 
@@ -82,7 +82,7 @@ namespace MTConnect.Clients
                     messageBuilder.WithTopic(topic);
                     messageBuilder.WithPayload(formatResult.Content);
                     messageBuilder.WithRetainFlag(true);
-                    messageBuilder.WithQualityOfServiceLevel(GetQualityOfService(_configuration.QoS));
+                    messageBuilder.WithQualityOfServiceLevel(GetQualityOfService(_configuration.Qos));
                     return messageBuilder.Build();
                 }
             }
@@ -169,7 +169,7 @@ namespace MTConnect.Clients
                         messageBuilder.WithTopic(topic);
                         messageBuilder.WithPayload(formatResult.Content);
                         messageBuilder.WithRetainFlag(true);
-                        messageBuilder.WithQualityOfServiceLevel(GetQualityOfService(_configuration.QoS));
+                        messageBuilder.WithQualityOfServiceLevel(GetQualityOfService(_configuration.Qos));
                         return messageBuilder.Build();
                     }
                 }
@@ -201,7 +201,7 @@ namespace MTConnect.Clients
                         messageBuilder.WithTopic(topic);
                         messageBuilder.WithPayload(formatResult.Content);
                         messageBuilder.WithRetainFlag(true);
-                        messageBuilder.WithQualityOfServiceLevel(GetQualityOfService(_configuration.QoS));
+                        messageBuilder.WithQualityOfServiceLevel(GetQualityOfService(_configuration.Qos));
                         return messageBuilder.Build();
                     }
                 }
@@ -254,7 +254,7 @@ namespace MTConnect.Clients
                     messageBuilder.WithTopic(topic);
                     messageBuilder.WithPayload(formatResult.Content);
                     messageBuilder.WithRetainFlag(true);
-                    messageBuilder.WithQualityOfServiceLevel(GetQualityOfService(_configuration.QoS));
+                    messageBuilder.WithQualityOfServiceLevel(GetQualityOfService(_configuration.Qos));
                     return messageBuilder.Build();
                 }
             }

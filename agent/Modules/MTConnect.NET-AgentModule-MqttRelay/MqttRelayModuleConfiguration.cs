@@ -54,9 +54,9 @@ namespace MTConnect.Configurations
         public bool CleanSession { get; set; }
 
         /// <summary>
-        /// Sets the Quality Of Service (QoS) to use. 0 = At Most Once, 1 = At least Once, 2 = Exactly Once
+        /// Sets the Quality Of Service (Qos) to use. 0 = At Most Once, 1 = At least Once, 2 = Exactly Once
         /// </summary>
-        public int QoS { get; set; }
+        public int Qos { get; set; }
 
         /// <summary>
         /// Gets or Sets the TLS settings
