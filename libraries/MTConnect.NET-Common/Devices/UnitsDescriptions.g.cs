@@ -31,6 +31,11 @@ namespace MTConnect.Devices
         public const string COUNT_PER_SECOND = "Counts per second.";
         
         /// <summary>
+        /// Geometric volume in meters.
+        /// </summary>
+        public const string CUBIC_METER = "Geometric volume in meters.";
+        
+        /// <summary>
         /// Geometric volume in millimeters.
         /// </summary>
         public const string CUBIC_MILLIMETER = "Geometric volume in millimeters.";
@@ -221,6 +226,11 @@ namespace MTConnect.Devices
         public const string SIEMENS_PER_METER = "Measurement of electrical conductivity.";
         
         /// <summary>
+        /// Geometric area in millimeters.
+        /// </summary>
+        public const string SQUARE_MILLIMETER = "Geometric area in millimeters.";
+        
+        /// <summary>
         /// 3D Unit Vector.Space delimited list of three floating point numbers.
         /// </summary>
         public const string UNIT_VECTOR_3D = "3D Unit Vector.Space delimited list of three floating point numbers.";
@@ -260,6 +270,7 @@ namespace MTConnect.Devices
                 case Units.COULOMB: return "Electric charge in coulombs (C).";
                 case Units.COUNT: return "Count of something.";
                 case Units.COUNT_PER_SECOND: return "Counts per second.";
+                case Units.CUBIC_METER: return "Geometric volume in meters.";
                 case Units.CUBIC_MILLIMETER: return "Geometric volume in millimeters.";
                 case Units.CUBIC_MILLIMETER_PER_SECOND: return "Change of geometric volume per second.";
                 case Units.CUBIC_MILLIMETER_PER_SECOND_SQUARED: return "Change in geometric volume per second squared.";
@@ -298,6 +309,7 @@ namespace MTConnect.Devices
                 case Units.REVOLUTION_PER_SECOND_SQUARED: return "Revolutions per second squared.";
                 case Units.SECOND: return "Measurement of time.";
                 case Units.SIEMENS_PER_METER: return "Measurement of electrical conductivity.";
+                case Units.SQUARE_MILLIMETER: return "Geometric area in millimeters.";
                 case Units.UNIT_VECTOR_3D: return "3D Unit Vector.Space delimited list of three floating point numbers.";
                 case Units.VOLT: return "Volts.";
                 case Units.VOLT_AMPERE: return "Measurement of the apparent power in an electrical circuit, equal to the product of root-mean-square (RMS) voltage and RMS current (commonly referred to as VA).";

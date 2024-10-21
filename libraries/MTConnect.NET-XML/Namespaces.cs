@@ -81,6 +81,7 @@ namespace MTConnect
                         case 1: return Version21.Devices;
                         case 2: return Version22.Devices;
                         case 3: return Version23.Devices;
+                        case 4: return Version24.Devices;
                     }
 
                     break;
@@ -119,6 +120,7 @@ namespace MTConnect
                         case 1: return Version21.Streams;
                         case 2: return Version22.Streams;
                         case 3: return Version23.Streams;
+                        case 4: return Version24.Streams;
                     }
 
                     break;
@@ -207,6 +209,7 @@ namespace MTConnect
                         case 1: return Version21.Assets;
                         case 2: return Version22.Assets;
                         case 3: return Version23.Assets;
+                        case 4: return Version24.Assets;
                     }
 
                     break;
@@ -244,6 +247,7 @@ namespace MTConnect
                         case 1: return Version21.Error;
                         case 2: return Version22.Error;
                         case 3: return Version23.Error;
+                        case 4: return Version24.Error;
                     }
 
                     break;
@@ -266,6 +270,19 @@ namespace MTConnect
             return output;
         }
 
+
+        internal static class Version24
+        {
+            public const string Assets = "urn:mtconnect.org:MTConnectAssets:2.4";
+            public const string Devices = "urn:mtconnect.org:MTConnectDevices:2.4";
+            public const string Error = "urn:mtconnect.org:MTConnectError:2.4";
+            public const string Streams = "urn:mtconnect.org:MTConnectStreams:2.4";
+
+            public static bool Match(string ns)
+            {
+                return ns == Assets || ns == Devices || ns == Error || ns == Streams;
+            }
+        }
 
         internal static class Version23
         {

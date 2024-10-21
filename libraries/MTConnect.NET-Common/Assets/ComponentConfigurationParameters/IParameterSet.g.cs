@@ -14,7 +14,7 @@ namespace MTConnect.Assets.ComponentConfigurationParameters
         string Name { get; }
         
         /// <summary>
-        /// Property defining a configuration of a Component.
+        /// Property that determines the characteristic or behavior of an entity.
         /// </summary>
         System.Collections.Generic.IEnumerable<MTConnect.Assets.ComponentConfigurationParameters.IParameter> Parameters { get; }
     }

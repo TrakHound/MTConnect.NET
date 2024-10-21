@@ -21,6 +21,11 @@ namespace MTConnect.Devices
         public const string CENTIPOISE = "CENTIPOISE";
         
         /// <summary>
+        /// Geometric volume in feet.
+        /// </summary>
+        public const string CUBIC_FOOT = "CUBIC_FOOT";
+        
+        /// <summary>
         /// Change of geometric volume in cubic foot per hour.
         /// </summary>
         public const string CUBIC_FOOT_PER_HOUR = "CUBIC_FOOT/HOUR";
@@ -106,6 +111,11 @@ namespace MTConnect.Devices
         public const string INCH_PER_MINUTE = "INCH/MINUTE";
         
         /// <summary>
+        /// Inch per revolution.
+        /// </summary>
+        public const string INCH_PER_REVOLUTION = "INCH/REVOLUTION";
+        
+        /// <summary>
         /// Inches per second.
         /// </summary>
         public const string INCH_PER_SECOND = "INCH/SECOND";
@@ -181,14 +191,19 @@ namespace MTConnect.Devices
         public const string RADIAN_PER_MINUTE = "RADIAN/MINUTE";
         
         /// <summary>
-        /// Rotational acceleration in radian per second squared.
+        /// Velocity in radians per second.
         /// </summary>
         public const string RADIAN_PER_SECOND = "RADIAN/SECOND";
         
         /// <summary>
-        /// Rotational acceleration in radian per second squared.
+        /// Acceleration in radians per second squared.
         /// </summary>
         public const string RADIAN_PER_SECOND_SQUARED = "RADIAN/SECOND^2";
+        
+        /// <summary>
+        /// Geometric area in inches.
+        /// </summary>
+        public const string SQUARE_INCH = "SQUARE_INCH";
         
         /// <summary>
         /// Pressure in Torr.

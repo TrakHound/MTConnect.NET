@@ -6,11 +6,11 @@
 namespace MTConnect.Assets.ComponentConfigurationParameters
 {
     /// <summary>
-    /// Property defining a configuration of a Component.
+    /// Property that determines the characteristic or behavior of an entity.
     /// </summary>
     public class Parameter : IParameter
     {
-        public const string DescriptionText = "Property defining a configuration of a Component.";
+        public const string DescriptionText = "Property that determines the characteristic or behavior of an entity.";
 
 
         /// <summary>

@@ -4,7 +4,7 @@
 namespace MTConnect.Assets.ComponentConfigurationParameters
 {
     /// <summary>
-    /// Property defining a configuration of a Component.
+    /// Property that determines the characteristic or behavior of an entity.
     /// </summary>
     public interface IParameter
     {

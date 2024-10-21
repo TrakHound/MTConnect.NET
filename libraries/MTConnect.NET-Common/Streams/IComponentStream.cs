@@ -38,7 +38,7 @@ namespace MTConnect.Streams
         string NativeName { get; }
 
         /// <summary>
-        /// Uuid of the ComponentStream element.
+        /// Uuid of the Component Associated with the ComponentStream
         /// </summary>
         string Uuid { get; }
 

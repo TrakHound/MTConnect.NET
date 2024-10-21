@@ -11,8 +11,8 @@ namespace MTConnect.Assets.ComponentConfigurationParameters
         public const string Name = "Name of the parameter set if more than one exists.";
         
         /// <summary>
-        /// Property defining a configuration of a Component.
+        /// Property that determines the characteristic or behavior of an entity.
         /// </summary>
-        public const string Parameters = "Property defining a configuration of a Component.";
+        public const string Parameters = "Property that determines the characteristic or behavior of an entity.";
     }
 }

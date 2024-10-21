@@ -21,6 +21,11 @@ namespace MTConnect.Devices
         public const string CENTIPOISE = "Measure of viscosity.";
         
         /// <summary>
+        /// Geometric volume in feet.
+        /// </summary>
+        public const string CUBIC_FOOT = "Geometric volume in feet.";
+        
+        /// <summary>
         /// Change of geometric volume in cubic foot per hour.
         /// </summary>
         public const string CUBIC_FOOT_PER_HOUR = "Change of geometric volume in cubic foot per hour.";
@@ -106,6 +111,11 @@ namespace MTConnect.Devices
         public const string INCH_PER_MINUTE = "Inches per minute.";
         
         /// <summary>
+        /// Inch per revolution.
+        /// </summary>
+        public const string INCH_PER_REVOLUTION = "Inch per revolution.";
+        
+        /// <summary>
         /// Inches per second.
         /// </summary>
         public const string INCH_PER_SECOND = "Inches per second.";
@@ -181,14 +191,19 @@ namespace MTConnect.Devices
         public const string RADIAN_PER_MINUTE = "Velocity in radians per minute.";
         
         /// <summary>
-        /// Rotational acceleration in radian per second squared.
+        /// Velocity in radians per second.
         /// </summary>
-        public const string RADIAN_PER_SECOND = "Rotational acceleration in radian per second squared.";
+        public const string RADIAN_PER_SECOND = "Velocity in radians per second.";
         
         /// <summary>
-        /// Rotational acceleration in radian per second squared.
+        /// Acceleration in radians per second squared.
         /// </summary>
-        public const string RADIAN_PER_SECOND_SQUARED = "Rotational acceleration in radian per second squared.";
+        public const string RADIAN_PER_SECOND_SQUARED = "Acceleration in radians per second squared.";
+        
+        /// <summary>
+        /// Geometric area in inches.
+        /// </summary>
+        public const string SQUARE_INCH = "Geometric area in inches.";
         
         /// <summary>
         /// Pressure in Torr.
@@ -203,6 +218,7 @@ namespace MTConnect.Devices
                 case NativeUnits.AMPERE_HOUR: return "Electric charge in ampere hour.";
                 case NativeUnits.BAR: return "Pressure in Bar.";
                 case NativeUnits.CENTIPOISE: return "Measure of viscosity.";
+                case NativeUnits.CUBIC_FOOT: return "Geometric volume in feet.";
                 case NativeUnits.CUBIC_FOOT_PER_HOUR: return "Change of geometric volume in cubic foot per hour.";
                 case NativeUnits.CUBIC_FOOT_PER_MINUTE: return "Change of geometric volume in cubic foot per minute.";
                 case NativeUnits.DEGREE_PER_MINUTE: return "Rotational velocity in degrees per minute.";
@@ -220,6 +236,7 @@ namespace MTConnect.Devices
                 case NativeUnits.INCH_3D: return "Point in space identified by X, Y, and Z positions and represented by a space-delimited set of numbers each expressed in inches.";
                 case NativeUnits.INCH_POUND: return "Measure of torque in inch pounds.";
                 case NativeUnits.INCH_PER_MINUTE: return "Inches per minute.";
+                case NativeUnits.INCH_PER_REVOLUTION: return "Inch per revolution.";
                 case NativeUnits.INCH_PER_SECOND: return "Inches per second.";
                 case NativeUnits.INCH_PER_SECOND_SQUARED: return "Acceleration in inches per second squared.";
                 case NativeUnits.KELVIN: return "Measurement of temperature.";
@@ -235,8 +252,9 @@ namespace MTConnect.Devices
                 case NativeUnits.POUND_PER_INCH_SQUARED: return "Pressure in pounds per square inch (PSI).";
                 case NativeUnits.RADIAN: return "Angle in radians.";
                 case NativeUnits.RADIAN_PER_MINUTE: return "Velocity in radians per minute.";
-                case NativeUnits.RADIAN_PER_SECOND: return "Rotational acceleration in radian per second squared.";
-                case NativeUnits.RADIAN_PER_SECOND_SQUARED: return "Rotational acceleration in radian per second squared.";
+                case NativeUnits.RADIAN_PER_SECOND: return "Velocity in radians per second.";
+                case NativeUnits.RADIAN_PER_SECOND_SQUARED: return "Acceleration in radians per second squared.";
+                case NativeUnits.SQUARE_INCH: return "Geometric area in inches.";
                 case NativeUnits.TORR: return "Pressure in Torr.";
             }
 
