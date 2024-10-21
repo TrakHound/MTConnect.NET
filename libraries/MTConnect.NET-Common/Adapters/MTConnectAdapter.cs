@@ -4,10 +4,11 @@
 using MTConnect.Input;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using MTConnect.Logging;
 
 namespace MTConnect.Adapters
 {
@@ -20,6 +21,7 @@ namespace MTConnect.Adapters
         private readonly object _lock = new object();
         private readonly int? _interval;
         private readonly bool _bufferEnabled;
+        private readonly ILogger _logger;
 
         private readonly Dictionary<string, IDeviceInput> _currentDevices = new Dictionary<string, IDeviceInput>();
         private readonly Dictionary<string, IDeviceInput> _lastDevices = new Dictionary<string, IDeviceInput>();
@@ -80,10 +82,14 @@ namespace MTConnect.Adapters
         public event EventHandler<AdapterEventArgs<string>> SendError;
 
 
-        public MTConnectAdapter(int? interval = null, bool bufferEnabled = false)
+        public MTConnectAdapter(
+            int? interval = null, 
+            bool bufferEnabled = false, 
+            ILogger logger = null)
         {
             _interval = interval;
             _bufferEnabled = bufferEnabled;
+            _logger = logger;
 
             FilterDuplicates = true;
             OutputTimestamps = true;
@@ -304,6 +310,14 @@ namespace MTConnect.Adapters
 
                     _observationsBuffer.Add(CreateUniqueId(newObservation), newObservation);
 
+                    if (_logger?.IsEnabled(LogLevel.Trace) == true)
+                    {
+                        var values = string.Join(",", observation.Values.Select(v => $"{v.Key}/{v.Value}"));
+                        _logger?.LogTrace(
+                            $"{nameof(MTConnectAdapter)}:{DateTime.Now.ToString("hh:mm:ss.ffffff")} Data item added in adapter {newObservation.DataItemKey}:{values}.");
+
+                    }
+
                     // Call Overridable Method
                     OnObservationAdd(newObservation);
                 }
@@ -446,6 +460,8 @@ namespace MTConnect.Adapters
 
             if (!dataItems.IsNullOrEmpty())
             {
+                LogReporter.Report($"Sending {dataItems.Count} changed items...", _logger);
+
                 var success = Write(dataItems);
                 if (success)
                 {
@@ -504,6 +520,8 @@ namespace MTConnect.Adapters
                     if (!OutputTimestamps) sendObservation.Timestamp = 0;
                     sendObservations.Add(sendObservation);
                 }
+
+                LogReporter.Report($"Sending {sendObservations.Count} buffered items...", _logger);
 
                 var success = Write(sendObservations);
                 if (success)
