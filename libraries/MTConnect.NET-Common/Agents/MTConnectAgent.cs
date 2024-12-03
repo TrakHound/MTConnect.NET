@@ -1462,6 +1462,7 @@ namespace MTConnect.Agents
                     }
 
                     // Add the Device to the Buffer
+                    _devices.TryRemove(obj.Uuid, out _);
                     var success = _devices.TryAdd(obj.Uuid, obj);
                     if (success)
                     {
