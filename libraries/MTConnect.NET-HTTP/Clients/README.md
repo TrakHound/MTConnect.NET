@@ -274,7 +274,7 @@ var deviceName = "OKUMA.Lathe";
 var fromSequence = 150;
 var toSequence = 250;
 
-var client = new MTConnectHttpSampleClient(baseUrl, deviceName, fromSequence, toSequence);
+var client = new MTConnectHttpSampleClient(baseUrl, deviceName, null, fromSequence, toSequence);
 var document = client.Get();
 foreach (var deviceStream in document.Streams)
 {
@@ -300,9 +300,9 @@ The [MTConnectHttpAssetClient](MTConnectHttpAssetClient.cs) class is used to sen
 ```c#
 var baseUrl = "localhost:5000";
 var deviceName = "OKUMA.Lathe";
-var count = 5
+var count = 5;
 
-var client = new MTConnectHttpAssetClient(baseUrl, deviceName, count);
+var client = new MTConnectHttpAssetClient(baseUrl, count, null, deviceName);
 var document = client.Get();
 foreach (var asset in document.Assets)
 {
