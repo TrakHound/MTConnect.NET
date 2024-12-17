@@ -12,6 +12,8 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using MTConnect.Logging;
 
 namespace MTConnect.Clients
 {
@@ -26,12 +28,16 @@ namespace MTConnect.Clients
         private const byte Dash = 45;
         private static readonly byte[] _trimBytes = new byte[] { LineFeed, CarriageReturn };
         private readonly HttpClient _httpClient;
+        private ILogger _logger;
 
         private CancellationTokenSource _stop;
         private string _documentFormat = DocumentFormat.XML;
 
 
-        public MTConnectHttpClientStream(string url, string documentFormat = DocumentFormat.XML)
+        public MTConnectHttpClientStream(
+            string url, 
+            string documentFormat = DocumentFormat.XML,
+            ILogger logger = null)
         {
             Id = Guid.NewGuid().ToString();
             Url = url;
@@ -39,6 +45,7 @@ namespace MTConnect.Clients
             _documentFormat = documentFormat;
             ContentEncodings = HttpContentEncodings.DefaultAccept;
             ContentType = MimeTypes.Get(documentFormat);
+            _logger = logger;
 
             _httpClient = new HttpClient();
             _httpClient.Timeout = TimeSpan.FromMilliseconds(DefaultTimeout);
@@ -155,6 +162,7 @@ namespace MTConnect.Clients
                         }
                     }
 
+                    LogReporter.Report("Creating stream async.", _logger);
 
                     var httpRequest = new HttpRequestMessage();
                     httpRequest.RequestUri = new Uri(Url);
@@ -168,6 +176,8 @@ namespace MTConnect.Clients
                     using (var stream = await response.Content.ReadAsStreamAsync())
 #endif
                     {
+                        LogReporter.Report("Created stream async.", _logger);
+
                         var header = new List<byte>();
                         var headerActive = false;
                         var cr = false;
@@ -180,6 +190,7 @@ namespace MTConnect.Clients
                         string contentEncoding = null;
                         string lineStr = null;
 
+                        LogReporter.Report("Starting bytes...", _logger);
 
                         var readBuffer = new byte[1];
                         var read = await stream.ReadAsync(readBuffer, 0, readBuffer.Length, stop.Token);
@@ -237,7 +248,10 @@ namespace MTConnect.Clients
                                     if (bodyBytes != null)
                                     {
                                         // Call overridable method to process the bytes contained in the body of the response
-                                        ProcessResponseBody(bodyBytes, contentEncoding);
+                                        LogReporter.MeasureAndReport(
+                                            () => ProcessResponseBody(bodyBytes, contentEncoding), 
+                                            "processing stream body", 
+                                            _logger);
                                     }
 
                                     contentLength = 0;
@@ -264,6 +278,8 @@ namespace MTConnect.Clients
                                 responseTimer.Start();
                             }
                         }
+
+                        LogReporter.Report("Finished bytes successfully.", _logger);
                     }
                 }
                 catch (TaskCanceledException ex) when (ex.InnerException is TimeoutException)

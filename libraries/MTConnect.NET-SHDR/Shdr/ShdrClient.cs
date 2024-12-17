@@ -1,6 +1,7 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
+using Microsoft.Extensions.Logging;
 using MTConnect.Assets;
 using MTConnect.Assets.Xml;
 using MTConnect.Configurations;
@@ -13,6 +14,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using MTConnect.Logging;
 
 namespace MTConnect.Shdr
 {
@@ -31,6 +33,7 @@ namespace MTConnect.Shdr
         private long _lastHeartbeat = 0;
         private CancellationTokenSource _stop;
         private int _heartbeat = DefaultPongHeartbeat;
+        protected ILogger _logger;
 
         
         /// <summary>
@@ -113,13 +116,19 @@ namespace MTConnect.Shdr
         public event EventHandler<string> CommandReceived;
 
 
-        public ShdrClient()
+        public ShdrClient(ILogger logger = null)
         {
             Id = StringFunctions.RandomString(10);
             IgnoreHeartbeatOnChange = true;
+            _logger = logger;
         }
 
-        public ShdrClient(string hostname, int port, int connectionTimeout = DefaultConnectionTimeout, int reconnectInterval = DefaultReconnectInterval)
+        public ShdrClient(
+            string hostname, 
+            int port, 
+            int connectionTimeout = DefaultConnectionTimeout, 
+            int reconnectInterval = DefaultReconnectInterval,
+            ILogger logger = null)
         {
             Id = StringFunctions.RandomString(10);
             Hostname = hostname;
@@ -127,9 +136,16 @@ namespace MTConnect.Shdr
             ConnectionTimeout = connectionTimeout;
             ReconnectInterval = reconnectInterval;
             IgnoreHeartbeatOnChange = true;
+            _logger = logger;
         }
 
-        public ShdrClient(string hostname, int port, string deviceKey, int connectionTimeout = DefaultConnectionTimeout, int reconnectInterval = DefaultReconnectInterval)
+        public ShdrClient(
+            string hostname, 
+            int port, 
+            string deviceKey, 
+            int connectionTimeout = DefaultConnectionTimeout, 
+            int reconnectInterval = DefaultReconnectInterval,
+            ILogger logger = null)
         {
             Id = StringFunctions.RandomString(10);
             Hostname = hostname;
@@ -138,12 +154,16 @@ namespace MTConnect.Shdr
             ConnectionTimeout = connectionTimeout;
             ReconnectInterval = reconnectInterval;
             IgnoreHeartbeatOnChange = true;
+            _logger = logger;
         }
 
-        public ShdrClient(ShdrClientConfiguration configuration)
+        public ShdrClient(
+            ShdrClientConfiguration configuration,
+            ILogger logger = null)
         {
             Id = StringFunctions.RandomString(10);
             IgnoreHeartbeatOnChange = true;
+            _logger = logger;
 
             if (configuration != null)
             {
@@ -540,6 +560,8 @@ namespace MTConnect.Shdr
                             }
                             else
                             {
+                                LogReporter.Report(line, _logger);
+
                                 ProcessProtocol(line);
 
                                 // Raise ProtocolReceived Event passing the Line that was read as a parameter

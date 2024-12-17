@@ -15,6 +15,9 @@ using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using MTConnect.Logging;
+using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace MTConnect.Servers.Http
 {
@@ -26,7 +29,7 @@ namespace MTConnect.Servers.Http
         protected readonly IMTConnectAgentBroker _mtconnectAgent;
         protected readonly IHttpServerConfiguration _configuration;
         private CancellationTokenSource _stop;
-
+        protected ILogger _logger;
 
         /// <summary>
         /// Event for when an error occurs with a MTConnectHttpResponse is written to the HTTP Client
@@ -72,10 +75,14 @@ namespace MTConnect.Servers.Http
         public event EventHandler<Exception> ClientException;
 
 
-        public MTConnectHttpServer(IHttpServerConfiguration configuration, IMTConnectAgentBroker mtconnectAgent)
+        public MTConnectHttpServer(
+            IHttpServerConfiguration configuration, 
+            IMTConnectAgentBroker mtconnectAgent,
+            ILogger logger = null)
         {
             _mtconnectAgent = mtconnectAgent;
             _configuration = configuration;
+            _logger = logger;
         }
 
 
@@ -114,12 +121,18 @@ namespace MTConnect.Servers.Http
             if (_configuration != null)
             {
                 _ = Task.Run(() => StartServer(_configuration, _stop.Token));
+
+                LogReporter.Report($"Started server at {_configuration.Port}", _logger);
             }
         }
 
         public void Stop()
         {
-            if (_stop != null) _stop.Cancel();
+            if (_stop != null)
+            {
+                _stop.Cancel();
+                LogReporter.Report($"Stopping server at {_configuration.Port}...", _logger);
+            }
         }
 
         public void Dispose() { Stop(); }
@@ -216,7 +229,7 @@ namespace MTConnect.Servers.Http
             serverConfig.MaxProcessingTimeSeconds = 60;
 
             // Setup the Probe Request Handler
-            var probeHandler = new MTConnectProbeResponseHandler(serverConfiguration, _mtconnectAgent);
+            var probeHandler = new MTConnectProbeResponseHandler(serverConfiguration, _mtconnectAgent, _logger);
             probeHandler.ResponseSent += ResponseSent;
             probeHandler.ClientConnected += ClientConnected;
             probeHandler.ClientDisconnected += ClientDisconnected;
@@ -224,7 +237,7 @@ namespace MTConnect.Servers.Http
             probeHandler.CreateFormatOptionsFunction = OnCreateFormatOptions;
 
             // Setup the Current Request Handler
-            var currentHandler = new MTConnectCurrentResponseHandler(serverConfiguration, _mtconnectAgent);
+            var currentHandler = new MTConnectCurrentResponseHandler(serverConfiguration, _mtconnectAgent, _logger);
             currentHandler.ResponseSent += ResponseSent;
             currentHandler.ClientConnected += ClientConnected;
             currentHandler.ClientDisconnected += ClientDisconnected;
@@ -232,7 +245,7 @@ namespace MTConnect.Servers.Http
             currentHandler.CreateFormatOptionsFunction = OnCreateFormatOptions;
 
             // Setup the Sample Request Handler
-            var sampleHandler = new MTConnectSampleResponseHandler(serverConfiguration, _mtconnectAgent);
+            var sampleHandler = new MTConnectSampleResponseHandler(serverConfiguration, _mtconnectAgent, _logger);
             sampleHandler.ResponseSent += ResponseSent;
             sampleHandler.ClientConnected += ClientConnected;
             sampleHandler.ClientDisconnected += ClientDisconnected;
@@ -306,6 +319,12 @@ namespace MTConnect.Servers.Http
             serverConfig.AddRoute("/*/assets", assetsHandler);
             serverConfig.AddRoute("/asset/*", assetHandler);
             serverConfig.AddRoute(staticHandler);
+
+            if (_logger != null)
+            {
+                serverConfig.DebugLogHandler += (string message, string logtaskid, object data) 
+                    => _logger.LogDebug($"[{logtaskid}] message: {message}, data: {data}");
+            }
 
             return serverConfig;
         }
