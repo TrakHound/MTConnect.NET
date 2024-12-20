@@ -1,19 +1,21 @@
 // Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using MTConnect.Assets;
 using MTConnect.Devices;
 using MTConnect.Errors;
 using MTConnect.Formatters;
 using MTConnect.Headers;
 using MTConnect.Http;
+using MTConnect.Logging;
 using MTConnect.Observations;
 using MTConnect.Streams;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace MTConnect.Clients
 {
@@ -34,7 +36,7 @@ namespace MTConnect.Clients
         private long _lastResponse;
         private bool _initializeFromBuffer;
         private string _streamPath;
-
+        private ILogger _logger;
 
         /// <summary>
         /// Initializes a new instance of the MTConnectClient class that is used to perform
@@ -50,13 +52,19 @@ namespace MTConnect.Clients
         /// If not present, Metadata for all pieces of equipment associated with the Agent will be published.
         /// </param>
         /// <param name="documentFormat">Gets or Sets the Document Format to return</param>
-        public MTConnectHttpClient(string authority, string device = null, string documentFormat = MTConnect.DocumentFormat.XML)
+        /// <param name="logger"><see cref="ILogger"/> instance.</param>
+        public MTConnectHttpClient(
+            string authority, 
+            string device = null, 
+            string documentFormat = MTConnect.DocumentFormat.XML,
+            ILogger logger = null)
         {
             Id = Guid.NewGuid().ToString();
             Init();
             Authority = authority;
             Device = device;
             DocumentFormat = documentFormat;
+            _logger = logger;
         }
 
         /// <summary>
@@ -74,13 +82,20 @@ namespace MTConnect.Clients
         /// If not present, Metadata for all pieces of equipment associated with the Agent will be published.
         /// </param>
         /// <param name="documentFormat">Gets or Sets the Document Format to return</param>
-        public MTConnectHttpClient(string hostname, int port, string device = null, string documentFormat = MTConnect.DocumentFormat.XML)
+        /// <param name="logger"><see cref="ILogger"/> instance.</param>
+        public MTConnectHttpClient(
+            string hostname, 
+            int port, 
+            string device = null, 
+            string documentFormat = MTConnect.DocumentFormat.XML,
+            ILogger logger = null)
         {
             Id = Guid.NewGuid().ToString();
             Init();
             Authority = CreateUrl(hostname, port);
             Device = device;
             DocumentFormat = documentFormat;
+            _logger = logger;
         }
 
         private void Init()
@@ -97,7 +112,7 @@ namespace MTConnect.Clients
 
 
         /// <summary>
-        /// A unique Identifier used to indentify this instance of the MTConnectClient class
+        /// A unique Identifier used to identify this instance of the MTConnectClient class
         /// </summary>
         public string Id { get; set; }
 
@@ -649,13 +664,20 @@ namespace MTConnect.Clients
                 try
                 {
                     // Run Probe Request
-                    var probe = await GetProbeAsync(_stop.Token);
+                    var probe = await LogReporter.MeasureAndReport(
+                        () => GetProbeAsync(_stop.Token), 
+                        $"got probe", 
+                        _logger);
+
                     if (probe != null)
                     {
                         _lastResponse = UnixDateTime.Now;
-                       ResponseReceived?.Invoke(this, new EventArgs());
+                        ResponseReceived?.Invoke(this, new EventArgs());
 
-                        ProcessProbeDocument(probe);
+                        LogReporter.MeasureAndReport(
+                            () => ProcessProbeDocument(probe), 
+                            $"probe processed", 
+                            _logger);
 
                         // Get All Assets
                         if (probe.Header.AssetCount > 0)
@@ -673,14 +695,21 @@ namespace MTConnect.Clients
                         if (UseStreaming)
                         {
                             // Run Current Request
-                            var current = await GetCurrentAsync(_stop.Token, path: _streamPath);
+                            var current = await LogReporter.MeasureAndReport(
+                                () => GetCurrentAsync(_stop.Token, path: _streamPath), 
+                                $"got current", 
+                                _logger);
+
                             if (current != null)
                             {
                                 _lastResponse = UnixDateTime.Now;
                                 ResponseReceived?.Invoke(this, new EventArgs());
 
-                                // Raise CurrentReceived Event
-                                ProcessCurrentDocument(current, _stop.Token);
+                                // Raise CurrentReceived Event;
+                                LogReporter.MeasureAndReport(
+                                    () => ProcessCurrentDocument(current, _stop.Token),
+                                    $"current processed",
+                                    _logger);
 
                                 // Check Assets
                                 if (!current.Streams.IsNullOrEmpty())
@@ -705,7 +734,7 @@ namespace MTConnect.Clients
                                 // Read & Save the Instance ID of the MTConnect Agent
                                 _lastInstanceId = current.Header.InstanceId;
 
-                                // If the LastSequence is not within the current sequence range then reset Sequeunce to 0
+                                // If the LastSequence is not within the current sequence range then reset Sequence to 0
                                 if (current.Header.FirstSequence > _lastSequence ||
                                     current.Header.NextSequence < _lastSequence)
                                 {
@@ -717,7 +746,7 @@ namespace MTConnect.Clients
                                 if (CurrentOnly) url = CreateCurrentUrl(Authority, Device, Interval, _streamPath);
 
                                 // Create and Start the Stream
-                                using (_stream = new MTConnectHttpClientStream(url, DocumentFormat))
+                                using (_stream = new MTConnectHttpClientStream(url, DocumentFormat, _logger))
                                 {
                                     _stream.Timeout = Heartbeat * 3;
                                     _stream.ContentEncodings = ContentEncodings;
@@ -945,7 +974,10 @@ namespace MTConnect.Clients
                         }
                     }
 
-                    SampleReceived?.Invoke(this, response);
+                    LogReporter.MeasureAndReport(
+                        () => SampleReceived?.Invoke(this, response),
+                        $"handling samples",
+                        _logger);
 
                     foreach (var observation in receivedObservations)
                     {

@@ -10,6 +10,7 @@ using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace MTConnect.Servers
 {
@@ -18,7 +19,14 @@ namespace MTConnect.Servers
         public Func<MTConnectAssetInputArgs, bool> ProcessFunction { get; set; }
 
 
-        public MTConnectPostResponseHandler(IHttpServerConfiguration serverConfiguration, IMTConnectAgentBroker mtconnectAgent) : base(serverConfiguration, mtconnectAgent) { }
+        public MTConnectPostResponseHandler(
+            IHttpServerConfiguration serverConfiguration, 
+            IMTConnectAgentBroker mtconnectAgent, 
+            ILogger logger = null) 
+            : base(
+                serverConfiguration, 
+                mtconnectAgent, 
+                logger) { }
 
 
         protected async override Task<MTConnectHttpResponse> OnRequestReceived(IHttpContext context, CancellationToken cancellationToken)

@@ -14,6 +14,7 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace MTConnect.Servers.Http
 {
@@ -21,6 +22,7 @@ namespace MTConnect.Servers.Http
     {
         protected readonly IMTConnectAgentBroker _mtconnectAgent;
         protected readonly IHttpServerConfiguration _serverConfiguration;
+        protected readonly ILogger _logger;
 
 
         /// <summary>
@@ -46,10 +48,14 @@ namespace MTConnect.Servers.Http
         public Func<MTConnectFormatOptionsArgs, List<KeyValuePair<string, string>>> CreateFormatOptionsFunction { get; set; }
 
 
-        public MTConnectHttpResponseHandler(IHttpServerConfiguration serverConfiguration, IMTConnectAgentBroker mtconnectAgent)
+        public MTConnectHttpResponseHandler(
+            IHttpServerConfiguration serverConfiguration, 
+            IMTConnectAgentBroker mtconnectAgent,
+            ILogger logger)
         {
             _mtconnectAgent = mtconnectAgent;
             _serverConfiguration = serverConfiguration;
+            _logger = logger;
         }
 
 
