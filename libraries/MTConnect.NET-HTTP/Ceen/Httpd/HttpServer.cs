@@ -280,15 +280,15 @@ namespace Ceen.Httpd
 			/// <summary>
 			/// The task used to signal all requests are stopped
 			/// </summary>
-			private readonly TaskCompletionSource<bool> m_finishedtask = new TaskCompletionSource<bool>();
+			private readonly TaskCompletionSource<bool> m_finishedtask = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 			/// <summary>
 			/// The task used to signal all handlers to stop
 			/// </summary>
-			private readonly TaskCompletionSource<bool> m_stoptask = new TaskCompletionSource<bool>();
+			private readonly TaskCompletionSource<bool> m_stoptask = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 			/// <summary>
 			/// The task used to signal waiting for handlers to complete before starting new handlers
 			/// </summary>
-			private TaskCompletionSource<bool> m_throttletask = new TaskCompletionSource<bool>();
+			private TaskCompletionSource<bool> m_throttletask = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 
 			/// <summary>
 			/// A logger for reporting the internal log state
@@ -338,7 +338,7 @@ namespace Ceen.Httpd
 					if (m_debuglogger != null) m_debuglogger("Blocking throttle", logtaskid, null);
 					lock (m_lock)
 						if (m_throttletask.Task.IsCompleted)
-							m_throttletask = new TaskCompletionSource<bool>();
+							m_throttletask = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 				}
 
 				return true;
@@ -986,7 +986,7 @@ namespace Ceen.Httpd
                         // Set up call context access to this instance
                         Context.SetCurrentContext(context);
 
-                        var timeoutcontroltask = new TaskCompletionSource<bool>();
+                        var timeoutcontroltask = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
                         var idletime = TimeSpan.FromSeconds(config.RequestHeaderReadTimeoutSeconds);
 
                         // Set up timeout for processing
