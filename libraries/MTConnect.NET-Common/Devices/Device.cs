@@ -765,7 +765,7 @@ namespace MTConnect.Devices
 
 				if (!dataItems.IsNullOrEmpty())
 				{
-					return dataItems.FirstOrDefault(o => o.Type == type);
+					return dataItems.FirstOrDefault(o => o.Type == type.ToUnderscoreUpper());
 				}
 			}
 
@@ -788,7 +788,7 @@ namespace MTConnect.Devices
 
 				if (!dataItems.IsNullOrEmpty())
 				{
-					return dataItems.FirstOrDefault(o => o.Type == type && o.SubType == subType);
+					return dataItems.FirstOrDefault(o => o.Type == type.ToUnderscoreUpper() && o.SubType == subType.ToUnderscoreUpper());
 				}
 			}
 
@@ -852,7 +852,7 @@ namespace MTConnect.Devices
 
 				if (!dataItems.IsNullOrEmpty())
 				{
-					return dataItems.Where(o => o.Type == type && o.SubType == subType);
+					return dataItems.Where(o => o.Type == type.ToUnderscoreUpper() && o.SubType == subType.ToUnderscoreUpper());
 				}
 			}
 
