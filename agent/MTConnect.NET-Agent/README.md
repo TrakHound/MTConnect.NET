@@ -337,6 +337,12 @@ The default [NLog Configuration File](https://github.com/TrakHound/MTConnect.NET
 </nlog>
 ```
 
+## Build
+This project can be built using a variety of options using the DotNet CLI `publish` command such as below:
+```
+dotnet publish -c:Release -f:net8.0 -r:win-x64 -p:PublishSingleFile=true -p:IncludeAllContentForSelfExtract=true --self-contained false
+```
+
 ## Source Code
 This project uses the MTConnect.NET-Applications-Agents library (available on [Nuget](https://www.nuget.org/packages/MTConnect.NET-Applications-Agents)) to create an MTConnect Agent application. More information about this library can be found [Here](https://github.com/TrakHound/MTConnect.NET/tree/master/libraries/MTConnect.NET-Applications-Agents). The MTConnect.NET-Applications-Agents library makes creating an MTConnect Agent application simple as well as makes it easy to keep updated using Nuget. A fully functionaly MTConnect Application can be created in just a few lines of code.
 
