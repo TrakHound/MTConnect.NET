@@ -1,4 +1,4 @@
-// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2025 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MQTTnet;
@@ -9,6 +9,7 @@ using MTConnect.Configurations;
 using MTConnect.Devices;
 using MTConnect.Formatters;
 using MTConnect.Observations;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -21,6 +22,11 @@ namespace MTConnect.Clients
         private readonly IMTConnectMqttEntityServerConfiguration _configuration;
 
         public string TopicPrefix => _configuration.TopicPrefix;
+
+        public event EventHandler<string> MessageSent;
+        public event EventHandler<string> SendError;
+        public event EventHandler<Exception> ClientError;
+        public event EventHandler<Exception> ServerError;
 
 
         public MTConnectMqttEntityServer(string topicPrefix = null, string documentFormat = DocumentFormat.JSON, int qos = 0)
@@ -43,15 +49,22 @@ namespace MTConnect.Clients
         {
             if (mqttClient != null && mqttClient.IsConnected && device != null)
             {
-                var message = CreateMessage(device);
-                var result = await mqttClient.PublishAsync(message);
-                if (result.IsSuccess)
+                try
                 {
-
+                    var message = CreateMessage(device);
+                    var result = await mqttClient.PublishAsync(message);
+                    if (result.IsSuccess)
+                    {
+                        if (MessageSent != null) MessageSent.Invoke(this, message.Topic);
+                    }
+                    else
+                    {
+                        if (SendError != null) SendError.Invoke(this, message.Topic);
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-
+                    if (ClientError != null) ClientError.Invoke(this, ex);
                 }
             }
         }
@@ -60,10 +73,17 @@ namespace MTConnect.Clients
         {
             if (mqttServer != null && device != null)
             {
-                var message = CreateMessage(device);
-                var injectedMessage = new InjectedMqttApplicationMessage(message);
+                try
+                {
+                    var message = CreateMessage(device);
+                    var injectedMessage = new InjectedMqttApplicationMessage(message);
 
-                await mqttServer.InjectApplicationMessage(injectedMessage);
+                    await mqttServer.InjectApplicationMessage(injectedMessage);
+                }
+                catch (Exception ex)
+                {
+                    if (ServerError != null) ServerError.Invoke(this, ex);
+                }
             }
         }
 
@@ -95,15 +115,22 @@ namespace MTConnect.Clients
         {
             if (mqttClient != null && mqttClient.IsConnected && observation != null)
             {
-                var message = CreateMessage(observation);
-                var result = await mqttClient.PublishAsync(message);
-                if (result.IsSuccess)
+                try
                 {
-
+                    var message = CreateMessage(observation);
+                    var result = await mqttClient.PublishAsync(message);
+                    if (result.IsSuccess)
+                    {
+                        if (MessageSent != null) MessageSent.Invoke(this, message.Topic);
+                    }
+                    else
+                    {
+                        if (SendError != null) SendError.Invoke(this, message.Topic);
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-
+                    if (ClientError != null) ClientError.Invoke(this, ex);
                 }
             }
         }
@@ -112,15 +139,22 @@ namespace MTConnect.Clients
         {
             if (mqttClient != null && mqttClient.IsConnected && !observations.IsNullOrEmpty())
             {
-                var message = CreateMessage(observations);
-                var result = await mqttClient.PublishAsync(message);
-                if (result.IsSuccess)
+                try
                 {
-
+                    var message = CreateMessage(observations);
+                    var result = await mqttClient.PublishAsync(message);
+                    if (result.IsSuccess)
+                    {
+                        if (MessageSent != null) MessageSent.Invoke(this, message.Topic);
+                    }
+                    else
+                    {
+                        if (SendError != null) SendError.Invoke(this, message.Topic);
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-
+                    if (ClientError != null) ClientError.Invoke(this, ex);
                 }
             }
         }
@@ -129,10 +163,17 @@ namespace MTConnect.Clients
         {
             if (mqttServer != null && observation != null)
             {
-                var message = CreateMessage(observation);
-                var injectedMessage = new InjectedMqttApplicationMessage(message);
+                try
+                {
+                    var message = CreateMessage(observation);
+                    var injectedMessage = new InjectedMqttApplicationMessage(message);
 
-                await mqttServer.InjectApplicationMessage(injectedMessage);
+                    await mqttServer.InjectApplicationMessage(injectedMessage);
+                }
+                catch (Exception ex)
+                {
+                    if (ServerError != null) ServerError.Invoke(this, ex);
+                }
             }
         }
 
@@ -140,10 +181,17 @@ namespace MTConnect.Clients
         {
             if (mqttServer != null && !observations.IsNullOrEmpty())
             {
-                var message = CreateMessage(observations);
-                var injectedMessage = new InjectedMqttApplicationMessage(message);
+                try
+                {
+                    var message = CreateMessage(observations);
+                    var injectedMessage = new InjectedMqttApplicationMessage(message);
 
-                await mqttServer.InjectApplicationMessage(injectedMessage);
+                    await mqttServer.InjectApplicationMessage(injectedMessage);
+                }
+                catch (Exception ex)
+                {
+                    if (ServerError != null) ServerError.Invoke(this, ex);
+                }
             }
         }
 
@@ -215,15 +263,22 @@ namespace MTConnect.Clients
         {
             if (mqttClient != null && mqttClient.IsConnected && asset != null)
             {
-                var message = CreateMessage(asset);
-                var result = await mqttClient.PublishAsync(message);
-                if (result.IsSuccess)
+                try
                 {
-
+                    var message = CreateMessage(asset);
+                    var result = await mqttClient.PublishAsync(message);
+                    if (result.IsSuccess)
+                    {
+                        if (MessageSent != null) MessageSent.Invoke(this, message.Topic);
+                    }
+                    else
+                    {
+                        if (SendError != null) SendError.Invoke(this, message.Topic);
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-
+                    if (ClientError != null) ClientError.Invoke(this, ex);
                 }
             }
         }
@@ -232,10 +287,17 @@ namespace MTConnect.Clients
         {
             if (mqttServer != null && asset != null)
             {
-                var message = CreateMessage(asset);
-                var injectedMessage = new InjectedMqttApplicationMessage(message);
+                try
+                {
+                    var message = CreateMessage(asset);
+                    var injectedMessage = new InjectedMqttApplicationMessage(message);
 
-                await mqttServer.InjectApplicationMessage(injectedMessage);
+                    await mqttServer.InjectApplicationMessage(injectedMessage);
+                }
+                catch (Exception ex)
+                {
+                    if (ServerError != null) ServerError.Invoke(this, ex);
+                }
             }
         }
 
