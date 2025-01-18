@@ -1,4 +1,4 @@
-// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2025 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Assets;
@@ -31,16 +31,15 @@ namespace MTConnect.Formatters.Xml
 
                 try
                 {
-                    using (var outputStream = new MemoryStream())
-                    {
-                        // Use XmlWriter to write XML to stream
-                        using (var xmlWriter = XmlWriter.Create(outputStream, settings))
-                        {
-                            XmlDevice.WriteXml(xmlWriter, device);
-                            xmlWriter.Flush();
+                    var outputStream = new MemoryStream();
 
-                            return FormatWriteResult.Successful(outputStream, ContentType);
-                        }
+                    // Use XmlWriter to write XML to stream
+                    using (var xmlWriter = XmlWriter.Create(outputStream, settings))
+                    {
+                        XmlDevice.WriteXml(xmlWriter, device);
+                        xmlWriter.Flush();
+
+                        return FormatWriteResult.Successful(outputStream, ContentType);
                     }
                 }
                 catch { }
@@ -53,13 +52,18 @@ namespace MTConnect.Formatters.Xml
         {
             if (observation != null)
             {
+                var indentOuput = GetFormatterOption<bool>(options, "indentOutput");
+                var settings = indentOuput ? XmlFunctions.XmlWriterSettingsIndent : XmlFunctions.XmlWriterSettings;
+
                 try
                 {
-                    using (var outputStream = new MemoryStream())
+                    var outputStream = new MemoryStream();
+
+                    // Use XmlWriter to write XML to stream
+                    using (var xmlWriter = XmlWriter.Create(outputStream, settings))
                     {
-                        // Use XmlWriter to write XML to stream
-                        var xmlWriter = XmlWriter.Create(outputStream, XmlFunctions.XmlWriterSettings);
                         XmlObservation.WriteXml(xmlWriter, observation);
+                        xmlWriter.Flush();
 
                         return FormatWriteResult.Successful(outputStream, ContentType);
                     }
@@ -74,19 +78,24 @@ namespace MTConnect.Formatters.Xml
         {
             if (!observations.IsNullOrEmpty())
             {
+                var indentOuput = GetFormatterOption<bool>(options, "indentOutput");
+                var settings = indentOuput ? XmlFunctions.XmlWriterSettingsIndent : XmlFunctions.XmlWriterSettings;
+
                 try
                 {
-                    using (var outputStream = new MemoryStream())
+                    var outputStream = new MemoryStream();
+
+                    // Use XmlWriter to write XML to stream
+                    using (var xmlWriter = XmlWriter.Create(outputStream, settings))
                     {
                         foreach (var observation in observations)
                         {
-                            // Use XmlWriter to write XML to stream
-                            var xmlWriter = XmlWriter.Create(outputStream, XmlFunctions.XmlWriterSettings);
                             XmlObservation.WriteXml(xmlWriter, observation);
+                            xmlWriter.Flush();
                         }
-
-                        return FormatWriteResult.Successful(outputStream, ContentType);
                     }
+
+                    return FormatWriteResult.Successful(outputStream, ContentType);
                 }
                 catch { }
             }
