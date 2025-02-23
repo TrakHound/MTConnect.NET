@@ -1,28 +1,28 @@
 // Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-// MTConnect SysML v2.3 : UML ID = _19_0_3_45f01b9_1580378218209_919961_1605
+// MTConnect SysML v2.3 : UML ID = _2024x_68e0225_1727729265551_24591_24648
 
 namespace MTConnect.Devices.DataItems
 {
     /// <summary>
-    /// Maximum amount of fluid that can be held by a container.
+    /// Size of particles counted by their size or other characteristics.
     /// </summary>
-    public class CapacityFluidDataItem : DataItem
+    public class ParticleSizeDataItem : DataItem
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
-        public const string TypeId = "CAPACITY_FLUID";
-        public const string NameId = "capacityFluid";
+        public const string TypeId = "PARTICLE_SIZE";
+        public const string NameId = "particleSize";
              
-        public const string DefaultUnits = Devices.Units.MILLILITER;     
-        public new const string DescriptionText = "Maximum amount of fluid that can be held by a container.";
+        public const string DefaultUnits = Devices.Units.MILLIMETER;     
+        public new const string DescriptionText = "Size of particles counted by their size or other characteristics.";
         
         public override string TypeDescription => DescriptionText;
         
-        public override System.Version MinimumVersion => MTConnectVersions.Version15;       
+               
 
 
-        public CapacityFluidDataItem()
+        public ParticleSizeDataItem()
         {
             Category = CategoryId;
             Type = TypeId;
@@ -31,7 +31,7 @@ namespace MTConnect.Devices.DataItems
             Units = DefaultUnits;
         }
 
-        public CapacityFluidDataItem(string deviceId)
+        public ParticleSizeDataItem(string deviceId)
         {
             Id = CreateId(deviceId, NameId);
             Category = CategoryId;

@@ -6,7 +6,7 @@
 namespace MTConnect.Devices.DataItems
 {
     /// <summary>
-    /// Set of limits used to trigger warning or alarm indicators.**DEPRECATION WARNING**. Recommend using `ALARM_LIMITS`.
+    /// Set of limits used to trigger warning or alarm indicators.**DEPRECATED** in *Version 2.5*. Replaced by  `ALARM_LIMITS`.
     /// </summary>
     public class AlarmLimitDataItem : DataItem
     {
@@ -15,7 +15,7 @@ namespace MTConnect.Devices.DataItems
         public const string NameId = "alarmLimit";
         public const DataItemRepresentation DefaultRepresentation = DataItemRepresentation.TABLE;     
              
-        public new const string DescriptionText = "Set of limits used to trigger warning or alarm indicators.**DEPRECATION WARNING**. Recommend using `ALARM_LIMITS`.";
+        public new const string DescriptionText = "Set of limits used to trigger warning or alarm indicators.**DEPRECATED** in *Version 2.5*. Replaced by  `ALARM_LIMITS`.";
         
         public override string TypeDescription => DescriptionText;
         

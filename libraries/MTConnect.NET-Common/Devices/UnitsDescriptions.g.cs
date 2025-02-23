@@ -6,19 +6,19 @@ namespace MTConnect.Devices
     public static class UnitsDescriptions
     {
         /// <summary>
-        /// Amps.
+        /// Electric current in ampere.
         /// </summary>
-        public const string AMPERE = "Amps.";
+        public const string AMPERE = "Electric current in ampere.";
         
         /// <summary>
-        /// Degrees Celsius.
+        /// Temperature in degree Celsius.
         /// </summary>
-        public const string CELSIUS = "Degrees Celsius.";
+        public const string CELSIUS = "Temperature in degree Celsius.";
         
         /// <summary>
-        /// Electric charge in coulombs (C).
+        /// Electric charge in coulomb.
         /// </summary>
-        public const string COULOMB = "Electric charge in coulombs (C).";
+        public const string COULOMB = "Electric charge in coulomb.";
         
         /// <summary>
         /// Count of something.
@@ -26,19 +26,19 @@ namespace MTConnect.Devices
         public const string COUNT = "Count of something.";
         
         /// <summary>
-        /// Counts per second.
+        /// Frequency in count per second.
         /// </summary>
-        public const string COUNT_PER_SECOND = "Counts per second.";
+        public const string COUNT_PER_SECOND = "Frequency in count per second.";
         
         /// <summary>
-        /// Geometric volume in meters.
+        /// Geometric volume in meter.
         /// </summary>
-        public const string CUBIC_METER = "Geometric volume in meters.";
+        public const string CUBIC_METER = "Geometric volume in meter.";
         
         /// <summary>
-        /// Geometric volume in millimeters.
+        /// Geometric volume in millimeter.
         /// </summary>
-        public const string CUBIC_MILLIMETER = "Geometric volume in millimeters.";
+        public const string CUBIC_MILLIMETER = "Geometric volume in millimeter.";
         
         /// <summary>
         /// Change of geometric volume per second.
@@ -51,14 +51,14 @@ namespace MTConnect.Devices
         public const string CUBIC_MILLIMETER_PER_SECOND_SQUARED = "Change in geometric volume per second squared.";
         
         /// <summary>
-        /// Sound level.
+        /// Sound level in decibel.
         /// </summary>
-        public const string DECIBEL = "Sound level.";
+        public const string DECIBEL = "Sound level in decibel.";
         
         /// <summary>
-        /// Angle in degrees.
+        /// Angle in degree.
         /// </summary>
-        public const string DEGREE = "Angle in degrees.";
+        public const string DEGREE = "Angle in degree.";
         
         /// <summary>
         /// Space-delimited, floating-point representation of the angular rotation in degrees around the X, Y, and Z axes relative to a cartesian coordinate system respectively in order as A, B, and C. If any of the rotations is not known, it **MUST** be zero (0).
@@ -66,79 +66,79 @@ namespace MTConnect.Devices
         public const string DEGREE_3D = "Space-delimited, floating-point representation of the angular rotation in degrees around the X, Y, and Z axes relative to a cartesian coordinate system respectively in order as A, B, and C. If any of the rotations is not known, it **MUST** be zero (0).";
         
         /// <summary>
-        /// Angular degrees per second.
+        /// Angular velocity in degree per second.
         /// </summary>
-        public const string DEGREE_PER_SECOND = "Angular degrees per second.";
+        public const string DEGREE_PER_SECOND = "Angular velocity in degree per second.";
         
         /// <summary>
-        /// Angular acceleration in degrees per second squared.
+        /// Angular acceleration in degree per second squared.
         /// </summary>
-        public const string DEGREE_PER_SECOND_SQUARED = "Angular acceleration in degrees per second squared.";
+        public const string DEGREE_PER_SECOND_SQUARED = "Angular acceleration in degree per second squared.";
         
         /// <summary>
-        /// Gram.
+        /// Mass in gram.
         /// </summary>
-        public const string GRAM = "Gram.";
+        public const string GRAM = "Mass in gram.";
         
         /// <summary>
-        /// Gram per cubic meter.
+        /// Density in gram per cubic meter.
         /// </summary>
-        public const string GRAM_PER_CUBIC_METER = "Gram per cubic meter.";
+        public const string GRAM_PER_CUBIC_METER = "Density in gram per cubic meter.";
         
         /// <summary>
-        /// Frequency measured in cycles per second.
+        /// Frequency in cycles per second.
         /// </summary>
-        public const string HERTZ = "Frequency measured in cycles per second.";
+        public const string HERTZ = "Frequency in cycles per second.";
         
         /// <summary>
-        /// Measurement of energy.
+        /// Energy in joule.
         /// </summary>
-        public const string JOULE = "Measurement of energy.";
+        public const string JOULE = "Energy in joule.";
         
         /// <summary>
-        /// Kilograms.
+        /// Mass in kilogram.
         /// </summary>
-        public const string KILOGRAM = "Kilograms.";
+        public const string KILOGRAM = "Mass in kilogram.";
         
         /// <summary>
-        /// Measurement of volume of a fluid.
+        /// Volume in liter.
         /// </summary>
-        public const string LITER = "Measurement of volume of a fluid.";
+        public const string LITER = "Volume in liter.";
         
         /// <summary>
-        /// Liters per second.
+        /// Volumetric flow in liter per second.
         /// </summary>
-        public const string LITER_PER_SECOND = "Liters per second.";
+        public const string LITER_PER_SECOND = "Volumetric flow in liter per second.";
         
         /// <summary>
-        /// Acceleration in meters per second squared.
+        /// Acceleration in meter per second squared.
         /// </summary>
-        public const string METER_PER_SECOND_SQUARED = "Acceleration in meters per second squared.";
+        public const string METER_PER_SECOND_SQUARED = "Acceleration in meter per second squared.";
         
         /// <summary>
-        /// Measurement of tilt.
+        /// Tilt in micro radian.
         /// </summary>
-        public const string MICRO_RADIAN = "Measurement of tilt.";
+        public const string MICRO_RADIAN = "Tilt in micro radian.";
         
         /// <summary>
-        /// Milligram.
+        /// Mass in milligram.
         /// </summary>
-        public const string MILLIGRAM = "Milligram.";
+        public const string MILLIGRAM = "Mass in milligram.";
         
         /// <summary>
-        /// Milligram per cubic millimeter.
+        /// Density in milligram per cubic millimeter.
         /// </summary>
-        public const string MILLIGRAM_PER_CUBIC_MILLIMETER = "Milligram per cubic millimeter.";
+        public const string MILLIGRAM_PER_CUBIC_MILLIMETER = "Density in milligram per cubic millimeter.";
         
         /// <summary>
-        /// Milliliter.
+        /// Volume in milliliter.
         /// </summary>
-        public const string MILLILITER = "Milliliter.";
+        public const string MILLILITER = "Volume in milliliter.";
         
         /// <summary>
-        /// Millimeters.
+        /// Length in millimeter.
         /// </summary>
-        public const string MILLIMETER = "Millimeters.";
+        public const string MILLIMETER = "Length in millimeter.";
         
         /// <summary>
         /// Point in space identified by X, Y, and Z positions and represented by a space-delimited set of numbers each expressed in millimeters.
@@ -146,64 +146,69 @@ namespace MTConnect.Devices
         public const string MILLIMETER_3D = "Point in space identified by X, Y, and Z positions and represented by a space-delimited set of numbers each expressed in millimeters.";
         
         /// <summary>
-        /// Millimeters per revolution.
+        /// Feedrate per revolution in millimeter per revolution.
         /// </summary>
-        public const string MILLIMETER_PER_REVOLUTION = "Millimeters per revolution.";
+        public const string MILLIMETER_PER_REVOLUTION = "Feedrate per revolution in millimeter per revolution.";
         
         /// <summary>
-        /// Millimeters per second.
+        /// Speed in millimeter per second.
         /// </summary>
-        public const string MILLIMETER_PER_SECOND = "Millimeters per second.";
+        public const string MILLIMETER_PER_SECOND = "Speed in millimeter per second.";
         
         /// <summary>
-        /// Acceleration in millimeters per second squared.
+        /// Acceleration in millimeter per second squared.
         /// </summary>
-        public const string MILLIMETER_PER_SECOND_SQUARED = "Acceleration in millimeters per second squared.";
+        public const string MILLIMETER_PER_SECOND_SQUARED = "Acceleration in millimeter per second squared.";
         
         /// <summary>
-        /// Force in Newtons.
+        /// Force in newton.
         /// </summary>
-        public const string NEWTON = "Force in Newtons.";
+        public const string NEWTON = "Force in newton.";
         
         /// <summary>
-        /// Torque, a unit for force times distance.
+        /// Torque in newton-meter.
         /// </summary>
-        public const string NEWTON_METER = "Torque, a unit for force times distance.";
+        public const string NEWTON_METER = "Torque in newton-meter.";
         
         /// <summary>
-        /// Measure of electrical resistance.
+        /// Electrical resistance in ohm.
         /// </summary>
-        public const string OHM = "Measure of electrical resistance.";
+        public const string OHM = "Electrical resistance in ohm.";
         
         /// <summary>
-        /// Pressure in Newtons per square meter.
+        /// Resistivity in ohm-meter.
         /// </summary>
-        public const string PASCAL = "Pressure in Newtons per square meter.";
+        public const string OHM_METER = "Resistivity in ohm-meter.";
         
         /// <summary>
-        /// Measurement of viscosity.
+        /// Pressure or stress in pascal.
         /// </summary>
-        public const string PASCAL_SECOND = "Measurement of viscosity.";
+        public const string PASCAL = "Pressure or stress in pascal.";
         
         /// <summary>
-        /// Pascal per second.
+        /// Viscosity in pascal-second.
         /// </summary>
-        public const string PASCAL_PER_SECOND = "Pascal per second.";
+        public const string PASCAL_SECOND = "Viscosity in pascal-second.";
         
         /// <summary>
-        /// Percentage.
+        /// Pressurization rate in pascal per second.
         /// </summary>
-        public const string PERCENT = "Percentage.";
+        public const string PASCAL_PER_SECOND = "Pressurization rate in pascal per second.";
         
         /// <summary>
-        /// Measure of the acidity or alkalinity of a solution.
+        /// Amount in or for every hundred.
         /// </summary>
-        public const string PH = "Measure of the acidity or alkalinity of a solution.";
+        public const string PERCENT = "Amount in or for every hundred.";
         
         /// <summary>
-        /// Revolutions per minute.
+        /// Acidity or alkalinity of a solution in pH.
         /// </summary>
-        public const string REVOLUTION_PER_MINUTE = "Revolutions per minute.";
+        public const string PH = "Acidity or alkalinity of a solution in pH.";
+        
+        /// <summary>
+        /// Rotational velocity in revolution per minute.
+        /// </summary>
+        public const string REVOLUTION_PER_MINUTE = "Rotational velocity in revolution per minute.";
         
         /// <summary>
         /// Rotational velocity in revolution per second.
@@ -211,24 +216,24 @@ namespace MTConnect.Devices
         public const string REVOLUTION_PER_SECOND = "Rotational velocity in revolution per second.";
         
         /// <summary>
-        /// Revolutions per second squared.
+        /// Rotational acceleration in revolution per second squared.
         /// </summary>
-        public const string REVOLUTION_PER_SECOND_SQUARED = "Revolutions per second squared.";
+        public const string REVOLUTION_PER_SECOND_SQUARED = "Rotational acceleration in revolution per second squared.";
         
         /// <summary>
-        /// Measurement of time.
+        /// Time in second.
         /// </summary>
-        public const string SECOND = "Measurement of time.";
+        public const string SECOND = "Time in second.";
         
         /// <summary>
-        /// Measurement of electrical conductivity.
+        /// Electrical conductivity in siemens per meter.
         /// </summary>
-        public const string SIEMENS_PER_METER = "Measurement of electrical conductivity.";
+        public const string SIEMENS_PER_METER = "Electrical conductivity in siemens per meter.";
         
         /// <summary>
-        /// Geometric area in millimeters.
+        /// Geometric area in millimeter.
         /// </summary>
-        public const string SQUARE_MILLIMETER = "Geometric area in millimeters.";
+        public const string SQUARE_MILLIMETER = "Geometric area in millimeter.";
         
         /// <summary>
         /// 3D Unit Vector.Space delimited list of three floating point numbers.
@@ -236,86 +241,87 @@ namespace MTConnect.Devices
         public const string UNIT_VECTOR_3D = "3D Unit Vector.Space delimited list of three floating point numbers.";
         
         /// <summary>
-        /// Volts.
+        /// Electric potential, electric potential difference or electromotive force in volt.
         /// </summary>
-        public const string VOLT = "Volts.";
+        public const string VOLT = "Electric potential, electric potential difference or electromotive force in volt.";
         
         /// <summary>
-        /// Measurement of the apparent power in an electrical circuit, equal to the product of root-mean-square (RMS) voltage and RMS current (commonly referred to as VA).
+        /// Apparent power in an electrical circuit, equal to the product of root-mean-square (RMS) voltage and RMS current (commonly referred to as VA) in volt-ampere.
         /// </summary>
-        public const string VOLT_AMPERE = "Measurement of the apparent power in an electrical circuit, equal to the product of root-mean-square (RMS) voltage and RMS current (commonly referred to as VA).";
+        public const string VOLT_AMPERE = "Apparent power in an electrical circuit, equal to the product of root-mean-square (RMS) voltage and RMS current (commonly referred to as VA) in volt-ampere.";
         
         /// <summary>
-        /// Measurement of reactive power in an AC electrical circuit (commonly referred to as VAR).
+        /// Reactive power in an AC electrical circuit (commonly referred to as VAR) in volt-ampere-reactive.
         /// </summary>
-        public const string VOLT_AMPERE_REACTIVE = "Measurement of reactive power in an AC electrical circuit (commonly referred to as VAR).";
+        public const string VOLT_AMPERE_REACTIVE = "Reactive power in an AC electrical circuit (commonly referred to as VAR) in volt-ampere-reactive.";
         
         /// <summary>
-        /// Watts.
+        /// Power in watt.
         /// </summary>
-        public const string WATT = "Watts.";
+        public const string WATT = "Power in watt.";
         
         /// <summary>
-        /// Measurement of electrical energy, equal to one Joule.
+        /// Electrical energy in watt-second
         /// </summary>
-        public const string WATT_SECOND = "Measurement of electrical energy, equal to one Joule.";
+        public const string WATT_SECOND = "Electrical energy in watt-second";
 
 
         public static string Get(string value)
         {
             switch (value)
             {
-                case Units.AMPERE: return "Amps.";
-                case Units.CELSIUS: return "Degrees Celsius.";
-                case Units.COULOMB: return "Electric charge in coulombs (C).";
+                case Units.AMPERE: return "Electric current in ampere.";
+                case Units.CELSIUS: return "Temperature in degree Celsius.";
+                case Units.COULOMB: return "Electric charge in coulomb.";
                 case Units.COUNT: return "Count of something.";
-                case Units.COUNT_PER_SECOND: return "Counts per second.";
-                case Units.CUBIC_METER: return "Geometric volume in meters.";
-                case Units.CUBIC_MILLIMETER: return "Geometric volume in millimeters.";
+                case Units.COUNT_PER_SECOND: return "Frequency in count per second.";
+                case Units.CUBIC_METER: return "Geometric volume in meter.";
+                case Units.CUBIC_MILLIMETER: return "Geometric volume in millimeter.";
                 case Units.CUBIC_MILLIMETER_PER_SECOND: return "Change of geometric volume per second.";
                 case Units.CUBIC_MILLIMETER_PER_SECOND_SQUARED: return "Change in geometric volume per second squared.";
-                case Units.DECIBEL: return "Sound level.";
-                case Units.DEGREE: return "Angle in degrees.";
+                case Units.DECIBEL: return "Sound level in decibel.";
+                case Units.DEGREE: return "Angle in degree.";
                 case Units.DEGREE_3D: return "Space-delimited, floating-point representation of the angular rotation in degrees around the X, Y, and Z axes relative to a cartesian coordinate system respectively in order as A, B, and C. If any of the rotations is not known, it **MUST** be zero (0).";
-                case Units.DEGREE_PER_SECOND: return "Angular degrees per second.";
-                case Units.DEGREE_PER_SECOND_SQUARED: return "Angular acceleration in degrees per second squared.";
-                case Units.GRAM: return "Gram.";
-                case Units.GRAM_PER_CUBIC_METER: return "Gram per cubic meter.";
-                case Units.HERTZ: return "Frequency measured in cycles per second.";
-                case Units.JOULE: return "Measurement of energy.";
-                case Units.KILOGRAM: return "Kilograms.";
-                case Units.LITER: return "Measurement of volume of a fluid.";
-                case Units.LITER_PER_SECOND: return "Liters per second.";
-                case Units.METER_PER_SECOND_SQUARED: return "Acceleration in meters per second squared.";
-                case Units.MICRO_RADIAN: return "Measurement of tilt.";
-                case Units.MILLIGRAM: return "Milligram.";
-                case Units.MILLIGRAM_PER_CUBIC_MILLIMETER: return "Milligram per cubic millimeter.";
-                case Units.MILLILITER: return "Milliliter.";
-                case Units.MILLIMETER: return "Millimeters.";
+                case Units.DEGREE_PER_SECOND: return "Angular velocity in degree per second.";
+                case Units.DEGREE_PER_SECOND_SQUARED: return "Angular acceleration in degree per second squared.";
+                case Units.GRAM: return "Mass in gram.";
+                case Units.GRAM_PER_CUBIC_METER: return "Density in gram per cubic meter.";
+                case Units.HERTZ: return "Frequency in cycles per second.";
+                case Units.JOULE: return "Energy in joule.";
+                case Units.KILOGRAM: return "Mass in kilogram.";
+                case Units.LITER: return "Volume in liter.";
+                case Units.LITER_PER_SECOND: return "Volumetric flow in liter per second.";
+                case Units.METER_PER_SECOND_SQUARED: return "Acceleration in meter per second squared.";
+                case Units.MICRO_RADIAN: return "Tilt in micro radian.";
+                case Units.MILLIGRAM: return "Mass in milligram.";
+                case Units.MILLIGRAM_PER_CUBIC_MILLIMETER: return "Density in milligram per cubic millimeter.";
+                case Units.MILLILITER: return "Volume in milliliter.";
+                case Units.MILLIMETER: return "Length in millimeter.";
                 case Units.MILLIMETER_3D: return "Point in space identified by X, Y, and Z positions and represented by a space-delimited set of numbers each expressed in millimeters.";
-                case Units.MILLIMETER_PER_REVOLUTION: return "Millimeters per revolution.";
-                case Units.MILLIMETER_PER_SECOND: return "Millimeters per second.";
-                case Units.MILLIMETER_PER_SECOND_SQUARED: return "Acceleration in millimeters per second squared.";
-                case Units.NEWTON: return "Force in Newtons.";
-                case Units.NEWTON_METER: return "Torque, a unit for force times distance.";
-                case Units.OHM: return "Measure of electrical resistance.";
-                case Units.PASCAL: return "Pressure in Newtons per square meter.";
-                case Units.PASCAL_SECOND: return "Measurement of viscosity.";
-                case Units.PASCAL_PER_SECOND: return "Pascal per second.";
-                case Units.PERCENT: return "Percentage.";
-                case Units.PH: return "Measure of the acidity or alkalinity of a solution.";
-                case Units.REVOLUTION_PER_MINUTE: return "Revolutions per minute.";
+                case Units.MILLIMETER_PER_REVOLUTION: return "Feedrate per revolution in millimeter per revolution.";
+                case Units.MILLIMETER_PER_SECOND: return "Speed in millimeter per second.";
+                case Units.MILLIMETER_PER_SECOND_SQUARED: return "Acceleration in millimeter per second squared.";
+                case Units.NEWTON: return "Force in newton.";
+                case Units.NEWTON_METER: return "Torque in newton-meter.";
+                case Units.OHM: return "Electrical resistance in ohm.";
+                case Units.OHM_METER: return "Resistivity in ohm-meter.";
+                case Units.PASCAL: return "Pressure or stress in pascal.";
+                case Units.PASCAL_SECOND: return "Viscosity in pascal-second.";
+                case Units.PASCAL_PER_SECOND: return "Pressurization rate in pascal per second.";
+                case Units.PERCENT: return "Amount in or for every hundred.";
+                case Units.PH: return "Acidity or alkalinity of a solution in pH.";
+                case Units.REVOLUTION_PER_MINUTE: return "Rotational velocity in revolution per minute.";
                 case Units.REVOLUTION_PER_SECOND: return "Rotational velocity in revolution per second.";
-                case Units.REVOLUTION_PER_SECOND_SQUARED: return "Revolutions per second squared.";
-                case Units.SECOND: return "Measurement of time.";
-                case Units.SIEMENS_PER_METER: return "Measurement of electrical conductivity.";
-                case Units.SQUARE_MILLIMETER: return "Geometric area in millimeters.";
+                case Units.REVOLUTION_PER_SECOND_SQUARED: return "Rotational acceleration in revolution per second squared.";
+                case Units.SECOND: return "Time in second.";
+                case Units.SIEMENS_PER_METER: return "Electrical conductivity in siemens per meter.";
+                case Units.SQUARE_MILLIMETER: return "Geometric area in millimeter.";
                 case Units.UNIT_VECTOR_3D: return "3D Unit Vector.Space delimited list of three floating point numbers.";
-                case Units.VOLT: return "Volts.";
-                case Units.VOLT_AMPERE: return "Measurement of the apparent power in an electrical circuit, equal to the product of root-mean-square (RMS) voltage and RMS current (commonly referred to as VA).";
-                case Units.VOLT_AMPERE_REACTIVE: return "Measurement of reactive power in an AC electrical circuit (commonly referred to as VAR).";
-                case Units.WATT: return "Watts.";
-                case Units.WATT_SECOND: return "Measurement of electrical energy, equal to one Joule.";
+                case Units.VOLT: return "Electric potential, electric potential difference or electromotive force in volt.";
+                case Units.VOLT_AMPERE: return "Apparent power in an electrical circuit, equal to the product of root-mean-square (RMS) voltage and RMS current (commonly referred to as VA) in volt-ampere.";
+                case Units.VOLT_AMPERE_REACTIVE: return "Reactive power in an AC electrical circuit (commonly referred to as VAR) in volt-ampere-reactive.";
+                case Units.WATT: return "Power in watt.";
+                case Units.WATT_SECOND: return "Electrical energy in watt-second";
             }
 
             return null;

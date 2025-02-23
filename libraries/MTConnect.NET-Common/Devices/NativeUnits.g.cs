@@ -11,17 +11,17 @@ namespace MTConnect.Devices
         public const string AMPERE_HOUR = "AMPERE_HOUR";
         
         /// <summary>
-        /// Pressure in Bar.
+        /// Pressure in bar.
         /// </summary>
         public const string BAR = "BAR";
         
         /// <summary>
-        /// Measure of viscosity.
+        /// Viscosity in centipoise.
         /// </summary>
         public const string CENTIPOISE = "CENTIPOISE";
         
         /// <summary>
-        /// Geometric volume in feet.
+        /// Geometric volume in cubic foot.
         /// </summary>
         public const string CUBIC_FOOT = "CUBIC_FOOT";
         
@@ -36,7 +36,7 @@ namespace MTConnect.Devices
         public const string CUBIC_FOOT_PER_MINUTE = "CUBIC_FOOT/MINUTE";
         
         /// <summary>
-        /// Rotational velocity in degrees per minute.
+        /// Rotational velocity in degree per minute.
         /// </summary>
         public const string DEGREE_PER_MINUTE = "DEGREE/MINUTE";
         
@@ -46,7 +46,7 @@ namespace MTConnect.Devices
         public const string FAHRENHEIT = "FAHRENHEIT";
         
         /// <summary>
-        /// Feet.
+        /// Length in foot.
         /// </summary>
         public const string FOOT = "FOOT";
         
@@ -56,42 +56,42 @@ namespace MTConnect.Devices
         public const string FOOT_3D = "FOOT_3D";
         
         /// <summary>
-        /// Feet per minute.
+        /// Speed in foot per minute.
         /// </summary>
         public const string FOOT_PER_MINUTE = "FOOT/MINUTE";
         
         /// <summary>
-        /// Feet per second.
+        /// Speed in foot per second.
         /// </summary>
         public const string FOOT_PER_SECOND = "FOOT/SECOND";
         
         /// <summary>
-        /// Acceleration in feet per second squared.
+        /// Acceleration in foot per second squared.
         /// </summary>
         public const string FOOT_PER_SECOND_SQUARED = "FOOT/SECOND^2";
         
         /// <summary>
-        /// Gallons per minute.
+        /// Volumetric flow in gallon per minute.
         /// </summary>
         public const string GALLON_PER_MINUTE = "GALLON/MINUTE";
         
         /// <summary>
-        /// Acceleration relative to earth's gravity given in `METER/SECOND^2`.> Note 1 to entry: At different points on Earth's surface, the free-fall acceleration ranges from 9.764 to 9.834 m/s2 (Wikipedia: Gravitational Acceleration). The constant can be customized depending on the location in the universe.> Note 2 to entry: In the standard, it is assumed that Earth's average value of gravitational acceleration is 9.90665 m/s2.
+        /// Acceleration relative to earth's gravity given in meter per second squared.> Note 1 to entry: At different points on Earth's surface, the free-fall acceleration ranges from 9.764 to 9.834 m/s2 (Wikipedia: Gravitational Acceleration). The constant can be customized depending on the location in the universe.> Note 2 to entry: In the standard, it is assumed that Earth's average value of gravitational acceleration is 9.90665 m/s2.
         /// </summary>
         public const string GRAVITATIONAL_ACCELERATION = "GRAVITATIONAL_ACCELERATION";
         
         /// <summary>
-        /// $$MASS\times GRAVITATIONAL_ACCELERATION$$ (g) given in `METER/SECOND^2`.
+        /// `MASS` times `GRAVITATIONAL_ACCELERATION`  (g).
         /// </summary>
         public const string GRAVITATIONAL_FORCE = "GRAVITATIONAL_FORCE";
         
         /// <summary>
-        /// Measurement of time in hours.
+        /// Time in hour.
         /// </summary>
         public const string HOUR = "HOUR";
         
         /// <summary>
-        /// Inches.
+        /// Length in inch.
         /// </summary>
         public const string INCH = "INCH";
         
@@ -101,62 +101,72 @@ namespace MTConnect.Devices
         public const string INCH_3D = "INCH_3D";
         
         /// <summary>
-        /// Measure of torque in inch pounds.
+        /// Torque in inch pound.
         /// </summary>
         public const string INCH_POUND = "INCH_POUND";
         
         /// <summary>
-        /// Inches per minute.
+        /// Speed in inch per minute.
         /// </summary>
         public const string INCH_PER_MINUTE = "INCH/MINUTE";
         
         /// <summary>
-        /// Inch per revolution.
+        /// Feedrate per revolution in inch per revolution.
         /// </summary>
         public const string INCH_PER_REVOLUTION = "INCH/REVOLUTION";
         
         /// <summary>
-        /// Inches per second.
+        /// Speed in inch per second.
         /// </summary>
         public const string INCH_PER_SECOND = "INCH/SECOND";
         
         /// <summary>
-        /// Acceleration in inches per second squared.
+        /// Acceleration in inch per second squared.
         /// </summary>
         public const string INCH_PER_SECOND_SQUARED = "INCH/SECOND^2";
         
         /// <summary>
-        /// Measurement of temperature.
+        /// Temperature in Kelvin.
         /// </summary>
         public const string KELVIN = "KELVIN";
         
         /// <summary>
-        /// Measurement in kilowatt.
+        /// Power in kilowatt.
         /// </summary>
         public const string KILOWATT = "KILOWATT";
         
         /// <summary>
-        /// Kilowatt hours which is 3.6 mega joules.
+        /// Energy in kilowatt-hour.
         /// </summary>
         public const string KILOWATT_HOUR = "KILOWATT_HOUR";
         
         /// <summary>
-        /// Measurement of rate of flow of a fluid.
+        /// Volumetric flow in liter per minute.
         /// </summary>
         public const string LITER_PER_MINUTE = "LITER/MINUTE";
         
         /// <summary>
-        /// Pressure in Millimeter of Mercury (mmHg).
+        /// Length in micrometer.
+        /// </summary>
+        public const string MICROMETER = "MICROMETER";
+        
+        /// <summary>
+        /// Pressure in microtorr.
+        /// </summary>
+        public const string MICROTORR = "MICROTORR";
+        
+        /// <summary>
+        /// Pressure in millimeter of mercury (mmHg).
         /// </summary>
         public const string MILLIMETER_MERCURY = "MILLIMETER_MERCURY";
         
         /// <summary>
-        /// Velocity in millimeters per minute.
+        /// Speed in millimeter per minute.
         /// </summary>
         public const string MILLIMETER_PER_MINUTE = "MILLIMETER/MINUTE";
         
         /// <summary>
-        /// Measurement of time in minutes.
+        /// Time in minute.
         /// </summary>
         public const string MINUTE = "MINUTE";
         
@@ -166,47 +176,52 @@ namespace MTConnect.Devices
         public const string OTHER = "OTHER";
         
         /// <summary>
-        /// Pascal per minute.
+        /// Pressurization rate in pascal per minute.
         /// </summary>
         public const string PASCAL_PER_MINUTE = "PASCAL/MINUTE";
         
         /// <summary>
-        /// US pounds.
+        /// Mass in pound.
         /// </summary>
         public const string POUND = "POUND";
         
         /// <summary>
-        /// Pressure in pounds per square inch (PSI).
+        /// Pressure in pound per square inch (PSI).
         /// </summary>
         public const string POUND_PER_INCH_SQUARED = "POUND/INCH^2";
         
         /// <summary>
-        /// Angle in radians.
+        /// Angle in radian.
         /// </summary>
         public const string RADIAN = "RADIAN";
         
         /// <summary>
-        /// Velocity in radians per minute.
+        /// Angular velocity in radian per minute.
         /// </summary>
         public const string RADIAN_PER_MINUTE = "RADIAN/MINUTE";
         
         /// <summary>
-        /// Velocity in radians per second.
+        /// Angular velocity in radian per second.
         /// </summary>
         public const string RADIAN_PER_SECOND = "RADIAN/SECOND";
         
         /// <summary>
-        /// Acceleration in radians per second squared.
+        /// Angular acceleration in radian per second squared.
         /// </summary>
         public const string RADIAN_PER_SECOND_SQUARED = "RADIAN/SECOND^2";
         
         /// <summary>
-        /// Geometric area in inches.
+        /// Temperature in Rankine.
+        /// </summary>
+        public const string RANKINE = "RANKINE";
+        
+        /// <summary>
+        /// Geometric area in inch squared.
         /// </summary>
         public const string SQUARE_INCH = "SQUARE_INCH";
         
         /// <summary>
-        /// Pressure in Torr.
+        /// Pressure in torr.
         /// </summary>
         public const string TORR = "TORR";
     }

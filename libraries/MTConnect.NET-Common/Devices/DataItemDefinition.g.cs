@@ -19,9 +19,9 @@ namespace MTConnect.Devices
         public System.Collections.Generic.IEnumerable<MTConnect.Devices.ICellDefinition> CellDefinitions { get; set; }
         
         /// <summary>
-        /// Descriptive content.
+        /// Textual description for Definition.
         /// </summary>
-        public MTConnect.Devices.IDescription Description { get; set; }
+        public string Description { get; set; }
         
         /// <summary>
         /// Semantic definition of an Entry.

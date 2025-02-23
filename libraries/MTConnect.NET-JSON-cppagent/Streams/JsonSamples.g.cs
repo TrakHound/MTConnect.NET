@@ -189,6 +189,11 @@ namespace MTConnect.Streams.Json
                 if (!EquipmentTimerTable.IsNullOrEmpty()) foreach (var x in EquipmentTimerTable) l.Add(x.ToObservation(EquipmentTimerDataItem.TypeId));
                 if (!EquipmentTimerTimeSeries.IsNullOrEmpty()) foreach (var x in EquipmentTimerTimeSeries) l.Add(x.ToObservation(EquipmentTimerDataItem.TypeId));
 
+                if (!FillHeight.IsNullOrEmpty()) foreach (var x in FillHeight) l.Add(x.ToObservation(FillHeightDataItem.TypeId));
+                if (!FillHeightDataSet.IsNullOrEmpty()) foreach (var x in FillHeightDataSet) l.Add(x.ToObservation(FillHeightDataItem.TypeId));
+                if (!FillHeightTable.IsNullOrEmpty()) foreach (var x in FillHeightTable) l.Add(x.ToObservation(FillHeightDataItem.TypeId));
+                if (!FillHeightTimeSeries.IsNullOrEmpty()) foreach (var x in FillHeightTimeSeries) l.Add(x.ToObservation(FillHeightDataItem.TypeId));
+
                 if (!FillLevel.IsNullOrEmpty()) foreach (var x in FillLevel) l.Add(x.ToObservation(FillLevelDataItem.TypeId));
                 if (!FillLevelDataSet.IsNullOrEmpty()) foreach (var x in FillLevelDataSet) l.Add(x.ToObservation(FillLevelDataItem.TypeId));
                 if (!FillLevelTable.IsNullOrEmpty()) foreach (var x in FillLevelTable) l.Add(x.ToObservation(FillLevelDataItem.TypeId));
@@ -289,6 +294,16 @@ namespace MTConnect.Streams.Json
                 if (!OrientationTable.IsNullOrEmpty()) foreach (var x in OrientationTable) l.Add(x.ToObservation(OrientationDataItem.TypeId));
                 if (!OrientationTimeSeries.IsNullOrEmpty()) foreach (var x in OrientationTimeSeries) l.Add(x.ToObservation(OrientationDataItem.TypeId));
 
+                if (!ParticleCount.IsNullOrEmpty()) foreach (var x in ParticleCount) l.Add(x.ToObservation(ParticleCountDataItem.TypeId));
+                if (!ParticleCountDataSet.IsNullOrEmpty()) foreach (var x in ParticleCountDataSet) l.Add(x.ToObservation(ParticleCountDataItem.TypeId));
+                if (!ParticleCountTable.IsNullOrEmpty()) foreach (var x in ParticleCountTable) l.Add(x.ToObservation(ParticleCountDataItem.TypeId));
+                if (!ParticleCountTimeSeries.IsNullOrEmpty()) foreach (var x in ParticleCountTimeSeries) l.Add(x.ToObservation(ParticleCountDataItem.TypeId));
+
+                if (!ParticleSize.IsNullOrEmpty()) foreach (var x in ParticleSize) l.Add(x.ToObservation(ParticleSizeDataItem.TypeId));
+                if (!ParticleSizeDataSet.IsNullOrEmpty()) foreach (var x in ParticleSizeDataSet) l.Add(x.ToObservation(ParticleSizeDataItem.TypeId));
+                if (!ParticleSizeTable.IsNullOrEmpty()) foreach (var x in ParticleSizeTable) l.Add(x.ToObservation(ParticleSizeDataItem.TypeId));
+                if (!ParticleSizeTimeSeries.IsNullOrEmpty()) foreach (var x in ParticleSizeTimeSeries) l.Add(x.ToObservation(ParticleSizeDataItem.TypeId));
+
                 if (!PathFeedrate.IsNullOrEmpty()) foreach (var x in PathFeedrate) l.Add(x.ToObservation(PathFeedrateDataItem.TypeId));
                 if (!PathFeedrateDataSet.IsNullOrEmpty()) foreach (var x in PathFeedrateDataSet) l.Add(x.ToObservation(PathFeedrateDataItem.TypeId));
                 if (!PathFeedrateTable.IsNullOrEmpty()) foreach (var x in PathFeedrateTable) l.Add(x.ToObservation(PathFeedrateDataItem.TypeId));
@@ -348,6 +363,11 @@ namespace MTConnect.Streams.Json
                 if (!ResistanceDataSet.IsNullOrEmpty()) foreach (var x in ResistanceDataSet) l.Add(x.ToObservation(ResistanceDataItem.TypeId));
                 if (!ResistanceTable.IsNullOrEmpty()) foreach (var x in ResistanceTable) l.Add(x.ToObservation(ResistanceDataItem.TypeId));
                 if (!ResistanceTimeSeries.IsNullOrEmpty()) foreach (var x in ResistanceTimeSeries) l.Add(x.ToObservation(ResistanceDataItem.TypeId));
+
+                if (!Resistivity.IsNullOrEmpty()) foreach (var x in Resistivity) l.Add(x.ToObservation(ResistivityDataItem.TypeId));
+                if (!ResistivityDataSet.IsNullOrEmpty()) foreach (var x in ResistivityDataSet) l.Add(x.ToObservation(ResistivityDataItem.TypeId));
+                if (!ResistivityTable.IsNullOrEmpty()) foreach (var x in ResistivityTable) l.Add(x.ToObservation(ResistivityDataItem.TypeId));
+                if (!ResistivityTimeSeries.IsNullOrEmpty()) foreach (var x in ResistivityTimeSeries) l.Add(x.ToObservation(ResistivityDataItem.TypeId));
 
                 if (!RotaryVelocity.IsNullOrEmpty()) foreach (var x in RotaryVelocity) l.Add(x.ToObservation(RotaryVelocityDataItem.TypeId));
                 if (!RotaryVelocityDataSet.IsNullOrEmpty()) foreach (var x in RotaryVelocityDataSet) l.Add(x.ToObservation(RotaryVelocityDataItem.TypeId));
@@ -915,6 +935,19 @@ namespace MTConnect.Streams.Json
         public IEnumerable<JsonSampleTimeSeries> EquipmentTimerTimeSeries { get; set; }
 
 
+        [JsonPropertyName("FillHeight")]
+        public IEnumerable<JsonSampleValue> FillHeight { get; set; }
+
+        [JsonPropertyName("FillHeightDataSet")]
+        public IEnumerable<JsonSampleDataSet> FillHeightDataSet { get; set; }
+
+        [JsonPropertyName("FillHeightTable")]
+        public IEnumerable<JsonSampleTable> FillHeightTable { get; set; }
+
+        [JsonPropertyName("FillHeightTimeSeries")]
+        public IEnumerable<JsonSampleTimeSeries> FillHeightTimeSeries { get; set; }
+
+
         [JsonPropertyName("FillLevel")]
         public IEnumerable<JsonSampleValue> FillLevel { get; set; }
 
@@ -1175,6 +1208,32 @@ namespace MTConnect.Streams.Json
         public IEnumerable<JsonSampleTimeSeries> OrientationTimeSeries { get; set; }
 
 
+        [JsonPropertyName("ParticleCount")]
+        public IEnumerable<JsonSampleValue> ParticleCount { get; set; }
+
+        [JsonPropertyName("ParticleCountDataSet")]
+        public IEnumerable<JsonSampleDataSet> ParticleCountDataSet { get; set; }
+
+        [JsonPropertyName("ParticleCountTable")]
+        public IEnumerable<JsonSampleTable> ParticleCountTable { get; set; }
+
+        [JsonPropertyName("ParticleCountTimeSeries")]
+        public IEnumerable<JsonSampleTimeSeries> ParticleCountTimeSeries { get; set; }
+
+
+        [JsonPropertyName("ParticleSize")]
+        public IEnumerable<JsonSampleValue> ParticleSize { get; set; }
+
+        [JsonPropertyName("ParticleSizeDataSet")]
+        public IEnumerable<JsonSampleDataSet> ParticleSizeDataSet { get; set; }
+
+        [JsonPropertyName("ParticleSizeTable")]
+        public IEnumerable<JsonSampleTable> ParticleSizeTable { get; set; }
+
+        [JsonPropertyName("ParticleSizeTimeSeries")]
+        public IEnumerable<JsonSampleTimeSeries> ParticleSizeTimeSeries { get; set; }
+
+
         [JsonPropertyName("PathFeedrate")]
         public IEnumerable<JsonSampleValue> PathFeedrate { get; set; }
 
@@ -1329,6 +1388,19 @@ namespace MTConnect.Streams.Json
 
         [JsonPropertyName("ResistanceTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> ResistanceTimeSeries { get; set; }
+
+
+        [JsonPropertyName("Resistivity")]
+        public IEnumerable<JsonSampleValue> Resistivity { get; set; }
+
+        [JsonPropertyName("ResistivityDataSet")]
+        public IEnumerable<JsonSampleDataSet> ResistivityDataSet { get; set; }
+
+        [JsonPropertyName("ResistivityTable")]
+        public IEnumerable<JsonSampleTable> ResistivityTable { get; set; }
+
+        [JsonPropertyName("ResistivityTimeSeries")]
+        public IEnumerable<JsonSampleTimeSeries> ResistivityTimeSeries { get; set; }
 
 
         [JsonPropertyName("RotaryVelocity")]
@@ -3319,6 +3391,55 @@ namespace MTConnect.Streams.Json
                     }
 
 
+                    // Add FillHeight
+                    typeObservations = observations.Where(o => o.Type == FillHeightDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonSampleValue>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonSampleValue(observation));
+                        }
+                        FillHeight = jsonObservations;
+                    }
+
+                    // Add FillHeightDataSet
+                    typeObservations = observations.Where(o => o.Type == FillHeightDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonSampleDataSet>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonSampleDataSet(observation));
+                        }
+                        FillHeightDataSet = jsonObservations;
+                    }
+
+                    // Add FillHeightTable
+                    typeObservations = observations.Where(o => o.Type == FillHeightDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonSampleTable>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonSampleTable(observation));
+                        }
+                        FillHeightTable = jsonObservations;
+                    }
+
+                    // Add FillHeightTimeSeries
+                    typeObservations = observations.Where(o => o.Type == FillHeightDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonSampleTimeSeries>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonSampleTimeSeries(observation));
+                        }
+                        FillHeightTimeSeries = jsonObservations;
+                    }
+
+
                     // Add FillLevel
                     typeObservations = observations.Where(o => o.Type == FillLevelDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
@@ -4299,6 +4420,104 @@ namespace MTConnect.Streams.Json
                     }
 
 
+                    // Add ParticleCount
+                    typeObservations = observations.Where(o => o.Type == ParticleCountDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonSampleValue>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonSampleValue(observation));
+                        }
+                        ParticleCount = jsonObservations;
+                    }
+
+                    // Add ParticleCountDataSet
+                    typeObservations = observations.Where(o => o.Type == ParticleCountDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonSampleDataSet>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonSampleDataSet(observation));
+                        }
+                        ParticleCountDataSet = jsonObservations;
+                    }
+
+                    // Add ParticleCountTable
+                    typeObservations = observations.Where(o => o.Type == ParticleCountDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonSampleTable>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonSampleTable(observation));
+                        }
+                        ParticleCountTable = jsonObservations;
+                    }
+
+                    // Add ParticleCountTimeSeries
+                    typeObservations = observations.Where(o => o.Type == ParticleCountDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonSampleTimeSeries>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonSampleTimeSeries(observation));
+                        }
+                        ParticleCountTimeSeries = jsonObservations;
+                    }
+
+
+                    // Add ParticleSize
+                    typeObservations = observations.Where(o => o.Type == ParticleSizeDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonSampleValue>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonSampleValue(observation));
+                        }
+                        ParticleSize = jsonObservations;
+                    }
+
+                    // Add ParticleSizeDataSet
+                    typeObservations = observations.Where(o => o.Type == ParticleSizeDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonSampleDataSet>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonSampleDataSet(observation));
+                        }
+                        ParticleSizeDataSet = jsonObservations;
+                    }
+
+                    // Add ParticleSizeTable
+                    typeObservations = observations.Where(o => o.Type == ParticleSizeDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonSampleTable>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonSampleTable(observation));
+                        }
+                        ParticleSizeTable = jsonObservations;
+                    }
+
+                    // Add ParticleSizeTimeSeries
+                    typeObservations = observations.Where(o => o.Type == ParticleSizeDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonSampleTimeSeries>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonSampleTimeSeries(observation));
+                        }
+                        ParticleSizeTimeSeries = jsonObservations;
+                    }
+
+
                     // Add PathFeedrate
                     typeObservations = observations.Where(o => o.Type == PathFeedrateDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
@@ -4884,6 +5103,55 @@ namespace MTConnect.Streams.Json
                             jsonObservations.Add(new JsonSampleTimeSeries(observation));
                         }
                         ResistanceTimeSeries = jsonObservations;
+                    }
+
+
+                    // Add Resistivity
+                    typeObservations = observations.Where(o => o.Type == ResistivityDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonSampleValue>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonSampleValue(observation));
+                        }
+                        Resistivity = jsonObservations;
+                    }
+
+                    // Add ResistivityDataSet
+                    typeObservations = observations.Where(o => o.Type == ResistivityDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonSampleDataSet>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonSampleDataSet(observation));
+                        }
+                        ResistivityDataSet = jsonObservations;
+                    }
+
+                    // Add ResistivityTable
+                    typeObservations = observations.Where(o => o.Type == ResistivityDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonSampleTable>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonSampleTable(observation));
+                        }
+                        ResistivityTable = jsonObservations;
+                    }
+
+                    // Add ResistivityTimeSeries
+                    typeObservations = observations.Where(o => o.Type == ResistivityDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonSampleTimeSeries>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonSampleTimeSeries(observation));
+                        }
+                        ResistivityTimeSeries = jsonObservations;
                     }
 
 

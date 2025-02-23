@@ -1,28 +1,28 @@
 // Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-// MTConnect SysML v2.3 : UML ID = _19_0_3_45f01b9_1580378218209_919961_1605
+// MTConnect SysML v2.3 : UML ID = _2024x_68e0225_1727727419677_160573_24195
 
 namespace MTConnect.Devices.DataItems
 {
     /// <summary>
-    /// Maximum amount of fluid that can be held by a container.
+    /// Inability of a material to conduct electricity.
     /// </summary>
-    public class CapacityFluidDataItem : DataItem
+    public class ResistivityDataItem : DataItem
     {
         public const DataItemCategory CategoryId = DataItemCategory.SAMPLE;
-        public const string TypeId = "CAPACITY_FLUID";
-        public const string NameId = "capacityFluid";
+        public const string TypeId = "RESISTIVITY";
+        public const string NameId = "resistivity";
              
-        public const string DefaultUnits = Devices.Units.MILLILITER;     
-        public new const string DescriptionText = "Maximum amount of fluid that can be held by a container.";
+        public const string DefaultUnits = Devices.Units.OHM_METER;     
+        public new const string DescriptionText = "Inability of a material to conduct electricity.";
         
         public override string TypeDescription => DescriptionText;
         
-        public override System.Version MinimumVersion => MTConnectVersions.Version15;       
+               
 
 
-        public CapacityFluidDataItem()
+        public ResistivityDataItem()
         {
             Category = CategoryId;
             Type = TypeId;
@@ -31,7 +31,7 @@ namespace MTConnect.Devices.DataItems
             Units = DefaultUnits;
         }
 
-        public CapacityFluidDataItem(string deviceId)
+        public ResistivityDataItem(string deviceId)
         {
             Id = CreateId(deviceId, NameId);
             Category = CategoryId;

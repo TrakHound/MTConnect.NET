@@ -29,9 +29,9 @@ namespace MTConnect.Devices.Configurations
         public string CoordinateSystemIdRef { get; set; }
         
         /// <summary>
-        /// Descriptive content.
+        /// Textual description for Motion.
         /// </summary>
-        public MTConnect.Devices.IDescription Description { get; set; }
+        public string Description { get; set; }
         
         /// <summary>
         /// Unique identifier for this element.

@@ -31,7 +31,7 @@ namespace MTConnect.Assets.CuttingTools
         /// <summary>
         /// Constrained scalar value associated with a cutting tool.
         /// </summary>
-        System.Collections.Generic.IEnumerable<MTConnect.Assets.CuttingTools.IMeasurement> Measurements { get; }
+        System.Collections.Generic.IEnumerable<MTConnect.Assets.CuttingTools.IToolingMeasurement> Measurements { get; }
         
         /// <summary>
         /// Constrained process feed rate for the tool in mm/s.minimum **MUST** be specified.

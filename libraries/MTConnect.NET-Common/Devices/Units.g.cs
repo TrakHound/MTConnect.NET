@@ -6,17 +6,17 @@ namespace MTConnect.Devices
     public static partial class Units
     {
         /// <summary>
-        /// Amps.
+        /// Electric current in ampere.
         /// </summary>
         public const string AMPERE = "AMPERE";
         
         /// <summary>
-        /// Degrees Celsius.
+        /// Temperature in degree Celsius.
         /// </summary>
         public const string CELSIUS = "CELSIUS";
         
         /// <summary>
-        /// Electric charge in coulombs (C).
+        /// Electric charge in coulomb.
         /// </summary>
         public const string COULOMB = "COULOMB";
         
@@ -26,17 +26,17 @@ namespace MTConnect.Devices
         public const string COUNT = "COUNT";
         
         /// <summary>
-        /// Counts per second.
+        /// Frequency in count per second.
         /// </summary>
         public const string COUNT_PER_SECOND = "COUNT/SECOND";
         
         /// <summary>
-        /// Geometric volume in meters.
+        /// Geometric volume in meter.
         /// </summary>
         public const string CUBIC_METER = "CUBIC_METER";
         
         /// <summary>
-        /// Geometric volume in millimeters.
+        /// Geometric volume in millimeter.
         /// </summary>
         public const string CUBIC_MILLIMETER = "CUBIC_MILLIMETER";
         
@@ -51,12 +51,12 @@ namespace MTConnect.Devices
         public const string CUBIC_MILLIMETER_PER_SECOND_SQUARED = "CUBIC_MILLIMETER/SECOND^2";
         
         /// <summary>
-        /// Sound level.
+        /// Sound level in decibel.
         /// </summary>
         public const string DECIBEL = "DECIBEL";
         
         /// <summary>
-        /// Angle in degrees.
+        /// Angle in degree.
         /// </summary>
         public const string DEGREE = "DEGREE";
         
@@ -66,77 +66,77 @@ namespace MTConnect.Devices
         public const string DEGREE_3D = "DEGREE_3D";
         
         /// <summary>
-        /// Angular degrees per second.
+        /// Angular velocity in degree per second.
         /// </summary>
         public const string DEGREE_PER_SECOND = "DEGREE/SECOND";
         
         /// <summary>
-        /// Angular acceleration in degrees per second squared.
+        /// Angular acceleration in degree per second squared.
         /// </summary>
         public const string DEGREE_PER_SECOND_SQUARED = "DEGREE/SECOND^2";
         
         /// <summary>
-        /// Gram.
+        /// Mass in gram.
         /// </summary>
         public const string GRAM = "GRAM";
         
         /// <summary>
-        /// Gram per cubic meter.
+        /// Density in gram per cubic meter.
         /// </summary>
         public const string GRAM_PER_CUBIC_METER = "GRAM/CUBIC_METER";
         
         /// <summary>
-        /// Frequency measured in cycles per second.
+        /// Frequency in cycles per second.
         /// </summary>
         public const string HERTZ = "HERTZ";
         
         /// <summary>
-        /// Measurement of energy.
+        /// Energy in joule.
         /// </summary>
         public const string JOULE = "JOULE";
         
         /// <summary>
-        /// Kilograms.
+        /// Mass in kilogram.
         /// </summary>
         public const string KILOGRAM = "KILOGRAM";
         
         /// <summary>
-        /// Measurement of volume of a fluid.
+        /// Volume in liter.
         /// </summary>
         public const string LITER = "LITER";
         
         /// <summary>
-        /// Liters per second.
+        /// Volumetric flow in liter per second.
         /// </summary>
         public const string LITER_PER_SECOND = "LITER/SECOND";
         
         /// <summary>
-        /// Acceleration in meters per second squared.
+        /// Acceleration in meter per second squared.
         /// </summary>
         public const string METER_PER_SECOND_SQUARED = "METER/SECOND^2";
         
         /// <summary>
-        /// Measurement of tilt.
+        /// Tilt in micro radian.
         /// </summary>
         public const string MICRO_RADIAN = "MICRO_RADIAN";
         
         /// <summary>
-        /// Milligram.
+        /// Mass in milligram.
         /// </summary>
         public const string MILLIGRAM = "MILLIGRAM";
         
         /// <summary>
-        /// Milligram per cubic millimeter.
+        /// Density in milligram per cubic millimeter.
         /// </summary>
         public const string MILLIGRAM_PER_CUBIC_MILLIMETER = "MILLIGRAM/CUBIC_MILLIMETER";
         
         /// <summary>
-        /// Milliliter.
+        /// Volume in milliliter.
         /// </summary>
         public const string MILLILITER = "MILLILITER";
         
         /// <summary>
-        /// Millimeters.
+        /// Length in millimeter.
         /// </summary>
         public const string MILLIMETER = "MILLIMETER";
         
@@ -146,62 +146,67 @@ namespace MTConnect.Devices
         public const string MILLIMETER_3D = "MILLIMETER_3D";
         
         /// <summary>
-        /// Millimeters per revolution.
+        /// Feedrate per revolution in millimeter per revolution.
         /// </summary>
         public const string MILLIMETER_PER_REVOLUTION = "MILLIMETER/REVOLUTION";
         
         /// <summary>
-        /// Millimeters per second.
+        /// Speed in millimeter per second.
         /// </summary>
         public const string MILLIMETER_PER_SECOND = "MILLIMETER/SECOND";
         
         /// <summary>
-        /// Acceleration in millimeters per second squared.
+        /// Acceleration in millimeter per second squared.
         /// </summary>
         public const string MILLIMETER_PER_SECOND_SQUARED = "MILLIMETER/SECOND^2";
         
         /// <summary>
-        /// Force in Newtons.
+        /// Force in newton.
         /// </summary>
         public const string NEWTON = "NEWTON";
         
         /// <summary>
-        /// Torque, a unit for force times distance.
+        /// Torque in newton-meter.
         /// </summary>
         public const string NEWTON_METER = "NEWTON_METER";
         
         /// <summary>
-        /// Measure of electrical resistance.
+        /// Electrical resistance in ohm.
         /// </summary>
         public const string OHM = "OHM";
         
         /// <summary>
-        /// Pressure in Newtons per square meter.
+        /// Resistivity in ohm-meter.
+        /// </summary>
+        public const string OHM_METER = "OHM_METER";
+        
+        /// <summary>
+        /// Pressure or stress in pascal.
         /// </summary>
         public const string PASCAL = "PASCAL";
         
         /// <summary>
-        /// Measurement of viscosity.
+        /// Viscosity in pascal-second.
         /// </summary>
         public const string PASCAL_SECOND = "PASCAL_SECOND";
         
         /// <summary>
-        /// Pascal per second.
+        /// Pressurization rate in pascal per second.
         /// </summary>
         public const string PASCAL_PER_SECOND = "PASCAL/SECOND";
         
         /// <summary>
-        /// Percentage.
+        /// Amount in or for every hundred.
         /// </summary>
         public const string PERCENT = "PERCENT";
         
         /// <summary>
-        /// Measure of the acidity or alkalinity of a solution.
+        /// Acidity or alkalinity of a solution in pH.
         /// </summary>
         public const string PH = "PH";
         
         /// <summary>
-        /// Revolutions per minute.
+        /// Rotational velocity in revolution per minute.
         /// </summary>
         public const string REVOLUTION_PER_MINUTE = "REVOLUTION/MINUTE";
         
@@ -211,22 +216,22 @@ namespace MTConnect.Devices
         public const string REVOLUTION_PER_SECOND = "REVOLUTION/SECOND";
         
         /// <summary>
-        /// Revolutions per second squared.
+        /// Rotational acceleration in revolution per second squared.
         /// </summary>
         public const string REVOLUTION_PER_SECOND_SQUARED = "REVOLUTION/SECOND^2";
         
         /// <summary>
-        /// Measurement of time.
+        /// Time in second.
         /// </summary>
         public const string SECOND = "SECOND";
         
         /// <summary>
-        /// Measurement of electrical conductivity.
+        /// Electrical conductivity in siemens per meter.
         /// </summary>
         public const string SIEMENS_PER_METER = "SIEMENS/METER";
         
         /// <summary>
-        /// Geometric area in millimeters.
+        /// Geometric area in millimeter.
         /// </summary>
         public const string SQUARE_MILLIMETER = "SQUARE_MILLIMETER";
         
@@ -236,27 +241,27 @@ namespace MTConnect.Devices
         public const string UNIT_VECTOR_3D = "UNIT_VECTOR_3D";
         
         /// <summary>
-        /// Volts.
+        /// Electric potential, electric potential difference or electromotive force in volt.
         /// </summary>
         public const string VOLT = "VOLT";
         
         /// <summary>
-        /// Measurement of the apparent power in an electrical circuit, equal to the product of root-mean-square (RMS) voltage and RMS current (commonly referred to as VA).
+        /// Apparent power in an electrical circuit, equal to the product of root-mean-square (RMS) voltage and RMS current (commonly referred to as VA) in volt-ampere.
         /// </summary>
         public const string VOLT_AMPERE = "VOLT_AMPERE";
         
         /// <summary>
-        /// Measurement of reactive power in an AC electrical circuit (commonly referred to as VAR).
+        /// Reactive power in an AC electrical circuit (commonly referred to as VAR) in volt-ampere-reactive.
         /// </summary>
         public const string VOLT_AMPERE_REACTIVE = "VOLT_AMPERE_REACTIVE";
         
         /// <summary>
-        /// Watts.
+        /// Power in watt.
         /// </summary>
         public const string WATT = "WATT";
         
         /// <summary>
-        /// Measurement of electrical energy, equal to one Joule.
+        /// Electrical energy in watt-second
         /// </summary>
         public const string WATT_SECOND = "WATT_SECOND";
     }

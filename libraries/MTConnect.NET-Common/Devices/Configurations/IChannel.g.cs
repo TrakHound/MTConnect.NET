@@ -19,9 +19,9 @@ namespace MTConnect.Devices.Configurations
         string CalibrationInitials { get; }
         
         /// <summary>
-        /// Descriptive content.
+        /// Textual description for Channel.
         /// </summary>
-        MTConnect.Devices.IDescription Description { get; }
+        string Description { get; }
         
         /// <summary>
         /// Name of the specific sensing element.

@@ -16,9 +16,9 @@ namespace MTConnect.Assets
         public const string Configuration = "Technical information about an entity describing its physical layout, functional characteristics, and relationships with other entities.";
         
         /// <summary>
-        /// Description can contain any descriptive content about the Asset.
+        /// Textual description for Asset.
         /// </summary>
-        public const string Description = "Description can contain any descriptive content about the Asset.";
+        public const string Description = "Textual description for Asset.";
         
         /// <summary>
         /// Associated piece of equipment's UUID that supplied the Asset's data.uuid defined in Device Information Model.
@@ -31,9 +31,29 @@ namespace MTConnect.Assets
         public const string Hash = "Condensed message digest from a secure one-way hash function. FIPS PUB 180-4";
         
         /// <summary>
+        /// 
+        /// </summary>
+        public const string Manufacturers = "";
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        public const string Model = "";
+        
+        /// <summary>
         /// Indicator that the Asset has been removed from the piece of equipment.
         /// </summary>
         public const string Removed = "Indicator that the Asset has been removed from the piece of equipment.";
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        public const string SerialNumber = "";
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        public const string Station = "";
         
         /// <summary>
         /// Time the Asset data was last modified.

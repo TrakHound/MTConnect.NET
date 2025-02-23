@@ -6,7 +6,7 @@
 namespace MTConnect.Devices.DataItems
 {
     /// <summary>
-    /// Set of limits used to indicate whether a process variable is stable and in control.**DEPRECATION WARNING**. Recommend using `CONTROL_LIMITS`.
+    /// Set of limits used to indicate whether a process variable is stable and in control.**DEPRECATED** in *Version 2.5*. Replaced by `CONTROL_LIMITS`.
     /// </summary>
     public class ControlLimitDataItem : DataItem
     {
@@ -15,7 +15,7 @@ namespace MTConnect.Devices.DataItems
         public const string NameId = "controlLimit";
         public const DataItemRepresentation DefaultRepresentation = DataItemRepresentation.TABLE;     
              
-        public new const string DescriptionText = "Set of limits used to indicate whether a process variable is stable and in control.**DEPRECATION WARNING**. Recommend using `CONTROL_LIMITS`.";
+        public new const string DescriptionText = "Set of limits used to indicate whether a process variable is stable and in control.**DEPRECATED** in *Version 2.5*. Replaced by `CONTROL_LIMITS`.";
         
         public override string TypeDescription => DescriptionText;
         

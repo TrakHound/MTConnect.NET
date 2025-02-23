@@ -56,7 +56,7 @@ namespace MTConnect.Assets.CuttingTools
         /// <summary>
         /// A collection of measurements relating to this cutting item.
         /// </summary>
-        public System.Collections.Generic.IEnumerable<MTConnect.Assets.CuttingTools.IMeasurement> Measurements { get; set; }
+        public System.Collections.Generic.IEnumerable<MTConnect.Assets.CuttingTools.IToolingMeasurement> Measurements { get; set; }
         
         /// <summary>
         /// Tool group this item is assigned in the part program.

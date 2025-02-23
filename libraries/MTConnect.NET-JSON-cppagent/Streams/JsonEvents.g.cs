@@ -355,6 +355,10 @@ namespace MTConnect.Streams.Json
                 if (!PartIdDataSet.IsNullOrEmpty()) foreach (var x in PartIdDataSet) l.Add(x.ToObservation(PartIdDataItem.TypeId));
                 if (!PartIdTable.IsNullOrEmpty()) foreach (var x in PartIdTable) l.Add(x.ToObservation(PartIdDataItem.TypeId));
 
+                if (!PartIndex.IsNullOrEmpty()) foreach (var x in PartIndex) l.Add(x.ToObservation(PartIndexDataItem.TypeId));
+                if (!PartIndexDataSet.IsNullOrEmpty()) foreach (var x in PartIndexDataSet) l.Add(x.ToObservation(PartIndexDataItem.TypeId));
+                if (!PartIndexTable.IsNullOrEmpty()) foreach (var x in PartIndexTable) l.Add(x.ToObservation(PartIndexDataItem.TypeId));
+
                 if (!PartKindId.IsNullOrEmpty()) foreach (var x in PartKindId) l.Add(x.ToObservation(PartKindIdDataItem.TypeId));
                 if (!PartKindIdDataSet.IsNullOrEmpty()) foreach (var x in PartKindIdDataSet) l.Add(x.ToObservation(PartKindIdDataItem.TypeId));
                 if (!PartKindIdTable.IsNullOrEmpty()) foreach (var x in PartKindIdTable) l.Add(x.ToObservation(PartKindIdDataItem.TypeId));
@@ -1405,6 +1409,16 @@ namespace MTConnect.Streams.Json
 
         [JsonPropertyName("PartIdTable")]
         public IEnumerable<JsonEventTable> PartIdTable { get; set; }
+
+
+        [JsonPropertyName("PartIndex")]
+        public IEnumerable<JsonEventValue> PartIndex { get; set; }
+
+        [JsonPropertyName("PartIndexDataSet")]
+        public IEnumerable<JsonEventDataSet> PartIndexDataSet { get; set; }
+
+        [JsonPropertyName("PartIndexTable")]
+        public IEnumerable<JsonEventTable> PartIndexTable { get; set; }
 
 
         [JsonPropertyName("PartKindId")]
@@ -5042,6 +5056,43 @@ namespace MTConnect.Streams.Json
                             jsonObservations.Add(new JsonEventTable(observation));
                         }
                         PartIdTable = jsonObservations;
+                    }
+
+
+                    // Add PartIndex
+                    typeObservations = observations.Where(o => o.Type == PartIndexDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventValue>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventValue(observation));
+                        }
+                        PartIndex = jsonObservations;
+                    }
+
+                    // Add PartIndexDataSet
+                    typeObservations = observations.Where(o => o.Type == PartIndexDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventDataSet>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventDataSet(observation));
+                        }
+                        PartIndexDataSet = jsonObservations;
+                    }
+
+                    // Add PartIndexTable
+                    typeObservations = observations.Where(o => o.Type == PartIndexDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventTable>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventTable(observation));
+                        }
+                        PartIndexTable = jsonObservations;
                     }
 
 
