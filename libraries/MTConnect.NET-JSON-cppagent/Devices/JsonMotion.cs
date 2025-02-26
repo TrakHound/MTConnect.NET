@@ -54,7 +54,8 @@ namespace MTConnect.Devices.Json
 
                 if (motion.Description != null)
                 {
-                    Description = motion.Description.Value;
+                    Description = motion.Description;
+                    //Description = motion.Description.Value;
                 }
             }
         }
@@ -74,9 +75,10 @@ namespace MTConnect.Devices.Json
 
             if (Description != null)
             {
-                var description = new Description();
-                description.Value = Description;
-                motion.Description = description;
+                //var description = new Description();
+                //description.Value = Description;
+                //motion.Description = description;
+                motion.Description = Description;
             }
 
             return motion;

@@ -6,7 +6,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
     /// <summary>
     /// Dimension of the height of the shank.
     /// </summary>
-    public class ShankHeightMeasurement : Measurement
+    public class ShankHeightMeasurement : ToolingMeasurement
     {
         public const string TypeId = "ShankHeight";
         public const string CodeId = "H";
@@ -27,7 +27,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
             
         }
 
-        public ShankHeightMeasurement(IMeasurement measurement) : base(measurement)
+        public ShankHeightMeasurement(IToolingMeasurement measurement) : base(measurement)
         {
             Type = TypeId;
             Code = CodeId;

@@ -6,7 +6,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
     /// <summary>
     /// Width of the chamfer.
     /// </summary>
-    public class ChamferWidthMeasurement : Measurement
+    public class ChamferWidthMeasurement : ToolingMeasurement
     {
         public const string TypeId = "ChamferWidth";
         public const string CodeId = "CHW";
@@ -27,7 +27,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
             
         }
 
-        public ChamferWidthMeasurement(IMeasurement measurement) : base(measurement)
+        public ChamferWidthMeasurement(IToolingMeasurement measurement) : base(measurement)
         {
             Type = TypeId;
             Code = CodeId;

@@ -6,7 +6,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
     /// <summary>
     /// Largest diameter of the body of a tool item.
     /// </summary>
-    public class BodyDiameterMaxMeasurement : Measurement
+    public class BodyDiameterMaxMeasurement : ToolingMeasurement
     {
         public const string TypeId = "BodyDiameterMax";
         public const string CodeId = "BDX";
@@ -27,7 +27,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
             
         }
 
-        public BodyDiameterMaxMeasurement(IMeasurement measurement) : base(measurement)
+        public BodyDiameterMaxMeasurement(IToolingMeasurement measurement) : base(measurement)
         {
             Type = TypeId;
             Code = CodeId;

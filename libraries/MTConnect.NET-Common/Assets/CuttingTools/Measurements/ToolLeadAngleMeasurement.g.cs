@@ -6,7 +6,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
     /// <summary>
     /// Angle between the tool cutting edge plane and a plane perpendicular to the tool feed plane measured in a plane parallel the xy-plane.
     /// </summary>
-    public class ToolLeadAngleMeasurement : Measurement
+    public class ToolLeadAngleMeasurement : ToolingMeasurement
     {
         public const string TypeId = "ToolLeadAngle";
         public const string CodeId = "PSIR";
@@ -27,7 +27,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
             
         }
 
-        public ToolLeadAngleMeasurement(IMeasurement measurement) : base(measurement)
+        public ToolLeadAngleMeasurement(IToolingMeasurement measurement) : base(measurement)
         {
             Type = TypeId;
             Code = CodeId;

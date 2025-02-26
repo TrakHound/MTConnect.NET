@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2025 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Assets.CuttingTools;
@@ -35,7 +35,7 @@ namespace MTConnect.Assets.Json.CuttingTools
 
         public JsonMeasurement() { }
 
-        public JsonMeasurement(IMeasurement measurement)
+        public JsonMeasurement(IToolingMeasurement measurement)
         {
             if (measurement != null)
             {
@@ -51,9 +51,9 @@ namespace MTConnect.Assets.Json.CuttingTools
         }
 
 
-        public IMeasurement ToMeasurement(string type)
+        public IToolingMeasurement ToMeasurement(string type)
         {
-            var measurement = new Measurement();
+            var measurement = new ToolingMeasurement();
             measurement.Type = type;
             measurement.Value = Value;
             measurement.SignificantDigits = SignificantDigits;
@@ -63,7 +63,7 @@ namespace MTConnect.Assets.Json.CuttingTools
             measurement.Maximum = Maximum;
             measurement.Minimum = Minimum;
             measurement.Nominal = Nominal;
-            return Measurement.Create(type, measurement);
+            return ToolingMeasurement.Create(type, measurement);
         }
     }
 }

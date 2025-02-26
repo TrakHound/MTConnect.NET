@@ -28,9 +28,10 @@ namespace MTConnect.Assets.Json.CuttingTools
         [JsonPropertyName("removed")]
         public bool Removed { get; set; }
 
-        [JsonIgnore]
-        //[JsonPropertyName("description")]
-        public JsonDescription Description { get; set; }
+        [JsonPropertyName("description")]
+        public string Description { get; set; }
+        ////[JsonIgnore]
+        //public JsonDescription Description { get; set; }
 
 
         [JsonPropertyName("serialNumber")]
@@ -62,7 +63,8 @@ namespace MTConnect.Assets.Json.CuttingTools
                 DeviceUuid = asset.DeviceUuid;
                 Removed = asset.Removed;
 
-                if (asset.Description != null) Description = new JsonDescription(asset.Description);
+                if (asset.Description != null) Description = asset.Description;
+                //if (asset.Description != null) Description = new JsonDescription(asset.Description);
 
                 SerialNumber = asset.SerialNumber;
                 ToolId = asset.ToolId;
@@ -82,7 +84,8 @@ namespace MTConnect.Assets.Json.CuttingTools
             asset.DeviceUuid = DeviceUuid;
             asset.Removed = Removed;
 
-            if (Description != null) asset.Description = Description.ToDescription();
+            if (Description != null) asset.Description = Description;
+            //if (Description != null) asset.Description = Description.ToDescription();
 
             asset.SerialNumber = SerialNumber;
             asset.ToolId = ToolId;

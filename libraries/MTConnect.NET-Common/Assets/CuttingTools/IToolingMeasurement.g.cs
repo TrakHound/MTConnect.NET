@@ -6,7 +6,7 @@ namespace MTConnect.Assets.CuttingTools
     /// <summary>
     /// Constrained scalar value associated with a cutting tool.
     /// </summary>
-    public interface IToolingMeasurement : IMeasurement
+    public partial interface IToolingMeasurement : IMeasurement
     {
         /// <summary>
         /// Shop specific code for the measurement. ISO 13399 codes **MAY** be used for these codes as well. code values.

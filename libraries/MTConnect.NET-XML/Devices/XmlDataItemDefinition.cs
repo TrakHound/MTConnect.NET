@@ -25,7 +25,8 @@ namespace MTConnect.Devices.Xml
         {
             var definition = new DataItemDefinition();
             
-            if (Description != null) definition.Description = Description.ToDescription();
+            if (Description != null) definition.Description = Description?.CDATA;
+            //if (Description != null) definition.Description = Description.ToDescription();
 
             // Entry Definitions
             if (!EntryDefinitions.IsNullOrEmpty())

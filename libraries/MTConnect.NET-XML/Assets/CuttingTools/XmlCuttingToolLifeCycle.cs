@@ -78,7 +78,7 @@ namespace MTConnect.Assets.Xml.CuttingTools
             // Measurements
             if (!Measurements.IsNullOrEmpty())
             {
-                var measurements = new List<IMeasurement>();
+                var measurements = new List<IToolingMeasurement>();
                 foreach (var measurement in Measurements)
                 {
                     measurements.Add(measurement.ToMeasurement());

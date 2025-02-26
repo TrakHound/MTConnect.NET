@@ -49,7 +49,8 @@ namespace MTConnect.Devices.Xml
             motion.Axis = UnitVector3D.FromString(Axis);
             motion.Origin = UnitVector3D.FromString(Origin);
             if (Transformation != null) motion.Transformation = Transformation.ToTransformation();
-            if (Description != null) motion.Description = Description.ToDescription();
+            if (Description != null) motion.Description = Description.CDATA;
+            //if (Description != null) motion.Description = Description.ToDescription();
             return motion;
         }
 

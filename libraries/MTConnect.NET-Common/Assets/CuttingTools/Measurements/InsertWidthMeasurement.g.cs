@@ -6,7 +6,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
     /// <summary>
     /// W1 is used for the insert width when an inscribed circle diameter is not practical.
     /// </summary>
-    public class InsertWidthMeasurement : Measurement
+    public class InsertWidthMeasurement : ToolingMeasurement
     {
         public const string TypeId = "InsertWidth";
         public const string CodeId = "W1";
@@ -27,7 +27,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
             
         }
 
-        public InsertWidthMeasurement(IMeasurement measurement) : base(measurement)
+        public InsertWidthMeasurement(IToolingMeasurement measurement) : base(measurement)
         {
             Type = TypeId;
             Code = CodeId;

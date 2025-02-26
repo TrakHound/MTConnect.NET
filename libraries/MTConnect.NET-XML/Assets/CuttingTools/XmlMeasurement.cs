@@ -38,9 +38,9 @@ namespace MTConnect.Assets.Xml.CuttingTools
         public string Value { get; set; }
 
 
-        public IMeasurement ToMeasurement()
+        public IToolingMeasurement ToMeasurement()
         {
-            var measurement = new Measurement();
+            var measurement = new ToolingMeasurement();
             measurement.Type = Type;
             if (!string.IsNullOrEmpty(Value)) measurement.Value = Value.ToDouble();
             if (!string.IsNullOrEmpty(SignificantDigits)) measurement.SignificantDigits = SignificantDigits.ToInt();
@@ -50,10 +50,10 @@ namespace MTConnect.Assets.Xml.CuttingTools
             if (!string.IsNullOrEmpty(Maximum)) measurement.Maximum = Maximum.ToDouble();
             if (!string.IsNullOrEmpty(Minimum)) measurement.Minimum = Minimum.ToDouble();
             if (!string.IsNullOrEmpty(Nominal)) measurement.Nominal = Nominal.ToDouble();
-            return Measurement.Create(Type, measurement);
+            return ToolingMeasurement.Create(Type, measurement);
         }
 
-        public static void WriteXml(XmlWriter writer, IEnumerable<IMeasurement> measurements)
+        public static void WriteXml(XmlWriter writer, IEnumerable<IToolingMeasurement> measurements)
         {
             if (!measurements.IsNullOrEmpty())
             {

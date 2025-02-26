@@ -26,8 +26,10 @@ namespace MTConnect.Assets.Json.Files
         [JsonPropertyName("removed")]
         public bool Removed { get; set; }
 
+        //[JsonPropertyName("description")]
+        //public JsonDescription Description { get; set; }
         [JsonPropertyName("description")]
-        public JsonDescription Description { get; set; }
+        public string Description { get; set; }
 
 
         [JsonPropertyName("name")]
@@ -89,7 +91,8 @@ namespace MTConnect.Assets.Json.Files
                 DeviceUuid = asset.DeviceUuid;
                 Removed = asset.Removed;
 
-                if (asset.Description != null) Description = new JsonDescription(asset.Description);
+                if (asset.Description != null) Description = asset.Description;
+                //if (asset.Description != null) Description = new JsonDescription(asset.Description);
 
                 Size = asset.Size;
                 VersionId = asset.VersionId;
@@ -141,7 +144,8 @@ namespace MTConnect.Assets.Json.Files
             asset.DeviceUuid = DeviceUuid;
             asset.Removed = Removed;
 
-            if (Description != null) asset.Description = Description.ToDescription();
+            if (Description != null) asset.Description = Description;
+            //if (Description != null) asset.Description = Description.ToDescription();
 
             asset.Size = Size;
             asset.VersionId = VersionId;

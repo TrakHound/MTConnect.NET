@@ -6,7 +6,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
     /// <summary>
     /// Angle between the major cutting edge and the same cutting edge rotated by 180 degrees about the tool axis.
     /// </summary>
-    public class PointAngleMeasurement : Measurement
+    public class PointAngleMeasurement : ToolingMeasurement
     {
         public const string TypeId = "PointAngle";
         public const string CodeId = "SIG";
@@ -27,7 +27,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
             
         }
 
-        public PointAngleMeasurement(IMeasurement measurement) : base(measurement)
+        public PointAngleMeasurement(IToolingMeasurement measurement) : base(measurement)
         {
             Type = TypeId;
             Code = CodeId;

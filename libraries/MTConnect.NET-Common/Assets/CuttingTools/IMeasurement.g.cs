@@ -8,10 +8,10 @@ namespace MTConnect.Assets.CuttingTools
     /// </summary>
     public partial interface IMeasurement
     {
-        /// <summary>
-        /// Shop specific code for the measurement. ISO 13399 codes **MAY** be used for these codes as well. code values.
-        /// </summary>
-        string Code { get; }
+        ///// <summary>
+        ///// Shop specific code for the measurement. ISO 13399 codes **MAY** be used for these codes as well. code values.
+        ///// </summary>
+        //string Code { get; }
         
         /// <summary>
         /// Maximum value for the measurement.

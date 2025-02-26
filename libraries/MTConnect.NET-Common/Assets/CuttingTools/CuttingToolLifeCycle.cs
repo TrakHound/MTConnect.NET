@@ -11,7 +11,7 @@ namespace MTConnect.Assets.CuttingTools
         public CuttingToolLifeCycle()
         {
             CutterStatus = new List<CutterStatusType>();
-            Measurements = new List<Measurement>();
+            Measurements = new List<ToolingMeasurement>();
             CuttingItems = new List<ICuttingItem>();
         }
 
@@ -45,10 +45,10 @@ namespace MTConnect.Assets.CuttingTools
             // Process Measurements
             if (!Measurements.IsNullOrEmpty())
             {
-                var measurements = new List<Measurement>();
+                var measurements = new List<ToolingMeasurement>();
                 foreach (var measurement in Measurements)
                 {
-                    var typeMeasurement = Measurement.Create(measurement.Type, measurement);
+                    var typeMeasurement = ToolingMeasurement.Create(measurement.Type, measurement);
                     if (typeMeasurement != null) measurements.Add(typeMeasurement);
                 }
                 lifeCycle.Measurements = measurements;

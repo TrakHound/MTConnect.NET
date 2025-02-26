@@ -6,7 +6,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
     /// <summary>
     /// Dimension from the yz-plane to the furthest point of the tool item or adaptive item measured in the -X direction.
     /// </summary>
-    public class ProtrudingLengthMeasurement : Measurement
+    public class ProtrudingLengthMeasurement : ToolingMeasurement
     {
         public const string TypeId = "ProtrudingLength";
         public const string CodeId = "LPR";
@@ -27,7 +27,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
             
         }
 
-        public ProtrudingLengthMeasurement(IMeasurement measurement) : base(measurement)
+        public ProtrudingLengthMeasurement(IToolingMeasurement measurement) : base(measurement)
         {
             Type = TypeId;
             Code = CodeId;

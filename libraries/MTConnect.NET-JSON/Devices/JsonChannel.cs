@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2025 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Devices.Configurations;
@@ -25,7 +25,7 @@ namespace MTConnect.Devices.Json
         public string CalibrationInitials { get; set; }
 
         [JsonPropertyName("description")]
-        public JsonDescription Description { get; set; }
+        public string Description { get; set; }
 
 
         public JsonChannel() { }
@@ -40,7 +40,8 @@ namespace MTConnect.Devices.Json
                 NextCalibrationDate = channel.NextCalibrationDate;
                 CalibrationInitials = channel.CalibrationInitials;
 
-                if (channel.Description != null) Description = new JsonDescription(channel.Description);
+                if (channel.Description != null) Description = channel.Description; // v2.5
+                //if (channel.Description != null) Description = new JsonDescription(channel.Description);
             }
         }
 
@@ -53,7 +54,8 @@ namespace MTConnect.Devices.Json
             channel.CalibrationDate = CalibrationDate;
             channel.NextCalibrationDate = NextCalibrationDate;
             channel.CalibrationInitials = CalibrationInitials;
-            if (Description != null) channel.Description = Description.ToDescription();
+            if (Description != null) channel.Description = Description; // v2.5
+            //if (Description != null) channel.Description = Description.ToDescription();
             return channel;
         }
     }

@@ -18,7 +18,7 @@ namespace MTConnect.Assets.Json.CuttingTools
 
         public JsonMeasurements() { }
 
-        public JsonMeasurements(IEnumerable<IMeasurement> measurements)
+        public JsonMeasurements(IEnumerable<IToolingMeasurement> measurements)
         {
             if (!measurements.IsNullOrEmpty())
             {
@@ -39,9 +39,9 @@ namespace MTConnect.Assets.Json.CuttingTools
         }
 
 
-        public IEnumerable<IMeasurement> ToMeasurements()
+        public IEnumerable<IToolingMeasurement> ToMeasurements()
         {
-            var measurements = new List<IMeasurement>();
+            var measurements = new List<IToolingMeasurement>();
         
 {{ for type in types }}
             if (!{{type.name}}s.IsNullOrEmpty()) foreach (var measurement in {{type.name}}s) measurements.Add(measurement.ToMeasurement({{type.name}}.TypeId));

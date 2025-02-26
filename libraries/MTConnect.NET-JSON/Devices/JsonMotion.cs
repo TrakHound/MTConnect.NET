@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2025 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Devices.Configurations;
@@ -24,7 +24,7 @@ namespace MTConnect.Devices.Json
         public string Actuation { get; set; }
 
         [JsonPropertyName("description")]
-        public JsonDescription Description { get; set; }
+        public string Description { get; set; }
 
         [JsonPropertyName("origin")]
         public string Origin { get; set; }
@@ -47,7 +47,8 @@ namespace MTConnect.Devices.Json
                 CoordinateSystemIdRef = motion.CoordinateSystemIdRef;
                 Type = motion.Type.ToString();
                 Actuation = motion.Actuation.ToString();
-                if (motion.Description != null) Description = new JsonDescription(motion.Description);
+                if (motion.Description != null) Description = motion.Description; // v2.5
+                //if (motion.Description != null) Description = new JsonDescription(motion.Description);
                 if (motion.Origin != null) Origin = motion.Origin.ToString();
                 if (motion.Transformation != null) Transformation = new JsonTransformation(motion.Transformation);
                 Axis = motion.Axis.ToString();
@@ -66,7 +67,8 @@ namespace MTConnect.Devices.Json
             motion.Axis = UnitVector3D.FromString(Axis);
             motion.Origin = UnitVector3D.FromString(Origin);
             if (Transformation != null) motion.Transformation = Transformation.ToTransformation();
-            if (Description != null) motion.Description = Description.ToDescription();
+            if (Description != null) motion.Description = Description; // v2.5
+            //if (Description != null) motion.Description = Description.ToDescription();
             return motion;
         }
     }

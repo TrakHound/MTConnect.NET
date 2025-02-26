@@ -6,7 +6,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
     /// <summary>
     /// Dimension between two parallel tangents on the outside edge of a flange.
     /// </summary>
-    public class FlangeDiameterMeasurement : Measurement
+    public class FlangeDiameterMeasurement : ToolingMeasurement
     {
         public const string TypeId = "FlangeDiameter";
         public const string CodeId = "DF";
@@ -27,7 +27,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
             
         }
 
-        public FlangeDiameterMeasurement(IMeasurement measurement) : base(measurement)
+        public FlangeDiameterMeasurement(IToolingMeasurement measurement) : base(measurement)
         {
             Type = TypeId;
             Code = CodeId;

@@ -6,7 +6,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
     /// <summary>
     /// Nominal radius of a rounded corner measured in the X Y-plane.
     /// </summary>
-    public class CornerRadiusMeasurement : Measurement
+    public class CornerRadiusMeasurement : ToolingMeasurement
     {
         public const string TypeId = "CornerRadius";
         public const string CodeId = "RE";
@@ -27,7 +27,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
             
         }
 
-        public CornerRadiusMeasurement(IMeasurement measurement) : base(measurement)
+        public CornerRadiusMeasurement(IToolingMeasurement measurement) : base(measurement)
         {
             Type = TypeId;
             Code = CodeId;

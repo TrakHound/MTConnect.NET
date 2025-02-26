@@ -45,7 +45,8 @@ namespace MTConnect.Devices.Json
 
                 if (definition.Description != null)
                 {
-                    Description = definition.Description.Value;
+                    Description = definition.Description;
+                    //Description = definition.Description.Value;
                 }
 
                 // CellDefinitions
@@ -68,9 +69,10 @@ namespace MTConnect.Devices.Json
 
             if (Description != null)
             {
-                var description = new Description();
-                description.Value = Description;
-                definition.Description = description;
+                //var description = new Description();
+                //description.Value = Description;
+                //definition.Description = description;
+                definition.Description = Description;
             }
 
             // Cell Definitions

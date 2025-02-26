@@ -6,7 +6,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
     /// <summary>
     /// Theoretical sharp point of the cutting tool from which the major functional dimensions are taken.
     /// </summary>
-    public class CuttingReferencePointMeasurement : Measurement
+    public class CuttingReferencePointMeasurement : ToolingMeasurement
     {
         public const string TypeId = "CuttingReferencePoint";
         public const string CodeId = "CRP";
@@ -27,7 +27,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
             
         }
 
-        public CuttingReferencePointMeasurement(IMeasurement measurement) : base(measurement)
+        public CuttingReferencePointMeasurement(IToolingMeasurement measurement) : base(measurement)
         {
             Type = TypeId;
             Code = CodeId;

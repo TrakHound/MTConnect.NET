@@ -41,7 +41,7 @@ namespace MTConnect.Assets
         /// <summary>
         /// 
         /// </summary>
-        public string Manufacturers { get; set; }
+        public System.Collections.Generic.IEnumerable<string> Manufacturers { get; set; }
         
         /// <summary>
         /// 

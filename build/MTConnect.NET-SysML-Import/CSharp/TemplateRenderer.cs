@@ -150,6 +150,10 @@ namespace MTConnect.SysML.CSharp
                                     ((ClassModel)template).IsPartial = true; 
                                     ((ClassModel)template).IsAbstract = false; 
                                     break;
+                                case "Assets.CuttingTools.ToolingMeasurement":
+                                    ((ClassModel)template).IsPartial = true;
+                                    ((ClassModel)template).IsAbstract = false;
+                                    break;
                                 case "Assets.Files.File": 
                                     ((ClassModel)template).IsPartial = true;
                                     ((ClassModel)template).Id += "Asset";

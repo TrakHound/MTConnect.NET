@@ -6,7 +6,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
     /// <summary>
     /// Distance from the basal plane of the tool item to the cutting point.
     /// </summary>
-    public class CuttingHeightMeasurement : Measurement
+    public class CuttingHeightMeasurement : ToolingMeasurement
     {
         public const string TypeId = "CuttingHeight";
         public const string CodeId = "HF";
@@ -27,7 +27,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
             
         }
 
-        public CuttingHeightMeasurement(IMeasurement measurement) : base(measurement)
+        public CuttingHeightMeasurement(IToolingMeasurement measurement) : base(measurement)
         {
             Type = TypeId;
             Code = CodeId;

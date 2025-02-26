@@ -1,7 +1,6 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2025 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-using MTConnect.Devices.DataItems;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
@@ -10,7 +9,7 @@ namespace MTConnect.Devices.Json
     public class JsonDataItemDefinition
     {
         [JsonPropertyName("description")]
-        public JsonDescription Description { get; set; }
+        public string Description { get; set; }
 
         [JsonPropertyName("entryDefinitions")]
         public IEnumerable<JsonEntryDefinition> EntryDefinitions { get; set; }
@@ -25,7 +24,8 @@ namespace MTConnect.Devices.Json
         {
             if (dataItemDefinition != null)
             {
-                if (dataItemDefinition.Description != null) Description = new JsonDescription(dataItemDefinition.Description);
+                if (dataItemDefinition.Description != null) Description = dataItemDefinition.Description; // v2.5
+                //if (dataItemDefinition.Description != null) Description = new JsonDescription(dataItemDefinition.Description);
 
                 // EntryDefinitions
                 if (!dataItemDefinition.EntryDefinitions.IsNullOrEmpty())
@@ -57,7 +57,8 @@ namespace MTConnect.Devices.Json
         {
             var definition = new DataItemDefinition();
 
-            if (Description != null) definition.Description = Description.ToDescription();
+            if (Description != null) definition.Description = Description; // v2.5
+            //if (Description != null) definition.Description = Description.ToDescription();
 
             // Entry Definitions
             if (!EntryDefinitions.IsNullOrEmpty())

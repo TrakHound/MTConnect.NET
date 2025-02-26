@@ -8,7 +8,7 @@ namespace MTConnect.Assets.CuttingTools
     /// <summary>
     /// Constrained scalar value associated with a cutting tool.
     /// </summary>
-    public abstract class ToolingMeasurement : Measurement, IToolingMeasurement
+    public partial class ToolingMeasurement : Measurement, IToolingMeasurement
     {
         public new const string DescriptionText = "Constrained scalar value associated with a cutting tool.";
 

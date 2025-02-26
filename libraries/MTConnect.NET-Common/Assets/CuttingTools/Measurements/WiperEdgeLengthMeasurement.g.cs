@@ -6,7 +6,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
     /// <summary>
     /// Measure of the length of a wiper edge of a cutting item.
     /// </summary>
-    public class WiperEdgeLengthMeasurement : Measurement
+    public class WiperEdgeLengthMeasurement : ToolingMeasurement
     {
         public const string TypeId = "WiperEdgeLength";
         public const string CodeId = "BS";
@@ -27,7 +27,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
             
         }
 
-        public WiperEdgeLengthMeasurement(IMeasurement measurement) : base(measurement)
+        public WiperEdgeLengthMeasurement(IToolingMeasurement measurement) : base(measurement)
         {
             Type = TypeId;
             Code = CodeId;

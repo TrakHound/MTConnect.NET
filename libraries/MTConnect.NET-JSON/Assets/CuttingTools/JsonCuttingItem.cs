@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2025 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Assets.CuttingTools;
@@ -127,7 +127,7 @@ namespace MTConnect.Assets.Json.CuttingTools
             // Measurements
             if (!Measurements.IsNullOrEmpty())
             {
-                var measurements = new List<IMeasurement>();
+                var measurements = new List<IToolingMeasurement>();
                 foreach (var measurement in Measurements)
                 {
                     measurements.Add(measurement.ToMeasurement());

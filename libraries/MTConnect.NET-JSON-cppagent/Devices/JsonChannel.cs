@@ -42,7 +42,8 @@ namespace MTConnect.Devices.Json
 
                 if (channel.Description != null)
                 {
-                    Description = channel.Description.Value;
+                    Description = channel.Description;
+                    //Description = channel.Description.Value;
                 }
             }
         }
@@ -59,9 +60,10 @@ namespace MTConnect.Devices.Json
 
             if (Description != null)
             {
-                var description = new Description();
-                description.Value = Description;
-                channel.Description = description;
+                //var description = new Description();
+                //description.Value = Description;
+                //channel.Description = description;
+                channel.Description = Description;
             }
 
             return channel;
