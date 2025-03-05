@@ -1,0 +1,18 @@
+﻿<ComponentConfigurationParameters>
+	<ParameterSets>
+		<ParameterSet name="ps-1">
+			<Parameters>
+				<Parameter identifier="p-1" name="param1">12</Parameter>
+				<Parameter identifier="p-2" name="param2">123</Parameter>
+				<Parameter identifier="p-3" name="param3">1234</Parameter>
+			</Parameters>
+		</ParameterSet>
+		<ParameterSet name="ps-2">
+			<Parameters>
+				<Parameter identifier="p-1" name="param1">12</Parameter>
+				<Parameter identifier="p-2" name="param2">123</Parameter>
+				<Parameter identifier="p-3" name="param3">1234</Parameter>
+			</Parameters>
+		</ParameterSet>
+	</ParameterSets>
+</ComponentConfigurationParameters>

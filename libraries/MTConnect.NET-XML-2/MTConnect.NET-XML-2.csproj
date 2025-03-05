@@ -22,8 +22,9 @@
 		<Copyright>Copyright (c) 2024 TrakHound Inc., All Rights Reserved.</Copyright>
 		<PackageTags>mtconnect;iiot;iot;cnc;</PackageTags>
 		<RepositoryUrl>https://github.com/TrakHound/MTConnect.NET</RepositoryUrl>
-
-		<Description>MTConnect.NET-Applications-Agents contains classes to fully implement an MTConnect Agent application. Supports MTConnect Versions up to 2.3. Supports .NET Framework 4.6.1 up to .NET 8</Description>
+		
+		<Description>MTConnect.NET-XML implements the XML Document Format for use with the MTConnect.NET library. Supports MTConnect Versions up to 2.3. Supports .NET Framework 4.6.1 up to .NET 8</Description>
+		<PackageReadmeFile>README-Nuget.md</PackageReadmeFile>
 
 		<!-- Optional: Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
@@ -49,7 +50,28 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="NLog" Version="5.2.7" />
+		<Compile Remove="Streams\Serializers.cs" />
+		<Compile Remove="Streams\XmlComponentStream - Copy (2).cs" />
+		<Compile Remove="Streams\XmlComponentStream - Copy.cs" />
+		<Compile Remove="Streams\XmlComponentStreamsContainer.cs" />
+		<Compile Remove="Streams\XmlConditionObservation.cs" />
+		<Compile Remove="Streams\XmlConditionsContainer.cs" />
+		<Compile Remove="Streams\XmlDeviceStream - Copy %282%29.cs" />
+		<Compile Remove="Streams\XmlDeviceStream - Copy.cs" />
+		<Compile Remove="Streams\XmlEventObservation.cs" />
+		<Compile Remove="Streams\XmlEventsContainer.cs" />
+		<Compile Remove="Streams\XmlObservation - Copy %282%29.cs" />
+		<Compile Remove="Streams\XmlObservation - Copy.cs" />
+		<Compile Remove="Streams\XmlObservationContainer - Copy %282%29.cs" />
+		<Compile Remove="Streams\XmlObservationContainer - Copy.cs" />
+		<Compile Remove="Streams\XmlSampleObservation.cs" />
+		<Compile Remove="Streams\XmlSamplesContainer - Copy.cs" />
+		<Compile Remove="Streams\XmlSamplesContainer.cs" />
+		<Compile Remove="Streams\XmlStreamsContainer.cs" />
+		<Compile Remove="Streams\XmlStreamsResponseDocument - Copy %282%29.cs" />
+		<Compile Remove="Streams\XmlStreamsResponseDocument - Copy %283%29.cs" />
+		<Compile Remove="Streams\XmlStreamsResponseDocument - Copy %284%29.cs" />
+		<Compile Remove="Streams\XmlStreamsResponseDocument - Copy.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -60,22 +82,14 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\libraries\MTConnect.NET-Common\MTConnect.NET-Common.csproj" />
-		<ProjectReference Include="..\..\libraries\MTConnect.NET-JSON-cppagent\MTConnect.NET-JSON-cppagent.csproj" />
-		<ProjectReference Include="..\..\libraries\MTConnect.NET-JSON\MTConnect.NET-JSON.csproj" />
-		<ProjectReference Include="..\..\libraries\MTConnect.NET-Services\MTConnect.NET-Services.csproj" />
-		<ProjectReference Include="..\..\libraries\MTConnect.NET-XML-2\MTConnect.NET-XML-2.csproj" />
-		<ProjectReference Include="..\Modules\MTConnect.NET-AgentModule-HttpAdapter\MTConnect.NET-AgentModule-HttpAdapter.csproj" />
-		<ProjectReference Include="..\Modules\MTConnect.NET-AgentModule-HttpServer\MTConnect.NET-AgentModule-HttpServer.csproj" />
-		<ProjectReference Include="..\Modules\MTConnect.NET-AgentModule-MqttAdapter\MTConnect.NET-AgentModule-MqttAdapter.csproj" />
-		<ProjectReference Include="..\Modules\MTConnect.NET-AgentModule-MqttBroker\MTConnect.NET-AgentModule-MqttBroker.csproj" />
-		<ProjectReference Include="..\Modules\MTConnect.NET-AgentModule-MqttRelay\MTConnect.NET-AgentModule-MqttRelay.csproj" />
-		<ProjectReference Include="..\Modules\MTConnect.NET-AgentModule-ShdrAdapter\MTConnect.NET-AgentModule-ShdrAdapter.csproj" />
-		<ProjectReference Include="..\Processors\MTConnect.NET-AgentProcessor-Python\MTConnect.NET-AgentProcessor-Python.csproj" />
+		<ProjectReference Include="..\MTConnect.NET-Common\MTConnect.NET-Common.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<Compile Update="Service.cs" />
+		<None Include="README-Nuget.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
 	</ItemGroup>
 
 </Project>

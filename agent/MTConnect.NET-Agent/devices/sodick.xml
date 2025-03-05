@@ -1,0 +1,25 @@
+<Device id="Sodick_VN600Q_1" name="Sodick_VN600Q" uuid="Sodick_VN600Q">
+	<Components>
+		<Systems id="systems_56" name="systems">
+			<Components>
+				<x:Wire id="wire_88" name="wire">
+					<DataItems>
+						<DataItem category="SAMPLE" id="wire_89" name="wire_speed" nativeUnits="MILLIMETER/SECOND" type="VELOCITY" units="MILLIMETER/SECOND"/>
+						<DataItem category="SAMPLE" id="wire_90" name="wire_tension_com" nativeUnits="x:GRAM" subType="COMMANDED" type="x:TENSION" units="x:GRAM"/>
+						<DataItem category="SAMPLE" id="wire_91" name="wire_tension_act" nativeUnits="x:GRAM" subType="ACTUAL" type="x:TENSION" units="x:GRAM"/>
+						<DataItem category="SAMPLE" id="wire_92" name="radius" nativeUnits="MILLIMETER" type="x:RADIUS" units="MILLIMETER"/>
+						<DataItem category="EVENT" id="wire_93" name="wire_run" type="x:WIRE_MOTION_STATE"/>
+						<DataItem category="EVENT" id="wire_94" name="discharging" type="x:DISCHARGING"/>
+						<DataItem category="EVENT" id="wire_95" name="contact" type="x:CONTACT"/>
+						<DataItem category="EVENT" id="wire_96" name="connected" type="x:CONNECTED"/>
+						<DataItem category="SAMPLE" id="wire_97" name="upper_power_feed" nativeUnits="SECOND" subType="x:UPPER_POWER_FEED_CONTACT" type="ACCUMULATED_TIME" units="SECOND"/>
+						<DataItem category="SAMPLE" id="wire_98" name="lower_power_feed" nativeUnits="SECOND" subType="x:LOWER_POWER_FEED_CONTACT" type="ACCUMULATED_TIME" units="SECOND"/>
+						<DataItem category="CONDITION" id="wire_99" name="tension" type="x:TENSION"/>
+						<DataItem category="CONDITION" id="wire_100" name="winding" type="x:WINDING"/>
+						<DataItem category="SAMPLE" id="wire_101" name="cutting_speed" nativeUnits="MILLIMETER/MINUTE" type="VELOCITY" units="MILLIMETER/MINUTE"/>
+					</DataItems>
+				</x:Wire>
+			</Components>
+		</Systems>
+	</Components>
+</Device>

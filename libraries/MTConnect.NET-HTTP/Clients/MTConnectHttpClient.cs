@@ -650,7 +650,7 @@ namespace MTConnect.Clients
                 {
                     // Run Probe Request
                     var probe = await GetProbeAsync(_stop.Token);
-                    if (probe != null)
+                    if (probe != null && probe.Header != null)
                     {
                         _lastResponse = UnixDateTime.Now;
                        ResponseReceived?.Invoke(this, new EventArgs());
@@ -958,7 +958,7 @@ namespace MTConnect.Clients
         private static IDevice ProcessDevice(IMTConnectDevicesHeader header, IDevice inputDevice)
         {
             var outputDevice = (Device)inputDevice;
-            outputDevice.InstanceId = header.InstanceId;
+            if (header != null) outputDevice.InstanceId = header.InstanceId;
 
             // Add DataItems
             if (!inputDevice.DataItems.IsNullOrEmpty())
@@ -999,7 +999,7 @@ namespace MTConnect.Clients
         private static IComponent ProcessComponent(IMTConnectDevicesHeader header, IComponent inputComponent)
         {
             var outputComponent = (Component)inputComponent;
-            outputComponent.InstanceId = header.InstanceId;
+            if (header != null) outputComponent.InstanceId = header.InstanceId;
 
             // Add DataItems
             if (!inputComponent.DataItems.IsNullOrEmpty())
