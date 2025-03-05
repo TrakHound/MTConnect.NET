@@ -93,20 +93,16 @@ namespace MTConnect.Configurations
 
                                     return devices;
                                 }
-                            }
-                        }
-
-                        using (var contents = File.OpenRead(rootPath))
-                        {
-                            if (contents != null)
-                            {
-                                if (contents.Position > 0) contents.Seek(0, SeekOrigin.Begin);
-
-                                // Read Single Entity Format
-                                var device = Formatters.EntityFormatter.CreateDevice(documentFormatterId, contents).Content;
-                                if (device != null)
+                                else
                                 {
-                                    return new List<DeviceConfiguration> { new DeviceConfiguration(device, rootPath) };
+                                    if (contents.Position > 0) contents.Seek(0, SeekOrigin.Begin);
+
+                                    // Read Single Entity Format
+                                    var device = Formatters.EntityFormatter.CreateDevice(documentFormatterId, contents).Content;
+                                    if (device != null)
+                                    {
+                                        return new List<DeviceConfiguration> { new DeviceConfiguration(device, rootPath) };
+                                    }
                                 }
                             }
                         }
@@ -117,68 +113,6 @@ namespace MTConnect.Configurations
 
             return null;
         }
-
-        ///// <summary>
-        ///// Gets a list of Devices from the specified file (ex. devices.xml)
-        ///// </summary>
-        ///// <param name="filePath">The path to the Device Configuration file</param>
-        //public static IEnumerable<DeviceConfiguration> FromFile(string filePath, string documentFormatterId)
-        //{
-        //    // Set the Filename
-        //    var path = !string.IsNullOrEmpty(filePath) ? filePath : DefaultFilename;
-
-        //    // Add Working directory (if path is not rooted)
-        //    var rootPath = path;
-        //    if (!System.IO.Path.IsPathRooted(rootPath))
-        //    {
-        //        rootPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, path);
-        //    }
-
-        //    if (!string.IsNullOrEmpty(rootPath))
-        //    {
-        //        try
-        //        {
-        //            if (File.Exists(rootPath))
-        //            {
-        //                using (var contents = File.OpenRead(rootPath))
-        //                {
-        //                    if (contents != null)
-        //                    {
-        //                        if (contents.Position > 0) contents.Seek(0, SeekOrigin.Begin);
-
-        //                        // Read ResponseDocument Format
-        //                        var devicesDocument = Formatters.ResponseDocumentFormatter.CreateDevicesResponseDocument(documentFormatterId, contents).Content;
-        //                        if (devicesDocument != null && devicesDocument.Devices != null && devicesDocument.Devices.Count() > 0)
-        //                        {
-        //                            var devices = new List<DeviceConfiguration>();
-
-        //                            foreach (var device in devicesDocument.Devices)
-        //                            {
-        //                                devices.Add(new DeviceConfiguration(device, rootPath));
-        //                            }
-
-        //                            return devices;
-        //                        }
-        //                        else
-        //                        {
-        //                            if (contents.Position > 0) contents.Seek(0, SeekOrigin.Begin);
-
-        //                            // Read Single Entity Format
-        //                            var device = Formatters.EntityFormatter.CreateDevice(documentFormatterId, contents).Content;
-        //                            if (device != null)
-        //                            {
-        //                                return new List<DeviceConfiguration> { new DeviceConfiguration(device, rootPath) };
-        //                            }
-        //                        }
-        //                    }
-        //                }
-        //            }
-        //        }
-        //        catch { }
-        //    }
-
-        //    return null;
-        //}
 
 #if NETCOREAPP1_0_OR_GREATER
 

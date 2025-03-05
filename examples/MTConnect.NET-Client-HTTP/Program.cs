@@ -25,22 +25,7 @@ namespace MTConnect.Clients.HTTP
 
             client.ProbeReceived += (s, response) =>
             {
-                var formatOptions = new List<KeyValuePair<string, string>>();
-                formatOptions.Add(new KeyValuePair<string, string>("indentOutput", "true"));
-
-                var inputStream = ResponseDocumentFormatter.Format("XML", response, formatOptions).Content;
-                if (inputStream != null)
-                {
-                    inputStream.Seek(0, SeekOrigin.Begin);
-
-                    var outputStream = new MemoryStream();
-                    inputStream.CopyTo(outputStream);
-                    var outputBytes = outputStream.ToArray();
-                    Console.WriteLine(System.Text.Encoding.UTF8.GetString(outputBytes));
-                }
-
-                //foreach (var device in response.Devices) EntityFo;
-                //foreach (var device in response.Devices) Console.WriteLine($"Device Received : {device.Uuid} : {device.Name}");
+                foreach (var device in response.Devices) Console.WriteLine($"Device Received : {device.Uuid} : {device.Name}");
             };
 
             client.CurrentReceived += (s, response) =>

@@ -64,7 +64,7 @@
 		<ProjectReference Include="..\..\libraries\MTConnect.NET-JSON-cppagent\MTConnect.NET-JSON-cppagent.csproj" />
 		<ProjectReference Include="..\..\libraries\MTConnect.NET-JSON\MTConnect.NET-JSON.csproj" />
 		<ProjectReference Include="..\..\libraries\MTConnect.NET-Services\MTConnect.NET-Services.csproj" />
-		<ProjectReference Include="..\..\libraries\MTConnect.NET-XML-2\MTConnect.NET-XML-2.csproj" />
+		<ProjectReference Include="..\..\libraries\MTConnect.NET-XML\MTConnect.NET-XML.csproj" />
 		<ProjectReference Include="..\Modules\MTConnect.NET-AgentModule-HttpAdapter\MTConnect.NET-AgentModule-HttpAdapter.csproj" />
 		<ProjectReference Include="..\Modules\MTConnect.NET-AgentModule-HttpServer\MTConnect.NET-AgentModule-HttpServer.csproj" />
 		<ProjectReference Include="..\Modules\MTConnect.NET-AgentModule-MqttAdapter\MTConnect.NET-AgentModule-MqttAdapter.csproj" />

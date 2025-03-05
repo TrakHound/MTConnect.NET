@@ -1,5 +1,5 @@
 ﻿# - Device Configuration -
-devices: devices/sodick.xml 
+devices: devices 
 
 # - Processors -
 processors:

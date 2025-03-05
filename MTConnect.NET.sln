@@ -117,8 +117,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Templates", "Templates", "{
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Agent", "templates\mtconnect.net-agent\content\MTConnect.NET-Embedded-Agent\Agent.csproj", "{FF3FACB1-C470-4C7F-9A4B-F364BE1E32B3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MTConnect.NET-XML-2", "libraries\MTConnect.NET-XML-2\MTConnect.NET-XML-2.csproj", "{A0B626A0-5AD5-4110-9BF6-147E304D1FE6}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -415,14 +413,6 @@ Global
 		{FF3FACB1-C470-4C7F-9A4B-F364BE1E32B3}.Package|Any CPU.Build.0 = Debug|Any CPU
 		{FF3FACB1-C470-4C7F-9A4B-F364BE1E32B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FF3FACB1-C470-4C7F-9A4B-F364BE1E32B3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A0B626A0-5AD5-4110-9BF6-147E304D1FE6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A0B626A0-5AD5-4110-9BF6-147E304D1FE6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A0B626A0-5AD5-4110-9BF6-147E304D1FE6}.Docker|Any CPU.ActiveCfg = Debug|Any CPU
-		{A0B626A0-5AD5-4110-9BF6-147E304D1FE6}.Docker|Any CPU.Build.0 = Debug|Any CPU
-		{A0B626A0-5AD5-4110-9BF6-147E304D1FE6}.Package|Any CPU.ActiveCfg = Package|Any CPU
-		{A0B626A0-5AD5-4110-9BF6-147E304D1FE6}.Package|Any CPU.Build.0 = Package|Any CPU
-		{A0B626A0-5AD5-4110-9BF6-147E304D1FE6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A0B626A0-5AD5-4110-9BF6-147E304D1FE6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -467,7 +457,6 @@ Global
 		{A9DF36FC-4EF7-4BFB-B47D-F1C10227631A} = {FFF032D3-7446-4CAF-A3E3-CF9C4E1A5DCC}
 		{24C98CF3-CC93-4696-A036-8FD1E16F2E7E} = {FFF032D3-7446-4CAF-A3E3-CF9C4E1A5DCC}
 		{FF3FACB1-C470-4C7F-9A4B-F364BE1E32B3} = {D7873DF2-16DB-4B19-A100-C0089DF37488}
-		{A0B626A0-5AD5-4110-9BF6-147E304D1FE6} = {B7CCD58C-A3F3-43BE-BBF8-2B20D118C39D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CC13D3AD-18BF-4695-AB2A-087EF0885B20}
