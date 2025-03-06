@@ -27,7 +27,7 @@
             <td>Agent</td>
             <td>Docker</td>
             <td><img src="https://img.shields.io/docker/pulls/trakhound/mtconnect.net-agent?style=for-the-badge&logo=docker&label=%20&color=%23333"/></td>
-            <td><a href="https://hub.docker.com/repository/docker/trakhound/mtconnect.net-agent">https://hub.docker.com/repository/docker/trakhound/mtconnect.net-agent</a></td>
+            <td><a href="https://hub.docker.com/r/trakhound/mtconnect.net-agent">https://hub.docker.com/r/trakhound/mtconnect.net-agent</a></td>
         </tr>
         <tr>
             <td>Client</td>
