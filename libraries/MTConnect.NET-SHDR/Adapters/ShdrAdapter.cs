@@ -1,6 +1,7 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
+using Microsoft.Extensions.Logging;
 using MTConnect.Assets;
 using MTConnect.Configurations;
 using MTConnect.Devices;
@@ -13,6 +14,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using MTConnect.Logging;
 
 namespace MTConnect.Adapters
 {
@@ -27,7 +29,7 @@ namespace MTConnect.Adapters
         private readonly AgentClientConnectionListener _connectionListener;
         private readonly Dictionary<string, AgentClient> _clients = new Dictionary<string, AgentClient>();
         private readonly object _lock = new object();
-
+        private ILogger _logger;
 
         private CancellationTokenSource _stop;
         protected CancellationTokenSource StopToken => _stop;
@@ -129,15 +131,19 @@ namespace MTConnect.Adapters
         public event EventHandler<AdapterEventArgs<Exception>> ConnectionError;
 
 
-        public ShdrAdapter(int port = 7878, int heartbeat = 10000)
+        public ShdrAdapter(
+            int port = 7878, 
+            int heartbeat = 10000,
+            ILogger logger = null)
         {
             FilterDuplicates = true;
             OutputTimestamps = true;
             Port = port;
             Heartbeat = heartbeat;
             Timeout = 5000;
+            _logger = logger;
 
-            var adapter = new MTConnectAdapter(null, false);
+            var adapter = new MTConnectAdapter(null, false, logger);
             adapter.OutputTimestamps = OutputTimestamps;
             adapter.WriteObservationsFunction = WriteObservations;
             adapter.WriteAssetsFunction = WriteAssets;
@@ -152,7 +158,11 @@ namespace MTConnect.Adapters
             _connectionListener.ConnectionErrorReceived += ClientConnectionError;
         }
 
-        public ShdrAdapter(string deviceKey, int port = 7878, int heartbeat = 10000)
+        public ShdrAdapter(
+            string deviceKey, 
+            int port = 7878, 
+            int heartbeat = 10000,
+            ILogger logger = null)
         {
             FilterDuplicates = true;
             OutputTimestamps = true;
@@ -160,8 +170,9 @@ namespace MTConnect.Adapters
             Port = port;
             Heartbeat = heartbeat;
             Timeout = 5000;
+            _logger = logger;
 
-            var adapter = new MTConnectAdapter(null, false);
+            var adapter = new MTConnectAdapter(null, false, logger);
             adapter.OutputTimestamps = OutputTimestamps;
             adapter.WriteObservationsFunction = WriteObservations;
             adapter.WriteAssetsFunction = WriteAssets;
@@ -176,10 +187,13 @@ namespace MTConnect.Adapters
             _connectionListener.ConnectionErrorReceived += ClientConnectionError;
         }
 
-        public ShdrAdapter(ShdrAdapterClientConfiguration configuration)
+        public ShdrAdapter(
+            ShdrAdapterClientConfiguration configuration, 
+            ILogger logger = null)
         {
             FilterDuplicates = true;
             OutputTimestamps = true;
+            _logger = logger;
 
             if (configuration != null)
             {
@@ -188,7 +202,7 @@ namespace MTConnect.Adapters
                 Heartbeat = configuration.Heartbeat;
                 Timeout = 5000;
 
-                var adapter = new MTConnectAdapter(null, false);
+                var adapter = new MTConnectAdapter(null, false, logger);
                 adapter.IgnoreTimestamps = configuration.IgnoreTimestamps;
                 adapter.OutputTimestamps = OutputTimestamps;
                 adapter.WriteObservationsFunction = WriteObservations;
@@ -205,15 +219,21 @@ namespace MTConnect.Adapters
             }
         }
 
-        protected ShdrAdapter(int port = 7878, int heartbeat = 10000, int? interval = null, bool bufferEnabled = false)
+        protected ShdrAdapter(
+            int port = 7878, 
+            int heartbeat = 10000, 
+            int? interval = null, 
+            bool bufferEnabled = false,
+            ILogger logger = null)
         {
             FilterDuplicates = true;
             OutputTimestamps = true;
             Port = port;
             Heartbeat = heartbeat;
             Timeout = 5000;
+            _logger = logger;
 
-            var adapter = new MTConnectAdapter(interval, bufferEnabled);
+            var adapter = new MTConnectAdapter(interval, bufferEnabled, logger);
             adapter.OutputTimestamps = OutputTimestamps;
             adapter.WriteObservationsFunction = WriteObservations;
             adapter.WriteAssetsFunction = WriteAssets;
@@ -228,7 +248,13 @@ namespace MTConnect.Adapters
             _connectionListener.ConnectionErrorReceived += ClientConnectionError;
         }
 
-        protected ShdrAdapter(string deviceKey, int port = 7878, int heartbeat = 10000, int? interval = null, bool bufferEnabled = false)
+        protected ShdrAdapter(
+            string deviceKey, 
+            int port = 7878, 
+            int heartbeat = 10000, 
+            int? interval = null, 
+            bool bufferEnabled = false,
+            ILogger logger = null)
         {
             FilterDuplicates = true;
             OutputTimestamps = true;
@@ -236,8 +262,9 @@ namespace MTConnect.Adapters
             Port = port;
             Heartbeat = heartbeat;
             Timeout = 5000;
+            _logger = logger;
 
-            var adapter = new MTConnectAdapter(interval, bufferEnabled);
+            var adapter = new MTConnectAdapter(interval, bufferEnabled, logger);
             adapter.OutputTimestamps = OutputTimestamps;
             adapter.WriteObservationsFunction = WriteObservations;
             adapter.WriteAssetsFunction = WriteAssets;
@@ -252,10 +279,15 @@ namespace MTConnect.Adapters
             _connectionListener.ConnectionErrorReceived += ClientConnectionError;
         }
 
-        protected ShdrAdapter(ShdrAdapterClientConfiguration configuration, int? interval = null, bool bufferEnabled = false)
+        protected ShdrAdapter(
+            ShdrAdapterClientConfiguration configuration, 
+            int? interval = null, 
+            bool bufferEnabled = false,
+            ILogger logger = null)
         {
             FilterDuplicates = true;
             OutputTimestamps = true;
+            _logger = logger;
 
             if (configuration != null)
             {
@@ -264,7 +296,7 @@ namespace MTConnect.Adapters
                 Heartbeat = configuration.Heartbeat;
                 Timeout = 5000;
 
-                var adapter = new MTConnectAdapter(interval, bufferEnabled);
+                var adapter = new MTConnectAdapter(interval, bufferEnabled, logger);
                 adapter.IgnoreTimestamps = configuration.IgnoreTimestamps;
                 adapter.WriteObservationsFunction = WriteObservations;
                 adapter.WriteAssetsFunction = WriteAssets;
@@ -542,6 +574,8 @@ namespace MTConnect.Adapters
             {
                 try
                 {
+                    LogReporter.Report(line, _logger);
+
                     // Write Line to each client in stored client list
                     var clients = GetAgentClients();
                     if (!clients.IsNullOrEmpty())

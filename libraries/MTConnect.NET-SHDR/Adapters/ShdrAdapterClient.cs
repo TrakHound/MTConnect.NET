@@ -1,6 +1,7 @@
 // Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
+using Microsoft.Extensions.Logging;
 using MTConnect.Agents;
 using MTConnect.Assets;
 using MTConnect.Configurations;
@@ -20,8 +21,7 @@ namespace MTConnect.Adapters
         private readonly IShdrAdapterClientConfiguration _configuration;
         private readonly IMTConnectAgent _agent;
         private IDevice _device;
-
-
+        
         public IDevice Device => _device;
 
 
@@ -29,7 +29,8 @@ namespace MTConnect.Adapters
             IShdrAdapterClientConfiguration configuration,
             IMTConnectAgent agent,
             IDevice device,
-            string idSuffix = null
+            string idSuffix = null,
+            ILogger logger = null
             )
         {
             _configuration = configuration;
@@ -37,6 +38,7 @@ namespace MTConnect.Adapters
             if (!string.IsNullOrEmpty(idSuffix)) Id = Id != null ? $"{Id}_{idSuffix}" : idSuffix;
             _agent = agent;
             _device = device;
+            _logger = logger;
 
             if (_configuration != null)
             {
@@ -51,7 +53,8 @@ namespace MTConnect.Adapters
             IMTConnectAgent agent,
             IDevice device,
             string hostname,
-            int port
+            int port,
+            ILogger logger = null
             )
         {
             _configuration = configuration;
@@ -59,6 +62,7 @@ namespace MTConnect.Adapters
             _device = device;
             Hostname = hostname;
             Port = port;
+            _logger = logger;
 
             if (_configuration != null)
             {
