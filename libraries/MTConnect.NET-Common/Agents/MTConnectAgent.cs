@@ -1,4 +1,4 @@
-// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2025 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Agents.Metrics;
@@ -47,6 +47,7 @@ namespace MTConnect.Agents
         private MTConnectAgentMetrics _metrics;
         private readonly string _uuid;
         private readonly ulong _instanceId;
+        private readonly TimeZoneInfo _timeZoneInfo;
         private long _deviceModelChangeTime;
         private Version _version;
         private Version _mtconnectVersion;
@@ -120,6 +121,11 @@ namespace MTConnect.Agents
                 return _sender;
             }
         }
+
+        /// <summary>
+        /// Get the TimeZone that is configured to Output
+        /// </summary>
+        public TimeZoneInfo TimeZoneOutput => _timeZoneInfo;
 
         /// <summary>
         /// A timestamp in 8601 format of the last update of the Device information for any device.
@@ -210,6 +216,7 @@ namespace MTConnect.Agents
             _deviceModelChangeTime = deviceModelChangeTime;
             _mtconnectVersion = MTConnectVersions.Max;
             _version = GetAgentVersion();
+            _timeZoneInfo = GetTimeZone(_configuration);
             InitializeAgentDevice(initializeAgentDevice);
         }
 
@@ -228,6 +235,7 @@ namespace MTConnect.Agents
             _deviceModelChangeTime = deviceModelChangeTime;
             _mtconnectVersion = _configuration != null && _configuration.DefaultVersion != null ? _configuration.DefaultVersion : MTConnectVersions.Max;
             _version = GetAgentVersion();
+            _timeZoneInfo = GetTimeZone(_configuration);
             InitializeAgentDevice(initializeAgentDevice);
         }
 
@@ -2287,6 +2295,27 @@ namespace MTConnect.Agents
         private static Version GetAgentVersion()
         {
             return Assembly.GetExecutingAssembly().GetName().Version;
+        }
+
+        private static TimeZoneInfo GetTimeZone(IAgentConfiguration agentConfiguration)
+        {
+            if (agentConfiguration != null)
+            {
+                if (!string.IsNullOrEmpty(agentConfiguration.TimeZoneOutput))
+                {
+                    var timeZoneDefinition = MTConnectTimeZone.Get(agentConfiguration.TimeZoneOutput);
+                    if (timeZoneDefinition != null)
+                    {
+                        var timeZoneInfo = timeZoneDefinition.ToTimeZoneInfo();
+                        if (timeZoneInfo != null)
+                        {
+                            return timeZoneInfo;
+                        }
+                    }
+                }
+            }
+
+            return TimeZoneInfo.Utc;
         }
     }
 }
