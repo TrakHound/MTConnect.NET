@@ -1,4 +1,4 @@
-// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2025 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using System;
@@ -46,34 +46,31 @@ namespace MTConnect.Errors.Xml
         }
 
 
+        /// <exception cref="XmlException">XML Exception thrown during Serialization</exception>
         public static IErrorResponseDocument FromXml(byte[] xmlBytes)
         {
             if (xmlBytes != null && xmlBytes.Length > 0)
             {
-                try
+                // Clean whitespace and Encoding Marks (BOM)
+                var bytes = XmlFunctions.SanitizeBytes(xmlBytes);
+
+                var xml = Encoding.UTF8.GetString(bytes);
+                xml = xml.Trim();
+
+                var version = MTConnectVersion.Get(xml);
+
+                using (var textReader = new StringReader(Namespaces.Clear(xml)))
                 {
-                    // Clean whitespace and Encoding Marks (BOM)
-                    var bytes = XmlFunctions.SanitizeBytes(xmlBytes);
-
-                    var xml = Encoding.UTF8.GetString(bytes);
-                    xml = xml.Trim();
-
-                    var version = MTConnectVersion.Get(xml);
-
-                    using (var textReader = new StringReader(Namespaces.Clear(xml)))
+                    using (var xmlReader = XmlReader.Create(textReader))
                     {
-                        using (var xmlReader = XmlReader.Create(textReader))
+                        var doc = (XmlErrorResponseDocument)_serializer.Deserialize(xmlReader);
+                        if (doc != null)
                         {
-                            var doc = (XmlErrorResponseDocument)_serializer.Deserialize(xmlReader);
-                            if (doc != null)
-                            {
-                                doc.Version = version;
-                                return doc.ToResponseDocument();
-                            }
+                            doc.Version = version;
+                            return doc.ToResponseDocument();
                         }
                     }
                 }
-                catch { }
             }
 
             return null;
@@ -89,23 +86,19 @@ namespace MTConnect.Errors.Xml
         {
             if (document != null && document.Header != null)
             {
-                try
+                var mtconnectStreamsNamespace = Namespaces.GetStreams(document.Version.Major, document.Version.Minor);
+
+                var outputStream = new MemoryStream();
+
+                // Set the XmlWriterSettings to use
+                var xmlWriterSettings = indentOutput ? XmlFunctions.XmlWriterSettingsIndent : XmlFunctions.XmlWriterSettings;
+
+                // Use XmlWriter to write XML to stream
+                using (var xmlWriter = XmlWriter.Create(outputStream, xmlWriterSettings))
                 {
-                    var mtconnectStreamsNamespace = Namespaces.GetStreams(document.Version.Major, document.Version.Minor);
-
-                    var outputStream = new MemoryStream();
-
-                    // Set the XmlWriterSettings to use
-                    var xmlWriterSettings = indentOutput ? XmlFunctions.XmlWriterSettingsIndent : XmlFunctions.XmlWriterSettings;
-
-                    // Use XmlWriter to write XML to stream
-                    using (var xmlWriter = XmlWriter.Create(outputStream, xmlWriterSettings))
-                    {
-                        WriteXml(xmlWriter, document, indentOutput, outputComments, stylesheet);
-                        return outputStream;
-                    }
+                    WriteXml(xmlWriter, document, indentOutput, outputComments, stylesheet);
+                    return outputStream;
                 }
-                catch { }
             }
 
             return null;

@@ -1,4 +1,4 @@
-// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2025 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Configurations;
@@ -57,41 +57,39 @@ namespace MTConnect.Devices.Xml
             return document;
         }
 
+        /// <exception cref="XmlException">XML Exception thrown during Serialization</exception>
         public static IDevicesResponseDocument FromXml(byte[] xmlBytes)
         {
             if (xmlBytes != null && xmlBytes.Length > 0)
             {
-                try
+                // Clean whitespace and Encoding Marks (BOM)
+                var bytes = XmlFunctions.SanitizeBytes(xmlBytes);
+
+                var xml = Encoding.UTF8.GetString(bytes);
+                var version = MTConnectVersion.Get(xml);
+
+                xml = xml.Trim();
+                xml = Namespaces.Clear(xml);
+
+                using (var textReader = new StringReader(xml))
                 {
-                    // Clean whitespace and Encoding Marks (BOM)
-                    var bytes = XmlFunctions.SanitizeBytes(xmlBytes);
-
-                    var xml = Encoding.UTF8.GetString(bytes);
-                    var version = MTConnectVersion.Get(xml);
-
-                    xml = xml.Trim();
-                    xml = Namespaces.Clear(xml);
-
-                    using (var textReader = new StringReader(xml))
+                    using (var xmlReader = XmlReader.Create(textReader))
                     {
-                        using (var xmlReader = XmlReader.Create(textReader))
+                        var xmlDocument = (XmlDevicesResponseDocument)_serializer.Deserialize(xmlReader);
+                        if (xmlDocument != null)
                         {
-                            var xmlDocument = (XmlDevicesResponseDocument)_serializer.Deserialize(xmlReader);
-                            if (xmlDocument != null)
-                            {
-                                xmlDocument.Version = version;
-                                var document = xmlDocument.ToDocument();
-                                return document;
-                            }
+                            xmlDocument.Version = version;
+                            var document = xmlDocument.ToDocument();
+                            return document;
                         }
                     }
                 }
-                catch { }
             }
 
             return null;
         }
 
+        /// <exception cref="XmlException">XML Exception thrown during Serialization</exception>
         public static byte[] ToXmlBytes(
             IDevicesResponseDocument document,
             IEnumerable<NamespaceConfiguration> extendedSchemas = null,
@@ -102,27 +100,24 @@ namespace MTConnect.Devices.Xml
         {
             if (document != null && document.Header != null)
             {
-                try
+                using (var stream = new MemoryStream())
                 {
-                    using (var stream = new MemoryStream())
-                    {
-                        // Set the XmlWriterSettings to use
-                        var xmlWriterSettings = indent ? XmlFunctions.XmlWriterSettingsIndent : XmlFunctions.XmlWriterSettings;
+                    // Set the XmlWriterSettings to use
+                    var xmlWriterSettings = indent ? XmlFunctions.XmlWriterSettingsIndent : XmlFunctions.XmlWriterSettings;
 
-                        // Use XmlWriter to write XML to stream
-                        using (var xmlWriter = XmlWriter.Create(stream, xmlWriterSettings))
-                        {
-                            WriteXml(xmlWriter, document, indent, outputComments, styleSheet, extendedSchemas);
-                            return stream.ToArray();
-                        }
+                    // Use XmlWriter to write XML to stream
+                    using (var xmlWriter = XmlWriter.Create(stream, xmlWriterSettings))
+                    {
+                        WriteXml(xmlWriter, document, indent, outputComments, styleSheet, extendedSchemas);
+                        return stream.ToArray();
                     }
                 }
-                catch { }
             }
 
             return null;
         }
 
+        /// <exception cref="XmlException">XML Exception thrown during Serialization</exception>
         public static Stream ToXmlStream(
             IDevicesResponseDocument document,
             IEnumerable<NamespaceConfiguration> extendedSchemas = null,
@@ -133,26 +128,23 @@ namespace MTConnect.Devices.Xml
         {
             if (document != null && document.Header != null)
             {
-                try
+                var outputStream = new MemoryStream();
+
+                // Set the XmlWriterSettings to use
+                var xmlWriterSettings = indent ? XmlFunctions.XmlWriterSettingsIndent : XmlFunctions.XmlWriterSettings;
+
+                // Use XmlWriter to write XML to stream
+                using (var xmlWriter = XmlWriter.Create(outputStream, xmlWriterSettings))
                 {
-                    var outputStream = new MemoryStream();
-
-                    // Set the XmlWriterSettings to use
-                    var xmlWriterSettings = indent ? XmlFunctions.XmlWriterSettingsIndent : XmlFunctions.XmlWriterSettings;
-
-                    // Use XmlWriter to write XML to stream
-                    using (var xmlWriter = XmlWriter.Create(outputStream, xmlWriterSettings))
-                    {
-                        WriteXml(xmlWriter, document, indent, outputComments, styleSheet, extendedSchemas);
-                        return outputStream;
-                    }
+                    WriteXml(xmlWriter, document, indent, outputComments, styleSheet, extendedSchemas);
+                    return outputStream;
                 }
-                catch { }
             }
 
             return null;
         }
 
+        /// <exception cref="XmlException">XML Exception thrown during Serialization</exception>
         public static void WriteXml(
             XmlWriter writer,
             IDevicesResponseDocument document,
