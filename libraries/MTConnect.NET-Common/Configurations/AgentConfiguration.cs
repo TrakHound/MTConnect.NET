@@ -1,4 +1,4 @@
-// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2025 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Agents;
@@ -93,6 +93,12 @@ namespace MTConnect.Configurations
         /// </summary>
         [JsonPropertyName("ignoreObservationCase")]
         public bool IgnoreObservationCase { get; set; }
+
+        /// <summary>
+        /// Gets or Sets whether validation information is output
+        /// </summary>
+        [JsonPropertyName("enableValidation")]
+        public bool EnableValidation { get; set; }
 
         /// <summary>
         /// Gets or Sets the default Input (Observation or Asset) validation level. 0 = Ignore, 1 = Warning, 2 = Remove, 3 = Strict

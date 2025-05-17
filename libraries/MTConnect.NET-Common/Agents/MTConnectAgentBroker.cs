@@ -1,4 +1,4 @@
-// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2025 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Assets;
@@ -467,9 +467,11 @@ namespace MTConnect.Agents
                 InstanceId = InstanceId,
                 Sender = Sender,
                 Version = Version.ToString(),
-                TestIndicator = false
+                TestIndicator = false,
+                Validation = Configuration.EnableValidation
             };
 
+            if (version < MTConnectVersions.Version25) header.Validation = false;
             if (version < MTConnectVersions.Version17) header.DeviceModelChangeTime = null;
             if (version < MTConnectVersions.Version12) header.AssetBufferSize = 0;
             if (version < MTConnectVersions.Version12) header.AssetCount = 0;
@@ -492,9 +494,11 @@ namespace MTConnect.Agents
                 FirstSequence = results.FirstSequence,
                 LastSequence = results.LastSequence,
                 NextSequence = results.NextSequence,
-                TestIndicator = false
+                TestIndicator = false,
+                Validation = Configuration.EnableValidation
             };
 
+            if (version < MTConnectVersions.Version25) header.Validation = false;
             if (version < MTConnectVersions.Version17) header.DeviceModelChangeTime = null;
 
             return header;
@@ -513,9 +517,11 @@ namespace MTConnect.Agents
                 InstanceId = InstanceId,
                 Sender = Sender,
                 Version = Version.ToString(),
-                TestIndicator = false
+                TestIndicator = false,
+                Validation = Configuration.EnableValidation
             };
 
+            if (version < MTConnectVersions.Version25) header.Validation = false;
             if (version < MTConnectVersions.Version17) header.DeviceModelChangeTime = null;
 
             return header;
