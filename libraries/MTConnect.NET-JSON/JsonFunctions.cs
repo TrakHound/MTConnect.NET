@@ -1,6 +1,7 @@
 // Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
+using System;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -43,6 +44,23 @@ namespace MTConnect
             }
         }
 
+
+        public static string GetTimestamp(DateTime timestamp)
+        {
+            return timestamp.ToString("o");
+        }
+
+        public static string GetTimestamp(DateTimeOffset timestamp)
+        {
+            if (timestamp.Offset != TimeSpan.Zero)
+            {
+                return timestamp.ToString("o");
+            }
+            else
+            {
+                return timestamp.UtcDateTime.ToString("o");
+            }
+        }
 
         public static string Convert(object obj, JsonConverter converter = null, bool indented = false)
         {

@@ -42,6 +42,23 @@ namespace MTConnect
         public static XmlWriterSettings XmlWriterSettingsIndent => _xmlWriterSettingsIndent;
 
 
+        public static string GetTimestamp(DateTime timestamp)
+        {
+            return timestamp.ToString("o");
+        }
+
+        public static string GetTimestamp(DateTimeOffset timestamp)
+        {
+            if (timestamp.Offset != TimeSpan.Zero)
+            {
+                return timestamp.ToString("o");
+            }
+            else
+            {
+                return timestamp.UtcDateTime.ToString("o");
+            }
+        }
+
         public static byte[] SanitizeBytes(byte[] inputBytes)
         {
             if (inputBytes != null)

@@ -195,7 +195,7 @@ namespace MTConnect.Streams.Xml
                     writer.WriteAttributeString("sequence", observation.Sequence.ToString());
 
                     // Timestamp
-                    writer.WriteAttributeString("timestamp", observation.Timestamp.ToString("o"));
+                    writer.WriteAttributeString("timestamp", XmlFunctions.GetTimestamp(observation.TimeZoneTimestamp));
 
 
                     // Add Values

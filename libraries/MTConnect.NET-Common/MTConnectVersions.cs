@@ -7,7 +7,7 @@ namespace MTConnect
 {
     public static class MTConnectVersions
     {
-        public static Version Max => Version24;
+        public static Version Max => Version25;
 
         public static readonly Version Version10 = new Version(1, 0);
         public static readonly Version Version11 = new Version(1, 1);
@@ -23,5 +23,6 @@ namespace MTConnect
         public static readonly Version Version22 = new Version(2, 2);
         public static readonly Version Version23 = new Version(2, 3);
         public static readonly Version Version24 = new Version(2, 4);
+        public static readonly Version Version25 = new Version(2, 5);
     }
 }

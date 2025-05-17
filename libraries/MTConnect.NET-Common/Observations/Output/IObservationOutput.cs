@@ -29,6 +29,8 @@ namespace MTConnect.Observations.Output
 
         DateTime Timestamp { get; }
 
+        DateTimeOffset TimeZoneTimestamp { get; }
+
         string CompositionId { get; }
 
         DataItemRepresentation Representation { get; }

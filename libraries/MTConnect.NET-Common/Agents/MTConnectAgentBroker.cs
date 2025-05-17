@@ -1240,7 +1240,7 @@ namespace MTConnect.Agents
             return null;
         }
 
-        private static IObservationOutput CreateObservation(IDataItem dataItem, ref BufferObservation bufferObservation)
+        private IObservationOutput CreateObservation(IDataItem dataItem, ref BufferObservation bufferObservation)
         {
             var observation = new ObservationOutput();
             observation._dataItem = dataItem;
@@ -1253,7 +1253,10 @@ namespace MTConnect.Agents
             observation._name = dataItem.Name;
             observation._compositionId = dataItem.CompositionId;
             observation._sequence = bufferObservation.Sequence;
+
             observation._timestamp = bufferObservation.Timestamp.ToDateTime();
+            observation._timeZoneTimestamp = MTConnectTimeZone.GetTimestamp(observation._timestamp, TimeZoneOutput);
+
             observation._values = bufferObservation.Values;
             return observation;
         }

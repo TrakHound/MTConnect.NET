@@ -51,6 +51,12 @@ namespace MTConnect.Configurations
 
 
         /// <summary>
+        /// Sets the TimeZone to use when timestamps are output from the Agent
+        /// </summary>
+        [JsonPropertyName("timezoneOutput")]
+        public string TimeZoneOutput { get; set; }
+
+        /// <summary>
         /// Overwrite timestamps with the agent time. 
         /// This will correct clock drift but will not give as accurate relative time since it will not take into consideration network latencies. 
         /// This can be overridden on a per adapter basis.

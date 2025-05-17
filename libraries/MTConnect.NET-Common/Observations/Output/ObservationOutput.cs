@@ -50,6 +50,13 @@ namespace MTConnect.Observations.Output
             set => _timestamp = value;
         }
 
+        internal DateTimeOffset _timeZoneTimestamp;
+        public DateTimeOffset TimeZoneTimestamp
+        {
+            get => _timeZoneTimestamp;
+            set => _timeZoneTimestamp = value;
+        }
+
         /// <summary>
         /// The name of the DataItem.
         /// The name MUST match the name of the data item defined in the Device Information Model that this DataItem represents.
