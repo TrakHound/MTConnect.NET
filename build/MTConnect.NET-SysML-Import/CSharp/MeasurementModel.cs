@@ -4,25 +4,25 @@ using Scriban;
 
 namespace MTConnect.SysML.CSharp
 {
-    public class CuttingToolMeasurementModel : MTConnectMeasurementModel, ITemplateModel
+    public class MeasurementModel : MTConnectMeasurementModel, ITemplateModel
     {
         public string Namespace => NamespaceHelper.GetNamespace(Id);
 
         public string XmlDescription { get; set; }
 
 
-        public static CuttingToolMeasurementModel Create(MTConnectMeasurementModel importModel)
+        public static MeasurementModel Create(MTConnectMeasurementModel importModel)
         {
             if (importModel != null)
             {
-                var type = typeof(CuttingToolMeasurementModel);
+                var type = typeof(MeasurementModel);
 
                 var importProperties = importModel.GetType().GetProperties();
                 var exportProperties = type.GetProperties();
 
                 if (importProperties != null && exportProperties != null)
                 {
-                    var exportModel = new CuttingToolMeasurementModel();
+                    var exportModel = new MeasurementModel();
 
                     foreach (var importProperty in importProperties)
                     {
@@ -47,7 +47,7 @@ namespace MTConnect.SysML.CSharp
 
         public string RenderModel()
         {
-            var templateFilename = $"Assets.CuttingToolMeasurement.scriban";
+            var templateFilename = $"Assets.Measurement.scriban";
             var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "csharp", "templates", templateFilename);
             if (File.Exists(templatePath))
             {

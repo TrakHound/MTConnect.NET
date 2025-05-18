@@ -407,6 +407,8 @@ namespace MTConnect.SysML
 
                 case "_19_0_3_68e0225_1605277201359_44575_523": return true; // Assets.Files.File.Destinations
 
+                //case "_19_0_3_91b028d_1582658982276_248635_527": return true; // Assets.CuttingItem.Measurements
+
                 //case "_19_0_3_68e0225_1622116618960_627070_1641": return true; // Assets.RawMaterial.InitialDimension
                 //case "_19_0_3_68e0225_1622116618964_666287_1642": return true; // Assets.RawMaterial.CurrentDimension
 

@@ -2,9 +2,6 @@
 using MTConnect.SysML.Models.Devices;
 using MTConnect.SysML.Models.Observations;
 using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 
 namespace MTConnect.SysML.CSharp
 {
@@ -18,10 +15,29 @@ namespace MTConnect.SysML.CSharp
                 if (exportModels != null)
                 {
                     var classModels = exportModels.Where(o => typeof(MTConnectClassModel).IsAssignableFrom(o.GetType())).Select(o => (MTConnectClassModel)o);
-                    var dClassModels = classModels.Where(o => o.Name != null).ToDictionary(o => o.Name);
+
+                    var dClassModels = new Dictionary<string, MTConnectClassModel>();
+                    foreach (var classModel in classModels)
+                    {
+                        if (!string.IsNullOrEmpty(classModel.Name))
+                        {
+                            if (!dClassModels.ContainsKey(classModel.Name)) dClassModels.Add(classModel.Name, classModel);
+                        }
+                    }
+                    //var dClassModels = classModels.Where(o => o.Name != null).ToDictionary(o => o.Name);
+
 
                     var enumModels = exportModels.Where(o => typeof(MTConnectEnumModel).IsAssignableFrom(o.GetType())).Select(o => (MTConnectEnumModel)o);
-                    var dEnumModels = enumModels.Where(o => o.Name != null).ToDictionary(o => o.Name);
+
+                    var dEnumModels = new Dictionary<string, MTConnectEnumModel>();
+                    foreach (var enumModel in enumModels)
+                    {
+                        if (!string.IsNullOrEmpty(enumModel.Name))
+                        {
+                            if (!dEnumModels.ContainsKey(enumModel.Name)) dEnumModels.Add(enumModel.Name, enumModel);
+                        }
+                    }
+                    //var dEnumModels = enumModels.Where(o => o.Name != null).ToDictionary(o => o.Name);
 
 
                     var templates = new List<ITemplateModel>();
@@ -80,7 +96,11 @@ namespace MTConnect.SysML.CSharp
                             if (((MTConnectComponentType)exportModel).Type == "Controllers") ((MTConnectComponentType)exportModel).MinimumVersion = new Version(1, 0);
                             template = ComponentType.Create((MTConnectComponentType)exportModel);
                         }
-                        else if (typeof(MTConnectCuttingToolMeasurementModel).IsAssignableFrom(type)) template = CuttingToolMeasurementModel.Create((MTConnectCuttingToolMeasurementModel)exportModel);
+                        else if (typeof(MTConnectMeasurementModel).IsAssignableFrom(type))
+                        {
+                            if (exportModel.Id.StartsWith("Assets.CuttingTools.")) template = CuttingToolMeasurementModel.Create((MTConnectMeasurementModel)exportModel);
+                            //else if (exportModel.Id.StartsWith("Assets.Pallet.")) template = MeasurementModel.Create((MTConnectMeasurementModel)exportModel);
+                        }
                         else if (exportModel.Id.EndsWith("Result"))
                         {
                             template = DataSetResultModel.Create((MTConnectClassModel)exportModel);
@@ -94,6 +114,7 @@ namespace MTConnect.SysML.CSharp
                                 case "Devices.UnitsEnum": template = EnumStringModel.Create((MTConnectEnumModel)exportModel, ConvertUnitEnum); break;
                                 case "Devices.NativeUnitsEnum": template = EnumStringModel.Create((MTConnectEnumModel)exportModel, ConvertUnitEnum); break;
                                 case "Assets.CuttingTools.Measurements.MeasurementCodeEnum": template = EnumStringModel.Create((MTConnectEnumModel)exportModel, ConvertMeasurementCodeEnum); break;
+                                //case "Assets.Pallet.Measurements.MeasurementCodeEnum": template = EnumStringModel.Create((MTConnectEnumModel)exportModel, ConvertMeasurementCodeEnum); break;
                                 default: template = EnumModel.Create((MTConnectEnumModel)exportModel); break;
                             }
                         }
@@ -125,6 +146,7 @@ namespace MTConnect.SysML.CSharp
                                 //case "Devices.Configurations.CriticalityType": ((EnumModel)template).Values.Add(new MTConnectEnumValueModel { Name = "NOT_SPECIFIED" }); break;
 
                                 case "Assets.Asset": ((ClassModel)template).IsPartial = true; break;
+                                case "Assets.PhysicalAsset": ((ClassModel)template).IsPartial = true; break;
                                 case "Assets.ComponentConfigurationParameters.ComponentConfigurationParameters": 
                                     ((ClassModel)template).IsPartial = true;
                                     ((ClassModel)template).Id += "Asset";
@@ -171,6 +193,18 @@ namespace MTConnect.SysML.CSharp
                                     ((ClassModel)template).Id += "Asset";
                                     ((ClassModel)template).Name += "Asset";
                                     if (((ClassModel)template).ParentName != null && ((ClassModel)template).ParentName != "Asset") ((ClassModel)template).ParentName += "Asset";
+                                    break;
+                                case "Assets.Fixture.Fixture":
+                                    ((ClassModel)template).IsPartial = true;
+                                    ((ClassModel)template).Id += "Asset";
+                                    ((ClassModel)template).Name += "Asset";
+                                    //if (((ClassModel)template).ParentName != null && ((ClassModel)template).ParentName != "Asset") ((ClassModel)template).ParentName += "Asset";
+                                    break;
+                                case "Assets.Pallet.Pallet":
+                                    ((ClassModel)template).IsPartial = true;
+                                    ((ClassModel)template).Id += "Asset";
+                                    ((ClassModel)template).Name += "Asset";
+                                    //if (((ClassModel)template).ParentName != null && ((ClassModel)template).ParentName != "Asset") ((ClassModel)template).ParentName += "Asset";
                                     break;
                                 case "Assets.QIF.QIFDocumentWrapper":
                                     ((ClassModel)template).IsPartial = true;
