@@ -699,6 +699,9 @@ namespace MTConnect.Agents
             observationOutput._instanceId = _instanceId;
             observationOutput._sequence = observation.Sequence;
             observationOutput._timestamp = observation.Timestamp;
+            observationOutput._quality = observation.Quality;
+            observationOutput._deprecated = observation.Deprecated;
+            observationOutput._extended = observation.Extended;
             observationOutput._values = observation.Values?.ToArray();
             return observationOutput;
         }
@@ -1932,12 +1935,11 @@ namespace MTConnect.Agents
                     }
 
                     var success = false;
-                    var validationResult = new ValidationResult(true);
+                    var validationResult = dataItem.Validate(MTConnectVersion, input);
 
                     if (_configuration.InputValidationLevel > InputValidationLevel.Ignore)
                     {
                         // Validate Observation Input with DataItem type
-                        validationResult = dataItem.Validate(MTConnectVersion, input);
                         if (!validationResult.IsValid) validationResult.Message = $"{dataItem.Type} : {dataItem.Id} : {validationResult.Message}";
                     }
 
@@ -1985,6 +1987,20 @@ namespace MTConnect.Agents
                                 observation.InstanceId = _instanceId;
                                 observation.Timestamp = input.Timestamp.ToDateTime();
                                 observation.AddValues(input.Values);
+
+                                // Re-validate after adding default properties/values
+                                validationResult = dataItem.Validate(_mtconnectVersion, observation);
+
+                                if (_configuration.EnableValidation)
+                                {
+                                    // Set Quality using Validation
+                                    if (validationResult.IsValid) observation.Quality = Quality.VALID;
+                                    else observation.Quality = Quality.INVALID;
+
+                                    // Set Deprecated / Extended flags
+                                    observation.Deprecated = dataItem.MaximumVersion != null && dataItem.MaximumVersion < _mtconnectVersion;
+                                    observation.Extended = dataItem.IsExtended || !validationResult.IsValid;
+                                }
 
                                 // Update Current Observations
                                 if (dataItem.Category == DataItemCategory.CONDITION) UpdateCurrentCondition(deviceUuid, dataItem, observation);

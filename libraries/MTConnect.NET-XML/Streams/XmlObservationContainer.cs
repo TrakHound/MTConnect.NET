@@ -197,6 +197,24 @@ namespace MTConnect.Streams.Xml
                     // Timestamp
                     writer.WriteAttributeString("timestamp", XmlFunctions.GetTimestamp(observation.TimeZoneTimestamp));
 
+                    // Quality
+                    if (observation.Quality != Quality.UNVERIFIABLE)
+                    {
+                        writer.WriteAttributeString("quality", observation.Quality.ToString());
+                    }
+
+                    // Deprecated
+                    if (observation.Deprecated)
+                    {
+                        writer.WriteAttributeString("deprecated", "true");
+                    }
+
+                    // Extended
+                    if (observation.Extended)
+                    {
+                        writer.WriteAttributeString("extended", "true");
+                    }
+
 
                     // Add Values
                     if (!observation.Values.IsNullOrEmpty())

@@ -1,4 +1,4 @@
-// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2025 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Devices;
@@ -16,6 +16,9 @@ namespace MTConnect.Buffers
         internal long _timestamp;
         internal byte _category;
         internal byte _representation;
+        internal byte _quality;
+        internal bool _deprecated;
+        internal bool _extended;
 
         public int Key
         {
@@ -81,6 +84,35 @@ namespace MTConnect.Buffers
             }
         }
 
+        public Quality Quality
+        {
+            get
+            {
+                switch (_quality)
+                {
+                    case 0: return Quality.INVALID;
+                    case 2: return Quality.VALID;
+                    default: return Quality.UNVERIFIABLE;
+                }
+            }
+            set
+            {
+                _quality = (byte)value;
+            }
+        }
+
+        public bool Deprecated
+        {
+            get => _deprecated;
+            set => _deprecated = value;
+        }
+
+        public bool Extended
+        {
+            get => _extended;
+            set => _extended = value;
+        }
+
 
         public bool IsValid =>
             Key >= 0 &&
@@ -97,6 +129,9 @@ namespace MTConnect.Buffers
             _timestamp = observation.Timestamp.ToUnixTime();
             _category = (byte)observation.Category;
             _representation = (byte)observation.Representation;
+            _quality = (byte)observation.Quality;
+            _deprecated = observation.Deprecated;
+            _extended = observation.Extended;
 
             // Sort by Key Asc (needed for processing later on, and maybe better performance when searching)
             if (observation.Values != null)
@@ -113,6 +148,9 @@ namespace MTConnect.Buffers
             _timestamp = observation.Timestamp.ToUnixTime();
             _category = (byte)observation.Category;
             _representation = (byte)observation.Representation;
+            _quality = (byte)observation.Quality;
+            _deprecated = observation.Deprecated;
+            _extended = observation.Extended;
 
             // Sort by Key Asc (needed for processing later on, and maybe better performance when searching)
             if (observation.Values != null)
@@ -128,7 +166,10 @@ namespace MTConnect.Buffers
             DataItemRepresentation representation, 
             IEnumerable<ObservationValue> values,
             ulong sequence,
-            long timestamp
+            long timestamp,
+            Quality quality,
+            bool deprecated,
+            bool extended
             )
         {
             _key = bufferKey;
@@ -136,6 +177,9 @@ namespace MTConnect.Buffers
             _representation = (byte)representation;
             _sequence = sequence;
             _timestamp = timestamp;
+            _quality = (byte)quality;
+            _deprecated = deprecated;
+            _extended = extended;
 
             // Sort by Key Asc (needed for processing later on, and maybe better performance when searching)
             if (values != null)

@@ -75,6 +75,11 @@ namespace MTConnect.Devices
         /// </summary>
         Version MinimumVersion { get; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        bool IsExtended { get; }
+
 
         /// <summary>
         /// Determine if the DataItem with the specified Observation is valid in the specified MTConnectVersion
