@@ -589,40 +589,40 @@ namespace MTConnect.Buffers
                 {
                     _currentObservations.TryGetValue(observation._key, out existingObservation);
                     _currentObservations.Remove(observation._key);
-                }
-
-                if (existingObservation.IsValid && !isUnavailable)
-                {
-                    if (resetTriggered == ResetTriggered.NOT_SPECIFIED)
+                
+                    if (existingObservation.IsValid && !isUnavailable)
                     {
-                        // Update Observations based on Representation
-                        switch (observation.Representation)
+                        if (resetTriggered == ResetTriggered.NOT_SPECIFIED)
                         {
-                            case DataItemRepresentation.DATA_SET:
+                            // Update Observations based on Representation
+                            switch (observation.Representation)
+                            {
+                                case DataItemRepresentation.DATA_SET:
 
-                                // Update DataSet Values
-                                var existingDataSetValues = GetDataSetValues(ref existingObservation);
-                                if (!existingDataSetValues.IsNullOrEmpty())
-                                {
-                                    observation.Values = CombineDataSetValues(observation.Values, ref existingDataSetValues);
-                                }
+                                    // Update DataSet Values
+                                    var existingDataSetValues = GetDataSetValues(ref existingObservation);
+                                    if (!existingDataSetValues.IsNullOrEmpty())
+                                    {
+                                        observation.Values = CombineDataSetValues(observation.Values, ref existingDataSetValues);
+                                    }
 
-                                break;
+                                    break;
 
-                            case DataItemRepresentation.TABLE:
+                                case DataItemRepresentation.TABLE:
 
-                                // Update Table Values
-                                var existingTableValues = GetTableValues(ref existingObservation);
-                                if (!existingTableValues.IsNullOrEmpty())
-                                {
-                                    observation.Values = CombineTableValues(observation.Values, ref existingTableValues);
-                                }
-                                break;
+                                    // Update Table Values
+                                    var existingTableValues = GetTableValues(ref existingObservation);
+                                    if (!existingTableValues.IsNullOrEmpty())
+                                    {
+                                        observation.Values = CombineTableValues(observation.Values, ref existingTableValues);
+                                    }
+                                    break;
+                            }
                         }
                     }
-                }
 
-                lock (_lock) _currentObservations.Add(observation._key, observation);
+                    _currentObservations.Add(observation._key, observation);
+                }
 
                 // Call Overridable Methods
                 OnCurrentObservationAdd(ref observation);
@@ -642,49 +642,53 @@ namespace MTConnect.Buffers
                 var bufferObservations = new List<BufferObservation>();
 
                 IEnumerable<BufferObservation> existingObservations;
+                IEnumerable<BufferObservation> iBufferObservations;
                 lock (_lock)
                 {
                     _currentConditions.TryGetValue(observation._key, out existingObservations);
                     _currentConditions.Remove(observation._key);
-                }          
 
-                if (!existingObservations.IsNullOrEmpty())
-                {
-                    var conditionLevel = observation.GetValue(ValueKeys.Level);
-                    var nativeCode = observation.GetValue(ValueKeys.NativeCode);
-
-                    if (!(conditionLevel == ConditionLevel.NORMAL.ToString() && string.IsNullOrEmpty(nativeCode)) &&
-                        conditionLevel != ConditionLevel.UNAVAILABLE.ToString())
+                    if (!existingObservations.IsNullOrEmpty())
                     {
-                        foreach (var existingObservation in existingObservations)
-                        {
-                            var existingLevel = existingObservation.GetValue(ValueKeys.Level);
-                            var existingNativeCode = existingObservation.GetValue(ValueKeys.NativeCode);
+                        var conditionLevel = observation.GetValue(ValueKeys.Level);
+                        var nativeCode = observation.GetValue(ValueKeys.NativeCode);
 
-                            if (existingNativeCode != nativeCode && 
-                                existingLevel != ConditionLevel.UNAVAILABLE.ToString() &&
-                                existingObservation.Sequence != observation.Sequence)
+                        if (!(conditionLevel == ConditionLevel.NORMAL.ToString() && string.IsNullOrEmpty(nativeCode)) &&
+                            conditionLevel != ConditionLevel.UNAVAILABLE.ToString())
+                        {
+                            foreach (var existingObservation in existingObservations)
                             {
-                                bufferObservations.Add(existingObservation);
+                                var existingLevel = existingObservation.GetValue(ValueKeys.Level);
+                                var existingNativeCode = existingObservation.GetValue(ValueKeys.NativeCode);
+
+                                if (existingNativeCode != nativeCode &&
+                                    existingLevel != ConditionLevel.UNAVAILABLE.ToString() &&
+                                    existingObservation.Sequence != observation.Sequence)
+                                {
+                                    bufferObservations.Add(existingObservation);
+                                }
                             }
                         }
                     }
+
+                    // Add the new Observation
+                    bufferObservations.Add(observation);
+
+                    // If any WARNING or FAULT states present, then remove any NORMAL states
+                    // Current should only show the active states
+                    if (bufferObservations.Any(o =>
+                            o.GetValue(ValueKeys.Level) == ConditionLevel.WARNING.ToString() ||
+                            o.GetValue(ValueKeys.Level) == ConditionLevel.FAULT.ToString()))
+                    {
+                        bufferObservations.RemoveAll(o =>
+                            o.GetValue(ValueKeys.Level) == ConditionLevel.NORMAL.ToString());
+                    }
+
+                    iBufferObservations = bufferObservations;
+
+                    // Add to stored List
+                    _currentConditions.Add(observation._key, iBufferObservations);
                 }
-
-                // Add the new Observation
-                bufferObservations.Add(observation);
-
-                // If any WARNING or FAULT states present, then remove any NORMAL states
-                // Current should only show the active states
-                if (bufferObservations.Any(o => o.GetValue(ValueKeys.Level) == ConditionLevel.WARNING.ToString() || o.GetValue(ValueKeys.Level) == ConditionLevel.FAULT.ToString()))
-                {
-                    bufferObservations.RemoveAll(o => o.GetValue(ValueKeys.Level) == ConditionLevel.NORMAL.ToString());
-                }
-
-                IEnumerable<BufferObservation> iBufferObservations = bufferObservations;
-
-                // Add to stored List
-                lock (_lock) _currentConditions.Add(observation._key, iBufferObservations);
 
                 // Call Overridable Method
                 OnCurrentConditionChange(GetCurrentConditions());
