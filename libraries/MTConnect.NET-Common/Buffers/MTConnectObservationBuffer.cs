@@ -74,7 +74,7 @@ namespace MTConnect.Buffers
         {
             get
             {
-                lock (_lock) return _currentObservations;
+                lock (_lock) return new Dictionary<int, BufferObservation>(_currentObservations);
             }
         }
 
@@ -82,7 +82,7 @@ namespace MTConnect.Buffers
         {
             get
             {
-                lock (_lock) return _currentConditions;
+                lock (_lock) return new Dictionary<int, IEnumerable<BufferObservation>>(_currentConditions);
             }
         }
 
@@ -127,10 +127,7 @@ namespace MTConnect.Buffers
         /// </summary>
         protected void SetSequence(ulong sequence)
         {
-            lock (_lock)
-            {
-                _sequence = sequence;
-            }
+            _sequence = sequence;
         }
 
         /// <summary>
@@ -163,28 +160,17 @@ namespace MTConnect.Buffers
 
         protected IEnumerable<BufferObservation> GetCurrentObservations()
         {
-            var x = new List<BufferObservation>();
-
-            lock (_lock)
-            {
-                var observations = _currentObservations.Values;
-                if (!observations.IsNullOrEmpty()) x.AddRange(observations);
-            }
-
-            return x;
+            return new List<BufferObservation>(_currentObservations.Values);
         }
 
         protected IEnumerable<BufferObservation> GetCurrentConditions()
         {
             var x = new List<BufferObservation>();
 
-            lock (_lock)
+            var conditions = _currentConditions.Values;
+            if (!conditions.IsNullOrEmpty())
             {
-                var conditions = _currentConditions.Values;
-                if (!conditions.IsNullOrEmpty())
-                {
-                    foreach (var condition in conditions) x.AddRange(condition);
-                }
+                foreach (var condition in conditions) x.AddRange(condition);
             }
 
             return x;
@@ -584,13 +570,9 @@ namespace MTConnect.Buffers
                 // Check for UNAVAILABLE
                 var isUnavailable = observation.GetValue(ValueKeys.Result) == Observation.Unavailable;
 
-                BufferObservation existingObservation;
-                lock (_lock)
-                {
-                    _currentObservations.TryGetValue(observation._key, out existingObservation);
-                    _currentObservations.Remove(observation._key);
-                }
-
+                _currentObservations.TryGetValue(observation._key, out var existingObservation);
+                _currentObservations.Remove(observation._key);
+            
                 if (existingObservation.IsValid && !isUnavailable)
                 {
                     if (resetTriggered == ResetTriggered.NOT_SPECIFIED)
@@ -622,7 +604,7 @@ namespace MTConnect.Buffers
                     }
                 }
 
-                lock (_lock) _currentObservations.Add(observation._key, observation);
+                _currentObservations.Add(observation._key, observation);
 
                 // Call Overridable Methods
                 OnCurrentObservationAdd(ref observation);
@@ -641,12 +623,8 @@ namespace MTConnect.Buffers
             {
                 var bufferObservations = new List<BufferObservation>();
 
-                IEnumerable<BufferObservation> existingObservations;
-                lock (_lock)
-                {
-                    _currentConditions.TryGetValue(observation._key, out existingObservations);
-                    _currentConditions.Remove(observation._key);
-                }          
+                _currentConditions.TryGetValue(observation._key, out var existingObservations);
+                _currentConditions.Remove(observation._key);
 
                 if (!existingObservations.IsNullOrEmpty())
                 {
@@ -661,7 +639,7 @@ namespace MTConnect.Buffers
                             var existingLevel = existingObservation.GetValue(ValueKeys.Level);
                             var existingNativeCode = existingObservation.GetValue(ValueKeys.NativeCode);
 
-                            if (existingNativeCode != nativeCode && 
+                            if (existingNativeCode != nativeCode &&
                                 existingLevel != ConditionLevel.UNAVAILABLE.ToString() &&
                                 existingObservation.Sequence != observation.Sequence)
                             {
@@ -676,15 +654,18 @@ namespace MTConnect.Buffers
 
                 // If any WARNING or FAULT states present, then remove any NORMAL states
                 // Current should only show the active states
-                if (bufferObservations.Any(o => o.GetValue(ValueKeys.Level) == ConditionLevel.WARNING.ToString() || o.GetValue(ValueKeys.Level) == ConditionLevel.FAULT.ToString()))
+                if (bufferObservations.Any(o =>
+                        o.GetValue(ValueKeys.Level) == ConditionLevel.WARNING.ToString() ||
+                        o.GetValue(ValueKeys.Level) == ConditionLevel.FAULT.ToString()))
                 {
-                    bufferObservations.RemoveAll(o => o.GetValue(ValueKeys.Level) == ConditionLevel.NORMAL.ToString());
+                    bufferObservations.RemoveAll(o =>
+                        o.GetValue(ValueKeys.Level) == ConditionLevel.NORMAL.ToString());
                 }
 
                 IEnumerable<BufferObservation> iBufferObservations = bufferObservations;
 
                 // Add to stored List
-                lock (_lock) _currentConditions.Add(observation._key, iBufferObservations);
+                _currentConditions.Add(observation._key, iBufferObservations);
 
                 // Call Overridable Method
                 OnCurrentConditionChange(GetCurrentConditions());
@@ -841,27 +822,29 @@ namespace MTConnect.Buffers
         {
             if (observation._key >= 0 && !observation._values.IsNullOrEmpty() && observation._timestamp > 0)
             {
-                // Get the Sequence to Add Observation at
-                ulong sequence;
-                lock (_lock) sequence = _sequence++;
-
-                observation._sequence = sequence;
-
-                if (observation.Category == DataItemCategory.CONDITION)
+                lock (_lock)
                 {
-                    // Add to Current Conditions
-                    AddCurrentCondition(observation);
-                }
-                else
-                {
-                    // Add to Current Observations
-                    AddCurrentObservation(observation);
-                }
+                    // Get the Sequence to Add Observation at
+                    ulong sequence = _sequence++;
 
-                // Add to Buffer                   
-                AddBufferObservation(ref observation);
+                    observation._sequence = sequence;
 
-                return sequence;
+                    if (observation.Category == DataItemCategory.CONDITION)
+                    {
+                        // Add to Current Conditions
+                        AddCurrentCondition(observation);
+                    }
+                    else
+                    {
+                        // Add to Current Observations
+                        AddCurrentObservation(observation);
+                    }
+
+                    // Add to Buffer                   
+                    AddBufferObservation(ref observation);
+
+                    return sequence;
+                }
             }
 
             return 0;
