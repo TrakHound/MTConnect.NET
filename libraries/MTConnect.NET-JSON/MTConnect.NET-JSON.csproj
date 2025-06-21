@@ -62,43 +62,43 @@
 	<!--Conditionally obtain references for the .NET Framework 4.6.1 target-->
 	<ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
 		<Reference Include="System.Text.Json" />
-		<PackageReference Include="System.Text.Json" Version="6.0.1" />
+		<PackageReference Include="System.Text.Json" Version="8.0.5" />
 	</ItemGroup>
 
 	<!--Conditionally obtain references for the .NET Framework 4.6.2 target-->
 	<ItemGroup Condition=" '$(TargetFramework)' == 'net462' ">
 		<Reference Include="System.Text.Json" />
-		<PackageReference Include="System.Text.Json" Version="6.0.1" />
+		<PackageReference Include="System.Text.Json" Version="8.0.5" />
 	</ItemGroup>
 
 	<!--Conditionally obtain references for the .NET Framework 4.7 target-->
 	<ItemGroup Condition=" '$(TargetFramework)' == 'net47' ">
 		<Reference Include="System.Text.Json" />
-		<PackageReference Include="System.Text.Json" Version="6.0.1" />
+		<PackageReference Include="System.Text.Json" Version="8.0.5" />
 	</ItemGroup>
 
 	<!--Conditionally obtain references for the .NET Framework 4.7.1 target-->
 	<ItemGroup Condition=" '$(TargetFramework)' == 'net471' ">
 		<Reference Include="System.Text.Json" />
-		<PackageReference Include="System.Text.Json" Version="6.0.1" />
+		<PackageReference Include="System.Text.Json" Version="8.0.5" />
 	</ItemGroup>
 
 	<!--Conditionally obtain references for the .NET Framework 4.7.2 target-->
 	<ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
 		<Reference Include="System.Text.Json" />
-		<PackageReference Include="System.Text.Json" Version="6.0.1" />
+		<PackageReference Include="System.Text.Json" Version="8.0.5" />
 	</ItemGroup>
 
 	<!--Conditionally obtain references for the .NET Framework 4.8 target-->
 	<ItemGroup Condition=" '$(TargetFramework)' == 'net48' ">
 		<Reference Include="System.Text.Json" />
-		<PackageReference Include="System.Text.Json" Version="6.0.1" />
+		<PackageReference Include="System.Text.Json" Version="8.0.5" />
 	</ItemGroup>
 
 	<!--Conditionally obtain references for the .NET Standard target-->
 	<ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
 		<Reference Include="System.Text.Json" />
-		<PackageReference Include="System.Text.Json" Version="6.0.1" />
+		<PackageReference Include="System.Text.Json" Version="8.0.5" />
 	</ItemGroup>
 
 	<ItemGroup>
