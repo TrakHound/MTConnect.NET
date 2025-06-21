@@ -1,21 +1,17 @@
 ﻿using MTConnect.NET_SysML_Import.CSharp;
 using MTConnect.SysML.Models.Assets;
-using MTConnect.SysML.Models.Observations;
 using Scriban;
-using System;
-using System.IO;
-using System.Linq;
 
 namespace MTConnect.SysML.CSharp
 {
-    public class CuttingToolMeasurementModel : MTConnectCuttingToolMeasurementModel, ITemplateModel
+    public class CuttingToolMeasurementModel : MTConnectMeasurementModel, ITemplateModel
     {
         public string Namespace => NamespaceHelper.GetNamespace(Id);
 
         public string XmlDescription { get; set; }
 
 
-        public static CuttingToolMeasurementModel Create(MTConnectCuttingToolMeasurementModel importModel)
+        public static CuttingToolMeasurementModel Create(MTConnectMeasurementModel importModel)
         {
             if (importModel != null)
             {

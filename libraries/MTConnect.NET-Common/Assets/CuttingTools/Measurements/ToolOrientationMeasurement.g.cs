@@ -6,7 +6,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
     /// <summary>
     /// Angle of the tool with respect to the workpiece for a given process. The value is application specific.
     /// </summary>
-    public class ToolOrientationMeasurement : Measurement
+    public class ToolOrientationMeasurement : ToolingMeasurement
     {
         public const string TypeId = "ToolOrientation";
         public const string CodeId = "N/A";
@@ -27,7 +27,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
             
         }
 
-        public ToolOrientationMeasurement(IMeasurement measurement) : base(measurement)
+        public ToolOrientationMeasurement(IToolingMeasurement measurement) : base(measurement)
         {
             Type = TypeId;
             Code = CodeId;

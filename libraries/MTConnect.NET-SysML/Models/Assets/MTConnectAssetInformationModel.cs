@@ -9,11 +9,17 @@ namespace MTConnect.SysML.Models.Assets
     {
         public MTConnectAssetModel Asset { get; set; }
 
+        public MTConnectPhysicalAssetModel PhysicalAsset { get; set; }
+
         public MTConnectPackageModel ComponentConfigurationParameters { get; set; } = new();
 
         public MTConnectPackageModel CuttingTools { get; set; } = new();
 
         public MTConnectPackageModel Files { get; set; } = new();
+
+        public MTConnectPackageModel Fixtures { get; set; } = new();
+
+        public MTConnectPackageModel Pallets { get; set; } = new();
 
         public MTConnectPackageModel QIF { get; set; } = new();
 
@@ -39,11 +45,16 @@ namespace MTConnect.SysML.Models.Assets
                 if (informationModel != null)
                 {
                     var assetClass = informationModel.Classes.FirstOrDefault(o => o.Name == "Asset");
+                    var physicalAssetClass = informationModel.Classes.FirstOrDefault(o => o.Name == "PhysicalAsset");
+
                     Asset = new MTConnectAssetModel(xmiDocument, assetClass);
+                    PhysicalAsset = new MTConnectPhysicalAssetModel(xmiDocument, physicalAssetClass);
 
                     ParseComponentConfigurationParameters(xmiDocument, informationModel);
                     ParseCuttingTools(xmiDocument, informationModel);
                     ParseFiles(xmiDocument, informationModel);
+                    ParseFixtures(xmiDocument, informationModel);
+                    ParsePallets(xmiDocument, informationModel);
                     ParseQIF(xmiDocument, informationModel);
                     ParseRawMaterials(xmiDocument, informationModel);
                 }
@@ -82,6 +93,14 @@ namespace MTConnect.SysML.Models.Assets
                 var assetClasses = MTConnectClassModel.Parse(xmiDocument, "Assets.CuttingTools", umlClasses);
                 if (assetClasses != null)
                 {
+                    //foreach (var assetClass in assetClasses)
+                    //{
+                    //    if (assetClass.Id != "")
+                    //    {
+
+                    //    }
+                    //}
+
                     CuttingTools.Classes.AddRange(assetClasses);
                 }
 
@@ -97,7 +116,7 @@ namespace MTConnect.SysML.Models.Assets
                 }
 
                 umlClasses = ModelHelper.GetClasses(packages);
-                var measurementClasses = MTConnectCuttingToolMeasurementModel.Parse(xmiDocument, "CuttingTool", "Assets.CuttingTools.Measurements", umlClasses);
+                var measurementClasses = MTConnectMeasurementModel.Parse(xmiDocument, "CuttingTool", "Assets.CuttingTools.Measurements", umlClasses);
                 if (measurementClasses != null)
                 {
                     CuttingTools.Classes.AddRange(measurementClasses);
@@ -137,6 +156,72 @@ namespace MTConnect.SysML.Models.Assets
                 Files.Enums.Add(new MTConnectEnumModel(xmiDocument, "Assets.Files", dataTypes?.Enumerations.FirstOrDefault(o => o.Name == "ApplicationCategoryEnum")));
                 Files.Enums.Add(new MTConnectEnumModel(xmiDocument, "Assets.Files", dataTypes?.Enumerations.FirstOrDefault(o => o.Name == "ApplicationTypeEnum")));
                 Files.Enums.Add(new MTConnectEnumModel(xmiDocument, "Assets.Files", dataTypes?.Enumerations.FirstOrDefault(o => o.Name == "FileStateEnum")));
+            }
+        }
+
+        private void ParseFixtures(XmiDocument xmiDocument, UmlPackage umlPackage)
+        {
+            var targetPackage = umlPackage.Packages.FirstOrDefault(o => o.Name == "Fixture");
+            if (targetPackage != null)
+            {
+                var umlPackages = ModelHelper.GetPackages(targetPackage);
+                var umlClasses = ModelHelper.GetClasses(umlPackages);
+                var assetClasses = MTConnectClassModel.Parse(xmiDocument, "Assets.Fixture", umlClasses);
+                if (assetClasses != null)
+                {
+                    Fixtures.Classes.AddRange(assetClasses);
+                }
+            }
+        }
+
+        private void ParsePallets(XmiDocument xmiDocument, UmlPackage umlPackage)
+        {
+            var targetPackage = umlPackage.Packages.FirstOrDefault(o => o.Name == "Pallet");
+            if (targetPackage != null)
+            {
+                var assetClasses = MTConnectClassModel.Parse(xmiDocument, "Assets.Pallet", targetPackage.Classes);
+                if (assetClasses != null)
+                {
+                    Pallets.Classes.AddRange(assetClasses);
+                }
+
+                //var packages = new List<UmlPackage>();
+                //packages.Add(targetPackage);
+
+                //var umlPackages = ModelHelper.GetPackages(targetPackage);
+                //var umlClasses = ModelHelper.GetClasses(umlPackages);
+                //var assetClasses = MTConnectClassModel.Parse(xmiDocument, "Assets.Pallet", umlClasses);
+                //if (assetClasses != null)
+                //{
+                //    Pallets.Classes.AddRange(assetClasses);
+                //}
+
+                // Add Measurement Classes
+                var packages = new List<UmlPackage>();
+                packages.Add(targetPackage.Packages.FirstOrDefault(o => o.Name == "Measurements"));
+
+                var umlClasses = ModelHelper.GetClasses(packages);
+                var measurementClasses = MTConnectClassModel.Parse(xmiDocument, "Assets.Pallet", umlClasses);
+                if (measurementClasses != null)
+                {
+                    foreach (var measurementClass in measurementClasses)
+                    {
+                        if (measurementClass.Id != "Assets.Pallet.Measurement")
+                        {
+                            measurementClass.Id = $"{measurementClass.Id}Measurement";
+                            measurementClass.Name = $"{measurementClass.Name}Measurement";
+                        }
+                    }
+
+                    Pallets.Classes.AddRange(measurementClasses);
+                }
+
+
+                // Add Enums
+                //var profile = xmiDocument.Model.Profiles.FirstOrDefault();
+                //var dataTypes = profile.Packages.FirstOrDefault(o => o.Name == "DataTypes");
+
+                //Pallets.Enums.Add(new MTConnectEnumModel(xmiDocument, "Assets.Pallet.Measurements", dataTypes?.Enumerations.FirstOrDefault(o => o.Name == "CodeEnum"), ConvertMeasurementCode));
             }
         }
 

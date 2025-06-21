@@ -20,8 +20,8 @@ namespace MTConnect.SysML.Xml
         {
             var measurementsModel = new CuttingToolMeasurementsModel();
 
-            var measurements = mtconnectModel.AssetInformationModel.CuttingTools.Classes.Where(o => typeof(MTConnectCuttingToolMeasurementModel).IsAssignableFrom(o.GetType()));
-            foreach (var measurement in measurements.OrderBy(o => o.Name)) measurementsModel.Types.Add((MTConnectCuttingToolMeasurementModel)measurement);
+            var measurements = mtconnectModel.AssetInformationModel.CuttingTools.Classes.Where(o => typeof(MTConnectMeasurementModel).IsAssignableFrom(o.GetType()));
+            foreach (var measurement in measurements.OrderBy(o => o.Name)) measurementsModel.Types.Add((MTConnectMeasurementModel)measurement);
 
             var templateFilename = $"XmlMeasurements.scriban";
             var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "xml", "templates", templateFilename);
@@ -58,8 +58,8 @@ namespace MTConnect.SysML.Xml
         {
             var measurementsModel = new CuttingToolMeasurementsModel();
 
-            var measurements = mtconnectModel.AssetInformationModel.CuttingTools.Classes.Where(o => typeof(MTConnectCuttingToolMeasurementModel).IsAssignableFrom(o.GetType()));
-            foreach (var measurement in measurements.OrderBy(o => o.Name)) measurementsModel.Types.Add((MTConnectCuttingToolMeasurementModel)measurement);
+            var measurements = mtconnectModel.AssetInformationModel.CuttingTools.Classes.Where(o => typeof(MTConnectMeasurementModel).IsAssignableFrom(o.GetType()));
+            foreach (var measurement in measurements.OrderBy(o => o.Name)) measurementsModel.Types.Add((MTConnectMeasurementModel)measurement);
 
             var templateFilename = $"XmlCuttingToolLifeCycle.scriban";
             var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "xml", "templates", templateFilename);
@@ -96,8 +96,8 @@ namespace MTConnect.SysML.Xml
         {
             var measurementsModel = new CuttingToolMeasurementsModel();
 
-            var measurements = mtconnectModel.AssetInformationModel.CuttingTools.Classes.Where(o => typeof(MTConnectCuttingToolMeasurementModel).IsAssignableFrom(o.GetType()));
-            foreach (var measurement in measurements.OrderBy(o => o.Name)) measurementsModel.Types.Add((MTConnectCuttingToolMeasurementModel)measurement);
+            var measurements = mtconnectModel.AssetInformationModel.CuttingTools.Classes.Where(o => typeof(MTConnectMeasurementModel).IsAssignableFrom(o.GetType()));
+            foreach (var measurement in measurements.OrderBy(o => o.Name)) measurementsModel.Types.Add((MTConnectMeasurementModel)measurement);
 
             var templateFilename = $"XmlCuttingItem.scriban";
             var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "xml", "templates", templateFilename);

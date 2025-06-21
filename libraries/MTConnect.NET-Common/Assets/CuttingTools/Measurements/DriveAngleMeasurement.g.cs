@@ -6,7 +6,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
     /// <summary>
     /// Angle between the driving mechanism locator on a tool item and the main cutting edge.
     /// </summary>
-    public class DriveAngleMeasurement : Measurement
+    public class DriveAngleMeasurement : ToolingMeasurement
     {
         public const string TypeId = "DriveAngle";
         public const string CodeId = "DRVA";
@@ -27,7 +27,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
             
         }
 
-        public DriveAngleMeasurement(IMeasurement measurement) : base(measurement)
+        public DriveAngleMeasurement(IToolingMeasurement measurement) : base(measurement)
         {
             Type = TypeId;
             Code = CodeId;

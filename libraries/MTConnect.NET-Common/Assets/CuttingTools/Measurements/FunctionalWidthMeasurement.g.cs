@@ -6,7 +6,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
     /// <summary>
     /// Distance between the cutting reference point and the rear backing surface of a turning tool or the axis of a boring bar.
     /// </summary>
-    public class FunctionalWidthMeasurement : Measurement
+    public class FunctionalWidthMeasurement : ToolingMeasurement
     {
         public const string TypeId = "FunctionalWidth";
         public const string CodeId = "WF";
@@ -27,7 +27,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
             
         }
 
-        public FunctionalWidthMeasurement(IMeasurement measurement) : base(measurement)
+        public FunctionalWidthMeasurement(IToolingMeasurement measurement) : base(measurement)
         {
             Type = TypeId;
             Code = CodeId;

@@ -17,6 +17,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<None Update="CSharp\Templates\Pallets.Measurement.scriban">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
 		<None Update="CSharp\Templates\Observations.DataSetResults.scriban">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>

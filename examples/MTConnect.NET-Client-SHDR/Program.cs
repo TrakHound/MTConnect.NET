@@ -6,7 +6,14 @@ namespace MTConnect.Clients.SHDR
     {
         static void Main(string[] args)
         {
-            var client = new ShdrClient("localhost", 7878);
+            Console.WriteLine("Enter Hostname:");
+            var hostname = Console.ReadLine();
+
+            Console.WriteLine("Enter Port:");
+            var port = Console.ReadLine().ToInt();
+
+            Console.WriteLine($"Connecting to ({hostname}:{port})..");
+            var client = new ShdrClient(hostname, port);
             client.Connected += (s, e) =>
             {
                 Console.WriteLine("Connection Established");

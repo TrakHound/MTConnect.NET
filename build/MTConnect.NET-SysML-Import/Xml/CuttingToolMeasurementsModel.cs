@@ -4,6 +4,6 @@ namespace MTConnect.SysML.Xml
 {
     public class CuttingToolMeasurementsModel
     {
-        public List<MTConnectCuttingToolMeasurementModel> Types { get; set; } = new();
+        public List<MTConnectMeasurementModel> Types { get; set; } = new();
     }
 }

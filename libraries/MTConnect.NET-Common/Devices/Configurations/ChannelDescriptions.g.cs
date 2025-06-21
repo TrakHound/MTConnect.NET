@@ -16,9 +16,9 @@ namespace MTConnect.Devices.Configurations
         public const string CalibrationInitials = "The initials of the person verifying the validity of the calibration data.";
         
         /// <summary>
-        /// Descriptive content.
+        /// Textual description for Channel.
         /// </summary>
-        public const string Description = "Descriptive content.";
+        public const string Description = "Textual description for Channel.";
         
         /// <summary>
         /// Name of the specific sensing element.

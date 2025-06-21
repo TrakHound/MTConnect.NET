@@ -21,9 +21,9 @@ namespace MTConnect.Devices.Configurations
         public const string CoordinateSystemIdRef = "Coordinate system within which the kinematic motion occurs.";
         
         /// <summary>
-        /// Descriptive content.
+        /// Textual description for Motion.
         /// </summary>
-        public const string Description = "Descriptive content.";
+        public const string Description = "Textual description for Motion.";
         
         /// <summary>
         /// Unique identifier for this element.

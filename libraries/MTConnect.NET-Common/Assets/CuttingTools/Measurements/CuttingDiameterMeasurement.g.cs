@@ -6,7 +6,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
     /// <summary>
     /// Diameter of a circle on which the defined point Pk located on this cutting tool. The normal of the machined peripheral surface points towards the axis of the cutting tool.
     /// </summary>
-    public class CuttingDiameterMeasurement : Measurement
+    public class CuttingDiameterMeasurement : ToolingMeasurement
     {
         public const string TypeId = "CuttingDiameter";
         public const string CodeId = "DCx";
@@ -27,7 +27,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
             
         }
 
-        public CuttingDiameterMeasurement(IMeasurement measurement) : base(measurement)
+        public CuttingDiameterMeasurement(IToolingMeasurement measurement) : base(measurement)
         {
             Type = TypeId;
             Code = CodeId;

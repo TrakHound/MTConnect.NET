@@ -25,8 +25,10 @@ namespace MTConnect.Assets.Json.RawMaterials
         [JsonPropertyName("removed")]
         public bool Removed { get; set; }
 
+        //[JsonPropertyName("description")]
+        //public JsonDescription Description { get; set; }
         [JsonPropertyName("description")]
-        public JsonDescription Description { get; set; }
+        public string Description { get; set; }
 
 
         [JsonPropertyName("name")]
@@ -90,7 +92,8 @@ namespace MTConnect.Assets.Json.RawMaterials
                 DeviceUuid = asset.DeviceUuid;
                 Removed = asset.Removed;
 
-                if (asset.Description != null) Description = new JsonDescription(asset.Description);
+                if (asset.Description != null) Description = asset.Description;
+                //if (asset.Description != null) Description = new JsonDescription(asset.Description);
 
                 Name = asset.Name;
                 ContainerType = asset.ContainerType;
@@ -122,7 +125,8 @@ namespace MTConnect.Assets.Json.RawMaterials
             asset.DeviceUuid = DeviceUuid;
             asset.Removed = Removed;
 
-            if (Description != null) asset.Description = Description.ToDescription();
+            if (Description != null) asset.Description = Description;
+            //if (Description != null) asset.Description = Description.ToDescription();
 
             asset.Name = Name;
             asset.ContainerType = ContainerType;

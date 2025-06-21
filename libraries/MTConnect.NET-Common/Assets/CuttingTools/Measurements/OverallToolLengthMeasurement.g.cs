@@ -6,7 +6,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
     /// <summary>
     /// Largest length dimension of the cutting tool including the master insert where applicable.
     /// </summary>
-    public class OverallToolLengthMeasurement : Measurement
+    public class OverallToolLengthMeasurement : ToolingMeasurement
     {
         public const string TypeId = "OverallToolLength";
         public const string CodeId = "OAL";
@@ -27,7 +27,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
             
         }
 
-        public OverallToolLengthMeasurement(IMeasurement measurement) : base(measurement)
+        public OverallToolLengthMeasurement(IToolingMeasurement measurement) : base(measurement)
         {
             Type = TypeId;
             Code = CodeId;

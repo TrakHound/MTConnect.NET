@@ -154,6 +154,7 @@ namespace MTConnect.SysML.Models.Devices
                         DataItems.Enums.Add(new MTConnectEnumModel(xmiDocument, "Devices", dataTypes?.Enumerations.FirstOrDefault(o => o.Name == "ResetTriggerEnum")));
                         DataItems.Enums.Add(new MTConnectEnumModel(xmiDocument, "Devices", dataTypes?.Enumerations.FirstOrDefault(o => o.Name == "SpecificationRelationshipTypeEnum")));
                         DataItems.Enums.Add(new MTConnectEnumModel(xmiDocument, "Devices", dataTypes?.Enumerations.FirstOrDefault(o => o.Name == "StatisticEnum")));
+                        DataItems.Enums.Add(new MTConnectEnumModel(xmiDocument, "Observations", dataTypes?.Enumerations.FirstOrDefault(o => o.Name == "QualityEnum")));
 
                         // Change the name of "FilterEnum" to "FilterTypeEnum"
                         if (DataItems.DataItem.Properties != null)

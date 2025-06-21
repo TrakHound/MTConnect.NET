@@ -39,8 +39,9 @@ namespace MTConnect.Devices.Xml
             definition.KeyType = KeyType;
             definition.Units = Units;
             definition.Type = Type;
-            definition.SubType = SubType;
-            definition.Description = Description?.ToDescription();
+            definition.SubType = SubType;;
+            definition.Description = Description?.CDATA;
+            //definition.Description = Description?.ToDescription();
 
             // Cell Definitions
             if (!CellDefinitions.IsNullOrEmpty())

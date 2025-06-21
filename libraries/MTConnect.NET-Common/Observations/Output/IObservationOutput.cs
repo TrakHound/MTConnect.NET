@@ -1,8 +1,7 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2025 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Devices;
-using MTConnect.Devices.DataItems;
 using System;
 
 namespace MTConnect.Observations.Output
@@ -29,9 +28,17 @@ namespace MTConnect.Observations.Output
 
         DateTime Timestamp { get; }
 
+        DateTimeOffset TimeZoneTimestamp { get; }
+
         string CompositionId { get; }
 
         DataItemRepresentation Representation { get; }
+
+        Quality Quality { get; }
+
+        bool Deprecated { get; }
+
+        bool Extended { get; }
 
         ObservationValue[] Values { get; }
 

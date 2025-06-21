@@ -19,11 +19,6 @@ namespace MTConnect.Assets.CuttingTools
         MTConnect.Assets.CuttingTools.ICuttingToolLifeCycle CuttingToolLifeCycle { get; }
         
         /// <summary>
-        /// Manufacturers of the cutting tool.This will reference the tool item and adaptive items specifically. The cutting itemsmanufacturers’ will be a property of CuttingItem.> Note: In XML, the representation will be a comma(,) delimited list of manufacturer names. See CuttingTool Schema Diagrams.
-        /// </summary>
-        System.Collections.Generic.IEnumerable<string> Manufacturers { get; }
-        
-        /// <summary>
         /// Unique identifier for this assembly.
         /// </summary>
         string SerialNumber { get; }

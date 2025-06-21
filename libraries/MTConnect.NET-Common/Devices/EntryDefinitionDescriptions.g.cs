@@ -11,9 +11,9 @@ namespace MTConnect.Devices
         public const string CellDefinitions = "Semantic definition of a Cell.";
         
         /// <summary>
-        /// Descriptive content.
+        /// Textual description for EntryDefinition.
         /// </summary>
-        public const string Description = "Descriptive content.";
+        public const string Description = "Textual description for EntryDefinition.";
         
         /// <summary>
         /// Unique identification of the Entry in the Definition. key.

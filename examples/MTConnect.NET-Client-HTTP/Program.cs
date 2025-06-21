@@ -10,22 +10,28 @@ namespace MTConnect.Clients.HTTP
         {
             DocumentClient();
             //EntityClient();
-
-            Console.ReadLine();
         }
 
         static void DocumentClient()
         {
-            var client = new MTConnectHttpClient("localhost", 5000);
-            //var client = new MTConnectHttpClient("http://mtconnect.mazakcorp.com/", 5719);
+            Console.WriteLine("Enter Hostname:");
+            var hostname = Console.ReadLine();
+
+            Console.WriteLine("Enter Port:");
+            var port = Console.ReadLine().ToInt();
+
+            Console.WriteLine($"Connecting to ({hostname}:{port})..");
+
+
+            var client = new MTConnectHttpClient(hostname, port);
             client.Interval = 100;
             client.ClientStarted += (s, args) => { Console.WriteLine("Client Started"); };
             client.ClientStopped += (s, args) => { Console.WriteLine("Client Stopped"); };
-            //client.FormatError += (s, args) => { Console.WriteLine($"Format Error : {args.ContentType.Name} : {args.Messages?.FirstOrDefault()}"); };
+            client.FormatError += (s, args) => { Console.WriteLine($"Format Error : {args.ContentType.Name} : {args.Messages?.FirstOrDefault()}"); };
 
             client.ProbeReceived += (s, response) =>
             {
-                foreach (var device in response.Devices) Console.WriteLine($"Device Received : {device.Uuid} : {device.Name}");
+                foreach (var device in response.Devices) Console.WriteLine($"Device Received : {device.Uuid} : {device.Name} : {device.MTConnectVersion}");
             };
 
             client.CurrentReceived += (s, response) =>
@@ -36,7 +42,7 @@ namespace MTConnect.Clients.HTTP
                     {
                         foreach (var observation in componentStream.Observations)
                         {
-                            Console.WriteLine($"Observation Received : {observation.DataItemId} : {string.Join(";", observation.Values.Select(o => o.Value))}");
+                            Console.WriteLine($"Observation Received : {observation.DataItemId} : {string.Join(";", observation.Values.Select(o => o.Value))} @ {observation.Timestamp.ToString("o")}");
 
                             var validationResult = observation.Validate();
                             Console.WriteLine($"Observation Validation : {observation.DataItemId} : {validationResult.IsValid} : {validationResult.Message}");
@@ -53,7 +59,7 @@ namespace MTConnect.Clients.HTTP
                     {
                         foreach (var observation in componentStream.Observations)
                         {
-                            Console.WriteLine($"Observation Received : {observation.DataItemId} : {string.Join(";", observation.Values.Select(o => o.Value))}");
+                            Console.WriteLine($"Observation Received : {observation.DataItemId} : {string.Join(";", observation.Values.Select(o => o.Value))} @ {observation.Timestamp.ToString("o")}");
 
                             var validationResult = observation.Validate();
                             Console.WriteLine($"Observation Validation : {observation.DataItemId} : {validationResult.IsValid} : {validationResult.Message}");
@@ -72,6 +78,8 @@ namespace MTConnect.Clients.HTTP
 
             client.StartFromBuffer();
             //client.Start();
+
+            Console.ReadLine();
         }
 
         static void EntityClient()

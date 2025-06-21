@@ -6,7 +6,7 @@
 namespace MTConnect.Devices.DataItems
 {
     /// <summary>
-    /// Geometric capacity of an object or container.
+    /// Maximum amount of material that can be held by a container.
     /// </summary>
     public class CapacitySpatialDataItem : DataItem
     {
@@ -15,7 +15,7 @@ namespace MTConnect.Devices.DataItems
         public const string NameId = "capacitySpatial";
              
         public const string DefaultUnits = Devices.Units.CUBIC_MILLIMETER;     
-        public new const string DescriptionText = "Geometric capacity of an object or container.";
+        public new const string DescriptionText = "Maximum amount of material that can be held by a container.";
         
         public override string TypeDescription => DescriptionText;
         

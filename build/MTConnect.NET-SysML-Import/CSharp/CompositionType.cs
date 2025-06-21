@@ -3,9 +3,6 @@ using MTConnect.SysML.Models.Devices;
 using MTConnect.SysML.Xmi;
 using MTConnect.SysML.Xmi.UML;
 using Scriban;
-using System;
-using System.IO;
-using System.Linq;
 
 namespace MTConnect.SysML.CSharp
 {

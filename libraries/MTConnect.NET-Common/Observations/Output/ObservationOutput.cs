@@ -1,8 +1,7 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2025 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Devices;
-using MTConnect.Devices.DataItems;
 using System;
 using System.Linq;
 
@@ -48,6 +47,13 @@ namespace MTConnect.Observations.Output
         {
             get => _timestamp;
             set => _timestamp = value;
+        }
+
+        internal DateTimeOffset _timeZoneTimestamp;
+        public DateTimeOffset TimeZoneTimestamp
+        {
+            get => _timeZoneTimestamp;
+            set => _timeZoneTimestamp = value;
         }
 
         /// <summary>
@@ -137,6 +143,36 @@ namespace MTConnect.Observations.Output
         }
 
         /// <summary>
+        /// Indicates if the Observation is verifiable and is in accordance with the normative definitions within the MTConnect Standard.
+        /// </summary>
+        internal Quality _quality = Quality.UNVERIFIABLE;
+        public Quality Quality
+        {
+            get => _quality;
+            set => _quality = value;
+        }
+
+        /// <summary>
+        /// Indicates if the Observation has any property or controlled vocabulary that has been deprecated in the MTConnect Standard.
+        /// </summary>
+        internal bool _deprecated;
+        public bool Deprecated
+        {
+            get => _deprecated;
+            set => _deprecated = value;
+        }
+
+        /// <summary>
+        /// Indicates if the Observation has any property or controlled vocabulary that has been extended and cannot be validated.
+        /// </summary>
+        internal bool _extended;
+        public bool Extended
+        {
+            get => _extended;
+            set => _extended = value;
+        }
+
+        /// <summary>
         /// Gets the Values associated with this Observation. These values represent data recorded during an Observation.
         /// </summary>
         internal ObservationValue[] _values;
@@ -153,6 +189,7 @@ namespace MTConnect.Observations.Output
             _dataItem = null;
             _dataItemId = null;
             _timestamp = DateTime.MinValue;
+            _timeZoneTimestamp = DateTimeOffset.MinValue;
             _name = null;
             _instanceId = 0;
             _sequence = 0;
@@ -161,6 +198,9 @@ namespace MTConnect.Observations.Output
             _subType = null;
             _compositionId = null;
             _representation = DataItemRepresentation.VALUE;
+            _quality = Quality.UNVERIFIABLE;
+            _deprecated = false;
+            _extended = false;
             _values = null;
 
             if (observation != null)
@@ -169,6 +209,7 @@ namespace MTConnect.Observations.Output
                 _dataItem = observation.DataItem;
                 _dataItemId = observation.DataItemId;
                 _timestamp = observation.Timestamp;
+                _timeZoneTimestamp = observation.Timestamp;
                 _name = observation.Name;
                 _instanceId = observation.InstanceId;
                 _sequence = observation.Sequence;
@@ -177,6 +218,9 @@ namespace MTConnect.Observations.Output
                 _subType = observation.SubType;
                 _compositionId = observation.CompositionId;
                 _representation = observation.Representation;
+                _quality = observation.Quality;
+                _deprecated = observation.Deprecated;
+                _extended = observation.Extended;
 
                 if (observation.Values != null)
                 {

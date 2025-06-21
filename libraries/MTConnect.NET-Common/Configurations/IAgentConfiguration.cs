@@ -1,4 +1,4 @@
-// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2025 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Agents;
@@ -28,6 +28,11 @@ namespace MTConnect.Configurations
 
 
         /// <summary>
+        /// Sets the TimeZone to use when timestamps are output from the Agent
+        /// </summary>
+        string TimeZoneOutput { get; }
+
+        /// <summary>
         /// Overwrite timestamps with the agent time. 
         /// This will correct clock drift but will not give as accurate relative time since it will not take into consideration network latencies. 
         /// This can be overridden on a per adapter basis.
@@ -48,6 +53,11 @@ namespace MTConnect.Configurations
         /// Gets the default for Ignoring the case of Observation values
         /// </summary>
         bool IgnoreObservationCase { get; }
+
+        /// <summary>
+        /// Gets or Sets whether validation information is output
+        /// </summary>
+        bool EnableValidation { get; }
 
         /// <summary>
         /// Gets the default Input (Observation or Asset) validation level. 0 = Ignore, 1 = Warning, 2 = Remove, 3 = Strict

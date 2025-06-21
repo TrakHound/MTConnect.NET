@@ -6,9 +6,9 @@ namespace MTConnect.Devices
     public static class CellDefinitionDescriptions
     {
         /// <summary>
-        /// Descriptive content.
+        /// Textual description for CellDefinition.
         /// </summary>
-        public const string Description = "Descriptive content.";
+        public const string Description = "Textual description for CellDefinition.";
         
         /// <summary>
         /// Unique identification of the Cell in the Definition. key.

@@ -6,7 +6,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
     /// <summary>
     /// Diameter of a circle to which all edges of a equilateral and round regular insert are tangential.
     /// </summary>
-    public class IncribedCircleDiameterMeasurement : Measurement
+    public class IncribedCircleDiameterMeasurement : ToolingMeasurement
     {
         public const string TypeId = "IncribedCircleDiameter";
         public const string CodeId = "IC";
@@ -27,7 +27,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
             
         }
 
-        public IncribedCircleDiameterMeasurement(IMeasurement measurement) : base(measurement)
+        public IncribedCircleDiameterMeasurement(IToolingMeasurement measurement) : base(measurement)
         {
             Type = TypeId;
             Code = CodeId;

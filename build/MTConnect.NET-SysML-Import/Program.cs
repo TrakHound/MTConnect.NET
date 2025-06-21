@@ -5,11 +5,12 @@ using MTConnect.SysML.Xml;
 using System.Text.Json;
 
 //var xmlPath = @"D:\TrakHound\MTConnect\MTConnectSysMLModel.xml";
-var xmlPath = @"D:\TrakHound\MTConnect\Standard\v2.4\MTConnectSysMLModel.xml";
+//var xmlPath = @"D:\TrakHound\MTConnect\Standard\v2.4\MTConnectSysMLModel.xml";
+var xmlPath = @"D:\TrakHound\MTConnect\Standard\v2.5\MTConnectSysMLModel.xml";
 
 var mtconnectModel = MTConnectModel.Parse(xmlPath);
 
-//RenderJsonFile();
+RenderJsonFile();
 RenderCommonClasses();
 RenderJsonComponents();
 RenderXmlComponents();
@@ -28,7 +29,12 @@ void RenderJsonFile()
 
 void RenderCommonClasses()
 {
+    //var outputPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"C:\temp\mtconnect-sysml-build");
     var outputPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../../../libraries/MTConnect.NET-Common");
+
+    //// Clear Generated Files
+    //var files = Directory.GetFiles(outputPath, "*.g.cs", SearchOption.AllDirectories);
+    //foreach (var file in files) File.Delete(file);
 
     CSharpTemplateRenderer.Render(mtconnectModel, outputPath);
 }

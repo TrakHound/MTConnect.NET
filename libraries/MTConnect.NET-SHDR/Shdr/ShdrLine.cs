@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2025 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using System;
@@ -71,7 +71,7 @@ namespace MTConnect.Shdr
             // 16 is the minimum number of chars in a ISO 8601 Timestamp (ex. 1900-01-01T00:00)
             if (x.Length > 16 && x[4] == '-' && x[7] == '-')
             {
-                if (DateTime.TryParseExact(x, "o", _enUS, DateTimeStyles.AdjustToUniversal, out var y))
+                if (DateTime.TryParse(x, null, DateTimeStyles.AdjustToUniversal, out var y))
                 {
                     return y;
                 }

@@ -1,4 +1,4 @@
-// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2025 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Assets;
@@ -43,28 +43,45 @@ namespace MTConnect.Formatters.Xml
             // Read Validation Level Option passed to Formatter (0 = Ignore, 1 = Warning, 2 = Strict)
             var validationLevel = GetFormatterOption<int>(options, "validationLevel");
 
-            var xml = XmlDevicesResponseDocument.ToXmlStream(document, null, stylesheet, indentOutput, outputComments);
-            if (xml != null && xml.Length > 0)
+            try
             {
-                if (validationLevel > 0)
+                var xml = XmlDevicesResponseDocument.ToXmlStream(document, null, stylesheet, indentOutput, outputComments);
+                if (xml != null && xml.Length > 0)
                 {
-                    // Validate XML against XSD Schema
-                    var validationResponse = XmlValidator.Validate(xml, schemas);
-                    if (validationResponse.Success)
+                    if (validationLevel > 0)
                     {
-                        return FormatWriteResult.Successful(xml, ContentType, "XML Validation Successful");
+                        // Validate XML against XSD Schema
+                        var validationResponse = XmlValidator.Validate(xml, schemas);
+                        if (validationResponse.Success)
+                        {
+                            return FormatWriteResult.Successful(xml, ContentType, "XML Validation Successful");
+                        }
+                        else
+                        {
+                            // Return Successful if ValidationLevel set to Warning
+                            if (validationLevel < 2) return FormatWriteResult.Warning(xml, ContentType, validationResponse.Errors);
+                            else return FormatWriteResult.Error(validationResponse.Errors);
+                        }
                     }
                     else
                     {
-                        // Return Successful if ValidationLevel set to Warning
-                        if (validationLevel < 2) return FormatWriteResult.Warning(xml, ContentType, validationResponse.Errors);
-                        else return FormatWriteResult.Error(validationResponse.Errors);
+                        return FormatWriteResult.Successful(xml, ContentType);
                     }
                 }
-                else
+            }
+            catch (Exception ex)
+            {
+                var errors = new List<string>();
+                errors.Add(ex.Message);
+
+                var innerException = ex.InnerException;
+                while (innerException != null)
                 {
-                    return FormatWriteResult.Successful(xml, ContentType);
+                    errors.Add(innerException.Message);
+                    innerException = innerException.InnerException;
                 }
+
+                return FormatWriteResult.Error(errors);
             }
 
             return FormatWriteResult.Error();
@@ -90,28 +107,45 @@ namespace MTConnect.Formatters.Xml
             // Read Validation Level Option passed to Formatter (0 = Ignore, 1 = Warning, 2 = Strict)
             var validationLevel = GetFormatterOption<int>(options, "validationLevel");
 
-            var xml = XmlStreamsResponseDocument.ToXmlStream(ref document, extendedNamespaces, stylesheet, indentOutput, outputComments);
-            if (xml != null && xml.Length > 0)
+            try
             {
-                if (validationLevel > 0)
+                var xml = XmlStreamsResponseDocument.ToXmlStream(ref document, extendedNamespaces, stylesheet, indentOutput, outputComments);
+                if (xml != null && xml.Length > 0)
                 {
-                    // Validate XML against XSD Schema
-                    var validationResponse = XmlValidator.Validate(xml, schemas);
-                    if (validationResponse.Success)
+                    if (validationLevel > 0)
                     {
-                        return FormatWriteResult.Successful(xml, ContentType, "XML Validation Successful");
+                        // Validate XML against XSD Schema
+                        var validationResponse = XmlValidator.Validate(xml, schemas);
+                        if (validationResponse.Success)
+                        {
+                            return FormatWriteResult.Successful(xml, ContentType, "XML Validation Successful");
+                        }
+                        else
+                        {
+                            // Return Successful if ValidationLevel set to Warning
+                            if (validationLevel < 2) return FormatWriteResult.Warning(xml, ContentType, validationResponse.Errors);
+                            else return FormatWriteResult.Error(validationResponse.Errors);
+                        }
                     }
                     else
                     {
-                        // Return Successful if ValidationLevel set to Warning
-                        if (validationLevel < 2) return FormatWriteResult.Warning(xml, ContentType, validationResponse.Errors);
-                        else return FormatWriteResult.Error(validationResponse.Errors);
+                        return FormatWriteResult.Successful(xml, ContentType);
                     }
                 }
-                else
+            }
+            catch (Exception ex)
+            {
+                var errors = new List<string>();
+                errors.Add(ex.Message);
+
+                var innerException = ex.InnerException;
+                while (innerException != null)
                 {
-                    return FormatWriteResult.Successful(xml, ContentType);
+                    errors.Add(innerException.Message);
+                    innerException = innerException.InnerException;
                 }
+
+                return FormatWriteResult.Error(errors);
             }
 
             return FormatWriteResult.Error();
@@ -134,28 +168,45 @@ namespace MTConnect.Formatters.Xml
             // Read Validation Level Option passed to Formatter (0 = Ignore, 1 = Warning, 2 = Strict)
             var validationLevel = GetFormatterOption<int>(options, "validationLevel");
 
-            var xml = XmlAssetsResponseDocument.ToXmlStream(document, indentOutput, outputComments, stylesheet);
-            if (xml != null && xml.Length > 0)
+            try
             {
-                if (validationLevel > 0)
+                var xml = XmlAssetsResponseDocument.ToXmlStream(document, indentOutput, outputComments, stylesheet);
+                if (xml != null && xml.Length > 0)
                 {
-                    // Validate XML against XSD Schema
-                    var validationResponse = XmlValidator.Validate(xml, schemas);
-                    if (validationResponse.Success)
+                    if (validationLevel > 0)
                     {
-                        return FormatWriteResult.Successful(xml, ContentType, "XML Validation Successful");
+                        // Validate XML against XSD Schema
+                        var validationResponse = XmlValidator.Validate(xml, schemas);
+                        if (validationResponse.Success)
+                        {
+                            return FormatWriteResult.Successful(xml, ContentType, "XML Validation Successful");
+                        }
+                        else
+                        {
+                            // Return Successful if ValidationLevel set to Warning
+                            if (validationLevel < 2) return FormatWriteResult.Warning(xml, ContentType, validationResponse.Errors);
+                            else return FormatWriteResult.Error(validationResponse.Errors);
+                        }
                     }
                     else
                     {
-                        // Return Successful if ValidationLevel set to Warning
-                        if (validationLevel < 2) return FormatWriteResult.Warning(xml, ContentType, validationResponse.Errors);
-                        else return FormatWriteResult.Error(validationResponse.Errors);
+                        return FormatWriteResult.Successful(xml, ContentType);
                     }
                 }
-                else
+            }
+            catch (Exception ex)
+            {
+                var errors = new List<string>();
+                errors.Add(ex.Message);
+
+                var innerException = ex.InnerException;
+                while (innerException != null)
                 {
-                    return FormatWriteResult.Successful(xml, ContentType);
+                    errors.Add(innerException.Message);
+                    innerException = innerException.InnerException;
                 }
+
+                return FormatWriteResult.Error(errors);
             }
 
             return FormatWriteResult.Error();
@@ -178,27 +229,44 @@ namespace MTConnect.Formatters.Xml
             // Read Validation Level Option passed to Formatter (0 = Ignore, 1 = Warning, 2 = Strict)
             var validationLevel = GetFormatterOption<int>(options, "validationLevel");
 
-            var xml = XmlErrorResponseDocument.ToXmlStream(document, indentOutput, outputComments, stylesheet);
-            if (xml != null)
+            try
             {
-                if (validationLevel > 0)
+                var xml = XmlErrorResponseDocument.ToXmlStream(document, indentOutput, outputComments, stylesheet);
+                if (xml != null)
                 {
-                    // Validate XML against XSD Schema
-                    var validationResponse = XmlValidator.Validate(xml, schemas);
-                    if (validationResponse.Success)
+                    if (validationLevel > 0)
                     {
-                        return FormatWriteResult.Successful(xml, ContentType, "XML Validation Successful");
+                        // Validate XML against XSD Schema
+                        var validationResponse = XmlValidator.Validate(xml, schemas);
+                        if (validationResponse.Success)
+                        {
+                            return FormatWriteResult.Successful(xml, ContentType, "XML Validation Successful");
+                        }
+                        else
+                        {
+                            // Return Successful if ValidationLevel set to Warning
+                            return FormatWriteResult.Warning(xml, ContentType, validationResponse.Errors);
+                        }
                     }
                     else
                     {
-                        // Return Successful if ValidationLevel set to Warning
-                        return FormatWriteResult.Warning(xml, ContentType, validationResponse.Errors);
+                        return FormatWriteResult.Successful(xml, ContentType);
                     }
                 }
-                else
+            }
+            catch (Exception ex)
+            {
+                var errors = new List<string>();
+                errors.Add(ex.Message);
+
+                var innerException = ex.InnerException;
+                while (innerException != null)
                 {
-                    return FormatWriteResult.Successful(xml, ContentType);
+                    errors.Add(innerException.Message);
+                    innerException = innerException.InnerException;
                 }
+
+                return FormatWriteResult.Error(errors);
             }
 
             return FormatWriteResult.Error();
@@ -242,16 +310,19 @@ namespace MTConnect.Formatters.Xml
 
             try
             {
-                byte[] bytes;
-                using (var memoryStream = new MemoryStream())
+                if (content != null && content.Length > 0)
                 {
-                    content.CopyTo(memoryStream);
-                    bytes = memoryStream.ToArray();
-                }
+                    byte[] bytes;
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        content.CopyTo(memoryStream);
+                        bytes = memoryStream.ToArray();
+                    }
 
-                // Read Document
-                document = XmlDevicesResponseDocument.FromXml(bytes);
-                success = document != null;
+                    // Read Document
+                    document = XmlDevicesResponseDocument.FromXml(bytes);
+                    success = document != null;
+                }
             }
             catch (Exception ex)
             {
@@ -331,6 +402,8 @@ namespace MTConnect.Formatters.Xml
 
         public FormatReadResult<IAssetsResponseDocument> CreateAssetsResponseDocument(Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
+            IAssetsResponseDocument document = null;
+            var success = false;
             var messages = new List<string>();
             var warnings = new List<string>();
             var errors = new List<string>();
@@ -362,22 +435,41 @@ namespace MTConnect.Formatters.Xml
                 }
             }
 
-            byte[] bytes;
-            using (var memoryStream = new MemoryStream())
+            try
             {
-                content.CopyTo(memoryStream);
-                bytes = memoryStream.ToArray();
-            }
+                if (content != null && content.Length > 0)
+                {
+                    byte[] bytes;
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        content.CopyTo(memoryStream);
+                        bytes = memoryStream.ToArray();
+                    }
 
-            // Read Document
-            var document = XmlAssetsResponseDocument.FromXml(bytes);
-            var success = document != null;
+                    // Read Document
+                    document = XmlAssetsResponseDocument.FromXml(bytes);
+                    success = document != null;
+                }
+            }
+            catch (Exception ex)
+            {
+                messages.Add(ex.Message);
+
+                var innerException = ex.InnerException;
+                while (innerException != null)
+                {
+                    messages.Add(innerException.Message);
+                    innerException = innerException.InnerException;
+                }
+            }
 
             return new FormatReadResult<IAssetsResponseDocument>(document, success, messages, warnings, errors);
         }
 
         public FormatReadResult<IErrorResponseDocument> CreateErrorResponseDocument(Stream content, IEnumerable<KeyValuePair<string, string>> options = null)
         {
+            IErrorResponseDocument document = null;
+            var success = false;
             var messages = new List<string>();
             var warnings = new List<string>();
             var errors = new List<string>();
@@ -409,16 +501,33 @@ namespace MTConnect.Formatters.Xml
                 }
             }
 
-            byte[] bytes;
-            using (var memoryStream = new MemoryStream())
+            try
             {
-                content.CopyTo(memoryStream);
-                bytes = memoryStream.ToArray();
-            }
+                if (content != null && content.Length > 0)
+                {
+                    byte[] bytes;
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        content.CopyTo(memoryStream);
+                        bytes = memoryStream.ToArray();
+                    }
 
-            // Read Document
-            var document = XmlErrorResponseDocument.FromXml(bytes);
-            var success = document != null;
+                    // Read Document
+                    document = XmlErrorResponseDocument.FromXml(bytes);
+                    success = document != null;
+                }
+            }
+            catch (Exception ex)
+            {
+                messages.Add(ex.Message);
+
+                var innerException = ex.InnerException;
+                while (innerException != null)
+                {
+                    messages.Add(innerException.Message);
+                    innerException = innerException.InnerException;
+                }
+            }
 
             return new FormatReadResult<IErrorResponseDocument>(document, success, messages, warnings, errors);
         }

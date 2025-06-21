@@ -14,9 +14,9 @@ namespace MTConnect.Devices
 
 
         /// <summary>
-        /// Descriptive content.
+        /// Textual description for CellDefinition.
         /// </summary>
-        public MTConnect.Devices.IDescription Description { get; set; }
+        public string Description { get; set; }
         
         /// <summary>
         /// Unique identification of the Cell in the Definition. key.

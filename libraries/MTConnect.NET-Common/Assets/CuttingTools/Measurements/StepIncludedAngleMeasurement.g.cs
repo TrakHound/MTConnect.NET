@@ -6,7 +6,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
     /// <summary>
     /// Angle between a major edge on a step of a stepped tool and the same cutting edge rotated 180 degrees about its tool axis.
     /// </summary>
-    public class StepIncludedAngleMeasurement : Measurement
+    public class StepIncludedAngleMeasurement : ToolingMeasurement
     {
         public const string TypeId = "StepIncludedAngle";
         public const string CodeId = "STAx";
@@ -27,7 +27,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
             
         }
 
-        public StepIncludedAngleMeasurement(IMeasurement measurement) : base(measurement)
+        public StepIncludedAngleMeasurement(IToolingMeasurement measurement) : base(measurement)
         {
             Type = TypeId;
             Code = CodeId;

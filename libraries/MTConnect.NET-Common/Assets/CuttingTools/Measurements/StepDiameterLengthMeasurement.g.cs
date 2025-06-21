@@ -6,7 +6,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
     /// <summary>
     /// Length of a portion of a stepped tool that is related to a corresponding cutting diameter measured from the cutting reference point of that cutting diameter to the point on the next cutting edge at which the diameter starts to change.
     /// </summary>
-    public class StepDiameterLengthMeasurement : Measurement
+    public class StepDiameterLengthMeasurement : ToolingMeasurement
     {
         public const string TypeId = "StepDiameterLength";
         public const string CodeId = "SDLx";
@@ -27,7 +27,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
             
         }
 
-        public StepDiameterLengthMeasurement(IMeasurement measurement) : base(measurement)
+        public StepDiameterLengthMeasurement(IToolingMeasurement measurement) : base(measurement)
         {
             Type = TypeId;
             Code = CodeId;

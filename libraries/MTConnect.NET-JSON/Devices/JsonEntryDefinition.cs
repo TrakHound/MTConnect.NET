@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2025 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using System.Collections.Generic;
@@ -24,7 +24,7 @@ namespace MTConnect.Devices.Json
         public string SubType { get; set; }
 
         [JsonPropertyName("description")]
-        public JsonDescription Description { get; set; }
+        public string Description { get; set; }
 
         [JsonPropertyName("cellDefinitions")]
         public IEnumerable<JsonCellDefinition> CellDefinitions { get; set; }
@@ -42,7 +42,8 @@ namespace MTConnect.Devices.Json
                 Type = definition.Type;
                 SubType = definition.SubType;
 
-                if (definition.Description != null) Description = new JsonDescription(definition.Description);
+                if (definition.Description != null) Description = definition.Description; // v2.5
+                //if (definition.Description != null) Description = new JsonDescription(definition.Description);
 
                 // CellDefinitions
                 if (!definition.CellDefinitions.IsNullOrEmpty())
@@ -67,7 +68,8 @@ namespace MTConnect.Devices.Json
             definition.Type = Type;
             definition.SubType = SubType;
 
-            if (Description != null) definition.Description = Description.ToDescription();
+            if (Description != null) definition.Description = Description; // v2.5
+            //if (Description != null) definition.Description = Description.ToDescription();
 
             // Cell Definitions
             if (!CellDefinitions.IsNullOrEmpty())

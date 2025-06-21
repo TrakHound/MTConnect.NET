@@ -1,8 +1,7 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2025 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Assets.RawMaterials;
-using MTConnect.Devices.Json;
 using System;
 using System.Text.Json.Serialization;
 
@@ -29,7 +28,7 @@ namespace MTConnect.Assets.Json.RawMaterials
         public bool Removed { get; set; }
 
         [JsonPropertyName("description")]
-        public JsonDescription Description { get; set; }
+        public string Description { get; set; }
 
 
         [JsonPropertyName("name")]
@@ -97,7 +96,8 @@ namespace MTConnect.Assets.Json.RawMaterials
                 DeviceUuid = asset.DeviceUuid;
                 Removed = asset.Removed;
 
-                if (asset.Description != null) Description = new JsonDescription(asset.Description);
+                if (asset.Description != null) Description = asset.Description; // v2.5
+                //if (asset.Description != null) Description = new JsonDescription(asset.Description);
 
                 Name = asset.Name;
                 ContainerType = asset.ContainerType;
@@ -129,7 +129,8 @@ namespace MTConnect.Assets.Json.RawMaterials
             asset.DeviceUuid = DeviceUuid;
             asset.Removed = Removed;
 
-            if (Description != null) asset.Description = Description.ToDescription();
+            if (Description != null) asset.Description = Description; // v2.5
+            //if (Description != null) asset.Description = Description.ToDescription();
 
             asset.Name = Name;
             asset.ContainerType = ContainerType;

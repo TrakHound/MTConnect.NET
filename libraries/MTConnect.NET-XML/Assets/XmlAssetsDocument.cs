@@ -1,4 +1,4 @@
-// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2025 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Assets.ComponentConfigurationParameters;
@@ -137,23 +137,19 @@ namespace MTConnect.Assets.Xml
         {
             if (document != null && document.Header != null)
             {
-                try
+                var mtconnectStreamsNamespace = Namespaces.GetStreams(document.Version.Major, document.Version.Minor);
+
+                var outputStream = new MemoryStream();
+
+                // Set the XmlWriterSettings to use
+                var xmlWriterSettings = indentOutput ? XmlFunctions.XmlWriterSettingsIndent : XmlFunctions.XmlWriterSettings;
+
+                // Use XmlWriter to write XML to stream
+                using (var xmlWriter = XmlWriter.Create(outputStream, xmlWriterSettings))
                 {
-                    var mtconnectStreamsNamespace = Namespaces.GetStreams(document.Version.Major, document.Version.Minor);
-
-                    var outputStream = new MemoryStream();
-
-                    // Set the XmlWriterSettings to use
-                    var xmlWriterSettings = indentOutput ? XmlFunctions.XmlWriterSettingsIndent : XmlFunctions.XmlWriterSettings;
-
-                    // Use XmlWriter to write XML to stream
-                    using (var xmlWriter = XmlWriter.Create(outputStream, xmlWriterSettings))
-                    {
-                        WriteXml(xmlWriter, document, indentOutput, outputComments, stylesheet);
-                        return outputStream;
-                    }
+                    WriteXml(xmlWriter, document, indentOutput, outputComments, stylesheet);
+                    return outputStream;
                 }
-                catch { }
             }
 
             return null;

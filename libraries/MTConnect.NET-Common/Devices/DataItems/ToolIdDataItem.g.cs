@@ -6,7 +6,7 @@
 namespace MTConnect.Devices.DataItems
 {
     /// <summary>
-    /// Identifier of the tool currently in use for a given `Path`.**DEPRECATED** in *Version 1.2.0*.   See `TOOL_ASSET_ID`.
+    /// Identifier of the tool currently in use for a given `Path`.**DEPRECATED** in *Version 1.2.0*.   See `TOOL_NUMBER`.
     /// </summary>
     public class ToolIdDataItem : DataItem
     {
@@ -15,7 +15,7 @@ namespace MTConnect.Devices.DataItems
         public const string NameId = "toolId";
              
              
-        public new const string DescriptionText = "Identifier of the tool currently in use for a given `Path`.**DEPRECATED** in *Version 1.2.0*.   See `TOOL_ASSET_ID`.";
+        public new const string DescriptionText = "Identifier of the tool currently in use for a given `Path`.**DEPRECATED** in *Version 1.2.0*.   See `TOOL_NUMBER`.";
         
         public override string TypeDescription => DescriptionText;
         public override System.Version MaximumVersion => MTConnectVersions.Version12;

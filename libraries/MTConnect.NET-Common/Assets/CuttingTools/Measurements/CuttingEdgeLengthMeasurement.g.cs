@@ -6,7 +6,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
     /// <summary>
     /// Theoretical length of the cutting edge of a cutting item over sharp corners.
     /// </summary>
-    public class CuttingEdgeLengthMeasurement : Measurement
+    public class CuttingEdgeLengthMeasurement : ToolingMeasurement
     {
         public const string TypeId = "CuttingEdgeLength";
         public const string CodeId = "L";
@@ -27,7 +27,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
             
         }
 
-        public CuttingEdgeLengthMeasurement(IMeasurement measurement) : base(measurement)
+        public CuttingEdgeLengthMeasurement(IToolingMeasurement measurement) : base(measurement)
         {
             Type = TypeId;
             Code = CodeId;

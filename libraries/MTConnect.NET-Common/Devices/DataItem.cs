@@ -120,6 +120,12 @@ namespace MTConnect.Devices
         /// </summary>
         public virtual Version MinimumVersion => DefaultMinimumVersion;
 
+        internal bool _isExtended;
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool IsExtended => _isExtended;
+
 
         public DataItem()
         {
@@ -165,6 +171,7 @@ namespace MTConnect.Devices
                 Filters = dataItem.Filters;
                 InitialValue = dataItem.InitialValue;
                 Discrete = dataItem.Discrete;
+                _isExtended = dataItem.IsExtended;
             }
         }
 
@@ -543,6 +550,7 @@ namespace MTConnect.Devices
                 di.Filters = dataItem.Filters;
                 di.InitialValue = dataItem.InitialValue;
                 di.Discrete = dataItem.Discrete;
+                di._isExtended = type == typeof(DataItem);
                 return di;
             }
 
@@ -1059,6 +1067,8 @@ namespace MTConnect.Devices
                     obj.SignificantDigits = dataItem.SignificantDigits;
                     obj.Container = dataItem.Container;
                     obj.Device = dataItem.Device;
+
+                    obj._isExtended = obj.GetType() == typeof(DataItem);
 
                     // Check SampleRate
                     if (version >= MTConnectVersions.Version12) obj.SampleRate = dataItem.SampleRate;

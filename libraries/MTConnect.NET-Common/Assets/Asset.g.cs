@@ -24,9 +24,9 @@ namespace MTConnect.Assets
         public MTConnect.Devices.Configurations.IConfiguration Configuration { get; set; }
         
         /// <summary>
-        /// Description can contain any descriptive content about the Asset.
+        /// Textual description for Asset.
         /// </summary>
-        public MTConnect.Devices.IDescription Description { get; set; }
+        public string Description { get; set; }
         
         /// <summary>
         /// Associated piece of equipment's UUID that supplied the Asset's data.uuid defined in Device Information Model.
@@ -39,9 +39,29 @@ namespace MTConnect.Assets
         public string Hash { get; set; }
         
         /// <summary>
+        /// 
+        /// </summary>
+        public System.Collections.Generic.IEnumerable<string> Manufacturers { get; set; }
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        public string Model { get; set; }
+        
+        /// <summary>
         /// Indicator that the Asset has been removed from the piece of equipment.
         /// </summary>
         public bool Removed { get; set; }
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        public string SerialNumber { get; set; }
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        public string Station { get; set; }
         
         /// <summary>
         /// Time the Asset data was last modified.

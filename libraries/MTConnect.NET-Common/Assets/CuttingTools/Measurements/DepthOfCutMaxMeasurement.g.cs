@@ -6,7 +6,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
     /// <summary>
     /// Maximum engagement of the cutting edge or edges with the workpiece measured perpendicular to the feed motion.
     /// </summary>
-    public class DepthOfCutMaxMeasurement : Measurement
+    public class DepthOfCutMaxMeasurement : ToolingMeasurement
     {
         public const string TypeId = "DepthOfCutMax";
         public const string CodeId = "APMX";
@@ -27,7 +27,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
             
         }
 
-        public DepthOfCutMaxMeasurement(IMeasurement measurement) : base(measurement)
+        public DepthOfCutMaxMeasurement(IToolingMeasurement measurement) : base(measurement)
         {
             Type = TypeId;
             Code = CodeId;

@@ -1,4 +1,4 @@
-// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2025 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Agents.Metrics;
@@ -47,6 +47,7 @@ namespace MTConnect.Agents
         private MTConnectAgentMetrics _metrics;
         private readonly string _uuid;
         private readonly ulong _instanceId;
+        private readonly TimeZoneInfo _timeZoneInfo;
         private long _deviceModelChangeTime;
         private Version _version;
         private Version _mtconnectVersion;
@@ -120,6 +121,11 @@ namespace MTConnect.Agents
                 return _sender;
             }
         }
+
+        /// <summary>
+        /// Get the TimeZone that is configured to Output
+        /// </summary>
+        public TimeZoneInfo TimeZoneOutput => _timeZoneInfo;
 
         /// <summary>
         /// A timestamp in 8601 format of the last update of the Device information for any device.
@@ -210,6 +216,7 @@ namespace MTConnect.Agents
             _deviceModelChangeTime = deviceModelChangeTime;
             _mtconnectVersion = MTConnectVersions.Max;
             _version = GetAgentVersion();
+            _timeZoneInfo = GetTimeZone(_configuration);
             InitializeAgentDevice(initializeAgentDevice);
         }
 
@@ -228,6 +235,7 @@ namespace MTConnect.Agents
             _deviceModelChangeTime = deviceModelChangeTime;
             _mtconnectVersion = _configuration != null && _configuration.DefaultVersion != null ? _configuration.DefaultVersion : MTConnectVersions.Max;
             _version = GetAgentVersion();
+            _timeZoneInfo = GetTimeZone(_configuration);
             InitializeAgentDevice(initializeAgentDevice);
         }
 
@@ -691,6 +699,9 @@ namespace MTConnect.Agents
             observationOutput._instanceId = _instanceId;
             observationOutput._sequence = observation.Sequence;
             observationOutput._timestamp = observation.Timestamp;
+            observationOutput._quality = observation.Quality;
+            observationOutput._deprecated = observation.Deprecated;
+            observationOutput._extended = observation.Extended;
             observationOutput._values = observation.Values?.ToArray();
             return observationOutput;
         }
@@ -1924,12 +1935,11 @@ namespace MTConnect.Agents
                     }
 
                     var success = false;
-                    var validationResult = new ValidationResult(true);
+                    var validationResult = dataItem.Validate(MTConnectVersion, input);
 
                     if (_configuration.InputValidationLevel > InputValidationLevel.Ignore)
                     {
                         // Validate Observation Input with DataItem type
-                        validationResult = dataItem.Validate(MTConnectVersion, input);
                         if (!validationResult.IsValid) validationResult.Message = $"{dataItem.Type} : {dataItem.Id} : {validationResult.Message}";
                     }
 
@@ -1977,6 +1987,20 @@ namespace MTConnect.Agents
                                 observation.InstanceId = _instanceId;
                                 observation.Timestamp = input.Timestamp.ToDateTime();
                                 observation.AddValues(input.Values);
+
+                                // Re-validate after adding default properties/values
+                                validationResult = dataItem.Validate(_mtconnectVersion, observation);
+
+                                if (_configuration.EnableValidation)
+                                {
+                                    // Set Quality using Validation
+                                    if (validationResult.IsValid) observation.Quality = Quality.VALID;
+                                    else observation.Quality = Quality.INVALID;
+
+                                    // Set Deprecated / Extended flags
+                                    observation.Deprecated = dataItem.MaximumVersion != null && dataItem.MaximumVersion < _mtconnectVersion;
+                                    observation.Extended = dataItem.IsExtended || !validationResult.IsValid;
+                                }
 
                                 // Update Current Observations
                                 if (dataItem.Category == DataItemCategory.CONDITION) UpdateCurrentCondition(deviceUuid, dataItem, observation);
@@ -2287,6 +2311,27 @@ namespace MTConnect.Agents
         private static Version GetAgentVersion()
         {
             return Assembly.GetExecutingAssembly().GetName().Version;
+        }
+
+        private static TimeZoneInfo GetTimeZone(IAgentConfiguration agentConfiguration)
+        {
+            if (agentConfiguration != null)
+            {
+                if (!string.IsNullOrEmpty(agentConfiguration.TimeZoneOutput))
+                {
+                    var timeZoneDefinition = MTConnectTimeZone.Get(agentConfiguration.TimeZoneOutput);
+                    if (timeZoneDefinition != null)
+                    {
+                        var timeZoneInfo = timeZoneDefinition.ToTimeZoneInfo();
+                        if (timeZoneInfo != null)
+                        {
+                            return timeZoneInfo;
+                        }
+                    }
+                }
+            }
+
+            return TimeZoneInfo.Utc;
         }
     }
 }

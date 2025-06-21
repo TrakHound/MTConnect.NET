@@ -55,5 +55,15 @@ namespace MTConnect.Devices.Xml
                 writer.WriteEndElement();
             }
         }
+
+        public static void WriteXml(XmlWriter writer, string description)
+        {
+            if (!string.IsNullOrEmpty(description))
+            {
+                writer.WriteStartElement("Description");
+                writer.WriteString(description);
+                writer.WriteEndElement();
+            }
+        }
     }
 }

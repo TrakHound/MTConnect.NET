@@ -62,6 +62,11 @@ namespace MTConnect.Headers
         bool TestIndicator { get; }
 
         /// <summary>
+        /// Indicates if the MTConnect Agent is validating against the normative model.
+        /// </summary>
+        bool Validation { get; }
+
+        /// <summary>
         /// CreationTime represents the time that an Agent published the Response Document.
         /// </summary>
         DateTime CreationTime { get; }

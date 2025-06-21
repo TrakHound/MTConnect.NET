@@ -28,8 +28,11 @@ namespace MTConnect.Assets.Json.QIF
         [JsonPropertyName("removed")]
         public bool Removed { get; set; }
 
+        //[JsonPropertyName("description")]
+        //public JsonDescription Description { get; set; }
+
         [JsonPropertyName("description")]
-        public JsonDescription Description { get; set; }
+        public string Description { get; set; }
 
 
         [JsonPropertyName("qifDocumentType")]
@@ -52,7 +55,8 @@ namespace MTConnect.Assets.Json.QIF
                 DeviceUuid = asset.DeviceUuid;
                 Removed = asset.Removed;
 
-                if (asset.Description != null) Description = new JsonDescription(asset.Description);
+                if (asset.Description != null) Description = asset.Description;
+                //if (asset.Description != null) Description = new JsonDescription(asset.Description);
 
                 QIFDocumentType = asset.QifDocumentType.ToString();
                 //QifDocument = asset.QifDocument;
@@ -69,7 +73,8 @@ namespace MTConnect.Assets.Json.QIF
             asset.DeviceUuid = DeviceUuid;
             asset.Removed = Removed;
 
-            if (Description != null) asset.Description = Description.ToDescription();
+            if (Description != null) asset.Description = Description;
+            //if (Description != null) asset.Description = Description.ToDescription();
 
             asset.QifDocumentType = QIFDocumentType.ConvertEnum<QIFDocumentType>();
             //asset.QifDocument = QifDocument;

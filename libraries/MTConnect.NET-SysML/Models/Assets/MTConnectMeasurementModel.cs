@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace MTConnect.SysML.Models.Assets
 {
-    public class MTConnectCuttingToolMeasurementModel : MTConnectClassModel
+    public class MTConnectMeasurementModel : MTConnectClassModel
     {
         public string MeasurementType { get; set; }
 
@@ -16,9 +16,9 @@ namespace MTConnect.SysML.Models.Assets
         public string Units { get; set; }
 
 
-        public MTConnectCuttingToolMeasurementModel() { }
+        public MTConnectMeasurementModel() { }
 
-        public MTConnectCuttingToolMeasurementModel(XmiDocument xmiDocument, string measurementType, string idPrefix, UmlClass umlClass) : base(null, null, null)
+        public MTConnectMeasurementModel(XmiDocument xmiDocument, string measurementType, string idPrefix, UmlClass umlClass) : base(null, null, null)
         {
             if (umlClass != null)
             {
@@ -65,15 +65,15 @@ namespace MTConnect.SysML.Models.Assets
             }
         }
 
-        public static IEnumerable<MTConnectCuttingToolMeasurementModel> Parse(XmiDocument xmiDocument, string measurementType, string idPrefix, IEnumerable<UmlClass> umlClasses)
+        public static IEnumerable<MTConnectMeasurementModel> Parse(XmiDocument xmiDocument, string measurementType, string idPrefix, IEnumerable<UmlClass> umlClasses)
         {
-            var models = new List<MTConnectCuttingToolMeasurementModel>();
+            var models = new List<MTConnectMeasurementModel>();
 
             if (umlClasses != null)
             {
                 foreach (var umlClass in umlClasses)
                 {
-                    var model = new MTConnectCuttingToolMeasurementModel(xmiDocument, measurementType, idPrefix, umlClass);
+                    var model = new MTConnectMeasurementModel(xmiDocument, measurementType, idPrefix, umlClass);
                     if (!models.Any(o => o.Id == model.Id))
                     {
                         models.Add(model);

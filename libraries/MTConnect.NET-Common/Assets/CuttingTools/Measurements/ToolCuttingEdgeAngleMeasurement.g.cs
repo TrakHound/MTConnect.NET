@@ -6,7 +6,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
     /// <summary>
     /// Angle between the tool cutting edge plane and the tool feed plane measured in a plane parallel the xy-plane.
     /// </summary>
-    public class ToolCuttingEdgeAngleMeasurement : Measurement
+    public class ToolCuttingEdgeAngleMeasurement : ToolingMeasurement
     {
         public const string TypeId = "ToolCuttingEdgeAngle";
         public const string CodeId = "KAPR";
@@ -27,7 +27,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
             
         }
 
-        public ToolCuttingEdgeAngleMeasurement(IMeasurement measurement) : base(measurement)
+        public ToolCuttingEdgeAngleMeasurement(IToolingMeasurement measurement) : base(measurement)
         {
             Type = TypeId;
             Code = CodeId;

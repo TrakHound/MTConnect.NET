@@ -6,7 +6,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
     /// <summary>
     /// Dimension of the diameter of a cylindrical portion of a tool item or an adaptive item that can participate in a connection.
     /// </summary>
-    public class ShankDiameterMeasurement : Measurement
+    public class ShankDiameterMeasurement : ToolingMeasurement
     {
         public const string TypeId = "ShankDiameter";
         public const string CodeId = "DMM";
@@ -27,7 +27,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
             
         }
 
-        public ShankDiameterMeasurement(IMeasurement measurement) : base(measurement)
+        public ShankDiameterMeasurement(IToolingMeasurement measurement) : base(measurement)
         {
             Type = TypeId;
             Code = CodeId;

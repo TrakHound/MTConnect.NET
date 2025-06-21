@@ -1,4 +1,4 @@
-// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2025 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Devices;
@@ -69,23 +69,23 @@ namespace MTConnect.Observations
 
         public MTConnectEntityType EntityType => MTConnectEntityType.Observation;
 
+        internal string _dataItemId;
         /// <summary>
         /// The unique identifier for the DataItem. 
         /// The DataItemID MUST match the id attribute of the data item defined in the Device Information Model that this DataItem element represents.
         /// </summary>
-        internal string _dataItemId;
         public string DataItemId
         {
             get => _dataItemId;
             set => _dataItemId = value;
         }
 
+        internal DateTime _timestamp;
         /// <summary>
         /// The time the data for the DataItem was reported or the statistics for the DataItem was computed.
         /// The timestamp MUST always represent the end of the collection interval when a duration or a TIME_SERIES is provided.
         /// The most accurate time available to the device MUST be used for the timestamp.
         /// </summary>
-        internal DateTime _timestamp;
         public DateTime Timestamp
         {
             get => _timestamp;
@@ -178,15 +178,45 @@ namespace MTConnect.Observations
             set => _representation = value;
         }
 
+        internal Quality _quality = Quality.UNVERIFIABLE;
         /// <summary>
-        /// Gets the Values associated with this Observation. These values represent data recorded during an Observation.
+        /// Indicates if the Observation is verifiable and is in accordance with the normative definitions within the MTConnect Standard.
         /// </summary>
-        public IEnumerable<ObservationValue> Values => _values.Values;
+        public Quality Quality
+        {
+            get => _quality;
+            set => _quality = value;
+        }
+
+        internal bool _deprecated;
+        /// <summary>
+        /// Indicates if the Observation has any property or controlled vocabulary that has been deprecated in the MTConnect Standard.
+        /// </summary>
+        public bool Deprecated
+        {
+            get => _deprecated;
+            set => _deprecated = value;
+        }
+
+        internal bool _extended;
+        /// <summary>
+        /// Indicates if the Observation has any property or controlled vocabulary that has been extended and cannot be validated.
+        /// </summary>
+        public bool Extended
+        {
+            get => _extended;
+            set => _extended = value;
+        }
 
         /// <summary>
         /// Returns whether the Observation is Unavailable meaning a valid value cannot be determined
         /// </summary>
         public virtual bool IsUnavailable => GetValue(ValueKeys.Result) == Unavailable;
+
+        /// <summary>
+        /// Gets the Values associated with this Observation. These values represent data recorded during an Observation.
+        /// </summary>
+        public IEnumerable<ObservationValue> Values => _values.Values;
 
 
         public ValidationResult Validate()

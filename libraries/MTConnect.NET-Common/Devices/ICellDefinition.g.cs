@@ -9,9 +9,9 @@ namespace MTConnect.Devices
     public interface ICellDefinition
     {
         /// <summary>
-        /// Descriptive content.
+        /// Textual description for CellDefinition.
         /// </summary>
-        MTConnect.Devices.IDescription Description { get; }
+        string Description { get; }
         
         /// <summary>
         /// Unique identification of the Cell in the Definition. key.

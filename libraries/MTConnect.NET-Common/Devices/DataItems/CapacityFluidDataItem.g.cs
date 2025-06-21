@@ -6,7 +6,7 @@
 namespace MTConnect.Devices.DataItems
 {
     /// <summary>
-    /// Fluid capacity of an object or container.
+    /// Maximum amount of fluid that can be held by a container.
     /// </summary>
     public class CapacityFluidDataItem : DataItem
     {
@@ -15,7 +15,7 @@ namespace MTConnect.Devices.DataItems
         public const string NameId = "capacityFluid";
              
         public const string DefaultUnits = Devices.Units.MILLILITER;     
-        public new const string DescriptionText = "Fluid capacity of an object or container.";
+        public new const string DescriptionText = "Maximum amount of fluid that can be held by a container.";
         
         public override string TypeDescription => DescriptionText;
         

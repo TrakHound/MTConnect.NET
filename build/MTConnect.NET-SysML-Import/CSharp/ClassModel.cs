@@ -134,22 +134,25 @@ namespace MTConnect.SysML.CSharp
 
         public string RenderDescriptions()
         {
-            var templateFilename = $"ModelDescriptions.scriban";
-            var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "csharp", "templates", templateFilename);
-            if (HasDescriptions && File.Exists(templatePath))
+            if (Properties != null && Properties.Count > 0)
             {
-                try
+                var templateFilename = $"ModelDescriptions.scriban";
+                var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "csharp", "templates", templateFilename);
+                if (HasDescriptions && File.Exists(templatePath))
                 {
-                    var templateContents = File.ReadAllText(templatePath);
-                    if (templateContents != null)
+                    try
                     {
-                        var template = Template.Parse(templateContents);
-                        return template.Render(this);
+                        var templateContents = File.ReadAllText(templatePath);
+                        if (templateContents != null)
+                        {
+                            var template = Template.Parse(templateContents);
+                            return template.Render(this);
+                        }
                     }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                    }
                 }
             }
 

@@ -6,7 +6,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
     /// <summary>
     /// Maximum length of a cutting tool that can be used in a particular cutting operation including the non-cutting portions of the tool.
     /// </summary>
-    public class UsableLengthMaxMeasurement : Measurement
+    public class UsableLengthMaxMeasurement : ToolingMeasurement
     {
         public const string TypeId = "UsableLengthMax";
         public const string CodeId = "LUX";
@@ -27,7 +27,7 @@ namespace MTConnect.Assets.CuttingTools.Measurements
             
         }
 
-        public UsableLengthMaxMeasurement(IMeasurement measurement) : base(measurement)
+        public UsableLengthMaxMeasurement(IToolingMeasurement measurement) : base(measurement)
         {
             Type = TypeId;
             Code = CodeId;

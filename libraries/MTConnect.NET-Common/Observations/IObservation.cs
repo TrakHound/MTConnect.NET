@@ -1,4 +1,4 @@
-// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2025 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Devices;
@@ -83,14 +83,29 @@ namespace MTConnect.Observations
         DataItemRepresentation Representation { get; }
 
         /// <summary>
-        /// Gets the Values associated with this Observation. These values represent data recorded during an Observation.
+        /// Indicates if the Observation is verifiable and is in accordance with the normative definitions within the MTConnect Standard.
         /// </summary>
-        IEnumerable<ObservationValue> Values { get; }
+        Quality Quality { get; }
+
+        /// <summary>
+        /// Indicates if the Observation has any property or controlled vocabulary that has been deprecated in the MTConnect Standard.
+        /// </summary>
+        bool Deprecated { get; }
+
+        /// <summary>
+        /// Indicates if the Observation has any property or controlled vocabulary that has been extended and cannot be validated.
+        /// </summary>
+        bool Extended { get; }
 
         /// <summary>
         /// Returns whether the Observation is Unavailable meaning a valid value cannot be determined
         /// </summary>
         bool IsUnavailable { get; }
+
+        /// <summary>
+        /// Gets the Values associated with this Observation. These values represent data recorded during an Observation.
+        /// </summary>
+        IEnumerable<ObservationValue> Values { get; }
 
         /// <summary>
         /// Gets the Value with the specified ValueKey

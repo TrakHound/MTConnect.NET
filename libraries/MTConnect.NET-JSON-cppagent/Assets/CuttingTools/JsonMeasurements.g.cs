@@ -141,7 +141,7 @@ namespace MTConnect.Assets.Json.CuttingTools
 
         public JsonMeasurements() { }
 
-        public JsonMeasurements(IEnumerable<IMeasurement> measurements)
+        public JsonMeasurements(IEnumerable<IToolingMeasurement> measurements)
         {
             if (!measurements.IsNullOrEmpty())
             {
@@ -347,9 +347,9 @@ namespace MTConnect.Assets.Json.CuttingTools
         }
 
 
-        public IEnumerable<IMeasurement> ToMeasurements()
+        public IEnumerable<IToolingMeasurement> ToMeasurements()
         {
-            var measurements = new List<IMeasurement>();
+            var measurements = new List<IToolingMeasurement>();
         
 
             if (!BodyDiameterMaxMeasurements.IsNullOrEmpty()) foreach (var measurement in BodyDiameterMaxMeasurements) measurements.Add(measurement.ToMeasurement(BodyDiameterMaxMeasurement.TypeId));

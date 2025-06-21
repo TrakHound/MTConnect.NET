@@ -1,4 +1,4 @@
-// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2025 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Assets;
@@ -15,6 +15,7 @@ using MTConnect.Streams.Output;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 
 namespace MTConnect.Agents
 {
@@ -467,9 +468,11 @@ namespace MTConnect.Agents
                 InstanceId = InstanceId,
                 Sender = Sender,
                 Version = Version.ToString(),
-                TestIndicator = false
+                TestIndicator = false,
+                Validation = Configuration.EnableValidation
             };
 
+            if (version < MTConnectVersions.Version25) header.Validation = false;
             if (version < MTConnectVersions.Version17) header.DeviceModelChangeTime = null;
             if (version < MTConnectVersions.Version12) header.AssetBufferSize = 0;
             if (version < MTConnectVersions.Version12) header.AssetCount = 0;
@@ -492,9 +495,11 @@ namespace MTConnect.Agents
                 FirstSequence = results.FirstSequence,
                 LastSequence = results.LastSequence,
                 NextSequence = results.NextSequence,
-                TestIndicator = false
+                TestIndicator = false,
+                Validation = Configuration.EnableValidation
             };
 
+            if (version < MTConnectVersions.Version25) header.Validation = false;
             if (version < MTConnectVersions.Version17) header.DeviceModelChangeTime = null;
 
             return header;
@@ -513,9 +518,11 @@ namespace MTConnect.Agents
                 InstanceId = InstanceId,
                 Sender = Sender,
                 Version = Version.ToString(),
-                TestIndicator = false
+                TestIndicator = false,
+                Validation = Configuration.EnableValidation
             };
 
+            if (version < MTConnectVersions.Version25) header.Validation = false;
             if (version < MTConnectVersions.Version17) header.DeviceModelChangeTime = null;
 
             return header;
@@ -1234,7 +1241,7 @@ namespace MTConnect.Agents
             return null;
         }
 
-        private static IObservationOutput CreateObservation(IDataItem dataItem, ref BufferObservation bufferObservation)
+        private IObservationOutput CreateObservation(IDataItem dataItem, ref BufferObservation bufferObservation)
         {
             var observation = new ObservationOutput();
             observation._dataItem = dataItem;
@@ -1247,7 +1254,21 @@ namespace MTConnect.Agents
             observation._name = dataItem.Name;
             observation._compositionId = dataItem.CompositionId;
             observation._sequence = bufferObservation.Sequence;
+
             observation._timestamp = bufferObservation.Timestamp.ToDateTime();
+            observation._timeZoneTimestamp = MTConnectTimeZone.GetTimestamp(observation._timestamp, TimeZoneOutput);
+
+            if (MTConnectVersion >= MTConnectVersions.Version25)
+            {
+                observation._quality = bufferObservation.Quality;
+                observation._deprecated = bufferObservation.Deprecated;
+                observation._extended = bufferObservation.Extended;
+            }
+            else
+            {
+                observation._quality = Quality.UNVERIFIABLE;
+            }
+
             observation._values = bufferObservation.Values;
             return observation;
         }
@@ -1722,6 +1743,22 @@ namespace MTConnect.Agents
                                 case DataItemRepresentation.TIME_SERIES: observation.AddValue(ValueKeys.SampleCount, 0); break;
                             }
 
+                            // Temporarily Set Sequence to a value for validation
+                            observation.Sequence = 1;
+                            var validationResult = dataItem.Validate(MTConnectVersion, observation);
+                            observation.Sequence = 0;
+
+                            if (Configuration.EnableValidation)
+                            {
+                                // Set Quality using Validation
+                                if (validationResult.IsValid) observation.Quality = Quality.VALID;
+                                else observation.Quality = Quality.INVALID;
+
+                                // Set Deprecated / Extended flags
+                                observation.Deprecated = dataItem.MaximumVersion != null && dataItem.MaximumVersion < MTConnectVersion;
+                                observation.Extended = dataItem.IsExtended || !validationResult.IsValid;
+                            }
+
                             var bufferObservation = new BufferObservation(bufferKey, observation);
                             var sequence = _observationBuffer.AddObservation(ref bufferObservation);
                             observation.Sequence = sequence;
@@ -1746,6 +1783,24 @@ namespace MTConnect.Agents
         {
             if (_observationBuffer != null && dataItem != null && observationInput != null)
             {
+                var validationResult = dataItem.Validate(MTConnectVersion, observationInput);
+
+                var quality = Quality.UNVERIFIABLE;
+                var deprecated = false;
+                var extended = false;
+
+                if (Configuration.EnableValidation)
+                {
+                    // Set Quality
+                    if (validationResult.IsValid) quality = Quality.VALID;
+                    else quality = Quality.INVALID;
+
+                    // Set Deprecated / Extended flags
+                    deprecated = dataItem.MaximumVersion != null && dataItem.MaximumVersion < MTConnectVersion;
+                    extended = !validationResult.IsValid;
+                }
+
+
                 // Get the BufferKey to use for the ObservationBuffer
                 var bufferKey = GenerateBufferKey(deviceUuid, dataItem.Id);
                 var bufferObservation = new BufferObservation(
@@ -1754,7 +1809,10 @@ namespace MTConnect.Agents
                     dataItem.Representation,
                     observationInput.Values,
                     0,
-                    observationInput.Timestamp
+                    observationInput.Timestamp,
+                    quality,
+                    deprecated,
+                    extended
                     );
 
                 // Add Observation to Streaming Buffer

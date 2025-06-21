@@ -6,7 +6,7 @@
 namespace MTConnect.Devices.DataItems
 {
     /// <summary>
-    /// Set of limits defining a range of values designating acceptable performance for a variable.**DEPRECATION WARNING**. Recommend using `SPECIFICATION_LIMITS`.
+    /// Set of limits defining a range of values designating acceptable performance for a variable.**DEPRECATED** in *Version 2.5*. Replaced by  `SPECIFICATION_LIMITS`.
     /// </summary>
     public class SpecificationLimitDataItem : DataItem
     {
@@ -15,7 +15,7 @@ namespace MTConnect.Devices.DataItems
         public const string NameId = "specificationLimit";
         public const DataItemRepresentation DefaultRepresentation = DataItemRepresentation.TABLE;     
              
-        public new const string DescriptionText = "Set of limits defining a range of values designating acceptable performance for a variable.**DEPRECATION WARNING**. Recommend using `SPECIFICATION_LIMITS`.";
+        public new const string DescriptionText = "Set of limits defining a range of values designating acceptable performance for a variable.**DEPRECATED** in *Version 2.5*. Replaced by  `SPECIFICATION_LIMITS`.";
         
         public override string TypeDescription => DescriptionText;
         

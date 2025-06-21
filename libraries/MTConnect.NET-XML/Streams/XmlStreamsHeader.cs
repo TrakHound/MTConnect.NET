@@ -37,6 +37,9 @@ namespace MTConnect.Streams.Xml
         [XmlAttribute("testIndicator")]
         public bool TestIndicator { get; set; }
 
+        [XmlAttribute("validation")]
+        public bool Validation { get; set; }
+
         [XmlAttribute("creationTime")]
         public DateTime CreationTime { get; set; }
 
@@ -53,6 +56,7 @@ namespace MTConnect.Streams.Xml
             header.NextSequence = NextSequence;
             header.DeviceModelChangeTime = DeviceModelChangeTime;
             header.TestIndicator = TestIndicator;
+            header.Validation = Validation;
             header.CreationTime = CreationTime;
             return header;
         }
@@ -70,6 +74,7 @@ namespace MTConnect.Streams.Xml
             header.NextSequence = reader.GetAttribute("nextSequence").ToULong();
             header.DeviceModelChangeTime = reader.GetAttribute("deviceModelChangeTime");
             header.TestIndicator = reader.GetAttribute("testIndicator").ToBoolean();
+            header.Validation = reader.GetAttribute("validation").ToBoolean();
             header.CreationTime = reader.GetAttribute("creationTime").ToDateTime();
             return header;
         }
@@ -88,6 +93,7 @@ namespace MTConnect.Streams.Xml
                 writer.WriteAttributeString("nextSequence", header.NextSequence.ToString());
                 writer.WriteAttributeString("deviceModelChangeTime", header.DeviceModelChangeTime);
                 if (header.TestIndicator) writer.WriteAttributeString("testIndicator", header.TestIndicator.ToString());
+                if (header.Validation) writer.WriteAttributeString("validation", header.Validation.ToString());
                 writer.WriteAttributeString("creationTime", header.CreationTime.ToString("o"));
                 writer.WriteEndElement();
             }

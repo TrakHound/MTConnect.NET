@@ -34,6 +34,9 @@ namespace MTConnect.Devices.Xml
         [XmlAttribute("testIndicator")]
         public bool TestIndicator { get; set; }
 
+        [XmlAttribute("validation")]
+        public bool Validation { get; set; }
+
         [XmlAttribute("creationTime")]
         public DateTime CreationTime { get; set; }
 
@@ -49,6 +52,7 @@ namespace MTConnect.Devices.Xml
             header.AssetCount = AssetCount;
             header.DeviceModelChangeTime = DeviceModelChangeTime;
             header.TestIndicator = TestIndicator;
+            header.Validation = Validation;
             header.CreationTime = CreationTime;
             return header;
         }
@@ -66,6 +70,7 @@ namespace MTConnect.Devices.Xml
                 if (header.AssetCount >= 0) writer.WriteAttributeString("assetCount", header.AssetCount.ToString());
                 if (!string.IsNullOrEmpty(header.DeviceModelChangeTime)) writer.WriteAttributeString("deviceModelChangeTime", header.DeviceModelChangeTime);
                 if (header.TestIndicator) writer.WriteAttributeString("testIndicator", header.TestIndicator.ToString());
+                if (header.Validation) writer.WriteAttributeString("validation", header.Validation.ToString());
                 writer.WriteAttributeString("creationTime", header.CreationTime.ToString("o"));
                 writer.WriteEndElement();
             }
