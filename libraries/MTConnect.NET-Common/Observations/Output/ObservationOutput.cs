@@ -145,7 +145,7 @@ namespace MTConnect.Observations.Output
         /// <summary>
         /// Indicates if the Observation is verifiable and is in accordance with the normative definitions within the MTConnect Standard.
         /// </summary>
-        internal Quality _quality = Quality.UNVERIFIABLE;
+        internal Quality _quality;
         public Quality Quality
         {
             get => _quality;

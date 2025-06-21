@@ -150,7 +150,7 @@ namespace MTConnect.Applications
                     _verboseLogging = true;
                     if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
                     {
-                        ServiceBase.Run(service);
+                        System.ServiceProcess.ServiceBase.Run(service);
                     }
                     else _applicationLogger.Info($"'Run-Service' Command is not supported on this Operating System");
 
