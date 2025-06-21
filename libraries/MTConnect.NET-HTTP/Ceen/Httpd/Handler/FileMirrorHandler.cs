@@ -175,7 +175,7 @@ namespace Ceen.Httpd.Handler
                     if (!m_activeTransfers.TryGetValue(localpath, out task))
                     {
                         m_activeTransferSizes[localpath] = -1;
-                        m_activeTransfers[localpath] = task = (tcs = new TaskCompletionSource<long>()).Task;
+                        m_activeTransfers[localpath] = task = (tcs = new TaskCompletionSource<long>(TaskCreationOptions.RunContinuationsAsynchronously)).Task;
                     }
                 }
 
@@ -518,7 +518,7 @@ namespace Ceen.Httpd.Handler
                             // Swap around and notify of the progress
                             var oldsignal = signal;
                             lock (m_statuslock)
-                                m_activeTransfers[localpath] = (signal = new TaskCompletionSource<long>()).Task;
+                                m_activeTransfers[localpath] = (signal = new TaskCompletionSource<long>(TaskCreationOptions.RunContinuationsAsynchronously)).Task;
                             oldsignal.TrySetResult(pg);
                         }
                     }
