@@ -35,6 +35,9 @@ namespace MTConnect
         private readonly MqttFactory _mqttFactory;
         private readonly IMqttClient _mqttClient;
         private CancellationTokenSource _stop;
+        private static readonly object _lastSentSequenceLock = new object();
+        private long _totalIncomingObservations = 0;
+        private long _lastSentSequence = 0;
 
 
         public Module(IMTConnectAgentBroker mtconnectAgent, object configuration) : base(mtconnectAgent)
@@ -204,6 +207,10 @@ namespace MTConnect
                         // Initialize Entity Server (if configured)
                         if (_entityServer != null)
                         {
+                            if (_configuration.DurableRelay)
+                            {
+                                await RelayBufferedObservations();
+                            }
                             await PublishDevices();
                             await PublishCurrentObservations();
                             await PublishAssets();
@@ -243,7 +250,121 @@ namespace MTConnect
             } while (!_stop.Token.IsCancellationRequested);
         }
 
+        private static IEnumerable<IObservationOutput> GetAllObservations(IStreamsResponseOutputDocument doc)
+        {
+            if (doc == null || doc.Streams == null) yield break;
 
+            foreach (var deviceStream in doc.Streams)
+            {
+                if (deviceStream.ComponentStreams == null) continue;
+                foreach (var componentStream in deviceStream.ComponentStreams)
+                {
+                    if (componentStream.Observations == null) continue;
+                    foreach (var obs in componentStream.Observations)
+                    {
+                        yield return obs;
+                    }
+                }
+            }
+        }
+
+        private async Task RelayBufferedObservations()
+        {
+            if (Agent is IMTConnectAgentBroker broker)
+            {
+                ulong lastSent = GetLastSentSequence();
+                ulong from = Math.Max(lastSent + 1, broker.FirstSequence);
+                ulong to = broker.LastSequence;
+
+                Log(MTConnectLogLevel.Information, $"[MQTT Relay] RelayBufferedObservations: lastSent={lastSent}, broker.FirstSequence={broker.FirstSequence}, broker.LastSequence={broker.LastSequence}");
+
+                long missed = (long)(to - lastSent);
+
+                if (lastSent + 1 < broker.FirstSequence)
+                {
+                    Log(MTConnectLogLevel.Warning, $"[MQTT Relay] Some observations could not be relayed because they were overwritten in the buffer (lastSent={lastSent}, firstAvailable={broker.FirstSequence}).");
+                }
+                if (missed > 0 && from <= to)
+                {
+                    Log(MTConnectLogLevel.Warning, $"[MQTT Relay] Network reconnected. {to - from + 1} observations will now be sent (from Sequence {from} to {to}).");
+                }
+
+                if (from <= to)
+                {
+                    var doc = broker.GetDeviceStreamsResponseDocument(from, to);
+                    var observations = GetAllObservations(doc)
+                        .OrderBy(o => o.Sequence)
+                        .ToList();
+
+                    Log(MTConnectLogLevel.Information, $"[MQTT Relay] Relaying buffered observations: {observations.Count} from Sequence {from} to {to}");
+
+                    foreach (var obs in observations)
+                    {
+                        var x = new Observation();
+                        x.DeviceUuid = obs.DeviceUuid;
+                        x.DataItemId = obs.DataItemId;
+                        x.DataItem = obs.DataItem;
+                        x.Name = obs.Name;
+                        x.Category = obs.Category;
+                        x.Type = obs.Type;
+                        x.SubType = obs.SubType;
+                        x.Representation = obs.Representation;
+                        x.CompositionId = obs.CompositionId;
+                        x.InstanceId = obs.InstanceId;
+                        x.Sequence = obs.Sequence;
+                        x.Timestamp = obs.Timestamp;
+                        x.AddValues(obs.Values);
+
+                        var result = await _entityServer.PublishObservation(_mqttClient, x);
+                        if (result != null && result.IsSuccess)
+                        {
+                            SetLastSentSequence(x.Sequence);
+                        }
+                    }
+
+                    Log(MTConnectLogLevel.Information, $"[MQTT Relay] Buffered observation relay complete. {observations.Count} missed observations sent.");
+                    var unsent = broker.LastSequence > (ulong)_lastSentSequence ? broker.LastSequence - (ulong)_lastSentSequence : 0;
+                    if (unsent > 0)
+                        Log(MTConnectLogLevel.Information, $"[MQTT Relay] {unsent} new observations arrived during relay and will be sent next.");
+                }
+                else
+                {
+                    Log(MTConnectLogLevel.Information, "[MQTT Relay] No buffered observations to relay.");
+                }
+            }
+        }
+
+        private static string GetLastSentSequenceFilePath()
+        {
+            var bufferDir = Path.Combine(AppContext.BaseDirectory, "buffer");
+            Directory.CreateDirectory(bufferDir);
+            return Path.Combine(bufferDir, "mqttrelay_last_sent.seq");
+        }
+
+        private ulong GetLastSentSequence()
+        {
+            if (!_configuration.DurableRelay) return 0; // Default
+            var path = GetLastSentSequenceFilePath();
+            lock (_lastSentSequenceLock)
+            {
+                if (File.Exists(path))
+                {
+                    var text = File.ReadAllText(path);
+                    if (ulong.TryParse(text, out var seq)) return seq;
+                }
+            }
+            return 0;
+        }
+
+        private void SetLastSentSequence(ulong seq)
+        {
+            if (!_configuration.DurableRelay) return; // Default
+            var path = GetLastSentSequenceFilePath();
+            lock (_lastSentSequenceLock)
+            {
+                File.WriteAllText(path, seq.ToString());
+            }
+        }
 
         private async void ProbeReceived(IDevice device, IDevicesResponseDocument responseDocument)
         {
@@ -553,16 +674,47 @@ namespace MTConnect
 
         private async void AgentObservationAdded(object sender, IObservation observation)
         {
-            if (_entityServer != null)
+            if (_configuration.DurableRelay)
             {
-                if (observation.Category == DataItemCategory.CONDITION)
+                Interlocked.Increment(ref _totalIncomingObservations);
+
+                var lastSent = GetLastSentSequence();
+                _lastSentSequence = (long)lastSent;
+
+                if (_entityServer != null)
                 {
-                    var conditionObservations = Agent.GetCurrentObservations(observation.DeviceUuid, observation.DataItemId);
-                    await PublishObservations(conditionObservations);
+                    if (observation.Category == DataItemCategory.CONDITION)
+                    {
+                        var conditionObservations = Agent.GetCurrentObservations(observation.DeviceUuid, observation.DataItemId);
+                        var result = await _entityServer.PublishObservations(_mqttClient, conditionObservations.OfType<IObservation>());
+                        if (result != null && result.IsSuccess && conditionObservations != null && conditionObservations.Any())
+                        {
+                            SetLastSentSequence(conditionObservations.Max(o => o.Sequence));
+                        }
+                    }
+                    else
+                    {
+                        var result = await _entityServer.PublishObservation(_mqttClient, observation);
+                        if (result != null && result.IsSuccess)
+                        {
+                            SetLastSentSequence(observation.Sequence);
+                        }
+                    }
                 }
-                else
+            }
+            else
+            {
+                if (_entityServer != null)
                 {
-                    await _entityServer.PublishObservation(_mqttClient, observation);
+                    if (observation.Category == DataItemCategory.CONDITION)
+                    {
+                        var conditionObservations = Agent.GetCurrentObservations(observation.DeviceUuid, observation.DataItemId);
+                        await PublishObservations(conditionObservations);
+                    }
+                    else
+                    {
+                        await _entityServer.PublishObservation(_mqttClient, observation);
+                    }
                 }
             }
         }

@@ -95,6 +95,11 @@ namespace MTConnect.Configurations
         /// </summary>
         public int SampleInterval { get; set; }
 
+        /// <summary>
+        /// Sets whether to send buffered observation on successful reconnect
+        /// </summary>
+        public bool DurableRelay { get; set; } = false;
+
 
         public MqttRelayModuleConfiguration()
         {

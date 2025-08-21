@@ -162,7 +162,7 @@ namespace IntegrationTests
             var measurements = new List<IMeasurement>();
             measurements.Add(new MTConnect.Assets.CuttingTools.Measurements.FunctionalLengthMeasurement(7.6543));
             measurements.Add(new MTConnect.Assets.CuttingTools.Measurements.CuttingDiameterMaxMeasurement(0.375));
-            cuttingToolLifeCycle.Measurements = measurements;
+            cuttingToolLifeCycle.Measurements = measurements.OfType<IToolingMeasurement>();
 
             var cuttingItems = new List<ICuttingItem>();
             cuttingItems.Add(new CuttingItem
@@ -239,7 +239,7 @@ namespace IntegrationTests
             return tcs.Task;
         }
 
-        private static void GenerateDevicesXml(
+        internal static void GenerateDevicesXml(
             string machineId,
             string machineName,
             string fileName,

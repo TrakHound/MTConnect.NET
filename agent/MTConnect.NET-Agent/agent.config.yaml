@@ -93,6 +93,7 @@ modules:
 # - mqtt-relay: # - Add MQTT Relay module (Entity Structure)
 #     server: localhost  
 #     port: 1883
+#     durableRelay: true
 #     currentInterval: 10000
 #     sampleInterval: 500
 #     documentFormat: JSON
@@ -102,6 +103,7 @@ modules:
 # - mqtt-relay: # - Add MQTT Relay module (TLS)
 #     server: localhost
 #     port: 8883
+#     durableRelay: true
 #     currentInterval: 10000
 #     sampleInterval: 500
 #     tls:

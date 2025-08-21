@@ -24,6 +24,7 @@ modules:
 # - mqtt-relay: # - Add MQTT Relay module
 #     server: localhost
 #     port: 1883
+#     durableRelay: true
 #     currentInterval: 5000
 #     sampleInterval: 500
 
