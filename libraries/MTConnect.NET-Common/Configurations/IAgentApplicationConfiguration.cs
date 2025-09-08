@@ -2,6 +2,7 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace MTConnect.Configurations
 {
@@ -42,6 +43,11 @@ namespace MTConnect.Configurations
         /// Gets or Sets whether the Agent buffers are durable and retain state after restart
         /// </summary>
         bool Durable { get; set; }
+
+        /// <summary>
+        /// The base path to the directory to write the File Buffers when 'durable = true'
+        /// </summary>
+        string DurableBufferPath { get; set; }
 
         /// <summary>
         /// Gets or Sets whether the durable Agent buffers use Compression

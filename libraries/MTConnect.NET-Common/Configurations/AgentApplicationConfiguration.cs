@@ -55,6 +55,12 @@ namespace MTConnect.Configurations
         public bool Durable { get; set; }
 
         /// <summary>
+        /// The base path to the directory to write the File Buffers when 'durable = true'
+        /// </summary>
+        [JsonPropertyName("durableBufferPath")]
+        public string DurableBufferPath { get; set; }
+
+        /// <summary>
         /// Gets or Sets whether the durable Agent buffers use Compression
         /// </summary>
         [JsonPropertyName("useBufferCompression")]

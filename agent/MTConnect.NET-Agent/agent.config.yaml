@@ -84,6 +84,7 @@ modules:
 - mqtt-relay: # - Add MQTT Relay module (Document Structure)
     server: localhost  
     port: 1883
+    durableRelay: false
     currentInterval: 10000
     sampleInterval: 500
     documentFormat: JSON-CPPAGENT-MQTT
@@ -137,6 +138,7 @@ assetBufferSize: 1000
 
 # Sets whether the Agent buffers are durable and retain state after restart
 # durable: true
+# durableBufferPath: C:\mtconnect\agent\buffer
 
 # Disables the Agent Device
 # enableAgentDevice: false

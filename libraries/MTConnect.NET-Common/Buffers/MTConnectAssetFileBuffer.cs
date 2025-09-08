@@ -22,6 +22,7 @@ namespace MTConnect.Buffers
         public const string DirectoryBuffer = "buffer";
         public const string DirectoryAssets = "assets";
 
+        private readonly string _basePath;
         private readonly MTConnectAssetQueue _items;
         private readonly Regex _regex = new Regex("([0-9]*)_(.*)");
 
@@ -52,8 +53,9 @@ namespace MTConnect.Buffers
             Start();
         }
 
-        public MTConnectAssetFileBuffer(IAgentConfiguration configuration) : base(configuration)
+        public MTConnectAssetFileBuffer(IAgentConfiguration configuration, string basePath = null) : base(configuration)
         {
+            _basePath = basePath;
             _items = new MTConnectAssetQueue();
 
             Start();
@@ -104,9 +106,9 @@ namespace MTConnect.Buffers
             GC.SuppressFinalize(this);
         }
 
-        public static void Reset()
+        public static void Reset(string basePath)
         {
-            var dir = GetDirectory(false);
+            var dir = GetDirectory(basePath, false);
             if (Directory.Exists(dir))
             {
                 try
@@ -406,9 +408,25 @@ namespace MTConnect.Buffers
         #endregion
 
 
-        private static string GetDirectory(bool createIfNotExists = true)
+        private string GetDirectory(bool createIfNotExists = true)
         {
-            string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, DirectoryBuffer, DirectoryAssets);
+            return GetDirectory(_basePath, createIfNotExists);
+        }
+
+        private static string GetDirectory(string basePath, bool createIfNotExists = true)
+        {
+            var baseDir = basePath;
+
+            if (!string.IsNullOrEmpty(baseDir))
+            {
+                if (!Path.IsPathRooted(baseDir)) baseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, baseDir);
+            }
+            else
+            {
+                baseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, DirectoryBuffer);
+            }           
+
+            string dir = Path.Combine(baseDir, DirectoryAssets);
             if (createIfNotExists && !Directory.Exists(dir)) Directory.CreateDirectory(dir);
 
             return dir;

@@ -282,15 +282,15 @@ namespace MTConnect.Applications
                         _applicationLogger.Info("Reset Buffer requested..");
 
                         // Clear the Observation Buffer
-                        MTConnectObservationFileBuffer.Reset();
+                        MTConnectObservationFileBuffer.Reset(configuration.DurableBufferPath);
                         _applicationLogger.Info("Observation Buffer Reset Successfully");
 
                         // Clear the Asset Buffer
-                        MTConnectAssetFileBuffer.Reset();
+                        MTConnectAssetFileBuffer.Reset(configuration.DurableBufferPath);
                         _applicationLogger.Info("Asset Buffer Reset Successfully");
 
                         // Clear the Index
-                        FileIndex.Reset();
+                        FileIndex.Reset(configuration.DurableBufferPath);
                         _applicationLogger.Info("Indexes Reset Successfully");
 
                         break;
@@ -358,14 +358,14 @@ namespace MTConnect.Applications
                 if (configuration.Durable)
                 {
                     // Create Observation File Buffer
-                    var observationBuffer = new MTConnectObservationFileBuffer(configuration);
+                    var observationBuffer = new MTConnectObservationFileBuffer(configuration, configuration.DurableBufferPath);
                     observationBuffer.UseCompression = configuration.UseBufferCompression;
                     observationBuffer.BufferLoadStarted += ObservationBufferStarted;
                     observationBuffer.BufferLoadCompleted += ObservationBufferCompleted;
                     observationBuffer.BufferRetentionCompleted += ObservationBufferRetentionCompleted;
 
                     // Create Asset File Buffer
-                    _assetBuffer = new MTConnectAssetFileBuffer(configuration);
+                    _assetBuffer = new MTConnectAssetFileBuffer(configuration, configuration.DurableBufferPath);
                     _assetBuffer.UseCompression = configuration.UseBufferCompression;
                     _assetBuffer.BufferLoadStarted += AssetBufferStarted;
                     _assetBuffer.BufferLoadCompleted += AssetBufferCompleted;
@@ -406,10 +406,10 @@ namespace MTConnect.Applications
                 if (configuration.Durable)
                 {
                     // Read Device Indexes
-                    _mtconnectAgent.InitializeDeviceIndex(FileIndex.ToDictionary(FileIndex.FromFile(FileIndex.DevicesFileName)));
+                    _mtconnectAgent.InitializeDeviceIndex(FileIndex.ToDictionary(FileIndex.FromFile(configuration.DurableBufferPath, FileIndex.DevicesFileName)));
 
                     // Read DataItem Indexes
-                    _mtconnectAgent.InitializeDataItemIndex(FileIndex.ToDictionary(FileIndex.FromFile(FileIndex.DataItemsFileName)));
+                    _mtconnectAgent.InitializeDataItemIndex(FileIndex.ToDictionary(FileIndex.FromFile(configuration.DurableBufferPath, FileIndex.DataItemsFileName)));
                 }
 
                 if (verboseLogging)
@@ -492,10 +492,10 @@ namespace MTConnect.Applications
                 if (configuration.Durable)
                 {
                     // Save Device Indexes
-                    FileIndex.ToFile(FileIndex.DevicesFileName, FileIndex.Create(_mtconnectAgent.DeviceIndexes));
+                    FileIndex.ToFile(configuration.DurableBufferPath, FileIndex.DevicesFileName, FileIndex.Create(_mtconnectAgent.DeviceIndexes));
 
                     // Save DataItem Indexes
-                    FileIndex.ToFile(FileIndex.DataItemsFileName, FileIndex.Create(_mtconnectAgent.DataItemIndexes));
+                    FileIndex.ToFile(configuration.DurableBufferPath, FileIndex.DataItemsFileName, FileIndex.Create(_mtconnectAgent.DataItemIndexes));
                 }
 
                 // Start Agent

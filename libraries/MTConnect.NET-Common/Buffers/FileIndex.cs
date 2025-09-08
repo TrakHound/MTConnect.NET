@@ -79,7 +79,12 @@ namespace MTConnect.Buffers
         }
 
 
-        public static IEnumerable<FileIndex> FromFile(string filePath)
+        //public static IEnumerable<FileIndex> FromFile(string filePath)
+        //{
+        //    return FromFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "buffer"), filePath);
+        //}
+
+        public static IEnumerable<FileIndex> FromFile(string basePath, string filePath)
         {
             var fileIndexes = new List<FileIndex>();
 
@@ -87,7 +92,18 @@ namespace MTConnect.Buffers
             {
                 try
                 {
-                    var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "buffer", "index", filePath);
+                    var baseDir = basePath;
+
+                    if (!string.IsNullOrEmpty(baseDir))
+                    {
+                        if (!Path.IsPathRooted(baseDir)) baseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, baseDir);
+                    }
+                    else
+                    {
+                        baseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "buffer");
+                    }
+
+                    var path = Path.Combine(baseDir, "index", filePath);
                     if (File.Exists(path))
                     {
                         var lines = File.ReadAllLines(path);
@@ -107,7 +123,12 @@ namespace MTConnect.Buffers
             return fileIndexes;
         }
 
-        public static bool ToFile(string filePath, IEnumerable<FileIndex> fileIndexes)
+        //public static bool ToFile(string filePath, IEnumerable<FileIndex> fileIndexes)
+        //{
+        //    return ToFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "buffer"), filePath, fileIndexes);
+        //}
+
+        public static bool ToFile(string basePath, string filePath, IEnumerable<FileIndex> fileIndexes)
         {
             if (!string.IsNullOrEmpty(filePath) && !fileIndexes.IsNullOrEmpty())
             {
@@ -120,7 +141,18 @@ namespace MTConnect.Buffers
 
                 try
                 {
-                    var dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "buffer", "index");
+                    var baseDir = basePath;
+
+                    if (!string.IsNullOrEmpty(baseDir))
+                    {
+                        if (!Path.IsPathRooted(baseDir)) baseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, baseDir);
+                    }
+                    else
+                    {
+                        baseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "buffer");
+                    }
+
+                    var dir = Path.Combine(baseDir, "index");
                     if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
 
                     var path = Path.Combine(dir, filePath);
@@ -134,9 +166,20 @@ namespace MTConnect.Buffers
             return false;
         }
 
-        public static void Reset()
+        public static void Reset(string basePath)
         {
-            var dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "buffer", "index");
+            var baseDir = basePath;
+
+            if (!string.IsNullOrEmpty(baseDir))
+            {
+                if (!Path.IsPathRooted(baseDir)) baseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, baseDir);
+            }
+            else
+            {
+                baseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "buffer");
+            }
+
+            var dir = Path.Combine(baseDir, "index");
             if (Directory.Exists(dir))
             {
                 try

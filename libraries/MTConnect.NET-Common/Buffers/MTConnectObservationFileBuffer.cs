@@ -25,8 +25,10 @@ namespace MTConnect.Buffers
         private const string DirectoryObservations = "observations";
         private const string DirectoryCurrent = "current";
 
+        private readonly string _basePath;
         private readonly object _lock = new object();
         private readonly MTConnectObservationQueue _items;
+
         private CancellationTokenSource stop;
         private bool _isStarted;
         private bool _isLoading;
@@ -56,12 +58,15 @@ namespace MTConnect.Buffers
         public MTConnectObservationFileBuffer()
         {
             _items = new MTConnectObservationQueue();
+
             Start();
         }
 
-        public MTConnectObservationFileBuffer(IAgentConfiguration configuration) : base(configuration)
+        public MTConnectObservationFileBuffer(IAgentConfiguration configuration, string basePath = null) : base(configuration)
         {
+            _basePath = basePath;
             _items = new MTConnectObservationQueue();
+
             Start();
         }
 
@@ -129,9 +134,9 @@ namespace MTConnect.Buffers
         }
 
 
-        public static void Reset()
+        public static void Reset(string basePath)
         {
-            var dir = GetDirectory(false);
+            var dir = GetDirectory(basePath, false);
             if (Directory.Exists(dir))
             {
                 try
@@ -912,17 +917,50 @@ namespace MTConnect.Buffers
         #endregion
 
 
-        private static string GetDirectory(bool createIfNotExists = true)
+
+        private string GetDirectory(bool createIfNotExists = true)
         {
-            string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, DirectoryBuffer, DirectoryObservations);
+            return GetDirectory(_basePath, createIfNotExists);
+        }
+
+        private static string GetDirectory(string basePath, bool createIfNotExists = true)
+        {
+            var baseDir = basePath;
+
+            if (!string.IsNullOrEmpty(baseDir))
+            {
+                if (!Path.IsPathRooted(baseDir)) baseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, baseDir);
+            }
+            else
+            {
+                baseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, DirectoryBuffer);
+            }
+
+            string dir = Path.Combine(baseDir, DirectoryObservations);
             if (createIfNotExists && !Directory.Exists(dir)) Directory.CreateDirectory(dir);
 
             return dir;
         }
 
-        private static string GetCurrentDirectory(bool createIfNotExists = true)
+        private string GetCurrentDirectory(bool createIfNotExists = true)
         {
-            string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, DirectoryBuffer, DirectoryObservations, DirectoryCurrent);
+            return GetCurrentDirectory(_basePath, createIfNotExists);
+        }
+
+        private static string GetCurrentDirectory(string basePath, bool createIfNotExists = true)
+        {
+            var baseDir = basePath;
+
+            if (!string.IsNullOrEmpty(baseDir))
+            {
+                if (!Path.IsPathRooted(baseDir)) baseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, baseDir);
+            }
+            else
+            {
+                baseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, DirectoryBuffer);
+            }
+
+            string dir = Path.Combine(baseDir, DirectoryObservations, DirectoryCurrent);
             if (createIfNotExists && !Directory.Exists(dir)) Directory.CreateDirectory(dir);
 
             return dir;
