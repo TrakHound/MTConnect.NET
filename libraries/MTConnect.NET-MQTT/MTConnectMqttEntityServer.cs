@@ -111,7 +111,7 @@ namespace MTConnect.Clients
         }
 
 
-        public async Task PublishObservation(IMqttClient mqttClient, IObservation observation)
+        public async Task<MqttClientPublishResult> PublishObservation(IMqttClient mqttClient, IObservation observation)
         {
             if (mqttClient != null && mqttClient.IsConnected && observation != null)
             {
@@ -127,15 +127,17 @@ namespace MTConnect.Clients
                     {
                         if (SendError != null) SendError.Invoke(this, message.Topic);
                     }
+                    return result;
                 }
                 catch (Exception ex)
                 {
                     if (ClientError != null) ClientError.Invoke(this, ex);
                 }
             }
+            return null;
         }
 
-        public async Task PublishObservations(IMqttClient mqttClient, IEnumerable<IObservation> observations)
+        public async Task<MqttClientPublishResult> PublishObservations(IMqttClient mqttClient, IEnumerable<IObservation> observations)
         {
             if (mqttClient != null && mqttClient.IsConnected && !observations.IsNullOrEmpty())
             {
@@ -151,12 +153,14 @@ namespace MTConnect.Clients
                     {
                         if (SendError != null) SendError.Invoke(this, message.Topic);
                     }
+                    return result;
                 }
                 catch (Exception ex)
                 {
                     if (ClientError != null) ClientError.Invoke(this, ex);
                 }
             }
+            return null;
         }
 
         public async Task PublishObservation(MqttServer mqttServer, IObservation observation)

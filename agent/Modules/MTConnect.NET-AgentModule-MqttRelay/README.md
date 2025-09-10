@@ -59,6 +59,8 @@ modules:
 
 * `documentFormat` - The Document Format ID to use to format the payload
 
+* `durableRelay` - Enables durable relay mode. When set to `true`, the agent will persist unsent observations to disk and automatically relay missed observations to the MQTT broker after a network reconnect or agent restart.
+
 * `tls` - Sets the TLS settings
 
     * `pfx` - The PFX certificate settings
