@@ -27,7 +27,7 @@ modules:
   - mqtt-relay:
       server: localhost
       port: 1883
-      topic: enterprise/site/area/line/cell/MTConnect
+      topicPrefix: enterprise/site/area/line/cell/MTConnect
       topicStructure: Document
 ```
 
@@ -35,9 +35,9 @@ modules:
 
 * `port` - The MQTT broker port number
 
-* `timeout` - The UUID or Name of the Device to read data for
+* `timeout` - The timeout (in milliseconds) to use for connection and read/write
 
-* `reconnectInterval` - The UUID or Name of the Device to read data for
+* `reconnectInterval` - The interval (in milliseconds) to delay between disconnections
 
 * `username` - Sets the Username to use for authentication
  
