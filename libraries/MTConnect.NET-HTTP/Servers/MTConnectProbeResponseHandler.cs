@@ -9,12 +9,20 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace MTConnect.Servers.Http
 {
     class MTConnectProbeResponseHandler : MTConnectHttpResponseHandler
     {
-        public MTConnectProbeResponseHandler(IHttpServerConfiguration serverConfiguration, IMTConnectAgentBroker mtconnectAgent) : base(serverConfiguration, mtconnectAgent) { }
+        public MTConnectProbeResponseHandler(
+            IHttpServerConfiguration serverConfiguration, 
+            IMTConnectAgentBroker mtconnectAgent, 
+            ILogger logger = null) 
+            : base(
+                serverConfiguration, 
+                mtconnectAgent, 
+                logger) { }
 
 
         protected async override Task<MTConnectHttpResponse> OnRequestReceived(IHttpContext context, CancellationToken cancellationToken)

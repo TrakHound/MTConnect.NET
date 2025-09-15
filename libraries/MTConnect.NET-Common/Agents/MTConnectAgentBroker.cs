@@ -15,6 +15,7 @@ using MTConnect.Streams.Output;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 
 namespace MTConnect.Agents
 {
@@ -147,8 +148,9 @@ namespace MTConnect.Agents
             string uuid = null,
             ulong instanceId = 0,
             long deviceModelChangeTime = 0,
-            bool initializeAgentDevice = true
-            ) : base(uuid, instanceId, deviceModelChangeTime, false)
+            bool initializeAgentDevice = true,
+            ILogger logger = null
+            ) : base(uuid, instanceId, deviceModelChangeTime, false, logger)
         {
             var config = new AgentConfiguration();       
             //_deviceBuffer = new MTConnectDeviceBuffer();
@@ -163,8 +165,9 @@ namespace MTConnect.Agents
             string uuid = null,
             ulong instanceId = 0,
             long deviceModelChangeTime = 0,
-            bool initializeAgentDevice = true
-            ) : base(configuration, uuid, instanceId, deviceModelChangeTime, false)
+            bool initializeAgentDevice = true,
+            ILogger logger = null
+            ) : base(configuration, uuid, instanceId, deviceModelChangeTime, false, logger)
         {
             var config = configuration != null ? configuration : new AgentConfiguration();
             //_deviceBuffer = new MTConnectDeviceBuffer();
@@ -180,8 +183,9 @@ namespace MTConnect.Agents
             string uuid = null,
             ulong instanceId = 0,
             long deviceModelChangeTime = 0,
-            bool initializeAgentDevice = true
-            ) : base(uuid, instanceId, deviceModelChangeTime, false)
+            bool initializeAgentDevice = true,
+            ILogger logger = null
+            ) : base(uuid, instanceId, deviceModelChangeTime, false, logger)
         {
             var config = new AgentConfiguration();
             _observationBuffer = observationBuffer != null ? observationBuffer : new MTConnectObservationBuffer(config);
@@ -197,8 +201,9 @@ namespace MTConnect.Agents
             string uuid = null,
             ulong instanceId = 0,
             long deviceModelChangeTime = 0,
-            bool initializeAgentDevice = true
-            ) : base(configuration, uuid, instanceId, deviceModelChangeTime, false)
+            bool initializeAgentDevice = true,
+            ILogger logger = null
+            ) : base(configuration, uuid, instanceId, deviceModelChangeTime, false, logger)
         {
             var config = configuration != null ? configuration : new AgentConfiguration();
             _observationBuffer = observationBuffer != null ? observationBuffer : new MTConnectObservationBuffer(config);

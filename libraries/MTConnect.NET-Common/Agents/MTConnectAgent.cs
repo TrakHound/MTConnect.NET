@@ -1,6 +1,7 @@
 // Copyright (c) 2025 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
+using Microsoft.Extensions.Logging;
 using MTConnect.Agents.Metrics;
 using MTConnect.Assets;
 using MTConnect.Configurations;
@@ -14,6 +15,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using MTConnect.Logging;
 
 namespace MTConnect.Agents
 {
@@ -55,7 +57,7 @@ namespace MTConnect.Agents
         private string _sender;
         private System.Timers.Timer _informationUpdateTimer;
         private bool _updateInformation;
-
+        protected readonly ILogger _logger;
 
         #region "Properties"
 
@@ -206,7 +208,8 @@ namespace MTConnect.Agents
             string uuid = null,
             ulong instanceId = 0,
             long deviceModelChangeTime = 0,
-            bool initializeAgentDevice = true
+            bool initializeAgentDevice = true,
+            ILogger logger = null
             )
         {
             _uuid = !string.IsNullOrEmpty(uuid) ? uuid : Guid.NewGuid().ToString();
@@ -214,6 +217,7 @@ namespace MTConnect.Agents
             _configuration = new AgentConfiguration();
             _information = new MTConnectAgentInformation(_uuid, _instanceId, _deviceModelChangeTime);
             _deviceModelChangeTime = deviceModelChangeTime;
+            _logger = logger;
             _mtconnectVersion = MTConnectVersions.Max;
             _version = GetAgentVersion();
             _timeZoneInfo = GetTimeZone(_configuration);
@@ -225,7 +229,8 @@ namespace MTConnect.Agents
             string uuid = null,
             ulong instanceId = 0,
             long deviceModelChangeTime = 0,
-            bool initializeAgentDevice = true
+            bool initializeAgentDevice = true,
+            ILogger logger = null
             )
         {
             _uuid = !string.IsNullOrEmpty(uuid) ? uuid : Guid.NewGuid().ToString();
@@ -233,6 +238,7 @@ namespace MTConnect.Agents
             _configuration = configuration != null ? configuration : new AgentConfiguration();
             _information = new MTConnectAgentInformation(_uuid, _instanceId, _deviceModelChangeTime);
             _deviceModelChangeTime = deviceModelChangeTime;
+            _logger = logger;
             _mtconnectVersion = _configuration != null && _configuration.DefaultVersion != null ? _configuration.DefaultVersion : MTConnectVersions.Max;
             _version = GetAgentVersion();
             _timeZoneInfo = GetTimeZone(_configuration);
@@ -825,6 +831,15 @@ namespace MTConnect.Agents
 
                     // Check Filters
                     var update = FilterPeriod(dataItem, timestamp, existingTimestamp);
+                    if (!update)
+                    {
+                        if (_logger?.IsEnabled(LogLevel.Trace) == true)
+                        {
+                            _logger?.LogTrace(
+                                $"FilterPeriod {dataItem.Id}: {observation.Timestamp.ToDateTime():o} & {existingTimestamp.ToDateTime():o} .");
+                        }
+                    }
+
                     if (update) update = FilterDelta(dataItem, observation, existingObservationInput);
 
                     // Update if Filters are passed or if the DataItem is set to Discrete
@@ -1660,7 +1675,11 @@ namespace MTConnect.Agents
 		/// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
 		/// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
 		/// <returns>True if the Observation was added successfully</returns>
-		public bool AddObservation(IDataItem dataItem, object value, bool? convertUnits = null, bool? ignoreCase = null)
+		public bool AddObservation(
+            IDataItem dataItem, 
+            object value, 
+            bool? convertUnits = null, 
+            bool? ignoreCase = null)
 		{
             if (dataItem != null && dataItem.Device != null && !string.IsNullOrEmpty(dataItem.Device.Uuid) && !string.IsNullOrEmpty(dataItem.Id))
             {
@@ -1687,7 +1706,12 @@ namespace MTConnect.Agents
 		/// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
 		/// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
 		/// <returns>True if the Observation was added successfully</returns>
-		public bool AddObservation(string deviceKey, string dataItemKey, object value, bool? convertUnits = null, bool? ignoreCase = null)
+		public bool AddObservation(
+            string deviceKey, 
+            string dataItemKey, 
+            object value, 
+            bool? convertUnits = null, 
+            bool? ignoreCase = null)
         {
             var input = new ObservationInput
             {
@@ -1709,7 +1733,12 @@ namespace MTConnect.Agents
 		/// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
 		/// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
 		/// <returns>True if the Observation was added successfully</returns>
-		public bool AddObservation(IDataItem dataItem, object value, long timestamp, bool? convertUnits = null, bool? ignoreCase = null)
+		public bool AddObservation(
+            IDataItem dataItem,
+            object value, 
+            long timestamp, 
+            bool? convertUnits = null, 
+            bool? ignoreCase = null)
 		{
 			if (dataItem != null && dataItem.Device != null && !string.IsNullOrEmpty(dataItem.Device.Uuid) && !string.IsNullOrEmpty(dataItem.Id))
 			{
@@ -1737,7 +1766,13 @@ namespace MTConnect.Agents
 		/// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
 		/// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
 		/// <returns>True if the Observation was added successfully</returns>
-		public bool AddObservation(string deviceKey, string dataItemKey, object value, long timestamp, bool? convertUnits = null, bool? ignoreCase = null)
+		public bool AddObservation(
+            string deviceKey, 
+            string dataItemKey, 
+            object value, 
+            long timestamp, 
+            bool? convertUnits = null, 
+            bool? ignoreCase = null)
         {
             return AddObservation(new ObservationInput
             {
@@ -1757,7 +1792,12 @@ namespace MTConnect.Agents
 		/// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
 		/// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
 		/// <returns>True if the Observation was added successfully</returns>
-		public bool AddObservation(IDataItem dataItem, object value, DateTime timestamp, bool? convertUnits = null, bool? ignoreCase = null)
+		public bool AddObservation(
+            IDataItem dataItem, 
+            object value, 
+            DateTime timestamp, 
+            bool? convertUnits = null, 
+            bool? ignoreCase = null)
 		{
 			if (dataItem != null && dataItem.Device != null && !string.IsNullOrEmpty(dataItem.Device.Uuid) && !string.IsNullOrEmpty(dataItem.Id))
 			{
@@ -1785,7 +1825,13 @@ namespace MTConnect.Agents
 		/// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
 		/// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
 		/// <returns>True if the Observation was added successfully</returns>
-		public bool AddObservation(string deviceKey, string dataItemKey, object value, DateTime timestamp, bool? convertUnits = null, bool? ignoreCase = null)
+		public bool AddObservation(
+            string deviceKey, 
+            string dataItemKey, 
+            object value, 
+            DateTime timestamp, 
+            bool? convertUnits = null, 
+            bool? ignoreCase = null)
         {
             return AddObservation(new ObservationInput
             {
@@ -1806,7 +1852,13 @@ namespace MTConnect.Agents
         /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
         /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
         /// <returns>True if the Observation was added successfully</returns>
-        public bool AddObservation(string deviceKey, string dataItemKey, string valueKey, object value, bool? convertUnits = null, bool? ignoreCase = null)
+        public bool AddObservation(
+            string deviceKey, 
+            string dataItemKey, 
+            string valueKey, 
+            object value, 
+            bool? convertUnits = null, 
+            bool? ignoreCase = null)
         {
             return AddObservation(new ObservationInput
             {
@@ -1828,7 +1880,14 @@ namespace MTConnect.Agents
         /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
         /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
         /// <returns>True if the Observation was added successfully</returns>
-        public bool AddObservation(string deviceKey, string dataItemKey, string valueKey, object value, long timestamp, bool? convertUnits = null, bool? ignoreCase = null)
+        public bool AddObservation(
+            string deviceKey, 
+            string dataItemKey, 
+            string valueKey, 
+            object value, 
+            long timestamp, 
+            bool? convertUnits = null, 
+            bool? ignoreCase = null)
         {
             return AddObservation(new ObservationInput
             {
@@ -1850,7 +1909,14 @@ namespace MTConnect.Agents
         /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
         /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
         /// <returns>True if the Observation was added successfully</returns>
-        public bool AddObservation(string deviceKey, string dataItemKey, string valueKey, object value, DateTime timestamp, bool? convertUnits = null, bool? ignoreCase = null)
+        public bool AddObservation(
+            string deviceKey, 
+            string dataItemKey, 
+            string valueKey, 
+            object value, 
+            DateTime timestamp,
+            bool? convertUnits = null, 
+            bool? ignoreCase = null)
         {
             return AddObservation(new ObservationInput
             {
@@ -1869,7 +1935,11 @@ namespace MTConnect.Agents
         /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
         /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
         /// <returns>True if the Observation was added successfully</returns>
-        public bool AddObservation(IObservationInput observationInput, bool? ignoreTimestamp = null, bool? convertUnits = null, bool? ignoreCase = null)
+        public bool AddObservation(
+            IObservationInput observationInput, 
+            bool? ignoreTimestamp = null, 
+            bool? convertUnits = null, 
+            bool? ignoreCase = null)
         {
             if (observationInput != null && !string.IsNullOrEmpty(observationInput.DeviceKey))
             {
@@ -1888,7 +1958,12 @@ namespace MTConnect.Agents
 		/// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
 		/// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
 		/// <returns>True if the Observation was added successfully</returns>
-		public bool AddObservation(string deviceKey, IObservationInput observationInput, bool? ignoreTimestamp = null, bool? convertUnits = null, bool? ignoreCase = null)
+		public bool AddObservation(
+            string deviceKey, 
+            IObservationInput observationInput, 
+            bool? ignoreTimestamp = null,
+            bool? convertUnits = null, 
+            bool? ignoreCase = null)
         {
             if (observationInput != null)
             {
@@ -2009,9 +2084,22 @@ namespace MTConnect.Agents
                                 OnObservationAdded(observation);
 
                                 success = true;
+
+                                if (_logger?.IsEnabled(LogLevel.Trace) == true)
+                                {
+                                    var values = string.Join(",", observation.Values.Select(v => $"{v.Key}/{v.Value}"));
+                                    _logger?.LogTrace(
+                                        $"{nameof(MTConnectAgent)}:{DateTime.Now.ToString("hh:mm:ss.ffffff")} Data item added async in agent {observation.DataItemId}:{values} with success.");
+                                }
                             }
+
+                            LogReporter.Report($"Added data item {dataItem.Id} to buffer with {success}.", _logger);
                         }
-                        else success = true; // Return true if no update needed
+                        else
+                        {
+                            LogReporter.Report($"Skipped adding data item {dataItem.Id}.", _logger);
+                            success = true; // Return true if no update needed
+                        }
                     }
 
                     if (!validationResult.IsValid && InvalidObservationAdded != null)
@@ -2029,7 +2117,6 @@ namespace MTConnect.Agents
 
             return false;
         }
-
 
         /// <summary>
         /// Add new Observations for DataItems to the Agent

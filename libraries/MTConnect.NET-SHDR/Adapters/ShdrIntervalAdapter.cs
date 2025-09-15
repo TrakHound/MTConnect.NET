@@ -1,6 +1,7 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
+using Microsoft.Extensions.Logging;
 using MTConnect.Configurations;
 
 namespace MTConnect.Adapters
@@ -15,10 +16,37 @@ namespace MTConnect.Adapters
         private const int _defaultInterval = 100;
 
 
-        public ShdrIntervalAdapter(int port = 7878, int heartbeat = 10000, int interval = _defaultInterval) : base(port, heartbeat, interval) { }
+        public ShdrIntervalAdapter(
+            int port = 7878, 
+            int heartbeat = 10000, 
+            int interval = _defaultInterval,
+            ILogger logger = null) 
+            : base(
+                port, 
+                heartbeat, 
+                interval,
+                logger: logger) { }
 
-        public ShdrIntervalAdapter(string deviceKey, int port = 7878, int heartbeat = 10000, int interval = _defaultInterval) : base(deviceKey, port, heartbeat, interval) { }
+        public ShdrIntervalAdapter(
+            string deviceKey, 
+            int port = 7878, 
+            int heartbeat = 10000, 
+            int interval = _defaultInterval,
+            ILogger logger = null) 
+            : base(
+                deviceKey, 
+                port, 
+                heartbeat, 
+                interval,
+                logger: logger) { }
 
-        public ShdrIntervalAdapter(ShdrAdapterClientConfiguration configuration, int interval = _defaultInterval) : base(configuration, interval) { }
+        public ShdrIntervalAdapter(
+            ShdrAdapterClientConfiguration configuration, 
+            int interval = _defaultInterval,
+            ILogger logger = null) 
+            : base(
+                configuration, 
+                interval,
+                logger: logger) { }
     }
 }

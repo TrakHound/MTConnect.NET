@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace MTConnect.Servers.Http
 {
@@ -18,7 +19,14 @@ namespace MTConnect.Servers.Http
         private const int _defaultHeartbeat = 10000; // 10 Seconds
 
 
-        public MTConnectCurrentResponseHandler(IHttpServerConfiguration serverConfiguration, IMTConnectAgentBroker mtconnectAgent) : base(serverConfiguration, mtconnectAgent) { }
+        public MTConnectCurrentResponseHandler(
+            IHttpServerConfiguration serverConfiguration, 
+            IMTConnectAgentBroker mtconnectAgent,
+            ILogger logger = null) 
+            : base(
+                serverConfiguration, 
+                mtconnectAgent,
+                logger) { }
 
 
         protected async override Task<MTConnectHttpResponse> OnRequestReceived(IHttpContext context, CancellationToken cancellationToken)
@@ -104,7 +112,8 @@ namespace MTConnect.Servers.Http
                         heartbeat,
                         documentFormat,
                         acceptEncodings,
-                        formatOptions
+                        formatOptions,
+                        _logger
                         );
 
                     try
