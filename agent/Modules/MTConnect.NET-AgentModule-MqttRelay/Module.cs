@@ -345,6 +345,7 @@ namespace MTConnect
             {
                 baseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, baseDir);
             }
+            Directory.CreateDirectory(baseDir);
             return Path.Combine(baseDir, LastSentSequenceFileName);
         }
 
