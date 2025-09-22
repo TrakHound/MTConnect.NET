@@ -35,6 +35,39 @@ namespace MTConnect
         }
 
 
+        /// <summary>
+        /// Convert a DateTime to Unix ticks (1/10,000 of a millisecond) ensuring the value is in UTC.
+        /// If the DateTime.Kind is Local, it will be converted to UTC. If Unspecified, the value will be
+        /// treated as UTC by default (for backwards compatibility) or as the specified kind, then converted to UTC.
+        /// </summary>
+        /// <param name="d">The DateTime to convert.</param>
+        /// <param name="unspecifiedAssume">The kind to assume when DateTime.Kind is Unspecified. Defaults to Utc.</param>
+        /// <returns>Unix ticks since epoch in UTC.</returns>
+        public static long ToUnixUtcTime(this DateTime d, DateTimeKind unspecifiedAssume = DateTimeKind.Utc)
+        {
+            var x = d;
+            if (x.Kind == DateTimeKind.Local)
+            {
+                x = x.ToUniversalTime();
+            }
+            else if (x.Kind == DateTimeKind.Unspecified)
+            {
+                // Specify the assumed kind, then convert to UTC if necessary
+                x = DateTime.SpecifyKind(x, unspecifiedAssume);
+                if (x.Kind == DateTimeKind.Local) x = x.ToUniversalTime();
+            }
+
+            var duration = x - EpochTime;
+            return duration.Ticks;
+        }
+
+        /// <summary>
+        /// Alias to <see cref="ToUnixUtcTime"/> to match requested API name.
+        /// </summary>
+        public static long ToUnixUTCTime(this DateTime d, DateTimeKind unspecifiedAssume = DateTimeKind.Utc)
+            => ToUnixUtcTime(d, unspecifiedAssume);
+
+
         public static DateTime ToDateTime(this long unixTicks)
         {
             return FromUnixTime(unixTicks);

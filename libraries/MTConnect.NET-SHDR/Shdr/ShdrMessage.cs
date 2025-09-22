@@ -82,7 +82,7 @@ namespace MTConnect.Shdr
             {
                 new ObservationValue(ValueKeys.Result, value != null ? value.ToString() : string.Empty)
             };
-            Timestamp = timestamp.ToUnixTime();
+            Timestamp = timestamp.ToUnixUtcTime();
         }
 
         public ShdrMessage(string dataItemKey, string value, string nativeCode, DateTime timestamp)
@@ -92,7 +92,7 @@ namespace MTConnect.Shdr
             values.Add(new ObservationValue(ValueKeys.Result, value != null ? value.ToString() : string.Empty));
             if (!string.IsNullOrEmpty(nativeCode)) values.Add(new ObservationValue(ValueKeys.NativeCode, nativeCode));
             Values = values;
-            Timestamp = timestamp.ToUnixTime();
+            Timestamp = timestamp.ToUnixUtcTime();
         }
 
         public ShdrMessage(IObservationInput observation)

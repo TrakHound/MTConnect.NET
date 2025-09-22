@@ -66,7 +66,7 @@ namespace MTConnect.Shdr
             {
                 new ObservationValue(ValueKeys.Result, value != null ? value.ToString() : string.Empty)
             };
-            Timestamp = timestamp.ToUnixTime();
+            Timestamp = timestamp.ToUnixUtcTime();
         }
 
 
@@ -350,7 +350,7 @@ namespace MTConnect.Shdr
                 if (timestamp.HasValue)
                 {
                     var y = ShdrLine.GetNextSegment(input);
-                    return FromKeyValuePairs(y, timestamp.Value.ToUnixTime(), duration.HasValue ? duration.Value : 0, uppercaseValue);
+                    return FromKeyValuePairs(y, timestamp.Value.ToUnixUtcTime(), duration.HasValue ? duration.Value : 0, uppercaseValue);
                 }
                 else
                 {
