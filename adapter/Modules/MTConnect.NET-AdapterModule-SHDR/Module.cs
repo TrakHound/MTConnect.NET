@@ -22,6 +22,7 @@ namespace MTConnect
 
         private readonly object _lock = new object();
         private readonly ModuleConfiguration _configuration;
+        private readonly TimeZoneInfo _timeZoneInfo;
         private readonly AgentClientConnectionListener _connectionListener;
         private readonly Dictionary<string, AgentClient> _clients = new Dictionary<string, AgentClient>();
         private CancellationTokenSource _stop;
@@ -33,6 +34,8 @@ namespace MTConnect
 
             _configuration = AdapterApplicationConfiguration.GetConfiguration<ModuleConfiguration>(moduleConfiguration);
             if (_configuration == null) _configuration = new ModuleConfiguration();
+
+            _timeZoneInfo = GetTimeZone(_configuration);
 
             _connectionListener = new AgentClientConnectionListener(_configuration.Port, _configuration.Heartbeat);
             _connectionListener.ClientConnected += AgentClientConnected;
@@ -66,8 +69,12 @@ namespace MTConnect
             if (!dataItems.IsNullOrEmpty())
             {
                 var shdrDataItems = new List<ShdrDataItem>();
-                foreach (var x in dataItems) shdrDataItems.Add(new ShdrDataItem(x));
-                var shdrLine = ShdrDataItem.ToString(shdrDataItems);
+                foreach (var x in dataItems)
+                {
+                    shdrDataItems.Add(new ShdrDataItem(x));
+                }
+
+                var shdrLine = ShdrDataItem.ToString(shdrDataItems, timeZoneInfo: _timeZoneInfo);
                 WriteLine(shdrLine);
             }
 
@@ -78,6 +85,8 @@ namespace MTConnect
                 foreach (var x in messages)
                 {
                     var shdrModel = new ShdrMessage(x);
+                    shdrModel.TimeZoneInfo = _timeZoneInfo;
+
                     var shdrLine = shdrModel.ToString();
                     WriteLine(shdrLine);
                 }
@@ -90,6 +99,8 @@ namespace MTConnect
                 foreach (var x in conditions)
                 {
                     var shdrModel = new ShdrFaultState(new ConditionFaultStateObservationInput(x));
+                    shdrModel.TimeZoneInfo = _timeZoneInfo;
+
                     var shdrLine = shdrModel.ToString();
                     WriteLine(shdrLine);
                 }
@@ -102,6 +113,8 @@ namespace MTConnect
                 foreach (var x in dataSets)
                 {
                     var shdrModel = new ShdrDataSet(new DataSetObservationInput(x));
+                    shdrModel.TimeZoneInfo = _timeZoneInfo;
+
                     var shdrLine = shdrModel.ToString();
                     WriteLine(shdrLine);
                 }
@@ -114,6 +127,8 @@ namespace MTConnect
                 foreach (var x in tables)
                 {
                     var shdrModel = new ShdrTable(new TableObservationInput(x));
+                    shdrModel.TimeZoneInfo = _timeZoneInfo;
+
                     var shdrLine = shdrModel.ToString();
                     WriteLine(shdrLine);
                 }
@@ -126,6 +141,8 @@ namespace MTConnect
                 foreach (var x in timeSeries)
                 {
                     var shdrModel = new ShdrTimeSeries(new TimeSeriesObservationInput(x));
+                    shdrModel.TimeZoneInfo = _timeZoneInfo;
+
                     var shdrLine = shdrModel.ToString();
                     WriteLine(shdrLine);
                 }
@@ -358,6 +375,28 @@ namespace MTConnect
         }
 
         #endregion
+
+
+        private static TimeZoneInfo GetTimeZone(ModuleConfiguration configuration)
+        {
+            if (configuration != null)
+            {
+                if (!string.IsNullOrEmpty(configuration.TimeZoneOutput))
+                {
+                    var timeZoneDefinition = MTConnectTimeZone.Get(configuration.TimeZoneOutput);
+                    if (timeZoneDefinition != null)
+                    {
+                        var timeZoneInfo = timeZoneDefinition.ToTimeZoneInfo();
+                        if (timeZoneInfo != null)
+                        {
+                            return timeZoneInfo;
+                        }
+                    }
+                }
+            }
+
+            return TimeZoneInfo.Utc;
+        }
 
     }
 }

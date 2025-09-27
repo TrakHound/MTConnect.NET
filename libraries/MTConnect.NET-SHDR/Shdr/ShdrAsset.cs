@@ -67,6 +67,11 @@ namespace MTConnect.Shdr
         /// </summary>
         public long Timestamp { get; set; }
 
+        /// <summary>
+        /// The TimeZone that is configured to Output
+        /// </summary>
+        public TimeZoneInfo TimeZoneInfo { get; set; }
+
 
         private byte[] changeId;
         /// <summary>
@@ -156,7 +161,7 @@ namespace MTConnect.Shdr
                     var multilineId = StringFunctions.RandomString(10);
 
                     var header = $"|{AssetDesignator}|{AssetId}|{AssetType}|--multiline--{multilineId}";
-                    if (Timestamp > 0) header = $"{Timestamp.ToDateTime().ToString("o")}{header}";
+                    if (Timestamp > 0) header = $"{GetTimestampString(Timestamp, timeZoneInfo: TimeZoneInfo)}{header}";
 
                     var xml = XmlFunctions.FormatXml(Xml, true, false, true);
 
@@ -169,7 +174,7 @@ namespace MTConnect.Shdr
                 }
                 else
                 {
-                    if (Timestamp > 0) return $"{Timestamp.ToDateTime().ToString("o")}|{AssetDesignator}|{AssetId}|{AssetType}|{Xml}";
+                    if (Timestamp > 0) return $"{GetTimestampString(Timestamp, timeZoneInfo: TimeZoneInfo)}|{AssetDesignator}|{AssetId}|{AssetType}|{Xml}";
                     else return $"|{AssetDesignator}|{AssetId}|{AssetType}|{Xml}";
                 }
             }
@@ -177,13 +182,13 @@ namespace MTConnect.Shdr
             return null;
         }
 
-        private static string ToString(ShdrAsset asset, bool ignoreTimestamp = false)
+        private static string ToString(ShdrAsset asset, bool ignoreTimestamp = false, TimeZoneInfo timeZoneInfo = null)
         {
             if (asset != null && !string.IsNullOrEmpty(asset.AssetId) && !string.IsNullOrEmpty(asset.Xml))
             {
                 if (asset.Timestamp > 0 && !ignoreTimestamp)
                 {
-                    return $"{asset.Timestamp.ToDateTime().ToString("o")}|{AssetDesignator}|{asset.AssetId}|{asset.AssetType}|{asset.Xml}";
+                    return $"{GetTimestampString(asset.Timestamp, timeZoneInfo: timeZoneInfo)}|{AssetDesignator}|{asset.AssetId}|{asset.AssetType}|{asset.Xml}";
                 }
                 else
                 {
@@ -597,5 +602,26 @@ namespace MTConnect.Shdr
         }
 
         #endregion
+
+
+        protected static string GetTimestampString(long timestamp, TimeZoneInfo timeZoneInfo = null)
+        {
+            if (timestamp > 0)
+            {
+                var dateTime = timestamp.ToDateTime();
+                var dateTimeOffset = MTConnectTimeZone.GetTimestamp(dateTime, timeZoneInfo);
+
+                if (dateTimeOffset.Offset != TimeSpan.Zero)
+                {
+                    return dateTimeOffset.ToString("o");
+                }
+                else
+                {
+                    return dateTimeOffset.UtcDateTime.ToString("o");
+                }
+            }
+
+            return null;
+        }
     }
 }

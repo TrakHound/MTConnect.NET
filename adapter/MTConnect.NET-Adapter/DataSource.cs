@@ -50,9 +50,9 @@ namespace MTConnect.Applications
                 var rnd = new Random();
                 var ts = DateTime.Now;
 
-                //AddObservation("Xload", x, ts);
-                //AddObservation("Yload", x, ts);
-                //AddObservation("Zload", x, ts);
+                AddObservation("Xload", x, ts);
+                AddObservation("Yload", x, ts);
+                AddObservation("Zload", x, ts);
 
 
                 //var datasetEntries = new List<IDataSetEntry>();
@@ -90,7 +90,7 @@ namespace MTConnect.Applications
                 //AddObservation(timeSeries);
 
 
-                ////app.DataSource.AddAsset(CuttingTool(device.Uuid, j));
+                //AddAsset(new CuttingToolAsset(j));
                 //j += 23.3455;
 
 
@@ -102,35 +102,35 @@ namespace MTConnect.Applications
                 //app.DataSource.AddDevice(device2);
 
 
-                var warning = new ConditionFaultStateObservationInput("L2p1system", Observations.ConditionLevel.WARNING, ts);
-                warning.ConditionId = "asdfjkl";
-                warning.NativeCode = "404";
-                warning.Message = "Not Found";
-                warning.Qualifier = Observations.ConditionQualifier.LOW;
-                AddObservation(warning);
+                //var warning = new ConditionFaultStateObservationInput("L2p1system", Observations.ConditionLevel.WARNING, ts);
+                //warning.ConditionId = "asdfjkl";
+                //warning.NativeCode = "404";
+                //warning.Message = "Not Found";
+                //warning.Qualifier = Observations.ConditionQualifier.LOW;
+                //AddObservation(warning);
 
-                //switch (i)
-                //{
-                //    case 0:
-                //        var warning = new ConditionFaultStateObservationInput("L2p1system", Observations.ConditionLevel.WARNING, ts);
-                //        warning.NativeCode = "404";
-                //        warning.Message = "Not Found";
-                //        warning.Qualifier = Observations.ConditionQualifier.LOW;
-                //        app.DataSource.AddObservation(warning);
-                //        break;
+                switch (i)
+                {
+                    case 0:
+                        var warning = new ConditionFaultStateObservationInput("L2p1system", Observations.ConditionLevel.WARNING, ts);
+                        warning.NativeCode = "404";
+                        warning.Message = "Not Found";
+                        warning.Qualifier = Observations.ConditionQualifier.LOW;
+                        AddObservation(warning);
+                        break;
 
-                //    case 1:
-                //        var fault = new ConditionFaultStateObservationInput("L2p1system", Observations.ConditionLevel.FAULT, ts);
-                //        fault.NativeCode = "400";
-                //        fault.Message = "Bad Request";
-                //        app.DataSource.AddObservation(fault);
-                //        break;
+                    case 1:
+                        var fault = new ConditionFaultStateObservationInput("L2p1system", Observations.ConditionLevel.FAULT, ts);
+                        fault.NativeCode = "400";
+                        fault.Message = "Bad Request";
+                        AddObservation(fault);
+                        break;
 
-                //    case 2:
-                //        var condition = new ConditionFaultStateObservationInput("L2p1system", Observations.ConditionLevel.NORMAL, ts);
-                //        app.DataSource.AddObservation(condition);
-                //        break;
-                //}
+                    case 2:
+                        var condition = new ConditionFaultStateObservationInput("L2p1system", Observations.ConditionLevel.NORMAL, ts);
+                        AddObservation(condition);
+                        break;
+                }
 
                 x++;
                 i++;

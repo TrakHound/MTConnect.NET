@@ -77,11 +77,11 @@ namespace MTConnect.Shdr
                 {
                     if (!IsUnavailable)
                     {
-                        return $"{Timestamp.ToDateTime().ToString("o")}|{target}|{Samples.Count()}|{SampleRate}|{PrintSamples(Samples)}";
+                        return $"{GetTimestampString(Timestamp, timeZoneInfo: TimeZoneInfo)}|{target}|{Samples.Count()}|{SampleRate}|{PrintSamples(Samples)}";
                     }
                     else
                     {
-                        return $"{Timestamp.ToDateTime().ToString("o")}|{target}|{Observation.Unavailable}";
+                        return $"{GetTimestampString(Timestamp, timeZoneInfo: TimeZoneInfo)}|{target}|{Observation.Unavailable}";
                     }
                 }
                 else
