@@ -4,9 +4,6 @@
 
 [![MTConnect.NET](https://github.com/TrakHound/MTConnect.NET/actions/workflows/dotnet.yml/badge.svg)](https://github.com/TrakHound/MTConnect.NET/actions/workflows/dotnet.yml)
 
-> **New Release 10/21/2024** : Version 6.5 Released with support for MTConnect v2.4
-
-
 ## Overview
 MTConnect.NET is a fully featured and fully Open Source **[.NET](https://dotnet.microsoft.com/)** library for **[MTConnect](https://www.mtconnect.org/)** to develop Agents, Adapters, and Clients. Supports MTConnect Versions up to 2.4. A pre-compiled Agent application is available to download as well as an Adapter application that can be easily customized.
 

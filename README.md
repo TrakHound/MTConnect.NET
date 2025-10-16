@@ -2,10 +2,6 @@
 
 # MTConnect.NET
 
-[![MTConnect.NET](https://github.com/TrakHound/MTConnect.NET/actions/workflows/dotnet.yml/badge.svg)](https://github.com/TrakHound/MTConnect.NET/actions/workflows/dotnet.yml)
-
-> **New Release 6/21/2025** : Version 6.7 Released with support for MTConnect v2.5
-
 ## Download
 <table>
     <thead>
