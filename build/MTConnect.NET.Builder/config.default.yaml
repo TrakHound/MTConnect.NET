@@ -1,0 +1,125 @@
+publisher: TrakHound Inc.
+
+input: D:\TrakHound\Source-Code\MTConnect.NET
+output: D:\TrakHound\Source-Code\MTConnect.NET\build\output\development
+
+versionInfoPath: D:\TrakHound\Source-Code\MTConnect.NET\Directory.build.props
+innoSetupPath: c:\\Program Files (x86)\\Inno Setup 6\\iscc
+
+agent:
+
+  styles: D:\TrakHound\Source-Code\MTConnect.NET\build\styles
+  schemas: D:\TrakHound\Source-Code\MTConnect.NET\build\schemas
+
+  installer:
+    projectPath: agent\MTConnect.NET-Agent
+    applicationName: MTConnect.NET Agent
+    filename: mtconnect.net-agent
+    runtimes:
+      - win-x86 
+      - win-x64
+    frameworks:
+      - net9.0
+      - net8.0
+      - net7.0
+      - net6.0
+      - net48
+      - net461
+  
+  
+  docker:
+    projectPath: agent\MTConnect.NET-Agent
+    imageName: trakhound/mtconnect.net-agent
+    images:
+      - baseImage: 8.0.0-alpine3.18-amd64
+        runtime: linux-x64
+        framework: net8.0
+      - baseImage: 8.0.0-alpine3.18-arm64v8
+        tag: -arm
+        runtime: linux-arm64
+        framework: net8.0
+
+
+libraries:
+
+ - name: Libraries
+   nugetServer: 
+   projectConfiguration: Package
+   authors: 
+   repositoryUrl: https://github.com/TrakHound/MTConnect.NET
+   repositoryBranch: v{VERSION}
+   packageTags: mtconnect;iiot;iot;cnc;
+   packageProjectUrl: www.TrakHound.com
+   packageLicenseExpression: MIT
+   packageIconUrl: https://www.trakhound.com/static/mtconnect-net-nuget.png
+   packages:
+   - name: MTConnect.NET-Common
+     projectPath: libraries/MTConnect.NET-Common
+   - name: MTConnect.NET-DeviceFinder
+     projectPath: libraries/MTConnect.NET-DeviceFinder
+   - name: MTConnect.NET-HTTP
+     projectPath: libraries/MTConnect.NET-HTTP
+   - name: MTConnect.NET-JSON
+     projectPath: libraries/MTConnect.NET-JSON
+   - name: MTConnect.NET-JSON-cppagent
+     projectPath: libraries/MTConnect.NET-JSON-cppagent
+   - name: MTConnect.NET-MQTT
+     projectPath: libraries/MTConnect.NET-MQTT
+   - name: MTConnect.NET-Services
+     projectPath: libraries/MTConnect.NET-Services
+   - name: MTConnect.NET-SHDR
+     projectPath: libraries/MTConnect.NET-SHDR
+   - name: MTConnect.NET-SysML
+     projectPath: libraries/MTConnect.NET-SysML
+   - name: MTConnect.NET-TLS
+     projectPath: libraries/MTConnect.NET-TLS
+   - name: MTConnect.NET-XML
+     projectPath: libraries/MTConnect.NET-XML
+   - name: MTConnect.NET
+     projectPath: libraries/MTConnect.NET
+
+ - name: Adapter
+   nugetServer: 
+   projectConfiguration: Package
+   authors: 
+   repositoryUrl: https://github.com/TrakHound/MTConnect.NET
+   repositoryBranch: v{VERSION}
+   packageTags: mtconnect;iiot;iot;cnc;
+   packageProjectUrl: www.TrakHound.com
+   packageLicenseExpression: MIT
+   packageIconUrl: https://www.trakhound.com/static/mtconnect-net-nuget.png
+   packages:
+   - name: MTConnect.NET-Applications-Adapter
+     projectPath: adapter/MTConnect.NET-Applications-Adapter
+   - name: MTConnect.NET-AdapterModule-MQTT
+     projectPath: adapter/Modules/MTConnect.NET-AdapterModule-MQTT
+   - name: MTConnect.NET-AdapterModule-SHDR
+     projectPath: adapter/Modules/MTConnect.NET-AdapterModule-SHDR
+
+ - name: Agent
+   nugetServer: 
+   projectConfiguration: Package
+   authors: 
+   repositoryUrl: https://github.com/TrakHound/MTConnect.NET
+   repositoryBranch: v{VERSION}
+   packageTags: mtconnect;iiot;iot;cnc;
+   packageProjectUrl: www.TrakHound.com
+   packageLicenseExpression: MIT
+   packageIconUrl: https://www.trakhound.com/static/mtconnect-net-nuget.png
+   packages:
+   - name: MTConnect.NET-Applications-Agents
+     projectPath: agent/MTConnect.NET-Applications-Agents
+   - name: MTConnect.NET-AgentModule-HttpAdapter
+     projectPath: agent/Modules/MTConnect.NET-AgentModule-HttpAdapter
+   - name: MTConnect.NET-AgentModule-HttpServer
+     projectPath: agent/Modules/MTConnect.NET-AgentModule-HttpServer
+   - name: MTConnect.NET-AgentModule-MqttAdapter
+     projectPath: agent/Modules/MTConnect.NET-AgentModule-MqttAdapter
+   - name: MTConnect.NET-AgentModule-MqttBroker
+     projectPath: agent/Modules/MTConnect.NET-AgentModule-MqttBroker
+   - name: MTConnect.NET-AgentModule-MqttRelay
+     projectPath: agent/Modules/MTConnect.NET-AgentModule-MqttRelay
+   - name: MTConnect.NET-AgentModule-ShdrAdapter
+     projectPath: agent/Modules/MTConnect.NET-AgentModule-ShdrAdapter
+   - name: MTConnect.NET-AgentProcessor-Python
+     projectPath: agent/Processors/MTConnect.NET-AgentProcessor-Python

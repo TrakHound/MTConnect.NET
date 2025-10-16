@@ -16,14 +16,11 @@
 
 	<PropertyGroup>
 		<Configurations>Debug;Release;Docker</Configurations>
-		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<AssemblyName>adapter</AssemblyName>
 		<OutputType>Exe</OutputType>
 		<RootNamespace>MTConnect</RootNamespace>
 		<StartupObject>MTConnect.Applications.Program</StartupObject>
 		<Nullable>disable</Nullable>
-		<Company></Company>
-		<Copyright></Copyright>
 	</PropertyGroup>
 
 	<ItemGroup>

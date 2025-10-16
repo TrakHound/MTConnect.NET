@@ -24,6 +24,12 @@ bld/
 
 [Nn]uget/
 
+# Builder
+build/output
+build/schemas
+build/styles
+build/MTConnect.NET.Builder/config.production.yaml
+
 [Nn]ode_modules/
 
 gulpfile.js

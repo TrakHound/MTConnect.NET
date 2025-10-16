@@ -16,22 +16,17 @@
 
 	<PropertyGroup>
 		<Configurations>Debug;Release;Docker</Configurations>
-		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<AssemblyName>agent</AssemblyName>
+		<Product>MTConnect.NET Agent</Product>
+		<Description>.NET MTConnect Agent for Data Collection</Description>
 		<OutputType>Exe</OutputType>
 		<RootNamespace>MTConnect</RootNamespace>
 		<StartupObject>MTConnect.Applications.Program</StartupObject>
 		<Nullable>disable</Nullable>
-		<Company></Company>
-		<Copyright></Copyright>
 	</PropertyGroup>
 
 	<ItemGroup>
 	  <None Remove="NLog.config" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<Compile Include="..\..\build\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
 	</ItemGroup>
 
 	<ItemGroup>

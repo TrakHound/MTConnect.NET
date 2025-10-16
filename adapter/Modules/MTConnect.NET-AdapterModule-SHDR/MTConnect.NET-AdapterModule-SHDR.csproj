@@ -17,11 +17,6 @@
 	<PropertyGroup>
 		<RootNamespace>MTConnect</RootNamespace>
 		<Configurations>Debug;Release;Package</Configurations>
-		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-
-		<Copyright>Copyright (c) 2025 TrakHound Inc., All Rights Reserved.</Copyright>
-		<PackageTags>mtconnect;iiot;iot;cnc;</PackageTags>
-		<RepositoryUrl>https://github.com/TrakHound/MTConnect.NET</RepositoryUrl>
 
 		<Description>MTConnect.NET-AdapterModule-SHDR implements the MTConnect SHDR Protocol for Adapter Applications. Supports MTConnect Versions up to 2.5. Supports .NET Framework 4.6.1 up to .NET 9</Description>
 		<PackageReadmeFile>README-Nuget.md</PackageReadmeFile>
@@ -36,14 +31,6 @@
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 	</PropertyGroup>
-
-	<ItemGroup Condition="'$(Configuration)'=='Debug'">
-		<Compile Include="..\..\..\build\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
-	</ItemGroup>
-
-	<ItemGroup Condition="'$(Configuration)'=='Release'">
-		<Compile Include="..\..\..\build\AssemblyInfo.cs" Link="Properties\AssemblyInfo.cs" />
-	</ItemGroup>
 
 	<PropertyGroup Condition="'$(Configuration)'=='Package'">
 		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
