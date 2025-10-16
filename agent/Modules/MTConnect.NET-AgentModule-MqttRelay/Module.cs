@@ -38,7 +38,8 @@ namespace MTConnect
         private static readonly object _lastSentSequenceLock = new object();
         private long _totalIncomingObservations = 0;
         private long _lastSentSequence = 0;
-
+        private const string DirectoryBuffer = "buffer";
+        private const string LastSentSequenceFileName = "mqttrelay_last_sent.seq";
 
         public Module(IMTConnectAgentBroker mtconnectAgent, object configuration) : base(mtconnectAgent)
         {
@@ -334,17 +335,25 @@ namespace MTConnect
             }
         }
 
-        private static string GetLastSentSequenceFilePath()
+        private static string GetLastSentSequenceFilePath(IAgentApplicationConfiguration agentConfig = null)
         {
-            var bufferDir = Path.Combine(AppContext.BaseDirectory, "buffer");
-            Directory.CreateDirectory(bufferDir);
-            return Path.Combine(bufferDir, "mqttrelay_last_sent.seq");
+            string baseDir = !string.IsNullOrEmpty(agentConfig?.DurableBufferPath)
+                ? agentConfig.DurableBufferPath
+                : DirectoryBuffer;
+
+            if (!Path.IsPathRooted(baseDir))
+            {
+                baseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, baseDir);
+            }
+            Directory.CreateDirectory(baseDir);
+            return Path.Combine(baseDir, LastSentSequenceFileName);
         }
 
         private ulong GetLastSentSequence()
         {
-            if (!_configuration.DurableRelay) return 0; // Default
-            var path = GetLastSentSequenceFilePath();
+            if (!_configuration.DurableRelay) return 0;
+            var agentConfig = Agent?.Configuration as IAgentApplicationConfiguration;
+            var path = GetLastSentSequenceFilePath(agentConfig);
             lock (_lastSentSequenceLock)
             {
                 if (File.Exists(path))
@@ -359,7 +368,8 @@ namespace MTConnect
         private void SetLastSentSequence(ulong seq)
         {
             if (!_configuration.DurableRelay) return; // Default
-            var path = GetLastSentSequenceFilePath();
+            var agentConfig = Agent?.Configuration as IAgentApplicationConfiguration;
+            var path = GetLastSentSequenceFilePath(agentConfig);
             lock (_lastSentSequenceLock)
             {
                 File.WriteAllText(path, seq.ToString());
