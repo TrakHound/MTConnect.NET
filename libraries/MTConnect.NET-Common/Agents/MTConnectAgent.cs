@@ -1649,18 +1649,19 @@ namespace MTConnect.Agents
             return s;
         }
 
-		#endregion
+        #endregion
 
 
-		/// <summary>
-		/// Add a new Observation to the Agent for the specified DataItem
-		/// </summary>
-		/// <param name="dataItem">The DataItem to report</param>
-		/// <param name="value">The Value of the Observation (equivalent to ValueKey = Value)</param>
-		/// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
-		/// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
-		/// <returns>True if the Observation was added successfully</returns>
-		public bool AddObservation(IDataItem dataItem, object value, bool? convertUnits = null, bool? ignoreCase = null)
+        /// <summary>
+        /// Add a new Observation to the Agent for the specified DataItem
+        /// </summary>
+        /// <param name="dataItem">The DataItem to report</param>
+        /// <param name="value">The Value of the Observation (equivalent to ValueKey = Value)</param>
+        /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
+        /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+        /// <param name="forceUpdate">Used to force the update of the Observation. This overrides any value or duplication filters.</param>
+        /// <returns>True if the Observation was added successfully</returns>
+        public bool AddObservation(IDataItem dataItem, object value, bool? convertUnits = null, bool? ignoreCase = null, bool forceUpdate = false)
 		{
             if (dataItem != null && dataItem.Device != null && !string.IsNullOrEmpty(dataItem.Device.Uuid) && !string.IsNullOrEmpty(dataItem.Id))
             {
@@ -1672,22 +1673,23 @@ namespace MTConnect.Agents
 					Timestamp = UnixDateTime.Now
 				};
 
-				return AddObservation(input, convertUnits: convertUnits, ignoreCase: ignoreCase);
+				return AddObservation(input, convertUnits: convertUnits, ignoreCase: ignoreCase, forceUpdate: forceUpdate);
 			}
 
             return false;
 		}
 
-		/// <summary>
-		/// Add a new Observation to the Agent for the specified Device and DataItem
-		/// </summary>
-		/// <param name="deviceKey">The (Name or Uuid) of the Device</param>
-		/// <param name="dataItemKey">The (Name, ID, or Source) of the DataItem</param>
-		/// <param name="value">The Value of the Observation (equivalent to ValueKey = Value)</param>
-		/// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
-		/// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
-		/// <returns>True if the Observation was added successfully</returns>
-		public bool AddObservation(string deviceKey, string dataItemKey, object value, bool? convertUnits = null, bool? ignoreCase = null)
+        /// <summary>
+        /// Add a new Observation to the Agent for the specified Device and DataItem
+        /// </summary>
+        /// <param name="deviceKey">The (Name or Uuid) of the Device</param>
+        /// <param name="dataItemKey">The (Name, ID, or Source) of the DataItem</param>
+        /// <param name="value">The Value of the Observation (equivalent to ValueKey = Value)</param>
+        /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
+        /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+        /// <param name="forceUpdate">Used to force the update of the Observation. This overrides any value or duplication filters.</param>
+        /// <returns>True if the Observation was added successfully</returns>
+        public bool AddObservation(string deviceKey, string dataItemKey, object value, bool? convertUnits = null, bool? ignoreCase = null, bool forceUpdate = false)
         {
             var input = new ObservationInput
             {
@@ -1697,19 +1699,20 @@ namespace MTConnect.Agents
                 Timestamp = UnixDateTime.Now
             };
 
-			return AddObservation(input, convertUnits: convertUnits, ignoreCase: ignoreCase);
+			return AddObservation(input, convertUnits: convertUnits, ignoreCase: ignoreCase, forceUpdate: forceUpdate);
         }
 
-		/// <summary>
-		/// Add a new Observation to the Agent for the specified DataItem
-		/// </summary>
-		/// <param name="dataItem">The DataItem to report</param>
-		/// <param name="value">The Value of the Observation (equivalent to ValueKey = Value)</param>
-		/// <param name="timestamp">The Timestamp of the Observation in Unix Ticks (1/10,000 of a millisecond)</param>
-		/// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
-		/// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
-		/// <returns>True if the Observation was added successfully</returns>
-		public bool AddObservation(IDataItem dataItem, object value, long timestamp, bool? convertUnits = null, bool? ignoreCase = null)
+        /// <summary>
+        /// Add a new Observation to the Agent for the specified DataItem
+        /// </summary>
+        /// <param name="dataItem">The DataItem to report</param>
+        /// <param name="value">The Value of the Observation (equivalent to ValueKey = Value)</param>
+        /// <param name="timestamp">The Timestamp of the Observation in Unix Ticks (1/10,000 of a millisecond)</param>
+        /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
+        /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+        /// <param name="forceUpdate">Used to force the update of the Observation. This overrides any value or duplication filters.</param>
+        /// <returns>True if the Observation was added successfully</returns>
+        public bool AddObservation(IDataItem dataItem, object value, long timestamp, bool? convertUnits = null, bool? ignoreCase = null, bool forceUpdate = false)
 		{
 			if (dataItem != null && dataItem.Device != null && !string.IsNullOrEmpty(dataItem.Device.Uuid) && !string.IsNullOrEmpty(dataItem.Id))
 			{
@@ -1721,43 +1724,47 @@ namespace MTConnect.Agents
 					Timestamp = timestamp
 				};
 
-				return AddObservation(input, convertUnits: convertUnits, ignoreCase: ignoreCase);
+				return AddObservation(input, convertUnits: convertUnits, ignoreCase: ignoreCase, forceUpdate: forceUpdate);
 			}
 
 			return false;
 		}
 
-		/// <summary>
-		/// Add a new Observation to the Agent for the specified Device and DataItem
-		/// </summary>
-		/// <param name="deviceKey">The (Name or Uuid) of the Device</param>
-		/// <param name="dataItemKey">The (Name, ID, or Source) of the DataItem</param>
-		/// <param name="value">The Value of the Observation (equivalent to ValueKey = Value)</param>
-		/// <param name="timestamp">The Timestamp of the Observation in Unix Ticks (1/10,000 of a millisecond)</param>
-		/// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
-		/// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
-		/// <returns>True if the Observation was added successfully</returns>
-		public bool AddObservation(string deviceKey, string dataItemKey, object value, long timestamp, bool? convertUnits = null, bool? ignoreCase = null)
+        /// <summary>
+        /// Add a new Observation to the Agent for the specified Device and DataItem
+        /// </summary>
+        /// <param name="deviceKey">The (Name or Uuid) of the Device</param>
+        /// <param name="dataItemKey">The (Name, ID, or Source) of the DataItem</param>
+        /// <param name="value">The Value of the Observation (equivalent to ValueKey = Value)</param>
+        /// <param name="timestamp">The Timestamp of the Observation in Unix Ticks (1/10,000 of a millisecond)</param>
+        /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
+        /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+        /// <param name="forceUpdate">Used to force the update of the Observation. This overrides any value or duplication filters.</param>
+        /// <returns>True if the Observation was added successfully</returns>
+        public bool AddObservation(string deviceKey, string dataItemKey, object value, long timestamp, bool? convertUnits = null, bool? ignoreCase = null, bool forceUpdate = false)
         {
-            return AddObservation(new ObservationInput
+            var input = new ObservationInput
             {
                 DeviceKey = deviceKey,
                 DataItemKey = dataItemKey,
                 Values = new List<ObservationValue> { new ObservationValue(ValueKeys.Result, value) },
                 Timestamp = timestamp
-            });
+            };
+
+            return AddObservation(input, convertUnits: convertUnits, ignoreCase: ignoreCase, forceUpdate: forceUpdate);
         }
 
-		/// <summary>
-		/// Add a new Observation to the Agent for the specified DataItem
-		/// </summary>
-		/// <param name="dataItem">The DataItem to report</param>
-		/// <param name="value">The Value of the Observation (equivalent to ValueKey = Value)</param>
-		/// <param name="timestamp">The Timestamp of the Observation</param>
-		/// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
-		/// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
-		/// <returns>True if the Observation was added successfully</returns>
-		public bool AddObservation(IDataItem dataItem, object value, DateTime timestamp, bool? convertUnits = null, bool? ignoreCase = null)
+        /// <summary>
+        /// Add a new Observation to the Agent for the specified DataItem
+        /// </summary>
+        /// <param name="dataItem">The DataItem to report</param>
+        /// <param name="value">The Value of the Observation (equivalent to ValueKey = Value)</param>
+        /// <param name="timestamp">The Timestamp of the Observation</param>
+        /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
+        /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+        /// <param name="forceUpdate">Used to force the update of the Observation. This overrides any value or duplication filters.</param>
+        /// <returns>True if the Observation was added successfully</returns>
+        public bool AddObservation(IDataItem dataItem, object value, DateTime timestamp, bool? convertUnits = null, bool? ignoreCase = null, bool forceUpdate = false)
 		{
 			if (dataItem != null && dataItem.Device != null && !string.IsNullOrEmpty(dataItem.Device.Uuid) && !string.IsNullOrEmpty(dataItem.Id))
 			{
@@ -1769,31 +1776,34 @@ namespace MTConnect.Agents
 					Timestamp = timestamp.ToUnixTime()
 				};
 
-				return AddObservation(input, convertUnits: convertUnits, ignoreCase: ignoreCase);
+				return AddObservation(input, convertUnits: convertUnits, ignoreCase: ignoreCase, forceUpdate: forceUpdate);
 			}
 
 			return false;
 		}
 
-		/// <summary>
-		/// Add a new Observation to the Agent for the specified Device and DataItem
-		/// </summary>
-		/// <param name="deviceKey">The (Name or Uuid) of the Device</param>
-		/// <param name="dataItemKey">The (Name, ID, or Source) of the DataItem</param>
-		/// <param name="value">The Value of the Observation (equivalent to ValueKey = Value)</param>
-		/// <param name="timestamp">The Timestamp of the Observation</param>
-		/// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
-		/// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
-		/// <returns>True if the Observation was added successfully</returns>
-		public bool AddObservation(string deviceKey, string dataItemKey, object value, DateTime timestamp, bool? convertUnits = null, bool? ignoreCase = null)
+        /// <summary>
+        /// Add a new Observation to the Agent for the specified Device and DataItem
+        /// </summary>
+        /// <param name="deviceKey">The (Name or Uuid) of the Device</param>
+        /// <param name="dataItemKey">The (Name, ID, or Source) of the DataItem</param>
+        /// <param name="value">The Value of the Observation (equivalent to ValueKey = Value)</param>
+        /// <param name="timestamp">The Timestamp of the Observation</param>
+        /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
+        /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+        /// <param name="forceUpdate">Used to force the update of the Observation. This overrides any value or duplication filters.</param>
+        /// <returns>True if the Observation was added successfully</returns>
+        public bool AddObservation(string deviceKey, string dataItemKey, object value, DateTime timestamp, bool? convertUnits = null, bool? ignoreCase = null, bool forceUpdate = false)
         {
-            return AddObservation(new ObservationInput
+            var input = new ObservationInput
             {
                 DeviceKey = deviceKey,
                 DataItemKey = dataItemKey,
                 Values = new List<ObservationValue> { new ObservationValue(ValueKeys.Result, value) },
                 Timestamp = timestamp.ToUnixTime()
-            });
+            };
+
+            return AddObservation(input, convertUnits: convertUnits, ignoreCase: ignoreCase, forceUpdate: forceUpdate);
         }
 
         /// <summary>
@@ -1805,16 +1815,19 @@ namespace MTConnect.Agents
         /// <param name="value">The Value of the Observation</param>
         /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
         /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+        /// <param name="forceUpdate">Used to force the update of the Observation. This overrides any value or duplication filters.</param>
         /// <returns>True if the Observation was added successfully</returns>
-        public bool AddObservation(string deviceKey, string dataItemKey, string valueKey, object value, bool? convertUnits = null, bool? ignoreCase = null)
+        public bool AddObservation(string deviceKey, string dataItemKey, string valueKey, object value, bool? convertUnits = null, bool? ignoreCase = null, bool forceUpdate = false)
         {
-            return AddObservation(new ObservationInput
+            var input = new ObservationInput
             {
                 DeviceKey = deviceKey,
                 DataItemKey = dataItemKey,
                 Values = new List<ObservationValue> { new ObservationValue(valueKey, value) },
                 Timestamp = UnixDateTime.Now
-            });
+            };
+
+            return AddObservation(input, convertUnits: convertUnits, ignoreCase: ignoreCase, forceUpdate: forceUpdate);
         }
 
         /// <summary>
@@ -1827,16 +1840,19 @@ namespace MTConnect.Agents
         /// <param name="timestamp">The Timestamp of the Observation in Unix Ticks (1/10,000 of a millisecond)</param>
         /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
         /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+        /// <param name="forceUpdate">Used to force the update of the Observation. This overrides any value or duplication filters.</param>
         /// <returns>True if the Observation was added successfully</returns>
-        public bool AddObservation(string deviceKey, string dataItemKey, string valueKey, object value, long timestamp, bool? convertUnits = null, bool? ignoreCase = null)
+        public bool AddObservation(string deviceKey, string dataItemKey, string valueKey, object value, long timestamp, bool? convertUnits = null, bool? ignoreCase = null, bool forceUpdate = false)
         {
-            return AddObservation(new ObservationInput
+            var input = new ObservationInput
             {
                 DeviceKey = deviceKey,
                 DataItemKey = dataItemKey,
                 Values = new List<ObservationValue> { new ObservationValue(valueKey, value) },
                 Timestamp = timestamp
-            });
+            };
+
+            return AddObservation(input, convertUnits: convertUnits, ignoreCase: ignoreCase, forceUpdate: forceUpdate);
         }
 
         /// <summary>
@@ -1849,16 +1865,19 @@ namespace MTConnect.Agents
         /// <param name="timestamp">The Timestamp of the Observation</param>
         /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
         /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+        /// <param name="forceUpdate">Used to force the update of the Observation. This overrides any value or duplication filters.</param>
         /// <returns>True if the Observation was added successfully</returns>
-        public bool AddObservation(string deviceKey, string dataItemKey, string valueKey, object value, DateTime timestamp, bool? convertUnits = null, bool? ignoreCase = null)
+        public bool AddObservation(string deviceKey, string dataItemKey, string valueKey, object value, DateTime timestamp, bool? convertUnits = null, bool? ignoreCase = null, bool forceUpdate = false)
         {
-            return AddObservation(new ObservationInput
+            var input = new ObservationInput
             {
                 DeviceKey = deviceKey,
                 DataItemKey = dataItemKey,
                 Values = new List<ObservationValue> { new ObservationValue(valueKey, value) },
                 Timestamp = timestamp.ToUnixTime()
-            });
+            };
+
+            return AddObservation(input, convertUnits: convertUnits, ignoreCase: ignoreCase, forceUpdate: forceUpdate);
         }
 
         /// <summary>
@@ -1868,12 +1887,13 @@ namespace MTConnect.Agents
         /// <param name="ignoreTimestamp">Used to override the default configuration for the Agent to IgnoreTimestamp</param>
         /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
         /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+        /// <param name="forceUpdate">Used to force the update of the Observation. This overrides any value or duplication filters.</param>
         /// <returns>True if the Observation was added successfully</returns>
-        public bool AddObservation(IObservationInput observationInput, bool? ignoreTimestamp = null, bool? convertUnits = null, bool? ignoreCase = null)
+        public bool AddObservation(IObservationInput observationInput, bool? ignoreTimestamp = null, bool? convertUnits = null, bool? ignoreCase = null, bool forceUpdate = false)
         {
             if (observationInput != null && !string.IsNullOrEmpty(observationInput.DeviceKey))
             {
-                return AddObservation(observationInput.DeviceKey, observationInput, ignoreTimestamp, convertUnits, ignoreCase);
+                return AddObservation(observationInput.DeviceKey, observationInput, ignoreTimestamp, convertUnits, ignoreCase, forceUpdate: forceUpdate);
             }
 
             return false;
@@ -1887,8 +1907,9 @@ namespace MTConnect.Agents
 		/// <param name="ignoreTimestamp">Used to override the default configuration for the Agent to IgnoreTimestamp</param>
 		/// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
 		/// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+        /// <param name="forceUpdate">Used to force the update of the Observation. This overrides any value or duplication filters.</param>
 		/// <returns>True if the Observation was added successfully</returns>
-		public bool AddObservation(string deviceKey, IObservationInput observationInput, bool? ignoreTimestamp = null, bool? convertUnits = null, bool? ignoreCase = null)
+		public bool AddObservation(string deviceKey, IObservationInput observationInput, bool? ignoreTimestamp = null, bool? convertUnits = null, bool? ignoreCase = null, bool forceUpdate = false)
         {
             if (observationInput != null)
             {
@@ -1954,14 +1975,21 @@ namespace MTConnect.Agents
 
                         bool update;
 
-                        // Check if Observation Needs to be Updated
-                        if (dataItem.Category == DataItemCategory.CONDITION)
+                        if (!forceUpdate)
                         {
-                            update = CheckCurrentCondition(deviceUuid, dataItem, input);
+                            // Check if Observation Needs to be Updated
+                            if (dataItem.Category == DataItemCategory.CONDITION)
+                            {
+                                update = CheckCurrentCondition(deviceUuid, dataItem, input);
+                            }
+                            else
+                            {
+                                update = CheckCurrentObservation(deviceUuid, dataItem, input);
+                            }
                         }
                         else
                         {
-                            update = CheckCurrentObservation(deviceUuid, dataItem, input);
+                            update = true;
                         }
 
                         // Check if Observation Needs to be Updated

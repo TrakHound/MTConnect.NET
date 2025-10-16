@@ -1,4 +1,4 @@
-// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2025 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Agents.Metrics;
@@ -214,48 +214,52 @@ namespace MTConnect.Agents
 		IEnumerable<IDevice> AddDevices(IEnumerable<IDevice> devices, bool intializeDataItems = true);
 
 
-		/// <summary>
-		/// Add a new Observation to the Agent for the specified DataItem
-		/// </summary>
-		/// <param name="dataItem">The DataItem to report</param>
-		/// <param name="value">The Value of the Observation (equivalent to ValueKey = Value)</param>
-		/// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
-		/// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
-		/// <returns>True if the Observation was added successfully</returns>
-		bool AddObservation(IDataItem dataItem, object value, bool? convertUnits = null, bool? ignoreCase = null);
+        /// <summary>
+        /// Add a new Observation to the Agent for the specified DataItem
+        /// </summary>
+        /// <param name="dataItem">The DataItem to report</param>
+        /// <param name="value">The Value of the Observation (equivalent to ValueKey = Value)</param>
+        /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
+        /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+        /// <param name="forceUpdate">Used to force the update of the Observation. This overrides any value or duplication filters.</param>
+        /// <returns>True if the Observation was added successfully</returns>
+        bool AddObservation(IDataItem dataItem, object value, bool? convertUnits = null, bool? ignoreCase = null, bool forceUpdate = false);
 
-		/// <summary>
-		/// Add a new Observation to the Agent for the specified DataItem
-		/// </summary>
-		/// <param name="dataItem">The DataItem to report</param>
-		/// <param name="value">The Value of the Observation (equivalent to ValueKey = Value)</param>
-		/// <param name="timestamp">The Timestamp of the Observation in Unix Ticks (1/10,000 of a millisecond)</param>
-		/// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
-		/// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
-		/// <returns>True if the Observation was added successfully</returns>
-		bool AddObservation(IDataItem dataItem, object value, long timestamp, bool? convertUnits = null, bool? ignoreCase = null);
+        /// <summary>
+        /// Add a new Observation to the Agent for the specified DataItem
+        /// </summary>
+        /// <param name="dataItem">The DataItem to report</param>
+        /// <param name="value">The Value of the Observation (equivalent to ValueKey = Value)</param>
+        /// <param name="timestamp">The Timestamp of the Observation in Unix Ticks (1/10,000 of a millisecond)</param>
+        /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
+        /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+        /// <param name="forceUpdate">Used to force the update of the Observation. This overrides any value or duplication filters.</param>
+        /// <returns>True if the Observation was added successfully</returns>
+        bool AddObservation(IDataItem dataItem, object value, long timestamp, bool? convertUnits = null, bool? ignoreCase = null, bool forceUpdate = false);
 
-		/// <summary>
-		/// Add a new Observation to the Agent for the specified DataItem
-		/// </summary>
-		/// <param name="dataItem">The DataItem to report</param>
-		/// <param name="value">The Value of the Observation (equivalent to ValueKey = Value)</param>
-		/// <param name="timestamp">The Timestamp of the Observation</param>
-		/// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
-		/// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
-		/// <returns>True if the Observation was added successfully</returns>
-		bool AddObservation(IDataItem dataItem, object value, DateTime timestamp, bool? convertUnits = null, bool? ignoreCase = null);
+        /// <summary>
+        /// Add a new Observation to the Agent for the specified DataItem
+        /// </summary>
+        /// <param name="dataItem">The DataItem to report</param>
+        /// <param name="value">The Value of the Observation (equivalent to ValueKey = Value)</param>
+        /// <param name="timestamp">The Timestamp of the Observation</param>
+        /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
+        /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+        /// <param name="forceUpdate">Used to force the update of the Observation. This overrides any value or duplication filters.</param>
+        /// <returns>True if the Observation was added successfully</returns>
+        bool AddObservation(IDataItem dataItem, object value, DateTime timestamp, bool? convertUnits = null, bool? ignoreCase = null, bool forceUpdate = false);
 
-		/// <summary>
-		/// Add a new Observation to the Agent for the specified Device and DataItem
-		/// </summary>
-		/// <param name="deviceKey">The (Name or Uuid) of the Device</param>
-		/// <param name="dataItemKey">The (Name, ID, or Source) of the DataItem</param>
-		/// <param name="value">The Value of the Observation (equivalent to ValueKey = Value)</param>
-		/// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
-		/// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
-		/// <returns>True if the Observation was added successfully</returns>
-		bool AddObservation(string deviceKey, string dataItemKey, object value, bool? convertUnits = null, bool? ignoreCase = null);
+        /// <summary>
+        /// Add a new Observation to the Agent for the specified Device and DataItem
+        /// </summary>
+        /// <param name="deviceKey">The (Name or Uuid) of the Device</param>
+        /// <param name="dataItemKey">The (Name, ID, or Source) of the DataItem</param>
+        /// <param name="value">The Value of the Observation (equivalent to ValueKey = Value)</param>
+        /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
+        /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+        /// <param name="forceUpdate">Used to force the update of the Observation. This overrides any value or duplication filters.</param>
+        /// <returns>True if the Observation was added successfully</returns>
+        bool AddObservation(string deviceKey, string dataItemKey, object value, bool? convertUnits = null, bool? ignoreCase = null, bool forceUpdate = false);
 
         /// <summary>
         /// Add a new Observation to the Agent for the specified Device and DataItem
@@ -266,8 +270,9 @@ namespace MTConnect.Agents
         /// <param name="timestamp">The Timestamp of the Observation in Unix Ticks (1/10,000 of a millisecond)</param>
         /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
         /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+        /// <param name="forceUpdate">Used to force the update of the Observation. This overrides any value or duplication filters.</param>
         /// <returns>True if the Observation was added successfully</returns>
-        bool AddObservation(string deviceKey, string dataItemKey, object value, long timestamp, bool? convertUnits = null, bool? ignoreCase = null);
+        bool AddObservation(string deviceKey, string dataItemKey, object value, long timestamp, bool? convertUnits = null, bool? ignoreCase = null, bool forceUpdate = false);
 
         /// <summary>
         /// Add a new Observation to the Agent for the specified Device and DataItem
@@ -278,8 +283,9 @@ namespace MTConnect.Agents
         /// <param name="timestamp">The Timestamp of the Observation</param>
         /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
         /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+        /// <param name="forceUpdate">Used to force the update of the Observation. This overrides any value or duplication filters.</param>
         /// <returns>True if the Observation was added successfully</returns>
-        bool AddObservation(string deviceKey, string dataItemKey, object value, DateTime timestamp, bool? convertUnits = null, bool? ignoreCase = null);
+        bool AddObservation(string deviceKey, string dataItemKey, object value, DateTime timestamp, bool? convertUnits = null, bool? ignoreCase = null, bool forceUpdate = false);
 
         /// <summary>
         /// Add a new Observation to the Agent for the specified Device and DataItem
@@ -290,8 +296,9 @@ namespace MTConnect.Agents
         /// <param name="value">The Value of the Observation</param>
         /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
         /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+        /// <param name="forceUpdate">Used to force the update of the Observation. This overrides any value or duplication filters.</param>
         /// <returns>True if the Observation was added successfully</returns>
-        bool AddObservation(string deviceKey, string dataItemKey, string valueKey, object value, bool? convertUnits = null, bool? ignoreCase = null);
+        bool AddObservation(string deviceKey, string dataItemKey, string valueKey, object value, bool? convertUnits = null, bool? ignoreCase = null, bool forceUpdate = false);
 
         /// <summary>
         /// Add a new Observation to the Agent for the specified Device and DataItem
@@ -303,8 +310,9 @@ namespace MTConnect.Agents
         /// <param name="timestamp">The Timestamp of the Observation in Unix Ticks (1/10,000 of a millisecond)</param>
         /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
         /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+        /// <param name="forceUpdate">Used to force the update of the Observation. This overrides any value or duplication filters.</param>
         /// <returns>True if the Observation was added successfully</returns>
-        bool AddObservation(string deviceKey, string dataItemKey, string valueKey, object value, long timestamp, bool? convertUnits = null, bool? ignoreCase = null);
+        bool AddObservation(string deviceKey, string dataItemKey, string valueKey, object value, long timestamp, bool? convertUnits = null, bool? ignoreCase = null, bool forceUpdate = false);
 
         /// <summary>
         /// Add a new Observation to the Agent for the specified Device and DataItem
@@ -316,30 +324,33 @@ namespace MTConnect.Agents
         /// <param name="timestamp">The Timestamp of the Observation</param>
         /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
         /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+        /// <param name="forceUpdate">Used to force the update of the Observation. This overrides any value or duplication filters.</param>
         /// <returns>True if the Observation was added successfully</returns>
-        bool AddObservation(string deviceKey, string dataItemKey, string valueKey, object value, DateTime timestamp, bool? convertUnits = null, bool? ignoreCase = null);
+        bool AddObservation(string deviceKey, string dataItemKey, string valueKey, object value, DateTime timestamp, bool? convertUnits = null, bool? ignoreCase = null, bool forceUpdate = false);
 
-		/// <summary>
-		/// Add a new Observation to the Agent for the specified Device and DataItem
-		/// </summary>
-		/// <param name="observationInput">The Observation to add</param>
-		/// <param name="ignoreTimestamp">Used to override the default configuration for the Agent to IgnoreTimestamp</param>
-		/// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
-		/// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
-		/// <returns>True if the Observation was added successfully</returns>
-		bool AddObservation(IObservationInput observationInput, bool? ignoreTimestamp = null, bool? convertUnits = null, bool? ignoreCase = null);
+        /// <summary>
+        /// Add a new Observation to the Agent for the specified Device and DataItem
+        /// </summary>
+        /// <param name="observationInput">The Observation to add</param>
+        /// <param name="ignoreTimestamp">Used to override the default configuration for the Agent to IgnoreTimestamp</param>
+        /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
+        /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+        /// <param name="forceUpdate">Used to force the update of the Observation. This overrides any value or duplication filters.</param>
+        /// <returns>True if the Observation was added successfully</returns>
+        bool AddObservation(IObservationInput observationInput, bool? ignoreTimestamp = null, bool? convertUnits = null, bool? ignoreCase = null, bool forceUpdate = false);
 
 
-		/// <summary>
-		/// Add a new Observation to the Agent for the specified Device and DataItem
-		/// </summary>
-		/// <param name="deviceKey">The (Name or Uuid) of the Device. This overrides what is set in the "observationInput" parameter</param>
-		/// <param name="observationInput">The Observation to add</param>
-		/// <param name="ignoreTimestamp">Used to override the default configuration for the Agent to IgnoreTimestamp</param>
-		/// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
-		/// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
-		/// <returns>True if the Observation was added successfully</returns>
-		bool AddObservation(string deviceKey, IObservationInput observationInput, bool? ignoreTimestamp = null, bool? convertUnits = null, bool? ignoreCase = null);
+        /// <summary>
+        /// Add a new Observation to the Agent for the specified Device and DataItem
+        /// </summary>
+        /// <param name="deviceKey">The (Name or Uuid) of the Device. This overrides what is set in the "observationInput" parameter</param>
+        /// <param name="observationInput">The Observation to add</param>
+        /// <param name="ignoreTimestamp">Used to override the default configuration for the Agent to IgnoreTimestamp</param>
+        /// <param name="convertUnits">Used to override the default configuration for the Agent to ConvertUnits</param>
+        /// <param name="ignoreCase">Used to override the default configuration for the Agent to IgnoreCase of the Value</param>
+        /// <param name="forceUpdate">Used to force the update of the Observation. This overrides any value or duplication filters.</param>
+        /// <returns>True if the Observation was added successfully</returns>
+        bool AddObservation(string deviceKey, IObservationInput observationInput, bool? ignoreTimestamp = null, bool? convertUnits = null, bool? ignoreCase = null, bool forceUpdate = false);
 
 		/// <summary>
 		/// Add new Observations to the Agent for the specified Device
