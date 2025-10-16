@@ -1,4 +1,4 @@
-// Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2025 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Observations;
@@ -39,6 +39,11 @@ namespace MTConnect.Input
         /// The timestamp (UnixTime in Milliseconds) that the observation was recorded at
         /// </summary>
         public long Timestamp { get; set; }
+
+        /// <summary>
+        /// The TimeZone that is configured to Output
+        /// </summary>
+        public TimeZoneInfo TimeZoneInfo { get; set; }
 
         /// <summary>
         /// The frequency at which the values were observed at
@@ -251,6 +256,44 @@ namespace MTConnect.Input
                     // Convert StringBuilder result to UTF8 MD5 Bytes
                     return _utf8.GetBytes(a).ToMD5HashBytes();
                 }
+            }
+
+            return null;
+        }
+
+        protected static string GetTimestampString(long timestamp, double duration = 0, TimeZoneInfo timeZoneInfo = null)
+        {
+            if (timestamp > 0)
+            {
+                var dateTime = timestamp.ToDateTime();
+                var dateTimeOffset = MTConnectTimeZone.GetTimestamp(dateTime, timeZoneInfo);
+
+                if (dateTimeOffset.Offset != TimeSpan.Zero)
+                {
+                    if (duration > 0)
+                    {
+                        return $"{dateTimeOffset.ToString("o")}@{duration}";
+                    }
+                    else
+                    {
+                        return dateTimeOffset.ToString("o");
+                    }
+                }
+                else
+                {
+                    if (duration > 0)
+                    {
+                        return $"{dateTimeOffset.UtcDateTime.ToString("o")}@{duration}";
+                    }
+                    else
+                    {
+                        return dateTimeOffset.UtcDateTime.ToString("o");
+                    }
+                }
+            }
+            else if (duration > 0)
+            {
+                return $"@{duration}";
             }
 
             return null;

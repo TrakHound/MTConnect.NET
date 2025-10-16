@@ -79,11 +79,11 @@ namespace MTConnect.Shdr
                 {
                     if (!IsUnavailable)
                     {
-                        return $"{Timestamp.ToDateTime().ToString("o")}|{target}|{PrintEntries(Entries)}";
+                        return $"{GetTimestampString(Timestamp, timeZoneInfo: TimeZoneInfo)}|{target}|{PrintEntries(Entries)}";
                     }
                     else
                     {
-                        return $"{Timestamp.ToDateTime().ToString("o")}|{target}|{Observation.Unavailable}";
+                        return $"{GetTimestampString(Timestamp, timeZoneInfo: TimeZoneInfo)}|{target}|{Observation.Unavailable}";
                     }
                 }
                 else

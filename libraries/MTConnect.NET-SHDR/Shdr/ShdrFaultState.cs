@@ -208,11 +208,11 @@ namespace MTConnect.Shdr
                 {
                     if (Level != ConditionLevel.UNAVAILABLE)
                     {
-                        line = $"{Timestamp.ToDateTime().ToString("o")}|{target}|{Level}|{identifier}|{NativeSeverity}|{qualifier}|{message}";
+                        line = $"{GetTimestampString(Timestamp, timeZoneInfo: TimeZoneInfo)}|{target}|{Level}|{identifier}|{NativeSeverity}|{qualifier}|{message}";
                     }
                     else
                     {
-                        line = $"{Timestamp.ToDateTime().ToString("o")}|{target}|{Level}||||";
+                        line = $"{GetTimestampString(Timestamp, timeZoneInfo: TimeZoneInfo)}|{target}|{Level}||||";
                     }
                 }
                 else

@@ -31,6 +31,9 @@
 	</ItemGroup>
 
   <ItemGroup>
+    <None Update="adapter.config.yaml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="adapter.config.default.yaml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

@@ -129,11 +129,11 @@ namespace MTConnect.Shdr
 
                     if (Timestamp > 0 && Duration > 0)
                     {
-                        return $"{Timestamp.ToDateTime().ToString("o")}@{Duration}|{target}|{nativeCode}|{resetTriggered}{value}";
+                        return $"{GetTimestampString(Timestamp, Duration, TimeZoneInfo)}|{target}|{nativeCode}|{resetTriggered}{value}";
                     }
                     else if (Timestamp > 0)
                     {
-                        return $"{Timestamp.ToDateTime().ToString("o")}|{target}|{nativeCode}|{resetTriggered}{value}";
+                        return $"{GetTimestampString(Timestamp, timeZoneInfo: TimeZoneInfo)}|{target}|{nativeCode}|{resetTriggered}{value}";
                     }
                     else
                     {
@@ -217,30 +217,6 @@ namespace MTConnect.Shdr
             }
 
             return null;
-        }
-
-        private static string GetTimestampString(long timestamp, double duration = 0)
-        {
-            if (duration > 0)
-            {
-                return $"{timestamp.ToDateTime().ToString("o")}@{duration}";
-            }
-            else
-            {
-                return timestamp.ToDateTime().ToString("o");
-            }
-        }
-
-        private static string GetTimestampString(DateTime timestamp, double duration = 0)
-        {
-            if (duration > 0)
-            {
-                return $"{timestamp.ToString("o")}@{duration}";
-            }
-            else
-            {
-                return timestamp.ToString("o");
-            }
         }
     }
 }

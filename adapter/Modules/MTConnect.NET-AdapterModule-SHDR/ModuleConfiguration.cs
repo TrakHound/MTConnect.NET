@@ -32,6 +32,11 @@ namespace MTConnect.Configurations
         /// </summary>
         public int ReconnectInterval { get; set; }
 
+        /// <summary>
+        /// Sets the TimeZone to use when timestamps are output from the Agent
+        /// </summary>
+        public string TimeZoneOutput { get; set; }
+
 
         public ModuleConfiguration()
         {
@@ -40,6 +45,7 @@ namespace MTConnect.Configurations
             Heartbeat = 10000;
             ConnectionTimeout = 5000;
             ReconnectInterval = 10000;
+            TimeZoneOutput = "Z";
         }
     }
 }

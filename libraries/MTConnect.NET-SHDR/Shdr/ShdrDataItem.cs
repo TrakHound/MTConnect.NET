@@ -100,11 +100,11 @@ namespace MTConnect.Shdr
 
                     if (Timestamp > 0 && Duration > 0)
                     {
-                        return $"{Timestamp.ToDateTime().ToString("o")}@{Duration}|{target}|{value}{resetTriggered}";
+                        return $"{GetTimestampString(Timestamp, Duration, TimeZoneInfo)}|{target}|{value}{resetTriggered}";
                     }
                     else if (Timestamp > 0)
                     {
-                        return $"{Timestamp.ToDateTime().ToString("o")}|{target}|{value}{resetTriggered}";
+                        return $"{GetTimestampString(Timestamp, timeZoneInfo: TimeZoneInfo)}|{target}|{value}{resetTriggered}";
                     }
                     else if (Duration > 0)
                     {
@@ -120,7 +120,7 @@ namespace MTConnect.Shdr
             return null;
         }
 
-        private static string ToString(ShdrDataItem dataItem, bool ignoreTimestamp = false, string deviceKey = null)
+        private static string ToString(ShdrDataItem dataItem, bool ignoreTimestamp = false, string deviceKey = null, TimeZoneInfo timeZoneInfo = null)
         {
             if (dataItem != null && !string.IsNullOrEmpty(dataItem.DataItemKey))
             {
@@ -135,11 +135,11 @@ namespace MTConnect.Shdr
 
                     if (dataItem.Timestamp > 0 && dataItem.Duration > 0)
                     {
-                        return $"{dataItem.Timestamp.ToDateTime().ToString("o")}@{dataItem.Duration}|{target}|{value}{resetTriggered}";
+                        return $"{GetTimestampString(dataItem.Timestamp, dataItem.Duration, timeZoneInfo)}|{target}|{value}{resetTriggered}";
                     }
                     else if (dataItem.Timestamp > 0 && !ignoreTimestamp)
                     {
-                        return $"{GetTimestampString(dataItem.Timestamp, dataItem.Duration)}|{target}|{value}{resetTriggered}";
+                        return $"{GetTimestampString(dataItem.Timestamp, timeZoneInfo: timeZoneInfo)}|{target}|{value}{resetTriggered}";
                     }
                     else if (dataItem.Duration > 0)
                     {
@@ -154,40 +154,6 @@ namespace MTConnect.Shdr
 
             return "";
         }
-
-        private static string GetTimestampString(long timestamp, double duration = 0)
-        {
-            if (timestamp > 0)
-            {
-                if (duration > 0)
-                {
-                    return $"{timestamp.ToDateTime().ToString("o")}@{duration}";
-                }
-                else
-                {
-                    return timestamp.ToDateTime().ToString("o");
-                }
-            }
-            else if (duration > 0)
-            {
-                return $"@{duration}";
-            }
-
-            return null;
-        }
-
-        private static string GetTimestampString(DateTime timestamp, double duration = 0)
-        {
-            if (duration > 0)
-            {
-                return $"{timestamp.ToString("o")}@{duration}";
-            }
-            else
-            {
-                return timestamp.ToString("o");
-            }
-        }
-
 
         public static string ToString(IEnumerable<ObservationInput> observations)
         {
@@ -206,7 +172,7 @@ namespace MTConnect.Shdr
         /// </summary>
         /// <param name="dataItems">List of ShdrDataItems</param>
         /// <returns>A single Multi-Line SHDR valid string</returns>
-        public static string ToString(IEnumerable<ShdrDataItem> dataItems, bool ignoreTimestamp = false)
+        public static string ToString(IEnumerable<ShdrDataItem> dataItems, bool ignoreTimestamp = false, TimeZoneInfo timeZoneInfo = null)
         {
             var lines = new List<string>();
 
@@ -239,7 +205,7 @@ namespace MTConnect.Shdr
                                         if (!timestampDataItems.IsNullOrEmpty())
                                         {
                                             // Add Timestamp to beginning of line
-                                            var timestampPrefix = GetTimestampString(timestamp);
+                                            var timestampPrefix = GetTimestampString(timestamp, timeZoneInfo: timeZoneInfo);
                                             if (!string.IsNullOrEmpty(timestampPrefix)) line = timestampPrefix;
                                             //if (!string.IsNullOrEmpty(timestampPrefix)) line = timestampPrefix + "|";
 
