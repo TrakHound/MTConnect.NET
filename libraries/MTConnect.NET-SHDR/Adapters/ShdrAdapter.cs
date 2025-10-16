@@ -698,7 +698,7 @@ namespace MTConnect.Adapters
 
         public void AddDataItem(string dataItemKey, object value, DateTime timestamp)
         {
-            AddDataItem(dataItemKey, value, timestamp.ToUnixTime());
+            AddDataItem(dataItemKey, value, timestamp.ToUnixUtcTime());
         }
 
         public void AddDataItem(string dataItemKey, object value, long timestamp)
@@ -735,7 +735,7 @@ namespace MTConnect.Adapters
 
         public bool SendDataItem(string dataItemKey, object value, DateTime timestamp)
         {
-            return SendDataItem(dataItemKey, value, timestamp.ToUnixTime());
+            return SendDataItem(dataItemKey, value, timestamp.ToUnixUtcTime());
         }
 
         public bool SendDataItem(string dataItemKey, object value, long timestamp)
@@ -784,7 +784,7 @@ namespace MTConnect.Adapters
 
         public void AddMessage(string messageId, string value, DateTime timestamp)
         {
-            AddMessage(messageId, value, timestamp.ToUnixTime());
+            AddMessage(messageId, value, timestamp.ToUnixUtcTime());
         }
 
         public void AddMessage(string messageId, string value, long timestamp)
@@ -799,7 +799,7 @@ namespace MTConnect.Adapters
 
         public void AddMessage(string messageId, string value, string nativeCode, DateTime timestamp)
         {
-            AddMessage(messageId, value, nativeCode, timestamp.ToUnixTime());
+            AddMessage(messageId, value, nativeCode, timestamp.ToUnixUtcTime());
         }
 
         public void AddMessage(string messageId, string value, string nativeCode, long timestamp)
@@ -831,7 +831,7 @@ namespace MTConnect.Adapters
 
         public bool SendMessage(string dataItemId, string value, DateTime timestamp)
         {
-            return SendMessage(dataItemId, value, timestamp.ToUnixTime());
+            return SendMessage(dataItemId, value, timestamp.ToUnixUtcTime());
         }
 
         public bool SendMessage(string dataItemId, string value, long timestamp)
@@ -846,7 +846,7 @@ namespace MTConnect.Adapters
 
         public bool SendMessage(string dataItemId, string value, string nativeCode, DateTime timestamp)
         {
-            return SendMessage(dataItemId, value, nativeCode, timestamp.ToUnixTime());
+            return SendMessage(dataItemId, value, nativeCode, timestamp.ToUnixUtcTime());
         }
 
         public bool SendMessage(string dataItemId, string value, string nativeCode, long timestamp)
