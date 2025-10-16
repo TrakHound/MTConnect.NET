@@ -1,7 +1,7 @@
 publisher: TrakHound Inc.
 
 input: D:\TrakHound\Source-Code\MTConnect.NET
-output: D:\TrakHound\Source-Code\MTConnect.NET\build\output\development
+output: D:\TrakHound\Source-Code\MTConnect.NET\build\output\default
 
 versionInfoPath: D:\TrakHound\Source-Code\MTConnect.NET\Directory.build.props
 innoSetupPath: c:\\Program Files (x86)\\Inno Setup 6\\iscc

@@ -6,7 +6,7 @@ namespace TrakHound.Builder
     internal static class Global
     {
         [Command("build")]
-        public static async Task Build([CommandParameter] string configurationId = null)
+        public static async Task Build([CommandOption] string configurationId = null)
         {
             if (string.IsNullOrEmpty(configurationId)) configurationId = Configuration.DefaultId;
 
@@ -31,7 +31,7 @@ namespace TrakHound.Builder
         }
 
         [Command("publish")]
-        public static async Task Publish([CommandParameter] string configurationId)
+        public static async Task Publish([CommandOption] string configurationId)
         {
             if (string.IsNullOrEmpty(configurationId)) configurationId = Configuration.DefaultId;
 
