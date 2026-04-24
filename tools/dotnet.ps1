@@ -1,0 +1,78 @@
+#!/usr/bin/env pwsh
+# PowerShell sibling of tools/dotnet.sh — same semantics, same flags.
+#
+# Adapted from dime-connector for MTConnect.NET. Defaults to the net8.0
+# SDK image; override via MTCONNECT_DOTNET_IMAGE.
+#
+# Usage: tools/dotnet.ps1 [-Docker] <dotnet args ...>
+#        tools/dotnet.ps1 build MTConnect.NET.sln
+#        tools/dotnet.ps1 -Docker test tests/MTConnect.NET-Common-Tests
+
+[CmdletBinding()]
+param(
+	[switch] $Docker,
+	[Parameter(Position = 0, ValueFromRemainingArguments = $true)]
+	[string[]] $Args
+)
+
+$ErrorActionPreference = 'Stop'
+
+$ToolsDir = Split-Path -Parent $PSCommandPath
+$RepoRoot = (Resolve-Path (Join-Path $ToolsDir '..')).Path
+
+$useDocker = $Docker -or ($env:MTCONNECT_DOTNET_USE_DOCKER -eq '1')
+
+$sdkTag = if ($env:MTCONNECT_DOTNET_SDK_TAG) { $env:MTCONNECT_DOTNET_SDK_TAG } else { '8.0' }
+
+if ($useDocker) {
+	$image = if ($env:MTCONNECT_DOTNET_IMAGE) { $env:MTCONNECT_DOTNET_IMAGE } else { "mcr.microsoft.com/dotnet/sdk:${sdkTag}" }
+	$nugetVol = if ($env:MTCONNECT_NUGET_VOLUME) { $env:MTCONNECT_NUGET_VOLUME } else { 'mtconnect-net-nuget' }
+	$toolsVol = if ($env:MTCONNECT_DOTNET_TOOLS_VOLUME) { $env:MTCONNECT_DOTNET_TOOLS_VOLUME } else { 'mtconnect-net-dotnet-tools' }
+
+	# E2E heuristic — matches the bash sibling.
+	$e2eMode = ($env:MTCONNECT_DOTNET_E2E_DIND -eq '1')
+	$joined = ' ' + ($Args -join ' ') + ' '
+	foreach ($hit in @(' tests/IntegrationTests', ' tests/E2E/', 'IntegrationTests.csproj', ' tests/Compliance/')) {
+		if ($joined.Contains($hit)) { $e2eMode = $true; break }
+	}
+
+	$dindArgs = @()
+	if ($e2eMode) {
+		$dindArgs += @(
+			'--network=host'
+			'-v', '/var/run/docker.sock:/var/run/docker.sock'
+			'-e', 'MTCONNECT_E2E_DOCKER=true'
+			'-e', 'TESTCONTAINERS_RYUK_DISABLED=true'
+			'-e', "MTCONNECT_E2E_HOST_REPO_ROOT=${RepoRoot}"
+		)
+		foreach ($hostBin in @('/usr/bin/docker', '/usr/local/bin/docker')) {
+			if (Test-Path $hostBin) {
+				$dindArgs += @('-v', "${hostBin}:${hostBin}:ro")
+				break
+			}
+		}
+	}
+
+	& docker run --rm `
+		-v "${RepoRoot}:/src" `
+		-v "${nugetVol}:/root/.nuget/packages" `
+		-v "${toolsVol}:/root/.dotnet/tools" `
+		@dindArgs `
+		-w /src `
+		-e HOME=/root `
+		-e 'PATH=/root/.dotnet/tools:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin' `
+		-e DOTNET_NOLOGO=1 `
+		-e DOTNET_CLI_TELEMETRY_OPTOUT=1 `
+		$image `
+		dotnet @Args
+	exit $LASTEXITCODE
+}
+
+Push-Location $RepoRoot
+try {
+	& dotnet @Args
+	exit $LASTEXITCODE
+}
+finally {
+	Pop-Location
+}
