@@ -86,7 +86,7 @@ namespace MTConnect.SysML.CSharp
         public virtual string RenderModel()
         {
             var templateFilename = $"Devices.DataItemType.scriban";
-            var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "csharp", "templates", templateFilename);
+            var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "CSharp", "Templates", templateFilename);
             if (File.Exists(templatePath))
             {
                 try

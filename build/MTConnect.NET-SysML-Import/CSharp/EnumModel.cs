@@ -94,7 +94,7 @@ namespace MTConnect.SysML.CSharp
         public string RenderModel()
         {
             var templateFilename = $"Enum.scriban";
-            var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "csharp", "templates", templateFilename);
+            var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "CSharp", "Templates", templateFilename);
             if (File.Exists(templatePath))
             {
                 try
@@ -122,7 +122,7 @@ namespace MTConnect.SysML.CSharp
             if (Values != null && Values.Count > 0)
             {
                 var templateFilename = $"EnumDescriptions.scriban";
-                var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "csharp", "templates", templateFilename);
+                var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "CSharp", "Templates", templateFilename);
                 if (File.Exists(templatePath))
                 {
                     try

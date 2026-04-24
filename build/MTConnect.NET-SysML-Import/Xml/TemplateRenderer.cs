@@ -24,7 +24,7 @@ namespace MTConnect.SysML.Xml
             foreach (var measurement in measurements.OrderBy(o => o.Name)) measurementsModel.Types.Add((MTConnectMeasurementModel)measurement);
 
             var templateFilename = $"XmlMeasurements.scriban";
-            var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "xml", "templates", templateFilename);
+            var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Xml", "Templates", templateFilename);
             if (File.Exists(templatePath))
             {
                 try
@@ -62,7 +62,7 @@ namespace MTConnect.SysML.Xml
             foreach (var measurement in measurements.OrderBy(o => o.Name)) measurementsModel.Types.Add((MTConnectMeasurementModel)measurement);
 
             var templateFilename = $"XmlCuttingToolLifeCycle.scriban";
-            var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "xml", "templates", templateFilename);
+            var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Xml", "Templates", templateFilename);
             if (File.Exists(templatePath))
             {
                 try
@@ -100,7 +100,7 @@ namespace MTConnect.SysML.Xml
             foreach (var measurement in measurements.OrderBy(o => o.Name)) measurementsModel.Types.Add((MTConnectMeasurementModel)measurement);
 
             var templateFilename = $"XmlCuttingItem.scriban";
-            var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "xml", "templates", templateFilename);
+            var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Xml", "Templates", templateFilename);
             if (File.Exists(templatePath))
             {
                 try

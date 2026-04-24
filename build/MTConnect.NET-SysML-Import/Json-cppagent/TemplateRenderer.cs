@@ -25,7 +25,7 @@ namespace MTConnect.SysML.Json_cppagent
             foreach (var component in components.OrderBy(o => o.Type)) componentsModel.Types.Add(component);
 
             var templateFilename = $"Components.scriban";
-            var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "json-cppagent", "templates", templateFilename);
+            var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Json-cppagent", "Templates", templateFilename);
             if (File.Exists(templatePath))
             {
                 try
@@ -63,7 +63,7 @@ namespace MTConnect.SysML.Json_cppagent
             foreach (var dataItem in dataItems.Where(o => o.Category == "EVENT").OrderBy(o => o.Type)) dataItemsModel.Types.Add(dataItem);
 
             var templateFilename = $"Events.scriban";
-            var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "json-cppagent", "templates", templateFilename);
+            var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Json-cppagent", "Templates", templateFilename);
             if (File.Exists(templatePath))
             {
                 try
@@ -101,7 +101,7 @@ namespace MTConnect.SysML.Json_cppagent
             foreach (var dataItem in dataItems.Where(o => o.Category == "SAMPLE").OrderBy(o => o.Type)) dataItemsModel.Types.Add(dataItem);
 
             var templateFilename = $"Samples.scriban";
-            var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "json-cppagent", "templates", templateFilename);
+            var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Json-cppagent", "Templates", templateFilename);
             if (File.Exists(templatePath))
             {
                 try
@@ -139,7 +139,7 @@ namespace MTConnect.SysML.Json_cppagent
             foreach (var measurement in measurements.OrderBy(o => o.Name)) measurementsModel.Types.Add((MTConnectMeasurementModel)measurement);
 
             var templateFilename = $"Measurements.scriban";
-            var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "json-cppagent", "templates", templateFilename);
+            var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Json-cppagent", "Templates", templateFilename);
             if (File.Exists(templatePath))
             {
                 try

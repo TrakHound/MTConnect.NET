@@ -87,7 +87,7 @@ namespace MTConnect.SysML.CSharp
         public string RenderModel()
         {
             var templateFilename = $"Model.scriban";
-            var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "csharp", "templates", templateFilename);
+            var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "CSharp", "Templates", templateFilename);
             if (HasModel && File.Exists(templatePath))
             {
                 try
@@ -111,7 +111,7 @@ namespace MTConnect.SysML.CSharp
         public string RenderInterface()
         {
             var templateFilename = $"Interface.scriban";
-            var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "csharp", "templates", templateFilename);
+            var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "CSharp", "Templates", templateFilename);
             if (HasInterface && File.Exists(templatePath))
             {
                 try
@@ -137,7 +137,7 @@ namespace MTConnect.SysML.CSharp
             if (Properties != null && Properties.Count > 0)
             {
                 var templateFilename = $"ModelDescriptions.scriban";
-                var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "csharp", "templates", templateFilename);
+                var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "CSharp", "Templates", templateFilename);
                 if (HasDescriptions && File.Exists(templatePath))
                 {
                     try

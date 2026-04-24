@@ -48,7 +48,7 @@ namespace MTConnect.SysML.CSharp
         public string RenderModel()
         {
             var templateFilename = $"Assets.CuttingToolMeasurement.scriban";
-            var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "csharp", "templates", templateFilename);
+            var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "CSharp", "Templates", templateFilename);
             if (File.Exists(templatePath))
             {
                 try

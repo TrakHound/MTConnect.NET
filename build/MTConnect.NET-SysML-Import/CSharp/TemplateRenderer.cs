@@ -340,7 +340,7 @@ namespace MTConnect.SysML.CSharp
                 var result = template.RenderModel();
                 if (result != null && template.Id != null)
                 {
-                    var resultPath = template.Id.Replace('.', '\\');
+                    var resultPath = template.Id.Replace('.', Path.DirectorySeparatorChar);
                     resultPath = Path.Combine(outputPath, resultPath);
                     resultPath = $"{resultPath}.g.cs";
 
@@ -359,7 +359,7 @@ namespace MTConnect.SysML.CSharp
                 var result = template.RenderInterface();
                 if (result != null && template.Id != null)
                 {
-                    var resultPath = template.Id.Replace('.', '\\');
+                    var resultPath = template.Id.Replace('.', Path.DirectorySeparatorChar);
                     resultPath = Path.Combine(outputPath, resultPath);
                     var resultDirectory = Path.GetDirectoryName(resultPath);
                     var resultFilename = Path.GetFileName(resultPath);
@@ -379,7 +379,7 @@ namespace MTConnect.SysML.CSharp
                 var result = template.RenderDescriptions();
                 if (result != null && template.Id != null)
                 {
-                    var resultPath = template.Id.Replace('.', '\\');
+                    var resultPath = template.Id.Replace('.', Path.DirectorySeparatorChar);
                     resultPath = Path.Combine(outputPath, resultPath);
                     var resultDirectory = Path.GetDirectoryName(resultPath);
                     var resultFilename = Path.GetFileName(resultPath);
