@@ -2,6 +2,7 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Devices;
+using MTConnect.NET_JSON_cppagent.Streams;
 using MTConnect.Observations;
 using MTConnect.Observations.Output;
 using System.Text.Json.Serialization;
@@ -20,6 +21,7 @@ namespace MTConnect.Streams.Json
         public double? Duration { get; set; }
 
         [JsonPropertyName("value")]
+        [JsonConverter(typeof(JsonSampleValueConverter))]
         public object Value { get; set; }
 
 
