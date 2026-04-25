@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public AutomaticToolChangerComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

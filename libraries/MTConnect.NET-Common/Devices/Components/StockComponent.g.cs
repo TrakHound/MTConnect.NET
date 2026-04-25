@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public StockComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

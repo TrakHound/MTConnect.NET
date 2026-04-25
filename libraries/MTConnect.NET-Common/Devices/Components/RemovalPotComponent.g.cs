@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public RemovalPotComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

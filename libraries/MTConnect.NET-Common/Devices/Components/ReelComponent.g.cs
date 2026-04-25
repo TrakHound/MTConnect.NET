@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public ReelComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public AuxiliaryComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

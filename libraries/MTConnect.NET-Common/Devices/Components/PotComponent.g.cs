@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public PotComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

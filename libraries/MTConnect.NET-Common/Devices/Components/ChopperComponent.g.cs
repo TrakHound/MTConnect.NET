@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public ChopperComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

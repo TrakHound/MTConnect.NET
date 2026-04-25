@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public ClampComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

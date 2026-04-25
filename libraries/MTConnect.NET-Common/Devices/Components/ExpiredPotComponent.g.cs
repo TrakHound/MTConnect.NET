@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public ExpiredPotComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

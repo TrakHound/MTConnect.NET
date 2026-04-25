@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public WorkEnvelopeComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

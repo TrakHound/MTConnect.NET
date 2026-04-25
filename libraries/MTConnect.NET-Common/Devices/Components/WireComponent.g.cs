@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public WireComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

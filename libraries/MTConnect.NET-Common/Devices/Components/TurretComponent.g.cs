@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public TurretComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

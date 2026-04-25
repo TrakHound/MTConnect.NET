@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public BallscrewComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public SpindleComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

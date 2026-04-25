@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public ToolRackComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

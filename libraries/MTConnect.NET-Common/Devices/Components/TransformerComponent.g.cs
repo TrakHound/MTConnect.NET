@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public TransformerComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public SensorComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

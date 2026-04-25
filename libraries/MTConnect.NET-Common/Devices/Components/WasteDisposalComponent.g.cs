@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public WasteDisposalComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public StructuresComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

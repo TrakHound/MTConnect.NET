@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public ProcessOccurrenceComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

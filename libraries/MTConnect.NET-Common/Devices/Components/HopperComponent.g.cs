@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public HopperComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

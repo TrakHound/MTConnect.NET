@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public SpreaderComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

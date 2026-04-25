@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public CircuitBreakerComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

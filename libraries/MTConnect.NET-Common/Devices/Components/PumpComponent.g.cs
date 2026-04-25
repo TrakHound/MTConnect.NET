@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public PumpComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

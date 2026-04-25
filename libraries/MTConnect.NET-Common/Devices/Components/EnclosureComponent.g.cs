@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public EnclosureComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

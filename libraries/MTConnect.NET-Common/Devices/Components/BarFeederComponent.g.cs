@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public BarFeederComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

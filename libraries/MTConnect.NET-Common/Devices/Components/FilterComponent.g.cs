@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public FilterComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

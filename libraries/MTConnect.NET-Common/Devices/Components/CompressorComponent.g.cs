@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public CompressorComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

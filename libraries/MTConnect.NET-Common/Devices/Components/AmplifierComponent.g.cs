@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public AmplifierComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

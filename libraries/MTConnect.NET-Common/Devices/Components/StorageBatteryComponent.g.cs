@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public StorageBatteryComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

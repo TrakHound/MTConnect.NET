@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public TransferPotComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

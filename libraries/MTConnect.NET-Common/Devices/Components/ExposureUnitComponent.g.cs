@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public ExposureUnitComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

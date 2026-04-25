@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public OilComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

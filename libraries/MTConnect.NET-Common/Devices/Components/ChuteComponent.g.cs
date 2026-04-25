@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public ChuteComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

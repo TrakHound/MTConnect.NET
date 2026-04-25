@@ -93,9 +93,6 @@ namespace MTConnect.Devices
 
 		public Device()
         {
-            Id = StringFunctions.RandomString(10);
-            Name = "dev";
-            Uuid = Guid.NewGuid().ToString();
             Type = TypeId;
             DataItems = new List<IDataItem>();
             Components = new List<IComponent>();
