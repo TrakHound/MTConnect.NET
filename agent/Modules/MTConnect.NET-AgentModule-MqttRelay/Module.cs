@@ -116,11 +116,25 @@ namespace MTConnect
                         // Sets the Timeout
                         clientOptionsBuilder.WithTimeout(TimeSpan.FromMilliseconds(_configuration.Timeout));
 
-                        // Set LWT (Agent Available)
-                        clientOptionsBuilder.WithWillTopic(GetAgentAvailableTopic());
-                        clientOptionsBuilder.WithWillPayload(System.Text.Encoding.UTF8.GetBytes(Availability.UNAVAILABLE.ToString()));
-                        clientOptionsBuilder.WithWillQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce);
-                        clientOptionsBuilder.WithWillRetain(true);
+                        // Set LWT (Agent Available). AvailabilityTopic.Build
+                        // returns null when TopicPrefix or Agent.Uuid is
+                        // missing or contains an MQTT-reserved character;
+                        // passing null into WithWillTopic raises in MQTTnet's
+                        // ClientOptionsBuilder.Build(), so a misconfigured
+                        // topic must skip the will-topic registration and
+                        // surface a fatal-config warning instead.
+                        var willTopic = GetAgentAvailableTopic();
+                        if (!string.IsNullOrEmpty(willTopic))
+                        {
+                            clientOptionsBuilder.WithWillTopic(willTopic);
+                            clientOptionsBuilder.WithWillPayload(System.Text.Encoding.UTF8.GetBytes(Availability.UNAVAILABLE.ToString()));
+                            clientOptionsBuilder.WithWillQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce);
+                            clientOptionsBuilder.WithWillRetain(true);
+                        }
+                        else
+                        {
+                            Log(MTConnectLogLevel.Fatal, $"MQTT Relay Configuration Error : Agent Available topic could not be built from TopicPrefix='{_configuration?.TopicPrefix}' and AgentUuid='{Agent?.Uuid}'; the broker will not receive a Last Will and Testament for this agent.");
+                        }
 
                         // Set Client ID
                         if (!string.IsNullOrEmpty(_configuration.ClientId))
@@ -418,34 +432,49 @@ namespace MTConnect
                     if (device.Type == Devices.Agent.TypeId)
                     {
                         var availableTopic = GetAgentAvailableTopic();
-                        var availablePayload = System.Text.Encoding.UTF8.GetBytes(Availability.AVAILABLE.ToString());
-
-                        try
+                        if (string.IsNullOrEmpty(availableTopic))
                         {
-                            var messageBuilder = new MqttApplicationMessageBuilder();
-                            messageBuilder.WithRetainFlag(true);
-                            messageBuilder.WithTopic(availableTopic);
-                            messageBuilder.WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce);
-#if NET5_0_OR_GREATER
-                            messageBuilder.WithPayloadSegment(availablePayload);
-#else
-                            messageBuilder.WithPayload(availablePayload);
-#endif
-                            var message = messageBuilder.Build();
-
-                            var publishResult = await _mqttClient.PublishAsync(message);
-                            if (publishResult.IsSuccess)
-                            {
-                                Log(MTConnectLogLevel.Debug, $"Agent Available : Published to Topic ({availableTopic})");
-                            }
-                            else
-                            {
-                                Log(MTConnectLogLevel.Warning, $"Agent Available : Error Publishing to Topic ({availableTopic}) : {publishResult.ReasonCode} : {publishResult.ReasonString}");
-                            }
+                            // AvailabilityTopic.Build rejected the input
+                            // (null / empty / wildcard-segment TopicPrefix
+                            // or AgentUuid). Skip the availability publish
+                            // because passing null into WithTopic raises in
+                            // MQTTnet's MessageBuilder.Build(), and a
+                            // partially-correct topic risks publishing under
+                            // the {TopicPrefix}/Probe/# wildcard the fix
+                            // exists to keep JSON-pure.
+                            Log(MTConnectLogLevel.Warning, $"Agent Available : Skipped because availability topic could not be built from TopicPrefix='{_configuration?.TopicPrefix}' and AgentUuid='{Agent?.Uuid}'.");
                         }
-                        catch (Exception ex)
+                        else
                         {
-                            Log(MTConnectLogLevel.Warning, $"Agent Available : Error Publishing to Topic ({availableTopic}) : {ex.Message}");
+                            var availablePayload = System.Text.Encoding.UTF8.GetBytes(Availability.AVAILABLE.ToString());
+
+                            try
+                            {
+                                var messageBuilder = new MqttApplicationMessageBuilder();
+                                messageBuilder.WithRetainFlag(true);
+                                messageBuilder.WithTopic(availableTopic);
+                                messageBuilder.WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce);
+#if NET5_0_OR_GREATER
+                                messageBuilder.WithPayloadSegment(availablePayload);
+#else
+                                messageBuilder.WithPayload(availablePayload);
+#endif
+                                var message = messageBuilder.Build();
+
+                                var publishResult = await _mqttClient.PublishAsync(message);
+                                if (publishResult.IsSuccess)
+                                {
+                                    Log(MTConnectLogLevel.Debug, $"Agent Available : Published to Topic ({availableTopic})");
+                                }
+                                else
+                                {
+                                    Log(MTConnectLogLevel.Warning, $"Agent Available : Error Publishing to Topic ({availableTopic}) : {publishResult.ReasonCode} : {publishResult.ReasonString}");
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                Log(MTConnectLogLevel.Warning, $"Agent Available : Error Publishing to Topic ({availableTopic}) : {ex.Message}");
+                            }
                         }
                     }
                 }
