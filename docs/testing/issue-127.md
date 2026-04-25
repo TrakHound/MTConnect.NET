@@ -55,7 +55,13 @@ Out of scope:
 
 ## 3. Red tests (P2)
 
-See `docs/testing/issue-127/phase-02-red-tests.md`.
+- Test fixture:
+  `tests/MTConnect.NET-Common-Tests/Headers/HeaderVersionRegressionTests.cs`.
+- 61 NUnit cases (4 envelope paths × 15 versions + 1 guard) all red on
+  HEAD with `Expected: "<x.y>.0.0" / But was: "6.9.0.0"`.
+- Reflection-based version matrix auto-extends when new constants
+  land in `MTConnectVersions`.
+- See `docs/testing/issue-127/phase-02-red-tests.md`.
 
 ## 4. Library fix (P3)
 
