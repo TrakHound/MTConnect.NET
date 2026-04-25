@@ -84,7 +84,7 @@ namespace MTConnect.Devices.Json
             {
                 DataItemCategory = dataItem.Category.ToString();
                 Id = dataItem.Id;
-                Name = dataItem.Name;
+                if (!string.IsNullOrEmpty(dataItem.Name)) Name = dataItem.Name;
                 Type = dataItem.Type;
                 SubType = dataItem.SubType;
                 NativeUnits = dataItem.NativeUnits;
