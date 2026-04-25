@@ -62,3 +62,9 @@ the full set of auto-wrapped System members, the issue's exact `Heating` +
 `Protective` reproduction, and the depth-2 wire-shape invariant.
 
 ## 7. Campaign summary (P6)
+
+See [`issue-134/phase-06-finalisation.md`](issue-134/phase-06-finalisation.md).
+
+`_systems` aligned with the SysML `System` substitution-group (18 members);
+86 tests across 4 test classes; 100% coverage on `Organizers.cs`; no public
+API change; behaviour change is precisely the bug fix.
