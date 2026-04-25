@@ -18,7 +18,7 @@
 		<RootNamespace>MTConnect</RootNamespace>
 		<Configurations>Debug;Release;Package</Configurations>
 
-		<Description>MTConnect.NET-AdapterModule-SHDR implements the MTConnect SHDR Protocol for Adapter Applications. Supports MTConnect Versions up to 2.5. Supports .NET Framework 4.6.1 up to .NET 9</Description>
+		<Description>MTConnect.NET-AdapterModule-SHDR implements the MTConnect SHDR Protocol for Adapter Applications. Supports MTConnect Versions up to 2.6. Supports .NET Framework 4.6.1 up to .NET 9</Description>
 		<PackageReadmeFile>README-Nuget.md</PackageReadmeFile>
 
 		<!-- Optional: Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->

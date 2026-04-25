@@ -59,6 +59,10 @@ namespace MTConnect.Streams.Json
                 if (!ApplicationDataSet.IsNullOrEmpty()) foreach (var x in ApplicationDataSet) l.Add(x.ToObservation(ApplicationDataItem.TypeId));
                 if (!ApplicationTable.IsNullOrEmpty()) foreach (var x in ApplicationTable) l.Add(x.ToObservation(ApplicationDataItem.TypeId));
 
+                if (!AssetAdded.IsNullOrEmpty()) foreach (var x in AssetAdded) l.Add(x.ToObservation(AssetAddedDataItem.TypeId));
+                if (!AssetAddedDataSet.IsNullOrEmpty()) foreach (var x in AssetAddedDataSet) l.Add(x.ToObservation(AssetAddedDataItem.TypeId));
+                if (!AssetAddedTable.IsNullOrEmpty()) foreach (var x in AssetAddedTable) l.Add(x.ToObservation(AssetAddedDataItem.TypeId));
+
                 if (!AssetChanged.IsNullOrEmpty()) foreach (var x in AssetChanged) l.Add(x.ToObservation(AssetChangedDataItem.TypeId));
                 if (!AssetChangedDataSet.IsNullOrEmpty()) foreach (var x in AssetChangedDataSet) l.Add(x.ToObservation(AssetChangedDataItem.TypeId));
                 if (!AssetChangedTable.IsNullOrEmpty()) foreach (var x in AssetChangedTable) l.Add(x.ToObservation(AssetChangedDataItem.TypeId));
@@ -70,6 +74,10 @@ namespace MTConnect.Streams.Json
                 if (!AssetRemoved.IsNullOrEmpty()) foreach (var x in AssetRemoved) l.Add(x.ToObservation(AssetRemovedDataItem.TypeId));
                 if (!AssetRemovedDataSet.IsNullOrEmpty()) foreach (var x in AssetRemovedDataSet) l.Add(x.ToObservation(AssetRemovedDataItem.TypeId));
                 if (!AssetRemovedTable.IsNullOrEmpty()) foreach (var x in AssetRemovedTable) l.Add(x.ToObservation(AssetRemovedDataItem.TypeId));
+
+                if (!AssociatedAssetId.IsNullOrEmpty()) foreach (var x in AssociatedAssetId) l.Add(x.ToObservation(AssociatedAssetIdDataItem.TypeId));
+                if (!AssociatedAssetIdDataSet.IsNullOrEmpty()) foreach (var x in AssociatedAssetIdDataSet) l.Add(x.ToObservation(AssociatedAssetIdDataItem.TypeId));
+                if (!AssociatedAssetIdTable.IsNullOrEmpty()) foreach (var x in AssociatedAssetIdTable) l.Add(x.ToObservation(AssociatedAssetIdDataItem.TypeId));
 
                 if (!Availability.IsNullOrEmpty()) foreach (var x in Availability) l.Add(x.ToObservation(AvailabilityDataItem.TypeId));
                 if (!AvailabilityDataSet.IsNullOrEmpty()) foreach (var x in AvailabilityDataSet) l.Add(x.ToObservation(AvailabilityDataItem.TypeId));
@@ -671,6 +679,16 @@ namespace MTConnect.Streams.Json
         public IEnumerable<JsonEventTable> ApplicationTable { get; set; }
 
 
+        [JsonPropertyName("AssetAdded")]
+        public IEnumerable<JsonEventValue> AssetAdded { get; set; }
+
+        [JsonPropertyName("AssetAddedDataSet")]
+        public IEnumerable<JsonEventDataSet> AssetAddedDataSet { get; set; }
+
+        [JsonPropertyName("AssetAddedTable")]
+        public IEnumerable<JsonEventTable> AssetAddedTable { get; set; }
+
+
         [JsonPropertyName("AssetChanged")]
         public IEnumerable<JsonEventValue> AssetChanged { get; set; }
 
@@ -699,6 +717,16 @@ namespace MTConnect.Streams.Json
 
         [JsonPropertyName("AssetRemovedTable")]
         public IEnumerable<JsonEventTable> AssetRemovedTable { get; set; }
+
+
+        [JsonPropertyName("AssociatedAssetId")]
+        public IEnumerable<JsonEventValue> AssociatedAssetId { get; set; }
+
+        [JsonPropertyName("AssociatedAssetIdDataSet")]
+        public IEnumerable<JsonEventDataSet> AssociatedAssetIdDataSet { get; set; }
+
+        [JsonPropertyName("AssociatedAssetIdTable")]
+        public IEnumerable<JsonEventTable> AssociatedAssetIdTable { get; set; }
 
 
         [JsonPropertyName("Availability")]
@@ -2321,6 +2349,43 @@ namespace MTConnect.Streams.Json
                     }
 
 
+                    // Add AssetAdded
+                    typeObservations = observations.Where(o => o.Type == AssetAddedDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventValue>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventValue(observation));
+                        }
+                        AssetAdded = jsonObservations;
+                    }
+
+                    // Add AssetAddedDataSet
+                    typeObservations = observations.Where(o => o.Type == AssetAddedDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventDataSet>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventDataSet(observation));
+                        }
+                        AssetAddedDataSet = jsonObservations;
+                    }
+
+                    // Add AssetAddedTable
+                    typeObservations = observations.Where(o => o.Type == AssetAddedDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventTable>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventTable(observation));
+                        }
+                        AssetAddedTable = jsonObservations;
+                    }
+
+
                     // Add AssetChanged
                     typeObservations = observations.Where(o => o.Type == AssetChangedDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
@@ -2429,6 +2494,43 @@ namespace MTConnect.Streams.Json
                             jsonObservations.Add(new JsonEventTable(observation));
                         }
                         AssetRemovedTable = jsonObservations;
+                    }
+
+
+                    // Add AssociatedAssetId
+                    typeObservations = observations.Where(o => o.Type == AssociatedAssetIdDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventValue>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventValue(observation));
+                        }
+                        AssociatedAssetId = jsonObservations;
+                    }
+
+                    // Add AssociatedAssetIdDataSet
+                    typeObservations = observations.Where(o => o.Type == AssociatedAssetIdDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventDataSet>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventDataSet(observation));
+                        }
+                        AssociatedAssetIdDataSet = jsonObservations;
+                    }
+
+                    // Add AssociatedAssetIdTable
+                    typeObservations = observations.Where(o => o.Type == AssociatedAssetIdDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventTable>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventTable(observation));
+                        }
+                        AssociatedAssetIdTable = jsonObservations;
                     }
 
 

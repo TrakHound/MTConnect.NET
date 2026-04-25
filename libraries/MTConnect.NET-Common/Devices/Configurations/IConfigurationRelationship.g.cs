@@ -4,7 +4,7 @@
 namespace MTConnect.Devices.Configurations
 {
     /// <summary>
-    /// Association between two pieces of equipment that function independently but together perform a manufacturing operation.
+    /// Association between two pieces of equipment or assets that may function independently but together perform a manufacturing operation.
     /// </summary>
     public interface IConfigurationRelationship
     {

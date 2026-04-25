@@ -36,6 +36,11 @@ namespace MTConnect.Devices.Configurations
         public const string OBJ = "Wavefront OBJ file format.";
         
         /// <summary>
+        /// Provides the 3D geometric boundary representation used to associate with product information.
+        /// </summary>
+        public const string QIF_MBD = "Provides the 3D geometric boundary representation used to associate with product information.";
+        
+        /// <summary>
         /// ISO 10303 STEP AP203 or AP242 format.
         /// </summary>
         public const string STEP = "ISO 10303 STEP AP203 or AP242 format.";
@@ -61,6 +66,7 @@ namespace MTConnect.Devices.Configurations
                 case MediaType.GDML: return "Geometry Description Markup Language.";
                 case MediaType.IGES: return "Initial Graphics Exchange Specification.";
                 case MediaType.OBJ: return "Wavefront OBJ file format.";
+                case MediaType.QIF_MBD: return "Provides the 3D geometric boundary representation used to associate with product information.";
                 case MediaType.STEP: return "ISO 10303 STEP AP203 or AP242 format.";
                 case MediaType.STL: return "STereoLithography file format.";
                 case MediaType.X_T: return "Parasolid XT Siemens data interchange format.";

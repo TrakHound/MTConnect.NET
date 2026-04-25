@@ -29,7 +29,7 @@ namespace MTConnect.Devices.Configurations
         MTConnect.Devices.Configurations.IPowerSource PowerSource { get; }
         
         /// <summary>
-        /// Association between two pieces of equipment that function independently but together perform a manufacturing operation.
+        /// Association between two pieces of equipment or assets that may function independently but together perform a manufacturing operation.
         /// </summary>
         System.Collections.Generic.IEnumerable<MTConnect.Devices.Configurations.IConfigurationRelationship> Relationships { get; }
         

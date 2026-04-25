@@ -114,6 +114,10 @@ namespace MTConnect.Devices.Json
         public IEnumerable<JsonComponent> CoolingTower { get; set; }
 
 
+        [JsonPropertyName("CuttingTorch")]
+        public IEnumerable<JsonComponent> CuttingTorch { get; set; }
+
+
         [JsonPropertyName("Deposition")]
         public IEnumerable<JsonComponent> Deposition { get; set; }
 
@@ -132,6 +136,10 @@ namespace MTConnect.Devices.Json
 
         [JsonPropertyName("Electric")]
         public IEnumerable<JsonComponent> Electric { get; set; }
+
+
+        [JsonPropertyName("Electrode")]
+        public IEnumerable<JsonComponent> Electrode { get; set; }
 
 
         [JsonPropertyName("Enclosure")]
@@ -529,6 +537,8 @@ namespace MTConnect.Devices.Json
 
                 CoolingTower = GetComponents(components, CoolingTowerComponent.TypeId);
 
+                CuttingTorch = GetComponents(components, CuttingTorchComponent.TypeId);
+
                 Deposition = GetComponents(components, DepositionComponent.TypeId);
 
                 Dielectric = GetComponents(components, DielectricComponent.TypeId);
@@ -538,6 +548,8 @@ namespace MTConnect.Devices.Json
                 Drain = GetComponents(components, DrainComponent.TypeId);
 
                 Electric = GetComponents(components, ElectricComponent.TypeId);
+
+                Electrode = GetComponents(components, ElectrodeComponent.TypeId);
 
                 Enclosure = GetComponents(components, EnclosureComponent.TypeId);
 
@@ -782,6 +794,8 @@ namespace MTConnect.Devices.Json
 
             if (!CoolingTower.IsNullOrEmpty()) foreach (var component in CoolingTower) components.Add(component.ToComponent(CoolingTowerComponent.TypeId));
 
+            if (!CuttingTorch.IsNullOrEmpty()) foreach (var component in CuttingTorch) components.Add(component.ToComponent(CuttingTorchComponent.TypeId));
+
             if (!Deposition.IsNullOrEmpty()) foreach (var component in Deposition) components.Add(component.ToComponent(DepositionComponent.TypeId));
 
             if (!Dielectric.IsNullOrEmpty()) foreach (var component in Dielectric) components.Add(component.ToComponent(DielectricComponent.TypeId));
@@ -791,6 +805,8 @@ namespace MTConnect.Devices.Json
             if (!Drain.IsNullOrEmpty()) foreach (var component in Drain) components.Add(component.ToComponent(DrainComponent.TypeId));
 
             if (!Electric.IsNullOrEmpty()) foreach (var component in Electric) components.Add(component.ToComponent(ElectricComponent.TypeId));
+
+            if (!Electrode.IsNullOrEmpty()) foreach (var component in Electrode) components.Add(component.ToComponent(ElectrodeComponent.TypeId));
 
             if (!Enclosure.IsNullOrEmpty()) foreach (var component in Enclosure) components.Add(component.ToComponent(EnclosureComponent.TypeId));
 

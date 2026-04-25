@@ -4,7 +4,7 @@
 namespace MTConnect.Devices.Configurations
 {
     /// <summary>
-    /// ConfigurationRelationship that describes the association between a Component and an Asset.
+    /// ConfigurationRelationship that describes the association between a Component or an Asset and another Asset.
     /// </summary>
     public interface IAssetRelationship : IConfigurationRelationship
     {

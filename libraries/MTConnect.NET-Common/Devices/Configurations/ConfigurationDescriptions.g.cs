@@ -26,9 +26,9 @@ namespace MTConnect.Devices.Configurations
         public const string PowerSource = "Potential energy sources for the Component.";
         
         /// <summary>
-        /// Association between two pieces of equipment that function independently but together perform a manufacturing operation.
+        /// Association between two pieces of equipment or assets that may function independently but together perform a manufacturing operation.
         /// </summary>
-        public const string Relationships = "Association between two pieces of equipment that function independently but together perform a manufacturing operation.";
+        public const string Relationships = "Association between two pieces of equipment or assets that may function independently but together perform a manufacturing operation.";
         
         /// <summary>
         /// Configuration for a Sensor.
