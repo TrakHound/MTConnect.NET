@@ -104,4 +104,32 @@ Out of scope:
 
 ## 7. Campaign summary
 
-See `docs/testing/issue-127/phase-06-docs-and-finalisation.md`.
+- Issue: <https://github.com/TrakHound/MTConnect.NET/issues/127> —
+  `Header.version` reported the library assembly version
+  (`6.9.0.0`) instead of the configured MTConnect Standard release.
+- Root cause: four header builders in `MTConnectAgentBroker` wrote
+  the bare `Version` identifier (the inherited
+  `MTConnectAgent.Version` library-assembly value) into
+  `header.Version`, plus six redundant overwrites in the
+  response-document construction methods.
+- Fix: route the configured `MTConnectVersion` through a new
+  `FormatHeaderVersion` helper that emits the four-segment shape
+  (e.g. `2.5.0.0`) the cppagent reference uses. Drop the six
+  redundant overwrites. `MTConnectAgent.Version` retained as a
+  diagnostic surface.
+- Coverage: 100 % by inspection on the touched method bodies in
+  `MTConnectAgentBroker.cs`. The plan's coverlet runsettings
+  infrastructure is owned by `00-bootstrap/`; the gate falls back
+  to the manual inspection captured in `phase-03-library-fix.md`
+  until that plan lands.
+- Tests: 76 NUnit cases pinned across the unit and round-trip
+  layers (61 broker-DTO + 15 XML round-trip).
+- Public API change: none. `GetErrorHeader` gained an optional
+  `Version` parameter, which is non-breaking for external callers
+  (the method is `private`).
+- Out-of-scope follow-ups surfaced during the audit:
+  - `Header.schemaVersion` hardcoded — issue #128.
+  - `Header.testIndicator` always emitted as `false` — issue #131.
+  - v2.6 / v2.7 standard release support absent — issue #133.
+- See `docs/testing/issue-127/phase-06-docs-and-finalisation.md`
+  for the per-phase audit and PR coordination notes.
