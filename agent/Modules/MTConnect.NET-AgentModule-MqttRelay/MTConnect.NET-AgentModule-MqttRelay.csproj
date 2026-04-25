@@ -41,6 +41,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<InternalsVisibleTo Include="MTConnect.NET-AgentModule-MqttRelay-Tests" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<None Include="README-Nuget.md">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
