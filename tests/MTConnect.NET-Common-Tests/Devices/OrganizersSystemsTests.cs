@@ -91,13 +91,34 @@ namespace MTConnect.Tests.Common.SystemsOrganizer
                 $"`Organizers.Systems` must enumerate it so `Device.AddComponent()` auto-wraps it under `<Systems>`.");
         }
 
-        [TestCaseSource(nameof(KnownSystemMembers))]
-        public void GetOrganizerType_for_system_member_returns_Systems(string typeId)
+        // `Controller` is a System substitution-group member by SysML, but
+        // `Organizers.GetOrganizerType("Controller")` returns the
+        // `Controllers` organizer first because the `_controllers` list is
+        // matched before `_systems` in `GetOrganizerType` and
+        // `Device.AddComponent()` deliberately leaves `Controller` at the
+        // Device root (it is its own organizer). The remaining System members
+        // resolve to `Systems`.
+        public static IEnumerable<string> AutoWrappedSystemMemberTypeIds =>
+            AutoWrappedSystemMemberTypes.Select(t => GetTypeIdFromComponent(t));
+
+        [TestCaseSource(nameof(AutoWrappedSystemMemberTypeIds))]
+        public void GetOrganizerType_for_auto_wrapped_system_member_returns_Systems(string typeId)
         {
             Assert.That(Organizers.GetOrganizerType(typeId),
                 Is.EqualTo(SystemsComponent.TypeId),
                 $"`Organizers.GetOrganizerType(\"{typeId}\")` must resolve to `Systems` so " +
                 $"the auto-wrap path in `Device.AddComponent()` fires.");
+        }
+
+        [Test]
+        public void GetOrganizerType_for_Controller_returns_Controllers_not_Systems()
+        {
+            // Cross-references the carve-out in `Device.AddComponent()`
+            // (the `organizerType != ControllersComponent.TypeId` guard):
+            // `Controller` resolves to its dedicated `Controllers`
+            // organizer, not to `Systems`.
+            Assert.That(Organizers.GetOrganizerType(ControllerComponent.TypeId),
+                Is.EqualTo(ControllersComponent.TypeId));
         }
 
         [TestCaseSource(nameof(EqualDepthPeerPairs))]
