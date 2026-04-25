@@ -54,10 +54,10 @@ The fixture cites the same public sources as the unit tests:
   immediately runnable.
 - The plan's `05-regression-pins.md` cited a
   `docs(tests): migrate issue-135 regression out of compliance-gate
-  plan` commit. There is no compliance-gate plan file on the
-  branch's tracked surface to migrate from
-  (`extra-files.user/plans/11-tests/` is gitignored), so the
-  migration commit is dropped.
+  plan` commit. The compliance-gate plan it refers to is a
+  separate (not yet landed) test-overhaul effort and has no
+  tracked counterpart on this branch's surface, so the migration
+  commit is dropped.
 
 ## Follow-ups
 
