@@ -23,7 +23,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Streams
     ///   - Reference: https://github.com/mtconnect/cppagent v2.7.0.7
     ///       (JsonPrinter Sample-value formatting) - emits a number token.
     /// </summary>
-    [Category("NumericSampleNumberToken")]
+    [Category("NumericSampleAsJsonNumber")]
     [TestFixture]
     public class JsonSampleValueNumericTokenTests
     {
