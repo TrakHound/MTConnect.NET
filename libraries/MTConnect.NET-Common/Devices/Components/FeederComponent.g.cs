@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public FeederComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

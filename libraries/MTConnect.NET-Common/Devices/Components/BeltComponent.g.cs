@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public BeltComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

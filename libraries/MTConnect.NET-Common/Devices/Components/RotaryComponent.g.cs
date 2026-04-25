@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public RotaryComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

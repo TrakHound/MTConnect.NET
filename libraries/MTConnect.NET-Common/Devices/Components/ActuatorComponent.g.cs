@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public ActuatorComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

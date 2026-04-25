@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public GripperComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

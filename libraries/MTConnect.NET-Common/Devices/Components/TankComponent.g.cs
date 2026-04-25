@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public TankComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

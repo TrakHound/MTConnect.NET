@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public HydraulicComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

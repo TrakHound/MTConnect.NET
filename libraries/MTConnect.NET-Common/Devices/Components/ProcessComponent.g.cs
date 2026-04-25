@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public ProcessComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

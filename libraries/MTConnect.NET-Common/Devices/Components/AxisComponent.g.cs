@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public AxisComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

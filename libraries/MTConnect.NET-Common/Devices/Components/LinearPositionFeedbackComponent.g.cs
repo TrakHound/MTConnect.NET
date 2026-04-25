@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public LinearPositionFeedbackComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public DielectricComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

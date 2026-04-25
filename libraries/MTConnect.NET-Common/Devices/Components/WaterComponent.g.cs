@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public WaterComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

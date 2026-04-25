@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public DoorComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

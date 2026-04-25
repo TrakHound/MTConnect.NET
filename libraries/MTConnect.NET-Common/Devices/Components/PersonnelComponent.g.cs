@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public PersonnelComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

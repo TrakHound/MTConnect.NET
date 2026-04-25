@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public CoolingTowerComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

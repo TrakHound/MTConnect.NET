@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public LubricationComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

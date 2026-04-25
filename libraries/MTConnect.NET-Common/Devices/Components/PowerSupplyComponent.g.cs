@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public PowerSupplyComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

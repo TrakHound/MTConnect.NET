@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public StationComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

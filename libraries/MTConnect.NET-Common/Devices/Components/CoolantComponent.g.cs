@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public CoolantComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public ValveComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

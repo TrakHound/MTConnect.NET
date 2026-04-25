@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public VatComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

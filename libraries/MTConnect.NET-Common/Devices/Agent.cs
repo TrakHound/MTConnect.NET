@@ -147,7 +147,7 @@ namespace MTConnect.Devices
                 if (Components.IsNullOrEmpty())
                 {
                     // Create New Adapters Organizer Component
-                    adapters = new AdaptersComponent() { Id = AdaptersId, Parent = this };
+                    adapters = new AdaptersComponent() { Id = AdaptersId, Name = AdaptersComponent.NameId, Parent = this };
 
                     var agentComponents = new List<IComponent>();
                     agentComponents.Add(adapters);

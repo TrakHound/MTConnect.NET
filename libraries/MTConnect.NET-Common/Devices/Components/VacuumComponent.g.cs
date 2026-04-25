@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public VacuumComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

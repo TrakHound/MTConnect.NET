@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public PartOccurrenceComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

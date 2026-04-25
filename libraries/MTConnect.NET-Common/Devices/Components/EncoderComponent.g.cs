@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public EncoderComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

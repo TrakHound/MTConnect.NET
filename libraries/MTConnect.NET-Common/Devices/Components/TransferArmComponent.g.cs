@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public TransferArmComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

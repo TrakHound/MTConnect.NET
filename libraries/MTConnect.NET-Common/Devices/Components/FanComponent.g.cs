@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public FanComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

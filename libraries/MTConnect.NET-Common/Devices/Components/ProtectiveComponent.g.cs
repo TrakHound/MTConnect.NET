@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public ProtectiveComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

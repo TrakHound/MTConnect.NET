@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public PressureComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

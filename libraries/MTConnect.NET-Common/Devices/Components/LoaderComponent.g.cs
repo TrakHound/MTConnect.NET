@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public LoaderComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

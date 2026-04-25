@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public ChuckComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public ChainComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

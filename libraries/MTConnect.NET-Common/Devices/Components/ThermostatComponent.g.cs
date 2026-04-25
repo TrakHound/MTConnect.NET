@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public ThermostatComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

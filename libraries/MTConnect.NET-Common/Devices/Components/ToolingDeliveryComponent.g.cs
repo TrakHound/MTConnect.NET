@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public ToolingDeliveryComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

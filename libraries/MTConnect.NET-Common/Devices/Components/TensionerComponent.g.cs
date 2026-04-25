@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public TensionerComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

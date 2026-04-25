@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public PulleyComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

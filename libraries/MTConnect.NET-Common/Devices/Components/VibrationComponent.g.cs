@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public VibrationComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public MotorComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

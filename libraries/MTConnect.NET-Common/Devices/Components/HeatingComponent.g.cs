@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public HeatingComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

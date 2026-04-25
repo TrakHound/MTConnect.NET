@@ -22,7 +22,6 @@ namespace MTConnect.Devices.Components
         public GangToolBarComponent() 
         { 
             Type = TypeId;
-            Name = NameId;
         }
     }
 }
