@@ -15,6 +15,8 @@ The `JsonDataItem(IDataItem)` constructor in both `MTConnect.NET-JSON-cppagent` 
 
 ## 3. Red tests (P2)
 
+NUnit fixtures `JsonDataItemEmptyNameOmissionTests` in both new test projects (`MTConnect.NET-JSON-cppagent-Tests` + `MTConnect.NET-JSON-Tests`) cover null / empty / explicit / typed-cleared `Name` cases against the constructor surface. Detail: `docs/testing/issue-138/phase-02-red-tests.md`. Two of four cases are red on HEAD (the empty-string and typed-cleared scenarios); the null and explicit-value cases pass because `WhenWritingDefault` already covers null.
+
 ## 4. Library fix (P3)
 
 ## 5. Regression pins (P4)
