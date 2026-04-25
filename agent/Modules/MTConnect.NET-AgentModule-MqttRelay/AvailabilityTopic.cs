@@ -11,6 +11,15 @@ namespace MTConnect
     internal static class AvailabilityTopic
     {
         /// <summary>
+        /// Constant topic segment that separates the agent-availability
+        /// publishes from the document-envelope publishes (Probe /
+        /// Current / Sample / Asset). Subscribers wildcarding on
+        /// <c>{TopicPrefix}/Probe/#</c> therefore never receive the raw
+        /// availability payload.
+        /// </summary>
+        public const string AgentSegment = "Agent";
+
+        /// <summary>
         /// Constant trailing topic segment that names the availability
         /// publish.
         /// </summary>
@@ -34,7 +43,7 @@ namespace MTConnect
             if (string.IsNullOrEmpty(topicPrefix)) return null;
             if (string.IsNullOrEmpty(agentUuid)) return null;
 
-            return $"{topicPrefix}/{MTConnectMqttDocumentServer.ProbeTopic}/{agentUuid}/{AvailableSegment}";
+            return $"{topicPrefix}/{AgentSegment}/{agentUuid}/{AvailableSegment}";
         }
     }
 }
