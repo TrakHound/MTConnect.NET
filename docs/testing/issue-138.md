@@ -11,6 +11,8 @@ Sources:
 
 ## 2. Investigation (P1)
 
+The `JsonDataItem(IDataItem)` constructor in both `MTConnect.NET-JSON-cppagent` and the base `MTConnect.NET-JSON` formatter copies `Name` unconditionally; the global `DefaultIgnoreCondition = WhenWritingDefault` skips `null` but not `""`, so any source DataItem with `Name = string.Empty` flows through to the wire as `"name": ""`. Detail: `docs/testing/issue-138/phase-01-defect-scoping.md`. Both JSON formatters need the `IsNullOrEmpty` guard; the XML formatter is already correct.
+
 ## 3. Red tests (P2)
 
 ## 4. Library fix (P3)
