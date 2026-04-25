@@ -15,6 +15,9 @@ namespace MTConnect.Assets.Json
         [JsonPropertyName("version")]
         public string Version { get; set; }
 
+        [JsonPropertyName("schemaVersion")]
+        public string SchemaVersion { get; set; }
+
         [JsonPropertyName("sender")]
         public string Sender { get; set; }
 
@@ -42,6 +45,7 @@ namespace MTConnect.Assets.Json
             {
                 InstanceId = header.InstanceId;
                 Version = header.Version;
+                SchemaVersion = header.SchemaVersion;
                 Sender = header.Sender;
                 AssetBufferSize = header.AssetBufferSize;
                 AssetCount = header.AssetCount;
@@ -57,6 +61,7 @@ namespace MTConnect.Assets.Json
             var header = new MTConnectAssetsHeader();
             header.InstanceId = InstanceId;
             header.Version = Version;
+            header.SchemaVersion = SchemaVersion;
             header.Sender = Sender;
             header.AssetBufferSize = AssetBufferSize;
             header.AssetCount = AssetCount;
