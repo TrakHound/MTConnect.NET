@@ -65,7 +65,18 @@ Out of scope:
 
 ## 4. Library fix (P3)
 
-See `docs/testing/issue-127/phase-03-library-fix.md`.
+- Single-file production change to
+  `libraries/MTConnect.NET-Common/Agents/MTConnectAgentBroker.cs`.
+- Four header builders route `MTConnectVersion` through a new
+  private `FormatHeaderVersion` helper that produces the four-segment
+  string (e.g. `2.5.0.0`).
+- `GetErrorHeader` gains an optional `Version` parameter; the two
+  `GetErrorResponseDocument` overloads now pass it through.
+- Six redundant `header.Version = Version.ToString()` overwrites
+  removed.
+- All 61 red tests transitioned to green; pre-existing tests in the
+  Common, XML, and SHDR test projects unaffected.
+- See `docs/testing/issue-127/phase-03-library-fix.md`.
 
 ## 5. Regression pins (P4)
 
