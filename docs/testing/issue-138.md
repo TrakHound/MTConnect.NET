@@ -27,4 +27,6 @@ XML parity pin (`XmlDataItemEmptyNameOmissionTests` in `MTConnect.NET-XML-Tests/
 
 ## 6. E2E validation (P5)
 
+In-process E2E (`JsonDevicesResponseDocumentNameOmissionE2ETests` in `MTConnect.NET-JSON-cppagent-Tests`) wires a programmatic Device through the full `JsonDevicesResponseDocument` constructor + `JsonFunctions.Convert` cppagent serializer pipeline and asserts the wire shape on a mixed named/unnamed payload. Detail: `docs/testing/issue-138/phase-05-e2e-validation.md`. Docker-based MQTT scenarios are deferred to the compliance harness in the upcoming tests plan; the surface they would exercise is identical to the in-process E2E for this fix.
+
 ## 7. Campaign summary (P6)
