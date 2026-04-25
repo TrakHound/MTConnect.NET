@@ -737,12 +737,9 @@ namespace MTConnect
 
         private string GetAgentAvailableTopic()
         {
-            if (Agent != null && _configuration != null)
-            {
-                return $"{_configuration.TopicPrefix}/{MTConnectMqttDocumentServer.ProbeTopic}/{Agent.Uuid}/Available"; ;
-            }
+            if (Agent == null || _configuration == null) return null;
 
-            return null;
+            return AvailabilityTopic.Build(_configuration.TopicPrefix, Agent.Uuid);
         }
     }
 }
