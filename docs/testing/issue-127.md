@@ -80,7 +80,15 @@ Out of scope:
 
 ## 5. Regression pins (P4)
 
-See `docs/testing/issue-127/phase-04-regression-pins.md`.
+- The P2 fixture
+  `tests/MTConnect.NET-Common-Tests/Headers/HeaderVersionRegressionTests.cs`
+  already carries the per-issue regression assertions plus the
+  repo-wide `No_response_envelope_emits_the_library_assembly_version`
+  guard. No second file authored.
+- The compliance harness project (`11-tests/` plan, P9) is not yet
+  on `upstream/master`; on its arrival, the fixture moves under the
+  L5 regression layout in that plan, not in this branch.
+- See `docs/testing/issue-127/phase-04-regression-pins.md`.
 
 ## 6. E2E validation (P5)
 
