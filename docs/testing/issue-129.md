@@ -63,7 +63,15 @@ numeric primitive or numeric-parseable string -> number; anything else
 
 ## 5. Regression pins (P4)
 
-(Filled in by phase 04.)
+`tests/MTConnect.NET-JSON-cppagent-Tests/Regressions/Issue129_NumericSampleNumberTokenTests.cs`
+pins the JSON-number-token contract for representative numeric inputs,
+preserves the `UNAVAILABLE` sentinel as a string token, locks the
+three-space carrier as a string token, and pins
+invariant-culture parsing under `de-DE` thread culture.
+`SampleValueWriteStringValueGuardTests` is a file-level grep guard
+that prohibits inline `WriteStringValue` in `JsonSampleValue.cs` and
+pins the `[JsonConverter]` attribute. See
+`docs/testing/issue-129/phase-04-regression-pins.md`.
 
 ## 6. E2E validation (P5)
 
