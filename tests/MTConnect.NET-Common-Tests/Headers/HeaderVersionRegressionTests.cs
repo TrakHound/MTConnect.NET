@@ -19,6 +19,7 @@ using System;
 using System.Linq;
 using MTConnect.Agents;
 using MTConnect.Configurations;
+using MTConnect.Devices;
 using MTConnect.Errors;
 using MTConnect.Tests.Common.TestHelpers;
 using NUnit.Framework;
@@ -47,7 +48,17 @@ namespace MTConnect.Tests.Common.Headers
             {
                 DefaultVersion = configuredVersion
             };
-            return new MTConnectAgentBroker(configuration);
+            var broker = new MTConnectAgentBroker(configuration);
+
+            // Add a device that the broker can serve at every supported
+            // MTConnect release. The default Agent device introduced in
+            // v1.7 (see MTConnect.Devices.Agent.MinimumVersion) drops
+            // out of the response below v1.7, which is unrelated to
+            // this fixture's `Header.version` assertion. Adding a
+            // bare Device keeps the response document non-null across
+            // every row of the version matrix.
+            broker.AddDevice(new Device { Uuid = "test-device", Name = "TestDevice" });
+            return broker;
         }
 
         [TestCaseSource(typeof(MTConnectVersionMatrix), nameof(MTConnectVersionMatrix.All))]
