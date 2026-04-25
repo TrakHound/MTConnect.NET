@@ -31,7 +31,15 @@ Source references:
 
 ## 2. Investigation (P1)
 
-(Filled in by phase 01.)
+Defect surface narrows to `JsonSampleValue.Value` (an untyped `object`
+property) under `libraries/MTConnect.NET-JSON-cppagent/Streams/`. The
+DataSet, Table, and TimeSeries representation carriers already branch
+between numeric and string output via their dedicated converters; the
+scalar Sample case has no converter and falls through to the default
+`System.Text.Json` `object`-property handling, which emits the
+underlying `string` value as a JSON string token. See
+`docs/testing/issue-129/phase-01-defect-scoping.md` for the full
+inventory + spec references.
 
 ## 3. Red tests (P2)
 
