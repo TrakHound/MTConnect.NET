@@ -19,10 +19,9 @@ namespace MTConnect.Devices.Components
         {{ if (minimum_version_enum) }}public override System.Version MinimumVersion => {{minimum_version_enum}};{{ end }} 
 
 
-        public {{name}}() 
-        { 
+        public {{name}}()
+        {
             Type = TypeId;
-            Name = NameId;
         }
     }
 }
