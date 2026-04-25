@@ -27,6 +27,12 @@ selected.
 
 ## 3. Red tests (P2)
 
+See [`issue-134/phase-02-red-tests.md`](issue-134/phase-02-red-tests.md).
+
+`tests/MTConnect.NET-Common-Tests/Devices/OrganizersSystemsTests.cs` adds 58
+parametric NUnit cases under `[Category("OrganizersSystemsSubstitutionGroup")]`;
+18 fail on HEAD for the right reason (missing members + asymmetric peer depth).
+
 ## 4. Library fix (P3)
 
 ## 5. Regression pins (P4)
