@@ -104,5 +104,78 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Streams
             Assert.That(doc.RootElement.TryGetProperty("value", out _), Is.False,
                 "Null Value should be omitted by JsonIgnoreCondition.WhenWritingDefault");
         }
+
+        [Test]
+        public void Bool_sample_value_emits_string_token_via_invariant_format()
+        {
+            // A non-string non-numeric runtime type falls through to the
+            // converter's invariant string-format fallback. Pin the shape
+            // so a future converter change keeps the wire predictable.
+            var token = SerializeAndGetValue(true);
+
+            Assert.That(token.ValueKind, Is.EqualTo(JsonValueKind.String));
+            Assert.That(token.GetString(), Is.EqualTo("True"));
+        }
+
+        [Test]
+        public void Boxed_null_is_written_as_null_token_when_emitted()
+        {
+            // The carrier omits null Values via
+            // JsonIgnoreCondition.WhenWritingDefault, so the converter's
+            // null-handling branch is reached only when the converter is
+            // applied directly. Exercise that path explicitly so the
+            // defensive branch in JsonSampleValueConverter.Write is
+            // covered.
+            var converter = new MTConnect.NET_JSON_cppagent.Streams.JsonSampleValueConverter();
+            var options = new System.Text.Json.JsonSerializerOptions();
+            options.Converters.Add(converter);
+
+            var json = System.Text.Json.JsonSerializer.Serialize<object?>(null, options);
+
+            Assert.That(json, Is.EqualTo("null"));
+        }
+
+        [Test]
+        public void Read_returns_double_for_number_token()
+        {
+            // The converter's Read path is exercised here directly so its
+            // Number branch is covered without relying on a higher-level
+            // round-trip.
+            var converter = new MTConnect.NET_JSON_cppagent.Streams.JsonSampleValueConverter();
+            var options = new System.Text.Json.JsonSerializerOptions();
+            options.Converters.Add(converter);
+
+            var result = System.Text.Json.JsonSerializer.Deserialize<object>("42.5", options);
+
+            Assert.That(result, Is.InstanceOf<double>());
+            Assert.That((double)result!, Is.EqualTo(42.5).Within(1e-9));
+        }
+
+        [Test]
+        public void Read_returns_string_for_string_token()
+        {
+            var converter = new MTConnect.NET_JSON_cppagent.Streams.JsonSampleValueConverter();
+            var options = new System.Text.Json.JsonSerializerOptions();
+            options.Converters.Add(converter);
+
+            var result = System.Text.Json.JsonSerializer.Deserialize<object>("\"UNAVAILABLE\"", options);
+
+            Assert.That(result, Is.InstanceOf<string>());
+            Assert.That((string)result!, Is.EqualTo("UNAVAILABLE"));
+        }
+
+        [Test]
+        public void Read_returns_null_for_unsupported_token()
+        {
+            var converter = new MTConnect.NET_JSON_cppagent.Streams.JsonSampleValueConverter();
+            var options = new System.Text.Json.JsonSerializerOptions();
+            options.Converters.Add(converter);
+
+            // Boolean token kind is neither Number nor String — converter's
+            // default branch returns null after TrySkip.
+            var result = System.Text.Json.JsonSerializer.Deserialize<object>("true", options);
+
+            Assert.That(result, Is.Null);
+        }
     }
 }
