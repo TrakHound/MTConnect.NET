@@ -469,6 +469,11 @@ namespace MTConnect.Streams.Json
                 if (!VolumeSpatialTable.IsNullOrEmpty()) foreach (var x in VolumeSpatialTable) l.Add(x.ToObservation(VolumeSpatialDataItem.TypeId));
                 if (!VolumeSpatialTimeSeries.IsNullOrEmpty()) foreach (var x in VolumeSpatialTimeSeries) l.Add(x.ToObservation(VolumeSpatialDataItem.TypeId));
 
+                if (!WaterHardness.IsNullOrEmpty()) foreach (var x in WaterHardness) l.Add(x.ToObservation(WaterHardnessDataItem.TypeId));
+                if (!WaterHardnessDataSet.IsNullOrEmpty()) foreach (var x in WaterHardnessDataSet) l.Add(x.ToObservation(WaterHardnessDataItem.TypeId));
+                if (!WaterHardnessTable.IsNullOrEmpty()) foreach (var x in WaterHardnessTable) l.Add(x.ToObservation(WaterHardnessDataItem.TypeId));
+                if (!WaterHardnessTimeSeries.IsNullOrEmpty()) foreach (var x in WaterHardnessTimeSeries) l.Add(x.ToObservation(WaterHardnessDataItem.TypeId));
+
                 if (!Wattage.IsNullOrEmpty()) foreach (var x in Wattage) l.Add(x.ToObservation(WattageDataItem.TypeId));
                 if (!WattageDataSet.IsNullOrEmpty()) foreach (var x in WattageDataSet) l.Add(x.ToObservation(WattageDataItem.TypeId));
                 if (!WattageTable.IsNullOrEmpty()) foreach (var x in WattageTable) l.Add(x.ToObservation(WattageDataItem.TypeId));
@@ -1661,6 +1666,19 @@ namespace MTConnect.Streams.Json
 
         [JsonPropertyName("VolumeSpatialTimeSeries")]
         public IEnumerable<JsonSampleTimeSeries> VolumeSpatialTimeSeries { get; set; }
+
+
+        [JsonPropertyName("WaterHardness")]
+        public IEnumerable<JsonSampleValue> WaterHardness { get; set; }
+
+        [JsonPropertyName("WaterHardnessDataSet")]
+        public IEnumerable<JsonSampleDataSet> WaterHardnessDataSet { get; set; }
+
+        [JsonPropertyName("WaterHardnessTable")]
+        public IEnumerable<JsonSampleTable> WaterHardnessTable { get; set; }
+
+        [JsonPropertyName("WaterHardnessTimeSeries")]
+        public IEnumerable<JsonSampleTimeSeries> WaterHardnessTimeSeries { get; set; }
 
 
         [JsonPropertyName("Wattage")]
@@ -6132,6 +6150,55 @@ namespace MTConnect.Streams.Json
                             jsonObservations.Add(new JsonSampleTimeSeries(observation));
                         }
                         VolumeSpatialTimeSeries = jsonObservations;
+                    }
+
+
+                    // Add WaterHardness
+                    typeObservations = observations.Where(o => o.Type == WaterHardnessDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonSampleValue>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonSampleValue(observation));
+                        }
+                        WaterHardness = jsonObservations;
+                    }
+
+                    // Add WaterHardnessDataSet
+                    typeObservations = observations.Where(o => o.Type == WaterHardnessDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonSampleDataSet>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonSampleDataSet(observation));
+                        }
+                        WaterHardnessDataSet = jsonObservations;
+                    }
+
+                    // Add WaterHardnessTable
+                    typeObservations = observations.Where(o => o.Type == WaterHardnessDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonSampleTable>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonSampleTable(observation));
+                        }
+                        WaterHardnessTable = jsonObservations;
+                    }
+
+                    // Add WaterHardnessTimeSeries
+                    typeObservations = observations.Where(o => o.Type == WaterHardnessDataItem.TypeId && o.Representation == DataItemRepresentation.TIME_SERIES);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonSampleTimeSeries>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonSampleTimeSeries(observation));
+                        }
+                        WaterHardnessTimeSeries = jsonObservations;
                     }
 
 

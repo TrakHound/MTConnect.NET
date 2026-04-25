@@ -6,7 +6,7 @@
 namespace MTConnect.Devices.DataItems
 {
     /// <summary>
-    /// Identifier of a material used or consumed in the manufacturing process.
+    /// Identifier of a material used or consumed in the manufacturing process
     /// </summary>
     public class MaterialDataItem : DataItem
     {
@@ -15,11 +15,30 @@ namespace MTConnect.Devices.DataItems
         public const string NameId = "material";
              
              
-        public new const string DescriptionText = "Identifier of a material used or consumed in the manufacturing process.";
+        public new const string DescriptionText = "Identifier of a material used or consumed in the manufacturing process";
         
         public override string TypeDescription => DescriptionText;
         
         public override System.Version MinimumVersion => MTConnectVersions.Version14;       
+
+
+        public enum SubTypes
+        {
+            /// <summary>
+            /// ELECTRODE
+            /// </summary>
+            ELECTRODE,
+            
+            /// <summary>
+            /// GAS
+            /// </summary>
+            GAS,
+            
+            /// <summary>
+            /// FILLER
+            /// </summary>
+            FILLER
+        }
 
 
         public MaterialDataItem()
@@ -31,14 +50,46 @@ namespace MTConnect.Devices.DataItems
             
         }
 
-        public MaterialDataItem(string deviceId)
+        public MaterialDataItem(
+            string parentId,
+            SubTypes subType
+            )
         {
-            Id = CreateId(deviceId, NameId);
+            Id = CreateId(parentId, NameId, GetSubTypeId(subType));
             Category = CategoryId;
             Type = TypeId;
+            SubType = subType.ToString();
             Name = NameId;
              
             
         }
+
+        public override string SubTypeDescription => GetSubTypeDescription(SubType);
+
+        public static string GetSubTypeDescription(string subType)
+        {
+            var s = subType.ConvertEnum<SubTypes>();
+            switch (s)
+            {
+                case SubTypes.ELECTRODE: return "ELECTRODE";
+                case SubTypes.GAS: return "GAS";
+                case SubTypes.FILLER: return "FILLER";
+            }
+
+            return null;
+        }
+
+        public static string GetSubTypeId(SubTypes subType)
+        {
+            switch (subType)
+            {
+                case SubTypes.ELECTRODE: return "ELECTRODE";
+                case SubTypes.GAS: return "GAS";
+                case SubTypes.FILLER: return "FILLER";
+            }
+
+            return null;
+        }
+
     }
 }

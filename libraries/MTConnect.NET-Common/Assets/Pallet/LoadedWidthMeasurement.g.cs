@@ -6,11 +6,11 @@
 namespace MTConnect.Assets.Pallet
 {
     /// <summary>
-    /// Loaded width of the PhysicalAsset.
+    /// Loaded width of the PhysicalAsset
     /// </summary>
     public class LoadedWidthMeasurement : Measurement, ILoadedWidthMeasurement
     {
-        public new const string DescriptionText = "Loaded width of the PhysicalAsset.";
+        public new const string DescriptionText = "Loaded width of the PhysicalAsset";
 
 
     }

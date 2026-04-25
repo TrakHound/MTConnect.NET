@@ -4,7 +4,7 @@
 namespace MTConnect.Assets.Pallet
 {
     /// <summary>
-    /// Constrained scalar value associated with an Asset.
+    /// Constrained scalar value associated with an Asset
     /// </summary>
     public interface IMeasurement
     {

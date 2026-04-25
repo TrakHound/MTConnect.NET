@@ -131,6 +131,11 @@ namespace MTConnect.Devices
         public const string MILLIGRAM_PER_CUBIC_MILLIMETER = "Density in milligram per cubic millimeter.";
         
         /// <summary>
+        /// Concentration of a dissolved substance in milligram per liter
+        /// </summary>
+        public const string MILLIGRAM_PER_LITER = "Concentration of a dissolved substance in milligram per liter";
+        
+        /// <summary>
         /// Volume in milliliter.
         /// </summary>
         public const string MILLILITER = "Volume in milliliter.";
@@ -295,6 +300,7 @@ namespace MTConnect.Devices
                 case Units.MICRO_RADIAN: return "Tilt in micro radian.";
                 case Units.MILLIGRAM: return "Mass in milligram.";
                 case Units.MILLIGRAM_PER_CUBIC_MILLIMETER: return "Density in milligram per cubic millimeter.";
+                case Units.MILLIGRAM_PER_LITER: return "Concentration of a dissolved substance in milligram per liter";
                 case Units.MILLILITER: return "Volume in milliliter.";
                 case Units.MILLIMETER: return "Length in millimeter.";
                 case Units.MILLIMETER_3D: return "Point in space identified by X, Y, and Z positions and represented by a space-delimited set of numbers each expressed in millimeters.";

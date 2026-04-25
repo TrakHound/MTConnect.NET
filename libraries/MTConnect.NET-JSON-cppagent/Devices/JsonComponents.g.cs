@@ -274,6 +274,10 @@ namespace MTConnect.Devices.Json
         public IEnumerable<JsonComponent> Personnel { get; set; }
 
 
+        [JsonPropertyName("PinTool")]
+        public IEnumerable<JsonComponent> PinTool { get; set; }
+
+
         [JsonPropertyName("Pneumatic")]
         public IEnumerable<JsonComponent> Pneumatic { get; set; }
 
@@ -412,6 +416,10 @@ namespace MTConnect.Devices.Json
 
         [JsonPropertyName("Thermostat")]
         public IEnumerable<JsonComponent> Thermostat { get; set; }
+
+
+        [JsonPropertyName("ToolHolder")]
+        public IEnumerable<JsonComponent> ToolHolder { get; set; }
 
 
         [JsonPropertyName("ToolingDelivery")]
@@ -617,6 +625,8 @@ namespace MTConnect.Devices.Json
 
                 Personnel = GetComponents(components, PersonnelComponent.TypeId);
 
+                PinTool = GetComponents(components, PinToolComponent.TypeId);
+
                 Pneumatic = GetComponents(components, PneumaticComponent.TypeId);
 
                 Pot = GetComponents(components, PotComponent.TypeId);
@@ -686,6 +696,8 @@ namespace MTConnect.Devices.Json
                 Tensioner = GetComponents(components, TensionerComponent.TypeId);
 
                 Thermostat = GetComponents(components, ThermostatComponent.TypeId);
+
+                ToolHolder = GetComponents(components, ToolHolderComponent.TypeId);
 
                 ToolingDelivery = GetComponents(components, ToolingDeliveryComponent.TypeId);
 
@@ -874,6 +886,8 @@ namespace MTConnect.Devices.Json
 
             if (!Personnel.IsNullOrEmpty()) foreach (var component in Personnel) components.Add(component.ToComponent(PersonnelComponent.TypeId));
 
+            if (!PinTool.IsNullOrEmpty()) foreach (var component in PinTool) components.Add(component.ToComponent(PinToolComponent.TypeId));
+
             if (!Pneumatic.IsNullOrEmpty()) foreach (var component in Pneumatic) components.Add(component.ToComponent(PneumaticComponent.TypeId));
 
             if (!Pot.IsNullOrEmpty()) foreach (var component in Pot) components.Add(component.ToComponent(PotComponent.TypeId));
@@ -943,6 +957,8 @@ namespace MTConnect.Devices.Json
             if (!Tensioner.IsNullOrEmpty()) foreach (var component in Tensioner) components.Add(component.ToComponent(TensionerComponent.TypeId));
 
             if (!Thermostat.IsNullOrEmpty()) foreach (var component in Thermostat) components.Add(component.ToComponent(ThermostatComponent.TypeId));
+
+            if (!ToolHolder.IsNullOrEmpty()) foreach (var component in ToolHolder) components.Add(component.ToComponent(ToolHolderComponent.TypeId));
 
             if (!ToolingDelivery.IsNullOrEmpty()) foreach (var component in ToolingDelivery) components.Add(component.ToComponent(ToolingDeliveryComponent.TypeId));
 

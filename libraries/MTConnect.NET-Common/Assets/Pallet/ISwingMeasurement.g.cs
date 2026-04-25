@@ -4,7 +4,7 @@
 namespace MTConnect.Assets.Pallet
 {
     /// <summary>
-    /// Swing of the PhysicalAsset.
+    /// Swing of the PhysicalAsset
     /// </summary>
     public interface ISwingMeasurement : IMeasurement
     {

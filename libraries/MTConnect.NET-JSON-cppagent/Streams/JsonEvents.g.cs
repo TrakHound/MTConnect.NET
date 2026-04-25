@@ -103,6 +103,10 @@ namespace MTConnect.Streams.Json
                 if (!BatteryStateDataSet.IsNullOrEmpty()) foreach (var x in BatteryStateDataSet) l.Add(x.ToObservation(BatteryStateDataItem.TypeId));
                 if (!BatteryStateTable.IsNullOrEmpty()) foreach (var x in BatteryStateTable) l.Add(x.ToObservation(BatteryStateDataItem.TypeId));
 
+                if (!BindingState.IsNullOrEmpty()) foreach (var x in BindingState) l.Add(x.ToObservation(BindingStateDataItem.TypeId));
+                if (!BindingStateDataSet.IsNullOrEmpty()) foreach (var x in BindingStateDataSet) l.Add(x.ToObservation(BindingStateDataItem.TypeId));
+                if (!BindingStateTable.IsNullOrEmpty()) foreach (var x in BindingStateTable) l.Add(x.ToObservation(BindingStateDataItem.TypeId));
+
                 if (!Block.IsNullOrEmpty()) foreach (var x in Block) l.Add(x.ToObservation(BlockDataItem.TypeId));
                 if (!BlockDataSet.IsNullOrEmpty()) foreach (var x in BlockDataSet) l.Add(x.ToObservation(BlockDataItem.TypeId));
                 if (!BlockTable.IsNullOrEmpty()) foreach (var x in BlockTable) l.Add(x.ToObservation(BlockDataItem.TypeId));
@@ -179,6 +183,10 @@ namespace MTConnect.Streams.Json
                 if (!DeactivationCountDataSet.IsNullOrEmpty()) foreach (var x in DeactivationCountDataSet) l.Add(x.ToObservation(DeactivationCountDataItem.TypeId));
                 if (!DeactivationCountTable.IsNullOrEmpty()) foreach (var x in DeactivationCountTable) l.Add(x.ToObservation(DeactivationCountDataItem.TypeId));
 
+                if (!Depth.IsNullOrEmpty()) foreach (var x in Depth) l.Add(x.ToObservation(DepthDataItem.TypeId));
+                if (!DepthDataSet.IsNullOrEmpty()) foreach (var x in DepthDataSet) l.Add(x.ToObservation(DepthDataItem.TypeId));
+                if (!DepthTable.IsNullOrEmpty()) foreach (var x in DepthTable) l.Add(x.ToObservation(DepthDataItem.TypeId));
+
                 if (!DeviceAdded.IsNullOrEmpty()) foreach (var x in DeviceAdded) l.Add(x.ToObservation(DeviceAddedDataItem.TypeId));
                 if (!DeviceAddedDataSet.IsNullOrEmpty()) foreach (var x in DeviceAddedDataSet) l.Add(x.ToObservation(DeviceAddedDataItem.TypeId));
                 if (!DeviceAddedTable.IsNullOrEmpty()) foreach (var x in DeviceAddedTable) l.Add(x.ToObservation(DeviceAddedDataItem.TypeId));
@@ -226,6 +234,10 @@ namespace MTConnect.Streams.Json
                 if (!Firmware.IsNullOrEmpty()) foreach (var x in Firmware) l.Add(x.ToObservation(FirmwareDataItem.TypeId));
                 if (!FirmwareDataSet.IsNullOrEmpty()) foreach (var x in FirmwareDataSet) l.Add(x.ToObservation(FirmwareDataItem.TypeId));
                 if (!FirmwareTable.IsNullOrEmpty()) foreach (var x in FirmwareTable) l.Add(x.ToObservation(FirmwareDataItem.TypeId));
+
+                if (!FixtureAssetId.IsNullOrEmpty()) foreach (var x in FixtureAssetId) l.Add(x.ToObservation(FixtureAssetIdDataItem.TypeId));
+                if (!FixtureAssetIdDataSet.IsNullOrEmpty()) foreach (var x in FixtureAssetIdDataSet) l.Add(x.ToObservation(FixtureAssetIdDataItem.TypeId));
+                if (!FixtureAssetIdTable.IsNullOrEmpty()) foreach (var x in FixtureAssetIdTable) l.Add(x.ToObservation(FixtureAssetIdDataItem.TypeId));
 
                 if (!FixtureId.IsNullOrEmpty()) foreach (var x in FixtureId) l.Add(x.ToObservation(FixtureIdDataItem.TypeId));
                 if (!FixtureIdDataSet.IsNullOrEmpty()) foreach (var x in FixtureIdDataSet) l.Add(x.ToObservation(FixtureIdDataItem.TypeId));
@@ -490,6 +502,22 @@ namespace MTConnect.Streams.Json
                 if (!SpindleInterlock.IsNullOrEmpty()) foreach (var x in SpindleInterlock) l.Add(x.ToObservation(SpindleInterlockDataItem.TypeId));
                 if (!SpindleInterlockDataSet.IsNullOrEmpty()) foreach (var x in SpindleInterlockDataSet) l.Add(x.ToObservation(SpindleInterlockDataItem.TypeId));
                 if (!SpindleInterlockTable.IsNullOrEmpty()) foreach (var x in SpindleInterlockTable) l.Add(x.ToObservation(SpindleInterlockDataItem.TypeId));
+
+                if (!SwingAngle.IsNullOrEmpty()) foreach (var x in SwingAngle) l.Add(x.ToObservation(SwingAngleDataItem.TypeId));
+                if (!SwingAngleDataSet.IsNullOrEmpty()) foreach (var x in SwingAngleDataSet) l.Add(x.ToObservation(SwingAngleDataItem.TypeId));
+                if (!SwingAngleTable.IsNullOrEmpty()) foreach (var x in SwingAngleTable) l.Add(x.ToObservation(SwingAngleDataItem.TypeId));
+
+                if (!SwingDiameter.IsNullOrEmpty()) foreach (var x in SwingDiameter) l.Add(x.ToObservation(SwingDiameterDataItem.TypeId));
+                if (!SwingDiameterDataSet.IsNullOrEmpty()) foreach (var x in SwingDiameterDataSet) l.Add(x.ToObservation(SwingDiameterDataItem.TypeId));
+                if (!SwingDiameterTable.IsNullOrEmpty()) foreach (var x in SwingDiameterTable) l.Add(x.ToObservation(SwingDiameterDataItem.TypeId));
+
+                if (!SwingRadius.IsNullOrEmpty()) foreach (var x in SwingRadius) l.Add(x.ToObservation(SwingRadiusDataItem.TypeId));
+                if (!SwingRadiusDataSet.IsNullOrEmpty()) foreach (var x in SwingRadiusDataSet) l.Add(x.ToObservation(SwingRadiusDataItem.TypeId));
+                if (!SwingRadiusTable.IsNullOrEmpty()) foreach (var x in SwingRadiusTable) l.Add(x.ToObservation(SwingRadiusDataItem.TypeId));
+
+                if (!TaskAssetId.IsNullOrEmpty()) foreach (var x in TaskAssetId) l.Add(x.ToObservation(TaskAssetIdDataItem.TypeId));
+                if (!TaskAssetIdDataSet.IsNullOrEmpty()) foreach (var x in TaskAssetIdDataSet) l.Add(x.ToObservation(TaskAssetIdDataItem.TypeId));
+                if (!TaskAssetIdTable.IsNullOrEmpty()) foreach (var x in TaskAssetIdTable) l.Add(x.ToObservation(TaskAssetIdDataItem.TypeId));
 
                 if (!Thickness.IsNullOrEmpty()) foreach (var x in Thickness) l.Add(x.ToObservation(ThicknessDataItem.TypeId));
                 if (!ThicknessDataSet.IsNullOrEmpty()) foreach (var x in ThicknessDataSet) l.Add(x.ToObservation(ThicknessDataItem.TypeId));
@@ -789,6 +817,16 @@ namespace MTConnect.Streams.Json
         public IEnumerable<JsonEventTable> BatteryStateTable { get; set; }
 
 
+        [JsonPropertyName("BindingState")]
+        public IEnumerable<JsonEventValue> BindingState { get; set; }
+
+        [JsonPropertyName("BindingStateDataSet")]
+        public IEnumerable<JsonEventDataSet> BindingStateDataSet { get; set; }
+
+        [JsonPropertyName("BindingStateTable")]
+        public IEnumerable<JsonEventTable> BindingStateTable { get; set; }
+
+
         [JsonPropertyName("Block")]
         public IEnumerable<JsonEventValue> Block { get; set; }
 
@@ -979,6 +1017,16 @@ namespace MTConnect.Streams.Json
         public IEnumerable<JsonEventTable> DeactivationCountTable { get; set; }
 
 
+        [JsonPropertyName("Depth")]
+        public IEnumerable<JsonEventValue> Depth { get; set; }
+
+        [JsonPropertyName("DepthDataSet")]
+        public IEnumerable<JsonEventDataSet> DepthDataSet { get; set; }
+
+        [JsonPropertyName("DepthTable")]
+        public IEnumerable<JsonEventTable> DepthTable { get; set; }
+
+
         [JsonPropertyName("DeviceAdded")]
         public IEnumerable<JsonEventValue> DeviceAdded { get; set; }
 
@@ -1097,6 +1145,16 @@ namespace MTConnect.Streams.Json
 
         [JsonPropertyName("FirmwareTable")]
         public IEnumerable<JsonEventTable> FirmwareTable { get; set; }
+
+
+        [JsonPropertyName("FixtureAssetId")]
+        public IEnumerable<JsonEventValue> FixtureAssetId { get; set; }
+
+        [JsonPropertyName("FixtureAssetIdDataSet")]
+        public IEnumerable<JsonEventDataSet> FixtureAssetIdDataSet { get; set; }
+
+        [JsonPropertyName("FixtureAssetIdTable")]
+        public IEnumerable<JsonEventTable> FixtureAssetIdTable { get; set; }
 
 
         [JsonPropertyName("FixtureId")]
@@ -1757,6 +1815,46 @@ namespace MTConnect.Streams.Json
 
         [JsonPropertyName("SpindleInterlockTable")]
         public IEnumerable<JsonEventTable> SpindleInterlockTable { get; set; }
+
+
+        [JsonPropertyName("SwingAngle")]
+        public IEnumerable<JsonEventValue> SwingAngle { get; set; }
+
+        [JsonPropertyName("SwingAngleDataSet")]
+        public IEnumerable<JsonEventDataSet> SwingAngleDataSet { get; set; }
+
+        [JsonPropertyName("SwingAngleTable")]
+        public IEnumerable<JsonEventTable> SwingAngleTable { get; set; }
+
+
+        [JsonPropertyName("SwingDiameter")]
+        public IEnumerable<JsonEventValue> SwingDiameter { get; set; }
+
+        [JsonPropertyName("SwingDiameterDataSet")]
+        public IEnumerable<JsonEventDataSet> SwingDiameterDataSet { get; set; }
+
+        [JsonPropertyName("SwingDiameterTable")]
+        public IEnumerable<JsonEventTable> SwingDiameterTable { get; set; }
+
+
+        [JsonPropertyName("SwingRadius")]
+        public IEnumerable<JsonEventValue> SwingRadius { get; set; }
+
+        [JsonPropertyName("SwingRadiusDataSet")]
+        public IEnumerable<JsonEventDataSet> SwingRadiusDataSet { get; set; }
+
+        [JsonPropertyName("SwingRadiusTable")]
+        public IEnumerable<JsonEventTable> SwingRadiusTable { get; set; }
+
+
+        [JsonPropertyName("TaskAssetId")]
+        public IEnumerable<JsonEventValue> TaskAssetId { get; set; }
+
+        [JsonPropertyName("TaskAssetIdDataSet")]
+        public IEnumerable<JsonEventDataSet> TaskAssetIdDataSet { get; set; }
+
+        [JsonPropertyName("TaskAssetIdTable")]
+        public IEnumerable<JsonEventTable> TaskAssetIdTable { get; set; }
 
 
         [JsonPropertyName("Thickness")]
@@ -2756,6 +2854,43 @@ namespace MTConnect.Streams.Json
                     }
 
 
+                    // Add BindingState
+                    typeObservations = observations.Where(o => o.Type == BindingStateDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventValue>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventValue(observation));
+                        }
+                        BindingState = jsonObservations;
+                    }
+
+                    // Add BindingStateDataSet
+                    typeObservations = observations.Where(o => o.Type == BindingStateDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventDataSet>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventDataSet(observation));
+                        }
+                        BindingStateDataSet = jsonObservations;
+                    }
+
+                    // Add BindingStateTable
+                    typeObservations = observations.Where(o => o.Type == BindingStateDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventTable>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventTable(observation));
+                        }
+                        BindingStateTable = jsonObservations;
+                    }
+
+
                     // Add Block
                     typeObservations = observations.Where(o => o.Type == BlockDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
@@ -3459,6 +3594,43 @@ namespace MTConnect.Streams.Json
                     }
 
 
+                    // Add Depth
+                    typeObservations = observations.Where(o => o.Type == DepthDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventValue>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventValue(observation));
+                        }
+                        Depth = jsonObservations;
+                    }
+
+                    // Add DepthDataSet
+                    typeObservations = observations.Where(o => o.Type == DepthDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventDataSet>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventDataSet(observation));
+                        }
+                        DepthDataSet = jsonObservations;
+                    }
+
+                    // Add DepthTable
+                    typeObservations = observations.Where(o => o.Type == DepthDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventTable>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventTable(observation));
+                        }
+                        DepthTable = jsonObservations;
+                    }
+
+
                     // Add DeviceAdded
                     typeObservations = observations.Where(o => o.Type == DeviceAddedDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
                     if (!typeObservations.IsNullOrEmpty())
@@ -3900,6 +4072,43 @@ namespace MTConnect.Streams.Json
                             jsonObservations.Add(new JsonEventTable(observation));
                         }
                         FirmwareTable = jsonObservations;
+                    }
+
+
+                    // Add FixtureAssetId
+                    typeObservations = observations.Where(o => o.Type == FixtureAssetIdDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventValue>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventValue(observation));
+                        }
+                        FixtureAssetId = jsonObservations;
+                    }
+
+                    // Add FixtureAssetIdDataSet
+                    typeObservations = observations.Where(o => o.Type == FixtureAssetIdDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventDataSet>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventDataSet(observation));
+                        }
+                        FixtureAssetIdDataSet = jsonObservations;
+                    }
+
+                    // Add FixtureAssetIdTable
+                    typeObservations = observations.Where(o => o.Type == FixtureAssetIdDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventTable>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventTable(observation));
+                        }
+                        FixtureAssetIdTable = jsonObservations;
                     }
 
 
@@ -6342,6 +6551,154 @@ namespace MTConnect.Streams.Json
                             jsonObservations.Add(new JsonEventTable(observation));
                         }
                         SpindleInterlockTable = jsonObservations;
+                    }
+
+
+                    // Add SwingAngle
+                    typeObservations = observations.Where(o => o.Type == SwingAngleDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventValue>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventValue(observation));
+                        }
+                        SwingAngle = jsonObservations;
+                    }
+
+                    // Add SwingAngleDataSet
+                    typeObservations = observations.Where(o => o.Type == SwingAngleDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventDataSet>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventDataSet(observation));
+                        }
+                        SwingAngleDataSet = jsonObservations;
+                    }
+
+                    // Add SwingAngleTable
+                    typeObservations = observations.Where(o => o.Type == SwingAngleDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventTable>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventTable(observation));
+                        }
+                        SwingAngleTable = jsonObservations;
+                    }
+
+
+                    // Add SwingDiameter
+                    typeObservations = observations.Where(o => o.Type == SwingDiameterDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventValue>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventValue(observation));
+                        }
+                        SwingDiameter = jsonObservations;
+                    }
+
+                    // Add SwingDiameterDataSet
+                    typeObservations = observations.Where(o => o.Type == SwingDiameterDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventDataSet>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventDataSet(observation));
+                        }
+                        SwingDiameterDataSet = jsonObservations;
+                    }
+
+                    // Add SwingDiameterTable
+                    typeObservations = observations.Where(o => o.Type == SwingDiameterDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventTable>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventTable(observation));
+                        }
+                        SwingDiameterTable = jsonObservations;
+                    }
+
+
+                    // Add SwingRadius
+                    typeObservations = observations.Where(o => o.Type == SwingRadiusDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventValue>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventValue(observation));
+                        }
+                        SwingRadius = jsonObservations;
+                    }
+
+                    // Add SwingRadiusDataSet
+                    typeObservations = observations.Where(o => o.Type == SwingRadiusDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventDataSet>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventDataSet(observation));
+                        }
+                        SwingRadiusDataSet = jsonObservations;
+                    }
+
+                    // Add SwingRadiusTable
+                    typeObservations = observations.Where(o => o.Type == SwingRadiusDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventTable>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventTable(observation));
+                        }
+                        SwingRadiusTable = jsonObservations;
+                    }
+
+
+                    // Add TaskAssetId
+                    typeObservations = observations.Where(o => o.Type == TaskAssetIdDataItem.TypeId && o.Representation == DataItemRepresentation.VALUE);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventValue>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventValue(observation));
+                        }
+                        TaskAssetId = jsonObservations;
+                    }
+
+                    // Add TaskAssetIdDataSet
+                    typeObservations = observations.Where(o => o.Type == TaskAssetIdDataItem.TypeId && o.Representation == DataItemRepresentation.DATA_SET);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventDataSet>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventDataSet(observation));
+                        }
+                        TaskAssetIdDataSet = jsonObservations;
+                    }
+
+                    // Add TaskAssetIdTable
+                    typeObservations = observations.Where(o => o.Type == TaskAssetIdDataItem.TypeId && o.Representation == DataItemRepresentation.TABLE);
+                    if (!typeObservations.IsNullOrEmpty())
+                    {
+                        var jsonObservations = new List<JsonEventTable>();
+                        foreach (var observation in typeObservations)
+                        {
+                            jsonObservations.Add(new JsonEventTable(observation));
+                        }
+                        TaskAssetIdTable = jsonObservations;
                     }
 
 

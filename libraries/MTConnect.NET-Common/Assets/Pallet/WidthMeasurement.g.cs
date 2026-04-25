@@ -6,11 +6,11 @@
 namespace MTConnect.Assets.Pallet
 {
     /// <summary>
-    /// Width of the PhysicalAsset.
+    /// Width of the PhysicalAsset
     /// </summary>
     public class WidthMeasurement : Measurement, IWidthMeasurement
     {
-        public new const string DescriptionText = "Width of the PhysicalAsset.";
+        public new const string DescriptionText = "Width of the PhysicalAsset";
 
 
     }

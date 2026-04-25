@@ -6,11 +6,11 @@
 namespace MTConnect.Devices.Configurations
 {
     /// <summary>
-    /// ConfigurationRelationship that describes the association between a Component or an Asset and another {{block(Component).
+    /// ConfigurationRelationship that describes the association between a Component or an Asset and another Component.
     /// </summary>
     public class ComponentRelationship : ConfigurationRelationship, IComponentRelationship
     {
-        public new const string DescriptionText = "ConfigurationRelationship that describes the association between a Component or an Asset and another {{block(Component).";
+        public new const string DescriptionText = "ConfigurationRelationship that describes the association between a Component or an Asset and another Component.";
 
 
         /// <summary>

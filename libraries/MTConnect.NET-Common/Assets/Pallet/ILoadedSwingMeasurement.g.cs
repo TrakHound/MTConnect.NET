@@ -4,7 +4,7 @@
 namespace MTConnect.Assets.Pallet
 {
     /// <summary>
-    /// Loaded swing of the PhysicalAsset.
+    /// Loaded swing of the PhysicalAsset
     /// </summary>
     public interface ILoadedSwingMeasurement : IMeasurement
     {
