@@ -75,8 +75,33 @@ pins the `[JsonConverter]` attribute. See
 
 ## 6. E2E validation (P5)
 
-(Filled in by phase 05.)
+`tests/MTConnect.NET-JSON-cppagent-Tests/E2E/SampleValueWireFormatE2ETests.cs`
+exercises the `IObservation -> JsonSampleValue -> JsonSerializer`
+path end-to-end and pins the wire-format tokens. Docker-gated MQTT
+round-trip scenarios deferred to plan 11's compliance E2E project per
+the plan's local-fallback clause. See
+`docs/testing/issue-129/phase-05-e2e-validation.md`.
 
 ## 7. Campaign summary (P6)
 
-(Filled in by phase 06.)
+- **Issue**: TrakHound/MTConnect.NET#129 — JSON-cppagent emitted
+  numeric Sample values as JSON string tokens, breaking parity with
+  the cppagent reference (v2.7.0.7) and violating the XSD
+  `FloatSampleValueType` union (xs:float | "UNAVAILABLE").
+- **Root cause**: `JsonSampleValue.Value` (an `object` property) had
+  no custom converter; default `System.Text.Json` `object`-property
+  serialization wrote the underlying `string` value as a JSON string
+  token regardless of whether it represented a number.
+- **Fix**: New `JsonSampleValueConverter` writes a JSON number token
+  for numeric primitives and numeric-parseable strings; preserves
+  `Observation.Unavailable` and any non-numeric string as a JSON string
+  token. Applied via `[JsonConverter(...)]` on the property.
+- **Tests**: 33 cases under `MTConnect.NET-JSON-cppagent-Tests/`
+  covering numeric strings, boxed numerics, sentinel preservation,
+  three-space carriers, null omission, invariant-culture parsing,
+  the `[JsonConverter]` attribute pin, and the
+  inline-`WriteStringValue` grep guard.
+- **Coverage**: 100% on `JsonSampleValueConverter.cs` and the
+  modified line in `JsonSampleValue.cs` (the `[JsonConverter]`
+  attribute). See `docs/testing/issue-129/phase-06-finalisation.md`.
+- **No public API changes**.
