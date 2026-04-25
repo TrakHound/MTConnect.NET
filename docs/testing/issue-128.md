@@ -51,4 +51,13 @@ See `docs/testing/issue-128/phase-04-regression-pins.md`.
 
 ## 6. E2E validation (P5)
 
+Deferred — Docker-gated MQTT round-trip requires `Testcontainers` /
+`MQTTnet` infrastructure that lives on `feat/issue-133`. Authoring it
+here would silently duplicate that branch's deliverables. The
+unit-level matrix in P2/P3/P4 covers the entire formatter contract;
+E2E is a follow-up commit on this PR after #133 merges and the rebase
+makes the infrastructure available.
+
+See `docs/testing/issue-128/phase-05-e2e-validation.md`.
+
 ## 7. Campaign summary (P6)
