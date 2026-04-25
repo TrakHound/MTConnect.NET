@@ -46,25 +46,14 @@ move there as part of the tests-overhaul plan (`11-tests/`).
 - `dotnet test`: `Failed: 0, Passed: 83`.
 - `Organizers.cs` coverage remains at 100% line + 100% branch + 100% method.
 
-## Edits to other plan files
-
-The plan's drafted P4 commit 3 (`docs(tests): migrate issue-134 regression
-out of compliance-gate plan`) targets
-`extra-files.user/plans/11-tests/11-compliance-regression-gates.md`. That file
-is gitignored (`extra-files.user/` is gitignored — CONVENTIONS §9) and its
-edit lands as a plan-tracker change rather than a tracked commit. Skipping
-the commit is correct per CONVENTIONS §9.
-
 ## Deviations from plan
 
 - Regression file path moved from a compliance-tests folder
   (which doesn't exist on `upstream/master` yet) to the existing
   `MTConnect.NET-Common-Tests` project.
-- Two regression tests instead of three (the plan suggested both a literal
-  pin AND parametric per-member tests; the literal pin is strictly stronger
-  because it catches both addition and removal in one assertion, so the
-  parametric variant is redundant).
-- Plan-file edit commit dropped per CONVENTIONS §9 (gitignored target).
+- Two regression tests instead of three: the literal pin is strictly stronger
+  than a per-member parametric variant because it catches both addition and
+  removal in one assertion, so the parametric variant is redundant.
 
 ## DoD
 

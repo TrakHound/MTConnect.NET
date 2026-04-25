@@ -2,9 +2,9 @@
 
 ## Executed
 
-- Cut branch `fix/issue-134` from `upstream/master` (3d6321ab) into a dedicated worktree.
+- Cut branch `fix/issue-134` from `upstream/master` (3d6321ab).
 - Seeded `docs/testing/issue-134.md` skeleton plus this writeup folder.
-- Drafted PR body skeleton at `extra-files.user/plans/02-issue-134-organizers-systems-stale/pr-body.md`.
+- Drafted the draft-PR description skeleton (per CONVENTIONS §1.3 / §1.8).
 
 ## Validation
 
@@ -14,19 +14,17 @@
 
 ## Bootstrap dependency
 
-The plan declares a soft dependency on `00-bootstrap/` (per `01-foundation.md`),
-which per `landing-coordination.md` was folded into `feat/issue-133` and has not
-yet merged. This phase therefore consumes the `tests/MTConnect.NET-Common-Tests`
-project as it exists on `upstream/master` rather than any bootstrap-scaffolded
-test harness. Coverlet runsettings, `tools/test.sh`, and the cross-OS CI workflow
-fix all live behind that bootstrap gate; this branch falls back to the local
-`dotnet test` invocation for validation.
+The cross-cutting test infrastructure (shared coverlet runsettings, the
+cross-OS `tools/test.{sh,ps1}` harness, the CI workflow rewrite) is part of
+a separate in-flight branch and has not yet merged on `upstream/master`. This
+phase therefore consumes the `tests/MTConnect.NET-Common-Tests` project as it
+exists on `upstream/master` and falls back to direct `dotnet test` invocations
+for local validation.
 
 ## Deviations from plan
 
-- Phase 0 commit subject uses scope `testing` (per CONVENTIONS §5.3 / §5.4 rule 5)
-  rather than the plan's drafted `docs(issue-134): ...`. The plan-file's drafted
-  scope `issue-134` is not a real scope under §5.3.
+- Phase 0 commit subject uses scope `testing` per CONVENTIONS §5.3 / §5.4 rule 5
+  rather than an issue-bookkeeping scope.
 
 ## Follow-ups
 

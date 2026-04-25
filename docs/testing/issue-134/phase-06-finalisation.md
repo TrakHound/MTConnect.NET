@@ -46,7 +46,7 @@
   by `MTConnectDevices_*.xsd` (`<xs:element name="Systems" ...>`) for every
   System substitution-group member, where it previously matched the XSD for
   13 of 18 members. v2.6 / v2.7 coverage extension lands when
-  `feat/issue-133` merges (per `landing-coordination.md`).
+  the v2.6 / v2.7 SysML support lands and this branch rebases on top of it.
 
 ## DoD cross-check
 
@@ -86,6 +86,6 @@ regen).
 | Add `issue-134-red` CI job under `.github/workflows/`                                            | Skipped — CONVENTIONS §1.7 forbids per-issue PRs from touching `.github/workflows/`. Red-state runs locally with the category filter.                      |
 | Regression tests under `tests/Compliance/MTConnect-Compliance-Tests/L5_Regressions/`             | Land under `tests/MTConnect.NET-Common-Tests/Devices/` instead — the compliance project does not exist on `upstream/master`.                                |
 | HTTP / MQTT-relay-Docker / cppagent-parity-Docker E2E scenarios                                  | Programmatic-construction E2E in `MTConnect.NET-Common-Tests` — required Docker / harness infrastructure not on `upstream/master`.                          |
-| Edit `extra-files.user/plans/11-tests/11-compliance-regression-gates.md` to remove issue-134 row | Skipped per CONVENTIONS §9 — `extra-files.user/` is gitignored so the edit is plan-tracker-only and does not need a tracked commit.                          |
+| Cross-reference a future compliance-regression catalogue                                       | Skipped — that catalogue lands when the compliance harness lands; cross-reference at that time.                                                              |
 
 Each deviation is justified inline in the corresponding phase writeup.
