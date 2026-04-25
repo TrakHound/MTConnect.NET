@@ -44,6 +44,11 @@ behaviour notes.
 
 ## 5. Regression pins (P4)
 
+- `Issue128_SchemaVersionConfiguredTests` — green-on-arrival regression for both envelopes × 14 versions.
+- `Issue128_HardcodedLiteralGuardTests` — regex-grep guard refusing re-introduction of any `SchemaVersion = "<literal>";` assignment in the two touched files.
+
+See `docs/testing/issue-128/phase-04-regression-pins.md`.
+
 ## 6. E2E validation (P5)
 
 ## 7. Campaign summary (P6)
