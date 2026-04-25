@@ -26,16 +26,16 @@ namespace MTConnect.Devices.Json
         public JsonMTConnectDevices()
         {
             JsonVersion = 2;
-            SchemaVersion = "2.0";
         }
 
         public JsonMTConnectDevices(IDevicesResponseDocument document)
         {
             JsonVersion = 2;
-            SchemaVersion = "2.0";
 
             if (document != null)
             {
+                SchemaVersion = document.Version?.ToString();
+
                 Header = new JsonDevicesHeader(document.Header);
 
                 Devices = new JsonDevices(document);
