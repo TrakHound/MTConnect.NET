@@ -23,6 +23,8 @@ NUnit fixtures `JsonDataItemEmptyNameOmissionTests` in both new test projects (`
 
 ## 5. Regression pins (P4)
 
+XML parity pin (`XmlDataItemEmptyNameOmissionTests` in `MTConnect.NET-XML-Tests/Devices/`) confirms the reference shape both JSON formatters now mirror. Source-grep guard (`JsonDataItemSourceGuardTests` in `MTConnect.NET-JSON-cppagent-Tests/Devices/`) prevents future regression to an unguarded `Name = dataItem.Name;` copy on either watched JSON file. Detail: `docs/testing/issue-138/phase-04-regression-pins.md`.
+
 ## 6. E2E validation (P5)
 
 ## 7. Campaign summary (P6)
