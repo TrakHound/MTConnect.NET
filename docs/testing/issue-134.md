@@ -18,6 +18,13 @@ that ..." or "System composed of ..." is a System substitution-group member.
 
 ## 2. Investigation (P1)
 
+See [`issue-134/phase-01-defect-scoping.md`](issue-134/phase-01-defect-scoping.md).
+
+Summary: 5 members missing from `Organizers.Systems` relative to the SysML
+substitution-group enumeration (`AirHandler`, `Cooling`, `Heating`, `Pressure`,
+`Vacuum`); 0 members to remove. Strategy A (hand-edit the list to the union)
+selected.
+
 ## 3. Red tests (P2)
 
 ## 4. Library fix (P3)
