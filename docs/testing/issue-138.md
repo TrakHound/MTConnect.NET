@@ -19,6 +19,8 @@ NUnit fixtures `JsonDataItemEmptyNameOmissionTests` in both new test projects (`
 
 ## 4. Library fix (P3)
 
+`JsonDataItem(IDataItem)` constructor in both `MTConnect.NET-JSON-cppagent/Devices/JsonDataItem.cs` and `MTConnect.NET-JSON/Devices/JsonDataItem.cs` now guards `Name = dataItem.Name` with `string.IsNullOrEmpty`, mirroring `XmlDataItem.cs:198`. Detail: `docs/testing/issue-138/phase-03-library-fix.md`. All eight P2 tests pass.
+
 ## 5. Regression pins (P4)
 
 ## 6. E2E validation (P5)
