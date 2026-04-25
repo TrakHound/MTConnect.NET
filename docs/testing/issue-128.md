@@ -35,6 +35,13 @@ sample failure output + CI-gate notes.
 
 ## 4. Library fix (P3)
 
+- Replace `SchemaVersion = "2.0"` in both ctors of `JsonMTConnectStreams` + `JsonMTConnectDevices` with `document.Version?.ToString()`.
+- Default ctor no longer stamps `"2.0"`; the value is null when no document is supplied (previously a defect-masking literal).
+- 28/28 previously-red cases turn green; 31/31 total in the test project pass.
+
+See `docs/testing/issue-128/phase-03-library-fix.md` for the diff +
+behaviour notes.
+
 ## 5. Regression pins (P4)
 
 ## 6. E2E validation (P5)
