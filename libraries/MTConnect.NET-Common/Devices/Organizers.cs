@@ -80,20 +80,34 @@ namespace MTConnect.Devices
             PersonnelComponent.TypeId
         };
 
+        // Members of the `System` substitution-group declared by the MTConnect
+        // SysML model (https://github.com/mtconnect/mtconnect_sysml_model). The
+        // list is the union of every `System`-derived `*Component` whose
+        // `DescriptionText` matches the canonical SysML phrasing for that
+        // substitution-group, and is the source of truth for which auto-wrap
+        // path `Device.AddComponent()` takes. Sorted alphabetically by
+        // `TypeId` so future regenerations diff cleanly.
         private static readonly IEnumerable<string> _systems = new List<string>
         {
+            AirHandlerComponent.TypeId,
             ControllerComponent.TypeId,
             CoolantComponent.TypeId,
+            CoolingComponent.TypeId,
             DielectricComponent.TypeId,
             ElectricComponent.TypeId,
             EnclosureComponent.TypeId,
             EndEffectorComponent.TypeId,
             FeederComponent.TypeId,
+            HeatingComponent.TypeId,
             HydraulicComponent.TypeId,
             LubricationComponent.TypeId,
+            PinToolComponent.TypeId,
             PneumaticComponent.TypeId,
+            PressureComponent.TypeId,
             ProcessPowerComponent.TypeId,
             ProtectiveComponent.TypeId,
+            ToolHolderComponent.TypeId,
+            VacuumComponent.TypeId,
             WorkEnvelopeComponent.TypeId
         };
 
