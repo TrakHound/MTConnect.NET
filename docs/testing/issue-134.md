@@ -55,4 +55,10 @@ phrasing appears in `Organizers.Systems`.
 
 ## 6. E2E validation (P5)
 
+See [`issue-134/phase-05-e2e-validation.md`](issue-134/phase-05-e2e-validation.md).
+
+`OrganizersSystemsEndToEndTests` exercises `Device.AddComponent()` against
+the full set of auto-wrapped System members, the issue's exact `Heating` +
+`Protective` reproduction, and the depth-2 wire-shape invariant.
+
 ## 7. Campaign summary (P6)
