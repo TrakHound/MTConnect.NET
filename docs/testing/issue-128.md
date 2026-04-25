@@ -17,6 +17,13 @@ Surface (two production files):
 
 ## 2. Investigation (P1)
 
+- Both hardcode sites confirmed at HEAD (Streams ctors lines 24-40; Devices ctors lines 26-45).
+- `IStreamsResponseOutputDocument.Version` / `IDevicesResponseDocument.Version` already carry the configured release; no pipeline plumbing required.
+- Two-segment format (`Version.ToString()`) matches cppagent reference output.
+
+See `docs/testing/issue-128/phase-01-defect-scoping.md` for the full
+inventory + decision record.
+
 ## 3. Red tests (P2)
 
 ## 4. Library fix (P3)
