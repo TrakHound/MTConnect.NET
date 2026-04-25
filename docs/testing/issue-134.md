@@ -35,6 +35,13 @@ parametric NUnit cases under `[Category("OrganizersSystemsSubstitutionGroup")]`;
 
 ## 4. Library fix (P3)
 
+See [`issue-134/phase-03-library-fix.md`](issue-134/phase-03-library-fix.md).
+
+`_systems` initializer extended with `AirHandler`, `Cooling`, `Heating`,
+`Pressure`, `Vacuum` and sorted alphabetically; SysML source cited inline.
+`Organizers.cs` reaches 100% / 100% / 100% with the addition of
+`OrganizersAccessorsTests`.
+
 ## 5. Regression pins (P4)
 
 ## 6. E2E validation (P5)
