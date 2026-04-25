@@ -26,6 +26,13 @@ inventory + decision record.
 
 ## 3. Red tests (P2)
 
+- 30 NUnit cases (Streams + Devices × 14 library versions).
+- 28 fail with `Expected "<configured>" / But was: "2.0"`; 2 cases (v2.0) pass coincidentally.
+- Category: `SchemaVersionFromConfiguration` (descriptive label per CONVENTIONS §14).
+
+See `docs/testing/issue-128/phase-02-red-tests.md` for the matrix +
+sample failure output + CI-gate notes.
+
 ## 4. Library fix (P3)
 
 ## 5. Regression pins (P4)
