@@ -7,7 +7,7 @@ The [Device](Device.cs) class is used to implement Device elements described in 
 ## Component
 The [Component](Component.cs) class is used to implement Component elements described in **Part 2.0 : Section 5 of the MTConnect Standard**
 
-Component Types are defined in the [Components](Components) directory. Each class represents a Component of the specified Type. The class contains the Type string and a default Name.
+Component Types are defined in the [Components](Components) directory. Each class represents a Component of the specified Type. The class fixes the Type string and exposes a `NameId` constant the caller can copy from when setting `Name` explicitly.
 
 ## Composition
 The [Composition](Composition.cs) class is used to implement Composition elements described in **Part 2.0 : Section 6 of the MTConnect Standard**
