@@ -43,11 +43,23 @@ inventory + spec references.
 
 ## 3. Red tests (P2)
 
-(Filled in by phase 02.)
+`tests/MTConnect.NET-JSON-cppagent-Tests/Streams/JsonSampleValueNumericTokenTests.cs`
+pins six numeric-string cases (`0`, `42.5`, `-17.0`, `1586.66`,
+`0.000001`, `1e6`), three boxed-`double` cases, three boxed-`int` cases,
+the three-space string-token case, the `UNAVAILABLE` sentinel
+string-token case, and a null-omission case. Pre-fix red: 6 of 16
+fail with `Expected: Number / But was: String`. See
+`docs/testing/issue-129/phase-02-red-tests.md`.
 
 ## 4. Library fix (P3)
 
-(Filled in by phase 03.)
+New `JsonSampleValueConverter` at
+`libraries/MTConnect.NET-JSON-cppagent/Streams/`. Applied as
+`[JsonConverter(typeof(JsonSampleValueConverter))]` on
+`JsonSampleValue.Value`. Branches: `null` -> null-token; sentinel -> string;
+numeric primitive or numeric-parseable string -> number; anything else
+-> string fallback. See
+`docs/testing/issue-129/phase-03-library-fix.md`.
 
 ## 5. Regression pins (P4)
 
