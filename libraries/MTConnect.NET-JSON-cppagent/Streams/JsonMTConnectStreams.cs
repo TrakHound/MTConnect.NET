@@ -21,19 +21,18 @@ namespace MTConnect.Streams.Json
         public JsonStreams Streams { get; set; }
 
 
-        public JsonMTConnectStreams() 
+        public JsonMTConnectStreams()
         {
             JsonVersion = 2;
-            SchemaVersion = "2.0";
         }
 
         public JsonMTConnectStreams(IStreamsResponseOutputDocument streamsDocument)
         {
             JsonVersion = 2;
-            SchemaVersion = "2.0";
 
             if (streamsDocument != null)
             {
+                SchemaVersion = streamsDocument.Version?.ToString();
                 Header = new JsonStreamsHeader(streamsDocument.Header);
                 Streams = new JsonStreams(streamsDocument);
             }
