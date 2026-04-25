@@ -101,8 +101,13 @@ namespace MTConnect.SysML.CSharp
                             if (exportModel.Id.StartsWith("Assets.CuttingTools.")) template = CuttingToolMeasurementModel.Create((MTConnectMeasurementModel)exportModel);
                             //else if (exportModel.Id.StartsWith("Assets.Pallet.")) template = MeasurementModel.Create((MTConnectMeasurementModel)exportModel);
                         }
-                        else if (exportModel.Id.EndsWith("Result"))
+                        else if (typeof(MTConnectClassModel).IsAssignableFrom(type) && exportModel.Id.EndsWith("Result"))
                         {
+                            // Suffix-based DataSetResult selector. Type guard required because the recursive
+                            // GetExportModels walk surfaces both classes AND properties; a property whose Id
+                            // happens to end in "Result" (e.g. `Devices.Configurations.DataSet.Result` — the
+                            // `result` field on the v2.7 DataSet base class) would otherwise crash with
+                            // InvalidCastException when forced into MTConnectClassModel.
                             template = DataSetResultModel.Create((MTConnectClassModel)exportModel);
                         }
                         else if (typeof(MTConnectClassModel).IsAssignableFrom(type)) template = ClassModel.Create((MTConnectClassModel)exportModel);
