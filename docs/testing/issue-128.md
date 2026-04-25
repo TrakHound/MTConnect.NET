@@ -61,3 +61,19 @@ makes the infrastructure available.
 See `docs/testing/issue-128/phase-05-e2e-validation.md`.
 
 ## 7. Campaign summary (P6)
+
+- Issue: TrakHound/MTConnect.NET#128 — JSON-cppagent `schemaVersion`
+  hardcoded to `"2.0"` regardless of `AgentConfiguration.DefaultVersion`.
+- Root cause: literal assignment in both ctors of
+  `JsonMTConnectStreams.cs` + `JsonMTConnectDevices.cs`; the configured
+  version was already on the response document but never read.
+- Fix: replace the literal with `document.Version?.ToString()` inside
+  the existing null guard. Default ctor no longer stamps `"2.0"`.
+- Format: two-segment via `System.Version.ToString()` (e.g. `"2.5"`)
+  matching cppagent's wire output.
+- Tests: 30 parametric cases assert correct behaviour; 28 regression
+  pins keep the fix safe; 2 guard cases refuse re-introduction of any
+  hardcoded `SchemaVersion = "<literal>";` assignment.
+- Coverage: both touched files exercised by the matrix.
+- E2E: deferred pending bootstrap merge — see phase 05 writeup.
+- No public API change.
