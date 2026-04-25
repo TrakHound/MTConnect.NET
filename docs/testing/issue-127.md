@@ -39,7 +39,19 @@ Out of scope:
 
 ## 2. Investigation (P1)
 
-See `docs/testing/issue-127/phase-01-defect-scoping.md`.
+- Root cause: four header-builder methods in
+  `libraries/MTConnect.NET-Common/Agents/MTConnectAgentBroker.cs`
+  (`GetDevicesHeader`, `GetStreamsHeader`, `GetAssetsHeader`,
+  `GetErrorHeader`) write `Version = Version.ToString()` where the
+  bare `Version` is the inherited library assembly version.
+- Six redundant overwrites in the same file rewrite the same value
+  after the builder runs. Removed by P3.
+- Format target: four-segment string of the form `<major>.<minor>.0.0`,
+  matching the cppagent reference. Achieved via
+  `new Version(version.Major, version.Minor, 0, 0).ToString()`
+  because `MTConnectVersions` constants only carry major + minor.
+- No existing test asserts a literal `Header.version` value.
+- See `docs/testing/issue-127/phase-01-defect-scoping.md`.
 
 ## 3. Red tests (P2)
 
