@@ -44,6 +44,15 @@ See [`issue-134/phase-03-library-fix.md`](issue-134/phase-03-library-fix.md).
 
 ## 5. Regression pins (P4)
 
+See [`issue-134/phase-04-regression-pins.md`](issue-134/phase-04-regression-pins.md).
+
+Two guards in
+`tests/MTConnect.NET-Common-Tests/Devices/OrganizersSystemsRegressionTests.cs`:
+literal pin against the System substitution-group TypeId list, plus a
+reflection-based detector that walks the assembly and asserts every
+`*Component` whose `DescriptionText` matches the SysML `System` descendant
+phrasing appears in `Organizers.Systems`.
+
 ## 6. E2E validation (P5)
 
 ## 7. Campaign summary (P6)
