@@ -56,6 +56,7 @@ namespace MTConnect.Devices.Json
             {
                 InstanceId = header.InstanceId;
                 Version = header.Version;
+                SchemaVersion = header.SchemaVersion;
                 Sender = header.Sender;
                 BufferSize = header.BufferSize;
                 AssetBufferSize = header.AssetBufferSize;
@@ -72,6 +73,7 @@ namespace MTConnect.Devices.Json
             var header = new MTConnectDevicesHeader();
             header.InstanceId = InstanceId;
             header.Version = Version;
+            header.SchemaVersion = SchemaVersion;
             header.Sender = Sender;
             header.BufferSize = BufferSize;
             header.AssetBufferSize = AssetBufferSize;
