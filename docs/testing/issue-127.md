@@ -92,7 +92,15 @@ Out of scope:
 
 ## 6. E2E validation (P5)
 
-See `docs/testing/issue-127/phase-05-e2e-validation.md`.
+- `tests/MTConnect.NET-XML-Tests/Headers/HeaderVersionXmlRoundTripTests.cs`
+  drives a real broker through `XmlDevicesResponseDocument.ToXmlStream`
+  and parses the emitted XML to assert the `Header[@version]`
+  attribute equals the configured MTConnect release.
+- 15 parametric cases (one per `MTConnectVersions` constant).
+- The XML round-trip pins the formatter pass-through layer; the
+  unit-tests in P2 cover the DTO origin layer. Together they
+  span every defect surface for `Header.version` end-to-end.
+- See `docs/testing/issue-127/phase-05-e2e-validation.md`.
 
 ## 7. Campaign summary
 
