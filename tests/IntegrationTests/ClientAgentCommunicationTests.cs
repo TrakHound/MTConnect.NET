@@ -348,7 +348,7 @@ namespace IntegrationTests
 
             nameAttr.Value = machineName;
 
-            using var config = File.Create("devices.xml");
+            using var config = File.Create(fileName);
             xDocument.Save(config);
         }
 
