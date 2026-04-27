@@ -130,8 +130,8 @@ done
 ### 5. Update the README + per-library NuGet descriptions
 
 ```bash
-sed -i 's|Supports MTConnect Versions up to 2\.7|Supports MTConnect Versions up to 2.8|g' \
-  README.md $(grep -rl 'Supports MTConnect Versions up to 2\.7' libraries agent adapter)
+sed -i 's|Supports MTConnect Versions up to v2\.7|Supports MTConnect Versions up to v2.8|g' \
+  README.md $(grep -rl 'Supports MTConnect Versions up to v2\.7' libraries agent adapter)
 ```
 
 ### 6. Per-version compliance doc
