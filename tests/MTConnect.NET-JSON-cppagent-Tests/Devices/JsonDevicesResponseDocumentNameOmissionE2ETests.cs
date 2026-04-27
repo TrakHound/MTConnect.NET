@@ -54,7 +54,17 @@ namespace MTConnect.Tests.JsonCppagent.Devices
                 Name = "ExampleDevice",
                 Uuid = "ExampleDevice"
             };
-            device.AddComponent(heating);
+            // Attach the Heating component directly to the device's
+            // Components collection rather than via `device.AddComponent`.
+            // The latter auto-wraps any component whose `TypeId` is in
+            // `Organizers.GetOrganizerType` (e.g. `Heating` ->
+            // `Systems`); whether `Heating` is wrapped depends on the
+            // production library's `Organizers.Systems` membership,
+            // which evolves with the SysML model. This fixture pins the
+            // wire-shape `name`-omission contract on a `DataItem` —
+            // independent of where the Heating component lives in the
+            // organizer tree — by bypassing the auto-wrap explicitly.
+            device.Components = new List<IComponent> { heating };
 
             var document = new DevicesResponseDocument
             {
@@ -69,7 +79,9 @@ namespace MTConnect.Tests.JsonCppagent.Devices
             // Drill into the Heating component's DataItems. The cppagent JSON
             // shape wraps Device and Component arrays in named container
             // objects: `Devices.Device[]`, `Components.Heating[]`,
-            // `DataItems.DataItem[]`.
+            // `DataItems.DataItem[]`. The fixture above attaches Heating
+            // directly under `Device.Components`, so `Components.Heating[0]`
+            // is the deterministic path regardless of organizer membership.
             var heatingDataItems = doc.RootElement
                 .GetProperty("MTConnectDevices")
                 .GetProperty("Devices")
