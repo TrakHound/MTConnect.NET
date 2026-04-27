@@ -18,10 +18,12 @@ namespace MTConnect.SysML
 
         public string ParentName { get; set; }
 
-        // xmi:id of the generalization target. Captured at parse time so the
-        // dangling-parent resolver (see ResolveDanglingParents below) can look
-        // up the parent UmlClass globally even when its name is ambiguous
-        // (multiple UML classes can share a name across packages).
+        /// <summary>
+        /// xmi:id of the generalization target. Captured at parse time so the
+        /// dangling-parent resolver (see <see cref="ResolveDanglingParents"/>)
+        /// can look up the parent UmlClass globally even when its name is
+        /// ambiguous (multiple UML classes can share a name across packages).
+        /// </summary>
         public string ParentUmlId { get; set; }
 
         public string Description { get; set; }
