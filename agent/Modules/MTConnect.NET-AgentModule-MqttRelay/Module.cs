@@ -37,7 +37,9 @@ namespace MTConnect
         private CancellationTokenSource _stop;
         private static readonly object _lastSentSequenceLock = new object();
         private long _totalIncomingObservations = 0;
-        private long _lastSentSequence = 0;
+        // Atomic 64-bit access on 32-bit hosts: a bare long field would
+        // tear under the durable-relay observation event handlers.
+        private readonly LastSentSequenceTracker _lastSentSequenceTracker = new LastSentSequenceTracker();
         private const string DirectoryBuffer = "buffer";
         private const string LastSentSequenceFileName = "mqttrelay_last_sent.seq";
 
@@ -349,7 +351,8 @@ namespace MTConnect
                     }
 
                     Log(MTConnectLogLevel.Information, $"[MQTT Relay] Buffered observation relay complete. {observations.Count} missed observations sent.");
-                    var unsent = broker.LastSequence > (ulong)_lastSentSequence ? broker.LastSequence - (ulong)_lastSentSequence : 0;
+                    var lastSentSnapshot = _lastSentSequenceTracker.Read();
+                    var unsent = broker.LastSequence > lastSentSnapshot ? broker.LastSequence - lastSentSnapshot : 0;
                     if (unsent > 0)
                         Log(MTConnectLogLevel.Information, $"[MQTT Relay] {unsent} new observations arrived during relay and will be sent next.");
                 }
@@ -729,7 +732,7 @@ namespace MTConnect
                 Interlocked.Increment(ref _totalIncomingObservations);
 
                 var lastSent = GetLastSentSequence();
-                _lastSentSequence = (long)lastSent;
+                _lastSentSequenceTracker.Write(lastSent);
 
                 if (_entityServer != null)
                 {
