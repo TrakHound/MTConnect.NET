@@ -171,7 +171,7 @@ A common XMI pattern: a class in package A declares a generalization (parent) th
 1. Scans every parsed `Classes` list for class entries whose `ParentName` isn't in the local set.
 2. Looks each missing parent up in the global XMI by `xmi:id` (the authoritative reference — multiple UML classes can share a name across packages).
 3. Grafts a freshly-parsed `MTConnectClassModel` instance into the same list under the same `idPrefix`.
-4. Iterates until a fixed point or `maxIterations = 8` (cycle guard).
+4. Single-pass: the grafted parent has its `ParentName` / `ParentUmlId` stripped, so each pass either converges or there's nothing more to do.
 
 The grafted parent has its own `ParentName`, `ParentUmlId`, and `Properties` cleared — see the inline rationale in `MTConnectClassModel.cs:ResolveDanglingParents`. This makes the importer version-agnostic: any future MTConnect version that introduces a cross-package parent picks up the resolver automatically.
 
