@@ -406,6 +406,16 @@ namespace MTConnect
 
         private async void ProbeReceived(IDevice device, IDevicesResponseDocument responseDocument)
         {
+            // async void handler: route any unhandled fault (formatter
+            // throw, message-builder failure) to the log instead of the
+            // synchronization context.
+            await AsyncVoidGuard.Run(
+                async () => await ProbeReceivedCore(device, responseDocument),
+                ex => Log(MTConnectLogLevel.Warning, $"ProbeReceived handler error : {ex.Message}"));
+        }
+
+        private async Task ProbeReceivedCore(IDevice device, IDevicesResponseDocument responseDocument)
+        {
             if (_mqttClient != null && _mqttClient.IsConnected)
             {
                 var x = new List<KeyValuePair<string, string>>();
@@ -497,6 +507,15 @@ namespace MTConnect
 
         private async void CurrentReceived(IDevice device, IStreamsResponseOutputDocument responseDocument)
         {
+            // async void handler: route any unhandled fault to the log
+            // instead of the synchronization context.
+            await AsyncVoidGuard.Run(
+                async () => await CurrentReceivedCore(device, responseDocument),
+                ex => Log(MTConnectLogLevel.Warning, $"CurrentReceived handler error : {ex.Message}"));
+        }
+
+        private async Task CurrentReceivedCore(IDevice device, IStreamsResponseOutputDocument responseDocument)
+        {
             if (_mqttClient != null && _mqttClient.IsConnected)
             {
                 var x = new List<KeyValuePair<string, string>>();
@@ -537,6 +556,15 @@ namespace MTConnect
 
         private async void SampleReceived(IDevice device, IStreamsResponseOutputDocument responseDocument)
         {
+            // async void handler: route any unhandled fault to the log
+            // instead of the synchronization context.
+            await AsyncVoidGuard.Run(
+                async () => await SampleReceivedCore(device, responseDocument),
+                ex => Log(MTConnectLogLevel.Warning, $"SampleReceived handler error : {ex.Message}"));
+        }
+
+        private async Task SampleReceivedCore(IDevice device, IStreamsResponseOutputDocument responseDocument)
+        {
             if (_mqttClient != null && _mqttClient.IsConnected)
             {
                 var x = new List<KeyValuePair<string, string>>();
@@ -576,6 +604,15 @@ namespace MTConnect
         }
 
         private async void AssetReceived(IDevice device, IAssetsResponseDocument responseDocument)
+        {
+            // async void handler: route any unhandled fault to the log
+            // instead of the synchronization context.
+            await AsyncVoidGuard.Run(
+                async () => await AssetReceivedCore(device, responseDocument),
+                ex => Log(MTConnectLogLevel.Warning, $"AssetReceived handler error : {ex.Message}"));
+        }
+
+        private async Task AssetReceivedCore(IDevice device, IAssetsResponseDocument responseDocument)
         {
             if (_mqttClient != null && _mqttClient.IsConnected && responseDocument != null && !responseDocument.Assets.IsNullOrEmpty())
             {
@@ -722,59 +759,80 @@ namespace MTConnect
 
         private async void AgentDeviceAdded(object sender, IDevice device)
         {
-            if (_entityServer != null) await _entityServer.PublishDevice(_mqttClient, device);
+            // async void handlers must not throw; route any fault to
+            // the log instead of the synchronization context.
+            await AsyncVoidGuard.Run(
+                async () =>
+                {
+                    if (_entityServer != null) await _entityServer.PublishDevice(_mqttClient, device);
+                },
+                ex => Log(MTConnectLogLevel.Warning, $"AgentDeviceAdded handler error : {ex.Message}"));
         }
 
         private async void AgentObservationAdded(object sender, IObservation observation)
         {
-            if (_configuration.DurableRelay)
-            {
-                Interlocked.Increment(ref _totalIncomingObservations);
-
-                var lastSent = GetLastSentSequence();
-                _lastSentSequenceTracker.Write(lastSent);
-
-                if (_entityServer != null)
+            // async void handlers must not throw; route any fault to
+            // the log instead of the synchronization context.
+            await AsyncVoidGuard.Run(
+                async () =>
                 {
-                    if (observation.Category == DataItemCategory.CONDITION)
+                    if (_configuration.DurableRelay)
                     {
-                        var conditionObservations = Agent.GetCurrentObservations(observation.DeviceUuid, observation.DataItemId);
-                        var result = await _entityServer.PublishObservations(_mqttClient, conditionObservations.OfType<IObservation>());
-                        if (result != null && result.IsSuccess && conditionObservations != null && conditionObservations.Any())
+                        Interlocked.Increment(ref _totalIncomingObservations);
+
+                        var lastSent = GetLastSentSequence();
+                        _lastSentSequenceTracker.Write(lastSent);
+
+                        if (_entityServer != null)
                         {
-                            SetLastSentSequence(conditionObservations.Max(o => o.Sequence));
+                            if (observation.Category == DataItemCategory.CONDITION)
+                            {
+                                var conditionObservations = Agent.GetCurrentObservations(observation.DeviceUuid, observation.DataItemId);
+                                var result = await _entityServer.PublishObservations(_mqttClient, conditionObservations.OfType<IObservation>());
+                                if (result != null && result.IsSuccess && conditionObservations != null && conditionObservations.Any())
+                                {
+                                    SetLastSentSequence(conditionObservations.Max(o => o.Sequence));
+                                }
+                            }
+                            else
+                            {
+                                var result = await _entityServer.PublishObservation(_mqttClient, observation);
+                                if (result != null && result.IsSuccess)
+                                {
+                                    SetLastSentSequence(observation.Sequence);
+                                }
+                            }
                         }
                     }
                     else
                     {
-                        var result = await _entityServer.PublishObservation(_mqttClient, observation);
-                        if (result != null && result.IsSuccess)
+                        if (_entityServer != null)
                         {
-                            SetLastSentSequence(observation.Sequence);
+                            if (observation.Category == DataItemCategory.CONDITION)
+                            {
+                                var conditionObservations = Agent.GetCurrentObservations(observation.DeviceUuid, observation.DataItemId);
+                                await PublishObservations(conditionObservations);
+                            }
+                            else
+                            {
+                                await _entityServer.PublishObservation(_mqttClient, observation);
+                            }
                         }
                     }
-                }
-            }
-            else
-            {
-                if (_entityServer != null)
-                {
-                    if (observation.Category == DataItemCategory.CONDITION)
-                    {
-                        var conditionObservations = Agent.GetCurrentObservations(observation.DeviceUuid, observation.DataItemId);
-                        await PublishObservations(conditionObservations);
-                    }
-                    else
-                    {
-                        await _entityServer.PublishObservation(_mqttClient, observation);
-                    }
-                }
-            }
+                },
+                ex => Log(MTConnectLogLevel.Warning, $"AgentObservationAdded handler error : {ex.Message}"));
         }
 
         private async void AgentAssetAdded(object sender, IAsset asset)
         {
-            if (_entityServer != null) await _entityServer.PublishAsset(_mqttClient, asset);
+            // async void handlers must not throw; route any fault to
+            // the log instead of the synchronization context.
+            await AsyncVoidGuard.Run(
+                async () =>
+                {
+                    if (_entityServer != null) await _entityServer.PublishAsset(_mqttClient, asset);
+                },
+                ex => Log(MTConnectLogLevel.Warning, $"AgentAssetAdded handler error : {ex.Message}"));
         }
 
 
