@@ -98,32 +98,19 @@ namespace MTConnect.Devices.Json
                     var relationships = new JsonRelationshipContainer();
                     foreach (var relationship in dataItem.Relationships)
                     {
-                        // ComponentRelationship
-                        if (typeof(IComponentRelationship).IsAssignableFrom(relationship.GetType()))
+                        // Each IAbstractDataItemRelationship flows into the bucket
+                        // matching its specialised interface.
+                        switch (relationship)
                         {
-                            if (relationships.ComponentRelationships == null) relationships.ComponentRelationships = new List<JsonRelationship>();
-                            relationships.ComponentRelationships.Add(new JsonRelationship((IComponentRelationship)relationship));
-                        }
+                            case IDataItemRelationship dataItemRelationship:
+                                relationships.DataItemRelationships ??= new List<JsonRelationship>();
+                                relationships.DataItemRelationships.Add(new JsonRelationship(dataItemRelationship));
+                                break;
 
-                        // DataItemRelationship
-                        if (typeof(IDataItemRelationship).IsAssignableFrom(relationship.GetType()))
-                        {
-                            if (relationships.DataItemRelationships == null) relationships.DataItemRelationships = new List<JsonRelationship>();
-                            relationships.DataItemRelationships.Add(new JsonRelationship((IDataItemRelationship)relationship));
-                        }
-
-                        // DeviceRelationship
-                        if (typeof(IDeviceRelationship).IsAssignableFrom(relationship.GetType()))
-                        {
-                            if (relationships.DeviceRelationships == null) relationships.DeviceRelationships = new List<JsonRelationship>();
-                            relationships.DeviceRelationships.Add(new JsonRelationship((IDeviceRelationship)relationship));
-                        }
-
-                        // SpecificationRelationship
-                        if (typeof(ISpecificationRelationship).IsAssignableFrom(relationship.GetType()))
-                        {
-                            if (relationships.SpecificationRelationships == null) relationships.SpecificationRelationships = new List<JsonRelationship>();
-                            relationships.SpecificationRelationships.Add(new JsonRelationship((ISpecificationRelationship)relationship));
+                            case ISpecificationRelationship specificationRelationship:
+                                relationships.SpecificationRelationships ??= new List<JsonRelationship>();
+                                relationships.SpecificationRelationships.Add(new JsonRelationship(specificationRelationship));
+                                break;
                         }
                     }
                     Relationships = relationships;

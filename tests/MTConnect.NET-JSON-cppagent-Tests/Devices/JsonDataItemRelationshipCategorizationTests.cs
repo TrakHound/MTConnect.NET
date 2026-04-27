@@ -15,14 +15,6 @@ namespace MTConnect.Tests.JsonCppagent.Devices
     /// container bucket on <see cref="JsonRelationshipContainer"/>:
     ///   - <see cref="IDataItemRelationship"/>       -> DataItemRelationships
     ///   - <see cref="ISpecificationRelationship"/>  -> SpecificationRelationships
-    ///
-    /// Lets the F-P-H6 perf optimization replace the
-    /// <c>IsAssignableFrom</c> chain with switch pattern matching
-    /// without regressing the routing behavior. The Component- and
-    /// Device-relationship branches in the existing classifier are
-    /// preserved structurally even though those types do not implement
-    /// <c>IAbstractDataItemRelationship</c> and so cannot reach the
-    /// loop body via <c>DataItem.Relationships</c>.
     /// </summary>
     [TestFixture]
     public class JsonDataItemRelationshipCategorizationTests
@@ -50,8 +42,6 @@ namespace MTConnect.Tests.JsonCppagent.Devices
                 "JsonDataItem must populate Relationships when the source has any.");
             Assert.That(json.Relationships.DataItemRelationships, Has.Count.EqualTo(1));
             Assert.That(json.Relationships.SpecificationRelationships, Has.Count.EqualTo(1));
-            Assert.That(json.Relationships.ComponentRelationships, Is.Null);
-            Assert.That(json.Relationships.DeviceRelationships, Is.Null);
         }
 
         [Test]
@@ -87,8 +77,6 @@ namespace MTConnect.Tests.JsonCppagent.Devices
             Assert.That(json.Relationships, Is.Not.Null);
             Assert.That(json.Relationships.DataItemRelationships, Has.Count.EqualTo(2));
             Assert.That(json.Relationships.SpecificationRelationships, Is.Null);
-            Assert.That(json.Relationships.ComponentRelationships, Is.Null);
-            Assert.That(json.Relationships.DeviceRelationships, Is.Null);
         }
     }
 }
