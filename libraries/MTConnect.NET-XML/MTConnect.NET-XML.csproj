@@ -18,7 +18,7 @@
 		<RootNamespace>MTConnect</RootNamespace>
 		<Configurations>Debug;Release;Package</Configurations>
 		
-		<Description>MTConnect.NET-XML implements the XML Document Format for use with the MTConnect.NET library. Supports MTConnect Versions v1.0 to v2.7. Supports .NET Framework 4.6.1 up to .NET 9</Description>
+		<Description>MTConnect.NET-XML implements the XML Document Format for use with the MTConnect.NET library. Supports MTConnect Versions up to v2.7. Supports .NET Framework 4.6.1 up to .NET 9</Description>
 		<PackageReadmeFile>README-Nuget.md</PackageReadmeFile>
 
 		<!-- Optional: Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
