@@ -15,6 +15,10 @@ namespace MTConnect.SysML
                     case 2:
                         switch (version.Minor)
                         {
+                            case 7: return "MTConnectVersions.Version27";
+                            case 6: return "MTConnectVersions.Version26";
+                            case 5: return "MTConnectVersions.Version25";
+                            case 4: return "MTConnectVersions.Version24";
                             case 3: return "MTConnectVersions.Version23";
                             case 2: return "MTConnectVersions.Version22";
                             case 1: return "MTConnectVersions.Version21";
