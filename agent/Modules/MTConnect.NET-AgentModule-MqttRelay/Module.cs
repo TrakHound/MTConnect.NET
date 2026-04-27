@@ -690,63 +690,58 @@ namespace MTConnect
 
         private async Task PublishObservations(IEnumerable<IObservationOutput> observations)
         {
-            if (!observations.IsNullOrEmpty())
+            if (observations.IsNullOrEmpty()) return;
+
+            // Single-pass grouping replaces the previous O(n*k)
+            // Distinct + Where + FirstOrDefault pattern that iterated
+            // the source up to three times per distinct DataItemId.
+            foreach (var group in ObservationGrouper.GroupByDataItem(observations))
             {
-                var dataItemIds = observations.Select(o => o.DataItemId).Distinct();
-                foreach (var dataItemId in dataItemIds)
+                // Materialise each group's observations once: the
+                // condition path needs to enumerate twice (test the
+                // first item's category and rebuild every observation)
+                // and re-iterating the IGrouping would re-iterate the
+                // upstream source.
+                var groupObservations = group.ToList();
+                if (groupObservations.Count == 0) continue;
+
+                var first = groupObservations[0];
+
+                if (first.Category == DataItemCategory.CONDITION)
                 {
-                    var dataItemObservations = observations.Where(o => o.DataItemId == dataItemId);
-                    var dataItemObservation = dataItemObservations.FirstOrDefault();
-
-                    if (dataItemObservation.Category == DataItemCategory.CONDITION)
+                    // Conditions have multiple observations
+                    var multipleObservations = new List<IObservation>(groupObservations.Count);
+                    foreach (var observation in groupObservations)
                     {
-                        // Conditions have multiple observations
-                        var multipleObservations = new List<IObservation>();
-                        foreach (var observation in dataItemObservations)
-                        {
-                            var x = new Observation();
-                            x.DeviceUuid = observation.DeviceUuid;
-                            x.DataItemId = observation.DataItemId;
-                            x.DataItem = observation.DataItem;
-                            x.Name = observation.Name;
-                            x.Category = observation.Category;
-                            x.Type = observation.Type;
-                            x.SubType = observation.SubType;
-                            x.Representation = observation.Representation;
-                            x.CompositionId = observation.CompositionId;
-                            x.InstanceId = observation.InstanceId;
-                            x.Sequence = observation.Sequence;
-                            x.Timestamp = observation.Timestamp;
-                            x.AddValues(observation.Values);
-
-                            multipleObservations.Add(x);
-                        }
-
-                        await _entityServer.PublishObservations(_mqttClient, multipleObservations);
+                        multipleObservations.Add(CloneAsObservation(observation));
                     }
-                    else
-                    {
-                        var observation = dataItemObservations.FirstOrDefault();
 
-                        var x = new Observation();
-                        x.DeviceUuid = observation.DeviceUuid;
-                        x.DataItemId = observation.DataItemId;
-                        x.DataItem = observation.DataItem;
-                        x.Name = observation.Name;
-                        x.Category = observation.Category;
-                        x.Type = observation.Type;
-                        x.SubType = observation.SubType;
-                        x.Representation = observation.Representation;
-                        x.CompositionId = observation.CompositionId;
-                        x.InstanceId = observation.InstanceId;
-                        x.Sequence = observation.Sequence;
-                        x.Timestamp = observation.Timestamp;
-                        x.AddValues(observation.Values);
-
-                        await _entityServer.PublishObservation(_mqttClient, x);
-                    }
+                    await _entityServer.PublishObservations(_mqttClient, multipleObservations);
+                }
+                else
+                {
+                    await _entityServer.PublishObservation(_mqttClient, CloneAsObservation(first));
                 }
             }
+        }
+
+        private static Observation CloneAsObservation(IObservationOutput source)
+        {
+            var x = new Observation();
+            x.DeviceUuid = source.DeviceUuid;
+            x.DataItemId = source.DataItemId;
+            x.DataItem = source.DataItem;
+            x.Name = source.Name;
+            x.Category = source.Category;
+            x.Type = source.Type;
+            x.SubType = source.SubType;
+            x.Representation = source.Representation;
+            x.CompositionId = source.CompositionId;
+            x.InstanceId = source.InstanceId;
+            x.Sequence = source.Sequence;
+            x.Timestamp = source.Timestamp;
+            x.AddValues(source.Values);
+            return x;
         }
 
         private async Task PublishAssets()
