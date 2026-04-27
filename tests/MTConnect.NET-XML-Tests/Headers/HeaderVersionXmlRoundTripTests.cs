@@ -83,7 +83,18 @@ namespace MTConnect.Tests.Xml.Headers
                 DefaultVersion = configuredVersion
             };
             var broker = new MTConnectAgentBroker(configuration);
-            broker.AddDevice(new Device { Uuid = "round-trip-device", Name = "RoundTripDevice" });
+            // Construct the test Device with every required field set
+            // explicitly. The Device default constructor is not guaranteed
+            // to populate Id / Name / Uuid (older revisions auto-generated
+            // them; newer revisions strip those defaults to honour the XSD
+            // `uuid` "for entire life" identity contract). Setting them
+            // here keeps the test green across both shapes.
+            broker.AddDevice(new Device
+            {
+                Id = "round-trip-device",
+                Uuid = "round-trip-device",
+                Name = "RoundTripDevice",
+            });
             return broker;
         }
     }
