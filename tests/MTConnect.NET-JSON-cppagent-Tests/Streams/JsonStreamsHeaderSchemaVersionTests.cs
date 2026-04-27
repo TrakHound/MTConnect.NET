@@ -4,6 +4,7 @@
 using System.Text.Json;
 using MTConnect.Headers;
 using MTConnect.Streams.Json;
+using MTConnect.Tests.JsonCppagent.TestHelpers;
 using NUnit.Framework;
 
 namespace MTConnect.Tests.JsonCppagent.Streams
@@ -23,31 +24,32 @@ namespace MTConnect.Tests.JsonCppagent.Streams
     /// </summary>
     [TestFixture]
     [Category("CppAgentHeaderFieldsPresent")]
+    [Category("ComplianceMatrix")]
     public class JsonStreamsHeaderSchemaVersionTests
     {
-        [Test]
-        public void Constructor_with_source_header_copies_schemaVersion()
+        [TestCaseSource(typeof(JsonHeaderWireShapeMatrix), nameof(JsonHeaderWireShapeMatrix.SchemaVersionCases))]
+        public void Constructor_with_source_header_copies_schemaVersion(string schemaVersion)
         {
             var source = new MTConnectStreamsHeader
             {
                 InstanceId = 1,
-                Version = "2.5.0.0",
-                SchemaVersion = "2.5",
+                Version = $"{schemaVersion}.0.0",
+                SchemaVersion = schemaVersion,
                 Sender = "agent",
             };
 
             var json = new JsonStreamsHeader(source);
 
-            Assert.That(json.SchemaVersion, Is.EqualTo("2.5"),
+            Assert.That(json.SchemaVersion, Is.EqualTo(schemaVersion),
                 "JsonStreamsHeader must copy SchemaVersion from the source IMTConnectStreamsHeader.");
         }
 
-        [Test]
-        public void Serialized_streams_header_emits_schemaVersion_property()
+        [TestCaseSource(typeof(JsonHeaderWireShapeMatrix), nameof(JsonHeaderWireShapeMatrix.SchemaVersionCases))]
+        public void Serialized_streams_header_emits_schemaVersion_property(string schemaVersion)
         {
             var source = new MTConnectStreamsHeader
             {
-                SchemaVersion = "2.5",
+                SchemaVersion = schemaVersion,
             };
 
             var jsonHeader = new JsonStreamsHeader(source);
@@ -56,7 +58,7 @@ namespace MTConnect.Tests.JsonCppagent.Streams
 
             Assert.That(doc.RootElement.TryGetProperty("schemaVersion", out var v), Is.True,
                 "Serialized JsonStreamsHeader must expose 'schemaVersion' on the wire.");
-            Assert.That(v.GetString(), Is.EqualTo("2.5"));
+            Assert.That(v.GetString(), Is.EqualTo(schemaVersion));
         }
 
         [Test]

@@ -2,7 +2,6 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using System.Linq;
-using System.Reflection;
 using MTConnect.Tests.JsonCppagent.TestHelpers;
 using NUnit.Framework;
 

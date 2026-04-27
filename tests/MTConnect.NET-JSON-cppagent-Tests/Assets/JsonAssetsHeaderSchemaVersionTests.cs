@@ -4,6 +4,7 @@
 using System.Text.Json;
 using MTConnect.Assets.Json;
 using MTConnect.Headers;
+using MTConnect.Tests.JsonCppagent.TestHelpers;
 using NUnit.Framework;
 
 namespace MTConnect.Tests.JsonCppagent.Assets
@@ -23,31 +24,32 @@ namespace MTConnect.Tests.JsonCppagent.Assets
     /// </summary>
     [TestFixture]
     [Category("CppAgentHeaderFieldsPresent")]
+    [Category("ComplianceMatrix")]
     public class JsonAssetsHeaderSchemaVersionTests
     {
-        [Test]
-        public void Constructor_with_source_header_copies_schemaVersion()
+        [TestCaseSource(typeof(JsonHeaderWireShapeMatrix), nameof(JsonHeaderWireShapeMatrix.SchemaVersionCases))]
+        public void Constructor_with_source_header_copies_schemaVersion(string schemaVersion)
         {
             var source = new MTConnectAssetsHeader
             {
                 InstanceId = 1,
-                Version = "2.5.0.0",
-                SchemaVersion = "2.5",
+                Version = $"{schemaVersion}.0.0",
+                SchemaVersion = schemaVersion,
                 Sender = "agent",
             };
 
             var json = new JsonAssetsHeader(source);
 
-            Assert.That(json.SchemaVersion, Is.EqualTo("2.5"),
+            Assert.That(json.SchemaVersion, Is.EqualTo(schemaVersion),
                 "JsonAssetsHeader must copy SchemaVersion from the source IMTConnectAssetsHeader.");
         }
 
-        [Test]
-        public void Serialized_assets_header_emits_schemaVersion_property()
+        [TestCaseSource(typeof(JsonHeaderWireShapeMatrix), nameof(JsonHeaderWireShapeMatrix.SchemaVersionCases))]
+        public void Serialized_assets_header_emits_schemaVersion_property(string schemaVersion)
         {
             var source = new MTConnectAssetsHeader
             {
-                SchemaVersion = "2.5",
+                SchemaVersion = schemaVersion,
             };
 
             var jsonHeader = new JsonAssetsHeader(source);
@@ -56,7 +58,7 @@ namespace MTConnect.Tests.JsonCppagent.Assets
 
             Assert.That(doc.RootElement.TryGetProperty("schemaVersion", out var v), Is.True,
                 "Serialized JsonAssetsHeader must expose 'schemaVersion' on the wire.");
-            Assert.That(v.GetString(), Is.EqualTo("2.5"));
+            Assert.That(v.GetString(), Is.EqualTo(schemaVersion));
         }
 
         [Test]

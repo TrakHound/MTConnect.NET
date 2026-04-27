@@ -6,6 +6,7 @@ using MTConnect.Assets.Json;
 using MTConnect.Devices.Json;
 using MTConnect.Headers;
 using MTConnect.Streams.Json;
+using MTConnect.Tests.JsonCppagent.TestHelpers;
 using NUnit.Framework;
 
 namespace MTConnect.Tests.JsonCppagent
@@ -14,8 +15,9 @@ namespace MTConnect.Tests.JsonCppagent
     /// End-to-end wire-shape pin: every JSON-cppagent envelope's `Header` element
     /// must carry both `schemaVersion` and `testIndicator` after serialization with
     /// the default `JsonSerializer` settings, regardless of which field on the
-    /// source DTO carries a non-default value. Spot-checks the v2.0 / v2.3 / v2.5
-    /// schema-version cases the plan's MQTT E2E scenarios cover.
+    /// source DTO carries a non-default value. The (envelopeKind, schemaVersion)
+    /// matrix is sourced from <see cref="JsonHeaderWireShapeMatrix"/> so the
+    /// per-envelope and cross-envelope E2E sets stay in lockstep.
     ///
     /// Source authority:
     /// - Reference shape: cppagent v2.7.0.7 emits `Header.schemaVersion` and
@@ -25,75 +27,44 @@ namespace MTConnect.Tests.JsonCppagent
     ///   https://github.com/TrakHound/MTConnect.NET/issues/131 (testIndicator).
     /// </summary>
     [TestFixture]
+    [Category("ComplianceMatrix")]
     public class JsonHeaderWireShapeE2ETests
     {
-        [TestCase("2.0")]
-        [TestCase("2.3")]
-        [TestCase("2.5")]
-        public void Streams_envelope_carries_schemaVersion_for_each_supported_schema(string schemaVersion)
+        [TestCaseSource(typeof(JsonHeaderWireShapeMatrix), nameof(JsonHeaderWireShapeMatrix.Cases))]
+        public void Envelope_carries_schemaVersion_and_testIndicator(string envelopeKind, string schemaVersion)
         {
-            var source = new MTConnectStreamsHeader
+            string serialized = envelopeKind switch
             {
-                InstanceId = 42,
-                Version = $"{schemaVersion}.0.0",
-                SchemaVersion = schemaVersion,
-                Sender = "agent",
-                TestIndicator = false,
+                "Streams" => JsonSerializer.Serialize(new JsonStreamsHeader(new MTConnectStreamsHeader
+                {
+                    InstanceId = 42,
+                    Version = $"{schemaVersion}.0.0",
+                    SchemaVersion = schemaVersion,
+                    Sender = "agent",
+                    TestIndicator = false,
+                })),
+                "Devices" => JsonSerializer.Serialize(new JsonDevicesHeader(new MTConnectDevicesHeader
+                {
+                    InstanceId = 42,
+                    Version = $"{schemaVersion}.0.0",
+                    SchemaVersion = schemaVersion,
+                    Sender = "agent",
+                    TestIndicator = false,
+                })),
+                "Assets" => JsonSerializer.Serialize(new JsonAssetsHeader(new MTConnectAssetsHeader
+                {
+                    InstanceId = 42,
+                    Version = $"{schemaVersion}.0.0",
+                    SchemaVersion = schemaVersion,
+                    Sender = "agent",
+                    TestIndicator = false,
+                })),
+                _ => throw new System.ArgumentOutOfRangeException(nameof(envelopeKind), envelopeKind, null),
             };
 
-            var envelope = new JsonStreamsHeader(source);
-            using var doc = JsonDocument.Parse(JsonSerializer.Serialize(envelope));
-
-            Assert.That(doc.RootElement.GetProperty("schemaVersion").GetString(),
-                Is.EqualTo(schemaVersion));
-            Assert.That(doc.RootElement.GetProperty("testIndicator").GetBoolean(),
-                Is.False);
-        }
-
-        [TestCase("2.0")]
-        [TestCase("2.3")]
-        [TestCase("2.5")]
-        public void Devices_envelope_carries_schemaVersion_for_each_supported_schema(string schemaVersion)
-        {
-            var source = new MTConnectDevicesHeader
-            {
-                InstanceId = 42,
-                Version = $"{schemaVersion}.0.0",
-                SchemaVersion = schemaVersion,
-                Sender = "agent",
-                TestIndicator = false,
-            };
-
-            var envelope = new JsonDevicesHeader(source);
-            using var doc = JsonDocument.Parse(JsonSerializer.Serialize(envelope));
-
-            Assert.That(doc.RootElement.GetProperty("schemaVersion").GetString(),
-                Is.EqualTo(schemaVersion));
-            Assert.That(doc.RootElement.GetProperty("testIndicator").GetBoolean(),
-                Is.False);
-        }
-
-        [TestCase("2.0")]
-        [TestCase("2.3")]
-        [TestCase("2.5")]
-        public void Assets_envelope_carries_schemaVersion_for_each_supported_schema(string schemaVersion)
-        {
-            var source = new MTConnectAssetsHeader
-            {
-                InstanceId = 42,
-                Version = $"{schemaVersion}.0.0",
-                SchemaVersion = schemaVersion,
-                Sender = "agent",
-                TestIndicator = false,
-            };
-
-            var envelope = new JsonAssetsHeader(source);
-            using var doc = JsonDocument.Parse(JsonSerializer.Serialize(envelope));
-
-            Assert.That(doc.RootElement.GetProperty("schemaVersion").GetString(),
-                Is.EqualTo(schemaVersion));
-            Assert.That(doc.RootElement.GetProperty("testIndicator").GetBoolean(),
-                Is.False);
+            using var doc = JsonDocument.Parse(serialized);
+            Assert.That(doc.RootElement.GetProperty("schemaVersion").GetString(), Is.EqualTo(schemaVersion));
+            Assert.That(doc.RootElement.GetProperty("testIndicator").GetBoolean(), Is.False);
         }
 
         [Test]
