@@ -163,14 +163,28 @@ namespace MTConnect.Servers.Http
                             EndPoint endpoint = null;
                             if (!string.IsNullOrEmpty(serverConfiguration.Server))
                             {
-								var hostEntry = Dns.GetHostEntry(serverConfiguration.Server);
-                                if (hostEntry != null && !hostEntry.AddressList.IsNullOrEmpty())
+                                // Resolve the configured Server to an IPEndPoint. Try IPAddress.Parse first
+                                // so a literal numeric address such as "127.0.0.1" or "::1" binds directly
+                                // without ever entering the platform's name-resolution path; only fall back
+                                // to Dns.GetHostEntry for symbolic hostnames. On Windows the loopback
+                                // PTR record routinely takes seconds to resolve (or fails outright on a
+                                // hostile resolver), which would cascade into integration-test flakes if
+                                // every loopback bind paid the DNS round-trip.
+                                if (IPAddress.TryParse(serverConfiguration.Server, out var directAddress))
                                 {
-                                    var hostAddress = hostEntry.AddressList.FirstOrDefault(o => o.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
-                                    if (hostAddress != null)
+                                    endpoint = new IPEndPoint(directAddress, serverConfiguration.Port);
+                                }
+                                else
+                                {
+                                    var hostEntry = Dns.GetHostEntry(serverConfiguration.Server);
+                                    if (hostEntry != null && !hostEntry.AddressList.IsNullOrEmpty())
                                     {
-										endpoint = new IPEndPoint(hostAddress, serverConfiguration.Port);
-									}
+                                        var hostAddress = hostEntry.AddressList.FirstOrDefault(o => o.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
+                                        if (hostAddress != null)
+                                        {
+                                            endpoint = new IPEndPoint(hostAddress, serverConfiguration.Port);
+                                        }
+                                    }
                                 }
                             }
                             else endpoint = new IPEndPoint(IPAddress.Any, serverConfiguration.Port);
