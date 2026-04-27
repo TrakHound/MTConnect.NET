@@ -1,7 +1,32 @@
 #!/usr/bin/env pwsh
-# PowerShell sibling of tools/test.sh — same semantics, same flags.
+# Local test + coverage entry point for MTConnect.NET. Discovers every
+# test project under tests/**/*.csproj — adding a new test project
+# requires no edits to this script. The compliance harness under
+# tests/Compliance/** and the Docker-gated end-to-end suites are
+# skipped by default so the common loop stays fast; flags below opt
+# into them.
 #
-# Usage: tools/test.ps1 [-Docker] [-Compliance] [-E2E] [-Only <pattern>]
+# Pairs with tools/dotnet.ps1: when -Docker (or
+# MTCONNECT_DOTNET_USE_DOCKER=1) is set, each dotnet invocation runs
+# inside the pinned .NET SDK container via tools/dotnet.ps1.
+#
+# Usage:
+#   tools/test.ps1 [-Docker] [-Compliance] [-E2E] [-Only <pattern>]
+#
+# Parameters:
+#   -Docker        Run every dotnet invocation through tools/dotnet.ps1
+#                  -Docker (also honoured via MTCONNECT_DOTNET_USE_DOCKER=1).
+#   -Compliance    Include the MTConnect compliance harness under
+#                  tests/Compliance/** (XSD validation, OCL checks,
+#                  cppagent parity). Skipped by default because it is
+#                  the slowest tier and many of its tests are gated
+#                  behind Docker / [Category] tags.
+#   -E2E           Force the Docker-gated end-to-end suites (implies
+#                  MTCONNECT_E2E_DOCKER=true; Testcontainers spins up
+#                  mosquitto + cppagent containers per test class).
+#   -Only PATTERN  Run only the test projects whose path matches PATTERN
+#                  (regex). Example: -Only 'XML|SHDR' runs only those
+#                  two projects.
 
 [CmdletBinding()]
 param(
