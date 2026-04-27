@@ -33,6 +33,10 @@ namespace MTConnect
                         case 1: return Version21.Devices;
                         case 2: return Version22.Devices;
                         case 3: return Version23.Devices;
+                        case 4: return Version24.Devices;
+                        case 5: return Version25.Devices;
+                        case 6: return Version26.Devices;
+                        case 7: return Version27.Devices;
                     }
 
                     break;
@@ -69,6 +73,10 @@ namespace MTConnect
                         case 1: return Version21.Streams;
                         case 2: return Version22.Streams;
                         case 3: return Version23.Streams;
+                        case 4: return Version24.Streams;
+                        case 5: return Version25.Streams;
+                        case 6: return Version26.Streams;
+                        case 7: return Version27.Streams;
                     }
 
                     break;
@@ -104,6 +112,10 @@ namespace MTConnect
                         case 1: return Version21.Assets;
                         case 2: return Version22.Assets;
                         case 3: return Version23.Assets;
+                        case 4: return Version24.Assets;
+                        case 5: return Version25.Assets;
+                        case 6: return Version26.Assets;
+                        case 7: return Version27.Assets;
                     }
 
                     break;
@@ -138,12 +150,72 @@ namespace MTConnect
                         case 1: return Version21.Error;
                         case 2: return Version22.Error;
                         case 3: return Version23.Error;
+                        case 4: return Version24.Error;
+                        case 5: return Version25.Error;
+                        case 6: return Version26.Error;
+                        case 7: return Version27.Error;
                     }
 
                     break;
             }
 
             return null;
+        }
+
+
+        static class Version27
+        {
+            public const string Assets = "urn:mtconnect.org:MTConnectAssets:2.7 /schemas/MTConnectAssets_2.7.xsd";
+            public const string Devices = "urn:mtconnect.org:MTConnectDevices:2.7 /schemas/MTConnectDevices_2.7.xsd";
+            public const string Error = "urn:mtconnect.org:MTConnectError:2.7 /schemas/MTConnectError_2.7.xsd";
+            public const string Streams = "urn:mtconnect.org:MTConnectStreams:2.7 /schemas/MTConnectStreams_2.7.xsd";
+
+            public static bool Match(string ns)
+            {
+                return ns == Assets || ns == Devices || ns == Error || ns == Streams;
+            }
+        }
+
+
+        static class Version26
+        {
+            public const string Assets = "urn:mtconnect.org:MTConnectAssets:2.6 /schemas/MTConnectAssets_2.6.xsd";
+            public const string Devices = "urn:mtconnect.org:MTConnectDevices:2.6 /schemas/MTConnectDevices_2.6.xsd";
+            public const string Error = "urn:mtconnect.org:MTConnectError:2.6 /schemas/MTConnectError_2.6.xsd";
+            public const string Streams = "urn:mtconnect.org:MTConnectStreams:2.6 /schemas/MTConnectStreams_2.6.xsd";
+
+            public static bool Match(string ns)
+            {
+                return ns == Assets || ns == Devices || ns == Error || ns == Streams;
+            }
+        }
+
+
+        static class Version25
+        {
+            public const string Assets = "urn:mtconnect.org:MTConnectAssets:2.5 /schemas/MTConnectAssets_2.5.xsd";
+            public const string Devices = "urn:mtconnect.org:MTConnectDevices:2.5 /schemas/MTConnectDevices_2.5.xsd";
+            public const string Error = "urn:mtconnect.org:MTConnectError:2.5 /schemas/MTConnectError_2.5.xsd";
+            public const string Streams = "urn:mtconnect.org:MTConnectStreams:2.5 /schemas/MTConnectStreams_2.5.xsd";
+
+            public static bool Match(string ns)
+            {
+                return ns == Assets || ns == Devices || ns == Error || ns == Streams;
+            }
+        }
+
+
+        static class Version24
+        {
+            public const string Assets = "urn:mtconnect.org:MTConnectAssets:2.4 /schemas/MTConnectAssets_2.4.xsd";
+            public const string Devices = "urn:mtconnect.org:MTConnectDevices:2.4 /schemas/MTConnectDevices_2.4.xsd";
+            public const string Error = "urn:mtconnect.org:MTConnectError:2.4 /schemas/MTConnectError_2.4.xsd";
+            public const string Streams = "urn:mtconnect.org:MTConnectStreams:2.4 /schemas/MTConnectStreams_2.4.xsd";
+
+            public static bool Match(string ns)
+            {
+                return ns == Assets || ns == Devices || ns == Error || ns == Streams;
+            }
         }
 
 
