@@ -273,7 +273,15 @@ namespace MTConnect
                     await Task.Delay(_configuration.ReconnectInterval, _stop.Token);
                 }
                 catch (TaskCanceledException) { }
-                catch (Exception) { }
+                catch (Exception ex)
+                {
+                    // Route through WorkerLoopExceptionLogger so the
+                    // operator sees an unexpected defect at the outer
+                    // scope instead of having it silently swallowed.
+                    WorkerLoopExceptionLogger.Log(
+                        exception: ex,
+                        onLog: msg => Log(MTConnectLogLevel.Warning, msg));
+                }
 
             } while (!_stop.Token.IsCancellationRequested);
         }
