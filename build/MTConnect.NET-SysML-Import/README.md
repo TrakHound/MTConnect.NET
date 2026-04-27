@@ -114,7 +114,7 @@ dotnet run --project build/MTConnect.NET-SysML-Import \
 dotnet build MTConnect.NET.sln -c Debug
 ```
 
-Build must be `0 Error(s)`. The universal cross-package parent resolver in `MTConnectClassModel.ResolveDanglingParents` (added 2026-04-25) automatically grafts any missing parent class that the new version places outside the per-package parser's reach — so a brand-new `*DataSet` / `*Result` / `Abstract*` style of class added in a future version compiles without a generator code change. If a new class introduces a field whose declared datatype lives in a foreign package, the resolver intentionally prunes that field on the grafted base; expect a few stripped-property follow-ups visible in the diff.
+Build must be `0 Error(s)`. The universal cross-package parent resolver in `MTConnectClassModel.ResolveDanglingParents` automatically grafts any missing parent class that the new version places outside the per-package parser's reach — so a brand-new `*DataSet` / `*Result` / `Abstract*` style of class added in a future version compiles without a generator code change. If a new class introduces a field whose declared datatype lives in a foreign package, the resolver intentionally prunes that field on the grafted base; expect a few stripped-property follow-ups visible in the diff.
 
 ### 4. Download the XSDs
 
@@ -166,7 +166,7 @@ build/MTConnect.NET-SysML-Import/
 
 ### Cross-package parent resolver
 
-A common XMI pattern: a class in package A declares a generalization (parent) that lives in package B. The per-package parsers in `MTConnect.NET-SysML/Models/*` only walk their own sub-tree, so the parent stays invisible and any C# subclass referencing it fails to compile. Since 2026-04-25 the importer runs `MTConnectClassModel.ResolveDanglingParents` automatically (called from `MTConnectModel.Parse`) which:
+A common XMI pattern: a class in package A declares a generalization (parent) that lives in package B. The per-package parsers in `MTConnect.NET-SysML/Models/*` only walk their own sub-tree, so the parent stays invisible and any C# subclass referencing it fails to compile. The importer runs `MTConnectClassModel.ResolveDanglingParents` automatically (called from `MTConnectModel.Parse`) which:
 
 1. Scans every parsed `Classes` list for class entries whose `ParentName` isn't in the local set.
 2. Looks each missing parent up in the global XMI by `xmi:id` (the authoritative reference — multiple UML classes can share a name across packages).
