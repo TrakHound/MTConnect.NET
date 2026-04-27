@@ -34,7 +34,7 @@ IN_FLIGHT_BRANCHES=(
     fix/issue-136-137
     fix/issue-138
     chore/deps-update-2026-04-27
-    test/coverage-and-conventions
+    test/coverage-and-compliance
 )
 
 PUSH=0
