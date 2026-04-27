@@ -131,6 +131,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Compliance", "Compliance", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MTConnect-Compliance-Tests", "tests\Compliance\MTConnect-Compliance-Tests\MTConnect-Compliance-Tests.csproj", "{37320C1F-5E50-4CDF-B00D-0E0ADB4F1AE6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MTConnect.NET-AgentModule-MqttRelay-Tests", "tests\MTConnect.NET-AgentModule-MqttRelay-Tests\MTConnect.NET-AgentModule-MqttRelay-Tests.csproj", "{E726EF85-4464-47D9-91EF-AD435D14F9D6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -459,6 +461,14 @@ Global
 		{37320C1F-5E50-4CDF-B00D-0E0ADB4F1AE6}.Package|Any CPU.Build.0 = Debug|Any CPU
 		{37320C1F-5E50-4CDF-B00D-0E0ADB4F1AE6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{37320C1F-5E50-4CDF-B00D-0E0ADB4F1AE6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E726EF85-4464-47D9-91EF-AD435D14F9D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E726EF85-4464-47D9-91EF-AD435D14F9D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E726EF85-4464-47D9-91EF-AD435D14F9D6}.Docker|Any CPU.ActiveCfg = Debug|Any CPU
+		{E726EF85-4464-47D9-91EF-AD435D14F9D6}.Docker|Any CPU.Build.0 = Debug|Any CPU
+		{E726EF85-4464-47D9-91EF-AD435D14F9D6}.Package|Any CPU.ActiveCfg = Debug|Any CPU
+		{E726EF85-4464-47D9-91EF-AD435D14F9D6}.Package|Any CPU.Build.0 = Debug|Any CPU
+		{E726EF85-4464-47D9-91EF-AD435D14F9D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E726EF85-4464-47D9-91EF-AD435D14F9D6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -510,6 +520,7 @@ Global
 		{D00C616E-6DFC-447A-B4B6-9FD7687249D7} = {A49A60F5-AA68-4B79-97F2-4F30300B9E1E}
 		{94E2A2D0-71FD-4563-B1A3-FC58136017E0} = {14375E03-6BF8-45E6-B868-D2399368992B}
 		{37320C1F-5E50-4CDF-B00D-0E0ADB4F1AE6} = {94E2A2D0-71FD-4563-B1A3-FC58136017E0}
+		{E726EF85-4464-47D9-91EF-AD435D14F9D6} = {14375E03-6BF8-45E6-B868-D2399368992B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CC13D3AD-18BF-4695-AB2A-087EF0885B20}
