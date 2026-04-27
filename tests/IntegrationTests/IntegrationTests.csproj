@@ -16,6 +16,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="..\Shared\RepoRootLocator.cs" Link="Shared\RepoRootLocator.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Divergic.Logging.Xunit" Version="4.2.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.4.0" />
