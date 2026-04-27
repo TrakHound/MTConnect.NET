@@ -128,21 +128,48 @@ namespace IntegrationTests
                 Port = _fixture.CurrentAgentPort
             };
             _server = new MTConnectHttpServer(configuration, _agent);
+
+            // Capture any startup exception (e.g. EADDRINUSE) so the
+            // WaitForListener timeout produces a useful diagnostic instead
+            // of silently waiting out the deadline.
+            Exception? serverStartException = null;
+            _server.ServerException += (_, ex) =>
+            {
+                serverStartException ??= ex;
+            };
+
             _server.Start();
 
             // MTConnectHttpServer.Start() is fire-and-forget: it spawns a
             // background Task.Run that performs the TCP bind + listen loop.
             // The first test request can race ahead of that bind and surface
             // as "Connection refused". Block here until the listener accepts
-            // a TCP connection, with a generous timeout for slow CI hosts.
-            WaitForListener("127.0.0.1", _fixture.CurrentAgentPort, TimeSpan.FromSeconds(10));
+            // a TCP connection, with a generous timeout for slow CI hosts
+            // and threadpool-starved parallel test runs.
+            WaitForListener(
+                "127.0.0.1",
+                _fixture.CurrentAgentPort,
+                TimeSpan.FromSeconds(30),
+                () => serverStartException);
         }
 
-        private static void WaitForListener(string host, int port, TimeSpan timeout)
+        private static void WaitForListener(
+            string host,
+            int port,
+            TimeSpan timeout,
+            Func<Exception?>? serverStartException = null)
         {
             var deadline = DateTime.UtcNow + timeout;
             while (DateTime.UtcNow < deadline)
             {
+                var startupException = serverStartException?.Invoke();
+                if (startupException != null)
+                {
+                    throw new InvalidOperationException(
+                        $"HTTP server failed to start on {host}:{port}: {startupException.Message}",
+                        startupException);
+                }
+
                 try
                 {
                     using var client = new System.Net.Sockets.TcpClient();
@@ -157,7 +184,7 @@ namespace IntegrationTests
                     // not listening yet; keep polling
                 }
 
-                Thread.Sleep(50);
+                Thread.Sleep(100);
             }
 
             throw new TimeoutException(
