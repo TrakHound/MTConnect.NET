@@ -82,7 +82,13 @@ namespace MTConnect
 
         protected override void OnStop()
         {
-            _documentServer.Stop();
+            // Entity-mode constructs only _entityServer, so a bare
+            // _documentServer.Stop() here would raise an NRE during
+            // shutdown. Route through the lifecycle helper so each
+            // server stop is independently null-safe and exception-safe.
+            MqttRelayLifecycle.StopServers(
+                documentStop: _documentServer != null ? (Action)(() => _documentServer.Stop()) : null,
+                entityStop: null);
 
             if (_stop != null) _stop.Cancel();
 
