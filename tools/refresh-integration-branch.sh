@@ -19,20 +19,22 @@ WORKTREE_PATH="${REPO_ROOT}/.claude/worktrees/integration-all-fixes"
 # Edit this list as plans start / merge.
 # Each entry must be a branch on `origin` (the user's fork).
 IN_FLIGHT_BRANCHES=(
+    # Order matches CONVENTIONS §1.5b "Merge order — deterministic + documented":
+    #   1. Foundation (feat/issue-133) first.
+    #   2. Per-issue PRs in numeric ascending order.
+    #   3. Cross-cutting / chore branches (deps-update) last.
     feat/issue-133
     fix/issue-127
+    fix/issue-128
     fix/issue-129
+    fix/issue-130-131
+    fix/issue-132
+    fix/issue-134
     fix/issue-135
+    fix/issue-136-137
     fix/issue-138
-    # fix/issue-128       # blocked on bootstrap precondition + plan-file scope fixes (2026-04-25)
-    # fix/issue-132       # blocked on bootstrap precondition + plan-file scope fixes (2026-04-25)
-    # fix/issue-134       # awaiting subagent completion
-    # fix/issue-130-131
-    # fix/issue-136-137
-    # feat/sysml-importer-improvements
-    # feat/xsd-validation
-    # test/coverage-and-conventions
-    # chore/deps-update-XXXX-MM-DD
+    chore/deps-update-2026-04-27
+    test/coverage-and-conventions
 )
 
 PUSH=0
