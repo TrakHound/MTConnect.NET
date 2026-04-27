@@ -345,6 +345,7 @@ namespace MTConnect.SysML.CSharp
                     resultPath = $"{resultPath}.g.cs";
 
                     var resultDirectory = Path.GetDirectoryName(resultPath);
+                    EnsureUnderOutputRoot(resultPath, outputPath);
                     if (!Directory.Exists(resultDirectory)) Directory.CreateDirectory(resultDirectory);
 
                     File.WriteAllText(resultPath, result);
@@ -365,6 +366,7 @@ namespace MTConnect.SysML.CSharp
                     var resultFilename = Path.GetFileName(resultPath);
                     resultPath = Path.Combine(resultDirectory, $"I{resultFilename}.g.cs");
 
+                    EnsureUnderOutputRoot(resultPath, outputPath);
                     if (!Directory.Exists(resultDirectory)) Directory.CreateDirectory(resultDirectory);
 
                     File.WriteAllText(resultPath, result);
@@ -385,10 +387,32 @@ namespace MTConnect.SysML.CSharp
                     var resultFilename = Path.GetFileName(resultPath);
                     resultPath = Path.Combine(resultDirectory, $"{resultFilename}Descriptions.g.cs");
 
+                    EnsureUnderOutputRoot(resultPath, outputPath);
                     if (!Directory.Exists(resultDirectory)) Directory.CreateDirectory(resultDirectory);
 
                     File.WriteAllText(resultPath, result);
                 }
+            }
+        }
+
+        // Defence-in-depth path-traversal guard. The result path is built by
+        // appending an XMI-derived `template.Id` (with `.` → directory
+        // separator) to `outputPath`. The XMI is operator-controlled so the
+        // practical risk is low, but a malformed `template.Id` containing
+        // `..` segments could still escape the output root. Resolve to a
+        // canonical absolute path and compare against the canonical
+        // outputPath; throw if the resolved path doesn't sit inside it.
+        private static void EnsureUnderOutputRoot(string resolvedPath, string outputPath)
+        {
+            var fullResolved = Path.GetFullPath(resolvedPath);
+            var fullRoot = Path.GetFullPath(outputPath);
+            if (!fullRoot.EndsWith(Path.DirectorySeparatorChar.ToString()))
+                fullRoot += Path.DirectorySeparatorChar;
+            if (!fullResolved.StartsWith(fullRoot, StringComparison.Ordinal))
+            {
+                throw new InvalidOperationException(
+                    $"Refusing to write '{fullResolved}' — it resolves outside the output root '{fullRoot}'. " +
+                    "This is a defence-in-depth guard against path-traversal in XMI-derived template ids.");
             }
         }
 

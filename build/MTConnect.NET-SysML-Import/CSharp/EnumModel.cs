@@ -1,9 +1,7 @@
 ﻿using MTConnect.NET_SysML_Import.CSharp;
 using MTConnect.SysML.Xmi;
 using MTConnect.SysML.Xmi.UML;
-using Scriban;
 using System;
-using System.IO;
 using System.Linq;
 
 namespace MTConnect.SysML.CSharp
@@ -93,55 +91,17 @@ namespace MTConnect.SysML.CSharp
 
         public string RenderModel()
         {
-            var templateFilename = $"Enum.scriban";
-            var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "CSharp", "Templates", templateFilename);
-            if (File.Exists(templatePath))
-            {
-                try
-                {
-                    var templateContents = File.ReadAllText(templatePath);
-                    if (templateContents != null)
-                    {
-                        var template = Template.Parse(templateContents);
-                        return template.Render(this);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
-            }
-
-            return null;
+            var template = TemplateLoader.LoadOrThrow("CSharp", "Templates", "Enum.scriban");
+            return template.Render(this);
         }
 
         public string RenderInterface() => null;
 
         public string RenderDescriptions()
         {
-            if (Values != null && Values.Count > 0)
-            {
-                var templateFilename = $"EnumDescriptions.scriban";
-                var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "CSharp", "Templates", templateFilename);
-                if (File.Exists(templatePath))
-                {
-                    try
-                    {
-                        var templateContents = File.ReadAllText(templatePath);
-                        if (templateContents != null)
-                        {
-                            var template = Template.Parse(templateContents);
-                            return template.Render(this);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine(ex.Message);
-                    }
-                }
-            }
-
-            return null;
+            if (Values == null || Values.Count == 0) return null;
+            var template = TemplateLoader.LoadOrThrow("CSharp", "Templates", "EnumDescriptions.scriban");
+            return template.Render(this);
         }
     }
 }

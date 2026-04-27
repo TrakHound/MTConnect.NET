@@ -1,10 +1,7 @@
 ﻿using MTConnect.NET_SysML_Import.CSharp;
 using MTConnect.SysML.Xmi;
 using MTConnect.SysML.Xmi.UML;
-using Scriban;
-using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
 namespace MTConnect.SysML.CSharp
@@ -86,77 +83,24 @@ namespace MTConnect.SysML.CSharp
 
         public string RenderModel()
         {
-            var templateFilename = $"Model.scriban";
-            var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "CSharp", "Templates", templateFilename);
-            if (HasModel && File.Exists(templatePath))
-            {
-                try
-                {
-                    var templateContents = File.ReadAllText(templatePath);
-                    if (templateContents != null)
-                    {
-                        var template = Template.Parse(templateContents);
-                        return template.Render(this);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
-            }
-
-            return null;
+            if (!HasModel) return null;
+            var template = TemplateLoader.LoadOrThrow("CSharp", "Templates", "Model.scriban");
+            return template.Render(this);
         }
 
         public string RenderInterface()
         {
-            var templateFilename = $"Interface.scriban";
-            var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "CSharp", "Templates", templateFilename);
-            if (HasInterface && File.Exists(templatePath))
-            {
-                try
-                {
-                    var templateContents = File.ReadAllText(templatePath);
-                    if (templateContents != null)
-                    {
-                        var template = Template.Parse(templateContents);
-                        return template.Render(this);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
-            }
-
-            return null;
+            if (!HasInterface) return null;
+            var template = TemplateLoader.LoadOrThrow("CSharp", "Templates", "Interface.scriban");
+            return template.Render(this);
         }
 
         public string RenderDescriptions()
         {
-            if (Properties != null && Properties.Count > 0)
-            {
-                var templateFilename = $"ModelDescriptions.scriban";
-                var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "CSharp", "Templates", templateFilename);
-                if (HasDescriptions && File.Exists(templatePath))
-                {
-                    try
-                    {
-                        var templateContents = File.ReadAllText(templatePath);
-                        if (templateContents != null)
-                        {
-                            var template = Template.Parse(templateContents);
-                            return template.Render(this);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine(ex.Message);
-                    }
-                }
-            }
-
-            return null;
+            if (Properties == null || Properties.Count == 0) return null;
+            if (!HasDescriptions) return null;
+            var template = TemplateLoader.LoadOrThrow("CSharp", "Templates", "ModelDescriptions.scriban");
+            return template.Render(this);
         }
     }
 }

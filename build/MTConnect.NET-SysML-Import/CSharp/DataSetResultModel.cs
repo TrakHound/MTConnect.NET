@@ -1,9 +1,6 @@
 ﻿using MTConnect.NET_SysML_Import.CSharp;
 using MTConnect.SysML.Models.Assets;
 using MTConnect.SysML.Models.Observations;
-using Scriban;
-using System;
-using System.IO;
 using System.Linq;
 
 namespace MTConnect.SysML.CSharp
@@ -56,26 +53,8 @@ namespace MTConnect.SysML.CSharp
 
         public string RenderModel()
         {
-            var templateFilename = $"Observations.DataSetResults.scriban";
-            var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "CSharp", "Templates", templateFilename);
-            if (File.Exists(templatePath))
-            {
-                try
-                {
-                    var templateContents = File.ReadAllText(templatePath);
-                    if (templateContents != null)
-                    {
-                        var template = Template.Parse(templateContents);
-                        return template.Render(this);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
-            }
-
-            return null;
+            var template = TemplateLoader.LoadOrThrow("CSharp", "Templates", "Observations.DataSetResults.scriban");
+            return template.Render(this);
         }
 
         public string RenderInterface() => null;

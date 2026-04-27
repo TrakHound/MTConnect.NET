@@ -2,10 +2,7 @@
 using MTConnect.SysML.Models.Devices;
 using MTConnect.SysML.Xmi;
 using MTConnect.SysML.Xmi.UML;
-using Scriban;
-using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
 namespace MTConnect.SysML.CSharp
@@ -85,26 +82,8 @@ namespace MTConnect.SysML.CSharp
 
         public virtual string RenderModel()
         {
-            var templateFilename = $"Devices.DataItemType.scriban";
-            var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "CSharp", "Templates", templateFilename);
-            if (File.Exists(templatePath))
-            {
-                try
-                {
-                    var templateContents = File.ReadAllText(templatePath);
-                    if (templateContents != null)
-                    {
-                        var template = Template.Parse(templateContents);
-                        return template.Render(this);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
-            }
-
-            return null;
+            var template = TemplateLoader.LoadOrThrow("CSharp", "Templates", "Devices.DataItemType.scriban");
+            return template.Render(this);
         }
 
         public string RenderInterface() => null;
