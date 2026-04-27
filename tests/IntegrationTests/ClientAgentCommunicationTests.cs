@@ -146,8 +146,8 @@ namespace IntegrationTests
                 try
                 {
                     using var client = new System.Net.Sockets.TcpClient();
-                    var connectTask = client.ConnectAsync(host, port);
-                    if (connectTask.Wait(TimeSpan.FromMilliseconds(500)) && client.Connected)
+                    client.Connect(host, port);
+                    if (client.Connected)
                     {
                         return;
                     }
