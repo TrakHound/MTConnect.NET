@@ -70,6 +70,13 @@ namespace MTConnect.SysML.Xmi
         public static XmiDeserializer FromFile(string filename)
         {
             var xDoc = new XmlDocument();
+            // Disable external-resource resolution defence-in-depth.
+            // .NET 6+ defaults this to null already, but pinning it
+            // explicitly survives a future framework upgrade and any
+            // accidental restoration of the default XmlUrlResolver
+            // (which would fetch DTDs / external entities over the
+            // network). See OWASP "XML External Entities (XXE)".
+            xDoc.XmlResolver = null;
             xDoc.Load(filename);
 
             return new XmiDeserializer(xDoc);
@@ -84,6 +91,8 @@ namespace MTConnect.SysML.Xmi
         public static XmiDeserializer FromXml(string xml)
         {
             var xDoc = new XmlDocument();
+            // See FromFile for rationale.
+            xDoc.XmlResolver = null;
             xDoc.LoadXml(xml);
 
             return new XmiDeserializer(xDoc);
