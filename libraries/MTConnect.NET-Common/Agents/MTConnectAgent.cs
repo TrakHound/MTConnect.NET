@@ -1167,6 +1167,11 @@ namespace MTConnect.Agents
                         assetcount.Device = obj;
                         assetcount.Container = obj;
                         assetcount.Name = AssetCountDataItem.NameId;
+                        // ASSET_COUNT is a DATA_SET representation per MTConnect Part 2
+                        // (UML _19_0_3_68e0225_1640602520420_217627_44). The generated
+                        // AssetCountDataItem still defaults Representation to VALUE; override
+                        // it here so the auto-injected DataItem matches the spec.
+                        assetcount.Representation = DataItemRepresentation.DATA_SET;
                         dataItemList.Add(assetcount);
                         dataItemTypes.Add(AssetCountDataItem.TypeId);
                     }
