@@ -15,6 +15,14 @@ namespace MTConnect.Devices.Json
         [JsonPropertyName("version")]
         public string Version { get; set; }
 
+        /// <summary>
+        /// Header-nested <c>schemaVersion</c> identifies the AGENT's
+        /// configured MTConnect Standard release — what the data inside
+        /// the document refers to. It is distinct from the top-level
+        /// envelope <c>schemaVersion</c>, which identifies the document
+        /// schema the producer chose to emit. The two fields are
+        /// populated from independent sources and are not interchangeable.
+        /// </summary>
         [JsonPropertyName("schemaVersion")]
         public string SchemaVersion { get; set; }
 
