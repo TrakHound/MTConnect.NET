@@ -1,8 +1,8 @@
 // Copyright (c) 2026 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
+using MTConnect.NET_JSON_cppagent_Tests.TestHelpers;
 using NUnit.Framework;
-using System;
 using System.IO;
 using System.Text.RegularExpressions;
 
@@ -43,20 +43,8 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Regressions
         private static string LocateLibrarySourceDir()
         {
             // Test binary lives at .../tests/MTConnect.NET-JSON-cppagent-Tests/bin/Debug/net8.0/.
-            // Walk up to the repo root, then descend into the library.
-            var dir = AppContext.BaseDirectory;
-            for (var i = 0; i < 8; i++)
-            {
-                var candidate = Path.Combine(dir, "libraries", "MTConnect.NET-JSON-cppagent");
-                if (Directory.Exists(candidate))
-                {
-                    return candidate;
-                }
-                var parent = Directory.GetParent(dir);
-                if (parent == null) break;
-                dir = parent.FullName;
-            }
-            throw new DirectoryNotFoundException("Could not locate MTConnect.NET-JSON-cppagent library source.");
+            // Find the repo root via the shared sentinel walk, then descend into the library.
+            return Path.Combine(RepoRootLocator.LocateRoot(), "libraries", "MTConnect.NET-JSON-cppagent");
         }
     }
 }
