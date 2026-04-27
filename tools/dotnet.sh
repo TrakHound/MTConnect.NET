@@ -1,21 +1,22 @@
 #!/usr/bin/env bash
-# Run dotnet. By default uses the `dotnet` on PATH; when passed
-# `--docker` (or `MTCONNECT_DOTNET_USE_DOCKER=1`) runs inside an
-# official .NET SDK container. Portable across Linux, macOS, and
-# Windows Git-Bash / WSL.
+# Wrapper around `dotnet` that runs either against the dotnet on PATH
+# (default) or inside an official Microsoft .NET SDK container when
+# `--docker` (or `MTCONNECT_DOTNET_USE_DOCKER=1`) is set. Lets a
+# contributor without a local SDK install build and test the repo, and
+# pins the SDK version so two contributors don't drift on minor
+# differences.
 #
-# Adapted from dime-connector/tools/dotnet.sh for MTConnect.NET
-# conventions. Tuned for this repo's layout:
-#   - no single "main" csproj to read TFM from — `MTConnect.NET.sln`
-#     spans ~20+ projects targeting a mix of net6.0, net8.0, and
-#     netstandard2.0. Default SDK image pinned to net8.0 (the target
-#     used by every P0-aligned test project in plans/tests/); override
-#     via MTCONNECT_DOTNET_IMAGE.
-#   - test projects live under tests/**/*.csproj (not a hardcoded path).
+# Default container image tag: 8.0 (the TargetFramework every test
+# project in this repo uses for Debug). Override via
+# `MTCONNECT_DOTNET_SDK_TAG=9.0` or, for a fully custom image,
+# `MTCONNECT_DOTNET_IMAGE=mcr.microsoft.com/dotnet/sdk:9.0-noble`.
 #
-# Usage: tools/dotnet.sh [--docker] <dotnet args ...>
-#        tools/dotnet.sh build MTConnect.NET.sln
-#        tools/dotnet.sh --docker test tests/MTConnect.NET-Common-Tests
+# Cross-platform: Linux, macOS, Windows Git-Bash / WSL.
+#
+# Usage:
+#   tools/dotnet.sh build MTConnect.NET.sln
+#   tools/dotnet.sh --docker test tests/MTConnect.NET-Common-Tests
+#   MTCONNECT_DOTNET_USE_DOCKER=1 tools/dotnet.sh --version
 set -euo pipefail
 
 # --- Locate repo root (macOS-safe; no readlink -f) ---------------------

@@ -1,12 +1,20 @@
 #!/usr/bin/env pwsh
-# PowerShell sibling of tools/dotnet.sh — same semantics, same flags.
+# Wrapper around `dotnet` that runs either against the dotnet on PATH
+# (default) or inside an official Microsoft .NET SDK container when
+# -Docker (or MTCONNECT_DOTNET_USE_DOCKER=1) is set. Lets a contributor
+# without a local SDK install build and test the repo, and pins the
+# SDK version so two contributors don't drift on minor differences.
 #
-# Adapted from dime-connector for MTConnect.NET. Defaults to the net8.0
-# SDK image; override via MTCONNECT_DOTNET_IMAGE.
+# Default container image tag: 8.0. Override via
+# MTCONNECT_DOTNET_SDK_TAG=9.0 or, for a fully custom image,
+# MTCONNECT_DOTNET_IMAGE=mcr.microsoft.com/dotnet/sdk:9.0-noble.
 #
-# Usage: tools/dotnet.ps1 [-Docker] <dotnet args ...>
-#        tools/dotnet.ps1 build MTConnect.NET.sln
-#        tools/dotnet.ps1 -Docker test tests/MTConnect.NET-Common-Tests
+# Cross-platform: Windows PowerShell, PowerShell Core on Linux/macOS.
+#
+# Usage:
+#   tools/dotnet.ps1 build MTConnect.NET.sln
+#   tools/dotnet.ps1 -Docker test tests/MTConnect.NET-Common-Tests
+#   $env:MTCONNECT_DOTNET_USE_DOCKER='1'; tools/dotnet.ps1 --version
 
 [CmdletBinding()]
 param(

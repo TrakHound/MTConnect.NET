@@ -1,27 +1,33 @@
 #!/usr/bin/env bash
-# Local test + coverage entry point for MTConnect.NET.
+# Local test + coverage entry point for MTConnect.NET. Discovers every
+# test project under tests/**/*.csproj — adding a new test project
+# requires no edits to this script. The compliance harness under
+# tests/Compliance/** and the Docker-gated end-to-end suites are
+# skipped by default so the common loop stays fast; flags below opt
+# into them.
 #
-# Iterates every tests/**/*.csproj — rather than hardcoded project names
-# — so new test projects added by plans/tests/ (P6 new-library-tests,
-# P7 agent-adapter-tests, etc.) are picked up automatically.
-#
-# Includes the Compliance + E2E tiers on demand (or when env gates are
-# set). Docker-gated suites are filtered out unless MTCONNECT_E2E_DOCKER
-# is truthy; when truthy, Testcontainers-backed tests run.
-#
-# Adapted from dime-connector/tools/test.sh.
+# Pairs with tools/dotnet.sh: when --docker (or
+# MTCONNECT_DOTNET_USE_DOCKER=1) is set, each dotnet invocation runs
+# inside the pinned .NET SDK container via tools/dotnet.sh.
 #
 # Usage: tools/test.sh [--docker] [--compliance] [--e2e] [--only <pattern>]
 #
 # Flags:
-#   -d, --docker        Run every dotnet invocation via tools/dotnet.sh --docker
-#                       (also honoured via MTCONNECT_DOTNET_USE_DOCKER=1).
-#   -c, --compliance    Include the MTConnect compliance harness (P9 projects
-#                       under tests/Compliance/**) in addition to unit + integration.
-#   -e, --e2e           Force the E2E / Docker-gated suites (implies
-#                       MTCONNECT_E2E_DOCKER=true; Testcontainers mosquitto / cppagent).
-#   -o, --only PATTERN  Run only test projects whose path matches PATTERN (grep -E).
-#                       Example: --only 'XML|SHDR' runs only those two projects.
+#   -d, --docker        Run every dotnet invocation through tools/dotnet.sh
+#                       --docker (also honoured via
+#                       MTCONNECT_DOTNET_USE_DOCKER=1).
+#   -c, --compliance    Include the MTConnect compliance harness under
+#                       tests/Compliance/** (XSD validation, OCL checks,
+#                       cppagent parity). Skipped by default because it
+#                       is the slowest tier and many of its tests are
+#                       gated behind Docker / [Category] tags.
+#   -e, --e2e           Force the Docker-gated end-to-end suites
+#                       (implies MTCONNECT_E2E_DOCKER=true;
+#                       Testcontainers spins up mosquitto + cppagent
+#                       containers per test class).
+#   -o, --only PATTERN  Run only the test projects whose path matches
+#                       PATTERN (grep -E). Example: --only 'XML|SHDR'
+#                       runs only those two projects.
 #   -h, --help          Print this help and exit.
 set -euo pipefail
 
