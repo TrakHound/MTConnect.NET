@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MTConnect.Devices;
 using MTConnect.Devices.Components;
+using MTConnect.Tests.Common.TestHelpers;
 using NUnit.Framework;
 
 namespace MTConnect.Tests.Common.SystemsOrganizer
@@ -124,7 +125,7 @@ namespace MTConnect.Tests.Common.SystemsOrganizer
 
             var depths = AutoWrappedSystemTypes
                 .Select(t => (string)t.GetField("TypeId")!.GetValue(null)!)
-                .Select(typeId => MeasureDepth(device.Components, typeId, 1))
+                .Select(typeId => ComponentDepthFinder.MeasureDepth(device.Components, typeId, 1))
                 .Distinct()
                 .ToArray();
 
@@ -133,18 +134,6 @@ namespace MTConnect.Tests.Common.SystemsOrganizer
                 $"Got distinct depths: [{string.Join(", ", depths)}].");
             Assert.That(depths[0], Is.EqualTo(2),
                 "Auto-wrapped System peers must sit at depth 2 (Device → Systems → Member).");
-        }
-
-        private static int MeasureDepth(IEnumerable<IComponent> components, string targetTypeId, int currentDepth)
-        {
-            if (components == null) return -1;
-            foreach (var c in components)
-            {
-                if (c.Type == targetTypeId) return currentDepth;
-                var nested = MeasureDepth(c.Components, targetTypeId, currentDepth + 1);
-                if (nested > 0) return nested;
-            }
-            return -1;
         }
     }
 }

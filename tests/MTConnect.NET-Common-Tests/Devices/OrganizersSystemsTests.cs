@@ -23,6 +23,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MTConnect.Devices;
 using MTConnect.Devices.Components;
+using MTConnect.Tests.Common.TestHelpers;
 using NUnit.Framework;
 
 namespace MTConnect.Tests.Common.SystemsOrganizer
@@ -164,19 +165,7 @@ namespace MTConnect.Tests.Common.SystemsOrganizer
         private static int MeasureDepth(Device device, Type targetComponentType)
         {
             var targetTypeId = GetTypeIdFromComponent(targetComponentType);
-            return MeasureDepth(device.Components, targetTypeId, 1);
-        }
-
-        private static int MeasureDepth(IEnumerable<IComponent>? components, string targetTypeId, int currentDepth)
-        {
-            if (components == null) return -1;
-            foreach (var c in components)
-            {
-                if (c.Type == targetTypeId) return currentDepth;
-                var nested = MeasureDepth(c.Components, targetTypeId, currentDepth + 1);
-                if (nested > 0) return nested;
-            }
-            return -1;
+            return ComponentDepthFinder.MeasureDepth(device, targetTypeId);
         }
 
         private static string GetTypeIdFromComponent(Type componentType)
