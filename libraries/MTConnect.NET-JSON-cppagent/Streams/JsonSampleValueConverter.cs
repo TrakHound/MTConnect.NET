@@ -23,9 +23,11 @@ namespace MTConnect.NET_JSON_cppagent.Streams
     ///   sample, a category enum string) is written as a JSON string token,
     ///   preserving backward compatibility for non-numeric Sample carriers.
     ///
-    /// Read is permissive: a number token returns the boxed <see cref="double"/>;
-    /// a string token returns the unboxed string; any other token returns
-    /// <c>null</c>.
+    /// Read returns the boxed <see cref="double"/> for a JSON number token
+    /// and the unboxed string for a JSON string token. Any other token
+    /// kind (boolean, array, object) signals feed corruption and surfaces
+    /// as a <see cref="JsonException"/> so the failure is visible to the
+    /// caller instead of being silently dropped.
     /// </summary>
     public class JsonSampleValueConverter : JsonConverter<object>
     {
@@ -38,8 +40,9 @@ namespace MTConnect.NET_JSON_cppagent.Streams
                 case JsonTokenType.String:
                     return reader.GetString();
                 default:
-                    reader.TrySkip();
-                    return null;
+                    throw new JsonException(
+                        $"Unsupported token kind '{reader.TokenType}' for a Sample value; " +
+                        "expected a JSON number or string token.");
             }
         }
 
@@ -62,7 +65,22 @@ namespace MTConnect.NET_JSON_cppagent.Streams
                     return;
                 }
 
-                if (double.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, out var parsed))
+                // Empty / whitespace-only strings serialize as a JSON null
+                // token: the carrier omits the property entirely for null
+                // Values via JsonIgnoreCondition.WhenWritingDefault, so the
+                // wire shape stays consistent with "no value supplied".
+                if (string.IsNullOrWhiteSpace(s))
+                {
+                    writer.WriteNullValue();
+                    return;
+                }
+
+                // ThreeSpaceSampleValueType payloads contain a space — short
+                // circuit before double.TryParse walks the whole string so
+                // multi-component values stay on the cheap path.
+                if (s.IndexOf(' ') < 0
+                    && double.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, out var parsed)
+                    && double.IsFinite(parsed))
                 {
                     writer.WriteNumberValue(parsed);
                     return;
@@ -93,7 +111,7 @@ namespace MTConnect.NET_JSON_cppagent.Streams
             // Final fallback: a non-string, non-numeric payload (e.g. a
             // bool or a custom struct). Format invariantly and emit as a
             // string token so the wire shape stays predictable.
-            writer.WriteStringValue(string.Format(CultureInfo.InvariantCulture, "{0}", value));
+            writer.WriteStringValue(Convert.ToString(value, CultureInfo.InvariantCulture));
         }
     }
 }

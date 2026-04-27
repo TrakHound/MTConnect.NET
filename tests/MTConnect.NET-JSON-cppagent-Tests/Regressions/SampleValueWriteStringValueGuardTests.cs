@@ -1,10 +1,9 @@
 // Copyright (c) 2026 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-using System;
 using System.IO;
-using System.Linq;
 using System.Text.RegularExpressions;
+using MTConnect.NET_JSON_cppagent_Tests.TestHelpers;
 using NUnit.Framework;
 
 namespace MTConnect.NET_JSON_cppagent_Tests.Regressions
@@ -25,36 +24,10 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Regressions
     [TestFixture]
     public class SampleValueWriteStringValueGuardTests
     {
-        private static readonly string[] CandidateRoots = new[]
-        {
-            // Walk up from the test assembly's bin/Debug/net8.0/ to the
-            // repo root. AppContext.BaseDirectory points at that bin
-            // folder; the repo root is six levels up
-            // (.../tests/<proj>/bin/Debug/net8.0).
-            "../../../../../",
-            "../../../../",
-            "../../../",
-        };
-
-        private static string LocateRepoRoot()
-        {
-            var bin = AppContext.BaseDirectory;
-            foreach (var rel in CandidateRoots)
-            {
-                var candidate = Path.GetFullPath(Path.Combine(bin, rel));
-                if (Directory.Exists(Path.Combine(candidate, "libraries", "MTConnect.NET-JSON-cppagent")))
-                    return candidate;
-            }
-
-            throw new DirectoryNotFoundException(
-                "Could not locate the libraries/MTConnect.NET-JSON-cppagent " +
-                "directory from the test bin folder.");
-        }
-
         [Test]
         public void JsonSampleValue_does_not_write_value_directly_as_string()
         {
-            var root = LocateRepoRoot();
+            var root = RepoRootLocator.LocateRoot();
             var jsonSampleValuePath = Path.Combine(
                 root, "libraries", "MTConnect.NET-JSON-cppagent", "Streams", "JsonSampleValue.cs");
 
@@ -79,7 +52,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Regressions
         [Test]
         public void Sample_value_carrier_uses_dedicated_converter_attribute()
         {
-            var root = LocateRepoRoot();
+            var root = RepoRootLocator.LocateRoot();
             var jsonSampleValuePath = Path.Combine(
                 root, "libraries", "MTConnect.NET-JSON-cppagent", "Streams", "JsonSampleValue.cs");
 

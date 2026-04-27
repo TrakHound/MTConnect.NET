@@ -12,9 +12,9 @@ namespace MTConnect.NET_JSON_cppagent_Tests.E2E
     /// Wire-format end-to-end tests that exercise the full
     /// <c>IObservation -> JsonSampleValue -> JsonSerializer</c> path used
     /// by the JSON-cppagent HTTP and MQTT formatters. These tests do not
-    /// require Docker; the Docker-gated SHDR -> agent -> MQTT round-trip
-    /// scenarios are deferred to the `tests/Compliance/MTConnect-Compliance-E2E/`
-    /// project (under plan 11) per CONVENTIONS section 12.
+    /// require Docker; Docker-gated SHDR -> agent -> MQTT round-trip
+    /// scenarios live in a separate compliance project and are out of
+    /// scope here.
     ///
     /// Sources:
     ///   - XSD: https://schemas.mtconnect.org/schemas/MTConnectStreams_2.7.xsd

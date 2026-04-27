@@ -84,10 +84,13 @@ namespace MTConnect.Streams.Json
             sample.Type = type;
             sample.SubType = SubType;
             sample.CompositionId = CompositionId;
-            sample.ResetTriggered = ResetTriggered.ConvertEnum<ResetTriggered>();
+            // Null-guard ResetTriggered/Statistic so omitting the JSON
+            // property does not stamp the observation with a stray
+            // default-enum value (mirrors JsonDataItem.ToDataItem).
+            if (!string.IsNullOrEmpty(ResetTriggered)) sample.ResetTriggered = ResetTriggered.ConvertEnum<ResetTriggered>();
             if (Value != null) sample.Result = Value.ToString();
             sample.SampleRate = SampleRate.HasValue ? SampleRate.Value : 0;
-            sample.Statistic = Statistic.ConvertEnum<DataItemStatistic>();
+            if (!string.IsNullOrEmpty(Statistic)) sample.Statistic = Statistic.ConvertEnum<DataItemStatistic>();
             sample.Duration = Duration.HasValue ? Duration.Value : 0;
             return sample;
         }

@@ -164,18 +164,8 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Streams
             Assert.That((string)result!, Is.EqualTo("UNAVAILABLE"));
         }
 
-        [Test]
-        public void Read_returns_null_for_unsupported_token()
-        {
-            var converter = new MTConnect.NET_JSON_cppagent.Streams.JsonSampleValueConverter();
-            var options = new System.Text.Json.JsonSerializerOptions();
-            options.Converters.Add(converter);
-
-            // Boolean token kind is neither Number nor String — converter's
-            // default branch returns null after TrySkip.
-            var result = System.Text.Json.JsonSerializer.Deserialize<object>("true", options);
-
-            Assert.That(result, Is.Null);
-        }
+        // Note: the unsupported-token contract (bool/array/object) is now
+        // pinned in JsonSampleValueConverterEdgeCaseTests as a thrown
+        // JsonException — see issue-129 review-pass finding F-P-L13.
     }
 }
