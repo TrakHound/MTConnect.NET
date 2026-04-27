@@ -10,7 +10,7 @@
 // not as a side-effect of the inner-list iteration order inside
 // `GetOrganizerType` — otherwise reordering the implementation silently
 // regresses the public `Organizers.Systems` surface and the auto-wrap
-// behaviour in `Device.AddComponent()`.
+// behavior in `Device.AddComponent()`.
 
 using System.Linq;
 using MTConnect.Devices;

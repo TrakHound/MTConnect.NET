@@ -2,7 +2,7 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 // End-to-end exercise of `Device.AddComponent()` against the full set of
-// System substitution-group members. Verifies the auto-wrap behaviour
+// System substitution-group members. Verifies the auto-wrap behavior
 // produces a symmetric tree shape — every auto-wrapped System peer lands
 // under a single shared `<Systems>` organizer at equal depth, which is
 // what `Probe` envelopes serialise out.
@@ -10,7 +10,7 @@
 // Source (XSD): https://schemas.mtconnect.org/schemas/MTConnectDevices_*.xsd
 //   `<xs:element name="Systems" ...>` is the organizer container; every
 //   member of the `System` substitution-group is its child element on the
-//   wire. The auto-wrap behaviour in `Device.AddComponent()` exists
+//   wire. The auto-wrap behavior in `Device.AddComponent()` exists
 //   precisely to align programmatic device construction with the wire shape
 //   declared by this XSD.
 // Source (prose): https://docs.mtconnect.org/Part_3.0_DevicesInformationModel

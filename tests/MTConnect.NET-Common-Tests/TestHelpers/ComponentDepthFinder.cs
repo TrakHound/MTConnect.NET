@@ -14,7 +14,7 @@ namespace MTConnect.Tests.Common.TestHelpers
     /// <c>-1</c> when the target is not present in the subtree.
     ///
     /// Tests that need to assert tree-depth invariants for the auto-wrap
-    /// behaviour in <see cref="Device.AddComponent(IComponent)"/> share
+    /// behavior in <see cref="Device.AddComponent(IComponent)"/> share
     /// this helper so the walk-up logic stays in one place.
     /// </summary>
     public static class ComponentDepthFinder
