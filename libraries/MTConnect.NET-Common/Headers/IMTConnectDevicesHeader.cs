@@ -23,7 +23,7 @@ namespace MTConnect.Headers
         string Version { get; }
 
         /// <summary>
-        /// The major and minor number of the MTConnect Standard schema the Response Document conforms to (for example "2.5").
+        /// The major and minor number of the MTConnect Standard schema the Response Document conforms to (for example "2.7").
         /// Mirrors the cppagent v2 wire shape that emits `schemaVersion` on every Header.
         /// </summary>
         string SchemaVersion { get; }
