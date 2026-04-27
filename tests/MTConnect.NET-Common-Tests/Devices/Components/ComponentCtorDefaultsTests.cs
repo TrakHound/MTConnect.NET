@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using MTConnect.Devices;
 using MTConnect.Devices.Components;
+using MTConnect.Tests.Common.TestHelpers;
 using NUnit.Framework;
 
 namespace MTConnect.Tests.Common.Devices.Components
@@ -24,39 +25,21 @@ namespace MTConnect.Tests.Common.Devices.Components
     public class ComponentCtorDefaultsTests
     {
         /// <summary>
-        /// Concrete <see cref="Component"/> subclasses whose <c>Name</c>
-        /// back-fill removal is out of scope for this branch. Reserved for
-        /// component classes whose `*.g.cs` files were not yet present in
-        /// the assembly when this branch was cut — they were introduced by
-        /// a parallel regen track and inherit the back-fill from the older
-        /// regen template. A follow-up regen plan removes the back-fill
-        /// from these classes too; until that lands, the type names live
-        /// here so this fixture stays green on a merged tree without losing
-        /// its enforcement intent for the surfaces this branch did edit.
-        /// </summary>
-        private static readonly System.Collections.Generic.HashSet<string> NameBackfillRemovalOutOfScope =
-            new(System.StringComparer.Ordinal)
-            {
-                "MTConnect.Devices.Components.CuttingTorchComponent",
-                "MTConnect.Devices.Components.ElectrodeComponent",
-                "MTConnect.Devices.Components.PinToolComponent",
-                "MTConnect.Devices.Components.ToolHolderComponent",
-            };
-
-        /// <summary>
         /// Walks every concrete <see cref="Component"/>-derived type
         /// in the production assembly that has a public default
         /// constructor and lives in
         /// <c>MTConnect.Devices.Components</c> (i.e. every generated
         /// component subclass) and asserts the default constructor
-        /// leaves <c>Name</c> <c>null</c>.
+        /// leaves <c>Name</c> <c>null</c>. The out-of-scope set is
+        /// imported from <see cref="NameBackfillRemovalOutOfScope"/>
+        /// to keep this fixture and the regression fixture in lockstep.
         /// </summary>
         [Test]
         public void Every_concrete_Component_subclass_default_ctor_leaves_Name_null()
         {
             foreach (var subclass in EnumerateConcreteComponentSubclasses())
             {
-                if (NameBackfillRemovalOutOfScope.Contains(subclass.FullName!))
+                if (NameBackfillRemovalOutOfScope.ComponentTypeNames.Contains(subclass.FullName!))
                     continue;
 
                 var instance = (Component)Activator.CreateInstance(subclass)!;
