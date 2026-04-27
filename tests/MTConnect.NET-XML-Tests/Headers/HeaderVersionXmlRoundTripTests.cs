@@ -18,7 +18,6 @@
 using System;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Xml;
 using System.Xml.Linq;
 using MTConnect.Agents;
@@ -32,12 +31,37 @@ namespace MTConnect.Tests.Xml.Headers
     [TestFixture]
     public class HeaderVersionXmlRoundTripTests
     {
+        // Versions for which the MTConnect XML wire-format library
+        // (libraries/MTConnect.NET-XML) currently provides namespace
+        // and schema-location mappings via Namespaces.GetDevices /
+        // Schemas.GetDevices. The set is hardcoded rather than
+        // reflected from MTConnect.MTConnectVersions so that adding a
+        // new MTConnectVersions constant (which only declares the
+        // version, not the XML namespace/schema mappings) does not
+        // silently introduce a parametric test case that the XML
+        // library cannot serialize. Versions added beyond this set
+        // require matching entries in Namespaces.cs and Schemas.cs
+        // before the test case can be added here.
         public static System.Collections.Generic.IEnumerable<Version> AllSupportedVersions()
         {
-            return typeof(MTConnect.MTConnectVersions)
-                .GetFields(BindingFlags.Public | BindingFlags.Static)
-                .Where(f => f.FieldType == typeof(Version))
-                .Select(f => (Version)f.GetValue(null)!);
+            return new[]
+            {
+                new Version(1, 0),
+                new Version(1, 1),
+                new Version(1, 2),
+                new Version(1, 3),
+                new Version(1, 4),
+                new Version(1, 5),
+                new Version(1, 6),
+                new Version(1, 7),
+                new Version(1, 8),
+                new Version(2, 0),
+                new Version(2, 1),
+                new Version(2, 2),
+                new Version(2, 3),
+                new Version(2, 4),
+                new Version(2, 5),
+            };
         }
 
         private static string ExpectedHeaderVersion(Version configuredVersion)
