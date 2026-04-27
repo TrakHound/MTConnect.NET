@@ -52,6 +52,19 @@
 		<PackageReference Include="MQTTnet" Version="4.3.7.1207" />
 	</ItemGroup>
 
+	<!-- Pin System.Text.Json 8.0.5 on TFMs without an in-the-runtime
+		 System.Text.Json. Microsoft.Extensions.Hosting 7.0.0
+		 transitively brings System.Text.Json 7.0.0 which is flagged
+		 by GHSA-hh2w-p6rv-4g7w. On netstandard2.0 and net48 the
+		 package is the only thing on the wire, so the override here
+		 closes the actual exposure surface. -->
+	<ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+		<PackageReference Include="System.Text.Json" Version="8.0.5" />
+	</ItemGroup>
+	<ItemGroup Condition=" '$(TargetFramework)' == 'net48' ">
+		<PackageReference Include="System.Text.Json" Version="8.0.5" />
+	</ItemGroup>
+
 	<ItemGroup>
 		<None Include="Configurations\IMTConnectMqttExpanderConfiguration.cs" />
 		<None Include="Configurations\MTConnectMqttExpanderConfiguration.cs" />
