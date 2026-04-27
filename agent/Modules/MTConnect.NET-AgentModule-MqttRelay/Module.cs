@@ -92,14 +92,19 @@ namespace MTConnect
 
             if (_stop != null) _stop.Cancel();
 
-            try
-            {
-                if (_mqttClient != null)
-                {
-                    _mqttClient.DisconnectAsync(MqttClientDisconnectOptionsReason.NormalDisconnection);
-                }
-            }
-            catch { }
+            // Bounded await on the disconnect: previously this was a
+            // fire-and-forget DisconnectAsync(...) whose returned Task
+            // was never awaited. Faults were silently dropped and the
+            // host process risked exiting before the disconnect
+            // completed. Route through the lifecycle helper so faults
+            // surface to the log and a hung broker cannot block
+            // shutdown indefinitely.
+            MqttRelayLifecycle.DisconnectWithTimeout(
+                disconnect: _mqttClient != null
+                    ? (Func<Task>)(() => _mqttClient.DisconnectAsync(MqttClientDisconnectOptionsReason.NormalDisconnection))
+                    : null,
+                timeout: TimeSpan.FromSeconds(5),
+                onFault: ex => Log(MTConnectLogLevel.Warning, $"MQTT Relay Disconnect Error : {ex.Message}"));
         }
 
         private async Task Worker()
