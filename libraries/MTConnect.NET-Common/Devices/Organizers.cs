@@ -87,10 +87,16 @@ namespace MTConnect.Devices
         // substitution-group, and is the source of truth for which auto-wrap
         // path `Device.AddComponent()` takes. Sorted alphabetically by
         // `TypeId` so future regenerations diff cleanly.
+        //
+        // `Controller` is intentionally OMITTED from this list even though
+        // SysML places it in the `System` substitution-group: this library
+        // routes `Controller` through its own dedicated `Controllers`
+        // organizer (see the `organizerType != ControllersComponent.TypeId`
+        // guard in `Device.AddComponent()`), so listing it here would make
+        // `GetOrganizerType("Controller")` ambiguous and order-dependent.
         private static readonly IEnumerable<string> _systems = new List<string>
         {
             AirHandlerComponent.TypeId,
-            ControllerComponent.TypeId,
             CoolantComponent.TypeId,
             CoolingComponent.TypeId,
             DielectricComponent.TypeId,

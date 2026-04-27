@@ -34,10 +34,15 @@ namespace MTConnect.Tests.Common.SystemsOrganizer
         // System substitution-group members per the SysML model materialized in
         // `libraries/MTConnect.NET-Common/Devices/Components/*.g.cs` on this
         // revision. Sorted alphabetically by `TypeId` for stability.
+        //
+        // `Controller` is a SysML `System` member but it has its own
+        // `Controllers` organizer (see the `organizerType != ControllersComponent.TypeId`
+        // guard in `Device.AddComponent()`), so it is intentionally absent
+        // from this list and from `Organizers.Systems`. The dedicated
+        // carve-out invariant lives in `OrganizersControllerCarveOutTests`.
         private static readonly Type[] SystemMemberComponentTypes = new[]
         {
             typeof(AirHandlerComponent),
-            typeof(ControllerComponent),
             typeof(CoolantComponent),
             typeof(CoolingComponent),
             typeof(DielectricComponent),
@@ -61,14 +66,15 @@ namespace MTConnect.Tests.Common.SystemsOrganizer
         public static IEnumerable<string> KnownSystemMembers =>
             SystemMemberComponentTypes.Select(t => GetTypeIdFromComponent(t));
 
-        // Every System substitution-group member resolves through
-        // `Organizers.GetOrganizerType()` to `Systems` so
-        // `Device.AddComponent()` auto-wraps it; the only exception is
-        // `Controller`, which `Device.AddComponent()` deliberately leaves
-        // at the device root (see `Device.cs` near the
-        // `organizerType != ControllersComponent.TypeId` guard).
+        // Every member of `SystemMemberComponentTypes` is auto-wrapped by
+        // `Device.AddComponent()` under the shared `<Systems>` organizer.
+        // `Controller` is excluded from the list above because it is routed
+        // through its dedicated `<Controllers>` organizer instead — see the
+        // `organizerType != ControllersComponent.TypeId` guard in
+        // `Device.AddComponent()` and the carve-out invariant in
+        // `OrganizersControllerCarveOutTests`.
         public static IEnumerable<Type> AutoWrappedSystemMemberTypes =>
-            SystemMemberComponentTypes.Where(t => t != typeof(ControllerComponent));
+            SystemMemberComponentTypes;
 
         // Pairs the issue calls out plus a few representative peers; every
         // pair is expected to land at equal tree depth after
@@ -93,11 +99,9 @@ namespace MTConnect.Tests.Common.SystemsOrganizer
 
         // `Controller` is a System substitution-group member by SysML, but
         // `Organizers.GetOrganizerType("Controller")` returns the
-        // `Controllers` organizer first because the `_controllers` list is
-        // matched before `_systems` in `GetOrganizerType` and
-        // `Device.AddComponent()` deliberately leaves `Controller` at the
-        // Device root (it is its own organizer). The remaining System members
-        // resolve to `Systems`.
+        // `Controllers` organizer because `Controller` is not listed in
+        // `Organizers.Systems`. The auto-wrapped members below all resolve
+        // to `Systems`.
         public static IEnumerable<string> AutoWrappedSystemMemberTypeIds =>
             AutoWrappedSystemMemberTypes.Select(t => GetTypeIdFromComponent(t));
 

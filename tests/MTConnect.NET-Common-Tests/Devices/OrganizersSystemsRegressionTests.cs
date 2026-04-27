@@ -16,6 +16,12 @@
 // matches the SysML descriptive convention. The intent is to catch a
 // future regen that adds (or renames) a System member without updating
 // `Organizers._systems`.
+//
+// `Controller` is a SysML `System` member but it has its own
+// `Controllers` organizer (see `Device.AddComponent()`'s carve-out),
+// so it is intentionally absent from `Organizers.Systems` and from the
+// pinned baseline below. See `OrganizersControllerCarveOutTests` for
+// the dedicated carve-out invariant.
 
 using System.Linq;
 using System.Reflection;
@@ -36,7 +42,7 @@ namespace MTConnect.Tests.Common.SystemsOrganizer
         private static readonly string[] PinnedSystemMemberTypeIds = new[]
         {
             "AirHandler",
-            "Controller",
+            // Controller intentionally absent — see file header.
             "Coolant",
             "Cooling",
             "Dielectric",
