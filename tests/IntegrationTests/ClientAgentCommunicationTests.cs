@@ -78,8 +78,17 @@ namespace IntegrationTests
 
             AddCuttingTools();
 
-            _agent = new MTConnectAgentBroker();
-            //_agent.Version = new Version(1, 8);
+            // Pin the broker to a version for which libraries/MTConnect.NET-XML
+            // has full Namespaces.cs + Schemas.cs mappings. The parameterless
+            // ctor uses MTConnectVersions.Max as the default, which can advance
+            // ahead of the XML library's namespace/schema coverage and surface
+            // as HTTP 500 from the wire-format formatter (Namespaces.GetDevices
+            // returns null for unmapped versions).
+            var agentConfiguration = new AgentConfiguration
+            {
+                DefaultVersion = MTConnectVersions.Version25,
+            };
+            _agent = new MTConnectAgentBroker(agentConfiguration);
             _agent.Start();
 
             var adapters = new List<ShdrAdapterClientConfiguration>()
