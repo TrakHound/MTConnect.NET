@@ -29,10 +29,10 @@ namespace MTConnect.Tests.Common.SystemsOrganizer
     [Category("OrganizersSystemsRegressionGuard")]
     public class OrganizersSystemsRegressionTests
     {
-        // The exact set of System substitution-group `TypeId` values pinned by
-        // this branch. Adding a new System member to the SysML model bumps
-        // this list AND `Organizers._systems` together; either one moving
-        // without the other fails this test.
+        // The exact set of System substitution-group `TypeId` values pinned
+        // here. Adding a new System member to the SysML model bumps this
+        // list AND `Organizers._systems` together; either one moving without
+        // the other fails this test.
         private static readonly string[] PinnedSystemMemberTypeIds = new[]
         {
             "AirHandler",
@@ -70,6 +70,17 @@ namespace MTConnect.Tests.Common.SystemsOrganizer
         [Test]
         public void Every_System_described_Component_subclass_is_in_Organizers_Systems()
         {
+            // Walks every concrete `IComponent` subclass in the assembly,
+            // selects those whose `DescriptionText` matches the SysML
+            // `System` substitution-group phrasing, and asserts each one
+            // is enumerated by `Organizers.Systems`. Adding (or renaming)
+            // a `System`-derived component via SysML regeneration without
+            // updating `Organizers._systems` trips this guard.
+            //
+            // `Controller` is the sole structural exception: it is a SysML
+            // `System` member but is routed through the dedicated
+            // `Controllers` organizer, so the detector skips it (see
+            // `DescribesSystemSubstitutionGroupMember`).
             var assembly = typeof(Organizers).Assembly;
             var componentTypes = assembly.GetTypes()
                 .Where(t => t.IsClass && !t.IsAbstract && typeof(IComponent).IsAssignableFrom(t))
@@ -84,8 +95,8 @@ namespace MTConnect.Tests.Common.SystemsOrganizer
                 .ToArray();
 
             Assert.That(detected, Is.Not.Empty,
-                "The reflection-based detector found zero System members. " +
-                "Either the assembly layout changed or the SysML descriptive " +
+                "The reflection-based detector found zero `System` substitution-group " +
+                "members. Either the assembly layout changed or the SysML descriptive " +
                 "convention shifted — review the detector.");
 
             foreach (var typeId in detected)
