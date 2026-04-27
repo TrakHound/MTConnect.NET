@@ -41,5 +41,5 @@ and `libraries/MTConnect.NET-XML/` lives in
 [`build/MTConnect.NET-SysML-Import/`](https://github.com/TrakHound/MTConnect.NET/tree/master/build/MTConnect.NET-SysML-Import).
 See its `README.md` for how to regenerate the model when a new MTConnect
 Standard version is released, including the cross-platform CLI, the
-cross-package parent resolver added 2026-04-25, and the determinism
-guarantee (a regen against a pinned XMI tag must produce zero diff).
+cross-package parent resolver, and the determinism guarantee (a regen
+against a pinned XMI tag must produce zero diff).
