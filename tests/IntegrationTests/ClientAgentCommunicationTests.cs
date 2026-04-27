@@ -129,6 +129,39 @@ namespace IntegrationTests
             };
             _server = new MTConnectHttpServer(configuration, _agent);
             _server.Start();
+
+            // MTConnectHttpServer.Start() is fire-and-forget: it spawns a
+            // background Task.Run that performs the TCP bind + listen loop.
+            // The first test request can race ahead of that bind and surface
+            // as "Connection refused". Block here until the listener accepts
+            // a TCP connection, with a generous timeout for slow CI hosts.
+            WaitForListener("127.0.0.1", _fixture.CurrentAgentPort, TimeSpan.FromSeconds(10));
+        }
+
+        private static void WaitForListener(string host, int port, TimeSpan timeout)
+        {
+            var deadline = DateTime.UtcNow + timeout;
+            while (DateTime.UtcNow < deadline)
+            {
+                try
+                {
+                    using var client = new System.Net.Sockets.TcpClient();
+                    var connectTask = client.ConnectAsync(host, port);
+                    if (connectTask.Wait(TimeSpan.FromMilliseconds(500)) && client.Connected)
+                    {
+                        return;
+                    }
+                }
+                catch (System.Net.Sockets.SocketException)
+                {
+                    // not listening yet; keep polling
+                }
+
+                Thread.Sleep(50);
+            }
+
+            throw new TimeoutException(
+                $"HTTP listener did not bind to {host}:{port} within {timeout.TotalSeconds}s.");
         }
 
         public void Dispose()
