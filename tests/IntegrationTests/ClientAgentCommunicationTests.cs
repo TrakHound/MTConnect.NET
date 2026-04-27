@@ -50,6 +50,13 @@ namespace IntegrationTests
         private readonly MTAgentFixture _fixture;
         private readonly ILogger _logger;
 
+        // Per-test ports captured once at construction time. The shared
+        // MTAgentFixture is bumped after each test and could be read from
+        // multiple threads (xUnit may parallelise across class fixtures), so
+        // every read inside a single test must observe the same value.
+        private readonly int _agentPort;
+        private readonly int _adapterPort;
+
         private readonly string _machineId;
         private readonly string _machineName;
 
@@ -62,9 +69,15 @@ namespace IntegrationTests
             _fixture = fixture;
             _logger = testOutputHelper.BuildLogger(LogLevel.Trace);
 
+            // Snapshot the fixture ports atomically so every downstream
+            // construction step sees the same values, even if a sibling test
+            // disposes (and increments) concurrently.
+            _agentPort = Interlocked.CompareExchange(ref _fixture.CurrentAgentPort, 0, 0);
+            _adapterPort = Interlocked.CompareExchange(ref _fixture.CurrentAdapterPort, 0, 0);
+
             _machineId = Guid.NewGuid().ToString();
             _machineName = "M12346";
-            //_machineName = $"Machine{_fixture.CurrentAgentPort}";
+            //_machineName = $"Machine{_agentPort}";
 
             var devicesFile = "devices.xml";
             GenerateDevicesXml(
@@ -73,7 +86,7 @@ namespace IntegrationTests
                 devicesFile,
                 _logger);
 
-            _adapter = new ShdrIntervalAdapter(_machineName, _fixture.CurrentAdapterPort, 2000, 100);
+            _adapter = new ShdrIntervalAdapter(_machineName, _adapterPort, 2000, 100);
             _adapter.Start();
 
             AddCuttingTools();
@@ -97,7 +110,7 @@ namespace IntegrationTests
                 {
                     DeviceKey = _machineName,
                     Hostname = "localhost",
-                    Port = _fixture.CurrentAdapterPort
+                    Port = _adapterPort
                 }
             };
 
@@ -125,7 +138,7 @@ namespace IntegrationTests
 
             var configuration = new HttpServerConfiguration
             {
-                Port = _fixture.CurrentAgentPort
+                Port = _agentPort
             };
             _server = new MTConnectHttpServer(configuration, _agent);
 
@@ -148,7 +161,7 @@ namespace IntegrationTests
             // and threadpool-starved parallel test runs.
             WaitForListener(
                 "127.0.0.1",
-                _fixture.CurrentAgentPort,
+                _agentPort,
                 TimeSpan.FromSeconds(30),
                 () => serverStartException);
         }
@@ -199,8 +212,16 @@ namespace IntegrationTests
             _adapter.Stop();
 
             // Therefore we use a new port for every test.
-            _fixture.CurrentAgentPort++;
-            _fixture.CurrentAdapterPort++;
+            //
+            // Use Interlocked.Increment instead of post-increment (++): the
+            // shared MTAgentFixture is reused across every test in this class
+            // and xUnit may run those tests on different threads (the IClass
+            // Fixture lifetime is per-class, not per-test). A naive ++ is a
+            // read/modify/write triple that is not atomic on int fields, so
+            // two concurrent Dispose() calls could both bump from N to N+1
+            // and leak a port collision into the next constructor run.
+            Interlocked.Increment(ref _fixture.CurrentAgentPort);
+            Interlocked.Increment(ref _fixture.CurrentAdapterPort);
 
         }
 
@@ -361,7 +382,7 @@ namespace IntegrationTests
             cts.CancelAfter(c_maxWaitTimeout);
 
             var currentClient = new MTConnectHttpCurrentClient(
-                $"127.0.0.1:{_fixture.CurrentAgentPort}", 
+                $"127.0.0.1:{_agentPort}", 
                 _machineName, 
                 $"//*[@id='program']");
 
@@ -436,7 +457,7 @@ namespace IntegrationTests
             }
 
             var client = await Connect(
-                $"127.0.0.1:{_fixture.CurrentAgentPort}",
+                $"127.0.0.1:{_agentPort}",
                 _machineName,
                 _logger,
                 OnCurrent,
