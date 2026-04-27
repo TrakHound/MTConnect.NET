@@ -39,6 +39,13 @@ namespace MTConnect.Streams.Json
         [JsonPropertyName("testIndicator")]
         public bool TestIndicator { get; set; }
 
+        /// <summary>
+        /// Indicates if the MTConnect Agent is validating against the normative model.
+        /// Mirrors the cppagent v2 wire shape that emits `validation` on every Header.
+        /// </summary>
+        [JsonPropertyName("validation")]
+        public bool Validation { get; set; }
+
         [JsonPropertyName("creationTime")]
         public DateTime CreationTime { get; set; }
 
@@ -59,6 +66,7 @@ namespace MTConnect.Streams.Json
                 NextSequence = header.NextSequence;
                 DeviceModelChangeTime = header.DeviceModelChangeTime;
                 TestIndicator = header.TestIndicator;
+                Validation = header.Validation;
                 CreationTime = header.CreationTime;
             }
         }
@@ -77,6 +85,7 @@ namespace MTConnect.Streams.Json
             header.NextSequence = NextSequence;
             header.DeviceModelChangeTime = DeviceModelChangeTime;
             header.TestIndicator = TestIndicator;
+            header.Validation = Validation;
             header.CreationTime = CreationTime;
             return header;
         }
