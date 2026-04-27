@@ -13,6 +13,7 @@ using MTConnect.Observations;
 using MTConnect.Observations.Output;
 using MTConnect.Streams.Output;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -542,6 +543,14 @@ namespace MTConnect.Agents
             };
         }
 
+        // Memoizes the formatted Header.version string per configured
+        // MTConnect release so the formatter does not re-allocate a
+        // Version + ToString() on every Devices/Streams/Assets/Error
+        // response. Keyed on Version equality (not reference identity)
+        // because callers commonly construct fresh Version instances
+        // per request.
+        private static readonly ConcurrentDictionary<Version, string> _formattedVersionCache = new();
+
         // Formats the configured MTConnect Standard release for the
         // `version` attribute on every response document Header.
         // Per <https://github.com/TrakHound/MTConnect.NET/issues/127>,
@@ -552,11 +561,9 @@ namespace MTConnect.Agents
         // many segments the source `Version` carried.
         private static string FormatHeaderVersion(Version mtconnectVersion)
         {
-            return new Version(
-                mtconnectVersion.Major,
-                mtconnectVersion.Minor,
-                0,
-                0).ToString();
+            return _formattedVersionCache.GetOrAdd(
+                mtconnectVersion,
+                static v => new Version(v.Major, v.Minor, 0, 0).ToString());
         }
 
         #endregion
