@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using MTConnect.Devices;
 using MTConnect.Devices.Components;
+using MTConnect.Tests.Common.TestHelpers;
 using NUnit.Framework;
 
 namespace MTConnect.Tests.Common.Regressions
@@ -24,24 +25,6 @@ namespace MTConnect.Tests.Common.Regressions
     [TestFixture]
     public class DeviceComponentDefaultsRegressionTests
     {
-        // Concrete Component subclasses whose Name back-fill removal is out
-        // of scope for this branch. Reserved for *.g.cs classes that were
-        // not yet present in the assembly when this branch was cut — they
-        // were introduced by a parallel regen track and inherit the
-        // back-fill from the older regen template. A follow-up regen plan
-        // removes the back-fill from these classes too; until that lands,
-        // the type names live here so this regression stays green on a
-        // merged tree without losing the contract for surfaces this branch
-        // did edit.
-        private static readonly HashSet<string> NameBackfillRemovalOutOfScope =
-            new(StringComparer.Ordinal)
-            {
-                "MTConnect.Devices.Components.CuttingTorchComponent",
-                "MTConnect.Devices.Components.ElectrodeComponent",
-                "MTConnect.Devices.Components.PinToolComponent",
-                "MTConnect.Devices.Components.ToolHolderComponent",
-            };
-
         // ---- Device ------------------------------------------------
 
         [Test]
@@ -132,7 +115,7 @@ namespace MTConnect.Tests.Common.Regressions
                     continue;
                 }
 
-                if (NameBackfillRemovalOutOfScope.Contains(subclass.FullName!))
+                if (NameBackfillRemovalOutOfScope.ComponentTypeNames.Contains(subclass.FullName!))
                 {
                     continue;
                 }
