@@ -293,7 +293,7 @@ namespace MTConnect
 
                 Log(MTConnectLogLevel.Information, $"[MQTT Relay] RelayBufferedObservations: lastSent={lastSent}, broker.FirstSequence={broker.FirstSequence}, broker.LastSequence={broker.LastSequence}");
 
-                long missed = (long)(to - lastSent);
+                long missed = RelayBufferDiagnostics.ComputeMissed(to, lastSent);
 
                 if (lastSent + 1 < broker.FirstSequence)
                 {
