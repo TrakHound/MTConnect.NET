@@ -3,6 +3,7 @@
 
 using System.IO;
 using System.Text.RegularExpressions;
+using MTConnect.NET_JSON_cppagent_Tests.TestHelpers;
 using NUnit.Framework;
 
 namespace MTConnect.Tests.JsonCppagent.Devices
@@ -31,7 +32,7 @@ namespace MTConnect.Tests.JsonCppagent.Devices
         [Test]
         public void JsonDataItem_constructors_must_not_copy_Name_unconditionally()
         {
-            var repoRoot = LocateRepoRoot();
+            var repoRoot = RepoRootLocator.LocateRoot();
             var unguardedCopy = new Regex(@"(?m)^\s*Name\s*=\s*dataItem\.Name\s*;\s*$");
 
             foreach (var relativePath in WatchedSources)
@@ -44,23 +45,6 @@ namespace MTConnect.Tests.JsonCppagent.Devices
                     $"{relativePath}: Name copy must be guarded by string.IsNullOrEmpty " +
                     "to avoid emitting an empty 'name' attribute on Probe DataItems.");
             }
-        }
-
-        private static string LocateRepoRoot()
-        {
-            // Walk up from the test binary location until we find the solution file.
-            var dir = new DirectoryInfo(TestContext.CurrentContext.TestDirectory);
-            while (dir != null)
-            {
-                if (File.Exists(Path.Combine(dir.FullName, "MTConnect.NET.sln")))
-                    return dir.FullName;
-
-                dir = dir.Parent;
-            }
-
-            throw new DirectoryNotFoundException(
-                "Could not locate MTConnect.NET.sln walking up from " +
-                TestContext.CurrentContext.TestDirectory);
         }
     }
 }
