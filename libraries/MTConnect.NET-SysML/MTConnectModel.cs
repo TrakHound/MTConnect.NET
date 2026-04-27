@@ -7,6 +7,12 @@ using System.Threading;
 
 namespace MTConnect.SysML
 {
+    /// <summary>
+    /// In-memory representation of an MTConnect SysML XMI document, parsed
+    /// into the four top-level information models the generator consumes
+    /// (Devices, Observations, Assets, Interfaces). Produced by
+    /// <see cref="Parse(string)"/>.
+    /// </summary>
     public class MTConnectModel
     {
         public MTConnectDeviceInformationModel DeviceInformationModel { get; set; }
@@ -18,6 +24,20 @@ namespace MTConnect.SysML
         public MTConnectInterfaceInformationModel IntefaceInformationModel { get; set; }
 
 
+        /// <summary>
+        /// Loads the XMI file at <paramref name="xmiPath"/>, deserializes
+        /// it via <see cref="Xmi.XmiDeserializer"/>, builds the four
+        /// information models, and runs the cross-package parent resolver
+        /// (<see cref="MTConnectClassModel.ResolveDanglingParents"/>) so
+        /// classes whose generalization points into a different SysML
+        /// package still compile in the local namespace.
+        /// </summary>
+        /// <param name="xmiPath">Absolute path to the SysML XMI file.</param>
+        /// <returns>
+        /// A populated <see cref="MTConnectModel"/>; <c>null</c> if
+        /// <paramref name="xmiPath"/> is null/empty or the deserializer
+        /// cannot produce a document.
+        /// </returns>
         public static MTConnectModel Parse(string xmiPath)
         {
             if (!string.IsNullOrEmpty(xmiPath))
