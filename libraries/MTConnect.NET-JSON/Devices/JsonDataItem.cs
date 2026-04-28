@@ -103,12 +103,12 @@ namespace MTConnect.Devices.Json
                         switch (relationship)
                         {
                             case IDataItemRelationship dataItemRelationship:
-                                relationships.DataItemRelationships ??= new List<JsonRelationship>();
+                                if (relationships.DataItemRelationships == null) relationships.DataItemRelationships = new List<JsonRelationship>();
                                 relationships.DataItemRelationships.Add(new JsonRelationship(dataItemRelationship));
                                 break;
 
                             case ISpecificationRelationship specificationRelationship:
-                                relationships.SpecificationRelationships ??= new List<JsonRelationship>();
+                                if (relationships.SpecificationRelationships == null) relationships.SpecificationRelationships = new List<JsonRelationship>();
                                 relationships.SpecificationRelationships.Add(new JsonRelationship(specificationRelationship));
                                 break;
                         }
