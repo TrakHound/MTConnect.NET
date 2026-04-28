@@ -42,7 +42,7 @@ namespace MTConnect.NET_Common_Tests.V2_6_V2_7
         {
             // Wrap with Assert.DoesNotThrow so a missing parameterless ctor
             // surfaces as a clear NUnit failure with the offending type name
-            // rather than a bare MissingMethodException (row 47).
+            // rather than a bare MissingMethodException.
             object? instance = null;
             Assert.DoesNotThrow(() => instance = Activator.CreateInstance(dataItemType),
                 $"{dataItemType.Name} should have a public parameterless constructor");

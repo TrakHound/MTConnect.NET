@@ -34,14 +34,16 @@ namespace MTConnect.SysML.CSharp
                         var propertyValue = importProperty.GetValue(importModel);
 
                         var exportProperty = exportProperties.FirstOrDefault(o => o.Name == importProperty.Name);
-                        // Mirror ClassModel.Create's PropertyType guard (row 33).
+                        // Require matching PropertyType so SetValue cannot throw
+                        // ArgumentException when a property of the same name has
+                        // a different declared type on the export model.
                         if (exportProperty != null && exportProperty.PropertyType == importProperty.PropertyType)
                         {
                             exportProperty.SetValue(exportModel, propertyValue);
                         }
                     }
 
-                    // Guard before `+= "DataItem"` so a null Id/Name does not silently yield the literal "DataItem" (row 6).
+                    // Guard before `+= "DataItem"` so a null Id/Name does not silently yield the literal "DataItem".
                     if (exportModel.Id == null)
                         throw new InvalidOperationException("InterfaceDataItemType has null Id, cannot append 'DataItem' suffix.");
                     if (exportModel.Name == null)
