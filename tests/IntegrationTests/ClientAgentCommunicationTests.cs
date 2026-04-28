@@ -138,7 +138,11 @@ namespace IntegrationTests
 
             var configuration = new HttpServerConfiguration
             {
-                Port = _agentPort
+                Port = _agentPort,
+                // Bind to loopback only so an in-process integration run
+                // cannot accidentally expose the test agent on a
+                // non-loopback interface of the dev machine (F-S-L3).
+                Server = "127.0.0.1"
             };
             _server = new MTConnectHttpServer(configuration, _agent);
 
