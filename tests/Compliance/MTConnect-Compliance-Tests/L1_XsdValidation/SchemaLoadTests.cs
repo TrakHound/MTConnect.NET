@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Xml;
 using System.Xml.Schema;
 using NUnit.Framework;
@@ -23,14 +22,12 @@ namespace MTConnect.Compliance.Tests.L1_XsdValidation
     {
         public static IEnumerable<TestCaseData> AllSchemas()
         {
+            // The csproj's `<None Include="Schemas\**\*.xsd"><CopyToOutputDirectory>PreserveNewest>`
+            // glob places the entire schemas tree under TestContext.CurrentContext.TestDirectory,
+            // so the canonical location is the only one we honour. If it's missing, surface that
+            // immediately as an Inconclusive (below) rather than walking up parent directories
+            // and silently accepting an unexpected layout.
             var schemasRoot = Path.Combine(TestContext.CurrentContext.TestDirectory, "Schemas");
-            if (!Directory.Exists(schemasRoot))
-            {
-                // No schemas tree at runtime — fall back to the project
-                // tree so the test still surfaces meaningfully when run
-                // outside a packaged build output.
-                schemasRoot = LocateSchemasInProject();
-            }
 
             if (!Directory.Exists(schemasRoot))
             {
@@ -43,22 +40,6 @@ namespace MTConnect.Compliance.Tests.L1_XsdValidation
                 var rel = Path.GetRelativePath(schemasRoot, file);
                 yield return new TestCaseData(file).SetName($"XSD load: {rel}");
             }
-        }
-
-        private static string LocateSchemasInProject()
-        {
-            var dir = new DirectoryInfo(Path.GetDirectoryName(typeof(SchemaLoadTests).Assembly.Location)!);
-            while (dir != null)
-            {
-                var candidate = Path.Combine(dir.FullName, "Schemas");
-                if (Directory.Exists(candidate)) return candidate;
-
-                var alt = Path.Combine(dir.FullName, "tests", "Compliance", "MTConnect-Compliance-Tests", "Schemas");
-                if (Directory.Exists(alt)) return alt;
-
-                dir = dir.Parent;
-            }
-            return string.Empty;
         }
 
         [TestCaseSource(nameof(AllSchemas))]
