@@ -19,7 +19,7 @@ namespace MTConnect.SysML.CSharp
                 // Use the export type (DataSetResultModel) so reflection picks up
                 // the export-side properties; the previous `typeof(MTConnectClassModel)`
                 // pointed at the parent and silently dropped DataSetResult-specific
-                // properties (row 32).
+                // properties.
                 var type = typeof(DataSetResultModel);
 
                 var importProperties = importModel.GetType().GetProperties();

@@ -8,10 +8,8 @@ namespace MTConnect.NET_JSON_cppagent_Tests.TestHelpers
 {
     /// <summary>
     /// Pins the contract for the shared
-    /// <see cref="RepoRootLocator"/> helper. The repo-root walker was
-    /// previously inlined in JsonDataItemSourceGuardTests; extracting
-    /// the walker prevents future source-grep guards from each
-    /// rolling their own copy.
+    /// <see cref="RepoRootLocator"/> helper so source-grep guards
+    /// share one walker rather than each rolling their own copy.
     /// </summary>
     [TestFixture]
     public class RepoRootLocatorTests

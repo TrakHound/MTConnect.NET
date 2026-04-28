@@ -21,7 +21,7 @@ namespace MTConnect.SysML.CSharp
                     {
                         if (!string.IsNullOrEmpty(classModel.Name))
                         {
-                            // TryAdd preserves first-wins semantics with a single hash lookup (row 61).
+                            // TryAdd preserves first-wins semantics with a single hash lookup.
                             dClassModels.TryAdd(classModel.Name, classModel);
                         }
                     }
@@ -105,7 +105,7 @@ namespace MTConnect.SysML.CSharp
                             {
                                 // Non-CuttingTools measurement (e.g. Assets.Pallet.*) — no fallback
                                 // template exists yet, so log and continue rather than silently
-                                // dropping the model (row 5).
+                                // dropping the model.
                                 Console.Error.WriteLine(
                                     $"warn: MeasurementModel '{exportModel.Id}' has no template — " +
                                     "only Assets.CuttingTools.* is currently rendered. Skipping.");
@@ -265,7 +265,7 @@ namespace MTConnect.SysML.CSharp
             // Track visited reference-type instances to break cycles. The
             // SysML model graph is generated and can contain back-references
             // (e.g. parent ⇄ child) which would otherwise drive an unbounded
-            // recursion → StackOverflowException (row 8). HashSet keyed by
+            // recursion → StackOverflowException. HashSet keyed by
             // reference equality so two distinct strings or value-typed
             // boxes don't collide on Equals.
             var visited = new HashSet<object>(ReferenceEqualityComparer.Instance);
@@ -282,8 +282,8 @@ namespace MTConnect.SysML.CSharp
 
             // Skip primitives, strings, and value types early. Strings are
             // IEnumerable<char> and would otherwise be walked character-by-
-            // character (row 8); value types neither participate in cycles
-            // nor implement IMTConnectExportModel.
+            // character, exploding the recursion; value types neither
+            // participate in cycles nor implement IMTConnectExportModel.
             if (modelType.IsPrimitive || modelType.IsValueType || modelType == typeof(string)) return;
 
             if (!visited.Add(model)) return;
@@ -386,8 +386,7 @@ namespace MTConnect.SysML.CSharp
         // null Id / Name explicitly — the switch arm in Render guarantees
         // template.Id is the literal spec key, but Name is copied from the
         // imported model and could be null on a malformed XMI; guarding here
-        // keeps the suffix from masking a missing Name as the literal "Asset"
-        // (row 6).
+        // keeps the suffix from masking a missing Name as the literal "Asset".
         private static void ApplyAssetSuffix(ClassModel template, bool alsoSuffixParent)
         {
             if (template == null) return;

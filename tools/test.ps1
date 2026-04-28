@@ -6,22 +6,20 @@
 # skipped by default so the common loop stays fast; flags below opt
 # into them.
 #
-# Pairs with tools/dotnet.ps1: when -Docker (or
-# MTCONNECT_DOTNET_USE_DOCKER=1) is set, each dotnet invocation runs
-# inside the pinned .NET SDK container via tools/dotnet.ps1.
+# When -Docker (or MTCONNECT_DOTNET_USE_DOCKER=1) is set, each
+# dotnet invocation runs inside the pinned .NET SDK container.
 #
 # This script reads the -Docker switch, then sets
 # $env:MTCONNECT_DOTNET_USE_DOCKER=1 so the env-var form propagates
-# into every nested tools/dotnet.ps1 call without needing to splat
-# -Docker per call site. The dual switch/env-var API on dotnet.ps1
-# exists specifically to support this nested-call pattern.
+# into every nested dotnet wrapper call without needing to splat
+# -Docker per call site.
 #
 # Usage:
 #   tools/test.ps1 [-Docker] [-Compliance] [-E2E] [-Only <pattern>]
 #
 # Parameters:
 #   -Docker        Run every dotnet invocation through tools/dotnet.ps1
-#                  -Docker (also honoured via MTCONNECT_DOTNET_USE_DOCKER=1).
+#                  -Docker (also honored via MTCONNECT_DOTNET_USE_DOCKER=1).
 #   -Compliance    Include the MTConnect compliance harness under
 #                  tests/Compliance/** (XSD validation, OCL checks,
 #                  cppagent parity). Skipped by default because it is

@@ -3,7 +3,7 @@ name: build-test-coverage
 # Restrict the GITHUB_TOKEN to read-only contents access. The job only
 # needs to checkout the repo, run dotnet build / test, and upload TRX +
 # coverage artifacts; no commit / release / package-write privileges are
-# required. Defence-in-depth against supply-chain attacks via a
+# required. Defense-in-depth against supply-chain attacks via a
 # compromised dependency or a test-side RCE.
 permissions:
   contents: read

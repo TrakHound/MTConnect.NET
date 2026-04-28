@@ -6,21 +6,19 @@
 # skipped by default so the common loop stays fast; flags below opt
 # into them.
 #
-# Pairs with tools/dotnet.sh: when --docker (or
-# MTCONNECT_DOTNET_USE_DOCKER=1) is set, each dotnet invocation runs
-# inside the pinned .NET SDK container via tools/dotnet.sh.
+# When --docker (or MTCONNECT_DOTNET_USE_DOCKER=1) is set, each
+# dotnet invocation runs inside the pinned .NET SDK container.
 #
 # This script reads the --docker flag, then exports
 # MTCONNECT_DOTNET_USE_DOCKER=1 so the env-var form propagates into
-# every nested tools/dotnet.sh call without needing to splat
-# --docker per call site. The dual flag/env-var API on dotnet.sh
-# exists specifically to support this nested-call pattern.
+# every nested dotnet wrapper call without needing to splat
+# --docker per call site.
 #
 # Usage: tools/test.sh [--docker] [--compliance] [--e2e] [--only <pattern>]
 #
 # Flags:
 #   -d, --docker        Run every dotnet invocation through tools/dotnet.sh
-#                       --docker (also honoured via
+#                       --docker (also honored via
 #                       MTCONNECT_DOTNET_USE_DOCKER=1).
 #   -c, --compliance    Include the MTConnect compliance harness under
 #                       tests/Compliance/** (XSD validation, OCL checks,
@@ -58,15 +56,14 @@ tests/Compliance/** and the Docker-gated end-to-end suites are
 skipped by default so the common loop stays fast; flags below opt
 into them.
 
-Pairs with tools/dotnet.sh: when --docker (or
-MTCONNECT_DOTNET_USE_DOCKER=1) is set, each dotnet invocation runs
-inside the pinned .NET SDK container via tools/dotnet.sh.
+When --docker (or MTCONNECT_DOTNET_USE_DOCKER=1) is set, each
+dotnet invocation runs inside the pinned .NET SDK container.
 
 Usage: tools/test.sh [--docker] [--compliance] [--e2e] [--only <pattern>]
 
 Flags:
   -d, --docker        Run every dotnet invocation through tools/dotnet.sh
-                      --docker (also honoured via
+                      --docker (also honored via
                       MTCONNECT_DOTNET_USE_DOCKER=1).
   -c, --compliance    Include the MTConnect compliance harness under
                       tests/Compliance/** (XSD validation, OCL checks,

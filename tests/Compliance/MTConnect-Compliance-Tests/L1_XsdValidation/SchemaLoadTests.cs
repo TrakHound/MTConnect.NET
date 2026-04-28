@@ -80,7 +80,7 @@ namespace MTConnect.Compliance.Tests.L1_XsdValidation
             var settings = new XmlReaderSettings
             {
                 DtdProcessing = DtdProcessing.Ignore,
-                // Defence-in-depth: refuse to fetch external entities (DTDs,
+                // Defense-in-depth: refuse to fetch external entities (DTDs,
                 // included XSDs over http(s)) at parse time. See OWASP XXE.
                 XmlResolver = null
             };
@@ -88,7 +88,7 @@ namespace MTConnect.Compliance.Tests.L1_XsdValidation
             using var reader = XmlReader.Create(stream!, settings, ToDisplayPath(resourceName));
             var schemaSet = new XmlSchemaSet
             {
-                // Defence-in-depth: prevent SchemaSet from fetching external
+                // Defense-in-depth: prevent SchemaSet from fetching external
                 // <xs:include> / <xs:import> URIs. The bundled Schemas/ tree
                 // is fully self-contained at build time but with embedded
                 // resources there is no filesystem to traverse, so any

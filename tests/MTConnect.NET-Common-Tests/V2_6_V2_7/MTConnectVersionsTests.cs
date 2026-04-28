@@ -5,8 +5,7 @@ using NUnit.Framework;
 
 namespace MTConnect.NET_Common_Tests.V2_6_V2_7
 {
-    // Constants-level pins for the v2.6 + v2.7 support added by
-    // [#133](https://github.com/TrakHound/MTConnect.NET/issues/133).
+    // Constants-level pins on `MTConnectVersions` for v2.6 and v2.7.
     //
     //   - XMI:   https://github.com/mtconnect/mtconnect_sysml_model/tree/v2.6
     //                                                                   /v2.7
@@ -18,10 +17,6 @@ namespace MTConnect.NET_Common_Tests.V2_6_V2_7
     //   - Prose: MTConnect Standard `Part_1.0_Overview_v2.7.pdf` §1 "Versioning"
     //            (the document numbering scheme — v1.0 through v2.7 with v1.9
     //            intentionally skipped — is described here.)
-    //
-    // These tests exist to make any future change to MTConnectVersions visible —
-    // a refactor that drops Version26 / Version27 or moves Max trips this fixture
-    // before any downstream code surfaces the regression.
     [TestFixture]
     public class MTConnectVersionsTests
     {
@@ -41,19 +36,18 @@ namespace MTConnect.NET_Common_Tests.V2_6_V2_7
             Assert.That(MTConnectVersions.Version27, Is.EqualTo(new Version(2, 7)));
         }
 
-        // Source: this PR is the one that advances Max to Version27 (per the v2.7
-        // ceiling claim in README.md). Locks against accidental rollback.
+        // Locks Max to Version27 against accidental rollback.
         [Test]
         public void Max_equals_Version27()
         {
             Assert.That(MTConnectVersions.Max, Is.EqualTo(MTConnectVersions.Version27));
         }
 
-        // Source: MTConnect Standard Part_1.0_Overview prose §1 "Versioning" lists
-        // every published version. v1.9 was never released — the Standard's version
-        // numbering jumped from v1.8 to v2.0. Confirmed by the absence of an XMI
-        // tag `v1.9` in `mtconnect/mtconnect_sysml_model` (v2.5 b61907fb78,
-        // v2.6 08185447bf, v2.7 25796ac591 — no v1.9 in the tag list).
+        // Pin that the version list contains no 1.9 entry.
+        // Source: MTConnect Standard Part_1.0_Overview prose §1 "Versioning";
+        // confirmed by the absence of an XMI tag `v1.9` in
+        // `mtconnect/mtconnect_sysml_model` (tags: v2.5 b61907fb78,
+        // v2.6 08185447bf, v2.7 25796ac591).
         [Test]
         public void Every_published_version_constant_is_distinct_and_monotonic()
         {
@@ -84,9 +78,9 @@ namespace MTConnect.NET_Common_Tests.V2_6_V2_7
             Assert.That(versions.Last().Value, Is.EqualTo(MTConnectVersions.Max));
         }
 
-        // Source: MTConnect SysML model, every minor-version tag list. Pin that no
-        // 1.9 constant has crept in (silent insertion would invalidate downstream
-        // matrices). Asserts on the *named field* — Version19 not present.
+        // Pin that no `Version19` constant exists. Asserts on the named field —
+        // silent insertion would invalidate downstream matrices.
+        // Source: MTConnect SysML model tag list — no `v1.9` tag.
         [Test]
         public void Version19_field_does_not_exist()
         {

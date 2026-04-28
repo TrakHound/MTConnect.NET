@@ -82,7 +82,7 @@ The renderer emits three layers, all into pre-existing library directories:
 | Renderer | Output root | What lands |
 |---|---|---|
 | `CSharpTemplateRenderer` | `libraries/MTConnect.NET-Common/` | DataItem subclasses, Component subclasses, Composition types, enum definitions, Configuration sub-elements, Asset hierarchy, Observation events. ~850 `.g.cs` files at v2.7. |
-| `JsonCppAgentTemplateRenderer` | `libraries/MTConnect.NET-JSON-cppagent/` | `JsonComponents.g.cs`, `JsonEvents.g.cs`, `JsonSamples.g.cs`, `JsonMeasurements.g.cs` — flat catalogue files that the cppagent JSON formatter reflects over. |
+| `JsonCppAgentTemplateRenderer` | `libraries/MTConnect.NET-JSON-cppagent/` | `JsonComponents.g.cs`, `JsonEvents.g.cs`, `JsonSamples.g.cs`, `JsonMeasurements.g.cs` — flat catalog files that the cppagent JSON formatter reflects over. |
 | `XmlTemplateRenderer` | `libraries/MTConnect.NET-XML/` | `XmlMeasurements.g.cs`, `XmlCuttingItem.g.cs`, `XmlCuttingToolLifeCycle.g.cs` — XML formatter helpers. |
 
 ## Adding a new MTConnect Standard version

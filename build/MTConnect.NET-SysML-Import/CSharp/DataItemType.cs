@@ -49,9 +49,11 @@ namespace MTConnect.SysML.CSharp
                         var propertyValue = importProperty.GetValue(importModel);
 
                         var exportProperty = exportProperties.FirstOrDefault(o => o.Name == importProperty.Name);
-                        // Mirror ClassModel.Create's PropertyType guard (row 33). Without
-                        // it, a future divergence in property types between the import
-                        // and export hierarchies throws ArgumentException at SetValue.
+                        // Require matching PropertyType so SetValue cannot throw
+                        // ArgumentException — a future divergence in property
+                        // types between the import and export hierarchies would
+                        // otherwise blow up at runtime instead of silently
+                        // skipping the mismatched property.
                         if (exportProperty != null && exportProperty.PropertyType == importProperty.PropertyType)
                         {
                             exportProperty.SetValue(exportModel, propertyValue);
@@ -70,7 +72,7 @@ namespace MTConnect.SysML.CSharp
                         exportModel.ResultType = ModelHelper.RemoveEnumSuffix(importModel.Result);
                     }
 
-                    // Guard before `+= "DataItem"` so a null Id/Name does not silently yield the literal "DataItem" (row 6).
+                    // Guard before `+= "DataItem"` so a null Id/Name does not silently yield the literal "DataItem".
                     if (exportModel.Id == null)
                         throw new InvalidOperationException("DataItemType has null Id, cannot append 'DataItem' suffix.");
                     if (exportModel.Name == null)

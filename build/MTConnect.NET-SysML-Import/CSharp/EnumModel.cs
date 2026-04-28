@@ -52,7 +52,7 @@ namespace MTConnect.SysML.CSharp
                         foreach (var value in exportModel.Values)
                         {
                             // Skip values with null Name — `name.Replace('/', '_')` would
-                            // otherwise NRE on the chain below (row 4).
+                            // otherwise NRE on the chain below.
                             if (value.Name == null) continue;
 
                             if (convertFunction != null)

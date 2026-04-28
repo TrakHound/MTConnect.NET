@@ -55,11 +55,11 @@ namespace MTConnect.SysML
                 }
 
                 // Chain `?.` through the FirstOrDefault() result — when Comments is
-                // non-null but empty, FirstOrDefault returns null and `.Body` NRE'd (row 3).
+                // non-null but empty, FirstOrDefault returns null and `.Body` would NRE.
                 var description = umlClass.Comments?.FirstOrDefault()?.Body;
                 Description = ModelHelper.ProcessDescription(description);
 
-                // Load Properties — guard `o.Name != null` per element (row 16). The
+                // Load Properties — guard `o.Name != null` per element. The
                 // outer `?.` only protects the collection; an element with null Name
                 // would NRE on `o.Name.StartsWith(...)`.
                 var umlProperties = umlClass.Properties?.Where(o => o.Name != null
@@ -150,18 +150,18 @@ namespace MTConnect.SysML
             // Single-pass: each grafted parent has its ParentName / ParentUmlId
             // stripped (see pruning block below), so the dangling chain
             // terminates the moment the parent is grafted. The previous
-            // `while (true)` wrapper around the same body added no behaviour
+            // `while (true)` wrapper around the same body added no behavior
             // and silently swallowed pathological cycles if a cap had been
-            // present (row 19).
+            // present.
 
             // Build the local-id set once — mutate it as grafts land, so the
-            // subsequent existence check is O(1) instead of O(n) (row 19).
+            // subsequent existence check is O(1) instead of O(n).
             var localUmlIds = new HashSet<string>(
                 classes.Where(c => !string.IsNullOrEmpty(c.UmlId)).Select(c => c.UmlId));
 
             // Dedupe missing parents via HashSet.Add rather than GroupBy/First —
             // same first-wins semantics with one allocation instead of an
-            // intermediate grouping (row 19).
+            // intermediate grouping.
             var seenParents = new HashSet<string>();
             var missing = new List<MTConnectClassModel>();
             foreach (var c in classes)

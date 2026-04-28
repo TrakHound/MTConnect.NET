@@ -6,7 +6,7 @@ This page is the entry point for everything test-related in MTConnect.NET. Per-v
 
 - [`docs/testing/v2-6.md`](testing/v2-6.md) — MTConnect Standard v2.6 compliance matrix.
 - [`docs/testing/v2-7.md`](testing/v2-7.md) — MTConnect Standard v2.7 compliance matrix.
-- [`docs/testing/workflows.md`](testing/workflows.md) — CI workflow + local harness catalogue.
+- [`docs/testing/workflows.md`](testing/workflows.md) — CI workflow + local harness catalog.
 
 Each matrix lists every spec-defined element / attribute / enum value introduced or modified at that version with status (`Live` / `Pending`) and the test class that pins it.
 
@@ -26,7 +26,7 @@ The repo organises tests into three tiers:
 
 ## CI
 
-GitHub Actions workflow at [`.github/workflows/dotnet.yml`](../.github/workflows/dotnet.yml). Matrix builds against `ubuntu-latest` and `windows-latest`, .NET 8.0.x + 9.0.x, uploads TRX + Cobertura coverage as artifacts, surfaces a coverage summary in the job log. See [`docs/testing/workflows.md`](testing/workflows.md) for the workflow catalogue.
+GitHub Actions workflow at [`.github/workflows/dotnet.yml`](../.github/workflows/dotnet.yml). Matrix builds against `ubuntu-latest` and `windows-latest`, .NET 8.0.x + 9.0.x, uploads TRX + Cobertura coverage as artifacts, surfaces a coverage summary in the job log. See [`docs/testing/workflows.md`](testing/workflows.md) for the workflow catalog.
 
 ## Coverage
 

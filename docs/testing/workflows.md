@@ -1,4 +1,4 @@
-# Testing — workflow catalogue
+# Testing — workflow catalog
 
 CI workflow + local test entry points. Pairs with [`docs/testing.md`](../testing.md) (top-level testing topic) and the per-version matrices under [`docs/testing/`](.).
 

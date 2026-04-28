@@ -44,14 +44,14 @@ namespace MTConnect.SysML.Xmi
         /// <returns>The deserialized object as a <see cref="XmiDocument"/>.</returns>
         public XmiDocument? Deserialize(CancellationToken cancellationToken)
         {
-            // Honour the cancellation token at the entry point and again after
+            // Honor the cancelation token at the entry point and again after
             // the (synchronous, but potentially slow) XmlSerializer construction
-            // so callers can abort between cooperative checkpoints (row 18).
+            // so callers can abort between cooperative checkpoints.
             cancellationToken.ThrowIfCancellationRequested();
 
             // Guard a malformed / empty input. `xDoc.DocumentElement` is null
             // for an XmlDocument that loaded a fragment with no root element;
-            // dereferencing `.LocalName` would NRE (row 17).
+            // dereferencing `.LocalName` would NRE.
             if (xDoc.DocumentElement == null)
                 throw new InvalidOperationException("XMI document has no root element; nothing to deserialize.");
 
@@ -65,13 +65,10 @@ namespace MTConnect.SysML.Xmi
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            // Deserialize the XmlNode
             using (XmlNodeReader xReader = new XmlNodeReader(xDoc.DocumentElement))
             {
                 object? deserializedObject = serial.Deserialize(xReader);
-
                 result = deserializedObject as XmiDocument;
-
             }
 
             return result;
@@ -86,11 +83,13 @@ namespace MTConnect.SysML.Xmi
         public static XmiDeserializer FromFile(string filename)
         {
             var xDoc = new XmlDocument();
-            // Defence-in-depth: .NET 6+ defaults `XmlResolver` to null and
-            // disables DTD processing, but pinning both via XmlReaderSettings
-            // survives a future framework downgrade or accidental restoration
-            // of XmlUrlResolver. Refuses billion-laughs DoS and external
-            // entity resolution. See OWASP "XML External Entities (XXE)" (row 51).
+            // Defense-in-depth against XML External Entity (XXE) attacks:
+            // .NET 6+ defaults `XmlResolver` to null and disables DTD
+            // processing, but pinning both via XmlReaderSettings survives a
+            // future framework downgrade or accidental restoration of
+            // XmlUrlResolver. Setting DtdProcessing.Prohibit refuses
+            // billion-laughs DoS expansion; XmlResolver = null refuses
+            // external entity resolution.
             xDoc.XmlResolver = null;
             var settings = new XmlReaderSettings
             {
@@ -112,7 +111,11 @@ namespace MTConnect.SysML.Xmi
         public static XmiDeserializer FromXml(string xml)
         {
             var xDoc = new XmlDocument();
-            // See FromFile for rationale (row 51).
+            // Defense-in-depth against XML External Entity (XXE) attacks:
+            // pin XmlResolver = null and DtdProcessing.Prohibit explicitly
+            // so a future framework downgrade or accidental restoration of
+            // XmlUrlResolver cannot re-enable billion-laughs DoS expansion
+            // or external entity resolution.
             xDoc.XmlResolver = null;
             var settings = new XmlReaderSettings
             {

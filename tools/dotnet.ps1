@@ -46,7 +46,9 @@ if ($useDocker) {
 	$nugetVol = if ($env:MTCONNECT_NUGET_VOLUME) { $env:MTCONNECT_NUGET_VOLUME } else { 'mtconnect-net-nuget' }
 	$toolsVol = if ($env:MTCONNECT_DOTNET_TOOLS_VOLUME) { $env:MTCONNECT_DOTNET_TOOLS_VOLUME } else { 'mtconnect-net-dotnet-tools' }
 
-	# E2E heuristic — matches the bash sibling.
+	# Wire docker-in-docker mounts only when a test path under
+	# IntegrationTests / E2E / Compliance is invoked, so a plain
+	# `build` or `test MTConnect.NET-XML-Tests` skips the extra plumbing.
 	$e2eMode = ($env:MTCONNECT_DOTNET_E2E_DIND -eq '1')
 	$joined = ' ' + ($DotnetArgs -join ' ') + ' '
 	foreach ($hit in @(' tests/IntegrationTests', ' tests/E2E/', 'IntegrationTests.csproj', ' tests/Compliance/')) {
