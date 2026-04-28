@@ -37,9 +37,9 @@ if [[ "${1:-}" == "--docker" ]] || [[ "${1:-}" == "-d" ]]; then
 fi
 
 # --- SDK tag resolution ------------------------------------------------
-# Default: net8.0 (matches the TFM alignment in plans/tests/01-foundation.md).
-# Override via MTCONNECT_DOTNET_SDK_TAG (e.g. "6.0", "9.0") or swap the
-# whole image via MTCONNECT_DOTNET_IMAGE.
+# Default: net8.0 — matches the TFM that every test project under tests/
+# declares for Debug. Override via MTCONNECT_DOTNET_SDK_TAG (e.g. "6.0",
+# "9.0") or swap the whole image via MTCONNECT_DOTNET_IMAGE.
 SDK_TAG_DEFAULT="${MTCONNECT_DOTNET_SDK_TAG:-8.0}"
 
 if [[ "${USE_DOCKER}" == "1" ]]; then
