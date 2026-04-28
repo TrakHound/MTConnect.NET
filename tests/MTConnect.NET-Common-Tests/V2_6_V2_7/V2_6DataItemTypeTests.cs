@@ -79,7 +79,7 @@ namespace MTConnect.NET_Common_Tests.V2_6_V2_7
         public void AssetChangedDataItem_description_narrowed_in_v2_6()
         {
             Assert.That(AssetChangedDataItem.DescriptionText,
-                Does.Match(@"^AssetId of the Asset that has been changed\.?$"),
+                Is.EqualTo("AssetId of the Asset that has been changed."),
                 "AssetChangedDataItem description must reflect the v2.6 split " +
                 "where 'added' moved to AssetAddedDataItem");
         }
