@@ -29,7 +29,7 @@
         <DataCollectors>
             <DataCollector friendlyName="XPlat code coverage">
                 <Configuration>
-                    <Format>cobertura,opencover</Format>
+                    <Format>cobertura</Format>
                     <Include>[MTConnect.NET-*]*</Include>
                     <Exclude>[MTConnect.NET-*-Tests]*,[MTConnect.NET-*-Tests.*]*</Exclude>
                     <ExcludeByFile>**/*.g.cs.bak,**/TestHelpers/**/*.cs,**/TestDoubles/**/*.cs</ExcludeByFile>
