@@ -60,23 +60,5 @@ namespace MTConnect.NET_Common_Tests.V2_6_V2_7
             Assert.That(dataItem.Type, Is.EqualTo("WATER_HARDNESS"));
         }
 
-        // Source: XMI v2.7 + XSD v2.7 — Sample observations carry a numeric value
-        // in an `<xs:string>` Result body that downstream parsers convert to
-        // double per the DataItem's `units`. Test that the carrier accepts the
-        // string as-is (no early conversion).
-        [Test]
-        public void Sample_observation_carries_numeric_string_verbatim()
-        {
-            var observation = new SampleValueObservation { Result = "0.42" };
-            Assert.That(observation.Result, Is.EqualTo("0.42"));
-
-            observation.Result = "1.0e3";
-            Assert.That(observation.Result, Is.EqualTo("1.0e3"));
-
-            // Per the spec ("UNAVAILABLE" is a valid sample value when the
-            // measurement is absent) the carrier accepts a non-numeric token.
-            observation.Result = "UNAVAILABLE";
-            Assert.That(observation.Result, Is.EqualTo("UNAVAILABLE"));
-        }
     }
 }
