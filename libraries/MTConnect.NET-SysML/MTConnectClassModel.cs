@@ -54,11 +54,18 @@ namespace MTConnect.SysML
                     ParentName = ModelHelper.GetClassName(xmiDocument, umlClass.Generalization.General);
                 }
 
-                var description = umlClass.Comments?.FirstOrDefault().Body;
+                // Chain `?.` through the FirstOrDefault() result — when Comments is
+                // non-null but empty, FirstOrDefault returns null and `.Body` NRE'd (row 3).
+                var description = umlClass.Comments?.FirstOrDefault()?.Body;
                 Description = ModelHelper.ProcessDescription(description);
 
-                // Load Properties
-                var umlProperties = umlClass.Properties?.Where(o => !o.Name.StartsWith("made") && !o.Name.StartsWith("is") && !o.Name.StartsWith("observes"));
+                // Load Properties — guard `o.Name != null` per element (row 16). The
+                // outer `?.` only protects the collection; an element with null Name
+                // would NRE on `o.Name.StartsWith(...)`.
+                var umlProperties = umlClass.Properties?.Where(o => o.Name != null
+                    && !o.Name.StartsWith("made")
+                    && !o.Name.StartsWith("is")
+                    && !o.Name.StartsWith("observes"));
                 if (umlProperties != null)
                 {
                     var propertyModels = new List<MTConnectPropertyModel>();
@@ -140,73 +147,67 @@ namespace MTConnect.SysML
         {
             if (xmiDocument == null || classes == null || classes.Count == 0) return;
 
-            // Single-pass is sufficient because each grafted parent has its
-            // ParentName / ParentUmlId stripped (see pruning block below) — the
-            // dangling chain terminates the moment the parent is grafted, so
-            // we never need to iterate. The previous maxIterations cap was
-            // dead defence-in-depth and silently swallowed pathological cycles
-            // if the cap was ever hit; a single pass either converges or
-            // there's nothing more to do.
-            while (true)
+            // Single-pass: each grafted parent has its ParentName / ParentUmlId
+            // stripped (see pruning block below), so the dangling chain
+            // terminates the moment the parent is grafted. The previous
+            // `while (true)` wrapper around the same body added no behaviour
+            // and silently swallowed pathological cycles if a cap had been
+            // present (row 19).
+
+            // Build the local-id set once — mutate it as grafts land, so the
+            // subsequent existence check is O(1) instead of O(n) (row 19).
+            var localUmlIds = new HashSet<string>(
+                classes.Where(c => !string.IsNullOrEmpty(c.UmlId)).Select(c => c.UmlId));
+
+            // Dedupe missing parents via HashSet.Add rather than GroupBy/First —
+            // same first-wins semantics with one allocation instead of an
+            // intermediate grouping (row 19).
+            var seenParents = new HashSet<string>();
+            var missing = new List<MTConnectClassModel>();
+            foreach (var c in classes)
             {
-                // Match dangling parents by xmi:id (the authoritative reference)
-                // rather than Name — multiple UML classes can share a name across
-                // packages, and Name-matching produced false-positive "already
-                // local" hits that prevented legitimate grafts. The docstring's
-                // invariant becomes the implementation here.
-                var localUmlIds = new HashSet<string>(
-                    classes.Where(c => !string.IsNullOrEmpty(c.UmlId)).Select(c => c.UmlId));
+                if (string.IsNullOrEmpty(c.ParentName) || string.IsNullOrEmpty(c.ParentUmlId)) continue;
+                if (localUmlIds.Contains(c.ParentUmlId)) continue;
+                if (seenParents.Add(c.ParentUmlId)) missing.Add(c);
+            }
 
-                var missing = classes
-                    .Where(c => !string.IsNullOrEmpty(c.ParentName)
-                                && !string.IsNullOrEmpty(c.ParentUmlId)
-                                && !localUmlIds.Contains(c.ParentUmlId))
-                    .GroupBy(c => c.ParentUmlId)
-                    .Select(g => g.First())
-                    .ToList();
+            if (missing.Count == 0) return;
 
-                if (missing.Count == 0) return;
+            foreach (var dangling in missing)
+            {
+                var parentClass = ModelHelper.GetClass(xmiDocument, dangling.ParentUmlId);
+                if (parentClass == null) continue;
 
-                var graftedThisPass = 0;
-                foreach (var dangling in missing)
-                {
-                    var parentClass = ModelHelper.GetClass(xmiDocument, dangling.ParentUmlId);
-                    if (parentClass == null) continue;
+                // Avoid double-grafting: a different dangling sibling may
+                // already have pulled the same UmlClass into the local set.
+                if (!localUmlIds.Add(parentClass.Id)) continue;
 
-                    // Avoid double-grafting: a different dangling sibling may
-                    // already have pulled the same UmlClass into the local set.
-                    if (classes.Any(c => c.UmlId == parentClass.Id)) continue;
+                var graftedId = $"{idPrefix}.{parentClass.Name.ToTitleCase()}";
+                var grafted = new MTConnectClassModel(xmiDocument, graftedId, parentClass);
 
-                    var graftedId = $"{idPrefix}.{parentClass.Name.ToTitleCase()}";
-                    var grafted = new MTConnectClassModel(xmiDocument, graftedId, parentClass);
+                // Pruning: a class living in another SysML package frequently brings along its own
+                // generalization chain (e.g. DataSet ⇒ Representation ⇒ Observation) and properties whose
+                // declared types live in yet more foreign packages (e.g. DataSet.Result : Entry). Grafting
+                // the full transitive closure across namespace boundaries is rarely what we want — the
+                // child sub-classes that triggered the graft (e.g. AxisDataSet, OriginDataSet) declare
+                // their own concrete fields and only need a structurally-minimal C# base to extend.
+                //
+                // So we strip:
+                //  - ParentName + ParentUmlId — the grafted class becomes a top-level base in the local
+                //    namespace, terminating the recursive search rather than chasing it across packages.
+                //  - Properties — their datatypes may reference yet more classes outside the local set,
+                //    causing CS0246 cascades. The original child sub-classes already define every concrete
+                //    field they need; the grafted base contributes structure (`: DataSet`, `: IDataSet`)
+                //    rather than fields.
+                //
+                // If a future XMI introduces a cross-package base that genuinely needs to carry fields
+                // (and those fields' datatypes are resolvable in the local namespace), revisit this
+                // pruning — for now it is the safe minimum.
+                grafted.ParentName = null;
+                grafted.ParentUmlId = null;
+                grafted.Properties = new List<MTConnectPropertyModel>();
 
-                    // Pruning: a class living in another SysML package frequently brings along its own
-                    // generalization chain (e.g. DataSet ⇒ Representation ⇒ Observation) and properties whose
-                    // declared types live in yet more foreign packages (e.g. DataSet.Result : Entry). Grafting
-                    // the full transitive closure across namespace boundaries is rarely what we want — the
-                    // child sub-classes that triggered the graft (e.g. AxisDataSet, OriginDataSet) declare
-                    // their own concrete fields and only need a structurally-minimal C# base to extend.
-                    //
-                    // So we strip:
-                    //  - ParentName + ParentUmlId — the grafted class becomes a top-level base in the local
-                    //    namespace, terminating the recursive search rather than chasing it across packages.
-                    //  - Properties — their datatypes may reference yet more classes outside the local set,
-                    //    causing CS0246 cascades. The original child sub-classes already define every concrete
-                    //    field they need; the grafted base contributes structure (`: DataSet`, `: IDataSet`)
-                    //    rather than fields.
-                    //
-                    // If a future XMI introduces a cross-package base that genuinely needs to carry fields
-                    // (and those fields' datatypes are resolvable in the local namespace), revisit this
-                    // pruning — for now it is the safe minimum.
-                    grafted.ParentName = null;
-                    grafted.ParentUmlId = null;
-                    grafted.Properties = new List<MTConnectPropertyModel>();
-
-                    classes.Add(grafted);
-                    graftedThisPass++;
-                }
-
-                if (graftedThisPass == 0) return;
+                classes.Add(grafted);
             }
         }
     }
