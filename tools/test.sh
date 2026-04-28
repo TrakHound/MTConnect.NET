@@ -136,7 +136,7 @@ e2e_enabled_check() {
 }
 
 # Category filter: by default exclude Docker-gated tests unless MTCONNECT_E2E_DOCKER.
-FILTER_EXPR='Category!=RequiresDocker'
+FILTER_EXPR='Category!=RequiresDocker&Category!=XsdLoadStrict'
 if e2e_enabled_check; then
 	FILTER_EXPR=''
 fi
