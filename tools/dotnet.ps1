@@ -20,7 +20,7 @@
 param(
 	[switch] $Docker,
 	[Parameter(Position = 0, ValueFromRemainingArguments = $true)]
-	[string[]] $Args
+	[string[]] $DotnetArgs
 )
 
 $ErrorActionPreference = 'Stop'
@@ -39,7 +39,7 @@ if ($useDocker) {
 
 	# E2E heuristic — matches the bash sibling.
 	$e2eMode = ($env:MTCONNECT_DOTNET_E2E_DIND -eq '1')
-	$joined = ' ' + ($Args -join ' ') + ' '
+	$joined = ' ' + ($DotnetArgs -join ' ') + ' '
 	foreach ($hit in @(' tests/IntegrationTests', ' tests/E2E/', 'IntegrationTests.csproj', ' tests/Compliance/')) {
 		if ($joined.Contains($hit)) { $e2eMode = $true; break }
 	}
@@ -72,13 +72,13 @@ if ($useDocker) {
 		-e DOTNET_NOLOGO=1 `
 		-e DOTNET_CLI_TELEMETRY_OPTOUT=1 `
 		$image `
-		dotnet @Args
+		dotnet @DotnetArgs
 	exit $LASTEXITCODE
 }
 
 Push-Location $RepoRoot
 try {
-	& dotnet @Args
+	& dotnet @DotnetArgs
 	exit $LASTEXITCODE
 }
 finally {

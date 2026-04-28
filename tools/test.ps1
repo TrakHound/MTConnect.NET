@@ -45,11 +45,14 @@ if ($Docker) { $env:MTCONNECT_DOTNET_USE_DOCKER = '1' }
 if ($E2E) { $env:MTCONNECT_E2E_DOCKER = 'true' }
 
 function Invoke-Dotnet {
-	param([Parameter(ValueFromRemainingArguments = $true)][string[]] $Args)
+	param(
+		[Parameter(Position = 0, ValueFromRemainingArguments = $true)]
+		[string[]] $DotnetArgs
+	)
 	$wrapper = Join-Path $ToolsDir 'dotnet.ps1'
-	& pwsh -File $wrapper @Args
+	& pwsh -File $wrapper @DotnetArgs
 	if ($LASTEXITCODE -ne 0) {
-		throw "dotnet $($Args -join ' ') failed with exit code $LASTEXITCODE"
+		throw "dotnet $($DotnetArgs -join ' ') failed with exit code $LASTEXITCODE"
 	}
 }
 
