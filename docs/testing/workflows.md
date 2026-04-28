@@ -1,6 +1,30 @@
 # Testing — workflow catalog
 
-CI workflow + local test entry points. Pairs with [`docs/testing.md`](../testing.md) (top-level testing topic) and the per-version matrices under [`docs/testing/`](.).
+User-observable end-to-end paths through MTConnect.NET, plus the CI / local
+test entry points that exercise them. Pairs with [`docs/testing.md`](../testing.md)
+(top-level testing topic) and the per-version matrices under
+[`docs/testing/`](.).
+
+## End-to-end workflow catalog
+
+Each row is a user-observable path from input to output. The owning
+test class is the canonical fixture for the workflow. Workflows whose
+test class lives in `tests/IntegrationTests/` run in the default CI
+filter; workflows tagged `[Category("RequiresDocker")]` run only when
+`MTCONNECT_E2E_DOCKER=true` is exported.
+
+| ID | Workflow | Input fixture | Expected output | Owning test class |
+|---|---|---|---|---|
+| W01 | HTTP Probe — devices envelope | in-process `MTConnectAgentBroker` + `devices-tpl.xml` | `MTConnectDevices` envelope with the seeded device | `tests/IntegrationTests/Workflows/HttpProbeWorkflowTests.cs` |
+| W02 | HTTP Current — observation snapshot | in-process broker + an SHDR-fed dataitem | `MTConnectStreams` envelope with the observation | `tests/IntegrationTests/ClientAgentCommunicationTests.cs::GetCurrentFieldShouldReturnUpdatedValue` |
+| W03 | HTTP Sample — observation stream | in-process broker + an SHDR-fed dataitem with from + count | `MTConnectStreams` envelope containing the observation history | `tests/IntegrationTests/ClientAgentCommunicationTests.cs::WaitForSampleShouldSucceedAfterFirstItemIsSent` |
+| W04 | HTTP Asset — asset retrieval | in-process broker seeded with a `CuttingToolAsset` | `MTConnectAssets` envelope containing the asset | `tests/IntegrationTests/Workflows/HttpAssetWorkflowTests.cs` |
+| W05 | SHDR adapter -> agent -> HTTP client | `ShdrAdapter` + `MTConnectHttpClient` | client receives observation through the agent | `tests/IntegrationTests/ClientAgentCommunicationTests.cs::WaitForSampleShouldSucceedAfterFirstItemIsSent` |
+| W06 | MQTT relay — agent publishes, consumer receives | in-process broker + MqttRelay agent module + `eclipse-mosquitto:2.0.22` (Testcontainers) | downstream MQTTnet subscriber receives a `/Current/<uuid>` payload carrying the injected observation | `tests/IntegrationTests/Workflows/MqttRelayWorkflowTests.cs` |
+| W07 | cppagent JSON v2 parity | shared `Fixtures/cppagent-parity-device.xml` against `mtconnect/agent:latest` (Testcontainers) and in-process MT.NET | normalized `/probe`, `/current`, `/sample` shapes byte-equal modulo `Fixtures/cross-impl-whitelist.json` | `tests/Compliance/MTConnect-Compliance-Tests/L2_CrossImpl/CppAgentParityWorkflowTests.cs` |
+| W08 | XML <-> JSON round-trip | golden XML fixture | JSON serialization -> XML deserialization -> structural equality | `tests/MTConnect.NET-XML-Tests/Streams/Current.cs` (existing) |
+
+## CI workflow — `.github/workflows/dotnet.yml`
 
 ## CI workflow — `.github/workflows/dotnet.yml`
 
