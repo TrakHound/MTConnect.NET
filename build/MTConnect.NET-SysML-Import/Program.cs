@@ -85,7 +85,15 @@ if (jsonDumpPath is not null)
     Console.WriteLine($"JSON:   {jsonDumpPath}");
 
 var mtconnectModel = MTConnectModel.Parse(xmiPath);
-Console.WriteLine($"Model parsed: type={mtconnectModel?.GetType().Name ?? "null"}");
+if (mtconnectModel == null)
+{
+    // Row 20: fail-fast on null model. The renderers below internally null-check
+    // and silently no-op, producing zero output and exit 0. Surface the parse
+    // failure here so the operator gets a proper non-zero exit + stderr.
+    Console.Error.WriteLine($"error: Failed to parse XMI: {xmiPath}");
+    return 1;
+}
+Console.WriteLine($"Model parsed: type={mtconnectModel.GetType().Name}");
 
 if (jsonDumpPath is not null)
     RenderJsonFile(mtconnectModel, jsonDumpPath);
