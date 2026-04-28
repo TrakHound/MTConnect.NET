@@ -68,7 +68,11 @@ namespace MTConnect.SysML.Json_cppagent
             if (result == null) return;
 
             var resultPath = Path.Combine(outputPath, outputRelative) + ".g.cs";
+            // Path.GetDirectoryName may return null/empty when outputPath is
+            // a bare relative path (`--output .`); fall back to current
+            // directory so EnsureDirectory does not throw on null (row 21).
             var resultDirectory = Path.GetDirectoryName(resultPath);
+            if (string.IsNullOrEmpty(resultDirectory)) resultDirectory = ".";
             TemplateLoader.EnsureDirectory(resultDirectory);
             File.WriteAllText(resultPath, result);
         }
