@@ -1,4 +1,6 @@
-﻿using System.Threading;
+﻿using System;
+using System.IO;
+using System.Threading;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -42,6 +44,17 @@ namespace MTConnect.SysML.Xmi
         /// <returns>The deserialized object as a <see cref="XmiDocument"/>.</returns>
         public XmiDocument? Deserialize(CancellationToken cancellationToken)
         {
+            // Honour the cancellation token at the entry point and again after
+            // the (synchronous, but potentially slow) XmlSerializer construction
+            // so callers can abort between cooperative checkpoints (row 18).
+            cancellationToken.ThrowIfCancellationRequested();
+
+            // Guard a malformed / empty input. `xDoc.DocumentElement` is null
+            // for an XmlDocument that loaded a fragment with no root element;
+            // dereferencing `.LocalName` would NRE (row 17).
+            if (xDoc.DocumentElement == null)
+                throw new InvalidOperationException("XMI document has no root element; nothing to deserialize.");
+
             XmiDocument? result = null;
 
             XmlRootAttribute xRoot = new XmlRootAttribute();
@@ -49,6 +62,9 @@ namespace MTConnect.SysML.Xmi
             xRoot.IsNullable = true;
             xRoot.Namespace = XmiHelper.XmiNamespace;
             XmlSerializer serial = new XmlSerializer(typeof(Xmi.XmiDocument), xRoot);
+
+            cancellationToken.ThrowIfCancellationRequested();
+
             // Deserialize the XmlNode
             using (XmlNodeReader xReader = new XmlNodeReader(xDoc.DocumentElement))
             {
@@ -70,14 +86,19 @@ namespace MTConnect.SysML.Xmi
         public static XmiDeserializer FromFile(string filename)
         {
             var xDoc = new XmlDocument();
-            // Disable external-resource resolution defence-in-depth.
-            // .NET 6+ defaults this to null already, but pinning it
-            // explicitly survives a future framework upgrade and any
-            // accidental restoration of the default XmlUrlResolver
-            // (which would fetch DTDs / external entities over the
-            // network). See OWASP "XML External Entities (XXE)".
+            // Defence-in-depth: .NET 6+ defaults `XmlResolver` to null and
+            // disables DTD processing, but pinning both via XmlReaderSettings
+            // survives a future framework downgrade or accidental restoration
+            // of XmlUrlResolver. Refuses billion-laughs DoS and external
+            // entity resolution. See OWASP "XML External Entities (XXE)" (row 51).
             xDoc.XmlResolver = null;
-            xDoc.Load(filename);
+            var settings = new XmlReaderSettings
+            {
+                DtdProcessing = DtdProcessing.Prohibit,
+                XmlResolver = null,
+            };
+            using var reader = XmlReader.Create(filename, settings);
+            xDoc.Load(reader);
 
             return new XmiDeserializer(xDoc);
         }
@@ -91,9 +112,16 @@ namespace MTConnect.SysML.Xmi
         public static XmiDeserializer FromXml(string xml)
         {
             var xDoc = new XmlDocument();
-            // See FromFile for rationale.
+            // See FromFile for rationale (row 51).
             xDoc.XmlResolver = null;
-            xDoc.LoadXml(xml);
+            var settings = new XmlReaderSettings
+            {
+                DtdProcessing = DtdProcessing.Prohibit,
+                XmlResolver = null,
+            };
+            using var stringReader = new StringReader(xml);
+            using var reader = XmlReader.Create(stringReader, settings);
+            xDoc.Load(reader);
 
             return new XmiDeserializer(xDoc);
         }
