@@ -6,6 +6,16 @@
 # pins the SDK version so two contributors don't drift on minor
 # differences.
 #
+# The `--docker` flag and the `MTCONNECT_DOTNET_USE_DOCKER` env var
+# are deliberately kept as a dual API. The flag is the contributor-
+# facing form; the env var lets the nested wrapper chain
+# (`tools/test.sh --docker` -> exports MTCONNECT_DOTNET_USE_DOCKER=1
+# -> calls `tools/dotnet.sh` per project) propagate the docker mode
+# without splatting an extra positional flag through every dotnet
+# invocation. Removing either form would either force test.sh to
+# splat `--docker` per call site or break the env-var propagation
+# path.
+#
 # Default container image tag: 8.0 (the TargetFramework every test
 # project in this repo uses for Debug). Override via
 # `MTCONNECT_DOTNET_SDK_TAG=9.0` or, for a fully custom image,

@@ -5,6 +5,15 @@
 # without a local SDK install build and test the repo, and pins the
 # SDK version so two contributors don't drift on minor differences.
 #
+# The -Docker switch and the MTCONNECT_DOTNET_USE_DOCKER env var are
+# deliberately kept as a dual API. The switch is the contributor-
+# facing form; the env var lets the nested wrapper chain
+# (tools/test.ps1 -Docker -> sets $env:MTCONNECT_DOTNET_USE_DOCKER=1
+# -> calls tools/dotnet.ps1 per project) propagate the docker mode
+# without splatting an extra positional switch through every dotnet
+# invocation. Removing either form would either force test.ps1 to
+# splat -Docker per call site or break the env-var propagation path.
+#
 # Default container image tag: 8.0. Override via
 # MTCONNECT_DOTNET_SDK_TAG=9.0 or, for a fully custom image,
 # MTCONNECT_DOTNET_IMAGE=mcr.microsoft.com/dotnet/sdk:9.0-noble.
