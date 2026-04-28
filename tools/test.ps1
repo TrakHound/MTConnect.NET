@@ -20,7 +20,10 @@
 #                  tests/Compliance/** (XSD validation, OCL checks,
 #                  cppagent parity). Skipped by default because it is
 #                  the slowest tier and many of its tests are gated
-#                  behind Docker / [Category] tags.
+#                  behind Docker / [Category] tags. NOTE: runs every
+#                  test in the project including `XsdLoadStrict`,
+#                  expected to surface ~54 failures until the XSD-1.1
+#                  validator lands.
 #   -E2E           Force the Docker-gated end-to-end suites (implies
 #                  MTCONNECT_E2E_DOCKER=true; Testcontainers spins up
 #                  mosquitto + cppagent containers per test class).
