@@ -40,7 +40,12 @@ namespace MTConnect.NET_Common_Tests.V2_6_V2_7
         public void V2_7_DataItem_constructs_with_correct_metadata(
             Type dataItemType, string expectedTypeId, DataItemCategory expectedCategory)
         {
-            var instance = Activator.CreateInstance(dataItemType);
+            // Wrap with Assert.DoesNotThrow so a missing parameterless ctor
+            // surfaces as a clear NUnit failure with the offending type name
+            // rather than a bare MissingMethodException (row 47).
+            object? instance = null;
+            Assert.DoesNotThrow(() => instance = Activator.CreateInstance(dataItemType),
+                $"{dataItemType.Name} should have a public parameterless constructor");
             Assert.That(instance, Is.Not.Null);
             Assert.That(instance, Is.InstanceOf<DataItem>());
 
