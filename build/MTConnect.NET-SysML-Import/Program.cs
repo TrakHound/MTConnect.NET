@@ -79,13 +79,6 @@ if (!Directory.Exists(outputRoot))
     return 1;
 }
 
-// Fail fast if the Scriban template tree wasn't copied to the build output.
-// Each Render* method historically did `if (File.Exists(template)) { ... }`
-// and silently no-op'd on missing templates — costing several hours of
-// debugging on Linux when path casing diverged. Surface the failure here
-// before the import + render loop wastes a second of XMI parse time.
-EnsureTemplateTreesExist();
-
 Console.WriteLine($"XMI:    {xmiPath}");
 Console.WriteLine($"Output: {outputRoot}");
 if (jsonDumpPath is not null)
@@ -113,40 +106,6 @@ static string RequireValue(string[] argv, ref int index, string flag)
     if (index >= argv.Length)
         throw new ArgumentException($"Flag '{flag}' requires a value.");
     return argv[index];
-}
-
-static void EnsureTemplateTreesExist()
-{
-    var baseDir = AppDomain.CurrentDomain.BaseDirectory;
-    string[][] expectedTreeRoots =
-    {
-        new[] { "CSharp", "Templates" },
-        new[] { "Json-cppagent", "Templates" },
-        new[] { "Xml", "Templates" },
-    };
-
-    foreach (var components in expectedTreeRoots)
-    {
-        var path = Path.Combine(new[] { baseDir }.Concat(components).ToArray());
-        if (!Directory.Exists(path))
-        {
-            throw new DirectoryNotFoundException(
-                $"Required Scriban template tree not found at '{path}'. " +
-                "Verify the *.scriban files are copied to the build output via " +
-                "<CopyToOutputDirectory>Always</CopyToOutputDirectory> in MTConnect.NET-SysML-Import.csproj, " +
-                "and that the path components are case-correct (Linux is case-sensitive — " +
-                "expected 'CSharp' / 'Json-cppagent' / 'Xml', not lower-case forms).");
-        }
-
-        var scribanFiles = Directory.GetFiles(path, "*.scriban", SearchOption.TopDirectoryOnly);
-        if (scribanFiles.Length == 0)
-        {
-            throw new FileNotFoundException(
-                $"Template directory '{path}' exists but contains no *.scriban files. " +
-                "Verify the csproj's <None Update=\"...\"><CopyToOutputDirectory>Always</CopyToOutputDirectory></None> " +
-                "entries cover every template file.");
-        }
-    }
 }
 
 static void PrintHelp()
