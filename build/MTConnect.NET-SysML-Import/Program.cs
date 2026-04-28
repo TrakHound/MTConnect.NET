@@ -132,12 +132,19 @@ static void RenderJsonFile(MTConnectModel model, string path)
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
     };
 
-    var dir = Path.GetDirectoryName(path);
+    // --json-dump is operator-trusted (no path-traversal guard); echo the
+    // resolved absolute path so the operator can verify exactly where the
+    // dump landed when running with a relative path or a sibling-clone
+    // launchSettings profile.
+    var resolved = Path.GetFullPath(path);
+    Console.WriteLine($"JSON dump: writing to {resolved}");
+
+    var dir = Path.GetDirectoryName(resolved);
     if (!string.IsNullOrEmpty(dir))
         Directory.CreateDirectory(dir);
 
     var json = JsonSerializer.Serialize(model, options: jsonOptions);
-    File.WriteAllText(path, json);
+    File.WriteAllText(resolved, json);
 }
 
 static void RenderCommonClasses(MTConnectModel model, string outputRoot)
