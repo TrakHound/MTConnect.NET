@@ -17,10 +17,12 @@
          here. Generator-output `.g.cs` files are part of the coverage
          gate; tests exercise their constructors, properties, and
          per-subtype description methods.
-       - TestHelpers / TestDoubles under tests/** are excluded because they
-         are test-only infrastructure — Coverlet runs against the library
-         assemblies, not the test assemblies, so `Include` already scopes
-         it out, but we declare the `ExcludeByFile` pattern for safety.
+       - TestHelpers / TestDoubles under tests/** are excluded because
+         they are test-only infrastructure — Coverlet runs against the
+         library assemblies, not the test assemblies, so `Include`
+         already scopes it out. The `ExcludeByFile` pattern is kept in
+         place so that any future `TestHelpers/` / `TestDoubles/` tree
+         is excluded automatically.
        - obj/ + bin/ are excluded via Coverlet's built-in defaults. -->
 <RunSettings>
     <DataCollectionRunSettings>
