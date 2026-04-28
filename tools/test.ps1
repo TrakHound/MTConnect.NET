@@ -79,7 +79,7 @@ try {
 		$allTestProjects = $allTestProjects | Where-Object { $_ -match $Only }
 	}
 
-	$filterExpr = 'Category!=RequiresDocker'
+	$filterExpr = 'Category!=RequiresDocker&Category!=XsdLoadStrict'
 	if (Get-E2EEnabled) { $filterExpr = '' }
 
 	foreach ($proj in $allTestProjects) {

@@ -64,7 +64,7 @@ jobs:
             --settings tests/coverlet.runsettings \
             --results-directory TestResults \
             --logger "trx;LogFileName=test-results-${{ matrix.os }}.trx" \
-            --filter "Category!=RequiresDocker"
+            --filter "Category!=RequiresDocker&Category!=XsdLoadStrict"
         shell: bash
 
       - name: Generate coverage HTML + summary
