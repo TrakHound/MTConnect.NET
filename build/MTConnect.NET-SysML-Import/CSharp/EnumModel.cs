@@ -51,6 +51,10 @@ namespace MTConnect.SysML.CSharp
                     {
                         foreach (var value in exportModel.Values)
                         {
+                            // Skip values with null Name — `name.Replace('/', '_')` would
+                            // otherwise NRE on the chain below (row 4).
+                            if (value.Name == null) continue;
+
                             if (convertFunction != null)
                             {
                                 value.Name = convertFunction(value.Name);
@@ -58,7 +62,7 @@ namespace MTConnect.SysML.CSharp
                             else
                             {
                                 // Convert Numbers to Strings (leading numbers aren't supported as Enum values)
-                                var name = value.Name?.ToUnderscoreUpper();
+                                var name = value.Name.ToUnderscoreUpper();
                                 name = StringFunctions.ReplaceNumbersWithWords(name);
 
                                 // Replace '/' (not supported as Enum values)
@@ -67,17 +71,6 @@ namespace MTConnect.SysML.CSharp
                                 name = name.ToUnderscoreUpper();
                                 value.Name = name;
                             }
-
-                            //value.Name = value.Name.Replace("/", "_PER_");
-                            //value.Name = value.Name.Replace("^2", "_SQUARED");
-
-                            //// Convert Numbers to Strings (leading numbers aren't supported as Enum values)
-                            //var name = value.Name;
-                            //name = StringFunctions.ReplaceNumbersWithWords(name);
-                            //value.Name = name.ToTitleCase();
-
-                            //// Replace '/' (not supported as Enum values)
-                            //value.Name = value.Name.Replace('/', '_');
                         }
                     }
 
