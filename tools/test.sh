@@ -40,7 +40,40 @@ done
 TOOLS_DIR="$(cd -P "$(dirname "${SCRIPT_SOURCE}")" && pwd)"
 REPO_ROOT="$(cd -P "${TOOLS_DIR}/.." && pwd)"
 
-print_help() { sed -n '3,19p' "${SCRIPT_SOURCE}"; }
+print_help() {
+	cat <<'EOF'
+Local test + coverage entry point for MTConnect.NET. Discovers every
+test project under tests/**/*.csproj — adding a new test project
+requires no edits to this script. The compliance harness under
+tests/Compliance/** and the Docker-gated end-to-end suites are
+skipped by default so the common loop stays fast; flags below opt
+into them.
+
+Pairs with tools/dotnet.sh: when --docker (or
+MTCONNECT_DOTNET_USE_DOCKER=1) is set, each dotnet invocation runs
+inside the pinned .NET SDK container via tools/dotnet.sh.
+
+Usage: tools/test.sh [--docker] [--compliance] [--e2e] [--only <pattern>]
+
+Flags:
+  -d, --docker        Run every dotnet invocation through tools/dotnet.sh
+                      --docker (also honoured via
+                      MTCONNECT_DOTNET_USE_DOCKER=1).
+  -c, --compliance    Include the MTConnect compliance harness under
+                      tests/Compliance/** (XSD validation, OCL checks,
+                      cppagent parity). Skipped by default because it
+                      is the slowest tier and many of its tests are
+                      gated behind Docker / [Category] tags.
+  -e, --e2e           Force the Docker-gated end-to-end suites
+                      (implies MTCONNECT_E2E_DOCKER=true;
+                      Testcontainers spins up mosquitto + cppagent
+                      containers per test class).
+  -o, --only PATTERN  Run only the test projects whose path matches
+                      PATTERN (grep -E). Example: --only 'XML|SHDR'
+                      runs only those two projects.
+  -h, --help          Print this help and exit.
+EOF
+}
 
 USE_DOCKER=0
 RUN_COMPLIANCE=0
@@ -94,16 +127,16 @@ if [[ -n "${ONLY_PATTERN}" ]]; then
 	ALL_TEST_PROJECTS=("${FILTERED[@]}")
 fi
 
-# Category filter: by default exclude Docker-gated tests unless MTCONNECT_E2E_DOCKER.
-FILTER_EXPR='Category!=RequiresDocker'
-if e2e_enabled_check() {
+e2e_enabled_check() {
 	local raw="${MTCONNECT_E2E_DOCKER:-false}"
 	case "$(printf '%s' "${raw}" | tr '[:upper:]' '[:lower:]')" in
 		true|yes|on|1) return 0 ;;
 		*) return 1 ;;
 	esac
-}; then true; fi
+}
 
+# Category filter: by default exclude Docker-gated tests unless MTCONNECT_E2E_DOCKER.
+FILTER_EXPR='Category!=RequiresDocker'
 if e2e_enabled_check; then
 	FILTER_EXPR=''
 fi
