@@ -80,7 +80,8 @@ namespace MTConnect.NET_JSON_cppagent.Streams
                 // multi-component values stay on the cheap path.
                 if (s.IndexOf(' ') < 0
                     && double.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, out var parsed)
-                    && double.IsFinite(parsed))
+                    && !double.IsNaN(parsed)
+                    && !double.IsInfinity(parsed))
                 {
                     writer.WriteNumberValue(parsed);
                     return;
