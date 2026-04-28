@@ -549,7 +549,7 @@ namespace MTConnect.Agents
         // response. Keyed on Version equality (not reference identity)
         // because callers commonly construct fresh Version instances
         // per request.
-        private static readonly ConcurrentDictionary<Version, string> _formattedVersionCache = new();
+        private static readonly ConcurrentDictionary<Version, string> _formattedVersionCache = new ConcurrentDictionary<Version, string>();
 
         // Formats the configured MTConnect Standard release for the
         // `version` attribute on every response document Header.
@@ -563,7 +563,7 @@ namespace MTConnect.Agents
         {
             return _formattedVersionCache.GetOrAdd(
                 mtconnectVersion,
-                static v => new Version(v.Major, v.Minor, 0, 0).ToString());
+                v => new Version(v.Major, v.Minor, 0, 0).ToString());
         }
 
         #endregion
