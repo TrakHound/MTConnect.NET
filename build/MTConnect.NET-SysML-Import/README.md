@@ -56,8 +56,8 @@ Split the regen into per-target commits so reviewers can audit each layer indepe
 
 | Flag | Required | Default | Purpose |
 |---|---|---|---|
-| `--xmi <path>` | Yes (or via legacy) | — | Path to the SysML XMI file to consume. |
-| `--output <path>` | Yes (or via legacy) | — | Repository root. Each renderer writes into its own `libraries/<LibraryName>/` subtree under this root. |
+| `--xmi <path>` | Yes | — | Path to the SysML XMI file to consume. |
+| `--output <path>` | Yes | — | Repository root. Each renderer writes into its own `libraries/<LibraryName>/` subtree under this root. |
 | `--json-dump <path>` | No | not written | If set, dumps the parsed `MTConnectModel` as JSON. Useful for debugging. |
 | `--help`, `-h` | — | — | Print usage and exit. |
 
