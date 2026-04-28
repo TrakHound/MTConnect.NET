@@ -6,7 +6,7 @@ using NUnit.Framework;
 namespace MTConnect.NET_Common_Tests.V2_6_V2_7
 {
     // Sample envelope coverage for the v2.7 SAMPLE-category DataItems introduced
-    // by feat/issue-133.
+    // by [#133](https://github.com/TrakHound/MTConnect.NET/issues/133).
     //
     //   - XMI: mtconnect/mtconnect_sysml_model @ v2.7 (SHA 25796ac591bb…)
     //          UML class `WaterHardnessDataItem` declares

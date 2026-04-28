@@ -5,7 +5,8 @@ using NUnit.Framework;
 
 namespace MTConnect.NET_Common_Tests.V2_6_V2_7
 {
-    // Constants-level pins for the v2.6 + v2.7 support added by feat/issue-133.
+    // Constants-level pins for the v2.6 + v2.7 support added by
+    // [#133](https://github.com/TrakHound/MTConnect.NET/issues/133).
     //
     //   - XMI:   https://github.com/mtconnect/mtconnect_sysml_model/tree/v2.6
     //                                                                   /v2.7
