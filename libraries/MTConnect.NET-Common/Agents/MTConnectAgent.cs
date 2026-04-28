@@ -1120,7 +1120,11 @@ namespace MTConnect.Agents
                     var dataItemList = obj.DataItems != null
                         ? new List<IDataItem>(obj.DataItems)
                         : new List<IDataItem>();
+#if NET472_OR_GREATER || NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_0_OR_GREATER
                     var dataItemTypes = new HashSet<string>(dataItemList.Count);
+#else
+                    var dataItemTypes = new HashSet<string>();
+#endif
                     for (var i = 0; i < dataItemList.Count; i++)
                     {
                         var t = dataItemList[i]?.Type;
