@@ -2,6 +2,7 @@
 using MTConnect.SysML.Models.Devices;
 using MTConnect.SysML.Xmi;
 using MTConnect.SysML.Xmi.UML;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -48,12 +49,15 @@ namespace MTConnect.SysML.CSharp
                         var propertyValue = importProperty.GetValue(importModel);
 
                         var exportProperty = exportProperties.FirstOrDefault(o => o.Name == importProperty.Name);
-                        if (exportProperty != null)
+                        // Mirror ClassModel.Create's PropertyType guard (row 33). Without
+                        // it, a future divergence in property types between the import
+                        // and export hierarchies throws ArgumentException at SetValue.
+                        if (exportProperty != null && exportProperty.PropertyType == importProperty.PropertyType)
                         {
                             exportProperty.SetValue(exportModel, propertyValue);
                         }
                     }
-                    
+
                     if (exportModel.Units != null)
                     {
                         exportModel.Units = exportModel.Units.Replace("NativeUnitsEnum", "NativeUnits");
@@ -66,6 +70,11 @@ namespace MTConnect.SysML.CSharp
                         exportModel.ResultType = ModelHelper.RemoveEnumSuffix(importModel.Result);
                     }
 
+                    // Guard before `+= "DataItem"` so a null Id/Name does not silently yield the literal "DataItem" (row 6).
+                    if (exportModel.Id == null)
+                        throw new InvalidOperationException("DataItemType has null Id, cannot append 'DataItem' suffix.");
+                    if (exportModel.Name == null)
+                        throw new InvalidOperationException($"DataItemType '{exportModel.Id}' has null Name, cannot append 'DataItem' suffix.");
                     exportModel.Id += "DataItem";
                     exportModel.Name += "DataItem";
                     exportModel.Description = DescriptionHelper.GetTextDescription(importModel.Description);

@@ -2,6 +2,7 @@
 using MTConnect.SysML.Models.Devices;
 using MTConnect.SysML.Xmi;
 using MTConnect.SysML.Xmi.UML;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -33,12 +34,18 @@ namespace MTConnect.SysML.CSharp
                         var propertyValue = importProperty.GetValue(importModel);
 
                         var exportProperty = exportProperties.FirstOrDefault(o => o.Name == importProperty.Name);
-                        if (exportProperty != null)
+                        // Mirror ClassModel.Create's PropertyType guard (row 33).
+                        if (exportProperty != null && exportProperty.PropertyType == importProperty.PropertyType)
                         {
                             exportProperty.SetValue(exportModel, propertyValue);
                         }
                     }
 
+                    // Guard before `+= "DataItem"` so a null Id/Name does not silently yield the literal "DataItem" (row 6).
+                    if (exportModel.Id == null)
+                        throw new InvalidOperationException("InterfaceDataItemType has null Id, cannot append 'DataItem' suffix.");
+                    if (exportModel.Name == null)
+                        throw new InvalidOperationException($"InterfaceDataItemType '{exportModel.Id}' has null Name, cannot append 'DataItem' suffix.");
                     exportModel.Id += "DataItem";
                     exportModel.Name += "DataItem";
                     exportModel.Description = DescriptionHelper.GetTextDescription(importModel.Description);
