@@ -23,9 +23,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="Schemas\**\*.xsd">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <!-- XSDs ship as embedded resources, not bin/-copied files: 122 files at
+         ~52 MB. Copying per-TFM per-Configuration was the prior design and
+         inflated CI artefacts proportionally; SchemaLoadTests reads them via
+         Assembly.GetManifestResourceStream so a single binary blob in the
+         test assembly is sufficient. -->
+    <EmbeddedResource Include="Schemas\**\*.xsd" />
     <None Include="Fixtures\**\*.*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

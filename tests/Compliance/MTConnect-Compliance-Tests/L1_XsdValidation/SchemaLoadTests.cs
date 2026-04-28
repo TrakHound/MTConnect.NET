@@ -14,42 +14,66 @@ namespace MTConnect.Compliance.Tests.L1_XsdValidation
     // namespace mismatch) we surface the problem before any envelope-
     // shape validation runs.
     //
-    // Tests are parametric on every .xsd file under Schemas/v*/. Adding
-    // a new version-directory automatically extends coverage.
+    // Tests are parametric on every .xsd file under Schemas/v*/. XSDs are
+    // bundled as embedded resources (see csproj) and read via the assembly
+    // manifest, so adding a new version-directory automatically extends
+    // coverage on the next clean build.
     [TestFixture]
     [Category("XsdLoadStrict")]
     public class SchemaLoadTests
     {
+        private const string ResourcePrefix = "MTConnect.Compliance.Tests.Schemas.";
+
         public static IEnumerable<TestCaseData> AllSchemas()
         {
-            // The csproj's `<None Include="Schemas\**\*.xsd"><CopyToOutputDirectory>PreserveNewest>`
-            // glob places the entire schemas tree under TestContext.CurrentContext.TestDirectory,
-            // so the canonical location is the only one we honour. If it's missing, surface that
-            // immediately as an Inconclusive (below) rather than walking up parent directories
-            // and silently accepting an unexpected layout.
-            var schemasRoot = Path.Combine(TestContext.CurrentContext.TestDirectory, "Schemas");
+            var asm = typeof(SchemaLoadTests).Assembly;
 
-            if (!Directory.Exists(schemasRoot))
+            var names = asm.GetManifestResourceNames()
+                .Where(n => n.StartsWith(ResourcePrefix, StringComparison.Ordinal)
+                            && n.EndsWith(".xsd", StringComparison.Ordinal))
+                .OrderBy(n => n, StringComparer.Ordinal)
+                .ToList();
+
+            if (names.Count == 0)
             {
                 yield return new TestCaseData("(none)").SetName("Schemas tree missing");
                 yield break;
             }
 
-            foreach (var file in Directory.GetFiles(schemasRoot, "*.xsd", SearchOption.AllDirectories).OrderBy(f => f))
+            foreach (var name in names)
             {
-                var rel = Path.GetRelativePath(schemasRoot, file);
-                yield return new TestCaseData(file).SetName($"XSD load: {rel}");
+                yield return new TestCaseData(name).SetName($"XSD load: {ToDisplayPath(name)}");
             }
         }
 
-        [TestCaseSource(nameof(AllSchemas))]
-        public void Schema_loads_without_errors(string xsdPath)
+        // Reverse-map a manifest name like
+        //   MTConnect.Compliance.Tests.Schemas.v2_7.MTConnectStreams_2.7.xsd
+        // to a display path like
+        //   v2_7/MTConnectStreams_2.7.xsd
+        // The mapping relies on the on-disk convention that version
+        // directories use underscore separators (e.g. v2_7, never v2.7),
+        // so the first dot after the resource prefix always terminates the
+        // version-dir segment regardless of how many dots the filename has.
+        private static string ToDisplayPath(string resourceName)
         {
-            if (xsdPath == "(none)")
+            var rest = resourceName.Substring(ResourcePrefix.Length);
+            var firstDot = rest.IndexOf('.');
+            if (firstDot < 0) return rest;
+            return rest.Substring(0, firstDot) + "/" + rest.Substring(firstDot + 1);
+        }
+
+        [TestCaseSource(nameof(AllSchemas))]
+        public void Schema_loads_without_errors(string resourceName)
+        {
+            if (resourceName == "(none)")
             {
-                Assert.Inconclusive("Schemas tree not present at runtime; copy Schemas/ to test output via csproj or place at the project root.");
+                Assert.Inconclusive("No XSDs found in the test assembly manifest; check the EmbeddedResource glob in MTConnect-Compliance-Tests.csproj.");
                 return;
             }
+
+            var asm = typeof(SchemaLoadTests).Assembly;
+            using var stream = asm.GetManifestResourceStream(resourceName);
+            Assert.That(stream, Is.Not.Null, $"Embedded resource '{resourceName}' not found.");
 
             var errors = new List<string>();
 
@@ -61,17 +85,19 @@ namespace MTConnect.Compliance.Tests.L1_XsdValidation
                 XmlResolver = null
             };
 
-            // Open the XSD file. XmlSchemaSet.Add resolves any <xs:include>
-            // / <xs:import> relative to the file's directory.
-            using var reader = XmlReader.Create(xsdPath, settings);
+            using var reader = XmlReader.Create(stream!, settings, ToDisplayPath(resourceName));
             var schemaSet = new XmlSchemaSet
             {
                 // Defence-in-depth: prevent SchemaSet from fetching external
-                // <xs:include> / <xs:import> URIs over the network. The
-                // shipped Schemas/ tree is fully self-contained; an XSD that
-                // pulls in (e.g.) the W3C xlink schema can do so via an
-                // XmlPreloadedResolver pre-seeded with that XSD when the
-                // L1 layer starts validating xlink-importing envelopes.
+                // <xs:include> / <xs:import> URIs. The bundled Schemas/ tree
+                // is fully self-contained at build time but with embedded
+                // resources there is no filesystem to traverse, so any
+                // <xs:include schemaLocation="…"> would attempt resolution
+                // through this resolver — a custom XmlResolver that streams
+                // sibling resources from the manifest is the unblock for
+                // the L1 layer's full include-aware validation gate. The
+                // follow-up XSD-1.1 PR will provide it; the strict-load
+                // failures this test surfaces today document the gap.
                 XmlResolver = null
             };
             schemaSet.ValidationEventHandler += (s, e) => errors.Add($"[{e.Severity}] {e.Message}");
@@ -79,7 +105,7 @@ namespace MTConnect.Compliance.Tests.L1_XsdValidation
             schemaSet.Compile();
 
             Assert.That(errors, Is.Empty,
-                $"XSD '{Path.GetFileName(xsdPath)}' failed to load:\n  - " + string.Join("\n  - ", errors));
+                $"XSD '{ToDisplayPath(resourceName)}' failed to load:\n  - " + string.Join("\n  - ", errors));
         }
     }
 }
