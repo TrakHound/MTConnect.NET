@@ -20,9 +20,9 @@ filter; workflows tagged `[Category("RequiresDocker")]` run only when
 | W03 | HTTP Sample — observation stream | in-process broker + an SHDR-fed dataitem with from + count | `MTConnectStreams` envelope containing the observation history | `tests/IntegrationTests/ClientAgentCommunicationTests.cs::WaitForSampleShouldSucceedAfterFirstItemIsSent` |
 | W04 | HTTP Asset — asset retrieval | in-process broker seeded with a `CuttingToolAsset` | `MTConnectAssets` envelope containing the asset | `tests/IntegrationTests/Workflows/HttpAssetWorkflowTests.cs` |
 | W05 | SHDR adapter -> agent -> HTTP client | `ShdrAdapter` + `MTConnectHttpClient` | client receives observation through the agent | `tests/IntegrationTests/ClientAgentCommunicationTests.cs::WaitForSampleShouldSucceedAfterFirstItemIsSent` |
-| W06 | XML <-> JSON round-trip | golden XML fixture | JSON serialisation -> XML deserialisation -> structural equality | `tests/MTConnect.NET-XML-Tests/Streams/Current.cs` (existing) |
-
-Workflows that require a Docker-gated harness (Mosquitto / EMQX broker for the MQTT relay path; `mtconnect/agent` image + cross-impl whitelist for cppagent JSON v2 parity) are not yet listed — their owning test classes will be added together with the harness in a follow-up.
+| W06 | MQTT relay — agent publishes, consumer receives | in-process broker + MqttRelay agent module + `eclipse-mosquitto:2.0.22` (Testcontainers) | downstream MQTTnet subscriber receives a `/Current/<uuid>` payload carrying the injected observation | `tests/IntegrationTests/Workflows/MqttRelayWorkflowTests.cs` |
+| W07 | cppagent JSON v2 parity | shared `Fixtures/cppagent-parity-device.xml` against `mtconnect/agent:latest` (Testcontainers) and in-process MT.NET | normalised `/probe`, `/current`, `/sample` shapes byte-equal modulo `Fixtures/cross-impl-whitelist.json` | `tests/Compliance/MTConnect-Compliance-Tests/L2_CrossImpl/CppAgentParityWorkflowTests.cs` |
+| W08 | XML <-> JSON round-trip | golden XML fixture | JSON serialisation -> XML deserialisation -> structural equality | `tests/MTConnect.NET-XML-Tests/Streams/Current.cs` (existing) |
 
 ## CI workflow — `.github/workflows/dotnet.yml`
 
