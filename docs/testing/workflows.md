@@ -55,3 +55,13 @@ Wraps `dotnet` with a pinned SDK version (`8.0` by default). Pass `--docker` / `
 ## Coverage configuration — `tests/coverlet.runsettings`
 
 Shared across every test project. Format: `cobertura,opencover`. Excludes test-only assemblies + bak files. ReportGenerator (pinned via `.config/dotnet-tools.json`) consumes the Cobertura XML.
+
+## Workflow catalog
+
+Every E2E workflow exercised by the test suite carries an ID below. Each row pairs the workflow with the owning test class so a contributor can locate the assertion that pins it.
+
+| ID  | Workflow                                                              | Owning test class                                                                          |
+|-----|-----------------------------------------------------------------------|--------------------------------------------------------------------------------------------|
+| W08 | HTTP probe round-trips Motion.Axis as IAxisDataSet                    | `IntegrationTests.Workflows.ConfigurationPolymorphicHttpProbeWorkflowTests`                |
+| W09 | HTTP probe round-trips CoordinateSystem.Origin as IOriginDataSet      | `IntegrationTests.Workflows.ConfigurationPolymorphicHttpProbeWorkflowTests`                |
+| W10 | HTTP probe round-trips Transformation.Rotation as IRotationDataSet    | `IntegrationTests.Workflows.ConfigurationPolymorphicHttpProbeWorkflowTests`                |
