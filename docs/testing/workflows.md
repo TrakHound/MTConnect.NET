@@ -5,7 +5,7 @@ test entry points that exercise them. Pairs with [`docs/testing.md`](../testing.
 (top-level testing topic) and the per-version matrices under
 [`docs/testing/`](.).
 
-## End-to-end workflow catalogue
+## End-to-end workflow catalog
 
 Each row is a user-observable path from input to output. The owning
 test class is the canonical fixture for the workflow. Workflows whose

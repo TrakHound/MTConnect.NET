@@ -13,7 +13,7 @@ namespace IntegrationTests.Workflows
     //     consumer wire format).
     //
     // The full E2E requires an embedded MQTT broker (Testcontainers'
-    // EMQX / Mosquitto image) that this branch does not yet wire in. The
+    // EMQX / Mosquitto image). Until the broker fixture is wired in, the
     // placeholder pins the workflow row in workflows.md and surfaces the
     // gap to reviewers via [Trait("RequiresDocker", "true")] + the
     // [Skip] reason on the [Fact] attribute. [Ignore] / [Skip] is
