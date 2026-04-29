@@ -20,16 +20,9 @@ filter; workflows tagged `[Category("RequiresDocker")]` run only when
 | W03 | HTTP Sample — observation stream | in-process broker + an SHDR-fed dataitem with from + count | `MTConnectStreams` envelope containing the observation history | `tests/IntegrationTests/ClientAgentCommunicationTests.cs::WaitForSampleShouldSucceedAfterFirstItemIsSent` |
 | W04 | HTTP Asset — asset retrieval | in-process broker seeded with a `CuttingToolAsset` | `MTConnectAssets` envelope containing the asset | `tests/IntegrationTests/Workflows/HttpAssetWorkflowTests.cs` |
 | W05 | SHDR adapter -> agent -> HTTP client | `ShdrAdapter` + `MTConnectHttpClient` | client receives observation through the agent | `tests/IntegrationTests/ClientAgentCommunicationTests.cs::WaitForSampleShouldSucceedAfterFirstItemIsSent` |
-| W06 | MQTT relay — agent publishes, client receives | embedded MQTT broker + agent + relay module | published topic payload matches agent observation | `tests/IntegrationTests/Workflows/MqttRelayWorkflowTests.cs` (Docker-gated) |
-| W07 | cppagent JSON v2 parity — same fixture, two implementations | docker-spun `mtconnect/agent` + MT.NET agent against a shared XML fixture | byte-modulo-whitelist diff is empty | `tests/Compliance/MTConnect-Compliance-Tests/L2_CrossImpl/CppAgentParityWorkflowTests.cs` (Docker-gated) |
-| W08 | XML <-> JSON round-trip | golden XML fixture | JSON serialisation -> XML deserialisation -> structural equality | `tests/MTConnect.NET-XML-Tests/Streams/Current.cs` (existing) |
+| W06 | XML <-> JSON round-trip | golden XML fixture | JSON serialisation -> XML deserialisation -> structural equality | `tests/MTConnect.NET-XML-Tests/Streams/Current.cs` (existing) |
 
-When a workflow lacks live test infrastructure in the current branch
-(W04 asset retrieval, W06 MQTT relay, W07 cppagent parity), the owning
-test class ships an `[Test, Explicit("E2E for workflow X requires
-infrastructure Y")]` placeholder so the row is visible to the runner
-and to reviewers without polluting the default green sweep. The
-placeholder body documents the missing infrastructure inline.
+Workflows that require a Docker-gated harness (Mosquitto / EMQX broker for the MQTT relay path; `mtconnect/agent` image + cross-impl whitelist for cppagent JSON v2 parity) are not yet listed — their owning test classes will be added together with the harness in a follow-up.
 
 ## CI workflow — `.github/workflows/dotnet.yml`
 
