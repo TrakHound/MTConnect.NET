@@ -16,14 +16,14 @@ namespace IntegrationTests.Workflows
     // EMQX / Mosquitto image) that this branch does not yet wire in. The
     // placeholder pins the workflow row in workflows.md and surfaces the
     // gap to reviewers via [Trait("RequiresDocker", "true")] + the
-    // [Skip] reason on the [Fact] attribute. Per the campaign-wide
-    // discipline, [Ignore] / [Skip] is reserved for upstream-blocked or
-    // infrastructure-blocked cases that runner-filter handles cleanly.
+    // [Skip] reason on the [Fact] attribute. [Ignore] / [Skip] is
+    // reserved for upstream-blocked or infrastructure-blocked cases that
+    // runner-filter handles cleanly.
     [Trait("Category", "E2E")]
     [Trait("Category", "RequiresDocker")]
     public class MqttRelayWorkflowTests
     {
-        [Fact(Skip = "MQTT relay E2E requires the Testcontainers MQTT-broker harness; tracked under the test-coverage campaign Phase 2 follow-up.")]
+        [Fact(Skip = "MQTT relay E2E requires the Testcontainers MQTT-broker harness; will be wired in once the broker fixture lands.")]
         public void Agent_publishes_observation_consumer_receives_same_payload()
         {
             // Pseudo-shape:
@@ -37,13 +37,13 @@ namespace IntegrationTests.Workflows
             //      observation list, modulo timestamp jitter.
         }
 
-        [Fact(Skip = "MQTT relay E2E requires the Testcontainers MQTT-broker harness; tracked under the test-coverage campaign Phase 2 follow-up.")]
+        [Fact(Skip = "MQTT relay E2E requires the Testcontainers MQTT-broker harness; will be wired in once the broker fixture lands.")]
         public void Consumer_disconnects_mid_publish_agent_does_not_lose_observations()
         {
-            // Negative-path counterpart: the §10a positive/negative bar
-            // requires a failure-mode E2E for every workflow. This row
-            // pins the contract that backpressure / consumer loss does
-            // NOT silently drop observations from the agent's buffer.
+            // Negative-path counterpart: every workflow has a happy-path
+            // E2E and at least one failure-path E2E. This row pins the
+            // contract that backpressure / consumer loss does NOT
+            // silently drop observations from the agent's buffer.
         }
     }
 }
