@@ -87,7 +87,7 @@ if (jsonDumpPath is not null)
 var mtconnectModel = MTConnectModel.Parse(xmiPath);
 if (mtconnectModel == null)
 {
-    // Row 20: fail-fast on null model. The renderers below internally null-check
+    // Fail fast on a null model. The renderers below internally null-check
     // and silently no-op, producing zero output and exit 0. Surface the parse
     // failure here so the operator gets a proper non-zero exit + stderr.
     Console.Error.WriteLine($"error: Failed to parse XMI: {xmiPath}");
