@@ -6,7 +6,7 @@ namespace MTConnect.Devices.Configurations
     /// <summary>
     /// Either a single multiplier applied to all three dimensions or a three space multiplier given in the X, Y, and Z dimensions in the coordinate system used for the SolidModel represented as a dataset.
     /// </summary>
-    public interface IScaleDataSet : IDataSet
+    public interface IScaleDataSet : IAbstractScale, IDataSet
     {
         /// <summary>
         /// Multiplier for X axis.

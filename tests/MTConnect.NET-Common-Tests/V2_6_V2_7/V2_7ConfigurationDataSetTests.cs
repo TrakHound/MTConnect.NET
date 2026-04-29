@@ -23,12 +23,15 @@ namespace MTConnect.NET_Common_Tests.V2_6_V2_7
         }
 
         // The five concrete sub-types follow the same shape: parameterless ctor,
-        // populates X/Y/Z (or A/B/C) fields, inherits IDataSet via *DataSet base.
+        // populates X/Y/Z (or A/B/C) fields, implements IDataSet (interface,
+        // not the concrete DataSet base — *DataSet types polymorphically
+        // extend their Abstract<Leaf> base, gaining IDataSet as a marker
+        // interface so XML/JSON serialisers can narrow on it).
         [Test]
-        public void AxisDataSet_has_xyz_fields_and_inherits_DataSet()
+        public void AxisDataSet_has_xyz_fields_and_implements_IDataSet()
         {
             var a = new AxisDataSet { X = 1.0, Y = 2.0, Z = 3.0 };
-            Assert.That(a, Is.InstanceOf<DataSet>());
+            Assert.That(a, Is.InstanceOf<IDataSet>());
             Assert.That(a, Is.InstanceOf<IAxisDataSet>());
             Assert.That(a.X, Is.EqualTo(1.0));
             Assert.That(a.Y, Is.EqualTo(2.0));
@@ -36,35 +39,35 @@ namespace MTConnect.NET_Common_Tests.V2_6_V2_7
         }
 
         [Test]
-        public void OriginDataSet_has_xyz_fields_and_inherits_DataSet()
+        public void OriginDataSet_has_xyz_fields_and_implements_IDataSet()
         {
             var o = new OriginDataSet { X = "1", Y = "2", Z = "3" };
-            Assert.That(o, Is.InstanceOf<DataSet>());
+            Assert.That(o, Is.InstanceOf<IDataSet>());
             Assert.That(o, Is.InstanceOf<IOriginDataSet>());
         }
 
         [Test]
-        public void RotationDataSet_has_abc_fields_and_inherits_DataSet()
+        public void RotationDataSet_has_abc_fields_and_implements_IDataSet()
         {
             // Rotations are reported as A (about X), B (about Y), C (about Z).
             var r = new RotationDataSet { A = "10", B = "20", C = "30" };
-            Assert.That(r, Is.InstanceOf<DataSet>());
+            Assert.That(r, Is.InstanceOf<IDataSet>());
             Assert.That(r, Is.InstanceOf<IRotationDataSet>());
         }
 
         [Test]
-        public void ScaleDataSet_inherits_DataSet()
+        public void ScaleDataSet_implements_IDataSet()
         {
             var s = new ScaleDataSet();
-            Assert.That(s, Is.InstanceOf<DataSet>());
+            Assert.That(s, Is.InstanceOf<IDataSet>());
             Assert.That(s, Is.InstanceOf<IScaleDataSet>());
         }
 
         [Test]
-        public void TranslationDataSet_inherits_DataSet()
+        public void TranslationDataSet_implements_IDataSet()
         {
             var t = new TranslationDataSet();
-            Assert.That(t, Is.InstanceOf<DataSet>());
+            Assert.That(t, Is.InstanceOf<IDataSet>());
             Assert.That(t, Is.InstanceOf<ITranslationDataSet>());
         }
 

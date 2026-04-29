@@ -36,7 +36,7 @@ namespace MTConnect.Devices.Configurations
         /// <summary>
         /// Coordinates of the origin position of a coordinate system.
         /// </summary>
-        public MTConnect.UnitVector3D Origin { get; set; }
+        public MTConnect.Devices.Configurations.IAbstractOrigin Origin { get; set; }
         
         /// <summary>
         /// Id.

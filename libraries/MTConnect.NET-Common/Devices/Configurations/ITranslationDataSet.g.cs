@@ -6,7 +6,7 @@ namespace MTConnect.Devices.Configurations
     /// <summary>
     /// Translations along X, Y, and Z axes are expressed as x,y, and z respectively within a 3-dimensional vector represented as a dataset.
     /// </summary>
-    public interface ITranslationDataSet : IDataSet
+    public interface ITranslationDataSet : IAbstractTranslation, IDataSet
     {
         /// <summary>
         /// Translation along X axis.

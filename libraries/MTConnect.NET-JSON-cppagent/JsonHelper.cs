@@ -1,68 +1,91 @@
-﻿using System.Collections.Generic;
+using MTConnect.Devices.Configurations;
+using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
 namespace MTConnect
 {
     internal static class JsonHelper
     {
-        public static IEnumerable<double> ToJsonArray(this UnitVector3D vector)
+        public static IEnumerable<double> ToJsonArray(IAxis axis)
         {
-            if (vector != null)
-            {
-                var values = new List<double>();
-                values.Add(vector.X);
-                values.Add(vector.Y);
-                values.Add(vector.Z);
-                return values;
-            }
-
-            return null;
+            return ParseValues(axis?.Value);
         }
 
-        public static IEnumerable<double> ToJsonArray(this Degree3D vector)
+        public static IEnumerable<double> ToJsonArray(IOrigin origin)
         {
-            if (vector != null)
-            {
-                var values = new List<double>();
-                values.Add(vector.A);
-                values.Add(vector.B);
-                values.Add(vector.C);
-                return values;
-            }
-
-            return null;
+            return ParseValues(origin?.Value);
         }
 
-        public static UnitVector3D ToUnitVector3D(IEnumerable<double> values)
+        public static IEnumerable<double> ToJsonArray(IRotation rotation)
         {
-            if (!values.IsNullOrEmpty())
-            {
-                var a = values.ToArray();
-                if (a.Length > 2)
-                {
-                    return new UnitVector3D(a[0], a[1], a[2]);
-                }
-                else
-                {
-                    return new UnitVector3D(a[0], a[0], a[0]);
-                }
-            }
-
-            return null;
+            return ParseValues(rotation?.Value);
         }
 
-        public static Degree3D ToDegree3D(IEnumerable<double> values)
+        public static IEnumerable<double> ToJsonArray(IScale scale)
         {
-            if (!values.IsNullOrEmpty())
+            return ParseValues(scale?.Value);
+        }
+
+        public static IEnumerable<double> ToJsonArray(ITranslation translation)
+        {
+            return ParseValues(translation?.Value);
+        }
+
+        public static IAxis ToAxis(IEnumerable<double> values)
+        {
+            var text = JoinValues(values);
+            if (text == null) return null;
+            return new Axis { Value = text };
+        }
+
+        public static IOrigin ToOrigin(IEnumerable<double> values)
+        {
+            var text = JoinValues(values);
+            if (text == null) return null;
+            return new Origin { Value = text };
+        }
+
+        public static IRotation ToRotation(IEnumerable<double> values)
+        {
+            var text = JoinValues(values);
+            if (text == null) return null;
+            return new Rotation { Value = text };
+        }
+
+        public static IScale ToScale(IEnumerable<double> values)
+        {
+            var text = JoinValues(values);
+            if (text == null) return null;
+            return new Scale { Value = text };
+        }
+
+        public static ITranslation ToTranslation(IEnumerable<double> values)
+        {
+            var text = JoinValues(values);
+            if (text == null) return null;
+            return new Translation { Value = text };
+        }
+
+        private static IEnumerable<double> ParseValues(string text)
+        {
+            if (string.IsNullOrEmpty(text)) return null;
+            var parts = text.Split(' ');
+            var values = new List<double>();
+            foreach (var p in parts)
             {
-                var a = values.ToArray();
-                if (a.Length > 2)
+                if (double.TryParse(p, NumberStyles.Float, CultureInfo.InvariantCulture, out var v))
                 {
-                    return new Degree3D(a[0], a[1], a[2]);
+                    values.Add(v);
                 }
             }
+            return values.Count > 0 ? values : null;
+        }
 
-            return null;
+        private static string JoinValues(IEnumerable<double> values)
+        {
+            if (values.IsNullOrEmpty()) return null;
+            return string.Join(" ", values.Select(v => v.ToString(CultureInfo.InvariantCulture)));
         }
     }
 }

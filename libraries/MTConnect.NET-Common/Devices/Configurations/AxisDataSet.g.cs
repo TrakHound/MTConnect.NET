@@ -8,7 +8,7 @@ namespace MTConnect.Devices.Configurations
     /// <summary>
     /// Axis along or around which the Component moves relative to a coordinate system represented as a dataset.
     /// </summary>
-    public class AxisDataSet : DataSet, IAxisDataSet
+    public class AxisDataSet : AbstractAxis, IAxisDataSet, IDataSet
     {
         public new const string DescriptionText = "Axis along or around which the Component moves relative to a coordinate system represented as a dataset.";
 

@@ -8,7 +8,7 @@ namespace MTConnect.Devices.Configurations
     /// <summary>
     /// Coordinates of the origin position of a coordinate system represented as a dataset.
     /// </summary>
-    public class OriginDataSet : DataSet, IOriginDataSet
+    public class OriginDataSet : AbstractOrigin, IOriginDataSet, IDataSet
     {
         public new const string DescriptionText = "Coordinates of the origin position of a coordinate system represented as a dataset.";
 

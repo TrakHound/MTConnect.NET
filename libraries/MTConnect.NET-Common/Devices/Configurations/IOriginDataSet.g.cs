@@ -6,7 +6,7 @@ namespace MTConnect.Devices.Configurations
     /// <summary>
     /// Coordinates of the origin position of a coordinate system represented as a dataset.
     /// </summary>
-    public interface IOriginDataSet : IDataSet
+    public interface IOriginDataSet : IAbstractOrigin, IDataSet
     {
         /// <summary>
         /// X-coordinate.

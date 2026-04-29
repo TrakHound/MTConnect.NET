@@ -8,7 +8,7 @@ namespace MTConnect.Devices.Configurations
     /// <summary>
     /// Translations along X, Y, and Z axes are expressed as x,y, and z respectively within a 3-dimensional vector represented as a dataset.
     /// </summary>
-    public class TranslationDataSet : DataSet, ITranslationDataSet
+    public class TranslationDataSet : AbstractTranslation, ITranslationDataSet, IDataSet
     {
         public new const string DescriptionText = "Translations along X, Y, and Z axes are expressed as x,y, and z respectively within a 3-dimensional vector represented as a dataset.";
 

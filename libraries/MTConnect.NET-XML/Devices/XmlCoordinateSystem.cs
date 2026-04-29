@@ -1,6 +1,12 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
+// XSD reference: https://schemas.mtconnect.org/schemas/MTConnectDevices_2.7.xsd
+//   Element <CoordinateSystem> of type CoordinateSystemType. Origin / Transformation /
+//   OriginDataSet form a single xs:choice (only one is permitted).
+// SysML XMI: https://github.com/mtconnect/mtconnect_sysml_model
+//   UML class CoordinateSystem (UML ID `_19_0_3_45f01b9_1579100679936_1279_16310`).
+
 using MTConnect.Devices.Configurations;
 using System.Xml;
 using System.Xml.Serialization;
@@ -26,7 +32,10 @@ namespace MTConnect.Devices.Xml
         public CoordinateSystemType Type { get; set; }
 
         [XmlElement("Origin")]
-        public string Origin { get; set; }
+        public XmlOrigin Origin { get; set; }
+
+        [XmlElement("OriginDataSet")]
+        public XmlOriginDataSet OriginDataSet { get; set; }
 
         [XmlElement("Transformation")]
         public XmlTransformation Transformation { get; set; }
@@ -43,7 +52,8 @@ namespace MTConnect.Devices.Xml
             coordinateSystem.NativeName = NativeName;
             coordinateSystem.ParentIdRef = ParentIdRef;
             coordinateSystem.Type = Type;
-            coordinateSystem.Origin = UnitVector3D.FromString(Origin);
+            if (OriginDataSet != null) coordinateSystem.Origin = OriginDataSet.ToOriginDataSet();
+            else if (Origin != null) coordinateSystem.Origin = Origin.ToOrigin();
             if (Transformation != null) coordinateSystem.Transformation = Transformation.ToTransformation();
             coordinateSystem.Description = Description;
             return coordinateSystem;
@@ -70,12 +80,14 @@ namespace MTConnect.Devices.Xml
                     writer.WriteEndElement();
                 }
 
-                // Write Origin
-                if (coordinateSystem.Origin != null)
+                // Write Origin (or OriginDataSet)
+                if (coordinateSystem.Origin is IOriginDataSet originDataSet)
                 {
-                    writer.WriteStartElement("Origin");
-                    writer.WriteString(coordinateSystem.Origin.ToString());
-                    writer.WriteEndElement();
+                    XmlOriginDataSet.WriteXml(writer, originDataSet);
+                }
+                else if (coordinateSystem.Origin is IOrigin origin)
+                {
+                    XmlOrigin.WriteXml(writer, origin);
                 }
 
                 // Write Transformation

@@ -1,6 +1,12 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
+// XSD reference: https://schemas.mtconnect.org/schemas/MTConnectDevices_2.7.xsd
+//   Element <SolidModel> of type SolidModelType. Scale/ScaleDataSet form an xs:choice
+//   (only one is permitted); Transformation is a separate optional element.
+// SysML XMI: https://github.com/mtconnect/mtconnect_sysml_model
+//   UML class SolidModel (UML ID `_19_0_3_45f01b9_1587596157073_106480_480`).
+
 using MTConnect.Devices.Configurations;
 using System.Xml;
 using System.Xml.Serialization;
@@ -32,7 +38,10 @@ namespace MTConnect.Devices.Xml
         public XmlTransformation Transformation { get; set; }
 
         [XmlElement("Scale")]
-        public string Scale { get; set; }
+        public XmlScale Scale { get; set; }
+
+        [XmlElement("ScaleDataSet")]
+        public XmlScaleDataSet ScaleDataSet { get; set; }
 
 
         public ISolidModel ToSolidModel()
@@ -45,7 +54,8 @@ namespace MTConnect.Devices.Xml
             solidModel.MediaType = MediaType;
             solidModel.CoordinateSystemIdRef = CoordinateSystemIdRef;
             if (Transformation != null) solidModel.Transformation = Transformation.ToTransformation();
-            solidModel.Scale = UnitVector3D.FromString(Scale);
+            if (ScaleDataSet != null) solidModel.Scale = ScaleDataSet.ToScaleDataSet();
+            else if (Scale != null) solidModel.Scale = Scale.ToScale();
             return solidModel;
         }
 
@@ -68,12 +78,14 @@ namespace MTConnect.Devices.Xml
                 // Write Transformation
                 XmlTransformation.WriteXml(writer, solidModel.Transformation);
 
-                // Write Scale
-                if (solidModel.Scale != null)
+                // Write Scale (or ScaleDataSet)
+                if (solidModel.Scale is IScaleDataSet scaleDataSet)
                 {
-                    writer.WriteStartElement("Scale");
-                    writer.WriteString(solidModel.Scale.ToString());
-                    writer.WriteEndElement();
+                    XmlScaleDataSet.WriteXml(writer, scaleDataSet);
+                }
+                else if (solidModel.Scale is IScale scale)
+                {
+                    XmlScale.WriteXml(writer, scale);
                 }
 
                 writer.WriteEndElement();

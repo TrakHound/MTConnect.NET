@@ -8,7 +8,7 @@ namespace MTConnect.Devices.Configurations
     /// <summary>
     /// Rotations about X, Y, and Z axes are expressed in A, B, and C respectively within a 3-dimensional vector represented as a dataset.
     /// </summary>
-    public class RotationDataSet : DataSet, IRotationDataSet
+    public class RotationDataSet : AbstractRotation, IRotationDataSet, IDataSet
     {
         public new const string DescriptionText = "Rotations about X, Y, and Z axes are expressed in A, B, and C respectively within a 3-dimensional vector represented as a dataset.";
 

@@ -29,14 +29,14 @@ namespace MTConnect.NET_Common_Tests.V2_6_V2_7
         // authority. Several types that look "measurement-y" (SwingAngle, Depth,
         // etc.) are EVENT in the spec rather than SAMPLE; locking them so a
         // future regen drift is caught immediately.
-        [TestCase(typeof(BindingStateDataItem),       "BINDING_STATE",        DataItemCategory.EVENT)]
-        [TestCase(typeof(DepthDataItem),              "DEPTH",                DataItemCategory.EVENT)]
-        [TestCase(typeof(FixtureAssetIdDataItem),     "FIXTURE_ASSET_ID",     DataItemCategory.EVENT)]
-        [TestCase(typeof(SwingAngleDataItem),         "SWING_ANGLE",          DataItemCategory.EVENT)]
-        [TestCase(typeof(SwingDiameterDataItem),      "SWING_DIAMETER",       DataItemCategory.EVENT)]
-        [TestCase(typeof(SwingRadiusDataItem),        "SWING_RADIUS",         DataItemCategory.EVENT)]
-        [TestCase(typeof(TaskAssetIdDataItem),        "TASK_ASSET_ID",        DataItemCategory.EVENT)]
-        [TestCase(typeof(WaterHardnessDataItem),      "WATER_HARDNESS",       DataItemCategory.SAMPLE)]
+        [TestCase(typeof(BindingStateDataItem), "BINDING_STATE", DataItemCategory.EVENT)]
+        [TestCase(typeof(DepthDataItem), "DEPTH", DataItemCategory.EVENT)]
+        [TestCase(typeof(FixtureAssetIdDataItem), "FIXTURE_ASSET_ID", DataItemCategory.EVENT)]
+        [TestCase(typeof(SwingAngleDataItem), "SWING_ANGLE", DataItemCategory.EVENT)]
+        [TestCase(typeof(SwingDiameterDataItem), "SWING_DIAMETER", DataItemCategory.EVENT)]
+        [TestCase(typeof(SwingRadiusDataItem), "SWING_RADIUS", DataItemCategory.EVENT)]
+        [TestCase(typeof(TaskAssetIdDataItem), "TASK_ASSET_ID", DataItemCategory.EVENT)]
+        [TestCase(typeof(WaterHardnessDataItem), "WATER_HARDNESS", DataItemCategory.SAMPLE)]
         public void V2_7_DataItem_constructs_with_correct_metadata(
             Type dataItemType, string expectedTypeId, DataItemCategory expectedCategory)
         {

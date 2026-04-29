@@ -8,7 +8,7 @@ namespace MTConnect.Devices.Configurations
     /// <summary>
     /// Either a single multiplier applied to all three dimensions or a three space multiplier given in the X, Y, and Z dimensions in the coordinate system used for the SolidModel represented as a dataset.
     /// </summary>
-    public class ScaleDataSet : DataSet, IScaleDataSet
+    public class ScaleDataSet : AbstractScale, IScaleDataSet, IDataSet
     {
         public new const string DescriptionText = "Either a single multiplier applied to all three dimensions or a three space multiplier given in the X, Y, and Z dimensions in the coordinate system used for the SolidModel represented as a dataset.";
 

@@ -9,10 +9,16 @@ namespace MTConnect.Devices.Json
     public class JsonTransformation
     {
         [JsonPropertyName("translation")]
-        public string Translation { get; set; }
+        public JsonTranslation Translation { get; set; }
+
+        [JsonPropertyName("translationDataSet")]
+        public JsonTranslationDataSet TranslationDataSet { get; set; }
 
         [JsonPropertyName("rotation")]
-        public string Rotation { get; set; }
+        public JsonRotation Rotation { get; set; }
+
+        [JsonPropertyName("rotationDataSet")]
+        public JsonRotationDataSet RotationDataSet { get; set; }
 
 
         public JsonTransformation() { }
@@ -21,8 +27,10 @@ namespace MTConnect.Devices.Json
         {
             if (transformation != null)
             {
-                Translation = transformation.Translation.ToString();
-                Rotation = transformation.Rotation.ToString();
+                if (transformation.Translation is ITranslationDataSet translationDataSet) TranslationDataSet = new JsonTranslationDataSet(translationDataSet);
+                else if (transformation.Translation is ITranslation translation) Translation = new JsonTranslation(translation);
+                if (transformation.Rotation is IRotationDataSet rotationDataSet) RotationDataSet = new JsonRotationDataSet(rotationDataSet);
+                else if (transformation.Rotation is IRotation rotation) Rotation = new JsonRotation(rotation);
             }
         }
 
@@ -30,8 +38,10 @@ namespace MTConnect.Devices.Json
         public ITransformation ToTransformation()
         {
             var transformation = new Transformation();
-            transformation.Translation = UnitVector3D.FromString(Translation);
-            transformation.Rotation = Degree3D.FromString(Rotation);
+            if (TranslationDataSet != null) transformation.Translation = TranslationDataSet.ToTranslationDataSet();
+            else if (Translation != null) transformation.Translation = Translation.ToTranslation();
+            if (RotationDataSet != null) transformation.Rotation = RotationDataSet.ToRotationDataSet();
+            else if (Rotation != null) transformation.Rotation = Rotation.ToRotation();
             return transformation;
         }
     }

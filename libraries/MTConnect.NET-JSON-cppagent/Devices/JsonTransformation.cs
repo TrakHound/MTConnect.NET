@@ -12,8 +12,14 @@ namespace MTConnect.Devices.Json
         [JsonPropertyName("Translation")]
         public IEnumerable<double> Translation { get; set; }
 
+        [JsonPropertyName("TranslationDataSet")]
+        public JsonTranslationDataSet TranslationDataSet { get; set; }
+
         [JsonPropertyName("Rotation")]
         public IEnumerable<double> Rotation { get; set; }
+
+        [JsonPropertyName("RotationDataSet")]
+        public JsonRotationDataSet RotationDataSet { get; set; }
 
 
         public JsonTransformation() { }
@@ -22,8 +28,10 @@ namespace MTConnect.Devices.Json
         {
             if (transformation != null)
             {
-                Translation = transformation.Translation.ToJsonArray();
-                Rotation = transformation.Rotation.ToJsonArray();
+                if (transformation.Translation is ITranslationDataSet translationDataSet) TranslationDataSet = new JsonTranslationDataSet(translationDataSet);
+                else if (transformation.Translation is ITranslation translation) Translation = JsonHelper.ToJsonArray(translation);
+                if (transformation.Rotation is IRotationDataSet rotationDataSet) RotationDataSet = new JsonRotationDataSet(rotationDataSet);
+                else if (transformation.Rotation is IRotation rotation) Rotation = JsonHelper.ToJsonArray(rotation);
             }
         }
 
@@ -31,8 +39,10 @@ namespace MTConnect.Devices.Json
         public ITransformation ToTransformation()
         {
             var transformation = new Transformation();
-            transformation.Translation = JsonHelper.ToUnitVector3D(Translation);
-            transformation.Rotation = JsonHelper.ToDegree3D(Rotation);
+            if (TranslationDataSet != null) transformation.Translation = TranslationDataSet.ToTranslationDataSet();
+            else transformation.Translation = JsonHelper.ToTranslation(Translation);
+            if (RotationDataSet != null) transformation.Rotation = RotationDataSet.ToRotationDataSet();
+            else transformation.Rotation = JsonHelper.ToRotation(Rotation);
             return transformation;
         }
     }
