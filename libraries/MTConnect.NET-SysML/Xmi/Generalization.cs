@@ -9,6 +9,8 @@ namespace MTConnect.SysML.Xmi
     [Serializable, XmlRoot(ElementName = XmiHelper.XmiStructure.GENERALIZATION, Namespace = "")]
     public class Generalization : XmiElement
     {
-        // TODO: Add general, general#href
+        // The `general` attribute (xmi:id of the parent class) is deserialized
+        // on <see cref="MTConnect.SysML.Xmi.UML.UmlGeneralization.General"/>,
+        // which is the concrete subclass used for `xmi:type='uml:Generalization'`.
     }
 }

@@ -26,6 +26,24 @@ namespace MTConnect.SysML
         /// </summary>
         public string ParentUmlId { get; set; }
 
+        /// <summary>
+        /// Names of additional generalizations beyond the primary
+        /// <see cref="ParentName"/>. C# allows a single class base, so a
+        /// SysML class with multiple generalizations contributes one
+        /// generalization to <see cref="ParentName"/> (the class base —
+        /// abstract preferred per the heuristic in the constructor) and
+        /// emits the rest as marker interfaces on both the class and
+        /// interface declarations.
+        /// </summary>
+        public List<string> AdditionalParentNames { get; set; } = new();
+
+        /// <summary>
+        /// xmi:id list paired one-to-one with <see cref="AdditionalParentNames"/>,
+        /// used by the dangling-parent resolver to graft any of the
+        /// additional generalizations that live in another SysML package.
+        /// </summary>
+        public List<string> AdditionalParentUmlIds { get; set; } = new();
+
         public string Description { get; set; }
 
         public List<MTConnectPropertyModel> Properties { get; set; } = new();
@@ -47,12 +65,26 @@ namespace MTConnect.SysML
                 Name = umlClass.Name;
                 IsAbstract = umlClass.IsAbstract;
 
-                // Add SuperClass (ParentType)
-                if (umlClass.Generalization != null)
-                {
-                    ParentUmlId = umlClass.Generalization.General;
-                    ParentName = ModelHelper.GetClassName(xmiDocument, umlClass.Generalization.General);
-                }
+                // SuperClass selection across multiple generalizations.
+                //
+                // A SysML class may declare more than one <generalization>
+                // (multi-inheritance in UML — e.g. v2.7's OriginDataSet
+                // generalizes both DataSet and AbstractOrigin). C# allows a
+                // single class base, so one generalization becomes
+                // ParentName / ParentUmlId and the rest land in the
+                // Additional* lists, where the templates render them as
+                // marker interfaces.
+                //
+                // Heuristic for picking the primary base:
+                //  1. Prefer an abstract generalization — C# convention is
+                //     "abstract classes as primary inheritance, concrete /
+                //     marker types as secondary interfaces". The abstract
+                //     parent is also the polymorphism contract (e.g.
+                //     AbstractOrigin) the consumer code reasons about.
+                //  2. On a tie (multiple abstract or multiple concrete),
+                //     fall back to xmi:id ascending order — a deterministic
+                //     stable ordering so regen is reproducible.
+                SelectGeneralizations(xmiDocument, umlClass);
 
                 // Chain `?.` through the FirstOrDefault() result — when Comments is
                 // non-null but empty, FirstOrDefault returns null and `.Body` would NRE.
@@ -77,6 +109,58 @@ namespace MTConnect.SysML
 
                     Properties = propertyModels.OrderBy(o => o.Name).ToList();
                 }
+            }
+        }
+
+        /// <summary>
+        /// Resolves <see cref="ParentName"/> / <see cref="ParentUmlId"/>
+        /// (the primary class base) and the parallel
+        /// <see cref="AdditionalParentNames"/> /
+        /// <see cref="AdditionalParentUmlIds"/> lists (rendered as marker
+        /// interfaces) from <c>umlClass.Generalizations</c>. See the call
+        /// site comment for the abstract-first / xmi:id-stable heuristic.
+        /// </summary>
+        private void SelectGeneralizations(XmiDocument xmiDocument, UmlClass umlClass)
+        {
+            var generalizations = umlClass.Generalizations;
+            if (generalizations == null || generalizations.Length == 0) return;
+
+            // Resolve each generalization's target once. Skip entries whose
+            // `general` attribute is missing — defensive against malformed
+            // XMI; a generalization without a target is unusable here.
+            // Also filter out same-name targets (a sibling class living in
+            // a different package that happens to share the parent's name —
+            // emitting it as an additional interface would produce a
+            // self-referential `IFoo : IFoo`).
+            var resolved = generalizations
+                .Where(g => !string.IsNullOrEmpty(g.General))
+                .Select(g => new
+                {
+                    Generalization = g,
+                    TargetClass = ModelHelper.GetClass(xmiDocument, g.General),
+                    TargetName = ModelHelper.GetClassName(xmiDocument, g.General),
+                })
+                .Where(r => !string.IsNullOrEmpty(r.TargetName) && r.TargetName != Name)
+                .ToList();
+
+            if (resolved.Count == 0) return;
+
+            // Stable ordering: abstract first (primary class base), then by
+            // generalization xmi:id ascending — deterministic so regen is
+            // reproducible regardless of XMI declaration order.
+            var ordered = resolved
+                .OrderByDescending(r => r.TargetClass != null && r.TargetClass.IsAbstract)
+                .ThenBy(r => r.Generalization.Id, StringComparer.Ordinal)
+                .ToList();
+
+            var primary = ordered[0];
+            ParentUmlId = primary.Generalization.General;
+            ParentName = primary.TargetName;
+
+            for (var i = 1; i < ordered.Count; i++)
+            {
+                AdditionalParentUmlIds.Add(ordered[i].Generalization.General);
+                AdditionalParentNames.Add(ordered[i].TargetName);
             }
         }
 
@@ -161,21 +245,37 @@ namespace MTConnect.SysML
 
             // Dedupe missing parents via HashSet.Add rather than GroupBy/First —
             // same first-wins semantics with one allocation instead of an
-            // intermediate grouping.
+            // intermediate grouping. Walks both the primary
+            // (ParentName / ParentUmlId) and additional generalizations
+            // (AdditionalParentNames / AdditionalParentUmlIds) so a
+            // multi-inheritance class with one local + one cross-package
+            // generalization still grafts the foreign parent.
             var seenParents = new HashSet<string>();
-            var missing = new List<MTConnectClassModel>();
+            var missing = new List<string>();
             foreach (var c in classes)
             {
-                if (string.IsNullOrEmpty(c.ParentName) || string.IsNullOrEmpty(c.ParentUmlId)) continue;
-                if (localUmlIds.Contains(c.ParentUmlId)) continue;
-                if (seenParents.Add(c.ParentUmlId)) missing.Add(c);
+                if (!string.IsNullOrEmpty(c.ParentName)
+                    && !string.IsNullOrEmpty(c.ParentUmlId)
+                    && !localUmlIds.Contains(c.ParentUmlId)
+                    && seenParents.Add(c.ParentUmlId))
+                {
+                    missing.Add(c.ParentUmlId);
+                }
+
+                for (var i = 0; i < c.AdditionalParentUmlIds.Count; i++)
+                {
+                    var umlId = c.AdditionalParentUmlIds[i];
+                    if (string.IsNullOrEmpty(umlId)) continue;
+                    if (localUmlIds.Contains(umlId)) continue;
+                    if (seenParents.Add(umlId)) missing.Add(umlId);
+                }
             }
 
             if (missing.Count == 0) return;
 
-            foreach (var dangling in missing)
+            foreach (var danglingUmlId in missing)
             {
-                var parentClass = ModelHelper.GetClass(xmiDocument, dangling.ParentUmlId);
+                var parentClass = ModelHelper.GetClass(xmiDocument, danglingUmlId);
                 if (parentClass == null) continue;
 
                 // Avoid double-grafting: a different dangling sibling may
@@ -205,6 +305,8 @@ namespace MTConnect.SysML
                 // pruning — for now it is the safe minimum.
                 grafted.ParentName = null;
                 grafted.ParentUmlId = null;
+                grafted.AdditionalParentNames = new List<string>();
+                grafted.AdditionalParentUmlIds = new List<string>();
                 grafted.Properties = new List<MTConnectPropertyModel>();
 
                 classes.Add(grafted);

@@ -6,7 +6,7 @@ namespace {{namespace}}
     /// <summary>
     /// {{description}}
     /// </summary>
-    public {{- if (is_partial) }} partial{{ end }} interface I{{name}} {{- if (parent_name) }} : I{{parent_name}}{{ end }}
+    public {{- if (is_partial) }} partial{{ end }} interface I{{name}} {{- if (parent_name) }} : I{{parent_name}}{{ for additional_parent_name in additional_parent_names }}, I{{additional_parent_name}}{{ end }}{{ else if (additional_parent_names != null && (additional_parent_names | array.size) > 0) }} : {{ for additional_parent_name in additional_parent_names }}{{ if (for.first) }}I{{additional_parent_name}}{{ else }}, I{{additional_parent_name}}{{ end }}{{ end }}{{ end }}
     {
 {{- i = 0 }}{{- for property in properties }}{{ i = i + 1 }}{{ if (property.export_to_interface) }}
         /// <summary>

@@ -538,7 +538,7 @@ namespace MTConnect.SysML
 
         public static bool IsValueClass(UmlClass umlClass)
         {
-            if (umlClass != null && umlClass.Generalization == null)
+            if (umlClass != null && (umlClass.Generalizations == null || umlClass.Generalizations.Length == 0))
             {
                 if (umlClass.Name == "Destination") return false;
 

@@ -51,10 +51,15 @@ namespace MTConnect.SysML.Models.Devices
                 MaximumVersion = MTConnectVersion.LookupDeprecated(xmiDocument, umlClass.Id);
                 MinimumVersion = MTConnectVersion.LookupNormative(xmiDocument, umlClass.Id);
 
-                // Add SuperClass (ParentType)
-                if (umlClass.Generalization != null)
+                // Add SuperClass (ParentType). Components in MTConnect are a
+                // single-inheritance hierarchy — the first generalization is
+                // the C# base. If the spec ever introduces a second
+                // generalization on a component class, this needs to grow
+                // an additional-interfaces story like MTConnectClassModel.
+                var componentParent = umlClass.Generalizations?.FirstOrDefault();
+                if (componentParent != null)
                 {
-                    ParentName = ModelHelper.GetClassName(xmiDocument, umlClass.Generalization.General);
+                    ParentName = ModelHelper.GetClassName(xmiDocument, componentParent.General);
                     if (ParentName != null && ParentName != "Component") ParentName += "Component";
                 }
 

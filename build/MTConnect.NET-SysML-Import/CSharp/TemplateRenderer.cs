@@ -139,9 +139,15 @@ namespace MTConnect.SysML.CSharp
                         {
                             switch (template.Id)
                             {
-                                case "Devices.Device": 
+                                case "Devices.Device":
+                                    // Devices.Device's concrete C# base is wiped here; Component
+                                    // is reintroduced through the hand-authored partial-class
+                                    // file. Additional generalizations are cleared too so that
+                                    // none of them survive into the generated header.
                                     ((ClassModel)template).IsPartial = true;
                                     ((ClassModel)template).ParentName = null;
+                                    ((ClassModel)template).AdditionalParentNames = new System.Collections.Generic.List<string>();
+                                    ((ClassModel)template).AdditionalParentUmlIds = new System.Collections.Generic.List<string>();
                                     break;
 
                                 case "Devices.Component": ((ClassModel)template).IsPartial = true; break;
