@@ -1,29 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Shared Coverlet configuration for every tests/**/*.csproj.
+<!--
+  Shared Coverlet configuration for every tests/**/*.csproj.
 
-     Reference from dotnet test with:
-         dotnet test --settings tests/coverlet.runsettings
+  Reference from dotnet test with the settings flag pointing at this
+  file. The tools harness (tools/test.sh) passes it automatically. CI
+  uploads the produced TestResults/**/*.cobertura.xml files as the
+  coverage artifact.
 
-     Tools harness (tools/test.sh) passes this automatically. CI uploads
-     the produced TestResults/**/*.cobertura.xml files as the coverage
-     artifact.
+  Format: cobertura is the widely-supported lowest-common-denominator.
+  ReportGenerator (pinned via .config/dotnet-tools.json) turns every
+  cobertura.xml into an HTML + Summary.txt at coverage-report/.
 
-     Format: cobertura is the widely-supported lowest-common-denominator.
-     ReportGenerator (pinned via .config/dotnet-tools.json) turns every
-     cobertura.xml into an HTML + Summary.txt at coverage-report/.
-
-     Exclusion rationale:
-       - *.g.cs are generator output and ARE gated. They are not excluded
-         here. Generator-output `.g.cs` files are part of the coverage
-         gate; tests exercise their constructors, properties, and
-         per-subtype description methods.
-       - TestHelpers / TestDoubles under tests/** are excluded because
-         they are test-only infrastructure — Coverlet runs against the
-         library assemblies, not the test assemblies, so `Include`
-         already scopes it out. The `ExcludeByFile` pattern is kept in
-         place so that any future `TestHelpers/` / `TestDoubles/` tree
-         is excluded automatically.
-       - obj/ + bin/ are excluded via Coverlet's built-in defaults. -->
+  Exclusion rationale:
+    - *.g.cs are generator output and ARE gated. They are not excluded
+      here. Generator-output `.g.cs` files are part of the coverage
+      gate; tests exercise their constructors, properties, and
+      per-subtype description methods.
+    - TestHelpers / TestDoubles under tests/** are excluded because
+      they are test-only infrastructure. Coverlet runs against the
+      library assemblies, not the test assemblies, so the Include
+      filter already scopes it out. The ExcludeByFile pattern is kept
+      in place so that any future TestHelpers/ / TestDoubles/ tree is
+      excluded automatically.
+    - obj/ + bin/ are excluded via Coverlet's built-in defaults.
+-->
 <RunSettings>
     <DataCollectionRunSettings>
         <DataCollectors>
