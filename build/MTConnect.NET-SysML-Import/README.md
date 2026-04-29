@@ -138,10 +138,6 @@ sed -i 's|Supports MTConnect Versions up to v2\.7|Supports MTConnect Versions up
 
 Author `docs/testing/v2-8.md` modelled on `docs/testing/v2-6.md` and `docs/testing/v2-7.md`. List every (DataItem / Component / enum value / Configuration) delta from the previous version with a pinned-test column.
 
-### 7. Commit + PR
-
-Each version expansion ships as one PR. Branch naming: `feat/v<NN>` (or `feat/issue-NNN` if there's an issue tracking it).
-
 ## Generator architecture
 
 ```
