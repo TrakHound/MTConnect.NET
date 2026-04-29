@@ -24,7 +24,7 @@ namespace MTConnect.Compliance.L2_CrossImpl
     public class CppAgentParityWorkflowTests
     {
         [Test]
-        [Explicit("cppagent parity E2E requires docker-spun mtconnect/agent + the cross-impl whitelist file; see the test-coverage campaign Phase 2 follow-up.")]
+        [Explicit("cppagent parity E2E requires docker-spun mtconnect/agent + the cross-impl whitelist file; will be wired in once the cross-impl harness lands.")]
         public void Probe_envelope_byte_diff_is_empty_modulo_whitelist()
         {
             // 1. Pull mtconnect/agent:<pinned-tag> via Testcontainers.
@@ -36,17 +36,27 @@ namespace MTConnect.Compliance.L2_CrossImpl
         }
 
         [Test]
-        [Explicit("cppagent parity E2E requires docker-spun mtconnect/agent + the cross-impl whitelist file; see the test-coverage campaign Phase 2 follow-up.")]
+        [Explicit("cppagent parity E2E requires docker-spun mtconnect/agent + the cross-impl whitelist file; will be wired in once the cross-impl harness lands.")]
         public void Current_envelope_byte_diff_is_empty_modulo_whitelist()
         {
-            // Same shape as the Probe row, applied to /current.
+            // 1. Pull mtconnect/agent:<pinned-tag> via Testcontainers.
+            // 2. Volume-mount the shared XML fixture into the container.
+            // 3. Spin both agents, hit /current on each.
+            // 4. Normalise both responses (sort attrs, strip runtime-only
+            //    fields per Fixtures/cross-impl-whitelist.json).
+            // 5. Assert byte-for-byte equality of the normalised payloads.
         }
 
         [Test]
-        [Explicit("cppagent parity E2E requires docker-spun mtconnect/agent + the cross-impl whitelist file; see the test-coverage campaign Phase 2 follow-up.")]
+        [Explicit("cppagent parity E2E requires docker-spun mtconnect/agent + the cross-impl whitelist file; will be wired in once the cross-impl harness lands.")]
         public void Sample_envelope_byte_diff_is_empty_modulo_whitelist()
         {
-            // Same shape as the Probe row, applied to /sample.
+            // 1. Pull mtconnect/agent:<pinned-tag> via Testcontainers.
+            // 2. Volume-mount the shared XML fixture into the container.
+            // 3. Spin both agents, hit /sample on each.
+            // 4. Normalise both responses (sort attrs, strip runtime-only
+            //    fields per Fixtures/cross-impl-whitelist.json).
+            // 5. Assert byte-for-byte equality of the normalised payloads.
         }
     }
 }
