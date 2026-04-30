@@ -486,6 +486,8 @@ namespace MTConnect.Agents
             var header = new MTConnectStreamsHeader
             {
                 BufferSize = _observationBuffer.BufferSize,
+                AssetBufferSize = _assetBuffer != null ? _assetBuffer.BufferSize : 0,
+                AssetCount = _assetBuffer != null ? _assetBuffer.AssetCount : 0,
                 CreationTime = DateTime.UtcNow,
                 DeviceModelChangeTime = DeviceModelChangeTime.ToString("o"),
                 InstanceId = InstanceId,

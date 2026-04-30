@@ -33,6 +33,16 @@ namespace MTConnect.Headers
         ulong BufferSize { get; }
 
         /// <summary>
+        /// A value representing the maximum number of Asset Documents that MAY be retained in the Agent that published the Response Document at any point in time.
+        /// </summary>
+        ulong AssetBufferSize { get; }
+
+        /// <summary>
+        /// A number representing the current number of Asset Documents that are currently stored in the Agent that published the Response Document.
+        /// </summary>
+        ulong AssetCount { get; }
+
+        /// <summary>
         /// A number representing the sequence number assigned to the oldest piece of Streaming Data stored
         /// in the buffer of the Agent immediately prior to the time that the Agent published the Response Document.
         /// </summary>

@@ -21,6 +21,12 @@ namespace MTConnect.Streams.Json
         [JsonPropertyName("bufferSize")]
         public ulong BufferSize { get; set; }
 
+        [JsonPropertyName("assetBufferSize")]
+        public ulong AssetBufferSize { get; set; }
+
+        [JsonPropertyName("assetCount")]
+        public ulong AssetCount { get; set; }
+
         [JsonPropertyName("firstSequence")]
         public ulong FirstSequence { get; set; }
 
@@ -50,6 +56,8 @@ namespace MTConnect.Streams.Json
                 Version = header.Version;
                 Sender = header.Sender;
                 BufferSize = header.BufferSize;
+                AssetBufferSize = header.AssetBufferSize;
+                AssetCount = header.AssetCount;
                 FirstSequence = header.FirstSequence;
                 LastSequence = header.LastSequence;
                 NextSequence = header.NextSequence;
@@ -67,6 +75,8 @@ namespace MTConnect.Streams.Json
             header.Version = Version;
             header.Sender = Sender;
             header.BufferSize = BufferSize;
+            header.AssetBufferSize = AssetBufferSize;
+            header.AssetCount = AssetCount;
             header.FirstSequence = FirstSequence;
             header.LastSequence = LastSequence;
             header.NextSequence = NextSequence;
