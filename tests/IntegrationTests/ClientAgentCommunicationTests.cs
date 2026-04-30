@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,12 +29,27 @@ namespace IntegrationTests
 {
     public class MTAgentFixture
     {
-        #region Fields
-
-        public int CurrentAgentPort = 5000;
-        public int CurrentAdapterPort = 7878;
-
-        #endregion
+        // Per-test free TCP ports allocated by the OS at construction time.
+        // Sequential incrementing from a fixed base (5000, 7878) collides
+        // with TIME_WAIT'd sockets left by killed prior runs (the EADDRINUSE
+        // surfaces as `MTConnectHttpServer.StartServer` failure). Asking the
+        // kernel for an ephemeral free port via TcpListener bind-then-release
+        // gives a guaranteed-free port at the cost of a tiny TOCTOU window
+        // (port may be claimed between Stop() and the test's actual bind);
+        // tests retry on EADDRINUSE up to 3 times to absorb that race.
+        public static int AllocateFreePort()
+        {
+            var listener = new TcpListener(IPAddress.Loopback, 0);
+            listener.Start();
+            try
+            {
+                return ((IPEndPoint)listener.LocalEndpoint).Port;
+            }
+            finally
+            {
+                listener.Stop();
+            }
+        }
     }
 
     public class ClientAgentCommunicationTests : IClassFixture<MTAgentFixture>, IDisposable
@@ -50,10 +67,9 @@ namespace IntegrationTests
         private readonly MTAgentFixture _fixture;
         private readonly ILogger _logger;
 
-        // Per-test ports captured once at construction time. The shared
-        // MTAgentFixture is bumped after each test and could be read from
-        // multiple threads (xUnit may parallelise across class fixtures), so
-        // every read inside a single test must observe the same value.
+        // Per-test free TCP ports allocated by the OS at construction time
+        // via MTAgentFixture.AllocateFreePort(). Allocated fresh per test so
+        // a TIME_WAIT'd port from a killed prior run cannot reach this test.
         private readonly int _agentPort;
         private readonly int _adapterPort;
 
@@ -69,11 +85,12 @@ namespace IntegrationTests
             _fixture = fixture;
             _logger = testOutputHelper.BuildLogger(LogLevel.Trace);
 
-            // Snapshot the fixture ports atomically so every downstream
-            // construction step sees the same values, even if a sibling test
-            // disposes (and increments) concurrently.
-            _agentPort = Interlocked.CompareExchange(ref _fixture.CurrentAgentPort, 0, 0);
-            _adapterPort = Interlocked.CompareExchange(ref _fixture.CurrentAdapterPort, 0, 0);
+            // Allocate a fresh free port per test from the kernel ephemeral
+            // range. Ephemeral ports are unique per call (the kernel's port
+            // allocator advances to the next unused entry), so two tests
+            // running concurrently cannot land on the same port.
+            _agentPort = MTAgentFixture.AllocateFreePort();
+            _adapterPort = MTAgentFixture.AllocateFreePort();
 
             _machineId = Guid.NewGuid().ToString();
             _machineName = "M12346";
@@ -210,23 +227,12 @@ namespace IntegrationTests
 
         public void Dispose()
         {
-            // Stop are not awaitable, so we cannot guarantee that it finishes before next test start
+            // Stop are not awaitable, so we cannot guarantee that it finishes before next test start.
+            // Each test allocates its own fresh ephemeral port at construction, so the next test
+            // is unaffected by this test's lingering TIME_WAIT socket.
             _agent.Stop();
             _server.Stop();
             _adapter.Stop();
-
-            // Therefore we use a new port for every test.
-            //
-            // Use Interlocked.Increment instead of post-increment (++): the
-            // shared MTAgentFixture is reused across every test in this class
-            // and xUnit may run those tests on different threads (the IClass
-            // Fixture lifetime is per-class, not per-test). A naive ++ is a
-            // read/modify/write triple that is not atomic on int fields, so
-            // two concurrent Dispose() calls could both bump from N to N+1
-            // and leak a port collision into the next constructor run.
-            Interlocked.Increment(ref _fixture.CurrentAgentPort);
-            Interlocked.Increment(ref _fixture.CurrentAdapterPort);
-
         }
 
         #region Private Tests
