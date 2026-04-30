@@ -19,8 +19,8 @@ namespace MTConnect.Tests.Common.Agents
     ///   - AssetRemoved
     ///   - AssetCount
     ///
-    /// Lets the F-P-H5 perf optimization (cast DataItems once + HashSet for
-    /// type checks) refactor the inner loop without regressing behavior.
+    /// Lets the inner-loop perf optimization (cast DataItems once and use a
+    /// HashSet for type-id checks) refactor without regressing behavior.
     /// </summary>
     [TestFixture]
     public class NormalizeDeviceRequiredDataItemsTests
