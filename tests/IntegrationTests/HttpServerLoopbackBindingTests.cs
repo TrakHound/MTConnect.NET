@@ -9,8 +9,8 @@ using Xunit;
 namespace IntegrationTests
 {
     /// <summary>
-    /// Source-grep regression guard for F-S-L3. Pins that
-    /// <see cref="MTConnect.Configurations.HttpServerConfiguration"/>
+    /// Source-grep regression guard for the loopback-only binding contract.
+    /// Pins that <see cref="MTConnect.Configurations.HttpServerConfiguration"/>
     /// in <c>ClientAgentCommunicationTests</c> binds the embedded HTTP
     /// server to loopback so an in-process integration run cannot
     /// accidentally expose the test agent on a non-loopback interface of
