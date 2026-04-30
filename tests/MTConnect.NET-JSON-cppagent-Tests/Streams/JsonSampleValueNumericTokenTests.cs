@@ -166,6 +166,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Streams
 
         // Note: the unsupported-token contract (bool/array/object) is now
         // pinned in JsonSampleValueConverterEdgeCaseTests as a thrown
-        // JsonException — see issue-129 review-pass finding F-P-L13.
+        // JsonException so feed corruption surfaces to callers instead of
+        // collapsing into a silent null.
     }
 }

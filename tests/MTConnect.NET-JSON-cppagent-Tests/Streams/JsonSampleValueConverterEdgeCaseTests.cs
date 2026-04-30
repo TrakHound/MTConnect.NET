@@ -43,7 +43,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Streams
             return doc.RootElement.GetProperty("value").Clone();
         }
 
-        // ---- F-C4: non-finite numeric strings round-trip as strings ----
+        // ---- non-finite numeric strings round-trip as JSON string tokens ----
 
         [TestCase("NaN")]
         [TestCase("Infinity")]
@@ -58,7 +58,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Streams
             Assert.That(token.GetString(), Is.EqualTo(nonFiniteLiteral));
         }
 
-        // ---- F-C5: empty/whitespace strings emit JSON null ----
+        // ---- empty / whitespace-only strings emit a JSON null token ----
 
         [TestCase("")]
         [TestCase(" ")]
@@ -84,7 +84,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Streams
                 "token; got '{json}' instead.");
         }
 
-        // ---- F-P-L2: invariant-culture fallback uses Convert.ToString ----
+        // ---- non-string / non-numeric fallback uses InvariantCulture ----
 
         [Test]
         public void Bool_value_fallback_uses_invariant_culture()
@@ -99,7 +99,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Streams
             Assert.That(token.GetString(), Is.EqualTo("True"));
         }
 
-        // ---- F-P-L3: ThreeSpace short-circuit ----
+        // ---- ThreeSpace value path short-circuits before TryParse(double) ----
 
         [TestCase("1.5 -2.5 3.5")]
         [TestCase("0 0 0")]
@@ -117,7 +117,7 @@ namespace MTConnect.NET_JSON_cppagent_Tests.Streams
             Assert.That(token.GetString(), Is.EqualTo(threeSpace));
         }
 
-        // ---- F-P-L13: Read default branch throws on unsupported tokens ----
+        // ---- Read default branch throws JsonException on unsupported tokens ----
 
         [TestCase("true")]
         [TestCase("false")]
