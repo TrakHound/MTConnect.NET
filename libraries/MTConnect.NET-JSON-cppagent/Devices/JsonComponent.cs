@@ -55,7 +55,7 @@ namespace MTConnect.Devices.Json
             {
                 Id = component.Id;
                 Uuid = component.Uuid;
-                Name = component.Name;
+                if (!string.IsNullOrEmpty(component.Name)) Name = component.Name;
                 NativeName = component.NativeName;
                 //Type = component.Type;
                 if (component.Description != null) Description = new JsonDescription(component.Description);

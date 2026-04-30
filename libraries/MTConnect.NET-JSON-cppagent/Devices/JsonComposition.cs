@@ -54,7 +54,7 @@ namespace MTConnect.Devices.Json
             {
                 Id = composition.Id;
                 Uuid = composition.Uuid;
-                Name = composition.Name;
+                if (!string.IsNullOrEmpty(composition.Name)) Name = composition.Name;
                 NativeName = composition.NativeName;
                 Type = composition.Type;
                 if (composition.Description != null) Description = new JsonDescription(composition.Description);
