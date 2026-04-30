@@ -110,7 +110,7 @@ namespace MTConnect.Tests.Xml.Headers
             // Construct the test Device with every required field set
             // explicitly. The Device default constructor is not guaranteed
             // to populate Id / Name / Uuid (older revisions auto-generated
-            // them; newer revisions strip those defaults to honour the XSD
+            // them; newer revisions strip those defaults to honor the XSD
             // `uuid` "for entire life" identity contract). Setting them
             // here keeps the test green across both shapes.
             broker.AddDevice(new Device
