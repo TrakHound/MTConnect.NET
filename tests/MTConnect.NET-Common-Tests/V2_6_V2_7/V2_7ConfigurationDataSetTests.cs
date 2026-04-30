@@ -8,6 +8,21 @@ namespace MTConnect.NET_Common_Tests.V2_6_V2_7
     // representation siblings (*DataSet) — plus the cross-package-grafted
     // DataSet base that the universal cross-package parent resolver brought
     // into the Devices.Configurations namespace.
+    //
+    //   - XMI: https://github.com/mtconnect/mtconnect_sysml_model @ tag v2.7
+    //          UML classes under Device Information Model > Configurations:
+    //            * Axis / AxisDataSet
+    //            * Origin / OriginDataSet
+    //            * Rotation / RotationDataSet
+    //            * Scale / ScaleDataSet
+    //            * Translation / TranslationDataSet
+    //          plus the abstract bases (AbstractAxis, AbstractOrigin, etc.).
+    //   - XSD: https://schemas.mtconnect.org/schemas/MTConnectDevices_2.7.xsd
+    //          (the geometric-primitive complexTypes encode the same shape
+    //          on the wire under <Configuration>).
+    //   - Prose: MTConnect Standard Part_2.0_Devices_v2.7 §10 "Configuration"
+    //          — describes how Component-level Configuration carries the
+    //          geometric primitives that locate a Component in space.
     [TestFixture]
     public class V2_7ConfigurationDataSetTests
     {

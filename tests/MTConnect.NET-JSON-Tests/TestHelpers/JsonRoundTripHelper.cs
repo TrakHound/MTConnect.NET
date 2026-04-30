@@ -15,7 +15,7 @@ namespace MTConnect.NET_JSON_Tests.TestHelpers
         private static readonly JsonSerializerOptions Options = new()
         {
             // The wire-format classes carry [JsonPropertyName] attributes
-            // for camelCase keys; default options honour those without
+            // for camelCase keys; default options honor those without
             // additional configuration.
             DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
         };

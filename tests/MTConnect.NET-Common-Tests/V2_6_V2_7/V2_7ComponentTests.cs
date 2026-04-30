@@ -3,7 +3,16 @@ using NUnit.Framework;
 
 namespace MTConnect.NET_Common_Tests.V2_6_V2_7
 {
-    // Pins the v2.7 Component subclasses.
+    // Pins the v2.7 Component subclasses (PinTool, ToolHolder).
+    //
+    //   - XMI: https://github.com/mtconnect/mtconnect_sysml_model @ tag v2.7
+    //          UML classes under Device Information Model > Components:
+    //            * PinTool      — pin-style tooling component
+    //            * ToolHolder   — tool-holder component
+    //   - XSD: https://schemas.mtconnect.org/schemas/MTConnectDevices_2.7.xsd
+    //          (each TypeId appears in the ComponentType enumeration).
+    //   - Prose: MTConnect Standard Part_2.0_Devices_v2.7 §7 "Component
+    //          types" — describes intended use of each Component subclass.
     [TestFixture]
     public class V2_7ComponentTests
     {

@@ -97,7 +97,7 @@ namespace MTConnect.Compliance.Tests.L1_XsdValidation
                 // sibling resources from the manifest is the unblock for
                 // the L1 layer's full include-aware validation gate. The
                 // follow-up XSD-1.1 PR will provide it; the strict-load
-                // failures this test surfaces today document the gap.
+                // failures this test surfaces document the gap.
                 XmlResolver = null
             };
             schemaSet.ValidationEventHandler += (s, e) => errors.Add($"[{e.Severity}] {e.Message}");
