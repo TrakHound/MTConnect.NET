@@ -29,7 +29,7 @@ namespace MTConnect.Compliance.Tests.L2_CrossImpl
     // Container pin:
     //   mtconnect/agent:latest at digest
     //   sha256:8c7fb19c55fd588d7bda94710890a00a0d2c485caca147744dc27d445a11eb07
-    //   resolves to MTConnect Agent 2.7.0.7 (built 2026-04-09). The :latest
+    //   resolves to MTConnect Agent 2.7.0.7. The :latest
     //   tag is acceptable here because the tag is verified at fixture
     //   start-up via the version probe; a tag drift is surfaced as a
     //   parity-diff failure rather than a silent skew.

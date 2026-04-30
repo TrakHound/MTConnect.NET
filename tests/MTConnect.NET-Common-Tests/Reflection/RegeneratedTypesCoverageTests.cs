@@ -56,7 +56,7 @@ namespace MTConnect.NET_Common_Tests.Reflection
             // instantiable; Activator.CreateInstance throws MemberAccessException.
             // The classes are non-test by construction (no instance state to
             // exercise; the public consts are exercised by their consumers).
-            // No specific names listed here today — the IsAbstract && IsSealed
+            // No specific names listed — the IsAbstract && IsSealed
             // pre-filter below catches every static class.
         };
 
@@ -65,7 +65,7 @@ namespace MTConnect.NET_Common_Tests.Reflection
         // must be listed here, NOT silenced via try/catch in the test.
         private static readonly HashSet<string> PropertyRoundTripExclusions = new()
         {
-            // No exclusions today — every regenerated property accepts its
+            // No exclusions — every regenerated property accepts its
             // own type's default value. This list exists so that future
             // regeneration runs that introduce a constraint-bearing setter
             // (e.g. "string property that throws on null") can document the
