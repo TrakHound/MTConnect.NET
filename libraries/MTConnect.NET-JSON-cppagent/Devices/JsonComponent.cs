@@ -11,6 +11,7 @@ namespace MTConnect.Devices.Json
         public string Id { get; set; }
 
         [JsonPropertyName("name")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string Name { get; set; }
 
         [JsonPropertyName("nativeName")]
