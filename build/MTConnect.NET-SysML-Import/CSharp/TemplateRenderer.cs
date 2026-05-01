@@ -108,15 +108,15 @@ namespace MTConnect.SysML.CSharp
                             {
                                 template = CuttingToolMeasurementModel.Create((MTConnectMeasurementModel)exportModel);
                             }
-                            else
+                            else if (exportModel.Id?.StartsWith("Assets.Pallet.") == true)
                             {
-                                // Non-CuttingTools measurement (e.g. Assets.Pallet.*) — no fallback
-                                // template exists yet, so log and continue rather than silently
-                                // dropping the model.
-                                Console.Error.WriteLine(
-                                    $"warn: MeasurementModel '{exportModel.Id}' has no template — " +
-                                    "only Assets.CuttingTools.* is currently rendered. Skipping.");
+                                template = MeasurementModel.Create((MTConnectMeasurementModel)exportModel);
                             }
+                            // No fallback: every measurement in the v2.x SysML routes
+                            // through one of the two prefixes above. A future model
+                            // adding a third measurement package will surface here as a
+                            // null template (NullReferenceException downstream) — preferable
+                            // to a silent drop with a stderr warning that nothing watches.
                         }
                         else if (typeof(MTConnectClassModel).IsAssignableFrom(type) && exportModel.Id?.EndsWith("Result") == true)
                         {
@@ -197,6 +197,16 @@ namespace MTConnect.SysML.CSharp
                                     ((ClassModel)template).IsAbstract = false;
                                     break;
                                 case "Assets.CuttingTools.ToolingMeasurement":
+                                    ((ClassModel)template).IsPartial = true;
+                                    ((ClassModel)template).IsAbstract = false;
+                                    break;
+                                case "Assets.Pallet.Measurement":
+                                    // Partial + concrete so a hand-written
+                                    // partial can supply the `Type` property
+                                    // and the `Measurement(IMeasurement)` ctor
+                                    // that the per-subtype rich template
+                                    // (`Pallets.Measurement.scriban`) chains
+                                    // to via `: base(measurement)`.
                                     ((ClassModel)template).IsPartial = true;
                                     ((ClassModel)template).IsAbstract = false;
                                     break;

@@ -46,7 +46,7 @@ namespace MTConnect.SysML.CSharp
 
         public string RenderModel()
         {
-            var template = TemplateLoader.LoadOrThrow("CSharp", "Templates", "Assets.Measurement.scriban");
+            var template = TemplateLoader.LoadOrThrow("CSharp", "Templates", "Pallets.Measurement.scriban");
             return template.Render(this);
         }
 
