@@ -92,7 +92,14 @@ namespace MTConnect.SysML.CSharp
                         else if (typeof(MTConnectCompositionType).IsAssignableFrom(type)) template = CompositionType.Create((MTConnectCompositionType)exportModel);
                         else if (typeof(MTConnectComponentType).IsAssignableFrom(type))
                         {
-                            if (((MTConnectComponentType)exportModel).Type == "Controllers") ((MTConnectComponentType)exportModel).MinimumVersion = new Version(1, 0);
+                            // Surface the SysML-declared introduction year
+                            // for every Component, including the Controllers
+                            // organizer AssociationClass (introduced='2.0').
+                            // The earlier override that hard-coded Controllers
+                            // to v1.0 contradicted the spec — the
+                            // `Profile:normative introduced='2.0'` record
+                            // on the Controllers UML AssociationClass is the
+                            // authoritative source.
                             template = ComponentType.Create((MTConnectComponentType)exportModel);
                         }
                         else if (typeof(MTConnectMeasurementModel).IsAssignableFrom(type))
