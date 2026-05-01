@@ -8,7 +8,7 @@ namespace MTConnect.Assets.Pallet
     /// <summary>
     /// Constrained scalar value associated with an Asset
     /// </summary>
-    public abstract class Measurement : IMeasurement
+    public partial class Measurement : IMeasurement
     {
         public const string DescriptionText = "Constrained scalar value associated with an Asset";
 
