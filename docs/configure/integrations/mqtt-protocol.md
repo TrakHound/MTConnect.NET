@@ -5,11 +5,11 @@ This is a protocol for accessing MTConnect data using MQTT that mimics the funct
 The main difference between the HTTP and MQTT protocols is that the MQTT protocol deals with the individual MTConnect entities directly (ex. Device, Observation, Asset).
 
 #### All Devices
-![All_Devices](../img/mtconnect-mqtt-protocol-all-01.png)
+![All_Devices](/img/mtconnect-mqtt-protocol-all-01.png)
 
 
 #### By Device
-![All_Devices](../img/mtconnect-mqtt-protocol-by-device-01.png)
+![All_Devices](/img/mtconnect-mqtt-protocol-by-device-01.png)
 
 
 ### Multiple Configurable Observation Intervals

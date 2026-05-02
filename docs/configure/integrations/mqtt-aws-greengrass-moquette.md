@@ -42,7 +42,7 @@ modules:
 ## Screenshots
 
 ### AWS Thing
-![Screenshot](../img/mqtt-aws-thing-certificates.png)
+![Screenshot](/img/mqtt-aws-thing-certificates.png)
 
 ### AWS Core Device
-![Screenshot](../img/mqtt-aws-greengrass-moquette-01.png)
+![Screenshot](/img/mqtt-aws-greengrass-moquette-01.png)

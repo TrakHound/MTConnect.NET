@@ -1,0 +1,97 @@
+name: Docs site
+
+# Build and deploy the VitePress documentation site.
+#
+# Triggers:
+# - push to master:    build the site and deploy it to GitHub Pages.
+# - pull_request to master: build the site only (no deploy) so doc-breaking
+#   changes surface in PR review.
+#
+# Action versions are pinned to commit SHAs (tag aliases appear in trailing
+# comments) so a tag rewrite cannot silently change what runs.
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+# Least-privilege defaults. The deploy job overrides this with the
+# `pages: write` + `id-token: write` permissions GitHub Pages requires.
+permissions:
+  contents: read
+
+# Only one deploy can run at a time. In-progress deploys are not canceled
+# so that a started Pages publish gets to finish.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+env:
+  NODE_VERSION: '20'
+  DOTNET_VERSION: '8.0.x'
+
+jobs:
+  build:
+    name: Build VitePress site
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@d4c94342e560b34958eacfc5d055d21461ed1c5d  # v5.0.0
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Install docfx
+        run: dotnet tool install -g docfx
+
+      - name: Setup Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e  # v6.4.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: docs/package-lock.json
+
+      - name: Install dependencies
+        working-directory: docs
+        run: npm ci
+
+      - name: Generate API reference
+        run: bash docs/scripts/generate-api-ref.sh
+
+      # Only required on push-to-master (deploy path). Computes the correct
+      # base-path for the Pages site and writes it where later steps see it.
+      - name: Configure GitHub Pages
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d  # v6.0.0
+
+      - name: Build site
+        working-directory: docs
+        run: npm run build
+
+      # Upload the built artifact only on the deploy path. PR builds stop
+      # after the build step (success / failure surfaces in the check).
+      - name: Upload Pages artifact
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9  # v5.0.0
+        with:
+          path: docs/.vitepress/dist
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128  # v5.0.0
