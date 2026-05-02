@@ -61,15 +61,15 @@ if [[ "${USE_DOCKER}" == "1" ]]; then
 	# E2E tier needs host-network + docker-socket passthrough so
 	# Testcontainers-spawned children (mosquitto, cppagent, etc.) are
 	# reachable from inside this container. Enabled when the invocation
-	# targets tests/IntegrationTests or any tests/E2E/** project, OR
-	# when MTCONNECT_DOTNET_E2E_DIND=1 is set explicitly.
+	# targets tests/MTConnect.NET-Integration-Tests or any tests/E2E/**
+	# project, OR when MTCONNECT_DOTNET_E2E_DIND=1 is set explicitly.
 	E2E_MODE=0
 	if [[ "${MTCONNECT_DOTNET_E2E_DIND:-0}" == "1" ]]; then
 		E2E_MODE=1
 	fi
-	if [[ " $* " == *" tests/IntegrationTests"* ]] \
+	if [[ " $* " == *" tests/MTConnect.NET-Integration-Tests"* ]] \
 		|| [[ " $* " == *" tests/E2E/"* ]] \
-		|| [[ " $* " == *"IntegrationTests.csproj"* ]] \
+		|| [[ " $* " == *"MTConnect.NET-Integration-Tests.csproj"* ]] \
 		|| [[ " $* " == *" tests/Compliance/"* ]]; then
 		E2E_MODE=1
 	fi

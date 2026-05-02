@@ -13,7 +13,7 @@ using MTConnect.Devices;
 using MTConnect.Observations;
 using Xunit;
 
-namespace IntegrationTests.Workflows
+namespace MTConnect.Tests.Integration.Workflows
 {
     // Workflow W06 — MQTT relay agent module: agent publishes a Current
     // document to a Mosquitto broker; a downstream consumer subscribes

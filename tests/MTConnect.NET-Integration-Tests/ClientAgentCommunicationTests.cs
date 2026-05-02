@@ -25,7 +25,7 @@ using Xunit.Abstractions;
 using Xunit.Sdk;
 using MTConnect.Assets.CuttingTools;
 
-namespace IntegrationTests
+namespace MTConnect.Tests.Integration
 {
     public class MTAgentFixture
     {
@@ -346,7 +346,7 @@ namespace IntegrationTests
             ILogger logger)
         {
             var assembly = Assembly.GetExecutingAssembly();
-            var resourceName = "IntegrationTests.devices-tpl.xml";
+            var resourceName = "MTConnect.Tests.Integration.devices-tpl.xml";
 
             using var stream = assembly.GetManifestResourceStream(resourceName);
             if (stream is null)

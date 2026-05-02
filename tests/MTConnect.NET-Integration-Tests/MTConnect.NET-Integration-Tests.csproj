@@ -5,6 +5,8 @@
 
     <IsPackable>false</IsPackable>
     <Nullable>enable</Nullable>
+    <RootNamespace>MTConnect.Tests.Integration</RootNamespace>
+    <AssemblyName>MTConnect.Tests.Integration</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>

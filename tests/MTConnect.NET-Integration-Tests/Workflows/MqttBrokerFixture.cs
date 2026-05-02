@@ -5,7 +5,7 @@ using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
 using Xunit;
 
-namespace IntegrationTests.Workflows
+namespace MTConnect.Tests.Integration.Workflows
 {
     // Spins a Mosquitto broker once per xUnit test class via IClassFixture.
     // The eclipse-mosquitto image is pinned at 2.0.22 so the wire-protocol

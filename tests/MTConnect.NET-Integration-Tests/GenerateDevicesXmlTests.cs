@@ -3,7 +3,7 @@ using System.IO;
 using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
 
-namespace IntegrationTests
+namespace MTConnect.Tests.Integration
 {
     // Regression tests for the GenerateDevicesXml helper. The helper takes a
     // fileName argument; earlier revisions hard-coded "devices.xml" inside

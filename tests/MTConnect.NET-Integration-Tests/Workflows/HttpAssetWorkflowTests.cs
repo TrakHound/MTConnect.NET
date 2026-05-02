@@ -12,7 +12,7 @@ using MTConnect.Configurations;
 using MTConnect.Servers.Http;
 using Xunit;
 
-namespace IntegrationTests.Workflows
+namespace MTConnect.Tests.Integration.Workflows
 {
     // Workflow W04 — HTTP Asset returns the seeded asset.
     //
