@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Coverlet configuration for tests/MTConnect.NET-Integration-Tests only.
+
+  This is tests/coverlet.runsettings verbatim, plus two product
+  assemblies added to the Exclude list. It is applied solely to the
+  integration test project (CI runs that project as its own
+  `dotnet test` step with this file passed via the settings flag; the
+  solution-wide run that uses tests/coverlet.runsettings no longer
+  runs this project). Every other test project keeps the shared
+  tests/coverlet.runsettings unchanged.
+
+  Why the extra exclusions:
+    MTConnect.NET-Integration-Tests.ClientAgentCommunicationTests
+    drives the in-process Agent broker + embedded HTTP server + HTTP
+    streaming client + SHDR adapter as a single timing-critical
+    sample-delivery hot path. Under coverlet IL instrumentation that
+    hot path is slowed enough that, on a slow shared 2-CPU CI runner,
+    a Sample observation arrives after the test's 30000 ms assertion
+    wait elapses (no HTTP stream timeout: the stream stays alive; the
+    sample is merely late).
+
+    Two of the assemblies on that path are also covered, faster, by
+    dedicated unit suites under the shared runsettings, so dropping
+    their instrumentation here loses no net (merged) coverage:
+
+    - [MTConnect.NET-Common]*  MTConnectAgentBroker observation
+      buffering / sequence / delivery. By far the largest product
+      assembly (all regenerated device / asset / observation types),
+      so it is the dominant IL-instrumentation cost on this host.
+      Covered by the 33-file MTConnect.NET-Common-Tests suite and,
+      end to end, by MTConnect.NET-HTTP-Tests, which starts a real
+      MTConnectAgentBroker via AgentRunner
+      (tests/MTConnect.NET-Tests-Agents/AgentRunner.cs).
+    - [MTConnect.NET-HTTP]*    embedded HTTP server stream + HTTP
+      streaming client per-chunk hot loop. Covered end to end by
+      MTConnect.NET-HTTP-Tests: AgentRunner spins up the real
+      MTConnectHttpServer and the suite streams Current / Sample
+      through MTConnectHttpClient / MTConnectHttpSampleClient
+      (Clients/SampleStream.cs, Clients/Sample.cs) against it.
+
+    MTConnect.NET-SHDR is deliberately NOT excluded: AgentRunner feeds
+    the broker directly and does not exercise the SHDR adapter, and
+    MTConnect.NET-SHDR-Tests covers only SHDR data-item
+    formatting/parsing (DataItems.cs), so the integration suite is the
+    only runtime coverage of ShdrIntervalAdapter / ShdrAdapterClient
+    (the TCP adapter to agent path). It is also a small assembly whose
+    instrumentation is not the dominant cost, so it stays instrumented
+    to preserve that unique, non-redundant coverage.
+
+    The integration suite remains a full behavioural end-to-end test;
+    only its (redundant) coverage of MTConnect.NET-Common and
+    MTConnect.NET-HTTP is dropped, and those lines are still collected
+    at equal-or-greater fidelity by the faster suites whose Cobertura
+    ReportGenerator merges alongside this one.
+
+  Everything else (format, include/exclude of test assemblies,
+  ExcludeByFile, ExcludeByAttribute, MaxCpuCount=1 for cross-assembly
+  VSTest-host serialisation) is identical to tests/coverlet.runsettings
+  so the only behavioural difference is the narrowed instrumentation
+  surface for this one project.
+-->
+<RunSettings>
+    <RunConfiguration>
+        <MaxCpuCount>1</MaxCpuCount>
+    </RunConfiguration>
+    <DataCollectionRunSettings>
+        <DataCollectors>
+            <DataCollector friendlyName="XPlat code coverage">
+                <Configuration>
+                    <Format>cobertura</Format>
+                    <Include>[MTConnect.NET-*]*</Include>
+                    <Exclude>[MTConnect.NET-*-Tests]*,[MTConnect.NET-*-Tests.*]*,[MTConnect.NET-Common]*,[MTConnect.NET-HTTP]*</Exclude>
+                    <ExcludeByFile>**/*.g.cs.bak,**/TestHelpers/**/*.cs,**/TestDoubles/**/*.cs</ExcludeByFile>
+                    <ExcludeByAttribute>Obsolete,GeneratedCodeAttribute,CompilerGeneratedAttribute,ExcludeFromCodeCoverageAttribute</ExcludeByAttribute>
+                    <SingleHit>false</SingleHit>
+                    <UseSourceLink>true</UseSourceLink>
+                    <IncludeTestAssembly>false</IncludeTestAssembly>
+                    <SkipAutoProps>false</SkipAutoProps>
+                    <DeterministicReport>true</DeterministicReport>
+                </Configuration>
+            </DataCollector>
+        </DataCollectors>
+    </DataCollectionRunSettings>
+</RunSettings>

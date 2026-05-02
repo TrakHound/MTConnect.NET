@@ -24,7 +24,7 @@ using Xunit.Abstractions;
 using Xunit.Sdk;
 using MTConnect.Assets.CuttingTools;
 
-namespace IntegrationTests
+namespace MTConnect.Tests.Integration
 {
     public class MTAgentFixture
     {
@@ -52,7 +52,16 @@ namespace IntegrationTests
         #region Fields
 
         //private const int c_maxWaitTimeout = 100000; // Debug
-        private const int c_maxWaitTimeout = 10000;
+        // Upper bound for waiting on a single observation to round-trip
+        // through the embedded server and on the test-wide cancellation
+        // token. Held at the same CI-safe order as c_serverReadyTimeout
+        // and the derived Sample-stream read budget (Heartbeat * 3 =
+        // 30000 ms) so the assertion can never lose to scheduling
+        // latency before the stream itself would tear down: a marginal
+        // 10000 ms bound let a loaded runner's sample arrive after the
+        // wait elapsed while the stream was still alive. This widens the
+        // headroom only; the pass/fail decision is unchanged.
+        private const int c_maxWaitTimeout = 30000;
 
         // Generous, CI-safe bound for waiting until the embedded HTTP server
         // is actually accepting and serving requests. The server's socket bind
@@ -389,7 +398,7 @@ namespace IntegrationTests
             ILogger logger)
         {
             var assembly = Assembly.GetExecutingAssembly();
-            var resourceName = "IntegrationTests.devices-tpl.xml";
+            var resourceName = "MTConnect.Tests.Integration.devices-tpl.xml";
 
             using var stream = assembly.GetManifestResourceStream(resourceName);
             if (stream is null)

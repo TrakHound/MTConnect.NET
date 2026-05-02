@@ -64,7 +64,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-Applications-
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-Applications-Adapter", "adapter\MTConnect.NET-Applications-Adapter\MTConnect.NET-Applications-Adapter.csproj", "{59076253-A3F6-42C7-96CD-E001008ED70E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IntegrationTests", "tests\IntegrationTests\IntegrationTests.csproj", "{50649CF1-7DD2-42CC-9721-A941750210F0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-Integration-Tests", "tests\MTConnect.NET-Integration-Tests\MTConnect.NET-Integration-Tests.csproj", "{50649CF1-7DD2-42CC-9721-A941750210F0}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTConnect.NET-Common-Tests", "tests\MTConnect.NET-Common-Tests\MTConnect.NET-Common-Tests.csproj", "{C0BBADFF-D741-4FEB-8235-9335F58FB55E}"
 EndProject

@@ -56,7 +56,15 @@ jobs:
       - name: Build (Debug)
         run: dotnet build MTConnect.NET.sln --configuration Debug --no-restore
 
-      - name: Run unit + integration tests with coverage
+      # MTConnect.NET-Integration-Tests is skipped here (its
+      # IsTestProject is false unless IntegrationCoverage=true) and run
+      # in the dedicated step below so it can use its own
+      # tests/coverlet.integration.runsettings. VSTest precedence is
+      # CLI --settings > RunSettingsFilePath, so a per-project settings
+      # file cannot win against this solution-wide --settings; running
+      # the project as its own step is the only way to give it
+      # different coverage scoping. See the integration .csproj comment.
+      - name: Run unit tests with coverage
         run: |
           dotnet test MTConnect.NET.sln \
             --configuration Debug \
@@ -64,6 +72,29 @@ jobs:
             --settings tests/coverlet.runsettings \
             --results-directory TestResults \
             --logger "trx;LogFileName=test-results-${{ matrix.os }}.trx" \
+            --filter "Category!=RequiresDocker&Category!=XsdLoadStrict"
+        shell: bash
+
+      # Integration suite with its own coverlet settings: the shared
+      # configuration verbatim plus MTConnect.NET-Common and
+      # MTConnect.NET-HTTP excluded from instrumentation. Those two are
+      # the dominant-cost part of the timing-critical in-process
+      # Agent/HTTP hot path this suite drives; coverlet IL
+      # instrumentation of them on a slow shared runner pushes sample
+      # delivery past the test's wait. Both are covered (faster) by
+      # MTConnect.NET-Common-Tests / MTConnect.NET-HTTP-Tests, whose
+      # Cobertura ReportGenerator merges with this one, so no net
+      # coverage is lost. MTConnect.NET-SHDR stays instrumented (the
+      # integration suite is its only runtime coverage).
+      - name: Run integration tests with coverage
+        run: |
+          dotnet test tests/MTConnect.NET-Integration-Tests/MTConnect.NET-Integration-Tests.csproj \
+            --configuration Debug \
+            --no-build \
+            -p:IntegrationCoverage=true \
+            --settings tests/coverlet.integration.runsettings \
+            --results-directory TestResults \
+            --logger "trx;LogFileName=test-results-integration-${{ matrix.os }}.trx" \
             --filter "Category!=RequiresDocker&Category!=XsdLoadStrict"
         shell: bash
 

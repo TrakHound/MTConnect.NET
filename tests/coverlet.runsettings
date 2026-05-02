@@ -23,8 +23,30 @@
       in place so that any future TestHelpers/ / TestDoubles/ tree is
       excluded automatically.
     - obj/ + bin/ are excluded via Coverlet's built-in defaults.
+
+  Assembly-level test parallelism:
+    MaxCpuCount=1 forces VSTest to run one test-host process at a
+    time. When `dotnet test` is given the solution it otherwise fans
+    out one host per test assembly across the logical CPUs, so the
+    timing-sensitive in-process HTTP server tests in
+    MTConnect.NET-Integration-Tests co-run with the heavy compliance,
+    MQTT-relay E2E, and reflection coverage assemblies. On a 2-CPU CI
+    runner that co-running load scheduler-starves the integration
+    agent's heartbeat and sample-delivery threads, so a sample arrives
+    after the test's own assertion wait elapses. Serializing the
+    assemblies removes the cross-assembly starvation at the root while
+    every assembly's tests still run; xUnit's
+    [assembly: CollectionBehavior(DisableTestParallelization = true)]
+    only governs parallelism within an assembly, not across the host
+    processes VSTest spawns for a solution, so this is the matching
+    knob for that layer. Both CI and tools/test.sh pass this file via
+    the settings argument, so the single setting covers every entry
+    point.
 -->
 <RunSettings>
+    <RunConfiguration>
+        <MaxCpuCount>1</MaxCpuCount>
+    </RunConfiguration>
     <DataCollectionRunSettings>
         <DataCollectors>
             <DataCollector friendlyName="XPlat code coverage">

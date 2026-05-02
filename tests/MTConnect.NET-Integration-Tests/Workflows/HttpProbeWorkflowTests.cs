@@ -13,7 +13,7 @@ using MTConnect.Devices;
 using MTConnect.Servers.Http;
 using Xunit;
 
-namespace IntegrationTests.Workflows
+namespace MTConnect.Tests.Integration.Workflows
 {
     // Workflow W01 — HTTP Probe returns the seeded devices envelope.
     //

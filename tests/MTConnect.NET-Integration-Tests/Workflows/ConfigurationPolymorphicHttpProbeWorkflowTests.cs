@@ -21,7 +21,7 @@ using Xunit;
 // sequentially per xUnit's default — this only disables inter-class.
 [assembly: CollectionBehavior(DisableTestParallelization = true)]
 
-namespace IntegrationTests.Workflows
+namespace MTConnect.Tests.Integration.Workflows
 {
     /// <summary>
     /// End-to-end workflow tests for the v2.7 polymorphic Configuration sub-
