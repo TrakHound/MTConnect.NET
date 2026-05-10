@@ -37,9 +37,13 @@ namespace MTConnect.SysML.Xmi.UML
         public UmlConstraint[]? Constraints { get; set; }
 
         /// <summary>
-        /// Child <inheritdoc cref="MTConnect.SysML.Xmi.UML.UmlGeneralization"/>
+        /// Collection of <inheritdoc cref="MTConnect.SysML.Xmi.UML.UmlGeneralization"/>.
+        /// A SysML class may declare more than one <c>&lt;generalization&gt;</c>
+        /// element (multi-inheritance in UML). The XMI parser must capture
+        /// every entry so downstream models can decide which becomes the
+        /// primary C# class base and which become marker interfaces.
         /// </summary>
         [XmlElement(ElementName = XmiHelper.XmiStructure.GENERALIZATION, Namespace = "")]
-        public UmlGeneralization? Generalization { get; set; }
+        public UmlGeneralization[]? Generalizations { get; set; }
     }
 }

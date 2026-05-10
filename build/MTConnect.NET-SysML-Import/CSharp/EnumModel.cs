@@ -1,9 +1,7 @@
 ﻿using MTConnect.NET_SysML_Import.CSharp;
 using MTConnect.SysML.Xmi;
 using MTConnect.SysML.Xmi.UML;
-using Scriban;
 using System;
-using System.IO;
 using System.Linq;
 
 namespace MTConnect.SysML.CSharp
@@ -53,6 +51,10 @@ namespace MTConnect.SysML.CSharp
                     {
                         foreach (var value in exportModel.Values)
                         {
+                            // Skip values with null Name — `name.Replace('/', '_')` would
+                            // otherwise NRE on the chain below.
+                            if (value.Name == null) continue;
+
                             if (convertFunction != null)
                             {
                                 value.Name = convertFunction(value.Name);
@@ -60,7 +62,7 @@ namespace MTConnect.SysML.CSharp
                             else
                             {
                                 // Convert Numbers to Strings (leading numbers aren't supported as Enum values)
-                                var name = value.Name?.ToUnderscoreUpper();
+                                var name = value.Name.ToUnderscoreUpper();
                                 name = StringFunctions.ReplaceNumbersWithWords(name);
 
                                 // Replace '/' (not supported as Enum values)
@@ -69,17 +71,6 @@ namespace MTConnect.SysML.CSharp
                                 name = name.ToUnderscoreUpper();
                                 value.Name = name;
                             }
-
-                            //value.Name = value.Name.Replace("/", "_PER_");
-                            //value.Name = value.Name.Replace("^2", "_SQUARED");
-
-                            //// Convert Numbers to Strings (leading numbers aren't supported as Enum values)
-                            //var name = value.Name;
-                            //name = StringFunctions.ReplaceNumbersWithWords(name);
-                            //value.Name = name.ToTitleCase();
-
-                            //// Replace '/' (not supported as Enum values)
-                            //value.Name = value.Name.Replace('/', '_');
                         }
                     }
 
@@ -93,55 +84,17 @@ namespace MTConnect.SysML.CSharp
 
         public string RenderModel()
         {
-            var templateFilename = $"Enum.scriban";
-            var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "csharp", "templates", templateFilename);
-            if (File.Exists(templatePath))
-            {
-                try
-                {
-                    var templateContents = File.ReadAllText(templatePath);
-                    if (templateContents != null)
-                    {
-                        var template = Template.Parse(templateContents);
-                        return template.Render(this);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
-            }
-
-            return null;
+            var template = TemplateLoader.LoadOrThrow("CSharp", "Templates", "Enum.scriban");
+            return template.Render(this);
         }
 
         public string RenderInterface() => null;
 
         public string RenderDescriptions()
         {
-            if (Values != null && Values.Count > 0)
-            {
-                var templateFilename = $"EnumDescriptions.scriban";
-                var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "csharp", "templates", templateFilename);
-                if (File.Exists(templatePath))
-                {
-                    try
-                    {
-                        var templateContents = File.ReadAllText(templatePath);
-                        if (templateContents != null)
-                        {
-                            var template = Template.Parse(templateContents);
-                            return template.Render(this);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine(ex.Message);
-                    }
-                }
-            }
-
-            return null;
+            if (Values == null || Values.Count == 0) return null;
+            var template = TemplateLoader.LoadOrThrow("CSharp", "Templates", "EnumDescriptions.scriban");
+            return template.Render(this);
         }
     }
 }

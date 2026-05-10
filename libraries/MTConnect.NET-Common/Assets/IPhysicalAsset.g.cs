@@ -24,7 +24,7 @@ namespace MTConnect.Assets
         System.DateTime ManufactureDate { get; }
         
         /// <summary>
-        /// Constrained scalar value associated with an Asset.
+        /// Constrained scalar value associated with an Asset
         /// </summary>
         MTConnect.Assets.Pallet.IMeasurement Measurement { get; }
         

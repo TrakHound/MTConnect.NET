@@ -30,11 +30,17 @@ namespace MTConnect.Devices.Json
         [JsonPropertyName("Origin")]
         public IEnumerable<double> Origin { get; set; }
 
+        [JsonPropertyName("OriginDataSet")]
+        public JsonOriginDataSet OriginDataSet { get; set; }
+
         [JsonPropertyName("Transformation")]
         public JsonTransformation Transformation { get; set; }
 
         [JsonPropertyName("Axis")]
         public IEnumerable<double> Axis { get; set; }
+
+        [JsonPropertyName("AxisDataSet")]
+        public JsonAxisDataSet AxisDataSet { get; set; }
 
 
         public JsonMotion() { }
@@ -48,14 +54,15 @@ namespace MTConnect.Devices.Json
                 CoordinateSystemIdRef = motion.CoordinateSystemIdRef;
                 Type = motion.Type.ToString();
                 Actuation = motion.Actuation.ToString();
-                if (motion.Origin != null) Origin = motion.Origin.ToJsonArray();
+                if (motion.Origin is IOriginDataSet originDataSet) OriginDataSet = new JsonOriginDataSet(originDataSet);
+                else if (motion.Origin is IOrigin origin) Origin = JsonHelper.ToJsonArray(origin);
                 if (motion.Transformation != null) Transformation = new JsonTransformation(motion.Transformation);
-                Axis = motion.Axis.ToJsonArray();
+                if (motion.Axis is IAxisDataSet axisDataSet) AxisDataSet = new JsonAxisDataSet(axisDataSet);
+                else if (motion.Axis is IAxis axis) Axis = JsonHelper.ToJsonArray(axis);
 
                 if (motion.Description != null)
                 {
                     Description = motion.Description;
-                    //Description = motion.Description.Value;
                 }
             }
         }
@@ -69,15 +76,14 @@ namespace MTConnect.Devices.Json
             motion.CoordinateSystemIdRef = CoordinateSystemIdRef;
             motion.Type = Type.ConvertEnum<MotionType>();
             motion.Actuation = Actuation.ConvertEnum<MotionActuationType>();
-            motion.Axis = JsonHelper.ToUnitVector3D(Axis);
-            motion.Origin = JsonHelper.ToUnitVector3D(Origin);
+            if (AxisDataSet != null) motion.Axis = AxisDataSet.ToAxisDataSet();
+            else motion.Axis = JsonHelper.ToAxis(Axis);
+            if (OriginDataSet != null) motion.Origin = OriginDataSet.ToOriginDataSet();
+            else motion.Origin = JsonHelper.ToOrigin(Origin);
             if (Transformation != null) motion.Transformation = Transformation.ToTransformation();
 
             if (Description != null)
             {
-                //var description = new Description();
-                //description.Value = Description;
-                //motion.Description = description;
                 motion.Description = Description;
             }
 

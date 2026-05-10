@@ -6,11 +6,11 @@
 namespace MTConnect.Assets.Pallet
 {
     /// <summary>
-    /// Loaded weight of the PhysicalAsset.
+    /// Loaded weight of the PhysicalAsset
     /// </summary>
     public class LoadedWeightMeasurement : Measurement, ILoadedWeightMeasurement
     {
-        public new const string DescriptionText = "Loaded weight of the PhysicalAsset.";
+        public new const string DescriptionText = "Loaded weight of the PhysicalAsset";
 
 
     }

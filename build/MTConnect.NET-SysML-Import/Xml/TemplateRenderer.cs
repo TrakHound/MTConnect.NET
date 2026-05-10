@@ -1,5 +1,4 @@
-﻿using MTConnect.SysML.Models.Assets;
-using Scriban;
+using MTConnect.SysML.Models.Assets;
 
 namespace MTConnect.SysML.Xml
 {
@@ -9,125 +8,48 @@ namespace MTConnect.SysML.Xml
         {
             if (mtconnectModel != null && !string.IsNullOrEmpty(outputPath))
             {
-                WriteCuttingToolMeasurements(mtconnectModel, outputPath);
-                WriteCuttingToolLifeCycle(mtconnectModel, outputPath);
-                WriteCuttingItem(mtconnectModel, outputPath);
-            }
-        }
-
-
-        private static void WriteCuttingToolMeasurements(MTConnectModel mtconnectModel, string outputPath)
-        {
-            var measurementsModel = new CuttingToolMeasurementsModel();
-
-            var measurements = mtconnectModel.AssetInformationModel.CuttingTools.Classes.Where(o => typeof(MTConnectMeasurementModel).IsAssignableFrom(o.GetType()));
-            foreach (var measurement in measurements.OrderBy(o => o.Name)) measurementsModel.Types.Add((MTConnectMeasurementModel)measurement);
-
-            var templateFilename = $"XmlMeasurements.scriban";
-            var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "xml", "templates", templateFilename);
-            if (File.Exists(templatePath))
-            {
-                try
+                // All three Xml templates render the same CuttingToolMeasurementsModel —
+                // build it once, then drive the three (template, output) pairs through
+                // a shared helper. Output is byte-identical to the previous three-method
+                // form; the templates differ only in which model fields they read.
+                var measurementsModel = BuildCuttingToolMeasurementsModel(mtconnectModel);
+                var renders = new (string Template, string OutputRelative)[]
                 {
-                    var templateContents = File.ReadAllText(templatePath);
-                    if (templateContents != null)
-                    {
-                        var template = Template.Parse(templateContents);
-                        var result = template.Render(measurementsModel);
-                        if (result != null)
-                        {
-                            var resultPath = $"Assets/CuttingTools/XmlMeasurements";
-                            resultPath = Path.Combine(outputPath, resultPath);
-                            resultPath = $"{resultPath}.g.cs";
-
-                            var resultDirectory = Path.GetDirectoryName(resultPath);
-                            if (!Directory.Exists(resultDirectory)) Directory.CreateDirectory(resultDirectory);
-
-                            File.WriteAllText(resultPath, result);
-                        }
-                    }
-                }
-                catch (Exception ex)
+                    ("XmlMeasurements.scriban",      "Assets/CuttingTools/XmlMeasurements"),
+                    ("XmlCuttingToolLifeCycle.scriban", "Assets/CuttingTools/XmlCuttingToolLifeCycle"),
+                    ("XmlCuttingItem.scriban",       "Assets/CuttingTools/XmlCuttingItem"),
+                };
+                foreach (var (template, output) in renders)
                 {
-                    Console.WriteLine(ex.Message);
+                    RenderTo(template, measurementsModel, output, outputPath);
                 }
             }
         }
 
-        private static void WriteCuttingToolLifeCycle(MTConnectModel mtconnectModel, string outputPath)
+
+        private static CuttingToolMeasurementsModel BuildCuttingToolMeasurementsModel(MTConnectModel mtconnectModel)
         {
-            var measurementsModel = new CuttingToolMeasurementsModel();
+            var model = new CuttingToolMeasurementsModel();
 
             var measurements = mtconnectModel.AssetInformationModel.CuttingTools.Classes.Where(o => typeof(MTConnectMeasurementModel).IsAssignableFrom(o.GetType()));
-            foreach (var measurement in measurements.OrderBy(o => o.Name)) measurementsModel.Types.Add((MTConnectMeasurementModel)measurement);
+            foreach (var measurement in measurements.OrderBy(o => o.Name)) model.Types.Add((MTConnectMeasurementModel)measurement);
 
-            var templateFilename = $"XmlCuttingToolLifeCycle.scriban";
-            var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "xml", "templates", templateFilename);
-            if (File.Exists(templatePath))
-            {
-                try
-                {
-                    var templateContents = File.ReadAllText(templatePath);
-                    if (templateContents != null)
-                    {
-                        var template = Template.Parse(templateContents);
-                        var result = template.Render(measurementsModel);
-                        if (result != null)
-                        {
-                            var resultPath = $"Assets/CuttingTools/XmlCuttingToolLifeCycle";
-                            resultPath = Path.Combine(outputPath, resultPath);
-                            resultPath = $"{resultPath}.g.cs";
-
-                            var resultDirectory = Path.GetDirectoryName(resultPath);
-                            if (!Directory.Exists(resultDirectory)) Directory.CreateDirectory(resultDirectory);
-
-                            File.WriteAllText(resultPath, result);
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
-            }
+            return model;
         }
 
-        private static void WriteCuttingItem(MTConnectModel mtconnectModel, string outputPath)
+        // Loads the named Scriban template from Xml/Templates, renders against
+        // the supplied model, and writes the result to <outputPath>/<outputRelative>.g.cs
+        // (creating intermediate directories as needed).
+        private static void RenderTo(string templateName, object model, string outputRelative, string outputPath)
         {
-            var measurementsModel = new CuttingToolMeasurementsModel();
+            var template = TemplateLoader.LoadOrThrow("Xml", "Templates", templateName);
+            var result = template.Render(model);
+            if (result == null) return;
 
-            var measurements = mtconnectModel.AssetInformationModel.CuttingTools.Classes.Where(o => typeof(MTConnectMeasurementModel).IsAssignableFrom(o.GetType()));
-            foreach (var measurement in measurements.OrderBy(o => o.Name)) measurementsModel.Types.Add((MTConnectMeasurementModel)measurement);
-
-            var templateFilename = $"XmlCuttingItem.scriban";
-            var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "xml", "templates", templateFilename);
-            if (File.Exists(templatePath))
-            {
-                try
-                {
-                    var templateContents = File.ReadAllText(templatePath);
-                    if (templateContents != null)
-                    {
-                        var template = Template.Parse(templateContents);
-                        var result = template.Render(measurementsModel);
-                        if (result != null)
-                        {
-                            var resultPath = $"Assets/CuttingTools/XmlCuttingItem";
-                            resultPath = Path.Combine(outputPath, resultPath);
-                            resultPath = $"{resultPath}.g.cs";
-
-                            var resultDirectory = Path.GetDirectoryName(resultPath);
-                            if (!Directory.Exists(resultDirectory)) Directory.CreateDirectory(resultDirectory);
-
-                            File.WriteAllText(resultPath, result);
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
-            }
+            var resultPath = Path.Combine(outputPath, outputRelative) + ".g.cs";
+            var resultDirectory = Path.GetDirectoryName(resultPath);
+            TemplateLoader.EnsureDirectory(resultDirectory);
+            File.WriteAllText(resultPath, result);
         }
     }
 }

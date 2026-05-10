@@ -1,137 +1,100 @@
-name: MTConnect.NET
+name: build-test-coverage
+
+# Restrict the GITHUB_TOKEN to read-only contents access. The job only
+# needs to checkout the repo, run dotnet build / test, and upload TRX +
+# coverage artifacts; no commit / release / package-write privileges are
+# required. Defense-in-depth against supply-chain attacks via a
+# compromised dependency or a test-side RCE.
+permissions:
+  contents: read
+
 on:
   push:
-  pull_request:
-    branches: [ main ]
+    branches:
+      - master
     paths-ignore:
-    - 'README.md'
-env:
-  DOTNET_VERSION: '7.0.x'
-jobs:
-  MTConnect-NET-Common:
-    name: build-and-test-${{matrix.os}}-MTConnect-NET-Common
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-    steps:
-    - uses: actions/checkout@v2
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
-    - name: Clean
-      run: dotnet clean --configuration Release
-      working-directory: src/MTConnect.NET-Common
-    - name: Build
-      run: dotnet build --configuration Release --force
-      working-directory: src/MTConnect.NET-Common
-    - name: Test
-      run: dotnet test --no-restore --verbosity normal
-      working-directory: src/MTConnect.NET-Common
-  MTConnect-NET-HTTP:
-    name: build-and-test-${{matrix.os}}-MTConnect-NET-HTTP
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-    steps:
-    - uses: actions/checkout@v2
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
-    - name: Clean
-      run: dotnet clean --configuration Release
-      working-directory: src/MTConnect.NET-HTTP
-    - name: Build
-      run: dotnet build --configuration Release --force
-      working-directory: src/MTConnect.NET-HTTP
-    - name: Test
-      run: dotnet test --no-restore --verbosity normal
-      working-directory: src/MTConnect.NET-HTTP
-  MTConnect-NET-HTTP-AspNetCore:
-    name: build-and-test-${{matrix.os}}-MTConnect-NET-HTTP-AspNetCore
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-    steps:
-    - uses: actions/checkout@v2
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
-    - name: Clean
-      run: dotnet clean --configuration Release
-      working-directory: src/MTConnect.NET-HTTP-AspNetCore
-    - name: Build
-      run: dotnet build --configuration Release --force
-      working-directory: src/MTConnect.NET-HTTP-AspNetCore
-    - name: Test
-      run: dotnet test --no-restore --verbosity normal
-      working-directory: src/MTConnect.NET-HTTP-AspNetCore
-  MTConnect-NET-XML:
-    name: build-and-test-${{matrix.os}}-MTConnect-NET-XML
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-    steps:
-    - uses: actions/checkout@v2
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
-    - name: Clean
-      run: dotnet clean --configuration Release
-      working-directory: src/MTConnect.NET-XML
-    - name: Build
-      run: dotnet build --configuration Release --force
-      working-directory: src/MTConnect.NET-XML
-    - name: Test
-      run: dotnet test --no-restore --verbosity normal
-      working-directory: src/MTConnect.NET-XML
-  MTConnect-NET-SHDR:
-    name: build-and-test-${{matrix.os}}-MTConnect-NET-SHDR
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-    steps:
-    - uses: actions/checkout@v2
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
-    - name: Clean
-      run: dotnet clean --configuration Release
-      working-directory: src/MTConnect.NET-SHDR
-    - name: Build
-      run: dotnet build --configuration Release --force
-      working-directory: src/MTConnect.NET-SHDR
-    - name: Test
-      run: dotnet test --no-restore --verbosity normal
-      working-directory: src/MTConnect.NET-SHDR
-  MTConnect-NET-MQTT:
-    name: build-and-test-${{matrix.os}}-MTConnect-NET-MQTT
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-    steps:
-    - uses: actions/checkout@v2
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
-    - name: Clean
-      run: dotnet clean --configuration Release
-      working-directory: src/MTConnect.NET-MQTT
-    - name: Build
-      run: dotnet build --configuration Release --force
-      working-directory: src/MTConnect.NET-MQTT
-    - name: Test
-      run: dotnet test --no-restore --verbosity normal
-      working-directory: src/MTConnect.NET-MQTT
+      - 'README.md'
+      - 'docs/**'
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    branches:
+      - master
+    paths-ignore:
+      - 'README.md'
+      - 'docs/**'
 
+jobs:
+  build-and-test:
+    name: build-and-test-${{ matrix.os }}
+    # Skip drafts: run only on push-to-master + ready (non-draft) PRs.
+    # The pull_request `types` list above includes `ready_for_review` so
+    # CI fires the moment a draft is flipped to ready.
+    if: github.event_name == 'push' || github.event.pull_request.draft == false
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+
+      - name: Setup .NET 8.0 + 9.0
+        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9  # v4
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+
+      - name: Restore dotnet tools (ReportGenerator)
+        run: dotnet tool restore
+
+      - name: Restore solution
+        run: dotnet restore MTConnect.NET.sln
+
+      - name: Build (Debug)
+        run: dotnet build MTConnect.NET.sln --configuration Debug --no-restore
+
+      - name: Run unit + integration tests with coverage
+        run: |
+          dotnet test MTConnect.NET.sln \
+            --configuration Debug \
+            --no-build \
+            --settings tests/coverlet.runsettings \
+            --results-directory TestResults \
+            --logger "trx;LogFileName=test-results-${{ matrix.os }}.trx" \
+            --filter "Category!=RequiresDocker&Category!=XsdLoadStrict"
+        shell: bash
+
+      - name: Generate coverage HTML + summary
+        if: always()
+        run: |
+          dotnet reportgenerator \
+            -reports:"TestResults/**/coverage.cobertura.xml" \
+            -targetdir:"coverage-report" \
+            -reporttypes:"Html;TextSummary;MarkdownSummary"
+        shell: bash
+
+      - name: Upload TRX + coverage artifacts
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
+        with:
+          name: test-results-${{ matrix.os }}
+          path: |
+            TestResults/**/*.trx
+            TestResults/**/coverage.cobertura.xml
+            coverage-report/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Surface coverage summary in job log
+        if: always()
+        run: |
+          if [ -f coverage-report/Summary.txt ]; then
+            echo "### Coverage summary (${{ matrix.os }})" >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            cat coverage-report/Summary.txt >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+          fi
+        shell: bash

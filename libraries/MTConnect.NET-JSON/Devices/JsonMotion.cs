@@ -27,13 +27,19 @@ namespace MTConnect.Devices.Json
         public string Description { get; set; }
 
         [JsonPropertyName("origin")]
-        public string Origin { get; set; }
+        public JsonOrigin Origin { get; set; }
+
+        [JsonPropertyName("originDataSet")]
+        public JsonOriginDataSet OriginDataSet { get; set; }
 
         [JsonPropertyName("transformation")]
         public JsonTransformation Transformation { get; set; }
 
         [JsonPropertyName("axis")]
-        public string Axis { get; set; }
+        public JsonAxis Axis { get; set; }
+
+        [JsonPropertyName("axisDataSet")]
+        public JsonAxisDataSet AxisDataSet { get; set; }
 
 
         public JsonMotion() { }
@@ -47,11 +53,12 @@ namespace MTConnect.Devices.Json
                 CoordinateSystemIdRef = motion.CoordinateSystemIdRef;
                 Type = motion.Type.ToString();
                 Actuation = motion.Actuation.ToString();
-                if (motion.Description != null) Description = motion.Description; // v2.5
-                //if (motion.Description != null) Description = new JsonDescription(motion.Description);
-                if (motion.Origin != null) Origin = motion.Origin.ToString();
+                if (motion.Description != null) Description = motion.Description;
+                if (motion.Origin is IOriginDataSet originDataSet) OriginDataSet = new JsonOriginDataSet(originDataSet);
+                else if (motion.Origin is IOrigin origin) Origin = new JsonOrigin(origin);
                 if (motion.Transformation != null) Transformation = new JsonTransformation(motion.Transformation);
-                Axis = motion.Axis.ToString();
+                if (motion.Axis is IAxisDataSet axisDataSet) AxisDataSet = new JsonAxisDataSet(axisDataSet);
+                else if (motion.Axis is IAxis axis) Axis = new JsonAxis(axis);
             }
         }
 
@@ -64,11 +71,12 @@ namespace MTConnect.Devices.Json
             motion.CoordinateSystemIdRef = CoordinateSystemIdRef;
             motion.Type = Type.ConvertEnum<MotionType>();
             motion.Actuation = Actuation.ConvertEnum<MotionActuationType>();
-            motion.Axis = UnitVector3D.FromString(Axis);
-            motion.Origin = UnitVector3D.FromString(Origin);
+            if (AxisDataSet != null) motion.Axis = AxisDataSet.ToAxisDataSet();
+            else if (Axis != null) motion.Axis = Axis.ToAxis();
+            if (OriginDataSet != null) motion.Origin = OriginDataSet.ToOriginDataSet();
+            else if (Origin != null) motion.Origin = Origin.ToOrigin();
             if (Transformation != null) motion.Transformation = Transformation.ToTransformation();
-            if (Description != null) motion.Description = Description; // v2.5
-            //if (Description != null) motion.Description = Description.ToDescription();
+            if (Description != null) motion.Description = Description;
             return motion;
         }
     }

@@ -36,6 +36,11 @@ namespace MTConnect.Devices.Configurations
         OBJ,
         
         /// <summary>
+        /// Provides the 3D geometric boundary representation used to associate with product information.
+        /// </summary>
+        QIF_MBD,
+        
+        /// <summary>
         /// ISO 10303 STEP AP203 or AP242 format.
         /// </summary>
         STEP,

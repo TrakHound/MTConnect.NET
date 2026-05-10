@@ -21,9 +21,9 @@ namespace MTConnect.Assets
         public const string ManufactureDate = "Date of creation or built of the Asset.";
         
         /// <summary>
-        /// Constrained scalar value associated with an Asset.
+        /// Constrained scalar value associated with an Asset
         /// </summary>
-        public const string Measurement = "Constrained scalar value associated with an Asset.";
+        public const string Measurement = "Constrained scalar value associated with an Asset";
         
         /// <summary>
         /// Date of next inspection of the Asset.

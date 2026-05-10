@@ -5,7 +5,7 @@
 [![MTConnect.NET](https://github.com/TrakHound/MTConnect.NET/actions/workflows/dotnet.yml/badge.svg)](https://github.com/TrakHound/MTConnect.NET/actions/workflows/dotnet.yml)
 
 ## Overview
-MTConnect.NET is a fully featured and fully Open Source **[.NET](https://dotnet.microsoft.com/)** library for **[MTConnect](https://www.mtconnect.org/)** to develop Agents, Adapters, and Clients. Supports MTConnect Versions up to 2.4. A pre-compiled Agent application is available to download as well as an Adapter application that can be easily customized.
+MTConnect.NET is a fully featured and fully Open Source **[.NET](https://dotnet.microsoft.com/)** library for **[MTConnect](https://www.mtconnect.org/)** to develop Agents, Adapters, and Clients. Supports MTConnect Versions v1.0 through v2.7. A pre-compiled Agent application is available to download as well as an Adapter application that can be easily customized.
 
 - .NET Native MTConnect Agent
 - Adapter framework used to send data to an MTConnect Agent
@@ -15,7 +15,7 @@ MTConnect.NET is a fully featured and fully Open Source **[.NET](https://dotnet.
 - Module based Agent & Adapter architecture
     - Supports running as Windows Service with easy to use command line arguments
     - Presistent Agent Buffers that are backed up on the File System. Retains state after Agent is restarted
-- Fully compatible up to the latest MTConnect v2.4
+- Fully compatible with MTConnect v1.0 through v2.7
     - Kept up to date by utilizing the MTConnect SysML Model to generate source files
     - Supports multiple MTConnect Version output. Automatically removes data that is not compatible with the requested version
 - Full client support for requesting data from any MTConnect Agent (Probe, Current, Sample Stream, Assets, etc.).
@@ -105,6 +105,7 @@ A preconfigured [Application](https://github.com/TrakHound/MTConnect.NET/tree/ma
 - [ShdrIntervalQueueAdapter](https://github.com/TrakHound/MTConnect.NET/blob/master/libraries/MTConnect.NET-SHDR/Adapters/ShdrIntervalQueueAdapter.cs) : Queues all values that are sent from the PLC and sends any queued values at the specified Interval. This is used when all values are needed but an interval is adequate.
 
 ## Supported Frameworks
+- .NET 9.0
 - .NET 8.0
 - .NET 7.0
 - .NET 6.0

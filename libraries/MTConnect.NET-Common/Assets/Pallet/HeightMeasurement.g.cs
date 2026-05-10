@@ -6,11 +6,11 @@
 namespace MTConnect.Assets.Pallet
 {
     /// <summary>
-    /// Height of the PhysicalAsset.
+    /// Height of the PhysicalAsset
     /// </summary>
     public class HeightMeasurement : Measurement, IHeightMeasurement
     {
-        public new const string DescriptionText = "Height of the PhysicalAsset.";
+        public new const string DescriptionText = "Height of the PhysicalAsset";
 
 
     }

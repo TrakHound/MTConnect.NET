@@ -68,10 +68,13 @@ namespace MTConnect.SysML.Models.Devices
                 MaximumVersion = MTConnectVersion.LookupDeprecated(xmiDocument, umlClass.Id);
                 MinimumVersion = MTConnectVersion.LookupNormative(xmiDocument, umlClass.Id);
 
-                // Add SuperClass (ParentType)
-                if (umlClass.Generalization != null)
+                // Add SuperClass (ParentType). DataItem types in MTConnect
+                // form a single-inheritance hierarchy — the first
+                // generalization is the C# base.
+                var dataItemParent = umlClass.Generalizations?.FirstOrDefault();
+                if (dataItemParent != null)
                 {
-                    ParentName = ModelHelper.GetClassName(xmiDocument, umlClass.Generalization.General);
+                    ParentName = ModelHelper.GetClassName(xmiDocument, dataItemParent.General);
                     //if (ParentName != null && ParentName != "DataItem") ParentName += "DataItem";
                 }
 

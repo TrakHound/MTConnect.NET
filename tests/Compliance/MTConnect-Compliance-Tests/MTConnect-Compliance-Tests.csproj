@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>MTConnect.Compliance.Tests</RootNamespace>
+    <Nullable>enable</Nullable>
+
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.10.0" />
+    <PackageReference Include="NUnit" Version="3.13.3" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
+    <PackageReference Include="coverlet.collector" Version="3.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\libraries\MTConnect.NET-Common\MTConnect.NET-Common.csproj" />
+    <ProjectReference Include="..\..\..\libraries\MTConnect.NET-XML\MTConnect.NET-XML.csproj" />
+    <ProjectReference Include="..\..\..\libraries\MTConnect.NET-JSON\MTConnect.NET-JSON.csproj" />
+    <ProjectReference Include="..\..\..\libraries\MTConnect.NET-JSON-cppagent\MTConnect.NET-JSON-cppagent.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- XSDs ship as embedded resources; SchemaLoadTests reads each via
+         Assembly.GetManifestResourceStream so a single binary blob in the
+         test assembly is sufficient. -->
+    <EmbeddedResource Include="Schemas\**\*.xsd" />
+    <None Include="Fixtures\**\*.*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

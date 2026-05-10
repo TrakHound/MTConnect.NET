@@ -114,6 +114,10 @@ namespace MTConnect.Devices.Json
         public IEnumerable<JsonComponent> CoolingTower { get; set; }
 
 
+        [JsonPropertyName("CuttingTorch")]
+        public IEnumerable<JsonComponent> CuttingTorch { get; set; }
+
+
         [JsonPropertyName("Deposition")]
         public IEnumerable<JsonComponent> Deposition { get; set; }
 
@@ -132,6 +136,10 @@ namespace MTConnect.Devices.Json
 
         [JsonPropertyName("Electric")]
         public IEnumerable<JsonComponent> Electric { get; set; }
+
+
+        [JsonPropertyName("Electrode")]
+        public IEnumerable<JsonComponent> Electrode { get; set; }
 
 
         [JsonPropertyName("Enclosure")]
@@ -264,6 +272,10 @@ namespace MTConnect.Devices.Json
 
         [JsonPropertyName("Personnel")]
         public IEnumerable<JsonComponent> Personnel { get; set; }
+
+
+        [JsonPropertyName("PinTool")]
+        public IEnumerable<JsonComponent> PinTool { get; set; }
 
 
         [JsonPropertyName("Pneumatic")]
@@ -406,6 +418,10 @@ namespace MTConnect.Devices.Json
         public IEnumerable<JsonComponent> Thermostat { get; set; }
 
 
+        [JsonPropertyName("ToolHolder")]
+        public IEnumerable<JsonComponent> ToolHolder { get; set; }
+
+
         [JsonPropertyName("ToolingDelivery")]
         public IEnumerable<JsonComponent> ToolingDelivery { get; set; }
 
@@ -529,6 +545,8 @@ namespace MTConnect.Devices.Json
 
                 CoolingTower = GetComponents(components, CoolingTowerComponent.TypeId);
 
+                CuttingTorch = GetComponents(components, CuttingTorchComponent.TypeId);
+
                 Deposition = GetComponents(components, DepositionComponent.TypeId);
 
                 Dielectric = GetComponents(components, DielectricComponent.TypeId);
@@ -538,6 +556,8 @@ namespace MTConnect.Devices.Json
                 Drain = GetComponents(components, DrainComponent.TypeId);
 
                 Electric = GetComponents(components, ElectricComponent.TypeId);
+
+                Electrode = GetComponents(components, ElectrodeComponent.TypeId);
 
                 Enclosure = GetComponents(components, EnclosureComponent.TypeId);
 
@@ -604,6 +624,8 @@ namespace MTConnect.Devices.Json
                 Path = GetComponents(components, PathComponent.TypeId);
 
                 Personnel = GetComponents(components, PersonnelComponent.TypeId);
+
+                PinTool = GetComponents(components, PinToolComponent.TypeId);
 
                 Pneumatic = GetComponents(components, PneumaticComponent.TypeId);
 
@@ -674,6 +696,8 @@ namespace MTConnect.Devices.Json
                 Tensioner = GetComponents(components, TensionerComponent.TypeId);
 
                 Thermostat = GetComponents(components, ThermostatComponent.TypeId);
+
+                ToolHolder = GetComponents(components, ToolHolderComponent.TypeId);
 
                 ToolingDelivery = GetComponents(components, ToolingDeliveryComponent.TypeId);
 
@@ -782,6 +806,8 @@ namespace MTConnect.Devices.Json
 
             if (!CoolingTower.IsNullOrEmpty()) foreach (var component in CoolingTower) components.Add(component.ToComponent(CoolingTowerComponent.TypeId));
 
+            if (!CuttingTorch.IsNullOrEmpty()) foreach (var component in CuttingTorch) components.Add(component.ToComponent(CuttingTorchComponent.TypeId));
+
             if (!Deposition.IsNullOrEmpty()) foreach (var component in Deposition) components.Add(component.ToComponent(DepositionComponent.TypeId));
 
             if (!Dielectric.IsNullOrEmpty()) foreach (var component in Dielectric) components.Add(component.ToComponent(DielectricComponent.TypeId));
@@ -791,6 +817,8 @@ namespace MTConnect.Devices.Json
             if (!Drain.IsNullOrEmpty()) foreach (var component in Drain) components.Add(component.ToComponent(DrainComponent.TypeId));
 
             if (!Electric.IsNullOrEmpty()) foreach (var component in Electric) components.Add(component.ToComponent(ElectricComponent.TypeId));
+
+            if (!Electrode.IsNullOrEmpty()) foreach (var component in Electrode) components.Add(component.ToComponent(ElectrodeComponent.TypeId));
 
             if (!Enclosure.IsNullOrEmpty()) foreach (var component in Enclosure) components.Add(component.ToComponent(EnclosureComponent.TypeId));
 
@@ -857,6 +885,8 @@ namespace MTConnect.Devices.Json
             if (!Path.IsNullOrEmpty()) foreach (var component in Path) components.Add(component.ToComponent(PathComponent.TypeId));
 
             if (!Personnel.IsNullOrEmpty()) foreach (var component in Personnel) components.Add(component.ToComponent(PersonnelComponent.TypeId));
+
+            if (!PinTool.IsNullOrEmpty()) foreach (var component in PinTool) components.Add(component.ToComponent(PinToolComponent.TypeId));
 
             if (!Pneumatic.IsNullOrEmpty()) foreach (var component in Pneumatic) components.Add(component.ToComponent(PneumaticComponent.TypeId));
 
@@ -927,6 +957,8 @@ namespace MTConnect.Devices.Json
             if (!Tensioner.IsNullOrEmpty()) foreach (var component in Tensioner) components.Add(component.ToComponent(TensionerComponent.TypeId));
 
             if (!Thermostat.IsNullOrEmpty()) foreach (var component in Thermostat) components.Add(component.ToComponent(ThermostatComponent.TypeId));
+
+            if (!ToolHolder.IsNullOrEmpty()) foreach (var component in ToolHolder) components.Add(component.ToComponent(ToolHolderComponent.TypeId));
 
             if (!ToolingDelivery.IsNullOrEmpty()) foreach (var component in ToolingDelivery) components.Add(component.ToComponent(ToolingDeliveryComponent.TypeId));
 

@@ -4,7 +4,7 @@
 namespace MTConnect.Assets.Pallet
 {
     /// <summary>
-    /// Height of the PhysicalAsset.
+    /// Height of the PhysicalAsset
     /// </summary>
     public interface IHeightMeasurement : IMeasurement
     {

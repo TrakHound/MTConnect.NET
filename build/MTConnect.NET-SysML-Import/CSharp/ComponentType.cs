@@ -2,7 +2,6 @@
 using MTConnect.SysML.Models.Devices;
 using MTConnect.SysML.Xmi;
 using MTConnect.SysML.Xmi.UML;
-using Scriban;
 
 namespace MTConnect.SysML.CSharp
 {
@@ -40,7 +39,10 @@ namespace MTConnect.SysML.CSharp
                         var propertyValue = importProperty.GetValue(importModel);
 
                         var exportProperty = exportProperties.FirstOrDefault(o => o.Name == importProperty.Name);
-                        if (exportProperty != null)
+                        // Require matching PropertyType so SetValue cannot throw
+                        // ArgumentException when a property of the same name has
+                        // a different declared type on the export model.
+                        if (exportProperty != null && exportProperty.PropertyType == importProperty.PropertyType)
                         {
                             exportProperty.SetValue(exportModel, propertyValue);
                         }
@@ -59,26 +61,8 @@ namespace MTConnect.SysML.CSharp
 
         public string RenderModel()
         {
-            var templateFilename = $"Devices.ComponentType.scriban";
-            var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "csharp", "templates", templateFilename);
-            if (File.Exists(templatePath))
-            {
-                try
-                {
-                    var templateContents = File.ReadAllText(templatePath);
-                    if (templateContents != null)
-                    {
-                        var template = Template.Parse(templateContents);
-                        return template.Render(this);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
-            }
-
-            return null;
+            var template = TemplateLoader.LoadOrThrow("CSharp", "Templates", "Devices.ComponentType.scriban");
+            return template.Render(this);
         }
 
         public string RenderInterface() => null;

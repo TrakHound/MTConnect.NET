@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json.schemastore.org/launchsettings.json",
+  "profiles": {
+    "Import (env vars)": {
+      "commandName": "Project",
+      "commandLineArgs": "--xmi \"%MTCONNECT_XMI_PATH%\" --output \"%MTCONNECT_NET_REPO%\""
+    },
+    "Import (sibling clone of mtconnect_sysml_model)": {
+      "commandName": "Project",
+      "commandLineArgs": "--xmi ../../../../mtconnect_sysml_model/MTConnectSysMLModel.xml --output ../../..",
+      "comment": "Assumes mtconnect/mtconnect_sysml_model is cloned as a sibling of this repo. Switch standard version with `git -C ../mtconnect_sysml_model checkout v2.7` (or v2.6 / v2.5)."
+    },
+    "Import (json-dump enabled, sibling clone)": {
+      "commandName": "Project",
+      "commandLineArgs": "--xmi ../../../../mtconnect_sysml_model/MTConnectSysMLModel.xml --output ../../.. --json-dump ../../../.cache/mtconnect-model.json"
+    }
+  }
+}

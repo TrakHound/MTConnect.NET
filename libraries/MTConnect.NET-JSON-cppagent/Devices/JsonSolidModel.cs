@@ -33,6 +33,9 @@ namespace MTConnect.Devices.Json
         [JsonPropertyName("Scale")]
         public IEnumerable<double> Scale { get; set; }
 
+        [JsonPropertyName("ScaleDataSet")]
+        public JsonScaleDataSet ScaleDataSet { get; set; }
+
 
         public JsonSolidModel() { }
 
@@ -46,7 +49,8 @@ namespace MTConnect.Devices.Json
                 MediaType = solidModel.MediaType.ToString();
                 CoordinateSystemIdRef = solidModel.CoordinateSystemIdRef;
                 if (solidModel.Transformation != null) Transformation = new JsonTransformation(solidModel.Transformation);
-                Scale = solidModel.Scale.ToJsonArray();
+                if (solidModel.Scale is IScaleDataSet scaleDataSet) ScaleDataSet = new JsonScaleDataSet(scaleDataSet);
+                else if (solidModel.Scale is IScale scale) Scale = JsonHelper.ToJsonArray(scale);
             }
         }
 
@@ -61,7 +65,8 @@ namespace MTConnect.Devices.Json
             solidModel.MediaType = MediaType.ConvertEnum<MediaType>();
             solidModel.CoordinateSystemIdRef = CoordinateSystemIdRef;
             if (Transformation != null) solidModel.Transformation = Transformation.ToTransformation();
-            solidModel.Scale = JsonHelper.ToUnitVector3D(Scale);
+            if (ScaleDataSet != null) solidModel.Scale = ScaleDataSet.ToScaleDataSet();
+            else solidModel.Scale = JsonHelper.ToScale(Scale);
             return solidModel;
         }
     }

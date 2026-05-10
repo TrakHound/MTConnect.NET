@@ -4,7 +4,7 @@
 namespace MTConnect.Assets.Pallet
 {
     /// <summary>
-    /// Loaded width of the PhysicalAsset.
+    /// Loaded width of the PhysicalAsset
     /// </summary>
     public interface ILoadedWidthMeasurement : IMeasurement
     {

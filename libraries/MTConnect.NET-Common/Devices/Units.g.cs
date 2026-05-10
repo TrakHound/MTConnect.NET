@@ -131,6 +131,11 @@ namespace MTConnect.Devices
         public const string MILLIGRAM_PER_CUBIC_MILLIMETER = "MILLIGRAM/CUBIC_MILLIMETER";
         
         /// <summary>
+        /// Concentration of a dissolved substance in milligram per liter
+        /// </summary>
+        public const string MILLIGRAM_PER_LITER = "MILLIGRAM/LITER";
+        
+        /// <summary>
         /// Volume in milliliter.
         /// </summary>
         public const string MILLILITER = "MILLILITER";

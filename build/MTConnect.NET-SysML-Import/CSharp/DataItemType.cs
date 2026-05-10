@@ -2,10 +2,8 @@
 using MTConnect.SysML.Models.Devices;
 using MTConnect.SysML.Xmi;
 using MTConnect.SysML.Xmi.UML;
-using Scriban;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
 namespace MTConnect.SysML.CSharp
@@ -51,12 +49,17 @@ namespace MTConnect.SysML.CSharp
                         var propertyValue = importProperty.GetValue(importModel);
 
                         var exportProperty = exportProperties.FirstOrDefault(o => o.Name == importProperty.Name);
-                        if (exportProperty != null)
+                        // Require matching PropertyType so SetValue cannot throw
+                        // ArgumentException — a future divergence in property
+                        // types between the import and export hierarchies would
+                        // otherwise blow up at runtime instead of silently
+                        // skipping the mismatched property.
+                        if (exportProperty != null && exportProperty.PropertyType == importProperty.PropertyType)
                         {
                             exportProperty.SetValue(exportModel, propertyValue);
                         }
                     }
-                    
+
                     if (exportModel.Units != null)
                     {
                         exportModel.Units = exportModel.Units.Replace("NativeUnitsEnum", "NativeUnits");
@@ -69,6 +72,11 @@ namespace MTConnect.SysML.CSharp
                         exportModel.ResultType = ModelHelper.RemoveEnumSuffix(importModel.Result);
                     }
 
+                    // Guard before `+= "DataItem"` so a null Id/Name does not silently yield the literal "DataItem".
+                    if (exportModel.Id == null)
+                        throw new InvalidOperationException("DataItemType has null Id, cannot append 'DataItem' suffix.");
+                    if (exportModel.Name == null)
+                        throw new InvalidOperationException($"DataItemType '{exportModel.Id}' has null Name, cannot append 'DataItem' suffix.");
                     exportModel.Id += "DataItem";
                     exportModel.Name += "DataItem";
                     exportModel.Description = DescriptionHelper.GetTextDescription(importModel.Description);
@@ -85,26 +93,8 @@ namespace MTConnect.SysML.CSharp
 
         public virtual string RenderModel()
         {
-            var templateFilename = $"Devices.DataItemType.scriban";
-            var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "csharp", "templates", templateFilename);
-            if (File.Exists(templatePath))
-            {
-                try
-                {
-                    var templateContents = File.ReadAllText(templatePath);
-                    if (templateContents != null)
-                    {
-                        var template = Template.Parse(templateContents);
-                        return template.Render(this);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
-            }
-
-            return null;
+            var template = TemplateLoader.LoadOrThrow("CSharp", "Templates", "Devices.DataItemType.scriban");
+            return template.Render(this);
         }
 
         public string RenderInterface() => null;

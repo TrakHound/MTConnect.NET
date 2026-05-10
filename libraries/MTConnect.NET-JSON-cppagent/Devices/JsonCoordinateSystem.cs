@@ -27,6 +27,9 @@ namespace MTConnect.Devices.Json
         [JsonPropertyName("Origin")]
         public IEnumerable<double> Origin { get; set; }
 
+        [JsonPropertyName("OriginDataSet")]
+        public JsonOriginDataSet OriginDataSet { get; set; }
+
         [JsonPropertyName("Transformation")]
         public JsonTransformation Transformation { get; set; }
 
@@ -45,7 +48,8 @@ namespace MTConnect.Devices.Json
                 NativeName = coordinateSystem.NativeName;
                 ParentIdRef = coordinateSystem.ParentIdRef;
                 Type = coordinateSystem.Type.ToString();
-                if (coordinateSystem.Origin != null) Origin = coordinateSystem.Origin.ToJsonArray();
+                if (coordinateSystem.Origin is IOriginDataSet originDataSet) OriginDataSet = new JsonOriginDataSet(originDataSet);
+                else if (coordinateSystem.Origin is IOrigin origin) Origin = JsonHelper.ToJsonArray(origin);
                 if (coordinateSystem.Transformation != null) Transformation = new JsonTransformation(coordinateSystem.Transformation);
                 Description = coordinateSystem.Description;
             }
@@ -60,7 +64,8 @@ namespace MTConnect.Devices.Json
             coordinateSystem.NativeName = NativeName;
             coordinateSystem.ParentIdRef = ParentIdRef;
             coordinateSystem.Type = Type.ConvertEnum<CoordinateSystemType>();
-            coordinateSystem.Origin = JsonHelper.ToUnitVector3D(Origin);
+            if (OriginDataSet != null) coordinateSystem.Origin = OriginDataSet.ToOriginDataSet();
+            else coordinateSystem.Origin = JsonHelper.ToOrigin(Origin);
             if (Transformation != null) coordinateSystem.Transformation = Transformation.ToTransformation();
             coordinateSystem.Description = Description;
             return coordinateSystem;

@@ -59,24 +59,6 @@ namespace MTConnect.SysML
             {
                 switch (propertyId)
                 {
-                    // CoordinateSystem.Origin
-                    case "_19_0_3_45f01b9_1579107788324_454462_163661": return "UNIT_VECTOR_3D";
-
-                    // SolidModel.Scale
-                    case "_19_0_3_45f01b9_1587596366617_434199_806": return "UNIT_VECTOR_3D";
-
-                    // Motion.Axis
-                    case "_19_0_3_91b028d_1579531167395_857364_8288": return "UNIT_VECTOR_3D";
-
-                    // Motion.Origin
-                    case "_19_0_3_91b028d_1579531211501_359270_8311": return "UNIT_VECTOR_3D";
-
-                    // Translation.Rotation
-                    case "_19_0_3_45f01b9_1583182442343_989150_4833": return "DEGREE_3D";
-
-                    // Translation.Translation
-                    case "_19_0_3_45f01b9_1579106868983_196924_163307": return "UNIT_VECTOR_3D";
-
                     // RawMaterials.RawMateral.CurrentVolume
                     case "_19_0_3_68e0225_1618831247227_54016_392": return "double";
 

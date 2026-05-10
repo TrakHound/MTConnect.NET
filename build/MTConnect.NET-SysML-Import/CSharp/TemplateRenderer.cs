@@ -21,10 +21,10 @@ namespace MTConnect.SysML.CSharp
                     {
                         if (!string.IsNullOrEmpty(classModel.Name))
                         {
-                            if (!dClassModels.ContainsKey(classModel.Name)) dClassModels.Add(classModel.Name, classModel);
+                            // TryAdd preserves first-wins semantics with a single hash lookup.
+                            dClassModels.TryAdd(classModel.Name, classModel);
                         }
                     }
-                    //var dClassModels = classModels.Where(o => o.Name != null).ToDictionary(o => o.Name);
 
 
                     var enumModels = exportModels.Where(o => typeof(MTConnectEnumModel).IsAssignableFrom(o.GetType())).Select(o => (MTConnectEnumModel)o);
@@ -34,10 +34,9 @@ namespace MTConnect.SysML.CSharp
                     {
                         if (!string.IsNullOrEmpty(enumModel.Name))
                         {
-                            if (!dEnumModels.ContainsKey(enumModel.Name)) dEnumModels.Add(enumModel.Name, enumModel);
+                            dEnumModels.TryAdd(enumModel.Name, enumModel);
                         }
                     }
-                    //var dEnumModels = enumModels.Where(o => o.Name != null).ToDictionary(o => o.Name);
 
 
                     var templates = new List<ITemplateModel>();
@@ -98,11 +97,27 @@ namespace MTConnect.SysML.CSharp
                         }
                         else if (typeof(MTConnectMeasurementModel).IsAssignableFrom(type))
                         {
-                            if (exportModel.Id.StartsWith("Assets.CuttingTools.")) template = CuttingToolMeasurementModel.Create((MTConnectMeasurementModel)exportModel);
-                            //else if (exportModel.Id.StartsWith("Assets.Pallet.")) template = MeasurementModel.Create((MTConnectMeasurementModel)exportModel);
+                            if (exportModel.Id?.StartsWith("Assets.CuttingTools.") == true)
+                            {
+                                template = CuttingToolMeasurementModel.Create((MTConnectMeasurementModel)exportModel);
+                            }
+                            else
+                            {
+                                // Non-CuttingTools measurement (e.g. Assets.Pallet.*) — no fallback
+                                // template exists yet, so log and continue rather than silently
+                                // dropping the model.
+                                Console.Error.WriteLine(
+                                    $"warn: MeasurementModel '{exportModel.Id}' has no template — " +
+                                    "only Assets.CuttingTools.* is currently rendered. Skipping.");
+                            }
                         }
-                        else if (exportModel.Id.EndsWith("Result"))
+                        else if (typeof(MTConnectClassModel).IsAssignableFrom(type) && exportModel.Id?.EndsWith("Result") == true)
                         {
+                            // Suffix-based DataSetResult selector. Type guard required because the recursive
+                            // GetExportModels walk surfaces both classes AND properties; a property whose Id
+                            // happens to end in "Result" (e.g. `Devices.Configurations.DataSet.Result` — the
+                            // `result` field on the v2.7 DataSet base class) would otherwise crash with
+                            // InvalidCastException when forced into MTConnectClassModel.
                             template = DataSetResultModel.Create((MTConnectClassModel)exportModel);
                         }
                         else if (typeof(MTConnectClassModel).IsAssignableFrom(type)) template = ClassModel.Create((MTConnectClassModel)exportModel);
@@ -124,9 +139,15 @@ namespace MTConnect.SysML.CSharp
                         {
                             switch (template.Id)
                             {
-                                case "Devices.Device": 
+                                case "Devices.Device":
+                                    // Devices.Device's concrete C# base is wiped here; Component
+                                    // is reintroduced through the hand-authored partial-class
+                                    // file. Additional generalizations are cleared too so that
+                                    // none of them survive into the generated header.
                                     ((ClassModel)template).IsPartial = true;
                                     ((ClassModel)template).ParentName = null;
+                                    ((ClassModel)template).AdditionalParentNames = new System.Collections.Generic.List<string>();
+                                    ((ClassModel)template).AdditionalParentUmlIds = new System.Collections.Generic.List<string>();
                                     break;
 
                                 case "Devices.Component": ((ClassModel)template).IsPartial = true; break;
@@ -147,76 +168,30 @@ namespace MTConnect.SysML.CSharp
 
                                 case "Assets.Asset": ((ClassModel)template).IsPartial = true; break;
                                 case "Assets.PhysicalAsset": ((ClassModel)template).IsPartial = true; break;
-                                case "Assets.ComponentConfigurationParameters.ComponentConfigurationParameters": 
-                                    ((ClassModel)template).IsPartial = true;
-                                    ((ClassModel)template).Id += "Asset";
-                                    ((ClassModel)template).Name += "Asset";
-                                    if (((ClassModel)template).ParentName != null && ((ClassModel)template).ParentName != "Asset") ((ClassModel)template).ParentName += "Asset";
-                                    break;
-                                case "Assets.CuttingTools.CuttingTool": 
-                                    ((ClassModel)template).IsPartial = true;
-                                    ((ClassModel)template).Id += "Asset";
-                                    ((ClassModel)template).Name += "Asset";
-                                    if (((ClassModel)template).ParentName != null && ((ClassModel)template).ParentName != "Asset") ((ClassModel)template).ParentName += "Asset";
-                                    break;
+                                case "Assets.ComponentConfigurationParameters.ComponentConfigurationParameters":
+                                case "Assets.CuttingTools.CuttingTool":
                                 case "Assets.CuttingTools.CuttingToolArchetype":
-                                    ((ClassModel)template).IsPartial = true;
-                                    ((ClassModel)template).Id += "Asset";
-                                    ((ClassModel)template).Name += "Asset";
-                                    if (((ClassModel)template).ParentName != null && ((ClassModel)template).ParentName != "Asset") ((ClassModel)template).ParentName += "Asset";
+                                case "Assets.Files.File":
+                                case "Assets.Files.FileArchetype":
+                                case "Assets.Files.AbstractFile":
+                                case "Assets.QIF.QIFDocumentWrapper":
+                                case "Assets.RawMaterials.RawMaterial":
+                                    ApplyAssetSuffix((ClassModel)template, alsoSuffixParent: true);
+                                    break;
+                                case "Assets.Fixture.Fixture":
+                                case "Assets.Pallet.Pallet":
+                                    ApplyAssetSuffix((ClassModel)template, alsoSuffixParent: false);
                                     break;
                                 case "Assets.CuttingTools.CuttingToolLifeCycle": ((ClassModel)template).IsPartial = true; break;
                                 case "Assets.CuttingTools.CuttingItem": ((ClassModel)template).IsPartial = true; break;
                                 case "Assets.CuttingTools.ToolLife": ((ClassModel)template).IsPartial = true; break;
                                 case "Assets.CuttingTools.Measurement":
-                                    ((ClassModel)template).IsPartial = true; 
-                                    ((ClassModel)template).IsAbstract = false; 
+                                    ((ClassModel)template).IsPartial = true;
+                                    ((ClassModel)template).IsAbstract = false;
                                     break;
                                 case "Assets.CuttingTools.ToolingMeasurement":
                                     ((ClassModel)template).IsPartial = true;
                                     ((ClassModel)template).IsAbstract = false;
-                                    break;
-                                case "Assets.Files.File": 
-                                    ((ClassModel)template).IsPartial = true;
-                                    ((ClassModel)template).Id += "Asset";
-                                    ((ClassModel)template).Name += "Asset";
-                                    if (((ClassModel)template).ParentName != null && ((ClassModel)template).ParentName != "Asset") ((ClassModel)template).ParentName += "Asset";
-                                    break;
-                                case "Assets.Files.FileArchetype":
-                                    ((ClassModel)template).IsPartial = true;
-                                    ((ClassModel)template).Id += "Asset";
-                                    ((ClassModel)template).Name += "Asset";
-                                    if (((ClassModel)template).ParentName != null && ((ClassModel)template).ParentName != "Asset") ((ClassModel)template).ParentName += "Asset";
-                                    break;
-                                case "Assets.Files.AbstractFile":
-                                    ((ClassModel)template).IsPartial = true;
-                                    ((ClassModel)template).Id += "Asset";
-                                    ((ClassModel)template).Name += "Asset";
-                                    if (((ClassModel)template).ParentName != null && ((ClassModel)template).ParentName != "Asset") ((ClassModel)template).ParentName += "Asset";
-                                    break;
-                                case "Assets.Fixture.Fixture":
-                                    ((ClassModel)template).IsPartial = true;
-                                    ((ClassModel)template).Id += "Asset";
-                                    ((ClassModel)template).Name += "Asset";
-                                    //if (((ClassModel)template).ParentName != null && ((ClassModel)template).ParentName != "Asset") ((ClassModel)template).ParentName += "Asset";
-                                    break;
-                                case "Assets.Pallet.Pallet":
-                                    ((ClassModel)template).IsPartial = true;
-                                    ((ClassModel)template).Id += "Asset";
-                                    ((ClassModel)template).Name += "Asset";
-                                    //if (((ClassModel)template).ParentName != null && ((ClassModel)template).ParentName != "Asset") ((ClassModel)template).ParentName += "Asset";
-                                    break;
-                                case "Assets.QIF.QIFDocumentWrapper":
-                                    ((ClassModel)template).IsPartial = true;
-                                    ((ClassModel)template).Id += "Asset";
-                                    ((ClassModel)template).Name += "Asset";
-                                    if (((ClassModel)template).ParentName != null && ((ClassModel)template).ParentName != "Asset") ((ClassModel)template).ParentName += "Asset";
-                                    break;
-                                case "Assets.RawMaterials.RawMaterial":
-                                    ((ClassModel)template).IsPartial = true;
-                                    ((ClassModel)template).Id += "Asset";
-                                    ((ClassModel)template).Name += "Asset";
-                                    if (((ClassModel)template).ParentName != null && ((ClassModel)template).ParentName != "Asset") ((ClassModel)template).ParentName += "Asset";
                                     break;
                             }
 
@@ -236,7 +211,7 @@ namespace MTConnect.SysML.CSharp
                             containerModel.IsPartial = true;
                             containerModel.HasModel = false;
                             containerModel.HasDescriptions = false;
-                            foreach (var property in ((ClassModel)componentModel).Properties?.Where(o => o.Name != "Components" && o.Name != "Compositions"))
+                            foreach (var property in (((ClassModel)componentModel).Properties ?? Enumerable.Empty<PropertyModel>()).Where(o => o.Name != "Components" && o.Name != "Compositions"))
                             {
                                 containerModel.Properties.Add(PropertyModel.Create(property));
                             }
@@ -272,7 +247,7 @@ namespace MTConnect.SysML.CSharp
                             }
 
                             // Remove redundant Properties (inherits from IContainer)
-                            foreach (var property in ((ClassModel)componentModel).Properties?.Where(o => o.Name != "Components" && o.Name != "Compositions"))
+                            foreach (var property in (((ClassModel)componentModel).Properties ?? Enumerable.Empty<PropertyModel>()).Where(o => o.Name != "Components" && o.Name != "Compositions"))
                             {
                                 property.ExportToInterface = false;
                             }
@@ -293,43 +268,60 @@ namespace MTConnect.SysML.CSharp
 
         private static IEnumerable<IMTConnectExportModel> GetExportModels(object model)
         {
+            // Track visited reference-type instances to break cycles. The
+            // SysML model graph is generated and can contain back-references
+            // (e.g. parent ⇄ child) which would otherwise drive an unbounded
+            // recursion → StackOverflowException. HashSet keyed by
+            // reference equality so two distinct strings or value-typed
+            // boxes don't collide on Equals.
+            var visited = new HashSet<object>(ReferenceEqualityComparer.Instance);
             var exportModels = new List<IMTConnectExportModel>();
+            CollectExportModels(model, exportModels, visited);
+            return exportModels;
+        }
 
-            if (model != null)
+        private static void CollectExportModels(object model, List<IMTConnectExportModel> exportModels, HashSet<object> visited)
+        {
+            if (model == null) return;
+
+            var modelType = model.GetType();
+
+            // Skip primitives, strings, and value types early. Strings are
+            // IEnumerable<char> and would otherwise be walked character-by-
+            // character, exploding the recursion; value types neither
+            // participate in cycles nor implement IMTConnectExportModel.
+            if (modelType.IsPrimitive || modelType.IsValueType || modelType == typeof(string)) return;
+
+            if (!visited.Add(model)) return;
+
+            if (typeof(IMTConnectExportModel).IsAssignableFrom(modelType))
             {
-                var modelType = model.GetType();
+                exportModels.Add((IMTConnectExportModel)model);
+            }
 
-                if (typeof(IMTConnectExportModel).IsAssignableFrom(modelType))
+            var properties = modelType.GetProperties();
+            if (properties != null)
+            {
+                foreach (var property in properties)
                 {
-                    exportModels.Add((IMTConnectExportModel)model);
-                }
-
-                var properties = modelType.GetProperties();
-                if (properties != null)
-                {
-                    foreach (var property in properties)
+                    var propertyValue = property.GetValue(model);
+                    if (propertyValue != null)
                     {
-                        var propertyValue = property.GetValue(model);
-                        if (propertyValue != null)
+                        if (typeof(IEnumerable).IsAssignableFrom(property.PropertyType) && property.PropertyType != typeof(string))
                         {
-                            if (typeof(IEnumerable).IsAssignableFrom(property.PropertyType))
+                            IEnumerable childValues = (IEnumerable)propertyValue;
+                            foreach (var childValue in childValues)
                             {
-                                IEnumerable childValues = (IEnumerable)propertyValue;
-                                foreach (var childValue in childValues)
-                                {
-                                    exportModels.AddRange(GetExportModels(childValue));
-                                }
+                                CollectExportModels(childValue, exportModels, visited);
                             }
-                            else
-                            {
-                                exportModels.AddRange(GetExportModels(propertyValue));
-                            }
+                        }
+                        else
+                        {
+                            CollectExportModels(propertyValue, exportModels, visited);
                         }
                     }
                 }
             }
-
-            return exportModels;
         }
 
 
@@ -340,12 +332,13 @@ namespace MTConnect.SysML.CSharp
                 var result = template.RenderModel();
                 if (result != null && template.Id != null)
                 {
-                    var resultPath = template.Id.Replace('.', '\\');
+                    var resultPath = template.Id.Replace('.', Path.DirectorySeparatorChar);
                     resultPath = Path.Combine(outputPath, resultPath);
                     resultPath = $"{resultPath}.g.cs";
 
                     var resultDirectory = Path.GetDirectoryName(resultPath);
-                    if (!Directory.Exists(resultDirectory)) Directory.CreateDirectory(resultDirectory);
+                    if (!string.IsNullOrEmpty(resultDirectory) && !Directory.Exists(resultDirectory))
+                        Directory.CreateDirectory(resultDirectory);
 
                     File.WriteAllText(resultPath, result);
                 }
@@ -359,13 +352,14 @@ namespace MTConnect.SysML.CSharp
                 var result = template.RenderInterface();
                 if (result != null && template.Id != null)
                 {
-                    var resultPath = template.Id.Replace('.', '\\');
+                    var resultPath = template.Id.Replace('.', Path.DirectorySeparatorChar);
                     resultPath = Path.Combine(outputPath, resultPath);
                     var resultDirectory = Path.GetDirectoryName(resultPath);
                     var resultFilename = Path.GetFileName(resultPath);
-                    resultPath = Path.Combine(resultDirectory, $"I{resultFilename}.g.cs");
+                    resultPath = Path.Combine(resultDirectory ?? string.Empty, $"I{resultFilename}.g.cs");
 
-                    if (!Directory.Exists(resultDirectory)) Directory.CreateDirectory(resultDirectory);
+                    if (!string.IsNullOrEmpty(resultDirectory) && !Directory.Exists(resultDirectory))
+                        Directory.CreateDirectory(resultDirectory);
 
                     File.WriteAllText(resultPath, result);
                 }
@@ -379,17 +373,38 @@ namespace MTConnect.SysML.CSharp
                 var result = template.RenderDescriptions();
                 if (result != null && template.Id != null)
                 {
-                    var resultPath = template.Id.Replace('.', '\\');
+                    var resultPath = template.Id.Replace('.', Path.DirectorySeparatorChar);
                     resultPath = Path.Combine(outputPath, resultPath);
                     var resultDirectory = Path.GetDirectoryName(resultPath);
                     var resultFilename = Path.GetFileName(resultPath);
-                    resultPath = Path.Combine(resultDirectory, $"{resultFilename}Descriptions.g.cs");
+                    resultPath = Path.Combine(resultDirectory ?? string.Empty, $"{resultFilename}Descriptions.g.cs");
 
-                    if (!Directory.Exists(resultDirectory)) Directory.CreateDirectory(resultDirectory);
+                    if (!string.IsNullOrEmpty(resultDirectory) && !Directory.Exists(resultDirectory))
+                        Directory.CreateDirectory(resultDirectory);
 
                     File.WriteAllText(resultPath, result);
                 }
             }
+        }
+
+        // Apply the "Asset" suffix to a ClassModel's Id / Name (and optionally
+        // ParentName) for cases where the spec collapses the namespace. Guards
+        // null Id / Name explicitly — the switch arm in Render guarantees
+        // template.Id is the literal spec key, but Name is copied from the
+        // imported model and could be null on a malformed XMI; guarding here
+        // keeps the suffix from masking a missing Name as the literal "Asset".
+        private static void ApplyAssetSuffix(ClassModel template, bool alsoSuffixParent)
+        {
+            if (template == null) return;
+            template.IsPartial = true;
+            if (template.Id == null)
+                throw new InvalidOperationException("ClassModel has null Id; cannot apply Asset suffix. Asset rename relies on the spec-derived id.");
+            template.Id += "Asset";
+            if (template.Name == null)
+                throw new InvalidOperationException($"ClassModel '{template.Id}' has null Name; cannot apply Asset suffix.");
+            template.Name += "Asset";
+            if (alsoSuffixParent && template.ParentName != null && template.ParentName != "Asset")
+                template.ParentName += "Asset";
         }
 
 

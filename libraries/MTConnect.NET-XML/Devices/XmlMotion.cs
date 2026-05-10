@@ -1,6 +1,12 @@
 // Copyright (c) 2023 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
+// XSD reference: https://schemas.mtconnect.org/schemas/MTConnectDevices_2.7.xsd
+//   Element <Motion> of type MotionType. Origin/OriginDataSet form an xs:choice
+//   (only one is permitted), and Axis/AxisDataSet form a separate xs:choice.
+// SysML XMI: https://github.com/mtconnect/mtconnect_sysml_model
+//   UML class Motion (UML ID `EAID_1F084FBF_2AC7_41f6_8485_C356E6D7A9C1`).
+
 using MTConnect.Devices.Configurations;
 using System.Xml;
 using System.Xml.Serialization;
@@ -29,13 +35,19 @@ namespace MTConnect.Devices.Xml
         public XmlDescription Description { get; set; }
 
         [XmlElement("Origin")]
-        public string Origin { get; set; }
+        public XmlOrigin Origin { get; set; }
+
+        [XmlElement("OriginDataSet")]
+        public XmlOriginDataSet OriginDataSet { get; set; }
 
         [XmlElement("Transformation")]
         public XmlTransformation Transformation { get; set; }
 
         [XmlElement("Axis")]
-        public string Axis { get; set; }
+        public XmlAxis Axis { get; set; }
+
+        [XmlElement("AxisDataSet")]
+        public XmlAxisDataSet AxisDataSet { get; set; }
 
 
         public IMotion ToMotion()
@@ -46,11 +58,12 @@ namespace MTConnect.Devices.Xml
             motion.CoordinateSystemIdRef = CoordinateSystemIdRef;
             motion.Type = Type;
             motion.Actuation = Actuation;
-            motion.Axis = UnitVector3D.FromString(Axis);
-            motion.Origin = UnitVector3D.FromString(Origin);
+            if (AxisDataSet != null) motion.Axis = AxisDataSet.ToAxisDataSet();
+            else if (Axis != null) motion.Axis = Axis.ToAxis();
+            if (OriginDataSet != null) motion.Origin = OriginDataSet.ToOriginDataSet();
+            else if (Origin != null) motion.Origin = Origin.ToOrigin();
             if (Transformation != null) motion.Transformation = Transformation.ToTransformation();
             if (Description != null) motion.Description = Description.CDATA;
-            //if (Description != null) motion.Description = Description.ToDescription();
             return motion;
         }
 
@@ -73,23 +86,27 @@ namespace MTConnect.Devices.Xml
                     XmlDescription.WriteXml(writer, motion.Description);
                 }
 
-                // Write Origin
-                if (motion.Origin != null)
+                // Write Origin (or OriginDataSet)
+                if (motion.Origin is IOriginDataSet originDataSet)
                 {
-                    writer.WriteStartElement("Origin");
-                    writer.WriteString(motion.Origin.ToString());
-                    writer.WriteEndElement();
+                    XmlOriginDataSet.WriteXml(writer, originDataSet);
+                }
+                else if (motion.Origin is IOrigin origin)
+                {
+                    XmlOrigin.WriteXml(writer, origin);
                 }
 
                 // Write Transformation
                 XmlTransformation.WriteXml(writer, motion.Transformation);
 
-                // Write Axis
-                if (motion.Axis != null)
+                // Write Axis (or AxisDataSet)
+                if (motion.Axis is IAxisDataSet axisDataSet)
                 {
-                    writer.WriteStartElement("Axis");
-                    writer.WriteString(motion.Axis.ToString());
-                    writer.WriteEndElement();
+                    XmlAxisDataSet.WriteXml(writer, axisDataSet);
+                }
+                else if (motion.Axis is IAxis axis)
+                {
+                    XmlAxis.WriteXml(writer, axis);
                 }
 
                 writer.WriteEndElement();

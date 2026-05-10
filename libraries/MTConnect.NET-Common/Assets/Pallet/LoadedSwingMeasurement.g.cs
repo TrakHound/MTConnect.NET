@@ -6,11 +6,11 @@
 namespace MTConnect.Assets.Pallet
 {
     /// <summary>
-    /// Loaded swing of the PhysicalAsset.
+    /// Loaded swing of the PhysicalAsset
     /// </summary>
     public class LoadedSwingMeasurement : Measurement, ILoadedSwingMeasurement
     {
-        public new const string DescriptionText = "Loaded swing of the PhysicalAsset.";
+        public new const string DescriptionText = "Loaded swing of the PhysicalAsset";
 
 
     }
