@@ -13,6 +13,7 @@ using MTConnect.Observations;
 using MTConnect.Observations.Output;
 using MTConnect.Streams.Output;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -466,7 +467,7 @@ namespace MTConnect.Agents
                 DeviceModelChangeTime = DeviceModelChangeTime.ToString("o"),
                 InstanceId = InstanceId,
                 Sender = Sender,
-                Version = Version.ToString(),
+                Version = FormatHeaderVersion(version),
                 TestIndicator = false,
                 Validation = Configuration.EnableValidation
             };
@@ -490,7 +491,7 @@ namespace MTConnect.Agents
                 DeviceModelChangeTime = DeviceModelChangeTime.ToString("o"),
                 InstanceId = InstanceId,
                 Sender = Sender,
-                Version = Version.ToString(),
+                Version = FormatHeaderVersion(version),
                 FirstSequence = results.FirstSequence,
                 LastSequence = results.LastSequence,
                 NextSequence = results.NextSequence,
@@ -516,7 +517,7 @@ namespace MTConnect.Agents
                 DeviceModelChangeTime = DeviceModelChangeTime.ToString("o"),
                 InstanceId = InstanceId,
                 Sender = Sender,
-                Version = Version.ToString(),
+                Version = FormatHeaderVersion(version),
                 TestIndicator = false,
                 Validation = Configuration.EnableValidation
             };
@@ -527,17 +528,42 @@ namespace MTConnect.Agents
             return header;
         }
 
-        private MTConnectErrorHeader GetErrorHeader()
+        private MTConnectErrorHeader GetErrorHeader(Version mtconnectVersion = null)
         {
+            var version = mtconnectVersion != null ? mtconnectVersion : MTConnectVersion;
+
             return new MTConnectErrorHeader
             {
                 AssetBufferSize = _assetBuffer.BufferSize,
                 CreationTime = DateTime.UtcNow,
                 InstanceId = InstanceId,
                 Sender = Sender,
-                Version = Version.ToString(),
+                Version = FormatHeaderVersion(version),
                 TestIndicator = false
             };
+        }
+
+        // Memoizes the formatted Header.version string per configured
+        // MTConnect release so the formatter does not re-allocate a
+        // Version + ToString() on every Devices/Streams/Assets/Error
+        // response. Keyed on Version equality (not reference identity)
+        // because callers commonly construct fresh Version instances
+        // per request.
+        private static readonly ConcurrentDictionary<Version, string> _formattedVersionCache = new ConcurrentDictionary<Version, string>();
+
+        // Formats the configured MTConnect Standard release for the
+        // `version` attribute on every response document Header.
+        // Per <https://github.com/TrakHound/MTConnect.NET/issues/127>,
+        // this attribute is the MTConnect release the agent serves
+        // (Part 1.0 §3 Header), not the library assembly version.
+        // Pads build + revision with zero so the emitted shape matches
+        // the cppagent reference (e.g. "2.5.0.0") regardless of how
+        // many segments the source `Version` carried.
+        private static string FormatHeaderVersion(Version mtconnectVersion)
+        {
+            return _formattedVersionCache.GetOrAdd(
+                mtconnectVersion,
+                v => new Version(v.Major, v.Minor, 0, 0).ToString());
         }
 
         #endregion
@@ -560,10 +586,7 @@ namespace MTConnect.Agents
                 var doc = new DevicesResponseDocument();
                 doc.Version = version;
 
-                var header = GetDevicesHeader(version);
-                header.Version = Version.ToString();
-
-                doc.Header = header;
+                doc.Header = GetDevicesHeader(version);
                 doc.Devices = ProcessDevices(devices, version);
 
                 DevicesResponseSent?.Invoke(doc);
@@ -593,10 +616,7 @@ namespace MTConnect.Agents
                     var doc = new DevicesResponseDocument();
                     doc.Version = version;
 
-                    var header = GetDevicesHeader(version);
-                    header.Version = Version.ToString();
-
-                    doc.Header = header;
+                    doc.Header = GetDevicesHeader(version);
                     doc.Devices = ProcessDevices(new List<IDevice> { device }, version);
 
                     DevicesResponseSent?.Invoke(doc);
@@ -1318,7 +1338,6 @@ namespace MTConnect.Agents
 
                 // Create AssetsHeader
                 var header = GetAssetsHeader(version);
-                header.Version = Version.ToString();
                 header.InstanceId = InstanceId;
 
                 // Create MTConnectAssets Response Document
@@ -1365,7 +1384,6 @@ namespace MTConnect.Agents
 
                 // Create AssetsHeader
                 var header = GetAssetsHeader(version);
-                header.Version = Version.ToString();
                 header.InstanceId = InstanceId;
 
                 // Create MTConnectAssets Response Document
@@ -1639,10 +1657,7 @@ namespace MTConnect.Agents
             var doc = new ErrorResponseDocument();
             doc.Version = version;
 
-            var header = GetErrorHeader();
-            header.Version = Version.ToString();
-
-            doc.Header = header;
+            doc.Header = GetErrorHeader(version);
             doc.Errors = new List<Error>
             {
                 new Error(errorCode, value)
@@ -1665,10 +1680,7 @@ namespace MTConnect.Agents
             var doc = new ErrorResponseDocument();
             doc.Version = version;
 
-            var header = GetErrorHeader();
-            header.Version = Version.ToString();
-
-            doc.Header = header;
+            doc.Header = GetErrorHeader(version);
             doc.Errors = errors != null ? errors.ToList() : null;
 
             ErrorResponseSent?.Invoke(doc);
