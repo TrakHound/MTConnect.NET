@@ -10,6 +10,14 @@ namespace MTConnect.Devices.Json
         [JsonPropertyName("jsonVersion")]
         public int JsonVersion { get; set; }
 
+        /// <summary>
+        /// Top-level <c>schemaVersion</c> identifies the envelope schema
+        /// this DOCUMENT conforms to — the wire format the producer chose
+        /// to emit. It is distinct from <c>Header.schemaVersion</c>, which
+        /// identifies the AGENT's configured MTConnect Standard release
+        /// (what the data inside refers to). The two fields are populated
+        /// from independent sources and are not interchangeable.
+        /// </summary>
         [JsonPropertyName("schemaVersion")]
         public string SchemaVersion { get; set; }
 
@@ -26,16 +34,16 @@ namespace MTConnect.Devices.Json
         public JsonMTConnectDevices()
         {
             JsonVersion = 2;
-            SchemaVersion = "2.0";
         }
 
         public JsonMTConnectDevices(IDevicesResponseDocument document)
         {
             JsonVersion = 2;
-            SchemaVersion = "2.0";
 
             if (document != null)
             {
+                SchemaVersion = document.Version?.ToString();
+
                 Header = new JsonDevicesHeader(document.Header);
 
                 Devices = new JsonDevices(document);
