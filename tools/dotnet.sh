@@ -94,6 +94,14 @@ if [[ "${USE_DOCKER}" == "1" ]]; then
 		done
 	fi
 
+	# The SDK image runs `dotnet` as root by default. Files written to the
+	# bind-mounted repo (bin/, obj/, TestResults/, coverage report dirs)
+	# end up root-owned on the host, blocking the user's subsequent
+	# native dotnet build, rm -rf, or git clean. Run dotnet under a thin
+	# bash wrapper that chowns those output directories back to the host
+	# user's UID:GID on container exit. Named volumes (.nuget/packages,
+	# .dotnet/tools) stay root-owned inside the container; only the
+	# bind-mounted /src tree gets the post-run chown.
 	exec docker run --rm \
 		-v "${REPO_ROOT}:/src" \
 		-v "${NUGET_VOL}:/root/.nuget/packages" \
@@ -104,7 +112,18 @@ if [[ "${USE_DOCKER}" == "1" ]]; then
 		-e PATH=/root/.dotnet/tools:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
 		-e DOTNET_NOLOGO=1 \
 		-e DOTNET_CLI_TELEMETRY_OPTOUT=1 \
+		-e HOST_UID="$(id -u)" \
+		-e HOST_GID="$(id -g)" \
+		--entrypoint /bin/bash \
 		"${IMAGE}" \
+		-c '
+			dotnet "$@"
+			rc=$?
+			if [ -n "${HOST_UID:-}" ] && [ -n "${HOST_GID:-}" ]; then
+				find /src -type d \( -name bin -o -name obj -o -name TestResults -o -name CoverageReport \) -prune -exec chown -R "${HOST_UID}:${HOST_GID}" {} + 2>/dev/null || true
+			fi
+			exit ${rc}
+		' \
 		dotnet "$@"
 fi
 
