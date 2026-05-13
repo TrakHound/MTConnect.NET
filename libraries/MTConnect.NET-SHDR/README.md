@@ -3,6 +3,8 @@
 # MTConnect.NET-SHDR
 Classes to handle the SHDR Agent Adapter Protocol associated with the MTConnect Standard.
 
+For the SHDR wire-format reference and module pages, see [docs/wire-formats/shdr](../../docs/wire-formats/shdr.md) and [docs/modules](../../docs/modules/).
+
 ## Nuget
 <table>
     <thead>

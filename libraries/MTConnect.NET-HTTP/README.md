@@ -1,7 +1,9 @@
 ![MTConnect.NET Logo](https://raw.githubusercontent.com/TrakHound/MTConnect.NET/master/img/mtconnect-net-03-md.png) 
 
 # MTConnect.NET-HTTP
-Classes to implement HTTP Clients & Servers for MTConnect
+Classes to implement HTTP Clients & Servers for MTConnect.
+
+For the HTTP server / adapter module pages and end-to-end configuration recipes, see [docs/modules](../../docs/modules/) and [docs/configure](../../docs/configure/).
 
 ## Nuget
 <table>
