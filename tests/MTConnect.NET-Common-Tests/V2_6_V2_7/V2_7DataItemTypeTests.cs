@@ -20,7 +20,7 @@ namespace MTConnect.NET_Common_Tests.V2_6_V2_7
     //   - XSD: schemas.mtconnect.org/schemas/MTConnectStreams_2.7.xsd
     //          (each TypeId is encoded in the EventEnum / SampleEnum
     //          enumerations.)
-    //   - Prose: MTConnect Standard Part_2.0_Streams_v2.7 §11/§13 "Event/Sample
+    //   - Prose: MTConnect Standard Part_2.0_Streams_v2.7 section 11/section 13 "Event/Sample
     //          types" — describes intended use of each type.
     [TestFixture]
     public class V2_7DataItemTypeTests

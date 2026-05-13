@@ -15,7 +15,7 @@ namespace MTConnect.NET_Common_Tests.V2_6_V2_7
     //   - XSD: schemas.mtconnect.org/schemas/MTConnectStreams_2.6.xsd
     //          (the EVENT category for both new types is encoded in the
     //          MTConnectStreams XSD's enumerations.)
-    //   - Prose: MTConnect Standard Part_2.0_Streams_v2.6 §11.5 "Asset events"
+    //   - Prose: MTConnect Standard Part_2.0_Streams_v2.6 section 11.5 "Asset events"
     //          (clarifies the v2.5 → v2.6 split — `AssetChanged` narrowed to
     //          changes only; `AssetAdded` introduced for additions.)
     [TestFixture]
@@ -74,7 +74,7 @@ namespace MTConnect.NET_Common_Tests.V2_6_V2_7
 
         // Source: XMI v2.6 description on `AssetChangedDataItem` (was "added or
         // changed" in v2.5; now "changed" only). Prose confirms in
-        // Part_2.0_Streams_v2.6 §11.5.
+        // Part_2.0_Streams_v2.6 section 11.5.
         [Test]
         public void AssetChangedDataItem_description_narrowed_in_v2_6()
         {

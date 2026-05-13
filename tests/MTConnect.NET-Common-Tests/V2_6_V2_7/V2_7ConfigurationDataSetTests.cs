@@ -20,7 +20,7 @@ namespace MTConnect.NET_Common_Tests.V2_6_V2_7
     //   - XSD: https://schemas.mtconnect.org/schemas/MTConnectDevices_2.7.xsd
     //          (the geometric-primitive complexTypes encode the same shape
     //          on the wire under <Configuration>).
-    //   - Prose: MTConnect Standard Part_2.0_Devices_v2.7 §10 "Configuration"
+    //   - Prose: MTConnect Standard Part_2.0_Devices_v2.7 section 10 "Configuration"
     //          — describes how Component-level Configuration carries the
     //          geometric primitives that locate a Component in space.
     [TestFixture]
