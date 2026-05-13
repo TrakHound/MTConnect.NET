@@ -15,6 +15,13 @@ namespace MTConnect.Assets.Json
         [JsonPropertyName("version")]
         public string Version { get; set; }
 
+        /// <summary>
+        /// The major and minor number of the MTConnect Standard schema the Response Document conforms to (for example "2.7").
+        /// Mirrors the cppagent v2 wire shape that emits `schemaVersion` on every Header.
+        /// </summary>
+        [JsonPropertyName("schemaVersion")]
+        public string SchemaVersion { get; set; }
+
         [JsonPropertyName("sender")]
         public string Sender { get; set; }
 
@@ -30,6 +37,13 @@ namespace MTConnect.Assets.Json
         [JsonPropertyName("testIndicator")]
         public bool TestIndicator { get; set; }
 
+        /// <summary>
+        /// Indicates if the MTConnect Agent is validating against the normative model.
+        /// Mirrors the cppagent v2 wire shape that emits `validation` on every Header.
+        /// </summary>
+        [JsonPropertyName("validation")]
+        public bool Validation { get; set; }
+
         [JsonPropertyName("creationTime")]
         public DateTime CreationTime { get; set; }
 
@@ -42,11 +56,13 @@ namespace MTConnect.Assets.Json
             {
                 InstanceId = header.InstanceId;
                 Version = header.Version;
+                SchemaVersion = header.SchemaVersion;
                 Sender = header.Sender;
                 AssetBufferSize = header.AssetBufferSize;
                 AssetCount = header.AssetCount;
                 DeviceModelChangeTime = header.DeviceModelChangeTime;
                 TestIndicator = header.TestIndicator;
+                Validation = header.Validation;
                 CreationTime = header.CreationTime;
             }
         }
@@ -57,11 +73,13 @@ namespace MTConnect.Assets.Json
             var header = new MTConnectAssetsHeader();
             header.InstanceId = InstanceId;
             header.Version = Version;
+            header.SchemaVersion = SchemaVersion;
             header.Sender = Sender;
             header.AssetBufferSize = AssetBufferSize;
             header.AssetCount = AssetCount;
             header.DeviceModelChangeTime = DeviceModelChangeTime;
             header.TestIndicator = TestIndicator;
+            header.Validation = Validation;
             header.CreationTime = CreationTime;
             return header;
         }

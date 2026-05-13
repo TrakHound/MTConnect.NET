@@ -15,6 +15,13 @@ namespace MTConnect.Streams.Json
         [JsonPropertyName("version")]
         public string Version { get; set; }
 
+        /// <summary>
+        /// The major and minor number of the MTConnect Standard schema the Response Document conforms to (for example "2.7").
+        /// Mirrors the cppagent v2 wire shape that emits `schemaVersion` on every Header.
+        /// </summary>
+        [JsonPropertyName("schemaVersion")]
+        public string SchemaVersion { get; set; }
+
         [JsonPropertyName("sender")]
         public string Sender { get; set; }
 
@@ -36,6 +43,13 @@ namespace MTConnect.Streams.Json
         [JsonPropertyName("testIndicator")]
         public bool TestIndicator { get; set; }
 
+        /// <summary>
+        /// Indicates if the MTConnect Agent is validating against the normative model.
+        /// Mirrors the cppagent v2 wire shape that emits `validation` on every Header.
+        /// </summary>
+        [JsonPropertyName("validation")]
+        public bool Validation { get; set; }
+
         [JsonPropertyName("creationTime")]
         public DateTime CreationTime { get; set; }
 
@@ -48,6 +62,7 @@ namespace MTConnect.Streams.Json
             {
                 InstanceId = header.InstanceId;
                 Version = header.Version;
+                SchemaVersion = header.SchemaVersion;
                 Sender = header.Sender;
                 BufferSize = header.BufferSize;
                 FirstSequence = header.FirstSequence;
@@ -55,6 +70,7 @@ namespace MTConnect.Streams.Json
                 NextSequence = header.NextSequence;
                 DeviceModelChangeTime = header.DeviceModelChangeTime;
                 TestIndicator = header.TestIndicator;
+                Validation = header.Validation;
                 CreationTime = header.CreationTime;
             }
         }
@@ -65,6 +81,7 @@ namespace MTConnect.Streams.Json
             var header = new MTConnectStreamsHeader();
             header.InstanceId = InstanceId;
             header.Version = Version;
+            header.SchemaVersion = SchemaVersion;
             header.Sender = Sender;
             header.BufferSize = BufferSize;
             header.FirstSequence = FirstSequence;
@@ -72,6 +89,7 @@ namespace MTConnect.Streams.Json
             header.NextSequence = NextSequence;
             header.DeviceModelChangeTime = DeviceModelChangeTime;
             header.TestIndicator = TestIndicator;
+            header.Validation = Validation;
             header.CreationTime = CreationTime;
             return header;
         }

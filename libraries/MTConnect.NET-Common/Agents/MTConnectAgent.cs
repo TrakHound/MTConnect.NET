@@ -1112,53 +1112,75 @@ namespace MTConnect.Agents
                     obj.Compositions = NormalizeCompositions(device.Compositions, obj, obj);
                     obj.Components = NormalizeComponents(device.Components, obj, obj);
 
+                    // Required DataItem backfill: enumerate `obj.DataItems` once
+                    // into a List<IDataItem> and project the type set into a HashSet
+                    // so each required-type lookup is O(1) instead of O(n) and we
+                    // avoid the per-required-type ToList() allocation. Preserves the
+                    // existing behavior pinned by NormalizeDeviceRequiredDataItemsTests.
+                    var dataItemList = obj.DataItems != null
+                        ? new List<IDataItem>(obj.DataItems)
+                        : new List<IDataItem>();
+#if NET472_OR_GREATER || NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+                    var dataItemTypes = new HashSet<string>(dataItemList.Count);
+#else
+                    var dataItemTypes = new HashSet<string>();
+#endif
+                    for (var i = 0; i < dataItemList.Count; i++)
+                    {
+                        var t = dataItemList[i]?.Type;
+                        if (t != null) dataItemTypes.Add(t);
+                    }
+
                     // Add Required Availability DataItem
-                    if (obj.DataItems.IsNullOrEmpty() || !obj.DataItems.Any(o => o.Type == AvailabilityDataItem.TypeId))
+                    if (!dataItemTypes.Contains(AvailabilityDataItem.TypeId))
                     {
                         var availability = new AvailabilityDataItem(obj.Id);
                         availability.Device = obj;
                         availability.Container = obj;
                         availability.Name = AvailabilityDataItem.NameId;
-                        var x = obj.DataItems.ToList();
-                        x.Add(availability);
-                        obj.DataItems = x;
+                        dataItemList.Add(availability);
+                        dataItemTypes.Add(AvailabilityDataItem.TypeId);
                     }
 
                     // Add Required AssetChanged DataItem
-                    if (obj.DataItems.IsNullOrEmpty() || !obj.DataItems.Any(o => o.Type == AssetChangedDataItem.TypeId))
+                    if (!dataItemTypes.Contains(AssetChangedDataItem.TypeId))
                     {
                         var assetChanged = new AssetChangedDataItem(obj.Id);
                         assetChanged.Device = obj;
                         assetChanged.Container = obj;
                         assetChanged.Name = AssetChangedDataItem.NameId;
-                        var x = obj.DataItems.ToList();
-                        x.Add(assetChanged);
-                        obj.DataItems = x;
+                        dataItemList.Add(assetChanged);
+                        dataItemTypes.Add(AssetChangedDataItem.TypeId);
                     }
 
                     // Add Required AssetRemoved DataItem
-                    if (obj.DataItems.IsNullOrEmpty() || !obj.DataItems.Any(o => o.Type == AssetRemovedDataItem.TypeId))
+                    if (!dataItemTypes.Contains(AssetRemovedDataItem.TypeId))
                     {
                         var assetRemoved = new AssetRemovedDataItem(obj.Id);
                         assetRemoved.Device = obj;
                         assetRemoved.Container = obj;
                         assetRemoved.Name = AssetRemovedDataItem.NameId;
-                        var x = obj.DataItems.ToList();
-                        x.Add(assetRemoved);
-                        obj.DataItems = x;
+                        dataItemList.Add(assetRemoved);
+                        dataItemTypes.Add(AssetRemovedDataItem.TypeId);
                     }
 
                     // Add Required AssetCount DataItem
-                    if (obj.DataItems.IsNullOrEmpty() || !obj.DataItems.Any(o => o.Type == AssetCountDataItem.TypeId))
+                    if (!dataItemTypes.Contains(AssetCountDataItem.TypeId))
                     {
                         var assetcount = new AssetCountDataItem(obj.Id);
                         assetcount.Device = obj;
                         assetcount.Container = obj;
                         assetcount.Name = AssetCountDataItem.NameId;
-                        var x = obj.DataItems.ToList();
-                        x.Add(assetcount);
-                        obj.DataItems = x;
+                        // ASSET_COUNT is a DATA_SET representation per MTConnect Part 2
+                        // (UML _19_0_3_68e0225_1640602520420_217627_44). The generated
+                        // AssetCountDataItem still defaults Representation to VALUE; override
+                        // it here so the auto-injected DataItem matches the spec.
+                        assetcount.Representation = DataItemRepresentation.DATA_SET;
+                        dataItemList.Add(assetcount);
+                        dataItemTypes.Add(AssetCountDataItem.TypeId);
                     }
+
+                    obj.DataItems = dataItemList;
 
 
                     // Generic Components
