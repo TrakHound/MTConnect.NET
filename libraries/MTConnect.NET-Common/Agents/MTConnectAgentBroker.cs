@@ -555,7 +555,7 @@ namespace MTConnect.Agents
         // `version` attribute on every response document Header.
         // Per <https://github.com/TrakHound/MTConnect.NET/issues/127>,
         // this attribute is the MTConnect release the agent serves
-        // (Part 1.0 §3 Header), not the library assembly version.
+        // (Part 1.0 section 3 Header), not the library assembly version.
         // Pads build + revision with zero so the emitted shape matches
         // the cppagent reference (e.g. "2.5.0.0") regardless of how
         // many segments the source `Version` carried.
