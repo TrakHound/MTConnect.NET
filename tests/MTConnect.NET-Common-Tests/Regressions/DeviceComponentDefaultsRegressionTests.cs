@@ -115,11 +115,6 @@ namespace MTConnect.Tests.Common.Regressions
                     continue;
                 }
 
-                if (NameBackfillRemovalOutOfScope.ComponentTypeNames.Contains(subclass.FullName!))
-                {
-                    continue;
-                }
-
                 var instance = (Component)Activator.CreateInstance(subclass)!;
                 if (instance.Name is not null)
                 {
