@@ -30,18 +30,13 @@ namespace MTConnect.Tests.Common.Devices.Components
         /// constructor and lives in
         /// <c>MTConnect.Devices.Components</c> (i.e. every generated
         /// component subclass) and asserts the default constructor
-        /// leaves <c>Name</c> <c>null</c>. The out-of-scope set is
-        /// imported from <see cref="NameBackfillRemovalOutOfScope"/>
-        /// to keep this fixture and the regression fixture in lockstep.
+        /// leaves <c>Name</c> <c>null</c>.
         /// </summary>
         [Test]
         public void Every_concrete_Component_subclass_default_ctor_leaves_Name_null()
         {
             foreach (var subclass in EnumerateConcreteComponentSubclasses())
             {
-                if (NameBackfillRemovalOutOfScope.ComponentTypeNames.Contains(subclass.FullName!))
-                    continue;
-
                 var instance = (Component)Activator.CreateInstance(subclass)!;
                 Assert.That(instance.Name, Is.Null,
                     $"{subclass.FullName} default ctor back-filled Name.");
