@@ -19,8 +19,8 @@ namespace MTConnect.Devices.Components
         public override System.Version MinimumVersion => MTConnectVersions.Version14; 
 
 
-        public TensionerComponent() 
-        { 
+        public TensionerComponent()
+        {
             Type = TypeId;
         }
     }

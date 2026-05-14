@@ -19,8 +19,8 @@ namespace MTConnect.Devices.Components
         public override System.Version MinimumVersion => MTConnectVersions.Version11; 
 
 
-        public PathComponent() 
-        { 
+        public PathComponent()
+        {
             Type = TypeId;
         }
     }

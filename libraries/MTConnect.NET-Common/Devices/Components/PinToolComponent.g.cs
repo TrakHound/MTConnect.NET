@@ -19,10 +19,9 @@ namespace MTConnect.Devices.Components
          
 
 
-        public PinToolComponent() 
-        { 
+        public PinToolComponent()
+        {
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

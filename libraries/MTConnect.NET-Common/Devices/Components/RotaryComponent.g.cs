@@ -19,8 +19,8 @@ namespace MTConnect.Devices.Components
         public override System.Version MinimumVersion => MTConnectVersions.Version10; 
 
 
-        public RotaryComponent() 
-        { 
+        public RotaryComponent()
+        {
             Type = TypeId;
         }
     }
