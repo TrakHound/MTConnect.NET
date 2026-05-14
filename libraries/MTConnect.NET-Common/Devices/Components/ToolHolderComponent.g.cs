@@ -19,10 +19,9 @@ namespace MTConnect.Devices.Components
          
 
 
-        public ToolHolderComponent() 
-        { 
+        public ToolHolderComponent()
+        {
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

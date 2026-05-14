@@ -19,10 +19,9 @@ namespace MTConnect.Devices.Components
          
 
 
-        public ElectrodeComponent() 
-        { 
+        public ElectrodeComponent()
+        {
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

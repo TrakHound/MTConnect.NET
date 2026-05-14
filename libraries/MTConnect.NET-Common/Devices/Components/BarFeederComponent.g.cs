@@ -19,8 +19,8 @@ namespace MTConnect.Devices.Components
         public override System.Version MinimumVersion => MTConnectVersions.Version14; 
 
 
-        public BarFeederComponent() 
-        { 
+        public BarFeederComponent()
+        {
             Type = TypeId;
         }
     }

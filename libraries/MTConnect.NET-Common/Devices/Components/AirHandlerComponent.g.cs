@@ -19,8 +19,8 @@ namespace MTConnect.Devices.Components
         public override System.Version MinimumVersion => MTConnectVersions.Version23; 
 
 
-        public AirHandlerComponent() 
-        { 
+        public AirHandlerComponent()
+        {
             Type = TypeId;
         }
     }

@@ -19,8 +19,8 @@ namespace MTConnect.Devices.Components
         public override System.Version MinimumVersion => MTConnectVersions.Version15; 
 
 
-        public TableComponent() 
-        { 
+        public TableComponent()
+        {
             Type = TypeId;
         }
     }

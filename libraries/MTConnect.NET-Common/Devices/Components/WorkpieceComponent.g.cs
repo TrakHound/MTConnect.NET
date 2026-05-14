@@ -19,8 +19,8 @@ namespace MTConnect.Devices.Components
         public override System.Version MinimumVersion => MTConnectVersions.Version16; 
 
 
-        public WorkpieceComponent() 
-        { 
+        public WorkpieceComponent()
+        {
             Type = TypeId;
         }
     }

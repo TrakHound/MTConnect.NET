@@ -19,8 +19,8 @@ namespace MTConnect.Devices.Components
         public override System.Version MinimumVersion => MTConnectVersions.Version13; 
 
 
-        public ChuckComponent() 
-        { 
+        public ChuckComponent()
+        {
             Type = TypeId;
         }
     }

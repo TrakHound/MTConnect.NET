@@ -19,8 +19,8 @@ namespace MTConnect.Devices.Components
         public override System.Version MinimumVersion => MTConnectVersions.Version18; 
 
 
-        public LockComponent() 
-        { 
+        public LockComponent()
+        {
             Type = TypeId;
         }
     }
