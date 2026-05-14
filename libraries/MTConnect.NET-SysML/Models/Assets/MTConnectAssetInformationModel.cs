@@ -196,24 +196,42 @@ namespace MTConnect.SysML.Models.Assets
                 //    Pallets.Classes.AddRange(assetClasses);
                 //}
 
-                // Add Measurement Classes
+                // Add Measurement Classes via the rich measurement pipeline
+                // (mirrors the CuttingTool path at line 119) so each Pallet
+                // measurement subclass renders with TypeId / CodeId /
+                // three-ctor scaffolding rather than the bare ClassModel
+                // shape. Filter out the abstract `Measurement` class itself
+                // (MTConnectMeasurementModel auto-suffixes "Measurement",
+                // which would otherwise produce `MeasurementMeasurement`).
                 var packages = new List<UmlPackage>();
                 packages.Add(targetPackage.Packages.FirstOrDefault(o => o.Name == "Measurements"));
 
-                var umlClasses = ModelHelper.GetClasses(packages);
-                var measurementClasses = MTConnectClassModel.Parse(xmiDocument, "Assets.Pallet", umlClasses);
+                var allMeasurementClasses = ModelHelper.GetClasses(packages);
+                var concreteMeasurementClasses = allMeasurementClasses
+                    ?.Where(c => c.Name != "Measurement");
+                var measurementClasses = MTConnectMeasurementModel.Parse(
+                    xmiDocument, "PhysicalAsset", "Assets.Pallet", concreteMeasurementClasses);
                 if (measurementClasses != null)
                 {
-                    foreach (var measurementClass in measurementClasses)
-                    {
-                        if (measurementClass.Id != "Assets.Pallet.Measurement")
-                        {
-                            measurementClass.Id = $"{measurementClass.Id}Measurement";
-                            measurementClass.Name = $"{measurementClass.Name}Measurement";
-                        }
-                    }
-
                     Pallets.Classes.AddRange(measurementClasses);
+                }
+
+                // Also parse the abstract `Measurement` base class itself via
+                // the regular class pipeline so it can be regenerated as a
+                // partial class (see TemplateRenderer override). The concrete
+                // subclasses' `Measurement(IMeasurement)` ctor needs the base
+                // partial to provide the copy-from-IMeasurement ctor + the
+                // `Type` property the rich template emits.
+                var abstractMeasurement = allMeasurementClasses
+                    ?.Where(c => c.Name == "Measurement");
+                if (abstractMeasurement != null)
+                {
+                    var baseMeasurementClasses = MTConnectClassModel.Parse(
+                        xmiDocument, "Assets.Pallet", abstractMeasurement);
+                    if (baseMeasurementClasses != null)
+                    {
+                        Pallets.Classes.AddRange(baseMeasurementClasses);
+                    }
                 }
 
 

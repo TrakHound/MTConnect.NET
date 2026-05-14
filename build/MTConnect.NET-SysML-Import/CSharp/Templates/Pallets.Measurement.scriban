@@ -1,12 +1,12 @@
 // Copyright (c) 2025 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
 
-namespace MTConnect.Assets.Pallet.Measurements
+namespace {{namespace}}
 {
     /// <summary>
     /// {{description}}
     /// </summary>
-    public class {{name}} : Measurement
+    public class {{name}} : Measurement, I{{name}}
     {
         public const string TypeId = "{{type_id}}";
         public const string CodeId = "{{code_id}}";
@@ -15,14 +15,12 @@ namespace MTConnect.Assets.Pallet.Measurements
         public {{name}}()
         {
             Type = TypeId;
-            Code = CodeId;
             {{ if (units_enum) }}Units = {{units_enum}};{{ end }}
         }
 
         public {{name}}(double value)
         {
             Type = TypeId;
-            Code = CodeId;
             Value = value;
             {{ if (units_enum) }}Units = {{units_enum}};{{ end }}
         }
@@ -30,7 +28,6 @@ namespace MTConnect.Assets.Pallet.Measurements
         public {{name}}(IMeasurement measurement) : base(measurement)
         {
             Type = TypeId;
-            Code = CodeId;
             {{ if (units_enum) }}Units = {{units_enum}};{{ end }}
         }
     }

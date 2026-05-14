@@ -13,20 +13,81 @@ namespace MTConnect.Interfaces
         public const DataItemCategory CategoryId = DataItemCategory.{{category}};
         public const string TypeId = "{{type}}";
         public const string NameId = "{{default_name}}";
-        {{ if (units_enum) }}public const string DefaultUnits = {{units_enum}};{{ end }}     
+        {{ if (units_enum) }}public const string DefaultUnits = {{units_enum}};{{ end }}
         public new const string DescriptionText = "{{description}}";
-        
+
         public override string TypeDescription => DescriptionText;
         {{ if (maximum_version_enum) }}public override System.Version MaximumVersion => {{maximum_version_enum}};{{ end }}
-        {{ if (minimum_version_enum) }}public override System.Version MinimumVersion => {{minimum_version_enum}};{{ end }}       
+        {{ if (minimum_version_enum) }}public override System.Version MinimumVersion => {{minimum_version_enum}};{{ end }}
 
+{{ if ((sub_types | array.size) > 0) }}{{ i = 0 }}
+        public new enum SubTypes
+        {
+{{- for sub_type in sub_types }}{{ i = i + 1 }}
+            /// <summary>
+            /// {{sub_type.description}}
+            /// </summary>
+            {{sub_type.name}}
+            {{- if (i < (sub_types | array.size)) }},
+            {{ end }}
+{{- end }}
+        }
 
+{{ end }}
         public {{name}}()
         {
             Category = CategoryId;
             Type = TypeId;
             {{ if (units_enum) }}Units = DefaultUnits;{{ end }}
         }
+
+{{- if ((sub_types | array.size) > 0) }}
+
+        public {{name}}(
+            string parentId,
+            SubTypes subType
+            )
+        {
+            Id = CreateId(parentId, NameId, GetSubTypeId(subType));
+            Category = CategoryId;
+            Type = TypeId;
+            SubType = subType.ToString();
+            Name = NameId;
+            {{ if (units_enum) }}Units = DefaultUnits;{{ end }}
+        }
+
+        public override string SubTypeDescription => GetSubTypeDescription(SubType);
+
+{{- if ((sub_types | array.size) > 0) }}{{ i = 0 }}
+
+        public new static string GetSubTypeDescription(string subType)
+        {
+            var s = subType.ConvertEnum<SubTypes>();
+            switch (s)
+            {
+{{- for sub_type in sub_types }}{{ i = i + 1 }}
+                case SubTypes.{{sub_type.name}}: return "{{sub_type.description}}";
+{{- end }}
+            }
+
+            return null;
+        }
+{{- end }}
+{{- if ((sub_types | array.size) > 0) }}{{ i = 0 }}
+
+        public new static string GetSubTypeId(SubTypes subType)
+        {
+            switch (subType)
+            {
+{{- for sub_type in sub_types }}{{ i = i + 1 }}
+                case SubTypes.{{sub_type.name}}: return "{{sub_type.name}}";
+{{- end }}
+            }
+
+            return null;
+        }
+{{- end }}
+{{ else }}
 
         public {{name}}(string deviceId)
         {
@@ -35,5 +96,6 @@ namespace MTConnect.Interfaces
             Type = TypeId;
             Name = NameId;
         }
+{{- end }}
     }
 }

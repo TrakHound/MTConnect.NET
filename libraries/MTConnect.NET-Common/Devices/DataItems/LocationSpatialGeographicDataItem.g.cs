@@ -13,7 +13,7 @@ namespace MTConnect.Devices.DataItems
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "LOCATION_SPATIAL_GEOGRAPHIC";
         public const string NameId = "locationSpatialGeographic";
-        public const DataItemRepresentation DefaultRepresentation = DataItemRepresentation.TABLE;     
+        public const DataItemRepresentation DefaultRepresentation = DataItemRepresentation.DATA_SET;     
              
         public new const string DescriptionText = "Absolute geographic location defined by two coordinates, longitude and latitude and an elevation.";
         

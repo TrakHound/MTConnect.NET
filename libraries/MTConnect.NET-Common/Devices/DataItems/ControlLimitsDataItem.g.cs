@@ -13,7 +13,7 @@ namespace MTConnect.Devices.DataItems
         public const DataItemCategory CategoryId = DataItemCategory.EVENT;
         public const string TypeId = "CONTROL_LIMITS";
         public const string NameId = "controlLimits";
-        public const DataItemRepresentation DefaultRepresentation = DataItemRepresentation.TABLE;     
+        public const DataItemRepresentation DefaultRepresentation = DataItemRepresentation.DATA_SET;     
              
         public new const string DescriptionText = "Set of limits used to indicate whether a process variable is stable and in control.";
         

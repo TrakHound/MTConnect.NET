@@ -1,7 +1,5 @@
-// Copyright (c) 2024 TrakHound Inc., All Rights Reserved.
+// Copyright (c) 2025 TrakHound Inc., All Rights Reserved.
 // TrakHound Inc. licenses this file to you under the MIT license.
-
-// MTConnect SysML v2.3 : UML ID = _2024x_68e0225_1727795961263_1895_24685
 
 namespace MTConnect.Assets.Pallet
 {
@@ -11,7 +9,27 @@ namespace MTConnect.Assets.Pallet
     public class SwingMeasurement : Measurement, ISwingMeasurement
     {
         public new const string DescriptionText = "Swing of the PhysicalAsset";
+        public const string TypeId = "Swing";
+        public const string CodeId = "";
 
 
+        public SwingMeasurement()
+        {
+            Type = TypeId;
+            
+        }
+
+        public SwingMeasurement(double value)
+        {
+            Type = TypeId;
+            Value = value;
+            
+        }
+
+        public SwingMeasurement(IMeasurement measurement) : base(measurement)
+        {
+            Type = TypeId;
+            
+        }
     }
 }

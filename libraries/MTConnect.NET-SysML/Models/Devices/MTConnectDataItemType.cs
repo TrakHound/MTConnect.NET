@@ -62,7 +62,7 @@ namespace MTConnect.SysML.Models.Devices
                 Type = umlEnumerationLiteral.Name;
                 //Type = umlClass.Name.ToUnderscoreUpper();
 
-                var description = umlEnumerationLiteral.Comments?.FirstOrDefault().Body;
+                var description = umlEnumerationLiteral.Comments?.FirstOrDefault()?.Body;
                 Description = ModelHelper.ProcessDescription(description);
 
                 MaximumVersion = MTConnectVersion.LookupDeprecated(xmiDocument, umlClass.Id);
@@ -77,6 +77,22 @@ namespace MTConnect.SysML.Models.Devices
                     ParentName = ModelHelper.GetClassName(xmiDocument, dataItemParent.General);
                     //if (ParentName != null && ParentName != "DataItem") ParentName += "DataItem";
                 }
+
+                // The MTConnect SysML model declares a DataItem's
+                // representation in two complementary places:
+                //   * the typing of its `result` property (a DataType
+                //     for VALUE; a Class with key/value sub-properties
+                //     for the structured forms), and
+                //   * the prose marker that the matching EventEnum
+                //     literal carries on its description, of the
+                //     form `{{term(data set)}}` / `{{term(table)}}`
+                //     / `{{term(time series)}}` at the start of the
+                //     comment body.
+                // Read the prose marker first so DataItems whose
+                // structured representation is encoded only in the
+                // enum-literal description (ASSET_COUNT being the
+                // canonical example) inherit the correct default.
+                var representationFromEnum = GetRepresentationFromEnumLiteral(umlEnumerationLiteral);
 
                 if (umlClass.Properties != null)
                 {
@@ -95,7 +111,17 @@ namespace MTConnect.SysML.Models.Devices
                         // Result
                         if (property.Name == "result")
                         {
-                            // Get Class (TABLE OR DATA_SET)
+                            // Get Class (structured result). The MTConnect
+                            // SysML model encodes the canonical structured
+                            // representation in the parent chain of the
+                            // result class — `DataSet` for one-dimensional
+                            // key/value rows, `Table` for two-dimensional
+                            // key/value matrices, `TimeSeries` for sample
+                            // sequences. Walk the chain to pick the right
+                            // representation; fall back to TABLE so result
+                            // classes whose generalization terminates in a
+                            // template-binding (e.g. WORK_OFFSETS,
+                            // TOOL_OFFSETS) keep their existing default.
                             Result = ModelHelper.GetClassName(xmiDocument, property.PropertyType);
 
                             if (Result == null)
@@ -106,7 +132,7 @@ namespace MTConnect.SysML.Models.Devices
                             }
                             else
                             {
-                                Representation = "TABLE"; // Should probably take into account DATA_SET as well?
+                                Representation = ResolveStructuredRepresentation(xmiDocument, property.PropertyType);
                             }
                         }
 
@@ -124,6 +150,15 @@ namespace MTConnect.SysML.Models.Devices
                             }
                         }
                     }
+                }
+
+                // Enum-literal prose wins over the result-class fallback:
+                // the SysML XMI uses it as the authoritative marker for the
+                // canonical representation of types whose result property
+                // points at a primitive DataType.
+                if (representationFromEnum != null)
+                {
+                    Representation = representationFromEnum;
                 }
 
                 if (subClasses != null)
@@ -179,6 +214,62 @@ namespace MTConnect.SysML.Models.Devices
                     default: return name.ToTitleCase();
                 }
             }
+
+            return null;
+        }
+
+        // Walk the generalization chain of a result class to pick the
+        // structured representation it encodes. The MTConnect SysML
+        // model defines three abstract result-shape parents:
+        // `DataSet`, `Table`, and `TimeSeries`; concrete result classes
+        // (e.g. AlarmLimitResult, FeatureMeasurementResult) generalize
+        // from one of them. A class with no chain match falls back to
+        // TABLE so result classes whose generalization terminates in a
+        // template-binding (e.g. WORK_OFFSETS, TOOL_OFFSETS) keep their
+        // existing default.
+        //
+        // The walk is bounded by a visited-set rather than a depth cap
+        // because a malformed XMI cycle would otherwise loop forever;
+        // the visited-set both detects cycles and short-circuits a
+        // diamond-inheritance graph that visits the same parent twice.
+        private static string ResolveStructuredRepresentation(XmiDocument xmiDocument, string resultClassId)
+        {
+            var visited = new HashSet<string>();
+            var current = ModelHelper.GetClass(xmiDocument, resultClassId);
+            while (current != null && visited.Add(current.Id))
+            {
+                switch (current.Name)
+                {
+                    case "DataSet": return "DATA_SET";
+                    case "Table": return "TABLE";
+                    case "TimeSeries": return "TIME_SERIES";
+                }
+
+                var parentId = current.Generalizations?.FirstOrDefault()?.General;
+                if (string.IsNullOrEmpty(parentId)) break;
+                current = ModelHelper.GetClass(xmiDocument, parentId);
+            }
+
+            return "TABLE";
+        }
+
+        // The MTConnect SysML model embeds the canonical representation
+        // of an EventEnum literal in its description. The marker is one
+        // of `{{term(data set)}}`, `{{term(table)}}`, or
+        // `{{term(time series)}}` and appears at the start of the
+        // comment body. When present, it overrides the result-property
+        // typing fallback so DataItems whose `result` references a
+        // primitive DataType (e.g. ASSET_COUNT pointing at `integer`)
+        // still inherit the structured representation the spec mandates.
+        private static string GetRepresentationFromEnumLiteral(UmlEnumerationLiteral umlEnumerationLiteral)
+        {
+            var body = umlEnumerationLiteral?.Comments?.FirstOrDefault()?.Body;
+            if (string.IsNullOrEmpty(body)) return null;
+
+            var trimmed = body.TrimStart();
+            if (trimmed.StartsWith("{{term(data set)}}")) return "DATA_SET";
+            if (trimmed.StartsWith("{{term(table)}}")) return "TABLE";
+            if (trimmed.StartsWith("{{term(time series)}}")) return "TIME_SERIES";
 
             return null;
         }
