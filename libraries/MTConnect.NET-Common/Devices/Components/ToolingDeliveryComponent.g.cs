@@ -19,10 +19,9 @@ namespace MTConnect.Devices.Components
         public override System.Version MinimumVersion => MTConnectVersions.Version14; 
 
 
-        public ToolingDeliveryComponent() 
-        { 
+        public ToolingDeliveryComponent()
+        {
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

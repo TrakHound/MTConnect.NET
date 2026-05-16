@@ -19,10 +19,9 @@ namespace MTConnect.Devices.Components
          
 
 
-        public CuttingTorchComponent() 
-        { 
+        public CuttingTorchComponent()
+        {
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

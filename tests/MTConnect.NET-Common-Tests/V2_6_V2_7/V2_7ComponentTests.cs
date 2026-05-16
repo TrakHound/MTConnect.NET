@@ -21,8 +21,9 @@ namespace MTConnect.NET_Common_Tests.V2_6_V2_7
         {
             var c = new PinToolComponent();
             Assert.That(c.Type, Is.EqualTo("PinTool"));
-            Assert.That(c.Name, Is.EqualTo("pinTool"));
+            Assert.That(c.Name, Is.Null);
             Assert.That(PinToolComponent.TypeId, Is.EqualTo("PinTool"));
+            Assert.That(PinToolComponent.NameId, Is.EqualTo("pinTool"));
         }
 
         [Test]
@@ -30,8 +31,9 @@ namespace MTConnect.NET_Common_Tests.V2_6_V2_7
         {
             var c = new ToolHolderComponent();
             Assert.That(c.Type, Is.EqualTo("ToolHolder"));
-            Assert.That(c.Name, Is.EqualTo("toolHolder"));
+            Assert.That(c.Name, Is.Null);
             Assert.That(ToolHolderComponent.TypeId, Is.EqualTo("ToolHolder"));
+            Assert.That(ToolHolderComponent.NameId, Is.EqualTo("toolHolder"));
         }
     }
 }

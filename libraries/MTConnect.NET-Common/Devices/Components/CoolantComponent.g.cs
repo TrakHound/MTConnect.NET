@@ -19,10 +19,9 @@ namespace MTConnect.Devices.Components
         public override System.Version MinimumVersion => MTConnectVersions.Version12; 
 
 
-        public CoolantComponent() 
-        { 
+        public CoolantComponent()
+        {
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

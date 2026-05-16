@@ -19,10 +19,9 @@ namespace MTConnect.Devices.Components
         public override System.Version MinimumVersion => MTConnectVersions.Version10; 
 
 
-        public PowerComponent() 
-        { 
+        public PowerComponent()
+        {
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

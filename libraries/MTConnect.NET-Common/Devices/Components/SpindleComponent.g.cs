@@ -19,10 +19,9 @@ namespace MTConnect.Devices.Components
         public override System.Version MinimumVersion => MTConnectVersions.Version10; 
 
 
-        public SpindleComponent() 
-        { 
+        public SpindleComponent()
+        {
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

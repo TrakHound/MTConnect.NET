@@ -19,10 +19,9 @@ namespace MTConnect.Devices.Components
         public override System.Version MinimumVersion => MTConnectVersions.Version14; 
 
 
-        public CompressorComponent() 
-        { 
+        public CompressorComponent()
+        {
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

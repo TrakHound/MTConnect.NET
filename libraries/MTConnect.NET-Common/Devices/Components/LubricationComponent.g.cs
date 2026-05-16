@@ -19,10 +19,9 @@ namespace MTConnect.Devices.Components
         public override System.Version MinimumVersion => MTConnectVersions.Version11; 
 
 
-        public LubricationComponent() 
-        { 
+        public LubricationComponent()
+        {
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

@@ -19,10 +19,9 @@ namespace MTConnect.Devices.Components
         public override System.Version MinimumVersion => MTConnectVersions.Version14; 
 
 
-        public DrainComponent() 
-        { 
+        public DrainComponent()
+        {
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

@@ -69,6 +69,7 @@ protected override IDevice OnAddDevice()
     var device = new Device();
     device.Uuid = "7E647B2D-C6A3-40BF-9CE9-FB09834850C9";
     device.Id = "dev-001";
+    device.Name = "dev-001";
     device.Description = new Description()
     {
         Manufacturer = "ACME",
@@ -88,13 +89,13 @@ protected override IDevice OnAddDevice()
 private void AddController(Device device)
 {
     // Create a Controller Component
-    var controller = new ControllerComponent();
+    var controller = new ControllerComponent { Name = ControllerComponent.NameId };
 
     // Add an EmergencyStop DataItem to the controller component
     controller.AddDataItem<EmergencyStopDataItem>();
 
     // Create a Path Component
-    var path = new PathComponent();
+    var path = new PathComponent { Name = PathComponent.NameId };
 
     // Add Path DataItems
     path.AddDataItem<ControllerModeDataItem>();
@@ -112,8 +113,8 @@ private void AddController(Device device)
 
 private void AddAxes(Device device)
 {
-    // Create a Axes Component
-    var axes = new AxesComponent();
+    // Create an Axes Component
+    var axes = new AxesComponent { Name = AxesComponent.NameId };
 
     AddLinearAxis(axes, "X");
     AddLinearAxis(axes, "Y");
@@ -126,8 +127,7 @@ private void AddAxes(Device device)
 private void AddLinearAxis(AxesComponent axesComponent, string name)
 {
     // Create a Linear Component
-    var axis = new LinearComponent();
-    axis.Name = name;
+    var axis = new LinearComponent { Name = name };
 
     axis.AddDataItem<PositionDataItem>(PositionDataItem.SubTypes.PROGRAMMED);
     axis.AddDataItem<PositionDataItem>(PositionDataItem.SubTypes.ACTUAL);

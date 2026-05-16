@@ -19,10 +19,9 @@ namespace MTConnect.Devices.Components
         public override System.Version MinimumVersion => MTConnectVersions.Version11; 
 
 
-        public PressureComponent() 
-        { 
+        public PressureComponent()
+        {
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

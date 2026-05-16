@@ -19,10 +19,9 @@ namespace MTConnect.Devices.Components
         public override System.Version MinimumVersion => MTConnectVersions.Version15; 
 
 
-        public EndEffectorComponent() 
-        { 
+        public EndEffectorComponent()
+        {
             Type = TypeId;
-            Name = NameId;
         }
     }
 }

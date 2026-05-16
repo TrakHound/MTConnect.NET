@@ -19,10 +19,9 @@ namespace MTConnect.Devices.Components
         public override System.Version MinimumVersion => MTConnectVersions.Version11; 
 
 
-        public ActuatorComponent() 
-        { 
+        public ActuatorComponent()
+        {
             Type = TypeId;
-            Name = NameId;
         }
     }
 }
