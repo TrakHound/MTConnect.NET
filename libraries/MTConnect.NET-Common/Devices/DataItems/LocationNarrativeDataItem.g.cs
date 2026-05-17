@@ -19,7 +19,7 @@ namespace MTConnect.Devices.DataItems
         
         public override string TypeDescription => DescriptionText;
         
-               
+        public override System.Version MinimumVersion => MTConnectVersions.Version24;       
 
 
         public LocationNarrativeDataItem()

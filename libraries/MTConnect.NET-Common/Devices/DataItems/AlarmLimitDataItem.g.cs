@@ -18,7 +18,7 @@ namespace MTConnect.Devices.DataItems
         public new const string DescriptionText = "Set of limits used to trigger warning or alarm indicators.**DEPRECATED** in *Version 2.5*. Replaced by  `ALARM_LIMITS`.";
         
         public override string TypeDescription => DescriptionText;
-        
+        public override System.Version MaximumVersion => MTConnectVersions.Version25;
         public override System.Version MinimumVersion => MTConnectVersions.Version17;       
 
 

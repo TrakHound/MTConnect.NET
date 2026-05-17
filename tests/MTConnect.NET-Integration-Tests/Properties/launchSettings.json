@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "IntegrationTests": {
+    "MTConnect.NET-Integration-Tests": {
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {

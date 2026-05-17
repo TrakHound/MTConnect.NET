@@ -141,8 +141,10 @@ e2e_enabled_check() {
 	esac
 }
 
-# Category filter: by default exclude Docker-gated tests unless MTCONNECT_E2E_DOCKER.
-FILTER_EXPR='Category!=RequiresDocker&Category!=XsdLoadStrict'
+# Category filter: only XsdLoadStrict is excluded by default. Per
+# CONVENTIONS §1.5b/§1.5c the RequiresDocker tests must run on the
+# integration branch, so they are no longer filtered out here.
+FILTER_EXPR='Category!=XsdLoadStrict'
 if e2e_enabled_check; then
 	FILTER_EXPR=''
 fi
@@ -176,9 +178,9 @@ if [[ "${RUN_COMPLIANCE}" == "1" ]]; then
 	done
 fi
 
-# --- E2E tier (tests/IntegrationTests + tests/E2E/**, Docker-gated) ---
+# --- E2E tier (tests/MTConnect.NET-Integration-Tests + tests/E2E/**, Docker-gated) ---
 if e2e_enabled_check; then
-	mapfile -t E2E_PROJECTS < <(find tests/IntegrationTests tests/E2E -name '*.csproj' 2>/dev/null | sort)
+	mapfile -t E2E_PROJECTS < <(find tests/MTConnect.NET-Integration-Tests tests/E2E -name '*.csproj' 2>/dev/null | sort)
 	for proj in "${E2E_PROJECTS[@]}"; do
 		"${DOTNET[@]}" test "${proj}" \
 			--configuration Release \

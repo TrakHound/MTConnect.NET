@@ -18,7 +18,7 @@ namespace MTConnect.Devices.DataItems
         public new const string DescriptionText = "Set of limits defining a range of values designating acceptable performance for a variable.**DEPRECATED** in *Version 2.5*. Replaced by  `SPECIFICATION_LIMITS`.";
         
         public override string TypeDescription => DescriptionText;
-        
+        public override System.Version MaximumVersion => MTConnectVersions.Version25;
         public override System.Version MinimumVersion => MTConnectVersions.Version17;       
 
 

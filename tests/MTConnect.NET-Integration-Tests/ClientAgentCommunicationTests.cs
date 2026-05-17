@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,16 +25,31 @@ using Xunit.Abstractions;
 using Xunit.Sdk;
 using MTConnect.Assets.CuttingTools;
 
-namespace IntegrationTests
+namespace MTConnect.Tests.Integration
 {
     public class MTAgentFixture
     {
-        #region Fields
-
-        public int CurrentAgentPort = 5000;
-        public int CurrentAdapterPort = 7878;
-
-        #endregion
+        // Per-test free TCP ports allocated by the OS at construction time.
+        // Sequential incrementing from a fixed base (5000, 7878) collides
+        // with TIME_WAIT'd sockets left by killed prior runs (the EADDRINUSE
+        // surfaces as `MTConnectHttpServer.StartServer` failure). Asking the
+        // kernel for an ephemeral free port via TcpListener bind-then-release
+        // gives a guaranteed-free port at the cost of a tiny TOCTOU window
+        // (port may be claimed between Stop() and the test's actual bind);
+        // tests retry on EADDRINUSE up to 3 times to absorb that race.
+        public static int AllocateFreePort()
+        {
+            var listener = new TcpListener(IPAddress.Loopback, 0);
+            listener.Start();
+            try
+            {
+                return ((IPEndPoint)listener.LocalEndpoint).Port;
+            }
+            finally
+            {
+                listener.Stop();
+            }
+        }
     }
 
     public class ClientAgentCommunicationTests : IClassFixture<MTAgentFixture>, IDisposable
@@ -50,6 +67,12 @@ namespace IntegrationTests
         private readonly MTAgentFixture _fixture;
         private readonly ILogger _logger;
 
+        // Per-test free TCP ports allocated by the OS at construction time
+        // via MTAgentFixture.AllocateFreePort(). Allocated fresh per test so
+        // a TIME_WAIT'd port from a killed prior run cannot reach this test.
+        private readonly int _agentPort;
+        private readonly int _adapterPort;
+
         private readonly string _machineId;
         private readonly string _machineName;
 
@@ -62,9 +85,16 @@ namespace IntegrationTests
             _fixture = fixture;
             _logger = testOutputHelper.BuildLogger(LogLevel.Trace);
 
+            // Allocate a fresh free port per test from the kernel ephemeral
+            // range. Ephemeral ports are unique per call (the kernel's port
+            // allocator advances to the next unused entry), so two tests
+            // running concurrently cannot land on the same port.
+            _agentPort = MTAgentFixture.AllocateFreePort();
+            _adapterPort = MTAgentFixture.AllocateFreePort();
+
             _machineId = Guid.NewGuid().ToString();
             _machineName = "M12346";
-            //_machineName = $"Machine{_fixture.CurrentAgentPort}";
+            //_machineName = $"Machine{_agentPort}";
 
             var devicesFile = "devices.xml";
             GenerateDevicesXml(
@@ -73,13 +103,22 @@ namespace IntegrationTests
                 devicesFile,
                 _logger);
 
-            _adapter = new ShdrIntervalAdapter(_machineName, _fixture.CurrentAdapterPort, 2000, 100);
+            _adapter = new ShdrIntervalAdapter(_machineName, _adapterPort, 2000, 100);
             _adapter.Start();
 
             AddCuttingTools();
 
-            _agent = new MTConnectAgentBroker();
-            //_agent.Version = new Version(1, 8);
+            // Pin the broker to a version for which libraries/MTConnect.NET-XML
+            // has full Namespaces.cs + Schemas.cs mappings. The parameterless
+            // ctor uses MTConnectVersions.Max as the default, which can advance
+            // ahead of the XML library's namespace/schema coverage and surface
+            // as HTTP 500 from the wire-format formatter (Namespaces.GetDevices
+            // returns null for unmapped versions).
+            var agentConfiguration = new AgentConfiguration
+            {
+                DefaultVersion = MTConnectVersions.Version25,
+            };
+            _agent = new MTConnectAgentBroker(agentConfiguration);
             _agent.Start();
 
             var adapters = new List<ShdrAdapterClientConfiguration>()
@@ -88,7 +127,7 @@ namespace IntegrationTests
                 {
                     DeviceKey = _machineName,
                     Hostname = "localhost",
-                    Port = _fixture.CurrentAdapterPort
+                    Port = _adapterPort
                 }
             };
 
@@ -116,23 +155,84 @@ namespace IntegrationTests
 
             var configuration = new HttpServerConfiguration
             {
-                Port = _fixture.CurrentAgentPort
+                Port = _agentPort,
+                // Bind to loopback only so an in-process integration run
+                // cannot accidentally expose the test agent on a
+                // non-loopback interface of the dev machine.
+                Server = "127.0.0.1"
             };
             _server = new MTConnectHttpServer(configuration, _agent);
+
+            // Capture any startup exception (e.g. EADDRINUSE) so the
+            // WaitForListener timeout produces a useful diagnostic instead
+            // of silently waiting out the deadline.
+            Exception? serverStartException = null;
+            _server.ServerException += (_, ex) =>
+            {
+                serverStartException ??= ex;
+            };
+
             _server.Start();
+
+            // MTConnectHttpServer.Start() is fire-and-forget: it spawns a
+            // background Task.Run that performs the TCP bind + listen loop.
+            // The first test request can race ahead of that bind and surface
+            // as "Connection refused". Block here until the listener accepts
+            // a TCP connection, with a generous timeout for slow CI hosts
+            // and threadpool-starved parallel test runs.
+            WaitForListener(
+                "127.0.0.1",
+                _agentPort,
+                TimeSpan.FromSeconds(30),
+                () => serverStartException);
+        }
+
+        private static void WaitForListener(
+            string host,
+            int port,
+            TimeSpan timeout,
+            Func<Exception?>? serverStartException = null)
+        {
+            var deadline = DateTime.UtcNow + timeout;
+            while (DateTime.UtcNow < deadline)
+            {
+                var startupException = serverStartException?.Invoke();
+                if (startupException != null)
+                {
+                    throw new InvalidOperationException(
+                        $"HTTP server failed to start on {host}:{port}: {startupException.Message}",
+                        startupException);
+                }
+
+                try
+                {
+                    using var client = new System.Net.Sockets.TcpClient();
+                    client.Connect(host, port);
+                    if (client.Connected)
+                    {
+                        return;
+                    }
+                }
+                catch (System.Net.Sockets.SocketException)
+                {
+                    // not listening yet; keep polling
+                }
+
+                Thread.Sleep(100);
+            }
+
+            throw new TimeoutException(
+                $"HTTP listener did not bind to {host}:{port} within {timeout.TotalSeconds}s.");
         }
 
         public void Dispose()
         {
-            // Stop are not awaitable, so we cannot guarantee that it finishes before next test start
+            // Stop are not awaitable, so we cannot guarantee that it finishes before next test start.
+            // Each test allocates its own fresh ephemeral port at construction, so the next test
+            // is unaffected by this test's lingering TIME_WAIT socket.
             _agent.Stop();
             _server.Stop();
             _adapter.Stop();
-
-            // Therefore we use a new port for every test.
-            _fixture.CurrentAgentPort++;
-            _fixture.CurrentAdapterPort++;
-
         }
 
         #region Private Tests
@@ -246,7 +346,7 @@ namespace IntegrationTests
             ILogger logger)
         {
             var assembly = Assembly.GetExecutingAssembly();
-            var resourceName = "IntegrationTests.devices-tpl.xml";
+            var resourceName = "MTConnect.Tests.Integration.devices-tpl.xml";
 
             using var stream = assembly.GetManifestResourceStream(resourceName);
             if (stream is null)
@@ -279,7 +379,7 @@ namespace IntegrationTests
 
             nameAttr.Value = machineName;
 
-            using var config = File.Create("devices.xml");
+            using var config = File.Create(fileName);
             xDocument.Save(config);
         }
 
@@ -292,7 +392,7 @@ namespace IntegrationTests
             cts.CancelAfter(c_maxWaitTimeout);
 
             var currentClient = new MTConnectHttpCurrentClient(
-                $"127.0.0.1:{_fixture.CurrentAgentPort}", 
+                $"127.0.0.1:{_agentPort}", 
                 _machineName, 
                 $"//*[@id='program']");
 
@@ -367,7 +467,7 @@ namespace IntegrationTests
             }
 
             var client = await Connect(
-                $"127.0.0.1:{_fixture.CurrentAgentPort}",
+                $"127.0.0.1:{_agentPort}",
                 _machineName,
                 _logger,
                 OnCurrent,
