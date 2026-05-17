@@ -9,8 +9,31 @@ using System.Text.Json.Serialization;
 
 namespace MTConnect.Streams.Json
 {
+    /// <summary>
+    /// Typed representation of a Condition list on a Component stream,
+    /// bucketed by Condition level (Fault, Warning, Normal, Unavailable).
+    /// </summary>
+    /// <remarks>
+    /// Serialized via <see cref="JsonConditionsConverter"/> in the
+    /// cppagent JSON v2 wire shape: an array of single-key wrapper
+    /// objects, one per Condition entry
+    /// (e.g. <c>[{"Normal": {...}}, {"Warning": {...}}]</c>).
+    /// The level order on the wire is fixed at Fault, Warning, Normal,
+    /// Unavailable; mixed-level interleaving is not round-trip preserved
+    /// through this typed model. The legacy MTConnect JSON v1
+    /// object-keyed shape (<c>{"Fault": [...], "Warning": [...], ...}</c>)
+    /// is still accepted on the read path for back-compat.
+    /// </remarks>
+    [System.Text.Json.Serialization.JsonConverter(typeof(JsonConditionsConverter))]
     public class JsonConditions
     {
+        /// <summary>
+        /// Materializes every level bucket into a flat list of
+        /// <see cref="IObservation"/> instances, tagged with the
+        /// corresponding <see cref="ConditionLevel"/>. Enumeration order
+        /// matches the wire-emission order: Fault, then Warning, then
+        /// Normal, then Unavailable.
+        /// </summary>
         [JsonIgnore]
         public List<IObservation> Observations
         {
@@ -42,15 +65,39 @@ namespace MTConnect.Streams.Json
             }
         }
 
+        /// <summary>
+        /// Condition entries at <c>FAULT</c> level. Source order is
+        /// preserved within the bucket; entries are emitted on the wire
+        /// as <c>{"Fault": {...}}</c> wrapper objects, ahead of every
+        /// other level.
+        /// </summary>
         [JsonPropertyName("Fault")]
         public IEnumerable<JsonCondition> Fault { get; set; }
 
+        /// <summary>
+        /// Condition entries at <c>WARNING</c> level. Source order is
+        /// preserved within the bucket; entries are emitted on the wire
+        /// as <c>{"Warning": {...}}</c> wrapper objects, after Fault
+        /// and before Normal.
+        /// </summary>
         [JsonPropertyName("Warning")]
         public IEnumerable<JsonCondition> Warning { get; set; }
 
+        /// <summary>
+        /// Condition entries at <c>NORMAL</c> level. Source order is
+        /// preserved within the bucket; entries are emitted on the wire
+        /// as <c>{"Normal": {...}}</c> wrapper objects, after Warning
+        /// and before Unavailable.
+        /// </summary>
         [JsonPropertyName("Normal")]
         public IEnumerable<JsonCondition> Normal { get; set; }
 
+        /// <summary>
+        /// Condition entries at <c>UNAVAILABLE</c> level. Source order
+        /// is preserved within the bucket; entries are emitted on the
+        /// wire as <c>{"Unavailable": {...}}</c> wrapper objects, after
+        /// every other level.
+        /// </summary>
         [JsonPropertyName("Unavailable")]
         public IEnumerable<JsonCondition> Unavailable { get; set; }
 
@@ -113,5 +160,5 @@ namespace MTConnect.Streams.Json
                 }
             }
         }
-    }  
+    }
 }
