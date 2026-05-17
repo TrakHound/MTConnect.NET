@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -116,7 +117,14 @@ namespace IntegrationTests
 
             var configuration = new HttpServerConfiguration
             {
-                Port = _fixture.CurrentAgentPort
+                Port = _fixture.CurrentAgentPort,
+                // Bind to loopback only so an in-process integration run
+                // cannot accidentally expose the test agent on a
+                // non-loopback interface of the dev machine. Pass the
+                // numeric loopback literal (via IPAddress.Loopback) so the
+                // server-side bind path never depends on a reverse-PTR
+                // entry for 127.0.0.1 in /etc/hosts or the system resolver.
+                Server = IPAddress.Loopback.ToString()
             };
             _server = new MTConnectHttpServer(configuration, _agent);
             _server.Start();
