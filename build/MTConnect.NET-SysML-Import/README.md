@@ -184,7 +184,7 @@ When upgrading Scriban or editing templates, **always** run a v2.5 / v2.6 / v2.7
 | Importer prints "Done." but no `.g.cs` files change | Scriban template tree missing or case-mismatched. Build output should contain `CSharp/Templates/`, `Json-cppagent/Templates/`, `Xml/Templates/` — case-correct. The `EnsureTemplateTreesExist` startup check now catches this before XMI parse. |
 | `CS0246: type 'X' could not be found` after regen | A new XMI version introduced a cross-package parent that the resolver couldn't graft — typically because the parent lives in a sub-model whose `Classes` list isn't yet enumerated by `MTConnectModel.CollectClassLists`. Add it to that helper. |
 | `InvalidCastException` in `CSharpTemplateRenderer.Render` | A property's `Id` matches a suffix-based class selector. The `Result` selector now type-guards; new selectors should follow the same pattern (`typeof(MTConnectClassModel).IsAssignableFrom(type) && Id.EndsWith(...)`)|
-| 11 NuGet vulnerability warnings on Scriban | Known — Scriban 5.x has open advisories. Upgrade to 7.x is tracked as a follow-up dep-update PR, not here. |
+| Older NuGet vulnerability warnings on Scriban | Scriban now pinned at 7.1.0 — the 5.x advisories no longer apply. If a warning resurfaces on a fresh dependency, audit the resolved version with `dotnet list package --vulnerable --include-transitive`. |
 
 ## Reproducibility
 
