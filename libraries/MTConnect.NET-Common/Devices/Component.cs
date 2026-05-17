@@ -81,7 +81,7 @@ namespace MTConnect.Devices
         /// <summary>
         /// Gets whether the Component is an Organizer Type
         /// </summary>
-        public bool IsOrganizer => Organizers.Components.Contains(Type);
+        public bool IsOrganizer => Organizers.IsOrganizer(Type);
 
 
         /// <summary>
