@@ -20,20 +20,43 @@ You need to run this tool when:
 
 ### 1. Sync the SysML model
 
+The MTConnect SysML XMI is tracked as a submodule under `build/sysml-model/`. Initialize once after cloning the repo, then check out the version tag you want to regen against.
+
 ```bash
-git clone https://github.com/mtconnect/mtconnect_sysml_model /tmp/mtconnect-sysml
-cd /tmp/mtconnect-sysml
-git fetch --tags origin +refs/heads/*:refs/remotes/origin/*
-git checkout v2.7   # or v2.5, v2.6, ... — whatever you want to regen against
-git rev-parse HEAD  # capture the SHA for the regen-provenance doc
+# Run once after the initial clone (or after a `git pull` that updates the submodule pointer):
+git submodule update --init build/sysml-model
+
+# Switch to a different version tag for a per-version regen:
+git -C build/sysml-model checkout v2.7   # or v2.5, v2.6, v2.0, ... — see `git -C build/sysml-model tag`
+git -C build/sysml-model rev-parse HEAD  # capture the SHA for the regen-provenance doc
 ```
+
+The submodule's default tip is the latest published spec tag. The same gitdir backs every worktree the contributor creates with `git worktree add`, so a per-worktree `git submodule update --init build/sysml-model` is enough to populate the path inside the worktree.
+
+For parallel multi-version regens (e.g. re-running the generator across v2.5, v2.6, v2.7 after a template change), create worktrees inside the submodule itself:
+
+```bash
+git -C build/sysml-model worktree add /tmp/sysml-v2.5 v2.5
+git -C build/sysml-model worktree add /tmp/sysml-v2.6 v2.6
+# build/sysml-model itself stays on v2.7
+```
+
+Each `/tmp/sysml-vX.Y/MTConnectSysMLModel.xml` can then be passed to a separate importer invocation in parallel.
 
 ### 2. Run the importer
 
 ```bash
-# From the repo root:
+# From the repo root, after the submodule is checked out:
 dotnet run --project build/MTConnect.NET-SysML-Import \
-    -- --xmi /tmp/mtconnect-sysml/MTConnectSysMLModel.xml \
+    -- --xmi build/sysml-model/MTConnectSysMLModel.xml \
+       --output "$(pwd)"
+```
+
+If running against a side worktree (for multi-version regens):
+
+```bash
+dotnet run --project build/MTConnect.NET-SysML-Import \
+    -- --xmi /tmp/sysml-v2.5/MTConnectSysMLModel.xml \
        --output "$(pwd)"
 ```
 
