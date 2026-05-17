@@ -1,0 +1,32 @@
+{
+  "metadata": [
+    {
+      "src": [
+        {
+          "files": [
+            "libraries/MTConnect.NET-Common/bin/Debug/net8.0/MTConnect.NET-Common.dll",
+            "libraries/MTConnect.NET-DeviceFinder/bin/Debug/net8.0/MTConnect.NET-DeviceFinder.dll",
+            "libraries/MTConnect.NET-HTTP/bin/Debug/net8.0/MTConnect.NET-HTTP.dll",
+            "libraries/MTConnect.NET-JSON/bin/Debug/net8.0/MTConnect.NET-JSON.dll",
+            "libraries/MTConnect.NET-JSON-cppagent/bin/Debug/net8.0/MTConnect.NET-JSON-cppagent.dll",
+            "libraries/MTConnect.NET-MQTT/bin/Debug/net8.0/MTConnect.NET-MQTT.dll",
+            "libraries/MTConnect.NET-Protobuf/bin/Debug/net8.0/MTConnect.NET-Protobuf.dll",
+            "libraries/MTConnect.NET-Services/bin/Debug/net8.0/MTConnect.NET-Services.dll",
+            "libraries/MTConnect.NET-SHDR/bin/Debug/net8.0/MTConnect.NET-SHDR.dll",
+            "libraries/MTConnect.NET-SysML/bin/Debug/net8.0/MTConnect.NET-SysML.dll",
+            "libraries/MTConnect.NET-TLS/bin/Debug/net8.0/MTConnect.NET-TLS.dll",
+            "libraries/MTConnect.NET-XML/bin/Debug/net8.0/MTConnect.NET-XML.dll",
+            "libraries/MTConnect.NET/bin/Debug/net8.0/MTConnect.NET.dll"
+          ],
+          "src": "../.."
+        }
+      ],
+      "dest": "../api",
+      "outputFormat": "markdown",
+      "namespaceLayout": "flattened",
+      "memberLayout": "samePage",
+      "includePrivateMembers": false,
+      "filter": "filter.yml"
+    }
+  ]
+}
