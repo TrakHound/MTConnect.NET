@@ -105,6 +105,43 @@ modules:
       topicPrefix: enterprise/site/area/line/cell/MTConnect
 ```
 
+## Migration: Availability Topic Moved Out of `Probe/#`
+
+In earlier releases the MqttRelay agent module published the agent's
+Availability state (Last Will and Testament plus the on-connect retained
+"AVAILABLE" message) on a four-segment topic that fell under the
+`{TopicPrefix}/Probe/#` wildcard:
+
+```
+{TopicPrefix}/Probe/{AgentUuid}/Available   (raw "AVAILABLE" / "UNAVAILABLE" UTF-8 bytes)
+```
+
+That broke the contract that every payload under the Probe wildcard is a
+JSON document envelope. Subscribers binding to `{TopicPrefix}/Probe/#`
+expecting only Probe document JSON would receive a non-JSON Availability
+payload and either crash or silently drop the message.
+
+Starting with this release the module emits agent Availability on a
+dedicated, non-overlapping topic:
+
+```
+{TopicPrefix}/Agent/{AgentUuid}/Available   (raw "AVAILABLE" / "UNAVAILABLE" UTF-8 bytes)
+```
+
+This matches the cppagent reference implementation
+([mtconnect/cppagent](https://github.com/mtconnect/cppagent)) which also
+publishes JSON document envelopes only under the Probe wildcard and emits
+agent status on a dedicated agent / status topic. The Probe wildcard is
+now pure-JSON for any subscriber.
+
+### Action required when upgrading
+
+* Subscribers that relied on the old `{TopicPrefix}/Probe/{AgentUuid}/Available`
+  topic to track agent Availability must subscribe to
+  `{TopicPrefix}/Agent/{AgentUuid}/Available` instead.
+* Any retained-message cleanup tooling pointed at the old topic should be
+  updated to clear the new topic on broker rotations.
+
 ## Contribution / Feedback
 - Please use the [Issues](https://github.com/TrakHound/MTConnect.NET/issues) tab to create issues for specific problems that you may encounter 
 - Please feel free to use the [Pull Requests](https://github.com/TrakHound/MTConnect.NET/pulls) tab for any suggested improvements to the source code
