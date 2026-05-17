@@ -15,8 +15,8 @@ namespace MTConnect.NET_Common_Tests.V2_6_V2_7
     //   - XSD: schemas.mtconnect.org/schemas/MTConnectDevices_2.6.xsd
     //          (Component element list + MediaType simpleType enumeration)
     //   - Prose: MTConnect Standard Part_3.0_Devices_v2.6
-    //          §3.4.18 "CuttingTorch" / §3.4.21 "Electrode"
-    //          §4.7.2.5 MediaType (introduces QIF_MBD)
+    //          section 3.4.18 "CuttingTorch" / section 3.4.21 "Electrode"
+    //          section 4.7.2.5 MediaType (introduces QIF_MBD)
     [TestFixture]
     public class V2_6ComponentAndEnumTests
     {
@@ -44,7 +44,7 @@ namespace MTConnect.NET_Common_Tests.V2_6_V2_7
 
         // Source: XMI v2.6 enum `MediaTypeEnum` member `QIF_MBD`. XSD v2.6 lists
         // QIF_MBD inside the MediaType simpleType enumeration. Prose
-        // Part_3.0_Devices_v2.6 §4.7.2.5 introduces "ISO 10303 QIF model-based
+        // Part_3.0_Devices_v2.6 section 4.7.2.5 introduces "ISO 10303 QIF model-based
         // design" as the rationale.
         [Test]
         public void MediaType_QIF_MBD_value_present_in_v2_6()

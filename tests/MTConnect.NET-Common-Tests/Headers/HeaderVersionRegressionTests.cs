@@ -5,8 +5,8 @@
 // not the library assembly version.
 //
 // Spec sources:
-//   - https://docs.mtconnect.org/ Part 1.0 §3 (Header), Part 2.0 §7
-//     (Streams envelope), Part 3.0 §5 (Devices envelope), Part 4.0 §5
+//   - https://docs.mtconnect.org/ Part 1.0 section 3 (Header), Part 2.0 section 7
+//     (Streams envelope), Part 3.0 section 5 (Devices envelope), Part 4.0 section 5
 //     (Assets envelope) — Header.version is the MTConnect Standard
 //     release the agent serves.
 //   - XSD: MTConnectDevices_<vN.M>.xsd, MTConnectStreams_<vN.M>.xsd,

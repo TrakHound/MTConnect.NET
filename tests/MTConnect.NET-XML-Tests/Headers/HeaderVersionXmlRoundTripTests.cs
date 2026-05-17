@@ -8,7 +8,7 @@
 // of the agent's DefaultVersion.
 //
 // Spec sources:
-//   - https://docs.mtconnect.org/ Part 1.0 §3 (Header) — defines the
+//   - https://docs.mtconnect.org/ Part 1.0 section 3 (Header) — defines the
 //     `version` attribute on the Header element as the MTConnect
 //     release the agent serves.
 //   - https://schemas.mtconnect.org/schemas/MTConnectDevices_2.5.xsd
