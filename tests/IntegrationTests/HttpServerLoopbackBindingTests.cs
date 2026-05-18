@@ -23,15 +23,27 @@ namespace IntegrationTests
     /// </summary>
     public class HttpServerLoopbackBindingTests
     {
+        /// <summary>
+        /// Asserts the loopback-only binding contract by source-grep.
+        /// Locates <c>ClientAgentCommunicationTests.cs</c> by recursive
+        /// search under <c>tests/</c> rather than a hard-coded directory
+        /// segment, so the guard survives a rename of the integration
+        /// test project directory and fails loudly (rather than silently
+        /// missing the file) if a second copy is ever introduced.
+        /// </summary>
         [Fact]
         public void ClientAgentCommunicationTests_HttpServerConfiguration_binds_to_loopback()
         {
-            var path = Path.Combine(RepoRootLocator.LocateRoot(),
-                "tests", "IntegrationTests", "ClientAgentCommunicationTests.cs");
+            var testsRoot = Path.Combine(RepoRootLocator.LocateRoot(), "tests");
 
-            Assert.True(File.Exists(path), $"Expected source file at {path}");
+            var matches = Directory.GetFiles(testsRoot,
+                "ClientAgentCommunicationTests.cs", SearchOption.AllDirectories);
 
-            var src = File.ReadAllText(path);
+            Assert.True(matches.Length == 1,
+                $"Expected exactly one ClientAgentCommunicationTests.cs under " +
+                $"'{testsRoot}', found {matches.Length}: {string.Join(", ", matches)}");
+
+            var src = File.ReadAllText(matches[0]);
 
             // The fixture must initialise HttpServerConfiguration with the
             // Server property pinned to a loopback literal inside the same
