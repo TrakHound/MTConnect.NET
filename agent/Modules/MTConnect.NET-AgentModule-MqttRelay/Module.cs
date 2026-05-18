@@ -37,9 +37,20 @@ namespace MTConnect
         private CancellationTokenSource _stop;
         private static readonly object _lastSentSequenceLock = new object();
         private long _totalIncomingObservations = 0;
-        // Atomic 64-bit access on 32-bit hosts: a bare long field would
-        // tear under the durable-relay observation event handlers.
-        private readonly LastSentSequenceTracker _lastSentSequenceTracker = new LastSentSequenceTracker();
+        // In-memory persister: tracks the last-sent sequence under
+        // DurableRelay and flushes to disk on a timer, on shutdown,
+        // and at each buffered-relay batch boundary, so the observation
+        // hot path stays decoupled from disk IO.
+        private readonly LastSentSequencePersister _lastSentSequencePersister = new LastSentSequencePersister();
+        private System.Threading.Timer _lastSentFlushTimer;
+        private static readonly TimeSpan LastSentFlushInterval = TimeSpan.FromSeconds(1);
+        // Count of in-flight AsyncVoidGuard.Run invocations on the
+        // ThreadPool. OnStop polls this against zero so the final
+        // last-sent-sequence flush captures every RecordLastSentSequence
+        // call that was already underway when the cancel token fired.
+        private int _handlerActiveCount = 0;
+        private static readonly TimeSpan HandlerDrainTimeout = TimeSpan.FromMilliseconds(500);
+        private static readonly TimeSpan HandlerDrainPollInterval = TimeSpan.FromMilliseconds(10);
         private const string DirectoryBuffer = "buffer";
         private const string LastSentSequenceFileName = "mqttrelay_last_sent.seq";
 
@@ -79,6 +90,23 @@ namespace MTConnect
         {
             _stop = new CancellationTokenSource();
 
+            // Seed the in-memory persister from disk so the first
+            // RelayBufferedObservations diagnostic uses the durable
+            // value rather than zero.
+            if (_configuration.DurableRelay)
+            {
+                _lastSentSequencePersister.Initialize(ReadLastSentSequenceFromDisk());
+
+                // Start a background flush timer. The timer only emits
+                // a write when the persister is dirty so an idle relay
+                // does not burn IOPS.
+                _lastSentFlushTimer = new System.Threading.Timer(
+                    _ => FlushLastSentSequence(),
+                    null,
+                    LastSentFlushInterval,
+                    LastSentFlushInterval);
+            }
+
             _ = Task.Run(Worker, _stop.Token);
         }
 
@@ -92,15 +120,47 @@ namespace MTConnect
                 documentStop: _documentServer != null ? (Action)(() => _documentServer.Stop()) : null,
                 entityStop: null);
 
+            // Cancel first so observation event handlers see the
+            // cancellation signal and the Worker exits its
+            // reconnect-delay branch promptly. The flush ordering below
+            // depends on cancelling BEFORE the final flush so a
+            // RecordLastSentSequence call that is mid-await cannot land
+            // an update after the flush has already drained the dirty
+            // bit.
             if (_stop != null) _stop.Cancel();
 
-            // Bounded await on the disconnect: previously this was a
-            // fire-and-forget DisconnectAsync(...) whose returned Task
-            // was never awaited. Faults were silently dropped and the
-            // host process risked exiting before the disconnect
-            // completed. Route through the lifecycle helper so faults
-            // surface to the log and a hung broker cannot block
-            // shutdown indefinitely.
+            // Wait briefly for in-flight AsyncVoidGuard.Run handlers to
+            // drain. The counter is incremented at the top of each
+            // handler body (AgentObservationAdded is the relevant one:
+            // it calls RecordLastSentSequence) and decremented after the
+            // body completes. A bounded poll keeps shutdown forward-
+            // progress: a handler hung on a broker call cannot block
+            // the agent from terminating.
+            var drainDeadline = DateTime.UtcNow + HandlerDrainTimeout;
+            while (Interlocked.CompareExchange(ref _handlerActiveCount, 0, 0) > 0
+                && DateTime.UtcNow < drainDeadline)
+            {
+                System.Threading.Thread.Sleep(HandlerDrainPollInterval);
+            }
+
+            // Dispose the flush timer AFTER the handlers have drained so
+            // any final timer tick that fires concurrently with the
+            // drain still serialises on _lastSentSequenceLock.
+            if (_lastSentFlushTimer != null)
+            {
+                try { _lastSentFlushTimer.Dispose(); } catch { }
+                _lastSentFlushTimer = null;
+            }
+
+            // Final flush captures every RecordLastSentSequence call
+            // that landed before the drain window elapsed; a clean
+            // shutdown therefore does not lose progress against the
+            // buffered-observation relay.
+            FlushLastSentSequence();
+
+            // Bounded await on the disconnect. The MqttRelayLifecycle
+            // helper surfaces faults to the log and a hung broker
+            // cannot block shutdown indefinitely.
             MqttRelayLifecycle.DisconnectWithTimeout(
                 disconnect: _mqttClient != null
                     ? (Func<Task>)(() => _mqttClient.DisconnectAsync(MqttClientDisconnectOptionsReason.NormalDisconnection))
@@ -308,7 +368,10 @@ namespace MTConnect
         {
             if (Agent is IMTConnectAgentBroker broker)
             {
-                ulong lastSent = GetLastSentSequence();
+                // Read in-memory: the persister was seeded from disk at
+                // OnStartAfterLoad. Avoid a synchronous file read on
+                // every relay attempt.
+                ulong lastSent = _lastSentSequencePersister.Read();
                 ulong from = Math.Max(lastSent + 1, broker.FirstSequence);
                 ulong to = broker.LastSequence;
 
@@ -354,12 +417,18 @@ namespace MTConnect
                         var result = await _entityServer.PublishObservation(_mqttClient, x);
                         if (result != null && result.IsSuccess)
                         {
-                            SetLastSentSequence(x.Sequence);
+                            RecordLastSentSequence(x.Sequence);
                         }
                     }
 
+                    // Batch boundary: the buffered relay just ran a
+                    // chunk of observations under DurableRelay; flush
+                    // the persister so a crash before the next timer
+                    // tick does not lose this batch's progress.
+                    FlushLastSentSequence();
+
                     Log(MTConnectLogLevel.Information, $"[MQTT Relay] Buffered observation relay complete. {observations.Count} missed observations sent.");
-                    var lastSentSnapshot = _lastSentSequenceTracker.Read();
+                    var lastSentSnapshot = _lastSentSequencePersister.Read();
                     var unsent = broker.LastSequence > lastSentSnapshot ? broker.LastSequence - lastSentSnapshot : 0;
                     if (unsent > 0)
                         Log(MTConnectLogLevel.Information, $"[MQTT Relay] {unsent} new observations arrived during relay and will be sent next.");
@@ -385,7 +454,10 @@ namespace MTConnect
             return Path.Combine(baseDir, LastSentSequenceFileName);
         }
 
-        private ulong GetLastSentSequence()
+        // Disk read used at startup (Initialize) only. Hot-path reads
+        // go through _lastSentSequencePersister.Read(); this method
+        // is the single point of entry for the actual file IO.
+        private ulong ReadLastSentSequenceFromDisk()
         {
             if (!_configuration.DurableRelay) return 0;
             var agentConfig = Agent?.Configuration as IAgentApplicationConfiguration;
@@ -401,14 +473,39 @@ namespace MTConnect
             return 0;
         }
 
-        private void SetLastSentSequence(ulong seq)
+        // Records a new in-memory last-sent sequence. The actual disk
+        // write happens out-of-band on the flush timer / shutdown /
+        // batch boundary via FlushLastSentSequence.
+        private void RecordLastSentSequence(ulong seq)
         {
             if (!_configuration.DurableRelay) return; // Default
-            var agentConfig = Agent?.Configuration as IAgentApplicationConfiguration;
-            var path = GetLastSentSequenceFilePath(agentConfig);
-            lock (_lastSentSequenceLock)
+            _lastSentSequencePersister.Update(seq);
+        }
+
+        // Writes the in-memory persister value to disk if dirty. Safe
+        // to call from any thread; the inner File.WriteAllText runs
+        // under _lastSentSequenceLock so a timer tick cannot race a
+        // shutdown flush.
+        private void FlushLastSentSequence()
+        {
+            if (!_configuration.DurableRelay) return;
+
+            try
             {
-                File.WriteAllText(path, seq.ToString());
+                var agentConfig = Agent?.Configuration as IAgentApplicationConfiguration;
+                var path = GetLastSentSequenceFilePath(agentConfig);
+
+                _lastSentSequencePersister.TryFlush(seq =>
+                {
+                    lock (_lastSentSequenceLock)
+                    {
+                        File.WriteAllText(path, seq.ToString());
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                Log(MTConnectLogLevel.Warning, $"MQTT Relay last-sent-sequence flush error : {ex.Message}");
             }
         }
 
@@ -692,9 +789,9 @@ namespace MTConnect
         {
             if (observations.IsNullOrEmpty()) return;
 
-            // Single-pass grouping replaces the previous O(n*k)
-            // Distinct + Where + FirstOrDefault pattern that iterated
-            // the source up to three times per distinct DataItemId.
+            // Single-pass grouping keeps the publish hot path O(n) in
+            // the observation count; on large agents the catch-up after
+            // a reconnect therefore stays bounded.
             foreach (var group in ObservationGrouper.GroupByDataItem(observations))
             {
                 // Materialise each group's observations once: the
@@ -774,56 +871,72 @@ namespace MTConnect
 
         private async void AgentObservationAdded(object sender, IObservation observation)
         {
-            // async void handlers must not throw; route any fault to
-            // the log instead of the synchronization context.
-            await AsyncVoidGuard.Run(
-                async () =>
-                {
-                    if (_configuration.DurableRelay)
+            // Increment the in-flight handler counter so OnStop's drain
+            // window observes this body before the final
+            // last-sent-sequence flush runs; the decrement at the end of
+            // the body is unconditional (try / finally) so a throw still
+            // releases the count.
+            Interlocked.Increment(ref _handlerActiveCount);
+            try
+            {
+                // async void handlers must not throw; route any fault to
+                // the log instead of the synchronization context.
+                await AsyncVoidGuard.Run(
+                    async () =>
                     {
-                        Interlocked.Increment(ref _totalIncomingObservations);
-
-                        var lastSent = GetLastSentSequence();
-                        _lastSentSequenceTracker.Write(lastSent);
-
-                        if (_entityServer != null)
+                        if (_configuration.DurableRelay)
                         {
-                            if (observation.Category == DataItemCategory.CONDITION)
+                            Interlocked.Increment(ref _totalIncomingObservations);
+
+                            // No disk read on the hot path: the persister
+                            // is seeded from disk at OnStartAfterLoad and
+                            // updated in-memory by RecordLastSentSequence
+                            // below, so observation events do not stall
+                            // on File.ReadAllText.
+
+                            if (_entityServer != null)
                             {
-                                var conditionObservations = Agent.GetCurrentObservations(observation.DeviceUuid, observation.DataItemId);
-                                var result = await _entityServer.PublishObservations(_mqttClient, conditionObservations.OfType<IObservation>());
-                                if (result != null && result.IsSuccess && conditionObservations != null && conditionObservations.Any())
+                                if (observation.Category == DataItemCategory.CONDITION)
                                 {
-                                    SetLastSentSequence(conditionObservations.Max(o => o.Sequence));
+                                    var conditionObservations = Agent.GetCurrentObservations(observation.DeviceUuid, observation.DataItemId);
+                                    var result = await _entityServer.PublishObservations(_mqttClient, conditionObservations.OfType<IObservation>());
+                                    if (result != null && result.IsSuccess && conditionObservations != null && conditionObservations.Any())
+                                    {
+                                        RecordLastSentSequence(conditionObservations.Max(o => o.Sequence));
+                                    }
                                 }
-                            }
-                            else
-                            {
-                                var result = await _entityServer.PublishObservation(_mqttClient, observation);
-                                if (result != null && result.IsSuccess)
+                                else
                                 {
-                                    SetLastSentSequence(observation.Sequence);
+                                    var result = await _entityServer.PublishObservation(_mqttClient, observation);
+                                    if (result != null && result.IsSuccess)
+                                    {
+                                        RecordLastSentSequence(observation.Sequence);
+                                    }
                                 }
                             }
                         }
-                    }
-                    else
-                    {
-                        if (_entityServer != null)
+                        else
                         {
-                            if (observation.Category == DataItemCategory.CONDITION)
+                            if (_entityServer != null)
                             {
-                                var conditionObservations = Agent.GetCurrentObservations(observation.DeviceUuid, observation.DataItemId);
-                                await PublishObservations(conditionObservations);
-                            }
-                            else
-                            {
-                                await _entityServer.PublishObservation(_mqttClient, observation);
+                                if (observation.Category == DataItemCategory.CONDITION)
+                                {
+                                    var conditionObservations = Agent.GetCurrentObservations(observation.DeviceUuid, observation.DataItemId);
+                                    await PublishObservations(conditionObservations);
+                                }
+                                else
+                                {
+                                    await _entityServer.PublishObservation(_mqttClient, observation);
+                                }
                             }
                         }
-                    }
-                },
-                ex => Log(MTConnectLogLevel.Warning, $"AgentObservationAdded handler error : {ex.Message}"));
+                    },
+                    ex => Log(MTConnectLogLevel.Warning, $"AgentObservationAdded handler error : {ex.Message}"));
+            }
+            finally
+            {
+                Interlocked.Decrement(ref _handlerActiveCount);
+            }
         }
 
         private async void AgentAssetAdded(object sender, IAsset asset)
