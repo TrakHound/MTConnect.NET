@@ -5,7 +5,6 @@ using MTConnect.Devices.Components;
 using MTConnect.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace MTConnect.Devices
 {
@@ -80,20 +79,40 @@ namespace MTConnect.Devices
             PersonnelComponent.TypeId
         };
 
+        // Members of the `System` substitution-group declared by the MTConnect
+        // SysML model (https://github.com/mtconnect/mtconnect_sysml_model). The
+        // list is the union of every `System`-derived `*Component` whose
+        // `DescriptionText` matches the canonical SysML phrasing for that
+        // substitution-group, and is the source of truth for which auto-wrap
+        // path `Device.AddComponent()` takes. Sorted alphabetically by
+        // `TypeId` so future regenerations diff cleanly.
+        //
+        // `Controller` is intentionally OMITTED from this list even though
+        // SysML places it in the `System` substitution-group: this library
+        // routes `Controller` through its own dedicated `Controllers`
+        // organizer (see the `organizerType != ControllersComponent.TypeId`
+        // guard in `Device.AddComponent()`), so listing it here would make
+        // `GetOrganizerType("Controller")` ambiguous and order-dependent.
         private static readonly IEnumerable<string> _systems = new List<string>
         {
-            ControllerComponent.TypeId,
+            AirHandlerComponent.TypeId,
             CoolantComponent.TypeId,
+            CoolingComponent.TypeId,
             DielectricComponent.TypeId,
             ElectricComponent.TypeId,
             EnclosureComponent.TypeId,
             EndEffectorComponent.TypeId,
             FeederComponent.TypeId,
+            HeatingComponent.TypeId,
             HydraulicComponent.TypeId,
             LubricationComponent.TypeId,
+            PinToolComponent.TypeId,
             PneumaticComponent.TypeId,
+            PressureComponent.TypeId,
             ProcessPowerComponent.TypeId,
             ProtectiveComponent.TypeId,
+            ToolHolderComponent.TypeId,
+            VacuumComponent.TypeId,
             WorkEnvelopeComponent.TypeId
         };
 
@@ -165,24 +184,83 @@ namespace MTConnect.Devices
         public static IEnumerable<string> Structures => _structures;
 
 
-        public static string GetOrganizerType(string componentType)
+        // Single source of truth for the `member TypeId -> organizer
+        // TypeId` mapping. Built once at type-init from the same
+        // organizer lists that back the public accessors so the dual
+        // representation cannot drift; an `IsOrganizer(typeId)` call
+        // and a `GetOrganizerType(typeId)` call see the same membership.
+        //
+        // Lookup is O(1) and order-independent — the `Controller`
+        // carve-out (Controller belongs to `Controllers`, not `Systems`)
+        // is enforced by `_systems` not listing `Controller`, so an O(1)
+        // lookup yields the same answer.
+        private static readonly Dictionary<string, string> _typeToOrganizer = BuildTypeToOrganizer();
+
+        // O(1) membership set for the first-class organizer container
+        // TypeIds. Built from the same `_components` list that backs the
+        // public `Components` accessor so the two cannot disagree; the
+        // accessor keeps returning the ordered enumerable for stable
+        // public iteration, while `IsOrganizer` reads the set.
+        private static readonly HashSet<string> _organizerTypeIds =
+            new HashSet<string>(_components, StringComparer.Ordinal);
+
+        private static Dictionary<string, string> BuildTypeToOrganizer()
         {
-            if (componentType != null)
+            var map = new Dictionary<string, string>();
+
+            // Use Dictionary.Add so a duplicate key (the same TypeId
+            // appearing in two organizer lists) throws at type-init,
+            // surfacing any cross-organizer ambiguity loudly rather
+            // than silently picking the last write.
+            void AddAll(IEnumerable<string> members, string organizerType)
             {
-                if (_adapters.Contains(componentType)) return AdaptersComponent.TypeId;
-                else if (_auxiliaries.Contains(componentType)) return AuxiliariesComponent.TypeId;
-                else if (_axes.Contains(componentType)) return AxesComponent.TypeId;
-                else if (_controllers.Contains(componentType)) return ControllersComponent.TypeId;
-                else if (_interfaces.Contains(componentType)) return InterfacesComponent.TypeId;
-                else if (_materials.Contains(componentType)) return MaterialsComponent.TypeId;
-                else if (_parts.Contains(componentType)) return PartsComponent.TypeId;
-                else if (_processes.Contains(componentType)) return ProcessesComponent.TypeId;
-                else if (_resources.Contains(componentType)) return ResourcesComponent.TypeId;
-                else if (_systems.Contains(componentType)) return SystemsComponent.TypeId;
-                else if (_structures.Contains(componentType)) return StructuresComponent.TypeId;
+                foreach (var m in members) map.Add(m, organizerType);
             }
 
-            return null;
+            AddAll(_adapters, AdaptersComponent.TypeId);
+            AddAll(_auxiliaries, AuxiliariesComponent.TypeId);
+            AddAll(_axes, AxesComponent.TypeId);
+            AddAll(_controllers, ControllersComponent.TypeId);
+            AddAll(_interfaces, InterfacesComponent.TypeId);
+            AddAll(_materials, MaterialsComponent.TypeId);
+            AddAll(_parts, PartsComponent.TypeId);
+            AddAll(_processes, ProcessesComponent.TypeId);
+            AddAll(_resources, ResourcesComponent.TypeId);
+            AddAll(_systems, SystemsComponent.TypeId);
+            AddAll(_structures, StructuresComponent.TypeId);
+
+            return map;
+        }
+
+
+        /// <summary>
+        /// Returns the organizer container TypeId that
+        /// <paramref name="componentType"/> belongs under, or
+        /// <c>null</c> when <paramref name="componentType"/> is not a
+        /// known member of any organizer.
+        /// </summary>
+        public static string GetOrganizerType(string componentType)
+        {
+            if (componentType == null) return null;
+            return _typeToOrganizer.TryGetValue(componentType, out var organizer) ? organizer : null;
+        }
+
+
+        /// <summary>
+        /// Returns <c>true</c> when <paramref name="typeId"/> is one of
+        /// the eleven first-class organizer container TypeIds
+        /// (<c>Adapters</c>, <c>Auxiliaries</c>, <c>Axes</c>,
+        /// <c>Controllers</c>, <c>Interfaces</c>, <c>Materials</c>,
+        /// <c>Parts</c>, <c>Processes</c>, <c>Resources</c>,
+        /// <c>Systems</c>, <c>Structures</c>); <c>false</c> for any
+        /// other TypeId, including SysML members that get auto-wrapped
+        /// under one of those organizers, and for <c>null</c> or empty
+        /// inputs.
+        /// </summary>
+        public static bool IsOrganizer(string typeId)
+        {
+            if (string.IsNullOrEmpty(typeId)) return false;
+            return _organizerTypeIds.Contains(typeId);
         }
     }
 }
