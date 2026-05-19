@@ -119,9 +119,12 @@ mkdir -p TestResults
 "${DOTNET[@]}" tool restore
 
 # --- Unit + integration tiers (the default, always runs) --------------
-# Enumerate tests/**/*.csproj, minus Compliance (gated by --compliance)
-# minus explicit E2E subtrees (run separately below).
-mapfile -t ALL_TEST_PROJECTS < <(find tests -name '*.csproj' -not -path '*/Compliance/*' -not -path '*/E2E/*' | sort)
+# Enumerate tests/**/*.csproj, minus Compliance (gated by --compliance),
+# minus explicit E2E subtrees (run separately below), minus the
+# MTConnect.NET-Tests-Agents support library (an AgentRunner host with no
+# test adapter; it builds as a dependency of MTConnect.NET-HTTP-Tests and
+# discovers zero tests, so running it here is a redundant no-op cycle).
+mapfile -t ALL_TEST_PROJECTS < <(find tests -name '*.csproj' -not -name '*-Tests-Agents.csproj' -not -path '*/Compliance/*' -not -path '*/E2E/*' | sort)
 
 if [[ -n "${ONLY_PATTERN}" ]]; then
 	FILTERED=()

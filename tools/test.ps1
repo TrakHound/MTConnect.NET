@@ -77,8 +77,12 @@ try {
 	Invoke-Dotnet tool restore
 
 	# --- Unit + integration tier (default) ----------------------------
+	# Exclude the MTConnect.NET-Tests-Agents support library (an AgentRunner
+	# host with no test adapter; it builds as a dependency of
+	# MTConnect.NET-HTTP-Tests and discovers zero tests, so running it here
+	# is a redundant no-op cycle). Parity with tools/test.sh.
 	$allTestProjects = Get-ChildItem -Path tests -Recurse -Filter *.csproj `
-		| Where-Object { $_.FullName -notmatch '[\\/]Compliance[\\/]' -and $_.FullName -notmatch '[\\/]E2E[\\/]' } `
+		| Where-Object { $_.FullName -notmatch '[\\/]Compliance[\\/]' -and $_.FullName -notmatch '[\\/]E2E[\\/]' -and $_.Name -notmatch '-Tests-Agents\.csproj$' } `
 		| ForEach-Object { $_.FullName } `
 		| Sort-Object
 
