@@ -75,10 +75,36 @@ jobs:
             --filter "Category!=RequiresDocker&Category!=XsdLoadStrict"
         shell: bash
 
+      # Same zero-test false-green guard as the integration step, on
+      # the solution-wide unit run. A broken adapter wiring or an over-
+      # eager filter that discovers nothing must hard-fail rather than
+      # exit 0.
+      - name: Guard — unit step executed > 0 tests
+        run: |
+          set -euo pipefail
+          trx="TestResults/test-results-${{ matrix.os }}.trx"
+          if [ ! -f "$trx" ]; then
+            echo "::error::Unit TRX not found at $trx — the test step did not produce results."
+            exit 1
+          fi
+          total="$(grep -o '<Counters[^>]*total="[0-9]*"' "$trx" \
+            | grep -o 'total="[0-9]*"' | grep -o '[0-9]*' | head -n1)"
+          if [ -z "${total:-}" ]; then
+            echo "::error::Could not parse <Counters total=...> from $trx — refusing to false-green."
+            exit 1
+          fi
+          echo "Unit tests executed: $total"
+          if [ "$total" -eq 0 ]; then
+            echo "::error::Unit step executed 0 tests — discovery is broken (zero-test false-green guard)."
+            exit 1
+          fi
+        shell: bash
+
       # Integration suite with its own coverlet settings: the shared
-      # configuration verbatim plus MTConnect.NET-Common and
-      # MTConnect.NET-HTTP excluded from instrumentation. Those two are
-      # the dominant-cost part of the timing-critical in-process
+      # configuration plus MTConnect.NET-Common and MTConnect.NET-HTTP
+      # excluded from instrumentation, and MaxCpuCount=1 (this step is
+      # serial; the shared file no longer pins it). Common+HTTP are the
+      # dominant-cost assemblies on the timing-critical in-process
       # Agent/HTTP hot path this suite drives; coverlet IL
       # instrumentation of them on a slow shared runner pushes sample
       # delivery past the test's wait. Both are covered (faster) by
@@ -86,6 +112,32 @@ jobs:
       # Cobertura ReportGenerator merges with this one, so no net
       # coverage is lost. MTConnect.NET-SHDR stays instrumented (the
       # integration suite is its only runtime coverage).
+      #
+      # The integration .csproj sets IsTestProject=false unless
+      # IntegrationCoverage=true, so the solution build above compiled
+      # it as a non-test assembly. This step therefore rebuilds the
+      # project WITH -p:IntegrationCoverage=true (so xunit's VSTest
+      # adapter is wired in and tests are discoverable) and only then
+      # runs it with --no-build. Without the explicit build the
+      # solution-built non-test assembly would discover 0 tests and the
+      # step would false-green.
+      #
+      # The E2E category is excluded alongside RequiresDocker: the
+      # heavy in-process-server workflow fixtures (HttpProbe /
+      # HttpAsset / ConfigurationPolymorphicHttpProbe workflow tests)
+      # are tagged Category=E2E and re-introduce the timing fragility
+      # the coverage-isolation split exists to avoid; they run only
+      # under MTCONNECT_E2E_DOCKER. ClientAgentCommunicationTests,
+      # GenerateDevicesXmlTests and HttpServerLoopbackBindingTests
+      # carry no category and still run here.
+      - name: Build integration project with IntegrationCoverage flag
+        run: |
+          dotnet build tests/MTConnect.NET-Integration-Tests/MTConnect.NET-Integration-Tests.csproj \
+            --configuration Debug \
+            --no-restore \
+            -p:IntegrationCoverage=true
+        shell: bash
+
       - name: Run integration tests with coverage
         run: |
           dotnet test tests/MTConnect.NET-Integration-Tests/MTConnect.NET-Integration-Tests.csproj \
@@ -95,7 +147,37 @@ jobs:
             --settings tests/coverlet.integration.runsettings \
             --results-directory TestResults \
             --logger "trx;LogFileName=test-results-integration-${{ matrix.os }}.trx" \
-            --filter "Category!=RequiresDocker&Category!=XsdLoadStrict"
+            --filter "Category!=RequiresDocker&Category!=XsdLoadStrict&Category!=E2E"
+        shell: bash
+
+      # Hard-fail the job if the integration step discovered/executed 0
+      # tests. A future regression that re-breaks test discovery (e.g.
+      # the IntegrationCoverage build wiring) would otherwise false-
+      # green: dotnet test exits 0 when it finds nothing to run. Parse
+      # the TRX <Counters .../> total and fail when it is 0 or the
+      # element is missing.
+      - name: Guard — integration step executed > 0 tests
+        run: |
+          set -euo pipefail
+          trx="TestResults/test-results-integration-${{ matrix.os }}.trx"
+          if [ ! -f "$trx" ]; then
+            echo "::error::Integration TRX not found at $trx — the test step did not produce results."
+            exit 1
+          fi
+          # Extract the `total` attribute of the single <Counters .../>
+          # element the VSTest TRX logger writes. grep -o keeps this
+          # dependency-free (no xmllint on the runner image).
+          total="$(grep -o '<Counters[^>]*total="[0-9]*"' "$trx" \
+            | grep -o 'total="[0-9]*"' | grep -o '[0-9]*' | head -n1)"
+          if [ -z "${total:-}" ]; then
+            echo "::error::Could not parse <Counters total=...> from $trx — refusing to false-green."
+            exit 1
+          fi
+          echo "Integration tests executed: $total"
+          if [ "$total" -eq 0 ]; then
+            echo "::error::Integration step executed 0 tests — discovery is broken (zero-test false-green guard)."
+            exit 1
+          fi
         shell: bash
 
       - name: Generate coverage HTML + summary

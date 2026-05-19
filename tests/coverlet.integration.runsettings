@@ -2,9 +2,10 @@
 <!--
   Coverlet configuration for tests/MTConnect.NET-Integration-Tests only.
 
-  This is tests/coverlet.runsettings verbatim, plus two product
-  assemblies added to the Exclude list. It is applied solely to the
-  integration test project (CI runs that project as its own
+  This is tests/coverlet.runsettings plus two product assemblies added
+  to the Exclude list and the MaxCpuCount=1 serialization knob (the
+  shared file no longer carries it — see below). It is applied solely
+  to the integration test project (CI runs that project as its own
   `dotnet test` step with this file passed via the settings flag; the
   solution-wide run that uses tests/coverlet.runsettings no longer
   runs this project). Every other test project keeps the shared
@@ -39,16 +40,24 @@
       through MTConnectHttpClient / MTConnectHttpSampleClient
       (Clients/SampleStream.cs, Clients/Sample.cs) against it.
 
-    MTConnect.NET-SHDR is deliberately NOT excluded: AgentRunner feeds
-    the broker directly and does not exercise the SHDR adapter, and
-    MTConnect.NET-SHDR-Tests covers only SHDR data-item
-    formatting/parsing (DataItems.cs), so the integration suite is the
-    only runtime coverage of ShdrIntervalAdapter / ShdrAdapterClient
-    (the TCP adapter to agent path). It is also a small assembly whose
-    instrumentation is not the dominant cost, so it stays instrumented
-    to preserve that unique, non-redundant coverage.
+    MTConnect.NET-SHDR is deliberately NOT excluded, even though it sits
+    ON the critical latency leg: the SHDR adapter -> broker path is part
+    of the timing-sensitive sample-delivery loop this suite drives. It
+    is kept instrumented anyway because the integration suite is its
+    only runtime coverage — AgentRunner feeds the broker directly and
+    does not exercise the SHDR adapter, and MTConnect.NET-SHDR-Tests
+    covers only SHDR data-item formatting/parsing (DataItems.cs), so
+    nothing else exercises ShdrIntervalAdapter / ShdrAdapterClient (the
+    TCP adapter -> agent path) at runtime. SHDR is a small assembly, so
+    instrumenting it costs only a small per-observation overhead on the
+    hot path; excluding the two dominant-cost assemblies
+    (MTConnect.NET-Common, MTConnect.NET-HTTP) returns the leg to
+    near-uninstrumented latency with that small SHDR residual the only
+    on-path instrumentation cost, which still leaves a large margin
+    under the 30 s sample-delivery budget. The unique, non-redundant
+    SHDR coverage is worth that residual.
 
-    The integration suite remains a full behavioural end-to-end test;
+    The integration suite remains a full behavioral end-to-end test;
     only its (redundant) coverage of MTConnect.NET-Common and
     MTConnect.NET-HTTP is dropped, and those lines are still collected
     at equal-or-greater fidelity by the faster suites whose Cobertura
@@ -56,9 +65,12 @@
 
   Everything else (format, include/exclude of test assemblies,
   ExcludeByFile, ExcludeByAttribute, MaxCpuCount=1 for cross-assembly
-  VSTest-host serialisation) is identical to tests/coverlet.runsettings
-  so the only behavioural difference is the narrowed instrumentation
-  surface for this one project.
+  VSTest-host serialization) is identical to tests/coverlet.runsettings
+  except that MaxCpuCount=1 now lives here only — the shared file no
+  longer pins it (the integration suite is its own serial CI step; the
+  shared solution-wide run lets unit assemblies parallelize). So the
+  only behavioral differences for this one project are the narrowed
+  instrumentation surface and the serialized VSTest host.
 -->
 <RunSettings>
     <RunConfiguration>

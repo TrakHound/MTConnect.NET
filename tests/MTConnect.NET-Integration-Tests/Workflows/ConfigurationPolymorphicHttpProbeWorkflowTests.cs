@@ -47,10 +47,11 @@ namespace MTConnect.Tests.Integration.Workflows
     /// the <c>[assembly: CollectionBehavior(DisableTestParallelization = true)]</c>
     /// attribute above) so that this fixture's per-test broker + HTTP
     /// server boot does not race against
-    /// <see cref="IntegrationTests.ClientAgentCommunicationTests"/>'s
+    /// <see cref="MTConnect.Tests.Integration.ClientAgentCommunicationTests"/>'s
     /// shared-broker fixture and blank out probe responses.
     /// </para>
     /// </remarks>
+    [Trait("Category", "E2E")]
     public class ConfigurationPolymorphicHttpProbeWorkflowTests
     {
         // Each test allocates its own ephemeral port from a range outside

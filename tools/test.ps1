@@ -86,20 +86,47 @@ try {
 		$allTestProjects = $allTestProjects | Where-Object { $_ -match $Only }
 	}
 
-	$filterExpr = 'Category!=RequiresDocker&Category!=XsdLoadStrict'
+	$filterExpr = 'Category!=XsdLoadStrict'
 	if (Get-E2EEnabled) { $filterExpr = '' }
 
 	foreach ($proj in $allTestProjects) {
 		$settingsArgs = @()
-		if (Test-Path (Join-Path $RepoRoot 'tests/coverlet.runsettings')) {
+		$extraBuildArgs = @()
+		$projFilterExpr = $filterExpr
+		# The integration suite drives the in-process Agent/HTTP hot
+		# path; coverlet IL-instrumenting MTConnect.NET-Common /
+		# MTConnect.NET-HTTP makes sample delivery race the test's
+		# wait. It uses its own runsettings (the shared config plus
+		# those two assemblies excluded — covered faster by the
+		# dedicated unit suites — and MaxCpuCount=1, scoped here only)
+		# and is built with -p:IntegrationCoverage=true (IsTestProject
+		# is false without it; see the .csproj comment). It is owned by
+		# exactly this loop — NOT re-run in the E2E tier below. The
+		# Category=E2E / RequiresDocker workflow fixtures are excluded
+		# by default (mirroring the CI integration step) and run only
+		# when -E2E widens the filter.
+		if ($proj -match 'MTConnect\.NET-Integration-Tests') {
+			if (Test-Path (Join-Path $RepoRoot 'tests/coverlet.integration.runsettings')) {
+				$settingsArgs = @('--settings', 'tests/coverlet.integration.runsettings')
+			}
+			$extraBuildArgs = @('-p:IntegrationCoverage=true')
+			if (Get-E2EEnabled) {
+				$projFilterExpr = ''
+			}
+			else {
+				$projFilterExpr = 'Category!=RequiresDocker&Category!=XsdLoadStrict&Category!=E2E'
+			}
+		}
+		elseif (Test-Path (Join-Path $RepoRoot 'tests/coverlet.runsettings')) {
 			$settingsArgs = @('--settings', 'tests/coverlet.runsettings')
 		}
 		$filterArgs = @()
-		if ($filterExpr) { $filterArgs = @('--filter', $filterExpr) }
+		if ($projFilterExpr) { $filterArgs = @('--filter', $projFilterExpr) }
 
 		$projName = [IO.Path]::GetFileNameWithoutExtension($proj)
 		Invoke-Dotnet test $proj `
 			--configuration Release `
+			@extraBuildArgs `
 			@settingsArgs `
 			@filterArgs `
 			'--collect:XPlat Code Coverage' `
@@ -118,9 +145,13 @@ try {
 		}
 	}
 
-	# --- E2E tier (Docker-gated) --------------------------------------
+	# --- E2E tier (tests/E2E/**, Docker-gated) ------------------------
+	# The integration project is NOT re-run here: it is owned by the
+	# default loop above, which widens its filter to include the
+	# Category=E2E / RequiresDocker workflow fixtures when -E2E is
+	# set. This tier only covers any dedicated tests/E2E/** projects.
 	if (Get-E2EEnabled) {
-		$e2eRoots = @('tests/IntegrationTests', 'tests/E2E') | Where-Object { Test-Path $_ }
+		$e2eRoots = @('tests/E2E') | Where-Object { Test-Path $_ }
 		foreach ($root in $e2eRoots) {
 			$e2eProjects = Get-ChildItem -Path $root -Recurse -Filter *.csproj -ErrorAction SilentlyContinue
 			foreach ($proj in $e2eProjects) {

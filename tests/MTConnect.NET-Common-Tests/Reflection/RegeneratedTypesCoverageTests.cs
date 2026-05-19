@@ -202,10 +202,10 @@ namespace MTConnect.NET_Common_Tests.Reflection
         [TestCaseSource(nameof(ConstructibleTypes))]
         public void Type_can_be_constructed(Type type)
         {
-            // The §10 coverage gate requires every public regenerated type's
-            // default ctor to execute at least once. This single parametric
-            // case satisfies the gate for the class-with-bare-ctor case;
-            // ctors with arguments are covered by the typed fixtures under
+            // Every public regenerated type's default ctor must execute at
+            // least once so it counts as covered. This single parametric
+            // case satisfies that for the class-with-bare-ctor case; ctors
+            // with arguments are covered by the typed fixtures under
             // V2_6_V2_7/.
             object? instance = null;
             Assert.DoesNotThrow(

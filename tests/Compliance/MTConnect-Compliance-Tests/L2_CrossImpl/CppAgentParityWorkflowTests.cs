@@ -294,6 +294,12 @@ namespace MTConnect.Compliance.Tests.L2_CrossImpl
                 {
                     var id = c.Attribute("id")?.Value;
                     if (string.IsNullOrEmpty(id)) continue;
+                    // Reuses the dataItemIdPrefix filter for component ids:
+                    // the parity fixture deliberately names its components
+                    // with the same prefix as its DataItems, so one
+                    // whitelist key scopes both. If a future fixture splits
+                    // those naming schemes this needs a separate
+                    // componentIdPrefix.
                     if (!whitelist.MatchesDataItemId(id)) continue;
                     components[id] = c.Name.LocalName;
                 }
