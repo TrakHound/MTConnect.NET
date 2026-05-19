@@ -2,127 +2,60 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Clients;
-using MTConnect.Tests.Agents;
 using NUnit.Framework;
-using System;
 using System.Linq;
 
 namespace MTConnect.Tests.Http.Clients
 {
-    public class Probe : IDisposable
+    // Drives MTConnectHttpProbeClient against the real embedded
+    // MTConnectHttpServer started by AgentRunner, exercising the HTTP probe
+    // request/response path end to end for XML and JSON, all devices and a
+    // single device.
+    [TestFixture]
+    public class Probe : HttpClientFixture
     {
-        private const string _hostname = "localhost";
-        private const int _port = 5012;
-        private const string _deviceName = "OKUMA-Lathe";
-
-        private readonly AgentRunner _agentRunner;
-
-
-        public Probe()
-        {
-            _agentRunner = new AgentRunner(_hostname, _port);
-            _agentRunner.Start();
-        }
-
-        public void Dispose()
-        {
-            _agentRunner.Stop();
-            _agentRunner.Dispose();
-        }
-
-
-        [SetUp]
-        public void Setup() { }
-
         [Test]
         public void RunXml()
         {
-            var client = new MTConnectHttpProbeClient(_hostname, _port, documentFormat: DocumentFormat.XML);
+            var client = new MTConnectHttpProbeClient(Hostname, Port, documentFormat: DocumentFormat.XML);
+
             var response = client.Get();
-            if (response != null)
-            {
-                if (response.Devices.Count() == _agentRunner.Devices.Count() + 1)
-                {
-                    Assert.Pass($"XML Probe Response Received Successfully");
-                }
-                else
-                {
-                    Assert.Fail($"XML All Devices Not Found");
-                }
-            }
-            else
-            {
-                Assert.Fail($"XML Error during Probe Request");
-            }
+
+            Assert.That(response, Is.Not.Null, "XML Probe response was not received");
+            Assert.That(response.Devices.Count(), Is.EqualTo(ExpectedDocumentEntryCount), "XML Probe did not return all devices");
         }
 
         [Test]
         public void RunJson()
         {
-            var client = new MTConnectHttpProbeClient(_hostname, _port, documentFormat: DocumentFormat.JSON);
-            var response = client.Get();
-            if (response != null)
-            {
-                if (response.Devices.Count() == _agentRunner.Devices.Count() + 1)
-                {
-                    Assert.Pass($"JSON Probe Response Received Successfully");
-                }
-                else
-                {
-                    Assert.Fail($"JSON All Devices Not Found");
-                }
-            }
-            else
-            {
-                Assert.Fail($"JSON Error during Probe Request");
-            }
-        }
+            var client = new MTConnectHttpProbeClient(Hostname, Port, documentFormat: DocumentFormat.JSON);
 
+            var response = client.Get();
+
+            Assert.That(response, Is.Not.Null, "JSON Probe response was not received");
+            Assert.That(response.Devices.Count(), Is.EqualTo(ExpectedDocumentEntryCount), "JSON Probe did not return all devices");
+        }
 
         [Test]
         public void RunDeviceXml()
         {
-            var client = new MTConnectHttpProbeClient(_hostname, _port, _deviceName, documentFormat: DocumentFormat.XML);
+            var client = new MTConnectHttpProbeClient(Hostname, Port, DeviceName, documentFormat: DocumentFormat.XML);
+
             var response = client.Get();
-            if (response != null)
-            {
-                var device = response.Devices.FirstOrDefault(o => o.Name == _deviceName);
-                if (device != null)
-                {
-                    Assert.Pass($"XML Probe Response Received Successfully for ({_deviceName})");
-                }
-                else
-                {
-                    Assert.Fail($"XML Device Not Found for ({_deviceName})");
-                }
-            }
-            else
-            {
-                Assert.Fail($"XML Error during Probe Request");
-            }
+
+            Assert.That(response, Is.Not.Null, "XML Probe response was not received");
+            Assert.That(response.Devices.FirstOrDefault(o => o.Name == DeviceName), Is.Not.Null, $"XML Probe did not return device {DeviceName}");
         }
 
         [Test]
         public void RunDeviceJson()
         {
-            var client = new MTConnectHttpProbeClient(_hostname, _port, _deviceName, documentFormat: DocumentFormat.JSON);
+            var client = new MTConnectHttpProbeClient(Hostname, Port, DeviceName, documentFormat: DocumentFormat.JSON);
+
             var response = client.Get();
-            if (response != null)
-            {
-                var device = response.Devices.FirstOrDefault(o => o.Name == _deviceName);
-                if (device != null)
-                {
-                    Assert.Pass($"JSON Probe Response Received Successfully for ({_deviceName})");
-                }
-                else
-                {
-                    Assert.Fail($"JSON Device Not Found for ({_deviceName})");
-                }
-            }
-            else
-            {
-                Assert.Fail($"JSON Error during Probe Request");
-            }
+
+            Assert.That(response, Is.Not.Null, "JSON Probe response was not received");
+            Assert.That(response.Devices.FirstOrDefault(o => o.Name == DeviceName), Is.Not.Null, $"JSON Probe did not return device {DeviceName}");
         }
     }
 }

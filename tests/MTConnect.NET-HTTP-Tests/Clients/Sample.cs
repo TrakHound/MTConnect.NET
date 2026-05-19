@@ -2,174 +2,71 @@
 // TrakHound Inc. licenses this file to you under the MIT license.
 
 using MTConnect.Clients;
-using MTConnect.Tests.Agents;
 using NUnit.Framework;
-using System;
 using System.Linq;
 
 namespace MTConnect.Tests.Http.Clients
 {
-    public class Sample : IDisposable
+    // Drives MTConnectHttpSampleClient against the real embedded
+    // MTConnectHttpServer started by AgentRunner, exercising the HTTP sample
+    // request/response path end to end for XML and JSON, all devices, a single
+    // device and a device path filter.
+    [TestFixture]
+    public class Sample : HttpClientFixture
     {
-        private const string _hostname = "localhost";
-        private const int _port = 5012;
-        private const string _deviceName = "OKUMA-Lathe";
-
-        private readonly AgentRunner _agentRunner;
-
-
-        public Sample()
-        {
-            _agentRunner = new AgentRunner(_hostname, _port);
-            _agentRunner.Start();
-        }
-
-        public void Dispose()
-        {
-            _agentRunner.Stop();
-            _agentRunner.Dispose();
-        }
-
-
-        [SetUp]
-        public void Setup() { }
-
         [Test]
         public void RunXml()
         {
-            var client = new MTConnectHttpSampleClient(_hostname, _port, count: 1000, documentFormat: DocumentFormat.XML);
+            var client = new MTConnectHttpSampleClient(Hostname, Port, count: 1000, documentFormat: DocumentFormat.XML);
+
             var response = client.Get();
-            if (response != null)
-            {
-                if (response.Streams.Count() == _agentRunner.Devices.Count() + 1)
-                {
-                    Assert.Pass($"XML Current Response Received Successfully");
-                }
-                else
-                {
-                    Assert.Fail($"XML All Devices Not Found");
-                }
-            }
-            else
-            {
-                Assert.Fail($"XML Error during Current Request");
-            }
+
+            Assert.That(response, Is.Not.Null, "XML Sample response was not received");
+            Assert.That(response.Streams.Count(), Is.EqualTo(ExpectedDocumentEntryCount), "XML Sample did not return all device streams");
         }
 
         [Test]
         public void RunJson()
         {
-            var client = new MTConnectHttpSampleClient(_hostname, _port, documentFormat: DocumentFormat.JSON);
-            var response = client.Get();
-            if (response != null)
-            {
-                if (response.Streams.Count() == _agentRunner.Devices.Count() + 1)
-                {
-                    Assert.Pass($"JSON Current Response Received Successfully");
-                }
-                else
-                {
-                    Assert.Fail($"JSON All Devices Not Found");
-                }
-            }
-            else
-            {
-                Assert.Fail($"JSON Error during Current Request");
-            }
-        }
+            var client = new MTConnectHttpSampleClient(Hostname, Port, count: 1000, documentFormat: DocumentFormat.JSON);
 
+            var response = client.Get();
+
+            Assert.That(response, Is.Not.Null, "JSON Sample response was not received");
+            Assert.That(response.Streams.Count(), Is.EqualTo(ExpectedDocumentEntryCount), "JSON Sample did not return all device streams");
+        }
 
         [Test]
         public void RunDeviceXml()
         {
-            var client = new MTConnectHttpSampleClient(_hostname, _port, _deviceName, documentFormat: DocumentFormat.XML);
+            var client = new MTConnectHttpSampleClient(Hostname, Port, DeviceName, documentFormat: DocumentFormat.XML);
+
             var response = client.Get();
-            if (response != null)
-            {
-                var device = response.Streams.FirstOrDefault(o => o.Name == _deviceName);
-                if (device != null)
-                {
-                    Assert.Pass($"XML Current Response Received Successfully for ({_deviceName})");
-                }
-                else
-                {
-                    Assert.Fail($"XML Device Not Found for ({_deviceName})");
-                }
-            }
-            else
-            {
-                Assert.Fail($"XML Error during Current Request");
-            }
+
+            Assert.That(response, Is.Not.Null, "XML Sample response was not received");
+            Assert.That(response.Streams.FirstOrDefault(o => o.Name == DeviceName), Is.Not.Null, $"XML Sample did not return device {DeviceName}");
         }
 
         [Test]
         public void RunDeviceJson()
         {
-            var client = new MTConnectHttpSampleClient(_hostname, _port, _deviceName, documentFormat: DocumentFormat.JSON);
-            var response = client.Get();
-            if (response != null)
-            {
-                var device = response.Streams.FirstOrDefault(o => o.Name == _deviceName);
-                if (device != null)
-                {
-                    Assert.Pass($"JSON Current Response Received Successfully for ({_deviceName})");
-                }
-                else
-                {
-                    Assert.Fail($"JSON Device Not Found for ({_deviceName})");
-                }
-            }
-            else
-            {
-                Assert.Fail($"JSON Error during Current Request");
-            }
-        }
+            var client = new MTConnectHttpSampleClient(Hostname, Port, DeviceName, documentFormat: DocumentFormat.JSON);
 
+            var response = client.Get();
+
+            Assert.That(response, Is.Not.Null, "JSON Sample response was not received");
+            Assert.That(response.Streams.FirstOrDefault(o => o.Name == DeviceName), Is.Not.Null, $"JSON Sample did not return device {DeviceName}");
+        }
 
         [Test]
         public void RunDevicePathXml()
         {
-            var client = new MTConnectHttpSampleClient(_hostname, _port, _deviceName, path: "//DataItem[@type=\"AVAILABILITY\"]", documentFormat: DocumentFormat.XML);
-            var response = client.Get();
-            if (response != null)
-            {
-                var device = response.Streams.FirstOrDefault(o => o.Name == _deviceName);
-                if (device != null)
-                {
-                    Assert.Pass($"XML Current Response Received Successfully for ({_deviceName})");
-                }
-                else
-                {
-                    Assert.Fail($"XML Device Not Found for ({_deviceName})");
-                }
-            }
-            else
-            {
-                Assert.Fail($"XML Error during Current Request");
-            }
-        }
+            var client = new MTConnectHttpSampleClient(Hostname, Port, DeviceName, path: "//DataItem[@type=\"AVAILABILITY\"]", documentFormat: DocumentFormat.XML);
 
-        //[Test]
-        //public void RunDevicePathJson()
-        //{
-        //    var client = new MTConnectCurrentClient(_hostname, _port, _deviceName, path: "//DataItem[@type=\"AVAILABILITY\"]", documentFormat: DocumentFormat.JSON);
-        //    var response = client.Get();
-        //    if (response != null)
-        //    {
-        //        var device = response.Streams.FirstOrDefault(o => o.Name == _deviceName);
-        //        if (device != null)
-        //        {
-        //            Assert.Pass($"JSON Current Response Received Successfully for ({_deviceName})");
-        //        }
-        //        else
-        //        {
-        //            Assert.Fail($"JSON Device Not Found for ({_deviceName})");
-        //        }
-        //    }
-        //    else
-        //    {
-        //        Assert.Fail($"JSON Error during Current Request");
-        //    }
-        //}
+            var response = client.Get();
+
+            Assert.That(response, Is.Not.Null, "XML Sample path response was not received");
+            Assert.That(response.Streams.FirstOrDefault(o => o.Name == DeviceName), Is.Not.Null, $"XML Sample path did not return device {DeviceName}");
+        }
     }
 }
