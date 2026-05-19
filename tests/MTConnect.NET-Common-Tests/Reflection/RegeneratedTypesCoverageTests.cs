@@ -31,7 +31,7 @@ namespace MTConnect.NET_Common_Tests.Reflection
     //   - XSD: https://schemas.mtconnect.org/schemas/MTConnect<Kind>_<vN.M>.xsd.
     //     Drives the property names exercised by the round-trip case.
     //
-    // The test catalogue is produced by iterating the four anchor types'
+    // The test catalog is produced by iterating the four anchor types'
     // assembly with public-type filters. New SysML regenerations therefore
     // pick up new coverage automatically without any test edit — that is the
     // mechanism by which "every public regenerated type" is gated.
@@ -178,10 +178,9 @@ namespace MTConnect.NET_Common_Tests.Reflection
         {
             // Pins the (defective) state of the regenerator output for
             // every entry in KnownEmptyDescriptionTypes: the field exists,
-            // the value is exactly the empty string, and the catalogue
-            // entry stays load-bearing. When the generator-improvements
-            // campaign fixes the underlying gap, this test fails and the
-            // entry is moved out of the exclusion set.
+            // the value is exactly the empty string, and the catalog
+            // entry stays load-bearing. When the generator gap closes,
+            // this test fails and the entry moves out of the exclusion set.
             foreach (var fullName in KnownEmptyDescriptionTypes)
             {
                 var type = typeof(DataItem).Assembly.GetType(fullName);
@@ -284,11 +283,11 @@ namespace MTConnect.NET_Common_Tests.Reflection
                 $"{type.FullName} DescriptionText is null or empty");
         }
 
-        // Smoke-test the catalogue itself so the parametric sweep cannot
+        // Smoke-test the catalog itself so the parametric sweep cannot
         // silently shrink to zero (e.g. namespace rename that drops every
         // anchor). At least one constructible type must exist.
         [Test]
-        public void Catalogue_enumerates_at_least_one_type_per_namespace()
+        public void Catalog_enumerates_at_least_one_type_per_namespace()
         {
             var byNamespace = EnumeratePublicRegeneratedTypes()
                 .GroupBy(t => CoveredNamespacePrefixes.First(prefix =>
