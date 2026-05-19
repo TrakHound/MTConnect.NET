@@ -108,9 +108,16 @@ jobs:
       # Agent/HTTP hot path this suite drives; coverlet IL
       # instrumentation of them on a slow shared runner pushes sample
       # delivery past the test's wait. Both are covered (faster) by
-      # MTConnect.NET-Common-Tests / MTConnect.NET-HTTP-Tests, whose
-      # Cobertura ReportGenerator merges with this one, so no net
-      # coverage is lost. MTConnect.NET-SHDR stays instrumented (the
+      # MTConnect.NET-Common-Tests / MTConnect.NET-HTTP-Tests. The
+      # latter (with its AgentRunner support project
+      # MTConnect.NET-Tests-Agents) is a member of MTConnect.NET.sln,
+      # so the "Run unit tests with coverage" step above already
+      # discovers and runs it under the shared runsettings; it starts a
+      # real MTConnectAgentBroker + MTConnectHttpServer and streams
+      # Probe/Current/Sample through the HTTP clients, exercising the
+      # Common + HTTP runtime path. Its Cobertura ReportGenerator merges
+      # with this one, so excluding Common+HTTP here loses no net
+      # coverage. MTConnect.NET-SHDR stays instrumented (the
       # integration suite is its only runtime coverage).
       #
       # The integration .csproj sets IsTestProject=false unless

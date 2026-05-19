@@ -23,16 +23,25 @@
 
     Two of the assemblies on that path are also covered, faster, by
     dedicated unit suites under the shared runsettings, so dropping
-    their instrumentation here loses no net (merged) coverage:
+    their instrumentation here loses no net (merged) coverage.
+    MTConnect.NET-HTTP-Tests (and its AgentRunner support project
+    MTConnect.NET-Tests-Agents) are members of MTConnect.NET.sln, so
+    the solution-wide `dotnet test MTConnect.NET.sln` unit step
+    discovers and runs them under the unchanged shared
+    tests/coverlet.runsettings and their Cobertura is merged by
+    ReportGenerator alongside this one:
 
     - [MTConnect.NET-Common]*  MTConnectAgentBroker observation
       buffering / sequence / delivery. By far the largest product
       assembly (all regenerated device / asset / observation types),
       so it is the dominant IL-instrumentation cost on this host.
-      Covered by the 33-file MTConnect.NET-Common-Tests suite and,
-      end to end, by MTConnect.NET-HTTP-Tests, which starts a real
+      Covered by the MTConnect.NET-Common-Tests suite and, end to
+      end, by MTConnect.NET-HTTP-Tests, which starts a real
       MTConnectAgentBroker via AgentRunner
-      (tests/MTConnect.NET-Tests-Agents/AgentRunner.cs).
+      (tests/MTConnect.NET-Tests-Agents/AgentRunner.cs) and drives
+      Probe / Current / Sample / streaming Sample through it (the
+      latter pushing a live observation into the broker and asserting
+      it is streamed back).
     - [MTConnect.NET-HTTP]*    embedded HTTP server stream + HTTP
       streaming client per-chunk hot loop. Covered end to end by
       MTConnect.NET-HTTP-Tests: AgentRunner spins up the real

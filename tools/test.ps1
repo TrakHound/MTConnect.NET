@@ -98,7 +98,12 @@ try {
 		# MTConnect.NET-HTTP makes sample delivery race the test's
 		# wait. It uses its own runsettings (the shared config plus
 		# those two assemblies excluded — covered faster by the
-		# dedicated unit suites — and MaxCpuCount=1, scoped here only)
+		# dedicated unit suites: MTConnect.NET-HTTP-Tests and its
+		# AgentRunner support project MTConnect.NET-Tests-Agents are
+		# in MTConnect.NET.sln, so the solution-wide run executes
+		# them under the shared runsettings against a real broker +
+		# HTTP server and their Cobertura merges with this one — and
+		# MaxCpuCount=1, scoped here only)
 		# and is built with -p:IntegrationCoverage=true (IsTestProject
 		# is false without it; see the .csproj comment). It is owned by
 		# exactly this loop — NOT re-run in the E2E tier below. The

@@ -157,10 +157,16 @@ for proj in "${ALL_TEST_PROJECTS[@]}"; do
 	# coverlet IL-instrumenting MTConnect.NET-Common / MTConnect.NET-HTTP
 	# makes sample delivery race the test's wait. It uses its own
 	# runsettings (the shared config plus those two assemblies excluded
-	# — both covered, faster, by MTConnect.NET-Common-Tests / -HTTP-Tests,
-	# so no net coverage is lost; MTConnect.NET-SHDR stays instrumented
-	# as this suite is its only runtime coverage — and MaxCpuCount=1, now
-	# scoped here only). It is built with -p:IntegrationCoverage=true
+	# — both covered, faster, by MTConnect.NET-Common-Tests / -HTTP-Tests.
+	# MTConnect.NET-HTTP-Tests (and its AgentRunner support project
+	# MTConnect.NET-Tests-Agents) is in MTConnect.NET.sln, so the earlier
+	# solution-wide run already executes it under the shared runsettings,
+	# starting a real broker + HTTP server and streaming Probe/Current/
+	# Sample through the HTTP clients; its Cobertura merges with this
+	# one, so no net coverage is lost. MTConnect.NET-SHDR stays
+	# instrumented as this suite is its only runtime coverage — and
+	# MaxCpuCount=1, now scoped here only). It is built with
+	# -p:IntegrationCoverage=true
 	# (IsTestProject is false without it; see the .csproj comment) and is
 	# owned by exactly this loop — it is NOT re-run in the E2E tier
 	# below. The heavy in-process-server workflow fixtures are tagged
